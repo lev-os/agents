@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+{{{cyberpunk_css}}}
+  </style>
+</head>
+<body class="lev-theme-cyberpunk">
+  <div id="app" class="lev-container">
+    {{#each widgets}}
+    {{{render this}}}
+    {{/each}}
+  </div>
+  <script>
+    // OpenAI Canvas API integration
+    if (window.openai) {
+      window.openai.onToolOutput((data) => {
+        handleToolOutput(data);
+      });
+    }
+
+    // postMessage fallback
+    window.addEventListener('message', (e) => {
+      if (e.data.type === 'toolOutput') {
+        handleToolOutput(e.data.payload);
+      }
+    });
+
+    function handleToolOutput(data) {
+      console.log('Received tool output:', data);
+      // Re-render with new data
+      document.getElementById('app').innerHTML = renderWidgets(data);
+    }
+
+    function renderWidgets(data) {
+      // Widget rendering logic
+      return JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>

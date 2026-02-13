@@ -1,0 +1,26 @@
+{{! Telegram InlineKeyboard markup }}
+{
+  "method": "sendMessage",
+  "chat_id": "{{chat_id}}",
+  {{#if text}}
+  "text": "{{text}}",
+  {{/if}}
+  "reply_markup": {
+    "inline_keyboard": [
+      {{#each buttons}}
+      [
+        {{#each this}}
+        {
+          "text": "{{label}}",
+          {{#if callback_data}}
+          "callback_data": "{{callback_data}}"
+          {{else if web_app}}
+          "web_app": { "url": "{{web_app}}" }
+          {{/if}}
+        }{{#unless @last}},{{/unless}}
+        {{/each}}
+      ]{{#unless @last}},{{/unless}}
+      {{/each}}
+    ]
+  }
+}

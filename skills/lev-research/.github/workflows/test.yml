@@ -1,0 +1,98 @@
+name: Research Hub Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  frontend-tests:
+    name: Frontend (Vitest + SolidJS)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/research-hub
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: apps/research-hub/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - name: Frontend tests with coverage
+        run: npx vitest run --coverage
+        if: github.event_name == 'pull_request'
+
+  rust-cli-tests:
+    name: Rust CLI (research-cli)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    defaults:
+      run:
+        working-directory: apps/research-cli
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/research-cli
+      - run: cargo test
+      - run: cargo clippy -- -D warnings
+        if: matrix.os == 'ubuntu-latest'
+
+  rust-tauri-tests:
+    name: Rust Tauri Backend (src-tauri)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    defaults:
+      run:
+        working-directory: apps/research-hub/src-tauri
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/research-hub/src-tauri
+      - name: Install system dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      - run: cargo test
+      - run: cargo clippy -- -D warnings
+        if: matrix.os == 'ubuntu-latest'
+
+  build:
+    name: Full Build Verification
+    needs: [frontend-tests, rust-cli-tests, rust-tauri-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: apps/research-hub/pnpm-lock.yaml
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      - name: Build frontend
+        working-directory: apps/research-hub
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build

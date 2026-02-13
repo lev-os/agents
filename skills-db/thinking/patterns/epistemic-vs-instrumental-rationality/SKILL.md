@@ -1,0 +1,148 @@
+---
+name: epistemic-vs-instrumental-rationality
+description: Balance truth-seeking with goal-achievement by distinguishing between building accurate beliefs and winning when both clarity and effectiveness matter
+---
+
+# Epistemic vs. Instrumental Rationality
+
+## Overview
+**Two fundamental modes of rationality serving different purposes.**
+
+**Epistemic rationality**: Building accurate maps (truth-seeking, belief accuracy)
+**Instrumental rationality**: Steering reality (winning, achieving goals)
+
+Distinguished by Eliezer Yudkowsky and the LessWrong community to separate the pursuit of truth from the pursuit of desired outcomes.
+
+## Core Distinction
+
+**Epistemic Rationality**:
+- Systematically improving the accuracy of your beliefs
+- Correspondence between belief and reality
+- Building accurate models of how the world works
+- Valuable in itself, not just as means to an end
+
+**Instrumental Rationality**:
+- Systematically achieving your values/goals
+- Choosing actions that maximize expected utility
+- "Winning" - achieving outcomes you prefer
+- Practical effectiveness in the world
+
+## When to Use
+
+**Epistemic Focus**:
+- Researching a topic
+- Evaluating evidence
+- Forming opinions on complex issues
+- Scientific inquiry
+- Post-mortems and retrospectives
+
+**Instrumental Focus**:
+- Making strategic decisions
+- Resource allocation
+- Time-sensitive situations
+- Competitive environments
+- Execution and implementation
+
+**Both Required**:
+- Product strategy (market reality + winning approach)
+- Investment decisions (accurate assessment + optimal allocation)
+- Career planning (self-knowledge + goal achievement)
+
+## Execution Steps
+
+### For Epistemic Rationality (Truth-Seeking)
+
+1. **Question Your Certainty**
+   - Explicitly ask: "How certain am I of this belief?"
+   - Quantify confidence levels (60%? 90%? 99%?)
+   - Identify which evidence could change your mind
+
+2. **Justify Your Beliefs**
+   - Ask: "Why do I believe this?"
+   - Trace belief to original evidence source
+   - Distinguish observation from interpretation
+
+3. **Seek Disconfirming Evidence**
+   - Actively search for counterarguments
+   - Give contrary evidence fair consideration
+   - Update beliefs proportionally to evidence strength
+
+4. **Separate Desire from Reality**
+   - Notice when you want something to be true
+   - Quarantine motivated reasoning
+   - Apply stricter scrutiny to convenient beliefs
+
+### For Instrumental Rationality (Winning)
+
+1. **Define Success Criteria**
+   - Clarify what "winning" means in this context
+   - Identify measurable outcomes
+   - Set explicit goals and constraints
+
+2. **Generate Options**
+   - Brainstorm multiple paths to goal
+   - Consider unconventional approaches
+   - Don't prematurely optimize
+
+3. **Evaluate Expected Value**
+   - Estimate probability of success for each option
+   - Assess magnitude of outcomes (upside/downside)
+   - Calculate: EV = P(success) × Value(success) + P(failure) × Value(failure)
+
+4. **Execute and Iterate**
+   - Choose highest expected value option
+   - Implement with bias toward action
+   - Adjust based on feedback loops
+
+### Managing Tensions Between Them
+
+1. **Recognize the Conflict**
+   - Notice when truth-seeking delays action
+   - Identify when beliefs serve emotional needs
+   - Acknowledge trade-offs explicitly
+
+2. **Time-Box Epistemic Inquiry**
+   - Set decision deadline
+   - Gather information until deadline
+   - Accept uncertainty and decide
+
+3. **Protect Core Epistemic Values**
+   - Maintain "update on evidence" as non-negotiable
+   - Avoid self-deception even for short-term gain
+   - Long-term instrumental success requires epistemic integrity
+
+## Key Insights
+
+**Epistemic Supports Instrumental**: Accurate beliefs generally improve decision quality - hard to win with false maps of reality.
+
+**Not All Truth Is Useful**: Some accurate beliefs have no practical value; instrumental rationality guides where to focus epistemic effort.
+
+**Computationally Intractable**: Full Bayesian reasoning is impossible for real-world problems - these are aspirational frameworks requiring heuristics.
+
+**Value of Truth**: Epistemic rationality isn't purely instrumental - knowing truth has intrinsic value beyond practical utility.
+
+**Bounded Rationality**: Both types must respect cognitive limitations and opportunity costs of reasoning time.
+
+## Common Pitfalls
+
+**Premature Optimization**: Choosing actions before understanding the problem space (insufficient epistemic groundwork).
+
+**Analysis Paralysis**: Endless truth-seeking that never translates to action (epistemic without instrumental).
+
+**Motivated Cognition**: Believing what's convenient or emotionally satisfying rather than what's true.
+
+**False Dichotomy**: Treating them as opposing rather than complementary modes.
+
+**Ignoring Opportunity Cost**: Spending cognitive resources on low-value epistemic questions.
+
+## Related Frameworks
+- Bayesian Updating (epistemic method)
+- Expected Value Calculation (instrumental method)
+- Cognitive Debiasing (epistemic technique)
+- Decision Theory (instrumental framework)
+- Scientific Method (epistemic process)
+
+## Source Attribution
+Conceptual framework developed by Eliezer Yudkowsky and the LessWrong rationality community (2009-present).
+
+Core definitions from LessWrong sequences on rationality fundamentals.

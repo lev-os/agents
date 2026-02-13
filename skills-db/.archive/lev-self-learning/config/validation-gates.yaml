@@ -1,0 +1,148 @@
+# Validation Gates for Passive Scanning Pipeline
+# Shared configuration for confidence thresholds and routing decisions
+#
+# Usage:
+#   - Scanners use these thresholds to determine confidence levels
+#   - Router uses gates to decide action handling
+#   - Adapters reference this for handoff criteria
+
+version: "1.0"
+updated: "2026-01-15"
+
+# Global threshold for scanner output
+defaults:
+  min_confidence: 0.5
+  high_confidence: 0.8
+
+# Per-scanner confidence calibration
+scanners:
+  synth:
+    # Explicit synths: [] declarations
+    base_confidence: 0.9
+    description: "High confidence - explicit declaration"
+    validation: none  # Auto-approve
+
+  workflow:
+    # Tool sequences (3+ consecutive)
+    base_confidence: 0.6
+    min_sequence_length: 3
+    require_diverse_tools: true  # At least 2 different tools
+    description: "Medium confidence - needs pattern validation"
+    validation: review_before_create
+
+  skill:
+    # Reusable operation indicators
+    base_confidence: 0.5
+    indicator_bonus: 0.1  # Per matched indicator
+    max_confidence: 0.8
+    min_indicators: 2
+    description: "Variable confidence - based on language patterns"
+    validation: review_before_create
+    indicators:
+      - "reusable|should be|could be|pattern|abstraction"
+      - "always do|every time|repeatedly"
+      - "SKILL.md|skill://|invoke skill"
+
+  doc:
+    # Documentation drift signals
+    base_confidence: 0.7
+    description: "Medium-high confidence - needs human verification"
+    validation: queue_for_review
+    patterns:
+      stale_doc: "outdated|stale|wrong"
+      missing_doc: "missing|no|need"
+      drift_doc: "doesn't match|does not reflect"
+      broken_ref: "ENOENT.*md"
+
+  memory:
+    # Knowledge extraction
+    base_confidence: 0.5
+    type_bonus: 0.1  # Per matched memory type
+    max_confidence: 0.9
+    min_content_length: 50
+    description: "Variable confidence - based on memory type matches"
+    validation: auto_persist
+    memory_types:
+      semantic: "learned|discovered|realized|insight"
+      episodic: "did|completed|finished|accomplished"
+      procedural: "how to|steps to|procedure|process"
+      preference: "prefer|always|never|rule"
+
+# Routing gates - where findings go
+routing:
+  # High confidence gates (>=0.8) - auto-route
+  auto_route:
+    threshold: 0.8
+    destinations:
+      synth: "lev-builder://materialize"
+      memory: "lev-memory://persist"
+
+  # Medium confidence gates (0.6-0.8) - queue for review
+  review_queue:
+    threshold: 0.6
+    destinations:
+      workflow: "lev-builder://workflows/draft"
+      skill: "lev-builder://skills/draft"
+      doc: "bd://doc-tasks"
+
+  # Low confidence gates (<0.6) - log only
+  log_only:
+    threshold: 0.0
+    destination: "~/.lev/scan-history.jsonl"
+
+# Batch processing configuration
+batch:
+  # Process up to N findings per batch
+  max_items: 20
+  # Group findings by session before routing
+  group_by_session: true
+  # Deduplicate similar findings
+  dedupe:
+    enabled: true
+    similarity_threshold: 0.85
+
+# Hook integration
+hooks:
+  # Claude Code Stop hook trigger
+  session_end:
+    trigger: "Stop"
+    script: "~/.claude/hooks/session_end.py"
+    scanners: [synth, workflow, skill, doc, memory]
+    output_format: jsonl
+
+  # Optional: Real-time scanning via PostToolUse
+  tool_tracking:
+    trigger: "PostToolUse"
+    scanner: workflow
+    description: "Track tool sequences for workflow detection"
+
+# Validation requirements by entity type
+validation_requirements:
+  synth:
+    requires_human_approval: false
+    auto_materialize: true
+
+  workflow:
+    requires_human_approval: true
+    min_occurrences: 2  # Must see pattern twice
+
+  skill:
+    requires_human_approval: true
+    template_required: true
+
+  doc:
+    requires_human_approval: true
+    suggest_fix: true
+
+  memory:
+    requires_human_approval: false
+    tiered_storage: true  # Different tiers get different handling
+
+# Metrics collection
+metrics:
+  track:
+    - scanner_run_count
+    - findings_per_type
+    - confidence_distribution
+    - routing_decisions
+  output: "~/.lev/scanner-metrics.jsonl"
