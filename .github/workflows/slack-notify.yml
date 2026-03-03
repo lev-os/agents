@@ -1,0 +1,23 @@
+name: Notify Slack on Merge
+on:
+  pull_request:
+    branches: [main]
+    types: [closed]
+permissions: {}
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    steps:
+      - name: Send Slack notification
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          PAYLOAD=$(jq -n \
+            --arg title "${{ github.event.pull_request.title }}" \
+            --arg user "${{ github.event.pull_request.user.login }}" \
+            --arg url "${{ github.event.pull_request.html_url }}" \
+            '{text: "🚀 _\($title)_ merged to main by \($user)\n<\($url)>"}')
+          curl --fail -X POST -H 'Content-type: application/json' \
+            --data "$PAYLOAD" \
+            $SLACK_WEBHOOK_URL
