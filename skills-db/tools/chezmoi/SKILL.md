@@ -20,6 +20,38 @@ Manage your dotfiles across multiple diverse machines, securely.
 | `chezmoi cd` | Open shell in source directory |
 | `chezmoi doctor` | Check for problems |
 
+## Local Workflow Contract
+
+On this machine, use the `dotfiles` helper as the control plane instead of jumping straight to `chezmoi update`.
+
+### Dry Run First
+
+```bash
+dotfiles status                 # Summary dashboard for chezmoi + ~/.agents
+dotfiles sync                   # Dry-run planner, writes latest report
+dotfiles inspect report         # Full dry-run report
+dotfiles inspect chezmoi-diff   # Full target/source diff
+dotfiles inspect chezmoi-remote # Remote commits not yet local
+dotfiles inspect agents-remote  # ~/.agents remote commits not yet local
+```
+
+### Explicit Apply Paths
+
+```bash
+dotfiles sync --apply chezmoi   # Re-add, commit, pull --rebase, push, apply
+dotfiles sync --apply agents    # Commit, pull --rebase, push ~/.agents
+dotfiles sync --apply all       # Run both explicit apply paths
+dotfiles pull                   # Pull chezmoi source repo and apply
+dotfiles agents-pull            # Pull ~/.agents with rebase
+```
+
+### Behavior Rules
+
+- `dotfiles sync` is the safe entry point. It performs a dry run and does not mutate state.
+- Read the dry-run report before choosing an apply action when local and remote both moved.
+- `~/.agents` stays a separate git repo; it is surfaced in the same dashboard but is not folded into chezmoi source state.
+- The latest dry-run report is written to `~/.local/state/lev/dotfiles-sync-plan.latest.txt`.
+
 ## One-liner Bootstrap
 
 ```bash
