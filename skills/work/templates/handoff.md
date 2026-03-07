@@ -246,6 +246,11 @@ path/to/component/
 1. Question or unresolved decision
 2. Question or unresolved decision
 
+### Long-term (This Month)
+
+1. Strategic item with why it matters
+2. Strategic item with why it matters
+
 ## Entity Matrix
 
 ```yaml
@@ -273,20 +278,126 @@ entities_touched:
 | 12345 | daemon | service-name | running | Health: OK |
 | - | exec | build-process | completed | Exit: 0 |
 
-### Blockers & Risks
+### Active Blockers
 
-| Item | Kind | Impact | Waiting On | Workaround |
-|------|------|--------|------------|------------|
-| Blocker 1 | blocker | High | External API | None |
-| Risk 1 | risk | Medium | N/A | Strategy |
+<!--
+PURPOSE: Blockers kill momentum. Making them visible with ETAs and workarounds lets the next session route around them.
+PROCESS: Every blocker MUST have an impact level and a workaround (even if "None"). "Waiting On" should name a person, team, or external dependency.
+GOOD: | DeBERTa weights not on this machine | High — can't run intent model tests | Sync from training server | ~1 day | Use regex-only path for V1 flight test |
+BAD: | Something is broken | Bad | Someone | Dunno | Maybe |
+-->
+
+| Blocker | Impact | Waiting On | ETA | Workaround |
+|---------|--------|------------|-----|------------|
+| Blocker 1 | High | External API | Unknown | None |
+| Blocker 2 | Medium | Review | 1 day | Use mock data |
+
+### Risks
+
+<!--
+PURPOSE: Risks are blockers that haven't happened yet. Capturing them prevents surprise.
+PROCESS: Be specific about mitigation. Likelihood/Impact should be High/Medium/Low.
+GOOD: | NATS connection timeout under load | Medium | High — drops transcriptions silently | Add circuit breaker before load testing |
+BAD: | Things might break | Maybe | Bad | Be careful |
+-->
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| Risk 1 | High | High | Strategy |
+| Risk 2 | Medium | Low | Strategy |
 
 ### Learned Patterns
 
 #### What Worked
-- Pattern, why it worked, and how to reuse it.
+
+<!--
+PURPOSE: Institutional memory — patterns that paid off and should be reused.
+PROCESS: Be specific enough that someone can replicate the pattern without follow-up questions.
+GOOD: 1. **NATSClientStub for daemon isolation** — Context: tests/fixtures/nats_stub.py. Why: Structurally satisfies MessageBrokerProtocol, so isinstance checks pass without monkey-patching. Reuse: Apply same stub pattern elsewhere.
+BAD: 1. **Good testing** — Context: Tests. Why: They worked. Reuse: Test more.
+-->
+
+1. **Pattern/Approach:**
+   - Context: Where used
+   - Why it worked: Explanation
+   - Reuse: How to apply elsewhere
+
+2. **Pattern/Approach:**
+   - Context: Where used
+   - Why it worked: Explanation
+   - Reuse: How to apply elsewhere
 
 #### What Didn't Work
-- Anti-pattern, why it failed, and what to do instead.
+
+<!--
+PURPOSE: Anti-patterns — prevent the next session from repeating mistakes.
+PROCESS: Be honest about what failed and why. "Alternative" must be actionable.
+GOOD: 1. **Tried clamping out-of-range params silently** — Context: validation. Why it failed: Users never got feedback. Alternative: HARD REJECT + clarification.
+BAD: 1. **Something didn't work** — Context: Code. Why: It was wrong. Alternative: Do it right.
+-->
+
+1. **Anti-pattern:**
+   - Context: Where attempted
+   - Why it failed: Explanation
+   - Alternative: What to do instead
+
+2. **Anti-pattern:**
+   - Context: Where attempted
+   - Why it failed: Explanation
+   - Alternative: What to do instead
+
+### Context For Next Session
+
+#### Mental Model
+
+<!--
+PURPOSE: The single most important paragraph in the handoff — the "previously on..." that lets the next session skip 30 minutes of context loading.
+PROCESS: Write Project State as one sentence, Current Focus as one sentence with WHY, then 3-5 critical insights that would be expensive to re-derive.
+GOOD: **Project State:** SDK-first runtime with active PM-first work-skill refactor. **Current Focus:** stabilizing the contract so later deterministic execution can bind cleanly. **Critical Knowledge:** 1. The handoff owns the long-term roadmap, not the tracker.
+BAD: **Project State:** Working on stuff. **Current Focus:** Continuing work.
+-->
+
+**Project State:** Brief description of overall project state.
+
+**Current Focus:** What we're actively working on and why it matters.
+
+**Critical Knowledge:**
+1. Insight 1: Why it matters
+2. Insight 2: Why it matters
+3. Insight 3: Why it matters
+
+#### Quick Start Commands
+
+<!--
+PURPOSE: Let the next session start executing within 30 seconds of reading.
+PROCESS: Include cd, git status, and the most relevant run/test commands. Use absolute paths. Only include commands that are actually needed.
+GOOD: cd /Users/dev/project && git status && bash ~/.agents/skills/work/scripts/lint-work-contract.sh
+BAD: npm start
+-->
+
+```bash
+cd /path/to/project
+git status
+<relevant command 1>
+<relevant command 2>
+```
+
+#### Configuration State
+
+<!--
+PURPOSE: Capture environment state that is invisible to git.
+PROCESS: List active env vars, feature flags, running services with ports. If nothing special, say so explicitly.
+GOOD: **Environment:** LEV_PM_PLANS=.lev/pm/plans, DEMO_MODE=false. **Services:** nats-server on :4222.
+BAD: **Environment:** Normal. **Services:** Running.
+-->
+
+**Environment:**
+- Active feature flags: [tbd]
+- Config overrides: [tbd]
+
+**Services:**
+- Service A: Status, port, health
+- Service B: Status, port, health
 
 ### Sharding Signals
 

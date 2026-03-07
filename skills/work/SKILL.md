@@ -159,6 +159,152 @@ Allowed uncertainty markers:
 - `[theory]`
 - `[maybe: ..., confidence: ##%]`
 
+## Quick Start
+
+Use `$work` when you want one entry point for lifecycle-aware work:
+
+```bash
+work "analyze the current auth system"
+work "design the new onboarding flow"
+work "write a spec for deterministic callbacks"
+work "plan the next implementation slice"
+work "create a handoff for this session"
+```
+
+The first move is always:
+1. open or update the handoff
+2. capture or refine the goal/done condition/roadmap/current slice
+3. update the entity matrix
+4. route into the correct lifecycle behavior
+
+## Common Usage Patterns
+
+### Pattern 1: Research / Analysis
+
+Use when you need to gather evidence or understand current state.
+
+Examples:
+- `work "analyze the current API architecture"`
+- `work "research validation-gate patterns"`
+- `work "scan the codebase for lifecycle drift"`
+
+Typical output:
+- active handoff updated
+- report artifact in `.lev/pm/reports/`
+
+### Pattern 2: Design / Proposal
+
+Use when you need to shape a solution, compare options, or define an interaction/system direction.
+
+Examples:
+- `work "design the callback routing surface"`
+- `work "propose a PM-first docs promotion workflow"`
+- `work "architect the work-mvp boundary"`
+
+Typical output:
+- active handoff updated
+- proposal or design artifact in `.lev/pm/proposals/` or `.lev/pm/designs/`
+
+### Pattern 3: Spec
+
+Use when you need an SDLC behavioral contract.
+
+Examples:
+- `work "spec the deterministic execution boundary"`
+- `work "spec callback lifecycle semantics"`
+
+Typical output:
+- active handoff updated
+- spec artifact in `.lev/pm/specs/`
+
+### Pattern 4: Plan / Current Execution Slice
+
+Use when you need the concrete slice that is being executed right now.
+
+Examples:
+- `work "plan the bugfix slice for handoff sharding"`
+- `work "plan the next implementation slice for work-mvp"`
+
+Typical output:
+- active handoff updated
+- plan artifact in `.lev/pm/plans/`
+- tracker updated only for the current execution slice
+
+### Pattern 5: Session Continuity
+
+Use when you need to checkpoint or close a session.
+
+Examples:
+- `work "create a handoff for the work skill pass"`
+- `work "close this session and capture next steps"`
+
+Typical output:
+- handoff updated in `.lev/pm/handoffs/`
+- decisions promoted if warranted
+- closeout/validation artifacts updated if the slice is done
+
+## Example Lifecycle
+
+```text
+User request
+  -> $work loads/updates handoff
+  -> goal + done condition + roadmap captured
+  -> entity matrix updated
+  -> DISCOVER
+  -> ALIGN
+  -> RESEARCH
+  -> PROPOSE / DESIGN
+  -> SPEC or PLAN
+  -> EXECUTE
+  -> VALIDATE
+  -> EMIT updated PM artifact
+  -> LEARN / closeout
+```
+
+Concrete example:
+1. `work "research the current callback boundary"`
+   -> `.lev/pm/reports/...`
+2. `work "design the callback routing surface"`
+   -> `.lev/pm/designs/...`
+3. `work "spec the callback execution contract"`
+   -> `.lev/pm/specs/...`
+4. `work "plan the next implementation slice"`
+   -> `.lev/pm/plans/plan-impl-...`
+5. `work "create a handoff"`
+   -> `.lev/pm/handoffs/...`
+
+## Troubleshooting
+
+### "I don't know what stage this is"
+
+Start with:
+- active handoff
+- current execution slice
+- current artifact
+- entity matrix state
+
+If still unclear:
+- route to DISCOVER and gather more evidence
+- do not skip straight to execution
+
+### "The tracker is getting roadmap text"
+
+That is a contract violation.
+
+Move long-term framing back into the handoff and keep the tracker scoped to the current execution slice only.
+
+### "I have an idea but it's not ready for PM"
+
+Use `.lev/scratch/` first.
+Promote to a PM artifact only when it becomes durable enough to track through the lifecycle.
+
+### "This seems like design, spec, and plan at once"
+
+Separate them:
+- design = broad direction
+- spec = SDLC behavioral contract
+- plan = current execution slice
+
 ## Canonical Naming (Hard Contract)
 
 Use this filename format for handoffs:

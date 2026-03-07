@@ -40,7 +40,7 @@ PATTERN='\{YYYYMMDD\}-\{workstream\}-\{component\}-\{slug\}-session-\{N\}'
 check_contains "$SKILL" "$PATTERN" "SKILL naming contract missing"
 check_contains "$H_TPL" "$PATTERN" "handoff template naming contract missing"
 
-for section in "## You Are Here" "## Next Agent Brief" "## Roadmap To Goal" "## Timeline" "## Decisions Log" "## Open Questions" "## Entity Matrix" "## Meta"; do
+for section in "## You Are Here" "## Next Agent Brief" "## Roadmap To Goal" "## Timeline" "## Decisions Log" "## Open Questions" "## Entity Matrix" "## Meta" "### Active Blockers" "### Risks" "### What Worked" "### What Didn't Work" "### Context For Next Session" "#### Mental Model" "#### Quick Start Commands" "#### Configuration State"; do
   check_contains "$H_TPL" "${section//\//\\/}" "Missing required handoff section: $section"
 done
 
