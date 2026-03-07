@@ -57,6 +57,158 @@ storage:
 
 ---
 
+## On Load: Do This Immediately (Hard Contract)
+
+1. Detect tracker backend (`bd > br > td > none`).
+2. Resolve active workstream name from user request.
+3. Open or create active handoff file in `.lev/pm/handoffs/`.
+4. Record or confirm the long-term goal, done condition, roadmap, and current execution slice in the handoff.
+5. Initialize or update entity matrix.
+6. Initialize or update a tracker only for the current execution slice.
+7. Append current tick (`Tn`) with objective and first evidence.
+
+If step 3 fails, stop implementation work and create the handoff first.
+
+## Storage Boundary (Hard Contract)
+
+The handoff is the canonical planning artifact.
+
+Store in the handoff:
+- long-term goal
+- done condition
+- roadmap
+- deferred work
+- evolving decisions
+- open questions
+- why the current execution slice exists
+
+Trackers (`bd`, `br`, `td`) are execution-plane only.
+
+Store in the tracker:
+- the current execution slice
+- active implementation task
+- blockers on the current slice
+- validation or closeout status
+- evidence links
+
+Never store long-term plans, end-state framing, or multi-session roadmaps in tracker title, description, or comments unless the user explicitly asks for duplication.
+
+Before every tracker write, check:
+1. Is this only about the current execution slice?
+2. Would this still be valid if the long-term plan changed?
+
+If either answer is "no", write it to the handoff instead.
+
+## Canonical Naming (Hard Contract)
+
+Use this filename format for handoffs:
+
+`{YYYYMMDD}-{workstream}-{component}-{slug}-session-{N}.md`
+
+Examples:
+- `20260301-work-skill-core-reconstruction-session-1.md`
+- `20260301-sdlc-docs-gates-audit-session-3.md`
+
+Rules:
+- `session-1` only when `predecessor: null`.
+- Continue an existing stream with `session-{N+1}`.
+- Do not start a new `session-1` for the same active stream unless explicitly requested.
+
+## Required Handoff Frontmatter
+
+```yaml
+---
+status: active | paused | completed
+workstream: <slug>
+component: <slug>
+slug: <slug>
+session: <N>
+created_at: YYYY-MM-DD
+predecessor: <filename.md | null>
+confidence: 0.0-1.0
+decisions_start: D<N>
+---
+```
+
+## Required Handoff Sections
+
+Every active handoff must contain:
+
+1. `You Are Here`
+2. `Next Agent Brief`
+3. `Roadmap To Goal`
+4. `Timeline` (tick log)
+5. `Decisions Log`
+6. `Open Questions`
+7. `Entity Matrix`
+8. `Meta`
+
+### Required Next Agent Brief Fields
+
+Every `Next Agent Brief` must state:
+- `Long-Term Goal`
+- `Done Condition`
+- `Current Execution Slice`
+- `Why This Slice Now`
+- `Out of Scope This Session`
+
+## Roadmap To Goal (Hard Contract)
+
+The handoff must contain a rolling roadmap from current state to the done condition.
+
+### Scope
+
+- The roadmap is a projection of remaining work, not a requirement to invent 10 steps.
+- Maximum projection is 10 steps.
+- If fewer than 10 steps remain, only list the real remaining steps.
+- If remaining steps = 0, the work is in a done-candidate state and must enter reflection before close.
+
+### Required format
+
+```md
+## Roadmap To Goal
+
+**Goal**: <one-sentence end state>
+**Done Condition**: <deterministic completion test>
+**Remaining Steps**: <0-10>
+
+### Step 1: <current execution slice>
+- <1-10 concrete bullets>
+- <only this step gets full detail>
+- <include validation or exit criteria when useful>
+
+### Steps 2-5 (Optional)
+
+#### Step 2: <next phase>
+- <1-3 bullets if needed>
+
+#### Step 3: <next phase>
+- <1-3 bullets if needed>
+
+#### Step 4: <next phase>
+- <1-3 bullets if needed>
+
+#### Step 5: <next phase>
+- <1-3 bullets if needed>
+
+### Steps 6-10 (Optional)
+6. <one-line future step>
+7. <one-line future step>
+8. <one-line future step>
+9. <one-line future step>
+10. <one-line future step>
+```
+
+### Rules
+
+- Only Step 1 may contain detailed execution bullets.
+- Steps 2-5 are optional and medium-granularity only.
+- Steps 6-10 are optional and one-line only.
+- Do not invent filler steps to reach 10.
+- Tracker items may only represent `Step 1` unless a later step is explicitly pulled forward into the current execution slice.
+- When Step 1 completes, shift the roadmap forward and rewrite the new Step 1 in detail.
+- When the goal or done condition changes, update the roadmap in the handoff before changing tracker scope.
+
 ## Task Tracker Adapter (bd | br | td)
 
 The work skill is backend-agnostic for task tracking. Detect which tool is available and route through the adapter. **Preference order: bd > br > td.**
@@ -100,6 +252,14 @@ When `td` is the only backend:
 When no tracker is available (`TRACKER=none`):
 - Continue without task integration; note in artifact
 - Prior art check skips BD/tracker queries
+
+### Tracker Write Rules (Hard Contract)
+
+- Tracker title names the current execution slice, not the full program.
+- Tracker description describes only what will be executed in this slice.
+- Tracker may link to the handoff path for context.
+- Tracker must not duplicate long-term roadmap text from the handoff.
+- If tracker text starts reading like a roadmap, stop and move that text to the handoff.
 
 ---
 
@@ -654,6 +814,21 @@ Categories: `bug`, `performance`, `architecture`, `testing`, `security`, `workfl
 
 > Full per-gate definitions (layer modulation, confidence routing, failure actions): `./references/gates.md`
 
+#### Gate A: Preflight (before execute)
+
+Must have:
+- active handoff
+- objective stated
+- long-term goal recorded in handoff
+- done condition recorded in handoff
+- `Roadmap To Goal` present, with Step 1 matching the current execution slice
+- at least one evidence reference
+
+If a tracker exists:
+- tracker scope matches the execution slice only
+
+Else: block execution.
+
 #### Gate Summary Matrix
 
 | Gate | Transition | Severity | FORMAL Checks | DIRECT Checks | Confidence Skip |
@@ -717,6 +892,16 @@ The spec completeness gate has 16 checks and **cannot be degraded or bypassed** 
 **Layer modulation:** FORMAL = all 16 + human sign-off; DIRECT = checks 1, 3, 14 only. See `./references/gates.md` for full per-tier breakdown.
 
 **Failure:** CATASTROPHIC BLOCK. List every failing check with remediation. Return to SPEC. After 3 consecutive failures, escalate to human. Never auto-waive. Never skip. Never degrade severity.
+
+#### Gate C: Validate Before Close
+
+Must have:
+- validation evidence recorded
+- open blockers listed or resolved
+- next action clear, or explicit `done confirmed` from Done Candidate Protocol
+- reflection completed if work is in done-candidate state
+
+Else: block close.
 
 ### EMIT -- Create Artifact Bead
 
@@ -794,6 +979,66 @@ Final FSM step. Reflects on the session, records outcomes, creates a learnings b
 }
 ```
 
+#### Session Close Checklist
+
+1. Final handoff update (entity matrix, decisions, ticks, open questions).
+2. Mark session status (`active` or `completed`).
+3. Record next concrete action in `Next Agent Brief`.
+4. If code changed, run applicable validations and record evidence.
+5. Verify tracker text still describes only the execution slice; move any long-term framing back to the handoff.
+
+## Done Candidate Protocol (Hard Contract)
+
+"Done" must be deterministic.
+
+A workstream is not done because implementation appears complete.
+A workstream is done only when the done condition is satisfied and the reflection pass finds no material gaps.
+
+### Trigger
+
+Run this protocol whenever:
+- `Remaining Steps = 0`, or
+- the agent believes the current workstream may be complete
+
+### Required reflection
+
+Before marking a handoff `completed`, the agent must:
+
+1. Review the current handoff.
+2. Review all predecessor handoffs in the same workstream.
+3. Produce a full status report and alignment check against:
+   - goal
+   - done condition
+   - roadmap
+   - decisions log
+   - open questions
+   - validation evidence
+4. Record:
+   - lessons learned
+   - gaps or misses discovered during reflection
+   - whether any pattern, command, template, or rule should be promoted into a skill or AGENTS.md
+5. Decide:
+   - `done confirmed`, or
+   - `not done`
+
+### If reflection finds gaps
+
+- Do not close the workstream.
+- Update the handoff roadmap with the newly discovered remaining steps.
+- Re-enter the lifecycle at the appropriate stage.
+- Record a tick explaining why the done-candidate failed.
+
+### If reflection confirms done
+
+- Mark the handoff `completed`.
+- Record the deterministic evidence that satisfied the done condition.
+- Record any skill-promotion or process-promotion recommendations.
+
+### Rule
+
+Assume reflection will often find something.
+The purpose of the done protocol is to reveal misses before close, not to justify closing.
+
 ---
 
 ## Integration Points
@@ -832,7 +1077,9 @@ Final FSM step. Reflects on the session, records outcomes, creates a learnings b
 | Confidence < 0.7 | WARN | Prompt user to clarify: research / design / spec / handoff |
 | Tracker not available | INFO | Continue without task integration; note in artifact |
 | Template missing | ERROR | Fallback to unstructured artifact; warn user |
+| Tracker-plan boundary violated | ERROR | Rewrite tracker to execution-slice scope, record correction in handoff |
 | Spec validation fail | CATASTROPHIC | Block manifesting transition; list missing sections |
+| Done claimed without reflection | ERROR | Run Done Candidate Protocol, update roadmap if gaps found, block close |
 | Skill discovery empty | INFO | Proceed with inline execution; no skill injection |
 | `learn` helper missing | WARN | Run inline interview loop in `work`; still emit proposal + handoff |
 | CM/CASS not available | INFO | Skip LEARN ceremony; note in output |
