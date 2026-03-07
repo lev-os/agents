@@ -56,6 +56,8 @@ related_skills:
   - lev-find                         # `lev get` backend (legacy name)
   - lev-cdo                          # Use research for design/spec decisions
   - lev-orch-thinking-parliament     # Multi-model deliberation
+  - notebooklm                       # Grounded cited synthesis into local markdown projections
+  - workflow-cited-research          # Workflow-level cited research loop
   - bd                               # Create tasks from gaps
 
 claude_code_shim:
@@ -103,6 +105,14 @@ claude_code_shim:
 /search sherlock "query"  # OSINT investigation
 /search cdo               # Multi-perspective on context
 ```
+
+### Grounded Citation Route
+
+When the user wants durable, cited research output instead of search results alone:
+
+1. Use `/search` or `lev-research` to discover/curate sources.
+2. Hand off to [`notebooklm`](/Users/jean-patricksmith/.agents/skills/notebooklm/SKILL.md) for multi-source grounded Q&A.
+3. Prefer [`workflow-cited-research`](/Users/jean-patricksmith/.agents/skills/workflow-cited-research/SKILL.md) when the user wants the full repeatable loop, including local markdown/CMS projection.
 
 ---
 
