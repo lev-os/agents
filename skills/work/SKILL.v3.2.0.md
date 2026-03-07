@@ -1,7 +1,7 @@
 ---
 name: work
-description: Unified lifecycle/process router. Concurrent FSM that discovers context, runs embedded alignment checks, researches, proposes, specs behavior, and routes to specialist skills. Guard scoring is constant, not gated. Artifacts are spec-first. Includes spec-alignment workflow for hardening passes.
-version: 3.3.0
+description: Unified lifecycle/process router. Concurrent FSM that discovers context, runs embedded alignment checks, researches, proposes, specs behavior, and routes to specialist skills. Guard scoring is constant, not gated. Artifacts are spec-first.
+version: 3.2.0
 extends: []
 related_skills:
   - lev-research
@@ -438,116 +438,7 @@ When a spec passes validation (`gate:propose-spec`) and template questions are a
 3. **Promote:** Move to `docs/specs/spec-{module}.md` (Canonical)
    - If module exists: Update existing spec.
    - If new module: Create new spec file.
-   - Naming: Use `spec-{module}.md` for permanent behavioral contracts.
-   - Use `chore-{slug}.md` for ephemeral implementation plans (gap analysis, next steps).
-   - Chores live in `docs/specs/` alongside specs for visibility during active passes.
-   - See **Doc Taxonomy** above for full classification rules.
-
-#### Doc Taxonomy
-
-| Prefix | Purpose | Lifetime | Path |
-|--------|---------|----------|------|
-| `spec-*.md` | Behavioral contract. Describes TARGET system. Code catches up. | Permanent | `docs/specs/` |
-| `chore-*.md` | Gap analysis + impl plan. Bridges spec ↔ reality. | Ephemeral | `docs/specs/` (same dir for visibility) |
-| ADRs | Architecture Decision Records | Permanent | `docs/architecture/` or `docs/adr/` |
-
-**Specs describe what we're building, not what exists.** A chore documents the gap. Once a chore is approved → schedule BD → dev agents execute. When code matches spec, evolve both together.
-
-**Chore lifecycle:** Draft in `.lev/pm/` → review → promote to `docs/specs/chore-{slug}.md` → user approves → `bd create` → dev agents execute → close chore.
-
----
-
-### SPEC ALIGNMENT — Hardening Pass Workflow
-
-When `/work` detects a spec-alignment context (handoff with conflicts, hardening pass, spec rewrite request), it enters this sub-workflow instead of the standard PROPOSE→SPEC flow.
-
-```
-SPEC ALIGNMENT LOOP (per spec or spec cluster)
-┌──────────┐   ┌─────────┐   ┌───────────┐   ┌─────────┐   ┌──────────┐   ┌────────────┐
-│ ANALYZE  │──▶│ CAPTURE │──▶│ INTERVIEW │──▶│ REWRITE │──▶│  CHORE   │──▶│ BD SCHEDULE│
-│ (agents) │   │(handoff)│   │ (1-by-1)  │   │ (spec)  │   │(gap doc) │   │  (beads)   │
-└──────────┘   └─────────┘   └───────────┘   └─────────┘   └──────────┘   └────────────┘
- read specs     update .lev/   present         update spec   create         bd create
- read code      pm/handoffs/   conflicts       to describe   chore-*.md     per chore
- find conflicts NOT execute    user decides     TARGET        spec vs code   → dev agents
- parallel agents               propose before   system        gap analysis
-                               executing
-```
-
-#### Phase 1: ANALYZE (parallel agents)
-
-Launch 1-3 arch/explore agents per spec cluster. Each agent:
-1. Reads current spec
-2. Reads relevant code
-3. Identifies spec-vs-reality conflicts
-4. Identifies spec-vs-spec conflicts
-5. Returns structured report: conflicts, missing sections, proposed outline, cross-references, open questions
-
-**NEVER execute during analysis.** Read-only. Agents return reports, not edits.
-
-#### Phase 2: CAPTURE
-
-Update the handoff doc (`.lev/pm/handoffs/`) with:
-- All discovered conflicts (numbered list)
-- User's direction and decisions (exact words when possible)
-- Open questions requiring user input
-- Cross-cutting themes
-
-**The handoff is the staging area.** It accumulates truth across sessions. Specs are the target.
-
-#### Phase 3: INTERVIEW
-
-Present conflicts to user for decisions. Can be batch or 1-by-1 depending on density.
-
-**Rules:**
-- NEVER execute without proposal. Always present before doing.
-- Capture user's FULL answer — they often embed direction beyond yes/no
-- If user asks a question back, ANSWER IT before proceeding
-- Log decisions in handoff immediately
-
-#### Phase 4: REWRITE
-
-Update specs to describe the TARGET system based on user decisions.
-
-**Spec rewrite rules:**
-- Specs describe what we're BUILDING, not cataloging current bugs
-- Good ideas from previous agents that weren't implemented → keep in spec (they're targets)
-- Boilerplate that was stated as fact but isn't implemented → either make it the target (if valuable) or remove (if wrong)
-- FMEA deltas → integrate into spec's FMEA/Risk Analysis section (alongside BDD). Seeds test cases and validation gates. Chores document implementation gaps only (ephemeral, delete when aligned). Template: `templates/chore.md`
-- Cross-references between specs → explicit, not implied
-
-#### Phase 5: CHORE CREATE
-
-For each spec, create a companion `chore-*.md` documenting:
-- What the spec says vs what code does (gap matrix)
-- Steps to close each gap
-- Dependencies between gaps
-- Estimated scope per gap
-
-**Path:** `docs/specs/chore-{slug}.md`
-
-#### Phase 6: BD SCHEDULE
-
-Once user approves a chore:
-1. `bd create` per gap item (task/feature/bug as appropriate)
-2. Set dependencies between items
-3. Dev agents pick up beads and execute
-4. When code matches spec → close chore
-
----
-
-### Aviation System Rules (Hardening Standards)
-
-These rules apply to ALL specs in aviation/safety-critical projects. Enforce during SPEC ALIGNMENT and VALIDATE.
-
-1. **No silent errors.** Every error must be logged, surfaced, or routed to clarification. No `except: pass`. No swallowed exceptions. No empty catch blocks.
-2. **No uncontrolled fallbacks.** Fallbacks must be explicit, tested, and tightly scoped (like poc/cleanup strategy profiles). AI agents are terrible at implicit fallbacks — be hyper-vigilant.
-3. **Everything is config-driven.** Magic numbers → config. Thresholds → config. Strategy toggles → config. Retry limits → config. Defaults are sane, overrides are explicit.
-4. **One engine per concern.** Don't build parallel implementations of the same thing. One validation engine (strategy-driven, used at multiple pipeline points). One clarification mechanism (through session FSM). One telemetry system.
-5. **Capture everything.** Every pipeline stage must emit structured telemetry: input, output, latency, decisions, errors. Audio files, transcripts, corrections, intent outputs — all persisted.
-6. **Sweep for violations.** Periodically scan codebase for silent errors, swallowed exceptions, uncontrolled fallbacks. Eventually automate as CI gate.
-
----
+   - Naming: Use `spec-{module}.md` for core, `spec-{module}-{slug}.md` for extensions.
 
 #### FlowMind Naming Structure & Config Keys
 
@@ -889,7 +780,7 @@ Final FSM step. Reflects on the session, records outcomes, creates a learnings b
 
 ---
 
-**Status:** v3.3.0 -- Added: SPEC ALIGNMENT sub-workflow, Doc Taxonomy (spec vs chore), Aviation System Rules, updated promotion path
+**Status:** v3.2.0 -- Tracker adapter (br/bd/td) replaces hardcoded bd; gates integrated; EMIT beads-only; ROUTE/MANIFESTING clarified
 
 ## Technique Map
 - **Role definition** - Clarifies operating scope and prevents ambiguous execution.

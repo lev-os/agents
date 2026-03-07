@@ -85,7 +85,32 @@ cp ~/.agents/skills/work/templates/handoff.md .lev/pm/handoffs/$(date +%Y%m%d-%H
 
 ---
 
-### 4. plan.md
+### 4. chore.md
+**Use for:** Implementation gap documents, FMEA remediation, spec-to-code alignment
+
+**Key Features:**
+- YAML frontmatter with spec reference linkage
+- Gap matrix (spec says vs code does)
+- FMEA deltas with RPN scores (moved OUT of specs)
+- Implementation phases with validation
+- Quality attributes and fitness functions from /arch
+- BD task decomposition
+
+**When to use:**
+- After spec alignment analysis identifies gaps
+- Documenting FMEA deltas that need implementation
+- Creating actionable work to close spec-code gaps
+- Companion to any behavioral spec
+
+**Example usage:**
+```bash
+cp ~/.agents/skills/work/templates/chore.md docs/specs/chore-{slug}.md
+# Fill in gap matrix, FMEA deltas, implementation steps
+```
+
+---
+
+### 5. plan.md
 **Use for:** Implementation plans, detailed execution roadmaps
 
 **Key Features:**
