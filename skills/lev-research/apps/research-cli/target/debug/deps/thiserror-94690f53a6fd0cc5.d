@@ -1,0 +1,12 @@
+/Users/jean-patricksmith/.claude/skills/lev-research/apps/research-cli/target/debug/deps/thiserror-94690f53a6fd0cc5.d: /Users/jean-patricksmith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/lib.rs /Users/jean-patricksmith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/aserror.rs /Users/jean-patricksmith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/display.rs /Users/jean-patricksmith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/var.rs /Users/jean-patricksmith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/private.rs /Users/jean-patricksmith/.claude/skills/lev-research/apps/research-cli/target/debug/build/thiserror-da65ccf73b493596/out/private.rs
+
+/Users/jean-patricksmith/.claude/skills/lev-research/apps/research-cli/target/debug/deps/libthiserror-94690f53a6fd0cc5.rmeta: /Users/jean-patricksmith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/lib.rs /Users/jean-patricksmith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/aserror.rs /Users/jean-patricksmith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/display.rs /Users/jean-patricksmith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/var.rs /Users/jean-patricksmith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/private.rs /Users/jean-patricksmith/.claude/skills/lev-research/apps/research-cli/target/debug/build/thiserror-da65ccf73b493596/out/private.rs
+
+/Users/jean-patricksmith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/lib.rs:
+/Users/jean-patricksmith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/aserror.rs:
+/Users/jean-patricksmith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/display.rs:
+/Users/jean-patricksmith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/var.rs:
+/Users/jean-patricksmith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/private.rs:
+/Users/jean-patricksmith/.claude/skills/lev-research/apps/research-cli/target/debug/build/thiserror-da65ccf73b493596/out/private.rs:
+
+# env-dep:OUT_DIR=/Users/jean-patricksmith/.claude/skills/lev-research/apps/research-cli/target/debug/build/thiserror-da65ccf73b493596/out
