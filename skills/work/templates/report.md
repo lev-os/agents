@@ -12,14 +12,32 @@ related_tasks: [task-id-1, task-id-2]
 related_docs: [path/to/doc1.md, path/to/doc2.md]
 ---
 
+# Report Title
+
+## How To Fill This Out
+
+Use this template for research findings, audits, scans, and analysis. Reports capture what you learned and what should happen next. They are evidence artifacts, not plans.
+
+Use uncertainty markers when needed:
+- `[tbd]`
+- `[unknown]`
+- `[theory]`
+- `[maybe: ..., confidence: ##%]`
+
+Good:
+- "This report summarizes findings with evidence and next actions."
+- "This report clearly separates facts from theory."
+
+Bad:
+- "This is an implementation plan disguised as a report."
+- "This claims certainty without evidence."
+
 <!--
 PURPOSE: Frontmatter fields for indexing, filtering, and cross-referencing reports across sessions
 PROCESS: Fill in all fields before marking status beyond "draft". Update `updated` timestamp on every edit.
 GOOD: scope: audit, confidence: 0.85, tags: [nats, daemon-wiring, p0]
 BAD: scope: stuff, confidence: 1.0, tags: [misc]
 -->
-
-# Report Title
 
 **Generated:** YYYY-MM-DD HH:MM TZ
 **Agent:** agent-name
@@ -279,7 +297,7 @@ BAD: Always defaulting to "Archive findings" regardless of severity
 
 1. **Design a solution** -> `work "design {solution} based on report"` -> generates proposal.md
 2. **Do more research** -> `work "research {specific topic}"` -> generates additional report.md
-3. **Create implementation plan** -> `work "plan implementation of {solution}"` -> generates plan.md
+3. **Create implementation plan** -> `work "plan implementation of {solution}"` -> generates `plan-{kind}-{slug}.md`
 4. **Archive findings** -> If no action needed, document rationale and archive
 5. **Escalate** -> If critical, create BD epic: `bd create --type=epic --title="{title}"`
 

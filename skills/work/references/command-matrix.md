@@ -12,13 +12,16 @@ Use this file as the source of truth when updating aliases, routing, or stage ow
 
 | Primitive | Primary Aliases | CLI Entry | SDK Surface | Work Stage | Schema/Router Handler | Notes |
 |---|---|---|---|---|---|---|
-| `get` | `find`, `search`, `lookup`, `read`, `ls`, `scan`, `research`, `prior art` | `lev get "<query>"`, `lev gather "<query>"`, legacy `lev find` | `lev.get(query, { depth })` | `captured` | `query -> lev-get/memory` | Progressive depth: `context -> fs -> bd -> research` |
-| `work` | `plan`, `spec`, `propose`, `implement`, `execute` | `lev work [auto|find|gather|review] ...` / `lev go ...` | `lev.work(...)` | stage-classified (`ephemeral`..`completed`) | lifecycle path in `work` FSM | `work auto` defaults toward gather/get for context-first routing |
+| `get` | `find`, `search`, `lookup`, `read`, `ls`, `scan`, `research`, `prior art` | `lev get "<query>"`, `lev gather "<query>"`, legacy `lev find` | `lev.get(query, { depth })` | `captured` | `query -> lev-get/memory` | Progressive depth: `context -> fs -> tracker -> research` |
+| `work` | `propose`, `design`, `spec`, `plan`, `implement`, `execute` | `lev work [auto|find|gather|review] ...` / `lev go ...` | `lev.work(...)` | stage-classified (`ephemeral`..`completed`) | lifecycle path in `work` FSM | `work auto` defaults toward gather/get for context-first routing |
+| `design` | `ux`, `architecture`, `shape` | routed through `work` | conceptual | `crystallizing` | proposal/design route | Produces `.lev/pm/designs/` artifacts |
+| `spec` | `specify`, `contract` | routed through `work` | conceptual | `crystallized` | SDLC spec route | Produces `.lev/pm/specs/` artifacts |
+| `plan` | `impl`, `bugfix`, `chore`, `research-plan` | routed through `work` | conceptual | `crystallized` | execution-slice route | Produces `.lev/pm/plans/plan-{kind}-{slug}.md` |
 | `ask` | `wiz`, `wizard`, `guide me`, `unstuck` | alias via CLI to wizard path (`ask`, `wiz`) | `lev.ask(...)` | `crystallizing` (intake) | interview path in `work` DISCOVER | Auto-trigger when guard underspec is high |
 | `check` | `align`, `scan`, `security`, `validate` | alias via CLI to validate path (`check`) | `lev.check(...)` | `classified` / `validate` | validation gates in `work`; schema escalation paths | Includes drift/alignment/security checks |
-| `go` | `run`, `do it`, `ship` | alias `go -> work` | `lev.go(...)` | `manifesting` | `task -> bd/ralph` when explicit task intent | Starts execution path; respects FSM gates |
+| `go` | `run`, `do it`, `ship` | alias `go -> work` | `lev.go(...)` | `manifesting` | current execution slice | Starts execution path; `work-mvp` is the future deterministic binding |
 | `handoff` | `checkpoint`, `resume context`, `session compact`, `exit` | routed through `work` manifesting output | `lev.handoff(...)` (conceptual) | `manifesting -> completed` | handoff/checkpoint artifacts | Must emit checkpoint contract + confidence score |
-| `learn` | `reflect`, `retro` | `work` LEARN ceremony | `lev.learn(...)` | `completed (post-close)` | post-execution learning capture | Records outcomes into memory artifacts |
+| `learn` | `reflect`, `retro` | `work` LEARN ceremony | `lev.learn(...)` | `completed (post-close)` | post-execution learning capture | Records outcomes and may promote durable decisions |
 | `workflow` | `workflow run`, `workflow list`, `workflow create` | `workflow` skill route | N/A | not lifecycle ownership | explicit workflow-management route | Distinct from `work` lifecycle FSM |
 
 ## CLI Alias Constellation (Authoritative)
