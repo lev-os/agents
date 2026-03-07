@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+{{{cyberpunk_css}}}
+  </style>
+</head>
+<body class="lev-theme-cyberpunk">
+  <div class="lev-container">
+    {{#each widgets}}
+    {{{render this}}}
+    {{/each}}
+  </div>
+  <script>
+    Telegram.WebApp.ready();
+    {{#if main_button_text}}
+    Telegram.WebApp.MainButton.setText('{{main_button_text}}');
+    Telegram.WebApp.MainButton.show();
+    Telegram.WebApp.MainButton.onClick(() => {
+      Telegram.WebApp.sendData(JSON.stringify({{{data}}}));
+    });
+    {{/if}}
+  </script>
+</body>
+</html>

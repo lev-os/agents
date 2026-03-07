@@ -1,0 +1,335 @@
+---
+name: skill-builder
+description: |
+  [WHAT] Skill creation and documentation codification router
+  [HOW] Routes to codifier workflow (scrape/analyze/package docs) or skill-creator (author new skills) based on intent
+  [WHEN] Use when converting existing docs to skills, creating new skills from scratch, or combining/merging existing skills
+  [WHY] Unifies doc-to-skill conversion with new skill authoring under single entry point
+
+  Triggers: "create a skill from docs", "codify documentation", "convert docs to skill", "make this documentation searchable",
+            "make a skill", "create a skill", "combine a skill", "new skill", "skill from scratch", "codify", "skill-builder"
+
+  Routes:
+  - Documentation → codifier workflow (scrape, analyze, package)
+  - New skill authoring → skill-creator (standards, structure, progressive disclosure)
+  - Skill combination → both (analyze existing + author merged)
+version: 2.0.0
+dependencies: skill-seekers>=2.5.0
+skill_evolver:
+  enabled: true
+  version: 1.0.0
+  log_path: ~/.config/lev/logs/skills.jsonl
+  hooks:
+    - on_invoke
+    - on_fail
+    - on_success
+
+lifecycle_integration:
+  stage: crystallizing
+  input_artifact: documentation OR skill intent
+  output_artifact: SKILL.md file
+---
+
+# Lev Skill Builder
+
+## Overview
+
+Unified skill creation hub. Routes between documentation codification (Skill_Seekers) and new skill authoring (skill-creator standards).
+
+## Quick Decision Tree
+
+```
+What does the user want?
+│
+├─→ Convert existing docs to skill?
+│   │
+│   ├─→ Documentation website only?
+│   │   └─→ See "Website Scraping" below
+│   │
+│   ├─→ GitHub repository only?
+│   │   └─→ See "GitHub Analysis" below
+│   │
+│   ├─→ PDF files only?
+│   │   └─→ See "PDF Extraction" below
+│   │
+│   └─→ Multiple sources (docs + GitHub + PDF)?
+│       └─→ See "Unified Multi-Source" below
+│
+├─→ Create NEW skill from scratch?
+│   └─→ Route to skill-creator
+│       - SKILL.md format: YAML frontmatter + markdown body
+│       - Progressive disclosure: metadata → body → references
+│       - Body <500 lines, description is PRIMARY trigger
+│       - See skill-creator skill for full standards
+│
+├─→ Combine/merge existing skills?
+│   └─→ Route to BOTH:
+│       1. Analyze existing skills (codifier patterns)
+│       2. Author merged skill (skill-creator standards)
+│       3. Ensure router pattern if subsumes others
+│
+└─→ First time using this skill?
+    └─→ Check references/setup.md for installation
+```
+
+## Routing Summary
+
+| Intent | Route To | Action |
+|--------|----------|--------|
+| "codify docs", "convert docs to skill" | Codifier workflow | Scrape → analyze → package |
+| "make a skill", "new skill" | skill-creator | Author with standards |
+| "combine skills", "merge skills" | Both | Analyze + author |
+| "codify X" (ambiguous) | Ask clarification | Docs source or new authoring? |
+
+## Frontmatter Design Philosophy
+
+### The Description is Everything
+
+The `description` field is the **PRIMARY trigger mechanism**. Agents read descriptions to route requests. Body loads AFTER triggering - too late to influence routing.
+
+### What/How/When/Why + Tag Soup
+
+Every description should answer:
+
+```yaml
+description: |
+  [WHAT] - What this skill does (1 sentence)
+  [HOW] - How it works (mechanism, tools used)
+  [WHEN] - When to use it (trigger conditions)
+  [WHY] - Why it exists (problem it solves)
+
+  Triggers: "tag1", "tag2", "tag3", ...  # Tag soup for semantic matching
+```
+
+**Example (lev-find):**
+```yaml
+description: |
+  Unified semantic search across codebase, documentation, and sessions.
+  Uses RRF fusion to combine results from multiple indexes (leann, ck, bd).
+  Use when searching for patterns, decisions, or related work across domains.
+  Enables context gathering without knowing exact file locations.
+
+  Triggers: "find", "search", "lookup", "where is", "locate", "discover",
+            "what do we have on", "related work", "prior art"
+```
+
+### Intentional Tag Overlap
+
+Skills SHOULD have overlapping triggers. This enables semantic routing:
+
+```
+User: "remember this pattern"
+       ↓
+Matches: lev-memory (remember, store, capture)
+         lev-find (pattern, search)
+         ↓
+Router picks best match OR asks clarification
+```
+
+**Overlap zones by domain:**
+
+| Domain | Shared Triggers | Skills |
+|--------|-----------------|--------|
+| Context gathering | find, search, lookup, get | lev-find, lev-research, lev-memory |
+| Modification | update, patch, change, edit | lev-patch, bd, edit tools |
+| Execution | run, execute, do, make | ralph, bash, Task tool |
+
+### The 3-Tool Agent Model
+
+Skills are wrappers around 3 fundamental operations:
+
+```
+┌─────────────────────────────────────────────────────┐
+│  AGENT TOOL SURFACE                                 │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  1. GET (context gathering)                         │
+│     └─ lev-find, lev-research, lev-memory, read    │
+│                                                     │
+│  2. EXECUTE (run things)                            │
+│     └─ ralph, bash, Task tool, skills              │
+│                                                     │
+│  3. PATCH (modify the graph)                        │
+│     └─ bd, edit, write, memory_store               │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+```
+
+When writing skill descriptions, categorize which operation(s) the skill performs. This helps semantic routing understand when to invoke it.
+
+### Semantic Routing Dogfooding
+
+By writing good descriptions with tag soup, you're training the semantic router:
+- Overlapping tags = soft boundaries between skills
+- Distinct tags = hard ownership of functionality
+- The agent's LLM does the fusion, not hardcoded rules
+
+**Anti-pattern:** Descriptions that only say WHAT without WHEN triggers:
+```yaml
+# BAD - no routing signals
+description: Manages memory storage and retrieval.
+
+# GOOD - clear routing signals
+description: |
+  Store and recall information across sessions using AutoMem.
+  Triggers: "remember", "recall", "forget", "what did we discuss",
+            "save this", "store", "memory", "did I mention"
+```
+
+## Documentation Codification (Skill_Seekers)
+
+The following sections cover documentation → skill conversion using Skill_Seekers.
+
+### Installation Check
+
+Before proceeding, verify Skill_Seekers is installed:
+
+```bash
+# Quick check
+command -v skill-seekers || python3 -m skill_seekers --version
+```
+
+**If not installed**: Direct user to `references/setup.md` for complete installation instructions with uv/venv detection.
+
+## Website Scraping
+
+**For preset frameworks** (React, Vue, Django, FastAPI, etc.):
+```bash
+cd <project-directory>
+skill-seekers scrape --config configs/react.json --enhance-local
+skill-seekers package output/react/
+```
+
+**For custom documentation**:
+```bash
+skill-seekers scrape --interactive
+# OR
+skill-seekers scrape --name myframework --url https://docs.example.com/
+```
+
+**Advanced options**: See `references/advanced-workflows.md`
+
+## GitHub Analysis
+
+```bash
+skill-seekers github --repo facebook/react
+skill-seekers package output/react/
+```
+
+**With authentication** (for higher rate limits):
+```bash
+export GITHUB_TOKEN=ghp_your_token_here
+skill-seekers github --repo owner/repo
+```
+
+## PDF Extraction
+
+```bash
+skill-seekers pdf --pdf docs/manual.pdf --name myskill
+skill-seekers package output/myskill/
+```
+
+**Advanced features** (tables, OCR, parallel): See `references/advanced-workflows.md`
+
+## Unified Multi-Source
+
+Combines docs + GitHub + PDF with conflict detection:
+
+```bash
+skill-seekers unified --config configs/react_unified.json
+skill-seekers package output/react/
+```
+
+**Custom unified config**: See `references/advanced-workflows.md` (Unified Multi-Source section)
+
+## Registry Check (Before Scraping)
+
+Before scraping fresh, check existing skills:
+
+```
+REGISTRIES TO CHECK:
+- skillsmp.com (2,300+ indexed skills)
+- claude-plugins.dev (6,000+ public)
+- github.com/anthropics/skills (official)
+```
+
+**If found:** Offer as starting point, user can customize after pulling.
+
+## Validation (Progressive Disclosure)
+
+After extraction, validate structure:
+
+```
+VALIDATION RULES:
+1. SKILL.md > 150 lines? → Move to references/
+2. No references/ + heavy SKILL.md? → Create references/, split
+3. Any file > 500 lines? → Consider chunking
+4. Total skill > 2000 lines? → Consider sub-skills with router
+
+IDEAL STRUCTURE:
+skill-name/
+├── SKILL.md (~100-150 lines)
+│   ├── Frontmatter + decision tree
+│   └── "See references/X.md" pointers
+├── references/
+│   ├── api.md
+│   └── patterns.md
+└── scripts/ (optional)
+```
+
+## Install Location
+
+Ask user where to install:
+- `~/.claude/skills/X/` - User-level (global)
+- `.claude/skills/X/` - Project-level (local)
+
+## Output & Delivery
+
+All workflows create a `.zip` file in `output/<name>.zip`. Direct users to:
+1. Locate the output file
+2. Upload to Claude at https://claude.ai/skills
+
+## Troubleshooting
+
+**Command not found**: User needs installation - see `references/setup.md`
+
+**No content extracted**: CSS selector issue - see `references/troubleshooting.md`
+
+**Rate limiting**: Configuration issue - see `references/troubleshooting.md`
+
+## Skill Creator Standards (Quick Reference)
+
+When routing to skill-creator, these are the key standards:
+
+**SKILL.md Structure:**
+```
+skill-name/
+├── SKILL.md (required)
+│   ├── YAML frontmatter (name, description required)
+│   └── Markdown body (<500 lines)
+└── references/ (optional, loaded on demand)
+```
+
+**Critical Rules:**
+- `description` is the PRIMARY trigger mechanism - include what + when
+- Body loads AFTER skill triggers (keep "when to use" in description)
+- Use imperative/infinitive form
+- No separate README.md or CHANGELOG.md - the skill IS the docs
+
+**Progressive Disclosure Tiers:**
+1. Metadata (~100 words) - Always loaded
+2. Body (<5k words) - On trigger
+3. References (unlimited) - On demand
+
+For full skill authoring guidance, load the `skill-creator` skill.
+
+## References
+
+- **references/setup.md** - Complete installation with environment detection (uv/venv/pip)
+- **references/advanced-workflows.md** - Large docs, async mode, unified multi-source, custom configs, performance optimization
+- **references/troubleshooting.md** - Common issues and solutions
+- **skill-creator skill** - Full standards for authoring new skills from scratch
+
+**For Skill_Seekers deep reference:** After installation, refer to cloned Skill_Seekers repository documentation (README.md, docs/CLAUDE.md, and other docs/ files).
+
+Load references as needed based on user context and questions.

@@ -1,0 +1,21 @@
+{{! inquirer.js compatible prompt definition }}
+{
+  "type": "{{prompt_type}}",
+  "name": "{{name}}",
+  "message": "{{message}}",
+  {{#if choices}}
+  "choices": [
+    {{#each choices}}
+    {
+      "name": "{{name}}",
+      "value": "{{value}}"{{#if description}},
+      "description": "{{description}}"{{/if}}
+    }{{#unless @last}},{{/unless}}
+    {{/each}}
+  ],
+  {{/if}}
+  {{#if default}}
+  "default": "{{default}}",
+  {{/if}}
+  "prefix": "{{#if prefix}}{{prefix}}{{else}}🔷{{/if}}"
+}

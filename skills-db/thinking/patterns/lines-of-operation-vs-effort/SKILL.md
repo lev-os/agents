@@ -1,0 +1,165 @@
+---
+name: lines-of-operation-vs-effort
+description: Structure complex campaigns by distinguishing physical objectives from effects-based outcomes when both terrain control and behavioral change matter for success
+---
+
+## Overview
+
+Lines of Operation (LOO) and Lines of Effort (LOE) are complementary planning constructs from joint military doctrine that help commanders visualize and organize complex campaigns. The key distinction lies in *what* defines success:
+
+**Lines of Operation (LOO)**: Physical, terrain-oriented objectives. A LOO connects friendly forces to their base of operations and defines directional orientation relative to enemy forces. Success is measured by controlling geographic positions or destroying enemy units.
+
+**Lines of Effort (LOE)**: Conceptual, effects-oriented objectives. A LOE links tasks by purpose and logic rather than terrain, focusing on establishing conditions for success. Success is measured by achieving desired effects (stability, governance, public support) rather than holding ground.
+
+The U.S. military shifted emphasis toward LOEs after Iraq/Afghanistan counterinsurgency operations revealed that "taking territory" didn't guarantee victory. Winning required changing social, political, and economic conditions—intangible outcomes better captured by LOEs.
+
+Modern application extends to business and project management:
+- **Product development**: LOO = shipping features; LOE = achieving customer delight
+- **Organizational change**: LOO = rolling out new processes; LOE = shifting culture
+- **Marketing campaigns**: LOO = channel activation; LOE = brand perception transformation
+
+The framework forces planners to think beyond physical deliverables to the outcomes that actually matter.
+
+## When to Use
+
+**Use Lines of Operation when**:
+- Success depends on controlling physical terrain, resources, or assets
+- Enemy forces have clear positions that must be defeated or bypassed
+- Progress can be measured geographically (miles advanced, facilities captured)
+- The operational environment is primarily kinetic (combat-focused)
+
+**Use Lines of Effort when**:
+- Success depends on changing attitudes, behaviors, or conditions
+- "Enemy" is diffuse, ideological, or non-geographic (insurgency, public opinion)
+- Physical control doesn't guarantee desired outcomes (peacekeeping, governance building)
+- Multiple non-military factors (economic, diplomatic, informational) are decisive
+
+**Use both when**:
+- Complex campaigns require simultaneous physical objectives and effects-based outcomes
+- Combined arms operations integrate military and civilian capabilities
+- Long-term success requires both battlefield victories and sustainable conditions
+
+**Avoid when**:
+- The situation is simple enough for linear task lists (no need for doctrinal frameworks)
+- Over-engineering planning processes when execution agility matters more
+
+## Process
+
+### 1. Define the Desired End-State
+Clearly articulate what "success" looks like. Is it:
+- **LOO-oriented**: Specific geographic control, enemy force destruction, asset capture?
+- **LOE-oriented**: Behavioral change, institutional capacity, public perception?
+- **Hybrid**: Both physical and conceptual outcomes?
+
+Example: "Defeat insurgency in Province X" is vague. Better:
+- LOO: "Clear and hold Districts A, B, C"
+- LOE: "Establish local governance capacity + population trust in security forces"
+
+### 2. Map Lines of Operation (if applicable)
+If physical objectives matter, identify:
+- **Decisive points**: Key terrain, infrastructure, or enemy positions whose control cascades to other objectives
+- **Sequencing**: What must be taken before the next phase begins?
+- **Force-to-task ratio**: Do you have sufficient resources to achieve and hold objectives?
+
+Visualize as arrows on a map connecting start point → decisive points → objective.
+
+### 3. Map Lines of Effort (if applicable)
+If effects-based objectives matter, identify:
+- **Logical linkages**: How do discrete tasks combine to create desired conditions?
+- **Causal logic**: "If we achieve X, then Y becomes possible, enabling Z"
+- **Measurement criteria**: What observable indicators prove the effect is achieved?
+
+Common LOE categories in counterinsurgency:
+- Security (reducing violence)
+- Governance (legitimate institutions)
+- Economic development (employment, services)
+- Information operations (narrative, public perception)
+
+### 4. Assign Resources to Lines
+Allocate forces, budget, and leadership attention to each LOO/LOE. Avoid the trap of "supporting effort drift" where nominally secondary lines consume disproportionate resources.
+
+If a line doesn't merit dedicated resources, it's not a real line—eliminate it.
+
+### 5. Establish Synchronization Mechanisms
+LOOs and LOEs must be coordinated:
+- **Timing**: LOO success may enable LOE progress (security before governance)
+- **Mutual support**: LOE efforts (winning hearts/minds) can reduce LOO resistance
+- **Trade-offs**: Aggressive LOO tactics (heavy firepower) may undermine LOE goals (civilian trust)
+
+Use planning tools like synchronization matrices to track interdependencies.
+
+### 6. Define Success Metrics
+For each line, specify:
+- **LOO metrics**: Enemy casualties, territory controlled, infrastructure operational
+- **LOE metrics**: Survey data, governance assessments, economic indicators, violence trends
+
+Review regularly—if metrics aren't improving, the line isn't working.
+
+### 7. Iterate and Adapt
+As conditions change, LOO/LOE focus may shift. A campaign that begins as LOO-heavy (defeating enemy forces) transitions to LOE-heavy (stabilization and reconstruction). Successful commanders recognize inflection points and reallocate accordingly.
+
+## Example
+
+**Iraq War (2003-2011): Evolution from LOO to LOE**
+
+**Phase 1 (2003 Invasion) - Lines of Operation Dominant**:
+- LOO 1: Advance from Kuwait to Baghdad
+- LOO 2: Secure northern front with Kurdish allies
+- LOO 3: Neutralize Iraqi military command/control
+
+Success = terrain captured, regime overthrown. Conventional LOO approach worked.
+
+**Phase 2 (2004-2007 Insurgency) - Lines of Effort Become Critical**:
+- LOE 1: Security (reduce sectarian violence)
+- LOE 2: Governance (Iraqi government legitimacy)
+- LOE 3: Economic (employment programs, infrastructure)
+- LOE 4: Information (counter extremist narratives)
+
+Physical control of cities didn't guarantee stability. LOE framework revealed that improving governance and economic conditions was as important as kinetic operations.
+
+**Surge Strategy (2007)**: Combined LOO (clearing neighborhoods) with LOE (holding, building local governance). Success required both.
+
+**Business Example: Enterprise Software Adoption**
+
+**Lines of Operation (Technical Deployment)**:
+- LOO 1: Integrate with authentication systems
+- LOO 2: Migrate data from legacy platform
+- LOO 3: Deploy to production environment
+
+**Lines of Effort (User Adoption)**:
+- LOE 1: Executive sponsorship (leadership communication)
+- LOE 2: Training and enablement (user competence)
+- LOE 3: Change management (cultural shift from old tools)
+- LOE 4: Feedback loops (continuous improvement perception)
+
+Many IT projects succeed on LOO (software works) but fail on LOE (no one uses it). Balancing both is critical.
+
+## Anti-Patterns
+
+**"All LOO, no LOE"**: Focusing exclusively on physical deliverables while ignoring whether they achieve desired effects. Example: Building infrastructure that communities don't want or can't maintain.
+
+**"All LOE, no LOO"**: Pursuing intangible goals without securing necessary physical preconditions. Example: Attempting governance-building in active combat zones without security.
+
+**Too many lines**: Declaring 12 LOEs dilutes focus and creates unfocused operations. Three to five lines is typical. If you can't resource a line, cut it.
+
+**Conflating lines with tasks**: A line is a logical grouping of related tasks, not a single task. "Conduct training" isn't a line; "Build institutional capacity" is a line that includes training among other tasks.
+
+**Static planning**: Treating LOO/LOE as fixed rather than adapting as conditions evolve. The balance between LOO and LOE should shift over the campaign lifecycle.
+
+**Metrics theater**: Tracking metrics that don't actually indicate success. LOE metrics are especially vulnerable—"number of training sessions conducted" doesn't mean capacity improved.
+
+## Related Frameworks
+
+- **Ends-Ways-Means**: LOO/LOE articulate "ways" to achieve strategic "ends" with available "means"
+- **Theory of Change**: LOE mapping resembles causal logic models in development/nonprofit work
+- **Balanced Scorecard**: Business analog to LOE—financial, customer, internal process, learning perspectives
+- **Objectives and Key Results (OKRs)**: Objectives = lines; Key Results = metrics for each line
+- **Gantt Charts / Critical Path**: LOO sequencing resembles project timeline dependencies
+- **Systems Thinking**: LOE acknowledges feedback loops and emergent effects vs. linear LOO causality
+- **Center of Gravity Analysis**: Identifying decisive points for LOO or critical conditions for LOE
+
+## Sources
+- [Logical line of operation - Wikipedia](https://en.wikipedia.org/wiki/Logical_line_of_operation)
+- [Joint Publication 5-0: Joint Operation Planning](https://www.bits.de/NRANEU/others/jp-doctrine/jp5_0(11).pdf)
+- [Planner's Handbook for Operational Design - Joint Staff J-7](https://www.jcs.mil/Portals/36/Documents/Doctrine/pams_hands/opdesign_hbk.pdf)
+- [Line Of Effort Definition - MilitaryDictionary](https://www.militarydictionary.org/term/line-of-effort)

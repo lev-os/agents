@@ -1,0 +1,181 @@
+#!/usr/bin/env bash
+# skill-discovery — dual-layer skill lookup (cm context + qmd semantic search)
+# Usage: skill-discovery "task description" [--json] [--help]
+set -euo pipefail
+
+CACHE_FILE="${LEV_CACHE:-.lev/cache.json}"
+STALE_SECONDS=86400
+NOW=$(date +%s)
+QMD_COLLECTIONS=("skills-canonical" "skills-db" "skills-poc" "skills-polymath")
+
+# ── Usage ────────────────────────────────────────────────────────────────────
+usage() {
+  cat <<'EOF'
+skill-discovery — find relevant skills for a task
+
+USAGE
+  skill-discovery "task description"          human-readable output
+  skill-discovery "task description" --json   JSON output
+  skill-discovery --help                      this message
+
+LAYERS
+  1. cm context "$TASK" --json   (curated playbook, high signal)
+  2. qmd query "$TASK" -c <cols> --files -n 10  (semantic search)
+
+ENVIRONMENT
+  LEV_CACHE   path to cache file (default: .lev/cache.json)
+EOF
+  exit 0
+}
+
+# ── Arg parsing ──────────────────────────────────────────────────────────────
+JSON_MODE=0; TASK=""
+for arg in "$@"; do
+  case "$arg" in
+    --help|-h) usage ;;
+    --json)    JSON_MODE=1 ;;
+    *)         TASK="$arg" ;;
+  esac
+done
+if [ -z "$TASK" ]; then
+  echo "error: task description required" >&2
+  echo "usage: skill-discovery \"task description\" [--json]" >&2
+  exit 1
+fi
+
+# ── Dependency checks ───────────────────────────────────────────────────────
+if ! command -v jq >/dev/null 2>&1; then
+  echo "error: jq is required but not found in PATH" >&2; exit 1
+fi
+HAS_CM=0; HAS_QMD=0
+command -v cm  >/dev/null 2>&1 && HAS_CM=1  || echo "warning: cm not in PATH, skipping Layer 1" >&2
+command -v qmd >/dev/null 2>&1 && HAS_QMD=1 || echo "warning: qmd not in PATH, skipping Layer 2" >&2
+if [ "$HAS_CM" -eq 0 ] && [ "$HAS_QMD" -eq 0 ]; then
+  echo "error: at least one of cm or qmd must be available" >&2; exit 1
+fi
+
+# ── Lazy re-index (24h staleness check on qmd collections) ──────────────────
+ensure_cache() {
+  [ -f "$CACHE_FILE" ] && return
+  mkdir -p "$(dirname "$CACHE_FILE")"
+  local obj="{}"
+  for c in "${QMD_COLLECTIONS[@]}"; do
+    obj=$(printf '%s' "$obj" | jq --arg c "$c" --argjson t "$NOW" '.[$c] = $t')
+  done
+  printf '%s\n' "$obj" > "$CACHE_FILE"
+}
+
+maybe_reindex() {
+  [ "$HAS_QMD" -eq 0 ] && return
+  ensure_cache
+  for c in "${QMD_COLLECTIONS[@]}"; do
+    local last age
+    last=$(jq -r --arg c "$c" '.[$c] // 0' "$CACHE_FILE")
+    age=$(( NOW - last ))
+    if [ "$age" -ge "$STALE_SECONDS" ]; then
+      echo "reindexing $c (stale ${age}s)" >&2
+      if qmd update -c "$c" >/dev/null 2>&1; then
+        local tmp
+        tmp=$(jq --arg c "$c" --argjson t "$NOW" '.[$c] = $t' "$CACHE_FILE")
+        printf '%s\n' "$tmp" > "$CACHE_FILE"
+      else
+        echo "warning: qmd update -c $c failed, continuing" >&2
+      fi
+    fi
+  done
+}
+
+# ── Layer 1: cm context (curated playbook) ───────────────────────────────────
+CM_BULLETS="[]"
+run_cm() {
+  [ "$HAS_CM" -eq 0 ] && return
+  local raw
+  if raw=$(cm context "$TASK" --json 2>/dev/null); then
+    CM_BULLETS=$(printf '%s' "$raw" \
+      | jq '[.rules // [], .matches // [], .bullets // []] | flatten | map(tostring)' 2>/dev/null \
+      || echo "[]")
+  else
+    echo "warning: cm context failed, skipping Layer 1" >&2
+  fi
+}
+
+# ── Layer 2: qmd hybrid search (BM25 + vector, bun v1.3.9 fixed NAPI crash) ──
+# NOTE: -c collection filter has a SQL bug with hyphenated names in vector path,
+# so we query all collections at once (which is faster anyway).
+QMD_MATCHES="[]"
+parse_qmd_lines() {
+  jq -Rs '
+    split("\n") | map(select(length > 0 and startswith("#"))) | map(
+      split(",") |
+      if length >= 3 then
+        { path: .[2],
+          score: (.[1] | tonumber? // 0),
+          collection: (.[2] | capture("^qmd://(?<c>[^/]+)") | .c // "") }
+      elif length == 2 then
+        { path: .[0], score: (.[1] | tonumber? // 0), collection: "" }
+      else
+        { path: .[0], score: 0, collection: "" }
+      end
+    )' 2>/dev/null || echo "[]"
+}
+
+run_qmd() {
+  [ "$HAS_QMD" -eq 0 ] && return
+  maybe_reindex
+  local raw
+  if raw=$(qmd query "$TASK" --files -n 10 2>/dev/null); then
+    QMD_MATCHES=$(printf '%s' "$raw" | parse_qmd_lines)
+  else
+    echo "warning: qmd query failed, falling back to BM25" >&2
+    # Fallback: per-collection BM25 (works with -c flag)
+    local all_results="[]"
+    for c in "${QMD_COLLECTIONS[@]}"; do
+      if raw=$(qmd search "$TASK" -c "$c" --files -n 5 2>/dev/null); then
+        local parsed
+        parsed=$(printf '%s' "$raw" | parse_qmd_lines)
+        all_results=$(printf '%s\n%s' "$all_results" "$parsed" | jq -s 'flatten' 2>/dev/null || echo "$all_results")
+      fi
+    done
+    QMD_MATCHES=$(printf '%s' "$all_results" | jq 'sort_by(-.score) | .[:10]' 2>/dev/null || echo "[]")
+  fi
+}
+
+# ── Execute both layers ─────────────────────────────────────────────────────
+run_cm
+run_qmd
+
+# ── Collect unique skill paths from both layers ──────────────────────────────
+SKILL_PATHS=$(printf '%s\n%s' "$CM_BULLETS" "$QMD_MATCHES" | jq -s '
+  [.[0] // [] | map(select(test("SKILL\\.md$|/skills/")))] +
+  [.[1] // [] | map(.path) | map(select(length > 0))]
+  | flatten | unique' 2>/dev/null || echo "[]")
+
+# ── Build JSON output ────────────────────────────────────────────────────────
+OUTPUT=$(jq -n \
+  --arg query "$TASK" \
+  --argjson cm_bullets "$CM_BULLETS" \
+  --argjson qmd_matches "$QMD_MATCHES" \
+  --argjson skill_paths "$SKILL_PATHS" \
+  --argjson timestamp "$NOW" \
+  '{query:$query, cm_bullets:$cm_bullets, qmd_matches:$qmd_matches,
+    skill_paths:$skill_paths, timestamp:$timestamp}')
+
+if [ "$JSON_MODE" -eq 1 ]; then
+  printf '%s\n' "$OUTPUT"
+else
+  # Human-readable summary
+  echo "=== Skill Discovery ==="
+  echo "Query: $TASK"
+  echo ""
+  cm_n=$(printf '%s' "$CM_BULLETS" | jq 'length')
+  echo "Layer 1 (cm context): ${cm_n} matches"
+  [ "$cm_n" -gt 0 ] && printf '%s' "$CM_BULLETS" | jq -r '.[] | "  - " + .'
+  echo ""
+  qmd_n=$(printf '%s' "$QMD_MATCHES" | jq 'length')
+  echo "Layer 2 (qmd semantic): ${qmd_n} matches"
+  [ "$qmd_n" -gt 0 ] && printf '%s' "$QMD_MATCHES" | jq -r '.[] | "  - \(.path)  (score: \(.score), collection: \(.collection))"'
+  echo ""
+  sk_n=$(printf '%s' "$SKILL_PATHS" | jq 'length')
+  echo "Skill paths (${sk_n} unique):"
+  [ "$sk_n" -gt 0 ] && printf '%s' "$SKILL_PATHS" | jq -r '.[] | "  " + .'
+fi

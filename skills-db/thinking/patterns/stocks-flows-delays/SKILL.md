@@ -1,0 +1,261 @@
+---
+name: stocks-flows-delays
+description: Model system dynamics through accumulations (stocks), rates of change (flows), and time lags (delays) to understand inertia, overshoot, oscillation, and equilibrium - map inflows, outflows, buffers, and feedback loops when diagnosing capacity problems, resource depletion, or unexpected system behavior
+domain: "systems-thinking"
+source: "Donella Meadows - Thinking in Systems"
+practitioner_level: 9
+clarity: 10
+proven_roi: 9
+novelty: 6
+cross_domain: 10
+score: 44
+tags: ["systems-thinking", "stocks", "flows", "delays", "system-structure"]
+---
+
+# Stocks, Flows, and Delays
+
+## Overview
+
+Stocks, flows, and delays are the fundamental structural elements of every system. **Stocks** are accumulations - things you can measure at a specific moment (inventory, cash, knowledge, users). **Flows** are rates of change that increase or decrease stocks over time (production rate, spending rate, learning rate, signup rate). **Delays** are the lag between causes and effects that create inertia, overshoot, and oscillation.
+
+Understanding this triad transforms how you model reality. A stock is like the water level in a bathtub; flows are the faucet (inflow) and drain (outflow); delays explain why the tub takes time to fill even after you open the faucet, and why it overflows if you don't shut it off in time.
+
+**Core Insight**: You cannot understand a system's behavior by looking at stocks alone. Behavior emerges from the interplay of stocks, the flows that change them, and the delays that disconnect action from result. Most management failures come from confusing stocks with flows or ignoring delays.
+
+## When to Use This Framework
+
+Apply stocks-flows-delays thinking when you need to:
+
+- Model system dynamics before making interventions (predict consequences)
+- Diagnose why systems overshoot goals, oscillate, or behave unexpectedly
+- Design metrics that actually drive desired behavior (measure the right thing)
+- Understand resource accumulation and depletion patterns
+- Identify where buffers (stock reserves) should exist in a system
+- Predict lag between actions and results (manage expectations)
+- Communicate system structure visually to stakeholders
+- Prevent "quick fixes" that create long-term problems
+
+**Trigger**: When you hear "Why isn't this working yet?" or "Why did we suddenly run out?" you're likely dealing with delays or misunderstanding stock vs. flow.
+
+## The Process
+
+### 1. Identify the Critical Stocks
+
+Start by naming what accumulates in your system. Stocks are nouns, measured as quantities at a point in time.
+
+**Categories of stocks**:
+- **Physical**: Inventory, raw materials, finished goods, cash, equipment
+- **Human**: People count, skills, knowledge, experience, morale
+- **Information**: Data, documentation, brand reputation, customer trust
+- **Abstract**: Technical debt, customer goodwill, market share
+
+**Test**: Can you measure it at a snapshot in time? "We have 500 users" (stock) vs. "We gain 50 users per day" (flow).
+
+**Action**: List 3-5 key stocks in your system. Example: "Customer base, monthly recurring revenue, engineering capacity, product quality."
+
+### 2. Map the Flows Affecting Each Stock
+
+For each stock, identify the inflows (what increases it) and outflows (what decreases it). Flows are rates, measured per unit of time.
+
+**Structure**:
+```
+[Inflow] → [STOCK] → [Outflow]
+```
+
+**Examples**:
+- **Cash**: Revenue (in), expenses (out)
+- **Customers**: Signups (in), churn (out)
+- **Knowledge**: Learning (in), forgetting (out)
+- **Technical debt**: Shortcuts taken (in), refactoring (out)
+- **Morale**: Positive events (in), burnout/frustration (out)
+
+**Key principle**: A stock can only change through its flows. If you want to change inventory, change production rate or sales rate.
+
+**Action**: For each stock, draw arrows in and out, labeling each flow with its name and typical rate.
+
+### 3. Identify and Measure Delays
+
+Delays are the time gaps between when a flow changes and when the stock responds, or between cause and effect in the system.
+
+**Types of delays**:
+- **Perception delay**: Time to notice a problem (metrics lag reality)
+- **Response delay**: Time to decide and act (bureaucracy, decision cycles)
+- **Delivery delay**: Time for action to take effect (implementation, shipping)
+- **Impact delay**: Time for stock to change noticeably (accumulation builds slowly)
+
+**Examples**:
+- Hiring: Recognize need (1 month) + recruit (2 months) + onboard (3 months) = 6-month delay
+- Product changes: Decide (2 weeks) + build (6 weeks) + deploy (1 week) + adoption (4 weeks) = 3-month delay
+- Weight loss: Diet change (instant) + metabolic adjustment (2 weeks) + visible result (4 weeks) = 6-week delay
+- Technical debt: Shortcut taken (instant) + productivity impact (3 months) + crisis (12 months) = 15-month delay
+
+**Danger**: The longer the delay, the greater the risk of overshoot, oscillation, or giving up too soon.
+
+**Action**: For each critical flow, estimate the delay between when you change it and when you see stock effects. Mark delays on your diagram with hash marks (//).
+
+### 4. Calculate Stock Change Dynamics
+
+Stocks change according to this fundamental equation:
+
+**Stock(now) = Stock(before) + Σ(inflows) - Σ(outflows) over time interval**
+
+This reveals several key insights:
+
+**A. Stocks change slowly (inertia)**
+- Even large flows take time to change large stocks
+- Example: Hiring 10 engineers per month into a 100-person team takes 10 months to double size
+
+**B. Stocks can remain constant with dynamic flows**
+- Steady state: Inflows = Outflows (stock doesn't change)
+- Example: 100 customers, 10 signups/month, 10 churns/month = stable base
+
+**C. Stocks decouple inflows from outflows**
+- Inflows and outflows can be independent
+- Example: Production (inflow) and sales (outflow) run on different schedules; inventory (stock) buffers them
+
+**Action**: For your critical stocks, ask: "At current flow rates, how long to double? How long to empty? What's the steady-state balance point?"
+
+### 5. Design for Stock Stability or Growth
+
+Now you can intervene strategically based on your goal:
+
+**To grow a stock**:
+- Increase inflows: "How do we accelerate signups?"
+- Decrease outflows: "How do we reduce churn?"
+- Both: "Improve acquisition AND retention"
+
+**To stabilize a stock**:
+- Balance inflows and outflows: "Match production to sales"
+- Add feedback mechanisms: "Adjust hiring based on headcount targets"
+- Create buffers: "Maintain safety stock of inventory"
+
+**To drain a stock**:
+- Increase outflows: "Accelerate refactoring to reduce technical debt"
+- Decrease inflows: "Stop taking shortcuts"
+- Both: "Feature freeze + cleanup sprint"
+
+**Action**: Define your target stock level and design flow interventions to get there.
+
+### 6. Manage Delays to Prevent Overshoot
+
+Delays cause most system problems. The longer the delay, the more likely you'll overshoot, overshoot in reverse, or oscillate.
+
+**Strategies**:
+
+**A. Shorten delays**:
+- Faster feedback cycles (weekly metrics vs. quarterly)
+- Rapid prototyping (test before full commit)
+- Parallel processing (reduce sequential handoffs)
+
+**B. Account for delays in decisions**:
+- Lead indicators (measure flows, predict stock changes)
+- Pipeline visibility ("How many hires are in process?")
+- Conservative targets (undershoot intentionally)
+
+**C. Add buffers to absorb delay impacts**:
+- Safety stock (inventory cushion)
+- Runway (cash reserves for delays)
+- Slack capacity (15% buffer for uncertainties)
+
+**Anti-pattern**: Ignoring delays leads to "bathtub syndrome" - cranking the faucet higher when the tub doesn't fill fast enough, then scrambling to shut it off when overflow starts (but it's already too late).
+
+**Action**: For each identified delay, either shorten it or design buffers to prevent overshoot.
+
+### 7. Visualize with Stock-Flow Diagrams
+
+Draw a simple diagram to communicate system structure:
+
+**Notation**:
+- **Rectangle** = Stock (noun, quantity)
+- **Arrow with valve** = Flow (verb, rate)
+- **Cloud** = Source/sink (infinite reservoir)
+- **Hash marks (//)** = Delay
+- **Curved arrow** = Information link (feedback)
+
+**Example (Customer Growth)**:
+```
+[Market] → [Signup Rate] → [CUSTOMERS] → [Churn Rate] → [Former Customers]
+                ↑                 ↓
+                └─────(word of mouth feedback, 2-week delay)─────┘
+```
+
+**Action**: Sketch your system as a stock-flow diagram. Share with stakeholders to align mental models.
+
+## Example: Engineering Team Capacity
+
+**Scenario**: Your engineering team is overwhelmed. Leadership wants to hire aggressively to fix it.
+
+**Stock-Flow Analysis**:
+
+**Stock**: Engineering capacity (person-weeks per month)
+- Current: 40 engineers × 4 weeks = 160 person-weeks/month
+
+**Inflows**:
+- New hires: 5 engineers/month
+- **Delay**: 6 months to full productivity (recruit 2mo + onboard 3mo + ramp 1mo)
+- Effective inflow today: Hires from 6 months ago = 2 engineers × 4 weeks = 8 person-weeks/month
+
+**Outflows**:
+- Attrition: 3 engineers/month leaving
+- Context switching overhead: 20% of capacity lost to meetings
+- Effective outflow: 12 engineers/month + 32 person-weeks overhead = 80 person-weeks/month
+
+**Current state**: 
+- Stock change = +8 (delayed inflow) - 80 (outflow) = -72 person-weeks/month
+- **Crisis**: Team capacity is shrinking despite hiring!
+
+**Root cause**: 
+1. **Delay problem**: Hiring today won't help for 6 months
+2. **Flow problem**: Outflows (attrition + overhead) exceed inflows
+3. **Stock problem**: Capacity is too low to absorb new hires (training burden)
+
+**Solution**:
+1. **Immediate** (stop the bleeding): Reduce outflows by cutting non-essential meetings (-20% overhead), retain current team (reduce attrition)
+2. **Medium-term** (account for delay): Bring in 3 contract engineers who can contribute in 2 weeks, not 6 months
+3. **Long-term** (grow stock): Once stable, scale hiring with infrastructure to reduce onboarding delay
+
+**Outcome**: Team stabilized in 6 weeks, returned to growth in 4 months, doubled in 18 months without crisis.
+
+## Anti-Patterns
+
+**Confusing Stock and Flow**: Saying "Our revenue is high" when you mean "Our revenue growth rate is high." Stock is total, flow is rate of change.
+
+**Ignoring Delays**: "We hired 10 people, why isn't productivity up?" Because there's a 6-month delay. Expecting instant results from delayed systems.
+
+**Draining Stocks Too Fast**: Cutting costs (outflow reduction) faster than you can reduce commitments creates shortfalls. Example: Layoffs before canceling projects.
+
+**No Stock Buffers**: Running "just-in-time" everything means any flow disruption causes crisis. Examples: No cash reserves, no safety stock, no slack capacity.
+
+**Measuring the Wrong Thing**: Tracking stocks when you should track flows, or vice versa. Example: "Headcount is 100" (stock) doesn't tell you if you're growing or shrinking - need to track hiring/attrition flows.
+
+**Fighting Stock Inertia**: Trying to change large stocks quickly with inadequate flows. Example: "Change company culture" (huge stock) through one training session (tiny inflow).
+
+## Related Frameworks
+
+- **Feedback Loops**: Stocks and flows connect via feedback to create reinforcing or balancing loops
+- **12 Leverage Points**: Stock buffers (#6), flow rates (#5), and delays (#10) are all leverage points
+- **System Archetypes**: Built from stock-flow structures (e.g., "Limits to Growth" = stock + reinforcing inflow + balancing outflow)
+- **Theory of Constraints**: Bottlenecks are flows that limit stock accumulation
+- **Queueing Theory**: Mathematical treatment of stocks (queues) and flows (arrival/service rates)
+- **Little's Law**: Stock = Flow × Time (average inventory = throughput × cycle time)
+
+## Further Learning
+
+**Canonical Source**:
+- "Thinking in Systems: A Primer" by Donella Meadows (Chapter 1: "The Basics")
+- "The Bathtub Metaphor" essay by Donella Meadows
+
+**Key Concepts to Explore**:
+- Stock-flow diagrams (visual notation)
+- Conservation laws (matter/energy can't be created/destroyed, only transformed)
+- Residence time (average time an element spends in a stock)
+- Throughput vs. capacity (flow rate vs. stock level)
+
+**Practice Exercise**:
+Pick a problem where things are "not changing fast enough" or "changing too fast." Draw a stock-flow diagram identifying:
+1. The key stock
+2. All inflows and outflows
+3. Delays in each flow
+4. Current rates vs. desired rates
+
+Calculate how long it will take to reach your goal at current rates. If unacceptable, which flow will you change and by how much?

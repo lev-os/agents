@@ -1,0 +1,186 @@
+---
+name: price-elasticity
+description: Measure demand sensitivity when deciding to raise, lower, or maintain prices
+domain: domain-specific
+subdomain: economics
+track: mental-models
+aliases:
+  - Elasticity
+  - Demand Elasticity
+  - PED
+sources:
+  - Revenue management systems (airlines, hotels)
+  - Dynamic pricing algorithms
+  - Strategic pricing consultancies (Simon-Kucher, McKinsey)
+score: 41
+---
+
+## Overview
+
+Price elasticity of demand (PED) quantifies how demand responds to price changes. The core question: if I increase price by 10%, how much will demand decrease? The answer determines whether raising prices increases or destroys revenue.
+
+**The Formula**: PED = (% Change in Quantity Demanded) / (% Change in Price)
+
+**Elastic products** (PED > 1): Demand highly sensitive to price. A 10% price increase causes >10% demand drop, reducing total revenue. Strategy: Lower prices to drive volume.
+
+**Inelastic products** (PED < 1): Demand relatively insensitive to price. A 10% price increase causes <10% demand drop, increasing total revenue. Strategy: Raise prices to expand margins.
+
+**Unit elastic** (PED = 1): Revenue stays constant regardless of price changes.
+
+The framework transforms pricing from guesswork into science. Companies using elasticity-based pricing outperform competitors who price based on gut feel or simple cost-plus formulas.
+
+## When to Use
+
+**Pricing strategy and optimization:**
+- Setting initial prices for new products based on market sensitivity analysis
+- Deciding whether to raise, lower, or maintain current prices to maximize revenue
+- Designing tiered pricing structures that capture different elasticity segments
+- Optimizing subscription pricing and packaging
+
+**Promotion and discount planning:**
+- Determining optimal discount levels that drive volume without leaving money on table
+- Timing promotional campaigns based on demand elasticity patterns
+- Evaluating whether flash sales increase total revenue or just shift timing
+
+**Market positioning and competitive response:**
+- Predicting competitor pricing moves and their impact on your demand
+- Deciding whether to match competitor price cuts or maintain premium positioning
+- Identifying price-insensitive segments where you can capture premium margins
+
+**Product portfolio management:**
+- Allocating marketing resources to elastic vs. inelastic products
+- Cross-subsidization strategies (loss leaders on elastic goods, margins on inelastic)
+- Bundling elastic and inelastic products to optimize overall revenue
+
+**Demand forecasting and inventory planning:**
+- Predicting sales volume changes from planned price adjustments
+- Managing inventory levels based on price-driven demand shifts
+- Optimizing production planning when prices fluctuate
+
+## Process
+
+### 1. Segment Your Market
+Different customer segments exhibit different price sensitivity:
+- **Price-sensitive segments**: Students, price shoppers, large-volume buyers (elastic)
+- **Price-insensitive segments**: Premium buyers, time-constrained, brand loyalists (inelastic)
+- **Context-dependent**: Business travelers vs. vacation travelers (airlines), weekday vs. weekend (restaurants)
+
+Map your customer base into elasticity segments. Don't assume uniform sensitivity.
+
+### 2. Gather Historical Data
+Collect data on past pricing and demand:
+- Price points tested over time
+- Corresponding sales volumes at each price
+- External factors affecting demand (seasonality, competitors, economy)
+- Customer segment breakdown at different price points
+
+Minimum viable: 3-6 months of pricing variation data. Ideal: Multi-year history with A/B tests.
+
+### 3. Calculate Elasticity Coefficient
+Use historical data to compute PED:
+
+**Example Calculation:**
+- Original price: $100, Quantity sold: 1,000 units
+- New price: $110 (+10%), Quantity sold: 850 units (-15%)
+- PED = (-15%) / (+10%) = -1.5 (elastic)
+
+**Interpretation:**
+- PED = -1.5 means 1% price increase causes 1.5% demand decrease
+- Revenue impact: +10% price × -15% volume = -6.5% revenue (don't raise prices!)
+
+Most elasticity is negative (higher price = lower demand), but report absolute value for clarity.
+
+### 4. Identify Optimal Price Point
+Map revenue across price range using elasticity data:
+
+**For Elastic Products** (PED > 1):
+- Lower prices to drive volume
+- Revenue maximization occurs at lower price, higher volume
+- Focus on market share and economies of scale
+
+**For Inelastic Products** (PED < 1):
+- Raise prices to expand margins
+- Revenue maximization occurs at higher price, lower volume
+- Focus on margin optimization and premium positioning
+
+Calculate the exact price point where marginal revenue = marginal cost using your elasticity curve.
+
+### 5. Test and Validate
+Never deploy pricing changes at full scale without testing:
+- **A/B testing**: Show different prices to different customer segments, measure conversion and revenue
+- **Geographic testing**: Roll out new pricing in select markets before global deployment
+- **Time-based testing**: Test new prices during low-stakes periods before peak seasons
+
+Measure not just volume impact, but total revenue and profitability changes.
+
+### 6. Monitor and Adjust Dynamically
+Elasticity changes over time based on:
+- Competitor actions (new entrants change price sensitivity)
+- Economic conditions (recessions increase elasticity)
+- Product lifecycle (early adopters less elastic, mass market more elastic)
+- Seasonality and context (holiday shopping vs. regular periods)
+
+Implement dynamic pricing systems that adjust based on real-time elasticity signals: Airline seat prices (time-sensitive), Uber surge pricing (demand spikes), Hotel rates (occupancy levels).
+
+### 7. Apply Cross-Elasticity Insights
+Consider how your price changes affect demand for related products:
+- **Substitutes**: If coffee price rises, tea demand increases (positive cross-elasticity)
+- **Complements**: If printer price drops, ink demand increases (negative cross-elasticity)
+
+Optimize pricing across your entire portfolio, not just individual SKUs.
+
+## Example
+
+**Airline Revenue Management (Classic Elasticity Application)**
+
+Airlines pioneered elasticity-based pricing in the 1980s, now a $100B+ revenue optimization industry:
+
+1. **Segment Identification**:
+   - **Business travelers** (PED ≈ 0.3-0.5): Inelastic—book last-minute, expense to company, prioritize schedule
+   - **Leisure travelers** (PED ≈ 1.5-2.0): Elastic—book months ahead, personal expense, price-sensitive
+
+2. **Pricing Strategy**:
+   - **Last-minute tickets**: High prices capture inelastic business demand
+   - **Advance purchase**: Low prices stimulate elastic leisure demand
+   - **Saturday night stay requirement**: Segments leisure from business (business travelers won't stay weekends)
+
+3. **Dynamic Adjustment**:
+   - If flight filling slowly: Lower prices to stimulate elastic leisure bookings
+   - If flight filling fast: Raise prices to maximize revenue from remaining inelastic buyers
+   - Adjust 100+ times before departure based on real-time demand signals
+
+4. **Result**: Revenue per flight increases 15-30% compared to fixed pricing. Empty seats filled by elastic buyers at low margins; premium seats sold to inelastic buyers at high margins.
+
+**SaaS Pricing Example**: Slack found enterprise pricing (>$X/month) was inelastic (PED ≈ 0.4)—companies cared more about collaboration value than cost. They raised enterprise prices 20%, lost only 5% of customers, and increased revenue 14%. Contrast with consumer tier, which was elastic (PED ≈ 1.8)—they kept free tier pricing low to drive viral adoption.
+
+## Anti-Patterns
+
+**Assuming Uniform Elasticity**: Treating all customers as equally price-sensitive. Reality: segments have radically different elasticity. Personalized or segmented pricing captures more value.
+
+**Confusing Volume with Revenue**: Celebrating increased sales volume after price cuts without checking whether total revenue and profit increased. Elastic products can have higher volume but lower revenue.
+
+**Ignoring Competitive Dynamics**: Measuring elasticity in isolation without considering that competitors will respond. Your elasticity changes when competitors match your price cuts.
+
+**Static Pricing in Dynamic Markets**: Setting prices once based on historical elasticity and never adjusting. Markets evolve; your elasticity from 2023 may not apply in 2025.
+
+**Over-Optimizing on Elasticity Alone**: Pricing solely to maximize short-term revenue without considering brand positioning, customer lifetime value, or market share objectives. Sometimes strategic pricing sacrifices immediate revenue for long-term positioning.
+
+**Insufficient Data**: Calculating elasticity from 2-3 weeks of data or without controlling for external factors (holidays, competitor actions, seasonality). Results in false confidence in bad numbers.
+
+**Ignoring Non-Price Factors**: Assuming all demand changes are price-driven. Quality changes, marketing campaigns, word-of-mouth, and external events all affect demand independent of price.
+
+## Related Frameworks
+
+**Marginal Revenue and Marginal Cost**: Optimal pricing occurs where marginal revenue (derived from elasticity) equals marginal cost. Elasticity determines your marginal revenue curve.
+
+**Consumer Surplus**: Elasticity reveals how much consumer surplus exists (value customers place above price paid). Highly inelastic goods indicate large capturable surplus.
+
+**Price Discrimination**: Elasticity differences across segments enable profitable price discrimination—charge high prices to inelastic segments, low prices to elastic segments (airline tickets, student discounts).
+
+**Willingness to Pay**: Elasticity analysis reveals willingness-to-pay distribution across customer base, informing pricing tiers and packaging.
+
+**Switching Costs**: Products with high switching costs tend to be more inelastic—customers locked in won't leave over moderate price increases.
+
+**Network Effects**: Products with strong network effects often become more inelastic over time as switching becomes costlier.
+
+**Luxury Goods and Veblen Effect**: Rare exception where demand increases with price (negative elasticity). Price signals quality or status, violating normal elasticity assumptions.
