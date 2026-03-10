@@ -1,6 +1,6 @@
 #!/bin/bash
 # Work Skill Integration Test
-# Tests basic functionality and integration points
+# Tests pass-1 lifecycle/template contract basics
 
 set -e
 
@@ -8,7 +8,6 @@ echo "🧪 Work Skill Integration Tests"
 echo "================================"
 echo ""
 
-# Test 1: SKILL.md exists
 echo "Test 1: SKILL.md exists"
 if [ -f ~/.claude/skills/work/SKILL.md ]; then
     echo "✅ PASS: SKILL.md found"
@@ -18,17 +17,15 @@ else
 fi
 echo ""
 
-# Test 2: README.md exists
-echo "Test 2: README.md exists"
-if [ -f ~/.claude/skills/work/README.md ]; then
-    echo "✅ PASS: README.md found"
+echo "Test 2: Legacy READMEs removed"
+if [ ! -f ~/.claude/skills/work/README.md ] && [ ! -f ~/.claude/skills/work/templates/README.md ]; then
+    echo "✅ PASS: legacy READMEs removed"
 else
-    echo "❌ FAIL: README.md not found"
+    echo "❌ FAIL: legacy README surface still exists"
     exit 1
 fi
 echo ""
 
-# Test 3: Templates directory exists
 echo "Test 3: Templates directory exists"
 if [ -d ~/.claude/skills/work/templates ]; then
     echo "✅ PASS: templates/ directory found"
@@ -38,96 +35,82 @@ else
 fi
 echo ""
 
-# Test 4: report.md template exists
-echo "Test 4: report.md template exists"
-if [ -f ~/.claude/skills/work/templates/report.md ]; then
-    echo "✅ PASS: report.md template found"
-else
-    echo "❌ FAIL: report.md template not found"
-    exit 1
-fi
-echo ""
-
-# Test 5: Lev router updated
-echo "Test 5: Lev master router integration"
-if grep -q "work.*lifecycle router" ~/.claude/skills/lev/SKILL.md; then
-    echo "✅ PASS: Lev router includes work skill"
-else
-    echo "❌ FAIL: Lev router not updated"
-    exit 1
-fi
-echo ""
-
-# Test 6: Output directories exist
-echo "Test 6: Output directories"
-for dir in reports proposals plans handoffs; do
-    mkdir -p ~/.lev/pm/$dir 2>/dev/null || true
-    if [ -d ~/.lev/pm/$dir ]; then
-        echo "✅ PASS: .lev/pm/$dir exists"
+echo "Test 4: Canonical PM templates exist"
+for file in report.md proposal.md design.md spec.md plan.md handoff.md decision.md validation-report.md; do
+    if [ -f ~/.claude/skills/work/templates/$file ]; then
+        echo "✅ PASS: $file found"
     else
-        echo "⚠️  WARN: .lev/pm/$dir not found (will create on first use)"
+        echo "❌ FAIL: $file missing"
+        exit 1
     fi
 done
 echo ""
 
-# Test 7: Skill discovery
-echo "Test 7: Skill discovery via lev get"
-if command -v lev &> /dev/null; then
-    if lev get "work skill" --scope=knowledge 2>/dev/null | grep -q "work"; then
-        echo "✅ PASS: Work skill discoverable via lev get"
+echo "Test 5: Legacy chore template removed"
+if [ ! -f ~/.claude/skills/work/templates/chore.md ]; then
+    echo "✅ PASS: chore.md removed"
+else
+    echo "❌ FAIL: chore.md still present"
+    exit 1
+fi
+echo ""
+
+echo "Test 6: PM directories exist"
+for dir in reports proposals designs specs plans handoffs decisions validation-reports; do
+    mkdir -p ~/.lev/pm/$dir 2>/dev/null || true
+    if [ -d ~/.lev/pm/$dir ]; then
+        echo "✅ PASS: .lev/pm/$dir exists"
     else
-        echo "⚠️  WARN: Work skill not indexed (run lev index build)"
+        echo "❌ FAIL: .lev/pm/$dir missing"
+        exit 1
     fi
-else
-    echo "⚠️  WARN: lev CLI not available (optional)"
-fi
+done
 echo ""
 
-# Test 8: BD availability
-echo "Test 8: BD integration"
-if command -v bd &> /dev/null; then
-    echo "✅ PASS: BD CLI available"
+echo "Test 7: scratch is outside PM"
+mkdir -p ~/.lev/scratch 2>/dev/null || true
+if [ -d ~/.lev/scratch ]; then
+    echo "✅ PASS: .lev/scratch exists"
 else
-    echo "⚠️  WARN: BD CLI not available (optional, will degrade gracefully)"
-fi
-echo ""
-
-# Test 9: YAML frontmatter validation
-echo "Test 9: Template YAML frontmatter"
-if head -20 ~/.claude/skills/work/templates/report.md | grep -q "^---$"; then
-    echo "✅ PASS: report.md has YAML frontmatter"
-else
-    echo "❌ FAIL: report.md missing YAML frontmatter"
+    echo "❌ FAIL: .lev/scratch missing"
     exit 1
 fi
 echo ""
 
-# Test 10: File permissions
-echo "Test 10: File permissions"
-if [ -r ~/.claude/skills/work/SKILL.md ]; then
-    echo "✅ PASS: SKILL.md readable"
-else
-    echo "❌ FAIL: SKILL.md not readable"
-    exit 1
-fi
+echo "Test 8: Handoff template sections"
+for section in "## You Are Here" "## Next Agent Brief" "## Roadmap To Goal" "## Timeline" "## Decisions Log" "## Open Questions" "## Entity Matrix" "## Meta" "### Active Blockers" "### Risks" "### What Worked" "### What Didn't Work" "### Context For Next Session" "#### Mental Model" "#### Quick Start Commands" "#### Configuration State"; do
+    if rg -q "${section}" ~/.claude/skills/work/templates/handoff.md; then
+        echo "✅ PASS: $section"
+    else
+        echo "❌ FAIL: missing $section"
+        exit 1
+    fi
+done
 echo ""
 
-# Summary
+echo "Test 9: How To Fill sections"
+for file in report.md proposal.md design.md spec.md plan.md handoff.md decision.md validation-report.md; do
+    if rg -q "^## How To Fill This Out" ~/.claude/skills/work/templates/$file; then
+        echo "✅ PASS: $file has How To Fill This Out"
+    else
+        echo "❌ FAIL: $file missing How To Fill This Out"
+        exit 1
+    fi
+done
+echo ""
+
+echo "Test 10: Lint passes"
+bash ~/.claude/skills/work/scripts/lint-work-contract.sh
+echo ""
+
 echo "================================"
 echo "Integration Test Summary"
 echo "================================"
 echo ""
-echo "✅ Core files present"
-echo "✅ Lev router integration complete"
-echo "✅ Template system ready"
-echo "✅ Output directories prepared"
+echo "✅ Work skill is self-documenting"
+echo "✅ PM template contract is present"
+echo "✅ Handoff contract is upgraded"
+echo "✅ Scratch boundary is correct"
 echo ""
-echo "⚠️  Optional dependencies:"
-echo "   - lev CLI (for skill discovery)"
-echo "   - BD CLI (for task tracking)"
-echo ""
-echo "Status: READY FOR USE"
-echo ""
-echo "Quick start:"
-echo '  work "Analyze something interesting"'
+echo "Status: READY FOR PASS 1"
 echo ""

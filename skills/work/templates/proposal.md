@@ -21,6 +21,24 @@ validation_gates:
 
 # Proposal: Title
 
+## How To Fill This Out
+
+Use this template when proposing a non-trivial solution before spec or execution. A proposal explains the problem, compares options, and recommends a direction. It is broader than a plan and less locked than a spec.
+
+Use uncertainty markers when needed:
+- `[tbd]`
+- `[unknown]`
+- `[theory]`
+- `[maybe: ..., confidence: ##%]`
+
+Good:
+- "This proposal compares two directions and recommends one."
+- "This proposal explains what still needs validation before approval."
+
+Bad:
+- "This is already the final spec."
+- "This is just a task list."
+
 <!--
 PURPOSE: Top-level title that uniquely identifies this proposal at a glance
 PROCESS: Write a short, specific title — verb-noun format preferred (e.g., "Migrate X to Y", "Add Z Pipeline")
@@ -295,11 +313,10 @@ remove_nodes:
 required_skills:
   - skill://lev-find      # Legacy skill name (context backend for lev get)
   - skill://lev-align     # Architecture validation
-  - skill://planning      # Plan generation (if approved)
 
 optional_skills:
   - skill://lev-research  # Additional research
-  - skill://lev-test      # E2E validation
+  - skill://workflow      # Workflow scaffolding where relevant
 ```
 
 **FlowMind Protocols:**
@@ -696,11 +713,11 @@ BAD: Deleting this section or leaving the lifecycle position stale after a stage
 **This proposal is at the "crystallizing" stage.** Here's what typically comes next:
 
 1. **Design validation gates** - Define test strategy, DoR, acceptance criteria
-2. **Create implementation plan** - `work "plan implementation of {this proposal}"` - generates plan.md with full DoR
+2. **Create implementation plan** - `work "plan implementation of {this proposal}"` - generates `plan-{kind}-{slug}.md` for the current execution slice
 3. **Run spike/POC** - Test technical unknowns: `work "POC for {specific aspect}"`
 4. **Get alignment** - Run `lev-align` to check for architecture drift
 5. **Refine proposal** - Update based on feedback, more research if needed
-6. **Scaffold BD epic** - Once approved: `bd create --type=epic --title="{title}"` with plan.md
+6. **Scaffold tracker epic** - Once approved: create the execution-slice tracker and link the plan artifact
 
 **Lifecycle position:** ephemeral - captured - **crystallizing** - crystallized - manifesting - completed
 

@@ -10,6 +10,24 @@ status: draft
 
 # {{TITLE}} — Behavioral Specification
 
+## How To Fill This Out
+
+Use this template for SDLC behavioral specs. A spec defines the target system and its contract. It is not a design doc and it is not an execution plan.
+
+Use uncertainty markers when needed:
+- `[tbd]`
+- `[unknown]`
+- `[theory]`
+- `[maybe: ..., confidence: ##%]`
+
+Good:
+- "This spec defines target behavior with BDD and contract details."
+- "Unknowns are labeled explicitly instead of hidden."
+
+Bad:
+- "This spec is really just a roadmap."
+- "This spec mixes execution chores directly into the contract."
+
 ## Executive Summary
 <!--
 PURPOSE: Orient the reader in 2-3 sentences. What system/module does this spec define?
@@ -179,11 +197,11 @@ PROCESS: List every behavioral change that could break existing consumers.
 
 ## Cross-References
 <!--
-PURPOSE: Explicit links to related specs, chores, and architecture docs.
+PURPOSE: Explicit links to related specs, plans, and architecture docs.
 PROCESS: For each reference: what it is, why it matters, and what section is relevant.
 GOOD: "spec-session.md Section 'Clarification Flow' — consumes our PARAM_REJECTED event.
       spec-daemon.md Section 'Lifecycle' — hosts this module's runtime.
-      chore-transcription-wiring.md — tracks implementation gaps against this spec."
+      plan-bugfix-transcription-wiring.md — tracks implementation gaps against this spec."
 BAD:  "See other docs."
 -->
 
@@ -194,7 +212,7 @@ BAD:  "See other docs."
 ## Implementation Guidance
 
 ### Recommended Skills
-<!-- Skill IDs discovered during planning phase -->
+<!-- Skill IDs discovered during design/spec routing -->
 
 ### Team Structure
 <!-- Recommended execution strategy: direct / ephemeral subagents / formal team -->

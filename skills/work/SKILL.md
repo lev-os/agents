@@ -1,7 +1,7 @@
 ---
 name: work
-description: Unified lifecycle/process router. Concurrent FSM that discovers context, runs embedded alignment checks, researches, proposes, specs behavior, and routes to specialist skills. Guard scoring is constant, not gated. Artifacts are spec-first. Includes spec-alignment workflow for hardening passes.
-version: 3.3.0
+description: Unified lifecycle/process router. Concurrent FSM that discovers context, refines goals, maintains handoffs and entity state, routes to specialist skills, and uses `.lev/pm/*` as the canonical lifecycle surface. Includes spec-alignment workflow and PM-first template contracts.
+version: 3.4.0
 extends: []
 related_skills:
   - lev-research
@@ -10,9 +10,6 @@ related_skills:
   - lev-learn
   - workflow
   - lev-portable
-  - br
-  - bd
-  - td
 skill_type: workflow
 category: process-lifecycle
 primitive_owner: work
@@ -24,18 +21,22 @@ tools:
   - skill-discovery CLI
   - jq
 storage:
-  beads: .beads/
-  custom_types:
-    report: "custom:report"
-    proposal: "custom:proposal"
-    spec: "custom:spec"
-    system: "custom:system"
-    learning: "custom:learning"
+  lifecycle_root: ".lev/pm/"
+  scratch_root: ".lev/scratch/"
+  canonical_artifacts:
+    report: ".lev/pm/reports/"
+    proposal: ".lev/pm/proposals/"
+    design: ".lev/pm/designs/"
+    spec: ".lev/pm/specs/"
+    plan: ".lev/pm/plans/"
+    handoff: ".lev/pm/handoffs/"
+    decision: ".lev/pm/decisions/"
+    validation_report: ".lev/pm/validation-reports/"
 ---
 
 # Work: FSM Lifecycle Router (v3)
 
-**One entry point for all work.** Concurrent FSM with PLANNING and EXECUTION phases. Guard scoring runs constantly (not as a gate). DISCOVER runs interview, memory prefetch, prior art, and search concurrently. All artifacts stored as beads custom types.
+**One entry point for all work.** Concurrent FSM with PLANNING and EXECUTION phases. Guard scoring runs constantly (not as a gate). DISCOVER runs interview, memory prefetch, prior art, and search concurrently. Canonical lifecycle artifacts live under `.lev/pm/*`. The free-form exception is `.lev/scratch/`.
 
 ```
                        PLANNING PHASE                                               EXECUTION PHASE
@@ -43,10 +44,10 @@ storage:
   │     DISCOVER      │──▶│ ALIGN │──▶│ RESEARCH │──▶│ PROPOSE │──▶│ SPEC │──▶│ EXECUTE │──▶│ VALIDATE │──▶│ EMIT │──▶│ LEARN │
   │   (concurrent)    │   └───────┘   └──────────┘   └─────────┘   └──────┘   └─────────┘   └──────────┘   └──────┘   └───────┘
   │                   │    north star   deeper code    CDO graph     BDD +      spawn         layer-dep      close      cm outcome
-  │ ┌──────────────┐  │   ALIGN gate    analysis       5-role        contracts  team/agents   strictness     bead       cm reflect
+  │ ┌──────────────┐  │   ALIGN gate    analysis       5-role        contracts  team/agents   strictness     files      cm reflect
   │ │ Interview(fg)│  │    classify     C1-C4 map      think         accept.    inline        gates          update     br learning
   │ │ PriorArt(bg) │  │    layers       DoR compl.     proposal      criteria   cm add                      status     cass index
-  │ │ Search  (bg) │  │    alignment                   bead                    (learn)
+  │ │ Search  (bg) │  │    alignment                   file                    (learn)
   │ └──────────────┘  │    verdict
   │                   │
   │ ╔════════════════╗│    Guard is NOT a step -- it scores 6 categories every turn.
@@ -98,6 +99,211 @@ Before every tracker write, check:
 2. Would this still be valid if the long-term plan changed?
 
 If either answer is "no", write it to the handoff instead.
+
+## PM Artifact Map (Hard Contract)
+
+Template-backed lifecycle artifacts map 1:1 to `.lev/pm/*`:
+
+| Artifact | Path | Template |
+|----------|------|----------|
+| Report | `.lev/pm/reports/` | `templates/report.md` |
+| Proposal | `.lev/pm/proposals/` | `templates/proposal.md` |
+| Design | `.lev/pm/designs/` | `templates/design.md` |
+| Spec | `.lev/pm/specs/` | `templates/spec.md` |
+| Plan | `.lev/pm/plans/` | `templates/plan.md` |
+| Handoff | `.lev/pm/handoffs/` | `templates/handoff.md` |
+| Decision | `.lev/pm/decisions/` | `templates/decision.md` |
+| Validation Report | `.lev/pm/validation-reports/` | `templates/validation-report.md` |
+
+The skill is self-documenting. Do not rely on companion README files for the contract.
+
+## Scratch Boundary (Hard Contract)
+
+`/.lev/scratch/` is the free-form exception outside the PM lifecycle tree.
+
+Use scratch for:
+- early theories
+- partial notes
+- temporary fragments
+- speculative material not yet ready to become a PM artifact
+
+Do not treat `.lev/scratch/` as canonical planning state. Promote out of scratch into a PM artifact when the content becomes durable.
+
+## Template Loading (Hard Contract)
+
+Always load:
+- `templates/handoff.md`
+
+Load as needed:
+- `templates/report.md`
+- `templates/proposal.md`
+- `templates/design.md`
+- `templates/spec.md`
+- `templates/plan.md`
+- `templates/decision.md`
+- `templates/validation-report.md`
+
+## Template Authoring Rules (Hard Contract)
+
+Every structured PM template must begin with a `How To Fill This Out` section.
+
+That section must:
+- explain the purpose of the template
+- explain the purpose of each major section
+- include good/bad examples
+- explicitly allow uncertainty markers
+
+Allowed uncertainty markers:
+- `[tbd]`
+- `[unknown]`
+- `[theory]`
+- `[maybe: ..., confidence: ##%]`
+
+## Quick Start
+
+Use `$work` when you want one entry point for lifecycle-aware work:
+
+```bash
+work "analyze the current auth system"
+work "design the new onboarding flow"
+work "write a spec for deterministic callbacks"
+work "plan the next implementation slice"
+work "create a handoff for this session"
+```
+
+The first move is always:
+1. open or update the handoff
+2. capture or refine the goal/done condition/roadmap/current slice
+3. update the entity matrix
+4. route into the correct lifecycle behavior
+
+## Common Usage Patterns
+
+### Pattern 1: Research / Analysis
+
+Use when you need to gather evidence or understand current state.
+
+Examples:
+- `work "analyze the current API architecture"`
+- `work "research validation-gate patterns"`
+- `work "scan the codebase for lifecycle drift"`
+
+Typical output:
+- active handoff updated
+- report artifact in `.lev/pm/reports/`
+
+### Pattern 2: Design / Proposal
+
+Use when you need to shape a solution, compare options, or define an interaction/system direction.
+
+Examples:
+- `work "design the callback routing surface"`
+- `work "propose a PM-first docs promotion workflow"`
+- `work "architect the work-mvp boundary"`
+
+Typical output:
+- active handoff updated
+- proposal or design artifact in `.lev/pm/proposals/` or `.lev/pm/designs/`
+
+### Pattern 3: Spec
+
+Use when you need an SDLC behavioral contract.
+
+Examples:
+- `work "spec the deterministic execution boundary"`
+- `work "spec callback lifecycle semantics"`
+
+Typical output:
+- active handoff updated
+- spec artifact in `.lev/pm/specs/`
+
+### Pattern 4: Plan / Current Execution Slice
+
+Use when you need the concrete slice that is being executed right now.
+
+Examples:
+- `work "plan the bugfix slice for handoff sharding"`
+- `work "plan the next implementation slice for work-mvp"`
+
+Typical output:
+- active handoff updated
+- plan artifact in `.lev/pm/plans/`
+- tracker updated only for the current execution slice
+
+### Pattern 5: Session Continuity
+
+Use when you need to checkpoint or close a session.
+
+Examples:
+- `work "create a handoff for the work skill pass"`
+- `work "close this session and capture next steps"`
+
+Typical output:
+- handoff updated in `.lev/pm/handoffs/`
+- decisions promoted if warranted
+- closeout/validation artifacts updated if the slice is done
+
+## Example Lifecycle
+
+```text
+User request
+  -> $work loads/updates handoff
+  -> goal + done condition + roadmap captured
+  -> entity matrix updated
+  -> DISCOVER
+  -> ALIGN
+  -> RESEARCH
+  -> PROPOSE / DESIGN
+  -> SPEC or PLAN
+  -> EXECUTE
+  -> VALIDATE
+  -> EMIT updated PM artifact
+  -> LEARN / closeout
+```
+
+Concrete example:
+1. `work "research the current callback boundary"`
+   -> `.lev/pm/reports/...`
+2. `work "design the callback routing surface"`
+   -> `.lev/pm/designs/...`
+3. `work "spec the callback execution contract"`
+   -> `.lev/pm/specs/...`
+4. `work "plan the next implementation slice"`
+   -> `.lev/pm/plans/plan-impl-...`
+5. `work "create a handoff"`
+   -> `.lev/pm/handoffs/...`
+
+## Troubleshooting
+
+### "I don't know what stage this is"
+
+Start with:
+- active handoff
+- current execution slice
+- current artifact
+- entity matrix state
+
+If still unclear:
+- route to DISCOVER and gather more evidence
+- do not skip straight to execution
+
+### "The tracker is getting roadmap text"
+
+That is a contract violation.
+
+Move long-term framing back into the handoff and keep the tracker scoped to the current execution slice only.
+
+### "I have an idea but it's not ready for PM"
+
+Use `.lev/scratch/` first.
+Promote to a PM artifact only when it becomes durable enough to track through the lifecycle.
+
+### "This seems like design, spec, and plan at once"
+
+Separate them:
+- design = broad direction
+- spec = SDLC behavioral contract
+- plan = current execution slice
 
 ## Canonical Naming (Hard Contract)
 
@@ -151,6 +357,39 @@ Every `Next Agent Brief` must state:
 - `Current Execution Slice`
 - `Why This Slice Now`
 - `Out of Scope This Session`
+
+## Decision Promotion (Hard Contract)
+
+Decisions stay in the handoff by default.
+
+Promote a decision to `.lev/pm/decisions/` only when it is:
+- architectural
+- reusable across sessions or workstreams
+- policy-setting
+- likely to be cited outside the originating handoff
+
+Promoted decisions must:
+- link back to the source handoff
+- preserve the original rationale
+- note whether the handoff copy is now superseded by the promoted ADR
+
+## Handoff Sharding (Hard Contract)
+
+Update the handoff incrementally during the session. Before sharding, prune or compress irrelevant or resolved checkpoints first.
+
+Shard to `session-{N+1}` when one or more of these conditions hold after consolidation:
+- soft line cap: around 500 lines and unresolved context is still dense
+- hard line cap: around 700 lines
+- checkpoint pressure: another checkpoint would exceed 15
+- entity pressure: more than 5 actively tracked entities
+- complexity pressure: more than 3 major lifecycle phases or more than 2 major domain pivots
+- depth pressure: entity-map or timeline growth makes recovery harder than a successor shard
+
+Rules:
+- `session-1` only when `predecessor: null`
+- successor shards must link to the predecessor
+- the old shard keeps historical breadcrumbs
+- the new shard starts with compressed context, current entity state, and active next steps
 
 ## Roadmap To Goal (Hard Contract)
 
@@ -208,6 +447,7 @@ The handoff must contain a rolling roadmap from current state to the done condit
 - Tracker items may only represent `Step 1` unless a later step is explicitly pulled forward into the current execution slice.
 - When Step 1 completes, shift the roadmap forward and rewrite the new Step 1 in detail.
 - When the goal or done condition changes, update the roadmap in the handoff before changing tracker scope.
+- Later sessions should refine the goal and done condition when they become clearer; do not preserve session-1 wording if the work is now better understood.
 
 ## Task Tracker Adapter (bd | br | td)
 
@@ -278,24 +518,23 @@ Do not place artifact-format instructions in command shims. Keep format contract
 ```
 ephemeral → captured → classified → crystallizing → crystallized → manifesting → completed
     ↓           ↓          ↓             ↓               ↓              ↓            ↓
- [none]    [report     [report +     [proposal       [spec          [handoff     [archive
-            bead]      alignment]     bead]           bead]          bead]        bead]
+ [scratch] [report]   [report]      [proposal or    [spec or       [handoff]    [validation /
+                                      design]        plan]                         promoted decisions]
                                        ↘ discarded
 ```
 
-| Stage | Bead Type | Sub-Skills | Keywords |
-|-------|-----------|-----------|----------|
+| Stage | Canonical Artifact | Sub-Skills | Keywords |
+|-------|--------------------|-----------|----------|
 | **ephemeral** | None (brainstorm) | Inline | "explore", "brainstorm", "understand" |
-| **captured** | `custom:report` | `lev get`, `lev-research` | "get", "research", "analyze", "scan", "find", "lookup", "read", "ls" |
-| **classified** | `custom:report` + alignment | `work` ALIGN gate, `lev-portable` | "classify", "align", "categorize" |
-| **crystallizing** | `custom:proposal` | `lev-cdo`, `lev-learn`, `thinking-parliament` | "design", "propose", "architect", "learn", "guide me" |
-| **crystallized** | `custom:spec` | `planning`, tracker | "plan", "implement", "specify" |
-| **manifesting** | handoff bead | Team coordination, tracker | "working on", "in progress" |
-| **completed** | archive bead | `lev-lifecycle` | "done", "finished", "closed" |
+| **captured** | `.lev/pm/reports/` | `lev get`, `lev-research` | "get", "research", "analyze", "scan", "find", "lookup", "read", "ls" |
+| **classified** | `.lev/pm/reports/` + handoff updates | `work` ALIGN gate, `lev-portable` | "classify", "align", "categorize" |
+| **crystallizing** | `.lev/pm/proposals/` or `.lev/pm/designs/` | `lev-cdo`, `lev-learn`, `thinking-parliament`, `ux` | "design", "propose", "architect", "learn", "guide me" |
+| **crystallized** | `.lev/pm/specs/` or `.lev/pm/plans/` | `work`, tracker | "plan", "implement", "specify", "bugfix", "chore" |
+| **manifesting** | `.lev/pm/handoffs/` + active PM artifact | Team coordination, tracker | "working on", "in progress" |
+| **completed** | `.lev/pm/validation-reports/` + optional `.lev/pm/decisions/` promotion | `work` close/reflect | "done", "finished", "closed" |
 | **discarded** | tombstone link | `work` guard + validation | "discard", "drop", "reject" |
 
-Learning artifacts are created post-completion by LEARN, but `custom:learning` is not a lifecycle state.
-All artifacts are stored as beads custom types (not files on disk). A hook generates markdown views from beads for human readability.
+`.lev/scratch/` is the free-form pre-artifact area. It is not a PM artifact class.
 
 ---
 
@@ -321,9 +560,10 @@ Canonical source for CLI alias + FSM stage + schema handler mapping:
 | Command / Alias | Primitive | Route | Notes |
 |-----------------|-----------|-------|-------|
 | `work` | lifecycle | `work` | DISCOVER -> ALIGN -> route |
-| `plan` | crystallized-intent | `work` -> SPEC | Legacy alias normalized to spec output |
-| `spec` | crystallized | `work` -> SPEC | Primary crystallized artifact |
+| `plan` | execution slice | `work` -> PLAN | Canonical execution artifact under `.lev/pm/plans/` |
+| `spec` | sdlc-variant | `work` -> SPEC | SDLC behavioral spec under `.lev/pm/specs/` |
 | `propose` | proposal | `work` -> PROPOSE | CDO graph deliberation |
+| `design` | design | `work` -> PROPOSE | Design artifact under `.lev/pm/designs/` |
 | `tracker` | execution tracking | tracker (br/bd/td) | Task graph + status |
 | `check` | validation | `work` VALIDATE | Alignment, DoR, drift |
 | `go` | execute | `work` -> EXECUTE | Start manifesting |
@@ -336,7 +576,7 @@ Canonical source for CLI alias + FSM stage + schema handler mapping:
 | `ask`, `wiz` | wizard mode | `interview` via DISCOVER | Guard >60% routes here automatically |
 | `scan`, `security` | assurance | `work` VALIDATE | Can route to specialist security skills |
 | `daemon`, `daemons` | runtime ops | `lev-core` | Operational status/health |
-| `reflect` | learning | `work` LEARN | cm reflect + learnings bead |
+| `reflect` | learning | `work` LEARN | cm reflect + update closeout artifacts |
 
 ### External Context Primitive
 
@@ -351,23 +591,24 @@ Progressive depth:
 - `context` -> current conversation/workspace state
 - `fs` -> filesystem and local artifacts
 - `tracker` -> task graph and open work (br/bd/td)
-- `beads` -> bead search (br search, cass search)
+- `artifacts` -> `.lev/pm/*` lifecycle artifacts
 - `research` -> external sources
 
 ---
 
 ## Quick-Keyword Artifact/Action Glossary
 
-| Keyword(s) | Stage | Bead Type | Action |
-|------------|-------|-----------|--------|
-| "get", "research", "analyze", "scan", "find", "lookup", "read", "ls" | captured | `custom:report` | DISCOVER -> `lev get` (or `lev-research` for deep mode) |
-| "align", "north star", "drift", "classify" | classified | `custom:report` | ALIGN gate (embedded) |
-| "design", "propose", "architect" | crystallizing | `custom:proposal` | PROPOSE -> `lev-cdo` + 5-role Think |
-| "learn", "guide me", "unstuck" | crystallizing | `custom:proposal` | DISCOVER interview track -> PROPOSE |
-| "plan", "implement", "specify" | crystallized | `custom:spec` | SPEC -> `planning` + tracker |
-| "working on", "in progress", "handoff", "exit" | manifesting | handoff bead | EXECUTE -> EMIT |
-| "done", "finished", "closed" | completed | archive bead | EMIT -> LEARN -> `lev-lifecycle` |
-| "reflect", "learnings", "retro" | completed (post-close) | `custom:learning` | LEARN -> `cm reflect` + `br create` |
+| Keyword(s) | Stage | Artifact | Action |
+|------------|-------|----------|--------|
+| "get", "research", "analyze", "scan", "find", "lookup", "read", "ls" | captured | report | DISCOVER -> `lev get` (or `lev-research` for deep mode) |
+| "align", "north star", "drift", "classify" | classified | report + handoff | ALIGN gate (embedded) |
+| "design", "propose", "architect" | crystallizing | proposal or design | PROPOSE -> `lev-cdo` + `ux` when relevant |
+| "learn", "guide me", "unstuck" | crystallizing | proposal or design | DISCOVER interview track -> PROPOSE |
+| "specify" | crystallized | spec | SPEC -> SDLC behavioral contract |
+| "plan", "implement", "bugfix", "chore" | crystallized | plan | PLAN -> current execution slice |
+| "working on", "in progress", "handoff", "exit" | manifesting | handoff | EXECUTE -> EMIT |
+| "done", "finished", "closed" | completed | validation report + optional decisions | EMIT -> LEARN |
+| "reflect", "learnings", "retro" | completed (post-close) | handoff/meta | LEARN -> `cm reflect` + update closeout |
 
 ---
 
@@ -375,7 +616,7 @@ Progressive depth:
 
 ### DISCOVER -- Concurrent Context Gathering
 
-DISCOVER is the entry point. It runs four tracks concurrently with a constant guard scoring function. All results save to `custom:report` beads.
+DISCOVER is the entry point. It runs four tracks concurrently with a constant guard scoring function. All findings update the active handoff and, when durable enough, a report artifact under `.lev/pm/reports/`.
 
 ```
 /work "{idea}"
@@ -438,7 +679,7 @@ Low-signal criteria (default): generic prompt, zero thinking signal, empty/weak 
 
 | Source | Search Method |
 |--------|--------------|
-| Beads | `br search "{kw}"` ; `br list --label-any "{kw}"` |
+| Tracker store | `br search "{kw}"` ; `br list --label-any "{kw}"` |
 | Tracker tasks | `$TRACKER list --status=open \| grep -i "{kw}"` ; `$TRACKER search "{kw}"` |
 | Codebase & docs | `lev get "{kw}" --scope=all --depth=research` |
 | CASS index | `cass search "{kw}" --robot --limit 10` |
@@ -453,7 +694,7 @@ Low-signal criteria (default): generic prompt, zero thinking signal, empty/weak 
 
 **Skip guard when:** Explicit file paths provided, multi-turn context established, `--no-guard` flag, or resuming from saved session.
 
-**Output:** `custom:report` beads with discovery results, guard scores, and skill manifest.
+**Output:** updated handoff + report artifact with discovery results, guard scores, and skill manifest.
 
 ### ALIGN -- North Star Alignment
 
@@ -464,7 +705,7 @@ ALIGN:
 ├── North star exists?
 │   ├── YES -> Compare current state to north star
 │   │   └── Drift type? (Stale Docs | Product Pivot | Coverage Gap | Status Drift | Path Drift)
-│   └── NO -> Deep research codebase -> define north star -> save as custom:system bead
+│   └── NO -> Deep research codebase -> define north star -> capture in handoff + report
 ├── Classify layers (lev-portable):
 │   ├── Stewart Brand shearing layers: Site | Structure | Skin | Services | Space Plan | Stuff
 │   ├── Depth: L0 (overview) -> L1 (structure) -> L2 (details) -> L3 (runtime)
@@ -481,14 +722,7 @@ ALIGN:
 | Space Plan | 3-7y | Lower | Routes, features |
 | Stuff | Daily | Lowest | Copy, env vars |
 
-**If no alignment data exists**, create a `custom:system` bead to capture project context:
-
-```bash
-br create "System: {project}" \
-  --type '{"custom":"system"}' \
-  --labels "system,alignment,{project}" \
-  --description "{north star + context}"
-```
+**If no alignment data exists**, capture project context in the active handoff and a report artifact.
 
 **Execution tiers** (determined by layer classification):
 
@@ -507,12 +741,12 @@ Deeper investigation informed by DISCOVER results and ALIGN verdict. Runs only w
 | Activity | Method | Output |
 |----------|--------|--------|
 | Code analysis | Read files, trace dependencies | Understanding of current state |
-| Content review | Review prior art beads | Context for proposal |
+| Content review | Review prior art artifacts | Context for proposal |
 | Design review | Architecture patterns, anti-patterns | Alignment assessment |
 | C1-C4 mapping | Site/Structure layer analysis | Impact assessment |
 | DoR completion | Fill remaining guard categories | Ready for PROPOSE |
 
-**Save to:** `custom:report` beads with research findings.
+**Save to:** `.lev/pm/reports/` and update the active handoff.
 
 **Skip when:** Guard score <=30% at DISCOVER exit AND layer is Stuff/Space Plan (tier Direct or Brief).
 
@@ -528,24 +762,17 @@ PROPOSE:
 │   │                    Stuff -> heavy Pragmatist + Wild Card
 │   ├── Devil's advocate trigger when >70% agreement
 │   └── Light mode (>=0.80 confidence): Advocate + Critic only
-├── Draft proposal -> custom:proposal bead
-├── If ephemeral -> inline response (still stored in beads)
+├── Draft proposal or design artifact
+├── If ephemeral -> inline response + optional scratch note
 ├── If prior art exists -> extend, don't duplicate
 ├── Surface discovered skills:
-│   ├── Pull skill manifest from DISCOVER Search track report bead
+│   ├── Pull skill manifest from DISCOVER Search track report
 │   ├── If design/UX keywords detected -> propose loading `ux` hub
 │   ├── Query local skills runtime: ~/.agents/lev-skills.sh discover "{topic}" --json
 │   └── Include in dashboard footer (inline, does NOT block FSM)
 ```
 
-**Save to:** `custom:proposal` bead.
-
-```bash
-br create "Proposal: {topic}" \
-  --type '{"custom":"proposal"}' \
-  --labels "proposal,{layer},{domain}" \
-  --description "{proposal content}"
-```
+**Save to:** `.lev/pm/proposals/` or `.lev/pm/designs/`, plus active handoff updates.
 
 **Team structure** (determined here, not in a separate PLAN step):
 
@@ -557,18 +784,16 @@ br create "Proposal: {topic}" \
 
 ### SPEC -- Behavioral Specification
 
-Crystallize the proposal into an actionable spec with BDD scenarios and contracts.
+Crystallize the proposal or design into a spec or a plan, depending on intent:
 
-**Save to:** `custom:spec` bead. Break into epics + tasks in BD.
+- `spec` = SDLC behavioral contract under `.lev/pm/specs/`
+- `plan` = current execution slice under `.lev/pm/plans/`
 
-```bash
-br create "Spec: {topic}" \
-  --type '{"custom":"spec"}' \
-  --labels "spec,{layer},{domain}" \
-  --description "{spec content with BDD scenarios}"
-```
+Use `spec` when defining target behavior and contracts.
+Use `plan` when defining the current implementation / bugfix / research slice.
 
-**Spec must include:** BDD scenarios (Given/When/Then), contracts, acceptance criteria, team structure, and workstream assignments. See VALIDATE gates for full requirements.
+Specs must include: BDD scenarios (Given/When/Then), contracts, acceptance criteria, and validation boundaries.
+Plans must include: goal, done condition, execution steps, dependencies, and validation for the current slice.
 
 #### PROPOSE Dashboard Footer
 
@@ -584,36 +809,21 @@ Every PROPOSE output ends with a structured footer. This is a display convention
 🪄 **Next:**
 1. [s] Skills — browse/load from skills-db
 2. [r] Research — deepen with lev-research
-3. [p] Prior art — review beads and artifacts
+3. [p] Prior art — review tracker items and PM artifacts
 4. Proceed to SPEC
 5. All of the above
 6. ⬅️ Back to DISCOVER
 
-#### SPEC Promotion Path
+#### PM Artifact Promotion Path
 
-When a spec passes validation (`gate:propose-spec`) and template questions are answered, the agent must identify the promotion target:
+The live lifecycle stays in `.lev/pm/*`.
 
-1. **Start:** `.lev/pm/specs/spec-{topic}.md` (Ephemeral Draft)
-2. **Review:** Gate passes.
-3. **Promote:** Move to `docs/specs/spec-{module}.md` (Canonical)
-   - If module exists: Update existing spec.
-   - If new module: Create new spec file.
-   - Naming: Use `spec-{module}.md` for permanent behavioral contracts.
-   - Use `chore-{slug}.md` for ephemeral implementation plans (gap analysis, next steps).
-   - Chores live in `docs/specs/` alongside specs for visibility during active passes.
-   - See **Doc Taxonomy** above for full classification rules.
-
-#### Doc Taxonomy
-
-| Prefix | Purpose | Lifetime | Path |
-|--------|---------|----------|------|
-| `spec-*.md` | Behavioral contract. Describes TARGET system. Code catches up. | Permanent | `docs/specs/` |
-| `chore-*.md` | Gap analysis + impl plan. Bridges spec ↔ reality. | Ephemeral | `docs/specs/` (same dir for visibility) |
-| ADRs | Architecture Decision Records | Permanent | `docs/architecture/` or `docs/adr/` |
-
-**Specs describe what we're building, not what exists.** A chore documents the gap. Once a chore is approved → schedule BD → dev agents execute. When code matches spec, evolve both together.
-
-**Chore lifecycle:** Draft in `.lev/pm/` → review → promote to `docs/specs/chore-{slug}.md` → user approves → `bd create` → dev agents execute → close chore.
+Promotion rules:
+1. Reports stay in `.lev/pm/reports/` unless later mined into proposals or decisions.
+2. Proposals and designs may be promoted to `docs/_inbox/` when ready for manual review.
+3. Specs remain operationally canonical in `.lev/pm/specs/` until explicitly promoted.
+4. Plans remain operational in `.lev/pm/plans/` and do not promote directly to canonical docs.
+5. Decisions may be promoted from the handoff to `.lev/pm/decisions/` when they become durable.
 
 ---
 
@@ -622,77 +832,47 @@ When a spec passes validation (`gate:propose-spec`) and template questions are a
 When `/work` detects a spec-alignment context (handoff with conflicts, hardening pass, spec rewrite request), it enters this sub-workflow instead of the standard PROPOSE→SPEC flow.
 
 ```
-SPEC ALIGNMENT LOOP (per spec or spec cluster)
+SPEC ALIGNMENT LOOP
 ┌──────────┐   ┌─────────┐   ┌───────────┐   ┌─────────┐   ┌──────────┐   ┌────────────┐
-│ ANALYZE  │──▶│ CAPTURE │──▶│ INTERVIEW │──▶│ REWRITE │──▶│  CHORE   │──▶│ BD SCHEDULE│
-│ (agents) │   │(handoff)│   │ (1-by-1)  │   │ (spec)  │   │(gap doc) │   │  (beads)   │
+│ ANALYZE  │──▶│ CAPTURE │──▶│ INTERVIEW │──▶│ REWRITE │──▶│ PLAN     │──▶│ SCHEDULE   │
+│ (agents) │   │(handoff)│   │ (1-by-1)  │   │ (spec)  │   │(gaps)    │   │ (tracker)  │
 └──────────┘   └─────────┘   └───────────┘   └─────────┘   └──────────┘   └────────────┘
- read specs     update .lev/   present         update spec   create         bd create
- read code      pm/handoffs/   conflicts       to describe   chore-*.md     per chore
- find conflicts NOT execute    user decides     TARGET        spec vs code   → dev agents
- parallel agents               propose before   system        gap analysis
-                               executing
 ```
 
-#### Phase 1: ANALYZE (parallel agents)
+#### Phase 1: ANALYZE
 
-Launch 1-3 arch/explore agents per spec cluster. Each agent:
-1. Reads current spec
-2. Reads relevant code
-3. Identifies spec-vs-reality conflicts
-4. Identifies spec-vs-spec conflicts
-5. Returns structured report: conflicts, missing sections, proposed outline, cross-references, open questions
-
-**NEVER execute during analysis.** Read-only. Agents return reports, not edits.
+Launch 1-3 read-only agents per spec cluster to identify:
+- spec-vs-reality conflicts
+- spec-vs-spec conflicts
+- missing sections
+- cross-references and open questions
 
 #### Phase 2: CAPTURE
 
-Update the handoff doc (`.lev/pm/handoffs/`) with:
-- All discovered conflicts (numbered list)
-- User's direction and decisions (exact words when possible)
-- Open questions requiring user input
-- Cross-cutting themes
-
-**The handoff is the staging area.** It accumulates truth across sessions. Specs are the target.
+Update the handoff with:
+- numbered conflicts
+- user direction and decisions
+- open questions
+- cross-cutting themes
 
 #### Phase 3: INTERVIEW
 
-Present conflicts to user for decisions. Can be batch or 1-by-1 depending on density.
-
-**Rules:**
-- NEVER execute without proposal. Always present before doing.
-- Capture user's FULL answer — they often embed direction beyond yes/no
-- If user asks a question back, ANSWER IT before proceeding
-- Log decisions in handoff immediately
+Present conflicts to the user and log decisions immediately in the handoff.
 
 #### Phase 4: REWRITE
 
 Update specs to describe the TARGET system based on user decisions.
 
-**Spec rewrite rules:**
-- Specs describe what we're BUILDING, not cataloging current bugs
-- Good ideas from previous agents that weren't implemented → keep in spec (they're targets)
-- Boilerplate that was stated as fact but isn't implemented → either make it the target (if valuable) or remove (if wrong)
-- FMEA deltas → integrate into spec's FMEA/Risk Analysis section (alongside BDD). Seeds test cases and validation gates. Chores document implementation gaps only (ephemeral, delete when aligned). Template: `templates/chore.md`
-- Cross-references between specs → explicit, not implied
+#### Phase 5: PLAN CREATE
 
-#### Phase 5: CHORE CREATE
+For each approved implementation gap, create a plan artifact under `.lev/pm/plans/`:
+- `plan-bugfix-*` for behavior mismatches or regressions
+- `plan-chore-*` for cleanup or migration slices
+- `plan-impl-*` for implementation slices
 
-For each spec, create a companion `chore-*.md` documenting:
-- What the spec says vs what code does (gap matrix)
-- Steps to close each gap
-- Dependencies between gaps
-- Estimated scope per gap
+#### Phase 6: SCHEDULE
 
-**Path:** `docs/specs/chore-{slug}.md`
-
-#### Phase 6: BD SCHEDULE
-
-Once user approves a chore:
-1. `bd create` per gap item (task/feature/bug as appropriate)
-2. Set dependencies between items
-3. Dev agents pick up beads and execute
-4. When code matches spec → close chore
+Once the plan is approved, create or update the tracker for the current execution slice only.
 
 ---
 
@@ -749,18 +929,18 @@ Shortcut behavior:
 | **captured** | `lev-research` | None | Deep research mode |
 | **crystallizing** | `lev-learn` | `lev-cdo` | Guided intake when user invokes learn mode |
 | **crystallizing** | `lev-cdo` | `thinking-parliament`, `work` alignment gate | Strategic design |
-| **crystallizing** | `ux` | `lev-cdo`, `planning` | Product/design/UX shaping before spec |
-| **crystallized** | `planning` | tracker | Spec authoring with BDD + contracts |
-| **manifesting** | tracker | `lev-clwd` | Task tracking/coordination + handoff emission |
-| **completed** | `lev-lifecycle` | None | Archive and summarize |
+| **crystallizing** | `ux` | `lev-cdo`, `work` template routing | Product/design/UX shaping before spec |
+| **crystallized** | `work` | tracker | Template-driven spec or plan authoring |
+| **manifesting** | tracker | `work` handoff contract | Task tracking/coordination + handoff emission |
+| **completed** | `work` | `cm`, `cass` | Closeout, reflection, and optional decision promotion |
 
 Routing logic:
 - `captured` + simple query → `lev get`; deep ambiguity or broad unknowns → `lev-research`
 - explicit `learn` intent or underspecified request needing guided intake → `lev-learn` (proposal + handoff)
 - `crystallizing` + product/design/UX framing needed → `ux` hub (routes to design-os, pencil, or pipeline)
 - `crystallizing` + needs adversarial validation → `thinking-parliament` + `lev-cdo`; else → `lev-cdo`
-- `crystallized` → always `planning` (spec-authoring backend, DoR enforcement) + tracker
-- `manifesting` → tracker + `lev-clwd` + mandatory handoff contract output
+- `crystallized` → route to the correct PM template (`spec`, `plan`, `design`, `proposal`) and tracker
+- `manifesting` → tracker + mandatory handoff contract output
 
 ### MANIFESTING -- Handoff Contract (Required)
 
@@ -779,9 +959,20 @@ When emitting `handoff.md`, follow the checkpoint format contract below. This is
    - `System Prompt for Next Agent`
    - `Context Confidence Score`
 5. File location:
-   - `.lev/pm/handoffs/{YYYYMMDD-HHMMSS}-{topic}.md`
+   - `.lev/pm/handoffs/{YYYYMMDD}-{workstream}-{component}-{slug}-session-{N}.md`
 6. Template source:
    - `~/.agents/skills/work/templates/handoff.md`
+7. Handoff must include:
+   - `You Are Here`
+   - `Next Agent Brief`
+   - `Roadmap To Goal`
+   - `Timeline`
+   - `Decisions Log`
+   - `Open Questions`
+   - `Entity Matrix`
+   - `Meta`
+8. Promote non-ephemeral decisions to `.lev/pm/decisions/` when the promotion rule is met.
+9. Shard the handoff when the documented sharding signals are hit and pruning no longer restores clarity.
 
 ### EXECUTE -- Spawn Workers
 
@@ -872,7 +1063,7 @@ The spec completeness gate has 16 checks and **cannot be degraded or bypassed** 
 
 | # | Check | Pass Condition |
 |---|-------|---------------|
-| 1 | Spec bead exists | `custom:spec` bead created |
+| 1 | Spec file exists | `.lev/pm/specs/` contains the active spec artifact |
 | 2 | Executive summary | Present and <= 3 paragraphs |
 | 3 | Context defined | Existing state AND target state documented |
 | 4 | BDD scenarios | Given/When/Then covering primary flows |
@@ -903,28 +1094,23 @@ Must have:
 
 Else: block close.
 
-### EMIT -- Create Artifact Bead
+### EMIT -- Create or Update PM Artifact
 
-Create the stage-appropriate bead and let the hook render a markdown view for human readability.
+Create or update the stage-appropriate PM artifact and keep the active handoff in sync.
 
-1. Create bead via `br create` with the correct custom type and labels
-2. Hook auto-renders a markdown view from bead content
-3. Report bead ID to user
+| Stage | Canonical Path | Action |
+|-------|----------------|--------|
+| captured | `.lev/pm/reports/` | Create or update report |
+| crystallizing | `.lev/pm/proposals/` or `.lev/pm/designs/` | Create or update proposal/design |
+| crystallized | `.lev/pm/specs/` or `.lev/pm/plans/` | Create or update spec/plan |
+| manifesting | `.lev/pm/handoffs/` | Update handoff |
+| completed | `.lev/pm/validation-reports/` | Create validation report or closeout evidence |
 
-| Stage | Bead Type | Labels |
-|-------|-----------|--------|
-| captured | `custom:report` | `report,{domain}` |
-| crystallizing | `custom:proposal` | `proposal,{layer},{domain}` |
-| crystallized | `custom:spec` | `spec,{layer},{domain}` |
-| manifesting | handoff bead | `handoff,{topic}` |
-| completed | archive bead | `archive,{domain}` |
-
-Learning artifacts are emitted by LEARN after completion:
-- `custom:learning` with labels `learning,retrospective,{domain}`
+Always update the active handoff when emitting any PM artifact.
 
 ### LEARN -- Session Close Ceremony
 
-Final FSM step. Reflects on the session, records outcomes, creates a learnings bead.
+Final FSM step. Reflects on the session, records outcomes, updates the handoff, and optionally promotes durable decisions.
 
 **Triggers:** Session end, `/handoff`, `/exit`, explicit `learn` close request.
 
@@ -947,14 +1133,9 @@ Final FSM step. Reflects on the session, records outcomes, creates a learnings b
    cm reflect --days 1 --json
    ```
 
-4. **Create learnings bead**:
-   ```bash
-   br create "Learnings: {topic}" \
-     --type '{"custom":"learning"}' \
-     --labels "learning,retrospective,{domain}" \
-     --description "{extracted learnings}" \
-     --status closed
-   ```
+4. **Promote durable decisions** from the handoff if needed:
+   - create ADR-style documents in `.lev/pm/decisions/`
+   - link back to the source handoff
 
 5. **Index session** for future search:
    ```bash
@@ -966,18 +1147,6 @@ Final FSM step. Reflects on the session, records outcomes, creates a learnings b
 - Ephemeral/brainstorm sessions (no learnings to record)
 - Session < 5 minutes (insufficient depth)
 - User flag: `--no-learn`
-
-#### Learnings Bead Schema
-
-```json
-{
-  "title": "Learnings: {topic}",
-  "type": {"custom": "learning"},
-  "labels": ["learning", "retrospective", "{domain}"],
-  "description": "{what was learned and why it matters}",
-  "status": "closed"
-}
-```
 
 #### Session Close Checklist
 
@@ -1053,20 +1222,21 @@ The purpose of the done protocol is to reveal misses before close, not to justif
 | ask, wiz, wizard | **work** (`learn`/interview mode) |
 | align, check, scan, security | **work** (validation gates) |
 | workflow, workflows | `workflow` (create/list/run only) |
-| execute, do it, run | **work** (routes to execute path; `lev exec` for direct imperative run) |
+| execute, do it, run | **work** (routes to execute path; `work-mvp` is phase 2 execution binding) |
 | install, setup, daemon, daemons | lev-core |
 
 ### Tracker Integration (br/bd/td)
 
-- **Spec generated** → auto-create tasks via tracker adapter (if available), link spec artifact
-- **Prior art check** → query tracker for related work
-- **Completion** → close tasks, update status
+- trackers represent the current execution slice only
+- specs and plans may link to tracker items
+- prior art checks may query the tracker
+- completion closes slice-scoped tracker items only
 
 ### Team Mode
 
 - Detect `variant.json` `swarmModeEnabled: true` or team keywords
-- Delegate to `planning` skill for team decomposition
-- Work skill orchestrates; planning skill executes workstream creation
+- Use template-driven decomposition and explicit subagent routing
+- Keep the handoff and entity matrix as the orchestration spine
 
 ---
 
@@ -1074,9 +1244,9 @@ The purpose of the done protocol is to reveal misses before close, not to justif
 
 | Error | Severity | Response |
 |-------|----------|----------|
-| Confidence < 0.7 | WARN | Prompt user to clarify: research / design / spec / handoff |
-| Tracker not available | INFO | Continue without task integration; note in artifact |
-| Template missing | ERROR | Fallback to unstructured artifact; warn user |
+| Confidence < 0.7 | WARN | Prompt user to clarify: research / design / spec / plan / handoff |
+| Tracker not available | INFO | Continue without task integration; note in the handoff |
+| Template missing | ERROR | Block artifact creation until the correct PM template exists |
 | Tracker-plan boundary violated | ERROR | Rewrite tracker to execution-slice scope, record correction in handoff |
 | Spec validation fail | CATASTROPHIC | Block manifesting transition; list missing sections |
 | Done claimed without reflection | ERROR | Run Done Candidate Protocol, update roadmap if gaps found, block close |
@@ -1092,8 +1262,13 @@ The purpose of the done protocol is to reveal misses before close, not to justif
 |---------|---------|---------|
 | `LEV_PM_REPORTS` | `.lev/pm/reports/` | Report output dir |
 | `LEV_PM_PROPOSALS` | `.lev/pm/proposals/` | Proposal output dir |
+| `LEV_PM_DESIGNS` | `.lev/pm/designs/` | Design output dir |
 | `LEV_PM_SPECS` | `.lev/pm/specs/` | Spec output dir |
+| `LEV_PM_PLANS` | `.lev/pm/plans/` | Plan output dir |
 | `LEV_PM_HANDOFFS` | `.lev/pm/handoffs/` | Handoff output dir |
+| `LEV_PM_DECISIONS` | `.lev/pm/decisions/` | Decision output dir |
+| `LEV_PM_VALIDATION_REPORTS` | `.lev/pm/validation-reports/` | Validation report output dir |
+| `LEV_SCRATCH` | `.lev/scratch/` | Free-form scratch area |
 
 **Stage override:** `work --stage={ephemeral|captured|crystallizing|crystallized|manifesting}`
 
@@ -1130,13 +1305,17 @@ The purpose of the done protocol is to reveal misses before close, not to justif
 ### Templates & References
 - `./templates/report.md`
 - `./templates/proposal.md`
+- `./templates/design.md`
 - `./templates/spec.md`
+- `./templates/plan.md`
 - `./templates/handoff.md`
+- `./templates/decision.md`
+- `./templates/validation-report.md`
 - `./references/gates.md` — Full per-gate definitions (layer modulation, confidence routing, failure actions)
 
 ---
 
-**Status:** v3.3.0 -- Added: SPEC ALIGNMENT sub-workflow, Doc Taxonomy (spec vs chore), Aviation System Rules, updated promotion path
+**Status:** v3.4.0 -- PM-first lifecycle contract, 1:1 `.lev/pm` template mapping, handoff bootstrap + sharding + decision promotion, `plan` restored as canonical execution artifact
 
 ## Technique Map
 - **Role definition** - Clarifies operating scope and prevents ambiguous execution.

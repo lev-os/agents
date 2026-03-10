@@ -1,6 +1,6 @@
 ---
 name: research
-version: 1.0.1
+version: 1.0.2
 aliases: [search, research, deep-research, sherlock, oracle, social-search]
 triggers: [/research, /search, /sherlock, /oracle, /deep]
 description: |
@@ -56,7 +56,8 @@ related_skills:
   - lev-find                         # `lev get` backend (legacy name)
   - lev-cdo                          # Use research for design/spec decisions
   - lev-orch-thinking-parliament     # Multi-model deliberation
-  - bd                               # Create tasks from gaps
+  - notebooklm                       # Grounded cited synthesis into local markdown projections
+  - workflow-cited-research          # Workflow-level cited research loop
 
 claude_code_shim:
   command: /search
@@ -103,6 +104,14 @@ claude_code_shim:
 /search sherlock "query"  # OSINT investigation
 /search cdo               # Multi-perspective on context
 ```
+
+### Grounded Citation Route
+
+When the user wants durable, cited research output instead of search results alone:
+
+1. Use `/search` or `lev-research` to discover/curate sources.
+2. Hand off to [`notebooklm`](/Users/jean-patricksmith/.agents/skills/notebooklm/SKILL.md) for multi-source grounded Q&A.
+3. Prefer [`workflow-cited-research`](/Users/jean-patricksmith/.agents/skills/workflow-cited-research/SKILL.md) when the user wants the full repeatable loop, including local markdown/CMS projection.
 
 ---
 
@@ -178,40 +187,6 @@ This section is normative and overrides convenience behavior.
 5. Before execution, print a single route line:
    - `research-route: <mode> | source: /search-shim | fallback: <none|reason>`
 6. Never bypass the mode router by jumping straight to a single backend tool when `$research` or `/search` was requested.
-
----
-
-## Operational Preflight (beads/dolt)
-
-When `$research` work needs local persistence or issue handoff, run this preflight first:
-
-1. Health check:
-```bash
-bd status --json
-```
-
-2. If you see `no beads database found` but `.beads/issues.jsonl` exists, bootstrap Dolt:
-```bash
-bd status --db .beads/beads.db
-bd migrate --yes
-```
-
-3. If SQLite→Dolt migration is blocked by stale Dolt state:
-```bash
-# Keep artifact for audit/recovery, then retry migration
-mkdir -p /tmp/beads-migration-backup
-mv .beads/dolt /tmp/beads-migration-backup/dolt.$(date +%s)
-bd migrate --to-dolt --yes
-bd migrate --yes
-```
-
-4. Validate migration before proceeding:
-```bash
-bd migrate --inspect
-# Expect: Schema Version matches current bd version
-```
-
-Use this flow before starting deep sessions to prevent store-state failures from interrupting routing/synthesis work.
 
 ---
 
@@ -567,7 +542,7 @@ TAVILY_API_KEY=...       # Tavily AI search
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 1.0.1 | 2026-02-19 | Added beads/dolt operational preflight + recovery flow for migration edge cases |
+| 1.0.2 | 2026-03-07 | Removed obsolete operational preflight ownership guidance and stale routing references |
 | 1.0.0 | 2026-02-09 | Timetravel adapter library integration, 10 adapters, 6 strategies, job system |
 | 0.9.0 | 2026-02-03 | Unified skill, XDG storage, validation, CLI tools |
 | 0.8.x | 2026-01 | Individual backend skills |
