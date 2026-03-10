@@ -111,7 +111,7 @@ When the user wants durable, cited research output instead of search results alo
 
 1. Use `/search` or `lev-research` to discover/curate sources.
 2. Hand off to [`notebooklm`](/Users/jean-patricksmith/.agents/skills/notebooklm/SKILL.md) for multi-source grounded Q&A.
-3. Prefer [`workflow-cited-research`](/Users/jean-patricksmith/.agents/skills/workflow-cited-research/SKILL.md) when the user wants the full repeatable loop, including local markdown/CMS projection.
+3. Prefer [`workflow-cited-research`](/Users/jean-patricksmith/.agents/skills/workflow/flows/cited-research/SKILL.md) when the user wants the full repeatable loop, including local markdown/CMS projection.
 
 ---
 

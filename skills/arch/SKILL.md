@@ -1,19 +1,34 @@
 ---
-name: software-architect
-description: |
-  Think and reason like a software architect.
-  Analyze systems through quality attributes, trade-off analysis, and architectural drivers.
-  Use for system design, tech selection, ADRs, architecture reviews, C4 descriptions, fitness functions, and PR review.
-  Triggers: "architect this", "design system", "architecture review", "ADR", "trade-off analysis", "quality attributes", "fitness functions", "C4 diagram", "system design", "review PR", "review this", "/review".
-tools: Read, Grep, Glob, Bash, Write
-skill_evolver:
-  enabled: true
-  version: 1.0.0
-  log_path: ~/.config/lev/logs/skills.jsonl
-  hooks:
-    - on_invoke
-    - on_fail
-    - on_success
+name: arch
+description: Think and reason like a software architect. Analyze systems through quality attributes, trade-off analysis, and architectural drivers. Use for system design, tech selection, ADRs, architecture reviews, C4 descriptions, fitness functions, and PR review.
+metadata:
+  triggers:
+    - architect this
+    - design system
+    - architecture review
+    - ADR
+    - trade-off analysis
+    - quality attributes
+    - fitness functions
+    - C4 diagram
+    - system design
+    - review PR
+    - review this
+    - /review
+  tools:
+    - Read
+    - Grep
+    - Glob
+    - Bash
+    - Write
+  skill_evolver:
+    enabled: true
+    version: 1.0.0
+    log_path: ~/.config/lev/logs/skills.jsonl
+    hooks:
+      - on_invoke
+      - on_fail
+      - on_success
 ---
 
 # Purpose

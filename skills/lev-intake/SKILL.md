@@ -1,10 +1,10 @@
 ---
 name: lev-intake
 description: |
-  [WHAT] Universal content intake system for URLs (GitHub repos, YouTube videos, articles, PDFs) and skill packages (skills.sh, skill:// protocol)
-  [HOW] Phase 1: Clone repos/fetch transcripts/scrape content/resolve skills to ~/lev/workshop/intake/. Phase 2-3: Load workshop/intake.md for full analysis
-  [WHEN] Use when user provides a URL to analyze, says "intake/download", wants to evaluate external content, or references a skill package
-  [WHY] Systematically evaluates external content and skill packages for adoption/adaptation with tier classification and ADR creation
+  [WHAT] Config-driven content intake system for GitHub repos, videos, articles, PDFs, and skill packages.
+  [HOW] Phase 0 resolves workshop overlays from `~/.config/lev/config.yaml` and `<project>/.lev/config.yaml`. Phase 1 acquires content into the resolved workshop root. Phase 2 analyzes against configured playbooks or project docs. Phase 3 writes an intake report and recommends integrate/extract/monitor/pass/vendor.
+  [WHEN] Use when the user provides a URL to analyze, says "intake/download", wants to evaluate outside work, or references a skill package.
+  [WHY] Makes intake multi-project by default while preserving legacy `~/lev/workshop` flows through config instead of hardcoded assumptions.
 
   Triggers: "intake", "download", "analyze this url", "check out this repo", "review this video", "evaluate content", "install skill", "skill://"
 skill_type: workflow
@@ -13,246 +13,316 @@ category: process-intake
 lifecycle_integration:
   stage: ephemeral
   input_artifact: URL (repo/video/article/pdf/skill)
-  output_artifact: analyzed content in ~/lev/workshop/intake/
+  output_artifact: intake report written to the configured report destination
 ---
 
-# Universal Content Intake System
+# Config-Driven Workshop Intake
 
-Intelligent routing for GitHub repos, YouTube videos, articles, and skill packages.
+Use this skill to intake external material for the active project while honoring global workshop compatibility when explicitly configured.
 
-## 🎯 ROLE DEFINITION
+## Primary Rule
 
-<role>
-You are an LLM-First Architecture Analyst specializing in AI agent systems and sovereign computing platforms. Your expertise spans distributed systems, agent orchestration, and bootstrap sovereignty principles.
-</role>
+**Never hardcode workshop paths.**
 
-<expertise>
-- Agent architecture patterns and LLM-first design
-- Memory systems (vector stores, knowledge graphs, hybrid approaches)
-- Tool orchestration and bidirectional agent communication
-- Repository analysis and strategic technology assessment
-- Pattern extraction from diverse content sources
-</expertise>
+Always resolve:
+1. active project root
+2. merged workshop config
+3. workshop manifest
+4. configured playbooks
 
-<approach>
-- Systematic 3-phase intake process
-- Evidence-based capability assessment
-- Strategic tier classification (1-8 scale)
-- Clean workspace maintenance
-</approach>
+## Role
 
-## 📋 INTAKE PROTOCOL
+You are a project-grounded intake analyst.
 
-<phases>
-PHASE 1: CONTENT ACQUISITION (You handle this)
-PHASE 2: FULL ANALYSIS (Load ~/lev/workshop/intake.md)
-PHASE 3: POST-PROCESSING (Load ~/lev/workshop/intake.md)
-</phases>
+You:
+- acquire external material cleanly
+- compare it to the active project's actual needs
+- preserve workshop compatibility through config overlays
+- recommend the smallest useful disposition
 
-## 🚀 PHASE 1: CONTENT ACQUISITION
+## Phase 0: Resolve Project + Workshop Context
 
-**EXECUTE IMMEDIATELY**: When this skill is invoked, follow this exact sequence:
+Execute these steps first:
 
-### Step 1.1: URL Detection & Auto-Execution
-<decision_tree>
-IF no URL provided:
-  THEN prompt: "Please provide a GitHub repo, YouTube video, or article URL to analyze"
-ELSE detect content type and EXECUTE:
-  - GitHub pattern → EXECUTE Repository flow
-  - YouTube pattern → EXECUTE Video transcript flow
-  - skills.sh pattern → EXECUTE Skill catalog flow
-  - skill:// pattern → EXECUTE Skill resolution flow
-  - Article pattern → EXECUTE Web scraping flow
-</decision_tree>
+### 0.1 Resolve project root
 
-### Step 1.2: Content Acquisition Routes - EXECUTE THESE COMMANDS
+- `git rev-parse --show-toplevel`
 
-<content_routing>
-TYPE: GitHub Repository
-  1. EXECUTE: git clone <url> ~/lev/workshop/intake/<repo_name>
-  2. VERIFY: Repository cloned successfully
-  3. SAVE STATUS: "Repository ready for analysis"
+Set:
+- `PROJECT_ROOT=<git root>`
 
-TYPE: Video/Media (YouTube, Instagram, TikTok, Twitter/X, etc.)
-  1. Route ALL video/media URLs through ~/digital/homie/yt/
-  2. EXECUTE PRIMARY: cd ~/digital/homie && python yt/cli.py -t "<url>" --wait
-  3. IF PRIMARY FAILS: EXECUTE FALLBACK: python yt/yt.py -t "<url>" --wait
-  4. IF BOTH FAIL: mcp__fetch-mcp__fetch_youtube_transcript (YouTube only)
-  5. SAVE TRANSCRIPT: Create ~/lev/workshop/intake/transcript-{video_id}.txt with content
-  6. VERIFY: Transcript file exists and contains content
-  NOTE: Supports 100+ platforms via yt-dlp. After transcription: "Where should this content go?"
+### 0.2 Load overlay config
 
-TYPE: Article/Documentation
-  1. EXECUTE PRIMARY: cd ~/cb && python scraping_orchestrator.py <url>
-  2. IF PRIMARY FAILS: EXECUTE FALLBACK: mcp__firecrawl__firecrawl_scrape
-  3. SAVE CONTENT: Create ~/lev/workshop/intake/content-{domain}.txt with scraped content
-  4. VERIFY: Content file exists and contains scraped data
+Read, in this order:
+- global: `~/.config/lev/config.yaml`
+- project: `<projectRoot>/.lev/config.yaml`
 
-TYPE: Skill Package (skills.sh URL or skill://)
-  1. Detect: Is this a skill/skills.sh URL?
-  2. ROUTE: Hand off to skill-builder for full lifecycle
-     - skill-builder will: validate → prior art check → install → score → lifecycle
-  3. RETURN: skill-builder reports back with install status
-  NOTE: lev-intake does NOT install skills directly. skill-builder owns the full lifecycle.
+Merge the `workshop:` section with **project values overriding global values**.
 
-TYPE: Skill Protocol (skill://{name})
-  1. RESOLVE: Search ~/.agents/skills/ and ~/.agents/skills-db/ for matching skill
-  2. IF NOT FOUND: Search skills.sh marketplace
-  3. INSTALL: Copy/clone skill to ~/.agents/skills-db/_workshop/{name}/
-  4. VERIFY: SKILL.md exists at destination
-  5. SAVE STATUS: "Skill acquired, ready for analysis"
-</content_routing>
+### 0.3 Resolve workshop paths
 
-### Step 1.3: Phase 1 Completion Checklist
+Use this resolution order:
 
-<checklist>
-□ URL type correctly identified
-□ Content acquisition attempted with primary tool
-□ If primary failed, fallback tool used
-□ Content saved to appropriate intake location
-□ If skill package: catalog indexed or skill resolved
-□ Ready to load workshop/intake.md for Phase 2
-</checklist>
+1. `workshop.root`
+   - if absolute, use as-is
+   - if relative, resolve from `PROJECT_ROOT`
+   - if missing, default to `<projectRoot>/.lev/workshop`
 
-## 🔄 PHASE 2 & 3: WORKSHOP HANDOFF
+2. `workshop.manifest`
+   - if set, resolve it
+   - else default to `<workshopRoot>/manifest.yaml`
 
-<critical_instruction>
-After Phase 1 completion, IMMEDIATELY EXECUTE this command:
-1. EXECUTE: cat ~/lev/workshop/intake.md
-2. FOLLOW: The complete analysis framework loaded from that file
-3. COMPLETE: All Phase 2 and Phase 3 steps as defined in workshop/intake.md
+3. `workshop.reports.intake`
+   - if set, use it
+   - else default to `<projectRoot>/.lev/pm/intake`
 
-The workshop/intake.md file contains:
-- Cache scanning for existing capabilities
-- Lev system overlap detection
-- LLM-first evaluation criteria
-- Strategic tier classification
-- Interactive ADR creation process
-- Post-processing decisions
+4. `workshop.playbooks.repo_intake`
+5. `workshop.playbooks.papers_intake`
 
-DO NOT STOP after Phase 1 - immediately proceed to load and execute Phase 2.
-</critical_instruction>
+### 0.4 Load manifest if present
 
-## 🔌 Protocol-Driven Routing
+If `<workshopManifest>` exists, load it and use it to resolve folder names such as:
+- intake
+- analysis
+- approved
+- extract
+- cache
+- papers
+- reports
+- transcripts
+- reference
 
-This skill responds to protocol URIs from the Lev protocol handler registry:
+If no manifest exists, default folder names are:
+- `intake`
+- `analysis`
+- `approved`
+- `extract`
+- `cache`
+- `papers`
+- `reports`
+- `transcripts`
+- `_ref`
 
-| Protocol | Pattern | Behavior |
-|----------|---------|----------|
-| `https://` | `skills.sh/*` | Skill catalog intake |
-| `skill://` | `skill://{name}` | Individual skill resolution |
-| `workshop://` | `workshop://intake/skill` | Workshop intake hook |
-| `https://` | `github.com/*/*` | Repository clone + analysis |
-| `https://` | `youtube.com/*` | Transcript extraction |
-| `https://` | `*` (default) | Article/content scraping |
+### 0.5 Load project docs
 
-## 📊 MASTER PROGRESS TRACKER
+Required:
+- `<projectRoot>/AGENTS.md`
 
-<progress_template>
-INTAKE PROGRESS:
-===============
-URL: [captured_url]
-Type: [GitHub|YouTube|Article|SkillPackage|SkillProtocol]
+Preferred:
+- `<projectRoot>/docs/NORTH_STAR.md`
+- `<projectRoot>/docs/01-architecture.md`
+- `<projectRoot>/docs/00-process.md`
 
-PHASE 1: CONTENT ACQUISITION
-□ URL received and classified
-□ Primary tool attempted: [tool_name]
-□ Fallback used: [yes/no]
-□ Content saved to: [location]
-□ If skill catalog: index + manifest created
-□ If skill protocol: skill resolved + SKILL.md verified
-□ Phase 1 complete ✓
+If the project-specific context paths are configured under `workshop.context`, use those first.
 
-PHASE 2: FULL ANALYSIS (from workshop/intake.md)
-□ Cache checked for duplicates
-□ Lev system scanned for overlaps
-□ Content evaluated against criteria
-□ Strategic tier assigned: [1-8]
-□ Analysis report created
+Fail fast only if:
+- `AGENTS.md` is missing, or
+- there is no usable architecture/direction source at all
 
-PHASE 3: POST-PROCESSING (from workshop/intake.md)
-□ Interactive ADR session started
-□ Decision made: [adopt/adapt/research/reject]
-□ If accepted: ADR created at: [location]
-□ If rejected: Content deleted
-□ Process complete ✓
-</progress_template>
+### 0.6 Load relevant local skills
 
-## 💡 USAGE EXAMPLES
+If project-local skills are relevant, load them before analysis.
 
-<examples>
-# Analyze cutting-edge AI agent repository
-skill://lev-intake https://github.com/anthropics/claude-code
+Example:
+- OpenClaw-adjacent repo inside KinglyAssistant → load `<projectRoot>/.agents/skills/openclaw/SKILL.md`
 
-# Learn from YouTube architecture deep-dive
-skill://lev-intake https://youtube.com/watch?v=RAG-knowledge-graphs
+## KinglyAssistant Defaults
 
-# Extract patterns from technical blog post
-skill://lev-intake https://blog.langchain.dev/agentic-rag-patterns
+If the active project is KinglyAssistant / ClawBuddy, the expected defaults are:
 
-# Index a skill catalog from skills.sh
-skill://lev-intake https://skills.sh/sickn33/antigravity-awesome-skills
+- workshop root: `.lev/workshop/`
+- workshop manifest: `.lev/workshop/manifest.yaml`
+- intake reports: `.lev/pm/intake/`
+- guide: `AGENTS.md`
+- product direction: `docs/NORTH_STAR.md`
+- architecture: `docs/01-architecture.md`
+- process: `docs/00-process.md`
 
-# Resolve and acquire an individual skill
-skill://lev-intake skill://docker-expert
-</examples>
+For KinglyAssistant, evaluate external work against:
+- macOS installer and gateway lifecycle
+- iOS chat, voice, pairing, and session UX
+- shared Swift packages and test harnesses
+- OpenClaw wrapper/integration strategy
+- ClawBuddy/companion UX and product polish
+- bundles, marketplace, and tooling
 
-## 🎯 SUCCESS CRITERIA
+## Phase 1: Acquire Content
 
-<validation>
-- All content types follow identical analysis rigor
-- Phase transitions are explicit and tracked
-- Workshop/intake.md drives Phases 2 & 3
-- Rejected content is deleted to maintain clean workspace
-- ADR creation captures architectural decisions
-</validation>
+### URL Detection
 
-## Routing Dashboard (when unsure)
+If no URL is provided, ask for one.
 
-After content acquisition, if the destination isn't obvious:
-- Show user what's in ~/lev/workshop/intake/
-- Show pending analysis items
-- Ask: "This is [content type]. Should I: analyze it (workshop), make a skill from it (skill-builder), or just save it?"
+If provided, classify as:
+- GitHub repo
+- video/media
+- article/documentation
+- skills.sh / skill package
+- `skill://`
 
-<final_reminder>
-This skill handles Phase 1 routing ONLY. It does NOT do the work — it routes to specialists:
-- Skills → skill-builder (full lifecycle)
-- Repos/articles → workshop/intake.md (Phases 2-3 analysis)
-- Video/media → ~/digital/homie/yt/ pipeline → then route the output
-- Unknown → show dashboard and ask user
-</final_reminder>
+### GitHub Repository
 
-## Relates
+Clone into:
+- `<workshopRoot>/<folders.intake>/<repo_name>`
 
-### Master Router
-- **Lev Master Router** (`lev/SKILL.md`) - Routes all lev-* skills
-  Parent skill that dispatches to this skill based on keywords/context
+Then:
+- verify with `ls -la`
+- identify top-level structure
+- identify stack + test/build entrypoints
 
-## Technique Map
-- **Role definition** - Clarifies operating scope and prevents ambiguous execution.
-- **Context enrichment** - Captures required inputs before actions.
-- **Output structuring** - Standardizes deliverables for consistent reuse.
-- **Step-by-step workflow** - Reduces errors by making execution order explicit.
-- **Edge-case handling** - Documents safe fallbacks when assumptions fail.
+### Video / Media
 
-## Technique Notes
-These techniques improve reliability by making intent, inputs, outputs, and fallback paths explicit. Keep this section concise and additive so existing domain guidance remains primary.
+Route through:
+- `~/digital/homie/yt/cli.py`
+- fallback `~/digital/homie/yt/yt.py`
 
-## Prompt Architect Overlay
-### Role Definition
-You are the prompt-architect-enhanced specialist for lev-intake, responsible for deterministic execution of this skill's guidance while preserving existing workflow and constraints.
+Save transcript to:
+- `<workshopRoot>/<folders.intake>/<slug>/transcript.md`
 
-### Input Contract
-- Required: clear user intent and relevant context for this skill.
-- Preferred: repository/project constraints, existing artifacts, and success criteria.
-- If context is missing, ask focused questions before proceeding.
+### Article / Documentation
 
-### Output Contract
-- Provide structured, actionable outputs aligned to this skill's existing format.
-- Include assumptions and next steps when appropriate.
-- Preserve compatibility with existing sections and related skills.
+Route through:
+- local scraper first
+- web scrape fallback second
 
-### Edge Cases & Fallbacks
-- If prerequisites are missing, provide a minimal safe path and request missing inputs.
-- If scope is ambiguous, narrow to the highest-confidence sub-task.
-- If a requested action conflicts with existing constraints, explain and offer compliant alternatives.
+Save content to:
+- `<workshopRoot>/<folders.intake>/<slug>/article.md`
+
+### Skill Package / `skill://`
+
+Route installation lifecycle to `skill-builder` when installation is actually needed.
+
+This skill's job is relevance assessment for the active project.
+
+## Phase 2: Analyze
+
+### If a repo-intake playbook is configured
+
+If `workshop.playbooks.repo_intake` is set and exists:
+- load it
+- follow it after acquisition
+
+### If a papers-intake playbook is configured
+
+If the target is paper/media heavy and `workshop.playbooks.papers_intake` is set:
+- load it
+- follow it for paper-oriented analysis
+
+### If no playbook is configured
+
+Analyze against the active project's own docs and structure.
+
+Required reads:
+- project guide
+- north star if present
+- architecture if present
+- process doc if present
+- target repo README
+- package/manifest files
+- 3-5 core implementation files
+
+Answer with evidence:
+1. What problem does this solve?
+2. Which part of the active project does it map to?
+3. Is it product, infrastructure, integration, or tooling?
+4. Does it conflict with current architecture or constraints?
+5. Is the value in adoption, extraction, monitoring, or simple awareness?
+
+### Recommended Multi-Agent Split
+
+Use sub-agents in parallel when practical:
+- `context-scan`: project docs + architecture + tier mapping
+- `repo-scan`: target repo purpose, stack, capabilities
+- `fit-scan`: overlap, gaps, and disposition
+
+Each sub-agent must return:
+- executive brief
+- manifest of files touched
+- saved report path only if detail would exceed 5000 tokens
+
+## Phase 3: Disposition
+
+Use project-specific decisions:
+
+- `integrate`
+  - strong fit for roadmap or architecture
+
+- `extract`
+  - valuable patterns, not a direct dependency
+
+- `monitor`
+  - interesting, not aligned enough right now
+
+- `pass`
+  - low fit or redundant
+
+- `vendor`
+  - near-term explicit reason to vendor code into `vendor/`
+
+## Output Artifacts
+
+Write the final report to:
+- `<resolved report dir>/<slug>-intake.md`
+
+The report must include:
+- target URL
+- resolved project root
+- resolved workshop root
+- resolved manifest path
+- configured playbook inputs
+- staged source path
+- project context used
+- decision
+- rationale
+- next action
+
+## Output Template
+
+```markdown
+# Intake Report: <name>
+
+- URL: <url>
+- Type: <repo|video|article|skill>
+- Project Root: <project root>
+- Workshop Root: <workshop root>
+- Workshop Manifest: <manifest path or missing>
+- Repo Playbook: <path or null>
+- Papers Playbook: <path or null>
+- Staged Source: <path>
+- Report Path: <path>
+
+## Project Context
+- Guide: <path>
+- North Star: <path or missing>
+- Architecture: <path or missing>
+- Process: <path or missing>
+
+## External Summary
+- Purpose:
+- Stack:
+- Key capabilities:
+
+## Fit For Current Project
+- Surface:
+- Tier:
+- Relevant overlaps:
+- Conflicts:
+
+## Decision
+- Decision:
+- Why:
+- Recommended next step:
+```
+
+## Success Criteria
+
+- Workshop paths come from merged config, not hardcoded defaults
+- Manifest-driven folder resolution works when present
+- Legacy Lev workflow remains possible through global config
+- Project-local workshop defaults work when no global override exists
+- Report is written to the configured report destination
+
+## Notes
+
+- For Lev itself, set `workshop.root` to `~/lev/workshop` and point playbooks at the existing `intake.md` / `papers/intake.md`.
+- For project repos, default to `<projectRoot>/.lev/workshop`.
+- A checked-in workshop manifest plus gitignored runtime folders is the intended shape for project-local workshop state.

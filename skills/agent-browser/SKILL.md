@@ -298,26 +298,3 @@ Need web data? → Choose:
 - Don't need to click/fill → Use `firecrawl`
 
 See `skill://firecrawl` for static scraping, `skill://lev-research` for research workflows.
-
-## Technique Map
-
-- **Snapshot-first** — Always snapshot before interacting; refs expire after DOM changes.
-- **Use refs, not indices** — @e1 refs survive layout shifts; indices break on reorder.
-- **Re-snapshot after navigation** — DOM rebuilds invalidate all refs.
-- **Prefer interactive snapshot** — -i returns only actionable elements, reducing noise.
-- **Wait before assert** — Use wait for async state; never hardcode sleeps.
-- **Lock before interacting** — browser_lock prevents user input during automation.
-
-## Technique Notes
-
-Snapshot returns accessibility-tree refs; interact using those refs. Firecrawl is faster for static content; agent-browser is for flows requiring clicks, forms, or dynamic waits.
-
-## Prompt Architect Overlay
-
-**Role Definition:** Browser automation specialist executing agent-browser CLI: navigate, snapshot, interact, verify.
-
-**Input Contract:** URL or target page; optional scope. Expects valid refs from prior snapshot for interactions.
-
-**Output Contract:** Screenshot path, snapshot JSON, or interaction result. Always reports saved paths and refs.
-
-**Edge Cases & Fallbacks:** Iframe content inaccessible—use main frame only. Element not found—re-snapshot. Network idle—use wait --load networkidle before assertions.

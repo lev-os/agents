@@ -25,8 +25,8 @@ Routes to specialist sub-skills or runs the built-in 7-step UX pipeline.
 Request arrives
 |
 +-- Product planning (vision, roadmap, data model, export)?
-|   -> Load: skillsdb://design-ux/design-os
-|      (~/.agents/skills-db/design-ux/design-os/SKILL.md + references/)
+|   -> Load: skill://lev-design-os
+|      (~/.agents/skills/lev-design-os/SKILL.md + references/)
 |
 +-- Visual design / .pen file / design sweep?
 |   -> Use Pencil MCP tools (batch_design, get_screenshot, style guides)
@@ -40,7 +40,7 @@ Request arrives
 |
 +-- "What design skills exist?" / browse?
 |   -> Query: ls ~/.agents/skills-db/design-ux/
-|      Deep:  lev-skill resolve "{query}" --json
+|      Deep:  ~/.agents/lev-skills.sh discover "{query}" --json --category=design
 |
 +-- Ambiguous?
     -> Ask one clarifying question, then route
@@ -73,7 +73,7 @@ Load from ~/.agents/skills-db/thinking/patterns/{name}/SKILL.md when reasoning d
 
 | Key | Action | Route |
 |-----|--------|-------|
-| (p) | Product design wizard | skillsdb://design-ux/design-os |
+| (p) | Product design wizard | skill://lev-design-os |
 | (w) | Run UX pipeline | Steps 1-7 below |
 | (v) | Visual design / .pen | Pencil MCP tools |
 | (c) | CLI/agentic UX patterns | Phase 0.5 lev-ref |

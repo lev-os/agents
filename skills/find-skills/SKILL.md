@@ -1,11 +1,13 @@
 ---
 name: find-skills
-description: Helps users discover and install agent skills when they ask questions like "how do I do X", "find a skill for X", "is there a skill that can...", or express interest in extending capabilities. This skill should be used when the user is looking for functionality that might exist as an installable skill.
+description: Helps users discover and install external agent skills, but only after local `skill-discovery` results are low quality or clearly insufficient.
 ---
 
 # Find Skills
 
 This skill helps you discover and install skills from the open agent skills ecosystem.
+
+Use it only after local discovery has already failed to surface high-quality matches from the current runtime and `skills-db`.
 
 ## When to Use This Skill
 

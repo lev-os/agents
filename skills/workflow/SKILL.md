@@ -21,8 +21,8 @@ Parse `$ARGUMENTS` to determine the action:
 
 Steps:
 1. Scan for workflow skills in both locations:
-   - Project: `.agents/skills/workflow-*/SKILL.md`
-   - Global: `~/.agents/skills/workflow-*/SKILL.md`
+   - Project: `.agents/skills/workflow/flows/*/SKILL.md`
+   - Global: `~/.agents/skills/workflow/flows/*/SKILL.md`
 2. For each found skill, read the first 5 lines of SKILL.md to extract name and description from frontmatter.
 3. Present a formatted table:
 
@@ -41,9 +41,9 @@ Available Workflows:
 **Single argument that is NOT "create" or "list"** -- Run the named workflow.
 
 Steps:
-1. Search for `workflow-$0/SKILL.md` in this order:
-   - `.agents/skills/workflow-$0/SKILL.md` (project)
-   - `~/.agents/skills/workflow-$0/SKILL.md` (global)
+1. Search for `$0/SKILL.md` in this order:
+   - `.agents/skills/workflow/flows/$0/SKILL.md` (project)
+   - `~/.agents/skills/workflow/flows/$0/SKILL.md` (global)
 2. If not found, report the error and list available workflows.
 3. If found, read the full SKILL.md content.
 4. Execute the workflow by following the instructions in the loaded SKILL.md.
@@ -64,8 +64,8 @@ Steps:
 1. **Validate the name**: Must be kebab-case (lowercase letters, numbers, hyphens). Reject otherwise.
 
 2. **Determine scope**:
-   - If `--global` flag is present: `~/.agents/skills/workflow-<name>/`
-   - Otherwise (default): `.agents/skills/workflow-<name>/`
+   - If `--global` flag is present: `~/.agents/skills/workflow/flows/<name>/`
+   - Otherwise (default): `.agents/skills/workflow/flows/<name>/`
 
 3. **Create the directory**:
    ```bash
@@ -122,8 +122,8 @@ Describe when this workflow should run.
 
 ## Conventions
 
-- Workflow skill directories are always prefixed with `workflow-` to distinguish them from regular skills.
-- The SKILL.md `name` field includes the `workflow-` prefix.
+- Workflow implementations live under `workflow/flows/<name>/`.
+- The SKILL.md `name` field includes the `workflow-` prefix for compatibility with `/workflow <name>`.
 - The `disable-model-invocation: true` flag is set by default so workflows only run when explicitly requested.
 - All file paths in workflow output MUST be absolute.
 - Workflows should define their own `allowed-tools` based on what they need.
