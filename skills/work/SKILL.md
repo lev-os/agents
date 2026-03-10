@@ -428,11 +428,11 @@ Low-signal criteria (default): generic prompt, zero thinking signal, empty/weak 
 |----------|--------|------|
 | 1 | Project-local skills | `.claude/skills/`, `.agents/skills/` in project |
 | 2 | Global canonical skills | `~/.agents/skills/` |
-| 3 | Skills DB | `~/.agents/skills-db/` (use `/skill find` or `grep`) |
+| 3 | Skills DB | `~/.agents/skills-db/` (use `~/.agents/lev-skills.sh discover`) |
 | 4 | POC skills | `~/lev/workshop/poc/skills/` |
 | 5 | Polymath skills | `~/lev/workshop/intake/cc-polymath/skills/` |
 
-**Lookup Tool:** Use the `/skill` command shim if available, or `grep -r "{kw}" ~/.agents/skills-db/` directly.
+**Lookup Tool:** Use `~/.agents/lev-skills.sh discover "{kw}"` as the shared local discovery entrypoint. Use raw `grep` only for debugging.
 
 **Prior art search** runs as part of the PriorArt background track:
 
@@ -534,7 +534,7 @@ PROPOSE:
 ├── Surface discovered skills:
 │   ├── Pull skill manifest from DISCOVER Search track report bead
 │   ├── If design/UX keywords detected -> propose loading `ux` hub
-│   ├── Query skills-db: lev-skill resolve "{topic}" --json | jq '.results[:5]'
+│   ├── Query local skills runtime: ~/.agents/lev-skills.sh discover "{topic}" --json
 │   └── Include in dashboard footer (inline, does NOT block FSM)
 ```
 
@@ -730,7 +730,7 @@ work:
 ```
 
 Shortcut behavior:
-- [s] -> lev-skill resolve "{topic}" --json, present results, offer to cat SKILL.md
+- [s] -> ~/.agents/lev-skills.sh discover "{topic}" --json, present results, offer to cat SKILL.md
 - [r] -> route to lev-research with current context
 - [p] -> br search "{topic}" + cass search "{topic}"
 
