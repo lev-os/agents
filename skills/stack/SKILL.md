@@ -113,9 +113,26 @@ bun plugins/prompt-stack/src/cli.ts validate \
 - Prefer absolute `--project-dir` and `--report` paths when calling the CLI from outside
   the repo root.
 - Discover stack ids with `list` instead of assuming names.
+- If the stack session is part of an active `$work` stream, keep planning and decisions in
+  the active handoff and use `stack` only for the execution-plane prompt loop.
+- Record stack step output into `.lev/pm/reports/` when the session feeds a workstream.
+- After `record` or `validate`, return to the active handoff and update continuity there if
+  the session changed the plan, decisions, or evidence.
 - If the task needs subagents, follow the contract in
   `/Users/jean-patricksmith/digital/leviathan/plugins/prompt-stack/references/subagent-contract.md`.
 - Keep the wrapper thin. Runtime ownership stays with `plugins/prompt-stack`.
+
+## Optional FlowMind Path
+
+The standalone plugin CLI is the primary runtime.
+
+If you are explicitly validating or dogfooding the optional FlowMind path, the plugin-owned
+scaffold is:
+
+`/Users/jean-patricksmith/digital/leviathan/plugins/prompt-stack/flows/prompt-stack.flow.yaml`
+
+Do not treat the FlowMind path as the default execution surface unless the task explicitly
+calls for it.
 
 ## References
 
