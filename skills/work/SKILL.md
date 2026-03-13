@@ -449,6 +449,21 @@ The handoff must contain a rolling roadmap from current state to the done condit
 - When the goal or done condition changes, update the roadmap in the handoff before changing tracker scope.
 - Later sessions should refine the goal and done condition when they become clearer; do not preserve session-1 wording if the work is now better understood.
 
+## Prompt-Stack Integration (Hard Contract)
+
+Prompt-stack sessions are execution-plane tools, not planning artifacts.
+
+When a workstream uses prompt stacks:
+- the active handoff remains the planning source of truth
+- prompt-stack step output should be recorded under `.lev/pm/reports/`
+- stack session progress does not replace handoff updates
+- prior-art checks, alignment, BDD/spec deltas, and roadmap changes belong to the normal
+  `work` lifecycle, not to the stack wrapper
+
+Use the global `stack` skill as the thin runtime wrapper.
+Do not embed Leviathan-specific planning doctrine into prompt-stack wrappers when the same
+rules already live here in `work`.
+
 ## Task Tracker Adapter (bd | br | td)
 
 The work skill is backend-agnostic for task tracking. Detect which tool is available and route through the adapter. **Preference order: bd > br > td.**
@@ -875,17 +890,6 @@ For each approved implementation gap, create a plan artifact under `.lev/pm/plan
 Once the plan is approved, create or update the tracker for the current execution slice only.
 
 ---
-
-### Aviation System Rules (Hardening Standards)
-
-These rules apply to ALL specs in aviation/safety-critical projects. Enforce during SPEC ALIGNMENT and VALIDATE.
-
-1. **No silent errors.** Every error must be logged, surfaced, or routed to clarification. No `except: pass`. No swallowed exceptions. No empty catch blocks.
-2. **No uncontrolled fallbacks.** Fallbacks must be explicit, tested, and tightly scoped (like poc/cleanup strategy profiles). AI agents are terrible at implicit fallbacks — be hyper-vigilant.
-3. **Everything is config-driven.** Magic numbers → config. Thresholds → config. Strategy toggles → config. Retry limits → config. Defaults are sane, overrides are explicit.
-4. **One engine per concern.** Don't build parallel implementations of the same thing. One validation engine (strategy-driven, used at multiple pipeline points). One clarification mechanism (through session FSM). One telemetry system.
-5. **Capture everything.** Every pipeline stage must emit structured telemetry: input, output, latency, decisions, errors. Audio files, transcripts, corrections, intent outputs — all persisted.
-6. **Sweep for violations.** Periodically scan codebase for silent errors, swallowed exceptions, uncontrolled fallbacks. Eventually automate as CI gate.
 
 ---
 

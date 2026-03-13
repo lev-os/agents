@@ -199,7 +199,7 @@ State lives in the **filesystem**, not metadata:
 | `{surface}/` | Active — needs work or validation |
 | `{surface}/_done/` | Validated and promoted |
 
-The `lifecycle_state` frontmatter field is advisory. The file location is canonical.
+The `status` frontmatter field is advisory (falls back to `lifecycle_state` for backward compat). The file location is canonical.
 
 ---
 
@@ -270,7 +270,7 @@ The `patterns` array is the input mask. It controls what the loop sees.
 
 **The key insight**: if you like seeing chores in `docs/specs/`, just add `chore-*.md` to your
 specs surface pattern. The loop doesn't care about the prefix — it reads frontmatter for priority,
-lifecycle_state, and fitness functions regardless.
+status, and fitness functions regardless.
 
 ### Output Convention
 
@@ -299,10 +299,12 @@ The loop is entity-lifecycle aware. It understands the `work` skill's entity sta
 ephemeral → captured → classified → crystallizing → crystallized → manifesting → completed
 ```
 
-### How lifecycle_state maps to loop behavior
+### How status maps to loop behavior
 
-| `lifecycle_state` | Loop action |
-|-------------------|-------------|
+`status` is the canonical frontmatter field (falls back to `lifecycle_state` for backward compat).
+
+| `status` | Loop action |
+|----------|-------------|
 | `draft` | Skip (not ready for autonomous work) |
 | `active` | DOING — implement next phase |
 | `implementing` | DOING — continue implementation |
@@ -319,7 +321,7 @@ Every entity the loop processes should have:
 ```yaml
 ---
 title: "Human-readable title"
-lifecycle_state: active          # required
+status: active                   # required (canonical field; `lifecycle_state` accepted as fallback)
 priority: P1                     # P0-P4 or 0-4
 type: plan-impl | plan-chore | plan-bugfix | plan-research | plan-migration
 fitness_functions:               # optional section name or inline
@@ -434,7 +436,7 @@ Detect and skip blocked entities gracefully. Don't waste ticks on unactionable w
 ### Detection
 
 Frontmatter signals:
-- `lifecycle_state: blocked` or `deferred`
+- `status: blocked` or `deferred` (also accepts `lifecycle_state` as fallback)
 - `blocker:` field (freetext describing the blocker)
 - `blocked_by:` field (entity ID or external dependency)
 
@@ -462,7 +464,7 @@ The skill generates the prompt dynamically from current project state.
 1. Read project config for autodev section (or defaults)
 2. Resolve all surfaces from config
 3. For each surface, scan matching patterns
-4. Parse frontmatter: priority, lifecycle_state, fitness_functions
+4. Parse frontmatter: priority, status (fallback: lifecycle_state), fitness_functions
 5. Merge all entities into priority queue (P0 first, skip blocked)
 6. Count active → decide if drift scan needed
 7. Generate prompt with:
@@ -488,13 +490,13 @@ rules:
 - prioritize P0 > P1 > P2 > P3 > P4. skip BLOCKED/DEFERRED items.
 - when DOING: implement one phase. commit after each phase.
 - when VALIDATING: run fitness functions. if ALL pass → move to surface's _done/.
-  update lifecycle_state in frontmatter to "validated".
+  update status in frontmatter to "validated".
 - when SCANNING and active entities < {threshold}: run drift scan against specs.
 - use up to {max_agents} parallel agents for independent work.
 - skip entities tagged needs-runtime.
 - git pull --rebase && push every tick.
 - update handoff in .lev/pm/handoffs/ with tick log.
-- keep entity yaml frontmatter lifecycle_state current.
+- keep entity yaml frontmatter `status` current (accepted alias: `lifecycle_state`).
 
 current queue ({n} active across {s} surfaces):
 {priority-sorted entity list with surface, status, and FF indicator}
@@ -678,7 +680,7 @@ This is the **actual execution protocol** — everything above is architecture a
 2. `Glob` for `**/.lev/pm/specs/**/*.md` and `**/docs/specs/**/*.md` — secondary surfaces.
 3. Filter out `_done/` paths.
 4. `Read` each file, parse YAML frontmatter.
-5. Skip `lifecycle_state: blocked | deferred | draft`.
+5. Skip `status: blocked | deferred | draft` (also checks `lifecycle_state` fallback).
 6. If `depends_on` / `blocked_by` in frontmatter → check dependency files, skip if not in `_done/`.
 7. Sort by `priority` (P0 > P1 > P2 > P3 > P4).
 8. For each entity with `fitness_functions`, run via `Bash`. Record pass/fail.

@@ -1,6 +1,6 @@
 ---
 name: work-mvp
-description: Execute the work lifecycle through Lev runtime contracts with FlowMind-compiled SPEC and scheduler behavior. Use when the task is a dev workload and execution must be CLI-first (`lev work contract`), contract-driven (`flowmind compile`), bead-first for artifacts (`bd`), and fail-fast on missing runtime/files/gates.
+description: Execute the work lifecycle through Lev runtime contracts with FlowMind session-driven execution and bead-first artifacts. Use when the task is a dev workload and execution must be CLI-first (`lev work contract`), session-driven (`FlowmindSessionManager`), bead-first for artifacts (`bd`), and fail-fast on missing runtime/files/gates.
 ---
 
 # Work MVP
@@ -9,58 +9,106 @@ description: Execute the work lifecycle through Lev runtime contracts with FlowM
 
 - `GOAL` (required): lifecycle goal text.
 - `EPIC_ID` (optional): BD epic id for deterministic exec attachment.
-- Environment (optional): `SDLC_MODE`, `SDLC_MAX_ITERATIONS`, `SDLC_TIMEOUT_MS`, `SCHEDULER_MODE`.
+- `STACK_ID` (optional): FlowMind stack/flow to use (default: heuristic — see below).
+- Environment (optional): `SDLC_MODE`, `SDLC_MAX_ITERATIONS`, `SDLC_TIMEOUT_MS`.
 
-## Workflow (6 Steps)
+## Stack Selection Heuristic
 
-1. Run preflight and stop immediately on any failure.
+When `STACK_ID` is not provided, classify the task:
+
+| Task Type | Stack | Rationale |
+|-----------|-------|-----------|
+| Implementation / bugfix | `sdlc-exec-validate` | Plan → execute → verify loop |
+| Research / decomposition | `sdlc-deepen-plan` | Fan-out analysis |
+| Maintenance / hygiene | `sdlc-hygiene` | Periodic repo scan |
+
+## Workflow (5 Steps)
+
+### 1. Preflight
+
+Run preflight and stop immediately on any failure.
 
 ```bash
 command -v lev >/dev/null 2>&1 || { echo "missing: lev"; exit 1; }
-command -v flowmind >/dev/null 2>&1 || { echo "missing: flowmind"; exit 1; }
 command -v bd >/dev/null 2>&1 || { echo "missing: bd"; exit 1; }
-test -f plugins/core-sdlc/flows/spec-lifecycle.flow.yaml || { echo "missing: plugins/core-sdlc/flows/spec-lifecycle.flow.yaml"; exit 1; }
-test -f plugins/core-sdlc/flows/commit-gate.flow.yaml || { echo "missing: plugins/core-sdlc/flows/commit-gate.flow.yaml"; exit 1; }
-test -f core/flowmind/system/tick-loop.flow.yaml || { echo "missing: core/flowmind/system/tick-loop.flow.yaml"; exit 1; }
+test -d core/flowmind || { echo "missing: core/flowmind"; exit 1; }
+test -f plugins/core-sdlc/config.yaml || { echo "missing: plugins/core-sdlc/config.yaml"; exit 1; }
 ```
 
-2. Execute lifecycle orchestration through Lev.
+### 2. Initialize FlowMind Session
+
+Start a session from the selected flow/stack. The session engine handles step-by-step progressive disclosure.
 
 ```bash
-lev work contract "$GOAL" [--epic "$EPIC_ID"] [--contract-live]
+# Via FlowMind Session API (canonical)
+SESSION_ID=$(lev flowmind session start --flow "$FLOW_FILE" --json | jq -r '.id')
+
+# Or via prompt-stack CLI (backward-compat shim)
+SESSION_ID=$(bun plugins/prompt-stack/src/cli.ts init --stack "$STACK_ID" --project-dir .)
 ```
 
-3. Compile the SPEC contract from SDLC flow.
+**FlowMind Session API (programmatic):**
+
+```typescript
+import { FlowmindSessionManager } from '@lev-os/flowmind';
+
+const mgr = new FlowmindSessionManager();
+const session = mgr.startFromFile(`plugins/core-sdlc/flows/${flowFile}`);
+```
+
+### 3. Execute Steps via Session Loop
+
+Execute each step in the session, using `lev exec` for the execution substrate:
 
 ```bash
-flowmind compile \
-  plugins/core-sdlc/flows/spec-lifecycle.flow.yaml \
-  --target system_prompt \
-  --mode "${SDLC_MODE:-simulate}" \
-  --max-iterations "${SDLC_MAX_ITERATIONS:-1}" \
-  --timeout-ms "${SDLC_TIMEOUT_MS:-120000}"
+while true; do
+  STEP=$(lev flowmind session get --id "$SESSION_ID" --json)
+  IS_LAST=$(echo "$STEP" | jq -r '.isLast')
+
+  STEP_PROMPT=$(echo "$STEP" | jq -r '.step.prompt // .step.command')
+  lev exec "$STEP_PROMPT" --profile "sdlc.flowmind.exec"
+
+  RESULT=$(lev flowmind session next --id "$SESSION_ID" --json)
+  STATUS=$(echo "$RESULT" | jq -r '.status')
+
+  if [ "$STATUS" = "failed" ]; then
+    echo "Step failed: $(echo "$RESULT" | jq -r '.error')"
+    exit 1
+  fi
+
+  if [ "$IS_LAST" = "true" ]; then
+    break
+  fi
+done
 ```
 
-4. Compile scheduler contract from tick-loop flow.
+**FlowMind Session API (programmatic):**
+
+```typescript
+const mgr = new FlowmindSessionManager({
+  stepExecutor: orchestrationAdapter,  // Wires agent steps to executeIterativeLoop()
+});
+
+// Progressive disclosure: get step context, execute, advance
+let view = mgr.get(session.id);
+while (true) {
+  const result = await mgr.next(session.id);
+  if (result.status === 'failed') throw new Error(result.error);
+
+  const status = mgr.status(session.id);
+  if (status.status === 'completed') break;
+  view = mgr.get(session.id);
+}
+```
+
+### 4. Validate and Record
 
 ```bash
-flowmind compile \
-  core/flowmind/system/tick-loop.flow.yaml \
-  --target system_prompt \
-  --mode "${SCHEDULER_MODE:-simulate}"
+SESSION_STATUS=$(lev flowmind session status --id "$SESSION_ID" --json)
+echo "$SESSION_STATUS" | jq -r '.status'  # Should be "completed"
 ```
 
-5. Compile SDLC scheduler overlay only if the file exists.
-
-```bash
-[ -f plugins/core-sdlc/flows/sdlc-tick-overlay.flow.yaml ] && \
-flowmind compile \
-  plugins/core-sdlc/flows/sdlc-tick-overlay.flow.yaml \
-  --target system_prompt \
-  --mode "${SCHEDULER_MODE:-simulate}"
-```
-
-6. Persist and advance artifacts bead-first.
+### 5. Persist Artifacts via Beads
 
 ```bash
 bd create --title="Report: $GOAL" --type=report --description="<findings>"
@@ -76,7 +124,7 @@ bd close <id>
 
 2. Do not redefine lifecycle logic in this skill.
 
-3. Do not dispatch implementation/testing for `flowmind` or `graph` streams before SPEC gate passes.
+3. Do not dispatch implementation/testing before SPEC gate passes.
 
 4. Treat beads as source of truth; markdown mirrors are projections.
 
@@ -89,22 +137,46 @@ bd close <id>
 ```yaml
 work:
   mode: mvp
-  lifecycle_engine: flowmind
+  lifecycle_engine: flowmind-sessions
   spec_engine: sdlc
   decision_tracking: beads
 
 sdlc:
   enabled: true
   mode: simulate
-  spec_flow: plugins/core-sdlc/flows/spec-lifecycle.flow.yaml
-  commit_flow: plugins/core-sdlc/flows/commit-gate.flow.yaml
-  compiler_target: system_prompt
-  max_iterations: 1
-  timeout_ms: 120000
+  default_stack: sdlc-exec-validate
+  flows_dir: plugins/core-sdlc/flows/
+
+flowmind:
+  session_persistence: xdg  # ~/.local/state/lev/flowmind/sessions/
+  step_executor: orchestration  # Agent steps → executeIterativeLoop()
 
 scheduler:
   enabled: true
-  flow: core/flowmind/system/tick-loop.flow.yaml
-  overlay: plugins/core-sdlc/flows/sdlc-tick-overlay.flow.yaml
   mode: simulate
 ```
+
+## Architecture Notes
+
+### Session → Orchestration Layering
+
+```
+FlowmindSessionManager.next()    ← picks the step (progressive disclosure)
+  └→ SessionStepExecutor          ← injectable execution strategy
+      └→ executeIterativeLoop()   ← orchestration's retry/budget/circuit-breaker
+          └→ adapter.run()        ← actual agent execution via lev exec
+```
+
+- **FlowMind** owns *which step* to run next (session state)
+- **Orchestration** owns *how* to run it (retries, budgets, context pressure)
+- **SDLC** owns *what domain rules* apply (entity FSMs, validation gates)
+
+### Migration from prompt-stack
+
+| prompt-stack CLI | FlowMind Session API |
+|-----------------|---------------------|
+| `init --stack` | `mgr.startFromFile(flow)` |
+| `next --session` | `mgr.next(sessionId)` |
+| `record --step --report` | Automatic via `session.history` |
+| `status --session` | `mgr.status(sessionId)` |
+| `validate --session` | Check `session.status === 'completed'` |
