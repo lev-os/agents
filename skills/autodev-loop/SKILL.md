@@ -83,15 +83,19 @@ SCANNING ──▶ DOING ──▶ SCANNING
 ```
 
 - **SCANNING**: Find next entity by priority across all input surfaces. If queue < threshold, drift scan.
-- **DOING**: Implement the next phase. Commit after each phase.
+- **DOING**: Implement the next phase. Checkpoint after natural boundaries.
 - **VALIDATING**: Run fitness functions. If ALL pass → promote to done surface.
 
-### Git Protocol (Stash Dance)
+### Git Protocol (Checkpoint Style)
 
-Every tick ends with `git add`, `git commit`, `git pull --rebase`, `git push`.
+Every tick ends with a checkpoint: `git add . && git commit -m "checkpoint: ..." && git pull --rebase && git push`.
+
+Checkpoints happen at natural boundaries (phase completion, validation pass), NOT per-entity.
+Multiple entities can land in a single checkpoint commit. The goal is keeping main always
+up to date, not creating a perfect commit history.
 
 **Reality**: worktrees are almost always dirty (modified submodules, parallel session
-artifacts). Use the stash dance:
+artifacts). Use the stash dance when pulling:
 
 ```bash
 git stash && git pull --rebase && git stash pop
@@ -99,6 +103,92 @@ git stash && git pull --rebase && git stash pop
 
 Pre-existing dirt in submodules is normal. Only investigate unexpected diffs in files
 the current tick actually touched.
+
+### Workstream Plan Loading (D10)
+
+**Before running the generic SCANNING phase**, check for a workstream-specific plan:
+
+1. `Glob` for `.lev/pm/plans/plan-autodev-loop-*.md`
+2. If found, `Read` the plan file FIRST
+3. Use the plan's wave structure, dependency rules, and dispatch constraints
+4. The plan overrides generic surface scanning — it defines:
+   - Which tasks are ready (wave-aware, dependency-aware)
+   - Dispatch order and parallelism limits
+   - What NOT to touch (scope boundaries)
+   - The compilation target and architectural constraints
+5. Only fall back to generic surface scanning if NO workstream plan exists
+
+Also check for the active handoff:
+1. `Glob` for `.lev/pm/handoffs/*-session-*.md` with `status: active`
+2. `Read` the handoff to understand current wave, completed work, blockers
+3. Cross-reference handoff progress against the plan's wave structure
+
+This ensures the autodev tick has full context of the workstream, not just
+a blind scan of entity surfaces.
+
+### Agent Isolation (D9)
+
+**Default: agents work on main.** Worktree isolation is opt-in, not automatic.
+
+The autodev loop dispatches subagents directly on main unless the user explicitly
+requests worktree isolation (e.g., `--worktree`, risky experiments, independent PR work).
+
+**Why main-first:** During integration work, agents touching overlapping files
+(e.g., schema rename + parallel execution both hitting execution-contract) create
+cherry-pick conflicts that cost more to resolve than they save. Working on main
+means agents see each other's changes immediately.
+
+**When worktrees make sense (user opts in):**
+- Risky experiments you might throw away
+- Independent PRs for review
+- Long-running work that shouldn't block main
+- Explicit `--worktree` flag on `/autodev-loop`
+
+**When to stay on main (default):**
+- Integration work with overlapping files
+- Sequential wave dispatch
+- Checkpoint-style development
+
+For tasks with overlapping `code_refs`, dispatch sequentially, not in parallel.
+For truly independent tasks (non-overlapping files), parallel subagents on main are fine.
+
+### Multi-Agent Awareness (D11)
+
+Multiple autodev loops can run concurrently on different workstreams (e.g.,
+`/autodev-loop` for graph-convergence, `/autodev-lev` for sdlc-convergence).
+Each loop must be aware of the others to avoid conflicts.
+
+**Scan phase addition — fresh handoff check:**
+
+Before dispatching work, scan for OTHER active handoffs:
+
+1. `Glob` for `.lev/pm/handoffs/*-session-*.md`
+2. Filter to `status: active` handoffs that are NOT your own workstream
+3. If any were modified in the last 30 minutes (fresh), `Read` their:
+   - `You Are Here` section (what they're working on)
+   - `Entity Matrix` (what files they're touching)
+   - Any notes/warnings left for other agents
+4. Check for file overlap between their active work and your dispatch queue
+5. If overlap detected: skip the conflicting entity, log why, pick the next one
+
+**Leaving notes for other agents:**
+
+When your tick touches shared modules (e.g., `execution-contract/`, `schema.ts`,
+`orchestration/`), append a brief note to your handoff:
+
+```markdown
+### Cross-Agent Notes
+- [2026-03-11 18:45] Touching execution-contract/types.ts — added hitl to InstructionKind
+- [2026-03-11 19:02] Modified schema.ts GraphNodeType union — downstream consumers need update
+```
+
+Other agents scan these notes during their fresh handoff check.
+
+**Conflict resolution priority:**
+- Whichever agent has the task `in_progress` first owns the file
+- If both agents need the same file, the one with the higher-priority task wins
+- If tied, the graph-convergence workstream (policy plane) takes precedence
+  over sdlc (execution plane) since policy changes cascade
 
 ### State Encoding
 
@@ -576,6 +666,7 @@ This is the **actual execution protocol** — everything above is architecture a
 /autodev-loop 5m           # Scan + schedule at 5 min intervals
 /autodev-loop --scan       # Read-only scan, show queue
 /autodev-loop --execute    # Execute highest-priority item now
+/autodev-loop --worktree   # Opt-in: use worktree isolation for subagents
 /autodev-loop --dry-run    # Show what --execute would do, without doing it
 /autodev-loop --stop       # CronDelete the active loop
 /autodev-loop --status     # Show queue, active cron, last tick
@@ -603,10 +694,10 @@ This is the **actual execution protocol** — everything above is architecture a
 3. If `bd_id` → `Bash`: `bd update $BD_ID --status=in_progress` (skip if unavailable).
 4. Assess complexity:
    - **Simple** (1-2 code_refs, <5 steps): inline `Read`/`Edit`/`Write`/`Bash`.
-   - **Medium** (3-5 code_refs): `Agent` tool, single worktree-isolated subagent.
-   - **Complex** (6+ code_refs): `Agent` tool, 2-4 parallel subagents with `isolation: worktree`.
+   - **Medium** (3-5 code_refs): `Agent` tool, single subagent on main.
+   - **Complex** (6+ code_refs): `Agent` tool, 2-4 parallel subagents on main. Sequential for overlapping files, parallel only for non-overlapping `code_refs`. Use `isolation: "worktree"` only when `--worktree` flag was passed.
 5. After execution → run VALIDATE.
-6. If pass: stage specific files (`git diff --name-only` + `git ls-files --others --exclude-standard`), commit, promote. **Never `git add -A`** — worktree artifacts get staged as submodules.
+6. If pass: checkpoint commit (`git add . && git commit && git pull --rebase && git push`), promote.
 7. If fail: update `lifecycle_state: active`, report remaining work.
 
 ### SCHEDULE → Claude Code
@@ -631,7 +722,7 @@ When SCAN finds zero actionable entities:
 |-----------|--------|
 | `bd` not available | Skip all bd calls, filesystem state only |
 | Fitness function errors | Mark ERROR, skip entity, report |
-| Agent/worktree failure | Report, leave entity active |
+| Agent failure | Report, leave entity active |
 | No entities found | Drift scan |
 | No fitness_functions | Execute, promote on completion |
 | All blocked/deferred | Report blocked queue |
@@ -651,8 +742,9 @@ When SCAN finds zero actionable entities:
 ### Rules
 
 - One entity per tick maximum.
-- Always commit after completing an entity.
+- Checkpoint after completing an entity (not per-phase commits).
 - Use absolute paths in all tool calls.
-- Pass full plan content + file contents to worktree agents.
+- Pass full plan content + file contents to subagents (no worktree isolation).
 - Degrade gracefully when tools/CLIs are missing.
 - Never promote without running fitness functions first.
+- Always load workstream plan before generic scanning (D10).

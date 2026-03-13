@@ -1,6 +1,6 @@
 ---
 name: skill-builder
-description: "Router for skill creation: routes doc/repo-to-skill codification or routes to skill-creator for authoring. Use for doc-to-skill, new skills, or merging skills."
+description: "Router for skill creation: routes doc/repo-to-skill codification or routes to skill-creator for authoring. Use for doc-to-skill, new skills, merging skills, security audit, skill security, audit skill."
 skill_type: workflow
 category: process-skill-builder
 ---
@@ -80,6 +80,42 @@ grep -q "^description:" "$file"              # Has description field
 awk '/^---$/{c++} c==2{exit}' "$file"        # Has closing ---
 ```
 If any hard gate fails → REJECT. Move to `.archive/` or delete. Do NOT promote.
+
+### Step 2b: Security Audit (external skills ONLY — skip for local authoring)
+
+Three sequential scanners with early termination. Each scanner is progressively more expensive.
+See `references/security-audit-gates.md` for full scoring rubric and quarantine protocol.
+
+**Scanner 1: Structural Decompile** (free, instant)
+```bash
+python3 ~/.agents/skills-db/security/skill-decompile/decompile.py "$file" --output yaml
+# Check: risk_score < 60 to proceed
+# If risk_score >= 60: REJECT with flags
+```
+
+**Scanner 2: Semantic Scan** (agent-based, ~10s)
+Load `security-scanner` skill (hiroro) against the staged skill directory:
+```bash
+# Runs in sandboxed subagent with Read-only tools
+# Checks for malicious NL instructions, social engineering patterns
+# Output: pass/warn/fail
+```
+
+**Scanner 3: AgentShield CLI** (CLI-based, ~5s)
+```bash
+npx ecc-agentshield scan --path "$staged_dir" --min-severity medium
+# Checks: hook injection, MCP risks, overpermissive configs
+# Output: findings JSON
+```
+
+**Security Verdict:**
+
+| Result | Action |
+|--------|--------|
+| All 3 pass | Proceed to Step 3 |
+| Scanner 1 pass + Scanner 2/3 warn | Proceed with user confirmation |
+| Scanner 1 fail (risk >= 60) | Hard REJECT, explain flags |
+| Scanner 3 critical finding | Hard REJECT, quarantine to .archive/ |
 
 ### Step 3: Prior Art Check
 - Search ~/.agents/skills/ for name/trigger overlap
@@ -404,6 +440,7 @@ For troubleshooting, see `references/advanced-commands.md` or `references/troubl
 | `references/advanced-commands.md`    | Large docs, async, three-stream, splitting, troubleshooting |
 | `references/advanced-workflows.md`   | Unified multi-source config, enhancement options            |
 | `references/troubleshooting.md`      | Installation issues, runtime errors, CSS selectors          |
+| `references/security-audit-gates.md` | Security audit thresholds, scoring rubric, quarantine protocol |
 | `references/skill-seekers-readme.md` | Full Skill_Seekers v2.7.4 feature matrix                    |
 | `scripts/enhance-workaround.sh`      | Fix for broken `skill-seekers enhance` CLI invocation       |
 
