@@ -379,6 +379,35 @@
     .action-buttons { flex-wrap: wrap; justify-content: center; }
   }
 
+  /* ── CONNECTION INDICATOR ──────────────────────────────────────────── */
+  .conn-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-left: 0.5rem; vertical-align: middle; transition: background 0.3s; }
+  .conn-connected { background: var(--green); box-shadow: 0 0 4px var(--green); }
+  .conn-fallback { background: var(--amber); }
+  .conn-disconnected { background: var(--ink-muted); }
+
+  /* ── RESPONSE PANEL ─────────────────────────────────────────────────── */
+  .response-panel { position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%); width: min(90vw, 800px); max-height: 50vh; background: var(--paper); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--card-shadow); overflow-y: auto; padding: 1rem 1.25rem; z-index: 200; display: none; animation: slideUp 0.3s ease; }
+  .response-panel.show { display: block; }
+  .response-panel pre { white-space: pre-wrap; word-break: break-word; font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; line-height: 1.5; margin: 0; }
+  .response-panel .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+  .response-panel .panel-header h4 { margin: 0; font-size: 0.85rem; color: var(--ink-muted); }
+  .response-panel .panel-actions { display: flex; gap: 0.5rem; }
+  .response-panel .panel-actions button { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
+  @keyframes slideUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+  /* ── SEARCH + FILTER ────────────────────────────────────────────────── */
+  .search-bar { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; }
+  .search-bar input { flex: 1; padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: 4px; background: var(--paper); color: var(--ink); font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; }
+  .filter-chips { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+  .filter-chip { padding: 0.2rem 0.6rem; border: 1px solid var(--border); border-radius: 12px; font-size: 0.7rem; cursor: pointer; background: transparent; color: var(--ink-muted); transition: all 0.2s; }
+  .filter-chip.active { background: var(--copper); color: var(--warm-white); border-color: var(--copper); }
+  .item-card.filtered-out { display: none !important; }
+
+  /* ── EMBED MODE ─────────────────────────────────────────────────────── */
+  .embed-mode .hero, .embed-mode .bucket-nav, .embed-mode .action-bar { display: none !important; }
+  .embed-mode .progress-bar-wrap { position: static; }
+  .embed-mode { padding-top: 0; }
+
   /* ── PRINT ──────────────────────────────────────────────────────────── */
   @media print {
     body { background: white !important; color: #1a1a1a !important; font-size: 10pt; }
@@ -412,6 +441,14 @@
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
       <div class="progress-text" id="progressText">0 / 10</div>
       <span class="save-indicator" id="saveIndicator">Saved &#10003;</span>
+      <span id="conn-dot" class="conn-dot conn-disconnected"></span>
+    </div>
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="Search decisions..." />
+      <div class="filter-chips" id="filter-chips"></div>
+      <label style="font-size:0.75rem;white-space:nowrap;cursor:pointer;color:var(--ink-muted)">
+        <input type="checkbox" id="undecided-toggle" style="margin-right:0.25rem" /> Undecided only
+      </label>
     </div>
   </div>
 </div>
@@ -442,6 +479,18 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- RESPONSE PANEL -->
+<div class="response-panel" id="response-panel">
+  <div class="panel-header">
+    <h4>Claude Response</h4>
+    <div class="panel-actions">
+      <button class="btn btn-secondary" onclick="copyResponse()">Copy</button>
+      <button class="btn btn-secondary" onclick="dismissResponse()">Dismiss</button>
+    </div>
+  </div>
+  <pre id="response-content"></pre>
 </div>
 
 <!-- TOAST -->
@@ -833,7 +882,7 @@ function renderItem(item) {
     '</div>' +
   '</label>';
 
-  return '<div class="item-card' + (decided ? ' decided' : '') + '" id="item-' + key + '">' +
+  return '<div class="item-card' + (decided ? ' decided' : '') + '" id="item-' + key + '" data-item-id="' + item.id + '">' +
     '<div class="item-card-header">' +
       '<span class="item-id">' + item.id + '</span>' +
       '<span class="item-title">' + item.title + '</span>' +
@@ -1023,8 +1072,27 @@ function runWithClaude() {
     decided.join('\n') +
     '\nAnalyze these choices for consistency and suggest implementation order.';
 
-  var cmd = 'claude -p "' + prompt.replace(/"/g, '\\"') + '"';
+  // Try live connection first
+  if (LevConnection.status === 'connected') {
+    showResponsePanel('Executing...');
+    LevConnection.exec(prompt).then(function(result) {
+      if (result) {
+        showResponsePanel(result.output || result.chunks.join(''));
+        showToast('Response received');
+      } else {
+        // Fallback to clipboard on exec failure
+        clipboardFallback(prompt);
+      }
+    });
+    return;
+  }
 
+  // Clipboard fallback
+  clipboardFallback(prompt);
+}
+
+function clipboardFallback(prompt) {
+  var cmd = 'claude -p "' + prompt.replace(/"/g, '\\"') + '"';
   navigator.clipboard.writeText(cmd).then(function() {
     showToast('Command copied — paste in terminal');
   }).catch(function() {
@@ -1034,12 +1102,166 @@ function runWithClaude() {
   });
 }
 
+function showResponsePanel(content) {
+  var panel = document.getElementById('response-panel');
+  var pre = document.getElementById('response-content');
+  pre.textContent = content;
+  panel.classList.add('show');
+}
+
+function dismissResponse() {
+  document.getElementById('response-panel').classList.remove('show');
+}
+
+function copyResponse() {
+  var text = document.getElementById('response-content').textContent;
+  navigator.clipboard.writeText(text).then(function() {
+    showToast('Response copied');
+  });
+}
+
 // ── TOAST ───────────────────────────────────────────────────────────
 function showToast(msg) {
   var t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(function() { t.classList.remove('show'); }, 2500);
+}
+
+// ── CONNECTION MANAGER ──────────────────────────────────────────
+var LevConnection = {
+  ws: null,
+  status: 'disconnected',
+  reconnectTimer: null,
+  init: function() {
+    var self = this;
+    fetch('http://localhost:9849/health', { signal: AbortSignal.timeout(2000) })
+      .then(function(r) { if (!r.ok) throw new Error(); return r; })
+      .then(function() {
+        self.ws = new WebSocket('ws://localhost:9849/exec/stream');
+        self.ws.onopen = function() { self.status = 'connected'; self.updateIndicator(); };
+        self.ws.onclose = function() { self.status = 'fallback'; self.updateIndicator(); self.scheduleReconnect(); };
+        self.ws.onerror = function() { self.status = 'fallback'; self.updateIndicator(); };
+      })
+      .catch(function() { self.status = 'fallback'; self.updateIndicator(); });
+  },
+  scheduleReconnect: function() {
+    if (this.reconnectTimer) return;
+    var self = this;
+    this.reconnectTimer = setTimeout(function() { self.reconnectTimer = null; self.init(); }, 5000);
+  },
+  updateIndicator: function() {
+    var dot = document.getElementById('conn-dot');
+    if (!dot) return;
+    dot.className = 'conn-dot conn-' + this.status;
+  },
+  exec: function(task) {
+    if (this.status !== 'connected' || !this.ws || this.ws.readyState !== 1) return Promise.resolve(null);
+    var ws = this.ws;
+    return new Promise(function(resolve) {
+      var chunks = [];
+      var handler = function(e) {
+        var msg = JSON.parse(e.data);
+        if (msg.type === 'chunk') chunks.push(msg.data);
+        else if (msg.type === 'done') { ws.removeEventListener('message', handler); resolve({ output: msg.output, chunks: chunks }); }
+        else if (msg.type === 'error') { ws.removeEventListener('message', handler); resolve(null); }
+      };
+      ws.addEventListener('message', handler);
+      ws.send(JSON.stringify({ type: 'exec', task: task }));
+    });
+  }
+};
+
+// ── EMBED MODE ──────────────────────────────────────────────────
+if (new URLSearchParams(window.location.search).get('embed') === 'true') {
+  document.body.classList.add('embed-mode');
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'getDecisions') {
+      var pageId = document.querySelector('main').dataset.pageId;
+      window.parent.postMessage({
+        type: 'decisions',
+        pageId: pageId,
+        timestamp: new Date().toISOString(),
+        decisions: decisions,
+        items: ITEMS.map(function(item) {
+          var key = getKey(item);
+          var d = decisions[key];
+          return { id: item.id, title: item.title, bucket: item.bucket, decided: !!(d && d.choice !== undefined), choice: d ? d.choice : null, notes: d ? d.notes : '' };
+        })
+      }, '*');
+    }
+  });
+}
+
+// Init connection
+LevConnection.init();
+
+// ── SEARCH + FILTER ─────────────────────────────────────────────
+var searchTimer = null;
+document.getElementById('search-input').addEventListener('input', function() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(applyFilters, 200);
+});
+document.getElementById('undecided-toggle').addEventListener('change', applyFilters);
+
+// Build filter chips from bucket names
+(function() {
+  var chips = document.getElementById('filter-chips');
+  var buckets = {};
+  ITEMS.forEach(function(item) { buckets[item.bucket] = true; });
+  Object.keys(buckets).forEach(function(bucket) {
+    var chip = document.createElement('button');
+    chip.className = 'filter-chip active';
+    chip.textContent = BUCKET_NAMES[bucket] || bucket;
+    chip.dataset.bucket = bucket;
+    chip.addEventListener('click', function() {
+      this.classList.toggle('active');
+      applyFilters();
+    });
+    chips.appendChild(chip);
+  });
+})();
+
+function applyFilters() {
+  var query = (document.getElementById('search-input').value || '').toLowerCase();
+  var undecidedOnly = document.getElementById('undecided-toggle').checked;
+  var activeChips = {};
+  document.querySelectorAll('.filter-chip.active').forEach(function(c) {
+    activeChips[c.dataset.bucket] = true;
+  });
+
+  var cards = document.querySelectorAll('.item-card');
+  cards.forEach(function(card) {
+    var itemId = card.dataset.itemId;
+    var item = null;
+    for (var i = 0; i < ITEMS.length; i++) {
+      if (ITEMS[i].id === itemId) { item = ITEMS[i]; break; }
+    }
+    if (!item) return;
+
+    var visible = true;
+
+    // Bucket filter
+    if (!activeChips[item.bucket]) visible = false;
+
+    // Search filter
+    if (query && visible) {
+      var searchable = (item.title + ' ' + item.insight + ' ' + (item.detail || '')).toLowerCase();
+      if (searchable.indexOf(query) === -1) visible = false;
+    }
+
+    // Undecided filter
+    if (undecidedOnly && visible) {
+      var key = getKey(item);
+      if (decisions[key] && decisions[key].choice !== undefined) visible = false;
+    }
+
+    if (visible) {
+      card.classList.remove('filtered-out');
+    } else {
+      card.classList.add('filtered-out');
+    }
+  });
 }
 
 // ── INIT ────────────────────────────────────────────────────────────

@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.8.0] - 2026-03-14
+
+### Interaction Layer
+- **Live daemon connection** — `LevConnection` manager auto-connects to Lev daemon on `localhost:9849`. Health check with 2s timeout, WebSocket for exec streaming, auto-reconnect every 5s
+- **Connection indicator** — 8px dot in progress bar: green (connected), amber (fallback/clipboard), gray (disconnected)
+- **Response panel** — fixed panel above action bar shows streaming exec output with copy/dismiss buttons. Slide-up animation
+- **Upgraded `runWithClaude()`** — sends prompt via WebSocket when connected, falls back to clipboard when offline. Zero regression from v0.7.0 behavior
+
+### Search + Filter
+- **Search input** — debounced 200ms text search across decision title, insight, and detail text
+- **Bucket filter chips** — toggleable chips per bucket category, auto-generated from page data
+- **Undecided only** — checkbox toggle hides already-decided cards
+- **Pure DOM filtering** — no re-renders, uses CSS class toggle (`filtered-out`) for visibility
+
+### Embed Mode
+- **Query param** — `?embed=true` adds `embed-mode` class to body
+- **Hidden chrome** — hero, bucket nav, and action bar hidden in embed mode
+- **postMessage API** — parent frames can request `getDecisions` and receive current decision state as JSON
+
+### Reference
+- **`interaction-patterns.md`** — new reference doc covering connection manager, response panel, search/filter, and embed mode JavaScript patterns
+
+### Infrastructure
+- **`exec-api.ts`** — programmatic wrapper around `executeTask()` in `@lev-os/harness-sdk`. Builds `ExecOptions` without CLI parsing, forces `host: 'local'` to bypass tmux
+- **Bridge orchestrator routes** — `POST /exec` (synchronous) and `WS /exec/stream` (streaming) added to Fastify server on `:9849`
+
+### Quality
+- Version bump to 0.8.0
+
 ## [0.7.0] - 2026-03-14
 
 ### Decision / Feedback Capture Type

@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires a browser to view generated HTML files. Optional surf-cli for AI image generation.
 metadata:
   author: nicobailon
-  version: "0.7.0"
+  version: "0.8.0"
 ---
 
 # Visual Explainer
@@ -370,6 +370,22 @@ Interactive decision-making pages with localStorage persistence. For structured 
 - Collapsible details use `<button>` toggle with ▸/▾ indicator
 
 **Template reference:** `./templates/decision.html` — Warm Charcoal + Copper palette, Space Grotesk + IBM Plex Mono. Demonstrates all patterns including localStorage auto-save.
+
+### Interaction Layer
+
+Decision pages support an optional live connection to the Lev daemon for in-browser exec. When the daemon is running on `:9849`, the "Run with Claude" button sends prompts via WebSocket and shows streaming responses inline. When offline, it falls back to clipboard mode (existing v0.7.0 behavior).
+
+**Connection manager** — `LevConnection` object auto-connects to `ws://localhost:9849/exec/stream` on page load. Health check via `/health` endpoint with 2s timeout. Auto-reconnects every 5s on disconnect.
+
+**Connection indicator** — 8px dot in the progress bar area. Green = connected, amber = fallback (clipboard), gray = disconnected.
+
+**Response panel** — Fixed panel above the action bar showing exec output. Copy and dismiss buttons. Appears on successful daemon exec, hidden by default.
+
+**Search + Filter** — Search input with 200ms debounce filters cards by title/insight/detail text. Bucket filter chips toggle visibility per category. "Undecided only" checkbox hides decided cards. All filtering is pure DOM visibility toggling — no re-renders.
+
+**Embed mode** — `?embed=true` query param hides hero, bucket nav, and action bar. Parent frames can request current decisions via `postMessage({ type: 'getDecisions' })`.
+
+**Reference:** `./references/interaction-patterns.md` for full JavaScript patterns and CSS.
 
 ### Dashboard / Metrics Overview
 Card grid layout. Hero numbers large and prominent. Sparklines via inline SVG `<polyline>`. Progress bars via CSS `linear-gradient` on a div. For real charts (bar, line, pie), use **Chart.js via CDN** (see `./references/libraries.md`). KPI cards with trend indicators (up/down arrows, percentage deltas).
