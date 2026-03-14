@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REST vs GraphQL vs gRPC for Microservices — Comparison</title>
+<!--
+  Reference template for the visual-explainer skill: comparison / tradeoff analysis.
+  Teal + Slate palette — technical, precise.
+  Key patterns demonstrated:
+  - Teal + Slate palette (#0891b2, #0369a1) with amber for Option B, slate for Option C
+  - DM Sans + Fira Code font pairing
+  - Hero summary with ve-card--hero depth treatment
+  - KPI row summarizing dimensions, candidates, recommendation
+  - Candidate-at-a-glance cards (3) with strengths + primary tradeoff
+  - Dimension-by-dimension table with sticky thead, status badges (strong/weak/neutral)
+  - Color-coded candidates: teal (REST), amber (GraphQL), slate (gRPC)
+  - Deep dive sections with code snippets and concrete examples
+  - Recommendation section with confidence level and conditional guidance
+  - Responsive sticky TOC nav (sidebar desktop, horizontal mobile at 1000px)
+  - Full light/dark theme via CSS custom properties + prefers-color-scheme
+  - data-theme override support for theme toggle
+  - Theme toggle button
+  - Print stylesheet (@media print)
+  - Staggered fadeUp animations with prefers-reduced-motion respect
+  - Overflow protection: min-width:0 on flex/grid children, overflow-wrap:break-word
+  - .ve-card class (NOT .node) for cards
+  - Depth tiers: hero > elevated > default > recessed
+  - Anti-slop: no Inter/Roboto, no violet/indigo, no gradient text, no emoji headers, no glowing shadows
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============ THEME — LIGHT (DEFAULT) ============ */
+  :root {
+    --font-body: 'DM Sans', system-ui, sans-serif;
+    --font-mono: 'Fira Code', 'SF Mono', Consolas, monospace;
+
+    --bg: #f0f7f9;
+    --surface: #ffffff;
+    --surface2: #e8f4f7;
+    --surface-elevated: #f7fbfc;
+    --surface-recessed: #e2eef1;
+    --border: rgba(0, 0, 0, 0.07);
+    --border-bright: rgba(0, 0, 0, 0.14);
+    --text: #0f172a;
+    --text-dim: #64748b;
+
+    --accent: #0891b2;
+    --accent-dim: rgba(8, 145, 178, 0.08);
+
+    /* Candidate colors */
+    --cand-a: #0891b2;        /* REST — teal */
+    --cand-a-dim: rgba(8, 145, 178, 0.08);
+    --cand-b: #d97706;        /* GraphQL — amber */
+    --cand-b-dim: rgba(217, 119, 6, 0.08);
+    --cand-c: #0369a1;        /* gRPC — slate */
+    --cand-c-dim: rgba(3, 105, 161, 0.08);
+
+    /* Status colors */
+    --strong: #059669;
+    --strong-dim: rgba(5, 150, 105, 0.08);
+    --weak: #dc2626;
+    --weak-dim: rgba(220, 38, 38, 0.08);
+    --neutral: #64748b;
+    --neutral-dim: rgba(100, 116, 139, 0.08);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c1419;
+      --surface: #131d24;
+      --surface2: #1a2730;
+      --surface-elevated: #1e2f3a;
+      --surface-recessed: #0e181f;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-bright: rgba(255, 255, 255, 0.12);
+      --text: #e2e8f0;
+      --text-dim: #8b9bb4;
+
+      --accent: #22d3ee;
+      --accent-dim: rgba(34, 211, 238, 0.10);
+
+      --cand-a: #22d3ee;
+      --cand-a-dim: rgba(34, 211, 238, 0.10);
+      --cand-b: #fbbf24;
+      --cand-b-dim: rgba(251, 191, 36, 0.10);
+      --cand-c: #38bdf8;
+      --cand-c-dim: rgba(56, 189, 248, 0.10);
+
+      --strong: #34d399;
+      --strong-dim: rgba(52, 211, 153, 0.10);
+      --weak: #f87171;
+      --weak-dim: rgba(248, 113, 113, 0.10);
+      --neutral: #8b9bb4;
+      --neutral-dim: rgba(139, 155, 180, 0.10);
+    }
+  }
+
+  /* ============ DATA-THEME OVERRIDES ============ */
+  [data-theme="light"] {
+    --bg: #f0f7f9;
+    --surface: #ffffff;
+    --surface2: #e8f4f7;
+    --surface-elevated: #f7fbfc;
+    --surface-recessed: #e2eef1;
+    --border: rgba(0, 0, 0, 0.07);
+    --border-bright: rgba(0, 0, 0, 0.14);
+    --text: #0f172a;
+    --text-dim: #64748b;
+    --accent: #0891b2;
+    --accent-dim: rgba(8, 145, 178, 0.08);
+    --cand-a: #0891b2;
+    --cand-a-dim: rgba(8, 145, 178, 0.08);
+    --cand-b: #d97706;
+    --cand-b-dim: rgba(217, 119, 6, 0.08);
+    --cand-c: #0369a1;
+    --cand-c-dim: rgba(3, 105, 161, 0.08);
+    --strong: #059669;
+    --strong-dim: rgba(5, 150, 105, 0.08);
+    --weak: #dc2626;
+    --weak-dim: rgba(220, 38, 38, 0.08);
+    --neutral: #64748b;
+    --neutral-dim: rgba(100, 116, 139, 0.08);
+  }
+
+  [data-theme="dark"] {
+    --bg: #0c1419;
+    --surface: #131d24;
+    --surface2: #1a2730;
+    --surface-elevated: #1e2f3a;
+    --surface-recessed: #0e181f;
+    --border: rgba(255, 255, 255, 0.06);
+    --border-bright: rgba(255, 255, 255, 0.12);
+    --text: #e2e8f0;
+    --text-dim: #8b9bb4;
+    --accent: #22d3ee;
+    --accent-dim: rgba(34, 211, 238, 0.10);
+    --cand-a: #22d3ee;
+    --cand-a-dim: rgba(34, 211, 238, 0.10);
+    --cand-b: #fbbf24;
+    --cand-b-dim: rgba(251, 191, 36, 0.10);
+    --cand-c: #38bdf8;
+    --cand-c-dim: rgba(56, 189, 248, 0.10);
+    --strong: #34d399;
+    --strong-dim: rgba(52, 211, 153, 0.10);
+    --weak: #f87171;
+    --weak-dim: rgba(248, 113, 113, 0.10);
+    --neutral: #8b9bb4;
+    --neutral-dim: rgba(139, 155, 180, 0.10);
+  }
+
+  /* ============ RESET + BASE ============ */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 25% 0%, var(--cand-a-dim) 0%, transparent 50%),
+      radial-gradient(ellipse at 75% 100%, var(--cand-c-dim) 0%, transparent 40%);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 40px;
+    min-height: 100vh;
+    overflow-wrap: break-word;
+  }
+
+  /* ============ ANIMATION ============ */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeScale {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  .animate {
+    animation: fadeUp 0.4s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.05s);
+  }
+
+  .animate-scale {
+    animation: fadeScale 0.35s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.05s);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-delay: 0ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ============ LAYOUT — TWO-COLUMN WITH TOC ============ */
+  .wrap {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    gap: 0 40px;
+  }
+
+  .main {
+    min-width: 0;
+  }
+
+  /* ============ TOC — DESKTOP (STICKY SIDEBAR) ============ */
+  .toc {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+    padding: 14px 0;
+    grid-row: 1 / -1;
+    max-height: calc(100dvh - 48px);
+    overflow-y: auto;
+  }
+
+  .toc::-webkit-scrollbar { width: 3px; }
+  .toc::-webkit-scrollbar-thumb { background: var(--surface-elevated); border-radius: 2px; }
+
+  .toc-title {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    padding: 0 0 10px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .toc a {
+    display: block;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 5px;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+    line-height: 1.4;
+    margin-bottom: 1px;
+  }
+
+  .toc a:hover { color: var(--text); background: var(--surface2); }
+  .toc a.active { color: var(--text); border-left-color: var(--accent); }
+
+  /* ============ TOC — MOBILE (STICKY HORIZONTAL BAR) ============ */
+  @media (max-width: 1000px) {
+    .wrap { grid-template-columns: 1fr; padding-top: 0; }
+    body { padding-top: 0; }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      max-height: none;
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 0;
+      margin: 0 -40px;
+      padding-left: 40px;
+      padding-right: 40px;
+      grid-row: auto;
+    }
+
+    .toc::-webkit-scrollbar { display: none; }
+    .toc-title { display: none; }
+
+    .toc a {
+      white-space: nowrap;
+      flex-shrink: 0;
+      border-left: none;
+      border-bottom: 2px solid transparent;
+      border-radius: 4px 4px 0 0;
+      padding: 6px 10px;
+      font-size: 10px;
+    }
+
+    .toc a.active {
+      border-left: none;
+      border-bottom-color: var(--accent);
+      background: var(--surface);
+    }
+
+    .main { padding-top: 20px; }
+    .sec-head { scroll-margin-top: 52px; }
+  }
+
+  /* ============ SECTION HEADINGS ============ */
+  h1 {
+    font-family: var(--font-body);
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    margin-bottom: 32px;
+  }
+
+  .sec-head {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    margin: 40px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sec-head::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  .sec-head:first-of-type { margin-top: 0; }
+
+  h2 {
+    font-family: var(--font-body);
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    letter-spacing: -0.3px;
+  }
+
+  h3 {
+    font-family: var(--font-body);
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  /* ============ VE-CARD SYSTEM ============ */
+  .ve-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    position: relative;
+    min-width: 0;
+  }
+
+  .ve-card--hero {
+    background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+    border-color: color-mix(in srgb, var(--border) 50%, var(--accent) 50%);
+  }
+
+  .ve-card--elevated {
+    background: var(--surface-elevated);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  .ve-card--recessed {
+    background: var(--surface-recessed);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+    border-color: var(--border);
+  }
+
+  .ve-card__label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ve-card__label::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* ============ KPI ROW ============ */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .kpi-card {
+    background: var(--surface-elevated);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    min-width: 0;
+  }
+
+  .kpi-card__value {
+    font-family: var(--font-body);
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .kpi-card__label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+
+  /* ============ CANDIDATE CARDS ============ */
+  .candidate-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .candidate-grid > * { min-width: 0; }
+
+  .candidate-card {
+    border-top: 3px solid var(--cand-color, var(--border));
+  }
+
+  .candidate-card h3 {
+    color: var(--cand-color, var(--text));
+    margin-bottom: 12px;
+  }
+
+  .strengths-list {
+    list-style: none;
+    margin-bottom: 14px;
+  }
+
+  .strengths-list li {
+    padding: 4px 0;
+    font-size: 14px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .strengths-list li::before {
+    content: '+';
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--strong);
+    flex-shrink: 0;
+  }
+
+  .tradeoff {
+    font-size: 13px;
+    color: var(--text-dim);
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .tradeoff::before {
+    content: '\2212';
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--weak);
+    flex-shrink: 0;
+  }
+
+  /* ============ LEGEND ============ */
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .legend-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+
+  /* ============ TABLE WRAPPER ============ */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ============ DATA TABLE ============ */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .data-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  .data-table th {
+    background: var(--surface2);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 14px 16px;
+    border-bottom: 2px solid var(--border-bright);
+    white-space: nowrap;
+  }
+
+  /* Candidate column headers get their color */
+  .data-table th.col-rest { color: var(--cand-a); border-bottom-color: var(--cand-a); }
+  .data-table th.col-graphql { color: var(--cand-b); border-bottom-color: var(--cand-b); }
+  .data-table th.col-grpc { color: var(--cand-c); border-bottom-color: var(--cand-c); }
+
+  .data-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    min-width: 0;
+  }
+
+  .data-table tbody tr:last-child td { border-bottom: none; }
+
+  .data-table .dim-col {
+    min-width: 140px;
+    max-width: 200px;
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  .data-table .cand-col {
+    min-width: 160px;
+    max-width: 300px;
+  }
+
+  .data-table tbody tr:nth-child(even) {
+    background: var(--accent-dim);
+  }
+
+  .data-table tbody tr {
+    transition: background 0.15s ease;
+    animation: fadeUp 0.35s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.04s);
+  }
+
+  .data-table tbody tr:hover {
+    background: var(--border);
+  }
+
+  .data-table code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  .data-table small {
+    display: block;
+    color: var(--text-dim);
+    font-size: 11px;
+    margin-top: 3px;
+  }
+
+  .data-table tfoot td {
+    background: var(--surface2);
+    font-weight: 600;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    border-top: 2px solid var(--border-bright);
+    border-bottom: none;
+    padding: 14px 16px;
+  }
+
+  /* ============ STATUS BADGES ============ */
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+  }
+
+  .status::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .status--strong {
+    background: var(--strong-dim);
+    color: var(--strong);
+  }
+
+  .status--weak {
+    background: var(--weak-dim);
+    color: var(--weak);
+  }
+
+  .status--neutral {
+    background: var(--neutral-dim);
+    color: var(--neutral);
+  }
+
+  /* ============ DEEP DIVE SECTIONS ============ */
+  .deep-dive {
+    margin-bottom: 24px;
+  }
+
+  .deep-dive h3 {
+    margin-bottom: 14px;
+  }
+
+  .code-block {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-bottom: 14px;
+  }
+
+  .code-file {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+
+  .code-file__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .code-file__body {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 16px;
+    background: var(--surface-elevated);
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 500px;
+    overflow: auto;
+  }
+
+  .example-note {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+
+  /* ============ RECOMMENDATION SECTION ============ */
+  .rec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .rec-grid > * { min-width: 0; }
+
+  .rec-card {
+    border-left: 3px solid var(--cand-color, var(--border));
+  }
+
+  .rec-card__condition {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--cand-color, var(--accent));
+    margin-bottom: 8px;
+  }
+
+  .rec-card p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .rec-card ul {
+    list-style: none;
+    margin-top: 8px;
+  }
+
+  .rec-card ul li {
+    font-size: 13px;
+    padding: 3px 0;
+    color: var(--text-dim);
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .rec-card ul li::before {
+    content: '\2192';
+    font-family: var(--font-mono);
+    color: var(--cand-color, var(--accent));
+    flex-shrink: 0;
+  }
+
+  .confidence-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 6px;
+    background: var(--strong-dim);
+    color: var(--strong);
+    margin-bottom: 16px;
+  }
+
+  .confidence-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* ============ THEME TOGGLE ============ */
+  .theme-toggle {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 300;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--surface) 80%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    line-height: 1;
+    transition: background 0.2s, border-color 0.2s;
+    padding: 0;
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--border-bright);
+    color: var(--text);
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 768px) {
+    body { padding: 16px; }
+    h1 { font-size: 24px; }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .kpi-card__value { font-size: 26px; }
+    .candidate-grid { grid-template-columns: 1fr; }
+    .rec-grid { grid-template-columns: 1fr; }
+    .data-table th,
+    .data-table td { padding: 10px 12px; }
+  }
+
+  @media (max-width: 375px) {
+    body { padding: 12px; }
+    h1 { font-size: 20px; }
+    .kpi-row { grid-template-columns: 1fr; }
+    .toc { margin: 0 -12px; padding-left: 12px; padding-right: 12px; }
+  }
+
+  /* ============ OVERFLOW PROTECTION ============ */
+  .kpi-row > *,
+  .candidate-grid > *,
+  .rec-grid > *,
+  .wrap > * {
+    min-width: 0;
+  }
+
+  /* ============ PRINT STYLESHEET ============ */
+  @media print {
+    :root {
+      --bg: #ffffff !important;
+      --surface: #ffffff !important;
+      --surface2: #f5f5f5 !important;
+      --surface-elevated: #ffffff !important;
+      --surface-recessed: #f5f5f5 !important;
+      --border: rgba(0, 0, 0, 0.12) !important;
+      --border-bright: rgba(0, 0, 0, 0.2) !important;
+      --text: #1a1a1a !important;
+      --text-dim: #555555 !important;
+    }
+
+    body {
+      background: white !important;
+      background-image: none !important;
+      color: #1a1a1a !important;
+      padding: 0.5in !important;
+      font-size: 11pt !important;
+      min-height: auto !important;
+    }
+
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .theme-toggle { display: none !important; }
+
+    .toc {
+      position: static !important;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 1em;
+      padding-bottom: 0.5em;
+    }
+
+    .ve-card, .section, .kpi-card,
+    tr, details {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    details { display: block !important; }
+    details > summary { display: block !important; }
+    details > summary::before { content: '\25BE' !important; transform: none !important; }
+    details .collapsible__body { display: block !important; }
+
+    a[href^="http"]::after {
+      content: " (" attr(href) ")";
+      font-size: 9pt;
+      color: #888;
+      word-break: break-all;
+    }
+  }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle light/dark theme">&#9680;</button>
+
+<div class="wrap">
+
+  <!-- ========== TOC ========== -->
+  <nav class="toc" id="toc">
+    <div class="toc-title">Contents</div>
+    <a href="#s1">1. Summary</a>
+    <a href="#s2">2. At a Glance</a>
+    <a href="#s3">3. Dimension Breakdown</a>
+    <a href="#s4">4. Deep Dive: Latency</a>
+    <a href="#s5">5. Deep Dive: Schema</a>
+    <a href="#s6">6. Recommendation</a>
+  </nav>
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <div class="main">
+
+    <h1 class="animate" style="--i:0">REST vs GraphQL vs gRPC</h1>
+    <p class="subtitle animate" style="--i:1">choosing the right api paradigm for a microservices architecture</p>
+
+    <!-- ===== S1: HERO SUMMARY ===== -->
+    <div id="s1" class="sec-head animate" style="--i:2">1 &mdash; Summary</div>
+
+    <div class="ve-card ve-card--hero animate" style="--i:3; margin-bottom: 24px;">
+      <p style="font-size: 18px; line-height: 1.5; font-weight: 500;">
+        Which API protocol should your microservices fleet standardize on when you need
+        low-latency internal communication, a flexible public-facing API, and a team that
+        can hire for it?
+      </p>
+    </div>
+
+    <!-- ===== KPI ROW ===== -->
+    <div class="kpi-row animate-scale" style="--i:4">
+      <div class="kpi-card">
+        <div class="kpi-card__value" style="color: var(--accent);">6</div>
+        <div class="kpi-card__label">Dimensions Evaluated</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__value">3</div>
+        <div class="kpi-card__label">Candidates Compared</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__value" style="color: var(--strong);">Context</div>
+        <div class="kpi-card__label">Winner Depends On</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-card__value" style="color: var(--cand-c);">gRPC</div>
+        <div class="kpi-card__label">Internal Comms Pick</div>
+      </div>
+    </div>
+
+    <!-- ===== S2: CANDIDATES AT A GLANCE ===== -->
+    <div id="s2" class="sec-head animate" style="--i:6">2 &mdash; Candidates at a Glance</div>
+
+    <div class="candidate-grid">
+
+      <div class="ve-card ve-card--elevated candidate-card animate" style="--i:7; --cand-color: var(--cand-a);">
+        <h3>REST</h3>
+        <ul class="strengths-list">
+          <li>Universal tooling and ecosystem support</li>
+          <li>Human-readable, trivially debuggable with <code>curl</code></li>
+          <li>Caching via HTTP semantics (ETags, CDN, proxies)</li>
+        </ul>
+        <div class="tradeoff">Over-fetching and under-fetching without careful API design</div>
+      </div>
+
+      <div class="ve-card ve-card--elevated candidate-card animate" style="--i:8; --cand-color: var(--cand-b);">
+        <h3>GraphQL</h3>
+        <ul class="strengths-list">
+          <li>Client-driven queries eliminate over-fetching</li>
+          <li>Strong type system with introspection</li>
+          <li>Single endpoint simplifies client routing</li>
+        </ul>
+        <div class="tradeoff">Query complexity attacks and N+1 problems require careful resolver design</div>
+      </div>
+
+      <div class="ve-card ve-card--elevated candidate-card animate" style="--i:9; --cand-color: var(--cand-c);">
+        <h3>gRPC</h3>
+        <ul class="strengths-list">
+          <li>Binary protobuf encoding — 5-10x smaller payloads</li>
+          <li>HTTP/2 multiplexing and bidirectional streaming</li>
+          <li>Code-generated clients with strict contracts</li>
+        </ul>
+        <div class="tradeoff">No native browser support; requires a proxy layer for web clients</div>
+      </div>
+
+    </div>
+
+    <!-- ===== S3: DIMENSION-BY-DIMENSION TABLE ===== -->
+    <div id="s3" class="sec-head animate" style="--i:10">3 &mdash; Dimension-by-Dimension Breakdown</div>
+
+    <div class="legend animate" style="--i:11">
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--strong)"></div> Strong</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--weak)"></div> Weak</div>
+      <div class="legend-item"><div class="legend-swatch" style="background:var(--neutral)"></div> Neutral</div>
+    </div>
+
+    <div class="table-wrap animate" style="--i:12">
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="dim-col">Dimension</th>
+              <th class="cand-col col-rest">REST</th>
+              <th class="cand-col col-graphql">GraphQL</th>
+              <th class="cand-col col-grpc">gRPC</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="--i:13">
+              <td class="dim-col">Latency</td>
+              <td class="cand-col">
+                <span class="status status--neutral">Neutral</span>
+                <small>HTTP/1.1 overhead; connection pooling helps</small>
+              </td>
+              <td class="cand-col">
+                <span class="status status--neutral">Neutral</span>
+                <small>Single round-trip but resolver fan-out adds server time</small>
+              </td>
+              <td class="cand-col">
+                <span class="status status--strong">Strong</span>
+                <small>Binary encoding + HTTP/2 multiplexing; p99 latency 2-5x lower</small>
+              </td>
+            </tr>
+            <tr style="--i:14">
+              <td class="dim-col">Payload Efficiency</td>
+              <td class="cand-col">
+                <span class="status status--weak">Weak</span>
+                <small>JSON text encoding; fixed response shapes cause over-fetching</small>
+              </td>
+              <td class="cand-col">
+                <span class="status status--strong">Strong</span>
+                <small>Client requests exactly what it needs; no wasted bytes</small>
+              </td>
+              <td class="cand-col">
+                <span class="status status--strong">Strong</span>
+                <small>Protobuf binary is ~5-10x smaller than equivalent JSON</small>
+              </td>
+            </tr>
+            <tr style="--i:15">
+              <td class="dim-col">Developer Experience</td>
+              <td class="cand-col">
+                <span class="status status--strong">Strong</span>
+                <small>Everyone knows REST; <code>curl</code>, Postman, browser devtools</small>
+              </td>
+              <td class="cand-col">
+                <span class="status status--strong">Strong</span>
+                <small>GraphiQL, introspection, type safety via codegen</small>
+              </td>
+              <td class="cand-col">
+                <span class="status status--neutral">Neutral</span>
+                <small>Proto files enforce contracts but tooling is less mature</small>
+              </td>
+            </tr>
+            <tr style="--i:16">
+              <td class="dim-col">Browser Support</td>
+              <td class="cand-col">
+                <span class="status status--strong">Strong</span>
+                <small>Native <code>fetch()</code> support everywhere</small>
+              </td>
+              <td class="cand-col">
+                <span class="status status--strong">Strong</span>
+                <small>Works over HTTP POST; Apollo, urql, Relay clients</small>
+              </td>
+              <td class="cand-col">
+                <span class="status status--weak">Weak</span>
+                <small>Requires gRPC-Web proxy (Envoy); no native browser support</small>
+              </td>
+            </tr>
+            <tr style="--i:17">
+              <td class="dim-col">Streaming</td>
+              <td class="cand-col">
+                <span class="status status--weak">Weak</span>
+                <small>SSE or WebSocket bolt-ons; not first-class</small>
+              </td>
+              <td class="cand-col">
+                <span class="status status--neutral">Neutral</span>
+                <small>Subscriptions via WebSocket; adds operational complexity</small>
+              </td>
+              <td class="cand-col">
+                <span class="status status--strong">Strong</span>
+                <small>Bidirectional streaming built into the protocol</small>
+              </td>
+            </tr>
+            <tr style="--i:18">
+              <td class="dim-col">Schema Evolution</td>
+              <td class="cand-col">
+                <span class="status status--neutral">Neutral</span>
+                <small>API versioning via URL paths or headers; manual discipline</small>
+              </td>
+              <td class="cand-col">
+                <span class="status status--strong">Strong</span>
+                <small>Additive schema changes; deprecation directives; no versioning needed</small>
+              </td>
+              <td class="cand-col">
+                <span class="status status--strong">Strong</span>
+                <small>Protobuf field numbering allows backward-compatible evolution</small>
+              </td>
+            </tr>
+            <tr style="--i:19">
+              <td class="dim-col">Caching</td>
+              <td class="cand-col">
+                <span class="status status--strong">Strong</span>
+                <small>HTTP caching semantics, CDN support, ETags, conditional requests</small>
+              </td>
+              <td class="cand-col">
+                <span class="status status--weak">Weak</span>
+                <small>POST-based; requires application-level caching (persisted queries help)</small>
+              </td>
+              <td class="cand-col">
+                <span class="status status--weak">Weak</span>
+                <small>Binary protocol; no HTTP cache layer; must implement app-level caching</small>
+              </td>
+            </tr>
+            <tr style="--i:20">
+              <td class="dim-col">Observability</td>
+              <td class="cand-col">
+                <span class="status status--strong">Strong</span>
+                <small>Standard HTTP status codes; every proxy, LB, and APM understands it</small>
+              </td>
+              <td class="cand-col">
+                <span class="status status--neutral">Neutral</span>
+                <small>Always 200 OK; errors in response body require custom instrumentation</small>
+              </td>
+              <td class="cand-col">
+                <span class="status status--neutral">Neutral</span>
+                <small>Rich status codes but binary payloads harder to inspect in transit</small>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>8 dimensions</td>
+              <td style="color: var(--cand-a);">3 strong &middot; 2 weak</td>
+              <td style="color: var(--cand-b);">3 strong &middot; 2 weak</td>
+              <td style="color: var(--cand-c);">4 strong &middot; 2 weak</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== S4: DEEP DIVE — LATENCY ===== -->
+    <div id="s4" class="sec-head animate" style="--i:21">4 &mdash; Deep Dive: Latency</div>
+
+    <div class="deep-dive animate" style="--i:22">
+      <h3>Why gRPC wins on latency</h3>
+      <p class="example-note">
+        Protobuf binary encoding eliminates JSON parse overhead. HTTP/2 multiplexing avoids
+        head-of-line blocking. Here's a benchmark fetching the same user profile 10,000 times:
+      </p>
+
+      <div class="code-file">
+        <div class="code-file__header"><span>benchmark results (p99 latency, ms)</span></div>
+        <pre class="code-file__body"><code>Protocol     p50    p95    p99    Payload Size
+─────────    ───    ───    ───    ────────────
+REST/JSON    4.2    8.1    14.3   847 bytes
+GraphQL      3.8    7.6    13.1   412 bytes (query-specific)
+gRPC         1.1    2.3     3.8    94 bytes (protobuf)</code></pre>
+      </div>
+
+      <p class="example-note">
+        The gRPC call definition that produces this result:
+      </p>
+
+      <div class="code-file">
+        <div class="code-file__header"><span>user_service.proto</span></div>
+        <pre class="code-file__body"><code>syntax = "proto3";
+
+service UserService {
+  rpc GetUser (GetUserRequest) returns (User);
+  rpc ListUsers (ListUsersRequest) returns (stream User);
+}
+
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message User {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  int64 created_at = 4;
+}</code></pre>
+      </div>
+
+      <p class="example-note">
+        Compared to the equivalent REST call returning the same data as a 847-byte JSON payload,
+        gRPC's protobuf encoding compresses the response to 94 bytes without any additional
+        compression layer. Over thousands of inter-service calls, this compounds.
+      </p>
+    </div>
+
+    <!-- ===== S5: DEEP DIVE — SCHEMA ===== -->
+    <div id="s5" class="sec-head animate" style="--i:23">5 &mdash; Deep Dive: Schema Evolution</div>
+
+    <div class="deep-dive animate" style="--i:24">
+      <h3>GraphQL deprecation vs REST versioning</h3>
+      <p class="example-note">
+        REST typically requires URL-based versioning (<code>/v1/users</code> &rarr; <code>/v2/users</code>),
+        which means running parallel endpoints during migration. GraphQL handles this with
+        additive changes and the <code>@deprecated</code> directive:
+      </p>
+
+      <div class="code-file">
+        <div class="code-file__header"><span>schema.graphql — evolving without versioning</span></div>
+        <pre class="code-file__body"><code>type User {
+  id: ID!
+  name: String!
+  email: String!
+
+  # Old field — still works, but clients see the deprecation warning
+  fullName: String @deprecated(reason: "Use `displayName` instead")
+
+  # New field — added without breaking existing queries
+  displayName: String!
+  avatarUrl: String
+}</code></pre>
+      </div>
+
+      <p class="example-note">
+        Protobuf achieves similar backward compatibility through field numbering. Adding field
+        <code>5</code> never breaks clients that only know fields <code>1-4</code>, and
+        reserved field numbers prevent accidental reuse:
+      </p>
+
+      <div class="code-file">
+        <div class="code-file__header"><span>user.proto — backward-compatible evolution</span></div>
+        <pre class="code-file__body"><code>message User {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  int64 created_at = 4;
+
+  // Added in v2 — old clients simply ignore this field
+  string avatar_url = 5;
+  string display_name = 6;
+
+  // Field 7 was removed; reserve it to prevent reuse
+  reserved 7;
+  reserved "legacy_role";
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- ===== S6: RECOMMENDATION ===== -->
+    <div id="s6" class="sec-head animate" style="--i:25">6 &mdash; Recommendation</div>
+
+    <div class="ve-card ve-card--hero animate" style="--i:26; margin-bottom: 20px;">
+      <span class="confidence-badge">High Confidence</span>
+      <p style="font-size: 16px; line-height: 1.6;">
+        There is no universal winner. The right choice depends on where the API sits in your
+        architecture. Most mature microservices platforms end up using two or all three.
+      </p>
+    </div>
+
+    <div class="rec-grid">
+      <div class="ve-card rec-card animate" style="--i:27; --cand-color: var(--cand-a);">
+        <div class="rec-card__condition">Choose REST if...</div>
+        <ul>
+          <li>You need a public API with broad third-party adoption</li>
+          <li>HTTP caching and CDN support are critical (content-heavy apps)</li>
+          <li>Your team is small and needs the fastest path to production</li>
+          <li>You want maximum observability with standard tooling</li>
+        </ul>
+      </div>
+
+      <div class="ve-card rec-card animate" style="--i:28; --cand-color: var(--cand-b);">
+        <div class="rec-card__condition">Choose GraphQL if...</div>
+        <ul>
+          <li>Multiple clients (web, mobile, partner) need different data shapes</li>
+          <li>You want to avoid API versioning and evolve schemas additively</li>
+          <li>Frontend teams need autonomy to build features without backend changes</li>
+          <li>Data comes from many backend services (federation / BFF pattern)</li>
+        </ul>
+      </div>
+
+      <div class="ve-card rec-card animate" style="--i:29; --cand-color: var(--cand-c);">
+        <div class="rec-card__condition">Choose gRPC if...</div>
+        <ul>
+          <li>Internal service-to-service communication dominates your traffic</li>
+          <li>Latency and throughput are non-negotiable (real-time, financial, gaming)</li>
+          <li>You need bidirectional streaming (live feeds, multiplayer state sync)</li>
+          <li>Strict API contracts enforced at compile time are a requirement</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="ve-card ve-card--recessed animate" style="--i:30;">
+      <div class="ve-card__label" style="color: var(--text-dim);">Pragmatic Default</div>
+      <p style="font-size: 14px; line-height: 1.6;">
+        <strong>gRPC internally, REST or GraphQL externally.</strong> Use gRPC for all
+        inter-service communication where latency and type safety matter. Expose a REST
+        API for public consumers who need simplicity and cacheability, or a GraphQL API
+        for client teams who need query flexibility. This is the pattern Netflix, Uber,
+        and most large-scale platforms have converged on.
+      </p>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /wrap -->
+
+<script>
+/* Theme toggle */
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const isDarkOS = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (!current) {
+    html.setAttribute('data-theme', isDarkOS ? 'light' : 'dark');
+  } else {
+    html.removeAttribute('data-theme');
+  }
+}
+
+/* Scroll spy for TOC */
+(function() {
+  const toc = document.getElementById('toc');
+  const links = toc.querySelectorAll('a');
+  const sections = [];
+
+  links.forEach(link => {
+    const id = link.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el) sections.push({ id, el, link });
+  });
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const match = sections.find(s => s.el === entry.target);
+        if (match) {
+          match.link.classList.add('active');
+          if (window.innerWidth <= 1000) {
+            match.link.scrollIntoView({
+              behavior: 'smooth', block: 'nearest', inline: 'center'
+            });
+          }
+        }
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px' });
+
+  sections.forEach(s => observer.observe(s.el));
+
+  links.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const id = link.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', '#' + id);
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

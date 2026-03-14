@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Gateway — Performance Dashboard</title>
+<!--
+  Reference template for the visual-explainer skill: dashboard / metrics overview.
+  Deep Blue + Gold palette (#1e3a5f, #d4a73a) with IBM Plex Sans + IBM Plex Mono.
+  Key patterns demonstrated:
+  - Hero header with time range selector and last-updated timestamp
+  - Hero KPI row with countUp animation + sparklines (inline SVG polyline)
+  - Chart.js line chart (requests over time) + doughnut chart (response codes)
+  - Endpoint performance table with status badges
+  - Secondary KPI row (smaller cards)
+  - Depth tiers: hero KPIs elevated, charts default, secondary recessed
+  - Responsive sticky TOC nav (sidebar desktop, horizontal bar mobile)
+  - Full light/dark theme via CSS custom properties + prefers-color-scheme
+  - data-theme override + theme toggle button
+  - Chart.js charts respect theme colors (read from CSS vars via JS)
+  - Print stylesheet
+  - Staggered fadeUp/fadeScale animations
+  - Overflow protection on table
+  - Anti-slop: IBM Plex fonts (not Inter), deep blue palette (not neon), no gradient text
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<style>
+  /* ============ THEME — LIGHT (default) ============ */
+  :root {
+    --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+
+    --bg: #f0f2f5;
+    --surface: #ffffff;
+    --surface2: #e8ecf1;
+    --surface-elevated: #ffffff;
+    --surface-recessed: #e4e8ee;
+    --border: rgba(0, 0, 0, 0.08);
+    --border-bright: rgba(0, 0, 0, 0.15);
+    --text: #1a1d23;
+    --text-dim: #5f6b7a;
+    --accent: #1e3a5f;
+    --accent-light: #2a5088;
+    --accent-dim: rgba(30, 58, 95, 0.08);
+    --gold: #d4a73a;
+    --gold-dim: rgba(212, 167, 58, 0.1);
+    --green: #1a8a4a;
+    --green-dim: rgba(26, 138, 74, 0.08);
+    --red: #c0392b;
+    --red-dim: rgba(192, 57, 43, 0.08);
+    --orange: #d4780a;
+    --orange-dim: rgba(212, 120, 10, 0.08);
+    --blue: #2471a3;
+    --blue-dim: rgba(36, 113, 163, 0.08);
+    --chart-line: #1e3a5f;
+    --chart-fill: rgba(30, 58, 95, 0.12);
+    --chart-2xx: #1a8a4a;
+    --chart-3xx: #2471a3;
+    --chart-4xx: #d4780a;
+    --chart-5xx: #c0392b;
+    --sparkline-stroke: #1e3a5f;
+  }
+
+  /* ============ THEME — DARK (OS) ============ */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1420;
+      --surface: #162032;
+      --surface2: #1c2940;
+      --surface-elevated: #1e2f4a;
+      --surface-recessed: #111b2a;
+      --border: rgba(255, 255, 255, 0.07);
+      --border-bright: rgba(255, 255, 255, 0.14);
+      --text: #d8dfe8;
+      --text-dim: #7a8da3;
+      --accent: #5b9bd5;
+      --accent-light: #7ab5e8;
+      --accent-dim: rgba(91, 155, 213, 0.12);
+      --gold: #e8c15d;
+      --gold-dim: rgba(232, 193, 93, 0.12);
+      --green: #4ec97a;
+      --green-dim: rgba(78, 201, 122, 0.1);
+      --red: #e8695e;
+      --red-dim: rgba(232, 105, 94, 0.1);
+      --orange: #e8a94d;
+      --orange-dim: rgba(232, 169, 77, 0.1);
+      --blue: #5ba4d4;
+      --blue-dim: rgba(91, 164, 212, 0.1);
+      --chart-line: #5b9bd5;
+      --chart-fill: rgba(91, 155, 213, 0.15);
+      --chart-2xx: #4ec97a;
+      --chart-3xx: #5ba4d4;
+      --chart-4xx: #e8a94d;
+      --chart-5xx: #e8695e;
+      --sparkline-stroke: #5b9bd5;
+    }
+  }
+
+  /* ============ THEME — EXPLICIT OVERRIDES ============ */
+  [data-theme="light"] {
+    --bg: #f0f2f5;
+    --surface: #ffffff;
+    --surface2: #e8ecf1;
+    --surface-elevated: #ffffff;
+    --surface-recessed: #e4e8ee;
+    --border: rgba(0, 0, 0, 0.08);
+    --border-bright: rgba(0, 0, 0, 0.15);
+    --text: #1a1d23;
+    --text-dim: #5f6b7a;
+    --accent: #1e3a5f;
+    --accent-light: #2a5088;
+    --accent-dim: rgba(30, 58, 95, 0.08);
+    --gold: #d4a73a;
+    --gold-dim: rgba(212, 167, 58, 0.1);
+    --green: #1a8a4a;
+    --green-dim: rgba(26, 138, 74, 0.08);
+    --red: #c0392b;
+    --red-dim: rgba(192, 57, 43, 0.08);
+    --orange: #d4780a;
+    --orange-dim: rgba(212, 120, 10, 0.08);
+    --blue: #2471a3;
+    --blue-dim: rgba(36, 113, 163, 0.08);
+    --chart-line: #1e3a5f;
+    --chart-fill: rgba(30, 58, 95, 0.12);
+    --chart-2xx: #1a8a4a;
+    --chart-3xx: #2471a3;
+    --chart-4xx: #d4780a;
+    --chart-5xx: #c0392b;
+    --sparkline-stroke: #1e3a5f;
+  }
+
+  [data-theme="dark"] {
+    --bg: #0e1420;
+    --surface: #162032;
+    --surface2: #1c2940;
+    --surface-elevated: #1e2f4a;
+    --surface-recessed: #111b2a;
+    --border: rgba(255, 255, 255, 0.07);
+    --border-bright: rgba(255, 255, 255, 0.14);
+    --text: #d8dfe8;
+    --text-dim: #7a8da3;
+    --accent: #5b9bd5;
+    --accent-light: #7ab5e8;
+    --accent-dim: rgba(91, 155, 213, 0.12);
+    --gold: #e8c15d;
+    --gold-dim: rgba(232, 193, 93, 0.12);
+    --green: #4ec97a;
+    --green-dim: rgba(78, 201, 122, 0.1);
+    --red: #e8695e;
+    --red-dim: rgba(232, 105, 94, 0.1);
+    --orange: #e8a94d;
+    --orange-dim: rgba(232, 169, 77, 0.1);
+    --blue: #5ba4d4;
+    --blue-dim: rgba(91, 164, 212, 0.1);
+    --chart-line: #5b9bd5;
+    --chart-fill: rgba(91, 155, 213, 0.15);
+    --chart-2xx: #4ec97a;
+    --chart-3xx: #5ba4d4;
+    --chart-4xx: #e8a94d;
+    --chart-5xx: #e8695e;
+    --sparkline-stroke: #5b9bd5;
+  }
+
+  /* ============ RESET + BASE ============ */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 25% 0%, var(--accent-dim) 0%, transparent 50%),
+      radial-gradient(ellipse at 75% 100%, var(--gold-dim) 0%, transparent 40%);
+    color: var(--text);
+    font-family: var(--font-body);
+    padding: 32px 40px;
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+
+  /* ============ ANIMATIONS ============ */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeScale {
+    from { opacity: 0; transform: scale(0.92); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-delay: 0ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ============ LAYOUT — GRID + TOC ============ */
+  .wrap {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    gap: 0 40px;
+  }
+  .main { min-width: 0; }
+
+  /* ============ TOC — DESKTOP ============ */
+  .toc {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+    padding: 14px 0;
+    grid-row: 1 / -1;
+    max-height: calc(100dvh - 48px);
+    overflow-y: auto;
+  }
+  .toc::-webkit-scrollbar { width: 3px; }
+  .toc::-webkit-scrollbar-thumb { background: var(--surface-elevated); border-radius: 2px; }
+
+  .toc-title {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    padding: 0 0 10px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .toc a {
+    display: block;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 5px;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+    line-height: 1.4;
+    margin-bottom: 1px;
+    font-family: var(--font-body);
+  }
+  .toc a:hover { color: var(--text); background: var(--surface2); }
+  .toc a.active { color: var(--text); border-left-color: var(--gold); }
+
+  /* ============ HEADER ============ */
+  .dash-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 28px;
+    animation: fadeUp 0.4s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.05s);
+  }
+
+  .dash-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .dash-header h1 span {
+    color: var(--gold);
+  }
+
+  .dash-subtitle {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .time-selector {
+    display: flex;
+    border: 1px solid var(--border-bright);
+    border-radius: 6px;
+    overflow: hidden;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+  .time-selector button {
+    padding: 6px 12px;
+    background: var(--surface);
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    font-size: inherit;
+  }
+  .time-selector button:not(:last-child) {
+    border-right: 1px solid var(--border);
+  }
+  .time-selector button:hover {
+    background: var(--surface2);
+    color: var(--text);
+  }
+  .time-selector button.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .last-updated {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+
+  /* ============ SECTION HEADINGS ============ */
+  .sec-head {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gold);
+    margin: 32px 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    scroll-margin-top: 24px;
+    animation: fadeUp 0.4s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.05s);
+  }
+
+  .sec-head::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+
+  /* ============ KPI ROW — HERO ============ */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 8px;
+  }
+
+  .ve-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .ve-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Depth tiers */
+  .ve-card--elevated {
+    background: var(--surface-elevated);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+  .ve-card--recessed {
+    background: var(--surface-recessed, var(--surface2));
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+    border-color: var(--border);
+  }
+  .ve-card--hero {
+    background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+    border-color: color-mix(in srgb, var(--border) 50%, var(--accent) 50%);
+  }
+
+  .kpi-card {
+    animation: fadeScale 0.35s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.06s);
+  }
+
+  .kpi-card__label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .kpi-card__value {
+    font-family: var(--font-body);
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+
+  .kpi-card__value--accent { color: var(--accent); }
+  .kpi-card__value--gold { color: var(--gold); }
+  .kpi-card__value--green { color: var(--green); }
+  .kpi-card__value--red { color: var(--red); }
+
+  .kpi-card__trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    margin-top: 6px;
+  }
+
+  .kpi-card__trend--up { color: var(--green); }
+  .kpi-card__trend--down { color: var(--red); }
+  .kpi-card__trend--neutral { color: var(--text-dim); }
+
+  .kpi-card__trend svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* Sparkline container */
+  .kpi-card__sparkline {
+    margin-top: 10px;
+    height: 28px;
+    overflow: hidden;
+  }
+
+  .kpi-card__sparkline svg {
+    width: 100%;
+    height: 28px;
+    display: block;
+  }
+
+  .kpi-card__sparkline polyline {
+    fill: none;
+    stroke: var(--sparkline-stroke);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .kpi-card__sparkline .spark-fill {
+    fill: var(--chart-fill);
+    stroke: none;
+  }
+
+  /* ============ SECONDARY KPI ROW ============ */
+  .kpi-row--secondary .kpi-card__value {
+    font-size: 24px;
+  }
+
+  .kpi-row--secondary .kpi-card__sparkline {
+    height: 22px;
+  }
+  .kpi-row--secondary .kpi-card__sparkline svg {
+    height: 22px;
+  }
+
+  /* ============ CHARTS ============ */
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 8px;
+  }
+
+  .chart-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    position: relative;
+    animation: fadeUp 0.4s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.05s);
+  }
+
+  .chart-container__title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+
+  .chart-container canvas {
+    max-height: 280px;
+  }
+
+  /* ============ TABLE ============ */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 8px;
+    animation: fadeUp 0.4s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.05s);
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .data-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  .data-table th {
+    background: var(--surface2);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 2px solid var(--border-bright);
+    white-space: nowrap;
+  }
+
+  .data-table td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  .data-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .data-table tbody tr:nth-child(even) {
+    background: var(--accent-dim);
+  }
+
+  .data-table tbody tr {
+    transition: background 0.15s ease;
+    animation: fadeUp 0.35s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.04s);
+  }
+
+  .data-table tbody tr:hover {
+    background: var(--border);
+  }
+
+  .data-table code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  /* Method badges */
+  .method {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    text-align: center;
+    min-width: 44px;
+  }
+  .method--get { background: var(--green-dim); color: var(--green); }
+  .method--post { background: var(--blue-dim); color: var(--blue); }
+  .method--put { background: var(--orange-dim); color: var(--orange); }
+  .method--delete { background: var(--red-dim); color: var(--red); }
+
+  /* Status badges */
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+  }
+  .status::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .status--healthy { background: var(--green-dim); color: var(--green); }
+  .status--degraded { background: var(--orange-dim); color: var(--orange); }
+  .status--down { background: var(--red-dim); color: var(--red); }
+
+  /* Latency coloring */
+  .latency--fast { color: var(--green); }
+  .latency--ok { color: var(--text); }
+  .latency--slow { color: var(--orange); }
+  .latency--critical { color: var(--red); }
+
+  /* ============ THEME TOGGLE ============ */
+  .theme-toggle {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 300;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--surface) 80%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    line-height: 1;
+    transition: background 0.2s, border-color 0.2s;
+    padding: 0;
+  }
+  .theme-toggle:hover {
+    border-color: var(--border-bright);
+    color: var(--text);
+  }
+
+  /* ============ OVERFLOW PROTECTION ============ */
+  .main { overflow-wrap: break-word; word-wrap: break-word; }
+  .kpi-card__value { overflow: hidden; text-overflow: ellipsis; }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 1000px) {
+    .wrap { grid-template-columns: 1fr; padding-top: 0; }
+    body { padding-top: 0; }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      max-height: none;
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 0;
+      margin: 0 -40px;
+      padding-left: 40px;
+      padding-right: 40px;
+      grid-row: auto;
+    }
+    .toc::-webkit-scrollbar { display: none; }
+    .toc-title { display: none; }
+
+    .toc a {
+      white-space: nowrap;
+      flex-shrink: 0;
+      border-left: none;
+      border-bottom: 2px solid transparent;
+      border-radius: 4px 4px 0 0;
+      padding: 6px 10px;
+      font-size: 10px;
+    }
+    .toc a.active {
+      border-left: none;
+      border-bottom-color: var(--gold);
+      background: var(--surface);
+    }
+
+    .main { padding-top: 20px; }
+    .sec-head { scroll-margin-top: 52px; }
+  }
+
+  @media (max-width: 768px) {
+    body { padding: 16px; }
+
+    .dash-header h1 { font-size: 22px; }
+
+    .kpi-row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .chart-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .data-table th,
+    .data-table td { padding: 8px 10px; font-size: 12px; }
+
+    .header-controls { flex-wrap: wrap; }
+
+    .toc {
+      margin: 0 -16px;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+  }
+
+  /* ============ PRINT ============ */
+  @media print {
+    :root {
+      --bg: #ffffff !important;
+      --surface: #ffffff !important;
+      --surface2: #f5f5f5 !important;
+      --surface-elevated: #ffffff !important;
+      --surface-recessed: #f0f0f0 !important;
+      --border: rgba(0, 0, 0, 0.12) !important;
+      --border-bright: rgba(0, 0, 0, 0.2) !important;
+      --text: #1a1a1a !important;
+      --text-dim: #555555 !important;
+      --accent: #1e3a5f !important;
+      --gold: #b8941f !important;
+    }
+
+    body {
+      background: white !important;
+      background-image: none !important;
+      color: #1a1a1a !important;
+      padding: 0.5in !important;
+      font-size: 11pt !important;
+      min-height: auto !important;
+    }
+
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .theme-toggle { display: none !important; }
+    .time-selector { display: none !important; }
+
+    .toc {
+      position: static !important;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 1em;
+      padding-bottom: 0.5em;
+    }
+
+    .ve-card, .kpi-card, .chart-container, .table-wrap,
+    tr, .sec-head {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .kpi-row, .chart-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .chart-container canvas {
+      max-height: 200px !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle light/dark theme">&#9684;</button>
+
+<div class="wrap">
+
+  <nav class="toc" id="toc">
+    <div class="toc-title">Dashboard</div>
+    <a href="#s1">Key Metrics</a>
+    <a href="#s2">Traffic Trends</a>
+    <a href="#s3">Endpoints</a>
+    <a href="#s4">Infrastructure</a>
+  </nav>
+
+  <div class="main">
+
+    <!-- ═══════ HERO HEADER ═══════ -->
+    <div class="dash-header" style="--i:0">
+      <div>
+        <h1>API Gateway <span>&#8212;</span> Performance Dashboard</h1>
+        <div class="dash-subtitle">us-east-1 &middot; production cluster &middot; last updated <time id="lastUpdated"></time></div>
+      </div>
+      <div class="header-controls">
+        <div class="time-selector">
+          <button>24h</button>
+          <button class="active">7d</button>
+          <button>30d</button>
+          <button>90d</button>
+        </div>
+        <div class="last-updated">
+          <span id="clockDisplay"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ SECTION 1: HERO KPIs ═══════ -->
+    <div id="s1" class="sec-head" style="--i:1">Key Metrics</div>
+
+    <div class="kpi-row" style="--i:2">
+      <div class="ve-card ve-card--hero kpi-card" style="--i:2">
+        <div class="kpi-card__label">Total Requests (7d)</div>
+        <div class="kpi-card__value kpi-card__value--accent" data-count="2847563" data-suffix="">0</div>
+        <div class="kpi-card__trend kpi-card__trend--up">
+          <svg viewBox="0 0 12 12"><path d="M6 2 L10 7 L8 7 L8 10 L4 10 L4 7 L2 7 Z" fill="currentColor"/></svg>
+          +12.4%
+        </div>
+        <div class="kpi-card__sparkline">
+          <svg viewBox="0 0 100 28" preserveAspectRatio="none">
+            <polygon class="spark-fill" points="0,24 8,22 22,20 36,18 50,15 64,16 78,12 92,8 100,6 100,28 0,28"/>
+            <polyline points="0,24 8,22 22,20 36,18 50,15 64,16 78,12 92,8 100,6"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="ve-card ve-card--elevated kpi-card" style="--i:3">
+        <div class="kpi-card__label">Avg Latency</div>
+        <div class="kpi-card__value" data-count="47" data-suffix="ms">0</div>
+        <div class="kpi-card__trend kpi-card__trend--down">
+          <svg viewBox="0 0 12 12"><path d="M6 10 L10 5 L8 5 L8 2 L4 2 L4 5 L2 5 Z" fill="currentColor"/></svg>
+          -8.2%
+        </div>
+        <div class="kpi-card__sparkline">
+          <svg viewBox="0 0 100 28" preserveAspectRatio="none">
+            <polygon class="spark-fill" points="0,8 14,12 28,10 42,14 56,16 70,18 85,20 100,22 100,28 0,28"/>
+            <polyline points="0,8 14,12 28,10 42,14 56,16 70,18 85,20 100,22"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="ve-card ve-card--elevated kpi-card" style="--i:4">
+        <div class="kpi-card__label">Error Rate</div>
+        <div class="kpi-card__value kpi-card__value--green" data-count="0.3" data-suffix="%" data-decimals="1">0</div>
+        <div class="kpi-card__trend kpi-card__trend--down">
+          <svg viewBox="0 0 12 12"><path d="M6 10 L10 5 L8 5 L8 2 L4 2 L4 5 L2 5 Z" fill="currentColor"/></svg>
+          -0.1%
+        </div>
+        <div class="kpi-card__sparkline">
+          <svg viewBox="0 0 100 28" preserveAspectRatio="none">
+            <polygon class="spark-fill" points="0,10 14,14 28,12 42,16 56,18 70,20 85,22 100,24 100,28 0,28"/>
+            <polyline points="0,10 14,14 28,12 42,16 56,18 70,20 85,22 100,24"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="ve-card ve-card--elevated kpi-card" style="--i:5">
+        <div class="kpi-card__label">Uptime</div>
+        <div class="kpi-card__value kpi-card__value--green" data-count="99.97" data-suffix="%" data-decimals="2">0</div>
+        <div class="kpi-card__trend kpi-card__trend--neutral">
+          <svg viewBox="0 0 12 12"><rect x="2" y="5" width="8" height="2" fill="currentColor" rx="1"/></svg>
+          0.00%
+        </div>
+        <div class="kpi-card__sparkline">
+          <svg viewBox="0 0 100 28" preserveAspectRatio="none">
+            <polygon class="spark-fill" points="0,4 14,5 28,4 42,5 56,4 70,5 85,4 100,4 100,28 0,28"/>
+            <polyline points="0,4 14,5 28,4 42,5 56,4 70,5 85,4 100,4"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ SECTION 2: CHARTS ═══════ -->
+    <div id="s2" class="sec-head" style="--i:6">Traffic Trends</div>
+
+    <div class="chart-grid">
+      <div class="chart-container" style="--i:7">
+        <div class="chart-container__title">Requests Over Time (7-Day)</div>
+        <canvas id="lineChart"></canvas>
+      </div>
+      <div class="chart-container" style="--i:8">
+        <div class="chart-container__title">Response Code Distribution</div>
+        <canvas id="doughnutChart"></canvas>
+      </div>
+    </div>
+
+    <!-- ═══════ SECTION 3: ENDPOINT TABLE ═══════ -->
+    <div id="s3" class="sec-head" style="--i:9">Endpoint Performance</div>
+
+    <div class="table-wrap" style="--i:10">
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Endpoint</th>
+              <th>Method</th>
+              <th>Avg Latency</th>
+              <th>p99 Latency</th>
+              <th>Req/min</th>
+              <th>Error Rate</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="--i:10">
+              <td><code>/api/v2/users</code></td>
+              <td><span class="method method--get">GET</span></td>
+              <td class="latency--fast">12ms</td>
+              <td class="latency--ok">45ms</td>
+              <td>842</td>
+              <td>0.1%</td>
+              <td><span class="status status--healthy">Healthy</span></td>
+            </tr>
+            <tr style="--i:11">
+              <td><code>/api/v2/orders</code></td>
+              <td><span class="method method--post">POST</span></td>
+              <td class="latency--ok">38ms</td>
+              <td class="latency--slow">120ms</td>
+              <td>356</td>
+              <td>0.2%</td>
+              <td><span class="status status--healthy">Healthy</span></td>
+            </tr>
+            <tr style="--i:12">
+              <td><code>/api/v2/search</code></td>
+              <td><span class="method method--get">GET</span></td>
+              <td class="latency--slow">89ms</td>
+              <td class="latency--critical">340ms</td>
+              <td>1,204</td>
+              <td>0.8%</td>
+              <td><span class="status status--degraded">Degraded</span></td>
+            </tr>
+            <tr style="--i:13">
+              <td><code>/api/v2/auth/token</code></td>
+              <td><span class="method method--post">POST</span></td>
+              <td class="latency--fast">8ms</td>
+              <td class="latency--fast">22ms</td>
+              <td>2,105</td>
+              <td>0.0%</td>
+              <td><span class="status status--healthy">Healthy</span></td>
+            </tr>
+            <tr style="--i:14">
+              <td><code>/api/v2/inventory</code></td>
+              <td><span class="method method--get">GET</span></td>
+              <td class="latency--ok">34ms</td>
+              <td class="latency--ok">95ms</td>
+              <td>678</td>
+              <td>0.1%</td>
+              <td><span class="status status--healthy">Healthy</span></td>
+            </tr>
+            <tr style="--i:15">
+              <td><code>/api/v2/payments</code></td>
+              <td><span class="method method--post">POST</span></td>
+              <td class="latency--slow">112ms</td>
+              <td class="latency--critical">450ms</td>
+              <td>189</td>
+              <td>1.2%</td>
+              <td><span class="status status--degraded">Degraded</span></td>
+            </tr>
+            <tr style="--i:16">
+              <td><code>/api/v2/products</code></td>
+              <td><span class="method method--put">PUT</span></td>
+              <td class="latency--ok">28ms</td>
+              <td class="latency--ok">78ms</td>
+              <td>94</td>
+              <td>0.0%</td>
+              <td><span class="status status--healthy">Healthy</span></td>
+            </tr>
+            <tr style="--i:17">
+              <td><code>/api/v2/webhooks</code></td>
+              <td><span class="method method--delete">DEL</span></td>
+              <td class="latency--fast">6ms</td>
+              <td class="latency--fast">18ms</td>
+              <td>12</td>
+              <td>0.0%</td>
+              <td><span class="status status--healthy">Healthy</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══════ SECTION 4: SECONDARY KPIs ═══════ -->
+    <div id="s4" class="sec-head" style="--i:18">Infrastructure</div>
+
+    <div class="kpi-row kpi-row--secondary">
+      <div class="ve-card ve-card--recessed kpi-card" style="--i:19">
+        <div class="kpi-card__label">Cache Hit Rate</div>
+        <div class="kpi-card__value" data-count="94.2" data-suffix="%" data-decimals="1">0</div>
+        <div class="kpi-card__trend kpi-card__trend--up">
+          <svg viewBox="0 0 12 12"><path d="M6 2 L10 7 L8 7 L8 10 L4 10 L4 7 L2 7 Z" fill="currentColor"/></svg>
+          +2.1%
+        </div>
+        <div class="kpi-card__sparkline">
+          <svg viewBox="0 0 100 22" preserveAspectRatio="none">
+            <polyline points="0,18 14,16 28,14 42,12 56,10 70,8 85,6 100,4"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="ve-card ve-card--recessed kpi-card" style="--i:20">
+        <div class="kpi-card__label">Avg Response Size</div>
+        <div class="kpi-card__value" data-count="2.4" data-suffix=" KB" data-decimals="1">0</div>
+        <div class="kpi-card__trend kpi-card__trend--neutral">
+          <svg viewBox="0 0 12 12"><rect x="2" y="5" width="8" height="2" fill="currentColor" rx="1"/></svg>
+          +0.0%
+        </div>
+        <div class="kpi-card__sparkline">
+          <svg viewBox="0 0 100 22" preserveAspectRatio="none">
+            <polyline points="0,10 14,12 28,10 42,11 56,10 70,12 85,11 100,10"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="ve-card ve-card--recessed kpi-card" style="--i:21">
+        <div class="kpi-card__label">Active Connections</div>
+        <div class="kpi-card__value" data-count="1842" data-suffix="">0</div>
+        <div class="kpi-card__trend kpi-card__trend--up">
+          <svg viewBox="0 0 12 12"><path d="M6 2 L10 7 L8 7 L8 10 L4 10 L4 7 L2 7 Z" fill="currentColor"/></svg>
+          +5.8%
+        </div>
+        <div class="kpi-card__sparkline">
+          <svg viewBox="0 0 100 22" preserveAspectRatio="none">
+            <polyline points="0,18 14,16 28,17 42,14 56,12 70,10 85,8 100,6"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="ve-card ve-card--recessed kpi-card" style="--i:22">
+        <div class="kpi-card__label">Throughput</div>
+        <div class="kpi-card__value" data-count="48.6" data-suffix=" MB/s" data-decimals="1">0</div>
+        <div class="kpi-card__trend kpi-card__trend--up">
+          <svg viewBox="0 0 12 12"><path d="M6 2 L10 7 L8 7 L8 10 L4 10 L4 7 L2 7 Z" fill="currentColor"/></svg>
+          +3.2%
+        </div>
+        <div class="kpi-card__sparkline">
+          <svg viewBox="0 0 100 22" preserveAspectRatio="none">
+            <polyline points="0,16 14,14 28,15 42,12 56,10 70,8 85,7 100,5"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /wrap -->
+
+<script>
+// ═══════ THEME TOGGLE ═══════
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const isDarkOS = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  if (!current) {
+    html.setAttribute('data-theme', isDarkOS ? 'light' : 'dark');
+  } else {
+    html.removeAttribute('data-theme');
+  }
+
+  // Re-render charts with new theme colors
+  if (window.__lineChart) window.__lineChart.destroy();
+  if (window.__doughnutChart) window.__doughnutChart.destroy();
+  setTimeout(initCharts, 50);
+}
+
+// ═══════ TIMESTAMP ═══════
+(function setTimestamp() {
+  const now = new Date();
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', timeZoneName: 'short'
+  });
+  const el = document.getElementById('lastUpdated');
+  if (el) el.textContent = fmt.format(now);
+  const clock = document.getElementById('clockDisplay');
+  if (clock) clock.textContent = fmt.format(now);
+})();
+
+// ═══════ COUNT-UP ANIMATION ═══════
+(function countUp() {
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('[data-count]').forEach(el => {
+    const target = parseFloat(el.dataset.count);
+    const suffix = el.dataset.suffix || '';
+    const decimals = parseInt(el.dataset.decimals || '0');
+
+    if (prefersReduced) {
+      el.textContent = target.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + suffix;
+      return;
+    }
+
+    const duration = 1200;
+    const start = performance.now();
+
+    function tick(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // easeOutExpo
+      const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      const current = eased * target;
+      const formatted = current.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      el.textContent = formatted + suffix;
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+
+    // Delay based on stagger index
+    const card = el.closest('.kpi-card');
+    const delay = card ? parseInt(getComputedStyle(card).getPropertyValue('--i') || '0') * 60 : 0;
+    setTimeout(() => requestAnimationFrame(tick), 300 + delay);
+  });
+})();
+
+// ═══════ CHART.JS ═══════
+function getThemeColors() {
+  const cs = getComputedStyle(document.documentElement);
+  const get = (v) => cs.getPropertyValue(v).trim();
+  return {
+    text: get('--text-dim') || '#5f6b7a',
+    grid: get('--border') || 'rgba(0,0,0,0.08)',
+    line: get('--chart-line') || '#1e3a5f',
+    fill: get('--chart-fill') || 'rgba(30,58,95,0.12)',
+    c2xx: get('--chart-2xx') || '#1a8a4a',
+    c3xx: get('--chart-3xx') || '#2471a3',
+    c4xx: get('--chart-4xx') || '#d4780a',
+    c5xx: get('--chart-5xx') || '#c0392b',
+    surface: get('--surface') || '#ffffff',
+    font: get('--font-body') || "'IBM Plex Sans', system-ui, sans-serif",
+    fontMono: get('--font-mono') || "'IBM Plex Mono', monospace",
+  };
+}
+
+function initCharts() {
+  const t = getThemeColors();
+  const fontFamily = t.font;
+
+  // Line chart — 7-day request trend
+  const lineCtx = document.getElementById('lineChart');
+  window.__lineChart = new Chart(lineCtx, {
+    type: 'line',
+    data: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      datasets: [{
+        label: 'Requests',
+        data: [348200, 412800, 389500, 425100, 467300, 310600, 394063],
+        borderColor: t.line,
+        backgroundColor: t.fill,
+        fill: true,
+        tension: 0.35,
+        borderWidth: 2,
+        pointRadius: 4,
+        pointBackgroundColor: t.surface,
+        pointBorderColor: t.line,
+        pointBorderWidth: 2,
+        pointHoverRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: t.surface,
+          titleColor: t.text,
+          bodyColor: t.text,
+          borderColor: t.grid,
+          borderWidth: 1,
+          titleFont: { family: fontFamily, weight: '600' },
+          bodyFont: { family: fontFamily },
+          padding: 12,
+          cornerRadius: 8,
+          callbacks: {
+            label: function(ctx) {
+              return ctx.parsed.y.toLocaleString() + ' requests';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: t.text, font: { family: fontFamily, size: 11 } },
+          grid: { color: t.grid },
+          border: { display: false },
+        },
+        y: {
+          ticks: {
+            color: t.text,
+            font: { family: fontFamily, size: 11 },
+            callback: function(v) { return (v / 1000).toFixed(0) + 'k'; }
+          },
+          grid: { color: t.grid },
+          border: { display: false },
+        }
+      }
+    }
+  });
+
+  // Doughnut chart — response code distribution
+  const doughnutCtx = document.getElementById('doughnutChart');
+  window.__doughnutChart = new Chart(doughnutCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['2xx Success', '3xx Redirect', '4xx Client Error', '5xx Server Error'],
+      datasets: [{
+        data: [92.4, 3.8, 3.1, 0.7],
+        backgroundColor: [t.c2xx, t.c3xx, t.c4xx, t.c5xx],
+        borderColor: t.surface,
+        borderWidth: 3,
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '62%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: t.text,
+            font: { family: fontFamily, size: 11 },
+            padding: 16,
+            usePointStyle: true,
+            pointStyleWidth: 8,
+          }
+        },
+        tooltip: {
+          backgroundColor: t.surface,
+          titleColor: t.text,
+          bodyColor: t.text,
+          borderColor: t.grid,
+          borderWidth: 1,
+          titleFont: { family: fontFamily, weight: '600' },
+          bodyFont: { family: fontFamily },
+          padding: 12,
+          cornerRadius: 8,
+          callbacks: {
+            label: function(ctx) {
+              return ' ' + ctx.label + ': ' + ctx.parsed + '%';
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+initCharts();
+
+// ═══════ SCROLL SPY (TOC) ═══════
+(function() {
+  const toc = document.getElementById('toc');
+  const links = toc.querySelectorAll('a');
+  const sections = [];
+
+  links.forEach(link => {
+    const id = link.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el) sections.push({ id, el, link });
+  });
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const match = sections.find(s => s.el === entry.target);
+        if (match) {
+          match.link.classList.add('active');
+          if (window.innerWidth <= 1000) {
+            match.link.scrollIntoView({
+              behavior: 'smooth', block: 'nearest', inline: 'center'
+            });
+          }
+        }
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px' });
+
+  sections.forEach(s => observer.observe(s.el));
+
+  links.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const id = link.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', '#' + id);
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

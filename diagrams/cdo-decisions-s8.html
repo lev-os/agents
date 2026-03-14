@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CDO Architecture Decisions — Session 8</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #1e3a5f;
+    --blue-light: #2a4f7a;
+    --blue-muted: #3d6a99;
+    --gold: #d4a73a;
+    --gold-light: #e8c36b;
+    --gold-dim: #b8912e;
+    --cream: #faf6f0;
+    --cream-dark: #f0ebe3;
+    --ink: #1a1a1a;
+    --ink-light: #3a3a3a;
+    --ink-muted: #6a6a6a;
+    --paper: #ffffff;
+    --border: #e0dbd3;
+    --code-bg: #f5f1ea;
+    --green: #2a7d4f;
+    --green-dim: rgba(42, 125, 79, 0.08);
+    --red: #c44;
+    --amber: #d97706;
+    --amber-dim: rgba(217, 119, 6, 0.08);
+    --card-shadow: 0 1px 3px rgba(30,58,95,0.06), 0 4px 12px rgba(30,58,95,0.04);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --cream: #0f1923;
+      --cream-dark: #162232;
+      --ink: #e8e4de;
+      --ink-light: #c8c4be;
+      --ink-muted: #8a8680;
+      --paper: #1a2a3a;
+      --border: #2a3a4a;
+      --code-bg: #162232;
+      --blue: #4a8cc7;
+      --blue-light: #5a9cd7;
+      --blue-muted: #3d7ab5;
+      --gold-dim: #d4a73a;
+      --green: #5cc98a;
+      --green-dim: rgba(92, 201, 138, 0.1);
+      --amber-dim: rgba(251, 191, 36, 0.1);
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.15);
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { font-size: 17px; scroll-behavior: smooth; }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 0 1.5rem; }
+
+  /* HERO */
+  .hero {
+    padding: 4rem 0 3rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-label {
+    font-size: 0.6rem; font-weight: 600; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--gold-dim); margin-bottom: 1rem;
+  }
+  .hero h1 {
+    font-family: 'Instrument Serif', serif; font-size: 3rem;
+    font-weight: 400; line-height: 1.1; color: var(--blue); margin-bottom: 1rem;
+  }
+  .hero .subtitle {
+    font-size: 0.78rem; color: var(--ink-muted); max-width: 600px; line-height: 1.8;
+  }
+  .hero .subtitle strong { color: var(--ink-light); font-weight: 500; }
+
+  /* PROGRESS BAR */
+  .progress-bar-wrap {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--cream); border-bottom: 1px solid var(--border);
+    padding: 0.6rem 0;
+  }
+  .progress-inner {
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .progress-track {
+    flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--gold); border-radius: 3px;
+    transition: width 0.3s ease; width: 0%;
+  }
+  .progress-text {
+    font-size: 0.62rem; color: var(--ink-muted); white-space: nowrap; min-width: 60px;
+    text-align: right;
+  }
+
+  /* BUCKET SECTIONS */
+  .bucket {
+    padding: 2.5rem 0 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .bucket:last-of-type { border-bottom: none; }
+  .bucket-header {
+    display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.5rem;
+  }
+  .bucket-num {
+    font-family: 'Instrument Serif', serif; font-size: 1.6rem;
+    color: var(--gold); font-style: italic; flex-shrink: 0;
+  }
+  .bucket-title {
+    font-family: 'Instrument Serif', serif; font-size: 1.6rem;
+    font-weight: 400; color: var(--blue);
+  }
+  .bucket-count {
+    font-size: 0.6rem; color: var(--ink-muted); letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ITEM CARD */
+  .item-card {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--card-shadow);
+    transition: border-color 0.2s ease;
+  }
+  .item-card.decided { border-left: 3px solid var(--green); }
+  .item-card-header {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .item-id {
+    font-size: 0.6rem; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--gold-dim);
+    background: var(--amber-dim); padding: 0.15rem 0.5rem; border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .item-title {
+    font-family: 'Instrument Serif', serif; font-size: 1.1rem;
+    color: var(--blue); font-weight: 400;
+  }
+
+  /* INSIGHT (brief) */
+  .item-insight {
+    font-size: 0.72rem; color: var(--ink-light); margin-bottom: 0.5rem;
+    padding: 0.75rem 1rem; background: var(--cream-dark); border-radius: 3px;
+    border-left: 2px solid var(--blue-muted);
+  }
+  .item-insight strong { color: var(--ink); font-weight: 500; }
+  .item-insight code {
+    font-size: 0.65rem; background: var(--code-bg); padding: 0.1rem 0.35rem;
+    border-radius: 2px; color: var(--blue);
+  }
+
+  /* DETAIL (expanded CDO analysis) */
+  .detail-toggle {
+    font-size: 0.6rem; color: var(--blue-muted); cursor: pointer;
+    letter-spacing: 0.05em; margin-bottom: 0.75rem;
+    display: inline-block; border: none; background: none;
+    font-family: 'JetBrains Mono', monospace; padding: 0.2rem 0;
+    transition: color 0.15s;
+  }
+  .detail-toggle:hover { color: var(--blue); }
+  .detail-toggle::before { content: '▸ '; }
+  .detail-toggle.open::before { content: '▾ '; }
+
+  .item-detail {
+    display: none;
+    font-size: 0.68rem; color: var(--ink-light);
+    margin-bottom: 1rem; padding: 0.75rem 1rem;
+    background: var(--cream-dark); border-radius: 3px;
+    border-left: 2px solid var(--gold);
+    line-height: 1.8;
+  }
+  .item-detail.open { display: block; }
+  .item-detail p { margin-bottom: 0.6rem; }
+  .item-detail p:last-child { margin-bottom: 0; }
+  .item-detail strong { color: var(--ink); font-weight: 500; }
+  .item-detail code {
+    font-size: 0.62rem; background: var(--code-bg); padding: 0.1rem 0.35rem;
+    border-radius: 2px; color: var(--blue);
+  }
+  .item-detail .detail-label {
+    font-size: 0.55rem; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--gold-dim);
+    margin-top: 0.5rem; margin-bottom: 0.25rem;
+  }
+
+  /* RADIO OPTIONS */
+  .options-grid {
+    display: grid; gap: 0.5rem; margin-bottom: 0.75rem;
+  }
+  .option-row {
+    display: flex; align-items: flex-start; gap: 0.5rem;
+    padding: 0.6rem 0.75rem; border: 1px solid var(--border); border-radius: 3px;
+    cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease;
+    font-size: 0.72rem;
+  }
+  .option-row:hover { background: var(--cream-dark); }
+  .option-row.selected {
+    background: var(--green-dim); border-color: var(--green);
+  }
+  .option-row.recommended {
+    border-color: var(--gold);
+  }
+  .option-row.recommended.selected {
+    border-color: var(--green);
+  }
+  .option-row input[type="radio"] {
+    margin-top: 3px; flex-shrink: 0; accent-color: var(--green);
+  }
+  .option-label { flex: 1; min-width: 0; }
+  .option-label .rec-badge {
+    display: inline-block; font-size: 0.55rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--gold-dim); margin-left: 0.5rem;
+  }
+  .option-label .option-desc {
+    display: block; font-size: 0.65rem; color: var(--ink-muted);
+    margin-top: 0.2rem;
+  }
+
+  /* OTHER + NOTES */
+  .other-input, .notes-input {
+    width: 100%; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem; padding: 0.5rem 0.75rem;
+    background: var(--cream-dark); border: 1px solid var(--border);
+    border-radius: 3px; color: var(--ink); resize: vertical;
+  }
+  .other-input:focus, .notes-input:focus {
+    outline: none; border-color: var(--blue-muted);
+  }
+  .other-input { min-height: 2rem; margin-top: 0.25rem; }
+  .notes-input { min-height: 2.5rem; margin-top: 0.5rem; }
+  .notes-label {
+    font-size: 0.6rem; color: var(--ink-muted); letter-spacing: 0.08em;
+    text-transform: uppercase; margin-top: 0.5rem; display: block;
+  }
+
+  /* WAVE BADGE */
+  .wave-badge {
+    display: inline-block; font-size: 0.55rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.12rem 0.4rem; border-radius: 2px;
+    color: var(--paper); margin-left: 0.5rem;
+  }
+  .wave-badge.w1 { background: var(--gold-dim); }
+  .wave-badge.w2 { background: var(--blue-muted); }
+  .wave-badge.w3 { background: var(--green); }
+  .wave-badge.w4 { background: var(--ink-muted); }
+  .wave-badge.w5 { background: var(--ink-muted); opacity: 0.7; }
+  .wave-badge.done { background: var(--green); }
+  .wave-badge.defer { background: var(--amber); color: var(--ink); }
+  .wave-badge.discard { background: var(--red); }
+
+  @media (prefers-color-scheme: dark) {
+    .wave-badge { color: var(--cream); }
+    .wave-badge.defer { color: var(--cream); }
+  }
+
+  /* ACTION BAR */
+  .action-bar {
+    position: sticky; bottom: 0; z-index: 100;
+    background: var(--paper); border-top: 2px solid var(--gold);
+    padding: 1rem 0;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+  }
+  .action-inner {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  }
+  .action-stats {
+    font-size: 0.68rem; color: var(--ink-muted);
+  }
+  .action-stats strong { color: var(--ink); }
+  .btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; font-weight: 600;
+    padding: 0.6rem 1.5rem; border: none; border-radius: 3px;
+    cursor: pointer; transition: background 0.2s ease, transform 0.1s ease;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: var(--blue); color: var(--cream);
+  }
+  .btn-primary:hover { background: var(--blue-light); }
+  .btn-secondary {
+    background: var(--cream-dark); color: var(--ink);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: var(--border); }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%);
+    background: var(--green); color: white;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; font-weight: 500;
+    padding: 0.6rem 1.5rem; border-radius: 4px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    opacity: 0; transition: opacity 0.3s ease;
+    pointer-events: none; z-index: 200;
+  }
+  .toast.show { opacity: 1; }
+
+  /* NAV */
+  .bucket-nav {
+    display: flex; gap: 0.5rem; flex-wrap: wrap;
+    padding: 1.5rem 0; border-bottom: 1px solid var(--border);
+  }
+  .bucket-nav a {
+    font-size: 0.62rem; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; text-decoration: none;
+    color: var(--ink-muted); padding: 0.3rem 0.6rem;
+    border: 1px solid var(--border); border-radius: 3px;
+    transition: all 0.15s ease;
+  }
+  .bucket-nav a:hover {
+    color: var(--blue); border-color: var(--blue-muted);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 700px) {
+    html { font-size: 15px; }
+    .hero h1 { font-size: 2.2rem; }
+    .hero { padding: 2.5rem 0 2rem; }
+    .item-card { padding: 1rem; }
+    .action-inner { flex-direction: column; gap: 0.5rem; text-align: center; }
+  }
+
+  /* SAVE INDICATOR */
+  .save-indicator {
+    font-size: 0.62rem; color: var(--green);
+    opacity: 0; transition: opacity 0.3s ease;
+    margin-left: 0.5rem;
+  }
+  .save-indicator.visible { opacity: 1; }
+
+  /* PRINT */
+  @media print {
+    body { background: white; color: black; font-size: 10pt; }
+    .progress-bar-wrap, .action-bar, .toast, .bucket-nav { display: none; }
+    .item-card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+    .hero h1 { color: #1e3a5f; font-size: 24pt; }
+    .item-detail { display: block !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-label">CDO Architecture Deliberation / Session 8 / Decisions</div>
+    <h1>Your Architecture Decisions</h1>
+    <p class="subtitle">
+      <strong>46 items</strong> across <strong>6 domains</strong>.
+      Each has CDO analysis + 3 recommended options (recommended highlighted) + "other" with free text.
+      Click "CDO Analysis" to see the full deliberation context. Copy JSON when done.
+    </p>
+  </div>
+</header>
+
+<!-- PROGRESS -->
+<div class="progress-bar-wrap">
+  <div class="container">
+    <div class="progress-inner">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-text" id="progressText">0 / 46</div><span class="save-indicator" id="saveIndicator">Saved</span>
+    </div>
+  </div>
+</div>
+
+<!-- BUCKET NAV -->
+<nav class="bucket-nav">
+  <div class="container" style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+    <a href="#bucket-1">1. Execution</a>
+    <a href="#bucket-2">2. Protocol</a>
+    <a href="#bucket-3">3. Vernacular</a>
+    <a href="#bucket-4">4. Topology</a>
+    <a href="#bucket-5">5. Context</a>
+    <a href="#bucket-6">6. Branding</a>
+  </div>
+</nav>
+
+<main class="container" id="mainContent"></main>
+
+<!-- ACTION BAR -->
+<div class="action-bar">
+  <div class="container">
+    <div class="action-inner">
+      <div class="action-stats">
+        <strong id="decidedCount">0</strong> of <strong>46</strong> decided
+      </div>
+      <div style="display:flex;gap:0.5rem;">
+        <button class="btn btn-secondary" onclick="clearSavedData()">Clear Saved</button>
+        <button class="btn btn-secondary" onclick="resetAll()">Reset All</button>
+        <button class="btn btn-primary" onclick="copyDecisions()">Copy Decisions JSON</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">Decisions copied to clipboard</div>
+
+<script>
+// ── ALL 46 ITEMS WITH DEEP CDO ANALYSIS ─────────────────────────────
+const ITEMS = [
+  // ═══════════════════════════════════════════════════════════════════
+  // BUCKET 1: Execution Model
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    bucket: 1, id: "B1", title: "Missing node type executors",
+    insight: "<strong>6 of 9 GraphNodeTypes have no executor.</strong> <code>function</code>, <code>terminal</code>, <code>subgraph</code>, <code>hitl</code>, <code>parallel</code>, <code>redirect</code> are stubs in GraphFlowExecutor. Any flow hitting these types silently fails or skips.",
+    detail: `<p class="detail-label">What these types ARE</p>
+<p><code>terminal</code> = an exit/completion node that signals "this flow is done." Every DAG needs one. Without a handler, flows never formally complete — they just run out of nodes silently. <code>function</code> = a deterministic tool call (shell exec, file read, API call) — no LLM involved. <code>subgraph</code> = a nested GraphDocument, like a function call to another flow. <code>hitl</code> = a human-in-the-loop checkpoint where the system pauses and asks a human for approval before continuing. <code>parallel</code> = fan-out execution of multiple children concurrently. <code>redirect</code> = an unconditional jump to another node (essentially a named edge).</p>
+<p class="detail-label">What the CDO found</p>
+<p>The ATAM analysis identified this as the <strong>highest-severity correctness violation</strong> in the codebase. <code>GraphFlowExecutor</code> (530 LOC) dispatches on node type via switch/case but only handles <code>agent</code>, <code>exec</code>, and <code>gate</code>. The deprecated <code>FlowmindExecutor</code> (745 LOC) handles 7 of 9 types but via a different code path. The result: <strong>no single executor can run a complete flow</strong>. The <code>hitl</code> gap is especially dangerous — any flow with a human checkpoint silently skips it, which is a data integrity violation, not just a UX bug.</p>
+<p class="detail-label">Critic's challenge</p>
+<p>Option A (stub-fill) entrenches the topology/orchestration conflation (B2). Each new flow control requirement means more switch arms in the executor. The Critic argued that without the NodeTypeHandler registry (Option B), you'll end up maintaining 4 diverging executors indefinitely.</p>`,
+    wave: "1+2",
+    options: [
+      { label: "Stubs W1, real handlers W2", desc: "Ship trivial stubs immediately (terminal=return success, redirect=follow pointer, hitl=emit LevEvent). Build full handlers in Wave 2 behind NodeTypeHandler registry.", recommended: true },
+      { label: "Full handlers now", desc: "Build all 6 handlers in one pass. Higher effort but no stub→real migration." },
+      { label: "Skip — fix executor consolidation first", desc: "Wait for D45 (1 executor) before adding handlers." }
+    ]
+  },
+  {
+    bucket: 1, id: "B2", title: "Topology vs orchestration conflation",
+    insight: "<code>loop</code>, <code>gate</code>, <code>parallel</code> in <code>GraphNodeType</code> means the graph defines both <strong>what nodes ARE</strong> and <strong>how the executor traverses them</strong>. This blocks D-W3 (same graph, different execution profiles).",
+    detail: `<p class="detail-label">The fundamental tension</p>
+<p>A <code>GraphNodeType</code> should answer "what kind of thing is this?" — its structural identity. But <code>parallel</code> answers "how should you execute this?" — that's a traversal policy. Imagine wanting a "cautious" profile that adds hitl checkpoints to every agent node, or a "fast" profile that bypasses gates. Today, you'd need to create a DIFFERENT graph for each profile because the execution behavior is baked into the topology.</p>
+<p class="detail-label">CDO Systems Thinker's feedback loop</p>
+<p>This creates a <strong>vicious feedback loop</strong>: more execution profiles → more graph variants → more YAML to maintain → slower iteration → fewer profiles created → less flexible agent orchestration. The OrchestrationOverlay pattern breaks this loop by separating WHAT from HOW.</p>
+<p class="detail-label">The HeartbeatFSM counter-example</p>
+<p><code>HeartbeatFSM</code> in <code>core/orchestration/src/loop/heartbeat.ts</code> correctly models loop-as-orchestration (pluggable callbacks, no GraphNodeType dependency). This proves the pattern works — it just hasn't been applied back to the graph schema yet.</p>`,
+    wave: "2",
+    options: [
+      { label: "OrchestrationOverlay applied at execution time", desc: "Keep GraphNodeType values intact. Add OrchestrationOverlay type that carries profile-specific behavior (hitl injection, gate bypass, budget). Applied to compiled graph at runtime, not compile time.", recommended: true },
+      { label: "Remove loop/parallel/gate from GraphNodeType now", desc: "Aggressive: break the enum immediately. High migration cost." },
+      { label: "Leave as-is, no overlay system", desc: "Each profile gets its own graph YAML. Simple but doesn't scale." }
+    ]
+  },
+  {
+    bucket: 1, id: "B9", title: "No adapter registry",
+    insight: "<code>AgentAdapter</code>, <code>LoopAdapter</code>, <code>ActionAdapter</code> exist but <strong>no shared registry or discovery</strong>. Adding a new adapter means knowing where to manually wire it in.",
+    detail: `<p class="detail-label">What adapters do</p>
+<p>An adapter bridges a node type to its execution implementation. When the executor visits an <code>agent</code> node, it needs to know HOW to invoke an agent (which LLM, what prompt format, what timeout). The adapter encapsulates that. Today each adapter is manually imported and wired — there's no <code>registry.resolve('agent')</code> pattern.</p>
+<p class="detail-label">Why this matters for extensibility</p>
+<p>The D45 target state is <strong>1 executor with a handler/adapter registry</strong>. Without a registry, you can't add new node type handlers without touching the core executor code. With a registry, a plugin can register its own handler (e.g., Slate registers a <code>torus-agent</code> handler) and the executor just calls <code>registry.resolve(node.type)</code>. The registry is the extension point.</p>
+<p class="detail-label">Config-driven discovery</p>
+<p>Per AGENTS.md's fractal config model (§4), adapter registration should work via module <code>config.yaml</code> with an <code>exec.adapters</code> section. The registry loads at startup by reading all registered modules' configs. No magic — explicit filesystem routing.</p>`,
+    wave: "2",
+    options: [
+      { label: "AdapterRegistry interface + config.yaml discovery", desc: "Define AdapterRegistry in core/exec. Modules declare adapters in config.yaml exec.adapters section. Registry loads at startup.", recommended: true },
+      { label: "Manual registry (code-based)", desc: "Adapters registered via import/instantiation in a bootstrap file. No config discovery." },
+      { label: "Defer until D45 executor consolidation", desc: "Build registry as part of the unified executor work." }
+    ]
+  },
+  {
+    bucket: 1, id: "D-W2", title: "Universal execution bus",
+    insight: "Every execution (shell, LLM, hitl) should go through <strong>one dispatch contract</strong> with <strong>one budget tracker</strong>. Currently: <code>FlowmindExecutor</code> uses local <code>EventEmitter</code>, <code>GraphFlowExecutor</code> has no bus wiring at all.",
+    detail: `<p class="detail-label">What "universal bus" means</p>
+<p>Today when an agent executes a shell command, that execution is invisible to the rest of the system. No LevEvent is emitted. No budget tracking happens. No audit trail. The "universal bus" means: <strong>every execution, regardless of type, produces a LevEvent on the event bus</strong>. The event bus becomes the single source of truth for "what happened" — auditing, observability, and budget tracking all read from it.</p>
+<p class="detail-label">Implementation via NodeResult</p>
+<p>The CDO proposed that <code>NodeResult</code> (the return type from every handler) carries an optional <code>levEvent: LevEvent</code> field. The unified executor emits this to the bus after successful handler return. A <code>BudgetTracker</code> singleton accumulates <code>tokensUsed</code> from all emissions. Budget exhaustion emits <code>lev.budget.exhausted</code>.</p>
+<p class="detail-label">Why not just log</p>
+<p>Logging is write-only. The event bus is read-write — reactive consumers can respond to events (circuit breakers, budget enforcement, progress reporting). Structured events enable temporal queries ("what happened between minute 3 and minute 5 of this flow?") that flat logs cannot.</p>`,
+    wave: "2+3",
+    options: [
+      { label: "NodeResult.levEvent + BudgetTracker", desc: "NodeResult carries LevEvent. Executor emits to bus. BudgetTracker accumulates tokensUsed. Every shell exec, agent prompt, hitl pause becomes a bus event.", recommended: true },
+      { label: "Wrapper function approach", desc: "Wrap each executor call in a bus-emitting function. Less structural but quick." },
+      { label: "Defer to actor model", desc: "Full actor model (D32) solves this via actor mailbox = event. Wait for that." }
+    ]
+  },
+  {
+    bucket: 1, id: "D-W3", title: "Topology freeze + orchestration profiles",
+    insight: "Post-compile graph should be <strong>immutable</strong>. 'Cautious' vs 'fast' vs 'review' profiles should be overlays, not separate graph variants.",
+    detail: `<p class="detail-label">The immutability principle</p>
+<p>Once a <code>.flow.yaml</code> is compiled into a <code>GraphDocument</code>, the graph should be frozen (<code>Object.freeze</code> or equivalent). No mutation post-compile. This means the same compiled graph can be reused across invocations with different execution profiles. A "review" profile adds hitl overlays. A "fast" profile skips non-critical gates. The graph never changes — only the overlay.</p>
+<p class="detail-label">How profiles compose</p>
+<p>Profile selection lives in <code>HeartbeatConfig</code> or <code>ExecutionContext.profile: string</code>. The orchestration plane resolves an <code>OrchestrationOverlay</code> from the profile name. The executor merges: <code>effectiveNode = merge(frozenNode, overlay.for(nodeId))</code>. For gates: <code>const behavior = (profile === 'fast' && overlay.gate_bypass?.includes(nodeId)) ? 'bypass' : 'evaluate'</code>.</p>
+<p class="detail-label">Shearing layer alignment (D33)</p>
+<p>Graph topology is a "slow" layer (changes rarely). Execution profiles are a "fast" layer (changes per invocation). Mixing them in one mutable artifact violates the shearing layers principle — the fast layer's changes churn the slow layer's artifact.</p>`,
+    wave: "2+3",
+    options: [
+      { label: "Object.freeze post-compile + overlay at execution time", desc: "GraphDocument frozen after compile. OrchestrationOverlay applied per-invocation. Profile selection in ExecutionContext.", recommended: true },
+      { label: "Compile-time profile variants", desc: "Compiler produces one graph per profile. Simple but multiplies artifacts." },
+      { label: "Mutable graph with runtime patching", desc: "Mutate graph at runtime for each profile. Against immutability principle." }
+    ]
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // BUCKET 2: Protocol & Message Passing
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    bucket: 2, id: "B5", title: "A2A code is well-built but unused",
+    insight: "<code>AgentJob</code>, <code>AgentJobResult</code>, <code>JobExecutor</code> interface — complete with 23 tests. <strong>Zero imports outside tests.</strong> The dispatcher works; nobody calls it.",
+    detail: `<p class="detail-label">What exists</p>
+<p>In <code>core/orchestration/src/a2a/</code>: <code>types.ts</code> defines <code>AgentJob</code> (job dispatch contract), <code>AgentJobResult</code> (outcome), <code>AgentJobStatus</code> (lifecycle states), <code>AgentJobProgress</code> (streaming updates). <code>dispatcher.ts</code> has <code>dispatchJobs()</code> with priority ordering, concurrency control, fail-fast, and budget enforcement. <code>JobExecutor</code> is already a pluggable executor interface — structurally identical to what <code>ProtocolAdapter</code> needs to be.</p>
+<p class="detail-label">CDO verdict: adapt, don't rebuild</p>
+<p>The Advocate and Pragmatist agreed: this code is <strong>architecturally sound and should be promoted, not replaced</strong>. <code>AgentJob</code> IS Lev's native job payload type. <code>JobExecutor</code> IS the <code>ProtocolAdapter</code> execution contract (just needs renaming). The A2A dispatcher becomes the first concrete <code>ProtocolAdapter</code> implementation, proving the pattern.</p>
+<p class="detail-label">Promotion path</p>
+<p>Move <code>AgentJob</code>/<code>AgentJobResult</code> types to <code>core/domain</code> as the canonical job contract. Rename <code>JobExecutor</code> to clarify its role. Wire the dispatcher to the FlowMind execution path after B6 status enum fix.</p>`,
+    wave: "2",
+    options: [
+      { label: "Promote to core/domain, rename, wire after B6 fix", desc: "Move types to core/domain. Rename JobExecutor. Wire dispatcher to FlowMind execution after status enum is fixed. Zero code thrown away.", recommended: true },
+      { label: "Rewrite with ProtocolAdapter from scratch", desc: "New interface, new implementation. Throws away working code." },
+      { label: "Leave in place until federation needed", desc: "Don't wire until external agents actually need it." }
+    ]
+  },
+  {
+    bucket: 2, id: "B10", title: "10 A2A↔FlowMind conflicts",
+    insight: "Semantic completion detection, context injection, state persistence, lifecycle hooks, worktree isolation, escalation chains, token budget, progress ordering, node→job mapping, protocol versioning — <strong>all 10 resolve at the orchestration layer without breaking changes</strong>.",
+    detail: `<p class="detail-label">The key insight</p>
+<p>All 10 conflicts between A2A types and FlowMind types exist because <strong>policy concerns are mixed into data types</strong>. Context assembly, state persistence, escalation chains — these are orchestration policies that should WRAP the dispatcher, not be embedded IN the job types. The A2A types stay lean. Orchestration owns the policy concerns.</p>
+<p class="detail-label">Resolution pattern</p>
+<p>Conflict 1 (completion detection): gates are orchestration, not topology — orchestrator evaluates result AFTER dispatch. Conflict 2 (context injection): context assembly layer materializes config into <code>AgentJob.inputs</code> BEFORE dispatch. Conflict 4 (lifecycle hooks): middleware/decorator wraps dispatcher with <code>beforeDispatch</code>/<code>afterDispatch</code>. Conflict 6 (escalation): orchestration catches failure, consults <code>EscalationPolicy</code>, re-dispatches. Conflict 8 (progress ordering): add <code>sequenceNumber</code> to <code>AgentJobProgress</code> (additive only).</p>
+<p class="detail-label">Zero breaking changes</p>
+<p>This was the Pragmatist's key validation: all 10 conflicts resolve as additive type extensions or orchestration-layer middleware. No existing type needs to change shape. No imports break.</p>`,
+    wave: "2",
+    options: [
+      { label: "Orchestration middleware pattern for all 10", desc: "Resolve all conflicts at the orchestration layer. A2A types stay lean. Context assembly, lifecycle hooks, escalation = middleware wrapping dispatch.", recommended: true },
+      { label: "Embed policy in A2A types", desc: "Add context, state, escalation fields directly to AgentJob. Simpler but couples job data to orchestration policy." },
+      { label: "Defer until A2A is actually wired", desc: "Conflicts are theoretical until dispatcher is called in production." }
+    ]
+  },
+  {
+    bucket: 2, id: "C2", title: "What IS message passing in Lev?",
+    insight: "Three event-shaped objects (<code>LevEvent</code>, <code>DomainEvent</code>, <code>AgentJob</code>) that don't compose. <code>LevEvent</code> is 90% CloudEvents-compatible already. The gap is a handful of optional metadata fields.",
+    detail: `<p class="detail-label">Protocol landscape survey</p>
+<p>The CDO surveyed 7 protocols: Google A2A, MCP (Anthropic), Actor Model (Erlang/Akka), NATS, AMQP, CloudEvents (CNCF), and LevEvent (ours). Each has distinct strengths: A2A for job-based agent coordination, MCP for tool invocation, Actor for fault isolation, NATS for distributed pub/sub, CloudEvents for standard envelopes.</p>
+<p class="detail-label">Winner: CloudEvents-aligned LevEvent</p>
+<p><code>LevEvent&lt;T&gt;</code> already has <code>id | type | source | time | data | metadata | version</code>. CloudEvents has the same shape. The delta is surgical: add <code>protocol?: ProtocolDescriptor</code> to <code>LevEventMetadata</code> (non-breaking, optional). This makes LevEvent a protocol-agnostic envelope that can carry ANY external protocol's payload in its <code>data</code> field.</p>
+<p class="detail-label">D31: "A2A = message passing with opinions"</p>
+<p>Google A2A is structurally sound but spec-locked to a pre-v1 vendor. The CDO recommended: adopt A2A's structural concepts (jobs, results, cards) WITHOUT adopting spec lock-in. Carry A2A payloads in LevEvent via a <code>ProtocolAdapter&lt;TExternal, TNative&gt;</code> interface.</p>`,
+    wave: "2",
+    options: [
+      { label: "CloudEvents-aligned LevEvent + ProtocolAdapter<TIn,TOut>", desc: "Add ProtocolDescriptor to metadata. Define ProtocolAdapter interface. AgentJob becomes LevEvent.data payload. A2A dispatcher = first concrete adapter.", recommended: true },
+      { label: "Adopt Google A2A natively", desc: "Conform to A2A spec directly. High interop with Google ecosystem. Vendor lock-in risk." },
+      { label: "Build custom actor kernel", desc: "Full actor-model message passing. Maximum evolvability but 3-6 month scope." }
+    ]
+  },
+  {
+    bucket: 2, id: "D31", title: "A2A = message passing with opinions",
+    insight: "Don't tie to Google A2A. It's pre-v1. Adopt the structural concepts (jobs, results, agent cards) <strong>without the spec lock-in</strong>.",
+    detail: `<p class="detail-label">What we take from A2A</p>
+<p>Job-based dispatch model (AgentJob is already this). Agent Cards for capability declaration (maps to config.yaml). SSE streaming for progress (we have AgentJobProgress). These are good patterns regardless of Google's spec stability.</p>
+<p class="detail-label">What we reject</p>
+<p>Spec-version coupling. Google could deprecate or significantly change A2A (cf. Duplex, Stadia, Wave). Any A2A spec change breaking Lev internals would be catastrophic. The ProtocolAdapter pattern insulates us: A2A is one adapter among many, not the native format.</p>`,
+    wave: "done",
+    options: [
+      { label: "Confirmed — structural concepts adopted, spec lock-in rejected", desc: "LevEvent carries A2A-shaped payloads via adapter. No direct A2A spec dependency.", recommended: true },
+      { label: "Full A2A compliance", desc: "Implement A2A spec fully for ecosystem interop." },
+      { label: "Ignore A2A entirely", desc: "Build everything custom. Lose interop." }
+    ]
+  },
+  {
+    bucket: 2, id: "D35", title: "Protocol-agnostic envelope (LevEvent carries anything)",
+    insight: "<code>LevEvent&lt;T&gt;</code> carries ANY protocol payload in its <code>data</code> field. Protocol discriminator in <code>metadata.protocol</code> enables protocol-aware routing without core coupling.",
+    detail: `<p class="detail-label">The envelope design</p>
+<p>Current LevEvent: <code>{ version: 1, id, type, source, time, data: T, metadata? }</code>. Extension (non-breaking): <code>metadata.protocol = { name: 'lev'|'a2a'|'mcp'|string, version?, dataContentType?, dataSchema? }</code>. External protocols flow through adapters: <code>adapter.ingest(external) → LevEvent</code>, <code>adapter.egress(event) → external</code>.</p>
+<p class="detail-label">Why this matters for federation (D-W10)</p>
+<p>External agents register their ProtocolAdapters. The orchestration layer calls <code>adapter.ingest()</code> on arrival and <code>adapter.egress()</code> on result delivery. An HTTP-based agent just needs an HTTP adapter — it never needs the Lev SDK.</p>`,
+    wave: "2",
+    options: [
+      { label: "Confirmed — ProtocolDescriptor in metadata + adapter layer", desc: "Surgical extension to LevEventMetadata. ProtocolAdapter<TIn,TOut> interface in core/domain. Zero breaking changes.", recommended: true },
+      { label: "New LevMessage<T> type", desc: "Replace LevEvent with a richer message type. Breaking change." },
+      { label: "Defer envelope extension", desc: "Current LevEvent is sufficient for internal use." }
+    ]
+  },
+  {
+    bucket: 2, id: "D-W10", title: "Federation (external agents over HTTP)",
+    insight: "External agents register as <code>JobExecutors</code> over HTTP/WebSocket. <strong>Separate milestone</strong> — blocked on envelope stability.",
+    detail: `<p class="detail-label">What federation means</p>
+<p>An external agent (running anywhere — cloud, another machine, different framework) can register with Lev via HTTP and participate in flows. It receives <code>AgentJob</code> payloads over HTTP, returns <code>AgentJobResult</code>, streams <code>AgentJobProgress</code> via SSE. From Lev's perspective, it's just another <code>JobExecutor</code> behind a <code>ProtocolAdapter</code>.</p>
+<p class="detail-label">Scope control</p>
+<p>The CDO explicitly scoped this as a SEPARATE delivery milestone. Don't build federation until the envelope design is stable and the A2A adapter is proven. Federation adapter scope creep is a real risk.</p>`,
+    wave: "5",
+    options: [
+      { label: "Defer to Wave 5 after envelope stability", desc: "HTTP/WebSocket ProtocolAdapter. Blocked on envelope design being proven. Separate milestone.", recommended: true },
+      { label: "Build with A2A adapter in Wave 2", desc: "Ship federation alongside protocol work. Faster but riskier." },
+      { label: "Skip federation — in-process only", desc: "Lev agents only. No external participation." }
+    ]
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // BUCKET 3: Vernacular & Types
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    bucket: 3, id: "B6", title: "Status enum mismatch — entities never promote",
+    insight: "<strong>THE universal blocker.</strong> Executor returns <code>'success'</code>, A2A/TaskQueue check for <code>'completed'</code>. They never match. Entities stay <code>running</code> forever. 2-line fix, infinite unblock value.",
+    detail: `<p class="detail-label">Root cause (3 incompatible status enums)</p>
+<p><code>StepResult.status</code> in executor.ts: <code>'success' | 'failed' | 'skipped'</code>. <code>AgentJobStatus</code> in a2a/types.ts: <code>'queued' | 'running' | 'completed' | 'failed' | 'cancelled' | 'timed_out'</code>. <code>TaskStatus</code> in queue/types.ts: <code>'queued' | 'running' | 'completed' | 'failed' | 'cancelled'</code>. The entity promotion pipeline reads 'completed' from A2A/TaskQueue and tries to reconcile with 'success' from the executor. They never match. Result: entities stay in 'running' state forever.</p>
+<p class="detail-label">Fix (Option A: normalization bridge)</p>
+<p>Add <code>isTerminalSuccess(status: string): boolean</code> that returns true for 'completed', 'success', AND 'ok'. This is a 2-line function with zero type breakage. Place it in the promotion logic. The full vocabulary consolidation happens in Wave 2.</p>
+<p class="detail-label">Why not just rename the enum values?</p>
+<p>Changing executor.ts <code>'success'</code> to <code>'completed'</code> creates a NEW inconsistency with the execution-contract which uses <code>'ok'</code>. The normalization bridge handles ALL three variants and defers the vocabulary unification to when the full type rationalization (A2) is ready.</p>`,
+    wave: "1",
+    options: [
+      { label: "isTerminalSuccess() normalization bridge", desc: "Add isTerminalSuccess('completed'|'success'|'ok') → true. 2-line fix in promote.ts. Zero type breakage. Defers full unification to Wave 2.", recommended: true },
+      { label: "Align all enums to 'completed'", desc: "Change executor.ts to use 'completed'. Creates new inconsistency with execution-contract 'ok'." },
+      { label: "Align all enums to 'success'", desc: "Change A2A/TaskQueue to use 'success'. Larger diff, more callers." }
+    ]
+  },
+  {
+    bucket: 3, id: "A1", title: '"Result" — 9 types across 4 layers',
+    insight: "9 different types named <code>*Result</code> across FlowmindExecutor, execution-contract, A2A, schema, and task queue. No bare <code>Result</code> — all must carry their domain prefix.",
+    detail: `<p class="detail-label">The inventory</p>
+<p><code>StepResult</code> (executor.ts — internal), <code>StepResult</code> (execution-contract — boundary), <code>ExecutionResult</code> (executor.ts), <code>AgentJobResult</code> (A2A), <code>CompileResult</code> (schema), <code>FingerprintComparison</code> (schema), <code>SlowTask['result']</code> (task queue). Two different types named <code>StepResult</code> in two different files is the worst offender.</p>
+<p class="detail-label">Canonical rule</p>
+<p><code>AdapterStepResult</code> for the execution boundary. <code>[Domain]Result</code> for domain-specific outcomes. Never bare <code>Result</code> alone. The renames are: <code>StepResult</code> (executor) → <code>ExecutorStepOutcome</code>, <code>ExecutionResult</code> → <code>FlowExecutionOutcome</code>, <code>SlowTask.result</code> → <code>TaskOutcome</code>.</p>`,
+    wave: "3",
+    options: [
+      { label: "Domain-prefix all Result types in Wave 3", desc: "AdapterStepResult (boundary), ExecutorStepOutcome (internal), FlowExecutionOutcome (internal). Deprecation aliases for one release cycle.", recommended: true },
+      { label: "Merge into single Result<T> generic", desc: "One Result type parameterized by domain. Over-abstraction for distinct shapes." },
+      { label: "Defer — names work in context", desc: "Each Result is in its own file. No active confusion." }
+    ]
+  },
+  {
+    bucket: 3, id: "A2", title: '"Status" — 5 incompatible enum sets',
+    insight: "B6 epicenter. 5 different status enums with 3 different words for 'done' (<code>'success'</code>, <code>'completed'</code>, <code>'ok'</code>). Root problem: no shared base type.",
+    detail: `<p class="detail-label">The 4-layer vocabulary</p>
+<p>The CDO mapped a clean hierarchy: <code>GraphNodeType</code> (graph structure) → <code>InstructionKind</code> (execution contract) → <code>AdapterStepResult</code> (adapter response) → <code>AgentJobStatus</code> (observable lifecycle). These four vocabularies are DISTINCT and should NOT merge. The boundary crossings need explicit normalization functions, not type unions.</p>
+<p class="detail-label">Resolution principle</p>
+<p>Status enums are <strong>layer-specific and bridge via normalization functions</strong>. Each layer owns its vocabulary. The mapping functions (<code>isTerminalSuccess</code>, etc.) sit at the boundary crossings. This is the correct pattern for a system with multiple execution layers.</p>`,
+    wave: "2",
+    options: [
+      { label: "Layer-specific enums + normalization bridges", desc: "Each layer keeps its vocabulary. Boundary crossings have explicit normalization functions. No type merging.", recommended: true },
+      { label: "Single universal status enum", desc: "One StatusEnum to rule them all. Loses semantic precision per layer." },
+      { label: "B6 bridge only, defer full alignment", desc: "isTerminalSuccess in Wave 1 is sufficient." }
+    ]
+  },
+  {
+    bucket: 3, id: "A3", title: '"Action" — 6 unrelated meanings',
+    insight: "Union type <code>Action</code>, <code>FlowmindStep.action</code>, <code>StepActionType</code>, <code>GateAction</code>, YAML <code>action:</code> key, <code>ExecutableMemory.action</code> — 6 different concepts using the same word.",
+    detail: `<p class="detail-label">The worst offender</p>
+<p><code>FlowmindStep.action</code> is a discriminator field with values like <code>exec | intake | notify | condition</code>. These should be called <code>kind</code> to align with <code>InstructionKind</code> (D4 winner). The field name <code>action</code> collides with <code>Action</code> (the union type for graph node behaviors), <code>StepActionType</code> (step-format values), and the YAML <code>action:</code> key.</p>
+<p class="detail-label">Renames</p>
+<p><code>Action</code> union → <code>NodeAction</code>. <code>FlowmindStep.action</code> → <code>FlowmindStep.kind</code>. <code>StepActionType</code> → <code>StepKind</code>. <code>GateAction</code> → keep (scoped). <code>ExecutableMemory.action</code> → <code>ExecutableMemory.handler</code>.</p>`,
+    wave: "2",
+    options: [
+      { label: "Rename action→kind on FlowmindStep, domain-prefix others", desc: "FlowmindStep.action → .kind (aligns with InstructionKind). Action → NodeAction. StepActionType → StepKind.", recommended: true },
+      { label: "Keep current names, add disambiguation docs", desc: "Each is in its own file. Just document the differences." },
+      { label: "Defer all renames to Wave 3", desc: "Prioritize execution correctness over naming." }
+    ]
+  },
+  {
+    bucket: 3, id: "A4", title: '"Node" — 3 incompatible type systems',
+    insight: "<code>FlowMindNode</code> (legacy flat array, 4 types), <code>GraphNode</code> (graph format, 9 types), possibly <code>WorkflowNode</code> (archive). <code>GraphNode</code> + <code>GraphNodeType</code> are the forward targets.",
+    detail: `<p class="detail-label">The two node models</p>
+<p><code>FlowMindNode</code> is the legacy IR for array-format YAML. It has <code>NodeType: workflow | agent | trigger | action</code> — a completely different vocabulary from <code>GraphNodeType</code>'s 9 values. It exists because FlowMind originally used a flat step-list format, then evolved to a graph format. The parser understands both, but the types diverge.</p>
+<p class="detail-label">Migration path</p>
+<p><code>FlowMindNode</code> → <code>LegacyFlowNode</code> or mark <code>@deprecated</code> with internal alias. <code>GraphNode</code> → keep as canonical graph IR. <code>NodeType</code> (4 values) → deprecated, absorbs into <code>GraphNodeType</code>. This is a Wave 3 change because it requires parser migration to normalize legacy YAML into GraphNode format.</p>`,
+    wave: "3",
+    options: [
+      { label: "Deprecate FlowMindNode, GraphNode is canonical", desc: "Mark FlowMindNode @deprecated with 'LegacyFlowNode' alias. Parser normalizes to GraphNode. Wave 3.", recommended: true },
+      { label: "Remove FlowMindNode entirely", desc: "Delete legacy format support. Risk: existing YAML using array format breaks." },
+      { label: "Defer — both coexist", desc: "Parser handles both. No urgency." }
+    ]
+  },
+  {
+    bucket: 3, id: "A5", title: '"Context" — 4 semantic meanings',
+    insight: "Execution runtime state (<code>ExecutionContext</code>), context injection (<code>ContextAssemblyConfig</code>), compilation (<code>CompileContext</code>), and LevEvent causality — all called 'context'.",
+    detail: `<p class="detail-label">Why this matters</p>
+<p>When you see <code>context</code> in a FlowMind function signature, you don't know if it means "the execution state being threaded through the flow," "the assembled prompt context being injected into an agent," "the compilation metadata," or "the causal chain of events." Each is a fundamentally different concept.</p>
+<p class="detail-label">Resolution</p>
+<p><code>ExecutionContext</code> → <code>ExecutorRunContext</code> (internal). <code>ContextAssemblyConfig</code> → keep (already specific). <code>CompileContext</code> → keep (already specific). Rule: <strong>no bare 'Context' type shall exist</strong>.</p>`,
+    wave: "2",
+    options: [
+      { label: "Rename ExecutionContext → ExecutorRunContext", desc: "The only bare-ish one. Others already qualified. Enforce no-bare-Context rule.", recommended: true },
+      { label: "Create Context<Domain> generic", desc: "Over-engineered for 4 distinct shapes." },
+      { label: "Defer — names work in their modules", desc: "Each lives in its own file. Confusion is rare." }
+    ]
+  },
+  {
+    bucket: 3, id: "A6", title: '"Provider" — 4 different concepts',
+    insight: "AI/LLM provider (<code>createFlowMindProvider</code>), context block fetcher (<code>ContextProvider</code>), tick source (<code>TickProvider</code>), config resolver. All already domain-qualified except <code>ContextProvider</code>.",
+    detail: `<p class="detail-label">Almost fine as-is</p>
+<p>The naming convention is already working here: each Provider carries its domain prefix. The one fix: <code>ContextProvider</code> should become <code>ContextBlockProvider</code> to distinguish it from the AI provider (which also provides 'context' in the colloquial sense).</p>`,
+    wave: "3",
+    options: [
+      { label: "ContextProvider → ContextBlockProvider", desc: "One rename. Prevents collision with AI 'context provider' in conversation.", recommended: true },
+      { label: "No rename needed", desc: "Each is in its own file. Import paths disambiguate." },
+      { label: "Defer", desc: "Low priority." }
+    ]
+  },
+  {
+    bucket: 3, id: "A7", title: '"Config" — 11+ types, no composition',
+    insight: "11+ config types: <code>MemoryConfig</code>, <code>SafetyConfig</code>, <code>OutputConfig</code>, <code>ThrottleConfig</code>, etc. All domain-scoped. No shared composition pattern needed yet.",
+    detail: `<p class="detail-label">Convention, not framework</p>
+<p>The CDO's verdict: these are all correctly domain-scoped. The problem is not the types — it's the absence of a documented naming convention. Rule: <code>[Domain][Aspect]Config</code>. All config types are bags-of-settings, not behavioral. <code>ThrottleConfig</code> → <code>ExecutorThrottleConfig</code>. <code>NodeProperties</code> → <code>NodeConfig</code> (it's a config bag, not a property system).</p>`,
+    wave: "3",
+    options: [
+      { label: "Document convention + targeted renames", desc: "[Domain][Aspect]Config. Rename ThrottleConfig → ExecutorThrottleConfig, NodeProperties → NodeConfig.", recommended: true },
+      { label: "Create Config<T> base type", desc: "Shared base. Over-engineering for bags-of-settings." },
+      { label: "No action", desc: "Current naming is clear enough." }
+    ]
+  },
+  {
+    bucket: 3, id: "A8", title: '"Step" — 3 conflicting definitions',
+    insight: "<code>FlowmindStep</code> (executor runtime), <code>StepBasedStep</code> (YAML IR), <code>TemplateFlowStep</code> (template IR) — three different document format IRs. Should be clearly marked as parse-time intermediates.",
+    detail: `<p class="detail-label">Rename targets</p>
+<p><code>FlowmindStep</code> → <code>ExecutorStep</code> (it's the executor's internal step model). <code>StepBasedStep</code> → <code>StepFormatNode</code> (parse-time IR that normalizes to GraphNode). <code>TemplateFlowStep</code> → <code>TemplateFormatNode</code>. These names make it clear: these are intermediate representations, not the canonical graph types.</p>`,
+    wave: "2",
+    options: [
+      { label: "Rename to ExecutorStep, StepFormatNode, TemplateFormatNode", desc: "Clearly marks each as what it is: executor internal, parse-time YAML IR, template IR.", recommended: true },
+      { label: "Merge into single Step type", desc: "Loses the structural distinction between executor and parser types." },
+      { label: "Defer", desc: "Each is in its own context. Low collision." }
+    ]
+  },
+  {
+    bucket: 3, id: "A9", title: '"Gate" — 3 semantic layers',
+    insight: "Graph execution decision (<code>GraphNodeType: gate</code>), validation/reactive rule (<code>ValidationGate</code>), gate action (then/else). The word 'gate' means completely different things in graph execution vs reactive automation.",
+    detail: `<p class="detail-label">The collision</p>
+<p>In graph execution, a 'gate' is a conditional branch point — "should this flow go left or right?" In reactive automation, a <code>ValidationGate</code> is a quality-check rule that fires on events — "does this entity pass validation?" These are completely different concepts sharing a name.</p>
+<p class="detail-label">Resolution</p>
+<p><code>ValidationGate</code> → <code>ReactiveGate</code>. This makes the reactive automation concept distinct from the execution graph concept. <code>GraphNodeType: gate</code> keeps the name (though Bucket 4 proposes making it a compile-time shorthand).</p>`,
+    wave: "2",
+    options: [
+      { label: "ValidationGate → ReactiveGate", desc: "Distinguishes reactive automation gates from graph execution gates.", recommended: true },
+      { label: "Rename graph gates instead", desc: "GraphNodeType: gate → GraphNodeType: branch." },
+      { label: "Defer — context disambiguates", desc: "Each is in its own module." }
+    ]
+  },
+  {
+    bucket: 3, id: "A10", title: '"Adapter" — 3 patterns, no registry',
+    insight: "Execution adapter (D45), language/polyglot adapter (core/poly), platform adapter (plugins). The D45 execution adapter is the primary meaning. Needs an <code>ExecutionAdapter</code> interface definition.",
+    detail: `<p class="detail-label">Interface stub</p>
+<p>Wave 1 deliverable: define the <code>ExecutionAdapter</code> interface. Wave 2: build the registry that hosts adapters. The interface: <code>execute(instruction: Instruction, state: ExecutionState): Promise&lt;AdapterStepResult&gt;</code>. The registry is blocked on D45 executor consolidation, but the interface can be locked now.</p>`,
+    wave: "1+2",
+    options: [
+      { label: "W1 interface stub, W2 registry", desc: "Define ExecutionAdapter interface immediately. Build AdapterRegistry in Wave 2 when D45 executor consolidation begins.", recommended: true },
+      { label: "Full registry in Wave 1", desc: "Build both together. Higher scope for Wave 1." },
+      { label: "Defer both to Wave 2", desc: "Don't define interface until registry is needed." }
+    ]
+  },
+  {
+    bucket: 3, id: "A11", title: '"Policy" — 4 unrelated meanings',
+    insight: "Execution determinism (<code>StepBasedPolicy</code>), escalation behavior (<code>EscalationProfile</code>), context ranking (<code>ContextPolicy</code>), security/safety (<code>SafetyConfig</code>). Bare 'Policy' in <code>StepBasedPolicy</code> is the offender.",
+    detail: `<p class="detail-label">Resolution</p>
+<p><code>StepBasedPolicy</code> → <code>StepFlowPolicy</code>. All others are already qualified. The rule: never bare 'Policy' — always <code>[Domain]Policy</code>.</p>`,
+    wave: "3",
+    options: [
+      { label: "StepBasedPolicy → StepFlowPolicy", desc: "One rename. Others already qualified.", recommended: true },
+      { label: "Create Policy<Domain> generic", desc: "Over-complex for 4 unrelated shapes." },
+      { label: "Defer", desc: "Low priority." }
+    ]
+  },
+  {
+    bucket: 3, id: "A12", title: '"Scope" — 3 incompatible enum sets',
+    insight: "<code>GateEventScope</code> (session/project/global/user), <code>ExecutableMemory.scope</code> (session/global/semantic), <code>MemoryTriggerScope</code> (every_message/on_recall/scheduled/semantic). Different concepts, same word.",
+    detail: `<p class="detail-label">No unification possible</p>
+<p>These are genuinely different concepts wearing the same word. They do NOT unify — they are distinct domain enums. <code>GateEventScope</code> → <code>GateScope</code>. <code>ExecutableMemory.scope</code> → add named alias <code>type MemoryScope</code>. <code>MemoryTriggerScope</code> → keep (already specific).</p>`,
+    wave: "3",
+    options: [
+      { label: "Named aliases + minor rename", desc: "GateEventScope → GateScope. Add type MemoryScope alias. No unification.", recommended: true },
+      { label: "Create Scope<Domain> generic", desc: "Type-safe but over-complex for 3 enums." },
+      { label: "Defer", desc: "Each is in its own domain file." }
+    ]
+  },
+  {
+    bucket: 3, id: "A13", title: '"Branch" — scattered semantics',
+    insight: "<code>GraphNode.branches</code> (gate routing), <code>AgentJob.isolation</code> (git worktree), <code>StepBasedStep.then/else</code> (conditional). No structural collision — just docs confusion.",
+    wave: "defer",
+    options: [
+      { label: "Document disambiguation, no rename", desc: "Add comments. No active structural collision.", recommended: true },
+      { label: "Rename GraphNode.branches → routes", desc: "Clearer name for routing. Minor schema change." },
+      { label: "Defer entirely", desc: "Non-issue." }
+    ]
+  },
+  {
+    bucket: 3, id: "A14", title: '"Promise" — ambiguous field',
+    insight: "Not found in active code. Likely exists only in legacy YAML or _archive.",
+    wave: "discard",
+    options: [
+      { label: "Discard — not found in active code", desc: "Non-issue. If found in YAML later, rename to 'commitment'.", recommended: true },
+      { label: "Search _archive and rename if found", desc: "Thorough but low value." },
+      { label: "Defer", desc: "Nothing to do." }
+    ]
+  },
+  {
+    bucket: 3, id: "A15", title: "4 competing action vocabularies",
+    insight: "<code>GraphNodeType</code>(9), <code>InstructionKind</code>(10), <code>FlowmindStep.action</code>(7), <code>StepActionType</code>(6) — four disjoint vocabularies for 'what kind of thing does this node do'. <code>InstructionKind</code> is the D4 winner.",
+    detail: `<p class="detail-label">The vocabulary hierarchy</p>
+<p><code>GraphNodeType</code> = graph vocabulary (what a node IS structurally). <code>InstructionKind</code> = execution vocabulary (what the adapter DOES). These serve different layers and should NOT merge. The graph-to-instruction mapping is the compiler's job. <code>FlowmindStep.action</code> is a legacy dialect that maps to <code>InstructionKind</code>: exec→exec, intake→agent, condition→gate, etc. <code>StepActionType</code> is a step-format YAML dialect that maps to <code>InstructionKind</code> at parse time.</p>`,
+    wave: "2",
+    options: [
+      { label: "FlowmindStep.action → .kind, align to InstructionKind", desc: "Rename field, map values. InstructionKind is canonical execution vocabulary. GraphNodeType stays as graph vocabulary.", recommended: true },
+      { label: "Merge into single vocabulary", desc: "One enum for everything. Loses important semantic distinction between graph structure and execution." },
+      { label: "Document mapping only", desc: "Keep 4 vocabularies, publish rosetta stone. Defer code changes." }
+    ]
+  },
+  {
+    bucket: 3, id: "A16", title: "25+ YAML files with type: action",
+    insight: "26 occurrences across 12 <code>.flow.yaml</code> files. <code>GraphNodeType</code> renamed <code>action→function</code> in commit <code>548ae21f</code> but YAML not updated. Pure Stuff-layer fix: grep and replace.",
+    detail: `<p class="detail-label">Shearing layer classification</p>
+<p>This is a <strong>Stuff layer</strong> change — the fastest-moving layer in Stewart Brand's model. YAML files are user-authored declarations, not structural contracts. The TypeScript type no longer includes 'action' (removed in the commit). Any parser code doing a type-safe switch on <code>GraphNodeType</code> hits the default/unknown branch for 'action' nodes.</p>
+<p class="detail-label">Belt-and-suspenders</p>
+<p>Bulk rename the YAML files AND add a <code>normalizeNodeType()</code> backward-compat shim in the parser: <code>if (raw === 'action') return 'function'</code>. This handles any stale YAML that survives the bulk rename.</p>`,
+    wave: "1",
+    options: [
+      { label: "Bulk rename + parser compat shim", desc: "sed 's/type: action/type: function/g' across 12 files. Add normalizeNodeType() backward-compat in parser.", recommended: true },
+      { label: "Parser normalization only", desc: "Let parser handle 'action'→'function'. Don't touch YAML files." },
+      { label: "Rename now, no parser shim", desc: "Clean YAML, no backward compat. Risk if stale YAML appears later." }
+    ]
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // BUCKET 4: Graph Topology & Node Design
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    bucket: 4, id: "C1", title: "GraphNodeType 9→5 reduction",
+    insight: "<code>agent</code>, <code>function</code>, <code>subgraph</code>, <code>terminal</code>, <code>hitl</code> are <strong>topological identity</strong> (what a node IS). <code>gate</code>, <code>parallel</code>, <code>redirect</code>, <code>loop</code> are <strong>execution policies</strong> masquerading as topology.",
+    detail: `<p class="detail-label">The topological test</p>
+<p>For each type, ask: "is this a structural identity or an execution instruction?" <code>agent</code> = yes, this IS an agent. <code>function</code> = yes, this IS a pure function. <code>subgraph</code> = yes, this IS a nested graph boundary. <code>terminal</code> = yes, this IS an exit point. <code>hitl</code> = yes, this IS a human actor. <code>gate</code> = contested — it's a routing decision, better as a conditional edge. <code>parallel</code> = NO — "how to traverse" not "what the node IS." <code>redirect</code> = NO — a named edge. <code>loop</code> = NO — D22 already decided: loop is orchestration.</p>
+<p class="detail-label">What happens to the removed types</p>
+<p><code>gate</code> → compile-time YAML shorthand that expands to conditional edges (<code>branches</code> field on preceding node). <code>parallel</code> → <code>OrchestrationOverlay.parallel</code> on a <code>subgraph</code> node. <code>redirect</code> → just use <code>next: &lt;target&gt;</code> (it was a named edge). <code>loop</code> → <code>OrchestrationOverlay.loop</code> on a <code>subgraph</code> node.</p>
+<p class="detail-label">D33 alignment</p>
+<p>Type identity (Structure layer) changes slowly. Execution policy (Services layer) changes often. Mixing them in one union type means the slow layer churns every time the fast layer evolves.</p>`,
+    wave: "2",
+    options: [
+      { label: "Reduce to 5 after decompiler validates", desc: "B7 decompiler proves roundtrip fidelity first. Then migrate with script. Removes gate/parallel/redirect/loop as runtime node types.", recommended: true },
+      { label: "Reduce to 3 (agent, function, terminal)", desc: "Aggressive: subgraph→inline graphs, hitl→agent with provider:human. Loses structural clarity." },
+      { label: "Keep 9, add OrchestrationOverlay alongside", desc: "No breaking change. Risk: two systems coexist permanently." }
+    ]
+  },
+  {
+    bucket: 4, id: "C3", title: "Gates as conditional edges",
+    insight: "Gate is a routing decision, not a computation node. Better modeled as <code>branches: Record&lt;condition, targetNode&gt;</code> on any node. Gate survives as YAML authoring shorthand that compiles away.",
+    detail: `<p class="detail-label">Trade-off analysis</p>
+<p><strong>Gate as node:</strong> adds 1 non-computation node per branch point, needs gate-dispatch logic in executor, easy to debug (named entity in logs). <strong>Gate as edge:</strong> zero additional nodes, pure DAG (every node IS a computation), edge labels are standard flowchart convention, but condition failures are harder to isolate in logs.</p>
+<p class="detail-label">Hybrid recommendation</p>
+<p>Conditional edges via <code>branches</code> field on any node. No <code>gate</code> node at runtime. For complex multi-way branches where labeling the decision point matters, allow <code>type: gate</code> as a YAML shorthand that the compiler expands to conditional edges on the preceding node. Gate is a compile-time construct, not a runtime <code>GraphNodeType</code>.</p>`,
+    wave: "2",
+    options: [
+      { label: "Compile-time shorthand → expands to branches", desc: "gate YAML keyword compiles to conditional edges on preceding node. Not a runtime GraphNodeType. Hybrid: keeps authoring convenience.", recommended: true },
+      { label: "Pure edge-only gates", desc: "No gate keyword at all. Conditions live on edges only. Loses debuggability." },
+      { label: "Keep gate as node type", desc: "Current behavior. Adds noise to pure-computation graphs." }
+    ]
+  },
+  {
+    bucket: 4, id: "B7", title: "Decompiler MVP (GraphDocument→YAML)",
+    insight: "The 'decompiler' in <code>core/flowmind/src/decompiler/</code> is NL→FlowMind (natural language to YAML). The MISSING piece is <strong>GraphDocument→YAML serialization</strong>. CLI says: <em>'Warning: FlowMind decompiler not implemented; round-trip validation skipped.'</em>",
+    detail: `<p class="detail-label">Why roundtrip matters</p>
+<p>1. <strong>CDO plugin pattern (D25)</strong>: if CDO builds graphs programmatically, those graphs must serialize to YAML for persistence. No serializer = no persistence. 2. <strong>Semantic diff (D-W5)</strong>: NLP→GraphDocument→diff requires stable serialization. 3. <strong>REPL (D-W9)</strong>: <code>lev flowmind repl</code> builds graphs interactively; state must serialize between sessions. 4. <strong>Node type reduction (C1)</strong>: if you eliminate types, you MUST validate roundtrip before cutting.</p>
+<p class="detail-label">MVP spec</p>
+<p><code>serializeGraphDocument(doc: GraphDocument): string</code> → produces YAML. Output must be re-parseable. <code>parse(serialize(doc))</code> must produce structurally equivalent GraphDocument. Wire into CLI: <code>lev flowmind validate --roundtrip</code>. Implementation: <code>core/flowmind/src/serializer/index.ts</code> using the <code>yaml</code> package (already a dep). 1-2 days effort.</p>`,
+    wave: "1",
+    options: [
+      { label: "serializeGraphDocument() + roundtrip test", desc: "core/flowmind/src/serializer/index.ts. parse(serialize(doc)) == doc. Wire into CLI validate --roundtrip. 1-2 days.", recommended: true },
+      { label: "Full pretty-printer with comment preservation", desc: "Aesthetically formatted YAML output. Higher scope for MVP." },
+      { label: "Defer — roundtrip not needed yet", desc: "RISK: node type reduction cannot be validated without this." }
+    ]
+  },
+  {
+    bucket: 4, id: "D-W1", title: "OrchestrationOverlay type",
+    insight: "<code>parallel</code>/<code>loop</code>/<code>redirect</code> elimination from <code>GraphNodeType</code> requires somewhere for orchestration behavior to live. <code>OrchestrationOverlay</code> on subgraph nodes.",
+    detail: `<p class="detail-label">Design</p>
+<p>Nodes declare what they ARE (<code>type: agent/function/subgraph/terminal/hitl</code>). Orchestration annotations declare how the executor traverses them. A <code>subgraph</code> node with <code>orchestration.parallel</code> = fan-out. A <code>subgraph</code> node with <code>orchestration.loop</code> = iteration. <code>redirect</code> is eliminated entirely — it's just <code>next: &lt;target&gt;</code>.</p>
+<p class="detail-label">YAML example</p>
+<p>Before: <code>type: parallel, targets: [a, b, c]</code>. After: <code>type: subgraph, subgraph_ref: ensemble, orchestration: { parallel: { targets: [a, b, c], sync_mode: wait_for_all } }</code>. The node IS a subgraph. The parallelism is an execution policy on that subgraph.</p>`,
+    wave: "2",
+    options: [
+      { label: "OrchestrationOverlay on GraphNode", desc: "orchestration?: { parallel?, loop? } field on GraphNode. subgraph nodes host parallel/loop behavior as execution policy.", recommended: true },
+      { label: "Separate overlay document", desc: "Overlay lives outside GraphDocument. Applied at execution time." },
+      { label: "Inline in executor config", desc: "Executor reads overlay from ExecutionContext, not from GraphNode." }
+    ]
+  },
+  {
+    bucket: 4, id: "D-W5", title: "Semantic diff visualization",
+    insight: "NLP→GraphDocument shows structural delta visually. Side-by-side node diff. <strong>Gated on B7 decompiler + stable type set.</strong>",
+    wave: "5",
+    options: [
+      { label: "Defer to Wave 5 after decompiler + type reduction", desc: "Correct ordering: B7 decompiler enables serialization, type reduction stabilizes schema, then diff is meaningful.", recommended: true },
+      { label: "Build on current schema", desc: "Risk: schema changes invalidate diff tool." },
+      { label: "Skip — not needed", desc: "YAML diff tools exist. Custom diff is nice-to-have." }
+    ]
+  },
+  {
+    bucket: 4, id: "D-W9", title: "Graph REPL",
+    insight: "Interactive graph building: <code>+ agent:analyze</code>, <code>> execute</code>, <code>! yaml</code>, <code>>> run</code>. Feasible but gated on 3 prerequisites: decompiler, complete executor, stable node types.",
+    detail: `<p class="detail-label">Prerequisites</p>
+<p>1. Decompiler (B7) — REPL's <code>!</code> command needs serialization. 2. Complete executor — REPL's <code>></code> and <code>>></code> rely on the executor handling all node types. 3. Stable node types — building a REPL on a schema that's about to lose 4 types is wasted work.</p>
+<p class="detail-label">MVP scope</p>
+<p>Commands: <code>+ &lt;type&gt;:&lt;id&gt;</code> (add node), <code>- &lt;id&gt;</code> (remove), <code>-> &lt;from&gt; &lt;to&gt;</code> (add edge), <code>show</code> (ASCII DAG), <code>! yaml</code> (serialize), <code>> &lt;node&gt;</code> (execute one), <code>>></code> (run full graph), <code>.save</code>, <code>.load</code>. Implementation: Node.js readline loop + in-memory GraphDocument. 3-5 days post-prerequisites.</p>`,
+    wave: "5",
+    options: [
+      { label: "Defer to Wave 5 after prerequisites", desc: "REPL needs B7 decompiler, complete executor, stable types. Building on unstable schema is wasted work.", recommended: true },
+      { label: "Minimal REPL without serialization", desc: "In-memory only. No .save command. Limited utility." },
+      { label: "Skip REPL entirely", desc: "YAML editing + lev flowmind validate is sufficient." }
+    ]
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // BUCKET 5: Context & Memory
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    bucket: 5, id: "B3", title: "Context assembly wiring",
+    insight: "<code>ContextAssemblyConfig</code> is fully defined in <code>schema.ts</code> (lines 1050-1180) with providers, policies, and renderers. But <strong>NO executor reads <code>node.context</code> at runtime</strong>. The gap is ONE hook in <code>GraphFlowExecutor</code>.",
+    detail: `<p class="detail-label">What exists vs what's missing</p>
+<p><code>ContextAssemblyConfig</code> has providers (inline content, memory recall, retrieval), policies (relevance ranking, token budgets, dedup), and renderers (markdown, structured). <code>GraphNode.context</code> references it. A compile target <code>compileToContextAssembly</code> emits <code>.context.md</code> fragments at build time. But <code>executor.ts</code> never reads <code>node.context</code>. Prompt assembly is still raw string concatenation.</p>
+<p class="detail-label">Wiring plan (3 steps)</p>
+<p>1. <code>ContextAssembler</code> class: <code>async assemble(config, vars) → string</code>. Iterates providers, applies policy (sort by relevance, enforce token budget), renders. 2. Executor hook: if <code>node.context</code> defined, call assembler, prepend to prompt. 3. Two built-in providers: <code>inline</code> (content from config, zero deps) and <code>memory</code> (delegates to EpisodeStore when available, no-op when absent).</p>
+<p class="detail-label">FlowmindExecutor caveat</p>
+<p>The deprecated <code>FlowmindExecutor</code> (745 LOC) bypasses the parser entirely and casts raw YAML. It won't benefit from this wiring until it also reads <code>GraphDocument</code>. Don't confuse the two executors.</p>`,
+    wave: "2+3",
+    options: [
+      { label: "W2 inline provider, W3 memory provider", desc: "ContextAssembler class + executor hook. Start with 'inline' provider (zero deps). Add 'memory' provider after EpisodeStore interface lands.", recommended: true },
+      { label: "Full provider system now", desc: "Build all provider types (inline, memory, retrieval) at once." },
+      { label: "Defer — raw string concatenation works", desc: "Current approach works but can't do dynamic memory recall." }
+    ]
+  },
+  {
+    bucket: 5, id: "B4", title: "CdoProperties dead code",
+    insight: "<code>CdoProperties</code> appears in <code>router.policy.ts</code> lines 285, 604-615 as <code>{cdoProperties}</code> template substitution. D25 says CDO is a plugin, not a property system. <strong>Nothing to migrate — just delete.</strong>",
+    detail: `<p class="detail-label">Why delete, not deprecate</p>
+<p>CdoProperties carries no runtime state and has no known callers outside <code>router.policy.ts</code> itself. It's a template substitution variable that was never populated with real data. D25 established that CDO behavior is expressed through FlowMind graph topology and node config, not through a separate property annotation system. Deprecating dead code with zero callers is cargo-cult caution.</p>
+<p class="detail-label">Cleanup scope</p>
+<p>Remove <code>{cdoProperties}</code> template from <code>router.policy.ts</code> (lines 285, 604-615). Delete <code>CdoProperties</code> interface from <code>schema.ts</code>. Add one comment: <code>// CDO is a plugin (D25) — context injected via ContextAssemblyConfig, not properties</code>. 30 minutes.</p>`,
+    wave: "1",
+    options: [
+      { label: "Delete in Wave 1", desc: "Remove template substitution from router.policy.ts. Delete CdoProperties interface from schema.ts. 30 min.", recommended: true },
+      { label: "Deprecate with warning", desc: "Mark @deprecated, log warning on use. More cautious." },
+      { label: "Keep for backward compat", desc: "Risk: dead code creates false signal for readers." }
+    ]
+  },
+  {
+    bucket: 5, id: "B8", title: "Token attribution — 3 incompatible models",
+    insight: "<code>NormalizedTokenUsage</code> (core/domain, correct and rich), <code>UsageReport</code> (execution-contract, flat/incomplete), raw numbers (executor internals). Split is accidental — <code>core/domain</code> was extracted after <code>core/flowmind</code>.",
+    detail: `<p class="detail-label">Convergence path</p>
+<p>Step 1 (W1): <code>UsageReport</code> becomes a type alias — <code>Pick&lt;NormalizedTokenUsage, 'provider' | 'inputTokens' | 'outputTokens' | 'costUSD'&gt;</code>. Backward-compatible: callers only use those fields. Step 2 (W3): adapter layer normalizes to full <code>NormalizedTokenUsage</code> before emitting a <code>token:usage</code> LevEvent. The event bus becomes the unification point — every LLM call produces a standardized usage event.</p>
+<p class="detail-label">FlowMind raw numbers</p>
+<p>Add a <code>TokenBudget</code> accumulator inside <code>GraphFlowExecutor</code> that sums <code>ContextBlock.tokenEstimate</code> from context assembly (B3) + <code>StepResult.usage</code> from execution. Emit as single <code>token:usage</code> event per node execution.</p>`,
+    wave: "1+3",
+    options: [
+      { label: "W1 type alias, W3 event emission", desc: "UsageReport becomes Pick<NormalizedTokenUsage,...>. Every LLM call emits token:usage event with NormalizedTokenUsage payload.", recommended: true },
+      { label: "Full migration to NormalizedTokenUsage everywhere", desc: "Replace all three with one type. Large diff." },
+      { label: "Document the split, defer alignment", desc: "Three types coexist with documented mapping." }
+    ]
+  },
+  {
+    bucket: 5, id: "C8", title: "CS/ML graph fundamentals",
+    insight: "The 3D graph problem (shearing layers × cascading contexts) needs <strong>product-graph framing</strong> from CS/ML literature. Existing research covers 2D case only.",
+    detail: `<p class="detail-label">The mathematical gap</p>
+<p>Nodes exist at a <code>(shearing_layer, cascade_depth)</code> coordinate, not just a depth. Standard graph literature doesn't address this without a product-graph framing — the Cartesian or tensor product of the shearing-layer graph and the context-cascade graph. The existing 500+ line research covers traversal, classification, and decay functions for the 1D case (intent cascade alone). The 2D case (adding shearing layers as a second axis) requires a focused one-pager on product graphs.</p>`,
+    wave: "pre-W4",
+    options: [
+      { label: "Commission product-graph one-pager before D34", desc: "Focused research on tensor-product graph composition as mathematical foundation. Before implementing 3D coordinates.", recommended: true },
+      { label: "Implement 3D coordinates without theory", desc: "Just add (shearing_layer, cascade_depth) fields. Theory can follow." },
+      { label: "Defer — 2D is sufficient for now", desc: "Shearing layers or cascade depth alone, not both." }
+    ]
+  },
+  {
+    bucket: 5, id: "D33", title: "Shearing layers enforcement",
+    insight: "Stewart Brand's 6 speeds: Nature (LevEvent contract, years) → Culture (FlowMind schema, months) → Infrastructure (executors, weeks) → Commerce (plugins, days) → Fashion (skills, hours). <strong>Fast layers depend on slow layers, never reverse.</strong>",
+    detail: `<p class="detail-label">The import boundary rule</p>
+<p>This is the highest-leverage governance mechanism in the entire proposal. A single ESLint/Knip rule: Fashion-layer files (<code>*.flow.yaml</code>, skill files) cannot import from Infrastructure or slower. Plugins cannot import other plugins directly — they cross via LevEvent. This one rule prevents an entire class of coupling inversions that make systems unmaintainable.</p>
+<p class="detail-label">Three enforcement mechanisms</p>
+<p>1. Import boundary lint rule (ESLint/Knip) — CI gate. 2. Optional <code>shearing_layer</code> annotation on <code>GraphNode</code> — makes rate-of-change a first-class graph property. 3. Fitness function: at PR time, any new import across a layer boundary in the wrong direction fails CI.</p>
+<p class="detail-label">Critic's challenge</p>
+<p>The Critic flagged 3 existing coupling inversions in the codebase: (1) skills importing from Infrastructure layer, (2) FlowmindExecutor importing from domain layer, (3) plugins importing from other plugins. These are the bugs that the lint rule catches.</p>`,
+    wave: "3",
+    options: [
+      { label: "ESLint import boundary rule + CI gate", desc: "Fashion can't import Infrastructure. Plugins can't import other plugins. DAG topological check on module dependency graph.", recommended: true },
+      { label: "Annotation-only (no lint rule)", desc: "Add shearing_layer to GraphNode. Document convention. No enforcement." },
+      { label: "Defer — architecture diagram is enough", desc: "Document the layers. Enforce when violations become a problem." }
+    ]
+  },
+  {
+    bucket: 5, id: "D34", title: "3D graph (shearing_layer × cascade_depth)",
+    insight: "Nodes exist at a <code>(layer, depth)</code> coordinate. Additive annotation on <code>GraphNode</code>. No breaking change — optional fields.",
+    detail: `<p class="detail-label">Schema change</p>
+<p>Add to <code>GraphNode</code>: <code>shearing_layer?: 'nature' | 'culture' | 'governance' | 'infrastructure' | 'commerce' | 'fashion'</code> and <code>cascade_depth?: 'L0' | 'L1' | 'L2' | 'L3'</code>. Both optional. Default inferred from node type and file path. The validator checks: nodes can only reference nodes at equal or slower shearing layers.</p>
+<p class="detail-label">3D visualization</p>
+<p>The <code>.context.md</code> target already fragments nodes into context blocks. With <code>(shearing_layer, cascade_depth)</code> on each block, a View renderer can project: slice by depth (progressive disclosure), slice by layer ("what changes fast?"), or both (full 3D context).</p>`,
+    wave: "3",
+    options: [
+      { label: "Additive annotation on GraphNode W3", desc: "shearing_layer?: ShearingLayer, cascade_depth?: 'L0'|'L1'|'L2'|'L3'. Validator checks direction.", recommended: true },
+      { label: "Full coordinate system with visualization", desc: "3D graph renderer in Wave 3. Higher scope." },
+      { label: "Defer to Wave 4+", desc: "Focus on 1D execution correctness first." }
+    ]
+  },
+  {
+    bucket: 5, id: "D-W7", title: "Episode crystals (3 milestones)",
+    insight: "Event log → hierarchical summaries. <strong>M1:</strong> Iteration crystal (event grouper, no LLM, pure processing). <strong>M2:</strong> Session crystal (LLM summarizer). <strong>M3:</strong> Milestone crystal (HITL promotion).",
+    detail: `<p class="detail-label">M1: Iteration crystal (implementable now)</p>
+<p>Group events by session ID, emit a <code>crystal:iteration</code> LevEvent with token-budget summary. Pure event processing — no LLM needed. Reads from <code>~/.local/share/lev/events.jsonl</code>.</p>
+<p class="detail-label">M2: Session crystal (needs memory provider)</p>
+<p>LLM-assisted summarization of N iteration crystals → 1 session crystal. Requires the <code>memory</code> ContextProvider type (from B3) to retrieve prior crystals.</p>
+<p class="detail-label">M3: Milestone crystal (needs hitl executor)</p>
+<p>Human-in-the-loop promotion of session crystals to milestone status. Uses the existing <code>hitl</code> GraphNodeType — no new mechanism needed.</p>
+<p class="detail-label">Slate promotion path</p>
+<p>Move <code>EpisodeStore</code> interface to <code>core/domain/src/memory.ts</code> (contract first). Implement minimal <code>InMemoryEpisodeStore</code> in core. Slate plugin, when mounted, registers a richer <code>SlateEpisodeStore</code> that replaces the default.</p>`,
+    wave: "3-5",
+    options: [
+      { label: "M1 (W3) → M2 (W4) → M3 (W5)", desc: "Iteration crystal is pure event processing. Session crystal needs memory provider. Milestone crystal needs HITL executor.", recommended: true },
+      { label: "Ship all three in Wave 3", desc: "Aggressive timeline. M2/M3 have prerequisites." },
+      { label: "Defer all to Wave 4+", desc: "Focus on execution correctness first." }
+    ]
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // BUCKET 6: Branding & Vision
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    bucket: 6, id: "D25", title: "CDO as plugin pattern (confirmed)",
+    insight: "<code>CdoProperties</code> deleted 2026-03-12. CDO = graph topology + node config expressed through FlowMind primitives. Not a separate DSL. Not a property system.",
+    detail: `<p class="detail-label">Archive lineage</p>
+<p>Phase 1 (2024-12): CDO conceived as consciousness architecture — 5-layer stack (Sensation → Attention → Binding → Executive → Narrative). Research artifact, not product. Phase 2 (mid-2025): CDO v2 unified spec — STREAM, PARALLEL, PIPELINE, FEEDBACK, ADAPTIVE as a "cognitive programming language." Closer to product but still a separate DSL. Phase 3 (2026-03-12): CDO v2 design killed the property system, killed the separate DSL. CDO is "graph topology + node config" expressed through existing FlowMind primitives.</p>
+<p class="detail-label">CDO verdict</p>
+<p>The original <code>CdoProperties</code> (6 sub-interfaces) was a legitimate design hypothesis that turned out redundant — FlowMind schema already expressed every concept. Not hallucination, just accretion. The survivor concepts (5-stage deliberation, parallel with sync_mode, feedback loops, diversity_lens, anti-groupthink) all survived as graph patterns.</p>`,
+    wave: "done",
+    options: [
+      { label: "Confirmed — already resolved", desc: "CdoProperties deleted. CDO is a plugin showcasing capabilities. No further action.", recommended: true },
+      { label: "Revisit — maybe properties were useful", desc: "Re-evaluate whether annotation layer added value." },
+      { label: "Document the decision history", desc: "Write ADR explaining why CdoProperties was deleted." }
+    ]
+  },
+  {
+    bucket: 6, id: "D27", title: "NLP→graph as one path of several",
+    insight: "6 entry paths exist: direct YAML authoring, NLP compiler, templates, CDO profiles, runtime composition, memory-driven. NLP is <strong>one path, not THE path</strong>.",
+    detail: `<p class="detail-label">The composition model</p>
+<p>These paths are not mutually exclusive. A single execution can use all of them: user speaks → NLP compiler (Gate 0) classifies intent → Gate 1 produces FlowmindGraphSeed → CDO profile applied (stylesheet) → template selected as base topology → Graph Blueprint drafted (cached IR) → human reviews (HITL) → compiled → executed. Any step can be the entry point. Direct YAML skips NLP. A CLI with a named profile skips NLP and templates.</p>`,
+    wave: "done",
+    options: [
+      { label: "Confirmed — entry path composition documented", desc: "All 6 paths compose. Any step can be the entry point. No code action needed.", recommended: true },
+      { label: "Prioritize NLP path", desc: "NLP→graph should be the primary UX." },
+      { label: "Document all 6 paths with examples", desc: "Create usage guide for each entry path." }
+    ]
+  },
+  {
+    bucket: 6, id: "D28", title: "MASFactory parity reference",
+    insight: "MASFactory is a <strong>feature parity reference</strong>, not a copy target. Priority extraction: <strong>Graph Blueprint IR</strong> (cached, reviewable, compilable). Lev goes beyond MASFactory in teardown artifacts, causal replay, policy layering, and plane separation.",
+    detail: `<p class="detail-label">What we take from MASFactory</p>
+<p>1. <strong>Graph Blueprint as explicit cached IR</strong> — highest value. An intermediate artifact between intent compilation and execution dispatch that can be reviewed, cached, and re-compiled. 2. Human review loop as first-class surface (AgentPing routing). 3. Memory-aware graph drafting (respect ~2000-token memory drift).</p>
+<p class="detail-label">Where Lev exceeds MASFactory</p>
+<p>Explicit teardown artifacts (FlowMind Blueprint Teardown Requirement). Causal replay via LevEvent bus (MASFactory has no canonical event spine). Policy/trust layering with L0-L4 trust levels and fail-closed kernel (MASFactory has HITL but no ABAC). 4-plane separation (FlowMind/Orchestration/Graph/EventBus) — MASFactory collapses planner/compiler/runtime/visualizer.</p>`,
+    wave: "2",
+    options: [
+      { label: "Graph Blueprint IR as W2 priority extraction", desc: "Highest-value MASFactory concept. Explicit cached IR between intent compilation and execution dispatch.", recommended: true },
+      { label: "Full MASFactory feature parity assessment", desc: "Map all MASFactory features to Lev equivalents. Research scope." },
+      { label: "Defer — we're beyond MASFactory already", desc: "Lev's 4-plane model exceeds MASFactory. Don't look back." }
+    ]
+  },
+  {
+    bucket: 6, id: "D29", title: "All FlowMind-driven loops",
+    insight: "3-nested-donut loop tori visualization violates this decision. Loop visualization must derive from <code>.flow.yaml</code> declarations, not hardcoded nesting depth.",
+    wave: "5",
+    options: [
+      { label: "Revise loop tori to FlowMind-driven in W5", desc: "Visualization derives topology from YAML. Zero hardcoded loop depth constants. Reject current hardcoded impl.", recommended: true },
+      { label: "Keep current tori visualization", desc: "Hardcoded 3-layer nesting works for demos." },
+      { label: "Remove loop visualization entirely", desc: "Focus on graph visualization instead." }
+    ]
+  },
+  {
+    bucket: 6, id: "D30", title: "FlowMind = CSS for agents",
+    insight: "Dual-brand confirmed. <strong>FlowMind</strong> = CSS language + browser engine (the runtime). <strong>CDO</strong> = Bootstrap (stylesheet library). <code>.flow.yaml</code> = <code>.css</code> files.",
+    detail: `<p class="detail-label">The CSS metaphor</p>
+<p>CSS in browser: stylesheets (authored, declarative, scoped) + rendering engine (applies rules, computes layout) + DOM (runtime model). Mapping to Lev: <code>.flow.yaml</code> files = stylesheets. FlowMind kernel/compiler/executor = rendering engine. Graph entities = the document being 'styled'. CDO patterns = a stylesheet library (Bootstrap for deliberation topology).</p>
+<p class="detail-label">The correction</p>
+<p>FlowMind is BOTH the CSS language AND the rendering engine. CDO is a curated library of stylesheets built on top. The public brand distinction: FlowMind = what engineers author, compile, debug. CDO = what you demonstrate, the art of the possible.</p>`,
+    wave: "done",
+    options: [
+      { label: "Confirmed — dual-brand model", desc: "FlowMind = engine brand (developer-facing). CDO = capability brand (product-facing). No code action.", recommended: true },
+      { label: "Single brand: FlowMind only", desc: "Drop CDO name. Everything is FlowMind." },
+      { label: "Single brand: CDO only", desc: "Drop FlowMind name. Everything is CDO." }
+    ]
+  },
+  {
+    bucket: 6, id: "D-W4", title: "CDO stylesheets (production.cdo.yaml)",
+    insight: "Named FlowMind profiles: <code>minimal</code> (1 agent), <code>standard</code> (2-3), <code>deliberate</code> (5+), <code>production</code> (full parliament + HITL). Compose via fractal config. No new primitives needed.",
+    detail: `<p class="detail-label">What a CDO stylesheet contains</p>
+<p><code>deliberation_depth</code>, <code>diversity_lens_set</code> (list of thinking perspectives), <code>confidence_threshold</code> (gate strictness, 0.0-1.0), <code>circuit_breaker</code> (failure tolerance), <code>hitl_policy</code> (when humans must review). These compose via the existing fractal config resolution: system → project → module → runtime.</p>
+<p class="detail-label">Progressive disclosure</p>
+<p><code>minimal.cdo.yaml</code>: quick iteration, 1 agent, no gate. <code>standard.cdo.yaml</code>: default dev, 2-3 agents, 0.80 threshold. <code>deliberate.cdo.yaml</code>: high-stakes, 5+ agents with diversity lens, 0.90. <code>production.cdo.yaml</code>: full parliament + mandatory HITL, 0.92.</p>`,
+    wave: "2+4",
+    options: [
+      { label: "W2 examples, W4 resolver", desc: "Ship example profiles early for documentation (cdo-profiles/ directory). Build profile resolver in executor after unification.", recommended: true },
+      { label: "Full resolver in W2", desc: "Build both examples and resolver together." },
+      { label: "Defer to W4 entirely", desc: "Don't ship examples without working resolver." }
+    ]
+  },
+  {
+    bucket: 6, id: "D-W6", title: "Loop tori visualization",
+    insight: "Current hardcoded 3-layer nesting violates D29. Must be revised to FlowMind-generated visualization of whatever loop topology the YAML declares.",
+    wave: "5",
+    options: [
+      { label: "Revise to FlowMind-driven in W5", desc: "Tori derived from YAML loop declarations. Zero hardcoded depth constants.", recommended: true },
+      { label: "Keep as demo-only with caveat", desc: "Label as 'illustrative only, not derived from actual graph'." },
+      { label: "Replace with generic graph viz", desc: "Use standard graph visualization instead of custom tori." }
+    ]
+  },
+  {
+    bucket: 6, id: "D-W8", title: "Vocabulary rosetta stone",
+    insight: "Maps all 4 action vocabularies: <code>GraphNodeType</code>(9), <code>InstructionKind</code>(10), <code>FlowmindStep.action</code>(7), <code>StepActionType</code>(6). High onboarding value. <strong>Must be autogenerated from schema types, not hand-maintained.</strong>",
+    detail: `<p class="detail-label">Why autogenerate</p>
+<p>Hand-maintained rosetta stones drift from code within weeks. CI should trigger rosetta regeneration on schema type change. The generator reads the TypeScript AST (or the type union values) and produces the mapping table. Zero manual maintenance. If a type value is added or renamed, the rosetta updates automatically.</p>`,
+    wave: "2",
+    options: [
+      { label: "Autogenerate from schema types in W2", desc: "CI triggers rosetta regeneration on schema type change. No manual maintenance.", recommended: true },
+      { label: "Hand-maintained markdown table", desc: "Quick to create but drifts from code." },
+      { label: "Interactive HTML explorer", desc: "Visual tool with search/filter. Higher effort." }
+    ]
+  }
+];
+
+const BUCKET_NAMES = {
+  1: "Execution Model",
+  2: "Protocol & Message Passing",
+  3: "Vernacular & Types",
+  4: "Graph Topology & Node Design",
+  5: "Context & Memory",
+  6: "Branding & Vision"
+};
+
+// ── STATE ───────────────────────────────────────────────────────────
+const decisions = {};
+const PAGE_ID = 'cdo-s8';
+const STORAGE_KEY = `ve-decisions-${PAGE_ID}`;
+const SAVE_DELAY = 300;
+let saveTimer = null;
+
+function getKey(item) { return `${item.bucket}-${item.id}`; }
+
+// ── RENDER ──────────────────────────────────────────────────────────
+function render() {
+  const main = document.getElementById('mainContent');
+  let html = '';
+
+  for (let b = 1; b <= 6; b++) {
+    const items = ITEMS.filter(i => i.bucket === b);
+    html += `
+      <section class="bucket" id="bucket-${b}">
+        <div class="bucket-header">
+          <span class="bucket-num">${b}</span>
+          <span class="bucket-title">${BUCKET_NAMES[b]}</span>
+          <span class="bucket-count">${items.length} items</span>
+        </div>
+        ${items.map(item => renderItem(item)).join('')}
+      </section>
+    `;
+  }
+  main.innerHTML = html;
+  updateProgress();
+}
+
+function renderItem(item) {
+  const key = getKey(item);
+  const d = decisions[key];
+  const decided = d && (d.choice !== undefined);
+  const waveCls = item.wave === 'done' ? 'done' :
+    item.wave === 'defer' ? 'defer' :
+    item.wave === 'discard' ? 'discard' :
+    item.wave.startsWith('1') ? 'w1' :
+    item.wave.startsWith('2') ? 'w2' :
+    item.wave.startsWith('3') ? 'w3' :
+    item.wave.startsWith('4') ? 'w4' : 'w5';
+
+  const hasDetail = !!item.detail;
+
+  return `
+    <div class="item-card${decided ? ' decided' : ''}" id="item-${key}">
+      <div class="item-card-header">
+        <span class="item-id">${item.id}</span>
+        <span class="item-title">${item.title}</span>
+        <span class="wave-badge ${waveCls}">W${item.wave}</span>
+      </div>
+      <div class="item-insight">${item.insight}</div>
+      ${hasDetail ? `
+        <button class="detail-toggle" onclick="toggleDetail(this)" type="button">CDO Analysis</button>
+        <div class="item-detail">${item.detail}</div>
+      ` : ''}
+      <div class="options-grid">
+        ${item.options.map((opt, i) => `
+          <label class="option-row${opt.recommended ? ' recommended' : ''}${d && d.choice === i ? ' selected' : ''}"
+                 data-key="${key}" data-choice="${i}">
+            <input type="radio" name="opt-${key}" value="${i}"
+                   ${d && d.choice === i ? 'checked' : ''}>
+            <div class="option-label">
+              <span>${opt.label}</span>
+              ${opt.recommended ? '<span class="rec-badge">recommended</span>' : ''}
+              <span class="option-desc">${opt.desc}</span>
+            </div>
+          </label>
+        `).join('')}
+        <label class="option-row${d && d.choice === 'other' ? ' selected' : ''}"
+               data-key="${key}" data-choice="other">
+          <input type="radio" name="opt-${key}" value="other"
+                 ${d && d.choice === 'other' ? 'checked' : ''}>
+          <div class="option-label">
+            <span>Other</span>
+            <input type="text" class="other-input" placeholder="Your alternative..."
+                   value="${d && d.other || ''}"
+                   data-key="${key}">
+          </div>
+        </label>
+      </div>
+      <label class="notes-label">Notes</label>
+      <textarea class="notes-input" placeholder="Additional notes..."
+                data-key="${key}">${d && d.notes || ''}</textarea>
+    </div>
+  `;
+}
+
+// ── INTERACTIONS (EVENT DELEGATION — NO DOM RE-RENDER) ───────────────
+document.addEventListener('click', function(e) {
+  // Handle option row clicks
+  const row = e.target.closest('.option-row');
+  if (row && !e.target.classList.contains('other-input')) {
+    const key = row.dataset.key;
+    const choice = row.dataset.choice === 'other' ? 'other' : parseInt(row.dataset.choice);
+    selectOption(key, choice);
+  }
+});
+
+document.addEventListener('input', function(e) {
+  if (e.target.classList.contains('other-input')) {
+    const key = e.target.dataset.key;
+    if (!decisions[key]) decisions[key] = {};
+    decisions[key].other = e.target.value;
+    scheduleSave();
+  }
+  if (e.target.classList.contains('notes-input')) {
+    const key = e.target.dataset.key;
+    if (!decisions[key]) decisions[key] = {};
+    decisions[key].notes = e.target.value;
+    scheduleSave();
+  }
+});
+
+document.addEventListener('focus', function(e) {
+  if (e.target.classList.contains('other-input')) {
+    const key = e.target.dataset.key;
+    selectOption(key, 'other');
+  }
+}, true);
+
+function selectOption(key, choice) {
+  if (!decisions[key]) decisions[key] = {};
+  decisions[key].choice = choice;
+
+  // Update DOM without re-rendering — just toggle classes and radio states
+  const card = document.getElementById(`item-${key}`);
+  if (!card) return;
+
+  card.classList.add('decided');
+
+  card.querySelectorAll('.option-row').forEach(row => {
+    const radio = row.querySelector('input[type="radio"]');
+    const rowChoice = row.dataset.choice === 'other' ? 'other' : parseInt(row.dataset.choice);
+    const isMatch = rowChoice === choice;
+    row.classList.toggle('selected', isMatch);
+    radio.checked = isMatch;
+  });
+
+  updateProgress();
+  scheduleSave();
+}
+
+function toggleDetail(btn) {
+  const detail = btn.nextElementSibling;
+  btn.classList.toggle('open');
+  detail.classList.toggle('open');
+}
+
+function updateProgress() {
+  const decided = Object.values(decisions).filter(d => d.choice !== undefined).length;
+  const total = ITEMS.length;
+  const pct = (decided / total * 100).toFixed(0);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${decided} / ${total}`;
+  document.getElementById('decidedCount').textContent = decided;
+}
+
+// ── PERSISTENCE ─────────────────────────────────────────────────────
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    const data = {
+      version: 1,
+      pageId: PAGE_ID,
+      savedAt: new Date().toISOString(),
+      decisions: decisions
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    showSaveIndicator();
+  }, SAVE_DELAY);
+}
+
+function restoreState() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    if (data.version === 1 && data.decisions) {
+      Object.assign(decisions, data.decisions);
+      // Restore DOM state
+      for (const [key, d] of Object.entries(decisions)) {
+        if (d.choice === undefined) continue;
+        const card = document.getElementById(`item-${key}`);
+        if (!card) continue;
+        card.classList.add('decided');
+        card.querySelectorAll('.option-row').forEach(row => {
+          const rowChoice = row.dataset.choice === 'other' ? 'other' : parseInt(row.dataset.choice);
+          const isMatch = rowChoice === d.choice;
+          row.classList.toggle('selected', isMatch);
+          row.querySelector('input[type="radio"]').checked = isMatch;
+        });
+        if (d.other) {
+          const otherInput = card.querySelector('.other-input');
+          if (otherInput) otherInput.value = d.other;
+        }
+        if (d.notes) {
+          const notesInput = card.querySelector('.notes-input');
+          if (notesInput) notesInput.value = d.notes;
+        }
+      }
+      updateProgress();
+    }
+  } catch (e) { /* corrupted data, ignore */ }
+}
+
+function showSaveIndicator() {
+  const el = document.getElementById('saveIndicator');
+  el.classList.add('visible');
+  setTimeout(() => el.classList.remove('visible'), 1500);
+}
+
+function clearSavedData() {
+  if (!confirm('Clear all saved progress? This cannot be undone.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  Object.keys(decisions).forEach(k => delete decisions[k]);
+  render();
+}
+
+// ── EXPORT ──────────────────────────────────────────────────────────
+function copyDecisions() {
+  const output = {
+    session: "cdo-s8",
+    pageId: PAGE_ID,
+    savedAt: new Date().toISOString(),
+    timestamp: new Date().toISOString(),
+    total_items: ITEMS.length,
+    decided: 0,
+    decisions: {}
+  };
+
+  for (const item of ITEMS) {
+    const key = getKey(item);
+    const d = decisions[key];
+    const entry = {
+      id: item.id,
+      bucket: item.bucket,
+      bucket_name: BUCKET_NAMES[item.bucket],
+      title: item.title,
+      wave: item.wave,
+      choice: null,
+      choice_label: null,
+      other_text: null,
+      notes: null
+    };
+
+    if (d && d.choice !== undefined) {
+      output.decided++;
+      if (d.choice === 'other') {
+        entry.choice = 'other';
+        entry.choice_label = d.other || '(no text)';
+        entry.other_text = d.other || null;
+      } else {
+        entry.choice = d.choice;
+        entry.choice_label = item.options[d.choice].label;
+        entry.other_text = null;
+      }
+      entry.notes = d.notes || null;
+    }
+
+    output.decisions[key] = entry;
+  }
+
+  const json = JSON.stringify(output, null, 2);
+
+  navigator.clipboard.writeText(json).then(() => {
+    showToast('Decisions copied to clipboard');
+  }).catch(() => {
+    const w = window.open('', '_blank');
+    w.document.write('<pre>' + json + '</pre>');
+    showToast('Opened in new tab (clipboard blocked)');
+  });
+
+  console.log('CDO S8 Decisions:', output);
+}
+
+function resetAll() {
+  if (!confirm('Reset all decisions? This cannot be undone.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  Object.keys(decisions).forEach(k => delete decisions[k]);
+  render();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── INIT ────────────────────────────────────────────────────────────
+render();
+restoreState();
+</script>
+</body>
+</html>

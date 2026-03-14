@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebSocket Connection Pool — Implementation Plan</title>
+<!--
+  Reference template for the visual-explainer skill: Implementation Plans.
+  Blueprint aesthetic — deep slate/blue palette, monospace labels, precise borders.
+  Key patterns demonstrated:
+  - Plus Jakarta Sans + Azeret Mono font pairing
+  - Blueprint grid background (linear-gradient cross-hatch)
+  - data-theme override + theme toggle
+  - Mermaid state machine with zoom controls, scroll zoom, drag pan
+  - Prism.js syntax highlighting with palette overrides
+  - Before/After comparison panels (rose vs sage tint)
+  - Code blocks with file path headers, white-space: pre-wrap
+  - Severity badges in edge case table
+  - Callout boxes with colored left borders
+  - Sticky TOC nav, responsive
+  - Depth tiers: hero, elevated, default, recessed
+  - Print stylesheet
+  - Overflow protection
+  - Anti-slop compliance (no Inter/Roboto, no violet/indigo)
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Azeret+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism.min.css" rel="stylesheet">
+<style>
+  /* ============ THEME ============ */
+  :root {
+    --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-mono: 'Azeret Mono', 'SF Mono', Consolas, monospace;
+
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --surface-elevated: #ffffff;
+    --surface2: #e2e8f0;
+    --border: rgba(0, 0, 0, 0.08);
+    --border-bright: rgba(0, 0, 0, 0.16);
+    --text: #1a2332;
+    --text-dim: #64748b;
+
+    --accent: #2563eb;
+    --accent-dim: rgba(37, 99, 235, 0.08);
+    --green: #16a34a;
+    --green-dim: rgba(22, 163, 74, 0.08);
+    --red: #dc2626;
+    --red-dim: rgba(220, 38, 38, 0.08);
+    --amber: #d97706;
+    --amber-dim: rgba(217, 119, 6, 0.08);
+    --rose: #e11d48;
+    --rose-dim: rgba(225, 29, 72, 0.06);
+    --sage: #059669;
+    --sage-dim: rgba(5, 150, 105, 0.06);
+    --gold: #b45309;
+    --gold-dim: rgba(180, 83, 9, 0.08);
+    --slate: #475569;
+
+    --code-bg: #f1f5f9;
+
+    --grid-color: rgba(37, 99, 235, 0.04);
+    --grid-color-strong: rgba(37, 99, 235, 0.07);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a2332;
+      --surface: #1e293b;
+      --surface-elevated: #243044;
+      --surface2: #334155;
+      --border: rgba(255, 255, 255, 0.07);
+      --border-bright: rgba(255, 255, 255, 0.14);
+      --text: #e2e8f0;
+      --text-dim: #94a3b8;
+
+      --accent: #60a5fa;
+      --accent-dim: rgba(96, 165, 250, 0.12);
+      --green: #4ade80;
+      --green-dim: rgba(74, 222, 128, 0.10);
+      --red: #fb7185;
+      --red-dim: rgba(251, 113, 133, 0.10);
+      --amber: #fbbf24;
+      --amber-dim: rgba(251, 191, 36, 0.10);
+      --rose: #fb7185;
+      --rose-dim: rgba(251, 113, 133, 0.08);
+      --sage: #34d399;
+      --sage-dim: rgba(52, 211, 153, 0.08);
+      --gold: #fbbf24;
+      --gold-dim: rgba(251, 191, 36, 0.10);
+      --slate: #94a3b8;
+
+      --code-bg: #0f172a;
+
+      --grid-color: rgba(96, 165, 250, 0.03);
+      --grid-color-strong: rgba(96, 165, 250, 0.06);
+    }
+  }
+
+  [data-theme="light"] {
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --surface-elevated: #ffffff;
+    --surface2: #e2e8f0;
+    --border: rgba(0, 0, 0, 0.08);
+    --border-bright: rgba(0, 0, 0, 0.16);
+    --text: #1a2332;
+    --text-dim: #64748b;
+    --accent: #2563eb;
+    --accent-dim: rgba(37, 99, 235, 0.08);
+    --green: #16a34a;
+    --green-dim: rgba(22, 163, 74, 0.08);
+    --red: #dc2626;
+    --red-dim: rgba(220, 38, 38, 0.08);
+    --amber: #d97706;
+    --amber-dim: rgba(217, 119, 6, 0.08);
+    --rose: #e11d48;
+    --rose-dim: rgba(225, 29, 72, 0.06);
+    --sage: #059669;
+    --sage-dim: rgba(5, 150, 105, 0.06);
+    --gold: #b45309;
+    --gold-dim: rgba(180, 83, 9, 0.08);
+    --slate: #475569;
+    --code-bg: #f1f5f9;
+    --grid-color: rgba(37, 99, 235, 0.04);
+    --grid-color-strong: rgba(37, 99, 235, 0.07);
+  }
+
+  [data-theme="dark"] {
+    --bg: #1a2332;
+    --surface: #1e293b;
+    --surface-elevated: #243044;
+    --surface2: #334155;
+    --border: rgba(255, 255, 255, 0.07);
+    --border-bright: rgba(255, 255, 255, 0.14);
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --accent: #60a5fa;
+    --accent-dim: rgba(96, 165, 250, 0.12);
+    --green: #4ade80;
+    --green-dim: rgba(74, 222, 128, 0.10);
+    --red: #fb7185;
+    --red-dim: rgba(251, 113, 133, 0.10);
+    --amber: #fbbf24;
+    --amber-dim: rgba(251, 191, 36, 0.10);
+    --rose: #fb7185;
+    --rose-dim: rgba(251, 113, 133, 0.08);
+    --sage: #34d399;
+    --sage-dim: rgba(52, 211, 153, 0.08);
+    --gold: #fbbf24;
+    --gold-dim: rgba(251, 191, 36, 0.10);
+    --slate: #94a3b8;
+    --code-bg: #0f172a;
+    --grid-color: rgba(96, 165, 250, 0.03);
+    --grid-color-strong: rgba(96, 165, 250, 0.06);
+  }
+
+  /* ============ RESET + BASE ============ */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background-color: var(--bg);
+    background-image:
+      linear-gradient(var(--grid-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-color) 1px, transparent 1px),
+      linear-gradient(var(--grid-color-strong) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-color-strong) 1px, transparent 1px);
+    background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-wrap: break-word;
+  }
+
+  /* ============ ANIMATION ============ */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate {
+    animation: fadeUp 0.4s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.06s);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    .mermaid-wrap .mermaid { transition: none; }
+  }
+
+  /* ============ TOC NAV ============ */
+  .toc {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--bg) 85%, transparent 15%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 40px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .toc::-webkit-scrollbar { display: none; }
+
+  .toc__inner {
+    max-width: 1060px;
+    margin: 0 auto;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .toc a {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .toc a:hover {
+    background: var(--accent-dim);
+    color: var(--accent);
+  }
+
+  .toc__sep {
+    color: var(--border-bright);
+    font-size: 11px;
+    user-select: none;
+  }
+
+  /* ============ LAYOUT ============ */
+  .container {
+    max-width: 1060px;
+    margin: 0 auto;
+    padding: 40px;
+  }
+
+  section {
+    margin-bottom: 48px;
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--accent);
+    opacity: 0.4;
+  }
+
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+
+  p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-dim);
+  }
+
+  p + p { margin-top: 10px; }
+
+  p code, li code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* ============ VE-CARD + DEPTH TIERS ============ */
+  .ve-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .ve-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  }
+
+  .ve-card--hero {
+    background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+    border-color: color-mix(in srgb, var(--border) 50%, var(--accent) 50%);
+  }
+
+  .ve-card--elevated {
+    background: var(--surface-elevated);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  .ve-card--recessed {
+    background: color-mix(in srgb, var(--bg) 70%, var(--surface) 30%);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+    border-color: var(--border);
+  }
+
+  .ve-card--recessed:hover {
+    transform: none;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+  }
+
+  /* ============ HEADER ============ */
+  .header {
+    text-align: center;
+    padding: 60px 20px 40px;
+  }
+
+  .header__label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .header h1 {
+    font-size: 36px;
+    font-weight: 700;
+    font-style: italic;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+    text-wrap: balance;
+  }
+
+  .header__scope {
+    font-size: 14px;
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+
+  .header__scope code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  /* ============ BEFORE / AFTER PANELS ============ */
+  .diff-panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .diff-panels > * { min-width: 0; overflow-wrap: break-word; }
+
+  .diff-panel {
+    padding: 24px;
+  }
+
+  .diff-panel--before {
+    background: var(--rose-dim);
+    border-right: 1px solid var(--border);
+  }
+
+  .diff-panel--after {
+    background: var(--sage-dim);
+  }
+
+  .diff-panel__header {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .diff-panel--before .diff-panel__header { color: var(--rose); }
+  .diff-panel--after .diff-panel__header { color: var(--sage); }
+
+  .diff-panel__header::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  .diff-panel--before .diff-panel__header::before { background: var(--rose); }
+  .diff-panel--after .diff-panel__header::before { background: var(--sage); }
+
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+  }
+
+  .flow-step + .flow-step {
+    border-top: 1px solid var(--border);
+  }
+
+  .flow-step__num {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .diff-panel--before .flow-step__num {
+    background: var(--rose-dim);
+    color: var(--rose);
+    border: 1px solid color-mix(in srgb, var(--rose) 30%, transparent 70%);
+  }
+
+  .diff-panel--after .flow-step__num {
+    background: var(--sage-dim);
+    color: var(--sage);
+    border: 1px solid color-mix(in srgb, var(--sage) 30%, transparent 70%);
+  }
+
+  .flow-step__text {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text);
+    padding-top: 2px;
+  }
+
+  .flow-step__text code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+
+  /* ============ MERMAID ============ */
+  .mermaid-wrap {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px 24px;
+    overflow: auto;
+    margin-bottom: 12px;
+  }
+
+  .mermaid-wrap .mermaid {
+    display: flex;
+    justify-content: center;
+    transition: transform 0.2s ease;
+    transform-origin: top center;
+  }
+
+  .mermaid-caption {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: center;
+    margin-top: 4px;
+    margin-bottom: 16px;
+  }
+
+  .zoom-controls {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 2px;
+    z-index: 10;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px;
+  }
+
+  .zoom-controls button {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .zoom-controls button:hover {
+    background: var(--border);
+    color: var(--text);
+  }
+
+  .mermaid-wrap {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .mermaid-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
+  .mermaid-wrap::-webkit-scrollbar-track { background: transparent; }
+  .mermaid-wrap::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+  .mermaid-wrap::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+  .mermaid-wrap.is-zoomed { cursor: grab; }
+  .mermaid-wrap.is-panning { cursor: grabbing; user-select: none; }
+
+  /* ============ MERMAID SVG OVERRIDES ============ */
+  .mermaid .nodeLabel {
+    font-family: var(--font-body) !important;
+    font-size: 14px !important;
+    color: var(--text) !important;
+  }
+
+  .mermaid .edgeLabel {
+    font-family: var(--font-mono) !important;
+    font-size: 12px !important;
+    color: var(--text-dim) !important;
+    background-color: var(--bg) !important;
+  }
+
+  .mermaid .edgeLabel rect { fill: var(--bg) !important; }
+
+  .mermaid .node rect,
+  .mermaid .node circle,
+  .mermaid .node polygon {
+    stroke-width: 1.5px !important;
+  }
+
+  .mermaid .edge-pattern-solid {
+    stroke-width: 1.5px !important;
+  }
+
+  /* ============ CARD GRID ============ */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .card-grid--3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* ============ CODE BLOCKS (Prism overrides) ============ */
+  code[class*="language-"],
+  pre[class*="language-"] {
+    font-family: var(--font-mono) !important;
+    font-size: 13px !important;
+    line-height: 1.6 !important;
+    color: var(--text) !important;
+    background: none !important;
+    text-shadow: none !important;
+  }
+
+  pre[class*="language-"] {
+    background: var(--code-bg) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+    padding: 16px 20px !important;
+    overflow-x: auto !important;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+  }
+
+  .token.comment, .token.prolog { color: var(--text-dim); font-style: italic; }
+  .token.keyword, .token.tag { color: var(--accent); font-weight: 500; }
+  .token.function { color: var(--green); }
+  .token.string, .token.attr-value { color: var(--amber); }
+  .token.number, .token.boolean { color: var(--amber); }
+  .token.operator, .token.punctuation { color: var(--text-dim); }
+  .token.class-name, .token.type { color: var(--accent); }
+  .token.property { color: var(--text); }
+
+  .token.deleted { color: var(--red); background: var(--red-dim); display: inline-block; width: 100%; }
+  .token.inserted { color: var(--green); background: var(--green-dim); display: inline-block; width: 100%; }
+
+  /* Code file with header */
+  .code-file {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 12px;
+  }
+
+  .code-file__header {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    background: var(--surface2);
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-file pre[class*="language-"] {
+    border: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+  }
+
+  .code-explanation {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-dim);
+    margin-top: 12px;
+  }
+
+  /* Diff-style additions in code */
+  .diff-add {
+    display: block;
+    background: var(--green-dim);
+    border-left: 3px solid var(--green);
+    padding-left: 8px;
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-right: 20px;
+  }
+
+  /* ============ TABLES ============ */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+
+  th {
+    background: var(--surface2);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+
+  td code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: var(--accent-dim); }
+
+  /* ============ BADGES ============ */
+  .badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .badge--high {
+    background: var(--red-dim);
+    color: var(--red);
+    border: 1px solid color-mix(in srgb, var(--red) 20%, transparent 80%);
+  }
+
+  .badge--medium {
+    background: var(--amber-dim);
+    color: var(--amber);
+    border: 1px solid color-mix(in srgb, var(--amber) 20%, transparent 80%);
+  }
+
+  .badge--low {
+    background: var(--green-dim);
+    color: var(--green);
+    border: 1px solid color-mix(in srgb, var(--green) 20%, transparent 80%);
+  }
+
+  /* ============ CALLOUT BOXES ============ */
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    padding: 16px 20px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-dim);
+  }
+
+  .callout strong { color: var(--text); }
+
+  .callout code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  .callout--gold { border-left-color: var(--gold); }
+  .callout--rose { border-left-color: var(--rose); }
+  .callout--amber { border-left-color: var(--amber); }
+
+  .callout__title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .callout--gold .callout__title { color: var(--gold); }
+  .callout--rose .callout__title { color: var(--rose); }
+  .callout--amber .callout__title { color: var(--amber); }
+
+  .callout-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  /* ============ THEME TOGGLE ============ */
+  .theme-toggle {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 100;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: background 0.15s ease;
+  }
+
+  .theme-toggle:hover { background: var(--accent-dim); }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 768px) {
+    .container { padding: 20px 16px; }
+    .toc { padding: 8px 16px; }
+    .header { padding: 40px 16px 24px; }
+    .header h1 { font-size: 24px; }
+    .diff-panels { grid-template-columns: 1fr; }
+    .diff-panel--before { border-right: none; border-bottom: 1px solid var(--border); }
+    .card-grid { grid-template-columns: 1fr; }
+    .card-grid--3 { grid-template-columns: 1fr; }
+    .callout-grid { grid-template-columns: 1fr; }
+    .mermaid-wrap { padding: 16px 12px; }
+    table { font-size: 12px; }
+    th, td { padding: 8px 10px; }
+  }
+
+  /* ============ PRINT ============ */
+  @media print {
+    :root {
+      --bg: #ffffff !important;
+      --surface: #ffffff !important;
+      --surface-elevated: #ffffff !important;
+      --surface2: #f1f5f9 !important;
+      --border: #ddd !important;
+      --border-bright: #bbb !important;
+      --text: #1a1a1a !important;
+      --text-dim: #555 !important;
+      --code-bg: #f5f5f5 !important;
+    }
+
+    body {
+      background: white !important;
+      background-image: none !important;
+      color: #1a1a1a !important;
+      padding: 0.5in !important;
+      font-size: 11pt !important;
+      min-height: auto !important;
+    }
+
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .zoom-controls,
+    .theme-toggle { display: none !important; }
+
+    .toc {
+      position: static !important;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 1em;
+      padding-bottom: 0.5em;
+    }
+
+    .ve-card, section, tr, .mermaid-wrap, .callout {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .mermaid-wrap {
+      overflow: visible !important;
+      max-height: none !important;
+      border: 1px solid #ddd !important;
+    }
+
+    .ve-card:hover {
+      transform: none !important;
+      box-shadow: none !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Theme toggle -->
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle light/dark theme">
+  <span class="theme-toggle__icon">&#9681;</span>
+</button>
+
+<!-- Sticky TOC -->
+<nav class="toc">
+  <div class="toc__inner">
+    <a href="#problem">Problem</a>
+    <span class="toc__sep">/</span>
+    <a href="#state-machine">State Machine</a>
+    <span class="toc__sep">/</span>
+    <a href="#state-vars">State Variables</a>
+    <span class="toc__sep">/</span>
+    <a href="#functions">Functions</a>
+    <span class="toc__sep">/</span>
+    <a href="#api">API Surface</a>
+    <span class="toc__sep">/</span>
+    <a href="#edge-cases">Edge Cases</a>
+    <span class="toc__sep">/</span>
+    <a href="#notes">Notes</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- ============ HEADER ============ -->
+  <header class="header ve-card ve-card--hero animate" style="--i:0">
+    <div class="header__label">Implementation Plan</div>
+    <h1>WebSocket Connection Pool</h1>
+    <p class="header__scope">
+      Scope: <code>src/net/ws/</code> &mdash; connection lifecycle, pooling, and graceful degradation
+    </p>
+  </header>
+
+  <!-- ============ THE PROBLEM ============ -->
+  <section id="problem" class="animate" style="--i:1">
+    <div class="section-label">Context</div>
+    <h2>The Problem</h2>
+    <p style="margin-bottom: 20px;">
+      Each component creates its own WebSocket connection. Under load, the browser hits the 6-connection-per-origin limit,
+      requests queue silently, and users see stale data with no error feedback. A shared connection pool with lifecycle management
+      eliminates the bottleneck.
+    </p>
+
+    <div class="diff-panels ve-card--elevated" style="border-radius: 10px;">
+      <div class="diff-panel diff-panel--before">
+        <div class="diff-panel__header">Current</div>
+        <div class="flow-step">
+          <span class="flow-step__num">1</span>
+          <span class="flow-step__text">Component mounts, calls <code>new WebSocket(url)</code> directly</span>
+        </div>
+        <div class="flow-step">
+          <span class="flow-step__num">2</span>
+          <span class="flow-step__text">Each subscription opens a dedicated socket &mdash; no sharing</span>
+        </div>
+        <div class="flow-step">
+          <span class="flow-step__num">3</span>
+          <span class="flow-step__text">Browser hits 6-connection limit; new sockets queue behind closed ones</span>
+        </div>
+        <div class="flow-step">
+          <span class="flow-step__num">4</span>
+          <span class="flow-step__text">Silent failures: components show stale data, no reconnect logic</span>
+        </div>
+      </div>
+      <div class="diff-panel diff-panel--after">
+        <div class="diff-panel__header">Proposed</div>
+        <div class="flow-step">
+          <span class="flow-step__num">1</span>
+          <span class="flow-step__text">Components call <code>pool.acquire(channel)</code> &mdash; pool manages sockets</span>
+        </div>
+        <div class="flow-step">
+          <span class="flow-step__num">2</span>
+          <span class="flow-step__text">Multiplexed channels share a single socket per origin</span>
+        </div>
+        <div class="flow-step">
+          <span class="flow-step__num">3</span>
+          <span class="flow-step__text">Pool enforces <code>maxConnections</code> with backpressure queue</span>
+        </div>
+        <div class="flow-step">
+          <span class="flow-step__num">4</span>
+          <span class="flow-step__text">Automatic reconnect with exponential backoff; health status exposed</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STATE MACHINE ============ -->
+  <section id="state-machine" class="animate" style="--i:2">
+    <div class="section-label">Architecture</div>
+    <h2>Connection State Machine</h2>
+
+    <div class="mermaid-wrap ve-card--elevated">
+      <div class="zoom-controls">
+        <button onclick="zoomDiagram(this, 1.2)" title="Zoom in">+</button>
+        <button onclick="zoomDiagram(this, 0.8)" title="Zoom out">&minus;</button>
+        <button onclick="resetZoom(this)" title="Reset zoom">&#8634;</button>
+      </div>
+      <pre class="mermaid">
+        graph TD
+          IDLE[Idle] -->|acquire| CONNECTING[Connecting]
+          CONNECTING -->|open| READY[Ready]
+          CONNECTING -->|error| BACKOFF[Backoff]
+          READY -->|message| READY
+          READY -->|close| DRAINING[Draining]
+          READY -->|error| BACKOFF
+          DRAINING -->|drained| IDLE
+          BACKOFF -->|retry| CONNECTING
+          BACKOFF -->|max retries| DEAD[Dead]
+          DEAD -->|reset| IDLE
+      </pre>
+    </div>
+    <p class="mermaid-caption">
+      Fig 1. Connection lifecycle. Each pool slot transitions independently. Dead connections require explicit <code>pool.reset()</code>.
+    </p>
+  </section>
+
+  <!-- ============ STATE VARIABLES ============ -->
+  <section id="state-vars" class="animate" style="--i:3">
+    <div class="section-label">Data Model</div>
+    <h2>State Variables</h2>
+
+    <div class="card-grid">
+      <div class="ve-card">
+        <h3>New State</h3>
+        <p style="margin-bottom: 12px;">Core pool state introduced in <code>src/net/ws/pool.ts</code></p>
+        <div class="code-file">
+          <div class="code-file__header">src/net/ws/pool.ts</div>
+          <pre><code class="language-typescript">interface PoolState {
+  connections: Map&lt;string, PooledSocket&gt;;
+  maxSize: number;
+  backpressureQueue: AcquireRequest[];
+  healthCheckInterval: number;
+}
+
+interface PooledSocket {
+  socket: WebSocket;
+  refCount: number;
+  channels: Set&lt;string&gt;;
+  state: ConnectionState;
+  lastActivity: number;
+  retryCount: number;
+}</code></pre>
+        </div>
+      </div>
+      <div class="ve-card">
+        <h3>Modified State</h3>
+        <p style="margin-bottom: 12px;">Changes to existing <code>AppContext</code> interface</p>
+        <div class="code-file">
+          <div class="code-file__header">src/context.ts — diff</div>
+          <pre><code class="language-diff"> interface AppContext {
+   config: AppConfig;
+   logger: Logger;
+-  ws?: WebSocket;
++  wsPool: ConnectionPool;
++  wsMetrics: PoolMetrics;
+   cache: CacheLayer;
+   auth: AuthProvider;
++  onPoolDegraded?: (evt: DegradedEvent) => void;
+ }</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MODIFIED FUNCTIONS ============ -->
+  <section id="functions" class="animate" style="--i:4">
+    <div class="section-label">Implementation</div>
+    <h2>Modified Functions</h2>
+
+    <div class="card-grid--3 card-grid">
+      <div class="ve-card">
+        <h3><code>acquire</code></h3>
+        <div class="code-file">
+          <div class="code-file__header">src/net/ws/pool.ts</div>
+          <pre><code class="language-typescript">async acquire(
+  channel: string,
+  opts?: AcquireOpts
+): Promise&lt;PooledSocket&gt; {
+  const key = this.originKey(channel);
+  const existing = this.connections.get(key);
+
+  if (existing?.state === 'ready') {
+    existing.refCount++;
+    existing.channels.add(channel);
+    return existing;
+  }
+
+  if (this.connections.size >= this.maxSize) {
+    return this.enqueueRequest(channel, opts);
+  }
+
+  return this.createConnection(key, channel);
+}</code></pre>
+        </div>
+        <p class="code-explanation">
+          Reuses existing sockets when possible. If the pool is full, the request enters a backpressure queue
+          with an optional timeout from <code>opts.timeout</code>.
+        </p>
+      </div>
+
+      <div class="ve-card">
+        <h3><code>release</code></h3>
+        <div class="code-file">
+          <div class="code-file__header">src/net/ws/pool.ts</div>
+          <pre><code class="language-typescript">release(
+  channel: string
+): void {
+  const key = this.originKey(channel);
+  const conn = this.connections.get(key);
+  if (!conn) return;
+
+  conn.channels.delete(channel);
+  conn.refCount--;
+
+  if (conn.refCount <= 0) {
+    conn.state = 'draining';
+    this.scheduleDrain(key, conn);
+  }
+}</code></pre>
+        </div>
+        <p class="code-explanation">
+          Decrements the reference count. When no channels remain, the connection
+          transitions to draining with a configurable grace period before actual close.
+        </p>
+      </div>
+
+      <div class="ve-card">
+        <h3><code>reconnect</code></h3>
+        <div class="code-file">
+          <div class="code-file__header">src/net/ws/backoff.ts</div>
+          <pre><code class="language-typescript">async reconnect(
+  key: string,
+  conn: PooledSocket
+): Promise&lt;void&gt; {
+  if (conn.retryCount >= MAX_RETRIES) {
+    conn.state = 'dead';
+    this.emit('dead', { key });
+    return;
+  }
+
+  conn.state = 'backoff';
+  const delay = baseDelay * 2 ** conn.retryCount;
+  await sleep(Math.min(delay, MAX_DELAY));
+
+  conn.retryCount++;
+  conn.state = 'connecting';
+  await this.openSocket(key, conn);
+}</code></pre>
+        </div>
+        <p class="code-explanation">
+          Exponential backoff with a ceiling. After <code>MAX_RETRIES</code>, the slot is marked dead
+          and an event is emitted so the UI can show a degradation notice.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ API SURFACE ============ -->
+  <section id="api" class="animate" style="--i:5">
+    <div class="section-label">Interface</div>
+    <h2>API Surface</h2>
+
+    <div class="table-wrap ve-card">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Function</th>
+              <th>Parameters</th>
+              <th>Returns</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>pool.acquire</code></td>
+              <td><code>channel: string, opts?: AcquireOpts</code></td>
+              <td><code>Promise&lt;PooledSocket&gt;</code></td>
+              <td>Get or create a socket for the given channel. Queues if pool is full.</td>
+            </tr>
+            <tr>
+              <td><code>pool.release</code></td>
+              <td><code>channel: string</code></td>
+              <td><code>void</code></td>
+              <td>Release a channel subscription. Socket closes when refCount hits zero.</td>
+            </tr>
+            <tr>
+              <td><code>pool.health</code></td>
+              <td>&mdash;</td>
+              <td><code>PoolHealth</code></td>
+              <td>Snapshot of pool state: active, idle, draining, dead counts.</td>
+            </tr>
+            <tr>
+              <td><code>pool.reset</code></td>
+              <td><code>key?: string</code></td>
+              <td><code>void</code></td>
+              <td>Force-reset a dead connection slot (or all if no key). Transitions to idle.</td>
+            </tr>
+            <tr>
+              <td><code>pool.drain</code></td>
+              <td>&mdash;</td>
+              <td><code>Promise&lt;void&gt;</code></td>
+              <td>Gracefully close all connections. Resolves when all sockets are closed.</td>
+            </tr>
+            <tr>
+              <td><code>pool.on</code></td>
+              <td><code>event: PoolEvent, handler: Function</code></td>
+              <td><code>Unsubscribe</code></td>
+              <td>Subscribe to pool events: <code>ready</code>, <code>dead</code>, <code>degraded</code>, <code>recovered</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EDGE CASES ============ -->
+  <section id="edge-cases" class="animate" style="--i:6">
+    <div class="section-label">Risks</div>
+    <h2>Edge Cases</h2>
+
+    <div class="table-wrap ve-card ve-card--recessed">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Scenario</th>
+              <th>Expected Behavior</th>
+              <th>Severity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Server sends close frame during active subscription</td>
+              <td>Pool enters backoff for that slot; subscribers receive <code>onReconnecting</code> event. Messages buffer until reconnect succeeds or max retries exhausted.</td>
+              <td><span class="badge badge--high">High</span></td>
+            </tr>
+            <tr>
+              <td>Component unmounts before <code>acquire</code> resolves</td>
+              <td>Pending request is removed from backpressure queue. If socket already opened, immediate <code>release</code> triggers drain.</td>
+              <td><span class="badge badge--medium">Medium</span></td>
+            </tr>
+            <tr>
+              <td>Network goes offline then back online</td>
+              <td>All active connections enter backoff simultaneously. Reconnect attempts are jittered to avoid thundering herd on the server.</td>
+              <td><span class="badge badge--high">High</span></td>
+            </tr>
+            <tr>
+              <td>Pool full and backpressure queue timeout expires</td>
+              <td>Queued request rejects with <code>PoolExhaustedError</code>. Component receives the error and can fall back to HTTP polling.</td>
+              <td><span class="badge badge--medium">Medium</span></td>
+            </tr>
+            <tr>
+              <td>Two components acquire same channel simultaneously</td>
+              <td>First acquire creates connection; second finds it in <code>connecting</code> state and awaits the same ready promise. No duplicate sockets.</td>
+              <td><span class="badge badge--low">Low</span></td>
+            </tr>
+            <tr>
+              <td>Health check finds zombie socket (open but no pong)</td>
+              <td>Pool force-closes the socket, transitions to backoff, and logs a warning with the last activity timestamp.</td>
+              <td><span class="badge badge--medium">Medium</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ IMPLEMENTATION NOTES ============ -->
+  <section id="notes" class="animate" style="--i:7">
+    <div class="section-label">Guidance</div>
+    <h2>Implementation Notes</h2>
+
+    <div class="callout-grid">
+      <div class="callout callout--gold">
+        <div class="callout__title">Backward Compatibility</div>
+        The existing <code>useWebSocket(url)</code> hook remains functional but becomes a thin wrapper around
+        <code>pool.acquire</code>. Existing components require no changes. The <code>ws</code> property on
+        <code>AppContext</code> is removed &mdash; any direct references (grep for <code>ctx.ws</code>) need updating
+        before merge.
+      </div>
+      <div class="callout callout--rose">
+        <div class="callout__title">Critical Warning</div>
+        Do not share a pool across workers. Each <code>Worker</code> or <code>SharedWorker</code> must instantiate
+        its own pool &mdash; WebSocket instances are not transferable via <code>postMessage</code>. Attempting to pass
+        a pooled socket to a worker will silently fail with a <code>DataCloneError</code>.
+      </div>
+      <div class="callout callout--amber">
+        <div class="callout__title">Performance Note</div>
+        The health check interval defaults to 30s. Under high-throughput scenarios (1000+ messages/sec),
+        reduce the ping/pong timeout to 5s to detect zombie connections faster. The <code>healthCheckInterval</code>
+        config accepts milliseconds. Memory overhead per pooled socket: ~2KB baseline + message buffer.
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Prism.js -->
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1/plugins/autoloader/prism-autoloader.min.js"></script>
+
+<!-- Mermaid -->
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+  const themeAttr = document.documentElement.getAttribute('data-theme');
+  const isDark = themeAttr
+    ? themeAttr === 'dark'
+    : window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    look: 'classic',
+    themeVariables: {
+      primaryColor: isDark ? '#243044' : '#e0e7ff',
+      primaryBorderColor: isDark ? '#60a5fa' : '#2563eb',
+      primaryTextColor: isDark ? '#e2e8f0' : '#1a2332',
+      secondaryColor: isDark ? '#1e3a2f' : '#dcfce7',
+      secondaryBorderColor: isDark ? '#4ade80' : '#16a34a',
+      secondaryTextColor: isDark ? '#e2e8f0' : '#1a2332',
+      tertiaryColor: isDark ? '#2e2618' : '#fef3c7',
+      tertiaryBorderColor: isDark ? '#fbbf24' : '#d97706',
+      tertiaryTextColor: isDark ? '#e2e8f0' : '#1a2332',
+      lineColor: isDark ? '#64748b' : '#94a3b8',
+      fontSize: '14px',
+      fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+      noteBkgColor: isDark ? '#243044' : '#f0f4f8',
+      noteTextColor: isDark ? '#e2e8f0' : '#1a2332',
+      noteBorderColor: isDark ? '#60a5fa' : '#2563eb',
+    }
+  });
+</script>
+
+<!-- Zoom + Pan controls -->
+<script>
+  function updateZoomState(wrap) {
+    var target = wrap.querySelector('.mermaid');
+    var zoom = parseFloat(target.dataset.zoom || '1');
+    wrap.classList.toggle('is-zoomed', zoom > 1);
+  }
+
+  function zoomDiagram(btn, factor) {
+    var wrap = btn.closest('.mermaid-wrap');
+    var target = wrap.querySelector('.mermaid');
+    var current = parseFloat(target.dataset.zoom || '1');
+    var next = Math.min(Math.max(current * factor, 0.3), 5);
+    target.dataset.zoom = next;
+    target.style.transform = 'scale(' + next + ')';
+    updateZoomState(wrap);
+  }
+
+  function resetZoom(btn) {
+    var wrap = btn.closest('.mermaid-wrap');
+    var target = wrap.querySelector('.mermaid');
+    target.dataset.zoom = '1';
+    target.style.transform = 'scale(1)';
+    updateZoomState(wrap);
+  }
+
+  document.querySelectorAll('.mermaid-wrap').forEach(function(wrap) {
+    wrap.addEventListener('wheel', function(e) {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      var target = wrap.querySelector('.mermaid');
+      var current = parseFloat(target.dataset.zoom || '1');
+      var factor = e.deltaY < 0 ? 1.1 : 0.9;
+      var next = Math.min(Math.max(current * factor, 0.3), 5);
+      target.dataset.zoom = next;
+      target.style.transform = 'scale(' + next + ')';
+      updateZoomState(wrap);
+    }, { passive: false });
+
+    var startX, startY, scrollL, scrollT;
+    wrap.addEventListener('mousedown', function(e) {
+      if (e.target.closest('.zoom-controls')) return;
+      var target = wrap.querySelector('.mermaid');
+      if (parseFloat(target.dataset.zoom || '1') <= 1) return;
+      wrap.classList.add('is-panning');
+      startX = e.clientX;
+      startY = e.clientY;
+      scrollL = wrap.scrollLeft;
+      scrollT = wrap.scrollTop;
+    });
+    window.addEventListener('mousemove', function(e) {
+      if (!wrap.classList.contains('is-panning')) return;
+      wrap.scrollLeft = scrollL - (e.clientX - startX);
+      wrap.scrollTop = scrollT - (e.clientY - startY);
+    });
+    window.addEventListener('mouseup', function() {
+      wrap.classList.remove('is-panning');
+    });
+  });
+
+  /* Theme toggle */
+  function toggleTheme() {
+    var html = document.documentElement;
+    var current = html.getAttribute('data-theme');
+    var isDarkOS = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (!current) {
+      html.setAttribute('data-theme', isDarkOS ? 'light' : 'dark');
+    } else {
+      html.removeAttribute('data-theme');
+    }
+  }
+</script>
+
+</body>
+</html>

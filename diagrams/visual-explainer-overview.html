@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>visual-explainer — Skill Overview v0.7.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============ THEME — Editorial: Deep Blue + Gold ============ */
+:root {
+  --font-body: 'Instrument Serif', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+  /* Light theme */
+  --bg: #f6f4f0;
+  --surface: #ffffff;
+  --surface2: #efece6;
+  --surface-elevated: #fffdf8;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-bright: rgba(0, 0, 0, 0.16);
+  --text: #1a1a2e;
+  --text-dim: #6b7280;
+  --accent: #1e3a5f;
+  --accent-dim: rgba(30, 58, 95, 0.08);
+  --gold: #d4a73a;
+  --gold-dim: rgba(212, 167, 58, 0.10);
+  --green: #2d6a4f;
+  --green-dim: rgba(45, 106, 79, 0.08);
+  --red: #9b2226;
+  --red-dim: rgba(155, 34, 38, 0.08);
+  --teal: #0e7c6b;
+  --teal-dim: rgba(14, 124, 107, 0.08);
+  --slate: #475569;
+  --slate-dim: rgba(71, 85, 105, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1520;
+    --surface: #171e2c;
+    --surface2: #1e2738;
+    --surface-elevated: #222d40;
+    --border: rgba(255, 255, 255, 0.07);
+    --border-bright: rgba(255, 255, 255, 0.14);
+    --text: #e8e4db;
+    --text-dim: #8899aa;
+    --accent: #6ea8d7;
+    --accent-dim: rgba(110, 168, 215, 0.12);
+    --gold: #e8c35a;
+    --gold-dim: rgba(232, 195, 90, 0.12);
+    --green: #52b788;
+    --green-dim: rgba(82, 183, 136, 0.10);
+    --red: #e76f6f;
+    --red-dim: rgba(231, 111, 111, 0.10);
+    --teal: #4fd1c5;
+    --teal-dim: rgba(79, 209, 197, 0.10);
+    --slate: #94a3b8;
+    --slate-dim: rgba(148, 163, 184, 0.10);
+  }
+}
+
+/* data-theme overrides for toggle */
+[data-theme="light"] {
+  --bg: #f6f4f0; --surface: #ffffff; --surface2: #efece6; --surface-elevated: #fffdf8;
+  --border: rgba(0,0,0,0.08); --border-bright: rgba(0,0,0,0.16);
+  --text: #1a1a2e; --text-dim: #6b7280;
+  --accent: #1e3a5f; --accent-dim: rgba(30,58,95,0.08);
+  --gold: #d4a73a; --gold-dim: rgba(212,167,58,0.10);
+  --green: #2d6a4f; --green-dim: rgba(45,106,79,0.08);
+  --red: #9b2226; --red-dim: rgba(155,34,38,0.08);
+  --teal: #0e7c6b; --teal-dim: rgba(14,124,107,0.08);
+  --slate: #475569; --slate-dim: rgba(71,85,105,0.08);
+}
+[data-theme="dark"] {
+  --bg: #0f1520; --surface: #171e2c; --surface2: #1e2738; --surface-elevated: #222d40;
+  --border: rgba(255,255,255,0.07); --border-bright: rgba(255,255,255,0.14);
+  --text: #e8e4db; --text-dim: #8899aa;
+  --accent: #6ea8d7; --accent-dim: rgba(110,168,215,0.12);
+  --gold: #e8c35a; --gold-dim: rgba(232,195,90,0.12);
+  --green: #52b788; --green-dim: rgba(82,183,136,0.10);
+  --red: #e76f6f; --red-dim: rgba(231,111,111,0.10);
+  --teal: #4fd1c5; --teal-dim: rgba(79,209,197,0.10);
+  --slate: #94a3b8; --slate-dim: rgba(148,163,184,0.10);
+}
+
+/* ============ RESET ============ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 25% 0%, var(--accent-dim) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 100%, var(--gold-dim) 0%, transparent 45%);
+  color: var(--text);
+  font-family: var(--font-body);
+  padding: 40px;
+  min-height: 100vh;
+  overflow-wrap: break-word;
+}
+
+/* ============ ANIMATION ============ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeScale {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.anim {
+  animation: fadeUp 0.45s ease-out both;
+  animation-delay: calc(var(--i, 0) * 0.07s);
+}
+.anim-scale {
+  animation: fadeScale 0.4s ease-out both;
+  animation-delay: calc(var(--i, 0) * 0.07s);
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============ LAYOUT (responsive nav) ============ */
+.wrap {
+  max-width: 1340px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 0 40px;
+}
+.main { min-width: 0; max-width: 1100px; }
+
+/* ============ TOC — Desktop ============ */
+.toc {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  padding: 14px 0;
+  grid-row: 1 / -1;
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+}
+.toc::-webkit-scrollbar { width: 3px; }
+.toc::-webkit-scrollbar-thumb { background: var(--surface-elevated); border-radius: 2px; }
+.toc-title {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  padding: 0 0 10px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.toc a {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 5px;
+  border-left: 2px solid transparent;
+  transition: all 0.15s;
+  line-height: 1.4;
+  margin-bottom: 1px;
+}
+.toc a:hover { color: var(--text); background: var(--surface2); }
+.toc a.active { color: var(--text); border-left-color: var(--gold); }
+
+/* ============ TOC — Mobile ============ */
+@media (max-width: 1000px) {
+  .wrap { grid-template-columns: 1fr; padding-top: 0; }
+  body { padding-top: 0; }
+  .toc {
+    position: sticky; top: 0; z-index: 200; max-height: none;
+    display: flex; gap: 4px; align-items: center;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    width: 100vw; max-width: 100vw; box-sizing: border-box;
+    margin-left: -40px;
+    grid-row: auto;
+  }
+  .toc::-webkit-scrollbar { display: none; }
+  .toc-title { display: none; }
+  .toc a {
+    white-space: nowrap; flex-shrink: 0; border-left: none;
+    border-bottom: 2px solid transparent; border-radius: 4px 4px 0 0;
+    padding: 6px 10px; font-size: 10px;
+  }
+  .toc a.active { border-left: none; border-bottom-color: var(--gold); background: var(--surface); }
+  .main { padding-top: 20px; }
+  .sec-head { scroll-margin-top: 52px; }
+}
+
+/* ============ SECTION HEADINGS ============ */
+.sec-head {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-top: 48px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-dim);
+}
+.sec-head .dot {
+  width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0;
+}
+
+/* ============ HERO ============ */
+.hero {
+  background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+  border: 1px solid color-mix(in srgb, var(--border) 50%, var(--accent) 50%);
+  border-radius: 14px;
+  padding: 48px 40px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.03);
+  margin-bottom: 12px;
+}
+.hero h1 {
+  font-size: 56px;
+  font-weight: 400;
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.hero .subtitle {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+.hero .version {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--gold);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ============ KPI CARDS ============ */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+  margin-top: 24px;
+}
+.kpi-card {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  text-align: center;
+}
+.kpi-card__value {
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+.kpi-card__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+
+/* ============ CARDS (ve-card) ============ */
+.ve-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  min-width: 0;
+}
+.ve-card--elevated {
+  background: var(--surface-elevated);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.03);
+}
+.ve-card--recessed {
+  background: color-mix(in srgb, var(--bg) 70%, var(--surface) 30%);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+.ve-card--hero {
+  background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  border-color: color-mix(in srgb, var(--border) 50%, var(--accent) 50%);
+}
+.ve-card h3 {
+  font-size: 18px;
+  font-weight: 400;
+  margin-bottom: 6px;
+}
+.ve-card p, .ve-card li {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+.ve-card code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+/* ============ MERMAID WRAP + ZOOM ============ */
+.mermaid-wrap {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px 24px;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  cursor: grab;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.mermaid-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
+.mermaid-wrap::-webkit-scrollbar-track { background: transparent; }
+.mermaid-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.mermaid-wrap.is-panning { cursor: grabbing; user-select: none; }
+.mermaid-wrap .mermaid { zoom: 1.3; }
+.mermaid .nodeLabel { color: var(--text) !important; }
+.mermaid .edgeLabel { color: var(--text-dim) !important; background-color: var(--bg) !important; }
+.mermaid .edgeLabel rect { fill: var(--bg) !important; }
+.mermaid .nodeLabel { font-family: var(--font-body) !important; font-size: 16px !important; }
+.mermaid .edgeLabel { font-family: var(--font-mono) !important; font-size: 12px !important; }
+
+.zoom-controls {
+  position: absolute; top: 8px; right: 8px;
+  display: flex; gap: 2px; z-index: 10;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 2px;
+}
+.zoom-controls button {
+  width: 28px; height: 28px; border: none; background: transparent;
+  color: var(--text-dim); font-family: var(--font-mono); font-size: 14px;
+  cursor: pointer; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.zoom-controls button:hover { background: var(--border); color: var(--text); }
+
+/* ============ FEATURE GRID (3-col) ============ */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.feature-grid .ve-card { transition: border-color 0.2s; }
+.feature-grid .ve-card:hover { border-color: var(--border-bright); }
+.feature-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  display: inline-block; margin-right: 6px; vertical-align: middle;
+}
+.feature-grid .ve-card .approach {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+
+/* ============ DATA TABLE ============ */
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+thead { position: sticky; top: 0; z-index: 2; }
+th {
+  background: var(--surface-elevated);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+tr:nth-child(even) { background: var(--surface2); }
+tr:hover { background: var(--accent-dim); }
+td code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+/* ============ BEFORE/AFTER ============ */
+.comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.comparison > * { min-width: 0; overflow-wrap: break-word; }
+.panel-before {
+  background: var(--red-dim);
+  border: 1px solid var(--red);
+  border-radius: 10px;
+  padding: 24px;
+}
+.panel-after {
+  background: var(--green-dim);
+  border: 1px solid var(--green);
+  border-radius: 10px;
+  padding: 24px;
+}
+.panel-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+.panel-before .panel-label { color: var(--red); }
+.panel-after .panel-label { color: var(--green); }
+.panel-before li, .panel-after li {
+  font-size: 13px;
+  line-height: 1.7;
+  margin-left: 16px;
+}
+
+/* ============ CALLOUT ============ */
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 10px 10px 0;
+  padding: 20px 24px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.callout strong { color: var(--text); }
+.callout code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+/* ============ PIPELINE (simple 3-step) ============ */
+.pipeline-simple {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.pipeline-step {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 20px;
+  text-align: center;
+  flex: 1;
+  min-width: 120px;
+}
+.pipeline-step .step-num {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+.pipeline-step .step-name {
+  font-size: 15px;
+  font-weight: 400;
+}
+.pipeline-step .step-detail {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  margin-top: 2px;
+}
+.pipeline-arrow {
+  font-size: 20px;
+  color: var(--border-bright);
+  flex-shrink: 0;
+  padding: 0 6px;
+}
+
+/* ============ v0.5 FEATURE CARDS ============ */
+.new-features {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+/* ============ ROADMAP STATUS ============ */
+.status-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.status-badge--idea { background: var(--slate-dim); color: var(--slate); }
+.status-badge--planned { background: var(--gold-dim); color: var(--gold); }
+.status-badge--next { background: var(--teal-dim); color: var(--teal); }
+.status-badge--done { background: var(--green-dim); color: var(--green); }
+
+/* ============ THEME TOGGLE ============ */
+.theme-toggle {
+  position: fixed; top: 12px; right: 12px; z-index: 300;
+  width: 36px; height: 36px; border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  color: var(--text-dim); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; line-height: 1;
+  transition: background 0.2s, border-color 0.2s;
+  padding: 0;
+}
+.theme-toggle:hover { border-color: var(--border-bright); color: var(--text); }
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 768px) {
+  body { padding: 16px; }
+  .toc { margin-left: -16px; }
+  .hero { padding: 32px 24px; }
+  .hero h1 { font-size: 36px; }
+  .feature-grid { grid-template-columns: 1fr; }
+  .comparison { grid-template-columns: 1fr; }
+  .new-features { grid-template-columns: 1fr; }
+  .kpi-row { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+  .pipeline-simple { flex-direction: column; }
+  .pipeline-arrow { transform: rotate(90deg); padding: 4px 0; }
+}
+
+/* ============ PRINT ============ */
+@media print {
+  :root {
+    --bg: #fff !important; --surface: #fff !important; --surface2: #f5f5f5 !important;
+    --surface-elevated: #fff !important; --border: rgba(0,0,0,0.12) !important;
+    --border-bright: rgba(0,0,0,0.2) !important; --text: #1a1a1a !important;
+    --text-dim: #555 !important;
+  }
+  body { background: white !important; background-image: none !important; color: #1a1a1a !important; padding: 0.5in !important; font-size: 11pt !important; min-height: auto !important; }
+  *, *::before, *::after { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; }
+  .zoom-controls, .theme-toggle { display: none !important; }
+  .toc { position: static !important; border-bottom: 1px solid #ccc; margin-bottom: 1em; padding-bottom: 0.5em; }
+  .ve-card, .section, .kpi-card, .inner-card, tr, .mermaid-wrap, .callout { break-inside: avoid; page-break-inside: avoid; }
+  .mermaid-wrap { overflow: visible !important; max-height: none !important; border: 1px solid #ddd !important; }
+  .mermaid-wrap .mermaid { zoom: 1 !important; transform: none !important; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 9pt; color: #888; word-break: break-all; }
+}
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle light/dark theme">&#9684;</button>
+
+<div class="wrap">
+
+  <!-- ============ TOC ============ -->
+  <nav class="toc" id="toc">
+    <div class="toc-title">Contents</div>
+    <a href="#s1">1. Identity</a>
+    <a href="#s2">2. How It Works</a>
+    <a href="#s3">3. What It Generates</a>
+    <a href="#s4">4. Command Interface</a>
+    <a href="#s5">5. Anti-Slop System</a>
+    <a href="#s6">6. New in v0.7.0</a>
+    <a href="#s7">7. here.now</a>
+    <a href="#s8">8. Roadmap</a>
+  </nav>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+
+    <!-- ============ 1. HERO ============ -->
+    <div id="s1" class="sec-head anim" style="--i:0; margin-top: 0;">
+      <span class="dot" style="background: var(--gold);"></span> Identity
+    </div>
+
+    <div class="hero anim" style="--i:1">
+      <h1>visual-explainer</h1>
+      <p class="subtitle">Turn terminal output into pages you actually want to read</p>
+      <span class="version">v0.7.0</span>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card anim-scale" style="--i:3">
+        <div class="kpi-card__value">9</div>
+        <div class="kpi-card__label">Prompts</div>
+      </div>
+      <div class="kpi-card anim-scale" style="--i:4">
+        <div class="kpi-card__value">10</div>
+        <div class="kpi-card__label">Templates</div>
+      </div>
+      <div class="kpi-card anim-scale" style="--i:5">
+        <div class="kpi-card__value">14</div>
+        <div class="kpi-card__label">Diagram Types</div>
+      </div>
+      <div class="kpi-card anim-scale" style="--i:6">
+        <div class="kpi-card__value">6</div>
+        <div class="kpi-card__label">Aesthetics</div>
+      </div>
+      <div class="kpi-card anim-scale" style="--i:7">
+        <div class="kpi-card__value">4</div>
+        <div class="kpi-card__label">Reference Docs</div>
+      </div>
+    </div>
+
+    <!-- ============ 2. HOW IT WORKS ============ -->
+    <div id="s2" class="sec-head anim" style="--i:8">
+      <span class="dot" style="background: var(--accent);"></span> How It Works
+    </div>
+
+    <div class="ve-card ve-card--elevated anim" style="--i:9">
+      <div class="mermaid-wrap">
+        <div class="zoom-controls">
+          <button onclick="zoomDiagram(this, 1.2)" title="Zoom in">+</button>
+          <button onclick="zoomDiagram(this, 0.8)" title="Zoom out">&minus;</button>
+          <button onclick="resetZoom(this)" title="Reset zoom">&#8634;</button>
+        </div>
+        <pre class="mermaid">
+flowchart TD
+    REQ["User Request"] --> ROUTER["Skill Router"]
+    ROUTER -->|picks type| REF["Reference Reader"]
+    REF -->|loads patterns| GEN["HTML Generator"]
+    TMPL["Templates"] -.->|feeds into| GEN
+    CDN["CDN Libraries"] -.->|Mermaid, Chart.js, Prism| GEN
+    GEN --> OUT["Browser Output"]
+    ROUTER -->|"selects aesthetic"| GEN
+    OUT --> SHARE["Share / Print"]
+        </pre>
+      </div>
+    </div>
+
+    <!-- ============ 3. WHAT IT GENERATES ============ -->
+    <div id="s3" class="sec-head anim" style="--i:10">
+      <span class="dot" style="background: var(--teal);"></span> What It Generates
+    </div>
+
+    <div class="feature-grid">
+      <div class="ve-card ve-card--elevated anim" style="--i:11">
+        <h3><span class="feature-dot" style="background: var(--accent);"></span>Architecture</h3>
+        <p>System topology with component cards and connection lines</p>
+        <div class="approach">CSS Grid / Mermaid</div>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:12">
+        <h3><span class="feature-dot" style="background: var(--accent);"></span>Flowcharts</h3>
+        <p>Decision trees, pipelines, and process flows with edge routing</p>
+        <div class="approach">Mermaid</div>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:13">
+        <h3><span class="feature-dot" style="background: var(--accent);"></span>Sequence</h3>
+        <p>Lifelines, messages, and activation boxes between participants</p>
+        <div class="approach">Mermaid</div>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:14">
+        <h3><span class="feature-dot" style="background: var(--gold);"></span>Data Flow</h3>
+        <p>Connections with labeled edges showing data descriptions</p>
+        <div class="approach">Mermaid</div>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:15">
+        <h3><span class="feature-dot" style="background: var(--gold);"></span>ER / Schema</h3>
+        <p>Entity relationships with auto-routed connection lines</p>
+        <div class="approach">Mermaid</div>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:16">
+        <h3><span class="feature-dot" style="background: var(--gold);"></span>State Machines</h3>
+        <p>States with labeled transitions, forks, joins, and notes</p>
+        <div class="approach">Mermaid</div>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:17">
+        <h3><span class="feature-dot" style="background: var(--teal);"></span>Mind Maps</h3>
+        <p>Hierarchical branching from a root with radial layout</p>
+        <div class="approach">Mermaid</div>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:18">
+        <h3><span class="feature-dot" style="background: var(--teal);"></span>Data Tables</h3>
+        <p>Sticky headers, alternating rows, status badges, responsive scroll</p>
+        <div class="approach">HTML table</div>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:19">
+        <h3><span class="feature-dot" style="background: var(--teal);"></span>Timelines</h3>
+        <p>Central line with alternating cards showing date progression</p>
+        <div class="approach">CSS</div>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:20">
+        <h3><span class="feature-dot" style="background: var(--green);"></span>Dashboards</h3>
+        <p>KPI cards, sparklines, and embedded charts in a card grid</p>
+        <div class="approach">CSS Grid + Chart.js</div>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:21">
+        <h3><span class="feature-dot" style="background: var(--green);"></span>Comparisons</h3>
+        <p>Side-by-side tradeoff analysis with dimension breakdowns</p>
+        <div class="approach">HTML table + CSS</div>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:22">
+        <h3><span class="feature-dot" style="background: var(--green);"></span>Impl Plans</h3>
+        <p>File structure, key snippets, and flow diagrams for designs</p>
+        <div class="approach">CSS Grid + Mermaid</div>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:23">
+        <h3><span class="feature-dot" style="background: var(--slate);"></span>Documentation</h3>
+        <p>READMEs, API refs, and guides transformed into visual layouts</p>
+        <div class="approach">CSS Grid + HTML table</div>
+      </div>
+    </div>
+
+    <!-- ============ 4. SLASH COMMANDS ============ -->
+    <div id="s4" class="sec-head anim" style="--i:24">
+      <span class="dot" style="background: var(--green);"></span> Command Interface
+    </div>
+
+    <div class="table-wrap anim" style="--i:25">
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Example</th>
+            <th>What it does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>diagram</code></td>
+            <td><code>/visual-explainer diagram websocket lifecycle</code></td>
+            <td>Freeform visual explanation of any topic</td>
+          </tr>
+          <tr>
+            <td><code>comparison</code></td>
+            <td><code>/visual-explainer compare rust vs go for cli tools</code></td>
+            <td>Tradeoff analysis with dimension table and recommendations</td>
+          </tr>
+          <tr>
+            <td><code>diff-review</code></td>
+            <td><code>/visual-explainer diff main</code></td>
+            <td>Before/after architecture comparison with impact analysis</td>
+          </tr>
+          <tr>
+            <td><code>plan-review</code></td>
+            <td><code>/visual-explainer plan ./spec.md</code></td>
+            <td>Plan vs codebase with gap analysis and risk assessment</td>
+          </tr>
+          <tr>
+            <td><code>project-recap</code></td>
+            <td><code>/visual-explainer recap 2w</code></td>
+            <td>Mental model snapshot with decision log and cognitive debt</td>
+          </tr>
+          <tr>
+            <td><code>fact-check</code></td>
+            <td><code>/visual-explainer check ./diagram.html</code></td>
+            <td>Verify claims against actual code, fix inaccuracies in place</td>
+          </tr>
+          <tr>
+            <td><code>slides</code></td>
+            <td><code>/visual-explainer slides api design overview</code></td>
+            <td>Magazine-quality slide deck (100dvh per slide)</td>
+          </tr>
+          <tr>
+            <td><code>visual-plan</code></td>
+            <td><code>/visual-explainer spec add caching layer</code></td>
+            <td>Implementation plan with state machines and code snippets</td>
+          </tr>
+          <tr>
+            <td><code>decision</code></td>
+            <td><code>/visual-explainer decision cdo architecture</code></td>
+            <td>Interactive decision capture with localStorage auto-save</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout anim" style="--i:25.5; margin-top: 20px;">
+      <strong>Quality modes:</strong> Append <code>all</code> for full quality gate (responsive + print + slop test) or <code>publish</code> for all checks + live URL via here.now. Default is local-only.
+    </div>
+
+    <!-- ============ 5. ANTI-SLOP ============ -->
+    <div id="s5" class="sec-head anim" style="--i:26">
+      <span class="dot" style="background: var(--red);"></span> Anti-Slop System
+    </div>
+
+    <div class="comparison anim" style="--i:27">
+      <div class="panel-before">
+        <div class="panel-label">Before — Generic AI Output</div>
+        <ul>
+          <li>Inter font on everything</li>
+          <li>Purple gradient text on headings</li>
+          <li>Emoji icons in every section header</li>
+          <li>Glowing card shadows with animated pulse</li>
+          <li>Cyan + magenta + pink neon palette</li>
+          <li>Every card identical — no visual hierarchy</li>
+          <li>Three-dot window chrome on code blocks</li>
+        </ul>
+      </div>
+      <div class="panel-after">
+        <div class="panel-label">After — visual-explainer Output</div>
+        <ul>
+          <li>Distinctive font pairing per page (13 options)</li>
+          <li>Constrained palettes — earthy, editorial, precise</li>
+          <li>Colored dot labels, not emoji</li>
+          <li>Depth tiers: hero, elevated, default, recessed</li>
+          <li>6 curated aesthetic directions with guard rails</li>
+          <li>Asymmetric layouts with intentional visual weight</li>
+          <li>Simple file header on code blocks — no cliches</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ============ 6. NEW IN v0.5.0 ============ -->
+    <div id="s6" class="sec-head anim" style="--i:28">
+      <span class="dot" style="background: var(--gold);"></span> New in v0.7.0
+    </div>
+
+    <div class="new-features">
+      <div class="ve-card ve-card--elevated anim" style="--i:29">
+        <h3><span class="feature-dot" style="background: var(--accent);"></span>Print Stylesheet</h3>
+        <p>Cmd+P produces a clean, light-background PDF. Hides interactive controls, linearizes slides, force-opens collapsible sections.</p>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:30">
+        <h3><span class="feature-dot" style="background: var(--accent);"></span>Theme Toggle</h3>
+        <p>In-page light/dark switching without changing OS settings. Three-state cycle: OS default, opposite, back to OS.</p>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:31">
+        <h3><span class="feature-dot" style="background: var(--gold);"></span>Prism.js Syntax Highlighting</h3>
+        <p>Code blocks with keyword coloring matched to the page palette. Autoloader fetches language grammars on demand.</p>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:32">
+        <h3><span class="feature-dot" style="background: var(--gold);"></span>Code Diff Panels</h3>
+        <p>Line-level before/after comparison with line numbers, green/red highlighting, and file headers.</p>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:33">
+        <h3><span class="feature-dot" style="background: var(--teal);"></span>Touch Pinch-to-Zoom</h3>
+        <p>Two-finger zoom and pan on mobile for Mermaid diagrams. Prevents browser native pinch from interfering.</p>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:34">
+        <h3><span class="feature-dot" style="background: var(--teal);"></span>Comparison Diagram Type</h3>
+        <p>Structured tradeoff analysis: hero summary, candidate cards, dimension-by-dimension table, deep dives, recommendation.</p>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:35">
+        <h3><span class="feature-dot" style="background: var(--green);"></span>Unified Command Interface</h3>
+        <p>Single entry point with arg-based routing. <code>/visual-explainer &lt;type&gt; [args] [all|publish]</code> — no separate slash commands needed.</p>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:36">
+        <h3><span class="feature-dot" style="background: var(--green);"></span>Tiered Quality Gates</h3>
+        <p>Three modes: default (local), all (responsive + print + slop + fact-check), publish (all + here.now deploy). External audiences get maximum scrutiny.</p>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:37">
+        <h3><span class="feature-dot" style="background: var(--gold);"></span>Decision / Feedback Capture</h3>
+        <p>Interactive decision pages with localStorage auto-save. Radio options, notes, progress tracking, JSON export. Reload-safe — your choices persist.</p>
+      </div>
+      <div class="ve-card ve-card--elevated anim" style="--i:38">
+        <h3><span class="feature-dot" style="background: var(--teal);"></span>Run with Claude</h3>
+        <p>CLI runner button on decision pages. Builds a prompt from your choices, copies <code>claude -p</code> command to clipboard. Paste and go.</p>
+      </div>
+    </div>
+
+    <!-- ============ 7. HERE.NOW INTEGRATION ============ -->
+    <div id="s7" class="sec-head anim" style="--i:35">
+      <span class="dot" style="background: var(--accent);"></span> here.now Integration
+    </div>
+
+    <div class="callout anim" style="--i:36">
+      <strong>visual-explainer + here.now = instant shareable diagrams.</strong>
+      Generate any diagram, then publish it to a live URL with a single command. No deploy pipeline, no build step — just <code>./scripts/publish.sh</code> and share the link.
+    </div>
+
+    <div class="pipeline-simple anim" style="--i:37">
+      <div class="pipeline-step" style="border-color: var(--accent-dim);">
+        <div class="step-num">Step 1</div>
+        <div class="step-name">Generate</div>
+        <div class="step-detail">visual-explainer creates HTML</div>
+      </div>
+      <div class="pipeline-arrow">&rarr;</div>
+      <div class="pipeline-step" style="border-color: var(--gold-dim);">
+        <div class="step-num">Step 2</div>
+        <div class="step-name">Publish</div>
+        <div class="step-detail"><code>visual-explainer ... publish</code></div>
+      </div>
+      <div class="pipeline-arrow">&rarr;</div>
+      <div class="pipeline-step" style="border-color: var(--green-dim);">
+        <div class="step-num">Step 3</div>
+        <div class="step-name">Share</div>
+        <div class="step-detail">Live URL ready to send</div>
+      </div>
+    </div>
+
+    <!-- ============ 8. ROADMAP ============ -->
+    <div id="s8" class="sec-head anim" style="--i:38">
+      <span class="dot" style="background: var(--slate);"></span> Roadmap — Next 10 Ideas
+    </div>
+
+    <div class="table-wrap ve-card--recessed anim" style="--i:39">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 5%">#</th>
+            <th style="width: 35%">Idea</th>
+            <th style="width: 20%">Impact</th>
+            <th style="width: 15%">Effort</th>
+            <th style="width: 15%">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Diagrams gallery index — auto-generated browsable <code>index.html</code></td>
+            <td>High — discoverability</td>
+            <td>Small</td>
+            <td><span class="status-badge status-badge--next">Next</span></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Comparison reference template — dedicated HTML like <code>architecture.html</code></td>
+            <td>Medium — consistency</td>
+            <td>Small</td>
+            <td><span class="status-badge status-badge--done">Done</span></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Mermaid live-reload on theme toggle — re-init SVG on data-theme change</td>
+            <td>Medium — polish</td>
+            <td>Medium</td>
+            <td><span class="status-badge status-badge--planned">Planned</span></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>Chart.js dashboard template — reference template for metrics pages</td>
+            <td>Medium — reuse</td>
+            <td>Medium</td>
+            <td><span class="status-badge status-badge--idea">Idea</span></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>Annotation/review overlay — comment markers on generated pages</td>
+            <td>High — collaboration</td>
+            <td>Large</td>
+            <td><span class="status-badge status-badge--idea">Idea</span></td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td><code>/changelog-viz</code> prompt — visual changelog timelines</td>
+            <td>Medium — utility</td>
+            <td>Small</td>
+            <td><span class="status-badge status-badge--planned">Planned</span></td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td>Slide deck presenter mode — fullscreen with timer and remote</td>
+            <td>High — presentations</td>
+            <td>Medium</td>
+            <td><span class="status-badge status-badge--idea">Idea</span></td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td>Template validation CLI — check HTML against anti-slop rules</td>
+            <td>Medium — quality</td>
+            <td>Medium</td>
+            <td><span class="status-badge status-badge--idea">Idea</span></td>
+          </tr>
+          <tr>
+            <td>9</td>
+            <td>Collaborative editing via here.now — shared diagram editing</td>
+            <td>High — multiplayer</td>
+            <td>Large</td>
+            <td><span class="status-badge status-badge--idea">Idea</span></td>
+          </tr>
+          <tr>
+            <td>10</td>
+            <td>Component library extraction — reusable web components from patterns</td>
+            <td>High — ecosystem</td>
+            <td>Large</td>
+            <td><span class="status-badge status-badge--idea">Idea</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="height: 60px;"></div>
+
+  </div><!-- /main -->
+</div><!-- /wrap -->
+
+<!-- ============ MERMAID ============ -->
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+  // Store original Mermaid source text before first render
+  document.querySelectorAll('.mermaid').forEach(el => {
+    el.setAttribute('data-original', el.textContent);
+  });
+
+  function detectDark() {
+    const attr = document.documentElement.getAttribute('data-theme');
+    return attr === 'dark' || (!attr && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  }
+
+  function getMermaidThemeVars() {
+    const isDark = detectDark();
+    return {
+      primaryColor: isDark ? '#1e3a5f' : '#e8eff7',
+      primaryBorderColor: isDark ? '#6ea8d7' : '#1e3a5f',
+      primaryTextColor: isDark ? '#e8e4db' : '#1a1a2e',
+      secondaryColor: isDark ? '#2a2018' : '#fef8e8',
+      secondaryBorderColor: isDark ? '#e8c35a' : '#d4a73a',
+      secondaryTextColor: isDark ? '#e8e4db' : '#1a1a2e',
+      tertiaryColor: isDark ? '#1a2e24' : '#ecf5ee',
+      tertiaryBorderColor: isDark ? '#52b788' : '#2d6a4f',
+      tertiaryTextColor: isDark ? '#e8e4db' : '#1a1a2e',
+      lineColor: isDark ? '#5a6e82' : '#94a3b8',
+      fontSize: '16px',
+      fontFamily: "'Instrument Serif', Georgia, serif",
+      noteBkgColor: isDark ? '#1e2738' : '#fefce8',
+      noteTextColor: isDark ? '#e8e4db' : '#1a1a2e',
+      noteBorderColor: isDark ? '#e8c35a' : '#d4a73a',
+    };
+  }
+
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    look: 'classic',
+    themeVariables: getMermaidThemeVars()
+  });
+
+  // Expose reinit for theme toggle
+  window.__mermaidReinit = async function() {
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      look: 'classic',
+      themeVariables: getMermaidThemeVars()
+    });
+    document.querySelectorAll('.mermaid').forEach(el => {
+      el.removeAttribute('data-processed');
+      el.innerHTML = el.getAttribute('data-original') || el.textContent;
+    });
+    await mermaid.run();
+  };
+</script>
+
+<!-- ============ ZOOM + PAN ============ -->
+<script>
+var INITIAL_ZOOM = 1.3;
+
+function zoomDiagram(btn, factor) {
+  var wrap = btn.closest('.mermaid-wrap');
+  var target = wrap.querySelector('.mermaid');
+  var current = parseFloat(target.dataset.zoom || INITIAL_ZOOM);
+  var next = Math.min(Math.max(current * factor, 0.5), 5);
+  target.dataset.zoom = next;
+  target.style.zoom = next;
+}
+
+function resetZoom(btn) {
+  var wrap = btn.closest('.mermaid-wrap');
+  var target = wrap.querySelector('.mermaid');
+  target.dataset.zoom = INITIAL_ZOOM;
+  target.style.zoom = INITIAL_ZOOM;
+}
+
+document.querySelectorAll('.mermaid-wrap').forEach(function(wrap) {
+  wrap.addEventListener('wheel', function(e) {
+    if (!e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    var target = wrap.querySelector('.mermaid');
+    var current = parseFloat(target.dataset.zoom || INITIAL_ZOOM);
+    var factor = e.deltaY < 0 ? 1.1 : 0.9;
+    var next = Math.min(Math.max(current * factor, 0.5), 5);
+    target.dataset.zoom = next;
+    target.style.zoom = next;
+  }, { passive: false });
+
+  var startX, startY, scrollL, scrollT;
+  wrap.addEventListener('mousedown', function(e) {
+    if (e.target.closest('.zoom-controls')) return;
+    wrap.classList.add('is-panning');
+    startX = e.clientX; startY = e.clientY;
+    scrollL = wrap.scrollLeft; scrollT = wrap.scrollTop;
+  });
+  window.addEventListener('mousemove', function(e) {
+    if (!wrap.classList.contains('is-panning')) return;
+    wrap.scrollLeft = scrollL - (e.clientX - startX);
+    wrap.scrollTop = scrollT - (e.clientY - startY);
+  });
+  window.addEventListener('mouseup', function() { wrap.classList.remove('is-panning'); });
+});
+
+// Touch pinch-to-zoom
+document.querySelectorAll('.mermaid-wrap').forEach(function(wrap) {
+  let lastDist = 0, lastMidX = 0, lastMidY = 0;
+  wrap.addEventListener('touchstart', function(e) {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      lastDist = Math.hypot(dx, dy);
+      lastMidX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      lastMidY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    }
+  }, { passive: false });
+  wrap.addEventListener('touchmove', function(e) {
+    if (e.touches.length !== 2) return;
+    e.preventDefault();
+    const target = wrap.querySelector('.mermaid');
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const dist = Math.hypot(dx, dy);
+    const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    if (lastDist > 0) {
+      const current = parseFloat(target.dataset.zoom || INITIAL_ZOOM);
+      const scale = dist / lastDist;
+      const next = Math.min(Math.max(current * scale, 0.3), 5);
+      target.dataset.zoom = next;
+      target.style.zoom = next;
+    }
+    wrap.scrollLeft -= (midX - lastMidX);
+    wrap.scrollTop -= (midY - lastMidY);
+    lastDist = dist; lastMidX = midX; lastMidY = midY;
+  }, { passive: false });
+  wrap.addEventListener('touchend', function() { lastDist = 0; });
+});
+</script>
+
+<!-- ============ THEME TOGGLE ============ -->
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const isDarkOS = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (!current) {
+    html.setAttribute('data-theme', isDarkOS ? 'light' : 'dark');
+  } else {
+    html.removeAttribute('data-theme');
+  }
+  // Re-render Mermaid diagrams with updated theme colors
+  if (window.__mermaidReinit) window.__mermaidReinit();
+}
+</script>
+
+<!-- ============ SCROLL SPY ============ -->
+<script>
+(function() {
+  const toc = document.getElementById('toc');
+  const links = toc.querySelectorAll('a');
+  const sections = [];
+  links.forEach(link => {
+    const id = link.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el) sections.push({ id, el, link });
+  });
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const match = sections.find(s => s.el === entry.target);
+        if (match) {
+          match.link.classList.add('active');
+          if (window.innerWidth <= 1000) {
+            match.link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          }
+        }
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px' });
+  sections.forEach(s => observer.observe(s.el));
+  links.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const id = link.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', '#' + id);
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

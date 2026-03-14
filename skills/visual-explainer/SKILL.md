@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires a browser to view generated HTML files. Optional surf-cli for AI image generation.
 metadata:
   author: nicobailon
-  version: "0.4.4"
+  version: "0.7.0"
 ---
 
 # Visual Explainer
@@ -13,6 +13,58 @@ metadata:
 Generate self-contained HTML files for technical diagrams, visualizations, and data tables. Always open the result in the browser. Never fall back to ASCII art when this skill is loaded.
 
 **Proactive table rendering.** When you're about to present tabular data as an ASCII box-drawing table in the terminal (comparisons, audits, feature matrices, status reports, any structured rows/columns), generate an HTML page instead. The threshold: if the table has 4+ rows or 3+ columns, it belongs in the browser. Don't wait for the user to ask — render it as HTML automatically and tell them the file path. You can still include a brief text summary in the chat, but the table itself should be the HTML page.
+
+## Command Interface
+
+Single entry point: `/visual-explainer <type> [args...] [all|publish]`
+
+Everything after `/visual-explainer` is an arg. The first arg is the **type** — what kind of visual to generate. Remaining args are type-specific context. The last arg can be a **quality mode**.
+
+### Types
+
+| Type | What it does | Example |
+|------|-------------|---------|
+| `diagram` | Freeform visual explanation | `diagram websocket lifecycle` |
+| `comparison` | Tradeoff analysis between options | `comparison rust vs go for cli tools` |
+| `diff-review` | Visual diff review of code changes | `diff-review main` |
+| `plan-review` | Plan vs codebase analysis | `plan-review ./plan.md` |
+| `project-recap` | Mental model snapshot | `project-recap 2w` |
+| `fact-check` | Verify claims against code | `fact-check ./diagram.html` |
+| `slides` | Magazine-quality slide deck | `slides api design overview` |
+| `visual-plan` | Implementation spec with state machines | `visual-plan add caching layer` |
+| `decision` | Interactive decision capture with persistence | `decision cdo-s8 architecture decisions` |
+
+If no type matches, treat the entire arg string as a `diagram` topic.
+
+### Quality Modes
+
+Appended as the final arg:
+
+| Mode | Behavior |
+|------|----------|
+| *(default)* | Local only. Generate and open in browser. Standard quality checks (squint, swap, themes, overflow, zoom). |
+| `all` | Full quality gate. All standard checks + print stylesheet verification + responsive testing (375px, 768px, 1440px) + slop test + fact-check pass on any claims. For thorough local review. |
+| `publish` | `all` + publish via here.now. External audience — every quality check runs, then `./skills/here-now/scripts/publish.sh` deploys the result. Returns the live URL. |
+
+`publish` implies `all`. You never publish without running the full gate.
+
+### Examples
+
+```
+/visual-explainer comparison sqlite vs postgres for agent memory
+/visual-explainer diff-review HEAD all
+/visual-explainer diagram kubernetes pod lifecycle publish
+/visual-explainer project-recap 30d
+/visual-explainer fact-check
+/visual-explainer slides visual-explainer skill overview publish
+```
+
+### Arg Parsing
+
+1. Split `$@` into tokens
+2. Match first token against the type table (case-insensitive, supports aliases: `compare`→`comparison`, `diff`→`diff-review`, `recap`→`project-recap`, `plan`→`plan-review`, `check`→`fact-check`, `feedback`→`decision`, `decide`→`decision`, `poll`→`decision`)
+3. Pop the last token — if it's `publish` or `all`, set quality mode accordingly
+4. Everything between type and quality mode is the context/topic args
 
 ## Workflow
 
@@ -53,8 +105,14 @@ Vary the choice each time. If the last diagram was dark and technical, make the 
 
 **Read the reference material** before generating. Don't memorize it — read it each time to absorb the patterns.
 - For text-heavy architecture overviews (card content matters more than topology): read `./templates/architecture.html`
-- For flowcharts, sequence diagrams, ER, state machines, mind maps: read `./templates/mermaid-flowchart.html`
-- For data tables, comparisons, audits, feature matrices: read `./templates/data-table.html`
+- For flowcharts, ER diagrams, state machines, mind maps, data flows: read `./templates/mermaid-flowchart.html`
+- For sequence diagrams: read `./templates/sequence-diagram.html`
+- For data tables, audits, feature matrices: read `./templates/data-table.html`
+- For comparisons and tradeoff analysis: read `./templates/comparison.html`
+- For timelines and roadmaps: read `./templates/timeline.html`
+- For dashboards and metrics pages: read `./templates/dashboard.html`
+- For implementation plans and feature specs: read `./templates/implementation-plan.html`
+- For interactive decision/feedback capture: read `./templates/decision.html`
 - For slide deck presentations (when `--slides` flag is present or `/generate-slides` is invoked): read `./templates/slide-deck.html` and `./references/slide-patterns.md`
 - For prose-heavy publishable pages (READMEs, articles, blog posts, essays): read the "Prose Page Elements" section in `./references/css-patterns.md` and "Typography by Content Voice" in `./references/libraries.md`
 
@@ -170,13 +228,37 @@ Keep animations purposeful: entrance reveals, hover feedback, and user-initiated
 
 ### 4. Deliver
 
-**Output location:** Write to `~/.agent/diagrams/`. Use a descriptive filename based on content: `modem-architecture.html`, `pipeline-flow.html`, `schema-overview.html`. The directory persists across sessions.
+**Output location:** Write to `~/.agents/diagrams/`. Use a descriptive filename based on content: `modem-architecture.html`, `pipeline-flow.html`, `schema-overview.html`. The directory persists across sessions.
+
+**Quality gate** — run the checks for the active quality mode:
+
+| Check | Default | `all` | `publish` |
+|-------|---------|-------|-----------|
+| Squint test | yes | yes | yes |
+| Swap test | yes | yes | yes |
+| Both themes | yes | yes | yes |
+| Info completeness | yes | yes | yes |
+| No overflow | yes | yes | yes |
+| Mermaid zoom controls | yes | yes | yes |
+| Printable (Cmd+P) | — | yes | yes |
+| Responsive (375/768/1440px) | — | yes | yes |
+| Slop test (7-point) | — | yes | yes |
+| Fact-check claims | — | yes | yes |
+| Publish via here.now | — | — | yes |
 
 **Open in browser:**
-- macOS: `open ~/.agent/diagrams/filename.html`
-- Linux: `xdg-open ~/.agent/diagrams/filename.html`
+- macOS: `open ~/.agents/diagrams/filename.html`
+- Linux: `xdg-open ~/.agents/diagrams/filename.html`
 
-**Tell the user** the file path so they can re-open or share it.
+**Publish flow** (when quality mode is `publish`):
+1. Run all quality checks above
+2. Fix any issues found
+3. Run `./skills/here-now/scripts/publish.sh ~/.agents/diagrams/filename.html --client visual-explainer`
+4. Return the live URL to the user
+
+External audience means higher stakes — `publish` pages get every quality check because a broken diagram at a live URL is worse than a broken diagram on localhost.
+
+**Tell the user** the file path (and live URL if published) so they can re-open or share it.
 
 ## Diagram Types
 
@@ -236,6 +318,58 @@ Cell content:
 
 ### Timeline / Roadmap Views
 Vertical or horizontal timeline with a central line (CSS pseudo-element). Phase markers as circles on the line. Content cards branching left/right (alternating) or all to one side. Date labels on the line. Color progression from past (muted) to future (vivid).
+
+### Comparison / Tradeoff Analysis
+For comparing two or more approaches, technologies, designs, or implementations. Use when the user asks to compare, evaluate tradeoffs, or decide between options.
+
+**Structure:**
+1. **Hero summary** — the core question being evaluated, in one sentence
+2. **Candidates at a glance** — card per option with 2-3 key strengths and the primary tradeoff (use the Before/After panel pattern or card grid)
+3. **Dimension-by-dimension breakdown** — data table with candidates as columns, evaluation dimensions as rows. Use the data table template. Status badges (strong/weak/neutral) per cell. Sticky header so candidate names stay visible.
+4. **Deep dives** — for the 2-3 most important dimensions, expand with code snippets, diagrams, or concrete examples that go beyond the table summary
+5. **Recommendation** — if the context supports one, state it clearly with confidence level and conditions ("Choose X if..., choose Y if...")
+
+**Visual treatment:**
+- Use the data table template (`./templates/data-table.html`) as the backbone
+- KPI cards above the table summarizing: number of dimensions evaluated, winner count per candidate, overall recommendation
+- Color-code candidates consistently throughout (e.g., Option A = teal, Option B = amber) using CSS variables
+- Callout boxes for decisive factors that heavily tip the balance
+
+**When to use vs. plain table:** If the comparison is 3 columns and 4 rows, a simple data table is fine. Use this richer structure when there are 5+ dimensions, the decision has real stakes, or the user needs to understand *why* not just *what*.
+
+### Decision / Feedback Capture
+
+Interactive decision-making pages with localStorage persistence. For structured choices where the user needs to evaluate options, record decisions, and export results — without losing progress on reload.
+
+**When to use:** CDO deliberation outputs, architecture decision records, team polls, migration planning, any structured decision set with 5+ items that benefits from persistence.
+
+**Structure:**
+1. **Hero section** — title, subtitle with item/bucket counts
+2. **Progress bar** — sticky, shows completion percentage
+3. **Bucket sections** — decisions grouped by theme (2-6 buckets)
+4. **Decision cards** — each with:
+   - ID badge + title + wave/priority badge
+   - Insight panel (1-2 sentences, key tension)
+   - Collapsible detail (deeper analysis, optional)
+   - Radio options grid (3 options + "Other" with text input)
+   - Notes textarea
+5. **Action bar** — sticky bottom with decided count, Reset All, Clear Saved Data, Copy JSON
+
+**Required features (non-negotiable):**
+- **localStorage auto-save** — debounced 300ms after any input/change event. Restore on page load. Visual "Saved ✓" indicator near progress bar. See "Form & Persistence Patterns" in `./references/css-patterns.md`
+- **Event delegation** — click/input/focus handlers on `document`, not per-element. No DOM re-renders on interaction — toggle classes and update state directly
+- **JSON export** — structured output with pageId, timestamp, all decisions with choice labels and notes. Clipboard API with `window.open` fallback
+- **Progress tracking** — count of decided items, percentage bar
+- **`data-page-id` attribute** — on `<main>` element for unique localStorage key per page instance
+
+**Visual treatment:**
+- Each decision card gets a left border accent when decided (green)
+- Recommended options get a subtle border highlight (gold/amber)
+- Selected options get a distinct background + border color
+- Wave badges color-coded by priority tier
+- Collapsible details use `<button>` toggle with ▸/▾ indicator
+
+**Template reference:** `./templates/decision.html` — Warm Charcoal + Copper palette, Space Grotesk + IBM Plex Mono. Demonstrates all patterns including localStorage auto-save.
 
 ### Dashboard / Metrics Overview
 Card grid layout. Hero numbers large and prominent. Sparklines via inline SVG `<polyline>`. Progress bars via CSS `linear-gradient` on a div. For real charts (bar, line, pie), use **Chart.js via CDN** (see `./references/libraries.md`). KPI cards with trend indicators (up/down arrows, percentage deltas).
@@ -339,6 +473,7 @@ Before delivering, verify:
 - **Information completeness**: Does the diagram actually convey what the user asked for? Pretty but incomplete is a failure.
 - **No overflow**: Resize the browser to different widths. No content should clip or escape its container. Every grid and flex child needs `min-width: 0`. Side-by-side panels need `overflow-wrap: break-word`. Never use `display: flex` on `<li>` for marker characters — it creates anonymous flex items that can't shrink, causing lines with many inline `<code>` badges to overflow. Use absolute positioning for markers instead. See the Overflow Protection section in `./references/css-patterns.md`.
 - **Mermaid zoom controls**: Every `.mermaid-wrap` container must have zoom controls (+/−/reset buttons), Ctrl/Cmd+scroll zoom, and click-and-drag panning. Complex diagrams render too small without them. The cursor should change to `grab` when zoomed in and `grabbing` while dragging. See `./references/css-patterns.md` for the full pattern.
+- **Printable**: Cmd+P should produce a clean, light-background PDF. Include the print stylesheet from `css-patterns.md`.
 - **File opens cleanly**: No console errors, no broken font loads, no layout shifts.
 
 ## Anti-Patterns (AI Slop)

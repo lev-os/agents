@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OAuth2 Authorization Code Flow — Sequence Diagram</title>
+<!--
+  Reference template for the visual-explainer skill: Sequence diagrams.
+  Rose/cranberry palette — Editorial aesthetic.
+  Key patterns demonstrated:
+  - Rose + Cranberry palette (#be123c, #881337)
+  - Instrument Serif + JetBrains Mono font pairing
+  - Radial glow background atmosphere
+  - Mermaid sequenceDiagram with activate/deactivate, notes, alt/else, loop
+  - Mermaid theme: 'base' + themeVariables in rose/cranberry
+  - CSS overrides: .actor, .messageText, .activation
+  - Zoom controls with scroll-to-zoom and drag-to-pan
+  - Participants legend with icon badges
+  - Step-by-step breakdown cards
+  - Error scenarios table
+  - Sticky TOC nav (responsive)
+  - data-theme override + theme toggle
+  - Print stylesheet
+  - .ve-card class with depth tiers
+  - Staggered fade-in, reduced motion respect
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============ THEME — LIGHT (default) ============ */
+  :root {
+    --font-body: 'Instrument Serif', Georgia, serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+    --bg: #fdf2f4;
+    --surface: #ffffff;
+    --surface2: #fce7ea;
+    --surface-elevated: #ffffff;
+    --border: rgba(0, 0, 0, 0.08);
+    --border-bright: rgba(0, 0, 0, 0.15);
+    --text: #4a1525;
+    --text-dim: #9a6475;
+
+    --primary: #be123c;
+    --primary-dim: rgba(190, 18, 60, 0.08);
+    --secondary: #881337;
+    --secondary-dim: rgba(136, 19, 55, 0.08);
+    --accent: #be123c;
+    --accent-dim: rgba(190, 18, 60, 0.08);
+    --tertiary: #b45309;
+    --tertiary-dim: rgba(180, 83, 9, 0.08);
+    --success: #15803d;
+    --success-dim: rgba(21, 128, 61, 0.08);
+    --danger: #dc2626;
+    --danger-dim: rgba(220, 38, 38, 0.08);
+    --info: #0369a1;
+    --info-dim: rgba(3, 105, 161, 0.08);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a0a10;
+      --surface: #2a1018;
+      --surface2: #3d1525;
+      --surface-elevated: #321220;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-bright: rgba(255, 255, 255, 0.14);
+      --text: #fce7ea;
+      --text-dim: #e8a0b0;
+
+      --primary: #fb7185;
+      --primary-dim: rgba(251, 113, 133, 0.14);
+      --secondary: #fda4af;
+      --secondary-dim: rgba(253, 164, 175, 0.12);
+      --accent: #fb7185;
+      --accent-dim: rgba(251, 113, 133, 0.12);
+      --tertiary: #fbbf24;
+      --tertiary-dim: rgba(251, 191, 36, 0.12);
+      --success: #4ade80;
+      --success-dim: rgba(74, 222, 128, 0.12);
+      --danger: #f87171;
+      --danger-dim: rgba(248, 113, 113, 0.12);
+      --info: #38bdf8;
+      --info-dim: rgba(56, 189, 248, 0.12);
+    }
+  }
+
+  /* ============ DATA-THEME OVERRIDES ============ */
+  [data-theme="light"] {
+    --bg: #fdf2f4;
+    --surface: #ffffff;
+    --surface2: #fce7ea;
+    --surface-elevated: #ffffff;
+    --border: rgba(0, 0, 0, 0.08);
+    --border-bright: rgba(0, 0, 0, 0.15);
+    --text: #4a1525;
+    --text-dim: #9a6475;
+    --primary: #be123c;
+    --primary-dim: rgba(190, 18, 60, 0.08);
+    --secondary: #881337;
+    --secondary-dim: rgba(136, 19, 55, 0.08);
+    --accent: #be123c;
+    --accent-dim: rgba(190, 18, 60, 0.08);
+    --tertiary: #b45309;
+    --tertiary-dim: rgba(180, 83, 9, 0.08);
+    --success: #15803d;
+    --success-dim: rgba(21, 128, 61, 0.08);
+    --danger: #dc2626;
+    --danger-dim: rgba(220, 38, 38, 0.08);
+    --info: #0369a1;
+    --info-dim: rgba(3, 105, 161, 0.08);
+  }
+
+  [data-theme="dark"] {
+    --bg: #1a0a10;
+    --surface: #2a1018;
+    --surface2: #3d1525;
+    --surface-elevated: #321220;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-bright: rgba(255, 255, 255, 0.14);
+    --text: #fce7ea;
+    --text-dim: #e8a0b0;
+    --primary: #fb7185;
+    --primary-dim: rgba(251, 113, 133, 0.14);
+    --secondary: #fda4af;
+    --secondary-dim: rgba(253, 164, 175, 0.12);
+    --accent: #fb7185;
+    --accent-dim: rgba(251, 113, 133, 0.12);
+    --tertiary: #fbbf24;
+    --tertiary-dim: rgba(251, 191, 36, 0.12);
+    --success: #4ade80;
+    --success-dim: rgba(74, 222, 128, 0.12);
+    --danger: #f87171;
+    --danger-dim: rgba(248, 113, 113, 0.12);
+    --info: #38bdf8;
+    --info-dim: rgba(56, 189, 248, 0.12);
+  }
+
+  /* ============ RESET + BASE ============ */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background-color: var(--bg);
+    background-image: radial-gradient(ellipse at 50% 0%, var(--primary-dim) 0%, transparent 60%);
+    color: var(--text);
+    font-family: var(--font-body);
+    padding: 40px;
+    min-height: 100vh;
+    overflow-wrap: break-word;
+  }
+
+  /* ============ ANIMATION ============ */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate {
+    animation: fadeUp 0.4s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.06s);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-delay: 0ms !important;
+      transition-duration: 0.01ms !important;
+    }
+    .mermaid-wrap .mermaid { transition: none; }
+  }
+
+  /* ============ LAYOUT ============ */
+  .page-layout {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .container {
+    min-width: 0;
+  }
+
+  /* ============ STICKY TOC ============ */
+  .toc {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .toc-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--primary);
+    margin-bottom: 12px;
+  }
+
+  .toc a {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 5px 0;
+    border-left: 2px solid transparent;
+    padding-left: 10px;
+    transition: color 0.15s ease, border-color 0.15s ease;
+    line-height: 1.4;
+  }
+
+  .toc a:hover {
+    color: var(--primary);
+    border-left-color: var(--primary);
+  }
+
+  /* ============ TYPOGRAPHY ============ */
+  h1 {
+    font-size: 38px;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+    text-wrap: balance;
+    color: var(--text);
+  }
+
+  h2 {
+    font-size: 24px;
+    font-weight: 400;
+    margin-bottom: 16px;
+    padding-top: 32px;
+    color: var(--text);
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 400;
+    font-style: italic;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+
+  .description {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--text-dim);
+    margin-bottom: 28px;
+    max-width: 700px;
+  }
+
+  .description code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--primary-dim);
+    color: var(--primary);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* ============ THEME TOGGLE ============ */
+  .theme-toggle {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 300;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--surface) 80%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    line-height: 1;
+    transition: background 0.2s, border-color 0.2s;
+    padding: 0;
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--border-bright);
+    color: var(--text);
+  }
+
+  /* ============ VE-CARD ============ */
+  .ve-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    position: relative;
+  }
+
+  .ve-card--elevated {
+    background: var(--surface-elevated);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  .ve-card--recessed {
+    background: color-mix(in srgb, var(--bg) 70%, var(--surface) 30%);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+    border-color: var(--border);
+  }
+
+  .ve-card--hero {
+    background: color-mix(in srgb, var(--surface) 92%, var(--primary) 8%);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+    border-color: color-mix(in srgb, var(--border) 50%, var(--primary) 50%);
+  }
+
+  .ve-card__label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--primary);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ve-card__label::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* ============ HERO SECTION ============ */
+  .hero {
+    margin-bottom: 32px;
+  }
+
+  .participants-summary {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .participants-summary span {
+    background: var(--primary-dim);
+    color: var(--primary);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  /* ============ PARTICIPANTS LEGEND ============ */
+  .participants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .participant-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .participant-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+  }
+
+  .participant-info h4 {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 2px;
+    color: var(--text);
+  }
+
+  .participant-info p {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+
+  /* ============ MERMAID CONTAINER ============ */
+  .mermaid-wrap {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px 24px;
+    overflow: auto;
+    margin-bottom: 32px;
+  }
+
+  .mermaid-wrap .mermaid {
+    display: flex;
+    justify-content: center;
+    transition: transform 0.2s ease;
+    transform-origin: top center;
+  }
+
+  .zoom-controls {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 2px;
+    z-index: 10;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px;
+  }
+
+  .zoom-controls button {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .zoom-controls button:hover {
+    background: var(--border);
+    color: var(--text);
+  }
+
+  .mermaid-wrap {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .mermaid-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
+  .mermaid-wrap::-webkit-scrollbar-track { background: transparent; }
+  .mermaid-wrap::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+  .mermaid-wrap::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+  .mermaid-wrap.is-zoomed { cursor: grab; }
+  .mermaid-wrap.is-panning { cursor: grabbing; user-select: none; }
+
+  /* ============ MERMAID SVG OVERRIDES ============ */
+  .mermaid .actor {
+    stroke-width: 1.5px !important;
+  }
+
+  .mermaid .messageText {
+    font-family: var(--font-mono) !important;
+    font-size: 12px !important;
+  }
+
+  .mermaid .activation {
+    stroke-width: 1px !important;
+  }
+
+  .mermaid .noteText {
+    font-family: var(--font-mono) !important;
+    font-size: 11px !important;
+  }
+
+  .mermaid .labelText,
+  .mermaid .loopText {
+    font-family: var(--font-mono) !important;
+    font-size: 11px !important;
+  }
+
+  .mermaid text {
+    font-family: var(--font-body) !important;
+  }
+
+  .mermaid .actor-man circle,
+  .mermaid .actor-man line {
+    stroke-width: 2px !important;
+  }
+
+  /* ============ STEP BREAKDOWN ============ */
+  .steps-grid {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .step-card {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary-dim);
+    color: var(--primary);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  }
+
+  .step-content h4 {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 400;
+    font-style: italic;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+
+  .step-content p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-dim);
+  }
+
+  .step-content code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: var(--primary-dim);
+    color: var(--primary);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  .step-arrow {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--primary);
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+
+  .step-arrow span {
+    background: var(--surface2);
+    padding: 1px 6px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+  }
+
+  /* ============ ERROR TABLE ============ */
+  .error-table-wrap {
+    overflow-x: auto;
+    margin-bottom: 32px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  thead {
+    background: var(--surface2);
+  }
+
+  th {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--primary);
+    text-align: left;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr {
+    background: var(--surface);
+    transition: background 0.15s ease;
+  }
+
+  tbody tr:hover {
+    background: var(--primary-dim);
+  }
+
+  td code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: var(--primary-dim);
+    color: var(--primary);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  .severity-high {
+    color: var(--danger);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .severity-medium {
+    color: var(--tertiary);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .severity-low {
+    color: var(--info);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  /* ============ CALLOUT ============ */
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--primary);
+    border-radius: 0 10px 10px 0;
+    padding: 16px 20px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-dim);
+    margin-bottom: 24px;
+  }
+
+  .callout strong { color: var(--text); }
+
+  .callout code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: var(--primary-dim);
+    color: var(--primary);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 860px) {
+    .page-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .toc {
+      position: static;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 12px;
+      padding-bottom: 16px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      max-height: none;
+    }
+
+    .toc-label {
+      width: 100%;
+      margin-bottom: 6px;
+    }
+
+    .toc a {
+      border-left: none;
+      padding-left: 0;
+      padding: 3px 0;
+    }
+  }
+
+  @media (max-width: 600px) {
+    body { padding: 16px; }
+    h1 { font-size: 26px; }
+    h2 { font-size: 20px; }
+    .mermaid-wrap { padding: 16px 12px; }
+    .participants-grid { grid-template-columns: 1fr; }
+    .step-card { grid-template-columns: 32px 1fr; gap: 10px; }
+    .step-number { width: 32px; height: 32px; font-size: 12px; }
+  }
+
+  /* ============ PRINT ============ */
+  @media print {
+    :root {
+      --bg: #ffffff !important;
+      --surface: #ffffff !important;
+      --surface2: #f5f5f5 !important;
+      --surface-elevated: #ffffff !important;
+      --border: rgba(0, 0, 0, 0.12) !important;
+      --border-bright: rgba(0, 0, 0, 0.2) !important;
+      --text: #1a1a1a !important;
+      --text-dim: #555555 !important;
+    }
+
+    body {
+      background: white !important;
+      background-image: none !important;
+      color: #1a1a1a !important;
+      padding: 0.5in !important;
+      font-size: 11pt !important;
+      min-height: auto !important;
+    }
+
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .zoom-controls,
+    .theme-toggle { display: none !important; }
+
+    .toc {
+      position: static !important;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 1em;
+      padding-bottom: 0.5em;
+    }
+
+    .page-layout {
+      display: block !important;
+    }
+
+    .ve-card, .step-card, tr, .mermaid-wrap, .callout {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .mermaid-wrap {
+      overflow: visible !important;
+      max-height: none !important;
+      border: 1px solid #ddd !important;
+    }
+
+    .mermaid-wrap .mermaid {
+      zoom: 1 !important;
+      transform: none !important;
+    }
+
+    a[href^="http"]::after {
+      content: " (" attr(href) ")";
+      font-size: 9pt;
+      color: #888;
+      word-break: break-all;
+    }
+  }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle light/dark theme">&#9680;</button>
+
+<div class="page-layout">
+
+  <!-- ============ STICKY TOC ============ -->
+  <nav class="toc animate" style="--i:0">
+    <div class="toc-label">Contents</div>
+    <a href="#overview">Overview</a>
+    <a href="#participants">Participants</a>
+    <a href="#sequence">Sequence Diagram</a>
+    <a href="#breakdown">Step Breakdown</a>
+    <a href="#errors">Error Scenarios</a>
+  </nav>
+
+  <div class="container">
+
+    <!-- ============ HERO ============ -->
+    <section id="overview" class="hero animate" style="--i:1">
+      <div class="ve-card ve-card--hero">
+        <div class="ve-card__label">Sequence Diagram</div>
+        <h1>OAuth2 Authorization Code Flow</h1>
+        <p class="subtitle">RFC 6749 Section 4.1 &mdash; the most secure grant type for server-side applications</p>
+        <p class="description">
+          The authorization code flow separates authentication from token exchange.
+          The user authenticates with the authorization server, which issues a short-lived
+          <code>authorization_code</code> to the browser. The backend exchanges this code
+          for an <code>access_token</code> and <code>refresh_token</code>, keeping credentials
+          off the client entirely.
+        </p>
+        <div class="participants-summary">
+          <span>User</span>
+          <span>Browser</span>
+          <span>Auth Server</span>
+          <span>Resource Server</span>
+          <span>Token Store</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PARTICIPANTS LEGEND ============ -->
+    <section id="participants" class="animate" style="--i:2">
+      <h2>Participants</h2>
+      <div class="participants-grid">
+
+        <div class="ve-card participant-card">
+          <div class="participant-badge" style="background: var(--primary-dim); color: var(--primary);">&#9787;</div>
+          <div class="participant-info">
+            <h4>User</h4>
+            <p>Resource owner who initiates login and grants consent for scoped access</p>
+          </div>
+        </div>
+
+        <div class="ve-card participant-card">
+          <div class="participant-badge" style="background: var(--info-dim); color: var(--info);">&#9111;</div>
+          <div class="participant-info">
+            <h4>Browser</h4>
+            <p>User agent that handles redirects and delivers the authorization code to the backend</p>
+          </div>
+        </div>
+
+        <div class="ve-card participant-card">
+          <div class="participant-badge" style="background: var(--secondary-dim); color: var(--secondary);">&#9919;</div>
+          <div class="participant-info">
+            <h4>Auth Server</h4>
+            <p>Issues authorization codes, validates credentials, and mints access tokens</p>
+          </div>
+        </div>
+
+        <div class="ve-card participant-card">
+          <div class="participant-badge" style="background: var(--success-dim); color: var(--success);">&#9881;</div>
+          <div class="participant-info">
+            <h4>Resource Server</h4>
+            <p>Protected API that validates bearer tokens and serves user data</p>
+          </div>
+        </div>
+
+        <div class="ve-card participant-card">
+          <div class="participant-badge" style="background: var(--tertiary-dim); color: var(--tertiary);">&#9707;</div>
+          <div class="participant-info">
+            <h4>Token Store</h4>
+            <p>Server-side storage for refresh tokens, session mappings, and token metadata</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ MAIN SEQUENCE DIAGRAM ============ -->
+    <section id="sequence" class="animate" style="--i:3">
+      <h2>Authorization Code Flow</h2>
+
+      <div class="mermaid-wrap">
+        <div class="zoom-controls">
+          <button onclick="zoomDiagram(this, 1.2)" title="Zoom in">+</button>
+          <button onclick="zoomDiagram(this, 0.8)" title="Zoom out">&minus;</button>
+          <button onclick="resetZoom(this)" title="Reset zoom">&#8634;</button>
+        </div>
+        <pre class="mermaid">
+sequenceDiagram
+    participant U as User
+    participant B as Browser
+    participant A as Auth Server
+    participant R as Resource Server
+    participant T as Token Store
+
+    Note over U,T: Phase 1 - Authorization Request
+
+    U->>B: Click Sign In
+    activate B
+    B->>A: GET /authorize with client_id, redirect_uri, scope, state
+    activate A
+    A->>A: Validate client_id and redirect_uri
+    A-->>B: 302 Redirect to login page
+    deactivate A
+
+    Note right of B: User sees consent screen
+
+    U->>B: Enter credentials and grant consent
+    B->>A: POST /login with credentials
+    activate A
+    A->>A: Authenticate user and verify consent
+
+    alt Authentication Success
+        A-->>B: 302 Redirect to redirect_uri with code and state
+        deactivate A
+        deactivate B
+
+        Note over U,T: Phase 2 - Token Exchange
+
+        B->>A: POST /token with code, client_secret, redirect_uri
+        activate A
+        A->>A: Validate authorization code
+        A->>T: Store refresh token
+        activate T
+        T-->>A: Confirm stored
+        deactivate T
+        A-->>B: 200 with access_token and refresh_token
+        deactivate A
+
+        Note over U,T: Phase 3 - Resource Access
+
+        B->>R: GET /api/user with Bearer token
+        activate R
+        R->>A: Validate token signature and expiry
+        activate A
+        A-->>R: Token valid with scopes
+        deactivate A
+        R-->>B: 200 with user data
+        deactivate R
+        B-->>U: Display user profile
+
+        Note over U,T: Phase 4 - Token Refresh
+
+        loop Every 15 minutes before expiry
+            B->>A: POST /token with grant_type refresh_token
+            activate A
+            A->>T: Lookup and rotate refresh token
+            activate T
+            T-->>A: New refresh token
+            deactivate T
+            A-->>B: 200 with new access_token and refresh_token
+            deactivate A
+        end
+
+    else Authentication Failure
+        A-->>B: 302 Redirect with error access_denied
+        deactivate A
+        deactivate B
+        B-->>U: Display error message
+    end
+        </pre>
+      </div>
+
+      <div class="callout animate" style="--i:4">
+        <strong>PKCE extension.</strong> For public clients (SPAs, mobile apps), add <code>code_verifier</code>
+        and <code>code_challenge</code> parameters to prevent authorization code interception. The server
+        verifies the challenge during the token exchange step.
+      </div>
+    </section>
+
+    <!-- ============ STEP BREAKDOWN ============ -->
+    <section id="breakdown" class="animate" style="--i:5">
+      <h2>Step-by-Step Breakdown</h2>
+
+      <div class="steps-grid">
+
+        <div class="ve-card step-card">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h4>Authorization Request</h4>
+            <p>
+              The browser redirects to <code>/authorize</code> with the <code>client_id</code>,
+              requested <code>scope</code>, a CSRF-preventing <code>state</code> parameter,
+              and the <code>redirect_uri</code> where the code will be delivered.
+            </p>
+            <div class="step-arrow"><span>User</span> <span>&#8594;</span> <span>Browser</span> <span>&#8594;</span> <span>Auth Server</span></div>
+          </div>
+        </div>
+
+        <div class="ve-card step-card">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h4>User Authentication</h4>
+            <p>
+              The auth server presents a login page. The user enters credentials and reviews
+              the requested scopes on a consent screen. Multi-factor authentication happens here.
+            </p>
+            <div class="step-arrow"><span>User</span> <span>&#8594;</span> <span>Auth Server</span></div>
+          </div>
+        </div>
+
+        <div class="ve-card step-card">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h4>Authorization Code Issued</h4>
+            <p>
+              On success, the auth server issues a short-lived authorization code (typically 60 seconds)
+              and redirects back to <code>redirect_uri?code=xyz&amp;state=abc</code>. The code is
+              single-use and bound to the requesting client.
+            </p>
+            <div class="step-arrow"><span>Auth Server</span> <span>&#8594;</span> <span>Browser</span></div>
+          </div>
+        </div>
+
+        <div class="ve-card step-card">
+          <div class="step-number">4</div>
+          <div class="step-content">
+            <h4>Token Exchange</h4>
+            <p>
+              The backend sends the authorization code plus its <code>client_secret</code> to
+              the token endpoint. This server-to-server call keeps the secret out of the browser.
+              The auth server returns an access token (short-lived) and a refresh token (long-lived).
+            </p>
+            <div class="step-arrow"><span>Browser</span> <span>&#8594;</span> <span>Auth Server</span> <span>&#8594;</span> <span>Token Store</span></div>
+          </div>
+        </div>
+
+        <div class="ve-card step-card">
+          <div class="step-number">5</div>
+          <div class="step-content">
+            <h4>Resource Access</h4>
+            <p>
+              The access token is sent as a <code>Bearer</code> header with each API request. The
+              resource server validates the token signature and checks that its scopes authorize the
+              requested operation.
+            </p>
+            <div class="step-arrow"><span>Browser</span> <span>&#8594;</span> <span>Resource Server</span> <span>&#8594;</span> <span>Auth Server</span></div>
+          </div>
+        </div>
+
+        <div class="ve-card step-card">
+          <div class="step-number">6</div>
+          <div class="step-content">
+            <h4>Token Refresh</h4>
+            <p>
+              Before the access token expires, the client uses the refresh token to obtain a new pair.
+              The auth server rotates the refresh token on each use, invalidating the previous one.
+              If the refresh token is compromised, rotation ensures the attacker's copy is quickly revoked.
+            </p>
+            <div class="step-arrow"><span>Browser</span> <span>&#8596;</span> <span>Auth Server</span> <span>&#8596;</span> <span>Token Store</span></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ ERROR SCENARIOS TABLE ============ -->
+    <section id="errors" class="animate" style="--i:6">
+      <h2>Error Scenarios</h2>
+
+      <div class="error-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Failure</th>
+              <th>Error Code</th>
+              <th>Impact</th>
+              <th>Severity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Authorization Request</td>
+              <td>Invalid <code>redirect_uri</code> does not match registered URI</td>
+              <td><code>invalid_request</code></td>
+              <td>Auth server refuses to redirect; user sees error page on auth server domain</td>
+              <td><span class="severity-high">HIGH</span></td>
+            </tr>
+            <tr>
+              <td>Authorization Request</td>
+              <td>Unknown <code>client_id</code></td>
+              <td><code>unauthorized_client</code></td>
+              <td>Flow terminates immediately; no code issued</td>
+              <td><span class="severity-high">HIGH</span></td>
+            </tr>
+            <tr>
+              <td>User Authentication</td>
+              <td>Invalid credentials or MFA failure</td>
+              <td><code>access_denied</code></td>
+              <td>Redirect to client with error; user must retry login</td>
+              <td><span class="severity-medium">MEDIUM</span></td>
+            </tr>
+            <tr>
+              <td>User Authentication</td>
+              <td>User denies consent on scope screen</td>
+              <td><code>access_denied</code></td>
+              <td>Redirect with denial error; application cannot access requested resources</td>
+              <td><span class="severity-low">LOW</span></td>
+            </tr>
+            <tr>
+              <td>Token Exchange</td>
+              <td>Authorization code expired (older than 60 seconds)</td>
+              <td><code>invalid_grant</code></td>
+              <td>Token exchange fails; user must re-authenticate from the start</td>
+              <td><span class="severity-medium">MEDIUM</span></td>
+            </tr>
+            <tr>
+              <td>Token Exchange</td>
+              <td>Code reuse detected (replay attack)</td>
+              <td><code>invalid_grant</code></td>
+              <td>All tokens issued from this code are revoked; possible security incident</td>
+              <td><span class="severity-high">HIGH</span></td>
+            </tr>
+            <tr>
+              <td>Resource Access</td>
+              <td>Expired or invalid access token</td>
+              <td><code>401 Unauthorized</code></td>
+              <td>API returns 401; client should attempt token refresh</td>
+              <td><span class="severity-low">LOW</span></td>
+            </tr>
+            <tr>
+              <td>Resource Access</td>
+              <td>Insufficient scopes for requested endpoint</td>
+              <td><code>403 Forbidden</code></td>
+              <td>User must re-authorize with additional scopes</td>
+              <td><span class="severity-medium">MEDIUM</span></td>
+            </tr>
+            <tr>
+              <td>Token Refresh</td>
+              <td>Refresh token revoked or rotated by another session</td>
+              <td><code>invalid_grant</code></td>
+              <td>User must re-authenticate; all sessions for this grant are invalidated</td>
+              <td><span class="severity-high">HIGH</span></td>
+            </tr>
+            <tr>
+              <td>Token Refresh</td>
+              <td>Token Store unavailable</td>
+              <td><code>server_error</code></td>
+              <td>Refresh fails; existing access token remains valid until expiry, then user must re-login</td>
+              <td><span class="severity-medium">MEDIUM</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout animate" style="--i:7">
+        <strong>Defense in depth.</strong> Always validate <code>state</code> to prevent CSRF,
+        enforce <code>redirect_uri</code> exact-match (no wildcards), and use PKCE for public clients.
+        Token rotation with reuse detection catches stolen refresh tokens within one refresh cycle.
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    || document.documentElement.getAttribute('data-theme') === 'dark';
+
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    look: 'classic',
+    themeVariables: {
+      primaryColor: isDark ? '#3d1525' : '#fce7ea',
+      primaryBorderColor: isDark ? '#fb7185' : '#be123c',
+      primaryTextColor: isDark ? '#fce7ea' : '#4a1525',
+      secondaryColor: isDark ? '#2a1018' : '#fdf2f4',
+      secondaryBorderColor: isDark ? '#fda4af' : '#881337',
+      secondaryTextColor: isDark ? '#fce7ea' : '#4a1525',
+      tertiaryColor: isDark ? '#2e2618' : '#fef3c7',
+      tertiaryBorderColor: isDark ? '#fbbf24' : '#b45309',
+      tertiaryTextColor: isDark ? '#fce7ea' : '#4a1525',
+      lineColor: isDark ? '#e8a0b0' : '#9a6475',
+      fontSize: '14px',
+      fontFamily: "'Instrument Serif', Georgia, serif",
+      actorBkg: isDark ? '#3d1525' : '#fce7ea',
+      actorBorder: isDark ? '#fb7185' : '#be123c',
+      actorTextColor: isDark ? '#fce7ea' : '#4a1525',
+      actorLineColor: isDark ? '#e8a0b0' : '#9a6475',
+      activationBkgColor: isDark ? '#4d1a30' : '#fda4af',
+      activationBorderColor: isDark ? '#fb7185' : '#be123c',
+      signalColor: isDark ? '#e8a0b0' : '#4a1525',
+      signalTextColor: isDark ? '#fce7ea' : '#4a1525',
+      noteBkgColor: isDark ? '#2e2618' : '#fef3c7',
+      noteTextColor: isDark ? '#fce7ea' : '#4a1525',
+      noteBorderColor: isDark ? '#fbbf24' : '#b45309',
+      labelBoxBkgColor: isDark ? '#3d1525' : '#fce7ea',
+      labelBoxBorderColor: isDark ? '#fb7185' : '#be123c',
+      labelTextColor: isDark ? '#fce7ea' : '#4a1525',
+      loopTextColor: isDark ? '#e8a0b0' : '#9a6475',
+    }
+  });
+</script>
+<script>
+  /* === Theme toggle === */
+  function toggleTheme() {
+    var html = document.documentElement;
+    var current = html.getAttribute('data-theme');
+    var isDarkOS = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (!current) {
+      html.setAttribute('data-theme', isDarkOS ? 'light' : 'dark');
+    } else {
+      html.removeAttribute('data-theme');
+    }
+  }
+
+  /* === Zoom controls === */
+  function updateZoomState(wrap) {
+    var target = wrap.querySelector('.mermaid');
+    var zoom = parseFloat(target.dataset.zoom || '1');
+    wrap.classList.toggle('is-zoomed', zoom > 1);
+  }
+
+  function zoomDiagram(btn, factor) {
+    var wrap = btn.closest('.mermaid-wrap');
+    var target = wrap.querySelector('.mermaid');
+    var current = parseFloat(target.dataset.zoom || '1');
+    var next = Math.min(Math.max(current * factor, 0.3), 5);
+    target.dataset.zoom = next;
+    target.style.transform = 'scale(' + next + ')';
+    updateZoomState(wrap);
+  }
+
+  function resetZoom(btn) {
+    var wrap = btn.closest('.mermaid-wrap');
+    var target = wrap.querySelector('.mermaid');
+    target.dataset.zoom = '1';
+    target.style.transform = 'scale(1)';
+    updateZoomState(wrap);
+  }
+
+  document.querySelectorAll('.mermaid-wrap').forEach(function(wrap) {
+    /* Scroll-to-zoom (Ctrl/Cmd + wheel) */
+    wrap.addEventListener('wheel', function(e) {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      var target = wrap.querySelector('.mermaid');
+      var current = parseFloat(target.dataset.zoom || '1');
+      var factor = e.deltaY < 0 ? 1.1 : 0.9;
+      var next = Math.min(Math.max(current * factor, 0.3), 5);
+      target.dataset.zoom = next;
+      target.style.transform = 'scale(' + next + ')';
+      updateZoomState(wrap);
+    }, { passive: false });
+
+    /* Drag-to-pan */
+    var startX, startY, scrollL, scrollT;
+    wrap.addEventListener('mousedown', function(e) {
+      if (e.target.closest('.zoom-controls')) return;
+      var target = wrap.querySelector('.mermaid');
+      if (parseFloat(target.dataset.zoom || '1') <= 1) return;
+      wrap.classList.add('is-panning');
+      startX = e.clientX;
+      startY = e.clientY;
+      scrollL = wrap.scrollLeft;
+      scrollT = wrap.scrollTop;
+    });
+    window.addEventListener('mousemove', function(e) {
+      if (!wrap.classList.contains('is-panning')) return;
+      wrap.scrollLeft = scrollL - (e.clientX - startX);
+      wrap.scrollTop = scrollT - (e.clientY - startY);
+    });
+    window.addEventListener('mouseup', function() {
+      wrap.classList.remove('is-panning');
+    });
+  });
+</script>
+
+</body>
+</html>

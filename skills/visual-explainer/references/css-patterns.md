@@ -50,6 +50,81 @@ Always define both light and dark palettes via custom properties. Start with whi
 }
 ```
 
+## Theme Toggle
+
+Optional in-page toggle for previewing both color schemes without changing OS settings. Useful during quality checks and for shared diagrams.
+
+### Toggle Button
+
+```css
+.theme-toggle {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 300;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--text-dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  transition: background 0.2s, border-color 0.2s;
+  padding: 0;
+}
+.theme-toggle:hover {
+  border-color: var(--border-bright);
+  color: var(--text);
+}
+```
+
+### CSS Variable Override Pattern
+
+When using the toggle, theme definitions need **THREE selectors** instead of two — the standard OS-responsive pair plus explicit `data-theme` overrides:
+
+```css
+/* Default: follows OS */
+:root { /* light values */ }
+@media (prefers-color-scheme: dark) { :root { /* dark values */ } }
+
+/* Override: user toggled explicitly */
+[data-theme="light"] { /* same light values */ }
+[data-theme="dark"] { /* same dark values */ }
+```
+
+### HTML + JS
+
+```html
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle light/dark theme">◐</button>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const isDarkOS = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  if (!current) {
+    // First click: switch to opposite of OS
+    html.setAttribute('data-theme', isDarkOS ? 'light' : 'dark');
+  } else {
+    // Second click: remove override, back to OS default
+    html.removeAttribute('data-theme');
+  }
+}
+</script>
+```
+
+Place the button before `</body>`. The toggle cycles: OS default → opposite theme → back to OS default. For slide decks, position the button at `bottom: 12px` instead of `top: 12px` to avoid collision with the progress bar.
+
+> **Note:** When `data-theme` is set, Mermaid diagrams won't update (they initialize once). The toggle is primarily for checking CSS-driven elements. For full Mermaid theme verification, use OS-level theme switching.
+
 ## Background Atmosphere
 
 Flat backgrounds feel dead. Use subtle gradients or patterns.
@@ -85,6 +160,107 @@ body {
     radial-gradient(at 80% 60%, var(--node-b-dim) 0%, transparent 50%);
 }
 ```
+
+## Print Stylesheet
+
+When a user prints the page (Cmd/Ctrl+P) or exports to PDF, dark backgrounds waste ink and interactive controls become meaningless. This media query forces a clean light-mode layout, linearizes slide decks, and ensures all collapsed content is visible.
+
+```css
+@media print {
+  /* Force light palette — dark backgrounds waste ink */
+  :root {
+    --bg: #ffffff !important;
+    --surface: #ffffff !important;
+    --surface2: #f5f5f5 !important;
+    --surface-elevated: #ffffff !important;
+    --border: rgba(0, 0, 0, 0.12) !important;
+    --border-bright: rgba(0, 0, 0, 0.2) !important;
+    --text: #1a1a1a !important;
+    --text-dim: #555555 !important;
+  }
+
+  body {
+    background: white !important;
+    background-image: none !important;
+    color: #1a1a1a !important;
+    padding: 0.5in !important;
+    font-size: 11pt !important;
+    min-height: auto !important;
+  }
+
+  /* Kill all motion and reveal effects */
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Hide interactive-only elements */
+  .zoom-controls,
+  .theme-toggle,
+  .deck-dots,
+  .deck-progress,
+  .deck-counter,
+  .deck-hints { display: none !important; }
+
+  /* TOC is useful in print — keep but don't stick */
+  .toc {
+    position: static !important;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 1em;
+    padding-bottom: 0.5em;
+  }
+
+  /* Avoid orphaned cards and table rows */
+  .ve-card, .section, .kpi-card, .inner-card,
+  tr, .mermaid-wrap, details, .callout {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Force-open all collapsed details */
+  details { display: block !important; }
+  details > summary { display: block !important; }
+  details > summary::before { content: '▾' !important; transform: none !important; }
+  details .collapsible__body { display: block !important; }
+
+  /* Ensure Mermaid diagrams print at natural size */
+  .mermaid-wrap {
+    overflow: visible !important;
+    max-height: none !important;
+    border: 1px solid #ddd !important;
+  }
+  .mermaid-wrap .mermaid {
+    zoom: 1 !important;
+    transform: none !important;
+  }
+
+  /* Links: show URL for external references */
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #888;
+    word-break: break-all;
+  }
+
+  /* Slide decks: linearize into stacked pages */
+  .deck {
+    overflow: visible !important;
+    scroll-snap-type: none !important;
+    height: auto !important;
+  }
+  .slide {
+    height: auto !important;
+    min-height: auto !important;
+    scroll-snap-align: none !important;
+    page-break-after: always;
+    padding: 0.5in 0 !important;
+  }
+}
+```
+
+Include this block at the end of your `<style>` section. It activates only during print (Cmd/Ctrl+P) and forces a clean light-mode layout. Slide decks linearize into one slide per printed page.
 
 ## Link Styling
 
@@ -622,6 +798,66 @@ document.querySelectorAll('.mermaid-wrap').forEach(function(wrap) {
 ```
 
 Scroll-to-zoom requires Ctrl/Cmd+scroll to avoid hijacking normal page scroll. Cursor changes to `grab`/`grabbing` to signal pan mode. The zoom range is capped at 0.5x–5x.
+
+### Touch Gestures
+
+Add touch support to Mermaid containers for mobile and tablet viewing. Place this alongside the existing scroll-to-zoom and drag-to-pan code.
+
+```js
+// Touch pinch-to-zoom + two-finger pan
+document.querySelectorAll('.mermaid-wrap').forEach(function(wrap) {
+  let lastDist = 0;
+  let lastMidX = 0;
+  let lastMidY = 0;
+
+  wrap.addEventListener('touchstart', function(e) {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      lastDist = Math.hypot(dx, dy);
+      lastMidX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      lastMidY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    }
+  }, { passive: false });
+
+  wrap.addEventListener('touchmove', function(e) {
+    if (e.touches.length !== 2) return;
+    e.preventDefault();
+
+    const target = wrap.querySelector('.mermaid');
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const dist = Math.hypot(dx, dy);
+    const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+
+    // Pinch zoom
+    if (lastDist > 0) {
+      const current = parseFloat(target.dataset.zoom || '1');
+      const scale = dist / lastDist;
+      const next = Math.min(Math.max(current * scale, 0.3), 5);
+      target.dataset.zoom = next;
+      target.style.transform = 'scale(' + next + ')';
+      wrap.classList.toggle('is-zoomed', next > 1);
+    }
+
+    // Two-finger pan
+    wrap.scrollLeft -= (midX - lastMidX);
+    wrap.scrollTop -= (midY - lastMidY);
+
+    lastDist = dist;
+    lastMidX = midX;
+    lastMidY = midY;
+  }, { passive: false });
+
+  wrap.addEventListener('touchend', function() {
+    lastDist = 0;
+  });
+});
+```
+
+The `passive: false` on touchstart/touchmove is required to call `preventDefault()`, which stops the browser's native pinch-zoom from interfering. This only affects two-finger gestures inside `.mermaid-wrap` — single-finger scrolling and browser-level gestures outside the container are unaffected.
 
 ## Grid Layouts
 
@@ -1254,6 +1490,146 @@ Two-column comparison with diff-colored headers. For review pages, migration doc
 </div>
 ```
 
+## Code Diff Panels
+
+For diff-reviews and plan-reviews that need line-level code comparison. Builds on the Before/After panel pattern but adds line numbers, addition/deletion highlighting, and synchronized scrolling.
+
+```css
+/* ============ CODE DIFF ============ */
+.diff-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.diff-pane {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.diff-header {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 10px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.diff-pane--before .diff-header {
+  background: var(--red-dim, rgba(220, 38, 38, 0.08));
+  color: var(--red, #dc2626);
+  border-bottom: 2px solid var(--red, #dc2626);
+}
+
+.diff-pane--after .diff-header {
+  background: var(--green-dim, rgba(22, 163, 74, 0.08));
+  color: var(--green, #16a34a);
+  border-bottom: 2px solid var(--green, #16a34a);
+  border-left: 1px solid var(--border);
+}
+
+.diff-body {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.7;
+  padding: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: var(--surface);
+}
+
+.diff-pane--after .diff-body {
+  border-left: 1px solid var(--border);
+}
+
+.diff-line {
+  display: flex;
+  padding: 0 16px 0 0;
+  min-height: 1.7em;
+}
+
+.diff-line__num {
+  width: 40px;
+  flex-shrink: 0;
+  text-align: right;
+  padding-right: 12px;
+  color: var(--text-dim);
+  opacity: 0.5;
+  user-select: none;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.diff-line__code {
+  flex: 1;
+  min-width: 0;
+  padding-left: 4px;
+}
+
+/* Highlighted lines */
+.diff-line--removed {
+  background: var(--red-dim, rgba(220, 38, 38, 0.08));
+}
+.diff-line--removed .diff-line__code {
+  color: var(--red, #dc2626);
+}
+
+.diff-line--added {
+  background: var(--green-dim, rgba(22, 163, 74, 0.08));
+}
+.diff-line--added .diff-line__code {
+  color: var(--green, #16a34a);
+}
+
+.diff-line--changed {
+  background: var(--orange-dim, rgba(217, 119, 6, 0.08));
+}
+
+/* Responsive: stack on mobile */
+@media (max-width: 768px) {
+  .diff-container {
+    grid-template-columns: 1fr;
+  }
+  .diff-pane--after .diff-header,
+  .diff-pane--after .diff-body {
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+}
+```
+
+```html
+<div class="diff-container">
+  <div class="diff-pane diff-pane--before">
+    <div class="diff-header">Before — auth.ts</div>
+    <div class="diff-body">
+      <div class="diff-line"><span class="diff-line__num">12</span><span class="diff-line__code">function validate(token: string) {</span></div>
+      <div class="diff-line diff-line--removed"><span class="diff-line__num">13</span><span class="diff-line__code">  return jwt.verify(token);</span></div>
+      <div class="diff-line"><span class="diff-line__num">14</span><span class="diff-line__code">}</span></div>
+    </div>
+  </div>
+  <div class="diff-pane diff-pane--after">
+    <div class="diff-header">After — auth.ts</div>
+    <div class="diff-body">
+      <div class="diff-line"><span class="diff-line__num">12</span><span class="diff-line__code">function validate(token: string) {</span></div>
+      <div class="diff-line diff-line--added"><span class="diff-line__num">13</span><span class="diff-line__code">  if (!token) throw new AuthError('missing');</span></div>
+      <div class="diff-line diff-line--added"><span class="diff-line__num">14</span><span class="diff-line__code">  return jwt.verify(token, { algorithms: ['RS256'] });</span></div>
+      <div class="diff-line"><span class="diff-line__num">15</span><span class="diff-line__code">}</span></div>
+    </div>
+  </div>
+</div>
+```
+
+> **Note:** The sticky `.diff-header` keeps the 'Before/After' labels visible while scrolling long diffs. For unified diffs (single-pane), use a single `.diff-pane` at full width with `.diff-line--added` and `.diff-line--removed` interleaved.
+
 ## Collapsible Sections
 
 Native `<details>/<summary>` with styled disclosure. Zero JS, accessible. For lower-priority content: file maps, decision logs, reference sections.
@@ -1730,4 +2106,179 @@ Small image floated beside a section. Use when the illustration supports but doe
 
 ```html
 <img class="accent-img" src="data:image/png;base64,..." alt="Descriptive alt text">
+```
+
+## Form & Persistence Patterns
+
+Patterns for interactive decision/feedback pages with localStorage auto-save. Used by the Decision / Feedback Capture diagram type.
+
+### Radio Option Rows
+
+Clickable rows containing a radio button, label, and optional description. Style the entire row as the click target, not just the radio.
+
+```css
+.option-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  font-size: 0.72rem;
+}
+.option-row:hover { background: var(--surface); }
+.option-row.selected {
+  background: rgba(42, 125, 79, 0.08);
+  border-color: var(--green, #2a7d4f);
+}
+.option-row.recommended {
+  border-color: var(--accent, #d4a73a);
+}
+.option-row input[type="radio"] {
+  margin-top: 3px;
+  flex-shrink: 0;
+  accent-color: var(--green, #2a7d4f);
+}
+.option-label { flex: 1; min-width: 0; }
+.option-label .option-desc {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  margin-top: 0.2rem;
+}
+```
+
+### Textarea & Text Input Styling
+
+Match page aesthetic. Always use the page's mono font.
+
+```css
+.form-input {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text);
+  resize: vertical;
+}
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+```
+
+### Save Indicator
+
+Brief "Saved" flash near the progress bar. Fades in, holds, fades out.
+
+```css
+.save-indicator {
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: var(--green, #2a7d4f);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  margin-left: 0.75rem;
+  white-space: nowrap;
+}
+.save-indicator.visible {
+  opacity: 1;
+}
+```
+
+### localStorage Save/Restore
+
+Debounced auto-save pattern. `PAGE_ID` comes from a `data-page-id` attribute on `<main>`.
+
+```javascript
+const PAGE_ID = document.querySelector('main').dataset.pageId;
+const STORAGE_KEY = `ve-decisions-${PAGE_ID}`;
+const SAVE_DELAY = 300;
+
+let saveTimer = null;
+
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    const data = {
+      version: 1,
+      pageId: PAGE_ID,
+      savedAt: new Date().toISOString(),
+      decisions: decisions  // your state object
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    showSaveIndicator();
+  }, SAVE_DELAY);
+}
+
+function restoreState() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    if (data.version === 1 && data.decisions) {
+      Object.assign(decisions, data.decisions);
+      // After render(), restore DOM state:
+      // - Check correct radios
+      // - Fill textareas/inputs
+      // - Toggle .selected/.decided classes
+      // - Update progress bar
+    }
+  } catch (e) { /* corrupted data, ignore */ }
+}
+
+function showSaveIndicator() {
+  const el = document.querySelector('.save-indicator');
+  el.classList.add('visible');
+  setTimeout(() => el.classList.remove('visible'), 1500);
+}
+```
+
+Hook `scheduleSave()` into your event delegation handlers — call it after every state mutation (radio selection, text input, notes change).
+
+### Progress Bar
+
+Sticky progress bar showing completion percentage.
+
+```css
+.progress-bar-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 0.6rem 0;
+}
+.progress-track {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+```
+
+### Clear Saved Data Button
+
+Always confirm before clearing localStorage. Distinct from "Reset All" (which is in-memory only).
+
+```javascript
+function clearSavedData() {
+  if (!confirm('Clear all saved progress? This cannot be undone.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  Object.keys(decisions).forEach(k => delete decisions[k]);
+  render();
+}
 ```

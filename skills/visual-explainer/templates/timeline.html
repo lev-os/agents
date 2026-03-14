@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Phoenix — Q1-Q4 2026 Roadmap</title>
+<!--
+  Reference template for the visual-explainer skill: Timeline / Roadmap pattern.
+  Amber + Emerald palette — warm data-focused tones for temporal progression.
+  Key patterns demonstrated:
+  - Amber + Emerald palette (#d97706, #059669), NOT indigo/violet
+  - Bricolage Grotesque + Fragment Mono font pairing
+  - Vertical timeline with CSS pseudo-element central line
+  - Alternating left/right milestone cards
+  - Phase markers: filled circles (done), hollow (upcoming)
+  - Color progression from muted past (emerald) to vivid future (amber)
+  - Status badges as colored spans (never emoji)
+  - KPI row with hero numbers
+  - Phase summary with progress bars
+  - Responsive: single-column timeline at <768px
+  - Responsive sticky TOC nav (sidebar desktop, horizontal bar mobile at 1000px)
+  - Staggered fadeUp animations with prefers-reduced-motion respect
+  - Full light/dark theme via CSS custom properties + prefers-color-scheme
+  - data-theme override for theme toggle
+  - Print stylesheet
+  - Depth tiers for visual hierarchy
+  - .ve-card class for cards
+  - Overflow protection: min-width:0, overflow-wrap:break-word
+  - Anti-slop: no Inter/Roboto, no violet/indigo, no gradient text, no emoji headers
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Fragment+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  /* ============ THEME — LIGHT (default) ============ */
+  :root {
+    --font-body: 'Bricolage Grotesque', system-ui, sans-serif;
+    --font-mono: 'Fragment Mono', 'SF Mono', Consolas, monospace;
+
+    /* Amber + Emerald palette */
+    --bg: #faf8f5;
+    --surface: #ffffff;
+    --surface2: #f3efe9;
+    --surface-elevated: #fffcf7;
+    --border: rgba(0, 0, 0, 0.07);
+    --border-bright: rgba(0, 0, 0, 0.14);
+    --text: #1c1917;
+    --text-dim: #78716c;
+    --accent: #d97706;
+    --accent-dim: rgba(217, 119, 6, 0.08);
+    --emerald: #059669;
+    --emerald-dim: rgba(5, 150, 105, 0.08);
+    --emerald-muted: #6ee7b7;
+    --amber: #d97706;
+    --amber-dim: rgba(217, 119, 6, 0.08);
+    --slate: #64748b;
+    --slate-dim: rgba(100, 116, 139, 0.08);
+    --completed-bg: rgba(5, 150, 105, 0.06);
+    --completed-border: rgba(5, 150, 105, 0.25);
+    --progress-bg: rgba(217, 119, 6, 0.06);
+    --progress-border: rgba(217, 119, 6, 0.25);
+    --upcoming-bg: rgba(100, 116, 139, 0.06);
+    --upcoming-border: rgba(100, 116, 139, 0.2);
+    --timeline-line: rgba(0, 0, 0, 0.1);
+    --timeline-line-done: #059669;
+    --timeline-line-future: #d97706;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151210;
+      --surface: #1e1a17;
+      --surface2: #292420;
+      --surface-elevated: #302a24;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-bright: rgba(255, 255, 255, 0.12);
+      --text: #ede8e3;
+      --text-dim: #a39e97;
+      --accent: #fbbf24;
+      --accent-dim: rgba(251, 191, 36, 0.1);
+      --emerald: #34d399;
+      --emerald-dim: rgba(52, 211, 153, 0.1);
+      --emerald-muted: #6ee7b7;
+      --amber: #fbbf24;
+      --amber-dim: rgba(251, 191, 36, 0.1);
+      --slate: #94a3b8;
+      --slate-dim: rgba(148, 163, 184, 0.1);
+      --completed-bg: rgba(52, 211, 153, 0.08);
+      --completed-border: rgba(52, 211, 153, 0.3);
+      --progress-bg: rgba(251, 191, 36, 0.08);
+      --progress-border: rgba(251, 191, 36, 0.3);
+      --upcoming-bg: rgba(148, 163, 184, 0.08);
+      --upcoming-border: rgba(148, 163, 184, 0.2);
+      --timeline-line: rgba(255, 255, 255, 0.08);
+      --timeline-line-done: #34d399;
+      --timeline-line-future: #fbbf24;
+    }
+  }
+
+  /* Explicit theme overrides for toggle */
+  [data-theme="light"] {
+    --bg: #faf8f5;
+    --surface: #ffffff;
+    --surface2: #f3efe9;
+    --surface-elevated: #fffcf7;
+    --border: rgba(0, 0, 0, 0.07);
+    --border-bright: rgba(0, 0, 0, 0.14);
+    --text: #1c1917;
+    --text-dim: #78716c;
+    --accent: #d97706;
+    --accent-dim: rgba(217, 119, 6, 0.08);
+    --emerald: #059669;
+    --emerald-dim: rgba(5, 150, 105, 0.08);
+    --emerald-muted: #6ee7b7;
+    --amber: #d97706;
+    --amber-dim: rgba(217, 119, 6, 0.08);
+    --slate: #64748b;
+    --slate-dim: rgba(100, 116, 139, 0.08);
+    --completed-bg: rgba(5, 150, 105, 0.06);
+    --completed-border: rgba(5, 150, 105, 0.25);
+    --progress-bg: rgba(217, 119, 6, 0.06);
+    --progress-border: rgba(217, 119, 6, 0.25);
+    --upcoming-bg: rgba(100, 116, 139, 0.06);
+    --upcoming-border: rgba(100, 116, 139, 0.2);
+    --timeline-line: rgba(0, 0, 0, 0.1);
+    --timeline-line-done: #059669;
+    --timeline-line-future: #d97706;
+  }
+
+  [data-theme="dark"] {
+    --bg: #151210;
+    --surface: #1e1a17;
+    --surface2: #292420;
+    --surface-elevated: #302a24;
+    --border: rgba(255, 255, 255, 0.06);
+    --border-bright: rgba(255, 255, 255, 0.12);
+    --text: #ede8e3;
+    --text-dim: #a39e97;
+    --accent: #fbbf24;
+    --accent-dim: rgba(251, 191, 36, 0.1);
+    --emerald: #34d399;
+    --emerald-dim: rgba(52, 211, 153, 0.1);
+    --emerald-muted: #6ee7b7;
+    --amber: #fbbf24;
+    --amber-dim: rgba(251, 191, 36, 0.1);
+    --slate: #94a3b8;
+    --slate-dim: rgba(148, 163, 184, 0.1);
+    --completed-bg: rgba(52, 211, 153, 0.08);
+    --completed-border: rgba(52, 211, 153, 0.3);
+    --progress-bg: rgba(251, 191, 36, 0.08);
+    --progress-border: rgba(251, 191, 36, 0.3);
+    --upcoming-bg: rgba(148, 163, 184, 0.08);
+    --upcoming-border: rgba(148, 163, 184, 0.2);
+    --timeline-line: rgba(255, 255, 255, 0.08);
+    --timeline-line-done: #34d399;
+    --timeline-line-future: #fbbf24;
+  }
+
+  /* ============ RESET + BASE ============ */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 30% 0%, var(--emerald-dim) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 100%, var(--amber-dim) 0%, transparent 40%);
+    color: var(--text);
+    font-family: var(--font-body);
+    padding: 40px;
+    min-height: 100vh;
+    overflow-wrap: break-word;
+  }
+
+  /* ============ ANIMATION ============ */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeScale {
+    from { opacity: 0; transform: scale(0.92); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .anim {
+    animation: fadeUp 0.45s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.07s);
+  }
+
+  .anim-scale {
+    animation: fadeScale 0.4s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.07s);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-delay: 0ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ============ LAYOUT — wrap + TOC ============ */
+  .wrap {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    gap: 0 40px;
+  }
+
+  .main {
+    min-width: 0;
+    max-width: 960px;
+  }
+
+  /* ============ TOC — Desktop (sticky sidebar) ============ */
+  .toc {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+    padding: 14px 0;
+    grid-row: 1 / -1;
+    max-height: calc(100dvh - 48px);
+    overflow-y: auto;
+  }
+  .toc::-webkit-scrollbar { width: 3px; }
+  .toc::-webkit-scrollbar-thumb { background: var(--surface-elevated); border-radius: 2px; }
+
+  .toc-title {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    padding: 0 0 10px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .toc a {
+    display: block;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 5px;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+    line-height: 1.4;
+    margin-bottom: 1px;
+  }
+  .toc a:hover { color: var(--text); background: var(--surface2); }
+  .toc a.active { color: var(--text); border-left-color: var(--amber); }
+
+  /* ============ TYPOGRAPHY ============ */
+  h1 {
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    margin-bottom: 6px;
+    text-wrap: balance;
+    line-height: 1.1;
+  }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 14px;
+    margin-bottom: 8px;
+    font-family: var(--font-mono);
+  }
+
+  .timeline-span {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--amber);
+    background: var(--amber-dim);
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-bottom: 32px;
+  }
+
+  /* ============ SECTION LABEL ============ */
+  .sec-head {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    margin-top: 40px;
+    scroll-margin-top: 24px;
+  }
+
+  .sec-head .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* ============ VE-CARD ============ */
+  .ve-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    position: relative;
+    min-width: 0;
+  }
+
+  .ve-card--hero {
+    background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.03);
+    border-color: color-mix(in srgb, var(--border) 50%, var(--accent) 50%);
+    padding: 28px 32px;
+  }
+
+  .ve-card--elevated {
+    background: var(--surface-elevated);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  .ve-card--recessed {
+    background: color-mix(in srgb, var(--bg) 70%, var(--surface) 30%);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+    border-color: var(--border);
+  }
+
+  /* ============ KPI ROW ============ */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .kpi-card {
+    text-align: center;
+    padding: 16px 12px;
+  }
+
+  .kpi-card .kpi-value {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .kpi-card .kpi-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+  }
+
+  /* ============ STATUS BADGES ============ */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 3px 9px;
+    border-radius: 4px;
+    line-height: 1;
+  }
+
+  .badge--completed {
+    color: var(--emerald);
+    background: var(--completed-bg);
+    border: 1px solid var(--completed-border);
+  }
+
+  .badge--in-progress {
+    color: var(--amber);
+    background: var(--progress-bg);
+    border: 1px solid var(--progress-border);
+  }
+
+  .badge--upcoming {
+    color: var(--slate);
+    background: var(--upcoming-bg);
+    border: 1px solid var(--upcoming-border);
+  }
+
+  .badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* ============ VERTICAL TIMELINE ============ */
+  .timeline {
+    position: relative;
+    padding: 20px 0;
+  }
+
+  /* Central vertical line */
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(
+      to bottom,
+      var(--timeline-line-done) 0%,
+      var(--timeline-line-done) 45%,
+      var(--timeline-line) 55%,
+      var(--timeline-line-future) 100%
+    );
+    transform: translateX(-1px);
+  }
+
+  /* Milestone entry */
+  .milestone {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin-bottom: 40px;
+    min-width: 0;
+  }
+
+  .milestone:last-child { margin-bottom: 0; }
+
+  /* Phase circle on the line */
+  .milestone-marker {
+    position: absolute;
+    left: 50%;
+    top: 20px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    border: 3px solid var(--surface);
+    box-shadow: 0 0 0 2px var(--border-bright);
+  }
+
+  .milestone-marker--done {
+    background: var(--emerald);
+    box-shadow: 0 0 0 2px var(--emerald), 0 0 0 5px var(--emerald-dim);
+  }
+
+  .milestone-marker--in-progress {
+    background: var(--amber);
+    box-shadow: 0 0 0 2px var(--amber), 0 0 0 5px var(--amber-dim);
+  }
+
+  .milestone-marker--upcoming {
+    background: var(--surface);
+    border: 3px solid var(--slate);
+    box-shadow: 0 0 0 2px var(--slate-dim);
+  }
+
+  /* Card positioning: left or right */
+  .milestone--left .milestone-content {
+    grid-column: 1;
+    padding-right: 40px;
+    text-align: right;
+  }
+  .milestone--left .milestone-spacer {
+    grid-column: 2;
+  }
+
+  .milestone--right .milestone-spacer {
+    grid-column: 1;
+  }
+  .milestone--right .milestone-content {
+    grid-column: 2;
+    padding-left: 40px;
+  }
+
+  .milestone-content .ve-card {
+    display: inline-block;
+    text-align: left;
+    max-width: 380px;
+  }
+
+  .milestone--left .milestone-content .ve-card {
+    float: right;
+  }
+
+  .milestone-date {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .milestone-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: -0.3px;
+  }
+
+  .milestone-desc {
+    list-style: none;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    padding: 0;
+  }
+
+  .milestone-desc li {
+    padding-left: 14px;
+    position: relative;
+  }
+
+  .milestone-desc li::before {
+    content: '>';
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--border-bright);
+    font-weight: 600;
+    position: absolute;
+    left: 0;
+  }
+
+  /* Color variants for completed vs upcoming cards */
+  .milestone--done .ve-card {
+    border-left: 3px solid var(--emerald);
+    background: var(--completed-bg);
+  }
+  .milestone--done .milestone-date { color: var(--emerald); }
+
+  .milestone--active .ve-card {
+    border-left: 3px solid var(--amber);
+    background: var(--progress-bg);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  }
+  .milestone--active .milestone-date { color: var(--amber); }
+
+  .milestone--future .ve-card {
+    border-left: 3px solid var(--slate);
+    opacity: 0.85;
+  }
+  .milestone--future .milestone-date { color: var(--slate); }
+
+  /* Right-aligned cards get right border instead */
+  .milestone--left.milestone--done .ve-card {
+    border-left: 1px solid var(--border);
+    border-right: 3px solid var(--emerald);
+  }
+  .milestone--left.milestone--active .ve-card {
+    border-left: 1px solid var(--border);
+    border-right: 3px solid var(--amber);
+  }
+  .milestone--left.milestone--future .ve-card {
+    border-left: 1px solid var(--border);
+    border-right: 3px solid var(--slate);
+  }
+
+  /* ============ PHASE SUMMARY ============ */
+  .phase-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-top: 16px;
+  }
+
+  .phase-card {
+    padding: 16px;
+  }
+
+  .phase-card .phase-name {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .phase-card .phase-range {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  .phase-card .phase-milestones {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+
+  .progress-bar__fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease-out;
+  }
+
+  .progress-bar__fill--emerald { background: var(--emerald); }
+  .progress-bar__fill--amber { background: var(--amber); }
+  .progress-bar__fill--slate { background: var(--slate); }
+
+  .progress-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  /* ============ LEGEND ============ */
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+  }
+
+  .legend-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .legend-swatch--hollow {
+    background: transparent;
+    border: 2px solid;
+  }
+
+  /* ============ THEME TOGGLE ============ */
+  .theme-toggle {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 300;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--surface) 80%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    line-height: 1;
+    transition: background 0.2s, border-color 0.2s;
+    padding: 0;
+  }
+  .theme-toggle:hover {
+    border-color: var(--border-bright);
+    color: var(--text);
+  }
+
+  /* ============ RESPONSIVE — MOBILE TIMELINE ============ */
+  @media (max-width: 768px) {
+    body { padding: 20px; }
+
+    .kpi-row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Single-column timeline */
+    .timeline::before {
+      left: 16px;
+    }
+
+    .milestone {
+      display: block;
+      padding-left: 44px;
+    }
+
+    .milestone-marker {
+      left: 16px;
+      top: 18px;
+    }
+
+    .milestone-content {
+      padding: 0 !important;
+      text-align: left !important;
+    }
+
+    .milestone-content .ve-card {
+      float: none !important;
+      max-width: 100%;
+      display: block;
+    }
+
+    .milestone--left.milestone--done .ve-card,
+    .milestone--left.milestone--active .ve-card,
+    .milestone--left.milestone--future .ve-card {
+      border-right: 1px solid var(--border);
+    }
+
+    .milestone--left.milestone--done .ve-card { border-left: 3px solid var(--emerald); }
+    .milestone--left.milestone--active .ve-card { border-left: 3px solid var(--amber); }
+    .milestone--left.milestone--future .ve-card { border-left: 3px solid var(--slate); }
+
+    .milestone-spacer { display: none; }
+
+    .phase-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .phase-grid { grid-template-columns: 1fr; }
+    .kpi-row { grid-template-columns: 1fr 1fr; }
+    .kpi-card .kpi-value { font-size: 26px; }
+    h1 { font-size: 28px; }
+  }
+
+  /* ============ RESPONSIVE — TOC MOBILE ============ */
+  @media (max-width: 1000px) {
+    .wrap { grid-template-columns: 1fr; padding-top: 0; }
+    body { padding-top: 0; }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      max-height: none;
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 20px;
+      margin: 0 -20px;
+      grid-row: auto;
+    }
+    .toc::-webkit-scrollbar { display: none; }
+    .toc-title { display: none; }
+
+    .toc a {
+      white-space: nowrap;
+      flex-shrink: 0;
+      border-left: none;
+      border-bottom: 2px solid transparent;
+      border-radius: 4px 4px 0 0;
+      padding: 6px 10px;
+      font-size: 10px;
+    }
+    .toc a.active {
+      border-left: none;
+      border-bottom-color: var(--amber);
+      background: var(--surface);
+    }
+
+    .main { padding-top: 20px; }
+    .sec-head { scroll-margin-top: 52px; }
+  }
+
+  @media (min-width: 1001px) {
+    body { padding: 40px 40px 40px 20px; }
+  }
+
+  /* ============ PRINT ============ */
+  @media print {
+    :root {
+      --bg: #ffffff !important;
+      --surface: #ffffff !important;
+      --surface2: #f5f5f5 !important;
+      --surface-elevated: #ffffff !important;
+      --border: rgba(0, 0, 0, 0.12) !important;
+      --border-bright: rgba(0, 0, 0, 0.2) !important;
+      --text: #1a1a1a !important;
+      --text-dim: #555555 !important;
+    }
+
+    body {
+      background: white !important;
+      background-image: none !important;
+      color: #1a1a1a !important;
+      padding: 0.5in !important;
+      font-size: 11pt !important;
+      min-height: auto !important;
+    }
+
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .theme-toggle { display: none !important; }
+
+    .toc {
+      position: static !important;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 1em;
+      padding-bottom: 0.5em;
+    }
+
+    .ve-card, .kpi-card, .phase-card, .milestone,
+    tr, details, .callout {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .milestone--future .ve-card { opacity: 1 !important; }
+
+    a[href^="http"]::after {
+      content: " (" attr(href) ")";
+      font-size: 9pt;
+      color: #888;
+      word-break: break-all;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- TOC sidebar -->
+  <nav class="toc" id="toc">
+    <div class="toc-title">Roadmap</div>
+    <a href="#s-hero">Overview</a>
+    <a href="#s-kpi">Status</a>
+    <a href="#s-timeline">Timeline</a>
+    <a href="#s-phases">Phases</a>
+  </nav>
+
+  <div class="main">
+
+    <!-- ====== HERO ====== -->
+    <section id="s-hero" class="anim" style="--i:0">
+      <h1>Project Phoenix</h1>
+      <p class="subtitle">Unified platform migration &mdash; legacy monolith to event-driven microservices</p>
+      <span class="timeline-span">Q1 2026 &mdash; Q4 2026</span>
+    </section>
+
+    <!-- ====== KPI ROW ====== -->
+    <div id="s-kpi" class="sec-head anim" style="--i:1; color: var(--amber);">
+      <span class="dot" style="background: var(--amber);"></span> Status Overview
+    </div>
+
+    <div class="kpi-row">
+      <div class="ve-card ve-card--elevated kpi-card anim-scale" style="--i:2">
+        <div class="kpi-value" style="color: var(--text);">10</div>
+        <div class="kpi-label">Total Milestones</div>
+      </div>
+      <div class="ve-card ve-card--elevated kpi-card anim-scale" style="--i:3">
+        <div class="kpi-value" style="color: var(--emerald);">4</div>
+        <div class="kpi-label">Completed</div>
+      </div>
+      <div class="ve-card ve-card--elevated kpi-card anim-scale" style="--i:4">
+        <div class="kpi-value" style="color: var(--amber);">2</div>
+        <div class="kpi-label">In Progress</div>
+      </div>
+      <div class="ve-card ve-card--elevated kpi-card anim-scale" style="--i:5">
+        <div class="kpi-value" style="color: var(--slate);">4</div>
+        <div class="kpi-label">Upcoming</div>
+      </div>
+    </div>
+
+    <div class="legend anim" style="--i:6; margin-bottom: 12px;">
+      <div class="legend-item">
+        <div class="legend-swatch" style="background: var(--emerald);"></div> Completed
+      </div>
+      <div class="legend-item">
+        <div class="legend-swatch" style="background: var(--amber);"></div> In Progress
+      </div>
+      <div class="legend-item">
+        <div class="legend-swatch legend-swatch--hollow" style="border-color: var(--slate);"></div> Upcoming
+      </div>
+    </div>
+
+    <!-- ====== TIMELINE ====== -->
+    <div id="s-timeline" class="sec-head anim" style="--i:7; color: var(--emerald);">
+      <span class="dot" style="background: var(--emerald);"></span> Project Timeline
+    </div>
+
+    <div class="timeline">
+
+      <!-- MS 1 — Completed, left -->
+      <div class="milestone milestone--right milestone--done anim" style="--i:8">
+        <div class="milestone-marker milestone-marker--done"></div>
+        <div class="milestone-spacer"></div>
+        <div class="milestone-content">
+          <div class="ve-card">
+            <div class="milestone-date">Jan 15, 2026</div>
+            <div class="milestone-title">Architecture Blueprint</div>
+            <ul class="milestone-desc">
+              <li>Domain boundary mapping across 12 bounded contexts</li>
+              <li>Event schema registry design finalized</li>
+              <li>Team allocation and capacity planning complete</li>
+            </ul>
+            <span class="badge badge--completed"><span class="badge-dot"></span>Completed</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MS 2 — Completed, left -->
+      <div class="milestone milestone--left milestone--done anim" style="--i:9">
+        <div class="milestone-marker milestone-marker--done"></div>
+        <div class="milestone-content">
+          <div class="ve-card">
+            <div class="milestone-date">Feb 12, 2026</div>
+            <div class="milestone-title">Auth Service Extraction</div>
+            <ul class="milestone-desc">
+              <li>JWT + OAuth2 flows migrated to standalone service</li>
+              <li>Session management decoupled from monolith</li>
+            </ul>
+            <span class="badge badge--completed"><span class="badge-dot"></span>Completed</span>
+          </div>
+        </div>
+        <div class="milestone-spacer"></div>
+      </div>
+
+      <!-- MS 3 — Completed, right -->
+      <div class="milestone milestone--right milestone--done anim" style="--i:10">
+        <div class="milestone-marker milestone-marker--done"></div>
+        <div class="milestone-spacer"></div>
+        <div class="milestone-content">
+          <div class="ve-card">
+            <div class="milestone-date">Mar 5, 2026</div>
+            <div class="milestone-title">Event Bus Infrastructure</div>
+            <ul class="milestone-desc">
+              <li>Kafka cluster provisioned across 3 availability zones</li>
+              <li>Dead letter queue and retry policies configured</li>
+              <li>Schema validation middleware deployed</li>
+            </ul>
+            <span class="badge badge--completed"><span class="badge-dot"></span>Completed</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MS 4 — Completed, left -->
+      <div class="milestone milestone--left milestone--done anim" style="--i:11">
+        <div class="milestone-marker milestone-marker--done"></div>
+        <div class="milestone-content">
+          <div class="ve-card">
+            <div class="milestone-date">Mar 28, 2026</div>
+            <div class="milestone-title">User Service v1</div>
+            <ul class="milestone-desc">
+              <li>Profile CRUD migrated with backward-compatible API</li>
+              <li>Read replicas for high-traffic endpoints</li>
+            </ul>
+            <span class="badge badge--completed"><span class="badge-dot"></span>Completed</span>
+          </div>
+        </div>
+        <div class="milestone-spacer"></div>
+      </div>
+
+      <!-- MS 5 — In Progress, right -->
+      <div class="milestone milestone--right milestone--active anim" style="--i:12">
+        <div class="milestone-marker milestone-marker--in-progress"></div>
+        <div class="milestone-spacer"></div>
+        <div class="milestone-content">
+          <div class="ve-card">
+            <div class="milestone-date">Apr 30, 2026</div>
+            <div class="milestone-title">Order Processing Pipeline</div>
+            <ul class="milestone-desc">
+              <li>Saga orchestrator for distributed transactions</li>
+              <li>Idempotency keys and compensation handlers</li>
+              <li>Load testing target: 2,000 orders/sec</li>
+            </ul>
+            <span class="badge badge--in-progress"><span class="badge-dot"></span>In Progress</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MS 6 — In Progress, left -->
+      <div class="milestone milestone--left milestone--active anim" style="--i:13">
+        <div class="milestone-marker milestone-marker--in-progress"></div>
+        <div class="milestone-content">
+          <div class="ve-card">
+            <div class="milestone-date">May 22, 2026</div>
+            <div class="milestone-title">Inventory & Catalog Service</div>
+            <ul class="milestone-desc">
+              <li>Real-time stock sync via change data capture</li>
+              <li>Search index migration from Elasticsearch to Typesense</li>
+            </ul>
+            <span class="badge badge--in-progress"><span class="badge-dot"></span>In Progress</span>
+          </div>
+        </div>
+        <div class="milestone-spacer"></div>
+      </div>
+
+      <!-- MS 7 — Upcoming, right -->
+      <div class="milestone milestone--right milestone--future anim" style="--i:14">
+        <div class="milestone-marker milestone-marker--upcoming"></div>
+        <div class="milestone-spacer"></div>
+        <div class="milestone-content">
+          <div class="ve-card">
+            <div class="milestone-date">Jul 15, 2026</div>
+            <div class="milestone-title">Payment Gateway v2</div>
+            <ul class="milestone-desc">
+              <li>Multi-provider failover with circuit breakers</li>
+              <li>PCI DSS compliance audit and tokenization</li>
+              <li>Webhook reconciliation engine</li>
+            </ul>
+            <span class="badge badge--upcoming"><span class="badge-dot"></span>Upcoming</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MS 8 — Upcoming, left -->
+      <div class="milestone milestone--left milestone--future anim" style="--i:15">
+        <div class="milestone-marker milestone-marker--upcoming"></div>
+        <div class="milestone-content">
+          <div class="ve-card">
+            <div class="milestone-date">Aug 30, 2026</div>
+            <div class="milestone-title">Notification Hub</div>
+            <ul class="milestone-desc">
+              <li>Unified email, SMS, push, and in-app delivery</li>
+              <li>Template engine with i18n support</li>
+            </ul>
+            <span class="badge badge--upcoming"><span class="badge-dot"></span>Upcoming</span>
+          </div>
+        </div>
+        <div class="milestone-spacer"></div>
+      </div>
+
+      <!-- MS 9 — Upcoming, right -->
+      <div class="milestone milestone--right milestone--future anim" style="--i:16">
+        <div class="milestone-marker milestone-marker--upcoming"></div>
+        <div class="milestone-spacer"></div>
+        <div class="milestone-content">
+          <div class="ve-card">
+            <div class="milestone-date">Oct 10, 2026</div>
+            <div class="milestone-title">Observability Stack</div>
+            <ul class="milestone-desc">
+              <li>Distributed tracing across all services (OpenTelemetry)</li>
+              <li>Custom dashboards and SLO alerting</li>
+              <li>Cost attribution per service</li>
+            </ul>
+            <span class="badge badge--upcoming"><span class="badge-dot"></span>Upcoming</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MS 10 — Upcoming, left -->
+      <div class="milestone milestone--left milestone--future anim" style="--i:17">
+        <div class="milestone-marker milestone-marker--upcoming"></div>
+        <div class="milestone-content">
+          <div class="ve-card">
+            <div class="milestone-date">Dec 1, 2026</div>
+            <div class="milestone-title">Monolith Sunset</div>
+            <ul class="milestone-desc">
+              <li>Traffic cutover: 100% routed through new services</li>
+              <li>Legacy database decommissioned</li>
+              <li>Post-migration performance validation</li>
+            </ul>
+            <span class="badge badge--upcoming"><span class="badge-dot"></span>Upcoming</span>
+          </div>
+        </div>
+        <div class="milestone-spacer"></div>
+      </div>
+
+    </div><!-- /timeline -->
+
+    <!-- ====== PHASE SUMMARY ====== -->
+    <div id="s-phases" class="sec-head anim" style="--i:18; color: var(--amber);">
+      <span class="dot" style="background: var(--amber);"></span> Phase Summary
+    </div>
+
+    <div class="phase-grid">
+      <div class="ve-card phase-card anim" style="--i:19">
+        <div class="phase-name">Q1 &mdash; Foundation</div>
+        <div class="phase-range">Jan &ndash; Mar 2026</div>
+        <div class="phase-milestones">4 milestones</div>
+        <div class="progress-bar">
+          <div class="progress-bar__fill progress-bar__fill--emerald" style="width: 100%;"></div>
+        </div>
+        <div class="progress-label">100% complete</div>
+      </div>
+      <div class="ve-card phase-card anim" style="--i:20">
+        <div class="phase-name">Q2 &mdash; Core Services</div>
+        <div class="phase-range">Apr &ndash; Jun 2026</div>
+        <div class="phase-milestones">2 milestones</div>
+        <div class="progress-bar">
+          <div class="progress-bar__fill progress-bar__fill--amber" style="width: 40%;"></div>
+        </div>
+        <div class="progress-label">40% complete</div>
+      </div>
+      <div class="ve-card phase-card anim" style="--i:21">
+        <div class="phase-name">Q3 &mdash; Integration</div>
+        <div class="phase-range">Jul &ndash; Sep 2026</div>
+        <div class="phase-milestones">2 milestones</div>
+        <div class="progress-bar">
+          <div class="progress-bar__fill progress-bar__fill--slate" style="width: 0%;"></div>
+        </div>
+        <div class="progress-label">Not started</div>
+      </div>
+      <div class="ve-card phase-card anim" style="--i:22">
+        <div class="phase-name">Q4 &mdash; Cutover</div>
+        <div class="phase-range">Oct &ndash; Dec 2026</div>
+        <div class="phase-milestones">2 milestones</div>
+        <div class="progress-bar">
+          <div class="progress-bar__fill progress-bar__fill--slate" style="width: 0%;"></div>
+        </div>
+        <div class="progress-label">Not started</div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+
+</div><!-- /wrap -->
+
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle light/dark theme">&#9684;</button>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const isDarkOS = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  if (!current) {
+    html.setAttribute('data-theme', isDarkOS ? 'light' : 'dark');
+  } else {
+    html.removeAttribute('data-theme');
+  }
+}
+
+/* Scroll spy for TOC */
+(function() {
+  const toc = document.getElementById('toc');
+  const links = toc.querySelectorAll('a');
+  const sections = [];
+
+  links.forEach(link => {
+    const id = link.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el) sections.push({ id, el, link });
+  });
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const match = sections.find(s => s.el === entry.target);
+        if (match) {
+          match.link.classList.add('active');
+          if (window.innerWidth <= 1000) {
+            match.link.scrollIntoView({
+              behavior: 'smooth', block: 'nearest', inline: 'center'
+            });
+          }
+        }
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px' });
+
+  sections.forEach(s => observer.observe(s.el));
+
+  links.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const id = link.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', '#' + id);
+      }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
