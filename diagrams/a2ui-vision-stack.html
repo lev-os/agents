@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A2UI Vision Stack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --font-display: "Instrument Serif", Georgia, serif;
+      --font-body: "Georgia", serif;
+      --font-mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
+
+      --bg: #faf7f2;
+      --surface: rgba(255,255,255,0.84);
+      --surface-2: rgba(244,238,229,0.94);
+      --surface-hero: rgba(252,249,245,0.97);
+      --border: rgba(24,34,49,0.08);
+      --border-strong: rgba(24,34,49,0.18);
+      --text: #1b2430;
+      --text-dim: #6b7280;
+      --navy: #1f3b5a;
+      --navy-dim: rgba(31,59,90,0.1);
+      --gold: #c18b2a;
+      --gold-dim: rgba(193,139,42,0.12);
+      --sage: #647f62;
+      --sage-dim: rgba(100,127,98,0.12);
+      --teal: #1f7580;
+      --teal-dim: rgba(31,117,128,0.1);
+      --berry: #8d4a57;
+      --berry-dim: rgba(141,74,87,0.1);
+      --shadow: 0 18px 36px rgba(21, 31, 46, 0.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0b1118;
+        --surface: rgba(17,24,34,0.9);
+        --surface-2: rgba(23,31,44,0.95);
+        --surface-hero: rgba(19,28,40,0.97);
+        --border: rgba(255,255,255,0.07);
+        --border-strong: rgba(255,255,255,0.16);
+        --text: #eef2f7;
+        --text-dim: #98a5b9;
+        --navy: #8eb5d7;
+        --navy-dim: rgba(142,181,215,0.14);
+        --gold: #e3b461;
+        --gold-dim: rgba(227,180,97,0.14);
+        --sage: #9bc59a;
+        --sage-dim: rgba(155,197,154,0.13);
+        --teal: #8ed6dc;
+        --teal-dim: rgba(142,214,220,0.12);
+        --berry: #d59ba6;
+        --berry-dim: rgba(213,155,166,0.12);
+        --shadow: 0 24px 48px rgba(0,0,0,0.28);
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      min-height: 100vh;
+      font-family: var(--font-body);
+      color: var(--text);
+      background:
+        radial-gradient(circle at 18% 14%, var(--gold-dim), transparent 28%),
+        radial-gradient(circle at 82% 22%, var(--navy-dim), transparent 24%),
+        linear-gradient(90deg, rgba(31,59,90,0.03) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(31,59,90,0.03) 1px, transparent 1px),
+        var(--bg);
+      background-size: auto, auto, 32px 32px, 32px 32px, auto;
+      padding: 36px;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate {
+      animation: fadeUp 0.42s ease both;
+      animation-delay: calc(var(--i, 0) * 0.05s);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    .wrap {
+      max-width: 1500px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      gap: 0 42px;
+    }
+
+    .main { min-width: 0; }
+
+    .toc {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      padding: 14px 0;
+      grid-row: 1 / -1;
+      max-height: calc(100dvh - 48px);
+      overflow-y: auto;
+    }
+
+    .toc-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .toc a {
+      display: block;
+      text-decoration: none;
+      color: var(--text-dim);
+      font-size: 11px;
+      line-height: 1.45;
+      padding: 5px 8px;
+      border-radius: 6px;
+      border-left: 2px solid transparent;
+      transition: all 0.16s ease;
+      margin-bottom: 2px;
+    }
+
+    .toc a:hover { color: var(--text); background: var(--surface-2); }
+    .toc a.active {
+      color: var(--text);
+      background: var(--surface-2);
+      border-left-color: var(--navy);
+    }
+
+    .hero {
+      background: var(--surface-hero);
+      border: 1px solid var(--border-strong);
+      border-radius: 24px;
+      padding: 30px 34px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -6% -34% auto;
+      width: 340px;
+      height: 340px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--navy-dim), transparent 70%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--navy);
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.9rem, 4.9vw, 5.2rem);
+      line-height: 0.92;
+      letter-spacing: -0.05em;
+      max-width: 10.5ch;
+      margin-bottom: 14px;
+    }
+
+    .subtitle {
+      max-width: 78ch;
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text-dim);
+      margin-bottom: 24px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.12fr 0.88fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .hero-kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .kpi {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      min-width: 0;
+    }
+
+    .kpi-label {
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 1.3px;
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+
+    .kpi-value {
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      margin-bottom: 5px;
+    }
+
+    .kpi-note {
+      font-size: 12px;
+      line-height: 1.48;
+      color: var(--text-dim);
+    }
+
+    .callout {
+      background: linear-gradient(180deg, var(--surface), var(--surface-2));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px 20px;
+    }
+
+    .callout h2 {
+      font-family: var(--font-display);
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      margin-bottom: 10px;
+    }
+
+    .callout p, .callout li {
+      font-size: 13px;
+      line-height: 1.65;
+      color: var(--text-dim);
+    }
+
+    .callout ul {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .callout li {
+      position: relative;
+      padding-left: 14px;
+    }
+
+    .callout li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.62em;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    .pull-quote {
+      margin-top: 18px;
+      padding: 18px 20px 18px 22px;
+      border-left: 3px solid var(--gold);
+      background: linear-gradient(90deg, var(--gold-dim), transparent 72%);
+      border-radius: 0 14px 14px 0;
+      font-family: var(--font-display);
+      font-size: 28px;
+      line-height: 1.12;
+      letter-spacing: -0.04em;
+      max-width: 28ch;
+    }
+
+    .pull-quote small {
+      display: block;
+      margin-top: 10px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .section {
+      margin-bottom: 18px;
+      scroll-margin-top: 84px;
+    }
+
+    .section-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 24px 26px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 34px;
+      line-height: 1;
+      letter-spacing: -0.05em;
+    }
+
+    .section-meta {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .lead {
+      max-width: 80ch;
+      font-size: 14px;
+      line-height: 1.72;
+      color: var(--text-dim);
+      margin-bottom: 20px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text);
+    }
+
+    .chip::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--navy);
+    }
+    .chip--gold::before { background: var(--gold); }
+    .chip--sage::before { background: var(--sage); }
+    .chip--berry::before { background: var(--berry); }
+    .chip--teal::before { background: var(--teal); }
+
+    .grid-2, .grid-3 {
+      display: grid;
+      gap: 14px;
+    }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .ve-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 18px;
+      min-width: 0;
+    }
+
+    .ve-card--hero {
+      background: linear-gradient(180deg, var(--surface), var(--surface-2));
+      border-color: color-mix(in srgb, var(--border) 55%, var(--navy) 45%);
+    }
+
+    .ve-card__label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: var(--navy);
+      margin-bottom: 10px;
+    }
+
+    .ve-card__label::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .ve-card h3 {
+      font-size: 18px;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+    }
+
+    .ve-card p, .ve-card li {
+      font-size: 13px;
+      line-height: 1.65;
+      color: var(--text-dim);
+    }
+
+    .ve-card ul {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .ve-card li {
+      position: relative;
+      padding-left: 14px;
+    }
+
+    .ve-card li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.62em;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--sage);
+    }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: var(--navy-dim);
+      color: var(--navy);
+      padding: 2px 6px;
+      border-radius: 5px;
+    }
+
+    .mermaid-wrap {
+      position: relative;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px 20px 16px;
+      overflow: hidden;
+      margin-top: 14px;
+    }
+
+    .mermaid-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .mermaid-toolbar span {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .controls {
+      display: flex;
+      gap: 6px;
+    }
+
+    .controls button {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .mermaid-stage {
+      overflow: auto;
+      cursor: grab;
+      border-radius: 12px;
+      background: linear-gradient(180deg, transparent, rgba(255,255,255,0.03));
+    }
+
+    .mermaid-stage.dragging { cursor: grabbing; }
+
+    .mermaid-inner {
+      display: flex;
+      justify-content: center;
+      transform-origin: top center;
+      transition: transform 0.18s ease;
+      padding: 10px;
+      min-width: max-content;
+    }
+
+    .mermaid svg { max-width: 100%; height: auto; }
+    .mermaid .nodeLabel {
+      font-family: Georgia, serif !important;
+      font-size: 18px !important;
+      color: var(--text) !important;
+    }
+    .mermaid .edgeLabel {
+      font-family: var(--font-mono) !important;
+      font-size: 12px !important;
+      color: var(--text-dim) !important;
+      background-color: var(--bg) !important;
+    }
+    .mermaid .edgeLabel rect { fill: var(--bg) !important; }
+    .mermaid .node rect,
+    .mermaid .node polygon,
+    .mermaid .node path,
+    .mermaid .node circle { stroke-width: 1.6px !important; }
+    .mermaid .flowchart-link { stroke-width: 1.8px !important; }
+
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .table-scroll { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    th {
+      background: var(--surface-2);
+      border-bottom: 2px solid var(--border-strong);
+      padding: 14px 16px;
+      text-align: left;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    td {
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px;
+      vertical-align: top;
+    }
+
+    tbody tr:nth-child(even) { background: rgba(31,59,90,0.03); }
+    tbody tr:hover { background: rgba(31,59,90,0.06); }
+    tbody tr:last-child td { border-bottom: none; }
+
+    .wide {
+      min-width: 280px;
+      max-width: 460px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .status::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .status--good { background: var(--sage-dim); color: var(--sage); }
+    .status--warn { background: var(--gold-dim); color: var(--gold); }
+    .status--risk { background: var(--berry-dim); color: var(--berry); }
+    .status--info { background: var(--teal-dim); color: var(--teal); }
+
+    .timeline {
+      position: relative;
+      margin-top: 12px;
+      padding-left: 26px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 8px;
+      top: 10px;
+      bottom: 10px;
+      width: 2px;
+      background: linear-gradient(180deg, var(--navy), var(--gold), var(--sage));
+      opacity: 0.72;
+    }
+
+    .timeline-item {
+      position: relative;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 18px;
+    }
+
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: -22px;
+      top: 18px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 3px solid var(--navy);
+      box-shadow: 0 0 0 4px var(--navy-dim);
+    }
+
+    .timeline-step {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.3px;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+
+    .timeline-item h3 {
+      font-size: 19px;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+    }
+
+    .timeline-item ul {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .timeline-item li {
+      position: relative;
+      padding-left: 14px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-dim);
+    }
+
+    .timeline-item li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.6em;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--navy);
+    }
+
+    details {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface-2);
+      overflow: hidden;
+    }
+
+    summary {
+      cursor: pointer;
+      padding: 14px 16px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      color: var(--text);
+      background: var(--surface);
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+
+    .details-body {
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .note {
+      background: linear-gradient(90deg, var(--navy-dim), transparent 72%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .note p {
+      font-size: 13px;
+      line-height: 1.62;
+      color: var(--text-dim);
+    }
+
+    .footer {
+      margin-top: 28px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 16px;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .footer a {
+      color: var(--navy);
+      text-decoration: none;
+    }
+    .footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 1100px) {
+      .wrap { grid-template-columns: 1fr; }
+
+      .toc {
+        position: sticky;
+        top: 0;
+        z-index: 200;
+        max-height: none;
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        overflow-x: auto;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+        padding: 10px 0;
+        margin: 0 -36px 18px;
+        padding-left: 36px;
+        padding-right: 36px;
+      }
+
+      .toc-title { display: none; }
+      .toc a {
+        white-space: nowrap;
+        flex-shrink: 0;
+        border-left: none;
+        border-bottom: 2px solid transparent;
+        border-radius: 6px 6px 0 0;
+      }
+      .toc a.active {
+        border-left: none;
+        border-bottom-color: var(--navy);
+      }
+
+      .hero-grid,
+      .hero-kpis,
+      .grid-2,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      body { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="toc animate" id="toc" style="--i:0">
+      <div class="toc-title">Vision Stack</div>
+      <a href="#vision">Vision</a>
+      <a href="#diffs">AG-UI vs json-render</a>
+      <a href="#lattice">Adapter lattice</a>
+      <a href="#components">300+ components</a>
+      <a href="#milestones">Milestones</a>
+      <a href="#runtime">Runtime check</a>
+    </nav>
+
+    <main class="main">
+      <section class="hero animate" id="vision" style="--i:1">
+        <div class="eyebrow">North Star / Rich Interactive GenUI</div>
+        <div class="hero-grid">
+          <div>
+            <h1>Say “make me the interface,” and the system can actually do it.</h1>
+            <p class="subtitle">
+              Not by hardcoding one framework and not by throwing away the component estate. The north star is:
+              <strong>Lev GenUI can compose rich, interactive surfaces from the full design system</strong>, route them through the right host,
+              and let those surfaces talk back through AgentPing when needed.
+            </p>
+            <div class="chip-row">
+              <span class="chip">A2UI = abstract contract</span>
+              <span class="chip chip--gold">Lev chooses hosts + policy</span>
+              <span class="chip chip--sage">300+ components become a palette</span>
+              <span class="chip chip--teal">interactive + stateful + bidirectional</span>
+            </div>
+            <div class="hero-kpis">
+              <div class="kpi">
+                <div class="kpi-label">Migrated components</div>
+                <div class="kpi-value">344</div>
+                <div class="kpi-note">Documented inventory already exists; this is not a blank page problem.</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi-label">Migration stories</div>
+                <div class="kpi-value">327</div>
+                <div class="kpi-note">The estate has planning coverage; what is missing is a unified abstract runtime path.</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi-label">Reference surface</div>
+                <div class="kpi-value">6007</div>
+                <div class="kpi-note">Kingly UI Storybook is the clean component reference surface right now.</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi-label">First proof set</div>
+                <div class="kpi-value">4</div>
+                <div class="kpi-note">Those surfaces came from the first proving-ground milestone, not the actual north star.</div>
+              </div>
+            </div>
+          </div>
+          <aside class="callout">
+            <h2>Clarification</h2>
+            <p>
+              The “8-12 primitives” idea was never meant as “you only get 8-12 components.”
+              It means <strong>a stable abstract grammar</strong> that the 300+ component estate maps into.
+            </p>
+            <ul>
+              <li>Many components collapse into the same abstract role.</li>
+              <li>Composites and recipes sit above primitives.</li>
+              <li>Hosts, protocols, and runtimes sit below the contract.</li>
+            </ul>
+            <div class="pull-quote">
+              The north star is not a small catalog. The north star is a system that can drive the whole estate through one abstract interface.
+              <small>what was missing from the earlier roadmap</small>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section animate" id="diffs" style="--i:2">
+        <div class="section-card">
+          <div class="section-head">
+            <h2 class="section-title">AG-UI vs json-render</h2>
+            <div class="section-meta">Different layers, complementary roles</div>
+          </div>
+          <p class="lead">
+            AG-UI and <code>json-render</code> are not competitors. AG-UI is about the
+            <strong>agent↔user interaction protocol</strong> between frontend and backend. <code>json-render</code> is about the
+            <strong>render/runtime model</strong> for guarded UI composition.
+          </p>
+          <div class="table-wrap">
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Thing</th>
+                    <th>Primary layer</th>
+                    <th>What it standardizes</th>
+                    <th class="wide">What it does not solve</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>A2UI</code></td>
+                    <td><span class="status status--good">abstract contract</span></td>
+                    <td>How A2UI-capable systems describe UI, state, actions, and capability boundaries without tying to one implementation.</td>
+                    <td class="wide">Does not itself choose a transport, host, or rendering engine.</td>
+                  </tr>
+                  <tr>
+                    <td><code>AG-UI</code></td>
+                    <td><span class="status status--info">interaction protocol</span></td>
+                    <td>Event-driven agent↔frontend communication, bi-directional state sync, streaming agent execution into user-facing apps.</td>
+                    <td class="wide">Does not define your component grammar or rendering catalog. It can carry A2UI/UI intents, but it is not the view engine.</td>
+                  </tr>
+                  <tr>
+                    <td><code>json-render</code></td>
+                    <td><span class="status status--good">render/runtime engine</span></td>
+                    <td>Component catalog, flat spec, state, actions, visibility, validation, patch-based progressive UI updates.</td>
+                    <td class="wide">Does not define the abstract contract above it, nor the host shell, nor workspace/layout/policy routing.</td>
+                  </tr>
+                  <tr>
+                    <td><code>MCP Apps</code></td>
+                    <td><span class="status status--info">host/embed protocol</span></td>
+                    <td>How an MCP tool/server returns interactive UI resources that render inside compatible MCP clients.</td>
+                    <td class="wide">Does not define your UI grammar or your application state model.</td>
+                  </tr>
+                  <tr>
+                    <td><code>WebMCP</code></td>
+                    <td><span class="status status--warn">web transport / browser bridge</span></td>
+                    <td>How web/browser surfaces can participate in MCP-like interactions and AI-optimized web flows.</td>
+                    <td class="wide">Still needs a render/runtime model and an abstract UI contract above it.</td>
+                  </tr>
+                  <tr>
+                    <td><code>Other GenUI frameworks</code></td>
+                    <td><span class="status status--warn">alternate runtimes</span></td>
+                    <td>Framework-specific composition semantics, state models, and host assumptions.</td>
+                    <td class="wide">They vary too much to become the abstract contract. They are adapter targets.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="chip-row">
+            <span class="chip chip--teal">AG-UI moves events</span>
+            <span class="chip chip--gold">json-render composes UI</span>
+            <span class="chip chip--sage">A2UI names the boundary</span>
+            <span class="chip chip--berry">MCP Apps embeds the result</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section animate" id="lattice" style="--i:3">
+        <div class="section-card">
+          <div class="section-head">
+            <h2 class="section-title">Adapter Lattice</h2>
+            <div class="section-meta">Why the adapter layer is not 1:1</div>
+          </div>
+          <p class="lead">
+            The same abstract A2UI surface may use AG-UI for event transport, `json-render` for runtime composition,
+            and MCP Apps for host embedding. Another surface may use a different runtime and still satisfy the same contract.
+          </p>
+          <div class="mermaid-wrap">
+            <div class="mermaid-toolbar">
+              <span>How the layers fit</span>
+              <div class="controls">
+                <button type="button" data-zoom="in">+</button>
+                <button type="button" data-zoom="out">-</button>
+                <button type="button" data-zoom="reset">Reset</button>
+              </div>
+            </div>
+            <div class="mermaid-stage">
+              <div class="mermaid-inner">
+                <pre class="mermaid">
+flowchart TD
+  HOSTS["Lev / AgentPing Hosts<br/>dashboard-runner, studio, web-ui, canvas, MCP clients"]
+  POLICY["Lev shell + layout + policy<br/>workspace routing, approvals, capability gating"]
+  A2UI["A2UI Contract<br/>host facet + transport facet + spec facet + state/action facet"]
+
+  AGUI["AG-UI Adapter<br/>event stream + bi-directional app-agent protocol"]
+  MCPAPPS["MCP Apps Adapter<br/>inline UI inside MCP clients"]
+  WEBMCP["WebMCP Adapter<br/>browser/web transport bridge"]
+
+  JSONR["json-render Adapter<br/>catalog + spec + state + actions + patches"]
+  OTHER["Other GenUI Adapters<br/>A2UI renderer, custom frameworks, future runtimes"]
+
+  ESTATE["Component Estate<br/>@kingly/ui, studio widgets, dashboard widgets, migrated inventory"]
+  LEGACY["Legacy inputs<br/>polymorph, Sofia widgets, hardcoded registries"]
+
+  SURF["Rich interactive surfaces<br/>forms, dashboards, diff views, approvals, media, whatever you ask for"]
+
+  HOSTS --> POLICY
+  POLICY --> A2UI
+  A2UI --> AGUI
+  A2UI --> MCPAPPS
+  A2UI --> WEBMCP
+  A2UI --> JSONR
+  A2UI --> OTHER
+
+  ESTATE --> A2UI
+  LEGACY -. translate .-> A2UI
+
+  AGUI --> SURF
+  MCPAPPS --> SURF
+  WEBMCP --> SURF
+  JSONR --> SURF
+  OTHER --> SURF
+
+  classDef host fill:#1f3b5a22,stroke:#1f3b5a,stroke-width:2px
+  classDef contract fill:#647f6222,stroke:#647f62,stroke-width:2px
+  classDef proto fill:#1f758022,stroke:#1f7580,stroke-width:2px
+  classDef runtime fill:#8d4a5718,stroke:#8d4a57,stroke-dasharray: 4 3
+  classDef estate fill:#c18b2a22,stroke:#c18b2a,stroke-width:2px
+
+  class HOSTS,POLICY host
+  class A2UI contract
+  class AGUI,MCPAPPS,WEBMCP proto
+  class JSONR,OTHER,LEGACY runtime
+  class ESTATE,SURF estate
+                </pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section animate" id="components" style="--i:4">
+        <div class="section-card">
+          <div class="section-head">
+            <h2 class="section-title">300+ Components, Reframed</h2>
+            <div class="section-meta">This is not “wire 8-12 things and stop”</div>
+          </div>
+          <p class="lead">
+            The earlier “8-12 primitives” framing was about the abstract grammar, not the total system capability.
+            The component estate is already broad enough to build much richer GenUI than the first proving-ground milestone.
+          </p>
+          <div class="grid-3">
+            <article class="ve-card ve-card--hero">
+              <div class="ve-card__label">Reference estate</div>
+              <h3>Use the whole palette</h3>
+              <ul>
+                <li><code>@kingly/ui</code> Storybook is the clean component reference surface.</li>
+                <li>344 migrated components are already documented.</li>
+                <li>327 migration stories imply the estate has already been mapped conceptually.</li>
+              </ul>
+            </article>
+            <article class="ve-card">
+              <div class="ve-card__label" style="color:var(--gold)">Abstract grammar</div>
+              <h3>Small stable vocabulary</h3>
+              <ul>
+                <li>Layout / container</li>
+                <li>Text / rich content</li>
+                <li>Input / selection / action</li>
+                <li>Data display / charts / tables</li>
+                <li>Media / canvas / embeds</li>
+                <li>Status / approval / review / diagnostics</li>
+              </ul>
+            </article>
+            <article class="ve-card">
+              <div class="ve-card__label" style="color:var(--teal)">Rich composition</div>
+              <h3>Recipes above primitives</h3>
+              <ul>
+                <li>Approval workbench</li>
+                <li>Diff + context investigation stack</li>
+                <li>Ops dashboard surfaces</li>
+                <li>Media / docs / design review compositions</li>
+                <li>These use many components, while still speaking one contract.</li>
+              </ul>
+            </article>
+          </div>
+          <div class="pull-quote">
+            The north star is not “a small catalog.” The north star is “a big palette driven through one abstract contract.”
+            <small>component-estate interpretation</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="section animate" id="milestones" style="--i:5">
+        <div class="section-card">
+          <div class="section-head">
+            <h2 class="section-title">Milestones, Corrected</h2>
+            <div class="section-meta">Where the “four surfaces” came from</div>
+          </div>
+          <p class="lead">
+            <strong>Approval sheet</strong>, <strong>diff viewer</strong>, <strong>metrics board</strong>, and
+            <strong>config form</strong> came from the first proving-ground milestone. They were never meant to be your north star;
+            they were the smallest set of real surfaces that would validate the abstract contract plus runtime path.
+          </p>
+          <div class="timeline">
+            <article class="timeline-item">
+              <div class="timeline-step">Milestone A</div>
+              <h3>Proving-ground surfaces</h3>
+              <ul>
+                <li>Approval sheet</li>
+                <li>Diff viewer</li>
+                <li>Metrics board</li>
+                <li>Config form</li>
+                <li>Purpose: prove host, spec, state, action, and transport loops.</li>
+              </ul>
+            </article>
+            <article class="timeline-item">
+              <div class="timeline-step">Milestone B</div>
+              <h3>Estate-powered compositions</h3>
+              <ul>
+                <li>Use the broader Kingly UI / migrated estate to build much richer surfaces.</li>
+                <li>Pull in dashboards, scene/canvas, chat, ops, review, diagnostics, media, and settings recipes.</li>
+              </ul>
+            </article>
+            <article class="timeline-item">
+              <div class="timeline-step">Milestone C</div>
+              <h3>Natural-language interface generation</h3>
+              <ul>
+                <li>User asks for an interface.</li>
+                <li>Lev GenUI composes the right surface from the estate.</li>
+                <li>The surface is interactive and can talk back through AgentPing when needed.</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section animate" id="runtime" style="--i:6">
+        <div class="section-card">
+          <div class="section-head">
+            <h2 class="section-title">Runtime Check</h2>
+            <div class="section-meta">What actually ran in this session</div>
+          </div>
+          <div class="grid-2">
+            <article class="ve-card">
+              <div class="ve-card__label">Healthy reference surface</div>
+              <h3>Kingly UI Storybook</h3>
+              <ul>
+                <li><code>http://localhost:6007</code> opened cleanly.</li>
+                <li>Sidebar search, story navigation, and docs all rendered.</li>
+                <li>Use this as the baseline for component consolidation.</li>
+              </ul>
+            </article>
+            <article class="ve-card">
+              <div class="ve-card__label" style="color:var(--berry)">Mixed runtime truth</div>
+              <h3>Runner health is not UI health</h3>
+              <ul>
+                <li>`dashboard-manager-ui` says “No dashboards yet” while the API has six online.</li>
+                <li>`web-ui` Studio renders the compare POC but still has backend/proxy faults.</li>
+                <li>`canvas` is live but disconnected.</li>
+                <li>`studio` shell renders but runtime adapters are still offline.</li>
+              </ul>
+            </article>
+          </div>
+          <details>
+            <summary>Open concrete implication</summary>
+            <div class="details-body">
+              <div class="note">
+                <p>
+                  Before expanding the north-star “make me the interface” path, the runtime stack needs one thing:
+                  the abstract A2UI contract must become the shared truth across these surfaces so the runner, hosts,
+                  and UI all tell the same story.
+                </p>
+              </div>
+            </div>
+          </details>
+          <div class="footer">
+            <span>Visual sources verified this session: AG-UI docs, Google A2UI repo, MCP Apps docs, local AgentPing/Kingly UI</span>
+            <span>Reference surface: <a href="http://localhost:6007">Kingly UI Storybook</a></span>
+            <span>Artifacts: <code>kingly-ui-storybook.png</code>, <code>web-ui-studio.png</code></span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk/dist/mermaid-layout-elk.esm.min.mjs";
+
+    mermaid.registerLayoutLoaders(elkLayouts);
+
+    const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "base",
+      look: "classic",
+      layout: "elk",
+      securityLevel: "loose",
+      flowchart: { useMaxWidth: true, htmlLabels: true, curve: "basis" },
+      themeVariables: {
+        primaryColor: isDark ? "#223549" : "#e4edf6",
+        primaryBorderColor: isDark ? "#8eb5d7" : "#1f3b5a",
+        primaryTextColor: isDark ? "#eef2f7" : "#1b2430",
+        secondaryColor: isDark ? "#3c2b18" : "#f7e8c8",
+        secondaryBorderColor: isDark ? "#e3b461" : "#c18b2a",
+        secondaryTextColor: isDark ? "#f6e8c8" : "#1b2430",
+        tertiaryColor: isDark ? "#223329" : "#e8f1e5",
+        tertiaryBorderColor: isDark ? "#9bc59a" : "#647f62",
+        tertiaryTextColor: isDark ? "#eef2f7" : "#1b2430",
+        lineColor: isDark ? "#98a5b9" : "#6b7280",
+        noteBkgColor: isDark ? "#1e2937" : "#eef2f7",
+        noteBorderColor: isDark ? "#8eb5d7" : "#1f3b5a",
+        noteTextColor: isDark ? "#eef2f7" : "#1b2430",
+        fontFamily: "Georgia, serif",
+        fontSize: "18px"
+      }
+    });
+
+    function wireZoom(container) {
+      const stage = container.querySelector(".mermaid-stage");
+      const inner = container.querySelector(".mermaid-inner");
+      let scale = 1.18;
+      let isDragging = false;
+      let startX = 0;
+      let startY = 0;
+      let scrollLeft = 0;
+      let scrollTop = 0;
+
+      const apply = () => {
+        inner.style.transform = `scale(${scale})`;
+      };
+      apply();
+
+      container.querySelector('[data-zoom="in"]').addEventListener("click", () => {
+        scale = Math.min(scale + 0.15, 2.6);
+        apply();
+      });
+      container.querySelector('[data-zoom="out"]').addEventListener("click", () => {
+        scale = Math.max(scale - 0.15, 0.7);
+        apply();
+      });
+      container.querySelector('[data-zoom="reset"]').addEventListener("click", () => {
+        scale = 1.18;
+        apply();
+        stage.scrollTo({ left: 0, top: 0, behavior: "smooth" });
+      });
+
+      stage.addEventListener("wheel", (event) => {
+        if (!(event.ctrlKey || event.metaKey)) return;
+        event.preventDefault();
+        scale += event.deltaY > 0 ? -0.06 : 0.06;
+        scale = Math.max(0.7, Math.min(scale, 2.6));
+        apply();
+      }, { passive: false });
+
+      stage.addEventListener("pointerdown", (event) => {
+        if (scale <= 1) return;
+        isDragging = true;
+        stage.classList.add("dragging");
+        startX = event.pageX - stage.offsetLeft;
+        startY = event.pageY - stage.offsetTop;
+        scrollLeft = stage.scrollLeft;
+        scrollTop = stage.scrollTop;
+      });
+
+      ["pointerup", "pointerleave"].forEach((type) => {
+        stage.addEventListener(type, () => {
+          isDragging = false;
+          stage.classList.remove("dragging");
+        });
+      });
+
+      stage.addEventListener("pointermove", (event) => {
+        if (!isDragging) return;
+        event.preventDefault();
+        const x = event.pageX - stage.offsetLeft;
+        const y = event.pageY - stage.offsetTop;
+        const walkX = (x - startX) * 1.1;
+        const walkY = (y - startY) * 1.1;
+        stage.scrollLeft = scrollLeft - walkX;
+        stage.scrollTop = scrollTop - walkY;
+      });
+    }
+
+    function wireToc() {
+      const toc = document.getElementById("toc");
+      const links = [...toc.querySelectorAll("a")];
+      const sections = links
+        .map((link) => {
+          const id = link.getAttribute("href").slice(1);
+          const el = document.getElementById(id);
+          return el ? { link, el } : null;
+        })
+        .filter(Boolean);
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          links.forEach((link) => link.classList.remove("active"));
+          const match = sections.find((section) => section.el === entry.target);
+          if (!match) return;
+          match.link.classList.add("active");
+          if (window.innerWidth <= 1100) {
+            match.link.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+          }
+        });
+      }, { rootMargin: "-12% 0px -78% 0px" });
+
+      sections.forEach((section) => observer.observe(section.el));
+
+      links.forEach((link) => {
+        link.addEventListener("click", (event) => {
+          event.preventDefault();
+          const id = link.getAttribute("href").slice(1);
+          const target = document.getElementById(id);
+          if (!target) return;
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+          history.replaceState(null, "", `#${id}`);
+        });
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      await mermaid.run({ querySelector: ".mermaid" });
+      document.querySelectorAll(".mermaid-wrap").forEach(wireZoom);
+      wireToc();
+    });
+  </script>
+</body>
+</html>

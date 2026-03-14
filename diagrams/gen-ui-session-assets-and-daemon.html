@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GenUI Session Assets and Build Daemon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-body: "IBM Plex Sans", system-ui, sans-serif;
+      --font-mono: "IBM Plex Mono", monospace;
+      --bg: #0b1620;
+      --surface: rgba(17, 29, 40, 0.86);
+      --surface-elevated: rgba(24, 38, 52, 0.95);
+      --surface-soft: rgba(35, 52, 68, 0.55);
+      --text: #edf5fb;
+      --text-dim: #94a8b6;
+      --accent: #61cbe8;
+      --accent-dim: rgba(97, 203, 232, 0.12);
+      --teal: #4dd6bb;
+      --amber: #f0b05a;
+      --rose: #f18ea4;
+      --border: rgba(194, 218, 234, 0.12);
+      --shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      color: var(--text);
+      background:
+        radial-gradient(circle at 14% 12%, var(--accent-dim), transparent 28%),
+        radial-gradient(circle at 84% 8%, rgba(77,214,187,0.12), transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,0.02), transparent 18%),
+        var(--bg);
+      min-height: 100vh;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(97,203,232,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(97,203,232,0.04) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    .wrap {
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 28px 30px 72px;
+      position: relative;
+      z-index: 1;
+    }
+    .hero, .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .hero {
+      padding: 30px 32px;
+      background: linear-gradient(180deg, rgba(97,203,232,0.09), rgba(17,29,40,0.92));
+    }
+    .eyebrow, .panel-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+    }
+    h1 {
+      margin: 12px 0 10px;
+      font-size: clamp(2.2rem, 4vw, 3.8rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      max-width: 10ch;
+    }
+    .lead {
+      margin: 0;
+      color: var(--text-dim);
+      line-height: 1.75;
+      max-width: 76ch;
+      font-size: 1rem;
+    }
+    .hero-grid, .grid-2, .grid-3 {
+      display: grid;
+      gap: 16px;
+      min-width: 0;
+    }
+    .hero-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 22px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 18px; }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 18px; }
+    .kpi, .panel, .card {
+      min-width: 0;
+    }
+    .kpi {
+      padding: 16px 18px;
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+    }
+    .kpi-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+    }
+    .kpi-value {
+      font-size: 1.8rem;
+      letter-spacing: -0.05em;
+      margin-bottom: 8px;
+    }
+    .kpi-note, .panel p, .card p {
+      color: var(--text-dim);
+      line-height: 1.65;
+      font-size: 0.94rem;
+    }
+    .section-head {
+      margin-top: 28px;
+      margin-bottom: 12px;
+    }
+    .section-head h2 {
+      margin: 10px 0 8px;
+      font-size: 1.35rem;
+      letter-spacing: -0.03em;
+    }
+    .panel {
+      padding: 22px 24px;
+    }
+    .panel-label { margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .panel-label::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 0;
+    }
+    thead th {
+      text-align: left;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    tbody td {
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      vertical-align: top;
+      line-height: 1.55;
+      color: var(--text-dim);
+    }
+    tbody td:first-child {
+      color: var(--text);
+      font-family: var(--font-mono);
+    }
+    .code {
+      font-family: var(--font-mono);
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      background: rgba(0,0,0,0.24);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      color: var(--text-dim);
+      line-height: 1.65;
+      font-size: 13px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      border: 1px solid var(--border);
+      margin: 4px 6px 0 0;
+    }
+    .chip--accent { color: var(--accent); background: var(--accent-dim); }
+    .chip--teal { color: var(--teal); background: rgba(77,214,187,0.12); }
+    .chip--amber { color: var(--amber); background: rgba(240,176,90,0.12); }
+    .chip--rose { color: var(--rose); background: rgba(241,142,164,0.12); }
+    .card {
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+    }
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      letter-spacing: -0.02em;
+    }
+    .callout {
+      background: linear-gradient(180deg, rgba(97,203,232,0.08), rgba(17,29,40,0.74));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px 20px;
+      margin-top: 16px;
+    }
+    code {
+      font-family: var(--font-mono);
+      background: var(--accent-dim);
+      color: var(--accent);
+      border-radius: 7px;
+      padding: 2px 6px;
+    }
+    @media (max-width: 1100px) {
+      .hero-grid, .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 760px) {
+      .wrap { padding: 18px 16px 54px; }
+      .hero-grid, .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      h1 { max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">.lev/gen-ui / work / visual-explainer / AgentPing</div>
+      <h1>Session assets, renderer model, and why a tiny daemon is enough.</h1>
+      <p class="lead">
+        The POC is now real enough to inspect. It has a stable shell, schema-driven rebuilds, append-only logs, local mirrored artifacts, and a watch loop that rebuilds in roughly 1–3ms. That means the right mental model is not “Astro site generator” first. It is “session shell compiler plus ultra-fast local daemon,” with static HTML as the final output.
+      </p>
+      <div class="hero-grid">
+        <div class="kpi">
+          <div class="kpi-label">Cold build</div>
+          <div class="kpi-value">~2.3ms</div>
+          <div class="kpi-note">Measured on the local render command for the current session shell.</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Watch rebuild</div>
+          <div class="kpi-value">~1.0ms</div>
+          <div class="kpi-note">Rebuild triggered from a touched <code>current.json</code> under the watch daemon.</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Current mode</div>
+          <div class="kpi-value">Local</div>
+          <div class="kpi-note">It stays under <code>.lev/gen-ui</code> until the contract stabilizes.</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Bridge</div>
+          <div class="kpi-value">AgentPing</div>
+          <div class="kpi-note">Transport and host interaction layer, not the source of truth for session state.</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-head">
+      <div class="eyebrow">1 / Session assets</div>
+      <h2>What exists right now</h2>
+      <p class="lead">This is the current session-shell directory you asked to see, not a hypothetical future layout.</p>
+    </div>
+
+    <section class="panel">
+      <div class="panel-label">Current asset tree</div>
+      <div class="code">.lev/gen-ui/
+├── README.md
+├── render-session.mjs
+├── lib/
+│   └── build-session.mjs
+└── sessions/
+    └── 20260310-session-shell-poc/
+        ├── session.json
+        ├── schema.json
+        ├── current.json
+        ├── shell.mustache
+        ├── build.mjs
+        ├── index.html
+        ├── ticks.jsonl
+        ├── mail.jsonl
+        ├── actions.jsonl
+        ├── artifacts/
+        │   ├── handoff.md
+        │   ├── spec.md
+        │   └── plan.md
+        └── partials/
+            ├── section.mustache
+            ├── stack-card.mustache
+            ├── wave-card.mustache
+            ├── mail-item.mustache
+            ├── artifact-card.mustache
+            └── option-card.mustache</div>
+      <div class="callout">
+        <strong>Meaning:</strong> this is already a session-oriented shell, not just one generated HTML file. The shell, the schema, the current materialized state, and the append-only logs are all distinct assets.
+      </div>
+    </section>
+
+    <div class="section-head">
+      <div class="eyebrow">2 / Renderer model</div>
+      <h2>How this should work</h2>
+      <p class="lead">Your instinct is right: define the shell once, then let agents submit payloads that mutate state and trigger ultra-fast rebuilds of the same page.</p>
+    </div>
+
+    <div class="grid-3">
+      <section class="card">
+        <h3>Stable shell</h3>
+        <p>
+          <code>shell.mustache</code> plus the partials define the layout family. This is the expensive design work. It should change rarely.
+        </p>
+        <div>
+          <span class="chip chip--accent">layout</span>
+          <span class="chip chip--accent">zones</span>
+          <span class="chip chip--accent">widgets</span>
+        </div>
+      </section>
+      <section class="card">
+        <h3>Schema-driven content</h3>
+        <p>
+          <code>schema.json</code> decides which widgets exist and where they bind. If an agent wants a new panel, diff widget, inbox lane, or metrics strip, it changes schema and data.
+        </p>
+        <div>
+          <span class="chip chip--teal">schema switch</span>
+          <span class="chip chip--teal">widget registry</span>
+          <span class="chip chip--teal">bindings</span>
+        </div>
+      </section>
+      <section class="card">
+        <h3>Append-only state</h3>
+        <p>
+          <code>current.json</code> is the materialized latest state; <code>ticks.jsonl</code>, <code>mail.jsonl</code>, and <code>actions.jsonl</code> are the durable logs. The page is rebuilt from those, not reinvented.
+        </p>
+        <div>
+          <span class="chip chip--amber">ticks</span>
+          <span class="chip chip--amber">mail</span>
+          <span class="chip chip--amber">actions</span>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="panel-label">Runtime path</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>Owner</th>
+            <th>What happens</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Session prep</td>
+            <td><code>work</code></td>
+            <td>Creates/updates handoff, plan, spec, entity matrix, and session metadata.</td>
+          </tr>
+          <tr>
+            <td>Shell compile</td>
+            <td><code>visual-explainer</code> direction + local renderer</td>
+            <td>Writes a stable shell and partial set once, then rebuilds the same page.</td>
+          </tr>
+          <tr>
+            <td>Payload update</td>
+            <td>agent or human surface</td>
+            <td>Submits JSON-ish state into <code>current.json</code> or append-only logs.</td>
+          </tr>
+          <tr>
+            <td>Watch daemon</td>
+            <td><code>render-session.mjs --watch</code></td>
+            <td>Rebuilds the static HTML shell in ~1–3ms when files change.</td>
+          </tr>
+          <tr>
+            <td>Interaction bridge</td>
+            <td>AgentPing</td>
+            <td>Carries approvals, mail, comments, or action surfaces back to the user.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="section-head">
+      <div class="eyebrow">3 / Daemon vs Astro vs React tree</div>
+      <h2>What this actually is</h2>
+      <p class="lead">You asked whether this is different from Astro. It is, but not because the final output differs. It is different because the control loop and data model differ.</p>
+    </div>
+
+    <section class="panel">
+      <div class="panel-label">Comparison</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Approach</th>
+            <th>Good at</th>
+            <th>Bad at</th>
+            <th>My take here</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Astro-style static site build</td>
+            <td>Multi-page content sites, docs, islands, publishing</td>
+            <td>Session-native append-only interaction model is not its natural center</td>
+            <td>Overkill for v0. Fine later if this becomes a broader publishing surface.</td>
+          </tr>
+          <tr>
+            <td>Tiny local build daemon</td>
+            <td>Ultra-fast rebuilds from schema/data mutations into static HTML</td>
+            <td>Less batteries included; you own the contract</td>
+            <td><strong>Best fit now.</strong> The POC already proves this direction.</td>
+          </tr>
+          <tr>
+            <td>React tree / VDOM host</td>
+            <td>Very interactive widgets, local stateful complexity</td>
+            <td>Easy to overbuild before the session-shell contract is stable</td>
+            <td>Good later for richer widgets or AgentPing-hosted surfaces, not required for the shell core.</td>
+          </tr>
+          <tr>
+            <td>BertUI-style ultra-fast static pipeline</td>
+            <td>Exactly the “schema in, static page out very quickly” instinct you described</td>
+            <td>You still need your own session grammar, asset conventions, and bridge semantics</td>
+            <td>The <em>pattern</em> is right even if we don’t copy the stack literally.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="section-head">
+      <div class="eyebrow">4 / Plugin question</div>
+      <h2>Should this be a plugin?</h2>
+      <p class="lead">Not yet. Right now this is exactly a custom local renderer. That is not a failure; it is the right phase.</p>
+    </div>
+
+    <div class="grid-2">
+      <section class="card">
+        <h3>Why it should stay local now</h3>
+        <p>
+          The contract is still moving: session hierarchy, widget schema, mailbox semantics, AgentPing bridge rules, and artifact mirroring are not stable enough to promote. If you pluginize now, you will harden the wrong interface.
+        </p>
+        <div>
+          <span class="chip chip--rose">still moving</span>
+          <span class="chip chip--rose">renderer not settled</span>
+          <span class="chip chip--rose">bridge not settled</span>
+        </div>
+      </section>
+      <section class="card">
+        <h3>What promotion would look like later</h3>
+        <p>
+          Split the reusable renderer/compiler into <code>plugins/genui</code> or <code>plugins/core-genui</code>. Then let Lev use AgentPing via a platform plugin beneath it. That keeps the fractal inversion you described without overloading AgentPing with the abstraction burden.
+        </p>
+        <div>
+          <span class="chip chip--teal">renderer plugin</span>
+          <span class="chip chip--teal">AgentPing platform plugin</span>
+          <span class="chip chip--teal">LevUI IR stays above</span>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="panel-label">My recommendation</div>
+      <div class="callout">
+        <p>
+          Keep the shell local in <code>.lev/gen-ui</code>. Use a tiny watch daemon as the primary runtime. Emit static HTML every time. Treat the schema as the session grammar and AgentPing as the interaction/host bridge. When the grammar stops moving, then promote the reusable parts into a plugin.
+        </p>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

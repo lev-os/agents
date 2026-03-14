@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COPI FMEA Risk Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ============ THEME — Deep Blue + Gold ============ */
+  :root {
+    --font-body: 'Instrument Serif', 'Georgia', serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    --font-sans: system-ui, -apple-system, sans-serif;
+
+    --bg: #0b1628;
+    --bg-gradient: linear-gradient(160deg, #0b1628 0%, #122240 40%, #0e1a32 100%);
+    --surface: #142036;
+    --surface2: #19274a;
+    --surface-elevated: #1e3058;
+    --border: rgba(255, 255, 255, 0.06);
+    --border-bright: rgba(212, 167, 58, 0.2);
+    --text: #e8eaf0;
+    --text-dim: #7b8ba8;
+
+    --gold: #d4a73a;
+    --gold-bright: #f0c85a;
+    --gold-dim: rgba(212, 167, 58, 0.1);
+
+    --red: #ef4444;
+    --red-dim: rgba(239, 68, 68, 0.12);
+    --orange: #f59e0b;
+    --orange-dim: rgba(245, 158, 11, 0.1);
+    --yellow: #eab308;
+    --yellow-dim: rgba(234, 179, 8, 0.1);
+    --green: #22c55e;
+    --green-dim: rgba(34, 197, 94, 0.1);
+
+    --critical-bg: rgba(239, 68, 68, 0.08);
+    --critical-border: rgba(239, 68, 68, 0.3);
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f0f2f7;
+      --bg-gradient: linear-gradient(160deg, #f0f2f7 0%, #e4e8f0 40%, #eef0f5 100%);
+      --surface: #ffffff;
+      --surface2: #f5f6fa;
+      --surface-elevated: #ffffff;
+      --border: rgba(0, 0, 0, 0.08);
+      --border-bright: rgba(30, 58, 95, 0.18);
+      --text: #1e293b;
+      --text-dim: #64748b;
+
+      --gold: #b8860b;
+      --gold-bright: #d4a73a;
+      --gold-dim: rgba(184, 134, 11, 0.08);
+
+      --red: #dc2626;
+      --red-dim: rgba(220, 38, 38, 0.08);
+      --orange: #d97706;
+      --orange-dim: rgba(217, 119, 6, 0.08);
+      --yellow: #ca8a04;
+      --yellow-dim: rgba(202, 138, 4, 0.08);
+      --green: #16a34a;
+      --green-dim: rgba(22, 163, 74, 0.08);
+
+      --critical-bg: rgba(220, 38, 38, 0.06);
+      --critical-border: rgba(220, 38, 38, 0.25);
+    }
+  }
+
+  /* ============ RESET + BASE ============ */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    background-image: var(--bg-gradient);
+    color: var(--text);
+    font-family: var(--font-sans);
+    padding: 40px;
+    min-height: 100vh;
+  }
+
+  /* Subtle grid texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ============ ANIMATIONS ============ */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeScale {
+    from { opacity: 0; transform: scale(0.92); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes countUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate {
+    animation: fadeUp 0.4s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.05s);
+  }
+
+  .animate-scale {
+    animation: fadeScale 0.4s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.08s);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-delay: 0ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ============ CONTAINER ============ */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ============ HEADER ============ */
+  .header {
+    margin-bottom: 32px;
+  }
+
+  .header__badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    background: var(--gold-dim);
+    border: 1px solid rgba(212, 167, 58, 0.2);
+    padding: 4px 12px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    font-family: var(--font-body);
+    font-size: 38px;
+    font-weight: 400;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  h1 span {
+    color: var(--gold);
+  }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  /* ============ KPI CARDS ============ */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .kpi-card:hover {
+    border-color: var(--border-bright);
+    transform: translateY(-2px);
+  }
+
+  .kpi-card--hero {
+    background: var(--surface-elevated);
+    border-color: var(--border-bright);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .kpi-card--critical {
+    border-color: var(--critical-border);
+    background: var(--critical-bg);
+  }
+
+  .kpi-card__value {
+    font-family: var(--font-body);
+    font-size: 42px;
+    font-weight: 400;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    animation: countUp 0.5s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.1s + 0.2s);
+  }
+
+  .kpi-card__value--gold { color: var(--gold-bright); }
+  .kpi-card__value--red { color: var(--red); }
+  .kpi-card__value--orange { color: var(--orange); }
+
+  .kpi-card__label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: var(--text-dim);
+    margin-top: 8px;
+  }
+
+  .kpi-card__detail {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    opacity: 0.7;
+  }
+
+  /* ============ LEGEND ============ */
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .legend-swatch {
+    width: 14px;
+    height: 8px;
+    border-radius: 2px;
+  }
+
+  /* ============ TABLE WRAPPER ============ */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ============ TABLE ============ */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .data-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  .data-table th {
+    background: var(--surface2);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 14px 16px;
+    border-bottom: 2px solid var(--border-bright);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s ease;
+  }
+
+  .data-table th:hover {
+    color: var(--gold);
+  }
+
+  .data-table th.sort-asc::after { content: ' \u25B2'; font-size: 8px; }
+  .data-table th.sort-desc::after { content: ' \u25BC'; font-size: 8px; }
+
+  /* Numeric columns right-aligned */
+  .data-table th.num,
+  .data-table td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .data-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .data-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* Alternating rows */
+  .data-table tbody tr:nth-child(even) {
+    background: rgba(212, 167, 58, 0.02);
+  }
+
+  /* Row hover + stagger */
+  .data-table tbody tr {
+    transition: background 0.15s ease;
+    animation: fadeUp 0.35s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.04s);
+  }
+
+  .data-table tbody tr:hover {
+    background: var(--gold-dim);
+  }
+
+  /* Critical row */
+  .data-table tbody tr.row--critical {
+    background: var(--critical-bg);
+    border-left: 3px solid var(--red);
+  }
+
+  .data-table tbody tr.row--critical:hover {
+    background: rgba(239, 68, 68, 0.14);
+  }
+
+  /* Wide column */
+  .data-table .wide {
+    min-width: 200px;
+    max-width: 360px;
+  }
+
+  /* Code in cells */
+  .data-table code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: var(--gold-dim);
+    color: var(--gold);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* Rank column */
+  .rank {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    width: 20px;
+    text-align: center;
+  }
+
+  .rank--top3 {
+    color: var(--gold-bright);
+  }
+
+  /* ID badge */
+  .id-badge {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  /* ============ RPN HEAT MAP ============ */
+  .rpn {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-block;
+    min-width: 44px;
+    text-align: center;
+  }
+
+  .rpn--red {
+    background: var(--red-dim);
+    color: var(--red);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  .rpn--orange {
+    background: var(--orange-dim);
+    color: var(--orange);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+  }
+
+  .rpn--yellow {
+    background: var(--yellow-dim);
+    color: var(--yellow);
+    border: 1px solid rgba(234, 179, 8, 0.2);
+  }
+
+  .rpn--green {
+    background: var(--green-dim);
+    color: var(--green);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+  }
+
+  /* ============ SOD CELLS ============ */
+  .sod {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+  }
+
+  /* ============ MODULE BADGES ============ */
+  .module {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .module--audio { background: rgba(59, 130, 246, 0.12); color: #60a5fa; }
+  .module--transcription { background: rgba(168, 85, 247, 0.12); color: #c084fc; }
+  .module--intent { background: rgba(245, 158, 11, 0.12); color: var(--orange); }
+  .module--decision-gate { background: rgba(34, 197, 94, 0.12); color: var(--green); }
+  .module--response { background: rgba(236, 72, 153, 0.12); color: #f472b6; }
+  .module--thor-deploy { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
+
+  /* ============ STATUS BADGES ============ */
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+  }
+
+  .status::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .status--open {
+    background: var(--gold-dim);
+    color: var(--gold);
+  }
+
+  .status--critical {
+    background: var(--red-dim);
+    color: var(--red);
+    animation: criticalPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes criticalPulse {
+    0%, 100% { box-shadow: none; }
+    50% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.3); }
+  }
+
+  /* ============ FOOTER ROW ============ */
+  .data-table tfoot td {
+    background: var(--surface2);
+    font-weight: 600;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    border-top: 2px solid var(--border-bright);
+    border-bottom: none;
+    padding: 14px 16px;
+    color: var(--text-dim);
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 900px) {
+    body { padding: 16px; }
+    h1 { font-size: 28px; }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .kpi-card__value { font-size: 32px; }
+    .data-table th,
+    .data-table td { padding: 10px 12px; }
+  }
+
+  @media (max-width: 480px) {
+    .kpi-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header animate" style="--i:0">
+    <div class="header__badge">FMEA Analysis</div>
+    <h1>COPI <span>Risk Dashboard</span></h1>
+    <p class="subtitle">Failure Mode &amp; Effects Analysis &mdash; 12 risks ranked by RPN (Severity &times; Occurrence &times; Detection)</p>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-row">
+    <div class="kpi-card kpi-card--hero animate-scale" style="--i:0">
+      <div class="kpi-card__value kpi-card__value--gold">12</div>
+      <div class="kpi-card__label">Total Risks</div>
+      <div class="kpi-card__detail">Across all modules</div>
+    </div>
+    <div class="kpi-card kpi-card--critical animate-scale" style="--i:1">
+      <div class="kpi-card__value kpi-card__value--red">1</div>
+      <div class="kpi-card__label">Critical</div>
+      <div class="kpi-card__detail">I2 emergency regex</div>
+    </div>
+    <div class="kpi-card animate-scale" style="--i:2">
+      <div class="kpi-card__value kpi-card__value--orange">218</div>
+      <div class="kpi-card__label">Average RPN</div>
+      <div class="kpi-card__detail">High risk threshold</div>
+    </div>
+    <div class="kpi-card animate-scale" style="--i:3">
+      <div class="kpi-card__value" style="color: var(--text)">5</div>
+      <div class="kpi-card__label">Modules Affected</div>
+      <div class="kpi-card__detail">audio, transcription, intent, decision-gate, response</div>
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend animate" style="--i:6">
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--red)"></div> RPN &gt; 250</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--orange)"></div> 200 &ndash; 250</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--yellow)"></div> 150 &ndash; 200</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--green)"></div> &lt; 150</div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap animate" style="--i:7">
+    <div class="table-scroll">
+      <table class="data-table" id="riskTable">
+        <thead>
+          <tr>
+            <th data-sort="num" class="num">#</th>
+            <th data-sort="num" class="num sort-desc">RPN</th>
+            <th data-sort="str">ID</th>
+            <th data-sort="str" class="wide">Failure Mode</th>
+            <th data-sort="num" class="num">S</th>
+            <th data-sort="num" class="num">O</th>
+            <th data-sort="num" class="num">D</th>
+            <th data-sort="str">Module</th>
+            <th data-sort="str">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="--i:8">
+            <td class="rank rank--top3">1</td>
+            <td class="num"><span class="rpn rpn--red">280</span></td>
+            <td><span class="id-badge">A1</span></td>
+            <td class="wide">Audio frame drops &rarr; wrong transcription</td>
+            <td class="sod">8</td>
+            <td class="sod">7</td>
+            <td class="sod">5</td>
+            <td><span class="module module--audio">audio</span></td>
+            <td><span class="status status--open">Open</span></td>
+          </tr>
+          <tr style="--i:9">
+            <td class="rank rank--top3">2</td>
+            <td class="num"><span class="rpn rpn--red">270</span></td>
+            <td><span class="id-badge">T1</span></td>
+            <td class="wide">Whisper hallucination &rarr; valid ATC command</td>
+            <td class="sod">9</td>
+            <td class="sod">6</td>
+            <td class="sod">5</td>
+            <td><span class="module module--transcription">transcription</span></td>
+            <td><span class="status status--open">Open</span></td>
+          </tr>
+          <tr style="--i:10">
+            <td class="rank rank--top3">3</td>
+            <td class="num"><span class="rpn rpn--orange">245</span></td>
+            <td><span class="id-badge">T2</span></td>
+            <td class="wide">Sync inference blocks event loop</td>
+            <td class="sod">7</td>
+            <td class="sod">7</td>
+            <td class="sod">5</td>
+            <td><span class="module module--transcription">transcription</span></td>
+            <td><span class="status status--open">Open</span></td>
+          </tr>
+          <tr style="--i:11">
+            <td class="rank">4</td>
+            <td class="num"><span class="rpn rpn--orange">240</span></td>
+            <td><span class="id-badge">I1</span></td>
+            <td class="wide">Unbounded altitude/heading/freq values</td>
+            <td class="sod">8</td>
+            <td class="sod">6</td>
+            <td class="sod">5</td>
+            <td><span class="module module--intent">intent</span></td>
+            <td><span class="status status--open">Open</span></td>
+          </tr>
+          <tr style="--i:12">
+            <td class="rank">5</td>
+            <td class="num"><span class="rpn rpn--orange">224</span></td>
+            <td><span class="id-badge">T3</span></td>
+            <td class="wide">Pending segments memory leak</td>
+            <td class="sod">7</td>
+            <td class="sod">8</td>
+            <td class="sod">4</td>
+            <td><span class="module module--transcription">transcription</span></td>
+            <td><span class="status status--open">Open</span></td>
+          </tr>
+          <tr style="--i:13" class="row--critical">
+            <td class="rank">6</td>
+            <td class="num"><span class="rpn rpn--orange">224</span></td>
+            <td><span class="id-badge">I2</span></td>
+            <td class="wide">Emergency regex 50% false positive + P0 bypass</td>
+            <td class="sod">8</td>
+            <td class="sod">7</td>
+            <td class="sod">4</td>
+            <td><span class="module module--intent">intent</span></td>
+            <td><span class="status status--critical">CRITICAL</span></td>
+          </tr>
+          <tr style="--i:14">
+            <td class="rank">7</td>
+            <td class="num"><span class="rpn rpn--orange">200</span></td>
+            <td><span class="id-badge">T4</span></td>
+            <td class="wide">Low-confidence transcript accepted</td>
+            <td class="sod">8</td>
+            <td class="sod">5</td>
+            <td class="sod">5</td>
+            <td><span class="module module--transcription">transcription</span></td>
+            <td><span class="status status--open">Open</span></td>
+          </tr>
+          <tr style="--i:15">
+            <td class="rank">8</td>
+            <td class="num"><span class="rpn rpn--yellow">196</span></td>
+            <td><span class="id-badge">G1</span></td>
+            <td class="wide">Gate decision ordering mismatch</td>
+            <td class="sod">7</td>
+            <td class="sod">7</td>
+            <td class="sod">4</td>
+            <td><span class="module module--decision-gate">decision-gate</span></td>
+            <td><span class="status status--open">Open</span></td>
+          </tr>
+          <tr style="--i:16">
+            <td class="rank">9</td>
+            <td class="num"><span class="rpn rpn--yellow">192</span></td>
+            <td><span class="id-badge">A2</span></td>
+            <td class="wide">Sample rate mismatch &rarr; hallucination</td>
+            <td class="sod">8</td>
+            <td class="sod">6</td>
+            <td class="sod">4</td>
+            <td><span class="module module--audio">audio</span></td>
+            <td><span class="status status--open">Open</span></td>
+          </tr>
+          <tr style="--i:17">
+            <td class="rank">10</td>
+            <td class="num"><span class="rpn rpn--yellow">192</span></td>
+            <td><span class="id-badge">R1</span></td>
+            <td class="wide">Empty params &rarr; garbled readback transmitted</td>
+            <td class="sod">8</td>
+            <td class="sod">6</td>
+            <td class="sod">4</td>
+            <td><span class="module module--response">response</span></td>
+            <td><span class="status status--open">Open</span></td>
+          </tr>
+          <tr style="--i:18">
+            <td class="rank">11</td>
+            <td class="num"><span class="rpn rpn--yellow">192</span></td>
+            <td><span class="id-badge">G2</span></td>
+            <td class="wide">Chain tracking memory leak</td>
+            <td class="sod">6</td>
+            <td class="sod">8</td>
+            <td class="sod">4</td>
+            <td><span class="module module--decision-gate">decision-gate</span></td>
+            <td><span class="status status--open">Open</span></td>
+          </tr>
+          <tr style="--i:19">
+            <td class="rank">12</td>
+            <td class="num"><span class="rpn rpn--yellow">168</span></td>
+            <td><span class="id-badge">D1</span></td>
+            <td class="wide">Demo mode left in production</td>
+            <td class="sod">8</td>
+            <td class="sod">3</td>
+            <td class="sod">7</td>
+            <td><span class="module module--thor-deploy">thor-deploy</span></td>
+            <td><span class="status status--open">Open</span></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2">12 risks</td>
+            <td></td>
+            <td>Avg RPN: 218</td>
+            <td colspan="3">S/O/D scale: 1-10</td>
+            <td colspan="2">1 critical &middot; 11 open</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- SORTABLE TABLE SCRIPT -->
+<script>
+  (function() {
+    const table = document.getElementById('riskTable');
+    const headers = table.querySelectorAll('th[data-sort]');
+    const tbody = table.querySelector('tbody');
+    let currentSort = { col: 1, dir: 'desc' };
+
+    headers.forEach((th, idx) => {
+      th.addEventListener('click', () => {
+        const dir = (currentSort.col === idx && currentSort.dir === 'desc') ? 'asc' : 'desc';
+        currentSort = { col: idx, dir };
+
+        headers.forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+        th.classList.add(dir === 'asc' ? 'sort-asc' : 'sort-desc');
+
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const type = th.dataset.sort;
+
+        rows.sort((a, b) => {
+          let va = a.cells[idx].textContent.trim();
+          let vb = b.cells[idx].textContent.trim();
+          if (type === 'num') {
+            va = parseFloat(va) || 0;
+            vb = parseFloat(vb) || 0;
+          }
+          if (va < vb) return dir === 'asc' ? -1 : 1;
+          if (va > vb) return dir === 'asc' ? 1 : -1;
+          return 0;
+        });
+
+        rows.forEach((row, i) => {
+          row.style.setProperty('--i', i + 8);
+          tbody.appendChild(row);
+        });
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

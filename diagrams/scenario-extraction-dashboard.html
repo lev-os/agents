@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scenario Extraction Pipeline — COPI Aviation Commands</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --surface2: #e8eef4;
+    --surface-elevated: #ffffff;
+    --surface-recessed: #e2e8f0;
+    --border: rgba(0, 0, 0, 0.07);
+    --border-bright: rgba(0, 0, 0, 0.14);
+    --text: #1e293b;
+    --text-dim: #64748b;
+    --accent: #1e3a5f;
+    --accent-light: #2563eb;
+    --accent-dim: rgba(30, 58, 95, 0.06);
+    --gold: #d4a73a;
+    --gold-dim: rgba(212, 167, 58, 0.1);
+    --green: #059669;
+    --green-dim: rgba(5, 150, 105, 0.08);
+    --red: #dc2626;
+    --red-dim: rgba(220, 38, 38, 0.08);
+    --amber: #d97706;
+    --amber-dim: rgba(217, 119, 6, 0.08);
+    --teal: #0891b2;
+    --teal-dim: rgba(8, 145, 178, 0.08);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c1220;
+      --surface: #152035;
+      --surface2: #1a2740;
+      --surface-elevated: #1e2d4a;
+      --surface-recessed: #0a0f1a;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-bright: rgba(255, 255, 255, 0.12);
+      --text: #e2e8f0;
+      --text-dim: #94a3b8;
+      --accent: #60a5fa;
+      --accent-light: #93c5fd;
+      --accent-dim: rgba(96, 165, 250, 0.1);
+      --gold: #fbbf24;
+      --gold-dim: rgba(251, 191, 36, 0.1);
+      --green: #34d399;
+      --green-dim: rgba(52, 211, 153, 0.1);
+      --red: #f87171;
+      --red-dim: rgba(248, 113, 113, 0.1);
+      --amber: #fbbf24;
+      --amber-dim: rgba(251, 191, 36, 0.1);
+      --teal: #22d3ee;
+      --teal-dim: rgba(34, 211, 238, 0.1);
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, var(--accent-dim) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, var(--gold-dim) 0%, transparent 40%);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  /* ============ HEADER ============ */
+  .header {
+    text-align: left;
+    margin-bottom: 2.5rem;
+    padding: 2rem 2.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 12px;
+    animation: fadeUp 0.6s ease both;
+  }
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+  }
+  .header .subtitle {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    letter-spacing: 0.02em;
+  }
+
+  /* ============ KPI CARDS ============ */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .kpi {
+    background: var(--surface-elevated);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    animation: fadeScale 0.5s ease both;
+  }
+  .kpi:nth-child(1) { animation-delay: 0.1s; }
+  .kpi:nth-child(2) { animation-delay: 0.15s; }
+  .kpi:nth-child(3) { animation-delay: 0.2s; }
+  .kpi:nth-child(4) { animation-delay: 0.25s; }
+  .kpi:nth-child(5) { animation-delay: 0.3s; }
+  .kpi:nth-child(6) { animation-delay: 0.35s; }
+  .kpi .kpi-value {
+    font-size: 2rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+  }
+  .kpi .kpi-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    margin-top: 0.35rem;
+  }
+  .kpi .kpi-delta {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    font-weight: 500;
+  }
+  .kpi--accent .kpi-value { color: var(--accent); }
+  .kpi--gold .kpi-value { color: var(--gold); }
+  .kpi--green .kpi-value { color: var(--green); }
+  .kpi--teal .kpi-value { color: var(--teal); }
+  .kpi--red .kpi-value { color: var(--red); }
+
+  /* ============ SECTIONS ============ */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    animation: fadeUp 0.6s ease both;
+  }
+  .section:nth-of-type(2) { animation-delay: 0.1s; }
+  .section:nth-of-type(3) { animation-delay: 0.15s; }
+  .section:nth-of-type(4) { animation-delay: 0.2s; }
+  .section:nth-of-type(5) { animation-delay: 0.25s; }
+
+  .section-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .section-num {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-dim);
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+  .section-body { padding: 1.5rem; }
+
+  /* ============ TABLE ============ */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.88rem;
+  }
+  thead th {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 2px solid var(--border-bright);
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    z-index: 1;
+    white-space: nowrap;
+  }
+  td {
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tbody tr:nth-child(even) { background: var(--surface2); }
+  tbody tr:hover { background: var(--accent-dim); }
+  tbody tr {
+    animation: fadeUp 0.3s ease both;
+    animation-delay: calc(var(--i, 0) * 0.03s);
+  }
+  td code {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    background: var(--surface-recessed);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+  }
+  .num-col { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--font-mono); font-weight: 500; }
+
+  /* ============ BADGES ============ */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 0.2em 0.6em;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .badge--green { background: var(--green-dim); color: var(--green); }
+  .badge--red { background: var(--red-dim); color: var(--red); }
+  .badge--amber { background: var(--amber-dim); color: var(--amber); }
+  .badge--teal { background: var(--teal-dim); color: var(--teal); }
+  .badge--gold { background: var(--gold-dim); color: var(--gold); }
+  .badge--accent { background: var(--accent-dim); color: var(--accent); }
+  .badge-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor; flex-shrink: 0;
+  }
+
+  /* ============ PIPELINE FLOW ============ */
+  .pipeline {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    overflow-x: auto;
+    padding: 0.5rem 0;
+  }
+  .pipe-step {
+    flex: 1;
+    min-width: 140px;
+    padding: 1rem;
+    text-align: center;
+    position: relative;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 8px;
+    margin-right: -1px;
+  }
+  .pipe-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: -14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0; height: 0;
+    border-left: 12px solid var(--border-bright);
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    z-index: 2;
+  }
+  .pipe-step.done { border-color: var(--green); background: var(--green-dim); }
+  .pipe-step .pipe-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+  }
+  .pipe-step .pipe-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 0.25rem;
+  }
+  .pipe-step .pipe-detail {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-top: 0.15rem;
+  }
+
+  /* ============ SPLIT PANEL ============ */
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  @media (max-width: 768px) {
+    .split { grid-template-columns: 1fr; }
+    .pipeline { flex-direction: column; }
+    .pipe-step:not(:last-child)::after { display: none; }
+  }
+
+  /* ============ PROSE CALLOUT ============ */
+  .callout {
+    background: var(--amber-dim);
+    border-left: 3px solid var(--amber);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    font-size: 0.88rem;
+    margin: 1rem 0;
+  }
+  .callout strong { color: var(--amber); }
+
+  /* ============ ANIMATIONS ============ */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeScale {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ============ DETAILS / COLLAPSIBLE ============ */
+  details {
+    background: var(--surface-recessed);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-top: 1rem;
+    overflow: hidden;
+  }
+  summary {
+    padding: 0.75rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text-dim);
+    list-style: none;
+  }
+  summary::before {
+    content: '+ ';
+    font-weight: 600;
+    color: var(--accent);
+  }
+  details[open] summary::before { content: '- '; }
+  details .detail-body { padding: 0 1rem 1rem; }
+  details .detail-body p {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+  }
+
+  .mini-table { font-size: 0.82rem; }
+  .mini-table td, .mini-table th { padding: 0.4rem 0.75rem; }
+
+  .footer {
+    text-align: center;
+    padding: 2rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-dim);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>Scenario Extraction Pipeline</h1>
+    <div class="subtitle">COPI Aviation Radio Commands &mdash; PlaneEnglish PDF + Prototype Mining &mdash; 2026-03-09</div>
+  </div>
+
+  <!-- KPI ROW -->
+  <div class="kpi-grid">
+    <div class="kpi kpi--accent">
+      <div class="kpi-value">12,870</div>
+      <div class="kpi-label">Unique Commands</div>
+      <div class="kpi-delta" style="color: var(--green);">+12,100 from baseline 770</div>
+    </div>
+    <div class="kpi kpi--gold">
+      <div class="kpi-value">106</div>
+      <div class="kpi-label">Intent Types</div>
+      <div class="kpi-delta" style="color: var(--green);">+63 from baseline 43</div>
+    </div>
+    <div class="kpi kpi--green">
+      <div class="kpi-value">0.4%</div>
+      <div class="kpi-label">False Positive Rate</div>
+      <div class="kpi-delta" style="color: var(--green);">poc/cleanup validated</div>
+    </div>
+    <div class="kpi kpi--teal">
+      <div class="kpi-value">478</div>
+      <div class="kpi-label">Test Fixtures</div>
+      <div class="kpi-delta" style="color: var(--green);">+462 from baseline 16</div>
+    </div>
+    <div class="kpi kpi--accent">
+      <div class="kpi-value">221</div>
+      <div class="kpi-label">Scenarios Mined</div>
+      <div class="kpi-delta">of 224 total files</div>
+    </div>
+    <div class="kpi kpi--gold">
+      <div class="kpi-value">142</div>
+      <div class="kpi-label">PDF Commands</div>
+      <div class="kpi-delta">30 new intent patterns</div>
+    </div>
+  </div>
+
+  <!-- PIPELINE FLOW -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <div class="section-title">Pipeline Execution</div>
+    </div>
+    <div class="section-body">
+      <div class="pipeline">
+        <div class="pipe-step done">
+          <div class="pipe-label">T1 + T5</div>
+          <div class="pipe-value">Extract</div>
+          <div class="pipe-detail">15,301 + 142 cmds</div>
+        </div>
+        <div class="pipe-step done">
+          <div class="pipe-label">T4</div>
+          <div class="pipe-value">Gap Analysis</div>
+          <div class="pipe-detail">68 new intents</div>
+        </div>
+        <div class="pipe-step done">
+          <div class="pipe-label">Gate 1</div>
+          <div class="pipe-value">Deduplicate</div>
+          <div class="pipe-detail">-2,573 dupes</div>
+        </div>
+        <div class="pipe-step done">
+          <div class="pipe-label">T7</div>
+          <div class="pipe-value">Format</div>
+          <div class="pipe-detail">478 fixtures</div>
+        </div>
+        <div class="pipe-step done">
+          <div class="pipe-label">Gate 2</div>
+          <div class="pipe-value">Validate</div>
+          <div class="pipe-detail">0.4% FP rate</div>
+        </div>
+        <div class="pipe-step done">
+          <div class="pipe-label">Gate 3</div>
+          <div class="pipe-value">Handoff</div>
+          <div class="pipe-detail">Report done</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOL COMPARISON -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <div class="section-title">Extraction Tool Comparison</div>
+    </div>
+    <div class="section-body">
+      <div class="callout">
+        <strong>Research Status:</strong> 9/10 background research agents hit ConnectionRefused during context switchover. Docling deep-dive succeeded. Tool-researcher did comparison from model knowledge. <strong>5 POC spikes recommended</strong> for live validation.
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Tool</th>
+              <th>Score</th>
+              <th>Deterministic</th>
+              <th>Tables</th>
+              <th>JSON Output</th>
+              <th>License</th>
+              <th>Local</th>
+              <th>Verdict</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="--i:0"><td><strong>Docling</strong></td><td class="num-col">9.4</td><td><span class="badge badge--green"><span class="badge-dot"></span>Yes</span></td><td><span class="badge badge--green"><span class="badge-dot"></span>Excellent</span></td><td><span class="badge badge--green"><span class="badge-dot"></span>Full hierarchy</span></td><td><code>MIT</code></td><td><span class="badge badge--green"><span class="badge-dot"></span>Yes</span></td><td><span class="badge badge--green"><span class="badge-dot"></span>Winner</span></td></tr>
+            <tr style="--i:1"><td>Google Doc AI</td><td class="num-col">7.4</td><td><span class="badge badge--green"><span class="badge-dot"></span>Yes</span></td><td><span class="badge badge--green"><span class="badge-dot"></span>Excellent</span></td><td><span class="badge badge--green"><span class="badge-dot"></span>Yes</span></td><td><code>Prop</code></td><td><span class="badge badge--red"><span class="badge-dot"></span>Cloud</span></td><td><span class="badge badge--amber">Overkill</span></td></tr>
+            <tr style="--i:2"><td>Unstructured.io</td><td class="num-col">6.25</td><td><span class="badge badge--green"><span class="badge-dot"></span>Yes</span></td><td><span class="badge badge--amber"><span class="badge-dot"></span>Good</span></td><td><span class="badge badge--amber"><span class="badge-dot"></span>Flat list</span></td><td><code>Apache</code></td><td><span class="badge badge--green"><span class="badge-dot"></span>Yes</span></td><td><span class="badge badge--amber">No hierarchy</span></td></tr>
+            <tr style="--i:3"><td>Marker</td><td class="num-col">6.05</td><td><span class="badge badge--green"><span class="badge-dot"></span>Yes</span></td><td><span class="badge badge--amber"><span class="badge-dot"></span>Good</span></td><td><span class="badge badge--red"><span class="badge-dot"></span>MD only</span></td><td><code>GPL</code></td><td><span class="badge badge--green"><span class="badge-dot"></span>Yes</span></td><td><span class="badge badge--amber">No JSON</span></td></tr>
+            <tr style="--i:4"><td>Reducto</td><td class="num-col">5.85</td><td><span class="badge badge--green"><span class="badge-dot"></span>Yes</span></td><td><span class="badge badge--green"><span class="badge-dot"></span>Good</span></td><td><span class="badge badge--green"><span class="badge-dot"></span>Yes</span></td><td><code>Prop</code></td><td><span class="badge badge--red"><span class="badge-dot"></span>Cloud</span></td><td><span class="badge badge--amber">Cloud-only</span></td></tr>
+            <tr style="--i:5"><td>PyMuPDF4LLM</td><td class="num-col">5.35</td><td><span class="badge badge--green"><span class="badge-dot"></span>Yes</span></td><td><span class="badge badge--red"><span class="badge-dot"></span>Heuristic</span></td><td><span class="badge badge--amber"><span class="badge-dot"></span>MD/JSON</span></td><td><code>AGPL</code></td><td><span class="badge badge--green"><span class="badge-dot"></span>Yes</span></td><td><span class="badge badge--red">No ML tables</span></td></tr>
+            <tr style="--i:6"><td>LlamaParse</td><td class="num-col">4.85</td><td><span class="badge badge--red"><span class="badge-dot"></span>No (LLM)</span></td><td><span class="badge badge--amber"><span class="badge-dot"></span>Good</span></td><td><span class="badge badge--green"><span class="badge-dot"></span>Yes</span></td><td><code>Prop</code></td><td><span class="badge badge--red"><span class="badge-dot"></span>Cloud</span></td><td><span class="badge badge--red">Non-deterministic</span></td></tr>
+            <tr style="--i:7"><td>MegaParse</td><td class="num-col">4.45</td><td><span class="badge badge--red"><span class="badge-dot"></span>No (LLM)</span></td><td><span class="badge badge--amber"><span class="badge-dot"></span>Varies</span></td><td><span class="badge badge--amber"><span class="badge-dot"></span>Partial</span></td><td><code>MIT</code></td><td><span class="badge badge--green"><span class="badge-dot"></span>Yes</span></td><td><span class="badge badge--red">Immature</span></td></tr>
+            <tr style="--i:8"><td>Nougat</td><td class="num-col">3.55</td><td><span class="badge badge--green"><span class="badge-dot"></span>Yes</span></td><td><span class="badge badge--red"><span class="badge-dot"></span>Poor</span></td><td><span class="badge badge--amber"><span class="badge-dot"></span>MMD</span></td><td><code>MIT</code></td><td><span class="badge badge--green"><span class="badge-dot"></span>Yes</span></td><td><span class="badge badge--red">Wrong domain</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTENT COVERAGE SPLIT -->
+  <div class="split">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-num">03</div>
+        <div class="section-title">Top 20 Intent Types</div>
+      </div>
+      <div class="section-body">
+        <div class="table-wrap">
+          <table class="mini-table">
+            <thead><tr><th>Intent Type</th><th>Count</th><th>Source</th></tr></thead>
+            <tbody>
+              <tr style="--i:0"><td><code>other</code></td><td class="num-col">2,146</td><td><span class="badge badge--amber">Unclassified</span></td></tr>
+              <tr style="--i:1"><td><code>traffic_advisory</code></td><td class="num-col">1,038</td><td><span class="badge badge--teal">Both</span></td></tr>
+              <tr style="--i:2"><td><code>position_report</code></td><td class="num-col">1,016</td><td><span class="badge badge--teal">Both</span></td></tr>
+              <tr style="--i:3"><td><code>taxi_instruction</code></td><td class="num-col">930</td><td><span class="badge badge--teal">Both</span></td></tr>
+              <tr style="--i:4"><td><code>initial_contact</code></td><td class="num-col">925</td><td><span class="badge badge--accent">Prototype</span></td></tr>
+              <tr style="--i:5"><td><code>frequency_change</code></td><td class="num-col">851</td><td><span class="badge badge--teal">Both</span></td></tr>
+              <tr style="--i:6"><td><code>altitude_instruction</code></td><td class="num-col">690</td><td><span class="badge badge--teal">Both</span></td></tr>
+              <tr style="--i:7"><td><code>weather_advisory</code></td><td class="num-col">616</td><td><span class="badge badge--teal">Both</span></td></tr>
+              <tr style="--i:8"><td><code>departure_instruction</code></td><td class="num-col">558</td><td><span class="badge badge--accent">Prototype</span></td></tr>
+              <tr style="--i:9"><td><code>sequencing</code></td><td class="num-col">550</td><td><span class="badge badge--accent">Prototype</span></td></tr>
+              <tr style="--i:10"><td><code>landing_clearance</code></td><td class="num-col">529</td><td><span class="badge badge--teal">Both</span></td></tr>
+              <tr style="--i:11"><td><code>emergency_declaration</code></td><td class="num-col">492</td><td><span class="badge badge--teal">Both</span></td></tr>
+              <tr style="--i:12"><td><code>heading_instruction</code></td><td class="num-col">313</td><td><span class="badge badge--teal">Both</span></td></tr>
+              <tr style="--i:13"><td><code>ground_ops</code></td><td class="num-col">291</td><td><span class="badge badge--accent">Prototype</span></td></tr>
+              <tr style="--i:14"><td><code>takeoff_clearance</code></td><td class="num-col">264</td><td><span class="badge badge--teal">Both</span></td></tr>
+              <tr style="--i:15"><td><code>atis_report</code></td><td class="num-col">216</td><td><span class="badge badge--accent">Prototype</span></td></tr>
+              <tr style="--i:16"><td><code>ground_hold</code></td><td class="num-col">165</td><td><span class="badge badge--accent">Prototype</span></td></tr>
+              <tr style="--i:17"><td><code>airspace_instruction</code></td><td class="num-col">149</td><td><span class="badge badge--accent">Prototype</span></td></tr>
+              <tr style="--i:18"><td><code>hold_short</code></td><td class="num-col">144</td><td><span class="badge badge--teal">Both</span></td></tr>
+              <tr style="--i:19"><td><code>pattern_entry</code></td><td class="num-col">103</td><td><span class="badge badge--teal">Both</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div class="section-num">04</div>
+        <div class="section-title">PDF-Only Intent Types (Gaps)</div>
+      </div>
+      <div class="section-body">
+        <p style="font-size: 0.88rem; color: var(--text-dim); margin-bottom: 1rem;">68 intent types found in PlaneEnglish PDF that are <strong>not covered</strong> by prototype scenarios. Top entries:</p>
+        <div class="table-wrap">
+          <table class="mini-table">
+            <thead><tr><th>New Intent</th><th>Cmds</th><th>Category</th></tr></thead>
+            <tbody>
+              <tr style="--i:0"><td><code>squawk_assignment</code></td><td class="num-col">6</td><td><span class="badge badge--gold">Transponder</span></td></tr>
+              <tr style="--i:1"><td><code>taxi_request</code></td><td class="num-col">5</td><td><span class="badge badge--gold">Ground</span></td></tr>
+              <tr style="--i:2"><td><code>traffic_acknowledgment</code></td><td class="num-col">5</td><td><span class="badge badge--gold">Advisory</span></td></tr>
+              <tr style="--i:3"><td><code>takeoff_request</code></td><td class="num-col">3</td><td><span class="badge badge--gold">Departure</span></td></tr>
+              <tr style="--i:4"><td><code>initial_contact_fss</code></td><td class="num-col">3</td><td><span class="badge badge--gold">FSS</span></td></tr>
+              <tr style="--i:5"><td><code>emergency_squawk</code></td><td class="num-col">3</td><td><span class="badge badge--gold">Emergency</span></td></tr>
+              <tr style="--i:6"><td><code>flight_following_request</code></td><td class="num-col">2</td><td><span class="badge badge--gold">Enroute</span></td></tr>
+              <tr style="--i:7"><td><code>airspace_entry_request</code></td><td class="num-col">2</td><td><span class="badge badge--gold">Airspace</span></td></tr>
+              <tr style="--i:8"><td><code>flight_plan_open</code></td><td class="num-col">1</td><td><span class="badge badge--gold">FSS</span></td></tr>
+              <tr style="--i:9"><td><code>emergency_cancellation</code></td><td class="num-col">1</td><td><span class="badge badge--gold">Emergency</span></td></tr>
+              <tr style="--i:10"><td><code>destination_change_request</code></td><td class="num-col">1</td><td><span class="badge badge--gold">Enroute</span></td></tr>
+              <tr style="--i:11"><td><code>deviation_request</code></td><td class="num-col">1</td><td><span class="badge badge--gold">Weather</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <details>
+          <summary>All 68 PDF-only intent types</summary>
+          <div class="detail-body">
+            <p>squawk_assignment, taxi_request, traffic_acknowledgment, takeoff_request, initial_contact_fss, emergency_squawk, runway_crossing_clearance, flight_following_request, transition_approval, radar_service_termination, airspace_entry_request, report_instruction, pattern_entry_instruction, sequence_assignment, initial_contact_atc, emergency_distress, emergency_urgency, unable, traffic_query, clearance, approach_instruction, taxi_announcement, hold_short_instruction, takeoff_announcement, departure_announcement, flight_plan_open, flight_plan_amend, flight_plan_confirmation, radar_contact, flight_following_termination, airspace_transition_request, airspace_entry_clearance, pattern_entry_announcement, initial_contact_tower, extend_instruction, altitude_change_request, vector_request, frequency_change_request, traffic_advisory_request, destination_change_request, deviation_request, altitude_report, heading_report, emergency_cancellation, affirmative, negative, say_again, ground_handoff, ifr_clearance_request, approach_request, standby, reroute_query, route_amendment, approach_cancellation, transponder_check, weather_request, speed_request, speed_report, speed_compliance_query, traffic_pattern_instruction, runway_clear_announcement, fss_response, crossing_confirmation_request, clearance_readback, go_around_instruction, go_around_announcement, disregard, ready_to_copy</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLEANUP VALIDATION -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">05</div>
+      <div class="section-title">poc/cleanup Pipeline Validation (Gate 2)</div>
+    </div>
+    <div class="section-body">
+      <div class="split" style="gap: 1rem;">
+        <div>
+          <h3 style="font-size: 0.95rem; margin-bottom: 0.75rem;">Ground Profile (Full Cleanup)</h3>
+          <table class="mini-table">
+            <thead><tr><th>Metric</th><th>Result</th><th>Rate</th></tr></thead>
+            <tbody>
+              <tr><td>Clean (unchanged)</td><td class="num-col">363</td><td class="num-col"><span class="badge badge--green">72.6%</span></td></tr>
+              <tr><td>Changed (cosmetic)</td><td class="num-col">118</td><td class="num-col"><span class="badge badge--teal">23.6%</span></td></tr>
+              <tr><td>Changed (content)</td><td class="num-col">17</td><td class="num-col"><span class="badge badge--amber">3.4%</span></td></tr>
+              <tr><td>Filtered (false positive)</td><td class="num-col">2</td><td class="num-col"><span class="badge badge--red">0.4%</span></td></tr>
+              <tr><td>Errors</td><td class="num-col">0</td><td class="num-col"><span class="badge badge--green">0.0%</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3 style="font-size: 0.95rem; margin-bottom: 0.75rem;">False Positive Details</h3>
+          <div style="font-size: 0.85rem; line-height: 1.6;">
+            <p style="margin-bottom: 0.75rem;"><span class="badge badge--red"><span class="badge-dot"></span>FP-1</span> Trailing <code>...</code> triggers hallucination filter<br><small style="color: var(--text-dim);">IFR clearance ending in ellipsis &mdash; source data artifact</small></p>
+            <p><span class="badge badge--red"><span class="badge-dot"></span>FP-2</span> <code>"the end"</code> in runway phraseology<br><small style="color: var(--text-dim);">"roll to the end" is legitimate ATC &mdash; needs phrase filter exception</small></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UNMINED SOURCES -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">06</div>
+      <div class="section-title">Unmined Command Sources (Still in Prototype)</div>
+    </div>
+    <div class="section-body">
+      <div class="callout">
+        <strong>Not yet extracted:</strong> These prototype files contain additional commands, phraseology patterns, and templates that were NOT included in the 12,870 master list.
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>File</th><th>Location</th><th>Type</th></tr></thead>
+          <tbody>
+            <tr style="--i:0"><td><code>command_patterns_ai_training.json</code></td><td>AI_Decision_Engine/aviation_knowledge/</td><td><span class="badge badge--gold">AI Training Data</span></td></tr>
+            <tr style="--i:1"><td><code>aircraft_to_atc_commands.json</code></td><td>AI_Decision_Engine/aviation_knowledge/</td><td><span class="badge badge--gold">Command Map</span></td></tr>
+            <tr style="--i:2"><td><code>international_phraseology.json</code></td><td>AI_Decision_Engine/aviation_knowledge/</td><td><span class="badge badge--gold">ICAO Phrases</span></td></tr>
+            <tr style="--i:3"><td><code>military_aviation_commands.json</code></td><td>AI_Decision_Engine/aviation_knowledge/</td><td><span class="badge badge--gold">Military</span></td></tr>
+            <tr style="--i:4"><td><code>uas_drone_commands.json</code></td><td>AI_Decision_Engine/aviation_knowledge/</td><td><span class="badge badge--gold">UAS/Drone</span></td></tr>
+            <tr style="--i:5"><td><code>atc_phraseology.py</code></td><td>CopiOS/knowledge/</td><td><span class="badge badge--teal">Python Dict</span></td></tr>
+            <tr style="--i:6"><td><code>templates.py</code></td><td>CopiOS/comms/phraseology_assistant/</td><td><span class="badge badge--teal">Templates</span></td></tr>
+            <tr style="--i:7"><td><code>flight_phrasebook.py</code></td><td>ATC_Communication_Core/radio_ai/</td><td><span class="badge badge--teal">Phrasebook</span></td></tr>
+            <tr style="--i:8"><td><code>phraseology.py</code></td><td>liveatc_tools/corrections/patterns/</td><td><span class="badge badge--teal">Correction Patterns</span></td></tr>
+            <tr style="--i:9"><td><code>atc_commands.py</code></td><td>liveatc_tools/corrections/patterns/tuning/</td><td><span class="badge badge--teal">Tuning Data</span></td></tr>
+            <tr style="--i:10"><td><code>phraseology_validator.py</code></td><td>ATC_Communication_Core/validators/</td><td><span class="badge badge--teal">Validation Rules</span></td></tr>
+            <tr style="--i:11"><td colspan="2"><em>3 non-standard scenario JSONs (flat structure, no phases[])</em></td><td><span class="badge badge--amber">Edge Cases</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARTIFACTS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">07</div>
+      <div class="section-title">Output Artifacts</div>
+    </div>
+    <div class="section-body">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>File</th><th>Size</th><th>Contents</th></tr></thead>
+          <tbody>
+            <tr style="--i:0"><td><code>master-command-list.json</code></td><td class="num-col">7.0 MB</td><td>12,870 deduplicated commands with provenance</td></tr>
+            <tr style="--i:1"><td><code>extracted-prototype-commands.json</code></td><td class="num-col">7.8 MB</td><td>15,301 raw commands from 221 scenario JSONs</td></tr>
+            <tr style="--i:2"><td><code>formatted-module-fixtures.py</code></td><td class="num-col">187 KB</td><td>478 test fixtures in scenario_fixtures.py format</td></tr>
+            <tr style="--i:3"><td><code>intent-coverage-matrix.json</code></td><td class="num-col">275 KB</td><td>106 intent types with samples, phases, sources</td></tr>
+            <tr style="--i:4"><td><code>extracted-planeenglish-commands.json</code></td><td class="num-col">78 KB</td><td>142 commands from 93-page VFR PDF</td></tr>
+            <tr style="--i:5"><td><code>gap-analysis.json</code></td><td class="num-col">4 KB</td><td>Intent coverage gaps between sources</td></tr>
+            <tr style="--i:6"><td><code>extraction-tool-comparison.md</code></td><td class="num-col">16 KB</td><td>9-tool comparison matrix (Docling wins)</td></tr>
+            <tr style="--i:7"><td><code>research-docling-ibm-pdf-extraction.md</code></td><td class="num-col">~20 KB</td><td>Docling deep-dive research report</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size: 0.82rem; color: var(--text-dim); margin-top: 0.75rem;">All files in <code>pm/scratch/</code> &mdash; Handoff at <code>.lev/pm/handoffs/20260309-scenario-extraction-pipeline.md</code></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    COPI Scenario Extraction Pipeline &mdash; Generated 2026-03-09 &mdash; Deep Blue + Gold / IBM Plex
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bookmark Content Review Wave 2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #faf7f3;
+      --surface: rgba(255,255,255,0.92);
+      --border: rgba(17,36,43,0.12);
+      --text: #13242b;
+      --dim: #56686f;
+      --teal: #0f766e;
+      --amber: #b45309;
+      --rose: #be123c;
+      --blue: #1d4ed8;
+      --shadow: 0 24px 72px rgba(18, 34, 41, 0.10);
+      --radius: 20px;
+    }
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(15,118,110,0.10), transparent 28rem),
+        radial-gradient(circle at bottom right, rgba(180,83,9,0.08), transparent 24rem),
+        var(--bg);
+    }
+    .page { width: min(1280px, calc(100vw - 2rem)); margin: 0 auto; padding: 2rem 0 3rem; }
+    .hero, .card, .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .hero { padding: 2rem; margin-bottom: 1.25rem; }
+    .eyebrow, .badge, code, th, .meta { font-family: "IBM Plex Mono", monospace; }
+    .eyebrow { color: var(--teal); letter-spacing: .12em; text-transform: uppercase; font-size: .82rem; margin-bottom: .8rem; }
+    h1, h2 { margin: 0 0 .75rem; line-height: 1.06; }
+    h1 { font-size: clamp(2rem, 4vw, 3.8rem); max-width: 11ch; }
+    p { margin: 0; line-height: 1.6; color: var(--dim); }
+    .meta { margin-top: 1rem; color: var(--dim); font-size: .82rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.25rem; }
+    .card { padding: 1.2rem; }
+    .badge { display: inline-block; padding: .18rem .55rem; border-radius: 999px; font-size: .72rem; margin-right: .3rem; }
+    .ok { background: rgba(15,118,110,.10); color: var(--teal); }
+    .warn { background: rgba(180,83,9,.10); color: var(--amber); }
+    .risk { background: rgba(190,18,60,.10); color: var(--rose); }
+    .info { background: rgba(29,78,216,.08); color: var(--blue); }
+    .table-wrap { padding: 1rem; margin-bottom: 1.25rem; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: .9rem .75rem; border-bottom: 1px solid var(--border); vertical-align: top; text-align: left; }
+    th { color: var(--dim); font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; }
+    .repo-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap:.8rem; }
+    .repo { border:1px solid var(--border); border-radius:14px; padding:.9rem 1rem; background: rgba(255,255,255,.55); }
+    .repo strong { display:block; margin-bottom:.35rem; }
+    .small { font-size:.9rem; color:var(--dim); }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">Bookmark Review</div>
+      <h1>Wave 2: Repos Intaken, Content Enriched, Batch Ready</h1>
+      <p>
+        We now have a fresh bookmark pull, a Smaug-enriched working batch, and two completed repo-intake waves. The GitHub side is effectively landed for the extracted repo set. The content-bearing items are summarized below for the combined review pass.
+      </p>
+      <div class="meta">Fresh pull: <code>/tmp/bookmarks-live-20260309.json</code> | Working batch: <code>/tmp/smaug-run/.state/pending-bookmarks.json</code> | Date: 2026-03-10</div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Fresh bookmarks</h2>
+        <span class="badge ok">391 total</span>
+        <p class="small">One new item beyond the previous local snapshot.</p>
+      </article>
+      <article class="card">
+        <h2>Smaug batch</h2>
+        <span class="badge ok">20 prepared</span>
+        <p class="small">Mechanical post-analysis succeeded. Final Claude filing did not.</p>
+      </article>
+      <article class="card">
+        <h2>Repo intake</h2>
+        <span class="badge ok">14 unique GitHub URLs</span>
+        <p class="small">Wave 1 + Wave 2 repos are now acquired into <code>~/lev/workshop/intake/</code>.</p>
+      </article>
+      <article class="card">
+        <h2>Content items</h2>
+        <span class="badge info">8 enriched items</span>
+        <p class="small">6 X articles + 2 direct article pages ready for combined review.</p>
+      </article>
+    </section>
+
+    <section class="table-wrap">
+      <div class="eyebrow">Repo Intake Coverage</div>
+      <div class="repo-grid">
+        <div class="repo"><strong>openclaw/openclaw</strong><span class="badge ok">acquired</span><div class="small">core OpenClaw repo</div></div>
+        <div class="repo"><strong>BlockRunAI/ClawRouter</strong><span class="badge ok">acquired</span><div class="small">routing / spend-control patterns</div></div>
+        <div class="repo"><strong>openclaw/clawgo</strong><span class="badge ok">acquired</span><div class="small">headless node client</div></div>
+        <div class="repo"><strong>openclaw/skills</strong><span class="badge warn">acquired, noisy</span><div class="small">backup archive, not safe as runtime dependency</div></div>
+        <div class="repo"><strong>openclaw/hermit</strong><span class="badge ok">acquired</span><div class="small">Wave 1 complete</div></div>
+        <div class="repo"><strong>openclaw/clawdinators</strong><span class="badge ok">landed</span><div class="small">Wave 2</div></div>
+        <div class="repo"><strong>openclaw/clawhub</strong><span class="badge ok">landed</span><div class="small">Wave 2</div></div>
+        <div class="repo"><strong>openclaw/trust</strong><span class="badge ok">landed</span><div class="small">Wave 2</div></div>
+        <div class="repo"><strong>openclaw/nix-openclaw</strong><span class="badge ok">landed</span><div class="small">Nix golden-path deploy package</div></div>
+        <div class="repo"><strong>openclaw/community</strong><span class="badge ok">landed</span><div class="small">Wave 2</div></div>
+        <div class="repo"><strong>adolfousier/opencrabs</strong><span class="badge ok">acquired</span><div class="small">OpenClaw-inspired Rust agent</div></div>
+        <div class="repo"><strong>nicobailon/pi-messenger</strong><span class="badge ok">acquired</span><div class="small">multi-agent coordination extension</div></div>
+        <div class="repo"><strong>LeoYeAI/openclaw-guardian</strong><span class="badge ok">acquired</span><div class="small">watchdog / crash detection</div></div>
+        <div class="repo"><strong>slowmist/openclaw-security-practice-guide</strong><span class="badge ok">acquired</span><div class="small">security practices</div></div>
+      </div>
+    </section>
+
+    <section class="table-wrap">
+      <div class="eyebrow">Content Items Ready For Review</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Author</th>
+            <th>Type</th>
+            <th>Title</th>
+            <th>Why it matters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>@dhasandev</code></td>
+            <td><span class="badge info">X article</span></td>
+            <td>How to Wrap the Claude CLI for Your Agentic Apps</td>
+            <td>Practical guide on using Claude CLI print mode, structured output, permissions, and agentic wrapper patterns.</td>
+          </tr>
+          <tr>
+            <td><code>@alxfazio</code></td>
+            <td><span class="badge info">X article</span></td>
+            <td>introducing Plankton: the slop guard LLMs can't cheat</td>
+            <td>Write-time enforcement system for Claude Code with linter routing, config protection, and guardrail patterns.</td>
+          </tr>
+          <tr>
+            <td><code>@glintintel</code></td>
+            <td><span class="badge warn">Article</span></td>
+            <td>Glint - Real-time Prediction Market Intelligence</td>
+            <td>Prediction-market intelligence terminal; not a repo, so it belongs in the content lane rather than GitHub intake.</td>
+          </tr>
+          <tr>
+            <td><code>@elvissun</code></td>
+            <td><span class="badge info">X article</span></td>
+            <td>OpenClaw + Codex/ClaudeCode Agent Swarm: The One-Person Dev Team [Full Setup]</td>
+            <td>Long-form setup and orchestration write-up; relevant to agent swarm operation and workflow ownership.</td>
+          </tr>
+          <tr>
+            <td><code>@sanketsahu</code></td>
+            <td><span class="badge warn">Article</span></td>
+            <td>lifo.sh</td>
+            <td>Browser-native OS / sandboxing concept; extracted as a direct article page with a concise product description.</td>
+          </tr>
+          <tr>
+            <td><code>@simonecanciello</code></td>
+            <td><span class="badge info">X article</span></td>
+            <td>This is how I scaled my mobile app to $25k+/month (The Complete Guide)</td>
+            <td>Business/growth article; less directly Lev-related but still part of the current enriched content batch.</td>
+          </tr>
+          <tr>
+            <td><code>@marsBuilds</code></td>
+            <td><span class="badge info">X article</span></td>
+            <td>Agent Harness is the Real Product</td>
+            <td>Directly relevant argument: the differentiator is harness/scaffolding, not just the model.</td>
+          </tr>
+          <tr>
+            <td><code>@mal_shaik</code></td>
+            <td><span class="badge info">X article</span></td>
+            <td>How OpenClaw can get your product recommended on ALL AI platforms</td>
+            <td>AI discoverability / ranking article, directly adjacent to GEO and positioning work.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>What worked</h2>
+        <p class="small">Bird + explicit cookies, Smaug link expansion, GitHub metadata capture, X article extraction, and repo intake waves.</p>
+      </article>
+      <article class="card">
+        <h2>What remains</h2>
+        <p class="small">Smaug’s final Claude filing step still exits `1`. The content lane still needs a cleaner enrichment decision if we want more than these first-pass summaries.</p>
+      </article>
+      <article class="card">
+        <h2>Clean next move</h2>
+        <p class="small">Pick whether to continue repo waves from this same bundle or lock the content lane and do a second-pass article enrichment pass before the next visual review.</p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

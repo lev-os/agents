@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bookmark Review Wave 1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f5f1;
+      --surface: rgba(255,255,255,0.92);
+      --border: rgba(17,36,43,0.12);
+      --text: #122229;
+      --dim: #55676d;
+      --teal: #0f766e;
+      --amber: #b45309;
+      --rose: #be123c;
+      --blue: #1d4ed8;
+      --shadow: 0 24px 70px rgba(18,34,41,0.10);
+      --radius: 20px;
+    }
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(15,118,110,0.10), transparent 28rem),
+        radial-gradient(circle at bottom right, rgba(180,83,9,0.10), transparent 24rem),
+        var(--bg);
+    }
+    .page { width: min(1240px, calc(100vw - 2rem)); margin: 0 auto; padding: 2rem 0 3rem; }
+    .hero, .card, .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .hero { padding: 2rem; margin-bottom: 1.4rem; }
+    .eyebrow, .badge, code, th, .meta { font-family: "IBM Plex Mono", monospace; }
+    .eyebrow { color: var(--teal); text-transform: uppercase; letter-spacing: .12em; font-size: .82rem; margin-bottom: .8rem; }
+    h1, h2 { margin: 0 0 .75rem; line-height: 1.06; }
+    h1 { font-size: clamp(2rem, 4vw, 3.7rem); max-width: 11ch; }
+    p { margin: 0; line-height: 1.6; color: var(--dim); }
+    .meta { margin-top: 1rem; color: var(--dim); font-size: .82rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.4rem; }
+    .card { padding: 1.2rem; }
+    .badge { display: inline-block; padding: .18rem .55rem; border-radius: 999px; font-size: .72rem; }
+    .ok { background: rgba(15,118,110,.10); color: var(--teal); }
+    .warn { background: rgba(180,83,9,.10); color: var(--amber); }
+    .risk { background: rgba(190,18,60,.10); color: var(--rose); }
+    .info { background: rgba(29,78,216,.08); color: var(--blue); }
+    .table-wrap { padding: 1rem; margin-bottom: 1.4rem; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: .9rem .75rem; border-bottom: 1px solid var(--border); vertical-align: top; text-align: left; }
+    th { color: var(--dim); font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; }
+    .mono { font-family: "IBM Plex Mono", monospace; font-size: .9rem; }
+    .small { font-size: .9rem; color: var(--dim); }
+    ul { margin: .6rem 0 0; padding-left: 1.2rem; color: var(--dim); line-height: 1.55; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">Wave 1 Review</div>
+      <h1>Fresh Bookmarks, Smaug Post-Analysis, and First Intake Batch</h1>
+      <p>
+        Fresh bookmarks are now pulled. Smaug mechanical post-analysis succeeded on the first pending batch: links were expanded, GitHub repos were enriched, X articles were fetched, and the pending bundle is ready for intake/enrichment routing. The Claude analysis phase itself still failed, but the extraction layer we needed is working.
+      </p>
+      <div class="meta">Live file: <code>/tmp/bookmarks-live-20260309.json</code> | Smaug runtime: <code>/tmp/smaug-run</code> | Pending bundle: <code>/tmp/smaug-run/.state/pending-bookmarks.json</code></div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Latest bookmarks</h2>
+        <span class="badge ok">391 total</span>
+        <p class="small">Newest known bookmark is from <code>@bc1beat</code> on March 9, 2026.</p>
+      </article>
+      <article class="card">
+        <h2>Smaug extraction</h2>
+        <span class="badge ok">20 prepared</span>
+        <p class="small">Pending bundle built successfully with expanded links and extracted content.</p>
+      </article>
+      <article class="card">
+        <h2>Link mix</h2>
+        <span class="badge info">16 GitHub</span>
+        <span class="badge info">6 X articles</span>
+        <span class="badge info">2 articles</span>
+        <span class="badge warn">4 media</span>
+      </article>
+      <article class="card">
+        <h2>Analysis status</h2>
+        <span class="badge risk">Claude step failed</span>
+        <p class="small">Mechanical post-analysis worked; final AI filing step needs follow-up.</p>
+      </article>
+    </section>
+
+    <section class="table-wrap">
+      <div class="eyebrow">Freshest items</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Newest bookmark</th>
+            <th>Author</th>
+            <th>Created</th>
+            <th>Summary</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">2031048168150835304</td>
+            <td><code>@bc1beat</code></td>
+            <td>Mon Mar 09 16:43:12 +0000 2026</td>
+            <td>OpenClaw ecosystem ranking thread with 11 extracted GitHub repo links.</td>
+          </tr>
+          <tr>
+            <td class="mono">2029751967527096554</td>
+            <td><code>@TheMattBerman</code></td>
+            <td>Fri Mar 06 02:52:34 +0000 2026</td>
+            <td>OpenClaw SEO/autopilot workflow thread. No outbound link extracted by Smaug in this pass.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="table-wrap">
+      <div class="eyebrow">Smaug Post-Analysis Output</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Bookmark</th>
+            <th>Type</th>
+            <th>Expanded target</th>
+            <th>Enrichment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>@bc1beat</code></td>
+            <td>GitHub fan-out</td>
+            <td class="mono">openclaw/openclaw, BlockRunAI/ClawRouter, openclaw/clawgo, openclaw/skills, openclaw/hermit, clawhub...</td>
+            <td>GitHub metadata captured, including stars and README snippets.</td>
+          </tr>
+          <tr>
+            <td><code>@mal_shaik</code></td>
+            <td>X article</td>
+            <td class="mono">x.com/i/article/2029464950297772032</td>
+            <td>Article content fetched, about Claude CLI wrapping for agentic apps.</td>
+          </tr>
+          <tr>
+            <td><code>@SlowMist_Team</code></td>
+            <td>GitHub</td>
+            <td class="mono">github.com/slowmist/openclaw-security-practice-guide</td>
+            <td>Repo metadata captured.</td>
+          </tr>
+          <tr>
+            <td><code>@glintintel</code></td>
+            <td>Article</td>
+            <td class="mono">glint.trade/BETA</td>
+            <td>Raw HTML/page content captured; needs clean article-style enrichment downstream.</td>
+          </tr>
+          <tr>
+            <td><code>@nicopreme</code></td>
+            <td>GitHub</td>
+            <td class="mono">github.com/nicobailon/pi-messenger</td>
+            <td>Repo metadata captured twice due quote + main-link duplication.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="table-wrap">
+      <div class="eyebrow">Intake Wave 1</div>
+      <table>
+        <thead>
+          <tr>
+            <th>URL</th>
+            <th>Status</th>
+            <th>Current read</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">https://github.com/openclaw/openclaw</td>
+            <td><span class="badge warn">in flight</span></td>
+            <td>Queued to intake worker.</td>
+          </tr>
+          <tr>
+            <td class="mono">https://github.com/BlockRunAI/ClawRouter</td>
+            <td><span class="badge warn">in flight</span></td>
+            <td>Queued to intake worker.</td>
+          </tr>
+          <tr>
+            <td class="mono">https://github.com/openclaw/clawgo</td>
+            <td><span class="badge ok">done</span></td>
+            <td>Cloned to <code>~/lev/workshop/intake/clawgo</code>; headless node client for Raspberry Pi/Linux with gateway pairing, voice transcript stream, and local TTS reply path.</td>
+          </tr>
+          <tr>
+            <td class="mono">https://github.com/openclaw/skills</td>
+            <td><span class="badge ok">done</span></td>
+            <td>Cloned to <code>~/lev/workshop/intake/openclaw-skills</code>; backup archive from ClawdHub, large/noisy, suitable for intake analysis not direct runtime use.</td>
+          </tr>
+          <tr>
+            <td class="mono">https://github.com/openclaw/hermit</td>
+            <td><span class="badge warn">in flight</span></td>
+            <td>Queued to intake worker.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>What worked</h2>
+        <ul>
+          <li>Explicit X cookies unblocked a fresh live Bird pull.</li>
+          <li>Smaug expanded `t.co` links correctly.</li>
+          <li>GitHub repos and X articles were enriched enough for routing.</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h2>What broke</h2>
+        <ul>
+          <li>The final Claude filing/analysis step in Smaug exited `1`.</li>
+          <li>Raw Bird data alone is not enough for intake because most links stay as `t.co`.</li>
+          <li>One repo (`openclaw-skills`) looks like a raw archive, not a clean runtime dependency.</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h2>Immediate next move</h2>
+        <ul>
+          <li>Wait for the remaining intake workers.</li>
+          <li>Continue intake on the remaining expanded GitHub URLs in batches.</li>
+          <li>Route X articles and plain articles into the content-enrichment lane after repo intake.</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

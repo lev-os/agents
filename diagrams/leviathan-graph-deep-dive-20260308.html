@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leviathan Graph Deep Dive — FlowMind, Prompt Analysis, Nanograph</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+
+    --bg: #f4f7fb;
+    --surface: #ffffff;
+    --surface2: #eaf0f7;
+    --surface3: #dde7f1;
+    --border: rgba(10, 26, 42, 0.08);
+    --border-bright: rgba(10, 26, 42, 0.16);
+    --text: #0f1f2f;
+    --text-dim: #5a6b7d;
+
+    --blue: #1d4f8c;
+    --blue-dim: rgba(29, 79, 140, 0.10);
+    --teal: #0f766e;
+    --teal-dim: rgba(15, 118, 110, 0.10);
+    --gold: #b9851b;
+    --gold-dim: rgba(185, 133, 27, 0.11);
+    --rust: #b45309;
+    --rust-dim: rgba(180, 83, 9, 0.10);
+    --rose: #a61b46;
+    --rose-dim: rgba(166, 27, 70, 0.10);
+    --green: #2f855a;
+    --green-dim: rgba(47, 133, 90, 0.10);
+    --red: #b91c1c;
+    --red-dim: rgba(185, 28, 28, 0.10);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0b1220;
+      --surface: #111b2c;
+      --surface2: #172438;
+      --surface3: #1e3048;
+      --border: rgba(255,255,255,0.08);
+      --border-bright: rgba(255,255,255,0.14);
+      --text: #eef4fb;
+      --text-dim: #a7b7c8;
+
+      --blue: #7eb6ff;
+      --blue-dim: rgba(126, 182, 255, 0.12);
+      --teal: #5eead4;
+      --teal-dim: rgba(94, 234, 212, 0.12);
+      --gold: #ffd36d;
+      --gold-dim: rgba(255, 211, 109, 0.13);
+      --rust: #ffb074;
+      --rust-dim: rgba(255, 176, 116, 0.12);
+      --rose: #ff9ab8;
+      --rose-dim: rgba(255, 154, 184, 0.12);
+      --green: #73e0a1;
+      --green-dim: rgba(115, 224, 161, 0.12);
+      --red: #ff8a8a;
+      --red-dim: rgba(255, 138, 138, 0.12);
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    color: var(--text);
+    background:
+      radial-gradient(circle at 16% 0%, var(--blue-dim), transparent 28%),
+      radial-gradient(circle at 84% 100%, var(--gold-dim), transparent 24%),
+      linear-gradient(180deg, var(--bg), color-mix(in srgb, var(--bg) 86%, black 14%));
+    min-height: 100vh;
+    padding: 34px;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 26px 26px;
+    opacity: 0.22;
+    mask-image: linear-gradient(180deg, rgba(0,0,0,0.45), transparent 86%);
+  }
+
+  .wrap {
+    max-width: 1480px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: 34px;
+  }
+  .main { min-width: 0; }
+
+  .toc {
+    position: sticky;
+    top: 20px;
+    align-self: start;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+  }
+  .toc-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding-bottom: 12px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .toc a {
+    display: block;
+    text-decoration: none;
+    color: var(--text-dim);
+    font-size: 12px;
+    padding: 7px 10px;
+    border-left: 2px solid transparent;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    transition: 0.15s ease;
+  }
+  .toc a:hover,
+  .toc a.active {
+    color: var(--text);
+    background: var(--surface2);
+    border-left-color: var(--blue);
+  }
+
+  .hero {
+    background: color-mix(in srgb, var(--surface) 91%, var(--blue) 9%);
+    border: 1px solid color-mix(in srgb, var(--border) 55%, var(--blue) 45%);
+    border-radius: 22px;
+    padding: 30px 32px;
+    margin-bottom: 28px;
+    box-shadow: 0 18px 60px rgba(0,0,0,0.08);
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-size: clamp(34px, 4vw, 52px);
+    line-height: 1.04;
+    letter-spacing: -1.5px;
+    margin-bottom: 12px;
+    max-width: 1040px;
+  }
+  .subtitle {
+    max-width: 1040px;
+    font-size: 15px;
+    line-height: 1.68;
+    color: var(--text-dim);
+  }
+
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+  }
+  .kpi-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+  .kpi-value {
+    font-size: 27px;
+    font-weight: 700;
+    letter-spacing: -0.8px;
+    margin-bottom: 4px;
+  }
+  .kpi-note {
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--text-dim);
+  }
+
+  .sec-head {
+    margin: 42px 0 18px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.7px;
+    color: var(--text-dim);
+    scroll-margin-top: 26px;
+  }
+
+  .grid-2, .grid-3, .grid-4 {
+    display: grid;
+    gap: 14px;
+  }
+  .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  .card {
+    min-width: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 18px 16px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.05);
+  }
+  .card.heroish {
+    background: color-mix(in srgb, var(--surface) 88%, var(--gold) 12%);
+  }
+  .label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: currentColor; }
+  .blue{color:var(--blue)} .teal{color:var(--teal)} .gold{color:var(--gold)} .rust{color:var(--rust)} .rose{color:var(--rose)} .green{color:var(--green)} .red{color:var(--red)}
+  .card h3 { font-size: 18px; line-height: 1.22; margin-bottom: 8px; }
+  .card p { color: var(--text-dim); font-size: 13px; line-height: 1.62; }
+  .card ul { display: grid; gap: 8px; margin-top: 10px; }
+  .card li {
+    list-style: none;
+    position: relative;
+    padding-left: 14px;
+    color: var(--text-dim);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .card li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--blue);
+  }
+  .quote {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-left: 3px solid var(--blue);
+    background: var(--surface2);
+    font-size: 13px;
+    line-height: 1.58;
+  }
+
+  .mermaid-wrap {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 22px;
+    overflow: auto;
+  }
+  .mermaid-wrap .mermaid {
+    display: flex;
+    justify-content: center;
+    transition: transform 0.15s ease;
+    transform-origin: top center;
+  }
+  .zoom-controls {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 2px;
+    z-index: 10;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2px;
+  }
+  .zoom-controls button {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  .zoom-controls button:hover { background: var(--surface2); color: var(--text); }
+  .mermaid-wrap.is-zoomed { cursor: grab; }
+  .mermaid-wrap.is-panning { cursor: grabbing; user-select: none; }
+  .mermaid .nodeLabel { color: var(--text) !important; font-family: var(--font-body) !important; font-size: 16px !important; }
+  .mermaid .edgeLabel { color: var(--text-dim) !important; background-color: var(--bg) !important; font-family: var(--font-mono) !important; font-size: 12px !important; }
+  .mermaid .edgeLabel rect { fill: var(--bg) !important; }
+  .mermaid .node rect, .mermaid .node circle, .mermaid .node polygon { stroke-width: 1.5px !important; }
+
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.55; }
+  th {
+    position: sticky; top: 0; background: var(--surface2);
+    text-align: left; padding: 14px 16px; border-bottom: 2px solid var(--border-bright);
+    font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1.3px; color: var(--text-dim);
+    white-space: nowrap;
+  }
+  td { padding: 14px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:nth-child(even) td { background: color-mix(in srgb, var(--surface) 92%, var(--surface2) 8%); }
+  code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: var(--surface2);
+    color: var(--blue);
+    padding: 2px 6px;
+    border-radius: 5px;
+    overflow-wrap: break-word;
+  }
+  small { display: block; margin-top: 4px; color: var(--text-dim); font-size: 11px; }
+  .status {
+    display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;
+    border-radius: 999px; font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: .8px;
+  }
+  .ok { background: var(--green-dim); color: var(--green); }
+  .partial { background: var(--gold-dim); color: var(--gold); }
+  .risk { background: var(--rose-dim); color: var(--rose); }
+
+  details { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  summary { cursor: pointer; padding: 14px 16px; background: var(--surface2); font-family: var(--font-mono); font-size: 12px; }
+  details > div { padding: 14px 16px; display: grid; gap: 8px; }
+  .path { font-family: var(--font-mono); font-size: 11px; background: var(--surface2); padding: 8px 10px; border-radius: 6px; overflow-wrap: break-word; }
+  .foot { margin-top: 28px; font-size: 12px; line-height: 1.7; color: var(--text-dim); }
+
+  @media (max-width: 1100px) {
+    .wrap { grid-template-columns: 1fr; }
+    .toc {
+      display: flex; position: sticky; top: 0; z-index: 30;
+      overflow-x: auto; background: var(--bg); border-bottom: 1px solid var(--border);
+      padding: 10px 0;
+    }
+    .toc-title { display: none; }
+    .toc a { white-space: nowrap; border-left: none; border-bottom: 2px solid transparent; }
+    .toc a.active { border-left: none; border-bottom-color: var(--blue); }
+    .kpis, .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .sec-head { scroll-margin-top: 60px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="toc" id="toc">
+    <div class="toc-title">Contents</div>
+    <a href="#s1">1. North Star</a>
+    <a href="#s2">2. Stack</a>
+    <a href="#s3">3. FlowMind</a>
+    <a href="#s4">4. Graph Theory</a>
+    <a href="#s5">5. Working Now</a>
+    <a href="#s6">6. Nanograph</a>
+    <a href="#s7">7. Proof</a>
+    <a href="#s8">8. Next Build</a>
+  </nav>
+
+  <main class="main">
+    <section class="hero">
+      <div class="eyebrow">Lev / FlowMind / Graph Analysis / Nanograph</div>
+      <h1>What is actually working today is a layered analysis stack: prompt-corpus POC, Leviathan harness compiler, partial native graph runtime, and a proven Nanograph export seam.</h1>
+      <p class="subtitle">
+        This page answers four practical questions.
+        What is the north star?
+        What Python tools are doing the real work today?
+        What is actually native inside Lev already?
+        And where does Nanograph overlap with any of this?
+      </p>
+      <div class="kpis">
+        <div class="kpi">
+          <div class="kpi-label">Prompt Corpus</div>
+          <div class="kpi-value">115</div>
+          <div class="kpi-note">Prompt/tool artifacts rebuilt locally from your forked research repo.</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Prompt Density</div>
+          <div class="kpi-value">0.7715</div>
+          <div class="kpi-note">Normalized similarity under the current PromptOS extractor.</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Harness Artifacts</div>
+          <div class="kpi-value">464</div>
+          <div class="kpi-note">Leviathan harness scan over FlowMind, docs, event-bus, and graph runtime.</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Policy Density</div>
+          <div class="kpi-value">0.0266</div>
+          <div class="kpi-note">Signal that the runtime graph story is still thin or sparsely extracted in policy space.</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Nanograph POC</div>
+          <div class="kpi-value">Live</div>
+          <div class="kpi-note">Compiler-side pack exported, initialized, loaded, checked, and queried.</div>
+        </div>
+      </div>
+    </section>
+
+    <div id="s1" class="sec-head">1 — The Actual North Star</div>
+    <div class="mermaid-wrap">
+      <div class="zoom-controls"><button data-zoom="in">+</button><button data-zoom="out">−</button><button data-zoom="reset">↺</button></div>
+      <pre class="mermaid">
+flowchart TD
+  A["Source Material<br/>prompts, code, docs, PDFs,<br/>images, video, audio"] --> B["Adapter / Intake Layer<br/>medium-specific extractors"]
+  B --> C["Deterministic Structure<br/>rules, atoms, entities,<br/>schemas, evidence"]
+  C --> D["Graph Topology<br/>nodes, edges, views, seams,<br/>provenance"]
+  D --> E["Shared Operations<br/>compare, cluster, traverse,<br/>score, synthesize"]
+  E --> F["FlowMind Workflows<br/>classify, propose, gate,<br/>apply, publish"]
+  F --> G["Native Lev Runtime Parity<br/>replace external Python POCs"]
+      </pre>
+    </div>
+    <section class="grid-3" style="margin-top:14px;">
+      <article class="card heroish">
+        <div class="label blue"><span class="dot"></span>Key Point</div>
+        <h3>The graph is not the product.</h3>
+        <p>The graph is the structural intermediate that lets Lev compare and reason across media once each medium has an adapter.</p>
+      </article>
+      <article class="card">
+        <div class="label teal"><span class="dot"></span>FlowMind's Role</div>
+        <h3>Declarative control</h3>
+        <p>FlowMind is interesting here because it can potentially formalize the prompt-analysis loop itself: prompt to structure, structure to workflow, workflow back to prompt.</p>
+      </article>
+      <article class="card">
+        <div class="label gold"><span class="dot"></span>Current Reality</div>
+        <h3>External reference first</h3>
+        <p>The Python compilers are still the working reference implementations. Lev has the right pieces, but not native parity yet.</p>
+      </article>
+    </section>
+
+    <div id="s2" class="sec-head">2 — The Stack We Actually Have</div>
+    <div class="mermaid-wrap">
+      <div class="zoom-controls"><button data-zoom="in">+</button><button data-zoom="out">−</button><button data-zoom="reset">↺</button></div>
+      <pre class="mermaid">
+flowchart TD
+  subgraph Research["External Research / Python POCs"]
+    P1["Prompt Corpus Repo<br/>system prompts + tools"]
+    P2["PromptOS Compiler<br/>promptos_compile.py"]
+    P3["PromptOS Atoms / Graphs<br/>promptos_atoms.py + promptos_graph.py"]
+    P1 --> P2 --> P3
+  end
+
+  subgraph LevResearch["Leviathan Research Compiler"]
+    L1["Harness Graph Compiler<br/>leviathan_graph_compile.py"]
+    L2["Harness Atoms / Graphs<br/>leviathan_graph_atoms.py + leviathan_graph.py"]
+    L1 --> L2
+  end
+
+  subgraph Native["Native Leviathan Runtime"]
+    N1["FlowMind<br/>control / policy plane"]
+    N2["core/graph<br/>state / knowledge plane"]
+    N3["event-bus<br/>causality spine"]
+    N1 --> N2
+    N3 --> N2
+  end
+
+  subgraph Sink["Experimental Storage / Query Target"]
+    X1["Nanograph<br/>local typed graph DB"]
+  end
+
+  P3 --> L2
+  L2 --> X1
+  N2 -. parity target .-> L2
+      </pre>
+    </div>
+
+    <div id="s3" class="sec-head">3 — What FlowMind Contributes</div>
+    <div class="mermaid-wrap">
+      <div class="zoom-controls"><button data-zoom="in">+</button><button data-zoom="out">−</button><button data-zoom="reset">↺</button></div>
+      <pre class="mermaid">
+flowchart TD
+  F["FlowMind"] --> F1["Declarations / YAML"]
+  F --> F2["Compiler Targets"]
+  F --> F3["Execution / Routing"]
+  F --> F4["Policy / Constraints"]
+  F --> F5["Potential Prompt Decompiler"]
+
+  F1 --> G1["rules become structured data"]
+  F2 --> G2["prompts or system instructions can be generated"]
+  F3 --> G3["classification and workflow logic can be orchestrated"]
+  F4 --> G4["gates, validation, bounded behavior"]
+  F5 --> G5["prompts can be mapped back into deterministic representations"]
+      </pre>
+    </div>
+    <section class="grid-2" style="margin-top:14px;">
+      <article class="card">
+        <div class="label teal"><span class="dot"></span>What is real</div>
+        <ul>
+          <li>Compiler and executor code exists in <code>core/flowmind</code>.</li>
+          <li>Architecturally, FlowMind is already framed as control/policy plane.</li>
+          <li>Good substrate for declarative classification workflows.</li>
+        </ul>
+      </article>
+      <article class="card">
+        <div class="label rust"><span class="dot"></span>What is not real yet</div>
+        <ul>
+          <li>Prompt-analysis parity is not native inside FlowMind yet.</li>
+          <li><code>core/graph</code> does not yet act as a fully policy-shaped universal graph runtime.</li>
+          <li>The docs promise more than the current graph runtime currently delivers.</li>
+        </ul>
+      </article>
+    </section>
+
+    <div id="s4" class="sec-head">4 — Our Graph Theory In Plain English</div>
+    <section class="grid-4">
+      <article class="card">
+        <div class="label blue"><span class="dot"></span>Nodes</div>
+        <h3>What counts as a thing</h3>
+        <p>Prompts, files, entities, claims, evidence, views, episodes, or runtime artifacts can all become nodes if the adapter says they matter.</p>
+      </article>
+      <article class="card">
+        <div class="label green"><span class="dot"></span>Edges</div>
+        <h3>What counts as a relation</h3>
+        <p>Overlap, provenance, ownership, derivation, similarity, causality, and workflow links are all candidate edge types.</p>
+      </article>
+      <article class="card">
+        <div class="label gold"><span class="dot"></span>Seams</div>
+        <h3>Where translation happens</h3>
+        <p>The most important design problem is not “graphs are cool.” It is choosing stable seams between raw media, extracted structures, graph entities, and materialized views.</p>
+      </article>
+      <article class="card heroish">
+        <div class="label rose"><span class="dot"></span>Views</div>
+        <h3>What the graph is for</h3>
+        <p>The graph exists so multiple downstream operations become shared: compare, cluster, traverse, explain, publish, and feed workflows.</p>
+      </article>
+    </section>
+    <section class="grid-2" style="margin-top:14px;">
+      <article class="card">
+        <div class="label gold"><span class="dot"></span>The Art</div>
+        <p>The hard part is deciding:</p>
+        <ul>
+          <li>what is a node vs just evidence</li>
+          <li>what is an edge vs derived similarity</li>
+          <li>what is source of truth vs materialized projection</li>
+          <li>what gets normalized away vs preserved</li>
+        </ul>
+      </article>
+      <article class="card">
+        <div class="label blue"><span class="dot"></span>Why the current metrics are fragile</div>
+        <p>PromptOS and Leviathan are being extracted with different ontologies and different artifact mixes, so density comparisons are useful signals, not final truth.</p>
+      </article>
+    </section>
+
+    <div id="s5" class="sec-head">5 — What Is Working Right Now</div>
+    <section class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Layer</th>
+              <th>What is working</th>
+              <th>Why it matters</th>
+              <th>State</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>Prompt research POC</code></td>
+              <td class="wide">Prompt corpus cloned, PromptOS compiler runs, outputs rebuilt locally into compiled YAML, metrics, and GraphML.</td>
+              <td>Working reference implementation for prompt decompilation and comparison.</td>
+              <td><span class="status ok">working</span></td>
+            </tr>
+            <tr>
+              <td><code>Leviathan harness compiler</code></td>
+              <td class="wide">Harness scan over docs/FlowMind/event-bus/core-graph works and emits comparative graph artifacts.</td>
+              <td>Gives Lev a second corpus and makes “prompt convergence vs runtime structure” measurable.</td>
+              <td><span class="status ok">working</span></td>
+            </tr>
+            <tr>
+              <td><code>core/graph</code></td>
+              <td class="wide">Real compositor/runtime path exists with adapters, event store, traversal, similarity, and context-projector surfaces.</td>
+              <td>This is the native Lev graph foundation.</td>
+              <td><span class="status partial">partial native</span></td>
+            </tr>
+            <tr>
+              <td><code>FlowMind</code></td>
+              <td class="wide">Compiler/executor/control-plane concepts are real, but full graph-policy parity is not landed.</td>
+              <td>Likely native substrate for eventually replacing the Python POCs.</td>
+              <td><span class="status partial">partial native</span></td>
+            </tr>
+            <tr>
+              <td><code>Nanograph</code></td>
+              <td class="wide">Leviathan harness outputs export into Nanograph format and are queryable end-to-end.</td>
+              <td>Useful experimental sink and local graph DB target.</td>
+              <td><span class="status ok">experimental seam</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div id="s6" class="sec-head">6 — What Nanograph Actually Is Here</div>
+    <div class="mermaid-wrap">
+      <div class="zoom-controls"><button data-zoom="in">+</button><button data-zoom="out">−</button><button data-zoom="reset">↺</button></div>
+      <pre class="mermaid">
+flowchart LR
+  A["Leviathan Harness Compiler"] --> B["Nanograph Pack<br/>.pg .gq .jsonl"]
+  B --> C["nanograph init"]
+  C --> D[".nano local DB"]
+  D --> E["nanograph load"]
+  E --> F["nanograph check"]
+  F --> G["nanograph run"]
+  G --> H["real query results"]
+      </pre>
+    </div>
+    <section class="grid-3" style="margin-top:14px;">
+      <article class="card heroish">
+        <div class="label rust"><span class="dot"></span>Nanograph</div>
+        <h3>Local typed graph database</h3>
+        <p>Nanograph is a graph DB with a schema language, query files, seed data, and a local database directory.</p>
+      </article>
+      <article class="card">
+        <div class="label gold"><span class="dot"></span>What it did</div>
+        <h3>Validated the export path</h3>
+        <p>It let us prove that the Leviathan harness graph can be rendered into a real queryable local graph DB artifact.</p>
+      </article>
+      <article class="card">
+        <div class="label rose"><span class="dot"></span>What it did not do</div>
+        <h3>Not the native Lev graph</h3>
+        <p>It did not replace <code>core/graph</code>, and it did not prove itself as the final storage backend.</p>
+      </article>
+    </section>
+
+    <div id="s7" class="sec-head">7 — What We Actually Proved</div>
+    <section class="grid-2">
+      <article class="card heroish">
+        <div class="label green"><span class="dot"></span>Proved</div>
+        <ul>
+          <li>The prompt-analysis POC works today as external Python tooling.</li>
+          <li>Prompt corpora are highly convergent under the current PromptOS extractor.</li>
+          <li>Leviathan can analyze itself through a parallel harness-graph compiler.</li>
+          <li>Leviathan harness outputs can be exported into Nanograph and queried.</li>
+        </ul>
+      </article>
+      <article class="card">
+        <div class="label red"><span class="dot"></span>Not Proved</div>
+        <ul>
+          <li>That native Lev/FlowMind already reproduces the prompt-analysis loop.</li>
+          <li>That Nanograph should be the graph backend.</li>
+          <li>That the current density comparison is extractor-robust enough for big product claims.</li>
+          <li>That the universal graph vision is fully implemented today.</li>
+        </ul>
+      </article>
+    </section>
+
+    <div id="s8" class="sec-head">8 — The Next Build, Not The Next Claim</div>
+    <div class="mermaid-wrap">
+      <div class="zoom-controls"><button data-zoom="in">+</button><button data-zoom="out">−</button><button data-zoom="reset">↺</button></div>
+      <pre class="mermaid">
+flowchart TD
+  A["Prompt Analysis Python Reference"] --> B["Matched Ontology / Sampling Harness"]
+  B --> C["Native FlowMind Classification / Decompilation"]
+  C --> D["Native core/graph Projection"]
+  D --> E["Parity Metrics vs Python Reference"]
+  E --> F["Only then: stronger product claims"]
+      </pre>
+    </div>
+    <section class="grid-2" style="margin-top:14px;">
+      <article class="card heroish">
+        <div class="label gold"><span class="dot"></span>Recommended next move</div>
+        <h3>Build parity, not mythology</h3>
+        <p>The next engineering target is a matched measurement harness and native Lev parity with the Python prompt-analysis reference implementation.</p>
+      </article>
+      <article class="card">
+        <div class="label blue"><span class="dot"></span>Concrete checklist</div>
+        <ul>
+          <li>Align ontology between PromptOS and harness extraction.</li>
+          <li>Track zero-atom rate and non-zero Jaccard distributions.</li>
+          <li>Move one prompt-analysis path into native FlowMind/Lev graph.</li>
+          <li>Compare native outputs against the Python reference.</li>
+        </ul>
+      </article>
+    </section>
+
+    <details open>
+      <summary>Evidence Paths</summary>
+      <div>
+        <div class="path">/Users/jean-patricksmith/digital/leviathan/research/system-prompts-and-models-of-ai-tools/promptos/promptos_compile.py</div>
+        <div class="path">/Users/jean-patricksmith/digital/leviathan/research/system-prompts-and-models-of-ai-tools/promptos/promptos_atoms.py</div>
+        <div class="path">/Users/jean-patricksmith/digital/leviathan/research/system-prompts-and-models-of-ai-tools/promptos/promptos_graph.py</div>
+        <div class="path">/Users/jean-patricksmith/digital/leviathan/research/system-prompts-and-models-of-ai-tools/out/compiled/index.csv</div>
+        <div class="path">/Users/jean-patricksmith/digital/leviathan/research/system-prompts-and-models-of-ai-tools/out/metrics/atom_freq_normalized.csv</div>
+        <div class="path">/Users/jean-patricksmith/digital/leviathan/workshop/extract/leviathan-graph/leviathan_graph_compile.py</div>
+        <div class="path">/Users/jean-patricksmith/digital/leviathan/core/graph/src/compositor.ts</div>
+        <div class="path">/Users/jean-patricksmith/digital/leviathan/core/graph/src/types.ts</div>
+        <div class="path">/Users/jean-patricksmith/digital/leviathan/docs/_inbox/20260308-graph-parity-engineering-memo.md</div>
+        <div class="path">/Users/jean-patricksmith/digital/leviathan/workshop/extract/leviathan-graph/out-nanograph-poc/nanograph/leviathan_harness.nano</div>
+      </div>
+    </details>
+
+    <p class="foot">
+      This is the corrected state: prompt-corpus analysis POC first, FlowMind as the likely native declarative engine, Leviathan graph as the partial runtime foundation, and Nanograph as an experimental local graph sink.
+    </p>
+  </main>
+</div>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  import elkLayouts from 'https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk/dist/mermaid-layout-elk.esm.min.mjs';
+
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  mermaid.registerLayoutLoaders(elkLayouts);
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    look: 'classic',
+    layout: 'elk',
+    securityLevel: 'loose',
+    themeVariables: {
+      primaryColor: isDark ? '#172438' : '#eaf0f7',
+      primaryBorderColor: isDark ? '#7eb6ff' : '#1d4f8c',
+      primaryTextColor: isDark ? '#eef4fb' : '#0f1f2f',
+      secondaryColor: isDark ? '#1e3048' : '#edf7f6',
+      secondaryBorderColor: isDark ? '#5eead4' : '#0f766e',
+      secondaryTextColor: isDark ? '#eef4fb' : '#0f1f2f',
+      tertiaryColor: isDark ? '#2d2213' : '#fbf3df',
+      tertiaryBorderColor: isDark ? '#ffd36d' : '#b9851b',
+      tertiaryTextColor: isDark ? '#eef4fb' : '#201914',
+      lineColor: isDark ? '#a7b7c8' : '#5a6b7d',
+      noteBkgColor: isDark ? '#172438' : '#f2ede8',
+      noteTextColor: isDark ? '#eef4fb' : '#201914',
+      noteBorderColor: isDark ? '#ffb074' : '#b45309',
+      fontSize: '16px',
+      fontFamily: 'IBM Plex Sans'
+    }
+  });
+
+  function attachZoom(wrapper) {
+    const mermaidEl = wrapper.querySelector('.mermaid');
+    if (!mermaidEl) return;
+    let scale = 1;
+    let isPanning = false;
+    let startX = 0;
+    let startY = 0;
+    let scrollLeft = 0;
+    let scrollTop = 0;
+    const apply = () => {
+      mermaidEl.style.transform = `scale(${scale})`;
+      wrapper.classList.toggle('is-zoomed', scale > 1.02);
+    };
+    wrapper.querySelector('[data-zoom=\"in\"]').onclick = () => { scale = Math.min(2.4, scale + 0.15); apply(); };
+    wrapper.querySelector('[data-zoom=\"out\"]').onclick = () => { scale = Math.max(0.7, scale - 0.15); apply(); };
+    wrapper.querySelector('[data-zoom=\"reset\"]').onclick = () => { scale = 1; apply(); wrapper.scrollTo({top:0,left:0,behavior:'smooth'}); };
+    wrapper.addEventListener('wheel', (e) => {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      e.preventDefault();
+      scale = Math.min(2.4, Math.max(0.7, scale + (e.deltaY < 0 ? 0.08 : -0.08)));
+      apply();
+    }, { passive: false });
+    wrapper.addEventListener('mousedown', (e) => {
+      if (scale <= 1.02) return;
+      isPanning = true;
+      wrapper.classList.add('is-panning');
+      startX = e.pageX - wrapper.offsetLeft;
+      startY = e.pageY - wrapper.offsetTop;
+      scrollLeft = wrapper.scrollLeft;
+      scrollTop = wrapper.scrollTop;
+    });
+    wrapper.addEventListener('mouseleave', () => { isPanning = false; wrapper.classList.remove('is-panning'); });
+    wrapper.addEventListener('mouseup', () => { isPanning = false; wrapper.classList.remove('is-panning'); });
+    wrapper.addEventListener('mousemove', (e) => {
+      if (!isPanning) return;
+      e.preventDefault();
+      const x = e.pageX - wrapper.offsetLeft;
+      const y = e.pageY - wrapper.offsetTop;
+      wrapper.scrollLeft = scrollLeft - (x - startX);
+      wrapper.scrollTop = scrollTop - (y - startY);
+    });
+  }
+
+  window.addEventListener('load', () => {
+    document.querySelectorAll('.mermaid-wrap').forEach(attachZoom);
+  });
+</script>
+<script>
+(function(){
+  const toc=document.getElementById('toc'); const links=toc.querySelectorAll('a'); const sections=[];
+  links.forEach(link=>{const id=link.getAttribute('href').slice(1); const el=document.getElementById(id); if(el) sections.push({el,link});});
+  const observer=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){links.forEach(l=>l.classList.remove('active')); const match=sections.find(s=>s.el===entry.target); if(match){match.link.classList.add('active'); if(window.innerWidth<=1100){match.link.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});}}}});},{rootMargin:'-10% 0px -80% 0px'});
+  sections.forEach(s=>observer.observe(s.el));
+  links.forEach(link=>link.addEventListener('click',e=>{e.preventDefault(); const id=link.getAttribute('href').slice(1); const el=document.getElementById(id); if(el){el.scrollIntoView({behavior:'smooth',block:'start'}); history.replaceState(null,'','#'+id);}}));
+})();
+</script>
+</body>
+</html>

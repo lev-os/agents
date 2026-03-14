@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bookmark Intake Batch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #faf7f2;
+      --surface: rgba(255,255,255,0.9);
+      --border: rgba(28,25,23,0.10);
+      --text: #1c1917;
+      --dim: #78716c;
+      --teal: #0f766e;
+      --amber: #b45309;
+      --rose: #be123c;
+      --shadow: 0 24px 70px rgba(28,25,23,0.09);
+      --radius: 18px;
+    }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: system-ui, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(15,118,110,0.09), transparent 28rem),
+        radial-gradient(circle at bottom right, rgba(190,18,60,0.07), transparent 24rem),
+        var(--bg);
+    }
+    .page { width: min(1220px, calc(100vw - 2rem)); margin: 0 auto; padding: 2rem 0 3rem; }
+    .hero, .card, .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .hero { padding: 2rem; margin-bottom: 1.25rem; }
+    .eyebrow, .badge, code, th, .meta { font-family: "JetBrains Mono", monospace; }
+    .eyebrow { color: var(--teal); letter-spacing: .12em; text-transform: uppercase; font-size: .82rem; margin-bottom: .8rem; }
+    h1, h2 { margin: 0 0 .75rem; line-height: 1.05; }
+    h1 { font-family: "Instrument Serif", Georgia, serif; font-size: clamp(2rem, 4vw, 3.8rem); max-width: 12ch; }
+    p { margin: 0; line-height: 1.6; color: var(--dim); }
+    .meta { margin-top: 1rem; color: var(--dim); font-size: .82rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.25rem; }
+    .card { padding: 1.2rem; }
+    .badge { display: inline-block; padding: .2rem .55rem; border-radius: 999px; font-size: .72rem; }
+    .ok { background: rgba(15,118,110,.10); color: var(--teal); }
+    .warn { background: rgba(180,83,9,.10); color: var(--amber); }
+    .risk { background: rgba(190,18,60,.10); color: var(--rose); }
+    .table-wrap { padding: 1rem; margin-bottom: 1.25rem; overflow: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: .9rem .75rem; border-bottom: 1px solid var(--border); vertical-align: top; text-align: left; }
+    th { font-size: .78rem; color: var(--dim); text-transform: uppercase; letter-spacing: .08em; }
+    .lead { margin-bottom: 1.1rem; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">Post Analysis + Intake Wave</div>
+      <h1>First Bookmark Batch is Ready for Real Review</h1>
+      <p class="lead">
+        We pulled the latest bookmarks, ran Smaug’s mechanical post-analysis on a bounded batch,
+        and used the extracted GitHub URLs for the first intake wave. Claude-side Smaug processing
+        failed, but the link expansion and content extraction succeeded.
+      </p>
+      <div class="meta">Fresh pull: <code>/tmp/bookmarks-live-20260309.json</code> | Smaug batch: <code>/tmp/smaug-run/.state/pending-bookmarks.json</code></div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Latest bookmarks</h2>
+        <div class="badge ok">391 tweets</div>
+      </article>
+      <article class="card">
+        <h2>Smaug prepared</h2>
+        <div class="badge ok">20 bookmarks</div>
+        <p>Mechanical expansion/extraction succeeded.</p>
+      </article>
+      <article class="card">
+        <h2>First intake wave</h2>
+        <div class="badge ok">5 repos</div>
+        <p>Acquired into <code>~/lev/workshop/intake/</code>.</p>
+      </article>
+      <article class="card">
+        <h2>Claude post-analysis</h2>
+        <div class="badge warn">failed</div>
+        <p>Smaug’s final CLI analysis returned exit code 1.</p>
+      </article>
+    </section>
+
+    <section class="table-wrap">
+      <div class="eyebrow">GitHub Intake</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Repo</th>
+            <th>Stars</th>
+            <th>Source Tweet</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>adolfousier/opencrabs</code></td><td>517</td><td>@orhundev</td><td><span class="badge ok">cloned</span></td></tr>
+          <tr><td><code>nicobailon/pi-messenger</code></td><td>362</td><td>@nicopreme</td><td><span class="badge ok">cloned</span></td></tr>
+          <tr><td><code>LeoYeAI/openclaw-guardian</code></td><td>951</td><td>@LeoYe_AI</td><td><span class="badge ok">already existed</span></td></tr>
+          <tr><td><code>slowmist/openclaw-security-practice-guide</code></td><td>1568</td><td>@SlowMist_Team</td><td><span class="badge ok">cloned</span></td></tr>
+          <tr><td><code>openclaw/openclaw</code></td><td>292253</td><td>@bc1beat</td><td><span class="badge ok">cloned</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="table-wrap">
+      <div class="eyebrow">Content-Bearing Items</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Expanded URL</th>
+            <th>Source</th>
+            <th>Extracted Content</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>x-article</code></td><td><code>x.com/i/article/2009497314013138947</code></td><td>@dhasandev</td><td>6,228 chars on wrapping Claude CLI for agentic apps</td></tr>
+          <tr><td><code>x-article</code></td><td><code>x.com/i/article/2024919564979466240</code></td><td>@alxfazio</td><td>18,372 chars on Plankton, write-time lint enforcement</td></tr>
+          <tr><td><code>article</code></td><td><code>glint.trade/BETA</code></td><td>@glintintel</td><td>3,024 chars of site HTML/meta captured</td></tr>
+          <tr><td><code>article</code></td><td><code>lifo.sh</code></td><td>@sanketsahu</td><td>10,000 chars captured</td></tr>
+          <tr><td><code>x-article</code></td><td><code>x.com/i/article/2029464950297772032</code></td><td>@mal_shaik</td><td>12,500 chars captured</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="table-wrap">
+      <div class="eyebrow">What Next</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>Action</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Keep using this pending bundle as the source-of-truth batch</td><td><span class="badge ok">ready</span></td></tr>
+          <tr><td>2</td><td>Run deeper intake/analysis on the 5 cloned GitHub repos</td><td><span class="badge ok">ready</span></td></tr>
+          <tr><td>3</td><td>Decide article enrichment path for X articles and direct websites</td><td><span class="badge warn">next</span></td></tr>
+          <tr><td>4</td><td>Fix Smaug’s final Claude/OpenCode invocation so full post-analysis completes</td><td><span class="badge risk">blocked</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leviathan 24h Recap — 2026-03-12</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=Fragment+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'Bricolage Grotesque', system-ui, sans-serif;
+    --font-mono: 'Fragment Mono', 'SF Mono', Consolas, monospace;
+
+    --bg: #0c0f14;
+    --surface: #13171f;
+    --surface2: #1a1f2b;
+    --surface3: #222838;
+    --border: rgba(255,255,255,0.06);
+    --border-bright: rgba(255,255,255,0.12);
+    --text: #e2e8f0;
+    --text-dim: #64748b;
+
+    --graph: #0891b2;
+    --graph-dim: rgba(8,145,178,0.12);
+    --autodev: #d97706;
+    --autodev-dim: rgba(217,119,6,0.10);
+    --shoreup: #059669;
+    --shoreup-dim: rgba(5,150,105,0.10);
+    --health: #6366f1;
+    --health-dim: rgba(99,102,241,0.10);
+    --docs: #94a3b8;
+    --docs-dim: rgba(148,163,184,0.08);
+
+    --green: #22c55e;
+    --red: #ef4444;
+    --amber: #f59e0b;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --surface2: #f8fafc;
+      --surface3: #e2e8f0;
+      --border: rgba(0,0,0,0.06);
+      --border-bright: rgba(0,0,0,0.12);
+      --text: #0f172a;
+      --text-dim: #64748b;
+      --graph: #0e7490;
+      --graph-dim: rgba(14,116,144,0.08);
+      --autodev: #b45309;
+      --autodev-dim: rgba(180,83,9,0.08);
+      --shoreup: #047857;
+      --shoreup-dim: rgba(4,120,87,0.08);
+      --health: #4f46e5;
+      --health-dim: rgba(79,70,229,0.08);
+      --docs: #475569;
+      --docs-dim: rgba(71,85,105,0.06);
+      --green: #16a34a;
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    background-image: radial-gradient(ellipse at 30% 0%, var(--graph-dim) 0%, transparent 50%),
+                      radial-gradient(ellipse at 70% 100%, var(--autodev-dim) 0%, transparent 50%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem;
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  /* ── Hero ── */
+  .hero {
+    text-align: center;
+    padding: 3rem 1rem 2rem;
+    margin-bottom: 2rem;
+  }
+  .hero h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+  }
+  .hero .subtitle {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── KPI Strip ── */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1rem;
+    text-align: center;
+    animation: fadeScale 0.5s ease both;
+  }
+  .kpi:nth-child(1) { animation-delay: 0.1s; }
+  .kpi:nth-child(2) { animation-delay: 0.15s; }
+  .kpi:nth-child(3) { animation-delay: 0.2s; }
+  .kpi:nth-child(4) { animation-delay: 0.25s; }
+  .kpi:nth-child(5) { animation-delay: 0.3s; }
+  .kpi:nth-child(6) { animation-delay: 0.35s; }
+  .kpi .number {
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+  .kpi .label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── Section ── */
+  .section {
+    margin-bottom: 2rem;
+    animation: fadeUp 0.5s ease both;
+  }
+  .section:nth-of-type(2) { animation-delay: 0.15s; }
+  .section:nth-of-type(3) { animation-delay: 0.25s; }
+  .section:nth-of-type(4) { animation-delay: 0.35s; }
+  .section:nth-of-type(5) { animation-delay: 0.45s; }
+  .section:nth-of-type(6) { animation-delay: 0.55s; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .section-count {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-left: auto;
+  }
+
+  /* ── Commit Grid ── */
+  .commit-grid {
+    display: grid;
+    gap: 0.5rem;
+  }
+  .commit-row {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.6rem 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: border-color 0.2s, background 0.2s;
+    animation: fadeUp 0.3s ease both;
+    animation-delay: calc(var(--i, 0) * 0.04s);
+  }
+  .commit-row:hover {
+    border-color: var(--border-bright);
+    background: var(--surface2);
+  }
+  .commit-sha {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    background: var(--surface2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-align: center;
+  }
+  .commit-msg {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    overflow-wrap: break-word;
+  }
+
+  /* ── Milestone Cards ── */
+  .milestone-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .milestone-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border-left: 4px solid var(--graph);
+    animation: fadeUp 0.5s ease both;
+  }
+  .milestone-card:nth-child(2) { border-left-color: var(--autodev); animation-delay: 0.1s; }
+  .milestone-card:nth-child(3) { border-left-color: var(--shoreup); animation-delay: 0.2s; }
+  .milestone-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .milestone-card ul {
+    list-style: none;
+    padding: 0;
+  }
+  .milestone-card li {
+    font-size: 0.82rem;
+    padding: 0.25rem 0;
+    padding-left: 1.2rem;
+    position: relative;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+  .milestone-card li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+
+  /* ── Wave Progress ── */
+  .wave-bar {
+    display: flex;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    background: var(--surface2);
+  }
+  .wave-segment {
+    transition: width 0.8s ease;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    padding: 2rem 0 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+
+  /* ── Collapsible ── */
+  details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+  }
+  details summary {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    list-style: none;
+  }
+  details summary::before {
+    content: '+ ';
+    font-family: var(--font-mono);
+    color: var(--text-dim);
+  }
+  details[open] summary::before { content: '- '; }
+  details .inner { padding: 0 1rem 0.75rem; }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeScale {
+    from { opacity: 0; transform: scale(0.92); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="hero">
+    <h1>24h Recap</h1>
+    <div class="subtitle">LEVIATHAN &middot; 2026-03-11 01:00 &rarr; 2026-03-12 01:00</div>
+  </div>
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip">
+    <div class="kpi">
+      <div class="number" style="color: var(--graph);">102</div>
+      <div class="label">Commits</div>
+    </div>
+    <div class="kpi">
+      <div class="number" style="color: var(--autodev);">301</div>
+      <div class="label">Files Touched</div>
+    </div>
+    <div class="kpi">
+      <div class="number" style="color: var(--shoreup);">+24.5k</div>
+      <div class="label">Lines Added</div>
+    </div>
+    <div class="kpi">
+      <div class="number" style="color: var(--health);">-6.7k</div>
+      <div class="label">Lines Removed</div>
+    </div>
+    <div class="kpi">
+      <div class="number" style="color: var(--green);">393+</div>
+      <div class="label">Tests Passing</div>
+    </div>
+    <div class="kpi">
+      <div class="number" style="color: var(--amber);">5</div>
+      <div class="label">Waves Shipped</div>
+    </div>
+  </div>
+
+  <!-- Wave Progress Bar -->
+  <div style="margin-bottom: 0.5rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em;">Graph Convergence — All Waves Complete</div>
+  <div class="wave-bar">
+    <div class="wave-segment" style="width:20%; background: var(--graph);"></div>
+    <div class="wave-segment" style="width:20%; background: var(--autodev);"></div>
+    <div class="wave-segment" style="width:20%; background: var(--shoreup);"></div>
+    <div class="wave-segment" style="width:20%; background: var(--health);"></div>
+    <div class="wave-segment" style="width:20%; background: var(--green);"></div>
+  </div>
+  <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-dim); margin-bottom: 2rem;">
+    <span>W1 Schema+Parallel</span>
+    <span>W2 Subgraphs+Context</span>
+    <span>W3 CDO+Seed</span>
+    <span>W4 E2E Pipeline</span>
+    <span>W5 Runtime</span>
+  </div>
+
+  <!-- Milestone Cards -->
+  <div class="milestone-grid">
+    <div class="milestone-card">
+      <h3 style="color: var(--graph);">Graph Convergence</h3>
+      <ul>
+        <li>Schema renamed: action&rarr;function, layout&rarr;subgraph, condition&rarr;gate, +hitl</li>
+        <li>Parallel node execution in execution-contract (13 tests)</li>
+        <li>Subgraph refs + context injection (75 tests)</li>
+        <li>CDO properties shipped then killed &mdash; sync_mode/diversity_lens absorbed</li>
+        <li>FlowmindGraphSeed &rarr; GraphDocument compiler (22 tests)</li>
+        <li>M3 CAPSTONE: runFromPrompt() NL &rarr; graph &rarr; execution</li>
+        <li>Topology validation, session engine, budget tracker (97 tests)</li>
+        <li><code>lev flowmind run</code> CLI subcommand + reviewGraph()</li>
+      </ul>
+    </div>
+    <div class="milestone-card">
+      <h3 style="color: var(--autodev);">Autodev / SDLC</h3>
+      <ul>
+        <li>Autodev heartbeat command: <code>lev loop autodev</code></li>
+        <li>Daemon tick provider + notify webhook + launchd plist</li>
+        <li>Session executor replaces transitional sdlc-loop</li>
+        <li>Token tracking + budget enforcement wired into pipeline</li>
+        <li>D9: worktrees opt-in, D10: plan loading, D11: multi-agent awareness</li>
+        <li>Observability + real entity fixture tests</li>
+      </ul>
+    </div>
+    <div class="milestone-card">
+      <h3 style="color: var(--shoreup);">Shore-Up (15/15 closed)</h3>
+      <ul>
+        <li>Killed CDO properties &mdash; 6 sub-interfaces, 360 test LOC deleted</li>
+        <li>Deleted <code>lev flowmind run</code> &mdash; <code>lev exec</code> is THE plane</li>
+        <li>Wired BudgetTracker into runEntityLoop() + CLI flags</li>
+        <li>Fixed xdg-paths import, bun:test import, action&rarr;function test</li>
+        <li>createNodeAdapter &rarr; createTestAdapter (@internal)</li>
+        <li><code>--graph</code> flag added to <code>lev exec</code></li>
+        <li>CDO design doc rewritten as v2 graph-native</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Graph Convergence Section -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-dot" style="background: var(--graph);"></div>
+      <div class="section-title">Graph Convergence</div>
+      <div class="section-count">9 commits</div>
+    </div>
+    <div class="commit-grid">
+      <div class="commit-row" style="--i:0"><span class="commit-sha">e08b69c8</span><span class="commit-msg">feat(flowmind): Wave 2 &mdash; subgraph refs, context injection contract, deprecate LoopConstruct</span></div>
+      <div class="commit-row" style="--i:1"><span class="commit-sha">e728b2ba</span><span class="commit-msg">feat(flowmind): CDO property system &mdash; types, parser, validation (Wave 3 start)</span></div>
+      <div class="commit-row" style="--i:2"><span class="commit-sha">3303d89d</span><span class="commit-msg">feat(flowmind): FlowmindGraphSeed &rarr; GraphDocument compiler (Wave 3 complete)</span></div>
+      <div class="commit-row" style="--i:3"><span class="commit-sha">f8c33403</span><span class="commit-msg">feat(flowmind): Wave 4 &mdash; runFromPrompt() E2E pipeline (M3 capstone)</span></div>
+      <div class="commit-row" style="--i:4"><span class="commit-sha">b13cde9d</span><span class="commit-msg">feat(graph+sdlc): topology validation, session executor, roadmap update</span></div>
+      <div class="commit-row" style="--i:5"><span class="commit-sha">a4b12201</span><span class="commit-msg">feat(graph+sdlc): session&rarr;loop bridge, blueprint spec, loop vernacular</span></div>
+      <div class="commit-row" style="--i:6"><span class="commit-sha">4c6f9eb3</span><span class="commit-msg">feat(flowmind+orch): CLI subcommand, graph review, budget tracker</span></div>
+      <div class="commit-row" style="--i:7"><span class="commit-sha">a82fc658</span><span class="commit-msg">feat(flowmind): implement loop adapter bridging execution contract to orchestration</span></div>
+      <div class="commit-row" style="--i:8"><span class="commit-sha">90440e15</span><span class="commit-msg">feat(flowmind): implement parallel node execution in execution contract</span></div>
+    </div>
+  </div>
+
+  <!-- Autodev Section -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-dot" style="background: var(--autodev);"></div>
+      <div class="section-title">Autodev / SDLC</div>
+      <div class="section-count">9 commits</div>
+    </div>
+    <div class="commit-grid">
+      <div class="commit-row" style="--i:0"><span class="commit-sha">60eb23b9</span><span class="commit-msg">feat(sdlc): add autodev heartbeat command (lev loop autodev)</span></div>
+      <div class="commit-row" style="--i:1"><span class="commit-sha">a54b1a91</span><span class="commit-msg">feat(sdlc): wire token tracking, poly surface, integration tests, lev autodev alias</span></div>
+      <div class="commit-row" style="--i:2"><span class="commit-sha">c31a438b</span><span class="commit-msg">feat(sdlc): add --push flag, fix harness token tracking for autodev budget enforcement</span></div>
+      <div class="commit-row" style="--i:3"><span class="commit-sha">e097d62d</span><span class="commit-msg">feat(sdlc): autodev heartbeat steps 3-5 &mdash; daemon tick provider, notify webhook, launchd plist</span></div>
+      <div class="commit-row" style="--i:4"><span class="commit-sha">5a1e00b4</span><span class="commit-msg">feat(sdlc): wire observability + real entity fixture tests for autodev heartbeat</span></div>
+    </div>
+  </div>
+
+  <!-- Shore-Up Section -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-dot" style="background: var(--shoreup);"></div>
+      <div class="section-title">Shore-Up Cleanup</div>
+      <div class="section-count">2 commits, 15 issues closed</div>
+    </div>
+    <div class="commit-grid">
+      <div class="commit-row" style="--i:0"><span class="commit-sha">1c52b620</span><span class="commit-msg">fix: shore-up Wave 1 &mdash; kill CDO properties, delete flowmind run, wire BudgetTracker</span></div>
+      <div class="commit-row" style="--i:1"><span class="commit-sha">ad4f1edc</span><span class="commit-msg">fix: shore-up Wave 2 &mdash; adapter rename, --graph flag, CDO design v2</span></div>
+    </div>
+  </div>
+
+  <!-- Workspace Health Section -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-dot" style="background: var(--health);"></div>
+      <div class="section-title">Workspace Health (Autodev Ticks)</div>
+      <div class="section-count">63 commits</div>
+    </div>
+    <details>
+      <summary>63 autonomous ticks &mdash; ticks 182&ndash;245</summary>
+      <div class="inner">
+        <div class="commit-grid">
+          <div class="commit-row" style="--i:0"><span class="commit-sha">648330db</span><span class="commit-msg">fix(packages): add missing types field to 13 TypeScript packages (tick 245)</span></div>
+          <div class="commit-row" style="--i:1"><span class="commit-sha">0594896a</span><span class="commit-msg">fix(tests): update last core/cli/bin paths in robot-mode + surface-hardening tests (tick 242)</span></div>
+          <div class="commit-row" style="--i:2"><span class="commit-sha">2205bf42</span><span class="commit-msg">fix(xdg): replace 4 inline XDG resolutions with canonical getLevDataHome() (tick 239)</span></div>
+          <div class="commit-row" style="--i:3"><span class="commit-sha">560897de</span><span class="commit-msg">fix(gates): sync orphaned validation gates between specs and gates file (tick 238)</span></div>
+          <div class="commit-row" style="--i:4"><span class="commit-sha">44a2cfc0</span><span class="commit-msg">fix(packages): add missing exports field to 4 plugins (tick 235)</span></div>
+          <div class="commit-row" style="--i:5"><span class="commit-sha">270353d5</span><span class="commit-msg">fix(tsconfig): remove dead emit fields and misleading build scripts (tick 234)</span></div>
+          <div class="commit-row" style="--i:6"><span class="commit-sha">9c60d1d0</span><span class="commit-msg">chore(workspace): align typescript to ^5.7.0 across 20 packages (tick 205)</span></div>
+          <div class="commit-row" style="--i:7"><span class="commit-sha">9dc01aee</span><span class="commit-msg">fix(daemon): wire vitest test script &mdash; 161 existing tests were unreachable (tick 200)</span></div>
+          <div class="commit-row" style="--i:8"><span class="commit-sha">57516084</span><span class="commit-msg">test(beads): add 29 unit tests for beads plugin bridge, commands, and init (tick 195)</span></div>
+          <div class="commit-row" style="--i:9"><span class="commit-sha">ebf7e8e4</span><span class="commit-msg">test(core-scheduling): add 37 unit tests for CronStore CRUD, query, persistence (tick 196)</span></div>
+        </div>
+        <p style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.75rem; font-family: var(--font-mono);">+ 53 more ticks covering: dep alignment, lockfile regen, dead export pruning, phantom dep removal, test coverage, tsconfig modernization</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- Research / Docs Section -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-dot" style="background: var(--docs);"></div>
+      <div class="section-title">Research / Docs</div>
+      <div class="section-count">7 commits</div>
+    </div>
+    <div class="commit-grid">
+      <div class="commit-row" style="--i:0"><span class="commit-sha">e5639b7e</span><span class="commit-msg">docs: add MASFactory parity handoff with vocabulary mapping and gap analysis</span></div>
+      <div class="commit-row" style="--i:1"><span class="commit-sha">0657c5ea</span><span class="commit-msg">docs(plans): create benchmark harness plan for framework comparison (M1)</span></div>
+      <div class="commit-row" style="--i:2"><span class="commit-sha">7187fde3</span><span class="commit-msg">docs(handoff): update code reality + issue queue post-Wave 1 completion</span></div>
+      <div class="commit-row" style="--i:3"><span class="commit-sha">225141eb</span><span class="commit-msg">docs(handoff): add D11 multi-agent awareness, refine D9 to opt-in worktrees</span></div>
+      <div class="commit-row" style="--i:4"><span class="commit-sha">352ff610</span><span class="commit-msg">refactor(flowmind): rename GraphNodeType values (action&rarr;function, layout&rarr;subgraph, condition&rarr;gate, +hitl)</span></div>
+    </div>
+  </div>
+
+  <!-- Architecture Decisions -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-dot" style="background: var(--amber);"></div>
+      <div class="section-title">Key Decisions Made</div>
+      <div class="section-count">5 decisions</div>
+    </div>
+    <div class="commit-grid">
+      <div class="commit-row" style="--i:0; border-left: 3px solid var(--amber);"><span class="commit-sha">D8</span><span class="commit-msg"><strong>lev exec is THE execution plane.</strong> FlowMind compiles, exec executes. lev flowmind run killed.</span></div>
+      <div class="commit-row" style="--i:1; border-left: 3px solid var(--amber);"><span class="commit-sha">D9</span><span class="commit-msg"><strong>Worktrees opt-in, not default.</strong> Cherry-pick tax during Wave 1 proved cost &gt; benefit for overlapping files.</span></div>
+      <div class="commit-row" style="--i:2; border-left: 3px solid var(--amber);"><span class="commit-sha">D10</span><span class="commit-msg"><strong>Autodev tick must load workstream plan</strong> before generic scanning. Plan overrides surface scan.</span></div>
+      <div class="commit-row" style="--i:3; border-left: 3px solid var(--amber);"><span class="commit-sha">D11</span><span class="commit-msg"><strong>Multi-agent awareness</strong> via fresh handoff scanning. Cross-agent notes for shared modules.</span></div>
+      <div class="commit-row" style="--i:4; border-left: 3px solid var(--amber);"><span class="commit-sha">CDO</span><span class="commit-msg"><strong>CDO is a graph pattern, not an annotation layer.</strong> 6 properties killed. sync_mode + diversity_lens absorbed into GraphNode.</span></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    LEVIATHAN &middot; graph-convergence session 3 &middot; 102 commits &middot; 301 files &middot; +24,521 / -6,727 LOC &middot; zero regressions
+  </div>
+
+</div>
+</body>
+</html>

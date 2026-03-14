@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>24h Recap — Graph Convergence Sprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  --bg: #faf8f5;
+  --surface: #ffffff;
+  --surface-alt: #f3f0eb;
+  --surface-elevated: #ffffff;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-bright: rgba(0, 0, 0, 0.15);
+  --text: #1e2a3a;
+  --text-dim: #6b7280;
+  --text-muted: #9ca3af;
+  --accent: #1e3a5f;
+  --accent-dim: rgba(30, 58, 95, 0.08);
+  --gold: #d4a73a;
+  --gold-dim: rgba(212, 167, 58, 0.12);
+  --green: #2d7d4f;
+  --green-dim: rgba(45, 125, 79, 0.1);
+  --teal: #0e7490;
+  --teal-dim: rgba(14, 116, 144, 0.08);
+  --rose: #9f1239;
+  --rose-dim: rgba(159, 18, 57, 0.06);
+  --amber: #b45309;
+  --amber-dim: rgba(180, 83, 9, 0.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111318;
+    --surface: #1a1d25;
+    --surface-alt: #1f232d;
+    --surface-elevated: #242833;
+    --border: rgba(255, 255, 255, 0.06);
+    --border-bright: rgba(255, 255, 255, 0.12);
+    --text: #e8e4df;
+    --text-dim: #8b949e;
+    --text-muted: #6b7280;
+    --accent: #7db4d8;
+    --accent-dim: rgba(125, 180, 216, 0.1);
+    --gold: #f0c556;
+    --gold-dim: rgba(240, 197, 86, 0.12);
+    --green: #4ade80;
+    --green-dim: rgba(74, 222, 128, 0.1);
+    --teal: #22d3ee;
+    --teal-dim: rgba(34, 211, 238, 0.08);
+    --rose: #fb7185;
+    --rose-dim: rgba(251, 113, 133, 0.08);
+    --amber: #fbbf24;
+    --amber-dim: rgba(251, 191, 36, 0.1);
+  }
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  background-image: radial-gradient(ellipse at 30% 0%, var(--gold-dim) 0%, transparent 50%);
+}
+.wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* Hero Section */
+.hero {
+  text-align: center;
+  padding: 60px 0 48px;
+  animation: fadeUp 0.6s ease-out;
+}
+.hero-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.hero h1 em {
+  font-style: italic;
+  color: var(--accent);
+}
+.hero-sub {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  max-width: 600px;
+  margin: 0 auto;
+}
+.hero-date {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 20px;
+}
+
+/* KPI Strip */
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin: 0 0 56px;
+  animation: fadeUp 0.6s ease-out 0.15s both;
+}
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 16px;
+  text-align: center;
+}
+.kpi-num {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  line-height: 1;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.kpi-num.gold { color: var(--gold); }
+.kpi-num.green { color: var(--green); }
+.kpi-num.teal { color: var(--teal); }
+.kpi-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  margin-top: 8px;
+}
+
+/* Section Headers */
+.sec-head {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  margin: 56px 0 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--border-bright);
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.sec-num {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gold);
+  background: var(--gold-dim);
+  padding: 4px 10px;
+  border-radius: 6px;
+  position: relative;
+  top: -2px;
+}
+
+/* Timeline */
+.timeline {
+  position: relative;
+  padding-left: 32px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--gold), var(--accent), var(--green));
+  border-radius: 1px;
+}
+.tl-item {
+  position: relative;
+  margin-bottom: 20px;
+  animation: fadeUp 0.4s ease-out both;
+}
+.tl-item:nth-child(1) { animation-delay: 0.2s; }
+.tl-item:nth-child(2) { animation-delay: 0.25s; }
+.tl-item:nth-child(3) { animation-delay: 0.3s; }
+.tl-item:nth-child(4) { animation-delay: 0.35s; }
+.tl-item:nth-child(5) { animation-delay: 0.4s; }
+.tl-item:nth-child(6) { animation-delay: 0.45s; }
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -27px;
+  top: 8px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  background: var(--bg);
+}
+.tl-item.major::before {
+  background: var(--gold);
+  box-shadow: 0 0 0 4px var(--gold-dim);
+}
+.tl-time {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.tl-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.tl-detail {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.tl-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-right: 6px;
+  margin-top: 4px;
+}
+.tl-badge.feat { background: var(--green-dim); color: var(--green); }
+.tl-badge.fix { background: var(--amber-dim); color: var(--amber); }
+.tl-badge.docs { background: var(--teal-dim); color: var(--teal); }
+.tl-badge.refactor { background: var(--accent-dim); color: var(--accent); }
+.tl-badge.test { background: var(--rose-dim); color: var(--rose); }
+
+/* Wave Cards */
+.wave-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin: 8px 0 24px;
+}
+.wave-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.wave-card:hover { border-color: var(--border-bright); }
+.wave-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+.wave-card.w1::before { background: var(--rose); }
+.wave-card.w2::before { background: var(--amber); }
+.wave-card.w3::before { background: var(--teal); }
+.wave-card.w4::before { background: var(--green); }
+.wave-card.w5::before { background: var(--gold); }
+.wave-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+.wave-card.w1 .wave-label { color: var(--rose); }
+.wave-card.w2 .wave-label { color: var(--amber); }
+.wave-card.w3 .wave-label { color: var(--teal); }
+.wave-card.w4 .wave-label { color: var(--green); }
+.wave-card.w5 .wave-label { color: var(--gold); }
+.wave-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  margin-bottom: 12px;
+}
+.wave-items {
+  list-style: none;
+}
+.wave-items li {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  padding: 4px 0;
+  padding-left: 20px;
+  position: relative;
+}
+.wave-items li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+}
+.wave-stat {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+/* Architecture Diagram */
+.arch-strip {
+  display: flex;
+  gap: 2px;
+  margin: 16px 0 32px;
+  border-radius: 12px;
+  overflow: hidden;
+  height: 48px;
+}
+.arch-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #fff;
+  white-space: nowrap;
+  padding: 0 12px;
+  min-width: 0;
+}
+.arch-bar span { overflow: hidden; text-overflow: ellipsis; }
+
+/* Commit Table */
+.commit-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.85rem;
+  margin: 8px 0;
+  overflow-x: auto;
+  display: block;
+}
+.commit-table thead th {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--border-bright);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+}
+.commit-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.commit-table tbody tr:hover {
+  background: var(--surface-alt);
+}
+.commit-table .sha {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--gold);
+}
+.commit-table .msg { color: var(--text); font-weight: 500; }
+.commit-table .stat {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.commit-table .stat .ins { color: var(--green); }
+.commit-table .stat .del { color: var(--rose); }
+.commit-table .time {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.type-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-right: 4px;
+}
+.type-badge.feat { background: var(--green-dim); color: var(--green); }
+.type-badge.fix { background: var(--amber-dim); color: var(--amber); }
+.type-badge.docs { background: var(--teal-dim); color: var(--teal); }
+.type-badge.refactor { background: var(--accent-dim); color: var(--accent); }
+.type-badge.test { background: var(--rose-dim); color: var(--rose); }
+.type-badge.chore { background: var(--surface-alt); color: var(--text-muted); }
+
+/* Workstream Bars */
+.ws-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.ws-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-align: right;
+}
+.ws-bar-wrap {
+  height: 28px;
+  background: var(--surface-alt);
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+}
+.ws-bar {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  transition: width 0.8s ease-out;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  margin-top: 64px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeScale {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+@media (max-width: 640px) {
+  .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+  .wave-grid { grid-template-columns: 1fr; }
+  .ws-row { grid-template-columns: 1fr; }
+  .ws-label { text-align: left; }
+  .commit-table { font-size: 0.75rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-label">24-Hour Sprint Recap</div>
+  <h1>Graph Convergence<br><em>Waves 1 through 5</em></h1>
+  <p class="hero-sub">
+    Two workstreams merged. Five waves shipped. The M3 capstone achieved:
+    natural language in, execution result out.
+  </p>
+  <div class="hero-date">March 11 09:00 CST &rarr; March 12 00:00 CST</div>
+</div>
+
+<!-- KPI Strip -->
+<div class="kpi-strip">
+  <div class="kpi" style="animation: fadeScale 0.5s ease-out 0.2s both">
+    <div class="kpi-num gold">40</div>
+    <div class="kpi-label">Commits</div>
+  </div>
+  <div class="kpi" style="animation: fadeScale 0.5s ease-out 0.25s both">
+    <div class="kpi-num green">9,280+</div>
+    <div class="kpi-label">Lines Added</div>
+  </div>
+  <div class="kpi" style="animation: fadeScale 0.5s ease-out 0.3s both">
+    <div class="kpi-num teal">393+</div>
+    <div class="kpi-label">Tests Total</div>
+  </div>
+  <div class="kpi" style="animation: fadeScale 0.5s ease-out 0.35s both">
+    <div class="kpi-num">31</div>
+    <div class="kpi-label">BD Issues Closed</div>
+  </div>
+  <div class="kpi" style="animation: fadeScale 0.5s ease-out 0.4s both">
+    <div class="kpi-num gold">5</div>
+    <div class="kpi-label">Waves Shipped</div>
+  </div>
+  <div class="kpi" style="animation: fadeScale 0.5s ease-out 0.45s both">
+    <div class="kpi-num green">0</div>
+    <div class="kpi-label">Regressions</div>
+  </div>
+</div>
+
+<!-- Section 1: Wave Overview -->
+<div class="sec-head"><span class="sec-num">01</span> Waves Shipped</div>
+
+<div class="wave-grid">
+  <div class="wave-card w1">
+    <div class="wave-label">Wave 1 &mdash; Schema &amp; Foundation</div>
+    <div class="wave-title">Type Rename + Parallel Exec</div>
+    <ul class="wave-items">
+      <li>GraphNodeType renamed: action&rarr;function, layout&rarr;subgraph, condition&rarr;gate</li>
+      <li>HITL node type added, mapped to AgentPing</li>
+      <li>Parallel node execution in execution-contract</li>
+      <li>CLI wired to compileUntilToGraph()</li>
+      <li>Loop adapter: kind:'loop' &rarr; executeIterativeLoop()</li>
+    </ul>
+    <div class="wave-stat">5 tasks &middot; 4 agents &middot; commits 352ff610, 90440e15, a82fc658, 0657c5ea</div>
+  </div>
+
+  <div class="wave-card w2">
+    <div class="wave-label">Wave 2 &mdash; Graph Extensions</div>
+    <div class="wave-title">Subgraphs + Context Injection</div>
+    <ul class="wave-items">
+      <li>subgraph_ref / subgraph_inline + subgraphs registry (12 tests)</li>
+      <li>ContextBlock / Provider / Policy / Renderer (32 tests)</li>
+      <li>LoopConstruct deprecated across orchestration</li>
+    </ul>
+    <div class="wave-stat">3 tasks &middot; 3 agents &middot; commit e08b69c8</div>
+  </div>
+
+  <div class="wave-card w3">
+    <div class="wave-label">Wave 3 &mdash; CDO + Seed Compiler</div>
+    <div class="wave-title">Composable Properties + NL&rarr;Graph</div>
+    <ul class="wave-items">
+      <li>6 CDO properties: streaming, parallel, adaptive, memory, feedback, pipeline (29 tests)</li>
+      <li>FlowmindGraphSeed types + control-shape detection</li>
+      <li>seedToGraphDocument() compiler (22 tests)</li>
+      <li>Gate-0 wired to extractGraphSeed()</li>
+    </ul>
+    <div class="wave-stat">10 tasks &middot; 2 epics decomposed &middot; commits e728b2ba, 3303d89d</div>
+  </div>
+
+  <div class="wave-card w4">
+    <div class="wave-label">Wave 4 &mdash; M3 Capstone</div>
+    <div class="wave-title">runFromPrompt() E2E</div>
+    <ul class="wave-items">
+      <li>NL &rarr; intent &rarr; seed &rarr; GraphDocument &rarr; execution result</li>
+      <li>17 E2E integration tests</li>
+      <li>compileFromPrompt() sync API</li>
+      <li>Dry-run, compile-only, initialVars options</li>
+    </ul>
+    <div class="wave-stat">3 tasks &middot; commit f8c33403</div>
+  </div>
+
+  <div class="wave-card w5">
+    <div class="wave-label">Wave 5 &mdash; Runtime Convergence</div>
+    <div class="wave-title">CLI + Review + Budget + Session Engine</div>
+    <ul class="wave-items">
+      <li>validateTopology() fail-fast in start() (14 tests)</li>
+      <li>Session executor replaces transitional sdlc-loop (12+7 tests)</li>
+      <li>lev flowmind run CLI subcommand (15 tests)</li>
+      <li>reviewGraph() ASCII inspection surface (30 tests)</li>
+      <li>BudgetTracker per-entity/tick caps (18 tests)</li>
+      <li>Blueprint lowering spec + loop vernacular</li>
+    </ul>
+    <div class="wave-stat">9 tasks &middot; 7 agents &middot; commits b13cde9d, a4b12201, 4c6f9eb3</div>
+  </div>
+</div>
+
+<!-- Section 2: Two-Workstream View -->
+<div class="sec-head"><span class="sec-num">02</span> Parallel Workstreams</div>
+
+<p style="color: var(--text-dim); margin-bottom: 20px; font-size: 0.95rem;">
+  Two autonomous loops ran concurrently, coordinated by D11 multi-agent awareness.
+</p>
+
+<div class="ws-row">
+  <div class="ws-label">graph-convergence</div>
+  <div class="ws-bar-wrap">
+    <div class="ws-bar" style="width: 68%; background: var(--accent)">
+      <span>22 issues &middot; 5 waves &middot; M3 capstone</span>
+    </div>
+  </div>
+</div>
+<div class="ws-row">
+  <div class="ws-label">sdlc-autodev</div>
+  <div class="ws-bar-wrap">
+    <div class="ws-bar" style="width: 32%; background: var(--gold)">
+      <span>9 issues &middot; steps 1-5</span>
+    </div>
+  </div>
+</div>
+<div class="ws-row" style="margin-top: 8px;">
+  <div class="ws-label">chore-loop</div>
+  <div class="ws-bar-wrap">
+    <div class="ws-bar" style="width: 22%; background: var(--teal)">
+      <span>ticks 230-245</span>
+    </div>
+  </div>
+</div>
+
+<!-- Architecture Strip -->
+<div class="sec-head" style="margin-top: 48px;"><span class="sec-num">03</span> Four-Plane Architecture</div>
+
+<p style="color: var(--text-dim); margin-bottom: 16px; font-size: 0.95rem;">
+  All work maps to the four-plane model. Waves 1-5 built the policy&rarr;execution bridge.
+</p>
+
+<div class="arch-strip">
+  <div class="arch-bar" style="flex: 3; background: var(--accent)"><span>FlowMind (Policy)</span></div>
+  <div class="arch-bar" style="flex: 2; background: #6d5e3f"><span>Graph (State)</span></div>
+  <div class="arch-bar" style="flex: 2.5; background: var(--green)"><span>Orchestration (Execution)</span></div>
+  <div class="arch-bar" style="flex: 1; background: var(--teal)"><span>EventBus (Causality)</span></div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 32px;">
+  <div style="background: var(--accent-dim); border-radius: 8px; padding: 16px;">
+    <div style="font-family: var(--font-mono); font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Policy Plane</div>
+    <div style="font-size: 0.85rem; color: var(--text-dim);">Schema rename, CDO properties, intent compiler, seed&rarr;graph, runFromPrompt(), CLI surface, graph review</div>
+  </div>
+  <div style="background: var(--gold-dim); border-radius: 8px; padding: 16px;">
+    <div style="font-family: var(--font-mono); font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">State Plane</div>
+    <div style="font-size: 0.85rem; color: var(--text-dim);">GraphDocument extensions (subgraph refs, context injection), topology validation, parallel node state</div>
+  </div>
+  <div style="background: var(--green-dim); border-radius: 8px; padding: 16px;">
+    <div style="font-family: var(--font-mono); font-size: 10px; color: var(--green); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Execution Plane</div>
+    <div style="font-size: 0.85rem; color: var(--text-dim);">Loop adapter, session executor, composite step executor, budget tracker, parallel execution</div>
+  </div>
+  <div style="background: var(--teal-dim); border-radius: 8px; padding: 16px;">
+    <div style="font-family: var(--font-mono); font-size: 10px; color: var(--teal); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Causality Plane</div>
+    <div style="font-size: 0.85rem; color: var(--text-dim);">LevEvent emission from entity pipeline, autodev tick provider, daemon heartbeat</div>
+  </div>
+</div>
+
+<!-- Section 4: Key Commits Table -->
+<div class="sec-head"><span class="sec-num">04</span> Key Commits (40 total)</div>
+
+<div style="overflow-x: auto;">
+<table class="commit-table">
+<thead>
+<tr><th>Time</th><th>SHA</th><th>Message</th><th>Impact</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td class="time">10:51</td>
+  <td class="sha">c61cbe61</td>
+  <td class="msg"><span class="type-badge test">test</span>Loop exit reason integration tests</td>
+  <td class="stat"><span class="ins">+499</span> &middot; 22 tests, 7 exit paths</td>
+</tr>
+<tr>
+  <td class="time">18:21</td>
+  <td class="sha">60eb23b9</td>
+  <td class="msg"><span class="type-badge feat">feat</span>Autodev heartbeat command (lev loop autodev)</td>
+  <td class="stat"><span class="ins">+691</span> &middot; 131 test LOC</td>
+</tr>
+<tr>
+  <td class="time">18:24</td>
+  <td class="sha">90440e15</td>
+  <td class="msg"><span class="type-badge feat">feat</span>Parallel node execution in execution contract</td>
+  <td class="stat"><span class="ins">+367</span> &middot; 309 test LOC</td>
+</tr>
+<tr>
+  <td class="time">18:27</td>
+  <td class="sha">352ff610</td>
+  <td class="msg"><span class="type-badge refactor">refactor</span>GraphNodeType rename: action&rarr;function, layout&rarr;subgraph, +hitl</td>
+  <td class="stat"><span class="ins">+215</span> <span class="del">-67</span> &middot; 20 files</td>
+</tr>
+<tr>
+  <td class="time">18:32</td>
+  <td class="sha">a82fc658</td>
+  <td class="msg"><span class="type-badge feat">feat</span>Loop adapter bridging execution contract to orchestration</td>
+  <td class="stat"><span class="ins">+687</span> &middot; 19 tests</td>
+</tr>
+<tr>
+  <td class="time">18:43</td>
+  <td class="sha">a54b1a91</td>
+  <td class="msg"><span class="type-badge feat">feat</span>Wire token tracking, poly surface, autodev alias</td>
+  <td class="stat"><span class="ins">+563</span> &middot; 237 test LOC</td>
+</tr>
+<tr>
+  <td class="time">18:59</td>
+  <td class="sha">e08b69c8</td>
+  <td class="msg"><span class="type-badge feat">feat</span>Wave 2 &mdash; subgraph refs, context injection, deprecate LoopConstruct</td>
+  <td class="stat"><span class="ins">+831</span> &middot; 75 tests</td>
+</tr>
+<tr>
+  <td class="time">19:06</td>
+  <td class="sha">e728b2ba</td>
+  <td class="msg"><span class="type-badge feat">feat</span>CDO property system &mdash; types, parser, validation</td>
+  <td class="stat"><span class="ins">+575</span> &middot; 29 tests</td>
+</tr>
+<tr>
+  <td class="time">19:21</td>
+  <td class="sha">3303d89d</td>
+  <td class="msg"><span class="type-badge feat">feat</span>FlowmindGraphSeed &rarr; GraphDocument compiler</td>
+  <td class="stat"><span class="ins">+645</span> &middot; 22 tests</td>
+</tr>
+<tr>
+  <td class="time">19:34</td>
+  <td class="sha">f8c33403</td>
+  <td class="msg"><span class="type-badge feat">feat</span>Wave 4 &mdash; runFromPrompt() E2E pipeline (M3 capstone)</td>
+  <td class="stat"><span class="ins">+314</span> &middot; 17 tests</td>
+</tr>
+<tr>
+  <td class="time">23:09</td>
+  <td class="sha">0d502ca4</td>
+  <td class="msg"><span class="type-badge fix">fix</span>Add bun export conditions for dev-time TS resolution</td>
+  <td class="stat"><span class="ins">+26</span> &middot; 5 packages</td>
+</tr>
+<tr>
+  <td class="time">23:14</td>
+  <td class="sha">e097d62d</td>
+  <td class="msg"><span class="type-badge feat">feat</span>Autodev daemon tick provider, notify webhook, launchd plist</td>
+  <td class="stat"><span class="ins">+442</span> &middot; 274 LOC provider</td>
+</tr>
+<tr>
+  <td class="time">23:17</td>
+  <td class="sha">b13cde9d</td>
+  <td class="msg"><span class="type-badge feat">feat</span>Topology validation, session executor, roadmap update</td>
+  <td class="stat"><span class="ins">+926</span> <span class="del">-24</span> &middot; 14+12 tests</td>
+</tr>
+<tr>
+  <td class="time">23:23</td>
+  <td class="sha">a4b12201</td>
+  <td class="msg"><span class="type-badge feat">feat</span>Session&rarr;loop bridge, blueprint spec, loop vernacular</td>
+  <td class="stat"><span class="ins">+631</span> &middot; 7 tests + spec</td>
+</tr>
+<tr>
+  <td class="time">23:28</td>
+  <td class="sha">4c6f9eb3</td>
+  <td class="msg"><span class="type-badge feat">feat</span>CLI subcommand, graph review, budget tracker</td>
+  <td class="stat"><span class="ins">+1,605</span> &middot; 15+30+18 tests</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<!-- Section 5: Artifacts Created -->
+<div class="sec-head"><span class="sec-num">05</span> Artifacts &amp; Decisions</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 24px;">
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px;">
+    <div style="font-family: var(--font-mono); font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Design Docs</div>
+    <ul style="list-style: none; font-size: 0.85rem; color: var(--text-dim);">
+      <li style="padding: 3px 0;">design-cdo-property-system.md</li>
+      <li style="padding: 3px 0;">spec-intent-compiler.md</li>
+      <li style="padding: 3px 0;">spec-blueprint-lowering-contract.md</li>
+      <li style="padding: 3px 0;">plan-benchmark-harness.md</li>
+    </ul>
+  </div>
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px;">
+    <div style="font-family: var(--font-mono); font-size: 10px; color: var(--teal); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Decisions (D8-D11)</div>
+    <ul style="list-style: none; font-size: 0.85rem; color: var(--text-dim);">
+      <li style="padding: 3px 0;">D8: Substrate items are graph-convergence work</li>
+      <li style="padding: 3px 0;">D9: Worktree isolation is opt-in, not default</li>
+      <li style="padding: 3px 0;">D10: Autodev tick loads workstream plan first</li>
+      <li style="padding: 3px 0;">D11: Multi-agent awareness via fresh handoff scan</li>
+    </ul>
+  </div>
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px;">
+    <div style="font-family: var(--font-mono); font-size: 10px; color: var(--green); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Vernacular Updates</div>
+    <ul style="list-style: none; font-size: 0.85rem; color: var(--text-dim);">
+      <li style="padding: 3px 0;">Loop disambiguation &sect;1.8 (exec vs entity)</li>
+      <li style="padding: 3px 0;">Graph Blueprint + FlowmindGraphSeed terms</li>
+      <li style="padding: 3px 0;">Topology Switch Point definition</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Section 6: What's Next -->
+<div class="sec-head"><span class="sec-num">06</span> Remaining</div>
+
+<div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+  <div style="font-family: var(--font-display); font-size: 1.2rem; margin-bottom: 12px;">A2A Subagent Orchestration (lev-636)</div>
+  <p style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 16px;">
+    The last epic. Decomposed into 4 subtasks &mdash; ready for next session.
+  </p>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+    <div style="background: var(--surface-alt); border-radius: 8px; padding: 12px;">
+      <div style="font-family: var(--font-mono); font-size: 10px; color: var(--gold);">lev-0l1 &middot; READY</div>
+      <div style="font-size: 0.85rem; margin-top: 4px;">AgentJob/AgentJobResult types</div>
+    </div>
+    <div style="background: var(--surface-alt); border-radius: 8px; padding: 12px;">
+      <div style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">lev-bq9 &middot; BLOCKED</div>
+      <div style="font-size: 0.85rem; margin-top: 4px;">Job dispatcher + progress</div>
+    </div>
+    <div style="background: var(--surface-alt); border-radius: 8px; padding: 12px;">
+      <div style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">lev-81b &middot; BLOCKED</div>
+      <div style="font-size: 0.85rem; margin-top: 4px;">Error propagation</div>
+    </div>
+    <div style="background: var(--surface-alt); border-radius: 8px; padding: 12px;">
+      <div style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">lev-et6 &middot; BLOCKED</div>
+      <div style="font-size: 0.85rem; margin-top: 4px;">Wire into autodev + session</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Generated from git log &middot; graph-convergence session 3-4 &middot; lev-os/leviathan
+</div>
+
+</div>
+</body>
+</html>

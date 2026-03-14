@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exact Medicare Persona Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-display: "Instrument Serif", Georgia, serif;
+    --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", monospace;
+    --bg: #faf7f5;
+    --surface: #ffffff;
+    --surface-2: #f3ece7;
+    --text: #241d18;
+    --text-dim: #786b60;
+    --border: rgba(36, 29, 24, 0.08);
+    --border-strong: rgba(36, 29, 24, 0.15);
+    --rose: #9f1239;
+    --rose-dim: rgba(159, 18, 57, 0.08);
+    --sage: #3f6b4f;
+    --sage-dim: rgba(63, 107, 79, 0.08);
+    --amber: #b06500;
+    --amber-dim: rgba(176, 101, 0, 0.09);
+    --navy: #1f3a5f;
+    --navy-dim: rgba(31, 58, 95, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #171110;
+      --surface: #211918;
+      --surface-2: #2a2120;
+      --text: #f2e7dd;
+      --text-dim: #bea99c;
+      --border: rgba(255,255,255,0.08);
+      --border-strong: rgba(255,255,255,0.15);
+      --rose: #ff9ab1;
+      --rose-dim: rgba(255,154,177,0.12);
+      --sage: #95caa5;
+      --sage-dim: rgba(149,202,165,0.12);
+      --amber: #ffbf6b;
+      --amber-dim: rgba(255,191,107,0.12);
+      --navy: #a9c8ff;
+      --navy-dim: rgba(169,200,255,0.12);
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-body);
+    color: var(--text);
+    background:
+      radial-gradient(circle at 10% 0%, var(--rose-dim), transparent 30%),
+      radial-gradient(circle at 100% 100%, var(--sage-dim), transparent 32%),
+      var(--bg);
+    padding: 34px;
+  }
+  .page { max-width: 1260px; margin: 0 auto; display: grid; gap: 22px; }
+  .hero, .panel, .card, .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+  }
+  .hero { padding: 28px 30px; }
+  .eyebrow, .panel-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 1.3px; text-transform: uppercase;
+    color: var(--rose); font-weight: 600;
+  }
+  .eyebrow::before, .panel-label::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor;
+  }
+  h1 {
+    margin-top: 14px; font-family: var(--font-display); font-size: 44px; line-height: 1;
+    letter-spacing: -0.03em; max-width: 860px; font-weight: 400;
+  }
+  .subtitle {
+    margin-top: 14px; max-width: 920px; font-size: 15px; line-height: 1.7; color: var(--text-dim);
+  }
+  .summary-grid, .card-grid { display: grid; gap: 16px; }
+  .summary-grid { margin-top: 22px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .summary {
+    padding: 14px 16px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface-2);
+  }
+  .summary .k { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); }
+  .summary .v { margin-top: 8px; font-size: 26px; font-weight: 700; letter-spacing: -0.03em; }
+  .summary .d { margin-top: 6px; font-size: 12px; line-height: 1.55; color: var(--text-dim); }
+  .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .card { padding: 20px 22px; }
+  .role-line { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .role-line h2 { font-size: 22px; letter-spacing: -0.03em; }
+  .tag {
+    padding: 4px 8px; border-radius: 999px; font-family: var(--font-mono); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 1px; border: 1px solid var(--border);
+  }
+  .tag.live { color: var(--sage); background: var(--sage-dim); }
+  .tag.partial { color: var(--amber); background: var(--amber-dim); }
+  .tag.demo { color: var(--rose); background: var(--rose-dim); }
+  .blurb { margin-top: 10px; color: var(--text-dim); font-size: 14px; line-height: 1.65; }
+  .section { margin-top: 16px; }
+  .section h3 {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 1.1px; text-transform: uppercase; color: var(--navy);
+  }
+  ul { margin-top: 8px; display: grid; gap: 8px; list-style: none; }
+  li {
+    padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-2);
+    font-size: 13px; line-height: 1.55;
+  }
+  .panel { padding: 20px 22px; }
+  .table-wrap { overflow: hidden; }
+  .table-head { padding: 18px 22px 0; }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 900px; }
+  th, td { padding: 14px 16px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  th {
+    background: var(--surface-2); font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--text-dim);
+  }
+  td { font-size: 13px; line-height: 1.6; }
+  code { font-family: var(--font-mono); font-size: 12px; color: var(--navy); }
+  @media (max-width: 980px) {
+    body { padding: 20px; }
+    .summary-grid, .card-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">BDD Source of Truth</div>
+      <h1>Persona atlas for the current Exact Medicare product, grounded in the two vision documents and today’s routes.</h1>
+      <p class="subtitle">
+        Use these personas to anchor behavior-driven tests around real jobs-to-be-done: what each role checks first thing in the morning, what event pulls them deeper, what view they rely on, and what “done” feels like to them. This prevents the suite from collapsing into component-level checks that miss workflow intent.
+      </p>
+      <div class="summary-grid">
+        <div class="summary"><div class="k">Vision Roles</div><div class="v">6</div><div class="d">Admin, CFO, Compliance VP, Sales Director, Analyst/Reviewer, Platform Admin.</div></div>
+        <div class="summary"><div class="k">Live Audit Personas</div><div class="v">4</div><div class="d">Dashboard, statement inbox, exceptions, review queue, and workforce flows exist today.</div></div>
+        <div class="summary"><div class="k">Partial Personas</div><div class="v">2</div><div class="d">Compliance and multi-org admin are present, but partly demo or platform-scaffolded.</div></div>
+        <div class="summary"><div class="k">BDD Anchor</div><div class="v">Morning Ritual</div><div class="d">Every persona begins with a morning question, not a route name.</div></div>
+      </div>
+    </section>
+
+    <section class="card-grid">
+      <article class="card">
+        <div class="role-line"><h2>1. Revenue Integrity Analyst</h2><span class="tag live">Live</span></div>
+        <p class="blurb">Primary operator for the Aetna reconciliation workflow. Starts in Statement Inbox or Exceptions after overnight processing.</p>
+        <div class="section"><h3>Morning question</h3><ul><li>What statements landed overnight, what parsed cleanly, and where are the new discrepancies?</li></ul></div>
+        <div class="section"><h3>Key views</h3><ul><li><code>/statements</code>, <code>/statements/mapping</code>, <code>/statements/exceptions</code>, <code>/statements/compare</code></li></ul></div>
+        <div class="section"><h3>BDD anchors</h3><ul><li>Auto-ingest or upload creates a visible inbox record.</li><li>Schema issues are visible before the analyst trusts the numbers.</li><li>Exceptions are filterable and drillable back to raw evidence.</li></ul></div>
+      </article>
+
+      <article class="card">
+        <div class="role-line"><h2>2. Review Specialist / Auditor</h2><span class="tag live">Live</span></div>
+        <p class="blurb">Works the queue of flagged discrepancies and needs a disciplined workflow for note-taking, status transitions, and audit trail.</p>
+        <div class="section"><h3>Morning question</h3><ul><li>Which items remain unresolved, which are newly critical, and what evidence is ready for manual follow-up?</li></ul></div>
+        <div class="section"><h3>Key views</h3><ul><li><code>/statements/review</code>, <code>/statements/exceptions</code>, <code>/statements/timeline</code></li></ul></div>
+        <div class="section"><h3>BDD anchors</h3><ul><li>Queue ordering reflects severity and actionability.</li><li>Changing status preserves reasoning and timestamps.</li><li>Exported review packets match the currently visible queue state.</li></ul></div>
+      </article>
+
+      <article class="card">
+        <div class="role-line"><h2>3. Operations Admin</h2><span class="tag live">Live</span></div>
+        <p class="blurb">Owns system readiness for the day: dashboard signals, new document batches, file watcher health, and whether the platform is safe to act on.</p>
+        <div class="section"><h3>Morning question</h3><ul><li>Did the overnight pipeline run, did anything fail, and do I need to intervene before analysts start?</li></ul></div>
+        <div class="section"><h3>Key views</h3><ul><li><code>/dashboard</code>, <code>/statements</code>, <code>/settings</code></li></ul></div>
+        <div class="section"><h3>BDD anchors</h3><ul><li>Dashboard KPIs switch from demo to live audit state when a workbook is loaded.</li><li>Watcher state is visible and reversible.</li><li>Unsupported or malformed files fail loudly instead of blending into “parsed” state.</li></ul></div>
+      </article>
+
+      <article class="card">
+        <div class="role-line"><h2>4. Sales Director / Team Lead</h2><span class="tag partial">Partial</span></div>
+        <p class="blurb">Consumes workforce performance views derived from reconciliation results to coach agents and prioritize operational fixes.</p>
+        <div class="section"><h3>Morning question</h3><ul><li>Which agents or teams are dragging match rate down and where should coaching start today?</li></ul></div>
+        <div class="section"><h3>Key views</h3><ul><li><code>/workforce</code>, dashboard leaderboards, agent detail modal</li></ul></div>
+        <div class="section"><h3>BDD anchors</h3><ul><li>Uploading a new workbook changes agent rankings and risk cards.</li><li>Agent drill-downs reconcile with segment/discrepancy totals.</li><li>No silent fallback to static mock rankings when live data is present.</li></ul></div>
+      </article>
+
+      <article class="card">
+        <div class="role-line"><h2>5. CFO / Executive Sponsor</h2><span class="tag partial">Partial</span></div>
+        <p class="blurb">Reads the dashboard and revenue page as an outcomes surface: variance, clawback exposure, match rate, and hours saved.</p>
+        <div class="section"><h3>Morning question</h3><ul><li>What changed overnight in financial exposure and where do I need a leadership readout?</li></ul></div>
+        <div class="section"><h3>Key views</h3><ul><li><code>/dashboard</code>, <code>/revenue</code>, KPI strips, alert feed</li></ul></div>
+        <div class="section"><h3>BDD anchors</h3><ul><li>Topline totals are mathematically consistent with reconciliation output.</li><li>Critical alerts summarize real discrepancies, not synthetic placeholders, when audit data exists.</li><li>Executive drill-down can reach exception evidence without leaving the app narrative.</li></ul></div>
+      </article>
+
+      <article class="card">
+        <div class="role-line"><h2>6. Compliance VP / Cross-Org Admin</h2><span class="tag demo">Scaffold</span></div>
+        <p class="blurb">Represents the platform vision: role-scoped oversight, company switching, and adjacent compliance/document workflows. Important for acceptance design even where the data is demo-backed today.</p>
+        <div class="section"><h3>Morning question</h3><ul><li>Am I seeing the correct organization and role lens, and are high-risk items isolated to the right context?</li></ul></div>
+        <div class="section"><h3>Key views</h3><ul><li><code>CompanySwitcher</code>, <code>/compliance</code>, <code>/documents</code>, org-scoped dashboard</li></ul></div>
+        <div class="section"><h3>BDD anchors</h3><ul><li>Switching org reshapes dashboards without data bleed.</li><li>Role-specific surfaces degrade honestly when backed by demo data.</li><li>Persona-specific copy and alerts match the selected org context.</li></ul></div>
+      </article>
+    </section>
+
+    <section class="table-wrap">
+      <div class="table-head panel-label">Persona to Test Surface Matrix</div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Persona</th>
+              <th>First screen</th>
+              <th>Primary signal</th>
+              <th>Workflow test focus</th>
+              <th>Adversarial edge</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Revenue Integrity Analyst</td>
+              <td>Statement Inbox</td>
+              <td>New statement + issue count</td>
+              <td>Upload/auto-ingest, mapping, exception drilldown</td>
+              <td>Malformed workbook still shows as “Parsed”</td>
+            </tr>
+            <tr>
+              <td>Review Specialist</td>
+              <td>Review Queue</td>
+              <td>Critical unresolved items</td>
+              <td>Status changes, note capture, audit trail, export</td>
+              <td>Queue appears actionable but notes/status are non-persistent</td>
+            </tr>
+            <tr>
+              <td>Operations Admin</td>
+              <td>Dashboard</td>
+              <td>System alerts + watcher state</td>
+              <td>Morning dashboard health, inbox watch folder, reset flows</td>
+              <td>Demo alerts obscure live failures</td>
+            </tr>
+            <tr>
+              <td>Sales Director</td>
+              <td>Workforce Analytics</td>
+              <td>At-risk agents</td>
+              <td>Agent ranking, match-rate deltas, drilldown consistency</td>
+              <td>Live data present but ranking still uses fallback assumptions</td>
+            </tr>
+            <tr>
+              <td>CFO / Executive</td>
+              <td>Dashboard / Revenue</td>
+              <td>Net variance and clawback exposure</td>
+              <td>KPI coherence, alert quality, high-level drilldown</td>
+              <td>Executive totals do not reconcile with engine totals</td>
+            </tr>
+            <tr>
+              <td>Compliance VP / Cross-Org Admin</td>
+              <td>Company Switcher / Compliance</td>
+              <td>Correct org and role lens</td>
+              <td>Org switching, role scope, explicit demo/live boundaries</td>
+              <td>Data bleed or false “live” presentation in scaffold views</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

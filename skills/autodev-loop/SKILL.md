@@ -1,15 +1,14 @@
 ---
 name: autodev-loop
 description: >
-  Autonomous development loop. Generates a context-aware prompt from the project's
-  entity surfaces — plans, specs, chores — then schedules recurring execution.
-  Teaches the AI how to generate the prompt, not what to do.
-version: 2.0.0
+  Autonomous development loop. Prompt generator + cron scheduler that delegates
+  execution to /work, prompt stacks, and bd. No custom FSM.
+version: 3.0.0
 extends: []
 related_skills:
   - work
-  - lev-align
-  - workflow
+  - stack
+  - autodev-lev
 skill_type: workflow
 category: process-lifecycle
 primitive_owner: work
@@ -17,9 +16,7 @@ triggers:
   - "autodev"
   - "dev loop"
   - "autonomous loop"
-  - "conveyor belt"
   - "plan loop"
-  - "maintenance loop"
 tools:
   - Bash
   - Read
@@ -30,723 +27,332 @@ tools:
   - Agent
   - CronCreate
   - CronDelete
-  - bd CLI (optional, graceful degradation)
+  - bd CLI (graceful degradation)
 storage:
   tick_log: ".lev/pm/handoffs/"
 ---
 
-# Autodev Loop — Autonomous Entity Execution
+# Autodev Loop — Prompt Generator + Cron Scheduler
 
-**Purpose**: Generate and schedule a recurring prompt that discovers work from the project's
-entity surfaces, implements or validates it, promotes completed work, and self-feeds the queue.
+**Purpose**: Scan the work queue, generate a context-aware prompt, schedule recurring ticks.
+Each tick does exactly ONE of three things: validate, execute, or drift scan.
 
-This skill TEACHES the AI how to **generate** the loop prompt. It does NOT hardcode work items.
-
----
-
-## Architecture
-
-```
-┌─────────────────────────────────────┐
-│         autodev-loop skill          │ ← prompt generation + AI protocol
-│                                     │
-│  1. Read project config             │
-│  2. Resolve entity surfaces         │─── input masks: what to scan
-│  3. Discover entities               │─── core-sdlc SDK or filesystem
-│  4. Generate context-aware prompt   │
-│  5. Schedule via CronCreate         │
-└─────────────────────────────────────┘
-           │
-           │ generated prompt, every N minutes
-           ▼
-┌─────────────────────────────────────┐
-│       Agent execution tick          │
-│                                     │
-│  SCANNING → DOING → VALIDATING     │ ← the FSM
-│                                     │
-│  Uses: git, bd, pnpm test, etc.    │
-└─────────────────────────────────────┘
-```
+The loop does NOT contain an FSM. It generates prompts that use /work, prompt stacks, and bd.
 
 ---
 
-## Core Protocol
+## Tick Architecture
 
-### The FSM
-
-The agent is always in exactly one mode:
+Every tick follows this priority waterfall. First match wins:
 
 ```
-SCANNING ──▶ DOING ──▶ SCANNING
-    │                      ▲
-    └──▶ VALIDATING ───────┘
+1. VALIDATE  — Did the previous tick produce work?
+   │            Run sdlc-exec-validate prompt stack against it.
+   │            ├─ PASS → promote entity, bd close, checkpoint git
+   │            └─ FAIL → append failure feedback to plan body,
+   │                      set status: ready, next worker tick retries
+   │
+2. EXECUTE   — Is there actionable work? (bd ready + lev loop --json)
+   │            Pick highest priority, implement it.
+   │            Set status: needs_validation when done.
+   │
+3. DRIFT     — No actionable work?
+               Scan core/ vs docs/specs/ for drift.
+               Create/update plans via sdlc-deepen-plan prompt stack.
+               Plans land as status: ready (available next tick).
 ```
 
-- **SCANNING**: Find next entity by priority across all input surfaces. If queue < threshold, drift scan.
-- **DOING**: Implement the next phase. Checkpoint after natural boundaries.
-- **VALIDATING**: Run fitness functions. If ALL pass → promote to done surface.
-
-### Git Protocol (Checkpoint Style)
-
-Every tick ends with a checkpoint: `git add . && git commit -m "checkpoint: ..." && git pull --rebase && git push`.
-
-Checkpoints happen at natural boundaries (phase completion, validation pass), NOT per-entity.
-Multiple entities can land in a single checkpoint commit. The goal is keeping main always
-up to date, not creating a perfect commit history.
-
-**Reality**: worktrees are almost always dirty (modified submodules, parallel session
-artifacts). Use the stash dance when pulling:
-
-```bash
-git stash && git pull --rebase && git stash pop
-```
-
-Pre-existing dirt in submodules is normal. Only investigate unexpected diffs in files
-the current tick actually touched.
-
-### Workstream Plan Loading (D10)
-
-**Before running the generic SCANNING phase**, check for a workstream-specific plan:
-
-1. `Glob` for `.lev/pm/plans/plan-autodev-loop-*.md`
-2. If found, `Read` the plan file FIRST
-3. Use the plan's wave structure, dependency rules, and dispatch constraints
-4. The plan overrides generic surface scanning — it defines:
-   - Which tasks are ready (wave-aware, dependency-aware)
-   - Dispatch order and parallelism limits
-   - What NOT to touch (scope boundaries)
-   - The compilation target and architectural constraints
-5. Only fall back to generic surface scanning if NO workstream plan exists
-
-Also check for the active handoff:
-1. `Glob` for `.lev/pm/handoffs/*-session-*.md` with `status: active`
-2. `Read` the handoff to understand current wave, completed work, blockers
-3. Cross-reference handoff progress against the plan's wave structure
-
-This ensures the autodev tick has full context of the workstream, not just
-a blind scan of entity surfaces.
-
-### Agent Isolation (D9)
-
-**Default: agents work on main.** Worktree isolation is opt-in, not automatic.
-
-The autodev loop dispatches subagents directly on main unless the user explicitly
-requests worktree isolation (e.g., `--worktree`, risky experiments, independent PR work).
-
-**Why main-first:** During integration work, agents touching overlapping files
-(e.g., schema rename + parallel execution both hitting execution-contract) create
-cherry-pick conflicts that cost more to resolve than they save. Working on main
-means agents see each other's changes immediately.
-
-**When worktrees make sense (user opts in):**
-- Risky experiments you might throw away
-- Independent PRs for review
-- Long-running work that shouldn't block main
-- Explicit `--worktree` flag on `/autodev-loop`
-
-**When to stay on main (default):**
-- Integration work with overlapping files
-- Sequential wave dispatch
-- Checkpoint-style development
-
-For tasks with overlapping `code_refs`, dispatch sequentially, not in parallel.
-For truly independent tasks (non-overlapping files), parallel subagents on main are fine.
-
-### Multi-Agent Awareness (D11)
-
-Multiple autodev loops can run concurrently on different workstreams (e.g.,
-`/autodev-loop` for graph-convergence, `/autodev-lev` for sdlc-convergence).
-Each loop must be aware of the others to avoid conflicts.
-
-**Scan phase addition — fresh handoff check:**
-
-Before dispatching work, scan for OTHER active handoffs:
-
-1. `Glob` for `.lev/pm/handoffs/*-session-*.md`
-2. Filter to `status: active` handoffs that are NOT your own workstream
-3. If any were modified in the last 30 minutes (fresh), `Read` their:
-   - `You Are Here` section (what they're working on)
-   - `Entity Matrix` (what files they're touching)
-   - Any notes/warnings left for other agents
-4. Check for file overlap between their active work and your dispatch queue
-5. If overlap detected: skip the conflicting entity, log why, pick the next one
-
-**Leaving notes for other agents:**
-
-When your tick touches shared modules (e.g., `execution-contract/`, `schema.ts`,
-`orchestration/`), append a brief note to your handoff:
-
-```markdown
-### Cross-Agent Notes
-- [2026-03-11 18:45] Touching execution-contract/types.ts — added hitl to InstructionKind
-- [2026-03-11 19:02] Modified schema.ts GraphNodeType union — downstream consumers need update
-```
-
-Other agents scan these notes during their fresh handoff check.
-
-**Conflict resolution priority:**
-- Whichever agent has the task `in_progress` first owns the file
-- If both agents need the same file, the one with the higher-priority task wins
-- If tied, the graph-convergence workstream (policy plane) takes precedence
-  over sdlc (execution plane) since policy changes cascade
-
-### State Encoding
-
-State lives in the **filesystem**, not metadata:
-
-| Location | State |
-|----------|-------|
-| `{surface}/` | Active — needs work or validation |
-| `{surface}/_done/` | Validated and promoted |
-
-The `status` frontmatter field is advisory (falls back to `lifecycle_state` for backward compat). The file location is canonical.
+**Key rule**: The agent that does work NEVER validates its own work.
+Validation is always done by the next tick.
 
 ---
 
-## Entity Surface Model
+## Two Modes
 
-The loop doesn't hardcode where work lives. It reads **input surfaces** from config.
-Each surface defines what to scan, where done items go, and what file patterns to match.
+**Slice** (`/autodev-loop`): Run one tick. Scan → pick action → execute → checkpoint.
 
-### Default Surfaces (no config required)
+**Time** (`/autodev-loop 6h`): Schedule recurring ticks via CronCreate. Each tick
+runs slice mode independently. If no work exists, drift scan creates it.
 
-When no `autodev` config exists, the loop uses these defaults:
-
-```yaml
-autodev:
-  surfaces:
-    - name: plans
-      input: .lev/pm/plans/
-      done: .lev/pm/plans/_done/
-      patterns: ["plan-*.md"]
-
-    - name: specs
-      input: docs/specs/
-      done: docs/specs/_done/
-      patterns: ["plan-*.md", "chore-*.md"]  # backward compat
-```
-
-### Per-Project Config
-
-Projects override surfaces in `.lev/config.yaml`:
-
-```yaml
-autodev:
-  tick_interval: 10m
-  max_parallel_agents: 6
-  drift_scan_threshold: 3
-  priority_field: priority
-  blocked_states: [blocked, deferred]
-
-  surfaces:
-    # The PM surface — structured entity lifecycle
-    - name: plans
-      input: .lev/pm/plans/
-      done: .lev/pm/plans/_done/
-      patterns: ["plan-*.md"]
-
-    # The specs surface — where specs and legacy chores live
-    - name: specs
-      input: docs/specs/
-      done: docs/specs/_done/
-      patterns: ["plan-*.md", "chore-*.md"]
-
-    # Example: a project that wants root-level specs/
-    # - name: root-specs
-    #   input: specs/
-    #   done: specs/_done/
-    #   patterns: ["*.md"]
-```
-
-### Input Masks (Backward Compatibility)
-
-The `patterns` array is the input mask. It controls what the loop sees.
-
-| Pattern | What it matches | Use case |
-|---------|----------------|----------|
-| `plan-*.md` | Forward-looking plans | New convention |
-| `chore-*.md` | Legacy cleanup items | Leviathan backward compat |
-| `*.md` | Everything | Broad scan |
-
-**The key insight**: if you like seeing chores in `docs/specs/`, just add `chore-*.md` to your
-specs surface pattern. The loop doesn't care about the prefix — it reads frontmatter for priority,
-status, and fitness functions regardless.
-
-### Output Convention
-
-When the loop generates NEW entities (from drift scans), it writes to the **first writable surface**
-using the project's preferred naming:
-
-```yaml
-autodev:
-  output:
-    prefix: plan       # or "chore" for legacy projects
-    surface: plans     # which surface to write new entities to
-```
-
-Default: `prefix: plan`, `surface: plans` (writes `plan-*.md` to `.lev/pm/plans/`).
-
-If you flip `prefix: chore`, drift-discovered items get written as `chore-*.md` — fully backward
-compatible with the 34-tick session that just shipped 76 chores.
+Time mode is slice mode on a cron. That's it.
 
 ---
 
-## Entity Lifecycle Integration
+## Queue Resolution
 
-The loop is entity-lifecycle aware. It understands the `work` skill's entity states:
+The tick resolves work in this order:
+
+1. **Check for previous tick's output needing validation**
+   - `Glob` for entities with `status: needs_validation`
+   - If found → this tick is a VALIDATE tick
+
+2. **Check bd ready** → actionable issues already triaged
+   - `Bash`: `bd ready --json`
+
+3. **Check entity surfaces** → plans/specs with `status: ready | active`
+   - `Bash`: `npx lev loop --json` (or filesystem scan as fallback)
+   - Skip `draft`, `blocked`, `deferred`
+   - Sort by priority (P0 > P1 > P2 > P3 > P4)
+
+4. **Drift scan** → if steps 2-3 return empty
+   - Compare `core/` code against `docs/specs/spec-*.md`
+   - Check `code_refs` paths, `validation_gates`, documented invariants
+   - Create plans for real drift found (as `status: ready`)
+
+---
+
+## Prompt Stacks as Composition Layer
+
+Prompt stacks are the structured execution protocol. The loop generates prompts
+that reference the right stack for the job.
+
+### For Validation Ticks
+
+Stack: **sdlc-exec-validate** (3 steps: exec-implement → validate-gates → verdict-routing)
+
+The validate tick runs only steps 2-3 (validate-gates + verdict-routing) against
+the previous tick's output. It does NOT re-execute.
 
 ```
-ephemeral → captured → classified → crystallizing → crystallized → manifesting → completed
+Invoke: bun plugins/prompt-stack/src/cli.ts init sdlc-exec-validate
+        bun plugins/prompt-stack/src/cli.ts next <session-id>
 ```
 
-### How status maps to loop behavior
+Verdict routing:
+- `pass` → promote entity to `_done/`, `bd close`
+- `fail` → append failure notes to plan body, set `status: ready`
 
-`status` is the canonical frontmatter field (falls back to `lifecycle_state` for backward compat).
+The plan becomes the feedback channel. Next worker tick sees WHY it failed.
 
-| `status` | Loop action |
+### For Drift Scan Ticks
+
+Stack: **sdlc-deepen-plan** (3 steps: decompose-topics → parallel-research → synthesize-brief)
+
+When drift is detected, the deepen stack decomposes findings into structured plans:
+1. Break drift findings into research topics
+2. Research each topic against codebase + prior art
+3. Synthesize into actionable plan entities with proper frontmatter
+
+### For Hygiene (Periodic)
+
+Stack: **sdlc-hygiene** (4 steps: scan-handoffs → check-alignment → propose-updates → emit-report)
+
+Run every N ticks (configurable) or when explicitly requested.
+Checks handoff health, spec alignment, and proposes updates.
+
+---
+
+## Entity Lifecycle
+
+```
+draft → ready → in_progress → needs_validation → validated → done
+                     │              │
+                     │              └─ (fail) → ready (with feedback appended)
+                     └─ (blocked) → blocked
+```
+
+| `status` | Tick action |
 |----------|-------------|
-| `draft` | Skip (not ready for autonomous work) |
-| `active` | DOING — implement next phase |
-| `implementing` | DOING — continue implementation |
-| `blocked` | Skip |
-| `deferred` | Skip |
-| `ready_for_validation` | VALIDATING — run fitness functions |
-| `validated` | Promote to done surface |
-| `completed` | Should already be in `_done/` |
+| `draft` | Skip — not ready for autonomous work |
+| `ready` | EXECUTE — pick it up |
+| `active` | EXECUTE — continue (alias for ready) |
+| `in_progress` | Skip — another agent is working on it |
+| `needs_validation` | VALIDATE — run prompt stack |
+| `validated` | Promote to `_done/` |
+| `blocked` / `deferred` | Skip |
 
-### Frontmatter Contract
-
-Every entity the loop processes should have:
-
-```yaml
----
-title: "Human-readable title"
-status: active                   # required (canonical field; `lifecycle_state` accepted as fallback)
-priority: P1                     # P0-P4 or 0-4
-type: plan-impl | plan-chore | plan-bugfix | plan-research | plan-migration
-fitness_functions:               # optional section name or inline
-  - "pnpm --filter @lev-os/foo test"
-  - "grep -q 'export function bar' core/foo/src/index.ts"
-tags: [needs-runtime]            # optional skip tags
----
-```
-
----
-
-## Fitness Functions
-
-Every entity SHOULD define fitness functions. No fitness functions = promote on implementation
-completion only (weaker gate, but practical for small items).
-
-Fitness functions can be:
-- **Inline** — described in markdown (AI evaluates against code)
-- **Executable** — shell command that exits 0/1
-- **Test reference** — `pnpm --filter @lev-os/foo test`
-- **Structural** — "exports X from Y", "no imports from Z"
+`lifecycle_state` is accepted as a fallback field for backward compatibility.
 
 ---
 
 ## Drift Scanning
 
-When active entities < `drift_scan_threshold`, the loop self-feeds:
+Drift scanning is valuable work. It discovers real gaps between code and documentation.
 
-1. For each spec in `docs/specs/spec-*.md`:
-   - Compare `code_refs` paths against actual exports
-   - Check `validation_gates` thresholds against test coverage
-   - Look for documented invariants violated in code
-2. Generate new entity files in the configured output surface
-3. Resume normal SCANNING
+When the queue is empty, the tick scans `docs/specs/spec-*.md` against `core/`:
+
+1. Compare `code_refs` paths against actual file exports
+2. Check `validation_gates` thresholds against test reality
+3. Look for invariants violated in code
+4. Check ownership tables against directory listings
+5. Compare BDD scenarios against real code paths
+
+Findings become plans via the **sdlc-deepen-plan** prompt stack, landing
+with `status: ready` so the next tick can execute them.
 
 ### Internal Consistency Checks
 
-When auditing specs (AUDITING mode), check for these self-contradiction patterns:
+When auditing specs, check for self-contradiction patterns:
 
-1. **Executive summary vs invariants** — if the summary says "pure re-export" but an invariant
-   acknowledges mutable state, the spec contradicts itself
-2. **Ownership table vs directory listing** — run `ls src/` and compare against ownership rows.
-   Missing files = undocumented surface area
-3. **BDD scenarios vs code paths** — scenarios should reference real functions/files.
-   Phantom references = spec drift
-4. **Validation gate thresholds vs test reality** — if a gate says "100% coverage" but
-   the module has 60%, the gate is aspirational not descriptive
-5. **Config defaults vs spec recommendations** — if code defaults to `xenova` but spec
-   waterfall never recommends it, there's a gap
-
-When contradictions are found, create a new chore entity documenting the specific
-contradictions with line references to both the spec and the code.
+- Executive summary vs invariants disagreement
+- Ownership table vs actual directory listing
+- BDD scenarios referencing phantom functions/files
+- Validation gate thresholds vs test coverage reality
+- Config defaults vs spec recommendations
 
 ---
 
-## Agent Orchestration
+## Circuit Breaker
 
-The loop can dispatch work to parallel agents when entities are independent.
+Exit condition: **K consecutive ticks with zero lifecycle advancement**.
 
-### When to Parallelize
+"Advancement" means at least one entity changed lifecycle state (ready → in_progress,
+needs_validation → validated, drift → new plan created, etc.).
 
-- **YES**: Entities with non-overlapping `code_refs` (e.g., 3 spec fixes touching different modules)
-- **YES**: Audit chores that only READ code (no writes to shared files)
-- **NO**: Entities sharing the same spec file (concurrent edits conflict)
-- **NO**: Entities with overlapping `code_refs` paths
+If the loop produces zero advancement for `circuit_breaker_threshold` consecutive
+ticks (default: 3), it exits with reason `stagnation`.
 
-### Orchestration Pattern
-
-```
-Main agent: strategic work (roadmap updates, build analysis, handoff)
-Background agents: independent chores (spec fixes, ownership table updates)
-```
-
-Launch 3-4 background agents on independent entities. Main agent continues with
-the next priority item or strategic planning. Background agents return manifests
-of files touched — main agent commits and pushes.
-
-### Agent Brief Template
-
-Each background agent gets:
-1. The entity file path and content
-2. The relevant spec file (if fixing a spec)
-3. The `_done/` path for promotion
-4. Instruction: "Fix, validate fitness functions, move to _done/, return manifest"
+This prevents infinite loops while preserving drift scanning freedom. Drift scanning
+that creates plans IS advancement. Only truly stuck loops get killed.
 
 ---
 
-## Entity Sizing
+## Git Protocol
 
-Estimate tick budget before starting work. Prevents scope explosion.
+Every tick ends with a checkpoint:
 
-| Size | Ticks | Signals | Action |
-|------|-------|---------|--------|
-| S | 1 | 1-3 code_refs, <5 steps, typo/label fix | Do in current tick |
-| M | 1-2 | 4-10 code_refs, new ownership rows + BDD scenarios | Do or split across 2 ticks |
-| L | 3-5 | 10+ code_refs, multi-file extraction, new package creation | Decompose into S/M entities first |
-| XL | Epic | Multiple directories, >2500 LOC moved, design decisions needed | Create epic with sub-entities, schedule as separate workstream |
+```bash
+git stash && git pull --rebase && git stash pop  # handle dirty worktree
+git add . && git commit -m "autodev: {action} — {entity}" && git push
+```
 
-### Sizing Heuristics
-
-- Count `code_refs` entries in frontmatter — each ref ≈ 1 file to read/validate
-- Count `## Steps` in the entity body — each step ≈ one focused action
-- If LOC estimate > 500 in a single entity → decompose
-- If entity mentions "design decision needed" → it's L or XL, not M
+Checkpoints happen at natural boundaries, not per-file.
+Pre-existing dirt in submodules is normal — only investigate unexpected diffs
+in files the current tick actually touched.
 
 ---
 
-## Blocked Entities
+## Multi-Agent Awareness
 
-Detect and skip blocked entities gracefully. Don't waste ticks on unactionable work.
+Multiple autodev loops can run concurrently on different workstreams.
 
-### Detection
+Before dispatching work:
 
-Frontmatter signals:
-- `status: blocked` or `deferred` (also accepts `lifecycle_state` as fallback)
-- `blocker:` field (freetext describing the blocker)
-- `blocked_by:` field (entity ID or external dependency)
+1. `Glob` for `.lev/pm/handoffs/*-session-*.md` with `status: active`
+2. Filter to handoffs NOT from your workstream, modified in last 30 minutes
+3. Check for file overlap between their work and your dispatch queue
+4. If overlap: skip conflicting entity, pick the next one
 
-Body signals:
-- "BLOCKED" in a status column
-- "blocked on" or "waiting for" in step descriptions
-- Steps with status "blocked" in tables
-
-### Handling
-
-1. Skip blocked entities in the priority queue
-2. Log them in the tick summary: `Blocked: [entity] — [reason]`
-3. Check blockers periodically — if a blocker resolves, the entity becomes actionable
-4. Never attempt to "work around" a blocker by partially implementing — park it cleanly
-
----
-
-## Prompt Generation
-
-The skill generates the prompt dynamically from current project state.
-
-### Generation Algorithm
-
-```
-1. Read project config for autodev section (or defaults)
-2. Resolve all surfaces from config
-3. For each surface, scan matching patterns
-4. Parse frontmatter: priority, status (fallback: lifecycle_state), fitness_functions
-5. Merge all entities into priority queue (P0 first, skip blocked)
-6. Count active → decide if drift scan needed
-7. Generate prompt with:
-   - All surface locations
-   - Merged queue summary
-   - Mode rules (DOING/VALIDATING/SCANNING)
-   - Git protocol (commit + push every tick)
-   - Parallel agent cap
-   - Handoff location
-```
-
-### Generated Prompt Template
-
-```
-scan these surfaces for work:
-{for each surface: "  - {input}/{patterns}"}
-
-you are always in one of three modes:
-DOING (implementing a plan phase), VALIDATING (checking fitness functions),
-or SCANNING (finding next entity).
-
-rules:
-- prioritize P0 > P1 > P2 > P3 > P4. skip BLOCKED/DEFERRED items.
-- when DOING: implement one phase. commit after each phase.
-- when VALIDATING: run fitness functions. if ALL pass → move to surface's _done/.
-  update status in frontmatter to "validated".
-- when SCANNING and active entities < {threshold}: run drift scan against specs.
-- use up to {max_agents} parallel agents for independent work.
-- skip entities tagged needs-runtime.
-- git pull --rebase && push every tick.
-- update handoff in .lev/pm/handoffs/ with tick log.
-- keep entity yaml frontmatter `status` current (accepted alias: `lifecycle_state`).
-
-current queue ({n} active across {s} surfaces):
-{priority-sorted entity list with surface, status, and FF indicator}
-```
-
-### Invocation
-
-```
-/autodev-loop                    # generate prompt + schedule at default interval
-/autodev-loop 5m                 # custom interval
-/autodev-loop --dry-run          # show generated prompt without scheduling
-/autodev-loop --surface plans    # scan only the named surface
-/autodev-loop --stop             # kill active loop
-```
-
----
-
-## On Load: Immediate Actions
-
-1. Read project config for `autodev` section (or use defaults)
-2. Resolve all entity surfaces
-3. Scan all surfaces, merge into priority queue
-4. Generate the prompt
-5. Parse invocation args:
-   - `--dry-run`: show prompt and stop
-   - `--stop`: CronDelete active loop and stop
-   - `--surface X`: filter to named surface only
-   - `Nm` / `Nh`: override tick interval
-6. CronCreate with generated prompt at configured interval
-7. Confirm to user: what's scheduled, queue size, surfaces scanned, cron expression
-
----
-
-## Integration with core-sdlc
-
-The skill calls SDK functions when available:
-
-```typescript
-import { discoverPlans, promotePlan, generateLoopPrompt } from '@lev-os/core-sdlc';
-```
-
-When SDK is not available (pure skill mode), the loop uses filesystem operations directly:
-- `glob` / `find` for discovery
-- Read frontmatter for priority + fitness functions
-- `mv` for promotion
-- `grep` for drift scanning
-
-The SDK functions in `plugins/core-sdlc/src/commands/loop.ts` handle:
-- `discoverPlans(config)` — multi-surface scan + frontmatter parse + priority sort
-- `generateLoopPrompt(config)` — context-aware prompt compilation
-- `promotePlan(path, config)` — filesystem state transition
-- `extractFrontmatter(content)` — minimal YAML parser (zero deps)
-
----
-
-## Config Hierarchy
-
-The autodev config follows lev's fractal config model:
-
-```
-system config  (~/.config/lev/config.yaml)    ← global defaults
-  ↓ overridden by
-project config (.lev/config.yaml)             ← per-project surfaces
-  ↓ overridden by
-CLI flags      (--surface, interval arg)      ← per-invocation
-```
-
-This means:
-- Global defaults give every project a working autodev loop out of the box
-- Projects customize surfaces, patterns, and output conventions
-- One-off invocations can narrow scope without changing config
-
----
-
-## Relationship to Existing Systems
-
-| System | Role | Autodev's relationship |
-|--------|------|----------------------|
-| `work` skill | FSM lifecycle router | Autodev is the **autonomous mode** of work |
-| `core-sdlc` plugin | SDLC commands + event providers | Autodev's SDK runtime |
-| `core/config` | Config resolution | Reads `autodev` namespace |
-| `.lev/pm/plans/` | Canonical plan surface | Primary input surface |
-| `docs/specs/` | Spec + legacy chore surface | Secondary input surface |
-| `prompt-stack` | Deterministic step execution | Future: ticks run as prompt-stack sessions |
-| `bd` tracker | Execution-plane tracking | Loop can create/update bd issues per tick |
-
----
-
-## Anti-Patterns
-
-- **Hardcoded work items** — prompt MUST be generated from surfaces, not static
-- **Skipping fitness functions** — no "looks done" promotions. Binary pass/fail.
-- **Unbounded blast radius** — each tick: 1 entity or 1 phase of 1 entity
-- **No handoff** — every loop session must maintain a tick log
-- **Static prompts** — the whole point is the prompt adapts to current state
-- **Single surface assumption** — always resolve ALL configured surfaces
-
----
-
-## Handoff Format
-
-The handoff is a **roadmap with scorecard**, not a tick journal. Tick-by-tick logs get
-compacted away — the roadmap survives.
-
-### Template
+When touching shared modules, append cross-agent notes to your handoff:
 
 ```markdown
-# Loop Session — {date}
-
-## Scorecard
-
-**Aligned (N/M):** module1, module2, ...
-**Active (K chores):** [chore] — [status/next action]
-**Blocked:** [chore] — [blocker]
-
-## Tracks
-
-### Track 1: {category}
-| Entity | Priority | Status | Next Action |
-|--------|----------|--------|-------------|
-| ... | ... | ... | ... |
-
-### Track 2: {category}
-...
+### Cross-Agent Notes
+- [timestamp] Touching {file} — {what changed}
 ```
-
-### Rules
-
-- Update the scorecard after EVERY tick, not just at session end
-- Tracks group related entities (spec alignment, integration, extraction, blocked)
-- Never append per-tick logs — summarize progress into the track tables
-- The handoff should be readable by a cold-start agent in <30 seconds
 
 ---
 
-## Semantic Notes
+## Surface Config
 
-- **"Plan" not "chore"** — plans are forward-looking. The loop handles both but semantics are aspirational.
-- **"Entity"** — generic term for any work item the loop processes (plan, chore, task).
-- **"Surface"** — a directory + pattern that defines where entities live.
-- **"Promote" not "close"** — moving to `_done/` preserves the artifact as evidence.
-- **"Fitness function" not "test"** — broader than unit tests: structural checks, linting, analysis.
-- **"Input mask"** — the pattern array that controls what the loop sees on a surface.
+```yaml
+# .lev/config.yaml or defaults
+autodev:
+  tick_interval: 10m
+  circuit_breaker_threshold: 3
+  surfaces:
+    - name: plans
+      input: .lev/pm/plans/
+      done: .lev/pm/plans/_done/
+      patterns: ["plan-*.md"]
+    - name: specs
+      input: docs/specs/
+      done: docs/specs/_done/
+      patterns: ["plan-*.md", "chore-*.md"]
+```
+
+Config cascade: system → project → CLI flags (later wins).
 
 ---
 
-## Migration Path
+## Invocation
 
-For projects currently using `chore-*.md` in `docs/specs/`:
-
-1. **No change required** — default config includes `chore-*.md` in the specs surface pattern
-2. **Gradual migration** — new entities go to `.lev/pm/plans/` as `plan-*.md`
-3. **Full migration** — remove `chore-*.md` from specs surface pattern when all chores are promoted
-4. **Config flag** — set `output.prefix: chore` to keep generating chore-prefixed files
-
-The system is backward compatible by default. Migration is opt-in and gradual.
+```
+/autodev-loop                    # One tick: scan → act → checkpoint
+/autodev-loop 10m                # Schedule recurring ticks
+/autodev-loop 6h                 # Duration-based (cron that auto-stops)
+/autodev-loop --scan             # Read-only scan, show queue
+/autodev-loop --execute          # Execute one tick now
+/autodev-loop --dry-run          # Show what would happen, don't do it
+/autodev-loop --stop             # CronDelete active loop
+/autodev-loop --status           # Show queue + active cron + last tick
+/autodev-loop --worktree         # Opt-in: worktree isolation for subagents
+```
 
 ---
 
-## Claude Code Runtime (Canonical Execution Protocol)
+## On Load
 
-When running in Claude Code (no lev CLI available), use these concrete tool mappings.
-This is the **actual execution protocol** — everything above is architecture and config.
+1. Parse invocation args
+2. Check for workstream plan: `Glob` for `.lev/pm/plans/plan-autodev-loop-*.md`
+   - If found, load it FIRST — it defines wave structure and scope boundaries
+3. Scan surfaces, build priority queue
+4. Check for `needs_validation` entities from previous ticks
+5. Route to action: validate → execute → drift
+6. If time mode: `CronCreate` with `Run /autodev-loop --execute`
+7. Report: queue size, surfaces scanned, action taken, next recommendation
 
-### Quick Start
+---
 
-```
-/autodev-loop              # Scan queue, show status, ask before scheduling
-/autodev-loop 5m           # Scan + schedule at 5 min intervals
-/autodev-loop --scan       # Read-only scan, show queue
-/autodev-loop --execute    # Execute highest-priority item now
-/autodev-loop --worktree   # Opt-in: use worktree isolation for subagents
-/autodev-loop --dry-run    # Show what --execute would do, without doing it
-/autodev-loop --stop       # CronDelete the active loop
-/autodev-loop --status     # Show queue, active cron, last tick
-```
+## Claude Code Runtime
 
-### SCAN → Claude Code
+### VALIDATE Tick
 
-1. `Glob` for `**/.lev/pm/plans/plan-*.md` — primary surface.
-2. `Glob` for `**/.lev/pm/specs/**/*.md` and `**/docs/specs/**/*.md` — secondary surfaces.
-3. Filter out `_done/` paths.
-4. `Read` each file, parse YAML frontmatter.
-5. Skip `status: blocked | deferred | draft` (also checks `lifecycle_state` fallback).
-6. If `depends_on` / `blocked_by` in frontmatter → check dependency files, skip if not in `_done/`.
-7. Sort by `priority` (P0 > P1 > P2 > P3 > P4).
-8. For each entity with `fitness_functions`, run via `Bash`. Record pass/fail.
-9. If ALL fitness functions pass → auto-promote:
+1. `Glob` for entities with `status: needs_validation`
+2. `Read` the entity + files it touched (from last commit or entity body)
+3. Run validation via prompt stack or inline:
+   - Check fitness functions (shell commands in frontmatter)
+   - Check acceptance criteria against code state
+   - Run tests on touched packages
+4. If ALL pass:
+   - Update entity `status: validated`
    - `Bash`: `mkdir -p "$(dirname "$FILE")/_done" && mv "$FILE" "$(dirname "$FILE")/_done/"`
-   - If `bd_id` set → `Bash`: `bd close $BD_ID` (skip if bd unavailable)
-10. Output queue table.
+   - If `bd_id` → `bd close $BD_ID`
+5. If ANY fail:
+   - Append failure notes to entity body under `## Validation Feedback`
+   - Set `status: ready`
+   - Next worker tick picks it up with feedback context
 
-### EXECUTE → Claude Code
+### EXECUTE Tick
 
-1. Run SCAN, pick highest-priority "Ready" entity.
-2. `Read` full plan + all `code_refs`.
-3. If `bd_id` → `Bash`: `bd update $BD_ID --status=in_progress` (skip if unavailable).
-4. Assess complexity:
-   - **Simple** (1-2 code_refs, <5 steps): inline `Read`/`Edit`/`Write`/`Bash`.
-   - **Medium** (3-5 code_refs): `Agent` tool, single subagent on main.
-   - **Complex** (6+ code_refs): `Agent` tool, 2-4 parallel subagents on main. Sequential for overlapping files, parallel only for non-overlapping `code_refs`. Use `isolation: "worktree"` only when `--worktree` flag was passed.
-5. After execution → run VALIDATE.
-6. If pass: checkpoint commit (`git add . && git commit && git pull --rebase && git push`), promote.
-7. If fail: update `lifecycle_state: active`, report remaining work.
+1. Pick highest-priority ready entity from queue
+2. `Read` full plan + all `code_refs`
+3. If `bd_id` → `bd update $BD_ID --status=in_progress`
+4. Dispatch based on complexity:
+   - **Simple** (1-2 code_refs): inline Read/Edit/Write/Bash
+   - **Medium** (3-5 code_refs): Agent tool, single subagent
+   - **Complex** (6+ code_refs): Agent tool, 2-4 parallel subagents
+     (sequential for overlapping files, parallel for non-overlapping)
+5. After execution:
+   - Set entity `status: needs_validation`
+   - Checkpoint git (do NOT validate your own work)
 
-### SCHEDULE → Claude Code
+### DRIFT Tick
 
-1. Run SCAN to show current queue.
-2. `CronCreate` with prompt: `Run /autodev-loop --execute`
-3. Report cron ID for later `--stop`.
-
-### Drift Scan → Claude Code
-
-When SCAN finds zero actionable entities:
-
-1. `Bash`: run project test command (`npm run test:run`, `pnpm test`, etc.)
-2. `Bash`: `npx tsc --noEmit` (TypeScript projects)
-3. `Grep` for `TODO|FIXME|HACK` in recently modified files
-4. If issues found → `Write` new `plan-*.md` entities with proper frontmatter
-5. If clean → report "Queue empty. Codebase clean." and idle.
+1. Scan `docs/specs/spec-*.md` against `core/` for drift
+2. For each drift found:
+   - Use sdlc-deepen-plan stack to structure findings into plans
+   - Write `plan-*.md` with `status: ready` and proper frontmatter
+3. If no drift found: report "Queue empty. Codebase clean."
+4. Checkpoint git
 
 ### Error Handling
 
 | Situation | Action |
 |-----------|--------|
-| `bd` not available | Skip all bd calls, filesystem state only |
-| Fitness function errors | Mark ERROR, skip entity, report |
-| Agent failure | Report, leave entity active |
+| `bd` unavailable | Skip bd calls, filesystem state only |
+| Fitness function errors | Mark entity ERROR, skip, report |
+| Agent failure | Report, leave entity as `ready` |
 | No entities found | Drift scan |
-| No fitness_functions | Execute, promote on completion |
-| All blocked/deferred | Report blocked queue |
+| All blocked/deferred | Report blocked queue, count toward circuit breaker |
 
-### Report Format
+---
 
-```
-## Autodev Loop Report
+## Anti-Patterns
 
-**Mode**: SCAN | EXECUTE | SCHEDULE | STOP | STATUS
-**Queue**: N items (X ready, Y partial, Z promoted)
-**Action taken**: <what was done>
-**Files touched**: <absolute paths>
-**Next**: <recommendation>
-```
-
-### Rules
-
-- One entity per tick maximum.
-- Checkpoint after completing an entity (not per-phase commits).
-- Use absolute paths in all tool calls.
-- Pass full plan content + file contents to subagents (no worktree isolation).
-- Degrade gracefully when tools/CLIs are missing.
-- Never promote without running fitness functions first.
-- Always load workstream plan before generic scanning (D10).
+- **Self-validation** — worker NEVER validates its own output
+- **Custom FSM** — no SCANNING/DOING/VALIDATING modes. Use the tick waterfall
+- **Unbounded ticks** — one entity per tick maximum
+- **Skipping prompt stacks** — validation and drift use stacks, not ad-hoc prompts
+- **No handoff** — every loop session maintains a handoff in `.lev/pm/handoffs/`
+- **Static prompts** — prompt is generated from current queue state
+- **Ignoring circuit breaker** — stagnation means something structural is wrong

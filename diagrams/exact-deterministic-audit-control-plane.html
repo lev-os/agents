@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exact Medicare Deterministic Audit Control Plane</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: "IBM Plex Sans", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", "SF Mono", Consolas, monospace;
+    --bg: #f6f7fb;
+    --surface: #ffffff;
+    --surface-2: #eef2f9;
+    --surface-hero: #f9fbff;
+    --border: rgba(15, 23, 42, 0.08);
+    --border-strong: rgba(15, 23, 42, 0.16);
+    --text: #142033;
+    --text-dim: #5e6b82;
+    --blue: #1e3a5f;
+    --blue-dim: rgba(30, 58, 95, 0.08);
+    --gold: #d4a73a;
+    --gold-dim: rgba(212, 167, 58, 0.12);
+    --teal: #0f766e;
+    --teal-dim: rgba(15, 118, 110, 0.1);
+    --red: #b42318;
+    --red-dim: rgba(180, 35, 24, 0.1);
+    --green: #18794e;
+    --green-dim: rgba(24, 121, 78, 0.1);
+    --amber: #b56a00;
+    --amber-dim: rgba(181, 106, 0, 0.1);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1523;
+      --surface: #131d2c;
+      --surface-2: #172234;
+      --surface-hero: #162133;
+      --border: rgba(255, 255, 255, 0.07);
+      --border-strong: rgba(255, 255, 255, 0.14);
+      --text: #eef4ff;
+      --text-dim: #9eb0cb;
+      --blue: #93b7ff;
+      --blue-dim: rgba(147, 183, 255, 0.12);
+      --gold: #f4cc6a;
+      --gold-dim: rgba(244, 204, 106, 0.14);
+      --teal: #4dd4c6;
+      --teal-dim: rgba(77, 212, 198, 0.12);
+      --red: #ff8f87;
+      --red-dim: rgba(255, 143, 135, 0.14);
+      --green: #61d39c;
+      --green-dim: rgba(97, 211, 156, 0.12);
+      --amber: #ffbd59;
+      --amber-dim: rgba(255, 189, 89, 0.12);
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    padding: 40px;
+    background:
+      radial-gradient(circle at 15% 0%, var(--gold-dim), transparent 35%),
+      radial-gradient(circle at 90% 90%, var(--blue-dim), transparent 35%),
+      var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+  }
+
+  .page {
+    max-width: 1240px;
+    margin: 0 auto;
+    display: grid;
+    gap: 24px;
+  }
+
+  .hero,
+  .panel,
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+  }
+
+  .hero {
+    padding: 30px 34px;
+    background: linear-gradient(135deg, var(--surface-hero), var(--surface));
+    box-shadow: 0 16px 50px rgba(15, 23, 42, 0.08);
+  }
+
+  .eyebrow,
+  .panel-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--blue);
+  }
+
+  .eyebrow::before,
+  .panel-label::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  h1 {
+    margin-top: 14px;
+    font-size: 42px;
+    line-height: 1.04;
+    letter-spacing: -0.04em;
+    max-width: 880px;
+  }
+
+  .subtitle {
+    margin-top: 14px;
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--text-dim);
+    max-width: 920px;
+  }
+
+  .hero-grid,
+  .analysis-grid,
+  .kpi-grid,
+  .workstream-grid {
+    display: grid;
+    gap: 16px;
+  }
+
+  .hero-grid {
+    margin-top: 26px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .kpi {
+    padding: 16px 18px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .kpi .label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .kpi .value {
+    margin-top: 10px;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  .kpi .detail {
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text-dim);
+  }
+
+  .analysis-grid {
+    grid-template-columns: 1.3fr 0.9fr;
+  }
+
+  .panel {
+    padding: 22px 24px;
+  }
+
+  .panel h2 {
+    margin-top: 14px;
+    font-size: 24px;
+    letter-spacing: -0.03em;
+  }
+
+  .panel-intro {
+    margin-top: 10px;
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .pipeline {
+    margin-top: 18px;
+    display: grid;
+    gap: 12px;
+  }
+
+  .stage {
+    display: grid;
+    grid-template-columns: 138px 1fr;
+    gap: 14px;
+    align-items: stretch;
+  }
+
+  .stage-key {
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--surface-2);
+  }
+
+  .stage-card {
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .stage-card .title {
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .stage-card .desc {
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text-dim);
+  }
+
+  .chip-row {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text);
+  }
+
+  .callout {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--gold-dim);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .callout strong {
+    color: var(--blue);
+  }
+
+  .approach-list {
+    margin-top: 18px;
+    display: grid;
+    gap: 12px;
+  }
+
+  .approach {
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+
+  .approach h3 {
+    font-size: 15px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .badge {
+    border-radius: 999px;
+    padding: 4px 8px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.9px;
+    border: 1px solid var(--border);
+  }
+
+  .badge.good { background: var(--green-dim); color: var(--green); }
+  .badge.warn { background: var(--amber-dim); color: var(--amber); }
+  .badge.bad { background: var(--red-dim); color: var(--red); }
+
+  .approach p {
+    margin-top: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-dim);
+  }
+
+  .table-wrap {
+    overflow: hidden;
+  }
+
+  .table-head {
+    padding: 20px 24px 0;
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 880px;
+  }
+
+  th, td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    text-align: left;
+  }
+
+  th {
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-dim);
+  }
+
+  td {
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  tr:nth-child(even) td {
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    border: 1px solid var(--border);
+  }
+
+  .status.pass { color: var(--green); background: var(--green-dim); }
+  .status.block { color: var(--red); background: var(--red-dim); }
+  .status.warn { color: var(--amber); background: var(--amber-dim); }
+
+  .workstream-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 18px;
+  }
+
+  .workstream {
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+
+  .workstream .num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--blue);
+  }
+
+  .workstream h3 {
+    margin-top: 6px;
+    font-size: 15px;
+  }
+
+  .workstream p {
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.55;
+  }
+
+  .footer-note {
+    padding: 18px 20px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--blue-dim);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--blue);
+  }
+
+  @media (max-width: 980px) {
+    body { padding: 20px; }
+    .hero-grid,
+    .analysis-grid,
+    .workstream-grid {
+      grid-template-columns: 1fr;
+    }
+    .stage {
+      grid-template-columns: 1fr;
+    }
+    h1 { font-size: 34px; }
+  }
+</style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">Exact Medicare Audit Control Plane</div>
+      <h1>Deterministic result path: uploaded Aetna workbook in, fail-fast gates first, controlled math proof before any audit view or export is trusted.</h1>
+      <p class="subtitle">
+        Recommendation: keep the runtime explicitly Aetna-scoped now, remove/generated overlays from audit surfaces, block reconcile on parser/support violations, and pin the engine to the controlled workbook answer key before widening carrier support.
+      </p>
+      <div class="hero-grid">
+        <div class="kpi">
+          <div class="label">Controlled Workbook</div>
+          <div class="value">62</div>
+          <div class="detail">Rows on committed <code>ControlledTestFile.xlsx</code> main sheet.</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Expected Segments</div>
+          <div class="value">10</div>
+          <div class="detail">One segment per scripted test member in the answer-key generator.</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Math Verdict</div>
+          <div class="value">$22.32</div>
+          <div class="detail">Known net variance from the controlled workbook: <code>$2409.82 actual - $2387.50 expected</code>.</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Trust Rule</div>
+          <div class="value">Fail Fast</div>
+          <div class="detail">No reconcile if support, schema, redaction, or source-row traceability gates fail.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="analysis-grid">
+      <article class="panel">
+        <div class="panel-label">Runtime Flow</div>
+        <h2>The correct data path already exists, but it is Aetna-specific and too permissive.</h2>
+        <p class="panel-intro">
+          The live path is <code>StatementInboxCard → useInboxData → AuditContext.uploadFile → parseFile/parseExcelFile → reconcile → audit views</code>.
+          The risk is not missing plumbing. The risk is that unsupported uploads still flow through and some audit surfaces still add synthetic labels or workflow state.
+        </p>
+        <div class="pipeline">
+          <div class="stage">
+            <div class="stage-key">Stage 01</div>
+            <div class="stage-card">
+              <div class="title">Upload raw workbook</div>
+              <div class="desc">Only uploaded file buffers should seed state. No synthetic seed data is needed for the audit engine once a workbook is present.</div>
+              <div class="chip-row">
+                <span class="chip">AuditContext.uploadFile</span>
+                <span class="chip">IndexedDB persistence</span>
+              </div>
+            </div>
+          </div>
+          <div class="stage">
+            <div class="stage-key">Stage 02</div>
+            <div class="stage-card">
+              <div class="title">Parse + map</div>
+              <div class="desc">Current parser maps headers into canonical Aetna rows and captures <code>sourceSheet/sourceRow</code>. It does not hard-stop on mapping errors and canonicalizes unknown sheet names to <code>Aetna</code>, which is the wrong trust posture.</div>
+              <div class="chip-row">
+                <span class="chip">excelParser.ts</span>
+                <span class="chip">columnMapper.ts</span>
+              </div>
+            </div>
+          </div>
+          <div class="stage">
+            <div class="stage-key">Stage 03</div>
+            <div class="stage-card">
+              <div class="title">Gate before reconcile</div>
+              <div class="desc">This is the missing hard boundary. Unsupported sheets, missing required columns, parser drift, redacted files, or zero commission-sheet rows must block reconciliation and surface a deterministic failure banner.</div>
+              <div class="chip-row">
+                <span class="chip">Hard gate</span>
+                <span class="chip">No silent continue</span>
+              </div>
+            </div>
+          </div>
+          <div class="stage">
+            <div class="stage-key">Stage 04</div>
+            <div class="stage-card">
+              <div class="title">Math path</div>
+              <div class="desc">Rows become segments/sub-periods, expected values are calculated, then totals/discrepancies are derived. This path already has unit coverage; it needs one real-workbook integration gate pinned to the controlled answer key.</div>
+              <div class="chip-row">
+                <span class="chip">segmentBuilder.ts</span>
+                <span class="chip">expectedValueCalculator.ts</span>
+                <span class="chip">reconciliationEngine.ts</span>
+              </div>
+            </div>
+          </div>
+          <div class="stage">
+            <div class="stage-key">Stage 05</div>
+            <div class="stage-card">
+              <div class="title">Views + export</div>
+              <div class="desc">Audit views should render only context-derived values. Summary CSV export exists already. Source-row exception export requires a separate workbook-oriented path using preserved <code>sourceSheet/sourceRow</code> references.</div>
+              <div class="chip-row">
+                <span class="chip">Exceptions</span>
+                <span class="chip">Compare</span>
+                <span class="chip">Export service</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="callout">
+          <strong>Architectural recommendation:</strong> choose the Aetna-deterministic option now.
+          Do not pretend the runtime is generic XLSX/PDF/CSV carrier intake until <code>carrierInterface</code> is actually wired into parsing, mapping, and reconciliation.
+        </div>
+      </article>
+
+      <aside class="panel">
+        <div class="panel-label">Trade-Off</div>
+        <h2>Candidate approaches</h2>
+        <div class="approach-list">
+          <div class="approach">
+            <h3>Option A: Aetna-only hard gate <span class="badge good">Recommended</span></h3>
+            <p>Block unsupported files, surface parser/schema failures, pin math to the controlled workbook, and remove demo overlays from audit views. Fastest route to deterministic trust.</p>
+          </div>
+          <div class="approach">
+            <h3>Option B: Carrier-pluggable runtime <span class="badge warn">Later</span></h3>
+            <p>Wire <code>carrierInterface</code> end-to-end and introduce per-carrier parsers/rulesets. Correct long-term direction, but too large if the immediate need is trustworthy Aetna audit output.</p>
+          </div>
+          <div class="approach">
+            <h3>Option C: Generic schema-first upload <span class="badge bad">Reject now</span></h3>
+            <p>Broadest intake story, but weakens determinism because mapping ambiguity moves into runtime/user interpretation rather than fail-fast control.</p>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="table-wrap">
+      <div class="table-head panel-label">Adversarial Validation Gates</div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Gate</th>
+              <th>Threat</th>
+              <th>Deterministic Check</th>
+              <th>Failure Action</th>
+              <th>Confidence Goal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Support Gate</strong></td>
+              <td>Wrong carrier or arbitrary workbook presented as valid audit input.</td>
+              <td>Accept only supported sheet/header contracts. Unknown sheet names do not get silently canonicalized.</td>
+              <td><span class="status block">Block</span> Do not reconcile. Show unsupported-file reason.</td>
+              <td>100% certainty we are running the Aetna path.</td>
+            </tr>
+            <tr>
+              <td><strong>Schema Gate</strong></td>
+              <td>Missing required columns or drift produces plausible but wrong numbers.</td>
+              <td><code>parsedWb.errors.length === 0</code> for required-field failures. Drift is explicit and actionable, not informational only.</td>
+              <td><span class="status block">Block</span> on required columns. <span class="status warn">Warn</span> on tolerated optional drift.</td>
+              <td>No deterministic-looking output from malformed input.</td>
+            </tr>
+            <tr>
+              <td><strong>Redaction Gate</strong></td>
+              <td>Redacted workbook yields universal underpayment noise.</td>
+              <td>Use zero-dollar threshold and stop before audit views if redaction confidence is high.</td>
+              <td><span class="status block">Block</span> reconcile/export; route user to non-redacted upload.</td>
+              <td>No false exception floods from redacted files.</td>
+            </tr>
+            <tr>
+              <td><strong>Math Proof Gate</strong></td>
+              <td>Engine passes unit tests but regresses on real workbook shape.</td>
+              <td>Integration test against <code>ControlledTestFile.xlsx</code> asserts 62 rows, 10 segments, 8 matched, 2 discrepancies, <code>$2387.50 expected</code>, <code>$2409.82 actual</code>, <code>$22.32 variance</code>.</td>
+              <td><span class="status block">Block</span> merge/build on mismatch.</td>
+              <td>Controlled answer key is exact, not approximate.</td>
+            </tr>
+            <tr>
+              <td><strong>Traceability Gate</strong></td>
+              <td>Exceptions cannot be mapped back to source workbook rows.</td>
+              <td>Every discrepancy must retain <code>sourceSheet/sourceRow</code> references and those rows must exist in raw workbook state.</td>
+              <td><span class="status block">Block</span> source-row export when traceability is incomplete.</td>
+              <td>Each exception is traceable back to raw evidence.</td>
+            </tr>
+            <tr>
+              <td><strong>Generated-Data Gate</strong></td>
+              <td>Audit UI mixes uploaded data with synthetic provider/status/demo metadata.</td>
+              <td>Audit views derive provider/status/drift state from context or display “unavailable”, never fabricated defaults.</td>
+              <td><span class="status block">Block</span> release until demo overlays are removed or clearly labeled as synthetic.</td>
+              <td>User cannot confuse generated state with uploaded evidence.</td>
+            </tr>
+            <tr>
+              <td><strong>Export Fidelity Gate</strong></td>
+              <td>“Issues only” export includes full sheets or summary rows only.</td>
+              <td>Filtered exception row count equals exported source-row count. XLSX comments exist on annotation cells. CSV treated as plain text only.</td>
+              <td><span class="status block">Block</span> feature completion until counts match and annotations are verifiable.</td>
+              <td>Export matches visible exception scope exactly.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-label">Execution Split</div>
+      <h2>10 workstreams for implementation and validation</h2>
+      <p class="panel-intro">
+        The execution team should not blend analysis, implementation, and proof into one stream. Split ownership by runtime layer and validation surface so each slice has a crisp success signal.
+      </p>
+      <div class="workstream-grid">
+        <div class="workstream"><div class="num">01</div><h3>Upload contract</h3><p>Harden <code>AuditContext.uploadFile</code> around parser errors and supported-file gating.</p></div>
+        <div class="workstream"><div class="num">02</div><h3>Sheet identity</h3><p>Stop canonicalizing unknown sheets to <code>Aetna</code>; preserve exact workbook identities.</p></div>
+        <div class="workstream"><div class="num">03</div><h3>Column mapping</h3><p>Turn required-column failures into hard blockers with precise diagnostics.</p></div>
+        <div class="workstream"><div class="num">04</div><h3>Math regression</h3><p>Add controlled-workbook integration assertions for totals, counts, and discrepancy classes.</p></div>
+        <div class="workstream"><div class="num">05</div><h3>Generated overlay removal</h3><p>Remove fabricated provider, drift, clawback, and review-queue defaults from audit views.</p></div>
+        <div class="workstream"><div class="num">06</div><h3>UI support claims</h3><p>Align intake copy and watcher behavior with actual Aetna support.</p></div>
+        <div class="workstream"><div class="num">07</div><h3>Traceable exception export</h3><p>Export original source rows only for discrepancies using <code>sourceSheet/sourceRow</code>.</p></div>
+        <div class="workstream"><div class="num">08</div><h3>Annotated XLSX</h3><p>Add Excel comments for row-level notes; treat border styling as optional until proven.</p></div>
+        <div class="workstream"><div class="num">09</div><h3>Adversarial gates</h3><p>Encode fail-fast checks in tests and runtime banners before view rendering/export.</p></div>
+        <div class="workstream"><div class="num">10</div><h3>Release validation</h3><p>Run build/tests plus manual workbook proof and exception-export count reconciliation.</p></div>
+      </div>
+    </section>
+
+    <section class="footer-note">
+      <strong>Decision:</strong> trust is earned at the gate between parse and reconcile, not by polishing dashboards later.
+      The immediate objective is a narrow, exact, adversarially validated Aetna pipeline that proves its math on the controlled workbook and exports only traceable exception rows.
+    </section>
+  </main>
+</body>
+</html>

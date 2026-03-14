@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bookmarks and Hook Dry Run</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7f4ef;
+      --surface: rgba(255,255,255,0.9);
+      --border: rgba(17,36,43,0.12);
+      --text: #102129;
+      --dim: #52646b;
+      --teal: #0f766e;
+      --amber: #b45309;
+      --rose: #be123c;
+      --slate: #1f3b4d;
+      --shadow: 0 20px 60px rgba(16,33,41,0.10);
+      --radius: 18px;
+    }
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(15,118,110,0.10), transparent 28rem),
+        radial-gradient(circle at bottom right, rgba(180,83,9,0.08), transparent 24rem),
+        var(--bg);
+    }
+    .page { width: min(1200px, calc(100vw - 2rem)); margin: 0 auto; padding: 2rem 0 3rem; }
+    .hero, .card, .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .hero { padding: 2rem; margin-bottom: 1.25rem; }
+    .eyebrow, .badge, code, th, .meta { font-family: "IBM Plex Mono", monospace; }
+    .eyebrow { color: var(--teal); letter-spacing: .12em; text-transform: uppercase; font-size: .82rem; margin-bottom: .8rem; }
+    h1, h2 { margin: 0 0 .75rem; line-height: 1.08; }
+    h1 { font-size: clamp(2rem, 4vw, 3.6rem); max-width: 11ch; }
+    p { margin: 0; color: var(--dim); line-height: 1.6; }
+    .meta { margin-top: 1rem; color: var(--dim); font-size: .82rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.25rem; }
+    .card { padding: 1.25rem; }
+    .badge { display: inline-block; padding: .2rem .55rem; border-radius: 999px; font-size: .72rem; }
+    .ok { background: rgba(15,118,110,.10); color: var(--teal); }
+    .warn { background: rgba(180,83,9,.10); color: var(--amber); }
+    .risk { background: rgba(190,18,60,.10); color: var(--rose); }
+    .table-wrap { padding: 1rem; margin-bottom: 1.25rem; overflow: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: .9rem .75rem; border-bottom: 1px solid var(--border); vertical-align: top; text-align: left; }
+    th { font-size: .78rem; color: var(--dim); text-transform: uppercase; letter-spacing: .08em; }
+    .flow { display: grid; gap: .8rem; }
+    .step { border: 1px solid var(--border); border-radius: 14px; padding: 1rem; background: rgba(255,255,255,.55); }
+    .step strong { display: block; margin-bottom: .45rem; }
+    .muted { color: var(--dim); }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">Bookmark State</div>
+      <h1>Last Known Bookmarks and Current Hook Dry Run</h1>
+      <p>
+        Fresh pull is blocked because auth-sniffer could not find active X cookies in Brave or Edge, and Chrome did not come up with a usable CDP session. The data below is the latest local pull still on disk.
+      </p>
+      <div class="meta">Source file: <code>/tmp/bookmarks-s33.json</code> | Date checked: 2026-03-09</div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Total bookmarks</h2>
+        <div class="badge ok">390 tweets</div>
+      </article>
+      <article class="card">
+        <h2>Newest known bookmark</h2>
+        <div class="badge warn">2026-03-06</div>
+        <p>@TheMattBerman on an OpenClaw SEO autopilot agent.</p>
+      </article>
+      <article class="card">
+        <h2>Oldest in file</h2>
+        <div class="badge muted">2025-08-09</div>
+        <p>@akshay_pachaar on switching into AI Engineering.</p>
+      </article>
+      <article class="card">
+        <h2>Auth status</h2>
+        <div class="badge risk">blocked</div>
+        <p>`AUTH_TOKEN` and `CT0` were not found through auth-sniffer.</p>
+      </article>
+    </section>
+
+    <section class="table-wrap">
+      <div class="eyebrow">Snapshot</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>ID</th>
+            <th>Author</th>
+            <th>Created</th>
+            <th>Summary</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Newest known</td>
+            <td><code>2029751967527096554</code></td>
+            <td><code>TheMattBerman</code></td>
+            <td>Fri Mar 06 02:52:34 +0000 2026</td>
+            <td>OpenClaw agent for SEO/autopilot ranking workflow.</td>
+          </tr>
+          <tr>
+            <td>Oldest in file</td>
+            <td><code>1954158220727263311</code></td>
+            <td><code>akshay_pachaar</code></td>
+            <td>Sat Aug 09 12:30:00 +0000 2025</td>
+            <td>AI Engineering roadmap / career pivot thread.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="table-wrap">
+      <div class="eyebrow">Hook Dry Run</div>
+      <div class="flow">
+        <div class="step">
+          <strong>1. Bookmark fetch</strong>
+          <span class="badge warn">currently blocked live</span>
+          <p class="muted">Target command is <code>bird bookmarks --all --max-pages 40 --json</code>. Fresh fetch requires `auth_token` + `ct0`.</p>
+        </div>
+        <div class="step">
+          <strong>2. Link expansion</strong>
+          <span class="badge warn">required before intake</span>
+          <p class="muted">The local bookmark file only contains tweet text plus `t.co` links. It does not expose expanded GitHub/article URLs directly. Smaug is the missing post-analysis step here.</p>
+        </div>
+        <div class="step">
+          <strong>3. URL routing</strong>
+          <span class="badge ok">contract exists</span>
+          <p class="muted"><code>lev intake &lt;url&gt;</code> is the intended intake handler according to <code>context/runtime/exec/HANDLER_MAP.md</code> and <code>context/schemas/output-handler.yaml</code>.</p>
+        </div>
+        <div class="step">
+          <strong>4. Enrichment</strong>
+          <span class="badge warn">not yet wired end-to-end</span>
+          <p class="muted">Content-bearing URLs would need a second routing step after expansion/classification. GitHub URLs can go straight to intake; article-like URLs need enrichment before visualization.</p>
+        </div>
+        <div class="step">
+          <strong>5. Visual output</strong>
+          <span class="badge warn">downstream</span>
+          <p class="muted">Only after fresh fetch + expansion + intake/enrichment do we have the right inputs for content explainers.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

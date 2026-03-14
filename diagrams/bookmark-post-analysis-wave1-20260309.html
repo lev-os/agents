@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bookmark Post Analysis Wave 1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7f4ee;
+      --surface: rgba(255,255,255,0.90);
+      --border: rgba(16,33,41,0.12);
+      --text: #102129;
+      --dim: #52646b;
+      --teal: #0f766e;
+      --amber: #b45309;
+      --rose: #be123c;
+      --slate: #1f3b4d;
+      --shadow: 0 20px 60px rgba(16,33,41,0.10);
+      --radius: 18px;
+    }
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(15,118,110,0.10), transparent 28rem),
+        radial-gradient(circle at bottom right, rgba(180,83,9,0.08), transparent 24rem),
+        var(--bg);
+    }
+    .page { width: min(1280px, calc(100vw - 2rem)); margin: 0 auto; padding: 2rem 0 3rem; }
+    .hero, .card, .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .hero { padding: 2rem; margin-bottom: 1.25rem; }
+    .eyebrow, .badge, code, th, .meta { font-family: "IBM Plex Mono", monospace; }
+    .eyebrow { color: var(--teal); letter-spacing: .12em; text-transform: uppercase; font-size: .82rem; margin-bottom: .8rem; }
+    h1, h2 { margin: 0 0 .75rem; line-height: 1.08; }
+    h1 { font-size: clamp(2rem, 4vw, 3.5rem); max-width: 12ch; }
+    p { margin: 0; color: var(--dim); line-height: 1.6; }
+    .meta { margin-top: 1rem; color: var(--dim); font-size: .82rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.25rem; }
+    .card { padding: 1.25rem; }
+    .badge { display: inline-block; padding: .2rem .55rem; border-radius: 999px; font-size: .72rem; }
+    .ok { background: rgba(15,118,110,.10); color: var(--teal); }
+    .warn { background: rgba(180,83,9,.10); color: var(--amber); }
+    .risk { background: rgba(190,18,60,.10); color: var(--rose); }
+    .neutral { background: rgba(31,59,77,.08); color: var(--slate); }
+    .table-wrap { padding: 1rem; margin-bottom: 1.25rem; overflow: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: .9rem .75rem; border-bottom: 1px solid var(--border); vertical-align: top; text-align: left; }
+    th { font-size: .78rem; color: var(--dim); text-transform: uppercase; letter-spacing: .08em; }
+    small { color: var(--dim); display: block; margin-top: .3rem; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">Wave 1</div>
+      <h1>Smaug Post Analysis and First Intake Batch</h1>
+      <p>
+        Fresh bookmarks were pulled with Bird, then Smaug expanded links and extracted content for a bounded first batch. GitHub URLs were fanned out to intake workers, and content-bearing links were separated for follow-up enrichment.
+      </p>
+      <div class="meta">Fresh bookmark file: <code>/tmp/bookmarks-live-20260309.json</code> | Smaug pending bundle: <code>/tmp/smaug-run/.state/pending-bookmarks.json</code></div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Fresh pull</h2>
+        <div class="badge ok">391 bookmarks</div>
+        <small>Newest known item is from March 9, 2026.</small>
+      </article>
+      <article class="card">
+        <h2>Smaug batch</h2>
+        <div class="badge ok">20 prepared</div>
+        <small>First bounded batch expanded and normalized into pending JSON.</small>
+      </article>
+      <article class="card">
+        <h2>GitHub wave</h2>
+        <div class="badge ok">4 landed</div>
+        <small>`openclaw`, `ClawRouter`, `clawgo`, and `hermit` visible in workshop intake.</small>
+      </article>
+      <article class="card">
+        <h2>Content wave</h2>
+        <div class="badge warn">3 ready</div>
+        <small>Two X articles and one external web article are extracted but not yet enriched/rendered.</small>
+      </article>
+    </section>
+
+    <section class="table-wrap">
+      <div class="eyebrow">GitHub Intake</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Repo</th>
+            <th>Status</th>
+            <th>Path</th>
+            <th>Origin Bookmark</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>openclaw/openclaw</code></td>
+            <td><span class="badge ok">intaken</span></td>
+            <td><code>~/lev/workshop/intake/openclaw</code></td>
+            <td>@bc1beat</td>
+          </tr>
+          <tr>
+            <td><code>BlockRunAI/ClawRouter</code></td>
+            <td><span class="badge ok">intaken</span></td>
+            <td><code>~/lev/workshop/intake/ClawRouter</code></td>
+            <td>@bc1beat</td>
+          </tr>
+          <tr>
+            <td><code>openclaw/clawgo</code></td>
+            <td><span class="badge ok">intaken</span></td>
+            <td><code>~/lev/workshop/intake/clawgo</code></td>
+            <td>@bc1beat</td>
+          </tr>
+          <tr>
+            <td><code>openclaw/hermit</code></td>
+            <td><span class="badge ok">intaken</span></td>
+            <td><code>~/lev/workshop/intake/hermit</code></td>
+            <td>@bc1beat</td>
+          </tr>
+          <tr>
+            <td><code>openclaw/skills</code></td>
+            <td><span class="badge warn">not yet landed</span></td>
+            <td><code>[pending]</code></td>
+            <td>@bc1beat</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="table-wrap">
+      <div class="eyebrow">Content-Bearing Items</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Expanded URL</th>
+            <th>Source</th>
+            <th>What Smaug Got</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge neutral">x-article</span></td>
+            <td><code>x.com/i/article/2009497314013138947</code></td>
+            <td>@dhasandev</td>
+            <td>Full X article text extracted. Article is about wrapping the Claude CLI for agentic apps.</td>
+          </tr>
+          <tr>
+            <td><span class="badge neutral">x-article</span></td>
+            <td><code>x.com/i/article/2024919564979466240</code></td>
+            <td>@alxfazio</td>
+            <td>Full X article text extracted. Article is the Plankton slop-guard / write-time enforcement piece.</td>
+          </tr>
+          <tr>
+            <td><span class="badge neutral">article</span></td>
+            <td><code>glint.trade/BETA</code></td>
+            <td>@glintintel</td>
+            <td>Smaug captured raw page HTML/metadata. This still needs a cleaner enrichment pass before final presentation.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

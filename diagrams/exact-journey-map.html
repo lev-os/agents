@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exact Medicare Journey Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: "IBM Plex Sans", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", monospace;
+    --bg: #eef4fb;
+    --surface: #ffffff;
+    --surface-2: #e8eef8;
+    --text: #162338;
+    --text-dim: #617187;
+    --border: rgba(22, 35, 56, 0.08);
+    --border-strong: rgba(22, 35, 56, 0.15);
+    --blue: #0b66c3;
+    --blue-dim: rgba(11, 102, 195, 0.09);
+    --teal: #0f766e;
+    --teal-dim: rgba(15, 118, 110, 0.09);
+    --amber: #b56a00;
+    --amber-dim: rgba(181, 106, 0, 0.1);
+    --red: #b42318;
+    --red-dim: rgba(180, 35, 24, 0.1);
+    --green: #18794e;
+    --green-dim: rgba(24, 121, 78, 0.1);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0b1220;
+      --surface: #121b2a;
+      --surface-2: #172234;
+      --text: #edf5ff;
+      --text-dim: #9db3cf;
+      --border: rgba(255,255,255,0.08);
+      --border-strong: rgba(255,255,255,0.15);
+      --blue: #7dc0ff;
+      --blue-dim: rgba(125,192,255,0.12);
+      --teal: #5ad7cb;
+      --teal-dim: rgba(90,215,203,0.12);
+      --amber: #ffbd59;
+      --amber-dim: rgba(255,189,89,0.12);
+      --red: #ff8f87;
+      --red-dim: rgba(255,143,135,0.12);
+      --green: #61d39c;
+      --green-dim: rgba(97,211,156,0.12);
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    padding: 34px;
+    font-family: var(--font-body);
+    color: var(--text);
+    background:
+      radial-gradient(circle at 0% 0%, var(--blue-dim), transparent 28%),
+      radial-gradient(circle at 100% 100%, var(--teal-dim), transparent 30%),
+      var(--bg);
+  }
+  .page { max-width: 1320px; margin: 0 auto; display: grid; gap: 22px; }
+  .hero, .panel, .journey, .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+  }
+  .hero, .panel, .journey { padding: 22px 24px; }
+  .eyebrow, .label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 1.3px; text-transform: uppercase;
+    color: var(--blue); font-weight: 600;
+  }
+  .eyebrow::before, .label::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor;
+  }
+  h1 {
+    margin-top: 12px; font-size: 42px; line-height: 1.05; letter-spacing: -0.04em; max-width: 900px;
+  }
+  .subtitle { margin-top: 12px; max-width: 980px; font-size: 15px; color: var(--text-dim); line-height: 1.7; }
+  .summary-grid, .journey-grid { display: grid; gap: 16px; }
+  .summary-grid { margin-top: 22px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .summary {
+    padding: 14px 16px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface-2);
+  }
+  .summary .k { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); }
+  .summary .v { margin-top: 8px; font-size: 26px; font-weight: 700; letter-spacing: -0.03em; }
+  .summary .d { margin-top: 6px; font-size: 12px; line-height: 1.55; color: var(--text-dim); }
+  .journey-grid { grid-template-columns: 1fr 1fr; }
+  .journey h2 { margin-top: 10px; font-size: 24px; letter-spacing: -0.03em; }
+  .journey .meta {
+    margin-top: 8px; color: var(--text-dim); font-size: 13px; line-height: 1.6;
+  }
+  .steps {
+    margin-top: 16px; display: grid; gap: 10px;
+  }
+  .step {
+    display: grid; grid-template-columns: 38px 1fr; gap: 12px; align-items: start;
+    padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface-2);
+  }
+  .num {
+    width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center;
+    font-family: var(--font-mono); font-size: 12px; font-weight: 600; background: var(--blue-dim); color: var(--blue);
+  }
+  .step h3 { font-size: 15px; }
+  .step p { margin-top: 5px; font-size: 13px; line-height: 1.55; color: var(--text-dim); }
+  .chip-row { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip {
+    padding: 4px 8px; border-radius: 999px; border: 1px solid var(--border);
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.6px;
+  }
+  .chip.good { background: var(--green-dim); color: var(--green); }
+  .chip.warn { background: var(--amber-dim); color: var(--amber); }
+  .chip.bad { background: var(--red-dim); color: var(--red); }
+  .table-wrap { overflow: hidden; }
+  .table-head { padding: 18px 22px 0; }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 980px; }
+  th, td { padding: 14px 16px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  th { background: var(--surface-2); font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-dim); }
+  td { font-size: 13px; line-height: 1.6; }
+  code { font-family: var(--font-mono); font-size: 12px; color: var(--blue); }
+  @media (max-width: 980px) {
+    body { padding: 20px; }
+    .summary-grid, .journey-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 34px; }
+  }
+</style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">Workflow-Driven BDD</div>
+      <h1>User journeys to turn into nuanced behavior-driven tests.</h1>
+      <p class="subtitle">
+        These flows combine the two client vision documents with the routes and service layer that exist today.
+        The goal is not only to prove that screens render, but that the product behaves the way the client imagines work actually happening:
+        wake up, check the dashboard, notice new files, auto-process them, investigate only what matters, resolve it, and report confidently.
+      </p>
+      <div class="summary-grid">
+        <div class="summary"><div class="k">Primary journeys</div><div class="v">8</div><div class="d">From morning dashboard ritual to review queue closeout.</div></div>
+        <div class="summary"><div class="k">Notification journeys</div><div class="v">2</div><div class="d">Auto-upload and alert/triage must be explicit, not implied.</div></div>
+        <div class="summary"><div class="k">Critical boundaries</div><div class="v">Math + lineage</div><div class="d">Each journey eventually bottoms out in source rows, segment math, and discrepancy proof.</div></div>
+        <div class="summary"><div class="k">BDD style</div><div class="v">Workflow-first</div><div class="d">Features are named after jobs, not components.</div></div>
+      </div>
+    </section>
+
+    <section class="journey-grid">
+      <article class="journey">
+        <div class="label">Journey 01</div>
+        <h2>Morning dashboard triage</h2>
+        <p class="meta">Persona: Operations Admin / CFO. Trigger: first login of the day. Objective: understand whether the overnight state is healthy enough for the team to act on.</p>
+        <div class="steps">
+          <div class="step"><div class="num">01</div><div><h3>Open dashboard</h3><p>See KPI strip, alert feed, and executive insight.</p><div class="chip-row"><span class="chip good">Dashboard</span><span class="chip warn">Mixed demo/live risk</span></div></div></div>
+          <div class="step"><div class="num">02</div><div><h3>Scan alerts</h3><p>Determine whether overnight discrepancies, clawbacks, or processing failures need immediate escalation.</p></div></div>
+          <div class="step"><div class="num">03</div><div><h3>Choose next drilldown</h3><p>Branch to Statement Inbox, Revenue, Workforce, or Review Queue based on severity and ownership.</p></div></div>
+        </div>
+      </article>
+
+      <article class="journey">
+        <div class="label">Journey 02</div>
+        <h2>Incoming statement via upload</h2>
+        <p class="meta">Persona: Revenue Integrity Analyst. Trigger: a new consolidated workbook arrives manually. Objective: ingest it and know whether the parse is trustworthy.</p>
+        <div class="steps">
+          <div class="step"><div class="num">01</div><div><h3>Select or drop file</h3><p>Upload starts from Statement Inbox.</p><div class="chip-row"><span class="chip good">AuditContext.uploadFile</span><span class="chip bad">Unsupported-file ambiguity</span></div></div></div>
+          <div class="step"><div class="num">02</div><div><h3>Watch pipeline progress</h3><p>Parsing, classifying, calculating, reconciling should move visibly and end in a clear success or failure state.</p></div></div>
+          <div class="step"><div class="num">03</div><div><h3>Validate file health</h3><p>Analyst confirms schema confidence, drift warnings, and row counts before trusting exceptions.</p></div></div>
+        </div>
+      </article>
+
+      <article class="journey">
+        <div class="label">Journey 03</div>
+        <h2>Incoming statement via watch folder</h2>
+        <p class="meta">Persona: Operations Admin / Analyst. Trigger: overnight or background file drop. Objective: auto-upload without manual file selection, plus obvious notification of what changed.</p>
+        <div class="steps">
+          <div class="step"><div class="num">01</div><div><h3>Enable watch folder</h3><p>User grants directory access and sees visible watcher status.</p><div class="chip-row"><span class="chip good">fileWatcher.ts</span><span class="chip warn">Notification flow not explicit yet</span></div></div></div>
+          <div class="step"><div class="num">02</div><div><h3>Detect new or changed workbook</h3><p>System fires ingestion automatically when a supported file appears.</p></div></div>
+          <div class="step"><div class="num">03</div><div><h3>Notify and route</h3><p>User should know what file was ingested, whether it succeeded, and what changed in the queue.</p></div></div>
+        </div>
+      </article>
+
+      <article class="journey">
+        <div class="label">Journey 04</div>
+        <h2>Schema mapping review</h2>
+        <p class="meta">Persona: Revenue Integrity Analyst. Trigger: new file shape or suspected drift. Objective: prove the system mapped the workbook correctly before acting on math.</p>
+        <div class="steps">
+          <div class="step"><div class="num">01</div><div><h3>Inspect mapping confidence</h3><p>Check mapped, unmapped, and sample-value evidence for the incoming workbook.</p><div class="chip-row"><span class="chip good">MappingView</span><span class="chip bad">Non-blocking parser errors</span></div></div></div>
+          <div class="step"><div class="num">02</div><div><h3>Compare raw to canonical</h3><p>Use split-view to ensure critical fields are aligned with visible workbook values.</p></div></div>
+          <div class="step"><div class="num">03</div><div><h3>Approve or reject trust</h3><p>If trust fails, workflow should stop before exception triage.</p></div></div>
+        </div>
+      </article>
+
+      <article class="journey">
+        <div class="label">Journey 05</div>
+        <h2>Exception investigation</h2>
+        <p class="meta">Persona: Analyst / Reviewer. Trigger: flagged discrepancy or critical alert. Objective: move from aggregate problem to source-row evidence.</p>
+        <div class="steps">
+          <div class="step"><div class="num">01</div><div><h3>Filter exceptions</h3><p>Narrow by severity, search, or provider.</p><div class="chip-row"><span class="chip good">Exceptions view</span><span class="chip warn">Provider labels partly synthetic</span></div></div></div>
+          <div class="step"><div class="num">02</div><div><h3>Open inspection panel</h3><p>Review raw text, canonical facts, AI reasoning, and financial impact.</p></div></div>
+          <div class="step"><div class="num">03</div><div><h3>Jump to evidence</h3><p>Use compare/timeline/source rows to prove whether the variance is real.</p></div></div>
+        </div>
+      </article>
+
+      <article class="journey">
+        <div class="label">Journey 06</div>
+        <h2>Review queue resolution</h2>
+        <p class="meta">Persona: Review Specialist. Trigger: assigned work queue. Objective: change status with defensible notes and preserve an audit trail.</p>
+        <div class="steps">
+          <div class="step"><div class="num">01</div><div><h3>Open filtered queue</h3><p>See pending, approved, disputed, or escalated items in ranked order.</p><div class="chip-row"><span class="chip good">ReviewQueueView</span><span class="chip bad">Local-only workflow state risk</span></div></div></div>
+          <div class="step"><div class="num">02</div><div><h3>Write note and decision</h3><p>Reviewer records rationale and assigns a status transition.</p></div></div>
+          <div class="step"><div class="num">03</div><div><h3>Export or hand off</h3><p>Resolved/unresolved packages can be exported without losing visible filter context.</p></div></div>
+        </div>
+      </article>
+
+      <article class="journey">
+        <div class="label">Journey 07</div>
+        <h2>Clawback and agent follow-up</h2>
+        <p class="meta">Persona: Sales Director / Revenue Lead. Trigger: large negative variance or provider-specific clawback burst. Objective: identify exposure and coach/accountability path.</p>
+        <div class="steps">
+          <div class="step"><div class="num">01</div><div><h3>Open clawbacks</h3><p>See total exposure and provider distribution.</p></div></div>
+          <div class="step"><div class="num">02</div><div><h3>Expand detail</h3><p>Review member, agent, segment type, and source payment evidence.</p></div></div>
+          <div class="step"><div class="num">03</div><div><h3>Escalate to workforce lens</h3><p>Cross-reference at-risk agents or repeated operational patterns.</p></div></div>
+        </div>
+      </article>
+
+      <article class="journey">
+        <div class="label">Journey 08</div>
+        <h2>Cross-org / role-scoped overview</h2>
+        <p class="meta">Persona: Platform Admin / Compliance VP. Trigger: changing org or role lens. Objective: ensure the same system shifts context safely and honestly.</p>
+        <div class="steps">
+          <div class="step"><div class="num">01</div><div><h3>Switch organization</h3><p>Branding, KPI lens, and modules reshape to the selected org.</p><div class="chip-row"><span class="chip good">CompanySwitcher</span><span class="chip warn">OrgContext / AuditContext decoupling</span></div></div></div>
+          <div class="step"><div class="num">02</div><div><h3>Verify role scope</h3><p>Executive sees outcomes, operator sees workflow, compliance sees monitoring lens.</p></div></div>
+          <div class="step"><div class="num">03</div><div><h3>Confirm boundaries</h3><p>No data bleed, and scaffold pages clearly distinguish demo-backed versus live-backed content.</p></div></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="table-wrap">
+      <div class="table-head label">BDD Feature Inventory</div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature name</th>
+              <th>Primary persona</th>
+              <th>Core assertion</th>
+              <th>Data contract behind it</th>
+              <th>High-value failure</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Feature: Morning dashboard triage</strong></td>
+              <td>Ops Admin / CFO</td>
+              <td>Visible alerts and KPI totals direct the user to the right next workflow.</td>
+              <td>Live reconciliation totals override demo data when available.</td>
+              <td>Dashboard presents stale or mislabeled metrics as current truth.</td>
+            </tr>
+            <tr>
+              <td><strong>Feature: Auto-ingest from watch folder</strong></td>
+              <td>Analyst / Ops Admin</td>
+              <td>New workbook is ingested without manual trigger and user is notified of outcome.</td>
+              <td>Watcher emits supported file into upload pipeline once.</td>
+              <td>Silent ingest, duplicate ingest, or no user-visible outcome.</td>
+            </tr>
+            <tr>
+              <td><strong>Feature: Schema trust decision</strong></td>
+              <td>Analyst</td>
+              <td>User can decide whether the workbook shape is safe before acting on results.</td>
+              <td>Mapping, drift, raw rows, and parser errors are all exposed.</td>
+              <td>Malformed workbook still produces a believable exception list.</td>
+            </tr>
+            <tr>
+              <td><strong>Feature: Exception drilldown</strong></td>
+              <td>Analyst / Reviewer</td>
+              <td>Every visible exception can be traced back to raw evidence and math context.</td>
+              <td><code>sourceSheet/sourceRow</code>, segment totals, and discrepancy metadata remain linked.</td>
+              <td>User sees an exception but cannot prove where it came from.</td>
+            </tr>
+            <tr>
+              <td><strong>Feature: Review queue resolution</strong></td>
+              <td>Review Specialist</td>
+              <td>Status and notes reflect real workflow progress and survive export/handoff.</td>
+              <td>Resolution state is persistent and aligned with visible queue filters.</td>
+              <td>Queue appears operational but state is local-only and vanishes.</td>
+            </tr>
+            <tr>
+              <td><strong>Feature: Executive financial readout</strong></td>
+              <td>CFO / Sponsor</td>
+              <td>Topline numbers reconcile to engine totals and support confident reporting.</td>
+              <td>Expected, actual, variance, severity counts, and clawbacks stay mathematically coherent.</td>
+              <td>Executive story diverges from the underlying reconciliation output.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
