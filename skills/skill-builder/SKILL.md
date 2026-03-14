@@ -357,17 +357,12 @@ When authoring a new skill from scratch:
 
 ```
 skill-name/
-├── SKILL.md (required, <500 lines)
+├── SKILL.md (required, 300-500 lines)
 │   ├── YAML frontmatter (name, description required)
-│   └── Markdown body
-└── references/ (optional, loaded on demand)
+│   └── Markdown body with inline templates
+├── references/ (optional, for API docs or large schemas only)
+└── scripts/ (optional, deterministic code)
 ```
-
-**Progressive Disclosure Tiers:**
-
-1. Metadata (~100 words) - Always loaded
-2. Body (<5k words) - On trigger
-3. References (unlimited) - On demand
 
 **Rules:**
 
@@ -375,24 +370,43 @@ skill-name/
 - Use imperative/infinitive form
 - No separate README.md or CHANGELOG.md - the skill IS the docs
 
-## Validation (Post-Extraction)
+## Skill Authoring Principles (Hard-Won)
+
+These principles come from rebuilding skills that agents couldn't follow. Apply them to every skill you create.
+
+**1. Steps are verbs, not states.** Section titles tell the agent what to DO. "Save the handoff" not "EMIT". "Search these 10 sources" not "DISCOVER". If the agent reads the title and doesn't know its next action, the title is wrong.
+
+**2. Inline templates at each step.** If a step produces an artifact, show the skeleton right there — 10-50 lines. Don't write "load templates/handoff.md" — agents won't do it. The template must be visible where the agent needs it.
+
+**3. The first step is the most important output.** Whatever the skill's primary deliverable is, that's Step 1. Not background theory. Not architecture diagrams. Not "On Load" setup. The thing the agent produces first.
+
+**4. References don't get loaded.** Agents don't `cat references/gates.md` in practice. If information matters for execution, it lives in SKILL.md. Use references/ only for large API docs or schemas that are genuinely loaded on demand via explicit instructions. Never put operational instructions in references/.
+
+**5. Prose is the enemy.** Every paragraph explaining WHY a rule exists is a paragraph the agent skips to find WHAT to do. Lead with the format/action. Add rationale as a single-line comment if needed. Cut everything else.
+
+**6. Labels don't enforce.** Marking 14 sections "Hard Contract" is the same as marking zero. The contract IS the inline format. Show the format. Skip the label.
+
+**7. Target: 300-500 lines.** Under 300 and you're probably missing inline templates. Over 500 and the agent can't hold it in working memory. The 100-150 line "thin SKILL.md + references/" model produces skills that agents can't execute because the operational detail is in files they never read.
+
+## Validation (Post-Authoring)
 
 ```
 VALIDATION RULES:
-1. SKILL.md > 150 lines? → Move detail to references/
-2. No references/ + heavy SKILL.md? → Create references/, split
-3. Any file > 500 lines? → Consider chunking
-4. Total skill > 2000 lines? → Consider sub-skills with router
+1. Can an agent read Step 1's title and immediately act? If not, rewrite.
+2. Does every step that produces an artifact have an inline template? If not, add it.
+3. Is SKILL.md 300-500 lines? Under → missing templates. Over → cut prose.
+4. Are there references/ the agent MUST read to function? Move that content into SKILL.md.
+5. Zero sections titled "Hard Contract" or abstract state names (DISCOVER, EMIT, etc.)
+6. Total skill > 2000 lines? → Consider sub-skills with router
 
 IDEAL STRUCTURE:
 skill-name/
-├── SKILL.md (~100-150 lines)
-│   ├── Frontmatter + decision tree
-│   └── "See references/X.md" pointers
-├── references/
-│   ├── api.md
-│   └── patterns.md
-└── scripts/ (optional)
+├── SKILL.md (300-500 lines)
+│   ├── Frontmatter (name + description with triggers)
+│   ├── Steps 1-N (verb-first titles, inline templates)
+│   └── Support sections (error handling, routing table)
+├── references/ (optional — API docs, large schemas ONLY)
+└── scripts/ (optional — deterministic code)
 ```
 
 ## Install Location
