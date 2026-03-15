@@ -16,7 +16,7 @@ Follow the visual-explainer skill workflow. Read the reference template, CSS pat
 
 2. **Recent activity.** `git log --oneline --since=<window>` for commit history. `git log --stat --since=<window>` for file-level change scope. `git shortlog -sn --since=<window>` for contributor activity. Identify which areas of the codebase were most active.
 
-3. **Current state.** Check for uncommitted changes (`git status`). Check for stale branches (`git branch --no-merged`). Look for TODO/FIXME comments in recently changed files. Read progress docs if they exist (`~/.agent/memory/{project}/progress.md`, `~/.pi/agent/memory/{project}/progress.md`, `.pi/todos/`, or similar).
+3. **Current state.** Check for uncommitted changes (`git status`). Check for stale branches (`git branch --no-merged`). Look for TODO/FIXME comments in recently changed files. Read progress docs if they exist (`~/.agents/memory/{project}/progress.md`, `~/.pi/agent/memory/{project}/progress.md`, `.pi/todos/`, or similar).
 
 4. **Decision context.** Read recent commit messages for rationale. If running in the same session as recent work, mine the conversation history. Read any plan docs, RFCs, or ADRs in the project directory.
 
@@ -54,7 +54,7 @@ Verify each claim against the code. If something cannot be verified, mark it as 
    - Flag each with a severity and a concrete suggestion (e.g., "add a doc comment to `buildCoordinationInstructions` explaining the 4 coordination levels — this function is called from 3 places and the behavior is non-obvious")
 8. **Next steps** — inferred from recent activity, open TODOs, project trajectory. Not prescriptive — just "here's where the momentum was pointing when you left." Include any explicit next-step notes from progress docs or plan files.
 
-Include responsive section navigation. Use a warm, approachable visual language: muted blues and greens for architecture, amber callouts for cognitive debt hotspots, green/blue/amber/red for state-of-things status. Overflow prevention on any side-by-side or grid-based sections: apply `min-width: 0` on all grid/flex children and `overflow-wrap: break-word`. Never use `display: flex` on `<li>` for marker characters — use absolute positioning instead (see css-patterns.md Overflow Protection). Write to `~/.agent/diagrams/` and open in browser.
+Include responsive section navigation. Use a warm, approachable visual language: muted blues and greens for architecture, amber callouts for cognitive debt hotspots, green/blue/amber/red for state-of-things status. Overflow prevention on any side-by-side or grid-based sections: apply `min-width: 0` on all grid/flex children and `overflow-wrap: break-word`. Never use `display: flex` on `<li>` for marker characters — use absolute positioning instead (see css-patterns.md Overflow Protection). Write to `~/.agents/diagrams/` and open in browser.
 
 Ultrathink.
 

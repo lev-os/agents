@@ -22,7 +22,7 @@ Follow the visual-explainer skill workflow. Read the reference template, CSS pat
 - Read all changed files in full — include surrounding code paths needed to validate behavior
 - Check whether `CHANGELOG.md` has an entry for these changes
 - Check whether `README.md` or `docs/*.md` need updates given any new or changed features
-- Reconstruct decision rationale: if this work was done in the current session, mine the conversation for approaches discussed, alternatives rejected, and trade-offs made. Check for progress docs (`~/.agent/memory/{project}/progress.md`, `~/.pi/agent/memory/{project}/progress.md`) or plan files that may contain reasoning. For committed changes, read commit messages and PR descriptions.
+- Reconstruct decision rationale: if this work was done in the current session, mine the conversation for approaches discussed, alternatives rejected, and trade-offs made. Check for progress docs (`~/.agents/memory/{project}/progress.md`, `~/.pi/agent/memory/{project}/progress.md`) or plan files that may contain reasoning. For committed changes, read commit messages and PR descriptions.
 
 **Verification checkpoint** — before generating HTML, produce a structured fact sheet of every claim you will present in the review:
 - Every quantitative figure: line counts, file counts, function counts, test counts
@@ -61,7 +61,7 @@ Verify each claim against the code. If something cannot be verified, mark it as 
 
 **Optional illustrations** — if `surf` CLI is available (`which surf`), consider generating a hero banner or conceptual illustration via `surf gemini --generate-image` when it would enhance the page. Embed as base64 data URI. See css-patterns.md "Generated Images" for container styles. Skip if surf isn't available or the diff is purely structural.
 
-Include responsive section navigation. Use diff-style visual language throughout: red for removed/before, green for added/after, yellow for modified, blue for neutral context. Write to `~/.agent/diagrams/` and open in browser.
+Include responsive section navigation. Use diff-style visual language throughout: red for removed/before, green for added/after, yellow for modified, blue for neutral context. Write to `~/.agents/diagrams/` and open in browser.
 
 Ultrathink.
 

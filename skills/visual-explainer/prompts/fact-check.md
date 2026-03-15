@@ -7,7 +7,7 @@ For HTML files: read `./references/css-patterns.md` to match the existing page's
 
 **Target file** — determine what to verify from `$1`:
 - Explicit path: verify that specific file (`.html`, `.md`, or any text document)
-- No argument: verify the most recently modified `.html` file in `~/.agent/diagrams/` (`ls -t ~/.agent/diagrams/*.html | head -1`)
+- No argument: verify the most recently modified `.html` file in `~/.agents/diagrams/` (`ls -t ~/.agents/diagrams/*.html | head -1`)
 
 Auto-detect the document type and adjust the verification strategy:
 - **HTML review pages** (diff-review, plan-review, project-recap): detect from page content, verify against the git ref or plan file the review was based on

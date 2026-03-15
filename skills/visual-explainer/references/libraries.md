@@ -433,6 +433,72 @@ Wrap the canvas in a styled container:
 }
 ```
 
+## Prism.js — Syntax Highlighting
+
+Use for pages with 3+ code blocks (diff-reviews, plan-reviews, implementation plans). Adds keyword coloring that makes code blocks feel as polished as the rest of the page. Lightweight: 2KB core + ~1KB per language. Skip for pages with zero or minimal code.
+
+**CDN:**
+```html
+<!-- Core + autoloader (loads languages on demand) -->
+<link href="https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1/plugins/autoloader/prism-autoloader.min.js"></script>
+```
+
+Prism's built-in themes conflict with the skill's palettes, so **ALWAYS** override with CSS variables:
+
+```css
+/* Override Prism to match page palette */
+code[class*="language-"],
+pre[class*="language-"] {
+  font-family: var(--font-mono) !important;
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+  color: var(--text) !important;
+  background: none !important;
+  text-shadow: none !important;
+}
+
+pre[class*="language-"] {
+  background: var(--code-bg, var(--surface2)) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  padding: 16px 20px !important;
+  overflow-x: auto !important;
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+}
+
+/* Token colors — adapt these to your page palette */
+.token.comment, .token.prolog { color: var(--text-dim); font-style: italic; }
+.token.keyword, .token.tag { color: var(--accent); font-weight: 500; }
+.token.function { color: var(--node-b, var(--green, #059669)); }
+.token.string, .token.attr-value { color: var(--node-c, var(--orange, #d97706)); }
+.token.number, .token.boolean { color: var(--tertiary, #d97706); }
+.token.operator, .token.punctuation { color: var(--text-dim); }
+.token.class-name, .token.type { color: var(--accent); }
+.token.property { color: var(--text); }
+.token.regex { color: var(--node-c, var(--orange)); }
+.token.important { font-weight: 700; }
+
+/* Diff highlighting tokens (for language-diff) */
+.token.deleted { color: var(--red, #dc2626); background: var(--red-dim, rgba(220,38,38,0.08)); display: inline-block; width: 100%; }
+.token.inserted { color: var(--green, #16a34a); background: var(--green-dim, rgba(22,163,74,0.08)); display: inline-block; width: 100%; }
+```
+
+**Usage:**
+```html
+<pre><code class="language-typescript">
+function greet(name: string): string {
+  return `Hello, ${name}`;
+}
+</code></pre>
+```
+
+The autoloader plugin fetches language grammars from CDN on demand — no need to pre-import every language. Common language classes: `language-javascript`, `language-typescript`, `language-python`, `language-rust`, `language-go`, `language-bash`, `language-json`, `language-css`, `language-html`, `language-diff`.
+
+**When NOT to use:** Pages with 0-2 small code snippets — the CDN overhead isn't worth it. Simple pages where code is incidental, not the focus. In those cases, the existing code block pattern from css-patterns.md (monospace + `white-space: pre-wrap`) is sufficient.
+
 ## anime.js — Orchestrated Animations
 
 Use when a diagram has 10+ elements and you want a choreographed entrance sequence (staggered reveals, path drawing, count-up numbers). For simpler diagrams, CSS `animation-delay` staggering is sufficient.

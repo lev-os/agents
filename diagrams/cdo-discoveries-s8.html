@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CDO Deliberation Insights — Session 8</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #1e3a5f;
+    --blue-light: #2a4f7a;
+    --blue-muted: #3d6a99;
+    --gold: #d4a73a;
+    --gold-light: #e8c36b;
+    --gold-dim: #b8912e;
+    --cream: #faf6f0;
+    --cream-dark: #f0ebe3;
+    --ink: #1a1a1a;
+    --ink-light: #3a3a3a;
+    --ink-muted: #6a6a6a;
+    --paper: #ffffff;
+    --border: #e0dbd3;
+    --code-bg: #f5f1ea;
+    --green: #2a7d4f;
+    --red: #9e2a2b;
+    --amber: #b8860b;
+    --card-shadow: 0 1px 3px rgba(30,58,95,0.06), 0 4px 12px rgba(30,58,95,0.04);
+    --card-shadow-hover: 0 2px 8px rgba(30,58,95,0.1), 0 8px 24px rgba(30,58,95,0.06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --cream: #0f1923; --cream-dark: #162232; --ink: #e8e4de;
+      --ink-light: #c8c4be; --ink-muted: #8a8680; --paper: #1a2a3a;
+      --border: #2a3a4a; --code-bg: #162232; --blue: #4a8cc7;
+      --blue-light: #5a9cd7; --blue-muted: #3d7ab5; --gold-dim: #d4a73a;
+      --green: #5cc98a; --red: #e85d5d; --amber: #e8c36b;
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.15);
+      --card-shadow-hover: 0 2px 8px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.2);
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { font-size: 17px; scroll-behavior: smooth; }
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--cream); color: var(--ink);
+    line-height: 1.7; -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 1040px; margin: 0 auto; padding: 0 2rem; }
+
+  /* ─── NAV ─── */
+  .toc {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--cream); border-bottom: 1px solid var(--border);
+    padding: 0.5rem 0; overflow-x: auto; white-space: nowrap;
+  }
+  .toc a {
+    display: inline-block; font-size: 0.58rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    text-decoration: none; color: var(--ink-muted);
+    padding: 0.35rem 0.7rem; border-radius: 3px;
+    transition: all 0.15s ease;
+  }
+  .toc a:hover { color: var(--blue); background: var(--cream-dark); }
+
+  /* ─── HERO ─── */
+  .hero { padding: 5rem 0 3.5rem; border-bottom: 1px solid var(--border); }
+  .hero-label {
+    font-size: 0.6rem; font-weight: 600; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--gold-dim); margin-bottom: 1.25rem;
+  }
+  .hero h1 {
+    font-family: 'Instrument Serif', serif; font-size: 3.5rem;
+    font-weight: 400; line-height: 1.08; color: var(--blue); margin-bottom: 1.25rem;
+  }
+  .hero .subtitle {
+    font-size: 0.82rem; color: var(--ink-muted); max-width: 640px; line-height: 1.8;
+  }
+  .hero .subtitle strong { color: var(--ink-light); font-weight: 500; }
+
+  /* ─── SECTIONS ─── */
+  section { padding: 3.5rem 0; border-bottom: 1px solid var(--border); }
+  section:last-of-type { border-bottom: none; }
+  .section-num {
+    font-family: 'Instrument Serif', serif; font-size: 0.85rem;
+    color: var(--gold); font-style: italic; margin-bottom: 0.4rem;
+  }
+  h2 {
+    font-family: 'Instrument Serif', serif; font-size: 2rem;
+    font-weight: 400; color: var(--blue); margin-bottom: 1.25rem; line-height: 1.2;
+  }
+  h3 {
+    font-family: 'Instrument Serif', serif; font-size: 1.3rem;
+    font-weight: 400; color: var(--blue); margin-bottom: 0.75rem; margin-top: 2rem;
+  }
+  h3:first-child { margin-top: 0; }
+  p { margin-bottom: 1rem; font-size: 0.78rem; }
+  .lead { font-size: 0.88rem; color: var(--ink-light); max-width: 700px; line-height: 1.9; margin-bottom: 2rem; }
+
+  /* ─── ROLE CARDS ─── */
+  .role-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem;
+    margin: 2rem 0;
+  }
+  .role-card {
+    background: var(--paper); border: 1px solid var(--border);
+    border-radius: 4px; padding: 1.25rem;
+    box-shadow: var(--card-shadow); text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .role-card:hover { transform: translateY(-2px); box-shadow: var(--card-shadow-hover); }
+  .role-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+  .role-name {
+    font-family: 'Instrument Serif', serif; font-size: 1rem;
+    color: var(--blue); margin-bottom: 0.4rem;
+  }
+  .role-focus {
+    font-size: 0.62rem; color: var(--ink-muted); line-height: 1.6;
+  }
+
+  /* ─── INSIGHT CARDS ─── */
+  .insight-card {
+    background: var(--paper); border: 1px solid var(--border);
+    border-radius: 4px; padding: 2rem; margin: 1.5rem 0;
+    box-shadow: var(--card-shadow); border-left: 3px solid var(--gold);
+  }
+  .insight-card.critic { border-left-color: var(--red); }
+  .insight-card.systems { border-left-color: var(--blue-muted); }
+  .insight-card.pragmatist { border-left-color: var(--green); }
+  .insight-card.wildcard { border-left-color: var(--amber); }
+  .insight-card .role-tag {
+    font-size: 0.55rem; font-weight: 600; letter-spacing: 0.15em;
+    text-transform: uppercase; margin-bottom: 0.75rem;
+    display: inline-block; padding: 0.15rem 0.5rem; border-radius: 2px;
+  }
+  .insight-card .role-tag.advocate { background: rgba(212,167,58,0.12); color: var(--gold-dim); }
+  .insight-card .role-tag.critic { background: rgba(158,42,43,0.1); color: var(--red); }
+  .insight-card .role-tag.systems { background: rgba(61,106,153,0.1); color: var(--blue-muted); }
+  .insight-card .role-tag.pragmatist { background: rgba(42,125,79,0.1); color: var(--green); }
+  .insight-card .role-tag.wildcard { background: rgba(184,134,11,0.1); color: var(--amber); }
+  .insight-card h4 {
+    font-family: 'Instrument Serif', serif; font-size: 1.15rem;
+    color: var(--blue); margin-bottom: 0.75rem; font-weight: 400;
+  }
+  .insight-card p { font-size: 0.75rem; color: var(--ink-light); }
+  .insight-card .verdict {
+    margin-top: 1rem; padding: 0.75rem 1rem;
+    background: var(--cream-dark); border-radius: 3px;
+    font-size: 0.72rem; color: var(--ink);
+  }
+  .insight-card .verdict strong { color: var(--blue); }
+
+  /* ─── CODE ─── */
+  .code-block {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 3px; padding: 1.25rem 1.5rem;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+    line-height: 1.9; overflow-x: auto; margin: 1.25rem 0;
+    white-space: pre-wrap;
+  }
+  .code-block .comment { color: var(--ink-muted); }
+  .code-block .flow { color: var(--blue-muted); }
+  .code-block .highlight { color: var(--gold-dim); font-weight: 500; }
+
+  /* ─── LOOP DIAGRAMS ─── */
+  .loop-box {
+    background: var(--paper); border: 1px solid var(--border);
+    border-radius: 4px; padding: 1.5rem 2rem; margin: 1.5rem 0;
+    box-shadow: var(--card-shadow);
+  }
+  .loop-box h4 {
+    font-family: 'Instrument Serif', serif; font-size: 1.05rem;
+    margin-bottom: 0.75rem; font-weight: 400;
+  }
+  .loop-box.virtuous { border-left: 3px solid var(--green); }
+  .loop-box.virtuous h4 { color: var(--green); }
+  .loop-box.vicious { border-left: 3px solid var(--red); }
+  .loop-box.vicious h4 { color: var(--red); }
+  .loop-chain {
+    font-size: 0.7rem; color: var(--ink-light); line-height: 2.2;
+  }
+  .loop-chain .arrow { color: var(--gold); margin: 0 0.3rem; }
+
+  /* ─── RISK TABLE ─── */
+  .risk-table {
+    width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.7rem;
+  }
+  .risk-table th {
+    font-size: 0.58rem; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-muted); text-align: left;
+    padding: 0.6rem 0.75rem; border-bottom: 2px solid var(--blue);
+  }
+  .risk-table td {
+    padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top;
+  }
+  .risk-table tr:hover td { background: var(--cream-dark); }
+  .sev { font-size: 0.58rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+  .sev.high { color: var(--red); }
+  .sev.medium { color: var(--amber); }
+
+  /* ─── DAG ─── */
+  .dag-wrap {
+    background: var(--paper); border: 1px solid var(--border);
+    border-radius: 4px; padding: 2rem; margin: 2rem 0;
+    box-shadow: var(--card-shadow); overflow-x: auto;
+  }
+  .dag-title {
+    font-family: 'Instrument Serif', serif; font-size: 1.1rem;
+    color: var(--blue); margin-bottom: 1rem;
+  }
+
+  /* ─── CONVERGENCE ─── */
+  .convergence-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0;
+  }
+  .conv-card {
+    background: var(--paper); border: 1px solid var(--border);
+    border-radius: 4px; padding: 1.5rem; box-shadow: var(--card-shadow);
+  }
+  .conv-card h4 {
+    font-family: 'Instrument Serif', serif; font-size: 1rem;
+    color: var(--blue); margin-bottom: 0.5rem; font-weight: 400;
+  }
+  .conv-card .buckets {
+    display: flex; gap: 0.3rem; margin-bottom: 0.75rem; flex-wrap: wrap;
+  }
+  .conv-card .bucket-dot {
+    font-size: 0.52rem; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 0.1rem 0.4rem; border-radius: 2px;
+    background: rgba(61,106,153,0.1); color: var(--blue-muted);
+  }
+  .conv-card p { font-size: 0.7rem; color: var(--ink-light); margin: 0; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    padding: 3rem 0; text-align: center;
+  }
+  .stats-bar {
+    display: flex; justify-content: center; gap: 2.5rem;
+    flex-wrap: wrap; margin-bottom: 1.5rem;
+  }
+  .stat { text-align: center; }
+  .stat-value {
+    font-family: 'Instrument Serif', serif; font-size: 1.8rem;
+    color: var(--blue); line-height: 1.2;
+  }
+  .stat-label {
+    font-size: 0.55rem; color: var(--ink-muted); text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .footer-note { font-size: 0.62rem; color: var(--ink-muted); margin-top: 1rem; }
+
+  /* ─── ANIMATION ─── */
+  .reveal {
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    html { font-size: 15px; }
+    .hero h1 { font-size: 2.6rem; }
+    .role-grid { grid-template-columns: repeat(3, 1fr); }
+    .convergence-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .hero { padding: 3rem 0 2rem; }
+    .hero h1 { font-size: 2rem; }
+    .container { padding: 0 1.25rem; }
+    .role-grid { grid-template-columns: 1fr 1fr; }
+    section { padding: 2.5rem 0; }
+  }
+
+  /* ─── PRINT ─── */
+  @media print {
+    body { background: white; color: black; font-size: 10pt; }
+    .toc { display: none; }
+    .hero h1 { color: #1e3a5f; font-size: 24pt; }
+    section { page-break-inside: avoid; padding: 1.5rem 0; }
+    .insight-card, .loop-box, .conv-card, .dag-wrap { box-shadow: none; border: 1px solid #ccc; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="toc">
+  <div class="container">
+    <a href="#protocol">Protocol</a>
+    <a href="#advocate">Advocate</a>
+    <a href="#critic">Critic</a>
+    <a href="#systems">Systems</a>
+    <a href="#pragmatist">Pragmatist</a>
+    <a href="#wildcard">Wild Card</a>
+    <a href="#convergence">Convergence</a>
+    <a href="#verdict">Verdict</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-label">CDO Architecture Deliberation / Session 8 / Insights</div>
+    <h1>How 5 Minds Thought<br>About 46 Problems</h1>
+    <p class="subtitle">
+      The CDO deliberation protocol assigns <strong>5 roles</strong> to stress-test
+      architecture decisions. Each role has a different job: advocate, challenge,
+      trace feedback loops, ship, and provoke. This is what they found across
+      <strong>6 domain buckets</strong> and <strong>46 open items</strong>.
+    </p>
+  </div>
+</header>
+
+<!-- SECTION 1: THE PROTOCOL -->
+<section id="protocol">
+  <div class="container">
+    <div class="section-num reveal">I</div>
+    <h2 class="reveal">The 5-Role Protocol</h2>
+    <p class="lead reveal">Each role sees the same evidence differently. The Advocate builds the strongest case. The Critic tears it apart. The Systems Thinker traces the ripples. The Pragmatist asks what actually ships. The Wild Card asks what everyone else is too polite to say.</p>
+
+    <div class="role-grid reveal">
+      <div class="role-card">
+        <div class="role-icon" style="color: var(--gold);">&#9670;</div>
+        <div class="role-name">Advocate</div>
+        <div class="role-focus">Builds the strongest unified case from all 6 bucket reports</div>
+      </div>
+      <div class="role-card">
+        <div class="role-icon" style="color: var(--red);">&#9632;</div>
+        <div class="role-name">Critic</div>
+        <div class="role-focus">Finds coupling inversions, circular deps, hidden prerequisites</div>
+      </div>
+      <div class="role-card">
+        <div class="role-icon" style="color: var(--blue-muted);">&#9711;</div>
+        <div class="role-name">Systems Thinker</div>
+        <div class="role-focus">Traces feedback loops between buckets — virtuous and vicious</div>
+      </div>
+      <div class="role-card">
+        <div class="role-icon" style="color: var(--green);">&#9654;</div>
+        <div class="role-name">Pragmatist</div>
+        <div class="role-focus">What ships this quarter? What can Sonnet autodev overnight?</div>
+      </div>
+      <div class="role-card">
+        <div class="role-icon" style="color: var(--amber);">&#10038;</div>
+        <div class="role-name">Wild Card</div>
+        <div class="role-focus">What if we're wrong? What are we not seeing? Creative leaps.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: ADVOCATE -->
+<section id="advocate">
+  <div class="container">
+    <div class="section-num reveal">II</div>
+    <h2 class="reveal">The Advocate's Unified Position</h2>
+    <p class="lead reveal">All six bucket reports converge on the same underlying architecture. The agreement is unusually strong across disparate concerns.</p>
+
+    <div class="insight-card reveal">
+      <span class="role-tag advocate">Advocate</span>
+      <h4>The Lev architecture is a four-plane system with a five-type graph topology, a single protocol-agnostic event envelope, and a single executor with a handler registry.</h4>
+      <p><strong>Plane separation is non-negotiable.</strong> Every bucket confirms D33 (shearing layers): the control plane (FlowMind declarations), execution plane (executor + adapters), state plane (graph entities), and causality plane (LevEvent bus) must change at different rates. Any coupling inversion — fast layer depending on slow layer — is a structural defect, not a style preference.</p>
+      <p><strong>B6 is not a "status enum mismatch."</strong> It is a coupling inversion where the execution plane's internal vocabulary leaked into the promotion check in the orchestration plane.</p>
+    </div>
+
+    <div class="insight-card reveal">
+      <span class="role-tag advocate">Advocate</span>
+      <h4>Five canonical GraphNodeTypes — not nine, not three</h4>
+      <p>The 9&rarr;5 reduction (agent, function, subgraph, terminal, hitl) has unanimous support across B1, B3, B4. The four removed types are not node types — they are execution policies masquerading as topology.</p>
+      <p><code>gate</code> &rarr; compile-time shorthand that expands to conditional <code>branches</code>.<br>
+      <code>parallel</code> + <code>loop</code> &rarr; <code>OrchestrationOverlay</code> annotations on <code>subgraph</code> nodes.<br>
+      <code>redirect</code> &rarr; a <code>next:</code> edge reference.</p>
+      <div class="verdict"><strong>Principle:</strong> GraphNodeType answers "what is this node," not "how do I traverse it."</div>
+    </div>
+
+    <div class="insight-card reveal">
+      <span class="role-tag advocate">Advocate</span>
+      <h4>LevEvent is already 90% CloudEvents-compatible</h4>
+      <p>The delta is surgical — add <code>ProtocolDescriptor</code> to <code>LevEventMetadata</code> (optional fields, non-breaking). The existing A2A dispatcher becomes the first <code>ProtocolAdapter&lt;AgentJob, unknown&gt;</code> implementation. AgentJob is promoted to <code>core/domain</code> as the Lev-native job payload type. Zero rebuild required; the code is promoted and renamed, not replaced.</p>
+    </div>
+
+    <div class="insight-card reveal">
+      <span class="role-tag advocate">Advocate</span>
+      <h4>One executor with a handler registry replaces four diverging executors</h4>
+      <p>Four executors accumulate bugs in four places. The <code>NodeTypeHandler</code> interface + <code>AdapterRegistry</code> replaces <code>GraphFlowExecutor</code>'s switch/case dispatch. Stubs ship immediately (no regression), real handlers replace stubs incrementally. The <code>FlowmindExecutor</code> stays deprecated-but-running until <code>GraphFlowExecutor</code> proves full parity.</p>
+    </div>
+
+    <div class="insight-card reveal">
+      <span class="role-tag advocate">Advocate</span>
+      <h4>CDO dual-brand: FlowMind = engine, CDO = stylesheet library</h4>
+      <p>FlowMind is the engine brand (developer-facing runtime, compiler, kernel). CDO is the capability brand (product-facing pattern library, deliberation profiles). CDO stylesheets (<code>production.cdo.yaml</code>, <code>development.cdo.yaml</code>) are named FlowMind profiles in the fractal config system. No new primitives required.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: CRITIC -->
+<section id="critic">
+  <div class="container">
+    <div class="section-num reveal">III</div>
+    <h2 class="reveal">The Critic's Challenges</h2>
+    <p class="lead reveal">Where the Advocate's position has structural risk. Three coupling inversions, two hidden dependencies, and one cross-bucket disagreement.</p>
+
+    <div class="insight-card critic reveal">
+      <span class="role-tag critic">Critic &mdash; Coupling Inversion #1</span>
+      <h4>Node type reduction requires executor completeness, but executor completeness requires node type stability</h4>
+      <p>Reducing from 9 to 5 types requires updating <code>GraphFlowExecutor</code> to handle the new representations. But it currently cannot handle <code>subgraph</code>, <code>hitl</code>, <code>parallel</code>, or <code>redirect</code> — the very types involved in the reduction. If you reduce while the executor still doesn't handle subgraphs with orchestration overlays, you get silent failures.</p>
+      <div class="verdict"><strong>Resolution:</strong> Do not reduce types until stub handlers for all 5 canonical types are registered. The ordering is B1 Phase 1 (stubs) &rarr; B4 node type reduction &rarr; B1 Phase 2 (real handlers).</div>
+    </div>
+
+    <div class="insight-card critic reveal">
+      <span class="role-tag critic">Critic &mdash; Coupling Inversion #2</span>
+      <h4>B2 says 3 types, B4 says 5 types — the only cross-bucket disagreement</h4>
+      <p>Protocol bucket (B2) proposed 3 types for A2A job mapping simplicity. Topology bucket (B4) proposed 5 for completeness. This is a real disagreement.</p>
+      <div class="verdict"><strong>Resolution:</strong> B4 wins (5 types). <code>subgraph</code> is a structural containment primitive — it's a namespace boundary, not an agent invocation. <code>hitl</code> is a category distinction, not a provider choice. B2's "3 types" is an A2A mapping heuristic, not a topology prescription.</div>
+    </div>
+
+    <div class="insight-card critic reveal">
+      <span class="role-tag critic">Critic &mdash; Coupling Inversion #3</span>
+      <h4>B6 fix: source AND bridge, not just bridge</h4>
+      <p>Fixing only the promotion check (<code>isTerminalSuccess()</code>) is a patch that allows the semantic mismatch to propagate further. The true fix should normalize at the source (session-executor emits <code>'success'</code>) AND add the bridge at the promotion check as belt-and-suspenders.</p>
+    </div>
+
+    <div class="insight-card critic reveal">
+      <span class="role-tag critic">Critic &mdash; Hidden Dependencies</span>
+      <h4>Two things the Advocate underweighted</h4>
+      <p><strong>1. The decompiler (B7) is a prerequisite for node type reduction validation.</strong> You cannot validate that 9&rarr;5 is semantically lossless without a roundtrip test: <code>parse(serialize(doc))</code> must produce a structurally equivalent <code>GraphDocument</code>. Not nice-to-have — primary validation tool.</p>
+      <p><strong>2. <code>hitl</code> handler requires an agreed LevEvent schema for <code>agent.hitl.requested</code>.</strong> This sits at the intersection of B1 (executor), B2 (protocol), and B4 (topology). Build the event schema first, then the handler.</p>
+    </div>
+
+    <h3 class="reveal">Implementation Order Risks</h3>
+    <table class="risk-table reveal">
+      <thead>
+        <tr><th>Risk</th><th>Failure Mode</th><th>Severity</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Node type reduction before stub handlers</td><td>Silent executor failures on subgraph/orchestration nodes</td><td><span class="sev high">HIGH</span></td></tr>
+        <tr><td>Protocol envelope before B6 fix</td><td>A2A dispatcher wired to executor that never reports success</td><td><span class="sev high">HIGH</span></td></tr>
+        <tr><td>Decompiler after REPL</td><td>REPL built on unstable schema — wasted work</td><td><span class="sev medium">MEDIUM</span></td></tr>
+        <tr><td>CDO stylesheets before profile resolver</td><td>Profiles declared but never applied</td><td><span class="sev medium">MEDIUM</span></td></tr>
+        <tr><td>Token attribution before executor unification</td><td>Normalization applied only to one of four executors</td><td><span class="sev medium">MEDIUM</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SECTION 4: SYSTEMS THINKER -->
+<section id="systems">
+  <div class="container">
+    <div class="section-num reveal">IV</div>
+    <h2 class="reveal">The Systems Thinker's Feedback Loops</h2>
+    <p class="lead reveal">Two reinforcement loops — one virtuous (the correct execution order), one vicious (the current state). The escape is the handler registry.</p>
+
+    <div class="loop-box virtuous reveal">
+      <h4>Virtuous Loop — The Correct Execution Order</h4>
+      <div class="loop-chain">
+        B6 fix <span class="arrow">&rarr;</span> entity promotion works <span class="arrow">&rarr;</span> executor validation meaningful <span class="arrow">&rarr;</span><br>
+        B1 stubs testable <span class="arrow">&rarr;</span> handler registry buildable <span class="arrow">&rarr;</span><br>
+        node type reduction executable <span class="arrow">&rarr;</span> B7 decompiler validates <span class="arrow">&rarr;</span><br>
+        REPL possible <span class="arrow">&rarr;</span> CDO stylesheet profiles testable <span class="arrow">&rarr;</span> D-W4 ships
+      </div>
+    </div>
+
+    <div class="loop-box vicious reveal">
+      <h4>Vicious Loop — Current State (Already Active)</h4>
+      <div class="loop-chain">
+        4 executors diverge <span class="arrow">&rarr;</span> B6 fix applied to one <span class="arrow">&rarr;</span> others not fixed <span class="arrow">&rarr;</span><br>
+        A16 rename complete <span class="arrow">&rarr;</span> parser normalizes but old executor mishandles <span class="arrow">&rarr;</span><br>
+        types reduced <span class="arrow">&rarr;</span> executor expects old types <span class="arrow">&rarr;</span> silent failures <span class="arrow">&rarr;</span><br>
+        protocol envelope designed <span class="arrow">&rarr;</span> dispatcher wired to broken executor <span class="arrow">&rarr;</span><br>
+        A2A jobs dispatched, never complete <span class="arrow">&rarr;</span> <strong>entities never promote</strong> (B6 recurs)
+      </div>
+    </div>
+
+    <div class="insight-card systems reveal">
+      <span class="role-tag systems">Systems Thinker</span>
+      <h4>The circular dependency chain between buckets</h4>
+      <p>
+        B2 (protocol) defines <code>ProtocolAdapter.ingest()</code> &rarr; needs stable LevEvent schema &rarr; constrained by B3 (vernacular).<br>
+        B3 resolves <code>GraphNodeType</code> &rarr; constrained by B4 (topology) on 5 types.<br>
+        B4 defines <code>OrchestrationOverlay</code> &rarr; needs stable subgraph executor &rarr; constrained by B1 (execution).<br>
+        B1 defines <code>NodeTypeHandler</code> &rarr; needs stable <code>GraphNodeType</code> &rarr; constrained by B4.
+      </p>
+      <div class="verdict"><strong>The escape:</strong> A single dispatch point (handler registry) prevents the "apply fix in 4 places" failure. This is why D45 (one executor) is structural, not cosmetic.</div>
+    </div>
+
+    <div class="insight-card systems reveal">
+      <span class="role-tag systems">Systems Thinker</span>
+      <h4>Two amplification points where getting one thing right pays across 4 buckets</h4>
+      <p><strong><code>hitl</code></strong> sits at the intersection of B1 (executor handler), B2 (LevEvent schema for <code>agent.hitl.requested</code>), B4 (canonical type), and B5 (context assembly at HITL boundary). Getting <code>hitl</code> right first amplifies value across four buckets simultaneously.</p>
+      <p><strong><code>subgraph</code></strong> is the host type for <code>OrchestrationOverlay.parallel</code> and <code>OrchestrationOverlay.loop</code>, meaning the entire orchestration overlay design (B4) depends on subgraph executor correctness (B1 Phase 2).</p>
+    </div>
+
+    <div class="dag-wrap reveal">
+      <div class="dag-title">Critical Path DAG</div>
+      <div class="code-block"><span class="highlight">B6 fix</span> ─────────────────────────────────────────────────── <span class="comment">always first</span>
+    │
+    ├── <span class="flow">A16 YAML rename</span> ──────────────────────────────── <span class="comment">parallel</span>
+    │
+    ├── <span class="flow">CdoProperties delete</span> ──────────────────────────── <span class="comment">parallel</span>
+    │
+<span class="highlight">B7 decompiler</span> ──────────────────────────────────────────── <span class="comment">Wave 1 (enables validation)</span>
+    │
+<span class="highlight">B1 Phase 1 stubs</span> (terminal, redirect, hitl) ─────────── <span class="comment">Wave 1</span>
+    │
+    ├── <span class="flow">B2 LevEvent metadata extension</span> ────────────────── <span class="comment">Wave 1 (non-blocking)</span>
+    │
+    └── <span class="flow">B5 token attribution type alias</span> ────────────────── <span class="comment">Wave 1</span>
+         │
+<span class="highlight">B4 node type reduction (9→5)</span> + migration ────────────── <span class="comment">Wave 2</span>
+    │
+<span class="highlight">B1 Phase 2 handler registry</span> + unified executor ────── <span class="comment">Wave 2</span>
+    │
+    ├── <span class="flow">B3 FlowmindStep.action → .kind</span> ───────────────── <span class="comment">Wave 2</span>
+    │
+    └── <span class="flow">B2 ProtocolAdapter interface</span> ─────────────────── <span class="comment">Wave 2</span>
+         │
+<span class="highlight">B5 ContextAssembler wiring</span> ─────────────────────────── <span class="comment">Wave 3</span>
+    │
+<span class="flow">B5 EpisodeStore + InMemoryImpl</span> ─────────────────────── <span class="comment">Wave 3</span>
+    │
+    └── <span class="flow">Slate promotion</span> ────────────────────────────────── <span class="comment">Wave 4</span>
+         │
+<span class="flow">CDO stylesheets + profile resolver</span> ──────────────────── <span class="comment">Wave 4</span>
+    │
+<span class="flow">D-W9 REPL + D-W5 semantic diff</span> ───────────────────────── <span class="comment">Wave 5</span></div>
+    </div>
+
+    <div class="insight-card systems reveal">
+      <span class="role-tag systems">Systems Thinker</span>
+      <h4>Shearing layer enforcement is the architectural immune system</h4>
+      <p>Once import boundary lint rules are in place (<code>FF-LAYER-01</code>), the feedback loops above become self-correcting: any coupling inversion triggers a CI gate failure before it reaches production. This is the highest-leverage governance mechanism in the entire proposal. It is also one of the cheaper ones to implement.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: PRAGMATIST -->
+<section id="pragmatist">
+  <div class="container">
+    <div class="section-num reveal">V</div>
+    <h2 class="reveal">The Pragmatist's Assessment</h2>
+    <p class="lead reveal">What ships this quarter. What Sonnet can autodev overnight. What requires Opus-level design judgment.</p>
+
+    <div class="insight-card pragmatist reveal">
+      <span class="role-tag pragmatist">Pragmatist</span>
+      <h4>Wave 1 is 3-4 days of autodev work. Every task is Sonnet-safe.</h4>
+      <p>B6 status fix (30 min), A16 YAML rename (1 hr), parser compat shim (30 min), CdoProperties deletion (30 min), decompiler MVP (1-2 days), terminal + redirect stubs (1 hr), hitl stub (2 hr), LevEvent metadata extension (1 hr), UsageReport type alias (1 hr).</p>
+      <div class="verdict"><strong>Key insight:</strong> Wave 1 is entirely mechanical. No design judgment required. Ship it overnight.</div>
+    </div>
+
+    <div class="insight-card pragmatist reveal">
+      <span class="role-tag pragmatist">Pragmatist</span>
+      <h4>The dominant blocker for autodev is not complexity — it's the absence of interfaces</h4>
+      <p>The <code>NodeTypeHandler</code> interface in Wave 2 is the unlock: once it exists, every handler is an independent autodev task. The <code>ProtocolAdapter</code> interface is the same pattern for the protocol layer. Each interface definition is an Opus/human task that enables a dozen Sonnet subtasks.</p>
+      <div class="verdict"><strong>Pattern:</strong> One Opus task (define interface) unlocks twelve Sonnet tasks (implement handlers).</div>
+    </div>
+
+    <div class="insight-card pragmatist reveal">
+      <span class="role-tag pragmatist">Pragmatist</span>
+      <h4>What NOT to do this quarter</h4>
+      <p><strong>Graph REPL (D-W9)</strong> — gated on IR stability and node type reduction. Building on unstable schema is wasted work.<br>
+      <strong>Loop tori visualization (D-W6)</strong> — hardcoded version rejected per D29. Needs FlowMind-driven visualization.<br>
+      <strong>D-W10 federation</strong> — gated on protocol envelope stability.<br>
+      <strong>Full status enum alignment</strong> — Wave 2 only after normalization bridge proves itself.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6: WILD CARD -->
+<section id="wildcard">
+  <div class="container">
+    <div class="section-num reveal">VI</div>
+    <h2 class="reveal">The Wild Card's Provocations</h2>
+    <p class="lead reveal">What everyone else was too polite to say. Four provocations, each with a verdict.</p>
+
+    <div class="insight-card wildcard reveal">
+      <span class="role-tag wildcard">Wild Card</span>
+      <h4>Is 9&rarr;5 too conservative? Should we go to 3?</h4>
+      <p>A pure 3-type model (agent, function, terminal) would eliminate <code>subgraph</code> (replaced by inline graph composition) and <code>hitl</code> (modeled as <code>agent</code> with <code>provider: 'human'</code>).</p>
+      <div class="verdict"><strong>Verdict: Do not go to 3.</strong> <code>subgraph</code> is the host type for the entire orchestration overlay design — without it, parallel and loop have nowhere to live. <code>hitl</code> deserves first-class status because human-in-the-loop is a category distinction, not a provider choice.</div>
+    </div>
+
+    <div class="insight-card wildcard reveal">
+      <span class="role-tag wildcard">Wild Card</span>
+      <h4>Should LevEvent be the ONLY type? Full monism.</h4>
+      <p>What if every message — agent invocations, function calls, HITL pauses, loop ticks — is a <code>LevEvent</code>? <code>AgentJob</code> dissolves into <code>LevEvent&lt;{type: 'orchestration.job.dispatch'}&gt;</code>.</p>
+      <div class="verdict"><strong>Verdict: Architecturally correct, operationally impractical.</strong> AgentJob has 23 tests against typed fields — dissolving it loses TypeScript type safety at the dispatch boundary. The pragmatic middle path (keep AgentJob as first-class, carry as LevEvent.data) gives 90% of the observability benefit. Revisit at Wave 4.</div>
+    </div>
+
+    <div class="insight-card wildcard reveal">
+      <span class="role-tag wildcard">Wild Card</span>
+      <h4>What if CDO stylesheets are the killer feature?</h4>
+      <p>Every bucket treats CDO stylesheets as a minor roadmap item. But no agentic framework has a "profile system" that lets you swap from <code>development.cdo.yaml</code> (2 agents, loose gates) to <code>production.cdo.yaml</code> (5 agents, mandatory HITL, strict gates) with a single config change.</p>
+      <p>A developer who has never heard of FlowMind understands immediately: <em>"I can tune my agent's thinking style like a stylesheet."</em></p>
+      <div class="verdict"><strong>Implication:</strong> CDO stylesheet examples should ship as early as Wave 2, even before the full profile resolver. Documentation-first for this feature, not code-first.</div>
+    </div>
+
+    <div class="insight-card wildcard reveal">
+      <span class="role-tag wildcard">Wild Card</span>
+      <h4>What paradigm shift are we missing?</h4>
+      <p>The six reports collectively describe an agentic programming model. But none of them makes <strong>observability</strong> the primary user-facing value proposition.</p>
+      <p>The <code>events.jsonl</code> file, the <code>token:usage</code> events, the episode crystals — these are the foundation of a system where you can ask <em>"why did the agent make that decision?"</em> and get a causal answer.</p>
+      <div class="verdict"><strong>The missing framing:</strong> FlowMind is not just CSS for agents — it is <strong>CSS for agents with browser DevTools</strong>. The causality plane (LevEvent bus) is the DevTools. CDO stylesheets are the stylesheets. The REPL is the inspector. Episode crystals are the memory profiler. "Finally, debuggable agents."</div>
+    </div>
+
+    <div class="insight-card wildcard reveal">
+      <span class="role-tag wildcard">Wild Card</span>
+      <h4>What would a competitor copy first?</h4>
+      <p>A well-resourced competitor reading these reports would immediately notice:</p>
+      <p>1. <code>hitl</code> as a first-class topology primitive, not a workaround<br>
+      2. Shearing layers enforcement — a CI-enforced architectural immune system<br>
+      3. The 4-plane separation — genuine plane separation, not layered monolith<br>
+      4. CDO deliberation patterns (thinking-parliament, anti-groupthink) — concrete, runnable AI reasoning</p>
+      <div class="verdict"><strong>Defense:</strong> They'd copy the thinking-parliament first — most demonstrable, most marketable, least architected. You can fake it without the runtime. The defense is making it executable only through FlowMind, proving infrastructure value. Ship Wave 1-2 before demoing CDO publicly.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 7: CONVERGENCE -->
+<section id="convergence">
+  <div class="container">
+    <div class="section-num reveal">VII</div>
+    <h2 class="reveal">Cross-Bucket Convergence</h2>
+    <p class="lead reveal">What emerged when 6 isolated agents looked at the same system from 6 different angles.</p>
+
+    <div class="convergence-grid">
+      <div class="conv-card reveal">
+        <div class="buckets"><span class="bucket-dot">B1</span><span class="bucket-dot">B2</span><span class="bucket-dot">B3</span><span class="bucket-dot">B4</span><span class="bucket-dot">B5</span><span class="bucket-dot">B6</span></div>
+        <h4>B6 status fix is the universal blocker</h4>
+        <p>All 6 agents independently flagged this. Not because they talked to each other — they can't. Because it genuinely blocks every downstream validation path.</p>
+      </div>
+      <div class="conv-card reveal">
+        <div class="buckets"><span class="bucket-dot">B1</span><span class="bucket-dot">B3</span><span class="bucket-dot">B4</span></div>
+        <h4>9&rarr;5 node type reduction is unanimous</h4>
+        <p>Execution, vernacular, and topology buckets all arrived at the same 5 types independently. The principle "what IS it" vs "how to traverse it" converged from three angles.</p>
+      </div>
+      <div class="conv-card reveal">
+        <div class="buckets"><span class="bucket-dot">B1</span><span class="bucket-dot">B3</span></div>
+        <h4>4 executors &rarr; 1 executor is structural, not cosmetic</h4>
+        <p>Execution model and vernacular both identify the 4-executor divergence as the root cause of accumulated bugs. The handler registry is the escape.</p>
+      </div>
+      <div class="conv-card reveal">
+        <div class="buckets"><span class="bucket-dot">B2</span><span class="bucket-dot">B5</span></div>
+        <h4>LevEvent is already the right envelope</h4>
+        <p>Protocol and context buckets both conclude that LevEvent needs minimal extension, not a replacement. The delta is surgical metadata fields.</p>
+      </div>
+      <div class="conv-card reveal">
+        <div class="buckets"><span class="bucket-dot">B5</span><span class="bucket-dot">B6</span></div>
+        <h4>CDO stylesheets compose through existing fractal config</h4>
+        <p>Context and branding both confirm: named profiles in the fractal config system. No new primitives required. The system already supports cascade semantics.</p>
+      </div>
+      <div class="conv-card reveal">
+        <div class="buckets"><span class="bucket-dot">B2</span><span class="bucket-dot">B4</span></div>
+        <h4>The one disagreement: 3 types vs 5 types</h4>
+        <p>Protocol wanted 3 for A2A simplicity. Topology wanted 5 for completeness. Critic resolved: 5 types, with A2A adapter mapping agent&rarr;job.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 8: VERDICT -->
+<section id="verdict">
+  <div class="container">
+    <div class="section-num reveal">VIII</div>
+    <h2 class="reveal">The Deliberation Verdict</h2>
+
+    <div class="insight-card reveal" style="border-left-color: var(--blue);">
+      <h4>The architecture is correct. The execution sequence is the only thing requiring significant disagreement, and the Critic's sequencing correction resolves it.</h4>
+      <p style="font-size: 0.82rem; color: var(--ink);">
+        <strong>1.</strong> 5 canonical GraphNodeTypes. Gate &rarr; compiler shorthand. Parallel/loop &rarr; OrchestrationOverlay. Redirect &rarr; next: edge.<br><br>
+        <strong>2.</strong> B6 fix is Wave 1, Step 1. Source normalization AND bridge normalization. Both.<br><br>
+        <strong>3.</strong> LevEvent + ProtocolAdapter is the protocol architecture. A2A dispatcher becomes reference implementation.<br><br>
+        <strong>4.</strong> One executor with handler registry. Interface locked before handlers registered.<br><br>
+        <strong>5.</strong> Dual-brand: FlowMind = engine, CDO = patterns. CDO stylesheets = named fractal config profiles.<br><br>
+        <strong>6.</strong> Observability is the primary user-facing value. Every node emits a LevEvent. "Finally, debuggable agents."<br><br>
+        <strong>7.</strong> Shearing layer enforcement (D33 lint rules) is a Wave 3 infrastructure investment that pays dividends across the entire timeline.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="stats-bar reveal">
+      <div class="stat"><div class="stat-value">5</div><div class="stat-label">CDO Roles</div></div>
+      <div class="stat"><div class="stat-value">6</div><div class="stat-label">Domain Agents</div></div>
+      <div class="stat"><div class="stat-value">46</div><div class="stat-label">Issues</div></div>
+      <div class="stat"><div class="stat-value">3</div><div class="stat-label">Coupling Inversions</div></div>
+      <div class="stat"><div class="stat-value">2</div><div class="stat-label">Feedback Loops</div></div>
+      <div class="stat"><div class="stat-value">5</div><div class="stat-label">Wild Card Provocations</div></div>
+    </div>
+    <div class="footer-note reveal">
+      CDO Architecture Deliberation &middot; Session 8 &middot; Leviathan
+    </div>
+  </div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

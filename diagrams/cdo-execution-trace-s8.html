@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CDO Execution Trace — S8 Architecture Deliberation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=Fragment+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'Bricolage Grotesque', system-ui, sans-serif;
+    --font-mono: 'Fragment Mono', 'SF Mono', Consolas, monospace;
+    --bg: #0b0f1a;
+    --bg-grid: rgba(30, 58, 95, 0.15);
+    --surface: #111827;
+    --surface2: #1a2332;
+    --surface-elevated: #1e293b;
+    --border: rgba(212, 167, 58, 0.12);
+    --border-bright: rgba(212, 167, 58, 0.25);
+    --text: #e2e8f0;
+    --text-dim: #64748b;
+    --text-label: #94a3b8;
+    --gold: #d4a73a;
+    --gold-dim: rgba(212, 167, 58, 0.12);
+    --gold-glow: rgba(212, 167, 58, 0.06);
+    --blue: #3b82f6;
+    --blue-dim: rgba(59, 130, 246, 0.12);
+    --teal: #14b8a6;
+    --teal-dim: rgba(20, 184, 166, 0.12);
+    --emerald: #10b981;
+    --emerald-dim: rgba(16, 185, 129, 0.12);
+    --amber: #f59e0b;
+    --amber-dim: rgba(245, 158, 11, 0.12);
+    --rose: #f43f5e;
+    --rose-dim: rgba(244, 63, 94, 0.12);
+    --sky: #0ea5e9;
+    --sky-dim: rgba(14, 165, 233, 0.12);
+    --bucket-1: #3b82f6;
+    --bucket-2: #8b5cf6;
+    --bucket-3: #f59e0b;
+    --bucket-4: #10b981;
+    --bucket-5: #0ea5e9;
+    --bucket-6: #f43f5e;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f0f2f5;
+      --bg-grid: rgba(30, 58, 95, 0.04);
+      --surface: #ffffff;
+      --surface2: #f8fafc;
+      --surface-elevated: #ffffff;
+      --border: rgba(30, 58, 95, 0.1);
+      --border-bright: rgba(30, 58, 95, 0.2);
+      --text: #1e293b;
+      --text-dim: #64748b;
+      --text-label: #475569;
+      --gold: #b8860b;
+      --gold-dim: rgba(184, 134, 11, 0.08);
+      --gold-glow: rgba(184, 134, 11, 0.04);
+      --blue: #2563eb;
+      --blue-dim: rgba(37, 99, 235, 0.08);
+      --teal: #0d9488;
+      --teal-dim: rgba(13, 148, 136, 0.08);
+      --emerald: #059669;
+      --emerald-dim: rgba(5, 150, 105, 0.08);
+      --amber: #d97706;
+      --amber-dim: rgba(217, 119, 6, 0.08);
+      --rose: #e11d48;
+      --rose-dim: rgba(225, 29, 72, 0.08);
+      --sky: #0284c7;
+      --sky-dim: rgba(2, 132, 199, 0.08);
+      --bucket-1: #2563eb;
+      --bucket-2: #7c3aed;
+      --bucket-3: #d97706;
+      --bucket-4: #059669;
+      --bucket-5: #0284c7;
+      --bucket-6: #e11d48;
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+    background-image:
+      linear-gradient(var(--bg-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .container {
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* ============ HERO ============ */
+  .hero {
+    text-align: center;
+    padding: 3rem 0 2rem;
+    position: relative;
+    animation: fadeUp 0.6s ease-out;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 300px;
+    background: radial-gradient(ellipse, var(--gold-glow), transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .hero-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    background: var(--gold-dim);
+    border: 1px solid var(--border-bright);
+    padding: 0.3rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+  .hero h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    position: relative;
+    z-index: 1;
+  }
+  .hero h1 span { color: var(--gold); }
+  .hero-sub {
+    font-size: 1.05rem;
+    color: var(--text-dim);
+    max-width: 700px;
+    margin: 0.75rem auto 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ============ KPI ROW ============ */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    text-align: center;
+    animation: fadeScale 0.5s ease-out both;
+  }
+  .kpi:nth-child(1) { animation-delay: 0.1s; }
+  .kpi:nth-child(2) { animation-delay: 0.15s; }
+  .kpi:nth-child(3) { animation-delay: 0.2s; }
+  .kpi:nth-child(4) { animation-delay: 0.25s; }
+  .kpi:nth-child(5) { animation-delay: 0.3s; }
+  .kpi-num {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+  .kpi-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  /* ============ SECTION LABELS ============ */
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-label);
+    margin-bottom: 1rem;
+  }
+  .section-label .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+
+  /* ============ EXECUTION TOPOLOGY ============ */
+  .topology {
+    margin: 2.5rem 0;
+    animation: fadeUp 0.6s ease-out 0.3s both;
+  }
+  .topo-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .topo-orchestrator {
+    background: var(--surface);
+    border: 1px solid var(--border-bright);
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .topo-orchestrator h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .topo-orchestrator p {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-top: 0.25rem;
+  }
+
+  /* dispatch arrow */
+  .dispatch-arrow {
+    text-align: center;
+    padding: 0.75rem 0;
+    color: var(--gold);
+    font-size: 1.2rem;
+    opacity: 0.5;
+    position: relative;
+  }
+  .dispatch-arrow::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+    opacity: 0.3;
+  }
+
+  /* agent cards */
+  .agent-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .agent-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease-out both;
+    transition: border-color 0.2s;
+  }
+  .agent-card:hover {
+    border-color: var(--border-bright);
+  }
+  .agent-card:nth-child(1) { animation-delay: 0.4s; }
+  .agent-card:nth-child(2) { animation-delay: 0.45s; }
+  .agent-card:nth-child(3) { animation-delay: 0.5s; }
+  .agent-card:nth-child(4) { animation-delay: 0.55s; }
+  .agent-card:nth-child(5) { animation-delay: 0.6s; }
+  .agent-card:nth-child(6) { animation-delay: 0.65s; }
+
+  .agent-header {
+    padding: 0.85rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .agent-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  .agent-name {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+  .agent-status {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    background: var(--emerald-dim);
+    color: var(--emerald);
+  }
+  .agent-body {
+    padding: 1rem;
+  }
+  .agent-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .agent-items {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    margin-bottom: 0.75rem;
+  }
+
+  /* trace log */
+  .trace-log {
+    background: var(--surface2);
+    border-radius: 6px;
+    padding: 0.6rem;
+    max-height: 180px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-bright) transparent;
+  }
+  .trace-entry {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.4rem;
+    padding: 0.2rem 0;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    line-height: 1.4;
+    border-bottom: 1px solid var(--border);
+  }
+  .trace-entry:last-child { border-bottom: none; }
+  .trace-op {
+    font-weight: 600;
+    white-space: nowrap;
+    padding: 0 0.3rem;
+    border-radius: 2px;
+  }
+  .trace-op.read { color: var(--sky); background: var(--sky-dim); }
+  .trace-op.analyze { color: var(--amber); background: var(--amber-dim); }
+  .trace-op.write { color: var(--emerald); background: var(--emerald-dim); }
+  .trace-op.decide { color: var(--gold); background: var(--gold-dim); }
+  .trace-path { color: var(--text-dim); overflow-wrap: break-word; min-width: 0; }
+
+  /* agent stats */
+  .agent-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+  .agent-stat {
+    text-align: center;
+  }
+  .agent-stat-num {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .agent-stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+  }
+
+  /* ============ CONVERGENCE SECTION ============ */
+  .convergence {
+    margin: 3rem 0;
+    animation: fadeUp 0.6s ease-out 0.7s both;
+  }
+  .convergence-box {
+    background: var(--surface);
+    border: 2px solid var(--gold);
+    border-radius: 10px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .convergence-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--bucket-1), var(--bucket-2), var(--bucket-3), var(--bucket-4), var(--bucket-5), var(--bucket-6));
+  }
+  .convergence-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+  }
+  .convergence-subtitle {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+  .convergence-votes {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.75rem;
+  }
+  .vote-card {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 0.75rem;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .vote-bucket {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+  .vote-verdict {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .vote-yes {
+    background: var(--rose-dim);
+    color: var(--rose);
+  }
+
+  /* ============ SYNTHESIS PIPELINE ============ */
+  .synthesis {
+    margin: 3rem 0;
+    animation: fadeUp 0.6s ease-out 0.8s both;
+  }
+  .synth-pipeline {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    position: relative;
+  }
+  .synth-pipeline::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    right: 5%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--bucket-1), var(--bucket-3), var(--bucket-4), var(--bucket-6), var(--gold));
+    transform: translateY(-50%);
+    z-index: 0;
+    opacity: 0.3;
+  }
+  .synth-role {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    margin: 0 0.25rem;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .synth-role:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-bright);
+  }
+  .synth-role-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .synth-role-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  .synth-role-desc {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+  .synth-role-weight {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--gold);
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ============ TIMELINE ============ */
+  .timeline {
+    margin: 3rem 0;
+    animation: fadeUp 0.6s ease-out 0.9s both;
+  }
+  .timeline-track {
+    position: relative;
+    padding: 1rem 0;
+  }
+  .timeline-track::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 24px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--gold), var(--border));
+  }
+  .tl-event {
+    display: grid;
+    grid-template-columns: 50px 1fr;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    align-items: start;
+  }
+  .tl-marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+  .tl-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+    background: var(--bg);
+  }
+  .tl-dot.active {
+    background: var(--gold);
+    box-shadow: 0 0 8px var(--gold-glow);
+  }
+  .tl-content {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+  }
+  .tl-time {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+  .tl-desc {
+    font-size: 0.8rem;
+    margin-top: 0.2rem;
+  }
+  .tl-desc strong { color: var(--gold); }
+
+  /* ============ KEY FINDINGS TABLE ============ */
+  .findings {
+    margin: 3rem 0;
+    animation: fadeUp 0.6s ease-out 1s both;
+  }
+  .findings-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+  }
+  .findings-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .findings-table th {
+    background: var(--surface2);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-label);
+    padding: 0.6rem 0.75rem;
+    text-align: left;
+    border-bottom: 2px solid var(--border-bright);
+  }
+  .findings-table td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .findings-table tr:hover td {
+    background: var(--gold-dim);
+  }
+  .finding-bucket {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .finding-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+  .badge-ship { background: var(--emerald-dim); color: var(--emerald); }
+  .badge-wave1 { background: var(--rose-dim); color: var(--rose); }
+  .badge-wave2 { background: var(--amber-dim); color: var(--amber); }
+  .badge-defer { background: var(--blue-dim); color: var(--blue); }
+
+  /* ============ FOOTER ============ */
+  .footer {
+    text-align: center;
+    padding: 2rem 0;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    animation: fadeUp 0.5s ease-out 1.1s both;
+  }
+
+  /* ============ ANIMATIONS ============ */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeScale {
+    from { opacity: 0; transform: scale(0.92); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-delay: 0ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 900px) {
+    .agent-grid { grid-template-columns: repeat(2, 1fr); }
+    .synth-pipeline { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+    .convergence-votes { grid-template-columns: repeat(3, 1fr); }
+    .kpi-row { grid-template-columns: repeat(3, 1fr); }
+    .hero h1 { font-size: 2rem; }
+  }
+  @media (max-width: 600px) {
+    .agent-grid { grid-template-columns: 1fr; }
+    .synth-pipeline { grid-template-columns: 1fr; }
+    .convergence-votes { grid-template-columns: repeat(2, 1fr); }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ============ PRINT ============ */
+  @media print {
+    body { background: white; color: black; }
+    .trace-log { max-height: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-badge">Lev CDO &mdash; Session 8 &mdash; Live Execution Trace</div>
+    <h1>6-Bucket Parallel <span>Architecture Deliberation</span></h1>
+    <p class="hero-sub">46 master issues bucketed into 6 domains, analyzed by 6 concurrent /arch agents, converging through a 5-role CDO synthesis protocol. This is the execution trace.</p>
+  </header>
+
+  <!-- KPI ROW -->
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-num" style="color: var(--gold);">6</div>
+      <div class="kpi-label">Parallel Agents</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-num" style="color: var(--emerald);">46</div>
+      <div class="kpi-label">Issues Triaged</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-num" style="color: var(--sky);">~324K</div>
+      <div class="kpi-label">Tokens Consumed</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-num" style="color: var(--amber);">97</div>
+      <div class="kpi-label">Tool Calls</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-num" style="color: var(--rose);">~16min</div>
+      <div class="kpi-label">Wall Clock</div>
+    </div>
+  </div>
+
+  <!-- EXECUTION TOPOLOGY -->
+  <section class="topology">
+    <div class="section-label"><span class="dot"></span> Execution Topology &mdash; Parallel Dispatch</div>
+
+    <div class="topo-orchestrator">
+      <h3>ROOT ORCHESTRATOR</h3>
+      <p>Context package assembled &rarr; 6 arch agents dispatched in parallel &rarr; results collected &rarr; synthesis</p>
+    </div>
+
+    <div class="dispatch-arrow">&darr;&darr;&darr;&darr;&darr;&darr;</div>
+
+    <div class="agent-grid">
+
+      <!-- BUCKET 1 -->
+      <div class="agent-card" style="border-top: 3px solid var(--bucket-1);">
+        <div class="agent-header">
+          <div class="agent-indicator" style="background: var(--bucket-1);"></div>
+          <div class="agent-name" style="color: var(--bucket-1);">BUCKET-1</div>
+          <div class="agent-status">COMPLETE</div>
+        </div>
+        <div class="agent-body">
+          <div class="agent-title">Execution Model</div>
+          <div class="agent-items">B1 B2 B9 D-W2 D-W3 &bull; Actor/Supervisor/Torus</div>
+          <div class="trace-log">
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">context-package.md</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">core/flowmind/src/schema.ts</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">core/flowmind/src/executor.ts</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">core/orchestration/.../heartbeat.ts</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">plugins/slate/src/swarm/torus.ts</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">plugins/slate/src/kernel/index.ts</span></div>
+            <div class="trace-entry"><span class="trace-op analyze">ATAM</span><span class="trace-path">Utility tree: extensibility, fault tolerance, perf</span></div>
+            <div class="trace-entry"><span class="trace-op analyze">C4</span><span class="trace-path">3 candidate approaches evaluated</span></div>
+            <div class="trace-entry"><span class="trace-op decide">ADR</span><span class="trace-path">NodeTypeHandler registry + unified executor</span></div>
+            <div class="trace-entry"><span class="trace-op decide">FLAG</span><span class="trace-path">B6 status enum = universal blocker</span></div>
+            <div class="trace-entry"><span class="trace-op write">WRITE</span><span class="trace-path">bucket-1-execution/arch-report.md</span></div>
+          </div>
+          <div class="agent-stats">
+            <div class="agent-stat"><div class="agent-stat-num" style="color: var(--bucket-1);">61K</div><div class="agent-stat-label">Tokens</div></div>
+            <div class="agent-stat"><div class="agent-stat-num">14</div><div class="agent-stat-label">Tool Calls</div></div>
+            <div class="agent-stat"><div class="agent-stat-num">3:27</div><div class="agent-stat-label">Duration</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUCKET 2 -->
+      <div class="agent-card" style="border-top: 3px solid var(--bucket-2);">
+        <div class="agent-header">
+          <div class="agent-indicator" style="background: var(--bucket-2);"></div>
+          <div class="agent-name" style="color: var(--bucket-2);">BUCKET-2</div>
+          <div class="agent-status">COMPLETE</div>
+        </div>
+        <div class="agent-body">
+          <div class="agent-title">Protocol & Messaging</div>
+          <div class="agent-items">B5 B10 C2 D31 D35 D-W10 &bull; Envelope Design</div>
+          <div class="trace-log">
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">context-package.md</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">core/orchestration/src/a2a/types.ts</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">core/orchestration/src/a2a/dispatcher.ts</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">core/domain/src/events.ts</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">.lev/pm/reports/a2a-step-types-conflicts.md</span></div>
+            <div class="trace-entry"><span class="trace-op analyze">ATAM</span><span class="trace-path">Protocol landscape: A2A, MCP, Actor, NATS, CloudEvents</span></div>
+            <div class="trace-entry"><span class="trace-op analyze">TRADE</span><span class="trace-path">Adopt vs Adapt vs Build comparison</span></div>
+            <div class="trace-entry"><span class="trace-op decide">ADR</span><span class="trace-path">CloudEvents-aligned LevEvent + ProtocolAdapter&lt;TIn,TOut&gt;</span></div>
+            <div class="trace-entry"><span class="trace-op decide">KEEP</span><span class="trace-path">A2A dispatcher: adapt, don't rebuild</span></div>
+            <div class="trace-entry"><span class="trace-op decide">FLAG</span><span class="trace-path">B6 status enum = universal blocker</span></div>
+            <div class="trace-entry"><span class="trace-op write">WRITE</span><span class="trace-path">bucket-2-protocol/arch-report.md</span></div>
+          </div>
+          <div class="agent-stats">
+            <div class="agent-stat"><div class="agent-stat-num" style="color: var(--bucket-2);">50K</div><div class="agent-stat-label">Tokens</div></div>
+            <div class="agent-stat"><div class="agent-stat-num">20</div><div class="agent-stat-label">Tool Calls</div></div>
+            <div class="agent-stat"><div class="agent-stat-num">3:24</div><div class="agent-stat-label">Duration</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUCKET 3 -->
+      <div class="agent-card" style="border-top: 3px solid var(--bucket-3);">
+        <div class="agent-header">
+          <div class="agent-indicator" style="background: var(--bucket-3);"></div>
+          <div class="agent-name" style="color: var(--bucket-3);">BUCKET-3</div>
+          <div class="agent-status">COMPLETE</div>
+        </div>
+        <div class="agent-body">
+          <div class="agent-title">Vernacular & Types</div>
+          <div class="agent-items">A1-A16 B6 &bull; The Great Rename (17 items)</div>
+          <div class="trace-log">
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">context-package.md</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">core/flowmind/src/schema.ts (1180 lines)</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">core/flowmind/src/executor.ts (types section)</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">core/orchestration/src/a2a/types.ts</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">core/flowmind/src/execution-contract/types.ts</span></div>
+            <div class="trace-entry"><span class="trace-op analyze">AUDIT</span><span class="trace-path">16 vernacular conflicts mapped to shearing layers</span></div>
+            <div class="trace-entry"><span class="trace-op analyze">MAP</span><span class="trace-path">4 action vocabulary systems cross-referenced</span></div>
+            <div class="trace-entry"><span class="trace-op decide">LAW</span><span class="trace-path">No bare generic words in exported types</span></div>
+            <div class="trace-entry"><span class="trace-op decide">FIX</span><span class="trace-path">B6: isTerminalSuccess() shim, 2 lines</span></div>
+            <div class="trace-entry"><span class="trace-op decide">FLAG</span><span class="trace-path">B6 status enum = universal blocker</span></div>
+            <div class="trace-entry"><span class="trace-op write">WRITE</span><span class="trace-path">bucket-3-vernacular/arch-report.md</span></div>
+          </div>
+          <div class="agent-stats">
+            <div class="agent-stat"><div class="agent-stat-num" style="color: var(--bucket-3);">57K</div><div class="agent-stat-label">Tokens</div></div>
+            <div class="agent-stat"><div class="agent-stat-num">14</div><div class="agent-stat-label">Tool Calls</div></div>
+            <div class="agent-stat"><div class="agent-stat-num">3:16</div><div class="agent-stat-label">Duration</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUCKET 4 -->
+      <div class="agent-card" style="border-top: 3px solid var(--bucket-4);">
+        <div class="agent-header">
+          <div class="agent-indicator" style="background: var(--bucket-4);"></div>
+          <div class="agent-name" style="color: var(--bucket-4);">BUCKET-4</div>
+          <div class="agent-status">COMPLETE</div>
+        </div>
+        <div class="agent-body">
+          <div class="agent-title">Graph Topology</div>
+          <div class="agent-items">C1 C3 B7 D-W1 D-W5 D-W9 &bull; Pure Topology</div>
+          <div class="trace-log">
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">context-package.md</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">core/flowmind/src/schema.ts</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">docs/specs/spec-graph.md</span></div>
+            <div class="trace-entry"><span class="trace-op analyze">C4</span><span class="trace-path">9 node types classified: topology vs orchestration</span></div>
+            <div class="trace-entry"><span class="trace-op analyze">TRADE</span><span class="trace-path">Gates: node vs edge vs hybrid model</span></div>
+            <div class="trace-entry"><span class="trace-op decide">REDUCE</span><span class="trace-path">9 &rarr; 5 node types (agent, function, subgraph, terminal, hitl)</span></div>
+            <div class="trace-entry"><span class="trace-op decide">ADR</span><span class="trace-path">Gate = compiler shorthand &rarr; branches on predecessor</span></div>
+            <div class="trace-entry"><span class="trace-op decide">SPEC</span><span class="trace-path">Decompiler MVP: serializeGraphDocument()</span></div>
+            <div class="trace-entry"><span class="trace-op decide">FLAG</span><span class="trace-path">B6 status enum = universal blocker</span></div>
+            <div class="trace-entry"><span class="trace-op write">WRITE</span><span class="trace-path">bucket-4-topology/arch-report.md</span></div>
+          </div>
+          <div class="agent-stats">
+            <div class="agent-stat"><div class="agent-stat-num" style="color: var(--bucket-4);">46K</div><div class="agent-stat-label">Tokens</div></div>
+            <div class="agent-stat"><div class="agent-stat-num">11</div><div class="agent-stat-label">Tool Calls</div></div>
+            <div class="agent-stat"><div class="agent-stat-num">2:52</div><div class="agent-stat-label">Duration</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUCKET 5 -->
+      <div class="agent-card" style="border-top: 3px solid var(--bucket-5);">
+        <div class="agent-header">
+          <div class="agent-indicator" style="background: var(--bucket-5);"></div>
+          <div class="agent-name" style="color: var(--bucket-5);">BUCKET-5</div>
+          <div class="agent-status">COMPLETE</div>
+        </div>
+        <div class="agent-body">
+          <div class="agent-title">Context & Memory</div>
+          <div class="agent-items">B3 B4 B8 C8 D33 D34 D-W7 &bull; Shearing Layers</div>
+          <div class="trace-log">
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">context-package.md</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">docs/specs/spec-intent-cascade.md</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">docs/design/design-graph-cascading-context.md</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">core/flowmind/src/schema.ts (context types)</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">plugins/slate/ (empty submodule)</span></div>
+            <div class="trace-entry"><span class="trace-op analyze">ATAM</span><span class="trace-path">Context assembly: 1-hook wiring problem</span></div>
+            <div class="trace-entry"><span class="trace-op analyze">LAYER</span><span class="trace-path">Shearing layer annotation on GraphNode</span></div>
+            <div class="trace-entry"><span class="trace-op decide">WIRE</span><span class="trace-path">if(node.context) in executeNode() = done</span></div>
+            <div class="trace-entry"><span class="trace-op decide">DELETE</span><span class="trace-path">CdoProperties: dead code, remove outright</span></div>
+            <div class="trace-entry"><span class="trace-op decide">FLAG</span><span class="trace-path">B6 status enum = universal blocker</span></div>
+            <div class="trace-entry"><span class="trace-op write">WRITE</span><span class="trace-path">bucket-5-context/arch-report.md</span></div>
+          </div>
+          <div class="agent-stats">
+            <div class="agent-stat"><div class="agent-stat-num" style="color: var(--bucket-5);">50K</div><div class="agent-stat-label">Tokens</div></div>
+            <div class="agent-stat"><div class="agent-stat-num">23</div><div class="agent-stat-label">Tool Calls</div></div>
+            <div class="agent-stat"><div class="agent-stat-num">3:33</div><div class="agent-stat-label">Duration</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUCKET 6 -->
+      <div class="agent-card" style="border-top: 3px solid var(--bucket-6);">
+        <div class="agent-header">
+          <div class="agent-indicator" style="background: var(--bucket-6);"></div>
+          <div class="agent-name" style="color: var(--bucket-6);">BUCKET-6</div>
+          <div class="agent-status">COMPLETE</div>
+        </div>
+        <div class="agent-body">
+          <div class="agent-title">Branding & Vision</div>
+          <div class="agent-items">C4-C10 D-W4 D-W6 D-W8 &bull; CDO/FlowMind</div>
+          <div class="trace-log">
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">context-package.md</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">.lev/pm/designs/design-cdo-property-system.md</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">docs/design/design-flowmind.md</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">docs/specs/spec-flowmind.md</span></div>
+            <div class="trace-entry"><span class="trace-op read">READ</span><span class="trace-path">_archive/ CDO lineage search</span></div>
+            <div class="trace-entry"><span class="trace-op analyze">BRAND</span><span class="trace-path">Dual-brand: FlowMind=engine, CDO=stylesheet lib</span></div>
+            <div class="trace-entry"><span class="trace-op analyze">LINEAGE</span><span class="trace-path">CDO origin: consciousness architecture &rarr; graph pattern</span></div>
+            <div class="trace-entry"><span class="trace-op decide">ADR</span><span class="trace-path">CSS metaphor: FlowMind=language+renderer, CDO=Bootstrap</span></div>
+            <div class="trace-entry"><span class="trace-op decide">SHIP</span><span class="trace-path">CDO stylesheets via fractal config profiles</span></div>
+            <div class="trace-entry"><span class="trace-op write">WRITE</span><span class="trace-path">bucket-6-branding/arch-report.md</span></div>
+          </div>
+          <div class="agent-stats">
+            <div class="agent-stat"><div class="agent-stat-num" style="color: var(--bucket-6);">61K</div><div class="agent-stat-label">Tokens</div></div>
+            <div class="agent-stat"><div class="agent-stat-num">15</div><div class="agent-stat-label">Tool Calls</div></div>
+            <div class="agent-stat"><div class="agent-stat-num">3:15</div><div class="agent-stat-label">Duration</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONVERGENCE -->
+  <section class="convergence">
+    <div class="section-label"><span class="dot"></span> Emergent Convergence &mdash; Independent Agents, Same Conclusion</div>
+    <div class="convergence-box">
+      <div class="convergence-title">B6: Status Enum Mismatch &mdash; Unanimous Blocker</div>
+      <div class="convergence-subtitle">All 6 agents independently flagged the same critical bug without coordination. <code style="font-family: var(--font-mono); background: var(--rose-dim); color: var(--rose); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.8rem;">'completed' !== 'success'</code> &mdash; entities never promote. This is CDO anti-groupthink in action: isolation produces genuine consensus, not echo chambers.</div>
+      <div class="convergence-votes">
+        <div class="vote-card">
+          <div class="vote-bucket" style="color: var(--bucket-1);">B1 Exec</div>
+          <div class="vote-verdict vote-yes">BLOCKER</div>
+        </div>
+        <div class="vote-card">
+          <div class="vote-bucket" style="color: var(--bucket-2);">B2 Proto</div>
+          <div class="vote-verdict vote-yes">BLOCKER</div>
+        </div>
+        <div class="vote-card">
+          <div class="vote-bucket" style="color: var(--bucket-3);">B3 Types</div>
+          <div class="vote-verdict vote-yes">BLOCKER</div>
+        </div>
+        <div class="vote-card">
+          <div class="vote-bucket" style="color: var(--bucket-4);">B4 Topo</div>
+          <div class="vote-verdict vote-yes">BLOCKER</div>
+        </div>
+        <div class="vote-card">
+          <div class="vote-bucket" style="color: var(--bucket-5);">B5 Ctx</div>
+          <div class="vote-verdict vote-yes">BLOCKER</div>
+        </div>
+        <div class="vote-card">
+          <div class="vote-bucket" style="color: var(--bucket-6);">B6 Brand</div>
+          <div class="vote-verdict vote-yes">N/A</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SYNTHESIS PIPELINE -->
+  <section class="synthesis">
+    <div class="section-label"><span class="dot"></span> CDO Synthesis &mdash; 5-Role Think Protocol</div>
+    <div class="synth-pipeline">
+      <div class="synth-role">
+        <div class="synth-role-icon" style="color: var(--emerald);">&#9733;</div>
+        <div class="synth-role-name">Advocate</div>
+        <div class="synth-role-desc">Champions the strongest recommendations across all 6 buckets</div>
+        <div class="synth-role-weight">Structure: heavy</div>
+      </div>
+      <div class="synth-role">
+        <div class="synth-role-icon" style="color: var(--rose);">&#9888;</div>
+        <div class="synth-role-name">Critic</div>
+        <div class="synth-role-desc">Stress-tests, finds failure modes, checks coupling inversions</div>
+        <div class="synth-role-weight">Structure: heavy</div>
+      </div>
+      <div class="synth-role">
+        <div class="synth-role-icon" style="color: var(--sky);">&#8734;</div>
+        <div class="synth-role-name">Systems</div>
+        <div class="synth-role-desc">Traces feedback loops between buckets (protocol &harr; vernacular &harr; topology)</div>
+        <div class="synth-role-weight">Structure: heavy</div>
+      </div>
+      <div class="synth-role">
+        <div class="synth-role-icon" style="color: var(--amber);">&#9881;</div>
+        <div class="synth-role-name">Pragmatist</div>
+        <div class="synth-role-desc">What ships this quarter? Wave 1 vs aspirational? Autodev-compatible?</div>
+        <div class="synth-role-weight">Skin: heavy</div>
+      </div>
+      <div class="synth-role">
+        <div class="synth-role-icon" style="color: var(--gold);">&#9830;</div>
+        <div class="synth-role-name">Wild Card</div>
+        <div class="synth-role-desc">What are we not seeing? Creative leaps? Paradigm shifts?</div>
+        <div class="synth-role-weight">Skin: heavy</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section class="timeline">
+    <div class="section-label"><span class="dot"></span> Execution Timeline</div>
+    <div class="timeline-track">
+      <div class="tl-event">
+        <div class="tl-marker"><div class="tl-dot active"></div></div>
+        <div class="tl-content">
+          <div class="tl-time">T+0:00</div>
+          <div class="tl-desc"><strong>Phase 0:</strong> Context package assembled from 12 source files. Handoff read, skills loaded, schema.ts + executor.ts + a2a/types.ts + spec-graph.md + design docs ingested.</div>
+        </div>
+      </div>
+      <div class="tl-event">
+        <div class="tl-marker"><div class="tl-dot active"></div></div>
+        <div class="tl-content">
+          <div class="tl-time">T+2:00</div>
+          <div class="tl-desc"><strong>Phase 1:</strong> 6 architecture-advisor agents dispatched simultaneously. Each reads context package + bucket-specific source files. No agent sees another's work.</div>
+        </div>
+      </div>
+      <div class="tl-event">
+        <div class="tl-marker"><div class="tl-dot active"></div></div>
+        <div class="tl-content">
+          <div class="tl-time">T+5:27</div>
+          <div class="tl-desc"><strong>B1 lands</strong> (Execution Model). Two-phase recommendation: fix B6 + stub handlers, then NodeTypeHandler registry. Actor model via registry gives actor semantics today.</div>
+        </div>
+      </div>
+      <div class="tl-event">
+        <div class="tl-marker"><div class="tl-dot active"></div></div>
+        <div class="tl-content">
+          <div class="tl-time">T+5:24</div>
+          <div class="tl-desc"><strong>B2 lands</strong> (Protocol). CloudEvents-aligned envelope. A2A dispatcher adapted, not rebuilt. ProtocolAdapter&lt;TIn,TOut&gt; interface. All 10 conflicts resolve at orchestration layer.</div>
+        </div>
+      </div>
+      <div class="tl-event">
+        <div class="tl-marker"><div class="tl-dot active"></div></div>
+        <div class="tl-content">
+          <div class="tl-time">T+5:16</div>
+          <div class="tl-desc"><strong>B3 lands</strong> (Vernacular). 4 vocabularies survive, don't merge. Normalize at boundaries. Naming law: no bare generic words. B6 fix = 2-line isTerminalSuccess().</div>
+        </div>
+      </div>
+      <div class="tl-event">
+        <div class="tl-marker"><div class="tl-dot active"></div></div>
+        <div class="tl-content">
+          <div class="tl-time">T+4:52</div>
+          <div class="tl-desc"><strong>B4 lands</strong> (Topology). Node types 9&rarr;5. Gate = compiler shorthand expanding to branches. Decompiler MVP unblocks REPL and semantic diff.</div>
+        </div>
+      </div>
+      <div class="tl-event">
+        <div class="tl-marker"><div class="tl-dot active"></div></div>
+        <div class="tl-content">
+          <div class="tl-time">T+5:33</div>
+          <div class="tl-desc"><strong>B5 lands</strong> (Context). Context assembly = one-hook wiring. Delete CdoProperties. Add shearing_layer to GraphNode. Episode crystals = event processor + graph View.</div>
+        </div>
+      </div>
+      <div class="tl-event">
+        <div class="tl-marker"><div class="tl-dot active"></div></div>
+        <div class="tl-content">
+          <div class="tl-time">T+5:15</div>
+          <div class="tl-desc"><strong>B6 lands</strong> (Branding). Dual-brand: FlowMind = CSS language + renderer, CDO = Bootstrap stylesheet library. CDO stylesheets via fractal config. Archive lineage confirmed.</div>
+        </div>
+      </div>
+      <div class="tl-event">
+        <div class="tl-marker"><div class="tl-dot"></div></div>
+        <div class="tl-content">
+          <div class="tl-time">T+6:00 &rarr;</div>
+          <div class="tl-desc"><strong>Phase 2:</strong> CDO Synthesis &mdash; 5-role Think deliberation across all 6 reports. Layer-weighted per D33 shearing layers. Output: unified design proposal.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KEY FINDINGS TABLE -->
+  <section class="findings">
+    <div class="section-label"><span class="dot"></span> Key Findings &mdash; Cross-Bucket Decisions</div>
+    <div style="overflow-x: auto;">
+      <table class="findings-table">
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>Finding</th>
+            <th>Decision</th>
+            <th>Wave</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="finding-bucket" style="color: var(--bucket-3);">B3</span></td>
+            <td>B6: 'completed' vs 'success' status mismatch</td>
+            <td>isTerminalSuccess() shim, 2 lines</td>
+            <td><span class="finding-badge badge-wave1">WAVE 1</span></td>
+          </tr>
+          <tr>
+            <td><span class="finding-bucket" style="color: var(--bucket-3);">B3</span></td>
+            <td>A16: 25+ YAML files with type: action</td>
+            <td>Grep-and-replace + parser compat shim</td>
+            <td><span class="finding-badge badge-wave1">WAVE 1</span></td>
+          </tr>
+          <tr>
+            <td><span class="finding-bucket" style="color: var(--bucket-4);">B4</span></td>
+            <td>GraphNodeType 9&rarr;5 reduction</td>
+            <td>Keep: agent, function, subgraph, terminal, hitl</td>
+            <td><span class="finding-badge badge-wave2">WAVE 2</span></td>
+          </tr>
+          <tr>
+            <td><span class="finding-bucket" style="color: var(--bucket-1);">B1</span></td>
+            <td>NodeTypeHandler registry + unified executor</td>
+            <td>D45: 1 executor + adapter/handler/driver</td>
+            <td><span class="finding-badge badge-wave2">WAVE 2</span></td>
+          </tr>
+          <tr>
+            <td><span class="finding-bucket" style="color: var(--bucket-2);">B2</span></td>
+            <td>Protocol-agnostic envelope</td>
+            <td>ProtocolAdapter&lt;TIn,TOut&gt; + CloudEvents LevEvent</td>
+            <td><span class="finding-badge badge-ship">WAVE 3</span></td>
+          </tr>
+          <tr>
+            <td><span class="finding-bucket" style="color: var(--bucket-5);">B5</span></td>
+            <td>Context assembly pipeline unwired</td>
+            <td>if(node.context) in executeNode()</td>
+            <td><span class="finding-badge badge-wave2">WAVE 2</span></td>
+          </tr>
+          <tr>
+            <td><span class="finding-bucket" style="color: var(--bucket-5);">B5</span></td>
+            <td>CdoProperties dead code</td>
+            <td>Delete outright, 30 minutes</td>
+            <td><span class="finding-badge badge-wave1">WAVE 1</span></td>
+          </tr>
+          <tr>
+            <td><span class="finding-bucket" style="color: var(--bucket-6);">B6</span></td>
+            <td>CDO/FlowMind brand architecture</td>
+            <td>Dual-brand: FlowMind=engine, CDO=stylesheet library</td>
+            <td><span class="finding-badge badge-ship">SHIP</span></td>
+          </tr>
+          <tr>
+            <td><span class="finding-bucket" style="color: var(--bucket-4);">B4</span></td>
+            <td>Decompiler not implemented</td>
+            <td>serializeGraphDocument() MVP, 1-2 days</td>
+            <td><span class="finding-badge badge-wave2">WAVE 2</span></td>
+          </tr>
+          <tr>
+            <td><span class="finding-bucket" style="color: var(--bucket-3);">B3</span></td>
+            <td>4 vocabularies coexist, don't merge</td>
+            <td>GraphNodeType / InstructionKind / AdapterResult / JobStatus</td>
+            <td><span class="finding-badge badge-ship">SHIP</span></td>
+          </tr>
+          <tr>
+            <td><span class="finding-bucket" style="color: var(--bucket-6);">B6</span></td>
+            <td>CDO stylesheets (CSS for graphs)</td>
+            <td>Fractal config named profiles, no new primitives</td>
+            <td><span class="finding-badge badge-ship">SHIP</span></td>
+          </tr>
+          <tr>
+            <td><span class="finding-bucket" style="color: var(--bucket-4);">B4</span></td>
+            <td>Graph REPL</td>
+            <td>Blocked on decompiler + node type reduction</td>
+            <td><span class="finding-badge badge-defer">DEFER</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="footer">
+    CDO Architecture Deliberation &mdash; Session 8 &mdash; 2026-03-13 21:12 UTC &mdash; Lev OS<br>
+    6 agents &times; ~54K tokens/agent &times; ~3.3 min/agent = ~324K tokens in ~16 min wall clock (3.3 min effective per domain)<br>
+    Sequential equivalent: ~20 min per domain &times; 6 = 2 hours. Parallel speedup: ~7.5&times;
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mining Ideas — Process Over Framework</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600;7..72,700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'Literata', Georgia, serif;
+    --font-mono: 'Source Code Pro', 'SF Mono', Consolas, monospace;
+
+    --bg: #faf8f5;
+    --surface: #ffffff;
+    --surface2: #f3f0eb;
+    --border: rgba(0,0,0,0.08);
+    --border-bright: rgba(0,0,0,0.15);
+    --text: #1c1a16;
+    --text-dim: #6b6560;
+    --accent: #1e3a5f;
+    --accent-dim: rgba(30,58,95,0.06);
+    --gold: #9a7b2e;
+    --gold-dim: rgba(154,123,46,0.08);
+    --green: #3d7c47;
+    --green-dim: rgba(61,124,71,0.06);
+    --teal: #1a6b5a;
+    --teal-dim: rgba(26,107,90,0.06);
+    --rust: #8b4513;
+    --rust-dim: rgba(139,69,19,0.06);
+    --plum: #6b3a6b;
+    --plum-dim: rgba(107,58,107,0.06);
+    --amber: #8b6914;
+    --amber-dim: rgba(139,105,20,0.06);
+    --slate: #475569;
+    --slate-dim: rgba(71,85,105,0.06);
+    --red: #9f2b2b;
+    --red-dim: rgba(159,43,43,0.06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121110;
+      --surface: #1c1b19;
+      --surface2: #252320;
+      --border: rgba(255,255,255,0.06);
+      --border-bright: rgba(255,255,255,0.12);
+      --text: #e5e0d8;
+      --text-dim: #9a9188;
+      --accent: #7db4e0;
+      --accent-dim: rgba(125,180,224,0.1);
+      --gold: #d4a84a;
+      --gold-dim: rgba(212,168,74,0.1);
+      --green: #6ec97a;
+      --green-dim: rgba(110,201,122,0.08);
+      --teal: #5cb8a4;
+      --teal-dim: rgba(92,184,164,0.08);
+      --rust: #d4956a;
+      --rust-dim: rgba(212,149,106,0.08);
+      --plum: #c08ac0;
+      --plum-dim: rgba(192,138,192,0.08);
+      --amber: #d4a84a;
+      --amber-dim: rgba(212,168,74,0.08);
+      --slate: #94a3b8;
+      --slate-dim: rgba(148,163,184,0.08);
+      --red: #e07070;
+      --red-dim: rgba(224,112,112,0.08);
+    }
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 15% 0%, var(--gold-dim) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 100%, var(--accent-dim) 0%, transparent 40%);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    padding: 40px;
+  }
+
+  @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  .anim { animation: fadeUp 0.4s ease-out both; animation-delay: calc(var(--i,0)*0.04s); }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration:0.01ms!important; animation-delay:0ms!important; } }
+
+  /* LAYOUT */
+  .wrap { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 170px 1fr; gap: 0 48px; }
+  .main { min-width: 0; max-width: 760px; }
+
+  /* TOC */
+  .toc { position: sticky; top: 24px; align-self: start; padding: 14px 0; grid-row: 1 / -1; max-height: calc(100dvh - 48px); overflow-y: auto; }
+  .toc::-webkit-scrollbar { width: 3px; }
+  .toc::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 2px; }
+  .toc-title { font-family: var(--font-mono); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--text-dim); padding: 0 0 10px; margin-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .toc a { display: block; font-size: 11px; font-family: var(--font-mono); color: var(--text-dim); text-decoration: none; padding: 3px 8px; border-radius: 4px; border-left: 2px solid transparent; transition: all 0.15s; line-height: 1.4; margin-bottom: 1px; }
+  .toc a:hover { color: var(--text); background: var(--surface2); }
+  .toc a.active { color: var(--text); border-left-color: var(--gold); }
+
+  @media (max-width: 1000px) {
+    .wrap { grid-template-columns: 1fr; }
+    body { padding: 20px; }
+    .toc { position: sticky; top: 0; z-index: 200; max-height: none; display: flex; gap: 4px; align-items: center; overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--bg); border-bottom: 1px solid var(--border); padding: 10px 0; margin: 0 -20px; padding-left: 20px; padding-right: 20px; grid-row: auto; }
+    .toc::-webkit-scrollbar { display: none; }
+    .toc-title { display: none; }
+    .toc a { white-space: nowrap; flex-shrink: 0; border-left: none; border-bottom: 2px solid transparent; border-radius: 4px 4px 0 0; padding: 6px 10px; font-size: 10px; }
+    .toc a.active { border-left: none; border-bottom-color: var(--gold); background: var(--surface); }
+    .main { padding-top: 20px; }
+    .sec-head { scroll-margin-top: 52px; }
+  }
+
+  /* HERO */
+  .hero { margin-bottom: 48px; padding-bottom: 40px; border-bottom: 1px solid var(--border); }
+  .hero h1 { font-size: 38px; font-weight: 700; letter-spacing: -1px; line-height: 1.15; margin-bottom: 16px; }
+  .hero-lead { font-size: 17px; line-height: 1.7; color: var(--text-dim); margin-bottom: 24px; }
+  .method-list { list-style: none; counter-reset: method; }
+  .method-list li { counter-increment: method; padding: 8px 0 8px 36px; position: relative; font-size: 15px; line-height: 1.5; }
+  .method-list li::before { content: counter(method); position: absolute; left: 0; top: 8px; width: 24px; height: 24px; border-radius: 6px; background: var(--gold-dim); color: var(--gold); font-family: var(--font-mono); font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+
+  /* SECTION DIVIDERS */
+  .sec-head { font-family: var(--font-mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; padding: 12px 0; margin: 48px 0 24px; display: flex; align-items: center; gap: 10px; }
+  .sec-head .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .sec-head .line { flex: 1; height: 1px; background: var(--border); }
+
+  /* IDEA ENTRIES */
+  .idea { margin-bottom: 36px; }
+  .idea-num { font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--text-dim); margin-bottom: 4px; }
+  .idea h3 { font-size: 20px; font-weight: 700; margin-bottom: 10px; line-height: 1.3; }
+  .idea p { font-size: 15px; line-height: 1.75; margin-bottom: 10px; }
+  .idea p:last-child { margin-bottom: 0; }
+  .idea strong { font-weight: 600; }
+  .idea code { font-family: var(--font-mono); font-size: 13px; background: var(--accent-dim); color: var(--accent); padding: 1px 5px; border-radius: 3px; }
+
+  /* PULL QUOTE */
+  .pull-quote { border-left: 3px solid var(--gold); padding: 20px 28px; margin: 40px 0; background: var(--gold-dim); border-radius: 0 10px 10px 0; }
+  .pull-quote p { font-size: 17px; font-weight: 500; line-height: 1.55; }
+  .pull-quote p + p { margin-top: 8px; }
+
+  /* SUMMARY LIST */
+  .summary-list { list-style: none; margin: 16px 0; }
+  .summary-list li { padding: 8px 0 8px 18px; position: relative; font-size: 15px; line-height: 1.6; border-bottom: 1px solid var(--border); }
+  .summary-list li:last-child { border-bottom: none; }
+  .summary-list li::before { content: ''; position: absolute; left: 0; top: 14px; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+
+  /* CALLOUT */
+  .callout { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 0 10px 10px 0; padding: 16px 20px; margin: 24px 0; font-size: 14px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="toc" id="toc">
+  <div class="toc-title">Contents</div>
+  <a href="#s0">Intro</a>
+  <a href="#s1">Geometric</a>
+  <a href="#s2">Karpathy</a>
+  <a href="#s3">State & Update</a>
+  <a href="#s4">Verification</a>
+  <a href="#s5">Structured Output</a>
+  <a href="#s6">System Analysis</a>
+  <a href="#s7">Search</a>
+  <a href="#s8">Foundations</a>
+  <a href="#s9">Synthesis</a>
+</nav>
+
+<div class="main">
+
+<!-- HERO -->
+<div class="hero anim" style="--i:0" id="s0">
+  <h1>Mining Ideas</h1>
+  <p class="hero-lead">I've been mining a bunch of outside ideas lately, but not in the "adopt the framework" sense.</p>
+  <p class="hero-lead">What I'm trying to do is:</p>
+  <ol class="method-list">
+    <li>understand what the idea actually is</li>
+    <li>identify the part that is genuinely useful</li>
+    <li>identify the part that usually causes drift or bloat</li>
+    <li>keep the useful process and strip the bad assumptions</li>
+  </ol>
+  <p class="hero-lead" style="margin-top:20px">So this is the list of things I'm looking at, with what they actually mean and why I think they matter.</p>
+</div>
+
+<!-- ===== GEOMETRIC INTUITION ===== -->
+<div id="s1" class="sec-head anim" style="--i:1; color: var(--gold);">
+  <span class="dot" style="background:var(--gold)"></span> Geometric Intuition <span class="line"></span>
+</div>
+
+<div class="idea anim" style="--i:2">
+  <div class="idea-num">1</div>
+  <h3>Nested Hopf tori.</h3>
+  <p>This comes from topology. Very loosely, it is a way of organizing space using circles nested inside torus-like layers, where local loops and global structure are tightly linked. The reason I care is not because I want to force some grand literal claim that "everything is a Hopf torus." The reason I care is that it gives a very strong way to think about systems that have both stable structure and cyclic behavior. It suggests that a system can have a base state, a local phase within a loop, and a larger-scale nesting of loops. That is useful for any system that has recurrent thought, repeated refinement, layered review, or multi-scale control. The practical value is not mystical. It is a way to think about how local cycles and larger global cycles can coexist cleanly.</p>
+</div>
+
+<div class="idea anim" style="--i:3">
+  <div class="idea-num">2</div>
+  <h3>Why nested Hopf tori feel useful for intelligent systems.</h3>
+  <p>Most systems are still imagined too linearly: input, process, output. But a lot of real cognition and real control is cyclical. You revisit things. You re-enter a state from a different phase. You have loops inside loops. Nested Hopf-torus thinking seems useful because it gives a geometric intuition for that. Instead of thinking "the system is at one flat point," you can think "the system is at a location, in a phase, inside a larger cycle." That matters for memory, review, correction, recurrence, and attractor-like behavior. Even if the exact math is never used literally, the organizational principle seems very strong.</p>
+</div>
+
+<div class="idea anim" style="--i:4">
+  <div class="idea-num">3</div>
+  <h3>Topology / orchestration / dispatch as a systems split.</h3>
+  <p>This is one of the clearest architectural ideas I've seen. Topology means the shape of what can connect to what. Orchestration means how movement through that structure is managed over time. Dispatch means what actually does the work or carries the process forward. A lot of systems get messy because they collapse these into one blob. They mix the static structure, the control flow, and the executor into one overgrown controller. Keeping them separate is useful because it makes the system more legible. You can change the routing without changing the structure. You can change the executor without changing the topology. You can reason about the shape of the system separately from how it is being run.</p>
+</div>
+
+<div class="idea anim" style="--i:5">
+  <div class="idea-num">4</div>
+  <h3>How the topology/orchestration/dispatch split connects to the Hopf idea.</h3>
+  <p>These two ideas fit together surprisingly well. The topology gives you the structure. The orchestration gives you the movement through the structure. The dispatch gives you the acting layer or agent. Then the Hopf-torus style thinking gives you an extra dimension: phase and loop scale. So you get not only a graph of what can happen, but also a geometric sense of where you are in a cycle and what level of loop you are inside. That seems like a very promising way to make systems feel less flat and more dynamically organized.</p>
+</div>
+
+<!-- ===== KARPATHY / DESIGN ATTITUDE ===== -->
+<div id="s2" class="sec-head anim" style="--i:6; color: var(--teal);">
+  <span class="dot" style="background:var(--teal)"></span> Design Attitude <span class="line"></span>
+</div>
+
+<div class="idea anim" style="--i:7">
+  <div class="idea-num">5</div>
+  <h3>Karpathy's recent line of work, in general.</h3>
+  <p>The thing I'm taking from Karpathy is not a specific model or library. It is the design attitude. He keeps pushing toward systems that are unusually simple, unusually legible, and unusually elegant. That matters because a lot of current AI systems become bloated very fast. They accumulate knobs, wrappers, helpers, and abstractions until the core is hard to see. Karpathy's work keeps pushing in the opposite direction: small core, clear loop, obvious mechanism, fast feedback, and measurable improvement. That feels deeply right to me.</p>
+</div>
+
+<div class="idea anim" style="--i:8">
+  <div class="idea-num">6</div>
+  <h3><code>nanochat</code>.</h3>
+  <p><code>nanochat</code> is essentially useful as an example of a small, understandable core. The value is not "use this exact codebase." The value is seeing a system where the central mechanism is still visible. You can look at it and understand what it is doing. That is important because many AI systems become unreadable long before they become truly powerful. The lesson I take from it is: keep the center small, keep the main loop visible, and do not hide the system under too many convenience layers.</p>
+</div>
+
+<div class="idea anim" style="--i:9">
+  <div class="idea-num">7</div>
+  <h3><code>autoresearch</code>.</h3>
+  <p>This is one of the most interesting recent ideas because it is a concrete self-improvement loop. The basic pattern is simple: change something, run an evaluation, see if the result improved, keep it or throw it out, repeat. That is a real and useful pattern. The important part is not the exact repo or exact implementation. The important part is the loop shape. It turns "research" from vague brainstorming into bounded mutation plus explicit evaluation. That is powerful because it makes improvement legible. You know what changed, what got tested, and whether it actually helped.</p>
+</div>
+
+<div class="idea anim" style="--i:10">
+  <div class="idea-num">8</div>
+  <h3>Why <code>autoresearch</code> matters so much.</h3>
+  <p>A lot of people talk about systems that improve themselves, but they often jump straight into grand claims. <code>autoresearch</code> is interesting because it shows a much more grounded version: not magical self-improvement, but repeated bounded experiments with keep/discard logic. That is a much healthier model. It suggests that the right form of self-improvement is not infinite autonomy, but small explicit loops: mutate one thing, test one thing, keep what survives. That seems much more robust and much less delusional.</p>
+</div>
+
+<div class="idea anim" style="--i:11">
+  <div class="idea-num">9</div>
+  <h3><code>llm-council</code>.</h3>
+  <p>This is useful because it pushes against the "one answer, one pass, one voice" habit. The idea is that multiple views can examine the same issue and that disagreement itself can be informative. That matters because one of the biggest failure modes in AI systems is single-thread self-confirmation. A single chain of reasoning can become internally coherent and still be wrong. Multi-view review helps expose blind spots, missing cases, and premature closure. The value is not "consensus equals truth." The value is that structured disagreement is often a better tool than a single confident answer.</p>
+</div>
+
+<div class="idea anim" style="--i:12">
+  <div class="idea-num">10</div>
+  <h3>Why Karpathy's projects feel aligned overall.</h3>
+  <p>Taken together, these projects suggest a style: small core, clear loop, explicit evaluation, bounded change, and multi-view review. That combination is important. It is not just minimalism for aesthetic reasons. It is minimalism because systems that are too large, too opaque, and too abstract become hard to improve and hard to trust. <strong>Elegance here is practical, not decorative.</strong></p>
+</div>
+
+<!-- ===== STATE & UPDATE ===== -->
+<div id="s3" class="sec-head anim" style="--i:13; color: var(--accent);">
+  <span class="dot" style="background:var(--accent)"></span> State & Update Discipline <span class="line"></span>
+</div>
+
+<div class="idea anim" style="--i:14">
+  <div class="idea-num">11</div>
+  <h3>Bayesian updating.</h3>
+  <p>This is the familiar pattern where you start with some belief, then you see new evidence, then you revise the belief. In standard form, it is built around priors, likelihoods, and posteriors. The useful part is the update shape itself: you have a current state, you encounter something new, and you revise the state. The part that often causes drift is when probability gets treated as the deepest ontology rather than just one way to describe an update. So what I want to keep is the process shape, not the assumption that all update must fundamentally be belief-as-probability.</p>
+</div>
+
+<div class="idea anim" style="--i:15">
+  <div class="idea-num">12</div>
+  <h3>Why Bayesian thinking is still useful after stripping it down.</h3>
+  <p>If you remove the demand that "belief" must mean a probability distribution, you still keep something valuable: a disciplined way of changing a state when new information arrives. That is extremely general. It can apply to model revision, state revision, process revision, and adaptive control. So the value is not "be Bayesian." The value is "preserve the update discipline, but don't worship the original formalism."</p>
+</div>
+
+<div class="idea anim" style="--i:16">
+  <div class="idea-num">13</div>
+  <h3>Markov chains and transition models.</h3>
+  <p>A Markov chain is the simple idea that a system is in one state, then moves to another according to transition rules, and so on over time. In the standard form, this often becomes a stochastic matrix over enumerated states. The useful part is the notion of an explicit transition law. The drift comes from treating those standard mathematical objects as the only way such transitions can exist. What I want to keep is the idea of explicit state evolution, especially when order matters. That is a very strong systems idea even outside the textbook probabilistic setting.</p>
+</div>
+
+<div class="idea anim" style="--i:17">
+  <div class="idea-num">14</div>
+  <h3>FEP / Active Inference.</h3>
+  <p>This family of ideas is built around a repeating loop: a system predicts, encounters reality, measures mismatch, updates itself, and repeats. In mainstream form it usually carries Bayesian and variational machinery with it, plus a lot of strong assumptions about what the right mathematical substrate must be. But the process itself is extremely valuable. It is basically an adaptive correction loop. So I'm interested in it as a process template: prediction, mismatch, update, repeat. I am much less interested in importing all the default metaphysics or statistics that usually come bundled with it.</p>
+</div>
+
+<!-- ===== VERIFICATION ===== -->
+<div id="s4" class="sec-head anim" style="--i:18; color: var(--green);">
+  <span class="dot" style="background:var(--green)"></span> Verification & Failure Harvesting <span class="line"></span>
+</div>
+
+<div class="idea anim" style="--i:19">
+  <div class="idea-num">15</div>
+  <h3>Property-based testing.</h3>
+  <p>This is a software and formal-methods idea where instead of checking just a few examples, you generate many cases and test whether a general property still holds. It is very useful because it forces you to ask, "what is the invariant here?" It is not just "does this example work?" but "what is supposed to remain true across many cases?" That is a powerful way to find broken assumptions, edge cases, and hidden structure. It is one of the cleanest imports because it carries very little ideological baggage.</p>
+</div>
+
+<div class="idea anim" style="--i:20">
+  <div class="idea-num">16</div>
+  <h3>CEGIS.</h3>
+  <p>CEGIS means Counterexample-Guided Inductive Synthesis. In plain English, it means: propose something, look for a counterexample that breaks it, refine it, and try again. This is one of the cleanest loops I know. It is just structured learning from failure. Instead of pretending the first proposal is right, you actively use failure to improve the next proposal. That is a very strong general pattern for any search or design process.</p>
+</div>
+
+<div class="idea anim" style="--i:21">
+  <div class="idea-num">17</div>
+  <h3>SAT / SMT / solver-style reasoning.</h3>
+  <p>SAT and SMT solvers are tools for determining whether a set of constraints can be satisfied. The strong thing here is not the whole worldview of symbolic logic. The strong thing is the hard rejection behavior: certain combinations are impossible, some combinations conflict, and sometimes you can isolate the smallest bad set that causes failure. That is very useful. It is a disciplined way to say "this cannot fit together," instead of letting everything stay vague and potentially compatible forever.</p>
+</div>
+
+<div class="idea anim" style="--i:22">
+  <div class="idea-num">18</div>
+  <h3>Differential testing.</h3>
+  <p>This means you run two or more implementations or approaches on the same surface and compare the outputs. If they disagree, the disagreement is informative. This is a very powerful method because it turns mismatch into signal. Instead of assuming one version is right, you ask why they differ. That is useful for catching hidden errors, overfitting, shallow assumptions, and silent regressions. It is one of the least glamorous but most reliable ways to make a system less self-deluding.</p>
+</div>
+
+<!-- ===== STRUCTURED OUTPUT ===== -->
+<div id="s5" class="sec-head anim" style="--i:23; color: var(--rust);">
+  <span class="dot" style="background:var(--rust)"></span> Structured Output & Guards <span class="line"></span>
+</div>
+
+<div class="idea anim" style="--i:24">
+  <div class="idea-num">19</div>
+  <h3>Constrained decoding / structured generation.</h3>
+  <p>This is the idea that instead of letting a model emit freeform text however it likes, you constrain the shape of the output. You force it into a typed structure, a schema, or an explicit packet format. The value is very practical: it reduces drift, reduces ambiguity, and makes outputs easier to validate and process. The danger is only if you confuse "it matched the schema" with "it is correct." So the right use is as structural discipline, not truth validation.</p>
+</div>
+
+<div class="idea anim" style="--i:25">
+  <div class="idea-num">20</div>
+  <h3>Guardrail pipelines.</h3>
+  <p>This is the pattern where something generates an output, then another layer validates whether the output is well-formed, allowed, or safe before it proceeds. The best version of this is not just generic "safety." It is explicit checks: is the format right, is the provenance known, is the content allowed, is the type correct, is the move legal? This is extremely useful because it prevents malformed or inappropriate outputs from silently flowing forward.</p>
+</div>
+
+<div class="idea anim" style="--i:26">
+  <div class="idea-num">21</div>
+  <h3>Program synthesis / typed synthesis.</h3>
+  <p>This is the idea of generating candidate structured objects, then checking whether they satisfy a contract or type. In plain language: instead of just writing things freehand, you build candidate constructions and test whether they are valid. The useful part is the discipline of generating under contract. The drift happens if you turn it into blind optimization or if you assume the classical interpretation of the generated object is automatically right. But as a process, it is a very good way to produce structured candidates instead of shapeless guesses.</p>
+</div>
+
+<!-- ===== SYSTEM ANALYSIS ===== -->
+<div id="s6" class="sec-head anim" style="--i:27; color: var(--plum);">
+  <span class="dot" style="background:var(--plum)"></span> System Analysis <span class="line"></span>
+</div>
+
+<div class="idea anim" style="--i:28">
+  <div class="idea-num">22</div>
+  <h3>Model checking / trace exploration.</h3>
+  <p>Model checking is about exploring the possible behavior of a system and looking for traces that violate a desired property. In plain language: instead of only asking "is this system okay?", you ask "can I explicitly find a path where it breaks?" That is incredibly valuable. It produces witness traces, not just verdicts. You do not merely hear "this fails"; you get the actual sequence that leads to failure. That is one of the most useful habits in any system design.</p>
+</div>
+
+<div class="idea anim" style="--i:29">
+  <div class="idea-num">23</div>
+  <h3>Abstract interpretation.</h3>
+  <p>This is a way of using coarse approximations first, before doing expensive or exact analysis. The practical lesson is very good: use a cheap rough pass to rule out obvious failures, then only spend more effort where something survives. This is powerful because it keeps systems from doing expensive exact work too early. It is basically a staged refinement logic: cheap first-pass pressure, deeper analysis later.</p>
+</div>
+
+<div class="idea anim" style="--i:30">
+  <div class="idea-num">24</div>
+  <h3>DreamCoder / abstraction learning.</h3>
+  <p>This family of ideas is about solving tasks, discovering reusable abstractions from those solutions, and then using those abstractions to make future search easier. The valuable part is the discovery of reusable building blocks. The dangerous part is treating whatever compresses the search space most efficiently as automatically the deepest truth. So the right lesson is: let abstraction help search, but do not let elegance alone become authority.</p>
+</div>
+
+<!-- ===== SEARCH ===== -->
+<div id="s7" class="sec-head anim" style="--i:31; color: var(--amber);">
+  <span class="dot" style="background:var(--amber)"></span> Search & Structure <span class="line"></span>
+</div>
+
+<div class="idea anim" style="--i:32">
+  <div class="idea-num">25</div>
+  <h3>Evolutionary search.</h3>
+  <p>This is mutation, recombination, variation, testing, and survivor selection. The useful part is not "survival of the fittest" as a worldview. The useful part is the mechanics of branching, diversity, perturbation, and repeated testing. It is good for exploring spaces that are too large or too weird for one neat deductive path. The danger is when "fitness" becomes the sole definition of truth or when everything collapses into score-maximization. But as a search mechanic, it is still very strong.</p>
+</div>
+
+<div class="idea anim" style="--i:33">
+  <div class="idea-num">26</div>
+  <h3>Information geometry.</h3>
+  <p>This is a field where states are treated geometrically and where differences between states are measured in terms of distinguishability or informational structure rather than just raw coordinates. The reason it matters is that it suggests state spaces are not always best thought of as flat containers. Some states are naturally closer or further apart in meaningful ways. The problem is that standard information geometry is often built on standard probability assumptions. Still, the core lesson is important: geometry can emerge from distinguishability and structure, not just from a fixed background metric.</p>
+</div>
+
+<div class="idea anim" style="--i:34">
+  <div class="idea-num">27</div>
+  <h3>Algorithmic information / compression thinking.</h3>
+  <p>This is the broad idea that shorter effective descriptions often reveal deeper structure. The useful part is that compression can be a clue that some repeated pattern or reusable mechanism is present. The dangerous part is turning "simple" into "true." So the right use is as a heuristic. Compression is a signal worth paying attention to, not a final court of appeal.</p>
+</div>
+
+<div class="idea anim" style="--i:35">
+  <div class="idea-num">28</div>
+  <h3>Graph mining / topology extraction.</h3>
+  <p>This is the practice of taking a graph or network and asking what clusters, motifs, bottlenecks, recurring substructures, or important topological features are inside it. It matters because complex systems are often easier to understand through their relational shape than through isolated local details. It is one of the least philosophically loaded imports. It is just a very practical way to see structure.</p>
+</div>
+
+<!-- ===== FOUNDATIONS ===== -->
+<div id="s8" class="sec-head anim" style="--i:36; color: var(--slate);">
+  <span class="dot" style="background:var(--slate)"></span> Foundations <span class="line"></span>
+</div>
+
+<div class="idea anim" style="--i:37">
+  <div class="idea-num">29</div>
+  <h3>Build systems / reproducibility thinking.</h3>
+  <p>This is the idea that outputs should come from explicit dependencies in a deterministic and replayable way. In plain English: if you can't rebuild it, you don't fully understand it. This matters enormously because a lot of AI work is still too ephemeral. A good build-like discipline makes systems more reliable, easier to rerun, easier to audit, and harder to mythologize.</p>
+</div>
+
+<div class="idea anim" style="--i:38">
+  <div class="idea-num">30</div>
+  <h3>Fuzzing.</h3>
+  <p>Fuzzing means generating lots of strange or adversarial variations of inputs and seeing what breaks. It is one of the best ways to expose assumptions people did not realize they were making. The great thing about fuzzing is that it is unapologetically destructive in a useful way: it tries to break things. That makes it one of the strongest ways to discover the edges of a system.</p>
+</div>
+
+<div class="idea anim" style="--i:39">
+  <div class="idea-num">31</div>
+  <h3>AlphaGeometry-style search control.</h3>
+  <p>The most useful lesson here is not geometry specifically. It is disciplined search. Build candidates, prune aggressively, cache partial progress, and avoid letting search explode into chaos. This matters because many systems fail not because they lack intelligence, but because their search and branching behavior is too undisciplined. This kind of search control is a very strong pattern to borrow.</p>
+</div>
+
+<!-- ===== SYNTHESIS ===== -->
+<div id="s9" class="sec-head anim" style="--i:40; color: var(--gold);">
+  <span class="dot" style="background:var(--gold)"></span> Synthesis <span class="line"></span>
+</div>
+
+<div class="idea anim" style="--i:41">
+  <div class="idea-num">32</div>
+  <h3>The common thread across all of these.</h3>
+  <p>The reason I care about all these things at once is not that I want to collect fashionable concepts. It is that they seem to converge on a few very important lessons: keep the core legible, separate structure from control, use bounded loops, use explicit evaluation, preserve disagreement and failure, exploit geometry when it clarifies state, and do not let abstraction bloat the system past the point of understanding.</p>
+</div>
+
+<div class="idea anim" style="--i:42">
+  <div class="idea-num">33</div>
+  <h3>The practical summary.</h3>
+  <p>The things I think are most important right now are:</p>
+  <ul class="summary-list">
+    <li>nested Hopf tori as a way to think about phase, loops, and scale</li>
+    <li>topology / orchestration / dispatch as a clean architectural split</li>
+    <li>Karpathy's style of small explicit loops and bounded self-improvement</li>
+    <li>structured review instead of one-pass confidence</li>
+    <li>strong failure-harvesting methods like property-based testing, differential testing, fuzzing, and counterexample-guided refinement</li>
+    <li>disciplined search and reproducible build logic</li>
+    <li>using geometry and structured state where it clarifies things, without forcing literal adoption too early</li>
+  </ul>
+</div>
+
+<div class="pull-quote anim" style="--i:43">
+  <p><strong>34. The main principle.</strong></p>
+  <p>I'm not trying to copy projects.</p>
+  <p>I'm trying to extract useful process from them.</p>
+  <p>If something gives better structure, better control, better recurrence, better refinement, or better elegance, I want it.</p>
+  <p>If it mainly adds abstraction mass, prestige vocabulary, or framework bloat, I don't.</p>
+</div>
+
+</div><!-- /main -->
+</div><!-- /wrap -->
+
+<script>
+(function() {
+  const toc = document.getElementById('toc');
+  const links = toc.querySelectorAll('a');
+  const sections = [];
+  links.forEach(link => {
+    const id = link.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el) sections.push({ id, el, link });
+  });
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const match = sections.find(s => s.el === entry.target);
+        if (match) {
+          match.link.classList.add('active');
+          if (window.innerWidth <= 1000) match.link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px' });
+  sections.forEach(s => observer.observe(s.el));
+  links.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const id = link.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); history.replaceState(null, '', '#' + id); }
+    });
+  });
+})();
+</script>
+</body>
+</html>
