@@ -65,6 +65,7 @@
 
 - Filesystem glob across configured surfaces (`.lev/pm/plans/`, `docs/specs/`)
 - Parse frontmatter for priority, lifecycle state, fitness functions
+- Validation gates alignment: load `.lev/validation-gates.yaml`, report gate status
 - Skip blocked/deferred entities
 - Sort by priority (P0 > P1 > P2 > P3 > P4)
 

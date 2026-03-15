@@ -84,6 +84,16 @@ Gate. Must pass before executing.
 - [ ] Entity matrix has ≥1 row with a real file path
 - [ ] User signaled alignment
 
+### Validation Gates Lookup (Hard Contract)
+When `.lev/validation-gates.yaml` exists in project:
+1. Load and parse the gates file
+2. Filter gates applicable to current workstream/module
+3. Check current state against enforced gates
+4. Include gate status in alignment verdict
+5. Block PROPOSE if any enforced gate fails
+
+Gate file discovery: walk up from cwd looking for `.lev/validation-gates.yaml`
+
 If **crystallization signal** fires from lifecycle hook:
 1. STOP. Do not continue.
 2. Update entity matrix.

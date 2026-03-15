@@ -143,6 +143,11 @@ sdlc:
 
 Config cascade: system → project → module → env (later wins).
 
+## Validation Gates
+
+Spec validation includes `.lev/validation-gates.yaml` cross-reference. All SDLC checkpoints
+(spec-lint, pre-execute, post-validate) check applicable enforced gates before proceeding.
+
 ## Capabilities
 
 - `git_events` — Git hook event providers

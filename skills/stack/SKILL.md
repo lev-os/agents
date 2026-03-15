@@ -108,6 +108,11 @@ bun plugins/prompt-stack/src/cli.ts validate \
   --project-dir /absolute/project/path
 ```
 
+## Validation Gates
+
+Step output validation may reference `.lev/validation-gates.yaml` gates when
+the stack operates on entities with spec invariants.
+
 ## Operator Notes
 
 - Prefer absolute `--project-dir` and `--report` paths when calling the CLI from outside

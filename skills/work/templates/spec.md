@@ -175,6 +175,17 @@ BAD:  "Check that performance is acceptable."
 |----------|---------|-----------|------|
 | {{NAME}} | {{COMMAND}} | {{THRESHOLD}} | enforced / declared |
 
+## Validation Gates (.lev/validation-gates.yaml)
+<!--
+PURPOSE: Map spec invariants to project validation gates.
+PROCESS: Each BDD scenario should reference which validation gate it satisfies.
+Gate violations in spec should be flagged before implementation.
+-->
+
+| Gate | Status | Scenarios Covered | Gap |
+|------|--------|------------------|-----|
+| {{GATE_NAME}} | enforced/declared | P1, P2, ... | none / {{GAP}} |
+
 ## Contract
 
 ### Dependencies

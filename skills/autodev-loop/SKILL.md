@@ -431,6 +431,8 @@ core/poly/bridge/orchestrator/ contains: health monitoring, circuit breakers, re
 VERDICT: CRITICAL severity boundary violation — business logic in a pure binder
 ```
 
+**Validation gates check:** Load `.lev/validation-gates.yaml` and check enforced gates against current code state.
+
 #### 2. Contract Compliance (what spec says MUST exist)
 
 After checking boundaries, verify positive assertions:
