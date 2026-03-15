@@ -15,11 +15,18 @@ description: |
 │ cp + fill│    │entity │    │ gate  │    │prior art │    │plan/do  │    │push   │
 └────┬─────┘    └───┬───┘    └───┬───┘    └────┬─────┘    └────┬────┘    └───┬───┘
      │              │            │              │               │             │
-     └──────────────┴────── update handoff every 3 actions ────┴─────────────┘
+     └──────────────┴── update handoff when events happen, not on a timer ───┘
 ```
 
-**HARD RULE:** 3+ substantive actions without a handoff tick → STOP. Log ticks first.
-Substantive = bd create/close, file written/edited, stack step recorded, decision made, user correction.
+**Update the handoff when any of these happen:**
+- Decision made or changed
+- File written, edited, or created
+- User gives feedback or correction
+- BD issue created or closed
+- About to context-switch or close session
+- Research produces a finding worth recording
+
+Reading files, grepping, scanning directories → NOT update triggers. Do those freely.
 
 ---
 
@@ -42,36 +49,38 @@ The template has instructions for every section. Follow them. Key sections to fi
 - **Entity Matrix** — real files at real paths (see Step 2)
 - **Timeline** — log a tick for every action
 
-Update cadence: every 3 actions (0-50% context), every 2 (50-75%), every 1 (75%+).
-
-Shard to `session-{N+1}` at ~500 lines, >15 ticks, >5 entities, or >3 pivots.
+Shard to `session-{N+1}` at ~500 lines, >15 ticks, >5 modified/created entities, or >3 pivots. (`loaded`/`captured` entities don't count toward the shard threshold.)
 
 ---
 
 ## Step 2: Track Entities
 
-An entity is a **file at a path**. Not a concept. Not a label.
+An entity is a **file or directory at a path**. Not a concept. Not a label.
 
 ```markdown
-| # | File | Path | State | Issue | Next |
-|---|------|------|-------|-------|------|
-| 1 | SKILL.md | ~/.claude/skills/autodev-loop/SKILL.md | manifesting | lev-ga9 | tighten 793→450 |
-| 2 | settings.json | ~/.claude/settings.json | captured | lev-548 | wire hook |
+| # | File | Path | State | Canonical Ref | Decision | Next |
+|---|------|------|-------|---------------|----------|------|
+| 1 | SKILL.md | ~/.agents/skills/work/SKILL.md | modified | — | D1 | update states |
+| 2 | heartbeat.ts | core/orchestration/src/loop/heartbeat.ts | loaded | spec-orchestration.md | — | identify gaps |
+| 3 | handoff.md | .lev/pm/handoffs/session-3.md | created | — | D2,D3 | fill timeline |
 ```
+
+**Canonical Ref** = the spec, design, or doc this file is governed by (if any).
+**Decision** = which handoff decision(s) touch this entity (D1, D2, etc.).
 
 States:
 
-| State | Path | Means |
-|-------|------|-------|
-| `ephemeral` | `.lev/scratch/` | exploring |
-| `captured` | `.lev/pm/reports/` | researched |
-| `crystallizing` | `.lev/pm/designs/` | shaping |
-| `crystallized` | `.lev/pm/plans/` | ready to build |
-| `manifesting` | code / handoffs | building |
-| `completed` | `.lev/pm/validation-reports/` | done |
+| State | Means | Example |
+|-------|-------|---------|
+| `loaded` | Read into context, not changed | grep'd for references, read for understanding |
+| `captured` | Researched, findings recorded | analysis saved to report |
+| `modified` | Changed during this session | edited code, updated config |
+| `created` | New file created this session | new handoff, new spec |
+| `planned` | Identified for future work | filed BD issue, added to roadmap |
+| `completed` | Work on this entity is done | tests pass, spec updated |
 
 **BAD:** `| 1 | stack↔flowmind parity | classified |` — concept, no path.
-**GOOD:** `| 1 | hygiene.flow.yaml | plugins/core-sdlc/flows/hygiene.flow.yaml | captured | — | wire steps |`
+**GOOD:** `| 1 | hygiene.flow.yaml | plugins/core-sdlc/flows/hygiene.flow.yaml | captured | — | — | wire steps |`
 
 ---
 
@@ -255,4 +264,4 @@ Tracker = current slice only. Roadmap stays in handoff.
 | Gate failed | Block, add tick |
 | 3x gate fail | Escalate to user |
 | Crystallization signal | STOP → update matrix → show user → wait |
-| 3+ actions no tick | STOP → log ticks → continue |
+| Event happened, no update | STOP → update handoff → continue |

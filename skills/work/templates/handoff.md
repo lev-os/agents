@@ -1,5 +1,5 @@
 ---
-status: active | paused | completed
+status: active | paused | completed | processed  # processed = decisions graduated via handoff-rollup
 workstream: {slug}
 component: {slug}
 slug: {slug}
@@ -10,6 +10,8 @@ confidence: 0.0-1.0
 decisions_start: D{N}
 related_tasks: [task-id-1, task-id-2]
 related_docs: [path/to/doc1.md, path/to/doc2.md]
+depends_on: []              # other plans (in .lev/pm/plans/) that must complete before this work
+canonical_refs: []           # specs/designs/docs that govern this work
 ---
 
 # Session Handoff: Topic
@@ -116,34 +118,41 @@ The goal is to produce a deterministic trail guide through code and context, key
 
 ## Checkpoints (Required: 3-15, chronological)
 
-Use exactly one of the three block types below per checkpoint.
+Two checkpoint tiers. Use light ticks for mechanical actions. Use full checkpoints for significant milestones.
 
-### ⚡ CHECKPOINT Progress
+### Light tick (one-liner)
 
-**Current State:** [What we're actively working on]  
-**Context:** [Key conversation points from recent work]  
-**Files Loaded:** [Files loaded into context, in order]  
-**Files Modified:** [Recent file changes and purpose]  
-**Understanding:** [What was learned and why it matters]  
-**Progress:** [What's been accomplished this session]  
-**Next Steps:** [Immediate actions needed]  
-**Session ID:** [For continuity tracking]
+`| T+{N} | {what happened} — {key file or finding} |`
+
+Use for: file reads, grep scans, directory listings, context loading. Anything that doesn't change your understanding or direction.
+
+### ⚡ CHECKPOINT {N} — {title}
+
+**Current State:** [What we're actively working on]
+**Context:** [Key conversation points from recent work]
+**Files Loaded:** [Files loaded into context, in order]
+**Files Modified:** [Recent file changes and purpose]
+**Understanding:** [What was learned and why it matters]
+**Progress:** [What's been accomplished this session]
+**Next Steps:** [Immediate actions needed]
+
+Use for: decisions, direction changes, significant findings, user feedback, context switches.
 
 ### 📋 Code Context: [file:line or function]
+
+<!-- OPTIONAL — use when a specific code location is central to a decision or finding -->
 
 ```text
 [Relevant code snippet with line numbers]
 ```
 
-**Why Important:** [How this code relates to current work]  
-**Changes Made:** [If any modifications to this code]  
-**Context for Next Session:** [How this code fits in timeline]
+**Why Important:** [How this code relates to current work]
+**Changes Made:** [If any modifications to this code]
 
 ### 📋 User feedback / ADR created
 
-**Why Important:** [How this decision relates to current work]  
-**Changes Made:** [If any modifications were made]  
-**Context for Next Session:** [How this fits in timeline]
+**Why Important:** [How this decision relates to current work]
+**Changes Made:** [If any modifications were made]
 
 ## Timeline
 
@@ -151,13 +160,12 @@ Brief chronological overview of session progression.
 
 | Time | Checkpoint |
 |------|------------|
-| HH:MM | Session start - context loaded |
-| HH:MM | Key decision/milestone 1 |
-| HH:MM | Key decision/milestone 2 |
-| HH:MM | Session end - handoff updated |
+| T+0 | Session start — context loaded |
+| T+1 | Key decision/milestone 1 |
+| T+2 | Key decision/milestone 2 |
+| T+N | Session end — handoff updated |
 
-**Total Duration:** X hours Y minutes  
-**Context Switches:** N (list if relevant)
+Use `T+N` relative offsets (not wall-clock `HH:MM`). Increment on meaningful events, not elapsed time.
 
 ## Decisions Log
 
@@ -165,11 +173,13 @@ Use this section for session-local decisions and ADR-grade decisions.
 
 ### D{N}: Decision Title
 
-**When:** HH:MM  
-**Context:** What led to this decision  
-**Decision:** What was decided  
-**Rationale:** Why this decision was made  
+**When:** HH:MM
+**Context:** What led to this decision
+**Decision:** What was decided
+**Rationale:** Why this decision was made
 **Impact:** Who/what is affected
+**Code Refs:** [file:line references that informed or are affected by this decision]
+**Canonical Ref:** [spec/design/doc this decision should land in, if any]
 
 **Alternatives Considered:**
 - Option A: Why rejected
@@ -198,6 +208,8 @@ Promoted decisions should:
 - note whether the handoff version is now superseded by the promoted ADR
 
 ## Code Context
+
+<!-- OPTIONAL for read-only/research sessions. Required when code was modified. -->
 
 ### Files Modified
 
@@ -253,30 +265,22 @@ path/to/component/
 
 ## Entity Matrix
 
-```yaml
-session_state: brainstorm | refinement | crystallization | specification | execution
-entities_touched:
-  - type: task | feature | spec | proposal | design | decision
-    id: entity-id
-    lifecycle: intake -> execution -> validation
-    artifact: path/to/current/artifact.md
-    status: active | blocked | ready_to_promote | complete
-    next_transition: proposal -> spec
-```
+An entity is a **file or directory at a path**. Not a concept. Not a label.
 
-**State Transitions:**
-1. intake -> crystallization: Task clarified
-2. specification -> execution: Spec approved
-3. execution -> validation: Code complete, testing in progress
+| # | File | Path | State | Canonical Ref | Decision | Next |
+|---|------|------|-------|---------------|----------|------|
+| 1 | {filename} | {path/to/file} | loaded | {spec or —} | {D1 or —} | {next action} |
+
+**Canonical Ref** = the spec, design, or doc this file is governed by (if any).
+**Decision** = which handoff decision(s) touch this entity (D1, D2, etc.).
+
+States: `loaded` (read, not changed) · `captured` (researched, findings recorded) · `modified` (changed this session) · `created` (new file) · `planned` (future work filed) · `completed` (done)
 
 ## Meta
 
 ### Background Processes
 
-| PID/ID | Type | Name | Status | Notes |
-|--------|------|------|--------|-------|
-| 12345 | daemon | service-name | running | Health: OK |
-| - | exec | build-process | completed | Exit: 0 |
+<!-- OPTIONAL — skip if no daemons, builds, or long-running tasks -->
 
 ### Active Blockers
 
@@ -294,17 +298,11 @@ BAD: | Something is broken | Bad | Someone | Dunno | Maybe |
 
 ### Risks
 
-<!--
-PURPOSE: Risks are blockers that haven't happened yet. Capturing them prevents surprise.
-PROCESS: Be specific about mitigation. Likelihood/Impact should be High/Medium/Low.
-GOOD: | NATS connection timeout under load | Medium | High — drops transcriptions silently | Add circuit breaker before load testing |
-BAD: | Things might break | Maybe | Bad | Be careful |
--->
+<!-- OPTIONAL for research/audit sessions. Required for execution sessions. -->
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|------------|--------|------------|
 | Risk 1 | High | High | Strategy |
-| Risk 2 | Medium | Low | Strategy |
 
 ### Learned Patterns
 
