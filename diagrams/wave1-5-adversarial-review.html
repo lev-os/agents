@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave 1-5 Adversarial Code Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'Fira Code', 'SF Mono', Consolas, monospace;
+  --bg: #faf8f5;
+  --surface: #ffffff;
+  --surface2: #f0ece6;
+  --surface-elevated: #ffffff;
+  --surface-recessed: #ede8e0;
+  --border: rgba(0,0,0,0.07);
+  --border-bright: rgba(0,0,0,0.14);
+  --text: #1c1917;
+  --text-dim: #78716c;
+  --critical: #b91c1c;
+  --critical-dim: rgba(185,28,28,0.08);
+  --high: #c2410c;
+  --high-dim: rgba(194,65,12,0.08);
+  --medium: #b45309;
+  --medium-dim: rgba(180,83,9,0.08);
+  --low: #4d7c0f;
+  --low-dim: rgba(77,124,15,0.08);
+  --pass: #15803d;
+  --pass-dim: rgba(21,128,61,0.08);
+  --accent: #92400e;
+  --accent-dim: rgba(146,64,14,0.06);
+  --grade-a: #15803d;
+  --grade-b: #4d7c0f;
+  --grade-c: #b45309;
+  --grade-d: #b91c1c;
+  --grade-f: #7f1d1d;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a1614;
+    --surface: #262019;
+    --surface2: #302820;
+    --surface-elevated: #302a22;
+    --surface-recessed: #1e1a16;
+    --border: rgba(255,255,255,0.07);
+    --border-bright: rgba(255,255,255,0.14);
+    --text: #e7e0d8;
+    --text-dim: #a09080;
+    --critical: #fca5a5;
+    --critical-dim: rgba(252,165,165,0.1);
+    --high: #fdba74;
+    --high-dim: rgba(253,186,116,0.1);
+    --medium: #fcd34d;
+    --medium-dim: rgba(252,211,77,0.08);
+    --low: #86efac;
+    --low-dim: rgba(134,239,172,0.08);
+    --pass: #86efac;
+    --pass-dim: rgba(134,239,172,0.08);
+    --accent: #d4a060;
+    --accent-dim: rgba(212,160,96,0.08);
+    --grade-a: #86efac;
+    --grade-b: #a3e635;
+    --grade-c: #fbbf24;
+    --grade-d: #f87171;
+    --grade-f: #ef4444;
+  }
+}
+[data-theme="light"] {
+  --bg: #faf8f5; --surface: #ffffff; --surface2: #f0ece6;
+  --surface-elevated: #ffffff; --surface-recessed: #ede8e0;
+  --border: rgba(0,0,0,0.07); --border-bright: rgba(0,0,0,0.14);
+  --text: #1c1917; --text-dim: #78716c;
+  --critical: #b91c1c; --critical-dim: rgba(185,28,28,0.08);
+  --high: #c2410c; --high-dim: rgba(194,65,12,0.08);
+  --medium: #b45309; --medium-dim: rgba(180,83,9,0.08);
+  --low: #4d7c0f; --low-dim: rgba(77,124,15,0.08);
+  --pass: #15803d; --pass-dim: rgba(21,128,61,0.08);
+  --accent: #92400e; --accent-dim: rgba(146,64,14,0.06);
+  --grade-a: #15803d; --grade-b: #4d7c0f; --grade-c: #b45309; --grade-d: #b91c1c; --grade-f: #7f1d1d;
+}
+[data-theme="dark"] {
+  --bg: #1a1614; --surface: #262019; --surface2: #302820;
+  --surface-elevated: #302a22; --surface-recessed: #1e1a16;
+  --border: rgba(255,255,255,0.07); --border-bright: rgba(255,255,255,0.14);
+  --text: #e7e0d8; --text-dim: #a09080;
+  --critical: #fca5a5; --critical-dim: rgba(252,165,165,0.1);
+  --high: #fdba74; --high-dim: rgba(253,186,116,0.1);
+  --medium: #fcd34d; --medium-dim: rgba(252,211,77,0.08);
+  --low: #86efac; --low-dim: rgba(134,239,172,0.08);
+  --pass: #86efac; --pass-dim: rgba(134,239,172,0.08);
+  --accent: #d4a060; --accent-dim: rgba(212,160,96,0.08);
+  --grade-a: #86efac; --grade-b: #a3e635; --grade-c: #fbbf24; --grade-d: #f87171; --grade-f: #ef4444;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+.theme-toggle{position:fixed;top:12px;right:12px;z-index:300;width:36px;height:36px;border:1px solid var(--border);border-radius:8px;background:color-mix(in srgb,var(--surface) 80%,transparent);backdrop-filter:blur(8px);color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:background .2s}
+.theme-toggle:hover{border-color:var(--border-bright);color:var(--text)}
+.container{max-width:1200px;margin:0 auto;padding:24px 20px 80px}
+
+/* Hero */
+.hero{text-align:center;padding:48px 20px 40px;margin-bottom:32px}
+.hero h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:700;letter-spacing:-0.03em;margin-bottom:8px}
+.hero .subtitle{font-size:1rem;color:var(--text-dim);max-width:600px;margin:0 auto 24px}
+.hero .verdict-badge{display:inline-block;font-family:var(--font-mono);font-size:0.85rem;font-weight:600;padding:6px 16px;border-radius:6px;background:var(--critical-dim);color:var(--critical);border:1px solid color-mix(in srgb,var(--critical) 20%,transparent);letter-spacing:0.05em}
+
+/* KPI Row */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi--critical::before{background:var(--critical)}
+.kpi--high::before{background:var(--high)}
+.kpi--medium::before{background:var(--medium)}
+.kpi--low::before{background:var(--low)}
+.kpi .number{font-size:2.4rem;font-weight:700;font-family:var(--font-mono);line-height:1}
+.kpi--critical .number{color:var(--critical)}
+.kpi--high .number{color:var(--high)}
+.kpi--medium .number{color:var(--medium)}
+.kpi--low .number{color:var(--low)}
+.kpi .label{font-size:0.75rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-dim);margin-top:6px}
+.kpi .desc{font-size:0.7rem;color:var(--text-dim);margin-top:4px;opacity:0.7}
+
+/* Section */
+.section{margin-bottom:32px}
+.section-title{font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.section-title::before{content:'';width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.section-title.st-scorecards::before{background:var(--accent)}
+.section-title.st-severity::before{background:var(--critical)}
+.section-title.st-deps::before{background:var(--low)}
+.section-title.st-priority::before{background:var(--high)}
+
+/* Scorecards Grid */
+.scorecards{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}
+.scorecard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative}
+.scorecard .sc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.scorecard .sc-name{font-weight:600;font-size:0.95rem}
+.scorecard .sc-grade{font-family:var(--font-mono);font-size:1.1rem;font-weight:700;padding:2px 10px;border-radius:6px;line-height:1.4}
+.grade-a{color:var(--grade-a);background:var(--pass-dim)}
+.grade-b{color:var(--grade-b);background:var(--low-dim)}
+.grade-c{color:var(--grade-c);background:var(--medium-dim)}
+.grade-d{color:var(--grade-d);background:var(--critical-dim)}
+.scorecard .findings{list-style:none;font-size:0.8rem}
+.scorecard .findings li{padding:5px 0;border-top:1px solid var(--border);display:flex;align-items:flex-start;gap:8px}
+.scorecard .findings li:first-child{border-top:none}
+.sev-badge{font-family:var(--font-mono);font-size:0.6rem;font-weight:600;letter-spacing:0.06em;padding:2px 6px;border-radius:4px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.sev-critical{background:var(--critical-dim);color:var(--critical)}
+.sev-high{background:var(--high-dim);color:var(--high)}
+.sev-medium{background:var(--medium-dim);color:var(--medium)}
+.sev-low{background:var(--low-dim);color:var(--low)}
+
+/* Bar chart (severity) */
+.severity-bars{display:flex;gap:12px;align-items:flex-end;height:140px;padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:12px}
+.sev-bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.sev-bar .bar{width:100%;border-radius:6px 6px 0 0;transition:height .6s ease;position:relative}
+.sev-bar .bar-count{font-family:var(--font-mono);font-size:1rem;font-weight:700;position:absolute;top:-22px;left:50%;transform:translateX(-50%)}
+.sev-bar .bar-label{font-size:0.65rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-dim)}
+.bar-critical{background:var(--critical)}
+.bar-high{background:var(--high)}
+.bar-medium{background:var(--medium)}
+.bar-low{background:var(--low)}
+
+/* Dep graph */
+.dep-graph{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;font-family:var(--font-mono);font-size:0.8rem}
+.dep-node{padding:10px 16px;border:1px solid var(--border-bright);border-radius:8px;margin:0 auto;max-width:400px;text-align:center;position:relative;background:var(--surface)}
+.dep-node.dep-warn{border-color:var(--high);background:var(--high-dim)}
+.dep-arrow{text-align:center;color:var(--text-dim);padding:4px 0;font-size:1rem}
+.dep-note{font-family:var(--font-body);font-size:0.75rem;color:var(--high);text-align:center;margin-top:8px;font-weight:500}
+
+/* Priority table */
+.priority-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.priority-table thead th{font-size:0.65rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-dim);padding:12px 14px;text-align:left;border-bottom:1px solid var(--border);background:var(--surface2)}
+.priority-table tbody td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:0.8rem;vertical-align:top}
+.priority-table tbody tr:last-child td{border-bottom:none}
+.priority-table tbody tr:hover{background:var(--accent-dim)}
+.priority-table .pri-num{font-family:var(--font-mono);font-weight:600;color:var(--text-dim);width:32px}
+.priority-table code{font-family:var(--font-mono);font-size:0.72rem;background:var(--surface2);padding:2px 5px;border-radius:3px;word-break:break-all}
+.fix-done{text-decoration:line-through;opacity:0.5}
+
+/* Test coverage heatmap */
+.heatmap{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.heat-cell{padding:10px;border-radius:8px;border:1px solid var(--border);font-size:0.72rem;text-align:center}
+.heat-cell .heat-label{font-weight:600;margin-bottom:4px}
+.heat-cell .heat-count{font-family:var(--font-mono);font-size:0.85rem;font-weight:700}
+.heat-red{background:var(--critical-dim);color:var(--critical)}
+.heat-orange{background:var(--high-dim);color:var(--high)}
+.heat-yellow{background:var(--medium-dim);color:var(--medium)}
+.heat-green{background:var(--pass-dim);color:var(--pass)}
+
+/* Responsive */
+@media(max-width:768px){
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .scorecards{grid-template-columns:1fr}
+  .severity-bars{height:100px}
+}
+@media(max-width:480px){
+  .kpi-row{grid-template-columns:1fr}
+}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes fadeScale{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:none}}
+.anim{opacity:0;animation:fadeUp .5s ease forwards}
+.anim-scale{opacity:0;animation:fadeScale .4s ease forwards}
+.anim:nth-child(1){animation-delay:.05s}
+.anim:nth-child(2){animation-delay:.1s}
+.anim:nth-child(3){animation-delay:.15s}
+.anim:nth-child(4){animation-delay:.2s}
+.anim:nth-child(5){animation-delay:.25s}
+
+/* Print */
+@media print{
+  body{background:#fff;color:#000}
+  .theme-toggle{display:none}
+  .kpi,.scorecard,.dep-graph,.severity-bars{break-inside:avoid;box-shadow:none;border:1px solid #ccc}
+  .priority-table{font-size:9pt}
+}
+</style>
+</head>
+<body>
+<button class="theme-toggle" onclick="document.documentElement.dataset.theme=document.documentElement.dataset.theme==='dark'?'light':'dark'" aria-label="Toggle theme">&#9681;</button>
+
+<div class="container">
+
+<!-- Hero -->
+<header class="hero">
+  <h1>Adversarial Code Review</h1>
+  <p class="subtitle">Wave 1-5 agent output: 11 agents, ~4,000 lines, 3 commits. Reviewed by 5 hostile architecture advisors.</p>
+  <span class="verdict-badge">VERDICT: REQUEST CHANGES</span>
+</header>
+
+<!-- KPIs -->
+<div class="kpi-row">
+  <div class="kpi kpi--critical anim-scale">
+    <div class="number">3</div>
+    <div class="label">Critical</div>
+    <div class="desc">Would break in production</div>
+  </div>
+  <div class="kpi kpi--high anim-scale">
+    <div class="number">11</div>
+    <div class="label">High</div>
+    <div class="desc">Silent failures, YAGNI, data loss</div>
+  </div>
+  <div class="kpi kpi--medium anim-scale">
+    <div class="number">10</div>
+    <div class="label">Medium</div>
+    <div class="desc">Edge cases, code quality</div>
+  </div>
+  <div class="kpi kpi--low anim-scale">
+    <div class="number">4</div>
+    <div class="label">Low / Latent</div>
+    <div class="desc">Style, docs, test-only</div>
+  </div>
+</div>
+
+<!-- Module Scorecards -->
+<section class="section">
+  <h2 class="section-title st-scorecards">Module Health Scorecards</h2>
+  <div class="scorecards">
+    <!-- EC Core -->
+    <div class="scorecard anim">
+      <div class="sc-header">
+        <span class="sc-name">EC Core State Machine</span>
+        <span class="sc-grade grade-d">D+</span>
+      </div>
+      <ul class="findings">
+        <li><span class="sev-badge sev-critical">CRIT</span> createTestAdapter missing hitl/parallel cases &mdash; silently returns failed</li>
+        <li><span class="sev-badge sev-critical">CRIT</span> executeWithContract no try/catch on adapter.fulfill() &mdash; raw exception leaks</li>
+        <li><span class="sev-badge sev-high">HIGH</span> Self-referencing on_timeout &rarr; stack overflow instead of structured fail</li>
+        <li><span class="sev-badge sev-high">HIGH</span> maybeWrapApproval discards base instruction entirely</li>
+        <li><span class="sev-badge sev-high">HIGH</span> inferNodeType misclassifies nodes with both eval + prompt</li>
+        <li><span class="sev-badge sev-high">HIGH</span> validateTopology doesn't check target (redirect) field</li>
+        <li><span class="sev-badge sev-medium">MED</span> Object.keys non-deterministic in dry-run gate branch</li>
+        <li><span class="sev-badge sev-medium">MED</span> spawnSync blocks event loop (misrepresented by async)</li>
+      </ul>
+    </div>
+
+    <!-- Abstractions -->
+    <div class="scorecard anim">
+      <div class="sc-header">
+        <span class="sc-name">ProtocolAdapter + Registry</span>
+        <span class="sc-grade grade-c">C-</span>
+      </div>
+      <ul class="findings">
+        <li><span class="sev-badge sev-critical">CRIT</span> UsageAdapter duplicates usage.ts &mdash; silent data loss on cached tokens</li>
+        <li><span class="sev-badge sev-high">HIGH</span> ZERO consumers: ProtocolAdapter, StatusAdapter, UsageAdapter</li>
+        <li><span class="sev-badge sev-high">HIGH</span> ZERO consumers: NodeAdapterRegistry (design sound, no callers)</li>
+        <li><span class="sev-badge sev-high">HIGH</span> loadFromConfig registers stubs that silently &ldquo;succeed&rdquo;</li>
+        <li><span class="sev-badge sev-high">HIGH</span> Unknown status defaults to &lsquo;pending&rsquo; &mdash; no warning</li>
+        <li><span class="sev-badge sev-medium">MED</span> NaN/Infinity cost values not handled (&brvbar;&brvbar; doesn&rsquo;t catch NaN)</li>
+        <li><span class="sev-badge sev-medium">MED</span> Dual-Map registry has redundant state &amp; stale metadata</li>
+      </ul>
+    </div>
+
+    <!-- Test Quality -->
+    <div class="scorecard anim">
+      <div class="sc-header">
+        <span class="sc-name">Test Quality</span>
+        <span class="sc-grade grade-d">D</span>
+      </div>
+      <ul class="findings">
+        <li><span class="sev-badge sev-high">HIGH</span> &ldquo;E2E&rdquo; test is actually integration &mdash; no YAML, no module boundary</li>
+        <li><span class="sev-badge sev-high">HIGH</span> 5 instruction types with ZERO coverage: parallel, loop, hitl, subgraph, redirect</li>
+        <li><span class="sev-badge sev-high">HIGH</span> on_timeout and max_iterations paths completely untested</li>
+        <li><span class="sev-badge sev-high">HIGH</span> spawnSync real exec path untested (only dry-run)</li>
+        <li><span class="sev-badge sev-medium">MED</span> executeWithContract partial status untested</li>
+        <li><span class="sev-badge sev-medium">MED</span> Frozen doc consumption by start()/executeWithContract() untested</li>
+        <li><span class="sev-badge sev-low">LOW</span> &lsquo;use strict&rsquo; in ESM test file is redundant (no-op)</li>
+      </ul>
+    </div>
+
+    <!-- Deep Freeze -->
+    <div class="scorecard anim">
+      <div class="sc-header">
+        <span class="sc-name">Deep Freeze</span>
+        <span class="sc-grade grade-b">B+</span>
+      </div>
+      <ul class="findings">
+        <li><span class="sev-badge sev-medium">MED</span> parseGraphDocumentInternal mutates input nodes directly</li>
+        <li><span class="sev-badge sev-low">LOW</span> deepFreeze missing WeakSet visited guard (latent, safe today)</li>
+        <li><span class="sev-badge" style="background:var(--pass-dim);color:var(--pass)">PASS</span> Performance negligible (~0.5ms / 100 nodes)</li>
+        <li><span class="sev-badge" style="background:var(--pass-dim);color:var(--pass)">PASS</span> No downstream runtime breakage found</li>
+        <li><span class="sev-badge" style="background:var(--pass-dim);color:var(--pass)">PASS</span> Internal function properly private</li>
+        <li><span class="sev-badge" style="background:var(--pass-dim);color:var(--pass)">PASS</span> No double-freeze waste confirmed</li>
+      </ul>
+    </div>
+
+    <!-- Integration -->
+    <div class="scorecard anim">
+      <div class="sc-header">
+        <span class="sc-name">Integration Seams</span>
+        <span class="sc-grade grade-c">C</span>
+      </div>
+      <ul class="findings">
+        <li><span class="sev-badge sev-high">HIGH</span> 7 test files import from gutted types.ts &rarr; silent empty types</li>
+        <li><span class="sev-badge sev-high">HIGH</span> run.ts/review.ts still use deprecated local EC files</li>
+        <li><span class="sev-badge sev-medium">MED</span> Two implementations of start/next can diverge silently</li>
+        <li><span class="sev-badge sev-medium">MED</span> Barrel vs subpath name asymmetry (ecStart vs start) undocumented</li>
+        <li><span class="sev-badge" style="background:var(--pass-dim);color:var(--pass)">PASS</span> No circular dependencies (clean DAG)</li>
+        <li><span class="sev-badge" style="background:var(--pass-dim);color:var(--pass)">PASS</span> Subpath exports correctly wired for ESM/Bun/TS</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Test Coverage Heatmap -->
+<section class="section">
+  <h2 class="section-title st-severity">Test Coverage Quality by Code Path</h2>
+  <div class="heatmap">
+    <div class="heat-cell heat-green"><div class="heat-label">Linear graph traversal</div><div class="heat-count">Covered</div></div>
+    <div class="heat-cell heat-green"><div class="heat-label">Gate branching</div><div class="heat-count">Covered</div></div>
+    <div class="heat-cell heat-green"><div class="heat-label">Topology validation</div><div class="heat-count">Covered</div></div>
+    <div class="heat-cell heat-green"><div class="heat-label">Variable threading</div><div class="heat-count">Covered</div></div>
+    <div class="heat-cell heat-green"><div class="heat-label">Object.freeze</div><div class="heat-count">Covered</div></div>
+    <div class="heat-cell heat-green"><div class="heat-label">Registry CRUD</div><div class="heat-count">Covered</div></div>
+    <div class="heat-cell heat-red"><div class="heat-label">parallel nodes</div><div class="heat-count">0 tests</div></div>
+    <div class="heat-cell heat-red"><div class="heat-label">loop nodes</div><div class="heat-count">0 tests</div></div>
+    <div class="heat-cell heat-red"><div class="heat-label">hitl nodes</div><div class="heat-count">0 tests</div></div>
+    <div class="heat-cell heat-red"><div class="heat-label">subgraph nodes</div><div class="heat-count">0 tests</div></div>
+    <div class="heat-cell heat-red"><div class="heat-label">redirect (target)</div><div class="heat-count">0 tests</div></div>
+    <div class="heat-cell heat-red"><div class="heat-label">on_timeout</div><div class="heat-count">0 tests</div></div>
+    <div class="heat-cell heat-red"><div class="heat-label">max_iterations</div><div class="heat-count">0 tests</div></div>
+    <div class="heat-cell heat-red"><div class="heat-label">spawnSync real</div><div class="heat-count">0 tests</div></div>
+    <div class="heat-cell heat-orange"><div class="heat-label">partial status</div><div class="heat-count">0 tests</div></div>
+    <div class="heat-cell heat-orange"><div class="heat-label">adapter throws</div><div class="heat-count">0 tests</div></div>
+    <div class="heat-cell heat-yellow"><div class="heat-label">timeout status</div><div class="heat-count">0 tests</div></div>
+    <div class="heat-cell heat-yellow"><div class="heat-label">cancelled status</div><div class="heat-count">0 tests</div></div>
+  </div>
+</section>
+
+<!-- Dependency Graph -->
+<section class="section">
+  <h2 class="section-title st-deps">Dependency Graph</h2>
+  <div class="dep-graph">
+    <div class="dep-node">@lev-os/domain <small style="color:var(--text-dim)">&mdash; types only, no deps</small></div>
+    <div class="dep-arrow">&uarr;</div>
+    <div class="dep-node dep-warn">@lev-os/flowmind <small style="color:var(--high)">&mdash; has deprecated EC copies (divergence risk)</small></div>
+    <div class="dep-arrow">&uarr;</div>
+    <div class="dep-node">@lev-os/orchestration <small style="color:var(--text-dim)">&mdash; canonical EC home</small></div>
+    <div class="dep-arrow">&uarr;</div>
+    <div class="dep-node">consumers: slate, harness, evolve-memory</div>
+    <p class="dep-note">run.ts + review.ts still import from flowmind's deprecated copies, not orchestration</p>
+  </div>
+</section>
+
+<!-- Fix Priority -->
+<section class="section">
+  <h2 class="section-title st-priority">Fix Priority Order</h2>
+  <table class="priority-table">
+    <thead><tr><th>#</th><th>Severity</th><th>Fix</th><th>File</th></tr></thead>
+    <tbody>
+      <tr><td class="pri-num">1</td><td><span class="sev-badge sev-critical">CRIT</span></td><td>Add hitl/parallel cases to createTestAdapter switch</td><td><code>adapter.ts:136-163</code></td></tr>
+      <tr><td class="pri-num">2</td><td><span class="sev-badge sev-critical">CRIT</span></td><td>Wrap adapter.fulfill() in try/catch in executeWithContract</td><td><code>adapter.ts:507-517</code></td></tr>
+      <tr><td class="pri-num">3</td><td><span class="sev-badge sev-critical">CRIT</span></td><td>Delete UsageAdapter or merge unique logic into usage.ts</td><td><code>protocol-adapter.ts:145-167</code></td></tr>
+      <tr><td class="pri-num">4</td><td><span class="sev-badge sev-high">HIGH</span></td><td>Fix 7 test files importing from gutted types.ts &rarr; @lev-os/domain</td><td><code>core/flowmind/src/__tests__/</code></td></tr>
+      <tr><td class="pri-num">5</td><td><span class="sev-badge sev-high">HIGH</span></td><td>Redirect run.ts/review.ts to @lev-os/orchestration/execution-contract</td><td><code>core/flowmind/src/run.ts, review.ts</code></td></tr>
+      <tr><td class="pri-num">6</td><td><span class="sev-badge sev-high">HIGH</span></td><td>Add self-referencing on_timeout guard (depth limit or topology check)</td><td><code>core.ts:317-328</code></td></tr>
+      <tr><td class="pri-num">7</td><td><span class="sev-badge sev-high">HIGH</span></td><td>Rename e2e-session-dispatch.test.ts to integration-*</td><td><code>core/orchestration/src/__tests__/</code></td></tr>
+      <tr><td class="pri-num">8</td><td><span class="sev-badge sev-medium">MED</span></td><td>Add WeakSet visited guard to deepFreeze</td><td><code>parser.ts:51-59</code></td></tr>
+      <tr><td class="pri-num">9</td><td><span class="sev-badge sev-medium">MED</span></td><td>Fix parseGraphDocumentInternal input mutation (copy nodes first)</td><td><code>parser.ts:940-943</code></td></tr>
+      <tr><td class="pri-num">10</td><td><span class="sev-badge sev-medium">MED</span></td><td>Document barrel vs subpath name asymmetry</td><td><code>orchestration/src/index.ts</code></td></tr>
+      <tr><td class="pri-num">11</td><td><span class="sev-badge sev-low">LOW</span></td><td>Add tests for parallel/loop/hitl/subgraph/redirect</td><td><code>e2e-session-dispatch.test.ts</code></td></tr>
+      <tr><td class="pri-num">12</td><td><span class="sev-badge sev-low">LOW</span></td><td>Add tests for on_timeout, max_iterations, spawnSync real path</td><td><code>adapter.ts tests</code></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- Footer -->
+<footer style="text-align:center;padding:32px 0;color:var(--text-dim);font-size:0.7rem;font-family:var(--font-mono)">
+  Generated 2026-03-16 &middot; 5 reviewers &middot; 28 findings &middot; Reports in .lev/pm/reviews/
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,3 +1,8 @@
+---
+name: autodev-lev
+description: Heartbeat-driven autonomous development loop using `lev loop autodev`, with interval, budget, and tick controls for in-process SDLC execution.
+---
+
 # autodev-lev
 
 > Heartbeat-driven autonomous development loop using Lev primitives.

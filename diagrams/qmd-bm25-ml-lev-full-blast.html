@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QMD, BM25, and Lev — Retrieval Systems Explained</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-display: 'Instrument Serif', Georgia, serif;
+    --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+    --bg: #f7f1e8;
+    --surface: #fffaf4;
+    --surface-2: #efe5d8;
+    --surface-elevated: #fffdf9;
+    --surface-recessed: #e9e0d3;
+    --border: rgba(33, 26, 19, 0.09);
+    --border-strong: rgba(33, 26, 19, 0.16);
+    --text: #1e2430;
+    --text-dim: #6c655d;
+
+    --blue: #1e3a5f;
+    --blue-dim: rgba(30, 58, 95, 0.10);
+    --gold: #b8892d;
+    --gold-dim: rgba(184, 137, 45, 0.12);
+    --terracotta: #b45330;
+    --terracotta-dim: rgba(180, 83, 48, 0.10);
+    --sage: #4f6b3c;
+    --sage-dim: rgba(79, 107, 60, 0.10);
+    --teal: #0e6f6f;
+    --teal-dim: rgba(14, 111, 111, 0.10);
+    --cranberry: #8c3245;
+    --cranberry-dim: rgba(140, 50, 69, 0.10);
+
+    --good: #2c7a4b;
+    --good-dim: rgba(44, 122, 75, 0.10);
+    --warn: #b36b00;
+    --warn-dim: rgba(179, 107, 0, 0.12);
+    --bad: #b42318;
+    --bad-dim: rgba(180, 35, 24, 0.10);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #15181b;
+      --surface: #1d2227;
+      --surface-2: #252c31;
+      --surface-elevated: #20272d;
+      --surface-recessed: #161b20;
+      --border: rgba(255, 255, 255, 0.07);
+      --border-strong: rgba(255, 255, 255, 0.13);
+      --text: #edf0f4;
+      --text-dim: #a29a90;
+
+      --blue: #8fb6ec;
+      --blue-dim: rgba(143, 182, 236, 0.12);
+      --gold: #e2b85a;
+      --gold-dim: rgba(226, 184, 90, 0.14);
+      --terracotta: #ee9a76;
+      --terracotta-dim: rgba(238, 154, 118, 0.12);
+      --sage: #b6d792;
+      --sage-dim: rgba(182, 215, 146, 0.12);
+      --teal: #7ad1cb;
+      --teal-dim: rgba(122, 209, 203, 0.12);
+      --cranberry: #eca4b5;
+      --cranberry-dim: rgba(236, 164, 181, 0.12);
+
+      --good: #69d69a;
+      --good-dim: rgba(105, 214, 154, 0.12);
+      --warn: #f4c15d;
+      --warn-dim: rgba(244, 193, 93, 0.12);
+      --bad: #f59f97;
+      --bad-dim: rgba(245, 159, 151, 0.12);
+    }
+  }
+
+  [data-theme="light"] {
+    --bg: #f7f1e8;
+    --surface: #fffaf4;
+    --surface-2: #efe5d8;
+    --surface-elevated: #fffdf9;
+    --surface-recessed: #e9e0d3;
+    --border: rgba(33, 26, 19, 0.09);
+    --border-strong: rgba(33, 26, 19, 0.16);
+    --text: #1e2430;
+    --text-dim: #6c655d;
+    --blue: #1e3a5f;
+    --blue-dim: rgba(30, 58, 95, 0.10);
+    --gold: #b8892d;
+    --gold-dim: rgba(184, 137, 45, 0.12);
+    --terracotta: #b45330;
+    --terracotta-dim: rgba(180, 83, 48, 0.10);
+    --sage: #4f6b3c;
+    --sage-dim: rgba(79, 107, 60, 0.10);
+    --teal: #0e6f6f;
+    --teal-dim: rgba(14, 111, 111, 0.10);
+    --cranberry: #8c3245;
+    --cranberry-dim: rgba(140, 50, 69, 0.10);
+    --good: #2c7a4b;
+    --good-dim: rgba(44, 122, 75, 0.10);
+    --warn: #b36b00;
+    --warn-dim: rgba(179, 107, 0, 0.12);
+    --bad: #b42318;
+    --bad-dim: rgba(180, 35, 24, 0.10);
+  }
+
+  [data-theme="dark"] {
+    --bg: #15181b;
+    --surface: #1d2227;
+    --surface-2: #252c31;
+    --surface-elevated: #20272d;
+    --surface-recessed: #161b20;
+    --border: rgba(255, 255, 255, 0.07);
+    --border-strong: rgba(255, 255, 255, 0.13);
+    --text: #edf0f4;
+    --text-dim: #a29a90;
+    --blue: #8fb6ec;
+    --blue-dim: rgba(143, 182, 236, 0.12);
+    --gold: #e2b85a;
+    --gold-dim: rgba(226, 184, 90, 0.14);
+    --terracotta: #ee9a76;
+    --terracotta-dim: rgba(238, 154, 118, 0.12);
+    --sage: #b6d792;
+    --sage-dim: rgba(182, 215, 146, 0.12);
+    --teal: #7ad1cb;
+    --teal-dim: rgba(122, 209, 203, 0.12);
+    --cranberry: #eca4b5;
+    --cranberry-dim: rgba(236, 164, 181, 0.12);
+    --good: #69d69a;
+    --good-dim: rgba(105, 214, 154, 0.12);
+    --warn: #f4c15d;
+    --warn-dim: rgba(244, 193, 93, 0.12);
+    --bad: #f59f97;
+    --bad-dim: rgba(245, 159, 151, 0.12);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 14% 0%, var(--gold-dim) 0%, transparent 45%),
+      radial-gradient(ellipse at 84% 12%, var(--blue-dim) 0%, transparent 40%),
+      radial-gradient(ellipse at 70% 100%, var(--sage-dim) 0%, transparent 38%);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    padding: 40px;
+    min-height: 100vh;
+    overflow-wrap: break-word;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate {
+    animation: fadeUp 0.45s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.05s);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-delay: 0ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  .theme-toggle {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 300;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--surface) 80%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .theme-toggle:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+
+  .wrap {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 0 42px;
+  }
+
+  .main {
+    min-width: 0;
+  }
+
+  .toc {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+    padding: 14px 0;
+    grid-row: 1 / -1;
+    max-height: calc(100dvh - 48px);
+    overflow-y: auto;
+  }
+
+  .toc::-webkit-scrollbar { width: 3px; }
+  .toc::-webkit-scrollbar-thumb { background: var(--surface-elevated); border-radius: 2px; }
+
+  .toc-title {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 0 0 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .toc a {
+    display: block;
+    text-decoration: none;
+    font-size: 11px;
+    color: var(--text-dim);
+    padding: 5px 8px;
+    margin-bottom: 2px;
+    border-left: 2px solid transparent;
+    border-radius: 5px;
+    transition: all 0.15s ease;
+  }
+
+  .toc a:hover {
+    color: var(--text);
+    background: var(--surface-2);
+  }
+
+  .toc a.active {
+    color: var(--text);
+    border-left-color: var(--blue);
+    background: var(--surface-2);
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 6vw, 5rem);
+    line-height: 0.95;
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    margin-bottom: 14px;
+    text-wrap: balance;
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 400;
+    line-height: 1;
+    margin-bottom: 18px;
+  }
+
+  h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+
+  p {
+    margin-bottom: 14px;
+  }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+    background: var(--surface-2);
+    padding: 0.14rem 0.35rem;
+    border-radius: 5px;
+  }
+
+  .subtitle {
+    max-width: 860px;
+    font-size: 1.05rem;
+    color: var(--text-dim);
+    margin-bottom: 34px;
+  }
+
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 16px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    display: inline-block;
+  }
+
+  .ve-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 22px 24px;
+    min-width: 0;
+  }
+
+  .ve-card--hero {
+    background: linear-gradient(180deg, var(--surface-elevated) 0%, var(--surface) 100%);
+    border-color: color-mix(in srgb, var(--blue) 18%, var(--border));
+    box-shadow: 0 10px 36px rgba(0, 0, 0, 0.06);
+    padding: 34px;
+  }
+
+  .ve-card--recessed {
+    background: var(--surface-recessed);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  .hero-grid,
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  .hero-grid { grid-template-columns: 1.35fr 0.95fr; }
+  .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  .hero-aside {
+    display: grid;
+    gap: 16px;
+  }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 22px;
+  }
+
+  .kpi {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+  }
+
+  .kpi-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .kpi-value {
+    font-size: 1.7rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .kpi-desc {
+    color: var(--text-dim);
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+
+  .lead {
+    font-size: 1.12rem;
+    line-height: 1.7;
+    max-width: 58ch;
+  }
+
+  .quote {
+    border-left: 3px solid var(--gold);
+    padding-left: 14px;
+    color: var(--text);
+    font-size: 1.03rem;
+  }
+
+  .meta-list {
+    display: grid;
+    gap: 10px;
+    list-style: none;
+  }
+
+  .meta-list li {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+
+  .meta-list strong {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 0.88rem;
+  }
+
+  .meta-list span {
+    color: var(--text-dim);
+    font-size: 0.92rem;
+  }
+
+  .callout {
+    background: var(--gold-dim);
+    border: 1px solid color-mix(in srgb, var(--gold) 28%, var(--border));
+    border-radius: 14px;
+    padding: 18px 20px;
+  }
+
+  .callout--blue {
+    background: var(--blue-dim);
+    border-color: color-mix(in srgb, var(--blue) 28%, var(--border));
+  }
+
+  .callout--teal {
+    background: var(--teal-dim);
+    border-color: color-mix(in srgb, var(--teal) 28%, var(--border));
+  }
+
+  .callout--warn {
+    background: var(--warn-dim);
+    border-color: color-mix(in srgb, var(--warn) 32%, var(--border));
+  }
+
+  .sec-head {
+    margin: 44px 0 18px;
+    scroll-margin-top: 32px;
+  }
+
+  .section-number {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  .formula {
+    font-family: var(--font-mono);
+    font-size: 0.96rem;
+    line-height: 1.7;
+    padding: 16px 18px;
+    border-radius: 14px;
+    background: var(--surface-recessed);
+    border: 1px solid var(--border);
+    overflow-x: auto;
+  }
+
+  .pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+
+  .pill--blue { color: var(--blue); }
+  .pill--gold { color: var(--gold); }
+  .pill--sage { color: var(--sage); }
+  .pill--teal { color: var(--teal); }
+  .pill--terra { color: var(--terracotta); }
+
+  .pipeline {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 18px;
+  }
+
+  .step {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    position: relative;
+    min-width: 0;
+  }
+
+  .step::after {
+    content: "→";
+    position: absolute;
+    top: 50%;
+    right: -10px;
+    transform: translateY(-50%);
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    background: var(--bg);
+    padding: 2px 4px;
+  }
+
+  .pipeline .step:nth-child(4n)::after,
+  .pipeline .step:last-child::after {
+    display: none;
+  }
+
+  .step-num {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 7px;
+  }
+
+  .step p {
+    margin-bottom: 0;
+    color: var(--text-dim);
+    font-size: 0.92rem;
+  }
+
+  .tech-card {
+    display: grid;
+    gap: 12px;
+  }
+
+  .tech-kind {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .status::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    display: inline-block;
+  }
+
+  .status--good {
+    color: var(--good);
+    background: var(--good-dim);
+  }
+
+  .status--warn {
+    color: var(--warn);
+    background: var(--warn-dim);
+  }
+
+  .status--bad {
+    color: var(--bad);
+    background: var(--bad-dim);
+  }
+
+  .status--blue {
+    color: var(--blue);
+    background: var(--blue-dim);
+  }
+
+  .compare-panels {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .panel-head h3 {
+    margin-bottom: 0;
+  }
+
+  .stack-list {
+    list-style: none;
+    display: grid;
+    gap: 10px;
+  }
+
+  .stack-list li {
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+  }
+
+  .stack-list li strong {
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .stack-list li span {
+    color: var(--text-dim);
+    font-size: 0.93rem;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 720px;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--surface);
+  }
+
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  th, td {
+    padding: 14px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    text-align: left;
+  }
+
+  th {
+    background: var(--surface-2);
+    font-size: 0.84rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-family: var(--font-mono);
+    color: var(--text-dim);
+  }
+
+  tr:nth-child(even) td {
+    background: color-mix(in srgb, var(--surface) 72%, var(--surface-2));
+  }
+
+  td small {
+    display: block;
+    margin-top: 6px;
+    color: var(--text-dim);
+  }
+
+  .legend {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+
+  details {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+  }
+
+  summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 16px 18px;
+    font-weight: 600;
+    position: relative;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary::after {
+    content: "▸";
+    position: absolute;
+    right: 18px;
+    color: var(--text-dim);
+    transition: transform 0.15s ease;
+  }
+
+  details[open] summary::after {
+    transform: rotate(90deg);
+  }
+
+  .details-body {
+    padding: 0 18px 18px;
+    color: var(--text-dim);
+  }
+
+  .footer {
+    margin-top: 44px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 0.94rem;
+  }
+
+  .footer a {
+    color: inherit;
+  }
+
+  .source-list {
+    display: grid;
+    gap: 8px;
+    margin-top: 12px;
+    list-style: none;
+  }
+
+  @media (max-width: 1180px) {
+    .hero-grid,
+    .grid-3,
+    .grid-4,
+    .pipeline,
+    .kpi-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .wrap {
+      grid-template-columns: 1fr;
+    }
+
+    body {
+      padding-top: 0;
+    }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      max-height: none;
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 0;
+      margin: 0 -40px;
+      padding-left: 40px;
+      padding-right: 40px;
+      grid-row: auto;
+    }
+
+    .toc::-webkit-scrollbar { display: none; }
+    .toc-title { display: none; }
+
+    .toc a {
+      white-space: nowrap;
+      flex-shrink: 0;
+      border-left: none;
+      border-bottom: 2px solid transparent;
+      border-radius: 4px 4px 0 0;
+      padding: 6px 10px;
+      font-size: 10px;
+    }
+
+    .toc a.active {
+      border-left: none;
+      border-bottom-color: var(--blue);
+      background: var(--surface);
+    }
+
+    .sec-head {
+      scroll-margin-top: 54px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    body {
+      padding: 22px;
+    }
+
+    .toc {
+      margin: 0 -22px;
+      padding-left: 22px;
+      padding-right: 22px;
+    }
+
+    .hero-grid,
+    .grid-2,
+    .grid-3,
+    .grid-4,
+    .compare-panels,
+    .pipeline,
+    .kpi-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .ve-card--hero {
+      padding: 24px;
+    }
+
+    .step::after {
+      display: none;
+    }
+  }
+
+  @media print {
+    :root {
+      --bg: #ffffff !important;
+      --surface: #ffffff !important;
+      --surface-2: #f5f5f5 !important;
+      --surface-elevated: #ffffff !important;
+      --surface-recessed: #f2f2f2 !important;
+      --border: rgba(0, 0, 0, 0.12) !important;
+      --border-strong: rgba(0, 0, 0, 0.2) !important;
+      --text: #1a1a1a !important;
+      --text-dim: #555555 !important;
+    }
+
+    body {
+      background: white !important;
+      background-image: none !important;
+      color: #1a1a1a !important;
+      padding: 0.5in !important;
+      min-height: auto !important;
+      font-size: 11pt !important;
+    }
+
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .theme-toggle { display: none !important; }
+
+    .toc {
+      position: static !important;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 1em;
+      padding-bottom: 0.5em;
+      overflow: visible !important;
+    }
+
+    .ve-card, .step, tr, details, .callout {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    details { display: block !important; }
+    details .details-body { display: block !important; }
+
+    a[href^="http"]::after {
+      content: " (" attr(href) ")";
+      font-size: 9pt;
+      color: #888;
+      word-break: break-all;
+    }
+  }
+</style>
+</head>
+<body>
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle light and dark theme">◐</button>
+
+<div class="wrap">
+  <nav class="toc" id="toc">
+    <div class="toc-title">Contents</div>
+    <a href="#s1">1. BM25 Basics</a>
+    <a href="#s2">2. qmd Pipeline</a>
+    <a href="#s3">3. ML Techniques</a>
+    <a href="#s4">4. Command Map</a>
+    <a href="#s5">5. Lev Unlocks</a>
+    <a href="#s6">6. Technique Matrix</a>
+    <a href="#s7">7. Mental Model</a>
+  </nav>
+
+  <main class="main">
+    <section class="ve-card ve-card--hero animate" style="--i:0">
+      <div class="hero-grid">
+        <div>
+          <div class="section-tag"><span class="dot"></span> Retrieval Systems, Not Magic</div>
+          <h1>QMD, BM25, and Lev</h1>
+          <p class="subtitle">
+            A full-stack explanation of lexical search, semantic search, reranking, and where Lev can split retrieval into cleaner layers.
+          </p>
+          <p class="lead">
+            The short version: <strong>BM25 finds the same words</strong>, <strong>embeddings find the same ideas</strong>, and <strong>rerankers read the candidates more carefully</strong>. qmd combines all three. Lev can benefit most by separating those layers instead of forcing one tool to do every job.
+          </p>
+          <div class="pill-row">
+            <span class="pill pill--terra">BM25 is classical IR, not a neural net</span>
+            <span class="pill pill--teal">qmd is hybrid retrieval</span>
+            <span class="pill pill--blue">Lev wants cleaner boundaries</span>
+          </div>
+        </div>
+
+        <div class="hero-aside">
+          <div class="callout callout--blue">
+            <strong>What you should walk away with</strong>
+            <p style="margin-top:8px; margin-bottom:0;">
+              You should be able to explain why <code>qmd search</code>, <code>qmd vsearch</code>, and <code>qmd query</code> exist as separate modes, and why BM25 Turbo is interesting for Lev without being an automatic qmd replacement.
+            </p>
+          </div>
+          <ul class="meta-list">
+            <li>
+              <strong>Lexical retrieval</strong>
+              <span>Exact terms, file names, acronyms, code symbols, literal phrases.</span>
+            </li>
+            <li>
+              <strong>Semantic retrieval</strong>
+              <span>Meaning similarity via embeddings and vector search.</span>
+            </li>
+            <li>
+              <strong>Precision layer</strong>
+              <span>Chunk selection and reranking decide which candidates are actually best.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi animate-scale" style="--i:1">
+          <div class="kpi-label">BM25</div>
+          <div class="kpi-value">Lexical</div>
+          <div class="kpi-desc">Matches words and rewards rarity, repetition, and concise relevance.</div>
+        </div>
+        <div class="kpi animate-scale" style="--i:2">
+          <div class="kpi-label">Embeddings</div>
+          <div class="kpi-value">Semantic</div>
+          <div class="kpi-desc">Turns text into vectors so similar meaning lands nearby.</div>
+        </div>
+        <div class="kpi animate-scale" style="--i:3">
+          <div class="kpi-label">Reranking</div>
+          <div class="kpi-value">Precision</div>
+          <div class="kpi-desc">Reads query-document pairs more carefully after retrieval.</div>
+        </div>
+        <div class="kpi animate-scale" style="--i:4">
+          <div class="kpi-label">Lev</div>
+          <div class="kpi-value">Split Layers</div>
+          <div class="kpi-desc">Fast lexical first pass, semantic recall second, precision last.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="s1" class="sec-head animate" style="--i:5">
+      <div class="section-number">1 — BM25 Basics</div>
+      <h2>What BM25 Actually Does</h2>
+    </section>
+
+    <div class="grid-3">
+      <article class="ve-card animate" style="--i:6">
+        <div class="section-tag" style="color:var(--terracotta)"><span class="dot"></span> Rare Terms Matter</div>
+        <h3>IDF: uncommon words carry more signal</h3>
+        <p>
+          If every document says <em>system</em>, that word barely helps ranking. If only a few say <em>zephyr</em>, that term becomes strong evidence.
+        </p>
+        <p class="quote">BM25 rewards words that narrow the candidate set.</p>
+      </article>
+
+      <article class="ve-card animate" style="--i:7">
+        <div class="section-tag" style="color:var(--gold)"><span class="dot"></span> Diminishing Returns</div>
+        <h3>Term frequency helps, but it saturates</h3>
+        <p>
+          Seeing <em>kubernetes</em> three times is usually better than once. Seeing it fifty times is not fifty times better.
+        </p>
+        <p>
+          BM25 avoids naive keyword stuffing by capping how much repetition helps.
+        </p>
+      </article>
+
+      <article class="ve-card animate" style="--i:8">
+        <div class="section-tag" style="color:var(--sage)"><span class="dot"></span> Length Normalization</div>
+        <h3>Long documents should not win by being long</h3>
+        <p>
+          A giant transcript naturally contains more words than a short design note. BM25 normalizes that so a focused short match can still beat a huge noisy file.
+        </p>
+      </article>
+    </div>
+
+    <div class="grid-2" style="margin-top:16px;">
+      <article class="ve-card ve-card--recessed animate" style="--i:9">
+        <div class="section-tag" style="color:var(--blue)"><span class="dot"></span> Mental Formula</div>
+        <div class="formula">BM25 score ≈ rare query terms × useful repetition × document length correction</div>
+        <p style="margin-top:14px; margin-bottom:0;">
+          That is why BM25 is excellent for code symbols, filenames, product names, acronyms, and literal phrases.
+        </p>
+      </article>
+      <article class="callout callout--warn animate" style="--i:10">
+        <strong>Important distinction</strong>
+        <p style="margin-top:8px; margin-bottom:0;">
+          BM25 is <strong>not</strong> modern ML. It is classical information retrieval. It uses corpus statistics, not learned semantic representations.
+        </p>
+      </article>
+    </div>
+
+    <section id="s2" class="sec-head animate" style="--i:11">
+      <div class="section-number">2 — qmd Pipeline</div>
+      <h2>What qmd Actually Does</h2>
+      <p class="subtitle" style="margin-bottom:18px;">
+        qmd is not “just BM25.” It is a local hybrid retrieval pipeline that mixes lexical search, vector search, query expansion, rank fusion, chunking, and reranking.
+      </p>
+    </section>
+
+    <section class="ve-card animate" style="--i:12">
+      <div class="section-tag" style="color:var(--teal)"><span class="dot"></span> End-to-End Search Flow</div>
+      <div class="pipeline">
+        <div class="step">
+          <div class="step-num">Stage 1</div>
+          <h3>Index documents</h3>
+          <p>Markdown files go into SQLite. qmd builds an FTS index and stores chunk/vector data.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">Stage 2</div>
+          <h3>Run BM25 probe</h3>
+          <p>qmd checks for an obvious lexical win before spending more on expansion and reranking.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">Stage 3</div>
+          <h3>Expand the query</h3>
+          <p>The local LLM can generate typed variants: lexical, vector, and HyDE-like semantic versions.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">Stage 4</div>
+          <h3>Search both worlds</h3>
+          <p>Lexical expansions go to FTS/BM25. Semantic variants go to vector search.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">Stage 5</div>
+          <h3>Fuse ranked lists</h3>
+          <p>RRF combines the candidate lists so lexical and semantic evidence can both matter.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">Stage 6</div>
+          <h3>Select best chunks</h3>
+          <p>Documents are chunked so reranking focuses on the most relevant slices, not entire files.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">Stage 7</div>
+          <h3>Rerank</h3>
+          <p>The reranker scores query-chunk pairs more precisely, which usually improves final ordering.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">Stage 8</div>
+          <h3>Return results</h3>
+          <p>The final list is a blend of recall-oriented retrieval and precision-oriented reranking.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid-2" style="margin-top:16px;">
+      <article class="ve-card animate" style="--i:13">
+        <div class="section-tag" style="color:var(--gold)"><span class="dot"></span> Why the BM25 Probe Matters</div>
+        <p>
+          If the query is <code>qmd no-rerank flag</code> and a single document is obviously dominant, expansion and reranking are wasted effort. The BM25 probe lets qmd skip expensive stages when the lexical signal is already strong.
+        </p>
+      </article>
+      <article class="ve-card animate" style="--i:14">
+        <div class="section-tag" style="color:var(--cranberry)"><span class="dot"></span> Why the Pipeline Is Layered</div>
+        <p>
+          No single technique dominates every query. BM25 is strong for literals. Vectors are strong for paraphrase. Rerankers are strong when you already have good candidates. qmd stacks them because each fixes a different weakness.
+        </p>
+      </article>
+    </div>
+
+    <section id="s3" class="sec-head animate" style="--i:15">
+      <div class="section-number">3 — ML Techniques</div>
+      <h2>The ML and Retrieval Techniques qmd Uses</h2>
+    </section>
+
+    <div class="grid-4">
+      <article class="ve-card tech-card animate" style="--i:16">
+        <div class="tech-kind">Classical IR</div>
+        <h3>BM25 / FTS</h3>
+        <span class="status status--blue">Not neural</span>
+        <p>Great for exact words, file paths, symbols, acronyms, literal phrases, and “the user knows the vocabulary.”</p>
+      </article>
+
+      <article class="ve-card tech-card animate" style="--i:17">
+        <div class="tech-kind">Representation Learning</div>
+        <h3>Embeddings</h3>
+        <span class="status status--good">Semantic</span>
+        <p>Maps text into dense vectors so similar meaning sits nearby even when the wording changes.</p>
+      </article>
+
+      <article class="ve-card tech-card animate" style="--i:18">
+        <div class="tech-kind">Vector Retrieval</div>
+        <h3>Nearest-Neighbor Search</h3>
+        <span class="status status--good">Recall</span>
+        <p>Finds chunks whose embeddings are closest to the query embedding. Good for “same idea, different words.”</p>
+      </article>
+
+      <article class="ve-card tech-card animate" style="--i:19">
+        <div class="tech-kind">LLM-Oriented Retrieval</div>
+        <h3>Query Expansion</h3>
+        <span class="status status--warn">More compute</span>
+        <p>Generates multiple search variants so the system can search like a smarter user than the original query.</p>
+      </article>
+
+      <article class="ve-card tech-card animate" style="--i:20">
+        <div class="tech-kind">Retrieval Heuristic</div>
+        <h3>HyDE-like Expansion</h3>
+        <span class="status status--good">Semantic bridge</span>
+        <p>Generates answer-shaped text, then embeds that. Useful when the best retrieval vector is closer to an answer than to the literal question.</p>
+      </article>
+
+      <article class="ve-card tech-card animate" style="--i:21">
+        <div class="tech-kind">Rank Fusion</div>
+        <h3>RRF</h3>
+        <span class="status status--blue">Robust blend</span>
+        <p>Combines multiple ranked lists without pretending their raw scores are directly comparable.</p>
+      </article>
+
+      <article class="ve-card tech-card animate" style="--i:22">
+        <div class="tech-kind">Document Preparation</div>
+        <h3>Chunking</h3>
+        <span class="status status--warn">Critical plumbing</span>
+        <p>Large files become smaller semantic units so vector retrieval and reranking stay within context windows and stay specific.</p>
+      </article>
+
+      <article class="ve-card tech-card animate" style="--i:23">
+        <div class="tech-kind">Pairwise Scoring</div>
+        <h3>Reranking</h3>
+        <span class="status status--good">Precision</span>
+        <p>Given a query and a candidate chunk, the reranker asks the expensive but high-quality question: “how relevant is this pair, really?”</p>
+      </article>
+    </div>
+
+    <div class="grid-2" style="margin-top:16px;">
+      <article class="callout callout--teal animate" style="--i:24">
+        <strong>Best practical intuition</strong>
+        <p style="margin-top:8px; margin-bottom:0;">
+          BM25 says <em>same words</em>. Embeddings say <em>same idea</em>. Reranking says <em>now inspect the candidates carefully</em>. qmd does all three.
+        </p>
+      </article>
+      <article class="callout animate" style="--i:25">
+        <strong>Why this counts as ML</strong>
+        <p style="margin-top:8px; margin-bottom:0;">
+          The ML parts are embeddings, expansion, and reranking. BM25 is not ML, but it often remains essential because lexical recall is still hard to beat for exact identifiers and literal terminology.
+        </p>
+      </article>
+    </div>
+
+    <section id="s4" class="sec-head animate" style="--i:26">
+      <div class="section-number">4 — Command Map</div>
+      <h2>How qmd Commands Map to Techniques</h2>
+    </section>
+
+    <section class="table-wrap animate" style="--i:27">
+      <table>
+        <thead>
+          <tr>
+            <th>Command</th>
+            <th>Primary technique</th>
+            <th>What it is good at</th>
+            <th>What it misses</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>qmd search</code><small>FTS / BM25 keyword search</small></td>
+            <td><span class="status status--blue">Lexical</span></td>
+            <td>Symbols, filenames, jargon, exact literals, known vocabulary</td>
+            <td>Paraphrases and conceptually similar text with different words</td>
+          </tr>
+          <tr>
+            <td><code>qmd vsearch</code><small>Embedding + vector similarity</small></td>
+            <td><span class="status status--good">Semantic</span></td>
+            <td>Concept matches, paraphrases, softer “what is this about?” queries</td>
+            <td>Literal identifiers and sometimes exact phrase intent</td>
+          </tr>
+          <tr>
+            <td><code>qmd query</code><small>BM25 probe + expansion + vector + RRF + rerank</small></td>
+            <td><span class="status status--warn">Hybrid</span></td>
+            <td>Best overall quality when ambiguity is high or the query is underspecified</td>
+            <td>More compute, more latency, more moving parts</td>
+          </tr>
+          <tr>
+            <td><code>qmd embed</code><small>Chunking + embedding generation</small></td>
+            <td><span class="status status--good">Preparation</span></td>
+            <td>Builds the semantic layer that powers vector retrieval and reranking</td>
+            <td>Does not help keyword-only search by itself</td>
+          </tr>
+          <tr>
+            <td><code>qmd mcp</code><small>MCP tool surface</small></td>
+            <td><span class="status status--blue">Integration</span></td>
+            <td>Lets agents call the search system as a tool</td>
+            <td>Does not change retrieval quality on its own</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="legend animate" style="--i:28">
+      <span class="status status--blue">Lexical / exact terms</span>
+      <span class="status status--good">Semantic / learned vectors</span>
+      <span class="status status--warn">Hybrid / more compute</span>
+    </div>
+
+    <section id="s5" class="sec-head animate" style="--i:29">
+      <div class="section-number">5 — Lev Unlocks</div>
+      <h2>What This Unlocks for Lev</h2>
+      <p class="subtitle" style="margin-bottom:18px;">
+        The real opportunity is architectural clarity. Lev does not need one tool to own lexical recall, semantic recall, and final precision at the same time.
+      </p>
+    </section>
+
+    <div class="compare-panels">
+      <article class="ve-card animate" style="--i:30">
+        <div class="panel-head">
+          <h3>Current mental model</h3>
+          <span class="status status--warn">One tool, many jobs</span>
+        </div>
+        <ul class="stack-list">
+          <li>
+            <strong>qmd as unified search box</strong>
+            <span>Keyword retrieval, vector retrieval, query expansion, reranking, and tool surface are bundled together.</span>
+          </li>
+          <li>
+            <strong>Pros</strong>
+            <span>Convenient, local-first, one install, one CLI, good end-to-end default behavior.</span>
+          </li>
+          <li>
+            <strong>Cons</strong>
+            <span>Harder to swap parts independently, harder to tune per workload, lexical performance tied to qmd’s internal architecture.</span>
+          </li>
+        </ul>
+      </article>
+
+      <article class="ve-card animate" style="--i:31">
+        <div class="panel-head">
+          <h3>Unlocked Lev model</h3>
+          <span class="status status--good">Split retrieval stack</span>
+        </div>
+        <ul class="stack-list">
+          <li>
+            <strong>Layer 1: lexical retrieval</strong>
+            <span>Fast BM25 service for exact terms, filters, and broad candidate generation.</span>
+          </li>
+          <li>
+            <strong>Layer 2: semantic retrieval</strong>
+            <span>Embeddings and vector search for concept recall and fuzzy discovery.</span>
+          </li>
+          <li>
+            <strong>Layer 3: precision layer</strong>
+            <span>Reranker or LLM-based evaluator decides final ordering after recall is already good.</span>
+          </li>
+        </ul>
+      </article>
+    </div>
+
+    <div class="grid-3" style="margin-top:16px;">
+      <article class="ve-card animate" style="--i:32">
+        <div class="section-tag" style="color:var(--blue)"><span class="dot"></span> Faster first pass</div>
+        <p>Lev could use a dedicated lexical service for code terms, plugin names, commands, paths, and exact identifiers without invoking the expensive semantic stack every time.</p>
+      </article>
+      <article class="ve-card animate" style="--i:33">
+        <div class="section-tag" style="color:var(--teal)"><span class="dot"></span> Better workload routing</div>
+        <p>Some queries are clearly lexical. Some are clearly semantic. Lev can route them intentionally instead of always using a unified heavy path.</p>
+      </article>
+      <article class="ve-card animate" style="--i:34">
+        <div class="section-tag" style="color:var(--gold)"><span class="dot"></span> Cleaner contracts</div>
+        <p>Once lexical retrieval is its own layer, Lev can benchmark it, cache it, or replace it without destabilizing embeddings and reranking.</p>
+      </article>
+    </div>
+
+    <section id="s6" class="sec-head animate" style="--i:35">
+      <div class="section-number">6 — Technique Matrix</div>
+      <h2>Which Technique Wins Which Kind of Query?</h2>
+    </section>
+
+    <section class="table-wrap animate" style="--i:36">
+      <table>
+        <thead>
+          <tr>
+            <th>Query type</th>
+            <th>BM25 / lexical</th>
+            <th>Embeddings / vector</th>
+            <th>Reranker</th>
+            <th>Best stack</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Exact command, filename, symbol</td>
+            <td><span class="status status--good">Strong</span></td>
+            <td><span class="status status--bad">Weak</span></td>
+            <td><span class="status status--warn">Useful after retrieval</span></td>
+            <td>BM25 first, rerank if needed</td>
+          </tr>
+          <tr>
+            <td>Concept search with different wording</td>
+            <td><span class="status status--bad">Weak</span></td>
+            <td><span class="status status--good">Strong</span></td>
+            <td><span class="status status--good">Strong</span></td>
+            <td>Vector first, rerank second</td>
+          </tr>
+          <tr>
+            <td>Underspecified natural-language question</td>
+            <td><span class="status status--warn">Decent probe</span></td>
+            <td><span class="status status--good">Good recall</span></td>
+            <td><span class="status status--good">High value</span></td>
+            <td>Hybrid query expansion path</td>
+          </tr>
+          <tr>
+            <td>Large corpus, repeated exact lookups</td>
+            <td><span class="status status--good">Strong</span></td>
+            <td><span class="status status--warn">Overkill</span></td>
+            <td><span class="status status--bad">Too expensive</span></td>
+            <td>Dedicated lexical service</td>
+          </tr>
+          <tr>
+            <td>“Explain this result to me” quality pass</td>
+            <td><span class="status status--bad">Not enough</span></td>
+            <td><span class="status status--warn">Candidate stage only</span></td>
+            <td><span class="status status--good">Best</span></td>
+            <td>Retrieve, then rerank</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="grid-2" style="margin-top:16px;">
+      <article class="callout animate" style="--i:37">
+        <strong>Why BM25 Turbo is interesting</strong>
+        <p style="margin-top:8px; margin-bottom:0;">
+          It is compelling as a dedicated lexical layer for Lev. That does <em>not</em> automatically mean it should replace qmd’s entire retrieval stack.
+        </p>
+      </article>
+      <article class="callout callout--blue animate" style="--i:38">
+        <strong>Why qmd still matters</strong>
+        <p style="margin-top:8px; margin-bottom:0;">
+          qmd already knows how to do the semantic and precision parts: expansion, vector search, chunk selection, reranking, and agent-facing integration.
+        </p>
+      </article>
+    </div>
+
+    <section id="s7" class="sec-head animate" style="--i:39">
+      <div class="section-number">7 — Mental Model</div>
+      <h2>The Simple ML Mental Model</h2>
+    </section>
+
+    <div class="grid-2">
+      <article class="ve-card animate" style="--i:40">
+        <div class="section-tag" style="color:var(--terracotta)"><span class="dot"></span> One-sentence model</div>
+        <p class="lead" style="font-size:1.04rem;">
+          <strong>BM25 finds the same words.</strong><br>
+          <strong>Embeddings find the same ideas.</strong><br>
+          <strong>Rerankers judge the best candidates more carefully.</strong>
+        </p>
+      </article>
+
+      <article class="ve-card animate" style="--i:41">
+        <div class="section-tag" style="color:var(--sage)"><span class="dot"></span> System design consequence</div>
+        <p>
+          The best retrieval systems do not argue about “keyword search versus AI search.” They compose both. First make recall broad enough. Then make ranking precise enough.
+        </p>
+      </article>
+    </div>
+
+    <details class="animate" style="margin-top:16px; --i:42">
+      <summary>Concrete example: querying for “how does auth work”</summary>
+      <div class="details-body">
+        <p><strong>BM25 path:</strong> looks for docs that literally use words like <code>auth</code>, <code>authentication</code>, <code>login</code>, or file names containing those terms.</p>
+        <p><strong>Vector path:</strong> can retrieve docs about session validation or token middleware even if they do not say <code>auth</code> explicitly.</p>
+        <p><strong>Expansion path:</strong> may rewrite the query into multiple forms like “session validation,” “JWT middleware,” or “login flow.”</p>
+        <p><strong>Reranker:</strong> decides which of the candidate chunks actually explains the mechanism instead of just mentioning adjacent concepts.</p>
+      </div>
+    </details>
+
+    <footer class="footer animate" style="--i:43">
+      <strong>Verified context</strong>
+      <p style="margin-top:8px;">
+        This explainer is based on the current qmd repo and package state we inspected locally and from upstream. The public npm package was at <code>2.0.1</code> on March 11, 2026. qmd’s latest upstream push we checked was March 14, 2026.
+      </p>
+      <ul class="source-list">
+        <li><a href="https://github.com/tobi/qmd">tobi/qmd</a></li>
+        <li><a href="https://www.npmjs.com/package/@tobilu/qmd">@tobilu/qmd on npm</a></li>
+        <li><a href="https://github.com/TheSauceSuite/BM25-Turbo-Rust-Python-WASM-CLI">TheSauceSuite/BM25-Turbo-Rust-Python-WASM-CLI</a></li>
+      </ul>
+    </footer>
+  </main>
+</div>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const isDarkOS = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  if (!current) {
+    html.setAttribute('data-theme', isDarkOS ? 'light' : 'dark');
+  } else {
+    html.removeAttribute('data-theme');
+  }
+}
+
+(function() {
+  const toc = document.getElementById('toc');
+  const links = toc.querySelectorAll('a');
+  const sections = [];
+
+  links.forEach((link) => {
+    const id = link.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el) sections.push({ id, el, link });
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        links.forEach((l) => l.classList.remove('active'));
+        const match = sections.find((s) => s.el === entry.target);
+        if (match) {
+          match.link.classList.add('active');
+          if (window.innerWidth <= 1000) {
+            match.link.scrollIntoView({
+              behavior: 'smooth',
+              block: 'nearest',
+              inline: 'center'
+            });
+          }
+        }
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px' });
+
+  sections.forEach((s) => observer.observe(s.el));
+
+  links.forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const id = link.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', '#' + id);
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -15,23 +15,32 @@ Use Grok (xAI) for real-time research when:
 
 ## Quick Usage
 
+**IMPORTANT:** The `/v1/chat/completions` endpoint has NO search capability.
+For X/Twitter search, you MUST use the Responses API with `x_search` tool.
+
 ```bash
-# Via curl (env: XAI_API_KEY)
-curl -s https://api.x.ai/v1/chat/completions \
+# CORRECT: Responses API with x_search (requires grok-4 family)
+curl -s https://api.x.ai/v1/responses \
   -H "Authorization: Bearer $XAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "grok-3",
-    "messages": [{"role": "user", "content": "What are people saying about X topic on Twitter right now?"}]
-  }' | jq -r '.choices[0].message.content'
+    "model": "grok-4-fast-non-reasoning",
+    "tools": [{"type": "x_search"}],
+    "input": "What are people saying about X topic on Twitter right now?"
+  }' | jq '.output'
+
+# WRONG (no search): /v1/chat/completions — only uses training data
+# DEPRECATED: search_parameters, live_search — both removed by xAI
 ```
 
 ## Models
 
-| Model | Use Case | Speed |
-|-------|----------|-------|
-| `grok-3` | Deep research, complex queries | Slower |
-| `grok-3-mini` | Quick lookups, simple facts | Fast |
+| Model | Use Case | Search? | Speed |
+|-------|----------|---------|-------|
+| `grok-4-fast-non-reasoning` | X/Twitter OSINT, social search | **YES** (x_search) | Fast, ~$0.06/query |
+| `grok-4` | Deep analysis with search | **YES** (x_search) | Slower, more expensive |
+| `grok-3` | Chat only (no search) | NO | Slower |
+| `grok-3-mini` | Quick chat (no search) | NO | Fast, ~$0.007/query |
 
 ## When to Use vs Brave
 

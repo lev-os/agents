@@ -1,0 +1,760 @@
+{
+  "url": "https://agent-flywheel.com/tldr",
+  "title": "The Agentic Coding FlywheelTL;DR EditionTL;DR Edition",
+  "content": "16 core tools and 13 supporting utilities that transform multi-agent AI coding workflows. Each tool makes the others more powerful - the more you use it, the faster it spins. While others argue about agentic coding, we're just over here building as fast as we can.\n\nA flywheel stores rotational energy - the more you spin it, the easier each push becomes. These tools work the same way. The more you use them, the more valuable the system becomes.\n\nEvery agent session generates searchable history (CASS). Past solutions become retrievable memory (CM). Dependencies surface bottlenecks (BV). Agents coordinate without conflicts (Mail). Each piece feeds the others.\n\nThe result: I shipped 20,000+ lines of production Go code in a single day with BV. The flywheel keeps spinning faster - my GitHub commits accelerate each week because each tool amplifies the others.\n\nHover over tools to see connections\n\nThe backbone of multi-agent development: session management, communication, task tracking, static analysis, memory, search, safety guards, multi-repo sync, and automated setup. These tools form a self-reinforcing loop where each makes the others more powerful.\n\nA mail-like coordination layer for multi-agent workflows. Agents send messages, read threads, and reserve files asynchronously via MCP tools - like Gmail for AI coding agents. HTTP-only FastMCP transport with static export.\n\nCritical for multi-agent setups. When 5+ Claude Code instances work the same codebase, they need to coordinate who's editing what. Agent Mail prevents merge conflicts via advisory file reservations with pre-commit guard enforcement, and builds an audit trail of all agent decisions via SQLite + Git dual persistence.\n\nA fast terminal UI for viewing and analyzing Beads issues. Applies graph theory (PageRank, betweenness centrality, critical path) to identify which tasks unblock the most other work.\n\nIssue tracking is really a dependency graph. BV lets Claude prioritize beads intelligently by computing actual bottlenecks. The --robot-insights flag gives PageRank rankings for what to tackle first.\n\nLocal-first issue tracking for AI agents. SQLite for fast local queries, JSONL export for git-friendly collaboration. Full dependency graph with blocking/blocked-by relationships, priorities P0-P4.\n\nYour issues travel with your repo - no external service required. Non-invasive design: never runs git commands automatically. Agents can create, update, and close issues with simple CLI commands. The bd alias provides backward compatibility.\n\nCoding Agent Session Search\n\nBlazing-fast search across all your past AI coding agent sessions. Indexes 11 agent formats: Claude Code, Codex, Cursor, Gemini, ChatGPT, Cline, Aider, Pi-Agent, Factory, OpenCode, Amp. Sub-60ms queries with optional semantic search.\n\nYou've solved this problem before - but which session? CASS lets you search 'how did I fix that React hydration error' and instantly find the exact conversation. Three search modes (lexical, semantic, hybrid), HTML export with encryption, and multi-machine sync via SSH.\n\nOne-command bootstrap that transforms a fresh Ubuntu VPS into a fully-configured agentic coding environment. CLI provides doctor (47+ health checks), update (category-specific), cheatsheet (50+ aliases), and session management.\n\nSetting up a new development environment takes hours. ACFS does it in 30 minutes, installing 30+ tools, three AI agents, and all flywheel tooling. Post-install CLI provides `acfs doctor` for health checks and `acfs update` for maintenance.\n\nA meta-runner that fans out per-language scanners across 8 languages (JS/TS, Python, Go, Rust, C/C++, Java, Ruby, Swift). Uses ast-grep for AST-based pattern matching with 18 detection categories and 1000+ bug patterns.\n\nAI coding agents move 10-100x faster than humans. UBS keeps pace with sub-5-second scans and auto-wires guardrails into Claude Code, Codex, Cursor, Gemini, and Windsurf agents. The --beads-jsonl output creates Beads issues directly from findings.\n\nDestructive Command Guard\n\nClaude Code PreToolUse hook that blocks dangerous commands BEFORE execution. 50+ packs across 17 categories: git (reset --hard, force push), filesystem (rm -rf), databases (DROP TABLE), Kubernetes, cloud providers, and more.\n\nAI agents can and will run 'rm -rf /' if they think it solves your problem. DCG catches catastrophic commands before they execute with sub-millisecond latency. Safe directory exceptions (/tmp, /var/tmp, $TMPDIR) allow temp operations without friction.\n\nMulti-repo management system: sync 100+ repos, AI-assisted code review with priority scoring, dependency updates across package managers, and agent-driven commit automation.\n\nManaging 100+ repos manually is impossible. 'ru sync' handles clone/pull in parallel. 'ru review' discovers issues/PRs via GraphQL batch queries, scores by priority (security+50, bugs+30, age), and spawns isolated Claude Code sessions in worktrees.\n\nCross-agent procedural memory system. Transforms scattered sessions from all your AI agents into persistent, unified knowledge. Three-layer cognitive architecture: Episodic (raw sessions via CASS) → Working (diary summaries) → Procedural (playbook rules with confidence tracking).\n\nA debugging technique discovered in Cursor is immediately available to Claude Code. Rules have 90-day decay half-life and 4× harmful weight for mistakes. Bad rules auto-invert into anti-pattern warnings. Every agent learns from every other agent's experience.\n\nA multi-agent tmux orchestration tool with 80+ commands. Spawns Claude, Codex, and Gemini agents in named panes with type classification (cc/cod/gmi). Monitors context windows, detects file conflicts, and provides robot mode for automation.\n\nRunning multiple AI agents simultaneously creates chaos without orchestration. NTM provides the command center: spawn agents with one command, broadcast prompts to specific types, monitor context usage, and coordinate via Agent Mail. Sessions persist across SSH disconnects and system reboots.\n\nSimultaneous Launch Button\n\nNuclear-launch-style two-person rule for dangerous commands. Four risk tiers classify commands via 40+ regex patterns: CRITICAL (2+ approvals), DANGEROUS (1 approval), CAUTION (30s auto-approve), SAFE (skip). Cryptographic signing, rollback support, and outcome analytics.\n\nAI agents can and will run destructive commands if they think it solves your problem. SLB intercepts commands like 'rm -rf /', 'DROP DATABASE', and 'terraform destroy' requiring explicit approval from another agent or human reviewer before execution. Watch mode lets reviewing agents stream pending requests.\n\nLocal-first skill management platform: dual persistence (SQLite + Git), hybrid search (BM25 + semantic + RRF), UCB bandit optimization, multi-layer security (ACIP + DCG), graph analysis via bv, MCP server for AI agents.\n\nAI agents need reusable context to be effective. MS doesn't just store skills—it learns which ones work via UCB bandit optimization. Context-aware auto-loading suggests skills based on project type. Pack contracts optimize token budgets. The MCP server makes skills native tools for any AI agent.\n\nRemote Compilation Helper\n\nClaude Code PreToolUse hook that offloads Rust compilation to remote workers. Intercepts cargo commands, syncs source via rsync + zstd, compiles on server-grade hardware, streams artifacts back.\n\nMulti-agent swarms trigger many concurrent builds. RCH intercepts commands before execution and routes them to remote workers with health probes and priority scheduling. Agent detection coordinates builds across Claude Code, Codex, and Gemini sessions.\n\nCoding Agent Account Manager\n\nManages multiple accounts for Claude Code, Codex CLI, and Gemini CLI with sub-100ms switching. Vault profiles store auth files for instant activation without browser flows. Smart rotation algorithms automatically select the best profile based on cooldown state, health, and usage patterns.\n\nWhen running multiple agents, you'll hit rate limits. CAAM lets you switch accounts instantly - no browser login, no waiting. Profile isolation enables parallel sessions where each agent uses its own credentials. Health scoring (🟢/🟡/🔴) shows which profiles are ready vs. cooling down.\n\nTerminal hypervisor that captures pane output in real-time, detects agent state transitions through pattern matching, and enables event-driven automation across multiple AI coding agents.\n\nWhen running multiple AI agents in WezTerm, you need to know when they hit rate limits, complete tasks, or need approval. WA observes all panes with sub-50ms latency and triggers automated responses.\n\nMulti-agent scientific research orchestration platform based on Sydney Brenner's methodology. Manages full research artifact lifecycle: hypotheses, discriminative tests, anomalies, critiques, and evidence packs with cockpit runtime for parallel agent sessions.\n\nTransforms AI agents into a collaborative research group with rigorous scientific discipline. The Brenner approach emphasizes exclusion over accumulation, third-alternative thinking, and discriminative experiments that collapse hypothesis space fast.\n\nExtend the ecosystem with GitHub issue sync, archive search, and prompt crafting utilities. These tools enhance the core flywheel for specialized workflows.\n\nGet Image from Internet Link\n\nDownloads full-resolution images from iCloud, Dropbox, Google Photos, and Google Drive share links using a four-tier capture strategy with headless Chromium automation.\n\nWhen debugging remotely, users share cloud links but you're SSH'd into a headless server. GIIL's four-tier capture (download button → CDN interception → element screenshot → viewport fallback) ensures maximum quality retrieval for AI agent analysis.\n\nSystem Resource Protection Script\n\nInstalls ananicy-cpp with curated rules to auto-deprioritize background processes. Includes sysmoni Go TUI (Bubble Tea) with IO throughput, FD counts, per-core sparklines, JSON export. Works on Linux and WSL2.\n\nWhen running cargo build, npm install, or multiple AI agents, SRPS prevents unresponsive systems by lowering priority of known resource hogs. Safety-first: no automated process killing. Helper tools for diagnostics.\n\nUltra-fast search over X/Twitter data archives with sub-millisecond latency. Uses hybrid BM25 + semantic search with Reciprocal Rank Fusion. Indexes tweets, likes, DMs, and Grok conversations.\n\nYour X archive is a goldmine of bookmarks, threads, and ideas, but Twitter's search is terrible. XF makes your archive instantly searchable (<10ms) with both keyword and semantic matching. DM context search shows full conversation threads.\n\nWorld-class terminal UI for combining source code files into LLM-ready prompts. Tree explorer with vim-style navigation, live syntax preview, token counting, and structured XML-like output optimized for AI parsing.\n\nCrafting prompts with code context is tedious and error-prone. S2P provides visual file selection with sizes and line counts, real-time token/cost estimation, quick file-type shortcuts (1-9,0,r), and produces structured output that LLMs parse reliably.\n\nAutomated Plan Reviser Pro\n\nIterative specification refinement via GPT Pro 5.2 Extended Reasoning + Oracle. Document bundling (README + spec + impl), convergence analytics with weighted scoring, session management, and robot mode JSON API for coding agents.\n\nComplex specs need 15-20 review cycles. APR automates the loop: rounds 1-3 fix architecture, 4-7 refine interfaces, 8-12 handle edge cases, 13+ polish abstractions. Convergence score (≥0.75 = stable) tells you when to stop.\n\nOfficial CLI for jeffreysprompts.com - browse, search, and install battle-tested prompts as Claude Code skills. Features interactive fzf-style picker and task-based suggestion engine.\n\nInstead of writing prompts from scratch, install proven patterns. The interactive mode (jfp i) lets you fuzzy-search the entire library, while jfp suggest recommends prompts based on your task description. Premium features include collections, cross-machine sync, and a skills marketplace.\n\nBayesian-inference zombie/abandoned process detection using four-state classification (Useful, Useful-but-bad, Abandoned, Zombie) with evidence-based posterior probability scoring.\n\nWhen builds hang or test runners go rogue, PT computes P(state|evidence) using process type, age, CPU/IO activity, memory, and past decisions. Confidence levels (very_high >0.99 to low <0.80) guide safe termination with identity validation and staged kill signals.\n\nToken-Optimized Notation\n\nToken-optimized notation format for efficient LLM context packing. Compresses structured data into a dense format that maximizes information per token.\n\nLLM context windows are precious. TRU compresses JSON, YAML, and other structured data into a compact notation that conveys the same information in fewer tokens, letting you fit more context into each request.\n\nTransparent HTTP/HTTPS proxy for debugging and inspecting network traffic. Routes requests through a local proxy for analysis.\n\nWhen debugging API integrations or AI agent network calls, you need visibility into what's being sent and received. Rust Proxy provides transparent interception without modifying your code.\n\nNetwork observer for AI CLI tools that logs requests and responses without proxying. Passive monitoring of LLM API traffic.\n\nUnderstanding what your AI agents are actually sending to APIs helps with debugging, cost tracking, and optimization. RANO passively observes network traffic without adding proxy overhead.\n\nConverts websites to clean Markdown for LLM consumption. Strips ads, navigation, and boilerplate to extract just the content.\n\nAI agents need web content in a format they can understand. MDWB fetches pages and converts them to clean Markdown, perfect for feeding into LLM context windows.\n\nASCII Art Diagram Corrector\n\nFixes malformed ASCII art diagrams generated by AI. Corrects alignment, box characters, and connection lines.\n\nAI models often generate ASCII diagrams with alignment issues, broken lines, or inconsistent characters. AADC automatically detects and fixes these problems.\n\nCoding Agent Usage Tracker\n\nTracks LLM provider usage across multiple coding agents. Monitors API calls, token consumption, and costs.\n\nWhen running multiple AI agents simultaneously, costs can spiral. CAUT provides visibility into which agents are using how many tokens and at what cost.\n\nThe fastest way to set up the entire flywheel ecosystem is with ACFS. One command, 30 minutes, and you're ready to go.\n\nOr use the step-by-step wizard for guided setup.",
+  "headings": [
+    {
+      "level": "h1",
+      "text": "The Agentic Coding FlywheelTL;DR EditionTL;DR Edition",
+      "id": ""
+    },
+    {
+      "level": "h2",
+      "text": "Why a Flywheel?",
+      "id": ""
+    },
+    {
+      "level": "h2",
+      "text": "Core Flywheel Tools",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "Mail",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "BV",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "BR",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "CASS",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "ACFS",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "UBS",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "DCG",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "RU",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "CM",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "NTM",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "SLB",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "MS",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "RCH",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "CAAM",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "WA",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "Brenner",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h2",
+      "text": "Supporting Tools",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "GIIL",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "SRPS",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "XF",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "S2P",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "APR",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "JFP",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "PT",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "TRU",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "RP",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "RANO",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "MDWB",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "AADC",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "CAUT",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why It's Useful",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Key Features",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Tech Stack",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Synergies",
+      "id": ""
+    },
+    {
+      "level": "h2",
+      "text": "Get Started",
+      "id": ""
+    }
+  ],
+  "code_samples": [],
+  "patterns": [],
+  "links": []
+}

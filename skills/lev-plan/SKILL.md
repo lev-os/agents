@@ -1,3 +1,8 @@
+---
+name: lev-plan
+description: Plan entity lifecycle management for `.lev/pm/plans/`, including required frontmatter, state transitions, and operational commands.
+---
+
 # lev-plan — Plan Entity Lifecycle Management
 
 > Create, list, show, transition, and validate plan entities.

@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lev Poly Architecture Truth Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fragment+Mono&display=swap" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fragment+Mono&display=swap');
+
+  :root {
+    --navy: #1e3a5f;
+    --navy-deep: #0d1f33;
+    --navy-mid: #152d4a;
+    --gold: #d4a73a;
+    --gold-dim: #b8923a;
+    --gold-bright: #f0c85a;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --bg-primary: #0b1426;
+    --bg-card: #111d33;
+    --bg-card-hover: #162744;
+    --bg-sidebar: #0d1a2e;
+    --border: #1e3a5f44;
+    --border-strong: #1e3a5f88;
+    --mono: 'Fragment Mono', 'SF Mono', 'Fira Code', monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+
+  [data-theme="light"] {
+    --navy: #1e3a5f;
+    --navy-deep: #f1f5f9;
+    --navy-mid: #e2e8f0;
+    --gold: #b8860b;
+    --gold-dim: #996f0a;
+    --gold-bright: #d4a73a;
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --bg-primary: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-card-hover: #f1f5f9;
+    --bg-sidebar: #f1f5f9;
+    --border: #e2e8f0;
+    --border-strong: #cbd5e1;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 260px;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 2rem 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .sidebar-title {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+  }
+
+  .sidebar nav a {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 0.4rem 0.6rem;
+    border-left: 2px solid transparent;
+    margin-bottom: 0.15rem;
+    transition: all 0.15s;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .sidebar nav a:hover,
+  .sidebar nav a.active {
+    color: var(--gold);
+    border-left-color: var(--gold);
+    background: var(--border);
+  }
+
+  .sidebar nav a.sub {
+    padding-left: 1.4rem;
+    font-size: 0.72rem;
+  }
+
+  .theme-toggle {
+    position: fixed;
+    top: 1rem;
+    right: 1.5rem;
+    z-index: 100;
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    color: var(--text-primary);
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    transition: all 0.15s;
+  }
+  .theme-toggle:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* Main content */
+  .main {
+    flex: 1;
+    max-width: 960px;
+    padding: 3rem 3rem 6rem;
+    margin: 0 auto;
+  }
+
+  .hero {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .hero h1 {
+    font-family: var(--mono);
+    font-size: 1.6rem;
+    font-weight: 400;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+
+  .hero .subtitle {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+
+  .hero .date {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+  }
+
+  section {
+    margin-bottom: 4rem;
+  }
+
+  h2 {
+    font-family: var(--mono);
+    font-size: 1.15rem;
+    font-weight: 400;
+    color: var(--gold);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  h3 {
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  p { margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.88rem; }
+
+  /* Status dots */
+  .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .dot-green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .dot-amber { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+  .dot-red { background: var(--red); box-shadow: 0 0 6px var(--red); }
+
+  /* Cards */
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    transition: border-color 0.15s;
+  }
+
+  .card:hover { border-color: var(--border-strong); }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .card-title {
+    font-family: var(--mono);
+    font-size: 0.88rem;
+    color: var(--text-primary);
+  }
+
+  .card-module {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    background: var(--border);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+  }
+
+  .card-body p {
+    font-size: 0.82rem;
+    margin-bottom: 0.4rem;
+    line-height: 1.5;
+  }
+
+  .card-body .label {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin-bottom: 1.5rem;
+  }
+
+  th {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gold-dim);
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border-strong);
+    background: var(--bg-card);
+  }
+
+  td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
+    vertical-align: top;
+  }
+
+  tr:hover td { background: var(--bg-card); }
+
+  td code, p code {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    background: var(--border);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    color: var(--text-primary);
+  }
+
+  /* Diagram boxes */
+  .diagram {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+  }
+
+  .flow-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .flow-label {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .flow-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .flow-box {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 5px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+
+  .flow-box.user { border-color: var(--gold); color: var(--gold); }
+  .flow-box.good { border-color: var(--green); color: var(--green); }
+  .flow-box.warn { border-color: var(--amber); color: var(--amber); }
+  .flow-box.bad { border-color: var(--red); color: var(--red); }
+
+  .flow-arrow {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* BDD scenarios */
+  .bdd {
+    background: var(--bg-card);
+    border-left: 3px solid var(--gold);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    border-radius: 0 6px 6px 0;
+    font-size: 0.82rem;
+  }
+
+  .bdd .given { color: var(--text-muted); }
+  .bdd .when { color: var(--gold); }
+  .bdd .then { color: var(--green); }
+
+  .bdd strong {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+  }
+
+  /* Assessment box */
+  .assessment {
+    background: var(--bg-card);
+    border: 1px solid var(--gold-dim);
+    border-radius: 8px;
+    padding: 1.5rem 2rem;
+    margin: 1rem 0;
+  }
+
+  .assessment h3 {
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+
+  .assessment ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .assessment li {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    padding: 0.3rem 0;
+    padding-left: 1rem;
+    position: relative;
+  }
+
+  .assessment li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.65rem;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+
+  .verdict {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--gold-bright);
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    line-height: 1.7;
+  }
+
+  .action-badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .badge-keep { background: #166534; color: #4ade80; }
+  .badge-move { background: #713f12; color: #fbbf24; }
+  .badge-delete { background: #7f1d1d; color: #f87171; }
+  .badge-review { background: #1e3a5f; color: #93c5fd; }
+
+  @media print {
+    .sidebar, .theme-toggle { display: none; }
+    body { display: block; }
+    .main { max-width: 100%; padding: 1rem; }
+    .card, .diagram, .bdd, .assessment { break-inside: avoid; }
+    * { color: #000 !important; background: #fff !important; border-color: #ccc !important; box-shadow: none !important; }
+    .dot { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main { padding: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-title">Architecture Truth Map</div>
+  <nav>
+    <a href="#s1">S1: What Each Module IS</a>
+    <a href="#s1-poly" class="sub">poly</a>
+    <a href="#s1-daemon" class="sub">daemon</a>
+    <a href="#s1-exec" class="sub">exec</a>
+    <a href="#s1-build" class="sub">build</a>
+    <a href="#s1-config" class="sub">config</a>
+    <a href="#s1-eventbus" class="sub">event-bus</a>
+    <a href="#s1-flowmind" class="sub">flowmind</a>
+    <a href="#s1-domain" class="sub">domain</a>
+    <a href="#s1-logger" class="sub">logger</a>
+    <a href="#s2">S2: The Poly Problem</a>
+    <a href="#s3">S3: User Intent (BDD)</a>
+    <a href="#s4">S4: The Cleanup Map</a>
+    <a href="#s5">S5: Does Any of This Make Sense?</a>
+  </nav>
+</aside>
+
+<button class="theme-toggle" onclick="toggleTheme()">theme</button>
+
+<main class="main">
+
+<div class="hero">
+  <h1>Lev Poly Architecture Truth Map</h1>
+  <p class="subtitle">Spec vs. reality for every core module. What they say they do, what they actually do, and where the gaps live.</p>
+  <p class="date">Generated 2026-03-21 from docs/specs/*, docs/design/*, core/poly/**, core/daemon/**</p>
+</div>
+
+<!-- ================================================================ -->
+<!-- SECTION 1 -->
+<!-- ================================================================ -->
+<section id="s1">
+<h2>S1: What Each Module IS</h2>
+<p>One-to-three sentence JTBD per module. Spec claim, code reality, and gap assessment.</p>
+
+<div class="card-grid">
+
+<!-- POLY -->
+<div class="card" id="s1-poly">
+  <div class="card-header">
+    <span class="dot dot-amber"></span>
+    <span class="card-title">poly</span>
+    <span class="card-module">@lev-os/poly</span>
+  </div>
+  <div class="card-body">
+    <p><span class="label">Spec says:</span> Poly is a pure binder and codegen pipeline. It reads module SDK declarations, builds a unified registry, generates control surfaces (CLI, MCP, HTTP, gRPC, WS), and routes commands to owning packages. Zero business logic.</p>
+    <p><span class="label">Code does:</span> The CLI surface (<code>surfaces/cli/index.ts</code>) has 8 hardcoded if-blocks for <code>work</code>, <code>review</code>, <code>gather</code>, <code>sdlc</code>, <code>loop</code>, <code>autodev</code>, <code>flowmind</code>, and <code>exec</code> that bypass the discovery/registry system entirely. The "~10 LOC build artifact" binary is actually 46 lines of tsx-respawn logic. Command discovery is filesystem-based, not registry/config.yaml-driven. The 20 command handlers total 4,579 LOC in <code>commands/</code>. The codegen pipeline (adapter-gen, proto-gen, zod-gen, binary-compiler) exists but the surfaces are hand-written, not generated.</p>
+    <p><span class="label">Gap:</span> The core spec promise -- "add a config.yaml declaration, all surfaces get the command automatically" -- is not implemented. Surfaces are hand-coded. The CLI is a conventional if/else router, not a codegen output. The codegen pipeline exists in isolation from the actual dispatch path.</p>
+  </div>
+</div>
+
+<!-- DAEMON -->
+<div class="card" id="s1-daemon">
+  <div class="card-header">
+    <span class="dot dot-green"></span>
+    <span class="card-title">daemon</span>
+    <span class="card-module">@lev-os/daemon</span>
+  </div>
+  <div class="card-body">
+    <p><span class="label">Spec says:</span> Daemon owns process supervision, dependency DAG ordering, health monitoring, task queues, worker pools, and adapter-based process management (process, brew, pmdaemon). Poly routes daemon commands; daemon implements them.</p>
+    <p><span class="label">Code does:</span> 11,155 LOC across 20 source files. Full supervisor with dependency graph, health monitor, queue manager, worker pool (including warm pool), three adapters (process, brew, pmdaemon), OTel telemetry bridge, orchestrator integration, and a 966-line CLI lifecycle handler. The ownership boundary is clean -- <code>core/poly/src/commands/daemon.ts</code> is 152 lines of pure delegation.</p>
+    <p><span class="label">Gap:</span> Aligned. The spec-to-code boundary is the cleanest in the entire system. The poly daemon handler delegates to <code>@lev-os/daemon</code> with zero leaked implementation.</p>
+  </div>
+</div>
+
+<!-- EXEC -->
+<div class="card" id="s1-exec">
+  <div class="card-header">
+    <span class="dot dot-green"></span>
+    <span class="card-title">exec</span>
+    <span class="card-module">@lev-os/exec</span>
+  </div>
+  <div class="card-body">
+    <p><span class="label">Spec says:</span> Stateless factory (<code>createExec(dispatch)</code>) producing frozen <code>ExecEngine</code> instances. Per-provider concurrency via <code>ProviderSemaphore</code>, canonical LevEvent emission, structured <code>ExecResult</code> envelopes. Plus a DI-driven client facade for registry-driven execution.</p>
+    <p><span class="label">Code does:</span> The factory/semaphore/event pattern is implemented. <code>client.ts</code> provides the DI facade with lazy transport bootstrap. Poly's SDK wires into it via <code>createExec(call)</code>.</p>
+    <p><span class="label">Gap:</span> Aligned. Exec is structurally sound and the ownership boundary with poly is well-defined.</p>
+  </div>
+</div>
+
+<!-- BUILD -->
+<div class="card" id="s1-build">
+  <div class="card-header">
+    <span class="dot dot-green"></span>
+    <span class="card-title">build</span>
+    <span class="card-module">@lev-os/build</span>
+  </div>
+  <div class="card-body">
+    <p><span class="label">Spec says:</span> Build-time-only toolchain. Codegen, FlowMind compilation, skills indexing, source aggregation, markdown sanitization. No runtime package may depend on it. Install/onboarding is being migrated out to <code>@lev-os/onboarding</code>.</p>
+    <p><span class="label">Code does:</span> Poly uses lazy re-export shims (<code>wizard.ts</code>, <code>registry-loader.ts</code>) to break the cycle. The boundary is respected -- build does not leak into runtime paths.</p>
+    <p><span class="label">Gap:</span> Aligned. The SDK-first mandate (typed options in, typed results out) is the pattern.</p>
+  </div>
+</div>
+
+<!-- CONFIG -->
+<div class="card" id="s1-config">
+  <div class="card-header">
+    <span class="dot dot-green"></span>
+    <span class="card-title">config</span>
+    <span class="card-module">@lev-os/config</span>
+  </div>
+  <div class="card-body">
+    <p><span class="label">Spec says:</span> Four-scope resolution chain (system, project, module, env). XDG-compliant paths. Schema validation with strict key rejection. Fractal config composition.</p>
+    <p><span class="label">Code does:</span> Config resolution, merge, XDG paths, and schema validation live in <code>core/config/src/</code>. Poly's <code>config-apply</code> command delegates properly.</p>
+    <p><span class="label">Gap:</span> Aligned. The monorepo wiring gap (flowmind can't resolve <code>@lev-os/config</code>) is documented and worked around.</p>
+  </div>
+</div>
+
+<!-- EVENT BUS -->
+<div class="card" id="s1-eventbus">
+  <div class="card-header">
+    <span class="dot dot-green"></span>
+    <span class="card-title">event-bus</span>
+    <span class="card-module">@lev-os/event-bus</span>
+  </div>
+  <div class="card-body">
+    <p><span class="label">Spec says:</span> Canonical event spine: pub/sub with pattern matching, JSONL persistence, durable queues, checkpoint/replay, session recovery, XState v5 aggregate machines (Idea, Session, Synth, PR), lifecycle hooks, workflow loading, bridges, frontmatter management.</p>
+    <p><span class="label">Code does:</span> 11 subsystems implemented across events, context, runtime, aggregates, policy, bridge, frontmatter, actions, guards, types, and workflow loader. The spec catalogs every file and subsystem exhaustively.</p>
+    <p><span class="label">Gap:</span> Aligned. The spec is at parity with code. Ephemeral store was pruned (tick 164).</p>
+  </div>
+</div>
+
+<!-- FLOWMIND -->
+<div class="card" id="s1-flowmind">
+  <div class="card-header">
+    <span class="dot dot-amber"></span>
+    <span class="card-title">flowmind</span>
+    <span class="card-module">@lev-os/flowmind</span>
+  </div>
+  <div class="card-body">
+    <p><span class="label">Spec says:</span> Declaration execution and policy plane. Owns the kernel (declaration + execution), execution contracts, and the executor. FlowMind drives everything -- agents, workflows, policies, harness configs are all FlowMind declarations.</p>
+    <p><span class="label">Code does:</span> <code>core/flowmind/src/kernel/**</code> and <code>core/flowmind/src/execution-contract/**</code> exist. The CLI surface hardcodes a <code>flowmind</code> if-block rather than discovering it through the registry. AI provider factory with model profiles works.</p>
+    <p><span class="label">Gap:</span> Partial. FlowMind is the declared policy plane but the "drives everything" aspiration is not fully realized. The CLI bypass (hardcoded if-block) undercuts the registry-first model.</p>
+  </div>
+</div>
+
+<!-- DOMAIN -->
+<div class="card" id="s1-domain">
+  <div class="card-header">
+    <span class="dot dot-green"></span>
+    <span class="card-title">domain</span>
+    <span class="card-module">@lev-os/domain</span>
+  </div>
+  <div class="card-body">
+    <p><span class="label">Spec says:</span> Stable shared contracts -- types, LevEvent factory, ExecTransport interface. The type spine that every other module imports from.</p>
+    <p><span class="label">Code does:</span> <code>event-source.ts</code> provides LevEvent factory. ExecTransport is defined here for DI. Domain is the shared type boundary.</p>
+    <p><span class="label">Gap:</span> Aligned.</p>
+  </div>
+</div>
+
+<!-- LOGGER -->
+<div class="card" id="s1-logger">
+  <div class="card-header">
+    <span class="dot dot-green"></span>
+    <span class="card-title">logger</span>
+    <span class="card-module">@lev-os/logger</span>
+  </div>
+  <div class="card-body">
+    <p><span class="label">Spec says:</span> Pino-based structured logging. Zero workspace dependencies. Standalone package imported directly, not through poly.</p>
+    <p><span class="label">Code does:</span> Standalone structured logging. Design doc explicitly says dead re-exports in poly should be deleted.</p>
+    <p><span class="label">Gap:</span> Aligned.</p>
+  </div>
+</div>
+
+</div><!-- card-grid -->
+</section>
+
+<!-- ================================================================ -->
+<!-- SECTION 2 -->
+<!-- ================================================================ -->
+<section id="s2">
+<h2>S2: The Poly Problem</h2>
+<p>The design doc says "each surface reads the same registry and produces a different wire format." Here is how it actually works.</p>
+
+<div class="diagram">
+<div class="flow-container">
+
+<div>
+  <div class="flow-label">Spec: Registry-driven dispatch (the dream)</div>
+  <div class="flow-row">
+    <span class="flow-box user">user: lev X</span>
+    <span class="flow-arrow">--></span>
+    <span class="flow-box good">poly bin/lev</span>
+    <span class="flow-arrow">--></span>
+    <span class="flow-box good">createCliSurface(registry)</span>
+    <span class="flow-arrow">--></span>
+    <span class="flow-box good">registry lookup</span>
+    <span class="flow-arrow">--></span>
+    <span class="flow-box good">module handler</span>
+    <span class="flow-arrow">--></span>
+    <span class="flow-box good">response</span>
+  </div>
+  <p style="margin-top:0.75rem; font-size:0.78rem; color:var(--text-muted);">Every command flows through the same registry. Add to config.yaml, all surfaces get it. ~10 LOC binary.</p>
+</div>
+
+<div>
+  <div class="flow-label">Reality: Hardcoded if-blocks + filesystem discovery</div>
+  <div class="flow-row" style="margin-bottom: 0.5rem;">
+    <span class="flow-box user">user: lev X</span>
+    <span class="flow-arrow">--></span>
+    <span class="flow-box warn">bin/lev (46 LOC tsx respawn)</span>
+    <span class="flow-arrow">--></span>
+    <span class="flow-box warn">surfaces/cli/index.ts</span>
+  </div>
+  <div class="flow-row" style="margin-bottom: 0.5rem; padding-left: 2rem;">
+    <span class="flow-arrow">if</span>
+    <span class="flow-box bad">X == 'work'</span>
+    <span class="flow-arrow">--></span>
+    <span class="flow-box">@lev-os/core-sdlc (dynamic import)</span>
+  </div>
+  <div class="flow-row" style="margin-bottom: 0.5rem; padding-left: 2rem;">
+    <span class="flow-arrow">if</span>
+    <span class="flow-box bad">X == 'review'</span>
+    <span class="flow-arrow">--></span>
+    <span class="flow-box">@lev-os/core-sdlc (dynamic import)</span>
+  </div>
+  <div class="flow-row" style="margin-bottom: 0.5rem; padding-left: 2rem;">
+    <span class="flow-arrow">if</span>
+    <span class="flow-box bad">X == 'gather'</span>
+    <span class="flow-arrow">--></span>
+    <span class="flow-box">handlers/gather.ts (lazy re-export)</span>
+  </div>
+  <div class="flow-row" style="margin-bottom: 0.5rem; padding-left: 2rem;">
+    <span class="flow-arrow">if</span>
+    <span class="flow-box bad">X == 'sdlc'</span>
+    <span class="flow-arrow">--></span>
+    <span class="flow-box">@lev-os/core-sdlc (dynamic import)</span>
+  </div>
+  <div class="flow-row" style="margin-bottom: 0.5rem; padding-left: 2rem;">
+    <span class="flow-arrow">if</span>
+    <span class="flow-box bad">X == 'loop'</span>
+    <span class="flow-arrow">--></span>
+    <span class="flow-box">@lev-os/core-sdlc (dynamic import)</span>
+  </div>
+  <div class="flow-row" style="margin-bottom: 0.5rem; padding-left: 2rem;">
+    <span class="flow-arrow">if</span>
+    <span class="flow-box bad">X == 'autodev'</span>
+    <span class="flow-arrow">--></span>
+    <span class="flow-box">@lev-os/core-sdlc (dynamic import)</span>
+  </div>
+  <div class="flow-row" style="margin-bottom: 0.5rem; padding-left: 2rem;">
+    <span class="flow-arrow">if</span>
+    <span class="flow-box bad">X == 'flowmind'</span>
+    <span class="flow-arrow">--></span>
+    <span class="flow-box">@lev-os/flowmind (dynamic import)</span>
+  </div>
+  <div class="flow-row" style="margin-bottom: 0.5rem; padding-left: 2rem;">
+    <span class="flow-arrow">if</span>
+    <span class="flow-box bad">X == 'exec'</span>
+    <span class="flow-arrow">--></span>
+    <span class="flow-box">core/harness (hardcoded path)</span>
+  </div>
+  <div class="flow-row" style="padding-left: 2rem;">
+    <span class="flow-arrow">else</span>
+    <span class="flow-box good">discoverCommands()</span>
+    <span class="flow-arrow">--></span>
+    <span class="flow-box">filesystem scan core/*/src/commands/</span>
+    <span class="flow-arrow">--></span>
+    <span class="flow-box">registry.commands[X]</span>
+  </div>
+  <p style="margin-top:0.75rem; font-size:0.78rem; color:var(--text-muted);">8 commands hardcoded before the registry is even consulted. Discovery scans filesystem, not config.yaml poly.sdk declarations. MCP/HTTP/gRPC/WS surfaces are hand-written, not codegen outputs.</p>
+</div>
+
+</div>
+</div>
+
+<h3>Why the if-blocks exist</h3>
+<p>Each hardcoded if-block exists to break a circular dependency. The comment in the code says it explicitly: <code>// Handler imports are lazy (dynamic) to avoid circular deps: poly -> core-sdlc -> poly/surfaces/cli/utils</code>. The <code>exec</code> block also needs special handling because "exec is a harness command, not a file-discovered command." These are pragmatic workarounds, but they violate the spec's registry-first promise.</p>
+
+<h3>Discovery is filesystem-based, not config-driven</h3>
+<p><code>discoverCommands()</code> walks <code>core/*/src/commands/*.ts</code> and <code>plugins/*/src/commands/*.ts</code> to find handlers. It never reads <code>config.yaml</code> poly.sdk declarations. The config.yaml-driven registry described in the design doc and spec is not wired into CLI dispatch at all.</p>
+</section>
+
+<!-- ================================================================ -->
+<!-- SECTION 3 -->
+<!-- ================================================================ -->
+<section id="s3">
+<h2>S3: What Does the User Actually Want?</h2>
+<p>BDD-style scenarios extracted from the specs and design docs, capturing the real intent behind the architecture.</p>
+
+<div class="bdd">
+  <p><strong class="given">Given</strong> poly is a binder that reads <code>config.yaml</code> poly.sdk declarations</p>
+  <p><strong class="when">When</strong> I add a handler declaration to any module's <code>config.yaml</code></p>
+  <p><strong class="then">Then</strong> all surfaces (CLI, MCP, HTTP, gRPC, WS) automatically discover and expose that command without touching poly source code</p>
+</div>
+
+<div class="bdd">
+  <p><strong class="given">Given</strong> daemon manages process lifecycle and poly only routes</p>
+  <p><strong class="when">When</strong> I run <code>lev daemon start api</code></p>
+  <p><strong class="then">Then</strong> poly parses args and delegates entirely to <code>@lev-os/daemon</code>, which starts the process through the configured adapter, respects the dependency DAG, and emits health check events</p>
+</div>
+
+<div class="bdd">
+  <p><strong class="given">Given</strong> exec owns the execution engine as a stateless factory</p>
+  <p><strong class="when">When</strong> any surface (CLI, MCP, HTTP) needs to execute a provider call</p>
+  <p><strong class="then">Then</strong> it calls <code>createExec(dispatch).exec()</code>, gets per-provider concurrency control, backpressure handling, and canonical <code>exec.started</code>/<code>exec.completed</code>/<code>exec.failed</code> LevEvents -- without reimplementing any of that logic</p>
+</div>
+
+<div class="bdd">
+  <p><strong class="given">Given</strong> the codegen pipeline generates proto, Zod, and adapter stubs from service manifests</p>
+  <p><strong class="when">When</strong> I run <code>lev-dev codegen</code></p>
+  <p><strong class="then">Then</strong> the generated CLI surface, MCP tools, HTTP endpoints, and gRPC services all reflect the current registry state -- and I never hand-write surface code</p>
+</div>
+
+<div class="bdd">
+  <p><strong class="given">Given</strong> a TypeScript, Python, Go, or Rust package declares handlers via <code>config.yaml</code></p>
+  <p><strong class="when">When</strong> the registry builder scans the workspace</p>
+  <p><strong class="then">Then</strong> all handlers appear in the unified registry with typed schemas, and I can call Go from TypeScript or Python from Rust through <code>poly SDK call()</code></p>
+</div>
+
+<div class="bdd">
+  <p><strong class="given">Given</strong> FlowMind is the declaration and policy plane</p>
+  <p><strong class="when">When</strong> I define a <code>.flow.yaml</code> workflow with stages and gates</p>
+  <p><strong class="then">Then</strong> the kernel executes it deterministically, emits LevEvents at each transition, and the event-bus persists/replays the full history</p>
+</div>
+
+<div class="bdd">
+  <p><strong class="given">Given</strong> event-bus owns persistence, replay, and recovery</p>
+  <p><strong class="when">When</strong> a gateway process crashes mid-session</p>
+  <p><strong class="then">Then</strong> session recovery detects the orphan, replays from the last checkpoint, and resumes execution without data loss</p>
+</div>
+
+<div class="bdd">
+  <p><strong class="given">Given</strong> the plugin validator enforces the <code>leviathan</code> contract</p>
+  <p><strong class="when">When</strong> a plugin at <code>plugins/X/</code> declares daemon, MCP, and SDK handlers in its manifest</p>
+  <p><strong class="then">Then</strong> the registry builder discovers it, the daemon starts it, and <code>lev X:command</code> routes through poly to the plugin's handler with namespace isolation</p>
+</div>
+</section>
+
+<!-- ================================================================ -->
+<!-- SECTION 4 -->
+<!-- ================================================================ -->
+<section id="s4">
+<h2>S4: The Cleanup Map</h2>
+<p>Every file in <code>core/poly/src/commands/</code> with what it does, where it should live, and what to do with it.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>File</th>
+      <th>LOC</th>
+      <th>What It Does</th>
+      <th>Should Live</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>daemon.ts</code></td>
+      <td>152</td>
+      <td>Thin router to <code>@lev-os/daemon</code>. Handles exec bridge, serve redirect, surface/config/mcp subcommands.</td>
+      <td>Poly (routing)</td>
+      <td><span class="action-badge badge-keep">KEEP</span></td>
+    </tr>
+    <tr>
+      <td><code>daemon-status.ts</code></td>
+      <td>342</td>
+      <td>Status row collection, table/JSON formatting. Calls DaemonAdapter.</td>
+      <td>Poly (display formatting)</td>
+      <td><span class="action-badge badge-keep">KEEP</span></td>
+    </tr>
+    <tr>
+      <td><code>daemon-status-cli.ts</code></td>
+      <td>131</td>
+      <td>CLI arg parser for daemon status. Thin adapter.</td>
+      <td>Poly (CLI adapter)</td>
+      <td><span class="action-badge badge-keep">KEEP</span></td>
+    </tr>
+    <tr>
+      <td><code>up.ts</code></td>
+      <td>10</td>
+      <td>Alias for <code>daemon start</code></td>
+      <td>Poly (alias)</td>
+      <td><span class="action-badge badge-keep">KEEP</span></td>
+    </tr>
+    <tr>
+      <td><code>down.ts</code></td>
+      <td>10</td>
+      <td>Alias for <code>daemon stop</code></td>
+      <td>Poly (alias)</td>
+      <td><span class="action-badge badge-keep">KEEP</span></td>
+    </tr>
+    <tr>
+      <td><code>ps.ts</code></td>
+      <td>10</td>
+      <td>Alias for <code>daemon list</code></td>
+      <td>Poly (alias)</td>
+      <td><span class="action-badge badge-keep">KEEP</span></td>
+    </tr>
+    <tr>
+      <td><code>install.ts</code></td>
+      <td>48</td>
+      <td>Thin dispatch to <code>@lev-os/build</code></td>
+      <td>Poly (dispatch shim)</td>
+      <td><span class="action-badge badge-keep">KEEP</span></td>
+    </tr>
+    <tr>
+      <td><code>upgrade.ts</code></td>
+      <td>33</td>
+      <td>Thin dispatch to build upgrade</td>
+      <td>Poly (dispatch shim)</td>
+      <td><span class="action-badge badge-keep">KEEP</span></td>
+    </tr>
+    <tr>
+      <td><code>wizard.ts</code></td>
+      <td>17</td>
+      <td>Lazy re-export from <code>@lev-os/build</code> to break cycle</td>
+      <td>Poly (cycle-breaker)</td>
+      <td><span class="action-badge badge-keep">KEEP</span></td>
+    </tr>
+    <tr>
+      <td><code>registry-loader.ts</code></td>
+      <td>32</td>
+      <td>Lazy re-export from <code>@lev-os/build</code></td>
+      <td>Poly (cycle-breaker)</td>
+      <td><span class="action-badge badge-keep">KEEP</span></td>
+    </tr>
+    <tr>
+      <td><code>index.ts</code></td>
+      <td>91</td>
+      <td>Barrel re-export of all commands</td>
+      <td>Poly (barrel)</td>
+      <td><span class="action-badge badge-keep">KEEP</span></td>
+    </tr>
+    <tr>
+      <td><code>ext.ts</code></td>
+      <td>437</td>
+      <td>Extension management (list/install/remove/search). Could be thinner.</td>
+      <td>Poly (extension registry is poly-owned)</td>
+      <td><span class="action-badge badge-review">REVIEW</span></td>
+    </tr>
+    <tr>
+      <td><code>projects.ts</code></td>
+      <td>117</td>
+      <td>Project management (list/add/remove)</td>
+      <td>Poly (project registry is poly-owned)</td>
+      <td><span class="action-badge badge-keep">KEEP</span></td>
+    </tr>
+    <tr>
+      <td><code>shell.ts</code></td>
+      <td>198</td>
+      <td>Shell integration (completions, env setup)</td>
+      <td>Poly (CLI surface concern)</td>
+      <td><span class="action-badge badge-keep">KEEP</span></td>
+    </tr>
+    <tr>
+      <td><code>config-apply.ts</code></td>
+      <td>205</td>
+      <td>Config value writer with scope parsing. 205 LOC of argument parsing, type coercion, and config write logic.</td>
+      <td><code>core/config/src/commands/</code></td>
+      <td><span class="action-badge badge-move">MOVE</span></td>
+    </tr>
+    <tr>
+      <td><code>doctor.ts</code></td>
+      <td>593</td>
+      <td>Runtime diagnostics: XDG checks, daemon health, dependency checks. 593 LOC of genuine business logic.</td>
+      <td><code>core/config/src/commands/</code> or standalone <code>core/doctor/</code></td>
+      <td><span class="action-badge badge-move">MOVE</span></td>
+    </tr>
+    <tr>
+      <td><code>ralph.ts</code></td>
+      <td>149</td>
+      <td>Adversarial validation loop. Spawns agent sessions.</td>
+      <td>Debatable. Could be <code>plugins/core-sdlc/</code></td>
+      <td><span class="action-badge badge-review">REVIEW</span></td>
+    </tr>
+    <tr>
+      <td><code>cdo.ts</code></td>
+      <td>364</td>
+      <td>Deterministic task graph executor. Spawns processes, manages concurrency. 364 LOC of genuine orchestration logic.</td>
+      <td><code>core/orchestration/</code> or <code>plugins/core-sdlc/</code></td>
+      <td><span class="action-badge badge-move">MOVE</span></td>
+    </tr>
+    <tr>
+      <td><code>poly.ts</code></td>
+      <td>581</td>
+      <td>Cross-language project runner. Detects project type, spawns dev servers, compiles. 581 LOC of runtime/project-type logic.</td>
+      <td>The heavyweight here. Could be <code>core/poly/src/runner/</code> to separate from command routing, but it IS poly's core job.</td>
+      <td><span class="action-badge badge-review">REVIEW</span></td>
+    </tr>
+    <tr>
+      <td colspan="2"></td>
+      <td colspan="3" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">
+        Test files excluded: <code>daemon-delegation.test.ts</code> (217 LOC), <code>daemon-status-cli.test.ts</code> (306 LOC), <code>daemon-status.test.ts</code> (536 LOC)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Summary</h3>
+<table>
+  <thead><tr><th>Action</th><th>Count</th><th>Total LOC</th></tr></thead>
+  <tbody>
+    <tr><td><span class="action-badge badge-keep">KEEP</span></td><td>11</td><td>1,041</td></tr>
+    <tr><td><span class="action-badge badge-move">MOVE</span></td><td>3</td><td>1,162</td></tr>
+    <tr><td><span class="action-badge badge-review">REVIEW</span></td><td>3</td><td>1,167</td></tr>
+    <tr><td><span class="action-badge badge-delete">DELETE</span></td><td>0</td><td>0</td></tr>
+  </tbody>
+</table>
+<p>The good news: nothing needs to be deleted outright. The spec already caught and removed dead code (dashboard-spike, lifecycle facade, ephemeral store). The remaining work is moving business logic out of poly's command directory and into its proper owning modules.</p>
+</section>
+
+<!-- ================================================================ -->
+<!-- SECTION 5 -->
+<!-- ================================================================ -->
+<section id="s5">
+<h2>S5: Does Any of This Make Sense?</h2>
+
+<div class="assessment">
+  <h3>The Architecture Is Sound</h3>
+  <ul>
+    <li>The ownership map is well-defined and mostly respected. Seven of nine core modules are at parity between spec and code.</li>
+    <li>The daemon boundary is the gold standard -- 152 LOC of delegation in poly, 11,155 LOC of implementation in daemon. That's a clean cut.</li>
+    <li>The exec factory pattern (stateless, frozen, per-provider semaphore) is elegant and correctly isolated.</li>
+    <li>The event-bus is genuinely comprehensive: 11 subsystems, XState v5 aggregates, checkpoint/replay, session recovery. It's the most mature module.</li>
+    <li>LevEvent as the only inter-module event schema is the right call. One envelope, one spine, no legacy variants.</li>
+  </ul>
+</div>
+
+<div class="assessment">
+  <h3>The Implementation Has One Structural Lie</h3>
+  <ul>
+    <li>The spec says: "Control surfaces are codegen outputs, not hand-written adapters." The code says: every surface is hand-written. The codegen pipeline (proto-generator, zod-generator, adapter-generator) exists and works, but it is not wired into the actual CLI/MCP/HTTP/gRPC/WS dispatch path.</li>
+    <li>The CLI surface has 8 hardcoded if-blocks that bypass the registry. These exist for valid reasons (circular dependency breaking), but they mean adding a new command requires editing <code>surfaces/cli/index.ts</code>, not <code>config.yaml</code>.</li>
+    <li>Discovery (<code>discoverCommands()</code>) scans the filesystem for <code>src/commands/*.ts</code>, not <code>config.yaml</code> poly.sdk declarations. This is conventional and works, but it's not the config-driven registry the specs describe.</li>
+    <li>The other surfaces (MCP, HTTP, gRPC, WS) each have hand-written <code>index.ts</code> + <code>server.ts</code> pairs. They are not generated from the same registry the CLI uses.</li>
+  </ul>
+  <div class="verdict">
+    The gap is not a design flaw -- it's an execution gap. The architecture is right. The codegen pipeline exists. The surfaces exist. They just aren't connected yet. The if-blocks are pragmatic cycle-breakers. The filesystem discovery is a working bootstrap. The path forward is clear: wire the codegen pipeline into surface generation, collapse the if-blocks into registry entries, and make config.yaml the single source of truth for command registration.
+  </div>
+</div>
+
+<div class="assessment">
+  <h3>Does Poly Need to Be Split?</h3>
+  <ul>
+    <li>No. Poly's scope is correct: binder + codegen + surfaces + SDK transport. That's one coherent concern.</li>
+    <li>What it needs is subtraction, not division. Move <code>config-apply</code> (205 LOC), <code>doctor</code> (593 LOC), and <code>cdo</code> (364 LOC) to their owning modules. That's 1,162 LOC of misplaced business logic.</li>
+    <li>Then close the codegen loop: make the surfaces actual codegen outputs. The pipeline is there. The templates are there. The connection is missing.</li>
+  </ul>
+</div>
+
+<div class="assessment">
+  <h3>The Simplest Path to Making the Spec True</h3>
+  <ul>
+    <li><strong>Phase 1 (hours):</strong> Move <code>config-apply.ts</code>, <code>doctor.ts</code>, and <code>cdo.ts</code> to their owning modules. Replace with thin re-export shims in poly. Brings poly commands from 4,579 to 3,417 LOC of actual routing/formatting.</li>
+    <li><strong>Phase 2 (days):</strong> Collapse the 8 hardcoded if-blocks into registry entries. Each module that needs early routing (<code>work</code>, <code>review</code>, <code>exec</code>, etc.) declares itself in <code>config.yaml</code> with a handler URI. The CLI surface reads the unified registry first, filesystem-discovers second.</li>
+    <li><strong>Phase 3 (week):</strong> Wire the codegen pipeline into surface generation. The proto-generator, zod-generator, and adapter-generator already exist. Make them emit the CLI dispatch table, MCP tool definitions, HTTP router, and gRPC stubs from the same registry manifest. Each surface becomes a thin runtime that loads codegen output.</li>
+    <li><strong>Phase 4 (validation):</strong> Add the test infrastructure gate: 4 language test packages (TS/Py/Go/Rust), each with 5 handlers + 3 dep-backed handlers = 20 handlers in the registry. Prove the full cross-language matrix works. The spec already has 28 BDD scenarios for this.</li>
+  </ul>
+  <div class="verdict">
+    The architecture is sound and well-specified. The daemon boundary proves the team can do clean cuts. The remaining work is mechanical: connect the codegen pipeline to the surfaces, move misplaced business logic to owning modules, and replace the hardcoded if-blocks with registry entries. None of this requires rethinking the architecture -- it requires finishing the implementation.
+  </div>
+</div>
+
+</section>
+
+</main>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+}
+
+// Sidebar active state tracking
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
+      const link = document.querySelector(`.sidebar nav a[href="#${entry.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+document.querySelectorAll('section[id], .card[id]').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

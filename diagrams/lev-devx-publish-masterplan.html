@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lev DevX &amp; Publishing Masterplan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Fragment+Mono:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'Bricolage Grotesque', system-ui, sans-serif;
+    --font-mono: 'Fragment Mono', 'SF Mono', Consolas, monospace;
+    --bg: #0c0f14;
+    --surface: #12161e;
+    --surface2: #1a1f2b;
+    --surface-elevated: #1f2638;
+    --border: rgba(255, 255, 255, 0.06);
+    --border-bright: rgba(255, 255, 255, 0.13);
+    --text: #e8eaf0;
+    --text-dim: #7a8294;
+    --accent: #d4a73a;
+    --accent-dim: rgba(212, 167, 58, 0.12);
+    --teal: #2dd4bf;
+    --teal-dim: rgba(45, 212, 191, 0.1);
+    --rose: #f43f5e;
+    --rose-dim: rgba(244, 63, 94, 0.1);
+    --green: #22c55e;
+    --green-dim: rgba(34, 197, 94, 0.1);
+    --amber: #f59e0b;
+    --amber-dim: rgba(245, 158, 11, 0.1);
+    --blue: #3b82f6;
+    --blue-dim: rgba(59, 130, 246, 0.1);
+    --slate: #64748b;
+  }
+
+  [data-theme="light"] {
+    --bg: #f5f3ef;
+    --surface: #ffffff;
+    --surface2: #ece8e1;
+    --surface-elevated: #fff9f0;
+    --border: rgba(0, 0, 0, 0.07);
+    --border-bright: rgba(0, 0, 0, 0.14);
+    --text: #1a1710;
+    --text-dim: #8a7e6a;
+    --accent: #b8860b;
+    --accent-dim: rgba(184, 134, 11, 0.08);
+    --teal: #0d9488;
+    --teal-dim: rgba(13, 148, 136, 0.08);
+    --rose: #e11d48;
+    --rose-dim: rgba(225, 29, 72, 0.06);
+    --green: #16a34a;
+    --green-dim: rgba(22, 163, 74, 0.06);
+    --amber: #d97706;
+    --amber-dim: rgba(217, 119, 6, 0.06);
+    --blue: #2563eb;
+    --blue-dim: rgba(37, 99, 235, 0.06);
+    --slate: #475569;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f5f3ef;
+      --surface: #ffffff;
+      --surface2: #ece8e1;
+      --surface-elevated: #fff9f0;
+      --border: rgba(0, 0, 0, 0.07);
+      --border-bright: rgba(0, 0, 0, 0.14);
+      --text: #1a1710;
+      --text-dim: #8a7e6a;
+      --accent: #b8860b;
+      --accent-dim: rgba(184, 134, 11, 0.08);
+      --teal: #0d9488;
+      --teal-dim: rgba(13, 148, 136, 0.08);
+      --rose: #e11d48;
+      --rose-dim: rgba(225, 29, 72, 0.06);
+      --green: #16a34a;
+      --green-dim: rgba(22, 163, 74, 0.06);
+      --amber: #d97706;
+      --amber-dim: rgba(217, 119, 6, 0.06);
+      --blue: #2563eb;
+      --blue-dim: rgba(37, 99, 235, 0.06);
+      --slate: #475569;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 60% 40% at 15% 10%, var(--accent-dim), transparent),
+      radial-gradient(ellipse 40% 50% at 85% 80%, var(--teal-dim), transparent);
+  }
+
+  .theme-toggle {
+    position: fixed; top: 12px; right: 12px; z-index: 300;
+    width: 36px; height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--surface) 80%, transparent);
+    backdrop-filter: blur(8px);
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; line-height: 1;
+    transition: background 0.2s, border-color 0.2s;
+    padding: 0;
+  }
+  .theme-toggle:hover { border-color: var(--border-bright); color: var(--text); }
+
+  .wrap {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    gap: 0 40px;
+  }
+
+  .toc {
+    position: sticky; top: 20px; height: fit-content;
+    display: flex; flex-direction: column; gap: 2px;
+    padding: 12px 0;
+    font-size: 12px;
+    font-family: var(--font-mono);
+  }
+  .toc-title {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 8px;
+    padding-left: 8px;
+  }
+  .toc a {
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .toc a:hover { color: var(--text); background: var(--surface); }
+  .toc a.active { color: var(--accent); background: var(--accent-dim); }
+
+  .main { min-width: 0; padding: 40px 24px 80px; }
+
+  /* Hero */
+  .hero {
+    margin-bottom: 48px;
+    padding: 40px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--teal), var(--accent));
+  }
+  .hero h1 {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero .subtitle {
+    color: var(--text-dim);
+    font-size: 17px;
+    max-width: 720px;
+    margin-bottom: 20px;
+  }
+
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .kpi {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .kpi .val {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi .lbl {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-dim);
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* Section headers */
+  .sec-head {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 8px 14px;
+    border-radius: 8px;
+    margin: 40px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    scroll-margin-top: 20px;
+  }
+  .sec-head::before {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .sec-head.rose { background: var(--rose-dim); color: var(--rose); }
+  .sec-head.rose::before { background: var(--rose); }
+  .sec-head.teal { background: var(--teal-dim); color: var(--teal); }
+  .sec-head.teal::before { background: var(--teal); }
+  .sec-head.green { background: var(--green-dim); color: var(--green); }
+  .sec-head.green::before { background: var(--green); }
+  .sec-head.amber { background: var(--amber-dim); color: var(--amber); }
+  .sec-head.amber::before { background: var(--amber); }
+  .sec-head.blue { background: var(--blue-dim); color: var(--blue); }
+  .sec-head.blue::before { background: var(--blue); }
+  .sec-head.accent { background: var(--accent-dim); color: var(--accent); }
+  .sec-head.accent::before { background: var(--accent); }
+
+  /* Cards */
+  .ve-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    animation: fadeUp 0.5s ease both;
+    animation-delay: calc(var(--i, 0) * 60ms);
+  }
+  .ve-card--hero {
+    background: var(--surface-elevated);
+    border-color: var(--border-bright);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  }
+  .ve-card--recessed {
+    background: var(--surface2);
+    border-color: var(--border);
+  }
+  .ve-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ve-card p, .ve-card li { color: var(--text-dim); font-size: 14px; }
+  .ve-card ul { padding-left: 20px; }
+  .ve-card li { margin-bottom: 4px; }
+
+  .accent-border-l { border-left: 3px solid var(--accent); }
+  .teal-border-l { border-left: 3px solid var(--teal); }
+  .rose-border-l { border-left: 3px solid var(--rose); }
+  .green-border-l { border-left: 3px solid var(--green); }
+  .amber-border-l { border-left: 3px solid var(--amber); }
+  .blue-border-l { border-left: 3px solid var(--blue); }
+
+  /* Grid layouts */
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+  /* Tags */
+  .tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 4px;
+    vertical-align: middle;
+  }
+  .tag-rose { background: var(--rose-dim); color: var(--rose); }
+  .tag-green { background: var(--green-dim); color: var(--green); }
+  .tag-amber { background: var(--amber-dim); color: var(--amber); }
+  .tag-teal { background: var(--teal-dim); color: var(--teal); }
+  .tag-blue { background: var(--blue-dim); color: var(--blue); }
+  .tag-accent { background: var(--accent-dim); color: var(--accent); }
+
+  /* Table */
+  .tbl-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead { position: sticky; top: 0; z-index: 2; }
+  th {
+    background: var(--surface2);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-bright);
+    white-space: nowrap;
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: color-mix(in srgb, var(--surface2) 30%, transparent); }
+  tr:hover td { background: var(--accent-dim); }
+  td code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--surface2);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* Status dots */
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .dot-red { background: var(--rose); }
+  .dot-green { background: var(--green); }
+  .dot-amber { background: var(--amber); }
+
+  /* Callout */
+  .callout {
+    background: var(--surface2);
+    border-left: 3px solid var(--amber);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    font-size: 14px;
+    margin: 16px 0;
+  }
+  .callout strong { color: var(--amber); }
+
+  /* Flow arrows */
+  .flow-arrow {
+    display: flex; justify-content: center; padding: 8px 0;
+  }
+  .flow-arrow svg { width: 24px; height: 32px; }
+  .flow-arrow line, .flow-arrow polygon { stroke: var(--text-dim); fill: var(--text-dim); }
+
+  /* Pipeline */
+  .pipeline {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin: 16px 0;
+    overflow-x: auto;
+  }
+  .pipe-step {
+    flex: 1;
+    min-width: 120px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+    text-align: center;
+    position: relative;
+  }
+  .pipe-step:first-child { border-radius: 10px 0 0 10px; }
+  .pipe-step:last-child { border-radius: 0 10px 10px 0; }
+  .pipe-step .pipe-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .pipe-step .pipe-title {
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .pipe-step .pipe-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+  .pipe-step + .pipe-step::before {
+    content: '›';
+    position: absolute;
+    left: -7px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .pipe-step.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeScale {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ve-card, .kpi, .hero { animation: none !important; }
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .wrap { grid-template-columns: 1fr; }
+    .toc {
+      position: sticky; top: 0; z-index: 100;
+      flex-direction: row;
+      overflow-x: auto;
+      background: color-mix(in srgb, var(--bg) 90%, transparent);
+      backdrop-filter: blur(12px);
+      padding: 8px 16px;
+      gap: 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    .toc-title { display: none; }
+    .toc a { white-space: nowrap; font-size: 11px; }
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .pipeline { flex-direction: column; }
+    .pipe-step { border-radius: 8px !important; }
+    .pipe-step + .pipe-step::before { display: none; }
+    .hero h1 { font-size: 26px; }
+  }
+
+  /* Print */
+  @media print {
+    body { background: white; color: black; }
+    .toc, .theme-toggle { display: none; }
+    .ve-card { break-inside: avoid; border: 1px solid #ccc; box-shadow: none; }
+    .hero::before { background: #333; }
+  }
+
+  /* Code */
+  code {
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+  pre {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 8px 0;
+  }
+
+  /* Details/Summary */
+  details {
+    margin: 8px 0;
+  }
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--accent);
+    padding: 4px 0;
+  }
+  summary:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">&#9684;</button>
+
+<div class="wrap">
+<nav class="toc" id="toc">
+  <div class="toc-title">Masterplan</div>
+  <a href="#s0">Current State</a>
+  <a href="#s1">Gotchas</a>
+  <a href="#s2">Package Design</a>
+  <a href="#s3">Dev Workflow</a>
+  <a href="#s4">Daemon Arch</a>
+  <a href="#s5">Distribution</a>
+  <a href="#s6">Roadmap</a>
+  <a href="#s7">Tonight</a>
+</nav>
+
+<div class="main">
+
+<!-- HERO -->
+<div class="hero" style="animation: fadeScale 0.6s ease both;">
+  <h1>Lev <span>DevX &amp; Publishing</span> Masterplan</h1>
+  <p class="subtitle">From "agents figure it out" to <code>npm i -g @lev-os/lev && lev --version</code>. The full plan based on 6 research agents, Mastra/LangChain/Turbo analysis, and decades of OSS graybeard wisdom.</p>
+  <div class="kpi-row">
+    <div class="kpi" style="animation: fadeScale 0.4s ease both; animation-delay: 0.2s;">
+      <div class="val" style="color: var(--rose);">84+</div>
+      <div class="lbl">Packages</div>
+    </div>
+    <div class="kpi" style="animation: fadeScale 0.4s ease both; animation-delay: 0.3s;">
+      <div class="val" style="color: var(--accent);">0</div>
+      <div class="lbl">Published</div>
+    </div>
+    <div class="kpi" style="animation: fadeScale 0.4s ease both; animation-delay: 0.4s;">
+      <div class="val" style="color: var(--teal);">0</div>
+      <div class="lbl">On PATH</div>
+    </div>
+    <div class="kpi" style="animation: fadeScale 0.4s ease both; animation-delay: 0.5s;">
+      <div class="val" style="color: var(--green);">2</div>
+      <div class="lbl">Daemons (broken)</div>
+    </div>
+    <div class="kpi" style="animation: fadeScale 0.4s ease both; animation-delay: 0.6s;">
+      <div class="val" style="color: var(--amber);">v0.1.0</div>
+      <div class="lbl">Target</div>
+    </div>
+  </div>
+</div>
+
+<!-- S0: CURRENT STATE -->
+<div id="s0" class="sec-head rose">0 &mdash; What's Actually Broken</div>
+
+<div class="grid-2">
+  <div class="ve-card rose-border-l" style="--i:0">
+    <h3><span class="dot dot-red"></span> Build System</h3>
+    <ul>
+      <li><code>build:binaries</code> and <code>dev:setup</code> import from <code>core/fractal/</code> &mdash; <strong>deleted during reconciliation</strong></li>
+      <li><code>pnpm dev</code> calls <code>dev:setup</code> which crashes immediately</li>
+      <li><code>pnpm build</code> works until <code>build:binaries</code> step, then dies</li>
+      <li>Circular dep: <code>poly &harr; build &harr; core-sdlc</code> (works via tsx dynamic imports)</li>
+    </ul>
+  </div>
+  <div class="ve-card rose-border-l" style="--i:1">
+    <h3><span class="dot dot-red"></span> Binary / PATH</h3>
+    <ul>
+      <li><code>lev</code> only accessible via <code>pnpm lev</code> in monorepo</li>
+      <li>Shell integration never applied to <code>~/.zshrc</code></li>
+      <li><code>lev install</code> wizard exists (76KB!) but was never run</li>
+      <li><code>lev-dev</code> = <code>@lev-os/build</code> SDLC tooling, not a "dev version"</li>
+    </ul>
+  </div>
+  <div class="ve-card rose-border-l" style="--i:2">
+    <h3><span class="dot dot-red"></span> Daemons</h3>
+    <ul>
+      <li>2 launchd plists point to <code>/usr/local/bin/levd</code> &mdash; <strong>doesn't exist</strong></li>
+      <li>TS daemon (<code>core/daemon</code>) = CLI handler library, no HTTP server</li>
+      <li>Rust daemon (<code>crates/levd</code>) = real axum server on :7890, but <strong>not in poly registry</strong></li>
+      <li>Config says <code>daemon.enabled: true</code> &mdash; nothing running</li>
+    </ul>
+  </div>
+  <div class="ve-card rose-border-l" style="--i:3">
+    <h3><span class="dot dot-red"></span> NPM Publishing</h3>
+    <ul>
+      <li><code>@lev-os</code> org claimed, auth token expired</li>
+      <li>Zero packages published, zero git tags, zero changelogs</li>
+      <li>Many packages export raw <code>.ts</code> files (npm consumers can't use)</li>
+      <li>No <code>publishConfig</code> or <code>files</code> fields on most packages</li>
+      <li>No CI publish workflow</li>
+    </ul>
+  </div>
+</div>
+
+<div class="callout" style="--i:4">
+  <strong>The good news:</strong> <code>pnpm lev --help</code> works from the monorepo. The tsx respawn shim at <code>core/poly/bin/lev</code> is clever &mdash; zero build step for dev, instant feedback. The CLI surface guard (<code>check-cli-surface.js</code>, 565 lines) prevents business logic from leaking into CLI adapters. Changesets is configured. The bones are good.
+</div>
+
+
+<!-- S1: GOTCHAS -->
+<div id="s1" class="sec-head amber">1 &mdash; OSS Graybeard Gotchas</div>
+
+<p style="color: var(--text-dim); font-size: 14px; margin-bottom: 16px;">Hard-won lessons from Sindre Sorhus, Rich Harris, Evan You, Jordan Harband, TJ Holowaychuk, and the Node.js TSC. These are the landmines.</p>
+
+<div class="tbl-wrap">
+<table>
+  <thead>
+    <tr>
+      <th>Gotcha</th>
+      <th>What Happens</th>
+      <th>How to Avoid</th>
+      <th>Severity</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>workspace:* in published packages</strong></td>
+      <td>npm doesn't understand <code>workspace:*</code>. Consumers get cryptic resolution errors.</td>
+      <td>Changesets transforms these automatically. But <strong>test e2e</strong> &mdash; publish dry-run → install in clean project.</td>
+      <td><span class="tag tag-rose">critical</span></td>
+    </tr>
+    <tr>
+      <td><strong>"Works in monorepo, breaks after publish"</strong></td>
+      <td>Dev uses symlinks. npm uses resolution. Different systems, different bugs.</td>
+      <td>Create a <code>test-consumer/</code> project that <code>npm install</code>s published packages and runs smoke tests. Netflix built Niagara for this.</td>
+      <td><span class="tag tag-rose">critical</span></td>
+    </tr>
+    <tr>
+      <td><strong>npm publish vs pnpm publish</strong></td>
+      <td><code>npm publish</code> does NOT honor <code>publishConfig</code> for <code>exports</code> overrides. Ships raw <code>.ts</code> files.</td>
+      <td>Lock down CI to <strong>only</strong> allow <code>pnpm publish</code>. Add a prepack script that validates dist/ exists.</td>
+      <td><span class="tag tag-rose">critical</span></td>
+    </tr>
+    <tr>
+      <td><strong>Peer dep version hell</strong></td>
+      <td>LangChain's #1 complaint. Multiple <code>@langchain/*</code> packages need exact same core version.</td>
+      <td>Use Changesets <code>fixed</code> groups &mdash; core packages version together. Already configured in <code>.changeset/config.json</code>.</td>
+      <td><span class="tag tag-amber">high</span></td>
+    </tr>
+    <tr>
+      <td><strong>CLI startup time</strong></td>
+      <td>Node.js loads 80+ packages on every <code>lev</code> invocation = 2+ second startup</td>
+      <td>Bundle CLI entrypoint with <code>tsup</code>/<code>esbuild</code> into single JS file for distribution. tsx for dev only.</td>
+      <td><span class="tag tag-amber">high</span></td>
+    </tr>
+    <tr>
+      <td><strong>Premature package splitting</strong></td>
+      <td>120 packages = 120 changelogs, 120 version bumps, quadratic maintenance</td>
+      <td>Start with 8-10 public packages. <code>private: true</code> everything else. Split when real consumers need independent versioning.</td>
+      <td><span class="tag tag-amber">high</span></td>
+    </tr>
+    <tr>
+      <td><strong>Lockfile merge conflicts</strong></td>
+      <td>80+ packages + multiple contributors = <code>pnpm-lock.yaml</code> merge conflict every PR</td>
+      <td>Use Renovate for automated dep updates. Minimize manual dependency changes.</td>
+      <td><span class="tag tag-teal">medium</span></td>
+    </tr>
+    <tr>
+      <td><strong>Dual CJS/ESM</strong></td>
+      <td>Wrong <code>exports</code> conditions silently break half your consumers</td>
+      <td>Ship ESM only (<code>"type": "module"</code> already set). CJS consumers can use dynamic <code>import()</code>.</td>
+      <td><span class="tag tag-teal">medium</span></td>
+    </tr>
+    <tr>
+      <td><strong>curl | sh trust exercise</strong></td>
+      <td>Users executing remote code. One compromised CDN = owned machines.</td>
+      <td>HTTPS only + TLS 1.2+. Checksum verification. Version-pinned URLs. Interactive by default.</td>
+      <td><span class="tag tag-teal">medium</span></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout">
+  <strong>Jordan Harband's rule:</strong> "The hard part isn't the tooling. It's the discipline. Changesets forces explicit communication. Semver forces you to think about what 'breaking' means. <code>private: true</code> forces you to decide what's ready."
+</div>
+
+
+<!-- S2: PACKAGE DESIGN -->
+<div id="s2" class="sec-head teal">2 &mdash; Package Architecture (Mastra Pattern)</div>
+
+<p style="color: var(--text-dim); font-size: 14px; margin-bottom: 16px;">Mastra publishes <code>mastra</code> (CLI/runtime) + <code>@mastra/core</code> (SDK) + scoped extensions. This is the model.</p>
+
+<div class="ve-card--hero ve-card accent-border-l" style="--i:0">
+  <h3>The Package Map</h3>
+  <div class="grid-3" style="margin-top: 12px;">
+    <div style="background: var(--accent-dim); border-radius: 10px; padding: 16px; border: 1px solid var(--accent);">
+      <div style="font-family: var(--font-mono); font-size: 11px; color: var(--accent); font-weight: 600;">THE RUNTIME</div>
+      <div style="font-size: 22px; font-weight: 800; margin: 4px 0;">@lev-os/lev</div>
+      <div style="font-size: 13px; color: var(--text-dim);">CLI + SDK + MCP + everything. What agents install.</div>
+      <pre style="font-size: 12px; margin-top: 8px;">npm i -g @lev-os/lev
+bin: { "lev": "dist/bin/lev.js" }
+# Installed command = "lev"</pre>
+    </div>
+    <div style="background: var(--teal-dim); border-radius: 10px; padding: 16px; border: 1px solid var(--teal);">
+      <div style="font-family: var(--font-mono); font-size: 11px; color: var(--teal); font-weight: 600;">THE SDK</div>
+      <div style="font-size: 22px; font-weight: 800; margin: 4px 0;">@lev-os/poly</div>
+      <div style="font-size: 13px; color: var(--text-dim);">Plugin developers install this. Registry, codegen, adapters.</div>
+      <pre style="font-size: 12px; margin-top: 8px;">npm i @lev-os/poly
+# SDK for building lev plugins</pre>
+    </div>
+    <div style="background: var(--green-dim); border-radius: 10px; padding: 16px; border: 1px solid var(--green);">
+      <div style="font-family: var(--font-mono); font-size: 11px; color: var(--green); font-weight: 600;">CORE PACKAGES</div>
+      <div style="font-size: 16px; font-weight: 700; margin: 4px 0;">@lev-os/{module}</div>
+      <div style="font-size: 13px; color: var(--text-dim);">Advanced users. Individual modules published independently.</div>
+      <pre style="font-size: 12px; margin-top: 8px;">@lev-os/logger     # leaf dep
+@lev-os/domain     # pure types
+@lev-os/config     # resolver
+@lev-os/exec       # execution
+@lev-os/event-bus  # events
+@lev-os/daemon     # lifecycle
+@lev-os/flowmind   # flow + AI</pre>
+    </div>
+  </div>
+</div>
+
+<div class="ve-card" style="--i:1">
+  <h3>Publish Tiers</h3>
+  <div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr><th>Tier</th><th>Packages</th><th>Why This Order</th><th>Deps</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="tag tag-green">T1: Leaves</span></td>
+        <td><code>logger</code>, <code>domain</code>, <code>event-providers</code></td>
+        <td>Zero workspace deps. Can publish independently today.</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-teal">T2: Foundation</span></td>
+        <td><code>config</code>, <code>event-bus</code>, <code>exec</code>, <code>telemetry</code></td>
+        <td>Depend only on T1 packages.</td>
+        <td>1-3</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-blue">T3: Runtime</span></td>
+        <td><code>daemon</code>, <code>flowmind</code>, <code>orchestration</code>, <code>harness-sdk</code></td>
+        <td>Depend on T1+T2. Core business logic.</td>
+        <td>3-8</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-accent">T4: Product</span></td>
+        <td><code>poly</code> (SDK), <code>lev</code> (CLI)</td>
+        <td>Depends on everything. The thing users install.</td>
+        <td>all</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-amber">private</span></td>
+        <td>60+ remaining packages</td>
+        <td>Internal tooling, plugins, apps, experiments.</td>
+        <td>&mdash;</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>lev-os</strong> = Operating System AND Open Source. The <code>bin</code> field in <code>package.json</code> controls the command name, not the package name. <code>npm i -g @lev-os/lev</code> installs a command called <code>lev</code>. Clean.
+</div>
+
+
+<!-- S3: DEV WORKFLOW -->
+<div id="s3" class="sec-head green">3 &mdash; Dev Workflow</div>
+
+<div class="ve-card--hero ve-card green-border-l" style="--i:0">
+  <h3>The Two-Mode Architecture</h3>
+  <div class="grid-2" style="margin-top: 12px;">
+    <div style="background: var(--green-dim); border-radius: 10px; padding: 18px; border: 1px solid var(--green);">
+      <div style="font-family: var(--font-mono); font-size: 11px; color: var(--green); font-weight: 600; margin-bottom: 4px;">DEV MODE (monorepo)</div>
+      <pre style="margin: 8px 0;">pnpm lev --help</pre>
+      <ul style="font-size: 13px; color: var(--text-dim);">
+        <li>Resolves to <code>node_modules/.bin/lev</code></li>
+        <li>tsx respawn shim runs <code>.ts</code> directly</li>
+        <li>Zero build step. Instant feedback.</li>
+        <li>Edit source &rarr; run again &rarr; changes reflected</li>
+      </ul>
+    </div>
+    <div style="background: var(--accent-dim); border-radius: 10px; padding: 18px; border: 1px solid var(--accent);">
+      <div style="font-family: var(--font-mono); font-size: 11px; color: var(--accent); font-weight: 600; margin-bottom: 4px;">PROD MODE (installed)</div>
+      <pre style="margin: 8px 0;">lev --help</pre>
+      <ul style="font-size: 13px; color: var(--text-dim);">
+        <li>Resolves from <code>~/.local/bin/lev</code> (PATH)</li>
+        <li>Compiled JS bundle via tsup/esbuild</li>
+        <li>Fast startup (~200ms target)</li>
+        <li>Installed via <code>npm i -g @lev-os/lev</code></li>
+      </ul>
+    </div>
+  </div>
+  <p style="margin-top: 12px; font-size: 13px; color: var(--text-dim);"><strong>Coexistence:</strong> pnpm automatically resolves workspace bins first. When you're in the monorepo, <code>pnpm lev</code> runs the dev version. Outside, <code>lev</code> on PATH is the installed version. No shell functions. No env vars. No conflicts.</p>
+</div>
+
+<div class="ve-card" style="--i:1">
+  <h3>What <code>pnpm dev</code> Should Do</h3>
+  <p style="margin-bottom: 8px;">Fix the broken scripts, then:</p>
+  <div class="pipeline">
+    <div class="pipe-step active">
+      <span class="pipe-num">01</span>
+      <span class="pipe-title">Build Registry</span>
+      <span class="pipe-desc">poly scans config.yaml files</span>
+    </div>
+    <div class="pipe-step">
+      <span class="pipe-num">02</span>
+      <span class="pipe-title">turbo dev</span>
+      <span class="pipe-desc">tsc --watch on ~10 packages</span>
+    </div>
+    <div class="pipe-step">
+      <span class="pipe-num">03</span>
+      <span class="pipe-title">Ready</span>
+      <span class="pipe-desc">pnpm lev runs live .ts</span>
+    </div>
+  </div>
+  <p style="font-size: 13px; color: var(--text-dim);">The CLI itself doesn't need a watch &mdash; tsx runs source directly. The watch is for packages that emit <code>dist/</code> consumed by other packages.</p>
+</div>
+
+
+<!-- S4: DAEMON ARCH -->
+<div id="s4" class="sec-head blue">4 &mdash; Daemon Architecture</div>
+
+<div class="ve-card blue-border-l" style="--i:0">
+  <h3>Two Daemons, One System</h3>
+  <div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr><th></th><th>TS Daemon <code>core/daemon</code></th><th>Rust Daemon <code>crates/levd</code></th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Role</strong></td>
+        <td>Control plane &mdash; CLI handler, lifecycle mgmt</td>
+        <td>Data plane &mdash; HTTP server, event bus, declarations</td>
+      </tr>
+      <tr>
+        <td><strong>HTTP Server</strong></td>
+        <td><span class="dot dot-red"></span>No</td>
+        <td><span class="dot dot-green"></span>Yes &mdash; axum on :7890</td>
+      </tr>
+      <tr>
+        <td><strong>Poly Bindings</strong></td>
+        <td><span class="dot dot-green"></span>Yes &mdash; config.yaml declared</td>
+        <td><span class="dot dot-red"></span>No &mdash; not in registry</td>
+      </tr>
+      <tr>
+        <td><strong>Endpoints</strong></td>
+        <td>&mdash;</td>
+        <td><code>/health</code>, <code>/status</code>, <code>/declarations</code>, <code>/events/recent</code></td>
+      </tr>
+      <tr>
+        <td><strong>Process Mgmt</strong></td>
+        <td>Shell-out to pmdaemon/brew</td>
+        <td>Built-in supervisor</td>
+      </tr>
+      <tr>
+        <td><strong>launchd</strong></td>
+        <td>&mdash;</td>
+        <td>Plist exists, points to wrong path</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="ve-card" style="--i:1">
+  <h3>The Unification Plan</h3>
+  <pre>User: lev daemon start
+  │
+  ▼
+core/daemon (TS) ── poly routes "lev daemon *" here
+  │
+  ├─ 1. Register levd in poly registry.yaml
+  ├─ 2. pmdaemon start levd (or brew services)
+  │
+  ▼
+crates/levd (Rust) ── actual HTTP server
+  ├── /health          → healthcheck
+  ├── /status          → running processes
+  ├── /declarations    → capability store
+  └── /events/recent   → event bus tail</pre>
+  <p style="font-size: 13px; color: var(--text-dim); margin-top: 8px;">TS daemon = <strong>orchestrator</strong>. Rust daemon = <strong>server</strong>. One manages, the other serves. They just need to be wired together. Add <code>levd</code> to <code>core/poly/registry.yaml</code> and fix the launchd plist path.</p>
+</div>
+
+
+<!-- S5: DISTRIBUTION -->
+<div id="s5" class="sec-head accent">5 &mdash; Distribution Channels</div>
+
+<div class="tbl-wrap">
+<table>
+  <thead>
+    <tr><th>Priority</th><th>Channel</th><th>Command</th><th>Who Does This</th><th>Status</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="tag tag-rose">P0</span></td>
+      <td><strong>npm</strong></td>
+      <td><code>npm i -g @lev-os/lev</code></td>
+      <td>Mastra, Turbo, eslint</td>
+      <td><span class="dot dot-red"></span>Not ready</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-rose">P0</span></td>
+      <td><strong>curl | sh</strong></td>
+      <td><code>curl -fsSL lev.sh/install | sh</code></td>
+      <td>Bun, Deno, Rustup, mise</td>
+      <td><span class="dot dot-red"></span>Not started</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-amber">P1</span></td>
+      <td><strong>Homebrew tap</strong></td>
+      <td><code>brew install lev-os/tap/lev</code></td>
+      <td>Bun, Deno, biome</td>
+      <td><span class="dot dot-red"></span>Not started</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-teal">P2</span></td>
+      <td><strong>Docker</strong></td>
+      <td><code>docker pull ghcr.io/lev-os/lev</code></td>
+      <td>Deno</td>
+      <td><span class="dot dot-red"></span>Future</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-teal">P2</span></td>
+      <td><strong>GitHub Releases</strong></td>
+      <td>Download from releases page</td>
+      <td>Everyone</td>
+      <td><span class="dot dot-red"></span>Future</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="ve-card" style="--i:0">
+  <h3>Unix CLI Philosophy Checklist</h3>
+  <div class="grid-2">
+    <div>
+      <ul>
+        <li><code>--json</code> on every command (machine-readable)</li>
+        <li>stdout = data, stderr = diagnostics</li>
+        <li>Exit codes must be accurate</li>
+        <li>Quiet by default, <code>-v</code> for verbose</li>
+      </ul>
+    </div>
+    <div>
+      <ul>
+        <li>Startup under 200ms (bundle for prod)</li>
+        <li>XDG paths (<code>~/.config/lev/</code>, <code>~/.local/share/lev/</code>)</li>
+        <li>Composable through pipes</li>
+        <li><code>--provenance</code> on all npm publishes</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- S6: ROADMAP -->
+<div id="s6" class="sec-head amber">6 &mdash; Full Roadmap to v0.1.0</div>
+
+<div class="pipeline" style="margin-bottom: 16px;">
+  <div class="pipe-step active">
+    <span class="pipe-num">Phase 0</span>
+    <span class="pipe-title">Fix Dev</span>
+    <span class="pipe-desc">Tonight</span>
+  </div>
+  <div class="pipe-step">
+    <span class="pipe-num">Phase 1</span>
+    <span class="pipe-title">Stabilize</span>
+    <span class="pipe-desc">This week</span>
+  </div>
+  <div class="pipe-step">
+    <span class="pipe-num">Phase 2</span>
+    <span class="pipe-title">Package</span>
+    <span class="pipe-desc">Next week</span>
+  </div>
+  <div class="pipe-step">
+    <span class="pipe-num">Phase 3</span>
+    <span class="pipe-title">Publish</span>
+    <span class="pipe-desc">v0.1.0</span>
+  </div>
+</div>
+
+<div class="ve-card accent-border-l" style="--i:0">
+  <h3><span class="tag tag-rose">Phase 0</span> Fix What's Broken (Tonight)</h3>
+  <ul>
+    <li>Remove <code>core/fractal</code> import from <code>build-binaries.js</code> &amp; <code>dev-with-binaries.js</code></li>
+    <li>Wire <code>pnpm dev</code> &rarr; <code>build:registry</code> + <code>turbo dev</code> (skip broken binary compilation)</li>
+    <li>Verify <code>pnpm lev --help</code> works end-to-end</li>
+    <li>Check if Rust <code>levd</code> builds: <code>cd crates && cargo build -p levd</code></li>
+    <li>Fix launchd plist paths if levd builds</li>
+  </ul>
+</div>
+
+<div class="ve-card teal-border-l" style="--i:1">
+  <h3><span class="tag tag-teal">Phase 1</span> Stabilize (This Week)</h3>
+  <ul>
+    <li>Register <code>levd</code> in <code>core/poly/registry.yaml</code></li>
+    <li>Wire <code>lev daemon start</code> &rarr; pmdaemon &rarr; levd</li>
+    <li>Audit all 84+ packages: classify as <code>public</code> or <code>private: true</code></li>
+    <li>Fix <code>exports</code> in publishable packages: <code>dist/</code> not raw <code>.ts</code></li>
+    <li>Add <code>publishConfig: { access: "public" }</code> to all public packages</li>
+    <li>Add <code>files: ["dist"]</code> to packages missing it</li>
+    <li>Refresh npm auth: <code>npm login</code></li>
+  </ul>
+</div>
+
+<div class="ve-card blue-border-l" style="--i:2">
+  <h3><span class="tag tag-blue">Phase 2</span> Package for Distribution</h3>
+  <ul>
+    <li>Compile CLI entrypoint with <code>tsup</code>/<code>esbuild</code> &rarr; single <code>dist/bin/lev.js</code></li>
+    <li>Create <code>@lev-os/lev</code> package (thin wrapper or poly re-export with compiled bin)</li>
+    <li>Create CI publish workflow: <code>.github/workflows/publish.yml</code> with <code>changesets/action</code></li>
+    <li>Write <code>install.sh</code> (curl one-liner with platform detection + checksum)</li>
+    <li>Create <code>lev-os/homebrew-lev</code> tap repo with auto-update</li>
+    <li>Dry-run publish: <code>pnpm changeset publish --dry-run</code> in clean env</li>
+  </ul>
+</div>
+
+<div class="ve-card green-border-l" style="--i:3">
+  <h3><span class="tag tag-green">Phase 3</span> Ship v0.1.0</h3>
+  <ul>
+    <li>Publish T1 leaves: <code>logger</code>, <code>domain</code>, <code>event-providers</code></li>
+    <li>Publish T2 foundation: <code>config</code>, <code>event-bus</code>, <code>exec</code>, <code>telemetry</code></li>
+    <li>Publish T3 runtime: <code>daemon</code>, <code>flowmind</code>, <code>orchestration</code></li>
+    <li>Publish T4 product: <code>poly</code>, <code>lev</code></li>
+    <li>Tag <code>v0.1.0</code>, verify clean-machine install</li>
+    <li>Smoke test: <code>npm i -g @lev-os/lev && lev --version && lev daemon start</code></li>
+    <li>Post release: try <code>curl lev.sh/install | sh</code> &amp; <code>brew install lev-os/tap/lev</code></li>
+  </ul>
+</div>
+
+
+<!-- S7: TONIGHT -->
+<div id="s7" class="sec-head rose">7 &mdash; What We're Doing Right Now</div>
+
+<div class="ve-card--hero ve-card" style="--i:0; border: 2px solid var(--accent);">
+  <h3 style="font-size: 20px;">Phase 0 Punch List</h3>
+  <p style="margin-bottom: 12px;">These are the concrete tasks for tonight. No design decisions left &mdash; just execution.</p>
+  <div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr><th>#</th><th>Task</th><th>File(s)</th><th>Est.</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Fix <code>build-binaries.js</code> &mdash; replace <code>core/fractal</code> import with poly registry</td>
+        <td><code>tooling/scripts/build-binaries.js</code></td>
+        <td>15m</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Fix <code>dev-with-binaries.js</code> &mdash; same dead import</td>
+        <td><code>tooling/scripts/dev-with-binaries.js</code></td>
+        <td>10m</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Simplify <code>pnpm dev</code> &mdash; skip broken binary compilation, just <code>build:registry</code> + <code>turbo dev</code></td>
+        <td><code>package.json</code> (root)</td>
+        <td>5m</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Verify <code>pnpm lev --help</code> works</td>
+        <td>&mdash;</td>
+        <td>2m</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Build Rust levd: <code>cargo build -p levd</code></td>
+        <td><code>crates/levd/</code></td>
+        <td>5m</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>If levd builds, start it and hit <code>/health</code></td>
+        <td>&mdash;</td>
+        <td>5m</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Update AGENTS.md with dev workflow notes</td>
+        <td><code>AGENTS.md</code></td>
+        <td>5m</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<details style="margin-top: 16px;">
+  <summary>Framework Comparison (Mastra / LangChain / Turbo / Bun / Deno)</summary>
+  <div class="tbl-wrap" style="margin-top: 8px;">
+  <table>
+    <thead>
+      <tr><th>Dimension</th><th>Mastra</th><th>LangChain JS</th><th>Turbo</th><th>Bun</th><th>Deno</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Scope</td><td><code>@mastra/*</code></td><td><code>@langchain/*</code></td><td><code>@turbo/*</code></td><td>unscoped</td><td>unscoped</td></tr>
+      <tr><td>CLI package</td><td><code>mastra</code></td><td>&mdash;</td><td><code>turbo</code></td><td><code>bun</code></td><td><code>deno</code></td></tr>
+      <tr><td>Core package</td><td><code>@mastra/core</code></td><td><code>@langchain/core</code></td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+      <tr><td>npm</td><td><span class="dot dot-green"></span></td><td><span class="dot dot-green"></span></td><td><span class="dot dot-green"></span></td><td><span class="dot dot-green"></span></td><td><span class="dot dot-green"></span></td></tr>
+      <tr><td>curl | sh</td><td><span class="dot dot-red"></span></td><td><span class="dot dot-red"></span></td><td><span class="dot dot-red"></span></td><td><span class="dot dot-green"></span></td><td><span class="dot dot-green"></span></td></tr>
+      <tr><td>brew</td><td><span class="dot dot-red"></span></td><td><span class="dot dot-red"></span></td><td><span class="dot dot-red"></span></td><td><span class="dot dot-green"></span></td><td><span class="dot dot-green"></span></td></tr>
+      <tr><td>Versioning</td><td>Changesets</td><td>Independent</td><td>Lockstep</td><td>Single</td><td>Single</td></tr>
+      <tr><td>Total pkgs</td><td>120+</td><td>50+</td><td>7</td><td>1</td><td>1</td></tr>
+    </tbody>
+  </table>
+  </div>
+</details>
+
+</div><!-- /main -->
+</div><!-- /wrap -->
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const isDarkOS = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (!current) {
+    html.setAttribute('data-theme', isDarkOS ? 'light' : 'dark');
+  } else {
+    html.removeAttribute('data-theme');
+  }
+}
+
+// TOC active state
+const tocLinks = document.querySelectorAll('.toc a');
+const sections = [];
+tocLinks.forEach(link => {
+  const id = link.getAttribute('href').slice(1);
+  const el = document.getElementById(id);
+  if (el) sections.push({ id, el, link });
+});
+
+function updateTOC() {
+  let active = sections[0];
+  for (const s of sections) {
+    if (s.el.getBoundingClientRect().top <= 100) active = s;
+  }
+  tocLinks.forEach(l => l.classList.remove('active'));
+  if (active) active.link.classList.add('active');
+}
+window.addEventListener('scroll', updateTOC, { passive: true });
+updateTOC();
+</script>
+</body>
+</html>

@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gstack Browser Auth and Lev FlowMind Deep Dive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Azeret+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-mono: 'Azeret Mono', 'SF Mono', Consolas, monospace;
+
+    --bg: #edf3fa;
+    --surface: #ffffff;
+    --surface-elevated: #f7fbff;
+    --surface2: #dce7f3;
+    --text: #17253a;
+    --text-dim: #62758b;
+    --border: rgba(23, 37, 58, 0.1);
+    --border-bright: rgba(23, 37, 58, 0.18);
+
+    --blue: #2563eb;
+    --blue-dim: rgba(37, 99, 235, 0.08);
+    --teal: #0f766e;
+    --teal-dim: rgba(15, 118, 110, 0.08);
+    --amber: #c07b12;
+    --amber-dim: rgba(192, 123, 18, 0.08);
+    --red: #d13f3f;
+    --red-dim: rgba(209, 63, 63, 0.08);
+    --sage: #1f8f62;
+    --sage-dim: rgba(31, 143, 98, 0.08);
+    --violet: #8b5cf6; /* not used in accents, reserved only for semantic distinction in code sample comments if needed */
+    --shadow-lg: 0 20px 54px rgba(23, 37, 58, 0.08);
+    --shadow-sm: 0 3px 12px rgba(23, 37, 58, 0.05);
+    --grid-color: rgba(37, 99, 235, 0.05);
+    --grid-color-strong: rgba(37, 99, 235, 0.08);
+    --code-bg: #f3f7fb;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #182335;
+      --surface: #1e2d43;
+      --surface-elevated: #24364f;
+      --surface2: #314560;
+      --text: #e7eef9;
+      --text-dim: #9db0c7;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-bright: rgba(255, 255, 255, 0.16);
+
+      --blue: #7db0ff;
+      --blue-dim: rgba(125, 176, 255, 0.12);
+      --teal: #53d7ca;
+      --teal-dim: rgba(83, 215, 202, 0.12);
+      --amber: #f0c56e;
+      --amber-dim: rgba(240, 197, 110, 0.12);
+      --red: #ff8d89;
+      --red-dim: rgba(255, 141, 137, 0.12);
+      --sage: #67d39a;
+      --sage-dim: rgba(103, 211, 154, 0.12);
+      --shadow-lg: 0 24px 62px rgba(0, 0, 0, 0.26);
+      --shadow-sm: 0 5px 15px rgba(0, 0, 0, 0.18);
+      --grid-color: rgba(125, 176, 255, 0.04);
+      --grid-color-strong: rgba(125, 176, 255, 0.07);
+      --code-bg: #152132;
+    }
+  }
+
+  [data-theme="light"] {
+    --bg: #edf3fa;
+    --surface: #ffffff;
+    --surface-elevated: #f7fbff;
+    --surface2: #dce7f3;
+    --text: #17253a;
+    --text-dim: #62758b;
+    --border: rgba(23, 37, 58, 0.1);
+    --border-bright: rgba(23, 37, 58, 0.18);
+    --blue: #2563eb;
+    --blue-dim: rgba(37, 99, 235, 0.08);
+    --teal: #0f766e;
+    --teal-dim: rgba(15, 118, 110, 0.08);
+    --amber: #c07b12;
+    --amber-dim: rgba(192, 123, 18, 0.08);
+    --red: #d13f3f;
+    --red-dim: rgba(209, 63, 63, 0.08);
+    --sage: #1f8f62;
+    --sage-dim: rgba(31, 143, 98, 0.08);
+    --shadow-lg: 0 20px 54px rgba(23, 37, 58, 0.08);
+    --shadow-sm: 0 3px 12px rgba(23, 37, 58, 0.05);
+    --grid-color: rgba(37, 99, 235, 0.05);
+    --grid-color-strong: rgba(37, 99, 235, 0.08);
+    --code-bg: #f3f7fb;
+  }
+
+  [data-theme="dark"] {
+    --bg: #182335;
+    --surface: #1e2d43;
+    --surface-elevated: #24364f;
+    --surface2: #314560;
+    --text: #e7eef9;
+    --text-dim: #9db0c7;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-bright: rgba(255, 255, 255, 0.16);
+    --blue: #7db0ff;
+    --blue-dim: rgba(125, 176, 255, 0.12);
+    --teal: #53d7ca;
+    --teal-dim: rgba(83, 215, 202, 0.12);
+    --amber: #f0c56e;
+    --amber-dim: rgba(240, 197, 110, 0.12);
+    --red: #ff8d89;
+    --red-dim: rgba(255, 141, 137, 0.12);
+    --sage: #67d39a;
+    --sage-dim: rgba(103, 211, 154, 0.12);
+    --shadow-lg: 0 24px 62px rgba(0, 0, 0, 0.26);
+    --shadow-sm: 0 5px 15px rgba(0, 0, 0, 0.18);
+    --grid-color: rgba(125, 176, 255, 0.04);
+    --grid-color-strong: rgba(125, 176, 255, 0.07);
+    --code-bg: #152132;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    font-family: var(--font-body);
+    background-color: var(--bg);
+    background-image:
+      linear-gradient(var(--grid-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-color) 1px, transparent 1px),
+      linear-gradient(var(--grid-color-strong) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-color-strong) 1px, transparent 1px),
+      radial-gradient(circle at 12% 12%, var(--blue-dim) 0%, transparent 26%),
+      radial-gradient(circle at 86% 18%, var(--teal-dim) 0%, transparent 20%);
+    background-size: 22px 22px, 22px 22px, 110px 110px, 110px 110px, auto, auto;
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.62;
+  }
+
+  .theme-toggle {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 300;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .wrap {
+    max-width: 1500px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 195px 1fr;
+    gap: 0 42px;
+    padding: 36px;
+  }
+
+  .main { min-width: 0; }
+
+  .toc {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+    max-height: calc(100dvh - 48px);
+    overflow-y: auto;
+    padding: 14px 0;
+  }
+
+  .toc-title {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .toc a {
+    display: block;
+    text-decoration: none;
+    color: var(--text-dim);
+    font-size: 11px;
+    padding: 6px 10px;
+    margin-bottom: 2px;
+    border-left: 2px solid transparent;
+    border-radius: 6px;
+    transition: all 0.18s ease;
+  }
+
+  .toc a:hover,
+  .toc a.active {
+    color: var(--text);
+    background: var(--surface2);
+    border-left-color: var(--blue);
+  }
+
+  .hero-card,
+  .ve-card,
+  .table-wrap,
+  .mermaid-wrap,
+  details,
+  .code-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .hero {
+    margin-bottom: 26px;
+  }
+
+  .hero-card {
+    border-radius: 28px;
+    padding: 34px;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-card::after {
+    content: "";
+    position: absolute;
+    inset: auto -8% -35% auto;
+    width: 340px;
+    height: 340px;
+    background: radial-gradient(circle, var(--blue-dim) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .eyebrow,
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--blue);
+  }
+
+  h1 {
+    font-size: clamp(2.8rem, 5vw, 5.1rem);
+    line-height: 0.94;
+    letter-spacing: -0.05em;
+    margin: 12px 0 14px;
+    max-width: 11ch;
+  }
+
+  .hero-copy {
+    max-width: 860px;
+    font-size: 1.04rem;
+    color: var(--text-dim);
+  }
+
+  .hero-note {
+    margin-top: 18px;
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--amber) 40%, var(--border));
+    background: var(--amber-dim);
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  .hero-note strong { color: var(--amber); }
+
+  .kpis {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .ve-card {
+    border-radius: 20px;
+    padding: 22px;
+    min-width: 0;
+  }
+
+  .kpi .k-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  .kpi .k-value {
+    font-size: 2rem;
+    line-height: 1;
+    margin-bottom: 10px;
+    color: var(--blue);
+    font-weight: 800;
+  }
+
+  .kpi .k-copy {
+    color: var(--text-dim);
+    font-size: 0.92rem;
+  }
+
+  .section {
+    padding: 24px 0 8px;
+  }
+
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .sec-num {
+    font-family: var(--font-mono);
+    font-size: 1.15rem;
+    color: var(--amber);
+  }
+
+  h2 {
+    font-size: clamp(1.8rem, 3.8vw, 3rem);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    margin: 0;
+  }
+
+  .lede {
+    max-width: 900px;
+    color: var(--text-dim);
+    margin-bottom: 18px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .ve-card h3 {
+    margin: 10px 0 8px;
+    font-size: 1.15rem;
+    line-height: 1.16;
+  }
+
+  .ve-card p,
+  .ve-card li,
+  .details-body {
+    color: var(--text-dim);
+  }
+
+  .mini-list {
+    margin: 10px 0 0;
+    padding-left: 18px;
+  }
+
+  .mini-list li + li { margin-top: 8px; }
+  .mini-list strong { color: var(--text); }
+
+  .mermaid-wrap {
+    position: relative;
+    border-radius: 24px;
+    padding: 28px 22px 22px;
+    overflow: auto;
+  }
+
+  .mermaid-wrap .mermaid {
+    display: flex;
+    justify-content: center;
+    transition: transform 0.2s ease;
+    transform-origin: top center;
+  }
+
+  .zoom-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 2px;
+    z-index: 10;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2px;
+  }
+
+  .zoom-controls button {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 6px;
+  }
+
+  .zoom-controls button:hover {
+    background: var(--surface2);
+    color: var(--text);
+  }
+
+  .mermaid-wrap.is-zoomed { cursor: grab; }
+  .mermaid-wrap.is-panning { cursor: grabbing; user-select: none; }
+
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 22px;
+  }
+
+  table {
+    width: 100%;
+    min-width: 980px;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--surface2);
+    text-align: left;
+    color: var(--text);
+    border-bottom: 1px solid var(--border-bright);
+  }
+
+  th, td {
+    padding: 16px;
+    vertical-align: top;
+    border-bottom: 1px solid var(--border);
+  }
+
+  tbody tr:nth-child(even) {
+    background: color-mix(in srgb, var(--surface2) 45%, transparent);
+  }
+
+  .stage {
+    width: 180px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+
+  .badge.blue { background: var(--blue-dim); color: var(--blue); }
+  .badge.teal { background: var(--teal-dim); color: var(--teal); }
+  .badge.amber { background: var(--amber-dim); color: var(--amber); }
+  .badge.red { background: var(--red-dim); color: var(--red); }
+  .badge.sage { background: var(--sage-dim); color: var(--sage); }
+
+  details {
+    border-radius: 18px;
+  }
+
+  summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 18px 20px;
+    font-weight: 700;
+  }
+
+  summary::-webkit-details-marker { display: none; }
+
+  .details-body {
+    padding: 0 20px 20px;
+  }
+
+  .code-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .code-card {
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  .code-head {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface2) 65%, transparent);
+  }
+
+  pre {
+    margin: 0;
+    padding: 16px;
+    background: var(--code-bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    background: color-mix(in srgb, var(--surface2) 68%, transparent);
+    padding: 2px 6px;
+    border-radius: 6px;
+    color: var(--blue);
+  }
+
+  .footer-note {
+    padding: 30px 0 12px;
+    color: var(--text-dim);
+    font-size: 0.95rem;
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeUp 0.45s ease forwards;
+    animation-delay: calc(var(--i, 0) * 0.05s);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .mermaid .nodeLabel { color: var(--text) !important; font-family: var(--font-body) !important; font-size: 16px !important; }
+  .mermaid .edgeLabel { color: var(--text-dim) !important; background-color: var(--bg) !important; font-family: var(--font-mono) !important; font-size: 13px !important; }
+  .mermaid .edgeLabel rect { fill: var(--bg) !important; }
+  .mermaid .node rect,
+  .mermaid .node circle,
+  .mermaid .node polygon,
+  .mermaid .node path { stroke-width: 1.5px; }
+  .mermaid .edge-pattern-solid { stroke-width: 1.5px; }
+
+  @media (max-width: 1180px) {
+    .wrap { padding: 24px; }
+    .kpis,
+    .grid-3,
+    .grid-2,
+    .code-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 1000px) {
+    .wrap { grid-template-columns: 1fr; gap: 0; padding: 24px; }
+    .toc {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      max-height: none;
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      background: color-mix(in srgb, var(--bg) 92%, transparent);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 0;
+      margin: 0 -24px;
+      padding-left: 24px;
+      padding-right: 24px;
+      backdrop-filter: blur(10px);
+    }
+    .toc-title { display: none; }
+    .toc a {
+      white-space: nowrap;
+      flex-shrink: 0;
+      border-left: none;
+      border-bottom: 2px solid transparent;
+      border-radius: 6px 6px 0 0;
+    }
+    .toc a.active {
+      border-left: none;
+      border-bottom-color: var(--blue);
+    }
+    .sec-head { scroll-margin-top: 70px; }
+    .kpis,
+    .grid-3,
+    .grid-2,
+    .code-grid { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    :root {
+      --bg: #ffffff !important;
+      --surface: #ffffff !important;
+      --surface-elevated: #ffffff !important;
+      --surface2: #f4f4f4 !important;
+      --text: #1a1a1a !important;
+      --text-dim: #555555 !important;
+      --border: rgba(0, 0, 0, 0.12) !important;
+      --border-bright: rgba(0, 0, 0, 0.2) !important;
+      --code-bg: #f4f4f4 !important;
+    }
+    body {
+      background: #ffffff !important;
+      background-image: none !important;
+      color: #1a1a1a !important;
+    }
+    .theme-toggle, .zoom-controls { display: none !important; }
+    .wrap { display: block !important; }
+    .toc {
+      position: static !important;
+      display: block !important;
+      margin: 0 0 18px !important;
+      padding: 0 !important;
+      border: none !important;
+      background: none !important;
+    }
+    .hero-card, .ve-card, .table-wrap, .mermaid-wrap, details, .code-card {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+  }
+</style>
+</head>
+<body>
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">◐</button>
+<div class="wrap">
+  <nav class="toc" id="toc">
+    <div class="toc-title">Contents</div>
+    <a href="#s1">1. Why Access Fails</a>
+    <a href="#s2">2. gstack Cookie Flow</a>
+    <a href="#s3">3. auth-sniffer Split</a>
+    <a href="#s4">4. SDLC Graph</a>
+    <a href="#s5">5. First Skills</a>
+    <a href="#s6">6. First FlowMinds</a>
+    <a href="#s7">7. File Surface</a>
+  </nav>
+
+  <main class="main">
+    <section class="hero reveal" style="--i:0">
+      <div class="hero-card">
+        <div class="eyebrow">Browser auth + FlowMind extraction</div>
+        <h1>Direct Chromium cookie reads are the fragile part. The workflow is the real design problem.</h1>
+        <p class="hero-copy">
+          `gstack` reads Chromium cookies by opening the browser's SQLite cookie DB, decrypting values with a Keychain-derived AES key, and injecting them into the active Playwright context.
+          That is why it can feel seamless for QA. It is also why “access denied” happens: the direct path depends on the cookie DB, the Keychain secret, the correct profile, and local filesystem access all lining up.
+          Lev already has a better extraction backend in <code>auth-sniffer</code>. What it is missing is the smoother in-place hydration UX and the SDLC seat packaging around it.
+        </p>
+        <div class="hero-note"><strong>Bottom line</strong> use <code>auth-sniffer</code> as backend, steal `gstack`’s picker + hydration feel, and wire the rest through `core-sdlc` + `browser-cascade` flows</div>
+        <div class="kpis">
+          <div class="ve-card kpi reveal" style="--i:1">
+            <div class="k-label">DB read mode</div>
+            <div class="k-value">SQLite</div>
+            <div class="k-copy">Read-only open, fallback copy to <code>/tmp</code> on lock.</div>
+          </div>
+          <div class="ve-card kpi reveal" style="--i:2">
+            <div class="k-label">Decrypt source</div>
+            <div class="k-value">Keychain</div>
+            <div class="k-copy">Reads Chromium “Safe Storage” secret with <code>security</code>.</div>
+          </div>
+          <div class="ve-card kpi reveal" style="--i:3">
+            <div class="k-label">Better backend</div>
+            <div class="k-value">auth-sniffer</div>
+            <div class="k-copy">Already handles cookies + localStorage + sessionStorage + runtime exports.</div>
+          </div>
+          <div class="ve-card kpi reveal" style="--i:4">
+            <div class="k-label">Best owners</div>
+            <div class="k-value">2</div>
+            <div class="k-copy"><code>browser-cascade</code> for browser flows, <code>core-sdlc</code> for seat/workflow flows.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section reveal" id="s1" style="--i:5">
+      <div class="sec-head">
+        <div class="sec-num">01</div>
+        <h2>Why the Chromium DB path often fails</h2>
+      </div>
+      <p class="lede">
+        The code is simple in concept but brittle in practice. It is not one permission check. It is a chain of dependencies that can each fail differently.
+      </p>
+      <div class="grid-3">
+        <article class="ve-card">
+          <div class="section-label">File path problem</div>
+          <h3>Wrong profile or no DB where the code expects it</h3>
+          <p>
+            `gstack` looks under <code>~/Library/Application Support/&lt;browser&gt;/Default/Cookies</code>. If your active login lives in a different profile, the DB may exist but not contain the right cookies.
+          </p>
+        </article>
+        <article class="ve-card">
+          <div class="section-label">DB lock problem</div>
+          <h3>Browser has the SQLite DB busy</h3>
+          <p>
+            `gstack` tries to mitigate this by copying the DB, WAL, and SHM files to <code>/tmp</code>. If even that cannot be read or copied cleanly, the import path still fails.
+          </p>
+        </article>
+        <article class="ve-card">
+          <div class="section-label">Keychain problem</div>
+          <h3>The actual secret comes from macOS Keychain</h3>
+          <p>
+            The code calls <code>security find-generic-password -s "&lt;browser Safe Storage&gt;" -w</code>. If you deny the dialog, miss it, or macOS reports “interaction not allowed,” decryption fails even if the DB read succeeds.
+          </p>
+        </article>
+      </div>
+      <div class="grid-2" style="margin-top:16px;">
+        <article class="ve-card">
+          <div class="section-label">Most likely when you see “can’t access it”</div>
+          <ul class="mini-list">
+            <li><strong>Keychain timeout/deny</strong> — the code explicitly throws if the dialog is not approved within 10s.</li>
+            <li><strong>DB locked</strong> — if copy-open still fails, it reports the browser DB as locked.</li>
+            <li><strong>Wrong browser/profile</strong> — DB exists, but the cookies you want are not there.</li>
+          </ul>
+        </article>
+        <article class="ve-card">
+          <div class="section-label">Why CDP is safer</div>
+          <p>
+            `auth-sniffer`’s robot mode can relaunch a browser with CDP and ask the browser for cookies plus web storage directly. That avoids most of the “read SQLite + derive key + decrypt row-by-row” fragility when the goal is a reusable auth artifact.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section reveal" id="s2" style="--i:6">
+      <div class="sec-head">
+        <div class="sec-num">02</div>
+        <h2>The actual `gstack` cookie import flow</h2>
+      </div>
+      <p class="lede">
+        This is the flow from the browser picker to the authenticated Playwright session.
+      </p>
+      <div class="mermaid-wrap reveal" style="--i:7">
+        <div class="zoom-controls">
+          <button data-zoom="out">−</button>
+          <button data-zoom="reset">○</button>
+          <button data-zoom="in">+</button>
+        </div>
+        <pre class="mermaid">
+flowchart TD
+  A["User runs cookie-import-browser"] --> B["List installed browsers"]
+  B --> C["Open localhost cookie picker UI"]
+  C --> D["Read domain counts from Cookies SQLite DB"]
+  D --> E["User selects domains"]
+  E --> F["Read Chromium Safe Storage secret from Keychain"]
+  F --> G["PBKDF2 derive AES key"]
+  G --> H["Decrypt v10 encrypted_value rows"]
+  H --> I["Convert rows to Playwright cookie objects"]
+  I --> J["page.context().addCookies(...)"]
+  J --> K["Active QA browser becomes logged in"]
+
+  D -. lock .-> L["Copy DB/WAL/SHM to /tmp and reopen"]
+  F -. deny/timeout .-> M["Keychain error or timeout"]
+        </pre>
+      </div>
+      <div class="code-grid" style="margin-top:16px;">
+        <article class="code-card">
+          <div class="code-head">Where the DB read happens</div>
+          <pre>getCookieDbPath(browser, profile)
+  → ~/Library/Application Support/&lt;browser&gt;/Default/Cookies
+
+openDb(dbPath)
+  → readonly sqlite open
+  → if SQLITE_BUSY: copy db + wal + shm to /tmp
+  → reopen the copy</pre>
+        </article>
+        <article class="code-card">
+          <div class="code-head">Where the decrypt happens</div>
+          <pre>security find-generic-password -s "&lt;service&gt;" -w
+  → password
+
+pbkdf2Sync(password, "saltysalt", 1003, 16, "sha1")
+  → AES key
+
+AES-128-CBC decrypt(encrypted_value[3:])
+  → strip padding
+  → skip first 32 bytes auth tag
+  → cookie value</pre>
+        </article>
+      </div>
+    </section>
+
+    <section class="section reveal" id="s3" style="--i:8">
+      <div class="sec-head">
+        <div class="sec-num">03</div>
+        <h2>`gstack` vs `auth-sniffer`</h2>
+      </div>
+      <p class="lede">
+        These are complementary, not substitutes. One is better UX for current-browser login. The other is a better Lev-native backend for structured extraction and reuse.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="stage">Dimension</th>
+              <th>`gstack` direct import</th>
+              <th>`auth-sniffer` robot mode</th>
+              <th>Takeaway</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="stage">Primary job</td>
+              <td><span class="badge teal">QA UX</span><br>Log the active QA browser in right now.</td>
+              <td><span class="badge blue">Extraction backend</span><br>Capture reusable auth artifacts deterministically.</td>
+              <td>Use `auth-sniffer` as backend, borrow `gstack` UX.</td>
+            </tr>
+            <tr>
+              <td class="stage">Cookie source</td>
+              <td>Direct SQLite DB read + local decrypt.</td>
+              <td>Direct query strategy and/or CDP-assisted extraction path.</td>
+              <td>`auth-sniffer` already has broader extraction paths.</td>
+            </tr>
+            <tr>
+              <td class="stage">Web storage</td>
+              <td><span class="badge red">Weak</span><br>Not first-class in the picker import flow.</td>
+              <td><span class="badge sage">Strong</span><br>Explicit <code>localStorage</code> + <code>sessionStorage</code> extraction.</td>
+              <td>Do not regress to cookie-only thinking.</td>
+            </tr>
+            <tr>
+              <td class="stage">Runtime bridge</td>
+              <td>Injects directly into the current Playwright context.</td>
+              <td>Exports to Playwright, PinchTab, browser-use, env, and runtime helpers.</td>
+              <td>Lev already owns the better bridge surface.</td>
+            </tr>
+            <tr>
+              <td class="stage">Operator experience</td>
+              <td><span class="badge amber">Best</span><br>Picker UI, domain counts, import/remove loop.</td>
+              <td><span class="badge blue">Tooling-heavy</span><br>CLI-first, deterministic, less friendly for QA.</td>
+              <td>This is the main thing to learn from `gstack`.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section reveal" id="s4" style="--i:9">
+      <div class="sec-head">
+        <div class="sec-num">04</div>
+        <h2>How the extracted workflows connect through the SDLC</h2>
+      </div>
+      <p class="lede">
+        The clean version is not one monolith. Browser/session flows belong to <code>browser-cascade</code>. Specialist reframe/review flows belong to <code>core-sdlc</code>.
+      </p>
+      <div class="mermaid-wrap reveal" style="--i:10">
+        <div class="zoom-controls">
+          <button data-zoom="out">−</button>
+          <button data-zoom="reset">○</button>
+          <button data-zoom="in">+</button>
+        </div>
+        <pre class="mermaid">
+flowchart TD
+  A["User request"] --> B["office-hours skill\nproduct reframe"]
+  B --> C["office-hours.flow.yaml\ncore-sdlc"]
+  C --> D["eng-review skill\narchitecture + tests"]
+  D --> E["eng-review.flow.yaml\ncore-sdlc"]
+  E --> F["implementation / exec"]
+  F --> G["cross-model-challenge skill"]
+  G --> H["cross-model-challenge.flow.yaml\ncore-sdlc"]
+  H --> I["browser-session-import skill"]
+  I --> J["browser-session-import.flow.yaml\nbrowser-cascade + auth-sniffer"]
+  J --> K["browser-qa-report skill"]
+  K --> L["browser-qa-report.flow.yaml\nbrowser-cascade"]
+  L --> M["browser-qa-fix skill"]
+  M --> N["browser-qa-fix.flow.yaml\nbrowser-cascade + core-sdlc"]
+  N --> O["review-readiness.flow.yaml\ncore-sdlc"]
+  O --> P["ship / release"]
+        </pre>
+      </div>
+      <div class="grid-2" style="margin-top:16px;">
+        <article class="ve-card">
+          <div class="section-label">Ownership rule</div>
+          <h3>Browser mechanics stay out of core FlowMind</h3>
+          <p>
+            FlowMind declares the workflow. Orchestration runs it. The browser-specific runtime belongs under <code>plugins/browser-cascade/**</code>, not <code>core/flowmind/**</code>.
+          </p>
+        </article>
+        <article class="ve-card">
+          <div class="section-label">Why this graph works</div>
+          <h3>Each step has a clear owner and a clear artifact</h3>
+          <p>
+            Reframing, review, browser hydration, QA, and readiness are all separate concerns. That keeps the prompt layer thin and the runtime layer testable.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section reveal" id="s5" style="--i:11">
+      <div class="sec-head">
+        <div class="sec-num">05</div>
+        <h2>The first skills to add, and why</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="stage">First-added skill</th>
+              <th>Where it should live</th>
+              <th>At what SDLC step</th>
+              <th>Why first</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="stage"><code>browser-session-import</code></td>
+              <td><code>plugins/browser-cascade/skills/browser-session-import/SKILL.md</code></td>
+              <td>Before browser QA or browser-assisted review</td>
+              <td>Immediate operator value. This is the cleanest place to combine `auth-sniffer` backend with a `gstack`-style hydration UX.</td>
+            </tr>
+            <tr>
+              <td class="stage"><code>office-hours</code></td>
+              <td><code>plugins/core-sdlc/skills/office-hours/SKILL.md</code></td>
+              <td>Very start, before detailed planning</td>
+              <td>The biggest packaging gap is product reframing. This should become a seat pack, not remain buried inside generic questioning skills.</td>
+            </tr>
+            <tr>
+              <td class="stage"><code>eng-review</code></td>
+              <td><code>plugins/core-sdlc/skills/eng-review/SKILL.md</code></td>
+              <td>After plan, before implementation</td>
+              <td>Strong engineering-manager review packaging is one of the best transferable `gstack` ideas.</td>
+            </tr>
+            <tr>
+              <td class="stage"><code>qa-report</code></td>
+              <td><code>plugins/browser-cascade/skills/qa-report/SKILL.md</code></td>
+              <td>Before fix loop</td>
+              <td>Report-only QA is useful on its own and makes the browser system valuable without immediately coupling it to mutation/fix behavior.</td>
+            </tr>
+            <tr>
+              <td class="stage"><code>cross-model-challenge</code></td>
+              <td><code>plugins/core-sdlc/skills/cross-model-challenge/SKILL.md</code></td>
+              <td>After implementation, before ship</td>
+              <td>It formalizes second-opinion/adversarial review as a named seat instead of a one-off prompt habit.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section reveal" id="s6" style="--i:12">
+      <div class="sec-head">
+        <div class="sec-num">06</div>
+        <h2>The first FlowMind programs to write</h2>
+      </div>
+      <div class="grid-2">
+        <article class="ve-card">
+          <div class="section-label">browser-cascade</div>
+          <h3>Browser-owned programs</h3>
+          <ul class="mini-list">
+            <li><strong><code>browser-session-import.flow.yaml</code></strong> — call `auth-sniffer` runtime adapters, resolve domains, hydrate the active session.</li>
+            <li><strong><code>browser-qa-report.flow.yaml</code></strong> — run report-only browser QA.</li>
+            <li><strong><code>browser-qa-fix.flow.yaml</code></strong> — QA plus fix plus re-verify loop.</li>
+          </ul>
+        </article>
+        <article class="ve-card">
+          <div class="section-label">core-sdlc</div>
+          <h3>Seat-owned programs</h3>
+          <ul class="mini-list">
+            <li><strong><code>office-hours.flow.yaml</code></strong> — product reframing, premise challenge, alternatives.</li>
+            <li><strong><code>eng-review.flow.yaml</code></strong> — pre-implementation engineering review with test plan output.</li>
+            <li><strong><code>cross-model-challenge.flow.yaml</code></strong> — explicit second-opinion / adversarial review seat.</li>
+            <li><strong><code>review-readiness.flow.yaml</code></strong> — freshness/staleness aggregation for dashboard and ship gating.</li>
+          </ul>
+        </article>
+      </div>
+      <div class="code-grid" style="margin-top:16px;">
+        <article class="code-card">
+          <div class="code-head">Add to browser-cascade config</div>
+          <pre>flowmind:
+  deterministic: true
+  programs:
+    - id: browser-session-import
+      path: flows/browser-session-import.flow.yaml
+      trigger: [browser:session:import]
+      governs: browser_session_import
+
+    - id: browser-qa-report
+      path: flows/browser-qa-report.flow.yaml
+      trigger: [browser:qa:report:start]
+      governs: browser_qa_report</pre>
+        </article>
+        <article class="code-card">
+          <div class="code-head">Add to core-sdlc config</div>
+          <pre>- id: sdlc-office-hours
+  path: flows/office-hours.flow.yaml
+  trigger: [sdlc:office_hours:start]
+  governs: office_hours
+
+- id: sdlc-eng-review
+  path: flows/eng-review.flow.yaml
+  trigger: [sdlc:eng_review:start]
+  governs: eng_review
+
+- id: sdlc-review-readiness
+  path: flows/review-readiness.flow.yaml
+  trigger: [sdlc:review:completed, git:post-commit]
+  governs: review_readiness</pre>
+        </article>
+      </div>
+    </section>
+
+    <section class="section reveal" id="s7" style="--i:13">
+      <div class="sec-head">
+        <div class="sec-num">07</div>
+        <h2>Exact file surface to touch first</h2>
+      </div>
+      <div class="grid-2">
+        <details open>
+          <summary>Existing files to edit</summary>
+          <div class="details-body">
+            <ul class="mini-list">
+              <li><code>plugins/auth-sniffer/src/runtime.ts</code> — keep as backend for hydration and runtime adapters.</li>
+              <li><code>plugins/auth-sniffer/src/cli.ts</code> — add a smoother hydration-oriented path if needed.</li>
+              <li><code>plugins/browser-cascade/config.yaml</code> — add a <code>flowmind:</code> section; it currently has none.</li>
+              <li><code>plugins/core-sdlc/config.yaml</code> — add program declarations and possibly poly surfaces.</li>
+              <li><code>~/.agents/skills/cdo/SKILL.md</code> — add named seat packs, not new orchestration semantics.</li>
+              <li><code>~/.agents/skills/auth-sniffer/SKILL.md</code> and <code>~/.agents/skills/agent-browser/SKILL.md</code> — document the hydration UX.</li>
+            </ul>
+          </div>
+        </details>
+        <details>
+          <summary>New files to create later</summary>
+          <div class="details-body">
+            <ul class="mini-list">
+              <li><code>plugins/browser-cascade/flows/browser-session-import.flow.yaml</code></li>
+              <li><code>plugins/browser-cascade/flows/browser-qa-report.flow.yaml</code></li>
+              <li><code>plugins/browser-cascade/flows/browser-qa-fix.flow.yaml</code></li>
+              <li><code>plugins/core-sdlc/flows/office-hours.flow.yaml</code></li>
+              <li><code>plugins/core-sdlc/flows/eng-review.flow.yaml</code></li>
+              <li><code>plugins/core-sdlc/flows/cross-model-challenge.flow.yaml</code></li>
+              <li><code>plugins/core-sdlc/flows/review-readiness.flow.yaml</code></li>
+              <li><code>plugins/browser-cascade/skills/*/SKILL.md</code> and <code>plugins/core-sdlc/skills/*/SKILL.md</code> for the first operator-facing seat packs.</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+      <div class="footer-note">
+        This page is a technical explainer, not an implementation commit. The immediate conclusion is simple: direct Chromium DB reads are the fragile edge, `auth-sniffer` is the better backend, and the first real extraction work belongs in `browser-cascade` plus `core-sdlc` — not in core FlowMind.
+      </div>
+    </section>
+  </main>
+</div>
+
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+mermaid.initialize({
+  startOnLoad: true,
+  theme: 'base',
+  look: 'classic',
+  themeVariables: {
+    primaryColor: isDark ? '#1e2d43' : '#e9f1fb',
+    primaryBorderColor: isDark ? '#7db0ff' : '#2563eb',
+    primaryTextColor: isDark ? '#e7eef9' : '#17253a',
+    secondaryColor: isDark ? '#233a49' : '#e8f8f5',
+    secondaryBorderColor: isDark ? '#53d7ca' : '#0f766e',
+    secondaryTextColor: isDark ? '#e7eef9' : '#17253a',
+    tertiaryColor: isDark ? '#3a3121' : '#fbf3de',
+    tertiaryBorderColor: isDark ? '#f0c56e' : '#c07b12',
+    tertiaryTextColor: isDark ? '#f8efd6' : '#17253a',
+    lineColor: isDark ? '#7c92ad' : '#8194ad',
+    fontSize: '16px',
+    fontFamily: 'var(--font-body)',
+    noteBkgColor: isDark ? '#2a3f58' : '#eef4fb',
+    noteTextColor: isDark ? '#e7eef9' : '#17253a',
+    noteBorderColor: isDark ? '#7db0ff' : '#2563eb'
+  }
+});
+
+function wireZoom(wrap) {
+  const mer = wrap.querySelector('.mermaid');
+  if (!mer) return;
+  let zoom = 1;
+  let startX = 0;
+  let startY = 0;
+  let scrollLeft = 0;
+  let scrollTop = 0;
+
+  const apply = () => {
+    mer.style.transform = `scale(${zoom})`;
+    wrap.classList.toggle('is-zoomed', zoom > 1.02);
+  };
+
+  wrap.querySelectorAll('[data-zoom]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.getAttribute('data-zoom');
+      if (mode === 'in') zoom = Math.min(zoom + 0.15, 2.2);
+      if (mode === 'out') zoom = Math.max(zoom - 0.15, 0.8);
+      if (mode === 'reset') zoom = 1;
+      apply();
+    });
+  });
+
+  wrap.addEventListener('wheel', e => {
+    if (!(e.ctrlKey || e.metaKey)) return;
+    e.preventDefault();
+    zoom = e.deltaY < 0 ? Math.min(zoom + 0.08, 2.2) : Math.max(zoom - 0.08, 0.8);
+    apply();
+  }, { passive: false });
+
+  wrap.addEventListener('mousedown', e => {
+    if (zoom <= 1.02) return;
+    wrap.classList.add('is-panning');
+    startX = e.pageX - wrap.offsetLeft;
+    startY = e.pageY - wrap.offsetTop;
+    scrollLeft = wrap.scrollLeft;
+    scrollTop = wrap.scrollTop;
+  });
+
+  window.addEventListener('mouseup', () => wrap.classList.remove('is-panning'));
+  wrap.addEventListener('mouseleave', () => wrap.classList.remove('is-panning'));
+  wrap.addEventListener('mousemove', e => {
+    if (!wrap.classList.contains('is-panning')) return;
+    e.preventDefault();
+    const x = e.pageX - wrap.offsetLeft;
+    const y = e.pageY - wrap.offsetTop;
+    wrap.scrollLeft = scrollLeft - (x - startX);
+    wrap.scrollTop = scrollTop - (y - startY);
+  });
+}
+
+window.addEventListener('load', () => {
+  document.querySelectorAll('.mermaid-wrap').forEach(wireZoom);
+});
+</script>
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const isDarkOS = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (!current) {
+    html.setAttribute('data-theme', isDarkOS ? 'light' : 'dark');
+  } else {
+    html.removeAttribute('data-theme');
+  }
+}
+
+(function () {
+  const toc = document.getElementById('toc');
+  const links = toc.querySelectorAll('a');
+  const sections = [];
+
+  links.forEach(link => {
+    const id = link.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el) sections.push({ id, el, link });
+  });
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const match = sections.find(s => s.el === entry.target);
+        if (match) {
+          match.link.classList.add('active');
+          if (window.innerWidth <= 1000) {
+            match.link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          }
+        }
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px' });
+
+  sections.forEach(s => observer.observe(s.el));
+
+  links.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const id = link.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', '#' + id);
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

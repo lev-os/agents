@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leviathan Live Dashboard — Inbox (Wall)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ── COLOR SYSTEM: Warm Charcoal + Copper ──────────────────────────── */
+  :root {
+    --charcoal: #2d2926;
+    --charcoal-light: #3d3834;
+    --charcoal-muted: #5a5350;
+    --copper: #b87333;
+    --copper-light: #d4944e;
+    --copper-dim: #8f5a28;
+    --copper-glow: rgba(184, 115, 51, 0.15);
+    --warm-white: #faf8f5;
+    --warm-white-dark: #f0ece6;
+    --sage: #8b9e7e;
+    --sage-dim: rgba(139, 158, 126, 0.12);
+    --ink: #2d2926;
+    --ink-light: #4a4440;
+    --ink-muted: #7a7370;
+    --paper: #ffffff;
+    --border: #e0dbd3;
+    --code-bg: #f5f0e8;
+    --green: #5a8a5e;
+    --green-dim: rgba(90, 138, 94, 0.1);
+    --red: #b54a4a;
+    --red-dim: rgba(181, 74, 74, 0.08);
+    --amber: #c47d2e;
+    --amber-dim: rgba(196, 125, 46, 0.08);
+    --orange: #d4652e;
+    --blue: #4a7ab5;
+    --blue-dim: rgba(74, 122, 181, 0.1);
+    --purple: #7a5ab5;
+    --purple-dim: rgba(122, 90, 181, 0.1);
+    --card-shadow: 0 1px 3px rgba(45,41,38,0.06), 0 4px 12px rgba(45,41,38,0.04);
+    --font-body: 'Space Grotesk', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --warm-white: #1a1714;
+      --warm-white-dark: #23201c;
+      --ink: #e8e4de;
+      --ink-light: #c8c4be;
+      --ink-muted: #8a8680;
+      --paper: #2d2926;
+      --border: #3d3834;
+      --code-bg: #23201c;
+      --charcoal: #d4944e;
+      --charcoal-light: #e0a860;
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.15);
+      --green-dim: rgba(90, 138, 94, 0.15);
+      --red-dim: rgba(181, 74, 74, 0.15);
+      --amber-dim: rgba(196, 125, 46, 0.15);
+      --blue-dim: rgba(74, 122, 181, 0.15);
+      --purple-dim: rgba(122, 90, 181, 0.15);
+      --copper-glow: rgba(184, 115, 51, 0.25);
+    }
+  }
+  [data-theme="dark"] {
+    --warm-white: #1a1714;
+    --warm-white-dark: #23201c;
+    --ink: #e8e4de;
+    --ink-light: #c8c4be;
+    --ink-muted: #8a8680;
+    --paper: #2d2926;
+    --border: #3d3834;
+    --code-bg: #23201c;
+    --charcoal: #d4944e;
+    --charcoal-light: #e0a860;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.15);
+    --green-dim: rgba(90, 138, 94, 0.15);
+    --red-dim: rgba(181, 74, 74, 0.15);
+    --amber-dim: rgba(196, 125, 46, 0.15);
+    --blue-dim: rgba(74, 122, 181, 0.15);
+    --purple-dim: rgba(122, 90, 181, 0.15);
+    --copper-glow: rgba(184, 115, 51, 0.25);
+  }
+  [data-theme="light"] {
+    --warm-white: #faf8f5;
+    --warm-white-dark: #f0ece6;
+    --ink: #2d2926;
+    --ink-light: #4a4440;
+    --ink-muted: #7a7370;
+    --paper: #ffffff;
+    --border: #e0dbd3;
+    --code-bg: #f5f0e8;
+    --charcoal: #2d2926;
+    --charcoal-light: #3d3834;
+    --card-shadow: 0 1px 3px rgba(45,41,38,0.06), 0 4px 12px rgba(45,41,38,0.04);
+    --green-dim: rgba(90, 138, 94, 0.1);
+    --red-dim: rgba(181, 74, 74, 0.08);
+    --amber-dim: rgba(196, 125, 46, 0.08);
+    --blue-dim: rgba(74, 122, 181, 0.1);
+    --purple-dim: rgba(122, 90, 181, 0.1);
+    --copper-glow: rgba(184, 115, 51, 0.15);
+  }
+
+  /* ── RESET & BASE ──────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    font-size: 14px; line-height: 1.6;
+    background: var(--warm-white);
+    background-image: radial-gradient(ellipse at 50% 0%, var(--copper-glow) 0%, transparent 60%);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── GLOBAL NAV ────────────────────────────────────────────────────── */
+  .global-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.75rem 1.5rem;
+    background: var(--paper);
+    border-bottom: 2px solid var(--copper);
+    position: sticky; top: 0; z-index: 200;
+  }
+  .nav-left { display: flex; align-items: center; gap: 1.5rem; }
+  .nav-brand {
+    font-family: var(--font-body);
+    font-size: 1.1rem; font-weight: 700;
+    color: var(--copper);
+    letter-spacing: -0.02em;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .nav-brand svg { width: 20px; height: 20px; }
+  .nav-tabs { display: flex; gap: 0.25rem; }
+  .nav-tab {
+    font-family: var(--font-mono);
+    font-size: 0.72rem; font-weight: 600;
+    color: var(--ink-muted);
+    padding: 0.4rem 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none; background: transparent;
+    transition: all 0.15s;
+  }
+  .nav-tab:hover { background: var(--warm-white-dark); color: var(--ink); }
+  .nav-tab.active {
+    background: var(--copper);
+    color: var(--warm-white);
+  }
+  .nav-right { display: flex; align-items: center; gap: 0.5rem; }
+  .nav-icon-btn {
+    width: 28px; height: 28px;
+    border: 1px solid var(--border); border-radius: 5px;
+    background: transparent; color: var(--ink-muted);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; transition: all 0.15s;
+  }
+  .nav-icon-btn:hover { border-color: var(--copper); color: var(--ink); }
+  .conn-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    display: inline-block; transition: background 0.3s;
+  }
+  .conn-connected { background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+  /* ── TOOLBAR ────────────────────────────────────────────────────────── */
+  .toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.6rem 1.5rem;
+    background: var(--paper);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 52px; z-index: 190;
+    flex-wrap: wrap; gap: 0.5rem;
+  }
+  .toolbar-left { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .toolbar-right { display: flex; align-items: center; gap: 1rem; }
+
+  /* Zoom Lens */
+  .zoom-lens { display: flex; gap: 2px; }
+  .zoom-btn {
+    font-family: var(--font-mono);
+    font-size: 0.68rem; font-weight: 600;
+    padding: 0.3rem 0.6rem;
+    border: 1px solid var(--border);
+    background: transparent; color: var(--ink-muted);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .zoom-btn:first-child { border-radius: 4px 0 0 4px; }
+  .zoom-btn:last-child { border-radius: 0 4px 4px 0; }
+  .zoom-btn.active {
+    background: var(--copper); color: var(--warm-white);
+    border-color: var(--copper);
+  }
+  .zoom-btn:hover:not(.active) { border-color: var(--copper); color: var(--ink); }
+
+  /* View Mode Toggle */
+  .view-toggle { display: flex; gap: 2px; margin-left: 0.5rem; }
+  .view-btn {
+    width: 30px; height: 28px;
+    border: 1px solid var(--border);
+    background: transparent; color: var(--ink-muted);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .view-btn:first-child { border-radius: 4px 0 0 4px; }
+  .view-btn:last-child { border-radius: 0 4px 4px 0; }
+  .view-btn.active {
+    background: var(--copper); color: var(--warm-white);
+    border-color: var(--copper);
+  }
+  .view-btn:hover:not(.active) { border-color: var(--copper); color: var(--ink); }
+  .view-btn svg { width: 14px; height: 14px; }
+
+  /* Temperature */
+  .temp-control { display: flex; align-items: center; gap: 0.5rem; }
+  .temp-label {
+    font-family: var(--font-mono);
+    font-size: 0.62rem; font-weight: 600;
+    color: var(--ink-muted);
+  }
+  .temp-slider {
+    -webkit-appearance: none; appearance: none;
+    width: 100px; height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--blue) 0%, var(--amber) 50%, var(--red) 100%);
+    outline: none;
+    cursor: pointer;
+  }
+  .temp-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 2px solid var(--copper);
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+
+  /* Progress */
+  .progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+  .progress-track {
+    width: 120px; height: 6px;
+    background: var(--border); border-radius: 3px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--copper);
+    border-radius: 3px; transition: width 0.5s ease;
+  }
+  .progress-text {
+    font-family: var(--font-mono);
+    font-size: 0.68rem; font-weight: 600;
+    color: var(--ink-muted); white-space: nowrap;
+  }
+
+  /* ── SEARCH + FILTERS ──────────────────────────────────────────────── */
+  .search-filters {
+    padding: 0.75rem 1.5rem;
+    display: flex; align-items: center; gap: 0.75rem;
+    flex-wrap: wrap;
+    background: var(--warm-white-dark);
+    border-bottom: 1px solid var(--border);
+  }
+  .search-input-wrap {
+    position: relative; flex: 1; min-width: 200px; max-width: 400px;
+  }
+  .search-input {
+    width: 100%;
+    padding: 0.45rem 0.75rem 0.45rem 2rem;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: var(--paper); color: var(--ink);
+    font-family: var(--font-mono); font-size: 0.78rem;
+    transition: border-color 0.15s;
+  }
+  .search-input:focus { outline: none; border-color: var(--copper); }
+  .search-icon {
+    position: absolute; left: 0.65rem; top: 50%; transform: translateY(-50%);
+    color: var(--ink-muted); font-size: 0.78rem; pointer-events: none;
+  }
+  .filter-chips { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+  .filter-chip {
+    padding: 0.22rem 0.6rem;
+    border: 1px solid var(--border); border-radius: 12px;
+    font-family: var(--font-mono);
+    font-size: 0.65rem; font-weight: 500;
+    cursor: pointer; background: transparent;
+    color: var(--ink-muted); transition: all 0.2s;
+    user-select: none;
+  }
+  .filter-chip:hover { border-color: var(--copper); color: var(--ink); }
+  .filter-chip.active {
+    background: var(--copper); color: var(--warm-white);
+    border-color: var(--copper);
+  }
+
+  /* ── GRID CONTAINER ──────────────────────────────────────────────── */
+  .grid-container {
+    padding: 1.25rem 1.5rem;
+    max-width: 1400px; margin: 0 auto;
+  }
+
+  /* ── CARD VIEW (component-grid) ──────────────────────────────────── */
+  .component-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .comp-card {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.85rem;
+    box-shadow: var(--card-shadow);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .comp-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--copper);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .comp-card:hover {
+    border-color: var(--copper);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(45,41,38,0.1), 0 1px 4px rgba(45,41,38,0.06);
+  }
+  .comp-card:hover::before { opacity: 1; }
+  .comp-card.selected {
+    border-color: var(--copper);
+    box-shadow: 0 0 0 2px var(--copper-glow), var(--card-shadow);
+  }
+  .comp-card.selected::before { opacity: 1; }
+
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }
+  .card-name {
+    font-family: var(--font-body);
+    font-size: 0.85rem; font-weight: 600;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .card-category {
+    font-family: var(--font-mono);
+    font-size: 0.55rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--ink-muted);
+    margin-top: 0.15rem;
+  }
+
+  /* Quality Tier Badge */
+  .tier-badge {
+    display: inline-flex; align-items: center; gap: 0.2rem;
+    padding: 0.1rem 0.4rem; border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.55rem; font-weight: 600;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .tier-badge.polished { background: var(--green-dim); color: var(--green); }
+  .tier-badge.functional { background: var(--amber-dim); color: var(--amber); }
+  .tier-badge.rough { background: var(--red-dim); color: var(--red); }
+
+  /* Classifier Badges */
+  .card-badges { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.4rem; }
+  .cls-badge {
+    display: inline-flex; align-items: center; gap: 0.2rem;
+    padding: 0.1rem 0.35rem; border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.55rem; font-weight: 500;
+  }
+  .cls-badge.aesthetic { background: var(--purple-dim); color: var(--purple); }
+  .cls-badge.agentic { background: var(--blue-dim); color: var(--blue); }
+  .cls-badge.a11y { background: var(--green-dim); color: var(--green); }
+  .cls-badge.interactive { background: var(--amber-dim); color: var(--amber); }
+  .cls-badge.animation { background: var(--copper-glow); color: var(--copper); }
+
+  /* Review indicator */
+  .review-dot {
+    position: absolute; top: 8px; right: 8px;
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+  .review-dot.reviewed { background: var(--green); }
+  .review-dot.pending { background: var(--border); }
+
+  /* ── LIST VIEW ───────────────────────────────────────────────────── */
+  .component-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .list-header {
+    display: grid;
+    grid-template-columns: 6px 1fr 100px 80px 1fr;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.5rem 0.85rem;
+    background: var(--warm-white-dark);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-muted);
+  }
+  .list-row {
+    display: grid;
+    grid-template-columns: 6px 1fr 100px 80px 1fr;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.55rem 0.85rem;
+    background: var(--paper);
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .list-row:hover {
+    background: var(--warm-white-dark);
+  }
+  .list-row.selected {
+    background: var(--copper-glow);
+  }
+  .list-review-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .list-review-dot.reviewed { background: var(--green); }
+  .list-review-dot.pending { background: var(--border); }
+  .list-name {
+    font-family: var(--font-body);
+    font-size: 0.82rem; font-weight: 600;
+    color: var(--ink);
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .list-name .list-cat {
+    font-family: var(--font-mono);
+    font-size: 0.55rem; font-weight: 500;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .list-badges {
+    display: flex; gap: 0.25rem; flex-wrap: wrap;
+  }
+  .list-badges .cls-badge {
+    font-size: 0.5rem;
+    padding: 0.05rem 0.3rem;
+  }
+
+  /* ── TABLE VIEW ──────────────────────────────────────────────────── */
+  .component-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+  }
+  .component-table thead th {
+    background: var(--warm-white-dark);
+    padding: 0.55rem 0.75rem;
+    text-align: left;
+    font-size: 0.58rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-muted);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s;
+    white-space: nowrap;
+  }
+  .component-table thead th:hover {
+    color: var(--copper);
+  }
+  .component-table thead th.sorted {
+    color: var(--copper);
+  }
+  .component-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.12s;
+    cursor: pointer;
+  }
+  .component-table tbody tr:last-child {
+    border-bottom: none;
+  }
+  .component-table tbody tr:hover {
+    background: var(--warm-white-dark);
+  }
+  .component-table tbody tr.selected {
+    background: var(--copper-glow);
+  }
+  .component-table td {
+    padding: 0.5rem 0.75rem;
+    color: var(--ink-light);
+    background: var(--paper);
+  }
+  .component-table tbody tr:hover td {
+    background: var(--warm-white-dark);
+  }
+  .component-table tbody tr.selected td {
+    background: var(--copper-glow);
+  }
+  .table-name {
+    font-family: var(--font-body);
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 0.82rem;
+  }
+  .table-badges {
+    display: flex; gap: 0.2rem; flex-wrap: wrap;
+  }
+  .table-badges .cls-badge {
+    font-size: 0.5rem;
+    padding: 0.05rem 0.25rem;
+  }
+  .sort-arrow {
+    font-size: 0.5rem;
+    margin-left: 0.25rem;
+  }
+
+  /* ── RESPONSIVE: TABLET ──────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .global-nav { padding: 0.5rem 0.75rem; }
+    .nav-brand span { display: none; }
+    .nav-left { gap: 0.75rem; }
+    .nav-tabs { font-size: 0.65rem; gap: 0.15rem; }
+    .nav-tab { padding: 0.35rem 0.55rem; font-size: 0.65rem; }
+    .toolbar { padding: 0.5rem 0.75rem; }
+    .search-filters { padding: 0.5rem 0.75rem; }
+    .grid-container { padding: 0.75rem; }
+    .component-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+    }
+    .temp-control { display: none; }
+    .progress-track { width: 80px; }
+
+    /* List view responsive */
+    .list-header { grid-template-columns: 6px 1fr 70px 65px; }
+    .list-header > *:last-child { display: none; }
+    .list-row { grid-template-columns: 6px 1fr 70px 65px; }
+    .list-row > *:last-child { display: none; }
+
+    /* Table view responsive */
+    .component-table { font-size: 0.65rem; }
+    .component-table thead th,
+    .component-table td { padding: 0.4rem 0.5rem; }
+    .component-table .col-badges { display: none; }
+  }
+
+  /* ── RESPONSIVE: MOBILE (375px) ──────────────────────────────────── */
+  @media (max-width: 480px) {
+    .global-nav { padding: 0.4rem 0.6rem; }
+    .nav-tabs { display: none; }
+    .nav-right { gap: 0.35rem; }
+    .nav-icon-btn { width: 26px; height: 26px; }
+    .conn-dot { width: 6px; height: 6px; }
+
+    .toolbar { padding: 0.4rem 0.6rem; top: 42px; }
+    .toolbar-left { gap: 0.5rem; }
+    .toolbar-right { display: none; }
+    .view-toggle { margin-left: 0.25rem; }
+    .view-btn { width: 26px; height: 24px; }
+    .view-btn svg { width: 12px; height: 12px; }
+    .zoom-btn { padding: 0.25rem 0.45rem; font-size: 0.62rem; }
+
+    .search-filters { padding: 0.4rem 0.6rem; flex-direction: column; align-items: stretch; }
+    .search-input-wrap { min-width: unset; max-width: none; }
+    .filter-chips { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 0.25rem; }
+    .filter-chip { flex-shrink: 0; }
+
+    .grid-container { padding: 0.5rem 0.6rem; }
+
+    /* Card view: single column on mobile */
+    .component-grid {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+
+    /* List view: simplified for mobile */
+    .list-header {
+      grid-template-columns: 6px 1fr 65px;
+    }
+    .list-header > *:nth-child(4),
+    .list-header > *:last-child { display: none; }
+    .list-row {
+      grid-template-columns: 6px 1fr 65px;
+    }
+    .list-row > *:nth-child(4),
+    .list-row > *:last-child { display: none; }
+
+    /* Table view: hide less important columns */
+    .component-table .col-cat,
+    .component-table .col-badges { display: none; }
+    .component-table thead th,
+    .component-table td { padding: 0.35rem 0.4rem; font-size: 0.62rem; }
+  }
+
+  /* ── TOAST NOTIFICATIONS (non-blocking dispatch) ──────────────────── */
+  .toast-container {
+    position: fixed;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    z-index: 500;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+    max-width: 360px;
+  }
+  .toast {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--green);
+    border-radius: 6px;
+    padding: 0.65rem 0.85rem;
+    box-shadow: 0 4px 20px rgba(45,41,38,0.12), 0 2px 6px rgba(45,41,38,0.06);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    animation: toastIn 0.25s ease both;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--ink-light);
+  }
+  .toast.toast-out {
+    animation: toastOut 0.2s ease both;
+  }
+  .toast-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+    color: var(--green);
+  }
+  .toast-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .toast-title {
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 0.72rem;
+    margin-bottom: 0.1rem;
+  }
+  .toast-message {
+    font-size: 0.62rem;
+    color: var(--ink-muted);
+  }
+  .toast-undo {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: var(--copper);
+    background: transparent;
+    border: 1px solid var(--copper);
+    border-radius: 3px;
+    padding: 0.15rem 0.5rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .toast-undo:hover {
+    background: var(--copper);
+    color: var(--warm-white);
+  }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(20px) scale(0.95); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
+  }
+  @keyframes toastOut {
+    from { opacity: 1; transform: translateX(0) scale(1); }
+    to { opacity: 0; transform: translateX(20px) scale(0.95); }
+  }
+
+  @media (max-width: 480px) {
+    .toast-container {
+      left: 0.6rem; right: 0.6rem;
+      bottom: 0.6rem;
+      max-width: none;
+    }
+  }
+
+  /* ── ANIMATIONS ────────────────────────────────────────────────────── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .comp-card {
+    animation: fadeInUp 0.3s ease both;
+  }
+  .comp-card:nth-child(1) { animation-delay: 0.02s; }
+  .comp-card:nth-child(2) { animation-delay: 0.04s; }
+  .comp-card:nth-child(3) { animation-delay: 0.06s; }
+  .comp-card:nth-child(4) { animation-delay: 0.08s; }
+  .comp-card:nth-child(5) { animation-delay: 0.10s; }
+  .comp-card:nth-child(6) { animation-delay: 0.12s; }
+  .comp-card:nth-child(7) { animation-delay: 0.14s; }
+  .comp-card:nth-child(8) { animation-delay: 0.16s; }
+  .comp-card:nth-child(9) { animation-delay: 0.18s; }
+  .comp-card:nth-child(10) { animation-delay: 0.20s; }
+  .comp-card:nth-child(11) { animation-delay: 0.22s; }
+  .comp-card:nth-child(12) { animation-delay: 0.24s; }
+  .comp-card:nth-child(n+13) { animation-delay: 0.26s; }
+
+  .list-row, .component-table tbody tr {
+    animation: fadeInUp 0.2s ease both;
+  }
+
+  /* ── FOOTER ────────────────────────────────────────────────────────── */
+  .dash-footer {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--ink-muted);
+  }
+  .dash-footer a { color: var(--copper); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!--
+  ── 3-UP MODE (FUTURE IMPLEMENTATION) ──────────────────────────────────
+  3-up is NOT a 3-column card grid. It is 3 detail views stacked/condensed
+  vertically, each showing a condensed version of the 1-up layout
+  (inbox-1up.html). Think of it as a triage view where you can compare
+  3 items side by side without navigating between them.
+
+  Implementation plan:
+  - When zoom level 3 is selected, navigate to a dedicated 3-up page or
+    render 3 condensed 1-up panels in a vertical stack.
+  - Each panel shows: name, tier badge, classifier bars, review controls.
+  - Prev/next navigates the triple as a window over the queue.
+  ───────────────────────────────────────────────────────────────────────
+-->
+
+<!-- ── GLOBAL NAV ────────────────────────────────────────────────────── -->
+<nav class="global-nav">
+  <div class="nav-left">
+    <div class="nav-brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+        <path d="M2 17l10 5 10-5"/>
+        <path d="M2 12l10 5 10-5"/>
+      </svg>
+      <span>LEVIATHAN</span>
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-tab active">Inbox</button>
+      <button class="nav-tab" onclick="window.location.href='lev-dashboard-workflows.html'">Workflows</button>
+      <button class="nav-tab">Workers</button>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-icon-btn" title="Settings">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
+    <span class="conn-dot conn-connected" title="levd connected"></span>
+    <button class="nav-icon-btn theme-toggle" onclick="toggleTheme()" title="Toggle theme" id="themeBtn">
+      <span id="themeIcon">&#9681;</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ── TOOLBAR ────────────────────────────────────────────────────────── -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <div class="zoom-lens">
+      <button class="zoom-btn" onclick="setZoom(1)">1</button>
+      <button class="zoom-btn" onclick="setZoom(3)">3</button>
+      <button class="zoom-btn" onclick="setZoom(5)">5</button>
+      <button class="zoom-btn active" onclick="setZoom('wall')">&#9632;</button>
+    </div>
+    <div class="view-toggle">
+      <button class="view-btn active" onclick="setViewMode('list')" title="List view">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      </button>
+      <button class="view-btn" onclick="setViewMode('card')" title="Card view">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      </button>
+      <button class="view-btn" onclick="setViewMode('table')" title="Table view">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+      </button>
+    </div>
+    <div class="temp-control">
+      <span class="temp-label">TEMP</span>
+      <input type="range" class="temp-slider" min="0" max="100" value="40" id="tempSlider">
+    </div>
+  </div>
+  <div class="toolbar-right">
+    <div class="progress-wrap">
+      <div class="progress-track">
+        <div class="progress-fill" style="width: 18.75%"></div>
+      </div>
+      <span class="progress-text">12 / 64 reviewed</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── SEARCH + FILTERS ──────────────────────────────────────────────── -->
+<div class="search-filters">
+  <div class="search-input-wrap">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" class="search-input" placeholder="Search components..." id="searchInput" oninput="filterGrid()">
+  </div>
+  <div class="filter-chips" id="filterChips">
+    <button class="filter-chip" data-filter="aesthetic" onclick="toggleFilter(this)">aesthetic</button>
+    <button class="filter-chip" data-filter="agentic" onclick="toggleFilter(this)">agentic</button>
+    <button class="filter-chip" data-filter="a11y" onclick="toggleFilter(this)">a11y</button>
+    <button class="filter-chip" data-filter="interactive" onclick="toggleFilter(this)">interactive</button>
+    <button class="filter-chip" data-filter="animation" onclick="toggleFilter(this)">animation</button>
+    <button class="filter-chip" data-filter="polished" onclick="toggleFilter(this)">polished</button>
+    <button class="filter-chip" data-filter="functional" onclick="toggleFilter(this)">functional</button>
+    <button class="filter-chip" data-filter="rough" onclick="toggleFilter(this)">rough</button>
+  </div>
+</div>
+
+<!-- ── CONTENT AREA ──────────────────────────────────────────────────── -->
+<div class="grid-container">
+  <div id="compGrid">
+    <!-- Content generated by JS based on view mode -->
+  </div>
+</div>
+
+<!-- ── TOAST CONTAINER ──────────────────────────────────────────────── -->
+<div class="toast-container" id="toastContainer"></div>
+
+<footer class="dash-footer">
+  LEVIATHAN LIVE DASHBOARD &mdash; Inbox / Wall View &mdash; Mockup v0.2<br>
+  <a href="lev-dashboard-queue-1up.html">1-UP Detail</a> &middot; <a href="lev-dashboard-workflows.html">Workflows</a>
+</footer>
+
+<script>
+const COMPONENTS = [
+  { name: "Button", cat: "Primitive", tier: "polished", badges: ["agentic", "interactive", "a11y"], reviewed: true },
+  { name: "Card", cat: "Primitive", tier: "polished", badges: ["aesthetic", "agentic"], reviewed: true },
+  { name: "Dialog", cat: "Primitive", tier: "polished", badges: ["a11y", "animation"], reviewed: true },
+  { name: "Input", cat: "Primitive", tier: "functional", badges: ["interactive", "a11y"], reviewed: true },
+  { name: "Badge", cat: "Primitive", tier: "polished", badges: ["aesthetic"], reviewed: true },
+  { name: "Switch", cat: "Primitive", tier: "functional", badges: ["interactive", "a11y"], reviewed: true },
+  { name: "Checkbox", cat: "Primitive", tier: "polished", badges: ["a11y", "interactive"], reviewed: true },
+  { name: "Label", cat: "Primitive", tier: "polished", badges: ["a11y"], reviewed: true },
+  { name: "Progress", cat: "Primitive", tier: "functional", badges: ["animation", "aesthetic"], reviewed: true },
+  { name: "SearchInput", cat: "Compound", tier: "functional", badges: ["interactive", "agentic"], reviewed: true },
+  { name: "Textarea", cat: "Primitive", tier: "functional", badges: ["interactive", "a11y"], reviewed: true },
+  { name: "Icon", cat: "Primitive", tier: "polished", badges: ["aesthetic"], reviewed: true },
+  { name: "StatusDot", cat: "Indicator", tier: "polished", badges: ["agentic", "animation"], reviewed: false },
+  { name: "MenuList", cat: "Compound", tier: "functional", badges: ["interactive", "a11y"], reviewed: false },
+  { name: "FormWrapper", cat: "Layout", tier: "functional", badges: ["a11y", "interactive"], reviewed: false },
+  { name: "AnimatedContainer", cat: "Layout", tier: "rough", badges: ["animation", "aesthetic"], reviewed: false },
+  { name: "GlowOrb", cat: "Effect", tier: "rough", badges: ["animation", "aesthetic"], reviewed: false },
+  { name: "ShimmerText", cat: "Effect", tier: "rough", badges: ["animation", "aesthetic"], reviewed: false },
+  { name: "TabBar", cat: "Compound", tier: "functional", badges: ["interactive", "a11y"], reviewed: false },
+  { name: "AlertDialog", cat: "Primitive", tier: "functional", badges: ["a11y", "animation", "agentic"], reviewed: false },
+  { name: "Sheet", cat: "Primitive", tier: "functional", badges: ["animation", "interactive"], reviewed: false },
+  { name: "FilteredDropdown", cat: "Compound", tier: "rough", badges: ["interactive", "agentic"], reviewed: false },
+  { name: "OverlayFooter", cat: "Layout", tier: "rough", badges: ["aesthetic"], reviewed: false },
+  { name: "IconButton", cat: "Primitive", tier: "polished", badges: ["interactive", "a11y", "aesthetic"], reviewed: false },
+];
+
+const BADGE_ICONS = {
+  aesthetic: "\u2728",
+  agentic: "\uD83D\uDCE1",
+  a11y: "\u267F",
+  interactive: "\u26A1",
+  animation: "\uD83C\uDFAC",
+};
+
+let activeFilters = new Set();
+let selectedCard = null;
+let currentViewMode = 'list'; // Default to list view
+let sortColumn = null;
+let sortDirection = 'asc';
+
+function getFiltered() {
+  const searchVal = document.getElementById('searchInput').value.toLowerCase();
+  let filtered = COMPONENTS.filter(c => {
+    if (searchVal && !c.name.toLowerCase().includes(searchVal)) return false;
+    if (activeFilters.size === 0) return true;
+    const allTags = [...c.badges, c.tier];
+    return [...activeFilters].some(f => allTags.includes(f));
+  });
+
+  // Apply sorting for table view
+  if (sortColumn && currentViewMode === 'table') {
+    filtered.sort((a, b) => {
+      let va, vb;
+      if (sortColumn === 'name') { va = a.name; vb = b.name; }
+      else if (sortColumn === 'category') { va = a.cat; vb = b.cat; }
+      else if (sortColumn === 'tier') { va = a.tier; vb = b.tier; }
+      else if (sortColumn === 'reviewed') { va = a.reviewed ? 1 : 0; vb = b.reviewed ? 1 : 0; }
+      else { va = a.name; vb = b.name; }
+      if (typeof va === 'string') {
+        const cmp = va.localeCompare(vb);
+        return sortDirection === 'asc' ? cmp : -cmp;
+      }
+      return sortDirection === 'asc' ? va - vb : vb - va;
+    });
+  }
+  return filtered;
+}
+
+function renderEmptyState(container) {
+  container.innerHTML = `
+    <div style="text-align: center; padding: 3rem 1rem;">
+      <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">No items match</div>
+      <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-muted);">
+        Try adjusting your search or filters
+      </div>
+    </div>
+  `;
+}
+
+function renderCardView() {
+  const container = document.getElementById('compGrid');
+  const filtered = getFiltered();
+  if (filtered.length === 0) { renderEmptyState(container); return; }
+
+  container.innerHTML = `<div class="component-grid">${filtered.map((c, i) => `
+    <div class="comp-card ${selectedCard === c.name ? 'selected' : ''}"
+         onclick="selectCard('${c.name}')"
+         data-name="${c.name}"
+         style="animation-delay: ${Math.min(i * 0.02, 0.3).toFixed(2)}s">
+      <span class="review-dot ${c.reviewed ? 'reviewed' : 'pending'}"></span>
+      <div class="card-header">
+        <div>
+          <div class="card-name">${c.name}</div>
+          <div class="card-category">${c.cat}</div>
+        </div>
+        <span class="tier-badge ${c.tier}">${c.tier}</span>
+      </div>
+      <div class="card-badges">
+        ${c.badges.map(b => `<span class="cls-badge ${b}">${BADGE_ICONS[b] || ''} ${b}</span>`).join('')}
+      </div>
+    </div>
+  `).join('')}</div>`;
+}
+
+function renderListView() {
+  const container = document.getElementById('compGrid');
+  const filtered = getFiltered();
+  if (filtered.length === 0) { renderEmptyState(container); return; }
+
+  container.innerHTML = `
+    <div class="component-list">
+      <div class="list-header">
+        <span></span>
+        <span>Name</span>
+        <span>Category</span>
+        <span>Quality</span>
+        <span>Classifiers</span>
+      </div>
+      ${filtered.map((c, i) => `
+        <div class="list-row ${selectedCard === c.name ? 'selected' : ''}"
+             onclick="selectCard('${c.name}')"
+             style="animation-delay: ${Math.min(i * 0.015, 0.3).toFixed(3)}s">
+          <span class="list-review-dot ${c.reviewed ? 'reviewed' : 'pending'}"></span>
+          <span class="list-name">${c.name}</span>
+          <span class="list-name list-cat">${c.cat}</span>
+          <span class="tier-badge ${c.tier}">${c.tier}</span>
+          <span class="list-badges">
+            ${c.badges.map(b => `<span class="cls-badge ${b}">${BADGE_ICONS[b] || ''}</span>`).join('')}
+          </span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderTableView() {
+  const container = document.getElementById('compGrid');
+  const filtered = getFiltered();
+  if (filtered.length === 0) { renderEmptyState(container); return; }
+
+  function arrow(col) {
+    if (sortColumn !== col) return '';
+    return `<span class="sort-arrow">${sortDirection === 'asc' ? '\u25B2' : '\u25BC'}</span>`;
+  }
+  function sorted(col) {
+    return sortColumn === col ? 'sorted' : '';
+  }
+
+  container.innerHTML = `
+    <table class="component-table">
+      <thead>
+        <tr>
+          <th style="width:30px" class="${sorted('reviewed')}" onclick="sortTable('reviewed')">&#9679;${arrow('reviewed')}</th>
+          <th class="${sorted('name')}" onclick="sortTable('name')">Name${arrow('name')}</th>
+          <th class="col-cat ${sorted('category')}" onclick="sortTable('category')">Category${arrow('category')}</th>
+          <th class="${sorted('tier')}" onclick="sortTable('tier')">Quality${arrow('tier')}</th>
+          <th class="col-badges">Classifiers</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filtered.map((c, i) => `
+          <tr class="${selectedCard === c.name ? 'selected' : ''}"
+              onclick="selectCard('${c.name}')"
+              style="animation-delay: ${Math.min(i * 0.012, 0.25).toFixed(3)}s">
+            <td><span class="list-review-dot ${c.reviewed ? 'reviewed' : 'pending'}" style="display:inline-block"></span></td>
+            <td><span class="table-name">${c.name}</span></td>
+            <td class="col-cat">${c.cat}</td>
+            <td><span class="tier-badge ${c.tier}">${c.tier}</span></td>
+            <td class="col-badges">
+              <span class="table-badges">
+                ${c.badges.map(b => `<span class="cls-badge ${b}">${BADGE_ICONS[b] || ''} ${b}</span>`).join('')}
+              </span>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function sortTable(col) {
+  if (sortColumn === col) {
+    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortColumn = col;
+    sortDirection = 'asc';
+  }
+  renderView();
+}
+
+function renderView() {
+  if (currentViewMode === 'card') renderCardView();
+  else if (currentViewMode === 'table') renderTableView();
+  else renderListView();
+}
+
+function setViewMode(mode) {
+  currentViewMode = mode;
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  renderView();
+}
+
+function selectCard(name) {
+  selectedCard = selectedCard === name ? null : name;
+  renderView();
+}
+
+// ── Toast Notification System (non-blocking dispatch) ──
+function showToast(title, message, undoCallback) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerHTML = `
+    <span class="toast-icon">&#10003;</span>
+    <div class="toast-body">
+      <div class="toast-title">${title}</div>
+      <div class="toast-message">${message}</div>
+    </div>
+    ${undoCallback ? '<button class="toast-undo" onclick="undoToast(this)">Undo</button>' : ''}
+  `;
+  container.appendChild(toast);
+  // Auto-dismiss after 4s
+  setTimeout(() => {
+    toast.classList.add('toast-out');
+    setTimeout(() => toast.remove(), 200);
+  }, 4000);
+}
+
+function undoToast(btn) {
+  const toast = btn.closest('.toast');
+  toast.classList.add('toast-out');
+  setTimeout(() => toast.remove(), 200);
+  // In real app, would revert the action here
+}
+
+function dispatchItem(name, action) {
+  // Optimistic rendering: show success immediately
+  showToast(
+    `${action} dispatched`,
+    `${name} — action queued`,
+    true
+  );
+}
+
+function toggleFilter(el) {
+  const f = el.dataset.filter;
+  if (activeFilters.has(f)) {
+    activeFilters.delete(f);
+    el.classList.remove('active');
+  } else {
+    activeFilters.add(f);
+    el.classList.add('active');
+  }
+  renderView();
+}
+
+function filterGrid() {
+  renderView();
+}
+
+function setZoom(level) {
+  document.querySelectorAll('.zoom-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  if (level === 1) {
+    window.location.href = 'lev-dashboard-queue-1up.html';
+  }
+  // Zoom levels 3, 5, wall stay on this page
+  // Card view adjusts density based on zoom
+  if (currentViewMode === 'card') {
+    const grid = document.querySelector('.component-grid');
+    if (grid) {
+      if (level === 'wall') {
+        grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(175px, 1fr))';
+      } else if (level === 5) {
+        grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(220px, 1fr))';
+      } else if (level === 3) {
+        grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(300px, 1fr))';
+      }
+    }
+  }
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.getElementById('themeIcon').textContent = next === 'dark' ? '\u2600' : '\u9681';
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === '1') setZoom.call(null, 1);
+  if (e.key === '3') { setZoom(3); document.querySelectorAll('.zoom-btn')[1].classList.add('active'); }
+  if (e.key === '5') { setZoom(5); document.querySelectorAll('.zoom-btn')[2].classList.add('active'); }
+  if (e.key === '0') { setZoom('wall'); document.querySelectorAll('.zoom-btn')[3].classList.add('active'); }
+  // View mode shortcuts
+  if (e.key === 'l') { document.querySelectorAll('.view-btn')[0].click(); }
+  if (e.key === 'c') { document.querySelectorAll('.view-btn')[1].click(); }
+  if (e.key === 't') { document.querySelectorAll('.view-btn')[2].click(); }
+});
+
+// Init — default to list view
+renderView();
+</script>
+</body>
+</html>

@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leviathan Status Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ── COLOR SYSTEM: Warm Charcoal + Copper ──────────────────────────── */
+  :root {
+    --charcoal: #2d2926;
+    --charcoal-light: #3d3834;
+    --charcoal-muted: #5a5350;
+    --copper: #b87333;
+    --copper-light: #d4944e;
+    --copper-dim: #8f5a28;
+    --warm-white: #faf8f5;
+    --warm-white-dark: #f0ece6;
+    --sage: #8b9e7e;
+    --sage-dim: rgba(139, 158, 126, 0.12);
+    --ink: #2d2926;
+    --ink-light: #4a4440;
+    --ink-muted: #7a7370;
+    --paper: #ffffff;
+    --border: #e0dbd3;
+    --code-bg: #f5f0e8;
+    --green: #5a8a5e;
+    --green-dim: rgba(90, 138, 94, 0.1);
+    --red: #b54a4a;
+    --red-dim: rgba(181, 74, 74, 0.08);
+    --amber: #c47d2e;
+    --amber-dim: rgba(196, 125, 46, 0.08);
+    --orange: #d4652e;
+    --card-shadow: 0 1px 3px rgba(45,41,38,0.06), 0 4px 12px rgba(45,41,38,0.04);
+    --font-body: 'Space Grotesk', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  /* ── DARK MODE ─────────────────────────────────────────────────────── */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --warm-white: #1a1714;
+      --warm-white-dark: #23201c;
+      --ink: #e8e4de;
+      --ink-light: #c8c4be;
+      --ink-muted: #8a8680;
+      --paper: #2d2926;
+      --border: #3d3834;
+      --code-bg: #23201c;
+      --charcoal: #d4944e;
+      --charcoal-light: #e0a860;
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.15);
+      --green-dim: rgba(90, 138, 94, 0.15);
+      --red-dim: rgba(181, 74, 74, 0.15);
+      --amber-dim: rgba(196, 125, 46, 0.15);
+    }
+  }
+  [data-theme="dark"] {
+    --warm-white: #1a1714;
+    --warm-white-dark: #23201c;
+    --ink: #e8e4de;
+    --ink-light: #c8c4be;
+    --ink-muted: #8a8680;
+    --paper: #2d2926;
+    --border: #3d3834;
+    --code-bg: #23201c;
+    --charcoal: #d4944e;
+    --charcoal-light: #e0a860;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.15);
+    --green-dim: rgba(90, 138, 94, 0.15);
+    --red-dim: rgba(181, 74, 74, 0.15);
+    --amber-dim: rgba(196, 125, 46, 0.15);
+  }
+  [data-theme="light"] {
+    --warm-white: #faf8f5;
+    --warm-white-dark: #f0ece6;
+    --ink: #2d2926;
+    --ink-light: #4a4440;
+    --ink-muted: #7a7370;
+    --paper: #ffffff;
+    --border: #e0dbd3;
+    --code-bg: #f5f0e8;
+    --charcoal: #2d2926;
+    --charcoal-light: #3d3834;
+    --card-shadow: 0 1px 3px rgba(45,41,38,0.06), 0 4px 12px rgba(45,41,38,0.04);
+    --green-dim: rgba(90, 138, 94, 0.1);
+    --red-dim: rgba(181, 74, 74, 0.08);
+    --amber-dim: rgba(196, 125, 46, 0.08);
+  }
+
+  /* ── RESET & BASE ──────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    font-size: 14px; line-height: 1.6;
+    background: var(--warm-white);
+    background-image: radial-gradient(ellipse at 50% 0%, var(--amber-dim) 0%, transparent 60%);
+    color: var(--ink);
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+
+  /* ── THEME TOGGLE ──────────────────────────────────────────────────── */
+  .theme-toggle {
+    position: fixed; top: 12px; right: 12px; z-index: 300;
+    width: 36px; height: 36px;
+    border: 1px solid var(--border); border-radius: 8px;
+    background: color-mix(in srgb, var(--paper) 80%, transparent);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    color: var(--ink-muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; line-height: 1;
+    transition: background 0.2s, border-color 0.2s; padding: 0;
+  }
+  .theme-toggle:hover { border-color: var(--copper); color: var(--ink); }
+
+  /* ── HERO ───────────────────────────────────────────────────────────── */
+  .hero {
+    padding: 3rem 0 2rem;
+    border-bottom: 2px solid var(--copper);
+  }
+  .hero-label {
+    font-family: var(--font-mono);
+    font-size: 0.62rem; font-weight: 600;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--copper);
+    margin-bottom: 0.75rem;
+  }
+  .hero h1 {
+    font-family: var(--font-body);
+    font-size: 2.5rem; font-weight: 700;
+    color: var(--ink); letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+  .hero .subtitle {
+    font-size: 0.85rem; color: var(--ink-muted);
+    margin-top: 0.75rem; line-height: 1.7;
+    max-width: 650px;
+  }
+  .hero .subtitle strong { color: var(--ink); font-weight: 600; }
+
+  /* ── PROGRESS BAR ──────────────────────────────────────────────────── */
+  .progress-bar-wrap {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--paper);
+    border-bottom: 1px solid var(--border);
+    padding: 0.6rem 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .progress-inner {
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .progress-track {
+    flex: 1; height: 6px;
+    background: var(--border); border-radius: 3px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--copper);
+    border-radius: 3px; transition: width 0.3s ease; width: 0%;
+  }
+  .progress-text {
+    font-family: var(--font-mono);
+    font-size: 0.68rem; font-weight: 600;
+    color: var(--ink-muted); white-space: nowrap;
+  }
+  .save-indicator {
+    font-family: var(--font-mono);
+    font-size: 0.62rem; font-weight: 500;
+    color: var(--green); opacity: 0;
+    transition: opacity 0.3s ease;
+    margin-left: 0.25rem; white-space: nowrap;
+  }
+  .save-indicator.visible { opacity: 1; }
+  .conn-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-left: 0.5rem; vertical-align: middle; transition: background 0.3s; }
+  .conn-connected { background: var(--green); box-shadow: 0 0 4px var(--green); }
+  .conn-fallback { background: var(--amber); }
+  .conn-disconnected { background: var(--ink-muted); }
+
+  /* ── SEARCH + FILTER ───────────────────────────────────────────────── */
+  .search-bar { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
+  .search-bar input[type="text"] {
+    flex: 1; min-width: 200px;
+    padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: 4px;
+    background: var(--paper); color: var(--ink);
+    font-family: var(--font-mono); font-size: 0.8rem;
+  }
+  .search-bar input[type="text"]:focus { outline: none; border-color: var(--copper); }
+  .filter-chips { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+  .filter-chip {
+    padding: 0.2rem 0.6rem; border: 1px solid var(--border); border-radius: 12px;
+    font-size: 0.7rem; cursor: pointer; background: transparent;
+    color: var(--ink-muted); transition: all 0.2s;
+    font-family: var(--font-mono);
+  }
+  .filter-chip.active { background: var(--copper); color: var(--warm-white); border-color: var(--copper); }
+  .filter-toggle-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem; white-space: nowrap; cursor: pointer; color: var(--ink-muted);
+    display: flex; align-items: center; gap: 0.25rem;
+  }
+
+  /* ── BUCKET NAV ────────────────────────────────────────────────────── */
+  .bucket-nav {
+    background: var(--warm-white-dark);
+    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 0;
+  }
+  .bucket-nav a {
+    font-family: var(--font-mono);
+    font-size: 0.68rem; font-weight: 600;
+    color: var(--ink-muted); text-decoration: none;
+    padding: 0.3rem 0.6rem; border-radius: 3px;
+    transition: all 0.15s;
+  }
+  .bucket-nav a:hover { background: var(--border); color: var(--ink); }
+
+  /* ── SECTION HEADERS ───────────────────────────────────────────────── */
+  .section-header {
+    margin: 2.5rem 0 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border);
+  }
+  .section-header h2 {
+    font-family: var(--font-body);
+    font-size: 1.35rem; font-weight: 700;
+    color: var(--ink); letter-spacing: -0.02em;
+  }
+  .section-header .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.55rem; font-weight: 600;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--copper); margin-bottom: 0.3rem;
+  }
+
+  /* ── KPI CARDS ─────────────────────────────────────────────────────── */
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
+  .kpi {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--copper);
+    border-radius: 6px; padding: 1rem;
+    box-shadow: var(--card-shadow);
+  }
+  .kpi .val {
+    font-family: var(--font-body);
+    font-size: 1.5rem; font-weight: 700; color: var(--ink);
+  }
+  .kpi .label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem; color: var(--ink-muted); margin-top: 0.15rem;
+  }
+  .kpi.sev-green { border-left-color: var(--green); }
+  .kpi.sev-red { border-left-color: var(--red); }
+  .kpi.sev-amber { border-left-color: var(--amber); }
+
+  /* ── TABLES ────────────────────────────────────────────────────────── */
+  .tbl-wrap {
+    overflow-x: auto; border-radius: 6px;
+    border: 1px solid var(--border);
+    box-shadow: var(--card-shadow); margin-bottom: 1.5rem;
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--paper); font-size: 0.78rem; }
+  thead th {
+    position: sticky; top: 0; z-index: 2;
+    background: var(--warm-white-dark);
+    color: var(--ink-muted);
+    font-family: var(--font-mono);
+    font-size: 0.65rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    text-align: left; padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-mono); font-size: 0.72rem;
+  }
+  tr:hover td { background: var(--warm-white-dark); }
+
+  /* ── BADGES ────────────────────────────────────────────────────────── */
+  .badge {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    padding: 0.12rem 0.45rem; border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.6rem; font-weight: 600; white-space: nowrap;
+  }
+  .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .badge.green { background: var(--green-dim); color: var(--green); }
+  .badge.green::before { background: var(--green); }
+  .badge.amber { background: var(--amber-dim); color: var(--amber); }
+  .badge.amber::before { background: var(--amber); }
+  .badge.red { background: var(--red-dim); color: var(--red); }
+  .badge.red::before { background: var(--red); }
+  .badge.muted { background: rgba(122,115,112,0.1); color: var(--ink-muted); }
+  .badge.muted::before { background: var(--ink-muted); }
+  .badge.crit { background: var(--red-dim); color: var(--red); font-weight: 700; }
+  .badge.crit::before { background: var(--red); }
+
+  /* ── TIMELINE ──────────────────────────────────────────────────────── */
+  .timeline { position: relative; padding-left: 2rem; margin: 1rem 0 1.5rem; }
+  .timeline::before {
+    content: ''; position: absolute; left: 0.65rem; top: 0; bottom: 0;
+    width: 2px; background: var(--border);
+  }
+  .tl-item {
+    position: relative; margin-bottom: 1rem; padding: 0.75rem 1rem;
+    background: var(--paper); border: 1px solid var(--border);
+    border-radius: 6px; box-shadow: var(--card-shadow);
+  }
+  .tl-item::before {
+    content: ''; position: absolute; left: -1.6rem; top: 1rem;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--copper); border: 2px solid var(--warm-white);
+  }
+  .tl-item.done::before { background: var(--green); }
+  .tl-item.crit::before { background: var(--red); }
+  .tl-num { font-family: var(--font-body); font-weight: 700; color: var(--copper); margin-right: 0.5rem; }
+  .tl-title { font-weight: 600; font-size: 0.85rem; }
+  .tl-desc { color: var(--ink-muted); font-size: 0.75rem; margin-top: 0.25rem; font-family: var(--font-mono); }
+
+  /* ── ADVERSARIAL FINDING CARDS ─────────────────────────────────────── */
+  .finding-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.75rem; }
+  .finding-card {
+    background: var(--paper); border: 1px solid var(--border);
+    border-radius: 6px; padding: 1rem;
+    box-shadow: var(--card-shadow); position: relative;
+  }
+  .finding-card.triaged { opacity: 0.7; }
+  .finding-card h3 {
+    font-family: var(--font-body); font-size: 0.95rem; font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+  .finding-card .finding-count {
+    font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-muted);
+    margin-bottom: 0.5rem;
+  }
+  .sev-bar { display: flex; height: 5px; border-radius: 3px; overflow: hidden; gap: 1px; margin: 0.5rem 0; }
+  .sev-bar .seg { height: 100%; }
+  .sev-bar .seg.crit { background: var(--red); }
+  .sev-bar .seg.high { background: var(--orange); }
+  .sev-bar .seg.med { background: var(--amber); }
+  .sev-bar .seg.low { background: var(--green); }
+  .sev-legend {
+    display: flex; gap: 0.6rem; font-family: var(--font-mono);
+    font-size: 0.6rem; color: var(--ink-muted); flex-wrap: wrap; margin-bottom: 0.75rem;
+  }
+  .sev-legend span::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 2px; margin-right: 0.25rem; vertical-align: middle; }
+  .sev-legend .c::before { background: var(--red); }
+  .sev-legend .h::before { background: var(--orange); }
+  .sev-legend .m::before { background: var(--amber); }
+  .sev-legend .l::before { background: var(--green); }
+
+  /* triage controls */
+  .triage-controls { display: flex; gap: 0.35rem; margin-top: 0.5rem; flex-wrap: wrap; }
+  .triage-btn {
+    font-family: var(--font-mono); font-size: 0.58rem; font-weight: 600;
+    padding: 0.25rem 0.5rem; border: 1px solid var(--border);
+    border-radius: 3px; cursor: pointer; background: transparent;
+    color: var(--ink-muted); transition: all 0.15s;
+  }
+  .triage-btn:hover { border-color: var(--copper); color: var(--ink); }
+  .triage-btn.active-fix { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+  .triage-btn.active-defer { background: var(--amber-dim); border-color: var(--amber); color: var(--amber); }
+  .triage-btn.active-wontfix { background: rgba(122,115,112,0.1); border-color: var(--ink-muted); color: var(--ink-muted); }
+  .triage-notes {
+    width: 100%; font-family: var(--font-mono); font-size: 0.62rem;
+    padding: 0.35rem 0.5rem; background: var(--warm-white-dark);
+    border: 1px solid var(--border); border-radius: 3px;
+    color: var(--ink); resize: vertical; margin-top: 0.4rem; min-height: 1.8rem;
+  }
+  .triage-notes:focus { outline: none; border-color: var(--copper); }
+
+  /* ── QUICK WINS CHECKLIST ──────────────────────────────────────────── */
+  .qw-list { margin-bottom: 1.5rem; }
+  .qw-item {
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    padding: 0.65rem 1rem; background: var(--paper);
+    border: 1px solid var(--border); border-radius: 6px;
+    margin-bottom: 0.4rem; box-shadow: var(--card-shadow);
+    transition: opacity 0.2s;
+  }
+  .qw-item.completed { opacity: 0.55; }
+  .qw-item.completed .qw-action { text-decoration: line-through; }
+  .qw-item input[type="checkbox"] {
+    margin-top: 3px; flex-shrink: 0; accent-color: var(--sage);
+    width: 16px; height: 16px; cursor: pointer;
+  }
+  .qw-content { flex: 1; min-width: 0; }
+  .qw-action { font-size: 0.78rem; font-weight: 500; }
+  .qw-meta {
+    display: flex; gap: 0.75rem; margin-top: 0.25rem;
+    font-family: var(--font-mono); font-size: 0.6rem; color: var(--ink-muted);
+  }
+  .qw-priority {
+    font-family: var(--font-mono); font-weight: 700; font-size: 0.62rem;
+    padding: 0.1rem 0.35rem; border-radius: 2px;
+  }
+  .qw-priority.p1 { color: var(--red); background: var(--red-dim); }
+  .qw-priority.p2 { color: var(--amber); background: var(--amber-dim); }
+  .qw-priority.p3 { color: var(--green); background: var(--green-dim); }
+  .qw-pct {
+    font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600;
+    color: var(--copper); margin-bottom: 0.75rem;
+  }
+
+  /* ── GRADE CARDS ───────────────────────────────────────────────────── */
+  .grade-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
+  .grade-card {
+    background: var(--paper); border: 1px solid var(--border);
+    border-left: 3px solid var(--ink-muted);
+    border-radius: 6px; padding: 1rem; box-shadow: var(--card-shadow);
+  }
+  .grade-letter {
+    font-family: var(--font-body); font-size: 1.75rem; font-weight: 700;
+    float: left; margin-right: 0.75rem; line-height: 1;
+  }
+  .grade-card .branch {
+    font-family: var(--font-mono); font-weight: 600; font-size: 0.78rem;
+  }
+  .grade-card .finding {
+    color: var(--ink-muted); font-size: 0.72rem; margin-top: 0.35rem;
+    font-family: var(--font-mono);
+  }
+
+  /* ── DECISION CARDS (interactive) ──────────────────────────────────── */
+  .decision-card {
+    background: var(--paper); border: 1px solid var(--border);
+    border-radius: 6px; padding: 1.15rem;
+    box-shadow: var(--card-shadow); margin-bottom: 0.75rem;
+    transition: border-color 0.2s;
+  }
+  .decision-card.decided { border-left: 3px solid var(--sage); }
+  .decision-card .dc-header {
+    display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;
+  }
+  .decision-card .dc-id {
+    font-family: var(--font-mono); font-size: 0.62rem; font-weight: 600;
+    color: var(--copper); letter-spacing: 0.08em;
+  }
+  .decision-card .dc-title {
+    font-family: var(--font-body); font-size: 0.9rem; font-weight: 600;
+  }
+  .decision-card .dc-rec {
+    font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-light);
+    margin-bottom: 0.5rem; line-height: 1.6;
+  }
+  .decision-card .dc-rec strong { color: var(--green); font-weight: 600; }
+  .decision-card .dc-risk {
+    font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-muted);
+    margin-bottom: 0.75rem; line-height: 1.6;
+  }
+  .decision-card .dc-risk strong { color: var(--red); font-weight: 600; }
+
+  /* decision radio options */
+  .dc-options { display: grid; gap: 0.35rem; margin-bottom: 0.5rem; }
+  .option-row {
+    display: flex; align-items: flex-start; gap: 0.5rem;
+    padding: 0.5rem 0.65rem; border: 1px solid var(--border); border-radius: 3px;
+    cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease;
+    font-size: 0.72rem;
+  }
+  .option-row:hover { background: var(--warm-white-dark); }
+  .option-row.selected { background: var(--green-dim); border-color: var(--sage); }
+  .option-row.recommended { border-color: var(--copper); }
+  .option-row.recommended.selected { border-color: var(--sage); }
+  .option-row input[type="radio"] { margin-top: 3px; flex-shrink: 0; accent-color: var(--sage); }
+  .option-label { flex: 1; min-width: 0; }
+  .option-label .rec-badge {
+    font-family: var(--font-mono); display: inline-block;
+    font-size: 0.5rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--copper-dim); margin-left: 0.4rem;
+  }
+  .option-label .option-desc {
+    display: block; font-family: var(--font-mono);
+    font-size: 0.62rem; color: var(--ink-muted); margin-top: 0.15rem;
+  }
+
+  .dc-notes-input {
+    width: 100%; font-family: var(--font-mono); font-size: 0.62rem;
+    padding: 0.4rem 0.6rem; background: var(--warm-white-dark);
+    border: 1px solid var(--border); border-radius: 3px;
+    color: var(--ink); resize: vertical; min-height: 2rem; margin-top: 0.35rem;
+  }
+  .dc-notes-input:focus { outline: none; border-color: var(--copper); }
+  .dc-notes-label {
+    font-family: var(--font-mono); font-size: 0.55rem; color: var(--ink-muted);
+    letter-spacing: 0.08em; text-transform: uppercase; margin-top: 0.35rem; display: block;
+  }
+
+  /* ── WORKSHOP SUMMARY ──────────────────────────────────────────────── */
+  .ws-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
+  .ws-card {
+    background: var(--paper); border: 1px solid var(--border);
+    border-radius: 6px; padding: 1rem; box-shadow: var(--card-shadow); text-align: center;
+  }
+  .ws-card .ws-num { font-family: var(--font-body); font-size: 2rem; font-weight: 700; }
+  .ws-card .ws-label { font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-muted); }
+  .ws-card.promote .ws-num { color: var(--green); }
+  .ws-card.keep .ws-num { color: var(--amber); }
+  .ws-card.archive .ws-num { color: var(--ink-muted); }
+
+  /* ── ACTION BAR ────────────────────────────────────────────────────── */
+  .action-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+    background: var(--paper); border-top: 2px solid var(--copper);
+    padding: 0.75rem 0;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+  }
+  .action-inner {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  }
+  .action-stats {
+    font-family: var(--font-mono); font-size: 0.65rem; color: var(--ink-muted);
+  }
+  .action-stats strong { color: var(--ink); }
+  .action-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .btn {
+    font-family: var(--font-mono); font-size: 0.65rem; font-weight: 600;
+    padding: 0.5rem 1rem; border: none; border-radius: 3px;
+    cursor: pointer; transition: background 0.2s ease, transform 0.1s ease;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--copper); color: var(--warm-white); }
+  .btn-primary:hover { background: var(--copper-light); }
+  .btn-secondary { background: var(--warm-white-dark); color: var(--ink); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-danger { background: transparent; color: var(--red); border: 1px solid var(--red); }
+  .btn-danger:hover { background: var(--red-dim); }
+
+  /* ── TOAST ──────────────────────────────────────────────────────────── */
+  .toast {
+    position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%);
+    background: var(--sage); color: white;
+    font-family: var(--font-mono); font-size: 0.72rem; font-weight: 500;
+    padding: 0.6rem 1.5rem; border-radius: 4px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    opacity: 0; transition: opacity 0.3s ease;
+    pointer-events: none; z-index: 200;
+  }
+  .toast.show { opacity: 1; }
+
+  /* ── RESPONSE PANEL ────────────────────────────────────────────────── */
+  .response-panel { position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%); width: min(90vw, 800px); max-height: 50vh; background: var(--paper); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--card-shadow); overflow-y: auto; padding: 1rem 1.25rem; z-index: 200; display: none; animation: slideUp 0.3s ease; }
+  .response-panel.show { display: block; }
+  .response-panel pre { white-space: pre-wrap; word-break: break-word; font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.5; margin: 0; }
+  .response-panel .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+  .response-panel .panel-header h4 { margin: 0; font-size: 0.85rem; color: var(--ink-muted); }
+  .response-panel .panel-actions { display: flex; gap: 0.5rem; }
+  @keyframes slideUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+  /* ── FILTERED ───────────────────────────────────────────────────────── */
+  .filtered-out { display: none !important; }
+
+  /* ── EMBED MODE ────────────────────────────────────────────────────── */
+  .embed-mode .hero, .embed-mode .bucket-nav, .embed-mode .action-bar { display: none !important; }
+  .embed-mode .progress-bar-wrap { position: static; }
+  .embed-mode { padding-top: 0; }
+
+  /* ── RESPONSIVE ────────────────────────────────────────────────────── */
+  @media (max-width: 700px) {
+    .hero h1 { font-size: 1.75rem; }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .ws-row { grid-template-columns: 1fr; }
+    .action-inner { flex-direction: column; gap: 0.5rem; text-align: center; }
+    .action-buttons { justify-content: center; }
+    .finding-grid { grid-template-columns: 1fr; }
+    .grade-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── PRINT ─────────────────────────────────────────────────────────── */
+  @media print {
+    :root {
+      --warm-white: #ffffff !important; --paper: #ffffff !important;
+      --ink: #1a1a1a !important; --border: rgba(0,0,0,0.12) !important;
+    }
+    body { background: white !important; background-image: none !important; padding: 0.5in !important; }
+    *, *::before, *::after { animation: none !important; transition: none !important; opacity: 1 !important; }
+    .progress-bar-wrap, .action-bar, .toast, .theme-toggle, .response-panel { display: none !important; }
+    .decision-card, .finding-card, .qw-item, .grade-card, .ws-card, .kpi, .tl-item {
+      box-shadow: none; border: 1px solid #ccc; break-inside: avoid;
+    }
+  }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">&#9684;</button>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-label">Leviathan / Status Dashboard / 2026-03-18</div>
+    <h1>Mega Consolidation Status</h1>
+    <p class="subtitle">
+      Comprehensive status across all workstreams. <strong>13 pending decisions</strong>, <strong>10 quick wins</strong>,
+      <strong>41 adversarial findings</strong> across 6 domains. Everything is interactive &mdash;
+      decisions auto-save to localStorage. Export JSON when done.
+    </p>
+  </div>
+</header>
+
+<!-- PROGRESS -->
+<div class="progress-bar-wrap">
+  <div class="container">
+    <div class="progress-inner">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-text" id="progressText">0 / 29 triaged</div>
+      <span class="save-indicator" id="saveIndicator">Saved &#10003;</span>
+      <span id="conn-dot" class="conn-dot conn-disconnected"></span>
+    </div>
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="Search across all sections..." />
+      <div class="filter-chips" id="filter-chips"></div>
+      <label class="filter-toggle-label">
+        <input type="checkbox" id="undecided-toggle" /> Undecided only
+      </label>
+    </div>
+  </div>
+</div>
+
+<!-- BUCKET NAV -->
+<nav class="bucket-nav">
+  <div class="container" style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+    <a href="#kpis">KPIs</a>
+    <a href="#health">Health Matrix</a>
+    <a href="#mvp">MVP Path</a>
+    <a href="#adversarial">Adversarial</a>
+    <a href="#quickwins">Quick Wins</a>
+    <a href="#contractor">Grades</a>
+    <a href="#decisions">Decisions</a>
+    <a href="#workshop">Workshop</a>
+  </div>
+</nav>
+
+<main class="container" id="mainContent" data-page-id="leviathan-status">
+
+<!-- ===== KPIs ===== -->
+<section id="kpis">
+  <div class="section-header">
+    <div class="section-label">Overview</div>
+    <h2>Hero KPIs</h2>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi sev-green"><div class="val">1,900+</div><div class="label">Tests Passing</div></div>
+    <div class="kpi sev-amber"><div class="val">26/64</div><div class="label">CLI Commands (41%)</div></div>
+    <div class="kpi sev-red"><div class="val">5</div><div class="label">Critical Security Issues</div></div>
+    <div class="kpi sev-red"><div class="val">41</div><div class="label">Adversarial Findings</div></div>
+    <div class="kpi sev-green"><div class="val">35/38</div><div class="label">Rust Crates Build</div></div>
+  </div>
+</section>
+
+<!-- ===== HEALTH MATRIX ===== -->
+<section id="health">
+  <div class="section-header">
+    <div class="section-label">Component Status</div>
+    <h2>Health Matrix</h2>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>Component</th><th>Build</th><th>Tests</th><th>CLI</th><th>Integration</th><th>Security</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>core/flowmind</td>
+          <td><span class="badge green">PASS</span></td>
+          <td>858/859</td>
+          <td><span class="badge red">Broken</span></td>
+          <td>value_schema bug, no cycle detection</td>
+          <td><span class="badge green">OK</span></td>
+          <td><span class="badge amber">YELLOW</span></td>
+        </tr>
+        <tr>
+          <td>core/orchestration</td>
+          <td><span class="badge green">PASS</span></td>
+          <td>509/509</td>
+          <td><span class="badge muted">N/A</span></td>
+          <td>ecStart in wrong plane</td>
+          <td><span class="badge green">OK</span></td>
+          <td><span class="badge green">GREEN</span></td>
+        </tr>
+        <tr>
+          <td>core/domain</td>
+          <td><span class="badge green">PASS</span></td>
+          <td>62/62</td>
+          <td><span class="badge muted">N/A</span></td>
+          <td>OK</td>
+          <td><span class="badge green">OK</span></td>
+          <td><span class="badge green">GREEN</span></td>
+        </tr>
+        <tr>
+          <td>core/exec</td>
+          <td><span class="badge green">PASS</span></td>
+          <td>90/90</td>
+          <td><span class="badge green">Works</span></td>
+          <td>Dual registry, env leak, ReDoS</td>
+          <td><span class="badge crit">CRITICAL</span></td>
+          <td><span class="badge red">RED</span></td>
+        </tr>
+        <tr>
+          <td>core/daemon</td>
+          <td><span class="badge green">PASS</span></td>
+          <td>235/235</td>
+          <td><span class="badge red">BROKEN</span></td>
+          <td>No PID enforcement, port storms</td>
+          <td><span class="badge green">OK</span></td>
+          <td><span class="badge red">RED</span></td>
+        </tr>
+        <tr>
+          <td>core/poly</td>
+          <td><span class="badge green">PASS</span></td>
+          <td>1060+</td>
+          <td>17/24</td>
+          <td>Active team working</td>
+          <td><span class="badge green">OK</span></td>
+          <td><span class="badge amber">YELLOW</span></td>
+        </tr>
+        <tr>
+          <td>core/build</td>
+          <td><span class="badge red">FAIL</span></td>
+          <td><span class="badge muted">N/A</span></td>
+          <td><span class="badge red">Broken</span></td>
+          <td>Merge markers in source</td>
+          <td><span class="badge green">OK</span></td>
+          <td><span class="badge red">RED</span></td>
+        </tr>
+        <tr>
+          <td>plugins/core-sdlc</td>
+          <td><span class="badge green">PASS</span></td>
+          <td>58/58</td>
+          <td><span class="badge green">Works</span></td>
+          <td>Drift dead, shell injection, flag-eating</td>
+          <td><span class="badge crit">CRITICAL</span></td>
+          <td><span class="badge red">RED</span></td>
+        </tr>
+        <tr>
+          <td>plugins/core-autoresearch</td>
+          <td><span class="badge green">PASS</span></td>
+          <td>147/147</td>
+          <td><span class="badge muted">Unknown</span></td>
+          <td>OK</td>
+          <td><span class="badge green">OK</span></td>
+          <td><span class="badge green">GREEN</span></td>
+        </tr>
+        <tr>
+          <td>plugins/core-context</td>
+          <td><span class="badge green">PASS</span></td>
+          <td>69/69</td>
+          <td><span class="badge muted">N/A</span></td>
+          <td>OK</td>
+          <td><span class="badge green">OK</span></td>
+          <td><span class="badge green">GREEN</span></td>
+        </tr>
+        <tr>
+          <td>plugins/evolve-memory</td>
+          <td><span class="badge muted">N/A</span></td>
+          <td><span class="badge red">0 RUN</span></td>
+          <td><span class="badge muted">N/A</span></td>
+          <td>SILENT FAILURE</td>
+          <td><span class="badge green">OK</span></td>
+          <td><span class="badge red">RED</span></td>
+        </tr>
+        <tr>
+          <td>plugins/core-bench</td>
+          <td><span class="badge muted">N/A</span></td>
+          <td><span class="badge red">GHOST</span></td>
+          <td><span class="badge muted">Unknown</span></td>
+          <td>N/A</td>
+          <td><span class="badge green">OK</span></td>
+          <td><span class="badge red">RED</span></td>
+        </tr>
+        <tr>
+          <td>plugins/slate</td>
+          <td><span class="badge amber">PARTIAL</span></td>
+          <td>59/59</td>
+          <td><span class="badge muted">N/A</span></td>
+          <td>6 broken imports</td>
+          <td><span class="badge green">OK</span></td>
+          <td><span class="badge amber">YELLOW</span></td>
+        </tr>
+        <tr>
+          <td>plugins/prompt-stack</td>
+          <td><span class="badge green">PASS</span></td>
+          <td>23/26</td>
+          <td><span class="badge green">Works</span></td>
+          <td>3 stale expectations</td>
+          <td><span class="badge green">OK</span></td>
+          <td><span class="badge amber">YELLOW</span></td>
+        </tr>
+        <tr>
+          <td>Rust crates (38)</td>
+          <td><span class="badge green">35/38</span></td>
+          <td>397/397</td>
+          <td><span class="badge muted">N/A</span></td>
+          <td>Not MVP-critical</td>
+          <td><span class="badge green">OK</span></td>
+          <td><span class="badge green">GREEN</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ===== MVP CRITICAL PATH ===== -->
+<section id="mvp">
+  <div class="section-header">
+    <div class="section-label">Roadmap</div>
+    <h2>MVP Critical Path</h2>
+  </div>
+  <div class="timeline">
+    <div class="tl-item crit">
+      <span class="tl-num">1</span><span class="tl-title">Security Patch</span>
+      <div class="tl-desc">3 critical vulns (exec env leak, ReDoS, dual registry) + 2 shell injections in SDLC plugin</div>
+    </div>
+    <div class="tl-item crit">
+      <span class="tl-num">2</span><span class="tl-title">Dispatch Loop</span>
+      <div class="tl-desc">4 gaps in poly dispatch: missing command routing, broken daemon handshake, ~200 LOC to close</div>
+    </div>
+    <div class="tl-item">
+      <span class="tl-num">3</span><span class="tl-title">lev exec E2E</span>
+      <div class="tl-desc">End-to-end validation of the execution plane &mdash; proves the core runtime contract works</div>
+    </div>
+    <div class="tl-item">
+      <span class="tl-num">4</span><span class="tl-title">Starter .flow.yaml</span>
+      <div class="tl-desc">Ship a default flow definition with lev install &mdash; zero-config onboarding</div>
+    </div>
+    <div class="tl-item">
+      <span class="tl-num">5</span><span class="tl-title">SDLC Demo</span>
+      <div class="tl-desc">git push &rarr; bd updated: prove the full lifecycle loop from commit to tracker state</div>
+    </div>
+    <div class="tl-item">
+      <span class="tl-num">6</span><span class="tl-title">DX Polish</span>
+      <div class="tl-desc">README, examples, error messages, help text &mdash; first-5-minutes developer experience</div>
+    </div>
+    <div class="tl-item">
+      <span class="tl-num">7</span><span class="tl-title">MCP Servers</span>
+      <div class="tl-desc">0 built, 7 needed: memory, exec, flow, events, config, daemon, platform</div>
+    </div>
+    <div class="tl-item">
+      <span class="tl-num">8</span><span class="tl-title">Enterprise</span>
+      <div class="tl-desc">Identity, audit trail, safety boundaries &mdash; required for multi-tenant deployments</div>
+    </div>
+    <div class="tl-item">
+      <span class="tl-num">9</span><span class="tl-title">OSS Launch</span>
+      <div class="tl-desc">Public repository, documentation site, community onboarding, marketplace listings</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ADVERSARIAL FINDINGS (TRIAGE BOARD) ===== -->
+<section id="adversarial">
+  <div class="section-header">
+    <div class="section-label">Triage Board</div>
+    <h2>Adversarial Findings</h2>
+  </div>
+  <div id="adversarial-filter" style="margin-bottom:0.75rem;">
+    <div class="filter-chips" id="severity-chips"></div>
+  </div>
+  <div class="finding-grid" id="findingsGrid"></div>
+</section>
+
+<!-- ===== QUICK WINS (CHECKLIST) ===== -->
+<section id="quickwins">
+  <div class="section-header">
+    <div class="section-label">Action Items</div>
+    <h2>Quick Wins</h2>
+  </div>
+  <div class="qw-pct" id="qwPct">0 / 10 complete (0%)</div>
+  <div class="qw-list" id="qwList"></div>
+</section>
+
+<!-- ===== CONTRACTOR QUALITY ===== -->
+<section id="contractor">
+  <div class="section-header">
+    <div class="section-label">Quality Assessment</div>
+    <h2>Contractor Grades</h2>
+  </div>
+  <div class="grade-grid">
+    <div class="grade-card" style="border-left-color: var(--green);">
+      <div class="grade-letter" style="color: var(--green);">A-</div>
+      <div class="branch">core/orchestration</div>
+      <div class="finding">509/509 tests, clean contracts. Minor: ecStart placement in wrong plane.</div>
+    </div>
+    <div class="grade-card" style="border-left-color: var(--green);">
+      <div class="grade-letter" style="color: var(--green);">A-</div>
+      <div class="branch">plugins/core-autoresearch</div>
+      <div class="finding">147/147, solid design. No CLI surface tested yet.</div>
+    </div>
+    <div class="grade-card" style="border-left-color: var(--amber);">
+      <div class="grade-letter" style="color: var(--amber);">B+</div>
+      <div class="branch">core/flowmind</div>
+      <div class="finding">858/859 impressive, but value_schema bug + missing cycle detection keep it from A.</div>
+    </div>
+    <div class="grade-card" style="border-left-color: var(--amber);">
+      <div class="grade-letter" style="color: var(--amber);">B</div>
+      <div class="branch">core/poly</div>
+      <div class="finding">1060+ tests, 17/24 CLI. Active team closing gaps. Dispatch loop still open.</div>
+    </div>
+    <div class="grade-card" style="border-left-color: var(--amber);">
+      <div class="grade-letter" style="color: var(--amber);">B-</div>
+      <div class="branch">core/exec</div>
+      <div class="finding">90/90 tests but 3 critical security findings. Dual registry is technical debt.</div>
+    </div>
+    <div class="grade-card" style="border-left-color: var(--orange);">
+      <div class="grade-letter" style="color: var(--orange);">C+</div>
+      <div class="branch">core/daemon</div>
+      <div class="finding">235 tests pass but CLI is broken. No PID enforcement = port storm risk.</div>
+    </div>
+    <div class="grade-card" style="border-left-color: var(--orange);">
+      <div class="grade-letter" style="color: var(--orange);">C</div>
+      <div class="branch">plugins/core-sdlc</div>
+      <div class="finding">58/58 but 2 shell injections + drift detection is dead code. Security debt.</div>
+    </div>
+    <div class="grade-card" style="border-left-color: var(--red);">
+      <div class="grade-letter" style="color: var(--red);">C-</div>
+      <div class="branch">plugins/evolve-memory</div>
+      <div class="finding">Zero tests running. Silent failure mode. Ghost module.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PENDING DECISIONS (INTERACTIVE) ===== -->
+<section id="decisions">
+  <div class="section-header">
+    <div class="section-label">Interactive</div>
+    <h2>Pending Decisions</h2>
+  </div>
+  <div id="decisionsContainer"></div>
+</section>
+
+<!-- ===== WORKSHOP TRIAGE ===== -->
+<section id="workshop">
+  <div class="section-header">
+    <div class="section-label">POC Status</div>
+    <h2>Workshop Triage</h2>
+  </div>
+  <div class="ws-row">
+    <div class="ws-card promote"><div class="ws-num">6</div><div class="ws-label">Promote to Production</div></div>
+    <div class="ws-card keep"><div class="ws-num">11</div><div class="ws-label">Keep in Workshop</div></div>
+    <div class="ws-card archive"><div class="ws-num">22+</div><div class="ws-label">Archive / Remove</div></div>
+  </div>
+</section>
+
+</main>
+
+<!-- ACTION BAR -->
+<div class="action-bar">
+  <div class="container">
+    <div class="action-inner">
+      <div class="action-stats">
+        <strong id="decidedCount">0</strong> of <strong>29</strong> items triaged
+      </div>
+      <div class="action-buttons">
+        <button class="btn btn-secondary" onclick="resetAll()">Reset All</button>
+        <button class="btn btn-danger" onclick="clearSavedData()">Clear Saved</button>
+        <button class="btn btn-primary" onclick="exportJSON()">Export JSON</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESPONSE PANEL -->
+<div class="response-panel" id="response-panel">
+  <div class="panel-header">
+    <h4>Claude Response</h4>
+    <div class="panel-actions">
+      <button class="btn btn-secondary" onclick="copyResponse()">Copy</button>
+      <button class="btn btn-secondary" onclick="dismissResponse()">Dismiss</button>
+    </div>
+  </div>
+  <pre id="response-content"></pre>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════════════════════════
+
+var FINDINGS = [
+  { id: 'F-DAE-1', domain: 'Daemon', severity: 'critical', title: 'No PID file enforcement', desc: 'Multiple daemon instances can spawn on same port' },
+  { id: 'F-DAE-2', domain: 'Daemon', severity: 'critical', title: 'Port storm on restart', desc: 'Crashed daemon leaves orphan port bindings' },
+  { id: 'F-DAE-3', domain: 'Daemon', severity: 'high', title: 'No graceful shutdown', desc: 'SIGTERM handler missing for child processes' },
+  { id: 'F-DAE-4', domain: 'Daemon', severity: 'high', title: 'Health check unreliable', desc: 'Returns 200 when internal services are degraded' },
+  { id: 'F-DAE-5', domain: 'Daemon', severity: 'medium', title: 'CLI status command broken', desc: 'Reports running when daemon is stopped' },
+  { id: 'F-DAE-6', domain: 'Daemon', severity: 'low', title: 'Verbose logging in production', desc: 'Debug-level logs not gated by environment' },
+  { id: 'F-FLO-1', domain: 'FlowMind', severity: 'critical', title: 'value_schema validation bug', desc: 'Schema validation passes invalid payloads' },
+  { id: 'F-FLO-2', domain: 'FlowMind', severity: 'high', title: 'No cycle detection in graph', desc: 'Infinite loops possible in flow definitions' },
+  { id: 'F-FLO-3', domain: 'FlowMind', severity: 'medium', title: 'Missing step timeout', desc: 'Hung steps block entire flow execution' },
+  { id: 'F-FLO-4', domain: 'FlowMind', severity: 'low', title: 'Flow error messages unhelpful', desc: 'Stack traces instead of user-friendly messages' },
+  { id: 'F-CLI-1', domain: 'CLI Surface', severity: 'critical', title: '38 commands non-functional', desc: '38 of 64 commands return errors or no-op' },
+  { id: 'F-CLI-2', domain: 'CLI Surface', severity: 'high', title: 'Inconsistent error formatting', desc: 'Some commands throw raw JS errors to terminal' },
+  { id: 'F-CLI-3', domain: 'CLI Surface', severity: 'medium', title: 'No --help on 12 commands', desc: 'Missing help text for 12 registered commands' },
+  { id: 'F-CLI-4', domain: 'CLI Surface', severity: 'low', title: 'Version command shows build hash only', desc: 'No semantic version in lev --version output' },
+  { id: 'F-EXE-1', domain: 'Exec', severity: 'critical', title: 'Environment variable leak in sandbox', desc: 'Host env vars accessible inside sandboxed execution' },
+  { id: 'F-EXE-2', domain: 'Exec', severity: 'critical', title: 'ReDoS in input parser', desc: 'Catastrophic backtracking on crafted input strings' },
+  { id: 'F-EXE-3', domain: 'Exec', severity: 'critical', title: 'Dual registry allows command shadowing', desc: 'Two registries can define same command name' },
+  { id: 'F-EXE-4', domain: 'Exec', severity: 'high', title: 'No execution timeout', desc: 'Long-running tasks can block executor indefinitely' },
+  { id: 'F-EXE-5', domain: 'Exec', severity: 'high', title: 'Missing resource limits', desc: 'No memory or CPU limits on spawned processes' },
+  { id: 'F-EXE-6', domain: 'Exec', severity: 'medium', title: 'Task output not streamed', desc: 'All output buffered until task completes' },
+  { id: 'F-EXE-7', domain: 'Exec', severity: 'low', title: 'No execution audit trail', desc: 'No log of who ran what and when' },
+  { id: 'F-SDL-1', domain: 'SDLC', severity: 'critical', title: 'Shell injection in review command', desc: 'Unsanitized git branch names passed to shell' },
+  { id: 'F-SDL-2', domain: 'SDLC', severity: 'critical', title: 'Shell injection in work command', desc: 'User input interpolated into exec calls' },
+  { id: 'F-SDL-3', domain: 'SDLC', severity: 'high', title: 'Drift detection is dead code', desc: 'Module imported but never invoked in any path' },
+  { id: 'F-SDL-4', domain: 'SDLC', severity: 'high', title: 'Flag-eating in argument parser', desc: 'Flags after -- are silently consumed' },
+  { id: 'F-SDL-5', domain: 'SDLC', severity: 'medium', title: 'No BD sync on review complete', desc: 'Review outcomes not written back to tracker' },
+  { id: 'F-SDL-6', domain: 'SDLC', severity: 'medium', title: 'Stage routing ignores config', desc: 'Hardcoded stage names bypass config resolution' },
+  { id: 'F-SDL-7', domain: 'SDLC', severity: 'low', title: 'Work command help text stale', desc: 'Documents deprecated --prompt flag' },
+  { id: 'F-MEM-1', domain: 'Memory / Plugins', severity: 'high', title: 'evolve-memory silent failure', desc: 'Plugin loads but all operations silently no-op' },
+  { id: 'F-MEM-2', domain: 'Memory / Plugins', severity: 'high', title: 'core-bench ghost module', desc: 'Registered in workspace but no runnable code' },
+  { id: 'F-MEM-3', domain: 'Memory / Plugins', severity: 'high', title: 'Slate 6 broken imports', desc: 'Import paths reference deleted modules' },
+  { id: 'F-MEM-4', domain: 'Memory / Plugins', severity: 'medium', title: 'Prompt-stack 3 stale tests', desc: 'Test expectations no longer match runtime behavior' },
+  { id: 'F-MEM-5', domain: 'Memory / Plugins', severity: 'medium', title: 'No plugin unload path', desc: 'Loaded plugins cannot be cleanly removed at runtime' },
+  { id: 'F-MEM-6', domain: 'Memory / Plugins', severity: 'low', title: 'Plugin config schema validation missing', desc: 'Invalid plugin config silently accepted' },
+  { id: 'F-MEM-7', domain: 'Memory / Plugins', severity: 'low', title: 'Plugin dependency resolution order', desc: 'Non-deterministic load order for interdependent plugins' },
+];
+
+var QUICK_WINS = [
+  { id: 'QW1', priority: 1, action: 'Patch exec env-var leak (sandbox escape)', time: '30m', unblocks: 'Security gate', risk: 'High' },
+  { id: 'QW2', priority: 1, action: 'Fix ReDoS in exec input parser', time: '30m', unblocks: 'Security gate', risk: 'High' },
+  { id: 'QW3', priority: 1, action: 'Sanitize shell args in core-sdlc (2 injections)', time: '1h', unblocks: 'Security gate, SDLC demo', risk: 'High' },
+  { id: 'QW4', priority: 2, action: 'Remove merge markers in core/build', time: '15m', unblocks: 'Build pipeline', risk: 'Med' },
+  { id: 'QW5', priority: 2, action: 'Wire PID file enforcement in daemon', time: '2h', unblocks: 'Daemon CLI, port storms', risk: 'Med' },
+  { id: 'QW6', priority: 2, action: 'Fix 6 broken imports in plugins/slate', time: '1h', unblocks: 'Slate integration', risk: 'Low' },
+  { id: 'QW7', priority: 2, action: 'Consolidate dual exec registry', time: '2h', unblocks: 'Exec E2E milestone', risk: 'Med' },
+  { id: 'QW8', priority: 3, action: 'Add cycle detection to FlowMind graph', time: '3h', unblocks: '.flow.yaml reliability', risk: 'Low' },
+  { id: 'QW9', priority: 3, action: 'Fix 3 stale prompt-stack expectations', time: '1h', unblocks: 'Clean test suite', risk: 'Low' },
+  { id: 'QW10', priority: 3, action: 'Wire evolve-memory test harness (0 tests running)', time: '2h', unblocks: 'Memory plugin confidence', risk: 'Low' },
+];
+
+var DECISIONS = [
+  { id: 'D1', title: 'Should exec and daemon registries merge?',
+    rec: 'Yes. Single registry with namespace prefixes. Reduces 200+ LOC of glue.',
+    risk: 'Dual registry causes silent command shadowing and makes onboarding confusing.',
+    options: [
+      { label: 'Merge with namespace prefixes', desc: 'Single registry, exec.* and daemon.* namespaces', recommended: true },
+      { label: 'Keep separate, add routing layer', desc: 'Distinct registries with a dispatcher facade' },
+      { label: 'Defer until post-MVP', desc: 'Ship with dual registry, fix later' }
+    ]
+  },
+  { id: 'D2', title: 'FlowMind cycle detection: graph-level or per-step?',
+    rec: 'Graph-level with Tarjan\'s algorithm at parse time. Per-step is O(n^2) at runtime.',
+    risk: 'Infinite loops in production flow definitions. No graceful failure.',
+    options: [
+      { label: 'Graph-level (Tarjan\'s at parse)', desc: 'O(V+E) at parse time, catches all cycles early', recommended: true },
+      { label: 'Per-step runtime detection', desc: 'Visit counter per step, fail after threshold' },
+      { label: 'Both: parse + runtime guard', desc: 'Belt and suspenders approach' }
+    ]
+  },
+  { id: 'D3', title: 'ecStart belongs in orchestration or exec plane?',
+    rec: 'Move to exec plane. Orchestration should only schedule, never execute.',
+    risk: 'Architecture plane violation bakes in. Harder to fix after more code depends on it.',
+    options: [
+      { label: 'Move to exec plane', desc: 'Clean separation: orchestration schedules, exec executes', recommended: true },
+      { label: 'Keep in orchestration with adapter', desc: 'Wrap exec call behind orchestration adapter interface' },
+      { label: 'Split: scheduling stays, execution moves', desc: 'Decompose ecStart into schedule + execute halves' }
+    ]
+  },
+  { id: 'D4', title: 'MCP server priority order (7 needed, 0 built)',
+    rec: 'exec > config > events > memory > flow > daemon > platform',
+    risk: 'No agent integration story for launch. Blocks OSS adoption in MCP ecosystem.',
+    options: [
+      { label: 'exec > config > events > memory > flow > daemon > platform', desc: 'Exec-first: proves the core value prop immediately', recommended: true },
+      { label: 'memory > exec > config > events > flow > daemon > platform', desc: 'Memory-first: enables RAG workflows earliest' },
+      { label: 'Ship exec + config only for MVP', desc: 'Minimal viable MCP surface, expand post-launch' }
+    ]
+  },
+  { id: 'D5', title: 'core/build merge markers: fix or rewrite?',
+    rec: 'Fix. 15 minutes to resolve markers. Rewrite is unnecessary risk.',
+    risk: 'Build pipeline remains broken. Blocks CI for all modules.',
+    options: [
+      { label: 'Fix merge markers (15min)', desc: 'Resolve conflicts, keep existing code', recommended: true },
+      { label: 'Rewrite build module', desc: 'Start fresh with modern build tooling' },
+      { label: 'Disable and bypass with scripts', desc: 'Shell scripts as stopgap, fix later' }
+    ]
+  },
+  { id: 'D6', title: 'evolve-memory: resurrect or deprecate?',
+    rec: 'Wire test harness first (2h). If underlying code is sound, resurrect. If not, deprecate.',
+    risk: 'Ghost module occupies mental space and plugin registry slot with zero value.',
+    options: [
+      { label: 'Wire tests first, then decide', desc: '2h investment to assess viability before committing', recommended: true },
+      { label: 'Deprecate immediately', desc: 'Remove from registry, archive code' },
+      { label: 'Resurrect with rewrite', desc: 'Keep the concept, rewrite the implementation' }
+    ]
+  },
+  { id: 'D7', title: 'Daemon port allocation strategy',
+    rec: 'PID file with port lock. Deterministic port = hash(project-path). Fallback to random.',
+    risk: 'Port storms in multi-project setups. Users see EADDRINUSE errors with no guidance.',
+    options: [
+      { label: 'PID + port lock, hash(project-path)', desc: 'Deterministic, collision-resistant, with lockfile', recommended: true },
+      { label: 'Random port with registry', desc: 'Random allocation, store in shared registry file' },
+      { label: 'Fixed port per project config', desc: 'User-configured port in .lev/config.yaml' }
+    ]
+  },
+  { id: 'D8', title: 'Security patch deployment: hotfix branch or main?',
+    rec: 'Direct to main. These are pre-release \u2014 no stable branch to protect.',
+    risk: 'Known vulns ship. Even pre-release, early adopters hit exploitable code paths.',
+    options: [
+      { label: 'Direct to main', desc: 'Fast path, no branch overhead for pre-release', recommended: true },
+      { label: 'Hotfix branch with backport', desc: 'Standard release engineering practice' },
+      { label: 'Feature flags on vulnerable paths', desc: 'Disable affected features, fix separately' }
+    ]
+  },
+  { id: 'D9', title: 'Workshop POCs: batch archive or individual review?',
+    rec: 'Batch triage with 3 buckets (promote/keep/archive). Individual review is O(n) meetings.',
+    risk: '22+ stale POCs accumulate, confuse new contributors, waste disk in CI.',
+    options: [
+      { label: 'Batch triage: 3 buckets', desc: 'promote/keep/archive in a single pass', recommended: true },
+      { label: 'Individual review per POC', desc: 'Thorough but time-expensive' },
+      { label: 'Archive all, re-promote on demand', desc: 'Aggressive cleanup, recover if needed' }
+    ]
+  },
+  { id: 'D10', title: 'Rust crate 3 failing builds: block or defer?',
+    rec: 'Defer. 35/38 passing. Failing 3 are not MVP-critical (spike crates).',
+    risk: 'Minimal. Spikes are exploratory. Fix when they graduate to production.',
+    options: [
+      { label: 'Defer (not MVP-critical)', desc: 'Fix when spikes graduate to production crates', recommended: true },
+      { label: 'Block until all 38 pass', desc: 'Clean CI, no broken windows' },
+      { label: 'Remove spike crates from workspace', desc: 'Exclude from CI, keep as standalone' }
+    ]
+  },
+  { id: 'D11', title: 'Plugin test isolation: shared harness or per-plugin?',
+    rec: 'Shared harness with plugin-specific fixtures. DRY over per-plugin copy-paste.',
+    risk: 'Each plugin reinvents test setup. Inconsistent coverage standards.',
+    options: [
+      { label: 'Shared harness + fixtures', desc: 'DRY, consistent, extensible per plugin', recommended: true },
+      { label: 'Per-plugin isolated harness', desc: 'Maximum isolation, more boilerplate' },
+      { label: 'Vitest workspace with shared config', desc: 'Leverage Vitest workspace features for shared setup' }
+    ]
+  },
+  { id: 'D12', title: 'Prompt-stack sunset timeline',
+    rec: 'Keep until FlowMind achieves 1:1 parity. Current gate: 3 stale expectations.',
+    risk: 'Two parallel systems confuse contributors. But premature removal breaks working CLI.',
+    options: [
+      { label: 'Keep until FlowMind parity', desc: 'Sunset gate: all prompt-stack features covered by FlowMind', recommended: true },
+      { label: 'Deprecate now, remove in 30 days', desc: 'Force migration, accept temporary breakage' },
+      { label: 'Merge into FlowMind as compatibility layer', desc: 'Absorb prompt-stack as a FlowMind provider' }
+    ]
+  },
+  { id: 'D13', title: 'OSS launch minimum bar: what must be green?',
+    rec: 'Security (0 critical), exec E2E, SDLC demo, 1 MCP server, README. Everything else can be yellow.',
+    risk: 'No clear "done" definition. Team keeps polishing forever.',
+    options: [
+      { label: 'Security + exec + SDLC + 1 MCP + README', desc: 'Minimum viable: proves value, no known vulns', recommended: true },
+      { label: 'All components green', desc: 'Ship when everything passes' },
+      { label: 'Security only, ship as alpha', desc: 'Lowest bar: just no vulnerabilities, labeled alpha' }
+    ]
+  }
+];
+
+// ══════════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════════
+var state = {
+  decisions: {},    // key -> { choice, notes }
+  triage: {},       // findingId -> { status: 'fix-now'|'defer'|'wontfix', notes }
+  quickWins: {}     // qwId -> { completed: true/false }
+};
+
+var PAGE_ID = 'leviathan-status';
+var STORAGE_KEY = 've-decisions-' + PAGE_ID;
+var SAVE_DELAY = 300;
+var saveTimeout = null;
+var saveIndicatorTimeout = null;
+
+// ══════════════════════════════════════════════════════════════════════
+// PERSISTENCE
+// ══════════════════════════════════════════════════════════════════════
+function scheduleSave() {
+  if (saveTimeout) clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(function() {
+    var payload = {
+      version: 2,
+      pageId: PAGE_ID,
+      savedAt: new Date().toISOString(),
+      decisions: state.decisions,
+      triage: state.triage,
+      quickWins: state.quickWins
+    };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      showSaveIndicator();
+    } catch (e) { console.warn('Save failed:', e); }
+  }, SAVE_DELAY);
+}
+
+function restoreState() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    var payload = JSON.parse(raw);
+    if (!payload || payload.version !== 2) return;
+    if (payload.decisions) state.decisions = payload.decisions;
+    if (payload.triage) state.triage = payload.triage;
+    if (payload.quickWins) state.quickWins = payload.quickWins;
+  } catch (e) { console.warn('Restore failed:', e); }
+}
+
+function showSaveIndicator() {
+  var el = document.getElementById('saveIndicator');
+  if (!el) return;
+  if (saveIndicatorTimeout) clearTimeout(saveIndicatorTimeout);
+  el.classList.add('visible');
+  saveIndicatorTimeout = setTimeout(function() { el.classList.remove('visible'); }, 1000);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// RENDER: FINDINGS (TRIAGE BOARD)
+// ══════════════════════════════════════════════════════════════════════
+function renderFindings() {
+  var grid = document.getElementById('findingsGrid');
+  var html = '';
+
+  // Group by domain
+  var domains = {};
+  FINDINGS.forEach(function(f) {
+    if (!domains[f.domain]) domains[f.domain] = [];
+    domains[f.domain].push(f);
+  });
+
+  Object.keys(domains).forEach(function(domain) {
+    var findings = domains[domain];
+    var counts = { critical: 0, high: 0, medium: 0, low: 0 };
+    findings.forEach(function(f) { counts[f.severity]++; });
+    var total = findings.length;
+    var triaged = findings.filter(function(f) { return state.triage[f.id]; }).length;
+    var cardClass = triaged === total ? 'finding-card triaged' : 'finding-card';
+    var borderColor = counts.critical > 0 ? 'var(--red)' : counts.high > 0 ? 'var(--orange)' : 'var(--amber)';
+
+    html += '<div class="' + cardClass + '" data-domain="' + domain + '" style="border-top: 3px solid ' + borderColor + ';">';
+    html += '<h3>' + domain + '</h3>';
+    html += '<div class="finding-count">' + total + ' issues (' + triaged + ' triaged)</div>';
+    html += '<div class="sev-bar">';
+    if (counts.critical) html += '<div class="seg crit" style="flex:' + counts.critical + '"></div>';
+    if (counts.high) html += '<div class="seg high" style="flex:' + counts.high + '"></div>';
+    if (counts.medium) html += '<div class="seg med" style="flex:' + counts.medium + '"></div>';
+    if (counts.low) html += '<div class="seg low" style="flex:' + counts.low + '"></div>';
+    html += '</div>';
+    html += '<div class="sev-legend">';
+    html += '<span class="c">' + counts.critical + ' critical</span>';
+    html += '<span class="h">' + counts.high + ' high</span>';
+    html += '<span class="m">' + counts.medium + ' med</span>';
+    html += '<span class="l">' + counts.low + ' low</span>';
+    html += '</div>';
+
+    findings.forEach(function(f) {
+      var t = state.triage[f.id] || {};
+      var sevBadge = f.severity === 'critical' ? 'crit' : f.severity === 'high' ? 'red' : f.severity === 'medium' ? 'amber' : 'muted';
+      html += '<div class="finding-item" data-finding-id="' + f.id + '" data-severity="' + f.severity + '" style="margin-bottom:0.5rem;padding:0.5rem 0;border-top:1px solid var(--border);">';
+      html += '<div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.25rem;">';
+      html += '<span class="badge ' + sevBadge + '">' + f.severity.toUpperCase() + '</span>';
+      html += '<span style="font-size:0.75rem;font-weight:500;">' + f.title + '</span>';
+      html += '</div>';
+      html += '<div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--ink-muted);margin-bottom:0.35rem;">' + f.desc + '</div>';
+      html += '<div class="triage-controls">';
+      html += '<button class="triage-btn' + (t.status === 'fix-now' ? ' active-fix' : '') + '" data-fid="' + f.id + '" data-action="fix-now">fix-now</button>';
+      html += '<button class="triage-btn' + (t.status === 'defer' ? ' active-defer' : '') + '" data-fid="' + f.id + '" data-action="defer">defer</button>';
+      html += '<button class="triage-btn' + (t.status === 'wontfix' ? ' active-wontfix' : '') + '" data-fid="' + f.id + '" data-action="wontfix">wontfix</button>';
+      html += '</div>';
+      html += '<textarea class="triage-notes" data-fid="' + f.id + '" placeholder="Notes...">' + (t.notes || '') + '</textarea>';
+      html += '</div>';
+    });
+
+    html += '</div>';
+  });
+
+  grid.innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// RENDER: QUICK WINS (CHECKLIST)
+// ══════════════════════════════════════════════════════════════════════
+function renderQuickWins() {
+  var list = document.getElementById('qwList');
+  var html = '';
+
+  QUICK_WINS.forEach(function(qw) {
+    var completed = state.quickWins[qw.id] && state.quickWins[qw.id].completed;
+    var riskBadge = qw.risk === 'High' ? 'red' : qw.risk === 'Med' ? 'amber' : 'green';
+    html += '<div class="qw-item' + (completed ? ' completed' : '') + '" data-qw-id="' + qw.id + '">';
+    html += '<input type="checkbox"' + (completed ? ' checked' : '') + ' data-qw-id="' + qw.id + '">';
+    html += '<div class="qw-content">';
+    html += '<div class="qw-action">';
+    html += '<span class="qw-priority p' + qw.priority + '">#' + qw.id.replace('QW','') + '</span> ';
+    html += qw.action;
+    html += '</div>';
+    html += '<div class="qw-meta">';
+    html += '<span>' + qw.time + '</span>';
+    html += '<span>Unblocks: ' + qw.unblocks + '</span>';
+    html += '<span class="badge ' + riskBadge + '">' + qw.risk + '</span>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+  });
+
+  list.innerHTML = html;
+  updateQuickWinsPct();
+}
+
+function updateQuickWinsPct() {
+  var completed = QUICK_WINS.filter(function(qw) {
+    return state.quickWins[qw.id] && state.quickWins[qw.id].completed;
+  }).length;
+  var total = QUICK_WINS.length;
+  var pct = Math.round(completed / total * 100);
+  document.getElementById('qwPct').textContent = completed + ' / ' + total + ' complete (' + pct + '%)';
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// RENDER: DECISIONS (INTERACTIVE RADIO)
+// ══════════════════════════════════════════════════════════════════════
+function renderDecisions() {
+  var container = document.getElementById('decisionsContainer');
+  var html = '';
+
+  DECISIONS.forEach(function(dec) {
+    var d = state.decisions[dec.id] || {};
+    var decided = d.choice !== undefined && d.choice !== null;
+    html += '<div class="decision-card' + (decided ? ' decided' : '') + '" id="dc-' + dec.id + '" data-decision-id="' + dec.id + '">';
+    html += '<div class="dc-header">';
+    html += '<span class="dc-id">' + dec.id + '</span>';
+    html += '<span class="dc-title">' + dec.title + '</span>';
+    html += '</div>';
+    html += '<div class="dc-rec"><strong>Rec:</strong> ' + dec.rec + '</div>';
+    html += '<div class="dc-risk"><strong>If deferred:</strong> ' + dec.risk + '</div>';
+    html += '<div class="dc-options">';
+
+    dec.options.forEach(function(opt, i) {
+      var isSelected = d.choice === i;
+      html += '<label class="option-row' + (opt.recommended ? ' recommended' : '') + (isSelected ? ' selected' : '') + '" data-dec-id="' + dec.id + '" data-choice="' + i + '">';
+      html += '<input type="radio" name="dec-' + dec.id + '" value="' + i + '"' + (isSelected ? ' checked' : '') + '>';
+      html += '<div class="option-label">';
+      html += '<span>' + opt.label + '</span>';
+      if (opt.recommended) html += '<span class="rec-badge">recommended</span>';
+      html += '<span class="option-desc">' + opt.desc + '</span>';
+      html += '</div>';
+      html += '</label>';
+    });
+
+    html += '</div>';
+    html += '<label class="dc-notes-label">Notes</label>';
+    html += '<textarea class="dc-notes-input" data-dec-id="' + dec.id + '" placeholder="Additional context...">' + (d.notes || '') + '</textarea>';
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// PROGRESS
+// ══════════════════════════════════════════════════════════════════════
+function updateProgress() {
+  var decisionCount = Object.keys(state.decisions).filter(function(k) {
+    return state.decisions[k].choice !== undefined && state.decisions[k].choice !== null;
+  }).length;
+  var triageCount = Object.keys(state.triage).filter(function(k) {
+    return state.triage[k].status;
+  }).length;
+  var qwCount = Object.keys(state.quickWins).filter(function(k) {
+    return state.quickWins[k].completed;
+  }).length;
+  var total = DECISIONS.length + FINDINGS.length + QUICK_WINS.length;
+  var done = decisionCount + triageCount + qwCount;
+  var pct = Math.round(done / total * 100);
+
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = done + ' / ' + total + ' triaged';
+  document.getElementById('decidedCount').textContent = done;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// SEVERITY FILTER CHIPS
+// ══════════════════════════════════════════════════════════════════════
+function buildSeverityChips() {
+  var container = document.getElementById('severity-chips');
+  var severities = ['critical', 'high', 'medium', 'low'];
+  severities.forEach(function(sev) {
+    var chip = document.createElement('button');
+    chip.className = 'filter-chip active';
+    chip.textContent = sev;
+    chip.dataset.severity = sev;
+    chip.addEventListener('click', function() {
+      this.classList.toggle('active');
+      applySeverityFilter();
+    });
+    container.appendChild(chip);
+  });
+}
+
+function applySeverityFilter() {
+  var active = {};
+  document.querySelectorAll('#severity-chips .filter-chip.active').forEach(function(c) {
+    active[c.dataset.severity] = true;
+  });
+  document.querySelectorAll('.finding-item').forEach(function(item) {
+    if (active[item.dataset.severity]) {
+      item.style.display = '';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// EVENT HANDLERS (DELEGATED)
+// ══════════════════════════════════════════════════════════════════════
+
+// Decision radio clicks
+document.addEventListener('click', function(e) {
+  var row = e.target.closest('.option-row[data-dec-id]');
+  if (row) {
+    var decId = row.dataset.decId;
+    var choice = parseInt(row.dataset.choice);
+    if (!state.decisions[decId]) state.decisions[decId] = {};
+    state.decisions[decId].choice = choice;
+
+    var card = document.getElementById('dc-' + decId);
+    card.classList.add('decided');
+    card.querySelectorAll('.option-row').forEach(function(r) {
+      var rChoice = parseInt(r.dataset.choice);
+      var isMatch = rChoice === choice;
+      r.classList.toggle('selected', isMatch);
+      var radio = r.querySelector('input[type="radio"]');
+      if (radio) radio.checked = isMatch;
+    });
+
+    updateProgress();
+    scheduleSave();
+  }
+
+  // Triage button clicks
+  var triageBtn = e.target.closest('.triage-btn');
+  if (triageBtn) {
+    var fid = triageBtn.dataset.fid;
+    var action = triageBtn.dataset.action;
+    if (!state.triage[fid]) state.triage[fid] = {};
+
+    // Toggle off if already selected
+    if (state.triage[fid].status === action) {
+      state.triage[fid].status = null;
+    } else {
+      state.triage[fid].status = action;
+    }
+
+    // Update buttons in this group
+    var container = triageBtn.parentElement;
+    container.querySelectorAll('.triage-btn').forEach(function(btn) {
+      btn.className = 'triage-btn';
+      if (state.triage[fid].status === btn.dataset.action) {
+        btn.classList.add('active-' + btn.dataset.action);
+      }
+    });
+
+    updateProgress();
+    scheduleSave();
+  }
+});
+
+// Quick win checkboxes
+document.addEventListener('change', function(e) {
+  if (e.target.matches('.qw-item input[type="checkbox"]')) {
+    var qwId = e.target.dataset.qwId;
+    if (!state.quickWins[qwId]) state.quickWins[qwId] = {};
+    state.quickWins[qwId].completed = e.target.checked;
+
+    var item = e.target.closest('.qw-item');
+    item.classList.toggle('completed', e.target.checked);
+
+    updateQuickWinsPct();
+    updateProgress();
+    scheduleSave();
+  }
+});
+
+// Decision notes
+document.addEventListener('input', function(e) {
+  if (e.target.matches('.dc-notes-input')) {
+    var decId = e.target.dataset.decId;
+    if (!state.decisions[decId]) state.decisions[decId] = {};
+    state.decisions[decId].notes = e.target.value;
+    scheduleSave();
+  }
+  if (e.target.matches('.triage-notes')) {
+    var fid = e.target.dataset.fid;
+    if (!state.triage[fid]) state.triage[fid] = {};
+    state.triage[fid].notes = e.target.value;
+    scheduleSave();
+  }
+});
+
+// ══════════════════════════════════════════════════════════════════════
+// SEARCH + FILTER
+// ══════════════════════════════════════════════════════════════════════
+var searchTimer = null;
+document.getElementById('search-input').addEventListener('input', function() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(applyGlobalSearch, 200);
+});
+document.getElementById('undecided-toggle').addEventListener('change', applyGlobalSearch);
+
+function applyGlobalSearch() {
+  var query = (document.getElementById('search-input').value || '').toLowerCase();
+  var undecidedOnly = document.getElementById('undecided-toggle').checked;
+
+  // Filter decision cards
+  document.querySelectorAll('.decision-card').forEach(function(card) {
+    var decId = card.dataset.decisionId;
+    var dec = null;
+    for (var i = 0; i < DECISIONS.length; i++) {
+      if (DECISIONS[i].id === decId) { dec = DECISIONS[i]; break; }
+    }
+    if (!dec) return;
+
+    var visible = true;
+    if (query) {
+      var text = (dec.id + ' ' + dec.title + ' ' + dec.rec + ' ' + dec.risk).toLowerCase();
+      if (text.indexOf(query) === -1) visible = false;
+    }
+    if (undecidedOnly && visible) {
+      var d = state.decisions[decId];
+      if (d && d.choice !== undefined && d.choice !== null) visible = false;
+    }
+    card.classList.toggle('filtered-out', !visible);
+  });
+
+  // Filter finding cards
+  document.querySelectorAll('.finding-card').forEach(function(card) {
+    var domain = card.dataset.domain;
+    var visible = true;
+    if (query) {
+      var text = card.textContent.toLowerCase();
+      if (text.indexOf(query) === -1) visible = false;
+    }
+    card.classList.toggle('filtered-out', !visible);
+  });
+
+  // Filter quick win items
+  document.querySelectorAll('.qw-item').forEach(function(item) {
+    var visible = true;
+    if (query) {
+      var text = item.textContent.toLowerCase();
+      if (text.indexOf(query) === -1) visible = false;
+    }
+    if (undecidedOnly && visible) {
+      var qwId = item.dataset.qwId;
+      if (state.quickWins[qwId] && state.quickWins[qwId].completed) visible = false;
+    }
+    item.classList.toggle('filtered-out', !visible);
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// EXPORT
+// ══════════════════════════════════════════════════════════════════════
+function exportJSON() {
+  var output = {
+    pageId: PAGE_ID,
+    exportedAt: new Date().toISOString(),
+    summary: {
+      decisions_total: DECISIONS.length,
+      decisions_made: 0,
+      findings_total: FINDINGS.length,
+      findings_triaged: 0,
+      quickwins_total: QUICK_WINS.length,
+      quickwins_completed: 0
+    },
+    decisions: {},
+    triage: {},
+    quickWins: {}
+  };
+
+  DECISIONS.forEach(function(dec) {
+    var d = state.decisions[dec.id] || {};
+    var entry = {
+      id: dec.id, title: dec.title,
+      choice: null, choice_label: null, notes: d.notes || null
+    };
+    if (d.choice !== undefined && d.choice !== null) {
+      output.summary.decisions_made++;
+      entry.choice = d.choice;
+      entry.choice_label = dec.options[d.choice].label;
+    }
+    output.decisions[dec.id] = entry;
+  });
+
+  FINDINGS.forEach(function(f) {
+    var t = state.triage[f.id] || {};
+    if (t.status) output.summary.findings_triaged++;
+    output.triage[f.id] = {
+      id: f.id, domain: f.domain, severity: f.severity,
+      title: f.title, status: t.status || null, notes: t.notes || null
+    };
+  });
+
+  QUICK_WINS.forEach(function(qw) {
+    var q = state.quickWins[qw.id] || {};
+    if (q.completed) output.summary.quickwins_completed++;
+    output.quickWins[qw.id] = {
+      id: qw.id, action: qw.action, completed: !!q.completed
+    };
+  });
+
+  var json = JSON.stringify(output, null, 2);
+  navigator.clipboard.writeText(json).then(function() {
+    showToast('JSON exported to clipboard');
+  }).catch(function() {
+    var w = window.open('', '_blank');
+    w.document.write('<pre>' + json.replace(/</g, '&lt;') + '</pre>');
+    showToast('Opened in new tab (clipboard blocked)');
+  });
+  console.log('Export:', output);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// RESET / CLEAR
+// ══════════════════════════════════════════════════════════════════════
+function resetAll() {
+  if (!confirm('Reset all decisions, triage, and checkmarks? Saved data in localStorage is preserved.')) return;
+  state.decisions = {};
+  state.triage = {};
+  state.quickWins = {};
+  renderAll();
+  showToast('All state reset (saved data preserved)');
+}
+
+function clearSavedData() {
+  if (!confirm('Clear all saved progress from localStorage? This cannot be undone.')) return;
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+  state.decisions = {};
+  state.triage = {};
+  state.quickWins = {};
+  renderAll();
+  showToast('Saved data cleared');
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// RESPONSE PANEL
+// ══════════════════════════════════════════════════════════════════════
+function showResponsePanel(content) {
+  var panel = document.getElementById('response-panel');
+  document.getElementById('response-content').textContent = content;
+  panel.classList.add('show');
+}
+function dismissResponse() { document.getElementById('response-panel').classList.remove('show'); }
+function copyResponse() {
+  navigator.clipboard.writeText(document.getElementById('response-content').textContent)
+    .then(function() { showToast('Response copied'); });
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════════════════════
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2500);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// THEME TOGGLE
+// ══════════════════════════════════════════════════════════════════════
+function toggleTheme() {
+  var html = document.documentElement;
+  var current = html.getAttribute('data-theme');
+  var isDarkOS = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (!current) {
+    html.setAttribute('data-theme', isDarkOS ? 'light' : 'dark');
+  } else {
+    html.removeAttribute('data-theme');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// CONNECTION MANAGER
+// ══════════════════════════════════════════════════════════════════════
+var LevConnection = {
+  ws: null, status: 'disconnected', reconnectTimer: null,
+  init: function() {
+    var self = this;
+    fetch('http://localhost:9849/health', { signal: AbortSignal.timeout(2000) })
+      .then(function(r) { if (!r.ok) throw new Error(); return r; })
+      .then(function() {
+        self.ws = new WebSocket('ws://localhost:9849/exec/stream');
+        self.ws.onopen = function() { self.status = 'connected'; self.updateIndicator(); };
+        self.ws.onclose = function() { self.status = 'fallback'; self.updateIndicator(); self.scheduleReconnect(); };
+        self.ws.onerror = function() { self.status = 'fallback'; self.updateIndicator(); };
+      })
+      .catch(function() { self.status = 'fallback'; self.updateIndicator(); });
+  },
+  scheduleReconnect: function() {
+    if (this.reconnectTimer) return;
+    var self = this;
+    this.reconnectTimer = setTimeout(function() { self.reconnectTimer = null; self.init(); }, 5000);
+  },
+  updateIndicator: function() {
+    var dot = document.getElementById('conn-dot');
+    if (!dot) return;
+    dot.className = 'conn-dot conn-' + this.status;
+  },
+  exec: function(task) {
+    if (this.status !== 'connected' || !this.ws || this.ws.readyState !== 1) return Promise.resolve(null);
+    var ws = this.ws;
+    return new Promise(function(resolve) {
+      var chunks = [];
+      var handler = function(e) {
+        var msg = JSON.parse(e.data);
+        if (msg.type === 'chunk') chunks.push(msg.data);
+        else if (msg.type === 'done') { ws.removeEventListener('message', handler); resolve({ output: msg.output, chunks: chunks }); }
+        else if (msg.type === 'error') { ws.removeEventListener('message', handler); resolve(null); }
+      };
+      ws.addEventListener('message', handler);
+      ws.send(JSON.stringify({ type: 'exec', task: task }));
+    });
+  }
+};
+
+// ══════════════════════════════════════════════════════════════════════
+// EMBED MODE
+// ══════════════════════════════════════════════════════════════════════
+if (new URLSearchParams(window.location.search).get('embed') === 'true') {
+  document.body.classList.add('embed-mode');
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'getDecisions') {
+      window.parent.postMessage({
+        type: 'decisions',
+        pageId: PAGE_ID,
+        timestamp: new Date().toISOString(),
+        state: state
+      }, '*');
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════════
+function renderAll() {
+  renderFindings();
+  renderQuickWins();
+  renderDecisions();
+  buildSeverityChips();
+  updateProgress();
+}
+
+// Build severity chips only once
+var severityChipsBuilt = false;
+var origBuildSeverityChips = buildSeverityChips;
+buildSeverityChips = function() {
+  var container = document.getElementById('severity-chips');
+  container.innerHTML = '';
+  origBuildSeverityChips();
+};
+
+restoreState();
+renderAll();
+LevConnection.init();
+
+// Active nav highlighting
+var sections = document.querySelectorAll('section[id]');
+var navLinks = document.querySelectorAll('.bucket-nav a');
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
+    if (e.isIntersecting) {
+      navLinks.forEach(function(l) { l.style.background = ''; l.style.color = ''; });
+      var link = document.querySelector('.bucket-nav a[href="#' + e.target.id + '"]');
+      if (link) { link.style.background = 'var(--copper)'; link.style.color = 'var(--warm-white)'; }
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(function(s) { observer.observe(s); });
+</script>
+</body>
+</html>

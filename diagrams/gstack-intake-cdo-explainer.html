@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gstack Intake for Lev CDO Roadmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Azeret+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-mono: 'Azeret Mono', 'SF Mono', Consolas, monospace;
+
+    --bg: #f7f4ee;
+    --surface: #fffdf9;
+    --surface-2: #f2ece1;
+    --surface-3: #ebe2d2;
+    --border: rgba(28, 46, 69, 0.12);
+    --border-strong: rgba(28, 46, 69, 0.24);
+    --text: #172131;
+    --text-dim: #5a6675;
+
+    --accent: #1e3a5f;
+    --accent-dim: rgba(30, 58, 95, 0.08);
+    --gold: #d4a73a;
+    --gold-dim: rgba(212, 167, 58, 0.1);
+    --sage: #637c63;
+    --sage-dim: rgba(99, 124, 99, 0.1);
+    --rose: #8b4f5c;
+    --rose-dim: rgba(139, 79, 92, 0.1);
+    --ink: #22344f;
+    --ink-dim: rgba(34, 52, 79, 0.1);
+
+    --shadow-lg: 0 18px 50px rgba(23, 33, 49, 0.08);
+    --shadow-sm: 0 2px 10px rgba(23, 33, 49, 0.05);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1724;
+      --surface: #121d2d;
+      --surface-2: #172438;
+      --surface-3: #1c2c44;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.16);
+      --text: #edf2f7;
+      --text-dim: #99a7bc;
+
+      --accent: #7db0ff;
+      --accent-dim: rgba(125, 176, 255, 0.12);
+      --gold: #e6c069;
+      --gold-dim: rgba(230, 192, 105, 0.12);
+      --sage: #8db491;
+      --sage-dim: rgba(141, 180, 145, 0.12);
+      --rose: #d48a9a;
+      --rose-dim: rgba(212, 138, 154, 0.12);
+      --ink: #93b6df;
+      --ink-dim: rgba(147, 182, 223, 0.1);
+
+      --shadow-lg: 0 18px 60px rgba(0, 0, 0, 0.26);
+      --shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.18);
+    }
+  }
+
+  [data-theme="light"] {
+    --bg: #f7f4ee;
+    --surface: #fffdf9;
+    --surface-2: #f2ece1;
+    --surface-3: #ebe2d2;
+    --border: rgba(28, 46, 69, 0.12);
+    --border-strong: rgba(28, 46, 69, 0.24);
+    --text: #172131;
+    --text-dim: #5a6675;
+    --accent: #1e3a5f;
+    --accent-dim: rgba(30, 58, 95, 0.08);
+    --gold: #d4a73a;
+    --gold-dim: rgba(212, 167, 58, 0.1);
+    --sage: #637c63;
+    --sage-dim: rgba(99, 124, 99, 0.1);
+    --rose: #8b4f5c;
+    --rose-dim: rgba(139, 79, 92, 0.1);
+    --ink: #22344f;
+    --ink-dim: rgba(34, 52, 79, 0.1);
+  }
+
+  [data-theme="dark"] {
+    --bg: #0f1724;
+    --surface: #121d2d;
+    --surface-2: #172438;
+    --surface-3: #1c2c44;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.16);
+    --text: #edf2f7;
+    --text-dim: #99a7bc;
+    --accent: #7db0ff;
+    --accent-dim: rgba(125, 176, 255, 0.12);
+    --gold: #e6c069;
+    --gold-dim: rgba(230, 192, 105, 0.12);
+    --sage: #8db491;
+    --sage-dim: rgba(141, 180, 145, 0.12);
+    --rose: #d48a9a;
+    --rose-dim: rgba(212, 138, 154, 0.12);
+    --ink: #93b6df;
+    --ink-dim: rgba(147, 182, 223, 0.1);
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    font-family: var(--font-body);
+    background:
+      linear-gradient(180deg, transparent 0%, rgba(255,255,255,0) 100%),
+      radial-gradient(circle at 12% 12%, var(--accent-dim) 0%, transparent 32%),
+      radial-gradient(circle at 88% 78%, var(--gold-dim) 0%, transparent 28%),
+      var(--bg);
+    background-image:
+      radial-gradient(circle at 12% 12%, var(--accent-dim) 0%, transparent 32%),
+      radial-gradient(circle at 88% 78%, var(--gold-dim) 0%, transparent 28%),
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: auto, auto, 28px 28px, 28px 28px;
+    color: var(--text);
+    line-height: 1.6;
+    padding: 40px;
+    min-height: 100vh;
+    overflow-wrap: break-word;
+  }
+
+  .theme-toggle {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 300;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--surface) 86%, transparent);
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    padding: 0;
+    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(10px);
+  }
+
+  .wrap {
+    max-width: 1440px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: 0 40px;
+  }
+
+  .main { min-width: 0; }
+
+  .toc {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+    padding: 16px 0;
+    grid-row: 1 / -1;
+    max-height: calc(100dvh - 48px);
+    overflow-y: auto;
+  }
+
+  .toc-title {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.24em;
+    color: var(--text-dim);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .toc a {
+    display: block;
+    text-decoration: none;
+    font-size: 11px;
+    color: var(--text-dim);
+    padding: 6px 10px;
+    margin-bottom: 2px;
+    border-left: 2px solid transparent;
+    border-radius: 6px;
+    transition: all 0.18s ease;
+  }
+
+  .toc a:hover,
+  .toc a.active {
+    color: var(--text);
+    background: var(--surface-2);
+    border-left-color: var(--gold);
+  }
+
+  .hero {
+    padding: 12px 0 22px;
+  }
+
+  .hero-label,
+  .section-label,
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .hero-card {
+    background: linear-gradient(145deg, color-mix(in srgb, var(--surface) 92%, transparent), color-mix(in srgb, var(--surface-2) 88%, transparent));
+    border: 1px solid var(--border-strong);
+    border-radius: 28px;
+    padding: 34px;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-card::after {
+    content: "";
+    position: absolute;
+    inset: auto -8% -35% auto;
+    width: 340px;
+    height: 340px;
+    background: radial-gradient(circle, var(--accent-dim) 0%, transparent 68%);
+    pointer-events: none;
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 5vw, 4.8rem);
+    line-height: 0.98;
+    margin: 12px 0 16px;
+    max-width: 12ch;
+    letter-spacing: -0.04em;
+  }
+
+  .subtitle {
+    max-width: 760px;
+    color: var(--text-dim);
+    font-size: 1.04rem;
+    margin-bottom: 24px;
+  }
+
+  .hero-ribbon {
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: var(--gold-dim);
+    border: 1px solid color-mix(in srgb, var(--gold) 40%, var(--border));
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  .hero-ribbon strong {
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  .kpis {
+    margin-top: 26px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .ve-card {
+    min-width: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 22px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .kpi .k-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  .kpi .k-value {
+    font-size: 2rem;
+    line-height: 1;
+    margin-bottom: 10px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .kpi .k-copy {
+    color: var(--text-dim);
+    font-size: 0.92rem;
+  }
+
+  .section {
+    padding: 26px 0 10px;
+  }
+
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .sec-num {
+    font-family: var(--font-mono);
+    font-size: 1.2rem;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+
+  h2 {
+    font-size: clamp(1.5rem, 2.5vw, 2.4rem);
+    line-height: 1.05;
+    margin: 0;
+    letter-spacing: -0.03em;
+  }
+
+  .lede {
+    color: var(--text-dim);
+    max-width: 850px;
+    margin-bottom: 18px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .stack {
+    display: grid;
+    gap: 16px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    background: var(--surface-2);
+  }
+
+  .pill--good {
+    background: var(--sage-dim);
+    border-color: color-mix(in srgb, var(--sage) 45%, var(--border));
+    color: var(--sage);
+  }
+
+  .pill--warn {
+    background: var(--gold-dim);
+    border-color: color-mix(in srgb, var(--gold) 45%, var(--border));
+    color: var(--gold);
+  }
+
+  .pill--risk {
+    background: var(--rose-dim);
+    border-color: color-mix(in srgb, var(--rose) 45%, var(--border));
+    color: var(--rose);
+  }
+
+  .point-list {
+    padding-left: 18px;
+    margin: 12px 0 0;
+    color: var(--text-dim);
+  }
+
+  .point-list li + li { margin-top: 8px; }
+
+  .point-list strong { color: var(--text); }
+
+  .flow-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .flow-card {
+    position: relative;
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 22px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .flow-card .eyebrow { margin-bottom: 12px; }
+
+  .flow-card h3,
+  .mini-card h3,
+  .roadmap-card h3 {
+    margin: 0 0 10px;
+    font-size: 1.16rem;
+    line-height: 1.18;
+  }
+
+  .flow-card p,
+  .mini-card p,
+  .roadmap-card p,
+  .ve-card p {
+    margin: 0;
+    color: var(--text-dim);
+  }
+
+  .synthesis-band {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: 1.4fr 0.8fr;
+    gap: 16px;
+  }
+
+  .synthesis-card {
+    border: 1px solid var(--border-strong);
+    border-radius: 24px;
+    padding: 24px;
+    background: linear-gradient(120deg, var(--surface), color-mix(in srgb, var(--accent-dim) 40%, var(--surface) 60%));
+    box-shadow: var(--shadow-lg);
+  }
+
+  .decision-chip {
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: var(--sage-dim);
+    color: var(--sage);
+    border: 1px solid color-mix(in srgb, var(--sage) 38%, var(--border));
+    font-family: var(--font-mono);
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+  .matrix-wrap {
+    overflow-x: auto;
+    border-radius: 22px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 960px;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--surface-2);
+    color: var(--text);
+    font-weight: 700;
+    text-align: left;
+    border-bottom: 1px solid var(--border-strong);
+  }
+
+  th, td {
+    padding: 16px;
+    vertical-align: top;
+    border-bottom: 1px solid var(--border);
+  }
+
+  tbody tr:nth-child(even) { background: color-mix(in srgb, var(--surface-2) 42%, transparent); }
+
+  .metric-col {
+    width: 200px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .cell-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+
+  .cell-badge.good {
+    background: var(--sage-dim);
+    color: var(--sage);
+  }
+
+  .cell-badge.warn {
+    background: var(--gold-dim);
+    color: var(--gold);
+  }
+
+  .cell-badge.risk {
+    background: var(--rose-dim);
+    color: var(--rose);
+  }
+
+  .cell-badge.neutral {
+    background: var(--ink-dim);
+    color: var(--accent);
+  }
+
+  .matrix-copy {
+    font-size: 0.92rem;
+    color: var(--text-dim);
+  }
+
+  .mini-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 20px;
+  }
+
+  .roadmap-card {
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 22px;
+  }
+
+  .roadmap-card code,
+  .source-block code,
+  .note-card code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: color-mix(in srgb, var(--surface-3) 82%, transparent);
+    padding: 2px 6px;
+    border-radius: 6px;
+    color: var(--accent);
+  }
+
+  .task-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .task {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 16px 18px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: var(--surface);
+  }
+
+  .task-id {
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--gold);
+    padding-top: 2px;
+  }
+
+  details {
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--surface-2) 56%, transparent);
+    padding: 0;
+  }
+
+  summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 18px 20px;
+    font-weight: 700;
+  }
+
+  summary::-webkit-details-marker { display: none; }
+
+  .details-body {
+    padding: 0 20px 20px;
+    color: var(--text-dim);
+  }
+
+  .source-block {
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .source-block + .source-block { margin-top: 12px; }
+
+  .footer-note {
+    padding: 30px 0 12px;
+    color: var(--text-dim);
+    font-size: 0.94rem;
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeUp 0.45s ease forwards;
+    animation-delay: calc(var(--i, 0) * 0.05s);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  @media (max-width: 1180px) {
+    body { padding: 24px; }
+    .kpis,
+    .grid-3,
+    .grid-2,
+    .flow-grid,
+    .synthesis-band { grid-template-columns: 1fr 1fr; }
+    .flow-grid > :last-child:nth-child(3) { grid-column: 1 / -1; }
+  }
+
+  @media (max-width: 1000px) {
+    .wrap { grid-template-columns: 1fr; gap: 0; }
+    .toc {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      max-height: none;
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      background: color-mix(in srgb, var(--bg) 92%, transparent);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 0;
+      margin: 0 -24px;
+      padding-left: 24px;
+      padding-right: 24px;
+      backdrop-filter: blur(10px);
+    }
+    .toc-title { display: none; }
+    .toc a {
+      white-space: nowrap;
+      flex-shrink: 0;
+      border-left: none;
+      border-bottom: 2px solid transparent;
+      border-radius: 6px 6px 0 0;
+    }
+    .toc a.active {
+      border-left: none;
+      border-bottom-color: var(--gold);
+    }
+    .sec-head { scroll-margin-top: 70px; }
+    .kpis,
+    .grid-3,
+    .grid-2,
+    .flow-grid,
+    .synthesis-band { grid-template-columns: 1fr; }
+    .hero-card { padding: 26px; }
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 18px; }
+    .hero-card { border-radius: 24px; }
+    h1 { max-width: none; }
+    .kpi .k-value { font-size: 1.7rem; }
+  }
+
+  @media print {
+    :root {
+      --bg: #ffffff !important;
+      --surface: #ffffff !important;
+      --surface-2: #f4f4f4 !important;
+      --surface-3: #efefef !important;
+      --border: rgba(0,0,0,0.12) !important;
+      --border-strong: rgba(0,0,0,0.2) !important;
+      --text: #1a1a1a !important;
+      --text-dim: #555555 !important;
+    }
+    body {
+      background: #ffffff !important;
+      background-image: none !important;
+      padding: 0.5in !important;
+      color: #1a1a1a !important;
+    }
+    .theme-toggle { display: none !important; }
+    .toc {
+      position: static !important;
+      display: block !important;
+      margin: 0 0 18px !important;
+      padding: 0 !important;
+      border: none !important;
+      background: none !important;
+      max-height: none !important;
+    }
+    .wrap { display: block !important; }
+    .hero-card,
+    .ve-card,
+    .flow-card,
+    .roadmap-card,
+    .task,
+    .matrix-wrap,
+    details { break-inside: avoid; page-break-inside: avoid; }
+    details { display: block !important; }
+    .details-body { display: block !important; }
+  }
+</style>
+</head>
+<body>
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">◐</button>
+<div class="wrap">
+  <nav class="toc" id="toc">
+    <div class="toc-title">Contents</div>
+    <a href="#s1">1. Verdict</a>
+    <a href="#s2">2. Evidence Graph</a>
+    <a href="#s3">3. Matrix</a>
+    <a href="#s4">4. Borrow / Reject</a>
+    <a href="#s5">5. Roadmap Hooks</a>
+    <a href="#s6">6. Follow-ups</a>
+    <a href="#s7">7. Notes</a>
+  </nav>
+
+  <main class="main">
+    <section class="hero reveal" style="--i:0">
+      <div class="hero-card">
+        <div class="hero-label">Lev Intake Visual Explainer</div>
+        <h1>gstack should feed Lev as extracted patterns, not imported runtime.</h1>
+        <p class="subtitle">
+          The spike converged on one answer: <strong>`extract`</strong>. `gstack` has a strong browser worker and a disciplined specialist-role workflow,
+          but its control plane is still markdown skills, shell preambles, and host-local state. Lev's roadmap is graph-native, FlowMind-declared,
+          `LevEvent`-audited orchestration. Those models can meet, but only through explicit workflow seats, plugin boundaries, and proposal artifacts.
+        </p>
+        <div class="hero-ribbon"><strong>Decision</strong> extract | keep `gstack` staged as intake reference only</div>
+        <div class="kpis">
+          <div class="ve-card kpi reveal" style="--i:1">
+            <div class="k-label">Confidence</div>
+            <div class="k-value">0.89</div>
+            <div class="k-copy">Turn-one CDO synthesis exited ready.</div>
+          </div>
+          <div class="ve-card kpi reveal" style="--i:2">
+            <div class="k-label">Roadmap Hooks</div>
+            <div class="k-value">4</div>
+            <div class="k-copy">Step 10, Track D, Steps 7+9, `browser-cascade`.</div>
+          </div>
+          <div class="ve-card kpi reveal" style="--i:3">
+            <div class="k-label">Follow-up Tasks</div>
+            <div class="k-value">4</div>
+            <div class="k-copy">Seat packs, review readiness, browser worker, challenge seats.</div>
+          </div>
+          <div class="ve-card kpi reveal" style="--i:4">
+            <div class="k-label">Staged Repo</div>
+            <div class="k-value">1</div>
+            <div class="k-copy">Local intake checkout only. No vendoring recommended.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section reveal" id="s1" style="--i:5">
+      <div class="sec-head">
+        <div class="sec-num">01</div>
+        <h2>What the verdict actually means</h2>
+      </div>
+      <p class="lede">
+        This is not a polite “maybe later.” It is a narrow, concrete yes: formalize what `gstack` is good at, and leave the rest behind.
+      </p>
+      <div class="grid-3">
+        <article class="ve-card">
+          <div class="section-label">What gstack really is</div>
+          <h3>Specialist workflow pack + one serious browser runtime</h3>
+          <p>
+            The role system is static specialist routing: CEO review, eng review, QA, review, Codex challenge. The strongest engineering asset
+            is the persistent browser daemon with refs, restart logic, session carryover, and buffered logs.
+          </p>
+        </article>
+        <article class="ve-card">
+          <div class="section-label">What Lev actually needs</div>
+          <h3>Graph-visible seats, explicit proposals, clean ownership</h3>
+          <p>
+            Lev cannot absorb prompt-first orchestration. Every borrowed pattern has to land as FlowMind/session contracts, explicit workflow nodes,
+            plugin-owned runtime behavior, and `LevEvent` provenance.
+          </p>
+        </article>
+        <article class="ve-card">
+          <div class="section-label">Operational takeaway</div>
+          <h3>Extract seats and worker patterns, reject the control plane</h3>
+          <p>
+            Keep `gstack` as intake reference. Pull the seat-pack ergonomics, review-readiness surface, and browser worker concepts forward into the roadmap.
+            Do not import `~/.gstack`, shell preamble governance, or slash-command workflow glue as canonical runtime.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section reveal" id="s2" style="--i:6">
+      <div class="sec-head">
+        <div class="sec-num">02</div>
+        <h2>The CDO evidence path</h2>
+      </div>
+      <p class="lede">
+        The spike used a three-seat first turn and a dedicated synthesis pass. No second turn was needed because the evidence converged quickly.
+      </p>
+      <div class="flow-grid">
+        <article class="flow-card">
+          <div class="eyebrow">Context Scan</div>
+          <h3>Lev docs and architecture</h3>
+          <p>
+            Confirmed the four-plane boundary: FlowMind declares, Orchestration dispatches, Graph persists, Event Bus records. Also confirmed Step 10 and Track D
+            are the right insertion points for specialist seats and graph-visible workflow nodes.
+          </p>
+        </article>
+        <article class="flow-card">
+          <div class="eyebrow">Repo Scan</div>
+          <h3>gstack runtime vs skill glue</h3>
+          <p>
+            Separated the durable browser daemon from the mostly prompt-driven specialist workflow layer. Parallelism exists, but as human-managed isolated workspaces,
+            not shared adaptive graph orchestration.
+          </p>
+        </article>
+        <article class="flow-card">
+          <div class="eyebrow">Fit Scan</div>
+          <h3>Disposition pressure test</h3>
+          <p>
+            Forced the intake into one of five outcomes. `extract` won because it captures nearly all near-term value without violating ownership or control-plane rules.
+          </p>
+        </article>
+      </div>
+      <div class="synthesis-band">
+        <article class="synthesis-card">
+          <div class="section-label">Synthesis</div>
+          <h3>Strong common ground, low residual ambiguity</h3>
+          <p>
+            All scans agreed that `gstack`'s specialist seat patterns are useful and its browser daemon is technically mature, but the orchestration model is too implicit,
+            host-centric, and non-graph-native to become Lev's runtime substrate.
+          </p>
+          <div class="decision-chip">exit_ready: true | focus shifts from analysis to roadmap codification</div>
+        </article>
+        <article class="ve-card">
+          <div class="section-label">Surprise</div>
+          <h3>The browser is the real productized primitive</h3>
+          <p>
+            The strongest code in `gstack` is not the personality layer. It's the worker ergonomics around a long-lived browser session.
+            That changes where extraction belongs: `plugins/browser-cascade/**`, not a new control-plane abstraction.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section reveal" id="s3" style="--i:7">
+      <div class="sec-head">
+        <div class="sec-num">03</div>
+        <h2>Disposition matrix</h2>
+      </div>
+      <p class="lede">
+        Five outcomes were on the table. Only one respects Lev's architecture and still captures the useful parts.
+      </p>
+      <div class="matrix-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="metric-col">Dimension</th>
+              <th>Extract</th>
+              <th>Integrate</th>
+              <th>Vendor</th>
+              <th>Monitor</th>
+              <th>Pass</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="metric-col">Specialist seat packs</td>
+              <td><div class="cell-badge good">Best fit</div><div class="matrix-copy">Translate roles into FlowMind/dashboard seats.</div></td>
+              <td><div class="cell-badge warn">Messy</div><div class="matrix-copy">Would drag prompt conventions into runtime.</div></td>
+              <td><div class="cell-badge warn">Heavy</div><div class="matrix-copy">Imports more than the useful layer.</div></td>
+              <td><div class="cell-badge neutral">Delayed</div><div class="matrix-copy">Leaves immediate roadmap value idle.</div></td>
+              <td><div class="cell-badge risk">Loss</div><div class="matrix-copy">Misses a ready-made seat vocabulary.</div></td>
+            </tr>
+            <tr>
+              <td class="metric-col">Browser worker patterns</td>
+              <td><div class="cell-badge good">Strong</div><div class="matrix-copy">Map into <code>plugins/browser-cascade/**</code>.</div></td>
+              <td><div class="cell-badge warn">Misowned</div><div class="matrix-copy">Would blur plugin vs core boundaries.</div></td>
+              <td><div class="cell-badge warn">Wrong shape</div><div class="matrix-copy">Nested repo + host state + single-user assumptions.</div></td>
+              <td><div class="cell-badge neutral">Possible</div><div class="matrix-copy">Useful as future reference, not roadmap fuel.</div></td>
+              <td><div class="cell-badge risk">Waste</div><div class="matrix-copy">Ignores the most production-ready subsystem.</div></td>
+            </tr>
+            <tr>
+              <td class="metric-col">FlowMind / LevEvent alignment</td>
+              <td><div class="cell-badge good">Preserved</div><div class="matrix-copy">Only borrow what compiles into explicit artifacts.</div></td>
+              <td><div class="cell-badge risk">Conflict</div><div class="matrix-copy">Prompt-first control plane bypasses canonical boundaries.</div></td>
+              <td><div class="cell-badge risk">Conflict</div><div class="matrix-copy">Vendored code still carries the same mismatch.</div></td>
+              <td><div class="cell-badge neutral">Safe</div><div class="matrix-copy">No harm, but no concrete progress either.</div></td>
+              <td><div class="cell-badge good">Safe</div><div class="matrix-copy">Architecturally clean, strategically thin.</div></td>
+            </tr>
+            <tr>
+              <td class="metric-col">Ownership discipline</td>
+              <td><div class="cell-badge good">Clean</div><div class="matrix-copy">Seats to Step 10 / Track D, browser to plugin boundary.</div></td>
+              <td><div class="cell-badge risk">Breaks</div><div class="matrix-copy">Monolithic workflow bundle cuts across too many owners.</div></td>
+              <td><div class="cell-badge risk">Breaks</div><div class="matrix-copy">Imports a repo with different product assumptions.</div></td>
+              <td><div class="cell-badge neutral">Clean</div><div class="matrix-copy">No direct ownership pressure.</div></td>
+              <td><div class="cell-badge good">Clean</div><div class="matrix-copy">No new work, but leaves opportunity uncaptured.</div></td>
+            </tr>
+            <tr>
+              <td class="metric-col">Strategic value right now</td>
+              <td><div class="cell-badge good">High</div><div class="matrix-copy">Feeds the workflow engine and A2A roadmap directly.</div></td>
+              <td><div class="cell-badge risk">Low</div><div class="matrix-copy">Would create cleanup debt before dispatch loop is finished.</div></td>
+              <td><div class="cell-badge risk">Low</div><div class="matrix-copy">Big import burden, weak long-term fit.</div></td>
+              <td><div class="cell-badge neutral">Medium</div><div class="matrix-copy">Good if roadmap bandwidth is frozen.</div></td>
+              <td><div class="cell-badge risk">Low</div><div class="matrix-copy">Throws away useful patterns during an active design window.</div></td>
+            </tr>
+            <tr>
+              <td class="metric-col">Final call</td>
+              <td><div class="cell-badge good">Chosen</div><div class="matrix-copy">Best balance of speed, clarity, and architectural integrity.</div></td>
+              <td><div class="cell-badge risk">Rejected</div><div class="matrix-copy">Too much hidden policy in the wrong layer.</div></td>
+              <td><div class="cell-badge risk">Rejected</div><div class="matrix-copy">Useful ideas do not justify code ownership drift.</div></td>
+              <td><div class="cell-badge warn">Secondary</div><div class="matrix-copy">Fine fallback if priorities shift again.</div></td>
+              <td><div class="cell-badge warn">Secondary</div><div class="matrix-copy">Architecturally clean, strategically underpowered.</div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section reveal" id="s4" style="--i:8">
+      <div class="sec-head">
+        <div class="sec-num">04</div>
+        <h2>What to borrow, what to reject</h2>
+      </div>
+      <div class="grid-2">
+        <article class="ve-card">
+          <div class="section-label">Borrow</div>
+          <h3>Patterns Lev should formalize</h3>
+          <ul class="point-list">
+            <li><strong>Specialist seat packs</strong> as named workflow nodes: office-hours, eng review, QA, codex challenge.</li>
+            <li><strong>Stage-aware routing</strong> as a surface affordance once it compiles into explicit proposals or sessions.</li>
+            <li><strong>Review-readiness</strong> as a dashboard-visible status layer with freshness/staleness tracking.</li>
+            <li><strong>Cross-model challenge seats</strong> as explicit dissent/adversarial nodes inside CDO/A2A orchestration.</li>
+            <li><strong>Persistent browser worker semantics</strong> for lifecycle, restart, refs, auth, and buffered logging.</li>
+          </ul>
+        </article>
+        <article class="ve-card">
+          <div class="section-label">Reject</div>
+          <h3>Patterns that would hurt Lev if copied directly</h3>
+          <ul class="point-list">
+            <li><strong>Prompt-first control plane</strong> hidden in shell preambles and markdown skill glue.</li>
+            <li><strong>Host-centric state</strong> under <code>~/.gstack</code>, <code>~/.claude</code>, or <code>~/.codex</code>.</li>
+            <li><strong>Static slash-command orchestration</strong> passed off as graph-native multi-agent execution.</li>
+            <li><strong>Workspace concurrency ≠ CDO</strong>; isolated workspaces are useful, but they are not adaptive synthesis loops.</li>
+            <li><strong>Policy in prompts instead of runtime</strong> when the same behavior should be enforced by declarations or code.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section reveal" id="s5" style="--i:9">
+      <div class="sec-head">
+        <div class="sec-num">05</div>
+        <h2>Where it lands on the roadmap</h2>
+      </div>
+      <p class="lede">
+        The value is not abstract. It plugs into specific roadmap surfaces that already exist.
+      </p>
+      <div class="stack">
+        <article class="roadmap-card">
+          <div class="eyebrow">Step 10</div>
+          <h3>Workflow engine: all skills as runnable and visualizable workflows</h3>
+          <p>
+            Best fit for the specialist seats. The dashboard should render roles like <code>office-hours</code>, <code>eng-review</code>, <code>qa</code>,
+            and <code>codex-challenge</code> as real nodes with inputs, outputs, and status, not as freeform prompt rituals.
+          </p>
+        </article>
+        <article class="roadmap-card">
+          <div class="eyebrow">Track D</div>
+          <h3>FlowMind program-driven loop + Full A2A subagent orchestration</h3>
+          <p>
+            This is where cross-model challenge seats belong. The useful `gstack` idea is not “use Codex sometimes,” it is
+            “treat second-opinion and adversarial passes as named seats in the graph.”
+          </p>
+        </article>
+        <article class="roadmap-card">
+          <div class="eyebrow">Steps 7 + 9</div>
+          <h3>levd WebSocket adapter and agent polling loop</h3>
+          <p>
+            The browser worker lessons matter here: fast round-trips, durable session state, actionable failures, auto-restart, and structured logs
+            all improve how dashboard-triggered workers feel when they run live.
+          </p>
+        </article>
+        <article class="roadmap-card">
+          <div class="eyebrow">Plugin boundary</div>
+          <h3><code>plugins/browser-cascade/**</code></h3>
+          <p>
+            The browser daemon should not leak into core orchestration. Lev already has a boundary for browser work. That is the correct extraction target.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section reveal" id="s6" style="--i:10">
+      <div class="sec-head">
+        <div class="sec-num">06</div>
+        <h2>Filed follow-ups</h2>
+      </div>
+      <div class="task-list">
+        <div class="task">
+          <div class="task-id">lev-wn3i</div>
+          <div>
+            <h3>Formalize specialist seat packs for dashboard workflows</h3>
+            <p>Turn the extracted roles into Lev-native workflow presets instead of loose prompt conventions.</p>
+          </div>
+        </div>
+        <div class="task">
+          <div class="task-id">lev-sadx</div>
+          <div>
+            <h3>Define review-readiness contract with LevEvent provenance</h3>
+            <p>Replace sidecar logs with canonical dashboard-queryable review state and stale-review logic.</p>
+          </div>
+        </div>
+        <div class="task">
+          <div class="task-id">lev-mksn</div>
+          <div>
+            <h3>Extract persistent browser worker patterns into browser-cascade</h3>
+            <p>Scope the daemon lifecycle, restart, auth, ref model, and buffered logging in the right ownership path.</p>
+          </div>
+        </div>
+        <div class="task">
+          <div class="task-id">lev-sazx</div>
+          <div>
+            <h3>Model cross-model challenge seats in CDO A2A orchestration</h3>
+            <p>Make dissent and adversarial review graph-visible, not provider-specific prompt wrappers.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section reveal" id="s7" style="--i:11">
+      <div class="sec-head">
+        <div class="sec-num">07</div>
+        <h2>Notes and source anchors</h2>
+      </div>
+      <div class="grid-2">
+        <details open>
+          <summary>Notes</summary>
+          <div class="details-body">
+            <div class="source-block">
+              No <code>workshop:</code> overlay is configured, so the intake used the project-local defaults:
+              <code>.lev/workshop</code> and <code>.lev/pm/intake</code>.
+            </div>
+            <div class="source-block">
+              The staged <code>gstack</code> repo is a nested local checkout under
+              <code>/Users/jean-patricksmith/digital/leviathan/.lev/workshop/intake/gstack</code>. It is intentionally not treated as vendored code.
+            </div>
+            <div class="source-block">
+              The shell environment did not expose <code>lev</code> directly during the spike, so validation relied on canonical docs, handoffs, and <code>bd</code>.
+            </div>
+          </div>
+        </details>
+        <details>
+          <summary>Core source set</summary>
+          <div class="details-body">
+            <div class="source-block"><code>.lev/pm/intake/gstack-intake.md</code> — full intake report</div>
+            <div class="source-block"><code>docs/ROADMAP.md</code> — Step 10, Track D, Steps 7+9</div>
+            <div class="source-block"><code>docs/ARCHITECTURE.md</code> — four-plane boundary and ownership rules</div>
+            <div class="source-block"><code>docs/NORTH_STAR.md</code> — stream-of-consciousness router and UX auto-simulation vision</div>
+            <div class="source-block"><code>.lev/workshop/intake/gstack/README.md</code> + <code>ARCHITECTURE.md</code> — staged repo capabilities</div>
+          </div>
+        </details>
+      </div>
+      <div class="footer-note">
+        Visual explainer generated from the completed intake spike. Use it as the browser-open summary; keep the markdown report as the durable source of record.
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const isDarkOS = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (!current) {
+    html.setAttribute('data-theme', isDarkOS ? 'light' : 'dark');
+  } else {
+    html.removeAttribute('data-theme');
+  }
+}
+
+(function () {
+  const toc = document.getElementById('toc');
+  const links = toc.querySelectorAll('a');
+  const sections = [];
+
+  links.forEach(link => {
+    const id = link.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el) sections.push({ id, el, link });
+  });
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const match = sections.find(s => s.el === entry.target);
+        if (match) {
+          match.link.classList.add('active');
+          if (window.innerWidth <= 1000) {
+            match.link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          }
+        }
+      }
+    });
+  }, { rootMargin: '-12% 0px -78% 0px' });
+
+  sections.forEach(s => observer.observe(s.el));
+
+  links.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const id = link.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', '#' + id);
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

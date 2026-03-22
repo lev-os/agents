@@ -1,3 +1,8 @@
+---
+name: lev-sdlc
+description: Thin skill documenting the `lev sdlc *` command surface, SDLC plugin profiles, and related work/review loop commands in Leviathan.
+---
+
 # lev-sdlc — SDLC Poly Surface Reference
 
 > Thin skill documenting all `lev sdlc *` commands and the SDLC plugin surface.

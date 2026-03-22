@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leviathan Live Dashboard — Workflows</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ── COLOR SYSTEM: Warm Charcoal + Copper ──────────────────────────── */
+  :root {
+    --charcoal: #2d2926;
+    --charcoal-light: #3d3834;
+    --charcoal-muted: #5a5350;
+    --copper: #b87333;
+    --copper-light: #d4944e;
+    --copper-dim: #8f5a28;
+    --copper-glow: rgba(184, 115, 51, 0.15);
+    --warm-white: #faf8f5;
+    --warm-white-dark: #f0ece6;
+    --sage: #8b9e7e;
+    --sage-dim: rgba(139, 158, 126, 0.12);
+    --ink: #2d2926;
+    --ink-light: #4a4440;
+    --ink-muted: #7a7370;
+    --paper: #ffffff;
+    --border: #e0dbd3;
+    --code-bg: #f5f0e8;
+    --green: #5a8a5e;
+    --green-dim: rgba(90, 138, 94, 0.1);
+    --red: #b54a4a;
+    --red-dim: rgba(181, 74, 74, 0.08);
+    --amber: #c47d2e;
+    --amber-dim: rgba(196, 125, 46, 0.08);
+    --orange: #d4652e;
+    --blue: #4a7ab5;
+    --blue-dim: rgba(74, 122, 181, 0.1);
+    --purple: #7a5ab5;
+    --purple-dim: rgba(122, 90, 181, 0.1);
+    --card-shadow: 0 1px 3px rgba(45,41,38,0.06), 0 4px 12px rgba(45,41,38,0.04);
+    --font-body: 'Space Grotesk', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --warm-white: #1a1714;
+      --warm-white-dark: #23201c;
+      --ink: #e8e4de;
+      --ink-light: #c8c4be;
+      --ink-muted: #8a8680;
+      --paper: #2d2926;
+      --border: #3d3834;
+      --code-bg: #23201c;
+      --charcoal: #d4944e;
+      --charcoal-light: #e0a860;
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.15);
+      --green-dim: rgba(90, 138, 94, 0.15);
+      --red-dim: rgba(181, 74, 74, 0.15);
+      --amber-dim: rgba(196, 125, 46, 0.15);
+      --blue-dim: rgba(74, 122, 181, 0.15);
+      --purple-dim: rgba(122, 90, 181, 0.15);
+      --copper-glow: rgba(184, 115, 51, 0.25);
+    }
+  }
+  [data-theme="dark"] {
+    --warm-white: #1a1714;
+    --warm-white-dark: #23201c;
+    --ink: #e8e4de;
+    --ink-light: #c8c4be;
+    --ink-muted: #8a8680;
+    --paper: #2d2926;
+    --border: #3d3834;
+    --code-bg: #23201c;
+    --charcoal: #d4944e;
+    --charcoal-light: #e0a860;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.15);
+    --green-dim: rgba(90, 138, 94, 0.15);
+    --red-dim: rgba(181, 74, 74, 0.15);
+    --amber-dim: rgba(196, 125, 46, 0.15);
+    --blue-dim: rgba(74, 122, 181, 0.15);
+    --purple-dim: rgba(122, 90, 181, 0.15);
+    --copper-glow: rgba(184, 115, 51, 0.25);
+  }
+  [data-theme="light"] {
+    --warm-white: #faf8f5;
+    --warm-white-dark: #f0ece6;
+    --ink: #2d2926;
+    --ink-light: #4a4440;
+    --ink-muted: #7a7370;
+    --paper: #ffffff;
+    --border: #e0dbd3;
+    --code-bg: #f5f0e8;
+    --charcoal: #2d2926;
+    --charcoal-light: #3d3834;
+    --card-shadow: 0 1px 3px rgba(45,41,38,0.06), 0 4px 12px rgba(45,41,38,0.04);
+    --green-dim: rgba(90, 138, 94, 0.1);
+    --red-dim: rgba(181, 74, 74, 0.08);
+    --amber-dim: rgba(196, 125, 46, 0.08);
+    --blue-dim: rgba(74, 122, 181, 0.1);
+    --purple-dim: rgba(122, 90, 181, 0.1);
+    --copper-glow: rgba(184, 115, 51, 0.15);
+  }
+
+  /* ── RESET & BASE ──────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    font-size: 14px; line-height: 1.6;
+    background: var(--warm-white);
+    background-image: radial-gradient(ellipse at 50% 0%, var(--copper-glow) 0%, transparent 60%);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── GLOBAL NAV ────────────────────────────────────────────────────── */
+  .global-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.75rem 1.5rem;
+    background: var(--paper);
+    border-bottom: 2px solid var(--copper);
+    position: sticky; top: 0; z-index: 200;
+  }
+  .nav-left { display: flex; align-items: center; gap: 1.5rem; }
+  .nav-brand {
+    font-family: var(--font-body);
+    font-size: 1.1rem; font-weight: 700;
+    color: var(--copper);
+    letter-spacing: -0.02em;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .nav-brand svg { width: 20px; height: 20px; }
+  .nav-tabs { display: flex; gap: 0.25rem; }
+  .nav-tab {
+    font-family: var(--font-mono);
+    font-size: 0.72rem; font-weight: 600;
+    color: var(--ink-muted);
+    padding: 0.4rem 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none; background: transparent;
+    transition: all 0.15s;
+  }
+  .nav-tab:hover { background: var(--warm-white-dark); color: var(--ink); }
+  .nav-tab.active { background: var(--copper); color: var(--warm-white); }
+  .nav-right { display: flex; align-items: center; gap: 0.5rem; }
+  .nav-icon-btn {
+    width: 28px; height: 28px;
+    border: 1px solid var(--border); border-radius: 5px;
+    background: transparent; color: var(--ink-muted);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; transition: all 0.15s;
+  }
+  .nav-icon-btn:hover { border-color: var(--copper); color: var(--ink); }
+  .conn-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    display: inline-block; transition: background 0.3s;
+  }
+  .conn-connected { background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+  /* ── MAIN CONTENT ──────────────────────────────────────────────────── */
+  .wf-container {
+    max-width: 1000px; margin: 0 auto;
+    padding: 1.5rem;
+  }
+
+  .page-header {
+    margin-bottom: 1.5rem;
+  }
+  .page-header h1 {
+    font-family: var(--font-body);
+    font-size: 1.6rem; font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .page-header .page-subtitle {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+    margin-top: 0.15rem;
+  }
+
+  /* ── WORKFLOW CARD ──────────────────────────────────────────────────── */
+  .wf-card {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+    animation: fadeInUp 0.35s ease both;
+  }
+  .wf-card:nth-child(2) { animation-delay: 0.08s; }
+  .wf-card:nth-child(3) { animation-delay: 0.16s; }
+
+  .wf-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--warm-white-dark);
+  }
+  .wf-title-group { display: flex; align-items: center; gap: 0.75rem; }
+  .wf-title {
+    font-family: var(--font-body);
+    font-size: 1rem; font-weight: 600;
+    color: var(--ink);
+  }
+  .wf-status-badge {
+    display: inline-flex; align-items: center; gap: 0.25rem;
+    padding: 0.12rem 0.5rem; border-radius: 10px;
+    font-family: var(--font-mono);
+    font-size: 0.6rem; font-weight: 600;
+  }
+  .wf-status-badge.running {
+    background: var(--green-dim); color: var(--green);
+  }
+  .wf-status-badge.running::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    animation: pulse 1.5s ease infinite;
+  }
+  .wf-status-badge.paused {
+    background: var(--amber-dim); color: var(--amber);
+  }
+  .wf-status-badge.paused::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--amber);
+  }
+  .wf-status-badge.completed {
+    background: var(--green-dim); color: var(--green);
+  }
+
+  .wf-actions { display: flex; gap: 0.35rem; }
+  .wf-action-btn {
+    font-family: var(--font-mono);
+    font-size: 0.62rem; font-weight: 600;
+    padding: 0.25rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: transparent; color: var(--ink-muted);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .wf-action-btn:hover { border-color: var(--copper); color: var(--ink); }
+  .wf-action-btn.danger:hover { border-color: var(--red); color: var(--red); }
+  .wf-action-btn.primary {
+    background: var(--copper); color: var(--warm-white);
+    border-color: var(--copper);
+  }
+  .wf-action-btn.primary:hover { background: var(--copper-light); }
+
+  .wf-body { padding: 1rem; }
+
+  /* ── STEPPER ────────────────────────────────────────────────────────── */
+  .stepper {
+    display: flex; align-items: center; gap: 0.25rem;
+    margin-bottom: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+  }
+  .step {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 0.25rem; min-width: 60px; position: relative;
+  }
+  .step-circle {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.72rem; font-weight: 600;
+    transition: all 0.3s;
+    position: relative;
+    z-index: 1;
+  }
+  .step-circle.done {
+    background: var(--green); color: #fff;
+    box-shadow: 0 2px 6px rgba(90,138,94,0.3);
+  }
+  .step-circle.active {
+    background: var(--copper); color: #fff;
+    box-shadow: 0 2px 8px rgba(184,115,51,0.4);
+    animation: stepPulse 2s ease infinite;
+  }
+  .step-circle.pending {
+    background: transparent; color: var(--ink-muted);
+    border: 2px solid var(--border);
+  }
+  .step-label {
+    font-family: var(--font-mono);
+    font-size: 0.52rem; font-weight: 500;
+    color: var(--ink-muted);
+    text-align: center;
+    max-width: 70px;
+    line-height: 1.2;
+  }
+  .step-connector {
+    width: 24px; height: 2px;
+    background: var(--border);
+    margin-bottom: 18px;
+    flex-shrink: 0;
+  }
+  .step-connector.done { background: var(--green); }
+  .step-connector.active {
+    background: linear-gradient(90deg, var(--green), var(--copper));
+  }
+
+  /* ── CURRENT STEP DETAIL ────────────────────────────────────────────── */
+  .current-step-detail {
+    background: var(--warm-white-dark);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.85rem;
+    margin-bottom: 0.85rem;
+  }
+  .step-detail-title {
+    font-family: var(--font-body);
+    font-size: 0.85rem; font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.35rem;
+  }
+  .step-detail-meta {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--ink-muted);
+    margin-bottom: 0.5rem;
+  }
+  .step-detail-meta strong { color: var(--ink-light); }
+
+  /* ── AGENT STREAM ──────────────────────────────────────────────────── */
+  .agent-stream {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .stream-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.45rem 0.75rem;
+    background: var(--warm-white-dark);
+    border-bottom: 1px solid var(--border);
+  }
+  .stream-header-label {
+    font-family: var(--font-mono);
+    font-size: 0.58rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--copper);
+    display: flex; align-items: center; gap: 0.35rem;
+  }
+  .stream-live-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    animation: pulse 1.5s ease infinite;
+  }
+  .stream-content {
+    padding: 0.65rem 0.85rem;
+    max-height: 200px;
+    overflow-y: auto;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    line-height: 1.65;
+    color: var(--ink-light);
+  }
+  .stream-line {
+    opacity: 0;
+    animation: streamIn 0.3s ease forwards;
+  }
+  .stream-line .timestamp {
+    color: var(--ink-muted);
+    margin-right: 0.5rem;
+  }
+  .stream-line .highlight { color: var(--copper); font-weight: 500; }
+  .stream-cursor {
+    display: inline-block;
+    width: 7px; height: 14px;
+    background: var(--copper);
+    animation: blink 1s step-end infinite;
+    vertical-align: text-bottom;
+    margin-left: 2px;
+  }
+
+  /* ── PARALLEL FANOUT ────────────────────────────────────────────────── */
+  .fanout-container {
+    position: relative;
+    margin: 0.5rem 0 1rem;
+  }
+  .fanout-diagram {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.75rem 0;
+  }
+  .fanout-source, .fanout-sink {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.72rem; font-weight: 600;
+    flex-shrink: 0;
+  }
+  .fanout-source { background: var(--green); color: #fff; }
+  .fanout-sink {
+    background: transparent; color: var(--ink-muted);
+    border: 2px solid var(--border);
+  }
+
+  .fanout-branches {
+    flex: 1;
+    display: flex; flex-direction: column;
+    gap: 0.35rem;
+  }
+  .fanout-branch {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.45rem 0.75rem;
+    background: var(--warm-white-dark);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+  .fanout-branch:hover { border-color: var(--copper); }
+  .fanout-branch-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .fanout-branch-dot.active {
+    background: var(--green);
+    animation: pulse 1.5s ease infinite;
+  }
+  .fanout-branch-dot.pending { background: var(--border); }
+  .fanout-branch-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem; font-weight: 500;
+    color: var(--ink-light);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .fanout-branch-status {
+    font-family: var(--font-mono);
+    font-size: 0.58rem; font-weight: 600;
+    color: var(--ink-muted);
+    flex-shrink: 0;
+  }
+
+  .fanout-connector-left, .fanout-connector-right {
+    width: 20px; height: 2px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+  .fanout-connector-left { background: var(--green); }
+
+  .fanout-meta {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--ink-muted);
+    padding: 0 0.5rem;
+  }
+
+  /* ── ANIMATIONS ────────────────────────────────────────────────────── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  @keyframes stepPulse {
+    0%, 100% { box-shadow: 0 2px 8px rgba(184,115,51,0.4); }
+    50% { box-shadow: 0 2px 16px rgba(184,115,51,0.6); }
+  }
+  @keyframes streamIn {
+    from { opacity: 0; transform: translateX(-4px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* ── RESPONSIVE: TABLET ──────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .wf-container { padding: 1rem; }
+    .wf-header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+    .stepper { gap: 0.15rem; }
+    .step { min-width: 48px; }
+    .step-circle { width: 26px; height: 26px; font-size: 0.62rem; }
+    .nav-tabs { font-size: 0.65rem; gap: 0.15rem; }
+    .nav-tab { padding: 0.35rem 0.55rem; font-size: 0.65rem; }
+    .global-nav { padding: 0.5rem 0.75rem; }
+    .nav-left { gap: 0.75rem; }
+    .stream-content { font-size: 0.65rem; }
+    .fanout-branch-label { font-size: 0.6rem; }
+  }
+
+  /* ── RESPONSIVE: MOBILE (375px) ──────────────────────────────────── */
+  @media (max-width: 480px) {
+    .global-nav { padding: 0.4rem 0.6rem; }
+    .nav-right { gap: 0.35rem; }
+    .nav-icon-btn { width: 26px; height: 26px; }
+    .conn-dot { width: 6px; height: 6px; }
+    .nav-brand span { display: none; }
+
+    .wf-container { padding: 0.6rem; }
+    .page-header h1 { font-size: 1.2rem; }
+    .page-header .page-subtitle { font-size: 0.62rem; }
+    .page-header { margin-bottom: 1rem; }
+
+    .wf-card { margin-bottom: 0.85rem; }
+    .wf-header { padding: 0.65rem 0.75rem; }
+    .wf-title { font-size: 0.88rem; }
+    .wf-status-badge { font-size: 0.55rem; }
+    .wf-actions { gap: 0.25rem; }
+    .wf-action-btn { padding: 0.2rem 0.5rem; font-size: 0.58rem; }
+    .wf-body { padding: 0.75rem; }
+
+    .stepper { gap: 0.1rem; margin-bottom: 0.75rem; }
+    .step { min-width: 40px; }
+    .step-circle { width: 24px; height: 24px; font-size: 0.58rem; }
+    .step-label { font-size: 0.48rem; max-width: 50px; }
+    .step-connector { width: 14px; margin-bottom: 14px; }
+
+    .current-step-detail { padding: 0.65rem; }
+    .step-detail-title { font-size: 0.78rem; }
+    .step-detail-meta { font-size: 0.58rem; }
+
+    .stream-header { padding: 0.35rem 0.6rem; }
+    .stream-header-label { font-size: 0.52rem; }
+    .stream-content { padding: 0.5rem 0.6rem; font-size: 0.6rem; max-height: 150px; }
+
+    .fanout-diagram { flex-direction: column; gap: 0.35rem; padding: 0.5rem 0; }
+    .fanout-connector-left, .fanout-connector-right { width: 2px; height: 12px; align-self: center; }
+    .fanout-source, .fanout-sink { width: 28px; height: 28px; font-size: 0.62rem; align-self: center; }
+    .fanout-branch { padding: 0.4rem 0.6rem; gap: 0.35rem; }
+    .fanout-branch-label { font-size: 0.58rem; white-space: normal; }
+    .fanout-meta { font-size: 0.58rem; text-align: center; }
+  }
+
+  .dash-footer {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--ink-muted);
+  }
+  .dash-footer a { color: var(--copper); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- ── GLOBAL NAV ────────────────────────────────────────────────────── -->
+<nav class="global-nav">
+  <div class="nav-left">
+    <div class="nav-brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+        <path d="M2 17l10 5 10-5"/>
+        <path d="M2 12l10 5 10-5"/>
+      </svg>
+      <span>LEVIATHAN</span>
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-tab" onclick="window.location.href='lev-dashboard-queue-wall.html'">Inbox</button>
+      <button class="nav-tab active">Workflows</button>
+      <button class="nav-tab">Workers</button>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-icon-btn" title="Settings">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
+    <span class="conn-dot conn-connected" title="levd connected"></span>
+    <button class="nav-icon-btn" onclick="toggleTheme()" title="Toggle theme">
+      <span id="themeIcon">&#9681;</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ── WORKFLOWS ──────────────────────────────────────────────────────── -->
+<div class="wf-container">
+
+  <div class="page-header">
+    <h1>Active Workflows</h1>
+    <div class="page-subtitle">3 sessions &middot; 2 running &middot; 1 paused</div>
+  </div>
+
+  <!-- ── Workflow 1: /ux Pipeline ────────────────────────────────────── -->
+  <div class="wf-card">
+    <div class="wf-header">
+      <div class="wf-title-group">
+        <span class="wf-title">/ux Pipeline</span>
+        <span class="wf-status-badge running">running</span>
+      </div>
+      <div class="wf-actions">
+        <button class="wf-action-btn" onclick="togglePause(this, 'Pause', 'Resume')">Pause</button>
+        <button class="wf-action-btn danger">Cancel</button>
+      </div>
+    </div>
+    <div class="wf-body">
+      <!-- Stepper -->
+      <div class="stepper">
+        <div class="step">
+          <div class="step-circle done">&#10003;</div>
+          <div class="step-label">Problem</div>
+        </div>
+        <div class="step-connector done"></div>
+        <div class="step">
+          <div class="step-circle done">&#10003;</div>
+          <div class="step-label">JTBD</div>
+        </div>
+        <div class="step-connector done"></div>
+        <div class="step">
+          <div class="step-circle done">&#10003;</div>
+          <div class="step-label">Tasks</div>
+        </div>
+        <div class="step-connector active"></div>
+        <div class="step">
+          <div class="step-circle active">4</div>
+          <div class="step-label">Info Arch</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step">
+          <div class="step-circle pending">5</div>
+          <div class="step-label">Interact</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step">
+          <div class="step-circle pending">6</div>
+          <div class="step-label">Comps</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step">
+          <div class="step-circle pending">7</div>
+          <div class="step-label">Wiring</div>
+        </div>
+      </div>
+
+      <!-- Current Step Detail -->
+      <div class="current-step-detail">
+        <div class="step-detail-title">Step 4: Information Architecture</div>
+        <div class="step-detail-meta">
+          <strong>Input:</strong> problem_spec.yaml, jobs.graph.json<br>
+          <strong>Output:</strong> ia_schema.json <span style="color: var(--copper)">(generating...)</span>
+        </div>
+      </div>
+
+      <!-- Agent Stream -->
+      <div class="agent-stream">
+        <div class="stream-header">
+          <span class="stream-header-label">
+            <span class="stream-live-dot"></span>
+            Agent Stream
+          </span>
+          <span style="font-family:var(--font-mono);font-size:0.58rem;color:var(--ink-muted)">12s elapsed</span>
+        </div>
+        <div class="stream-content" id="stream1">
+          <div class="stream-line" style="animation-delay: 0s">
+            <span class="timestamp">00:01</span> Analyzing entity relationships...
+          </div>
+          <div class="stream-line" style="animation-delay: 0.1s">
+            <span class="timestamp">00:04</span> Found <span class="highlight">6 entities</span>, <span class="highlight">8 relationships</span>
+          </div>
+          <div class="stream-line" style="animation-delay: 0.2s">
+            <span class="timestamp">00:08</span> Mapping navigation structure...
+          </div>
+          <div class="stream-line" style="animation-delay: 0.3s">
+            <span class="timestamp">00:11</span> Resolving cross-entity references for <span class="highlight">Inbox</span> screen
+          </div>
+          <div class="stream-line" style="animation-delay: 0.4s">
+            <span class="timestamp">00:12</span> Building ia_schema.json<span class="stream-cursor"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Workflow 2: /research (paused) ──────────────────────────────── -->
+  <div class="wf-card">
+    <div class="wf-header">
+      <div class="wf-title-group">
+        <span class="wf-title">/research</span>
+        <span class="wf-status-badge paused">paused</span>
+      </div>
+      <div class="wf-actions">
+        <button class="wf-action-btn primary" onclick="togglePause(this, 'Resume', 'Pause')">Resume</button>
+        <button class="wf-action-btn danger">Cancel</button>
+      </div>
+    </div>
+    <div class="wf-body">
+      <div class="stepper">
+        <div class="step">
+          <div class="step-circle done">&#10003;</div>
+          <div class="step-label">Gather</div>
+        </div>
+        <div class="step-connector done"></div>
+        <div class="step">
+          <div class="step-circle active" style="background: var(--amber); box-shadow: 0 2px 8px rgba(196,125,46,0.4); animation: none;">2</div>
+          <div class="step-label">Analyze</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step">
+          <div class="step-circle pending">3</div>
+          <div class="step-label">Report</div>
+        </div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--ink-muted);padding:0.25rem 0">
+        Paused at step 2: Analyze. Waiting for user input on source prioritization.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Workflow 3: Parallel Fanout ─────────────────────────────────── -->
+  <div class="wf-card">
+    <div class="wf-header">
+      <div class="wf-title-group">
+        <span class="wf-title">/adversarial-review</span>
+        <span class="wf-status-badge running">running</span>
+      </div>
+      <div class="wf-actions">
+        <button class="wf-action-btn" onclick="togglePause(this, 'Pause', 'Resume')">Pause</button>
+        <button class="wf-action-btn danger">Cancel</button>
+      </div>
+    </div>
+    <div class="wf-body">
+      <!-- Pre-fanout step -->
+      <div class="stepper" style="margin-bottom: 0.5rem">
+        <div class="step">
+          <div class="step-circle done">&#10003;</div>
+          <div class="step-label">Setup</div>
+        </div>
+        <div class="step-connector done"></div>
+        <div class="step">
+          <div class="step-circle active" style="font-size: 0.6rem;">2-3</div>
+          <div class="step-label">Parallel</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step">
+          <div class="step-circle pending">4</div>
+          <div class="step-label">Merge</div>
+        </div>
+      </div>
+
+      <!-- Fanout Visualization -->
+      <div class="fanout-container">
+        <div class="fanout-diagram">
+          <div class="fanout-source">1</div>
+          <div class="fanout-connector-left"></div>
+          <div class="fanout-branches">
+            <div class="fanout-branch">
+              <span class="fanout-branch-dot active"></span>
+              <span class="fanout-branch-label">Agent A: Research &mdash; scanning prior art</span>
+              <span class="fanout-branch-status">42%</span>
+            </div>
+            <div class="fanout-branch">
+              <span class="fanout-branch-dot active"></span>
+              <span class="fanout-branch-label">Agent B: Code Scan &mdash; analyzing 12 crates</span>
+              <span class="fanout-branch-status">67%</span>
+            </div>
+            <div class="fanout-branch">
+              <span class="fanout-branch-dot active"></span>
+              <span class="fanout-branch-label">Agent C: Security &mdash; checking dep audit</span>
+              <span class="fanout-branch-status">31%</span>
+            </div>
+          </div>
+          <div class="fanout-connector-right"></div>
+          <div class="fanout-sink">4</div>
+        </div>
+        <div class="fanout-meta">3 parallel workers at steps 2-3 &middot; ETA ~45s</div>
+      </div>
+
+      <!-- Agent Stream for fanout -->
+      <div class="agent-stream">
+        <div class="stream-header">
+          <span class="stream-header-label">
+            <span class="stream-live-dot"></span>
+            Agent B: Code Scan
+          </span>
+          <span style="font-family:var(--font-mono);font-size:0.58rem;color:var(--ink-muted)">28s elapsed</span>
+        </div>
+        <div class="stream-content" id="stream2">
+          <div class="stream-line" style="animation-delay: 0s">
+            <span class="timestamp">00:02</span> Scanning <span class="highlight">crates/lev-domain/src/</span>
+          </div>
+          <div class="stream-line" style="animation-delay: 0.1s">
+            <span class="timestamp">00:08</span> Found 3 aggregate violations in <span class="highlight">aggregate.rs</span>
+          </div>
+          <div class="stream-line" style="animation-delay: 0.2s">
+            <span class="timestamp">00:15</span> Checking <span class="highlight">lev-tui-widgets</span> attention_kanban...
+          </div>
+          <div class="stream-line" style="animation-delay: 0.3s">
+            <span class="timestamp">00:22</span> Event schema drift detected in <span class="highlight">event.rs</span>
+          </div>
+          <div class="stream-line" style="animation-delay: 0.4s">
+            <span class="timestamp">00:28</span> Analyzing lev-agentfs sandbox boundaries<span class="stream-cursor"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer class="dash-footer">
+  LEVIATHAN LIVE DASHBOARD &mdash; Workflows &mdash; Mockup v0.1<br>
+  <a href="lev-dashboard-queue-wall.html">Inbox (Wall)</a> &middot; <a href="lev-dashboard-queue-1up.html">Inbox (1-UP)</a>
+</footer>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.getElementById('themeIcon').textContent = next === 'dark' ? '\u2600' : '\u9681';
+}
+
+function togglePause(btn, label1, label2) {
+  btn.textContent = btn.textContent.trim() === label1 ? label2 : label1;
+  // Toggle badge
+  const card = btn.closest('.wf-card');
+  const badge = card.querySelector('.wf-status-badge');
+  if (badge.classList.contains('running')) {
+    badge.classList.remove('running');
+    badge.classList.add('paused');
+    badge.innerHTML = 'paused';
+  } else if (badge.classList.contains('paused')) {
+    badge.classList.remove('paused');
+    badge.classList.add('running');
+    badge.innerHTML = 'running';
+  }
+}
+
+// Simulate streaming for workflow 1
+const streamLines = [
+  { time: '00:14', text: 'Validating screen-to-entity mapping...' },
+  { time: '00:17', text: 'Generating nav graph with <span class="highlight">3 primary</span> + <span class="highlight">3 secondary</span> routes' },
+  { time: '00:21', text: 'Writing ia_schema.json... <span class="highlight">done</span>' },
+];
+
+let streamIdx = 0;
+const stream1 = document.getElementById('stream1');
+
+setInterval(() => {
+  if (streamIdx < streamLines.length) {
+    const line = streamLines[streamIdx];
+    const existingCursor = stream1.querySelector('.stream-cursor');
+    if (existingCursor) {
+      existingCursor.parentElement.innerHTML = existingCursor.parentElement.innerHTML.replace(
+        '<span class="stream-cursor"></span>', ''
+      );
+    }
+    const div = document.createElement('div');
+    div.className = 'stream-line';
+    div.style.animationDelay = '0s';
+    div.innerHTML = `<span class="timestamp">${line.time}</span> ${line.text}${streamIdx === streamLines.length - 1 ? '' : '<span class="stream-cursor"></span>'}`;
+    stream1.appendChild(div);
+    stream1.scrollTop = stream1.scrollHeight;
+    streamIdx++;
+  }
+}, 3000);
+</script>
+</body>
+</html>

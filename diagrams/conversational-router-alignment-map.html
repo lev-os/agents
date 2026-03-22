@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversational Router Alignment Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Azeret+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
+      --font-mono: "Azeret Mono", "SF Mono", Consolas, monospace;
+
+      --bg: #eef4f8;
+      --surface: #ffffff;
+      --surface-elevated: #ffffff;
+      --surface-2: #dfe8ef;
+      --border: rgba(12, 30, 50, 0.1);
+      --border-strong: rgba(12, 30, 50, 0.18);
+      --text: #122030;
+      --text-dim: #5e6c7b;
+
+      --accent: #0f6cbd;
+      --accent-dim: rgba(15, 108, 189, 0.08);
+      --teal: #0f766e;
+      --teal-dim: rgba(15, 118, 110, 0.08);
+      --amber: #b45309;
+      --amber-dim: rgba(180, 83, 9, 0.08);
+      --red: #b42318;
+      --red-dim: rgba(180, 35, 24, 0.08);
+      --green: #15803d;
+      --green-dim: rgba(21, 128, 61, 0.08);
+
+      --grid: rgba(15, 108, 189, 0.05);
+      --grid-strong: rgba(15, 108, 189, 0.08);
+      --shadow: 0 22px 44px rgba(18, 32, 48, 0.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #15212e;
+        --surface: #1b2734;
+        --surface-elevated: #223241;
+        --surface-2: #2b3b4b;
+        --border: rgba(255, 255, 255, 0.08);
+        --border-strong: rgba(255, 255, 255, 0.15);
+        --text: #ecf3f9;
+        --text-dim: #9fb0c1;
+
+        --accent: #5fb6ff;
+        --accent-dim: rgba(95, 182, 255, 0.12);
+        --teal: #34d399;
+        --teal-dim: rgba(52, 211, 153, 0.1);
+        --amber: #f59e0b;
+        --amber-dim: rgba(245, 158, 11, 0.1);
+        --red: #fb7185;
+        --red-dim: rgba(251, 113, 133, 0.1);
+        --green: #4ade80;
+        --green-dim: rgba(74, 222, 128, 0.1);
+
+        --grid: rgba(95, 182, 255, 0.04);
+        --grid-strong: rgba(95, 182, 255, 0.08);
+        --shadow: 0 24px 52px rgba(0, 0, 0, 0.35);
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: var(--font-body);
+      background:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+        linear-gradient(var(--grid-strong) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-strong) 1px, transparent 1px),
+        var(--bg);
+      background-size: 20px 20px, 20px 20px, 120px 120px, 120px 120px;
+      line-height: 1.55;
+    }
+
+    .toc {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      overflow-x: auto;
+      padding: 12px 28px;
+      border-bottom: 1px solid var(--border);
+      background: color-mix(in srgb, var(--bg) 86%, transparent);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .toc a {
+      white-space: nowrap;
+      text-decoration: none;
+      color: var(--text-dim);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+
+    .toc a:hover {
+      color: var(--text);
+      border-color: var(--border);
+      background: var(--surface);
+    }
+
+    .page {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 32px 28px 88px;
+    }
+
+    .hero {
+      background: linear-gradient(145deg, var(--surface-elevated), color-mix(in srgb, var(--surface) 80%, var(--accent-dim)));
+      border: 1px solid var(--border-strong);
+      border-radius: 26px;
+      padding: 34px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+    }
+
+    .eyebrow, .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-dim);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-dim);
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      line-height: 1.1;
+    }
+
+    h1 {
+      margin-top: 14px;
+      font-size: clamp(2.3rem, 4.5vw, 4rem);
+      max-width: 900px;
+      letter-spacing: -0.04em;
+    }
+
+    .hero p {
+      max-width: 900px;
+      font-size: 1.05rem;
+      color: var(--text-dim);
+      margin: 18px 0 0;
+    }
+
+    .hero-grid,
+    .grid-3,
+    .grid-4,
+    .grid-2 {
+      display: grid;
+      gap: 16px;
+    }
+
+    .hero-grid {
+      margin-top: 22px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 18px;
+      min-width: 0;
+    }
+
+    .card h3 {
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 0.95rem;
+    }
+
+    .kpi {
+      padding: 16px 18px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .kpi .value {
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      margin-bottom: 6px;
+    }
+
+    .kpi .label {
+      font-size: 0.83rem;
+      color: var(--text-dim);
+    }
+
+    section {
+      margin-top: 36px;
+    }
+
+    .section-head {
+      margin-bottom: 16px;
+    }
+
+    .section-head h2 {
+      font-size: 1.7rem;
+      letter-spacing: -0.03em;
+      margin-top: 8px;
+    }
+
+    .section-head p {
+      margin: 10px 0 0;
+      color: var(--text-dim);
+      max-width: 860px;
+    }
+
+    ul.clean {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    ul.clean li + li { margin-top: 8px; }
+
+    .callout {
+      padding: 18px 20px;
+      border-left: 4px solid var(--amber);
+      background: var(--amber-dim);
+      border-radius: 16px;
+      color: var(--text);
+    }
+
+    .callout strong { display: block; margin-bottom: 8px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.93rem;
+    }
+
+    thead th {
+      background: color-mix(in srgb, var(--surface) 78%, var(--accent-dim));
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+    }
+
+    tbody tr:nth-child(even) {
+      background: color-mix(in srgb, var(--surface) 88%, var(--surface-2));
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      letter-spacing: 0.04em;
+    }
+
+    .badge.green { background: var(--green-dim); color: var(--green); }
+    .badge.amber { background: var(--amber-dim); color: var(--amber); }
+    .badge.red { background: var(--red-dim); color: var(--red); }
+    .badge.blue { background: var(--accent-dim); color: var(--accent); }
+
+    .split {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+    }
+
+    .timeline .step {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 34px 1fr;
+      align-items: start;
+    }
+
+    .step .num {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      display: grid;
+      place-items: center;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    code, .mono {
+      font-family: var(--font-mono);
+      font-size: 0.9em;
+    }
+
+    .paths {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px 18px;
+    }
+
+    .paths p {
+      margin: 0 0 8px;
+      color: var(--text-dim);
+    }
+
+    .paths code {
+      display: block;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 1100px) {
+      .hero-grid,
+      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-3,
+      .split { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      .page { padding-inline: 16px; }
+      .toc { padding-inline: 16px; }
+      .hero { padding: 22px; }
+      .hero-grid,
+      .grid-2,
+      .grid-4 { grid-template-columns: 1fr; }
+      th, td { font-size: 0.88rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="toc">
+    <a href="#thesis">Thesis</a>
+    <a href="#drivers">Drivers</a>
+    <a href="#options">Options</a>
+    <a href="#artifacts">Artifacts</a>
+    <a href="#scan">30-Lane Scan</a>
+    <a href="#brainstorm">Brainstorm</a>
+  </nav>
+
+  <main class="page">
+    <section class="hero" id="top">
+      <div class="eyebrow"><span class="dot"></span> Conversational Boundary Proposal</div>
+      <h1>Lev already has the thesis. It is missing the boundary contract.</h1>
+      <p>
+        The 30-agent doc scan converged on one main conclusion: the repo already knows that conversation is the
+        ephemeral proposal surface, alignment is the gate, graph patches are the state transition, and execution belongs
+        to the existing runtime planes. What is still missing is one canonical contract for typed conversational intent,
+        human approval semantics, execution handoff, and replayable decision memory.
+      </p>
+
+      <div class="hero-grid">
+        <div class="kpi">
+          <div class="value">30</div>
+          <div class="label">scan lanes completed</div>
+        </div>
+        <div class="kpi">
+          <div class="value">5</div>
+          <div class="label">recurring contract gaps</div>
+        </div>
+        <div class="kpi">
+          <div class="value">4</div>
+          <div class="label">runtime planes already stable</div>
+        </div>
+        <div class="kpi">
+          <div class="value">1</div>
+          <div class="label">recommended boundary spec</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="thesis">
+      <div class="section-head">
+        <div class="section-label">Core Thesis</div>
+        <h2>Conversation is not execution. It is the gated front door.</h2>
+        <p>
+          The scan consistently separates four layers: conversational ingress, typed proposal/graph-patch admission,
+          constrained runtime execution, and human-loop surfaces. The strongest recurring mistake in the docs is when one
+          of those layers tries to impersonate another.
+        </p>
+      </div>
+
+      <div class="grid-4">
+        <div class="card">
+          <h3>1. Conversation</h3>
+          <p>
+            Ephemeral understanding surface. Good for routing, clarifying, and shaping proposals. Bad as a hidden
+            executor.
+          </p>
+        </div>
+        <div class="card">
+          <h3>2. Alignment Gate</h3>
+          <p>
+            Typed intent, approval, clarification, and proposal admission. This is the missing canonical contract.
+          </p>
+        </div>
+        <div class="card">
+          <h3>3. Runtime</h3>
+          <p>
+            <span class="mono">FlowMind -&gt; Orchestration/Exec -&gt; Event Bus/Graph</span>. Existing planes stay intact.
+          </p>
+        </div>
+        <div class="card">
+          <h3>4. Surfaces</h3>
+          <p>
+            AgentPing, CLI, dashboard, voice, and future hosts present steering/approval affordances but should not own
+            policy or runtime truth.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="drivers">
+      <div class="section-head">
+        <div class="section-label">Drivers</div>
+        <h2>Architectural Drivers And Non-Negotiables</h2>
+      </div>
+
+      <div class="split">
+        <div class="card">
+          <h3>Drivers</h3>
+          <ul class="clean">
+            <li>Governed promotion from conversation into tracked state and execution.</li>
+            <li>Preserve plane integrity: no UI, skill, middleware, or dashboard shadow orchestrator.</li>
+            <li>Portable human-loop semantics across CLI, AgentPing, dashboard, and voice.</li>
+            <li>Evidence-first trust: replay, provenance, validation, and typed artifacts over prompt rhetoric.</li>
+            <li>Canon compression: absorb earlier near-solutions instead of inventing a fourth version.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Already Decided</h3>
+          <ul class="clean">
+            <li>Three-plane plus event-spine split remains intact.</li>
+            <li><span class="mono">.flow.yaml</span> / <span class="mono">GraphDocument</span> stay canonical route/IR surfaces.</li>
+            <li>S14 execution-contract ownership wins over earlier drafts.</li>
+            <li>Synthetic judges remain advisory; humans plus evidence gates decide promotion.</li>
+            <li><span class="mono">bd</span> remains the canonical work-tracking surface.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout" style="margin-top:16px;">
+        <strong>Most important synthesis:</strong>
+        The philosophy is ahead of the contract. The proposal should not create more philosophy. It should create the
+        missing typed boundary object and the approval semantics around it.
+      </div>
+    </section>
+
+    <section id="options">
+      <div class="section-head">
+        <div class="section-label">Options</div>
+        <h2>Decision Space</h2>
+        <p>
+          Three approaches survived the scan. Only one fixes the recurring drift without inventing a new plane.
+        </p>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Approach</th>
+            <th>What It Does</th>
+            <th>Upside</th>
+            <th>Main Risk</th>
+            <th>Assessment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>A. Cross-link only</strong></td>
+            <td>Keep philosophy distributed, add glossary and backlinks.</td>
+            <td>Cheap and low-risk.</td>
+            <td>Leaves the missing boundary contract unresolved.</td>
+            <td><span class="badge red">Not enough</span></td>
+          </tr>
+          <tr>
+            <td><strong>B. Boundary spec + ADRs</strong></td>
+            <td>Write one canonical conversational-boundary spec and use ADRs for hard trade-offs.</td>
+            <td>Fixes drift while preserving existing runtime planes.</td>
+            <td>Needs careful scoping to avoid duplicating current specs.</td>
+            <td><span class="badge green">Recommended</span></td>
+          </tr>
+          <tr>
+            <td><strong>C. Router-first rebrand</strong></td>
+            <td>Recast much of the system under a “conversational router” banner.</td>
+            <td>Strong narrative clarity.</td>
+            <td>Overwrites the more canonical FlowMind/kernel/runtime language too early.</td>
+            <td><span class="badge amber">Too aggressive</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="artifacts">
+      <div class="section-head">
+        <div class="section-label">Artifact Set</div>
+        <h2>Recommended Canonical Artifact Cluster</h2>
+      </div>
+
+      <div class="timeline">
+        <div class="step">
+          <div class="num">1</div>
+          <div class="card">
+            <h3>New Spec</h3>
+            <p><span class="mono">docs/specs/spec-conversational-boundary.md</span> covering router intent, approval states, proposal admission, execution selector, and decision replay.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <div class="card">
+            <h3>Update Adjacent Canon</h3>
+            <p><span class="mono">ARCHITECTURE</span>, <span class="mono">spec-flowmind</span>, <span class="mono">spec-domain</span>, <span class="mono">spec-agentping</span>, <span class="mono">spec-levui-ir</span>, and provenance specs get aligned wording and join points.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <div class="card">
+            <h3>Adjudicate Existing Near-Solutions</h3>
+            <p>Absorb <span class="mono">routing-decision-capture</span>, <span class="mono">decision-memory</span>, <span class="mono">work-skill-unified-lifecycle</span>, and AgentPing ping semantics instead of creating yet another adjacent layer.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">4</div>
+          <div class="card">
+            <h3>Enforcement Path</h3>
+            <p>Convert the most important rules into hooks, gates, events, or validation checks so the system stops relying on prose-only “always/never” language.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="paths" style="margin-top:18px;">
+        <p>Working artifacts for this scan:</p>
+        <code>/Users/jean-patricksmith/digital/leviathan/.lev/pm/reports/20260320-conversational-router-alignment-doc-scan.md</code>
+        <code>/Users/jean-patricksmith/digital/leviathan/.lev/pm/proposals/20260320-conversational-router-alignment-proposal.md</code>
+        <code>/Users/jean-patricksmith/digital/leviathan/.lev/pm/handoffs/20260320-conversational-router-alignment-doc-scan-session-1.md</code>
+      </div>
+    </section>
+
+    <section id="scan">
+      <div class="section-head">
+        <div class="section-label">30-Agent Scan</div>
+        <h2>What Each Lane Confirmed</h2>
+        <p>
+          Every row below corresponds to one agent lane. The pattern to look for is repetition: when different slices of
+          the corpus keep returning the same gap, that is where the proposal should focus.
+        </p>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Lane</th>
+            <th>Slice</th>
+            <th>What It Confirmed</th>
+            <th>Main Gap</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>01</td><td>Canon</td><td>Conversation, alignment, graph patch, execution is already the core thesis.</td><td>No single normative contract for that thesis.</td></tr>
+          <tr><td>02</td><td>Architecture</td><td>The plane model makes the philosophy real.</td><td>No single canonical noun/package for the conversational boundary.</td></tr>
+          <tr><td>03</td><td>FlowMind</td><td>Governance wants deterministic admission, ratchets, and translator boundaries.</td><td>Much of the strongest governance language is still design intent.</td></tr>
+          <tr><td>04</td><td>Graph Patch</td><td>Conversation can become proposal + graph patch through typed stages.</td><td>Intent cascade remains proposal-grade and conflict rules are incomplete.</td></tr>
+          <tr><td>05</td><td>Lifecycle</td><td>Provenance and promotion are already central.</td><td>Semantic thresholds for “classified/proposed/executable” are not fully unified.</td></tr>
+          <tr><td>06</td><td>Exec Boundary</td><td>The router should be a thin northbound adapter.</td><td>No canonical intent envelope or surface-selection rules.</td></tr>
+          <tr><td>07</td><td>Event / Telemetry</td><td>Provenance spine is strong: events, replay, bridges, traces.</td><td>Approval/model/prompt lineage is not first-class enough.</td></tr>
+          <tr><td>08</td><td>AgentPing / Hosts</td><td>Typed human-loop interaction already exists across multiple hosts.</td><td>Ping-to-IR mapping and richer co-creation semantics are missing.</td></tr>
+          <tr><td>09</td><td>Voice / Chat</td><td>Conversational surfaces are alignment surfaces, not only I/O.</td><td>Chat is underspecified and voice/AgentPing join points remain drafty.</td></tr>
+          <tr><td>10</td><td>CLI / Harness</td><td>CLI/harness are thin ingress and execution bridges by design.</td><td>No approved lifecycle/alignment artifact travels end-to-end from prompt to UI.</td></tr>
+          <tr><td>11</td><td>Memory / Index</td><td>Alignment is currently retrieval-first and human-gated.</td><td>Self-learning and decision replay are not canonically bound.</td></tr>
+          <tr><td>12</td><td>Governance</td><td>Trust is evidence-first: telemetry, gates, ownership, validation.</td><td>Framework adoption and rich telemetry are still strategy more than contract.</td></tr>
+          <tr><td>13</td><td>Plugins</td><td>Thin surfaces work when they restate the control-plane hierarchy.</td><td>Tool-centric language returns when that hierarchy is omitted.</td></tr>
+          <tr><td>14</td><td>UX I</td><td>Product instincts are strong around approvals and routing.</td><td>UI tries to become a second router.</td></tr>
+          <tr><td>15</td><td>UX II</td><td>Project-first, progressive disclosure, and visible trust are aligned.</td><td>Surface canon outruns runtime canon.</td></tr>
+          <tr><td>16</td><td>Theory</td><td>Harness structure, replay, probes, and witnesses deepen the thesis.</td><td>Substrate maximalism can weaken the canonical center.</td></tr>
+          <tr><td>17</td><td>Inbox Boundaries</td><td>Provenance and thin external control planes are promotion candidates.</td><td>Speculative cognition topology is not ready for core canon.</td></tr>
+          <tr><td>18</td><td>Stress Tests</td><td>The main weakness is promotion from idea to runtime contract.</td><td>Security and trust promises still conflict in places.</td></tr>
+          <tr><td>19</td><td>Proposal History I</td><td>Routing decision capture and decision memory were already invented.</td><td>They were never promoted into one durable contract.</td></tr>
+          <tr><td>20</td><td>Proposal History II</td><td>Ingress normalization into a shared exec/runtime path was already known.</td><td>Chat/voice placement and surface protocol convergence stayed unresolved.</td></tr>
+          <tr><td>21</td><td>Proposal History III</td><td>`work` was already basically a conversational router.</td><td>Lifecycle, skill loading, session, and artifact boundaries never settled.</td></tr>
+          <tr><td>22</td><td>Process Proposals</td><td>Conversation should checkpoint and promote into enforceable artifacts.</td><td>One adopted lifecycle-and-approval contract still does not exist.</td></tr>
+          <tr><td>23</td><td>FlowMind Reports I</td><td>Validated graph semantics and lazy tracked context are the right substrate.</td><td>Compiler/runtime split and context versioning are still underdefined.</td></tr>
+          <tr><td>24</td><td>FlowMind Reports II</td><td>Alignment is more canon-ready than “conversational router” as a banner term.</td><td>Kernel/compiler consolidation still dominates the framing.</td></tr>
+          <tr><td>25</td><td>Prompt Reports</td><td>Prompt technique is useful but must not masquerade as runtime authority.</td><td>Too many policy rules still live only in prose.</td></tr>
+          <tr><td>26</td><td>Explainers / Business</td><td>The public story already has the right stack.</td><td>Packaging flattens philosophy into feature categories.</td></tr>
+          <tr><td>27</td><td>Handoffs I</td><td>Hard constraints already exist around plane split, judges, and ownership.</td><td>Older actor-graph models and packaging questions remain noisy.</td></tr>
+          <tr><td>28</td><td>Handoffs II</td><td>The proposal must be a thin governed layer over current runtime direction.</td><td>Exact alignment schema and lifecycle taxonomy are still missing.</td></tr>
+          <tr><td>29</td><td>Cleanup Specs</td><td>Spec-first authority and explicit authority language are already justified.</td><td>The cleanup work is distributed, not yet consolidated.</td></tr>
+          <tr><td>30</td><td>Convergence Data</td><td>The repo has plenty of evidence about the contradiction space.</td><td>What’s missing is adjudication, not discovery.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="brainstorm">
+      <div class="section-head">
+        <div class="section-label">Brainstorm</div>
+        <h2>Best Next Questions To Discuss</h2>
+        <p>
+          These are the highest-leverage questions that fall out of the scan. Answering even one of them would meaningfully
+          narrow the follow-up spec or ADR work.
+        </p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>1. What exactly is “aligned enough”?</h3>
+          <p>
+            Is alignment a boolean approval state, a typed review outcome, a confidence threshold plus HITL override,
+            or something richer tied to scope and risk?
+          </p>
+        </div>
+        <div class="card">
+          <h3>2. Where should decision replay live?</h3>
+          <p>
+            Memory, Domain, Graph, or an adjacent approval-history contract? The scan says this is one of the biggest
+            missing links.
+          </p>
+        </div>
+        <div class="card">
+          <h3>3. How much should the word “router” matter?</h3>
+          <p>
+            The architecture supports the idea strongly, but multiple lanes suggest “alignment boundary” may be more
+            canonical than a sweeping router-first rebrand.
+          </p>
+        </div>
+        <div class="card">
+          <h3>4. How much co-creation belongs beyond approvals?</h3>
+          <p>
+            AgentPing already has approval, selection, input, and escalation. Do you want richer collaborative editing
+            semantics in the first canonical contract, or keep v1 narrowly approval-centric?
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,55 +1,71 @@
 ---
 name: work
-description: |
-  [WHAT] Session lifecycle router — handoff-first, entity-tracked, prior-art-aware
-  [HOW] 6-step operational loop: handoff → track → align → research → plan → close
-  [WHEN] Use for all tracked work: plan, design, build, research, analyze, handoff, resume, close
-  Triggers: "work", "plan", "design", "research", "handoff", "close", "resume"
+description: Use when starting any tracked work session, resuming from a handoff, planning, designing, building, researching, or closing a session
 ---
 
-# Work: Session Lifecycle Router (v5)
+# Work: Session Lifecycle Router (v6)
+
+**Core principle:** Every session has a handoff, every action updates it, every decision is tracked. No freestyle.
+
+**Violating the letter of this process is violating the spirit of tracked work.**
+
+## The Iron Law
 
 ```
-┌─────────┐    ┌───────┐    ┌───────┐    ┌──────────┐    ┌─────────┐    ┌───────┐
-│ HANDOFF  │───→│ TRACK │───→│ ALIGN │───→│ RESEARCH │───→│ EXECUTE │───→│ CLOSE │
-│ cp + fill│    │entity │    │ gate  │    │prior art │    │plan/do  │    │push   │
-└────┬─────┘    └───┬───┘    └───┬───┘    └────┬─────┘    └────┬────┘    └───┬───┘
-     │              │            │              │               │             │
-     └──────────────┴── update handoff when events happen, not on a timer ───┘
+NO WORK WITHOUT A HANDOFF. NO DECISION WITHOUT EVIDENCE. NO CLOSE WITHOUT A PUSH.
 ```
 
-**Update the handoff when any of these happen:**
-- Decision made or changed
-- File written, edited, or created
-- User gives feedback or correction
-- BD issue created or closed
-- About to context-switch or close session
-- Research produces a finding worth recording
+If you haven't created or loaded a handoff, you cannot proceed to any other step.
 
-Reading files, grepping, scanning directories → NOT update triggers. Do those freely.
+<HARD-GATE>
+YOU MUST follow Steps 1-6 in order. You MUST update the handoff when events happen.
+Skipping steps or "just doing it" is a failure mode, not efficiency.
+</HARD-GATE>
+
+## The Gate Function
+
+```
+BEFORE starting any work:
+
+1. HANDOFF: Load existing or create new (.lev/pm/handoffs/)
+2. TRACK: Add ≥1 entity with a real file path to the matrix
+3. ALIGN: Objective stated, scope bounded, user confirmed
+4. SEARCH: Prior art checked (grep .lev/pm/, bd search, docs/)
+5. ROUTE: Match work type to the right sub-skill
+6. ONLY THEN: Execute
+
+Skip any step = untracked work = lost context = wasted session
+```
 
 ---
 
-## Step 1: Handoff
-
-Copy the template, fill it out, keep it current every turn.
+## Step 1: Handoff (MANDATORY — before everything else)
 
 ```bash
 # New session
-cp ~/.agents/skills/work/templates/handoff.md .lev/pm/handoffs/{YYYYMMDD}-{workstream}-{component}-session-{N}.md
+cp ~/.agents/skills/work/templates/handoff.md .lev/pm/handoffs/{YYYYMMDD}-{workstream}-session-{N}.md
 
 # Resuming
 cat .lev/pm/handoffs/{existing-handoff}.md
 ```
 
-The template has instructions for every section. Follow them. Key sections to fill immediately:
+Fill immediately:
+- **You Are Here** — one sentence, current state
+- **Next Agent Brief** — goal, done condition, scope, out of scope
+- **Entity Matrix** — real files at real paths (Step 2)
+- **Timeline** — log every action
 
-- **You Are Here** — one sentence, what's happening right now
-- **Next Agent Brief** — goal, done condition, current slice, out of scope
-- **Entity Matrix** — real files at real paths (see Step 2)
-- **Timeline** — log a tick for every action
+Shard at ~500 lines, >15 ticks, >5 modified entities, or >3 pivots.
 
-Shard to `session-{N+1}` at ~500 lines, >15 ticks, >5 modified/created entities, or >3 pivots. (`loaded`/`captured` entities don't count toward the shard threshold.)
+**Update the handoff when ANY of these happen:**
+- Decision made or changed
+- File written, edited, or created
+- User gives feedback or correction
+- BD issue created or closed
+- Research produces a finding
+- About to context-switch or close
+
+Reading files, grepping, scanning → NOT update triggers.
 
 ---
 
@@ -60,60 +76,42 @@ An entity is a **file or directory at a path**. Not a concept. Not a label.
 ```markdown
 | # | File | Path | State | Canonical Ref | Decision | Next |
 |---|------|------|-------|---------------|----------|------|
-| 1 | SKILL.md | ~/.agents/skills/work/SKILL.md | modified | — | D1 | update states |
-| 2 | heartbeat.ts | core/orchestration/src/loop/heartbeat.ts | loaded | spec-orchestration.md | — | identify gaps |
-| 3 | handoff.md | .lev/pm/handoffs/session-3.md | created | — | D2,D3 | fill timeline |
+| 1 | SKILL.md | ~/.agents/skills/work/SKILL.md | modified | — | D1 | update |
 ```
 
-**Canonical Ref** = the spec, design, or doc this file is governed by (if any).
-**Decision** = which handoff decision(s) touch this entity (D1, D2, etc.).
+States: `loaded` | `captured` | `modified` | `created` | `planned` | `completed`
 
-States:
-
-| State | Means | Example |
-|-------|-------|---------|
-| `loaded` | Read into context, not changed | grep'd for references, read for understanding |
-| `captured` | Researched, findings recorded | analysis saved to report |
-| `modified` | Changed during this session | edited code, updated config |
-| `created` | New file created this session | new handoff, new spec |
-| `planned` | Identified for future work | filed BD issue, added to roadmap |
-| `completed` | Work on this entity is done | tests pass, spec updated |
-
-**BAD:** `| 1 | stack↔flowmind parity | classified |` — concept, no path.
-**GOOD:** `| 1 | hygiene.flow.yaml | plugins/core-sdlc/flows/hygiene.flow.yaml | captured | — | — | wire steps |`
+```
+✅ | 1 | hygiene.flow.yaml | plugins/core-sdlc/flows/hygiene.flow.yaml | captured | — | wire steps |
+❌ | 1 | stack↔flowmind parity | classified |  ← concept, no path = WRONG
+```
 
 ---
 
 ## Step 3: Align
 
-Gate. Must pass before executing.
+Gate. MUST pass before executing.
 
-- [ ] Objective stated in handoff
-- [ ] Scope bounded (Out of Scope filled)
-- [ ] Entity matrix has ≥1 row with a real file path
-- [ ] User signaled alignment
+```
+BEFORE proceeding past this step:
 
-### Validation Gates Lookup (Hard Contract)
-When `.lev/validation-gates.yaml` exists in project:
-1. Load and parse the gates file
-2. Filter gates applicable to current workstream/module
-3. Check current state against enforced gates
-4. Include gate status in alignment verdict
-5. Block PROPOSE if any enforced gate fails
+1. CHECK: Objective stated in handoff?
+2. CHECK: Scope bounded (Out of Scope filled)?
+3. CHECK: Entity matrix has ≥1 row with a real file path?
+4. CHECK: User signaled alignment?
+5. IF .lev/validation-gates.yaml exists: Load, filter, check enforced gates
+6. ONLY THEN: Proceed to Step 4
 
-Gate file discovery: walk up from cwd looking for `.lev/validation-gates.yaml`
+Any check fails = STOP. Fix it. Do not proceed.
+```
 
-If **crystallization signal** fires from lifecycle hook:
-1. STOP. Do not continue.
-2. Update entity matrix.
-3. Show user the matrix + what you were about to do.
-4. Wait for confirmation.
+**If crystallization signal fires:** STOP. Update entity matrix. Show user the matrix + what you were about to do. Wait for confirmation.
 
 ---
 
-## Step 4: Prior Art
+## Step 4: Prior Art (NEVER skip)
 
-Search before creating. Launch subagents in parallel:
+Search before creating. YOU MUST run these searches:
 
 ```bash
 ls .lev/pm/plans/ .lev/pm/designs/ .lev/pm/specs/ .lev/pm/decisions/
@@ -130,114 +128,133 @@ Report findings:
 | {name} | {path} | extends / supersedes | update / create new |
 ```
 
-If writing a research report:
-
-```bash
-cp ~/.agents/skills/work/templates/report.md .lev/pm/reports/{slug}.md
-```
-
-Follow the template instructions. Save findings with evidence.
+**No prior art found?** State explicitly: "No existing artifacts found for {topic}." Then proceed.
 
 ---
 
-## Step 5: Plan + Execute
+## Step 5: Route + Execute
 
-Skip if brainstorming. Enter when there's a concrete slice.
+Match work type to the right approach. This is a router, not a freestyle zone.
 
-### Choose template by work type
+```
+WHAT IS THE WORK?
 
-```bash
-# Research / audit / scan
-cp ~/.agents/skills/work/templates/report.md .lev/pm/reports/{slug}.md
+→ "I need to figure out WHAT to build"
+    ROUTE: /interview (framework-driven questioning)
+    Load skill, follow its process, return here with decisions
 
-# Design / proposal
-cp ~/.agents/skills/work/templates/design.md .lev/pm/designs/{slug}.md
-cp ~/.agents/skills/work/templates/proposal.md .lev/pm/proposals/{slug}.md
+→ "I know what to build, need to DESIGN it"
+    ROUTE: /brainstorming (spec writing + review loop)
+    For visual work: /brainstorming routes to /ux
+    Returns: spec artifact in .lev/pm/specs/
 
-# Implementation plan
-cp ~/.agents/skills/work/templates/plan.md .lev/pm/plans/plan-{kind}-{slug}.md
+→ "I need to RESEARCH something"
+    ROUTE: /lev-research
+    Returns: report artifact in .lev/pm/reports/
 
-# Behavioral spec
-cp ~/.agents/skills/work/templates/spec.md .lev/pm/specs/spec-{slug}.md
+→ "I have a spec, need to BUILD it"
+    Use plan template:
+    cp ~/.agents/skills/work/templates/plan.md .lev/pm/plans/plan-{slug}.md
+    Follow template instructions. Dispatch subagents for multi-file work.
+    Each subagent returns: edited_files + 1-2 sentence summary
+
+→ "Something is BROKEN"
+    ROUTE: /cdo debug OR /systematic-debugging
+    For simple bugs: systematic-debugging (single agent, 4 phases)
+    For complex bugs: /cdo debug (multi-agent, parallel trace)
+
+→ "I need to DECIDE something"
+    ROUTE: /interview --framework=FirstPrinciples
+    OR: /cdo think (multi-agent deliberation)
+
+→ "I need to write a PROPOSAL or DESIGN doc"
+    Use template:
+    cp ~/.agents/skills/work/templates/design.md .lev/pm/designs/{slug}.md
+    cp ~/.agents/skills/work/templates/proposal.md .lev/pm/proposals/{slug}.md
 ```
 
-Each template has `## How To Fill This Out` at the top. Read it. Follow it.
+### Templates
 
-### Prompt stacks (when deeper process needed)
+All at `~/.agents/skills/work/templates/`. Copy to destination, follow instructions inside.
+
+| Template | Destination | When |
+|----------|-------------|------|
+| `handoff.md` | `.lev/pm/handoffs/` | Every session (Step 1) |
+| `report.md` | `.lev/pm/reports/` | Research, audit, scan |
+| `plan.md` | `.lev/pm/plans/` | Implementation slice |
+| `design.md` | `.lev/pm/designs/` | Shaping solution |
+| `proposal.md` | `.lev/pm/proposals/` | Non-trivial proposal |
+| `spec.md` | `.lev/pm/specs/` | Behavioral contract |
+| `decision.md` | `.lev/pm/decisions/` | Promote arch decision |
+| `validation-report.md` | `.lev/pm/validation-reports/` | Validate work |
+
+### Prompt Stacks (deeper process)
 
 ```bash
-# Decompose a plan into bd issues (5 steps, 3 anti-laziness review passes)
-npx lev stack init --stack plan-to-beads
-npx lev stack next --session $SID    # step 1: extract work items
-npx lev stack record --session $SID --step extract-workitems --report ./report.md
-
-# Deepen a vague plan (3 steps: decompose → research → synthesize)
-npx lev stack init --stack sdlc-deepen-plan
-npx lev stack next --session $SID    # step 1: decompose topics
-
-# Validate implementation against spec
-npx lev stack init --stack sdlc-exec-validate
-npx lev stack next --session $SID    # step 1: validate gates
+npx lev stack init --stack plan-to-beads      # Decompose plan → bd issues
+npx lev stack init --stack sdlc-deepen-plan   # Deepen vague plan
+npx lev stack init --stack sdlc-exec-validate # Validate impl against spec
 ```
-
-Flow definitions: `plugins/core-sdlc/flows/{stack-name}.flow.yaml`
-Step prompts: `plugins/prompt-stack/prompts/steps/sdlc/`
-
-### Gates
-
-| Gate | Checks | Blocks |
-|------|--------|--------|
-| Preflight | handoff exists + objective + evidence ref | execution |
-| Design ready | approach + acceptance criteria + rollback | non-trivial work |
-| Close ready | validation evidence + blockers resolved + next action | session close |
 
 ### Subagents
 
-Spawn for multi-file work. Each returns: `edited_files` + 1-2 sentence summary + `report_path` if >5000 tokens.
+Spawn for multi-file work. Each MUST return:
+```json
+{"edited_files": ["<paths>"], "summary": "<1-2 sentences>", "report_path": "<if >5000 tokens>"}
+```
 
 ---
 
 ## Step 6: Close
 
-```bash
-# 1. Final handoff update — matrix, decisions, ticks, questions
-# 2. Promote architectural decisions
-cp ~/.agents/skills/work/templates/decision.md .lev/pm/decisions/d{N}-{slug}.md
+```
+BEFORE claiming this session is complete:
 
-# 3. Write validation report if code changed
-cp ~/.agents/skills/work/templates/validation-report.md .lev/pm/validation-reports/{slug}.md
+1. VERIFY: Goal met? Done condition satisfied? No gaps?
+2. UPDATE: Final handoff — matrix, decisions, ticks, open questions
+3. PROMOTE: Architectural decisions → .lev/pm/decisions/d{N}-{slug}.md
+4. VALIDATE: If code changed → run tests/build, write validation report
+5. COMMIT: git add {files} && git commit -m "{message}"
+6. PUSH: git pull --rebase && git push
+7. SYNC: If bd dolt remote configured → bd dolt pull && bd dolt push
+8. CONFIRM: git status shows "up to date with origin"
 
-# 4. Commit and push
-git add {files}
-git commit -m "{message}"
-git pull --rebase && git push
-
-# 5. If bd dolt remote configured:
-bd dolt pull && bd dolt push
+Skip any step = incomplete session = stranded work
 ```
 
-### Done check
-
-Before marking `completed`: goal met + done condition satisfied + no gaps. If gaps → update roadmap, re-enter lifecycle.
-
----
-
-## Templates
-
-All at `~/.agents/skills/work/templates/`. Copy to destination, follow instructions inside.
-
-| Template | `cp` to | When |
-|----------|---------|------|
-| `handoff.md` | `.lev/pm/handoffs/` | Every session (Step 1) |
-| `report.md` | `.lev/pm/reports/` | Research, audit, scan (Step 4) |
-| `plan.md` | `.lev/pm/plans/` | Implementation slice (Step 5) |
-| `design.md` | `.lev/pm/designs/` | Shaping solution (Step 5) |
-| `proposal.md` | `.lev/pm/proposals/` | Non-trivial proposal (Step 5) |
-| `spec.md` | `.lev/pm/specs/` | Behavioral contract (Step 5) |
-| `decision.md` | `.lev/pm/decisions/` | Promote arch decision (Step 6) |
-| `validation-report.md` | `.lev/pm/validation-reports/` | Validate work (Step 6) |
+```
+✅ [Run git push] [See: "up to date with origin"] "Session complete"
+❌ "Ready to push when you are" / "Work is done" (without pushing)
+```
 
 ---
+
+## Red Flags — STOP
+
+If you catch yourself thinking:
+- "I'll just do this one quick thing without a handoff"
+- "Prior art search is overkill for this"
+- "I don't need to track entities for something this small"
+- "I'll update the handoff later"
+- "The user knows what I'm doing, I don't need to write it down"
+- "This is a simple task, I can skip alignment"
+- "I'll push at the end" (then forgetting)
+- "Ready to push when you are" (YOU must push, not the user)
+
+**ALL of these mean: STOP. You're about to lose context.**
+
+## Rationalization Prevention
+
+| Excuse | Reality |
+|--------|---------|
+| "Too simple for a handoff" | Simple tasks lose context too. Handoff takes 30 seconds. |
+| "Prior art search is slow" | Finding existing work is faster than duplicating it. |
+| "I'll track entities mentally" | You'll forget. Write it down. |
+| "User didn't ask for alignment" | Alignment prevents wasted work. Do it anyway. |
+| "I know which skill to use" | Route explicitly. "I know" = assumption. |
+| "I'll push later" | Later = never. Push NOW. |
+| "Work is done" (no push) | Work is NOT done until `git push` succeeds. |
+| "Just one more thing before closing" | Close first. Open new session for new work. |
 
 ## Tracker
 
@@ -251,17 +268,15 @@ Detect: `bd > br > td > none`.
 | close | `bd close {id}` | `br close ...` | `td {id} complete` |
 | search | `bd search "{q}"` | `br search ...` | grep fallback |
 
-Tracker = current slice only. Roadmap stays in handoff.
-
----
-
 ## Errors
 
 | Error | Do |
 |-------|----|
-| No handoff | Create one first (Step 1) |
+| No handoff | Create one FIRST (Step 1). Do not proceed. |
 | No tracker | Continue, note in handoff |
-| Gate failed | Block, add tick |
+| Gate failed | Block, add tick to handoff |
 | 3x gate fail | Escalate to user |
 | Crystallization signal | STOP → update matrix → show user → wait |
-| Event happened, no update | STOP → update handoff → continue |
+| Event happened, no handoff update | STOP → update handoff → then continue |
+| Sub-skill not found | Degrade: use the template directly instead of routing |
+| Push failed | Resolve and retry. Do NOT close session without pushing. |
