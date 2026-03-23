@@ -6,16 +6,29 @@ description: |
   [WHEN] Naming decisions, architecture questions, design bikesheds, "what would you call this", any question where independent convergence beats one model's opinion.
   [WHY] Three models agreeing independently is stronger evidence than one model being confident. Eliminates anchoring bias. If they disagree, the disagreement itself is the insight.
 
-  Triggers: "tribunal", "ask all models", "multi-model", "consensus", "what would you name", "3 models", "independent vote", "naming vote", "architecture vote"
+  Triggers: "tribunal", "ask all models", "multi-model", "consensus", "what would you name", "3 models", "independent vote", "naming vote", "architecture vote", "cross-model", "cli runner", "test across models"
 skill_type: workflow
 category: decision-support
 metadata:
   proven_in: "2026-03-21 devx session — 4 unanimous decisions (handlers/surfaces/generated/contracts, core/utils, restore fractal, triage-first)"
   tools:
     - Agent
+    - Bash
+  references:
+    - references/cli-runners.md
 ---
 
 # Tribunal: Multi-Model Independent Consensus
+
+## Mode Detection
+
+Tribunal operates in two modes:
+
+**Default mode (Steps 1-4 below)**: Same prompt, 3 Claude models, compare answers. Use this for naming, architecture, bikesheds — anything where independent convergence is the goal.
+
+**Cross-runner mode**: When the caller specifies CLI runners, model lists, or a test matrix — load `references/cli-runners.md` for invocation patterns. Dispatch to the specified runners/models with the specified prompts. The caller decides what to test and why. Tribunal just knows how to invoke the runners and collect results.
+
+Cross-runner dispatch uses Bash to invoke external CLIs. The prompt can vary per-dispatch (the caller decides). Tribunal's job is execution and collection, not study design.
 
 ## Step 1: Frame the Question
 

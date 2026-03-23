@@ -107,6 +107,10 @@ Artifacts (expected):
 
 - `problem_spec.yaml`
 
+- `study_design.yaml`
+
+- `user_research.md`
+
 - `routed_skills.json`
 
 - `jobs.graph.json`
@@ -241,6 +245,91 @@ Rules:
 - Make success criteria measurable.
 
 - Keep scope boundaries crisp.
+
+## Step 1b: Synthetic User Research
+
+**Depends on**: Step 1 (`problem_spec.yaml` must exist)
+**Reference**: Load `references/study-construction.md` for methodology.
+
+### 1b.1: Design the Study
+
+Analyze problem_spec. Reason about:
+
+- Who are the real user segments for THIS problem? Not generic archetypes — segments grounded in the problem's `for_whom`, `constraints`, and `success_criteria`.
+
+- What psychological dimensions matter for THIS study? Not always Big 5. Maybe domain expertise. Maybe risk tolerance. Maybe tech literacy. Maybe regulatory burden. Pick the axes that would actually produce different reactions to this specific stimulus.
+
+- How many personas does this study need? Could be 2, could be 6. Depends on user space breadth. More isn't better — more is more permutations.
+
+- What's the stimulus? Problem statement? Feature concept? Wireframe? Could be all three across rounds.
+
+Construct personas using axiom explorer's `map-elements` output format as a scaffold (load `~/.agents/skills-db/thinking/axioms/skills/map-elements.md` for format reference) — but only the dimensions that matter. A developer tool study doesn't need political compass. A healthcare app might need ANS state.
+
+Write `study_design.yaml`:
+
+```yaml
+study:
+  stimulus:
+    type: problem_statement | feature_concept | wireframe
+    content: "{from problem_spec}"
+  personas:
+    - id: "{descriptive-id}"
+      description: "{who this person is, grounded in the problem}"
+      key_dimensions:
+        - "{dimension}: {value + reasoning}"
+      prompt_injection: |
+        {the actual persona prompt — full worldview, not just traits}
+  matrix:
+    models: ["{model-ids — reasoning: why these models}"]
+    cli_runners: ["{cli names — reasoning: why these CLIs}"]
+  rationale: "{why these personas, why this matrix, what signal are we looking for}"
+```
+
+**Full mode**: Present study design for review. User can add/remove/modify personas, change the model matrix, adjust dimensions.
+
+**Auto mode**: Construct and run. Explain reasoning for every choice.
+
+### 1b.2: Execute via Tribunal
+
+For each cell in the persona × model matrix:
+
+- Construct the persona-injected prompt (persona prompt + stimulus)
+
+- Dispatch via tribunal (using CLI runner table at `references/cli-runners.md` for cross-CLI runs, or Agent tool for Claude-only)
+
+- Collect structured responses
+
+The same persona runs against every model. The same model runs every persona. The matrix is the point.
+
+### 1b.3: Analyze & Integrate
+
+Write `user_research.md`:
+
+- **Per-persona across models**: Does reasoning strength change the reaction? Where do edges appear?
+
+- **Per-model across personas**: Which model surfaces the most differentiated responses?
+
+- **Convergence map**: What do ALL personas agree on regardless of model? This is strong signal.
+
+- **Divergence map**: Where do personas split? Where do models split? These are the tensions worth investigating.
+
+- **Edge cases**: Unexpected reactions at low/high reasoning strength. Insights that only one persona × model combination surfaced.
+
+Feed into Step 2 (JTBD):
+
+- Convergent concerns → constraints for job statements
+
+- Convergent excitement → motivation language
+
+- Divergent reactions → separate `user_types` in `jobs.graph.json`
+
+- Edge cases → risk register or scope exclusions
+
+### Artifacts
+
+- `study_design.yaml` (study design with personas, matrix, rationale)
+
+- `user_research.md` (results, convergence/divergence analysis, JTBD integration notes)
 
 ## Step 2: Jobs To Be Done (JTBD)
 

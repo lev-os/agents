@@ -1,151 +1,151 @@
 ---
 name: stack
-description: Thin global wrapper for the Leviathan prompt-stack plugin runtime. Use when a user or agent wants to list, inspect, initialize, advance, record, validate, or otherwise run named prompt stacks through `plugins/prompt-stack` in `/Users/jean-patricksmith/digital/leviathan`.
+description: Use when listing, inspecting, running, or managing prompt-stack sessions. Triggers on "stack", "list stacks", "show stack", "init stack", "run stack", "stack status".
 ---
 
 # Stack
 
-Use this skill as the thin launcher and operator guide for the standalone prompt-stack
-runtime owned by the Leviathan plugin at
+Thin launcher for the prompt-stack runtime at
 `/Users/jean-patricksmith/digital/leviathan/plugins/prompt-stack`.
 
-Do not reimplement runtime behavior here. Do not edit plugin files unless the task
-explicitly targets the plugin. This wrapper exists to teach agents how to call the
-runtime correctly.
+Runtime ownership stays with the plugin. This skill teaches agents how to
+call it correctly and present results as a dashboard, not raw JSON.
 
-## When To Use
+## Dashboard Mode (`/stack list`)
 
-Use this skill when the request is about:
+When the user says `/stack list`, do NOT dump raw JSON. Instead:
 
-- running a named prompt stack
-- listing or inspecting available stacks
-- creating or advancing a prompt-stack session
-- recording step output back into the runtime
-- checking prompt-stack session status or validation
+1. Run `cd /Users/jean-patricksmith/digital/leviathan && bun plugins/prompt-stack/src/cli.ts list`
+2. Parse the JSON response
+3. Format as a grouped dashboard — one line per stack:
 
-If the task is Leviathan-specific and tied to an active `$work` handoff, use that handoff
-as the planning source of truth and use this skill only for the execution-plane prompt-stack loop.
+```
+━━━ CORE-LEV (9 stacks) ━━━
 
-## Runtime Surface
+  handoff              (4 steps)  gather → distill → write → validate
+  lev-align            (4 steps)  load north-star → inspect → classify drift → propose action
+  plan-align-gates     (5 steps)  governance → refresh plan → align canon → gates → emit proposal
+  research-propose-spec(3 steps)  research evidence → proposal synthesis → spec crystallization
+  validate-emit-learn  (4 steps)  review artifacts → validate → emit → capture learnings
+  work-deepen          (5 steps)  decompose → discover skills → parallel research → review → brief
+  work-full-lifecycle  (9 steps)  governance → plan → align → gates → proposal → review → validate → emit → learn
+  work-proof-loop      (3 steps)  handoff update → spec delta → validation report
+  robot-readme-harden  (3 steps)  robot-mode hardening → cli error tolerance → readme sync
 
-Preferred execution path:
+━━━ JEFF (5 stacks) ━━━
+
+  jeff-delivery-loop   (10 steps) primer → ideation → synthesis → premortem → robot → cli → readme → review → e2e → commit
+  jeff-ideation-risk   (4 steps)  idea wizard → multi-model synthesis → premortem → readme
+  jeff-primer-quality  (4 steps)  deep primer → e2e validator → peer review → bug hunter
+  jeff-quality-gauntlet(5 steps)  bug hunter → peer review → e2e → deploy verify → de-slopify
+  jeff-robot-launch    (4 steps)  robot-mode → idea wizard → readme → git commit
+
+━━━ SDLC (7 stacks) ━━━
+
+  sdlc-deepen-plan     (3 steps)  decompose → parallel research → synthesize
+  sdlc-exec-validate   (3 steps)  implement → fitness functions → route verdict
+  sdlc-handoff-close   (4 steps)  verify handoff → extract decisions → approve → process
+  sdlc-handoff-rollup  (4 steps)  scan unprocessed → pick one → extract all → process items
+  sdlc-hygiene         (4 steps)  scan staleness → check alignment → propose updates → report
+  sdlc-plan-to-beads   (5 steps)  extract items → create issues → review pass 1 → pass 2 → pass 3
+  sdlc-spec-lifecycle  (5 steps)  validate completeness → check transition → quality gates → route → approve/iterate
+
+━━━ OTHER ━━━
+
+  knowledge-6r         (6 steps)  record → reduce → reflect → reweave → verify → rethink
+  drift-detection      (5 steps)  positive drift → negative → undocumented → stale → alignment
+  spec-driven-dev      (5 steps)  detect divergence → classify → push/pull → arbitrate → sync
+  cass-cm-audit        (6 steps)  health check → memory scan → playbook audit → gap analysis → reindex → report
+  research-worker      (3 steps)  orient → research rounds → synthesize
+```
+
+4. After the full list, add context-aware suggestions:
+
+```
+━━━ SUGGESTED FOR CURRENT CONTEXT ━━━
+
+Based on: {describe what you detected — active handoff, case folder, recent work}
+
+  (1) {stack-id}  — {why this stack fits right now}
+  (2) {stack-id}  — {why}
+  (3) {stack-id}  — {why}
+
+  (s)how <id>  — Inspect a specific stack
+  (r)un <id>   — Init a session immediately
+```
+
+Context detection rules:
+- `.lev/osint/` exists → suggest `research-worker`, `work-deepen`
+- `.lev/pm/handoffs/` has unprocessed handoffs → suggest `sdlc-handoff-rollup`
+- Conversation mentions case/legal/research → suggest `jeff-ideation-risk`, `research-propose-spec`
+- Recent code changes or implementation work → suggest `jeff-quality-gauntlet`, `sdlc-exec-validate`
+- Session ending or handoff requested → suggest `handoff`, `validate-emit-learn`
+- First time seeing the stacks → suggest `work-deepen`, `jeff-ideation-risk`, `sdlc-exec-validate`
+
+## Commands
 
 ```bash
 cd /Users/jean-patricksmith/digital/leviathan
+
+# List (then format as dashboard above)
 bun plugins/prompt-stack/src/cli.ts list
+
+# Inspect (show steps, schemas, no hidden prompts)
+bun plugins/prompt-stack/src/cli.ts show <stack-id>
+
+# Init session
+bun plugins/prompt-stack/src/cli.ts init --stack <stack-id> --project-dir <path>
+
+# Get active step prompt
+bun plugins/prompt-stack/src/cli.ts next --session <id> --project-dir <path>
+
+# Record step output (validates and advances)
+bun plugins/prompt-stack/src/cli.ts record --session <id> --step <step-id> --report <path> --project-dir <path>
+
+# Check progress
+bun plugins/prompt-stack/src/cli.ts status --session <id> --project-dir <path>
+
+# Validate completed session
+bun plugins/prompt-stack/src/cli.ts validate --session <id> --project-dir <path>
 ```
 
-Core commands:
+## Workflow
 
-```bash
-bun plugins/prompt-stack/src/cli.ts list [--project-dir PATH] [--catalog PATH]
-bun plugins/prompt-stack/src/cli.ts show <stack-id> [--project-dir PATH] [--catalog PATH]
-bun plugins/prompt-stack/src/cli.ts init --stack <stack-id> [--project-dir PATH] [--catalog PATH] [--flow PATH]
-bun plugins/prompt-stack/src/cli.ts next --session <session-id> [--project-dir PATH]
-bun plugins/prompt-stack/src/cli.ts record --session <session-id> --step <step-id> --report <path> [--project-dir PATH]
-bun plugins/prompt-stack/src/cli.ts status --session <session-id> [--project-dir PATH]
-bun plugins/prompt-stack/src/cli.ts validate --session <session-id> [--project-dir PATH]
-```
+1. `/stack list` → dashboard with suggestions
+2. User picks a stack (by number or name)
+3. `init --stack <id>` → creates session
+4. `next --session <id>` → reveals active step prompt
+5. Agent does the work, writes report matching schema
+6. `record --session <id> --step <step-id> --report <path>` → validates + advances
+7. Repeat 4-6 until all steps complete
+8. `validate --session <id>` → checks lifecycle integrity
 
-Important runtime behavior:
+## Skill Discovery Integration
 
-- Session state is written under `<project>/.lev/steering/sessions/`.
-- `show` returns stack metadata only. It does not reveal future prompt bodies.
-- `next` reveals only the active step prompt.
-- `record` advances the session using the report file you provide.
-- `validate` checks the session lifecycle after execution.
+Before executing the first step of any stack, run `/skill-discovery <domain>` to surface
+relevant skills from the skills-db. The domain is inferred from context:
 
-## Minimal Workflow
+- Stack family `legal-osint` → `/skill-discovery legal`
+- Stack family `sdlc` → `/skill-discovery sdlc`
+- Stack family `jeff` → skip (jeff prompts are self-contained)
+- Active case folder detected → `/skill-discovery` with case domain keywords
+- Unknown → `/skill-discovery` with the stack's `title` as query
 
-1. Discover the available stacks.
-
-```bash
-cd /Users/jean-patricksmith/digital/leviathan
-bun plugins/prompt-stack/src/cli.ts list
-```
-
-2. Inspect one stack without exposing hidden prompts.
-
-```bash
-bun plugins/prompt-stack/src/cli.ts show work-deepen
-```
-
-3. Create a session against the target project.
-
-```bash
-bun plugins/prompt-stack/src/cli.ts init \
-  --stack work-deepen \
-  --project-dir /absolute/project/path
-```
-
-4. Reveal the active step.
-
-```bash
-bun plugins/prompt-stack/src/cli.ts next \
-  --session <session-id> \
-  --project-dir /absolute/project/path
-```
-
-5. Save the step output to a report file, then record it.
-
-```bash
-bun plugins/prompt-stack/src/cli.ts record \
-  --session <session-id> \
-  --step <step-id> \
-  --report /absolute/project/path/.lev/pm/reports/<report>.md \
-  --project-dir /absolute/project/path
-```
-
-6. Check progress and validate the finished session.
-
-```bash
-bun plugins/prompt-stack/src/cli.ts status \
-  --session <session-id> \
-  --project-dir /absolute/project/path
-
-bun plugins/prompt-stack/src/cli.ts validate \
-  --session <session-id> \
-  --project-dir /absolute/project/path
-```
-
-## Validation Gates
-
-Step output validation may reference `.lev/validation-gates.yaml` gates when
-the stack operates on entities with spec invariants.
+Inject discovered skill names + one-line descriptions into the first step's context.
+Workers then know what specialized skills are available during execution.
 
 ## Operator Notes
 
-- Prefer absolute `--project-dir` and `--report` paths when calling the CLI from outside
-  the repo root.
-- Discover stack ids with `list` instead of assuming names.
-- If the stack session is part of an active `$work` stream, keep planning and decisions in
-  the active handoff and use `stack` only for the execution-plane prompt loop.
-- Record stack step output into `.lev/pm/reports/` when the session feeds a workstream.
-- After `record` or `validate`, return to the active handoff and update continuity there if
-  the session changed the plan, decisions, or evidence.
-- If the task needs subagents, follow the contract in
-  `/Users/jean-patricksmith/digital/leviathan/plugins/prompt-stack/references/subagent-contract.md`.
-- Keep the wrapper thin. Runtime ownership stays with `plugins/prompt-stack`.
-
-## Optional FlowMind Path
-
-The standalone plugin CLI is the primary runtime.
-
-If you are explicitly validating or dogfooding the optional FlowMind path, the plugin-owned
-scaffold is:
-
-`/Users/jean-patricksmith/digital/leviathan/plugins/prompt-stack/flows/prompt-stack.flow.yaml`
-
-Do not treat the FlowMind path as the default execution surface unless the task explicitly
-calls for it.
+- Always use absolute paths for `--project-dir` and `--report`
+- Session state lives in `<project>/.lev/steering/sessions/`
+- `record` REJECTS invalid reports — fix and re-submit
+- Report format: YAML frontmatter + required sections (varies by stack)
+- If part of active `$work` handoff, keep planning there — stack is execution only
+- For subagent orchestration: `plugins/prompt-stack/references/subagent-contract.md`
 
 ## References
 
-- Runtime CLI:
-  `/Users/jean-patricksmith/digital/leviathan/plugins/prompt-stack/src/cli.ts`
-- Stack catalog:
-  `/Users/jean-patricksmith/digital/leviathan/plugins/prompt-stack/prompts/prompt-stack.prompts.yaml`
-- Runtime contract:
-  `/Users/jean-patricksmith/digital/leviathan/plugins/prompt-stack/references/subagent-contract.md`
-- Active work handoffs:
-  `/Users/jean-patricksmith/digital/leviathan/.lev/pm/handoffs/`
+- CLI: `plugins/prompt-stack/src/cli.ts`
+- Catalog: `plugins/prompt-stack/prompts/prompt-stack.prompts.yaml`
+- Subagent contract: `plugins/prompt-stack/references/subagent-contract.md`
+- FlowMind path (optional): `plugins/prompt-stack/flows/prompt-stack.flow.yaml`

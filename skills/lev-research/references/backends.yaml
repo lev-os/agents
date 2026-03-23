@@ -1,0 +1,80 @@
+# Backend routing config for lev-research
+# Each backend: tool name, MCP tool or CLI command, capabilities, speed tier
+
+backends:
+
+  brave:
+    type: mcp
+    tools:
+      - mcp__brave-search__brave_web_search
+      - mcp__brave-search__brave_local_search
+    cli: brave-search search "<query>" -n 10
+    cli_variants:
+      news: brave-search news "<query>"
+      video: brave-search video "<query>"
+      image: brave-search image "<query>"
+    speed: fast
+    best_for: general web, news, local business
+    cost: low
+
+  firecrawl:
+    type: mcp
+    tools:
+      - mcp__firecrawl-mcp__firecrawl_search
+      - mcp__firecrawl-mcp__firecrawl_scrape
+      - mcp__firecrawl-mcp__firecrawl_crawl
+      - mcp__firecrawl-mcp__firecrawl_map
+      - mcp__firecrawl-mcp__firecrawl_extract
+    cli: firecrawl search "<query>"
+    speed: fast-to-medium
+    best_for: page content extraction, structured data, site crawling
+    cost: medium
+
+  perplexity:
+    type: mcp
+    tools:
+      - mcp__perplexity-mcp__search
+      - mcp__perplexity-mcp__reason
+      - mcp__perplexity-mcp__deep_research
+    speed: medium-to-slow
+    best_for: synthesized answers, reasoning, deep multi-source research
+    cost: medium-high
+
+  valyu:
+    type: cli
+    cli: valyu research "<query>" -n 5 -t 0.85
+    cli_variants:
+      search: valyu search "<query>"
+      answer: valyu answer "<query>"
+      contents: valyu contents <urls>
+    speed: slow
+    best_for: recursive confidence loops, grounded AI answers
+    cost: high
+
+  exa:
+    type: script
+    cli: bash exa/search.sh "<query>"
+    speed: medium
+    best_for: semantic/neural search, LinkedIn, GitHub
+    cost: medium
+
+  grok:
+    type: script
+    cli: bash grok/research.sh "<query>"
+    speed: fast
+    best_for: real-time Twitter/X, social sentiment
+    cost: low
+
+  tavily:
+    type: script
+    cli: bash tavily/search.sh "<query>"
+    speed: fast
+    best_for: AI-optimized snippets
+    cost: low
+
+  last30days:
+    type: script
+    cli: bash last30days/search.sh "<topic>"
+    speed: medium
+    best_for: Reddit trends, recent discourse
+    cost: low

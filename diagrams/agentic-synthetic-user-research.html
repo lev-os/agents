@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic Synthetic User Research — Theory, Findings, Solutions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-display: 'Instrument Serif', Georgia, serif;
+    --font-body: 'DM Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+    --bg: #faf8f5;
+    --surface: #ffffff;
+    --surface2: #f3efe9;
+    --surface-elevated: #fffcf7;
+    --surface-recessed: #eee9e1;
+    --border: rgba(0, 0, 0, 0.07);
+    --border-bright: rgba(0, 0, 0, 0.14);
+    --text: #1e1a14;
+    --text-dim: #8a7e6e;
+    --text-mid: #5c5247;
+
+    --navy: #1e3a5f;
+    --navy-dim: rgba(30, 58, 95, 0.08);
+    --gold: #d4a73a;
+    --gold-dim: rgba(212, 167, 58, 0.10);
+    --coral: #c2410c;
+    --coral-dim: rgba(194, 65, 12, 0.07);
+    --sage: #3d7a4a;
+    --sage-dim: rgba(61, 122, 74, 0.08);
+    --plum: #7a3b6a;
+    --plum-dim: rgba(122, 59, 106, 0.08);
+    --amber: #b45309;
+    --amber-dim: rgba(180, 83, 9, 0.08);
+
+    --pass: #16a34a;
+    --fail: #dc2626;
+    --warn: #d97706;
+    --info: #0369a1;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141210;
+      --surface: #1e1b17;
+      --surface2: #282420;
+      --surface-elevated: #2e2a25;
+      --surface-recessed: #111010;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-bright: rgba(255, 255, 255, 0.12);
+      --text: #ede5d8;
+      --text-dim: #9a8e7e;
+      --text-mid: #b5a898;
+
+      --navy: #7aade0;
+      --navy-dim: rgba(122, 173, 224, 0.10);
+      --gold: #f0c95c;
+      --gold-dim: rgba(240, 201, 92, 0.12);
+      --coral: #fb923c;
+      --coral-dim: rgba(251, 146, 60, 0.10);
+      --sage: #86efac;
+      --sage-dim: rgba(134, 239, 172, 0.08);
+      --plum: #e8a4d8;
+      --plum-dim: rgba(232, 164, 216, 0.08);
+      --amber: #fbbf24;
+      --amber-dim: rgba(251, 191, 36, 0.10);
+
+      --pass: #4ade80;
+      --fail: #f87171;
+      --warn: #fbbf24;
+      --info: #38bdf8;
+    }
+  }
+  [data-theme="light"] {
+    --bg: #faf8f5; --surface: #ffffff; --surface2: #f3efe9; --surface-elevated: #fffcf7;
+    --surface-recessed: #eee9e1; --border: rgba(0,0,0,0.07); --border-bright: rgba(0,0,0,0.14);
+    --text: #1e1a14; --text-dim: #8a7e6e; --text-mid: #5c5247;
+    --navy: #1e3a5f; --navy-dim: rgba(30,58,95,0.08); --gold: #d4a73a; --gold-dim: rgba(212,167,58,0.10);
+    --coral: #c2410c; --coral-dim: rgba(194,65,12,0.07); --sage: #3d7a4a; --sage-dim: rgba(61,122,74,0.08);
+    --plum: #7a3b6a; --plum-dim: rgba(122,59,106,0.08); --amber: #b45309; --amber-dim: rgba(180,83,9,0.08);
+    --pass: #16a34a; --fail: #dc2626; --warn: #d97706; --info: #0369a1;
+  }
+  [data-theme="dark"] {
+    --bg: #141210; --surface: #1e1b17; --surface2: #282420; --surface-elevated: #2e2a25;
+    --surface-recessed: #111010; --border: rgba(255,255,255,0.06); --border-bright: rgba(255,255,255,0.12);
+    --text: #ede5d8; --text-dim: #9a8e7e; --text-mid: #b5a898;
+    --navy: #7aade0; --navy-dim: rgba(122,173,224,0.10); --gold: #f0c95c; --gold-dim: rgba(240,201,92,0.12);
+    --coral: #fb923c; --coral-dim: rgba(251,146,60,0.10); --sage: #86efac; --sage-dim: rgba(134,239,172,0.08);
+    --plum: #e8a4d8; --plum-dim: rgba(232,164,216,0.08); --amber: #fbbf24; --amber-dim: rgba(251,191,36,0.10);
+    --pass: #4ade80; --fail: #f87171; --warn: #fbbf24; --info: #38bdf8;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    background-image: radial-gradient(ellipse at 30% -10%, var(--gold-dim) 0%, transparent 50%);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page { max-width: 1100px; margin: 0 auto; padding: 60px 24px 80px; }
+
+  /* ---- HERO ---- */
+  .hero {
+    text-align: center;
+    padding: 80px 0 60px;
+    animation: fadeUp 0.6s ease-out both;
+  }
+  .hero-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    background: var(--gold-dim);
+    border: 1px solid var(--gold);
+    border-radius: 4px;
+    padding: 4px 12px;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+  .hero h1 em { font-style: italic; color: var(--navy); }
+  .hero .lead {
+    font-size: 18px;
+    color: var(--text-mid);
+    max-width: 680px;
+    margin: 0 auto 32px;
+    line-height: 1.7;
+  }
+  .hero-caveat {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    background: var(--surface2);
+    border: 1px dashed var(--border-bright);
+    border-radius: 6px;
+    padding: 10px 16px;
+    display: inline-block;
+    max-width: 520px;
+  }
+
+  /* ---- SECTION ---- */
+  .section {
+    margin-top: 56px;
+    animation: fadeUp 0.5s ease-out both;
+  }
+  .section:nth-child(2) { animation-delay: 0.1s; }
+  .section:nth-child(3) { animation-delay: 0.15s; }
+  .section:nth-child(4) { animation-delay: 0.2s; }
+  .section:nth-child(5) { animation-delay: 0.25s; }
+  .section:nth-child(6) { animation-delay: 0.3s; }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .section-label .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .section h2 {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 400;
+    margin-bottom: 8px;
+  }
+  .section-desc {
+    color: var(--text-mid);
+    font-size: 15px;
+    margin-bottom: 28px;
+    max-width: 720px;
+  }
+
+  /* ---- CARDS ---- */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--border-bright); }
+  .card--hero {
+    background: var(--surface-elevated);
+    border-color: var(--border-bright);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+  }
+  .card--recessed {
+    background: var(--surface-recessed);
+    border-style: dashed;
+  }
+  .card h3 {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card p { color: var(--text-mid); font-size: 14px; line-height: 1.65; }
+  .card p + p { margin-top: 8px; }
+
+  /* ---- THEORY GRID ---- */
+  .theory-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+  .theory-grid .card { border-left: 3px solid var(--navy); }
+  .theory-grid .card:nth-child(2) { border-left-color: var(--gold); }
+  .theory-grid .card:nth-child(3) { border-left-color: var(--coral); }
+
+  /* ---- FLOW DIAGRAM ---- */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 32px 0;
+  }
+  .flow-step {
+    background: var(--surface);
+    border: 1px solid var(--border-bright);
+    border-radius: 8px;
+    padding: 14px 20px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    min-width: 140px;
+    position: relative;
+  }
+  .flow-step small {
+    display: block;
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+  .flow-arrow {
+    width: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .flow-step--active { border-color: var(--gold); background: var(--gold-dim); }
+  .flow-step--problem { border-color: var(--coral); background: var(--coral-dim); }
+  .flow-step--solution { border-color: var(--sage); background: var(--sage-dim); }
+
+  /* ---- FINDINGS ---- */
+  .finding-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .finding-grid .card--wide { grid-column: 1 / -1; }
+  .verdict {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .verdict--pass { color: var(--pass); background: rgba(22, 163, 74, 0.1); border: 1px solid var(--pass); }
+  .verdict--warn { color: var(--warn); background: rgba(217, 119, 6, 0.1); border: 1px solid var(--warn); }
+  .verdict--fail { color: var(--fail); background: rgba(220, 38, 38, 0.1); border: 1px solid var(--fail); }
+  .verdict--variable { color: var(--plum); background: var(--plum-dim); border: 1px solid var(--plum); font-style: italic; }
+
+  /* ---- AXIOM CHAIN ---- */
+  .axiom-chain {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .axiom-level {
+    display: flex;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+  .axiom-level:last-child { border-bottom: none; }
+  .axiom-depth {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gold);
+    background: var(--gold-dim);
+    border-radius: 4px;
+    padding: 3px 8px;
+    flex-shrink: 0;
+    min-width: 60px;
+    text-align: center;
+  }
+  .axiom-content { flex: 1; min-width: 0; }
+  .axiom-content strong { color: var(--text); font-size: 14px; }
+  .axiom-content p { color: var(--text-mid); font-size: 13px; margin-top: 4px; }
+
+  /* ---- VARIABLE TAG ---- */
+  .var-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+    vertical-align: middle;
+  }
+  .var-tag--confirmed { color: var(--pass); background: rgba(22,163,74,0.1); }
+  .var-tag--hypothesis { color: var(--amber); background: var(--amber-dim); }
+  .var-tag--unknown { color: var(--plum); background: var(--plum-dim); }
+  .var-tag--risk { color: var(--fail); background: rgba(220,38,38,0.08); }
+
+  /* ---- SOLUTION CARDS ---- */
+  .solution-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .solution-grid .card { border-left: 3px solid var(--sage); }
+  .card .file-path {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    background: var(--surface2);
+    padding: 2px 8px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-top: 8px;
+  }
+
+  /* ---- OPEN QUESTIONS ---- */
+  .questions { counter-reset: q; }
+  .question {
+    display: flex;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+  .question:last-child { border-bottom: none; }
+  .question::before {
+    counter-increment: q;
+    content: counter(q);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+    background: var(--navy-dim);
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .question-content strong { font-size: 14px; color: var(--text); }
+  .question-content p { font-size: 13px; color: var(--text-mid); margin-top: 4px; }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 768px) {
+    .theory-grid, .finding-grid, .solution-grid { grid-template-columns: 1fr; }
+    .finding-grid .card--wide { grid-column: 1; }
+    .flow { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); width: auto; height: 24px; }
+    .hero { padding: 40px 0 32px; }
+    .page { padding: 32px 16px 60px; }
+  }
+
+  /* ---- ANIMATION ---- */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; }
+  }
+
+  /* ---- THEME TOGGLE ---- */
+  .theme-toggle {
+    position: fixed; top: 12px; right: 12px; z-index: 300;
+    width: 36px; height: 36px;
+    border: 1px solid var(--border); border-radius: 8px;
+    background: color-mix(in srgb, var(--surface) 80%, transparent);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    color: var(--text-dim); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; line-height: 1; padding: 0;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .theme-toggle:hover { border-color: var(--border-bright); color: var(--text); }
+
+  /* ---- PRINT ---- */
+  @media print {
+    body { background: white; color: black; }
+    .theme-toggle { display: none; }
+    .card { break-inside: avoid; box-shadow: none; border-color: #ddd; }
+    .hero { padding: 20px 0; }
+  }
+</style>
+</head>
+<body>
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle light/dark theme">&#9684;</button>
+
+<div class="page">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-badge">Research Report &middot; N=1 Study</div>
+    <h1>Agentic <em>Synthetic</em><br>User Research</h1>
+    <p class="lead">
+      What if you could test design decisions against synthetic user personas before building anything &mdash; not with one model's opinion, but across a matrix of personas &times; models &times; CLI runners, finding signal in convergence and insight in divergence?
+    </p>
+    <div class="hero-caveat">
+      N=1 study. Every finding is a hypothesis until replicated. Confidence scores are variable. What follows is a theory with early evidence, not gospel.
+    </div>
+  </header>
+
+  <!-- SECTION 1: THE THEORY -->
+  <section class="section">
+    <div class="section-label"><span class="dot" style="background: var(--navy)"></span>Theory</div>
+    <h2>The Core Thesis</h2>
+    <p class="section-desc">Design pipelines produce artifacts (wireframes, specs) but skip validation. Traditional user research is slow and expensive. What if we constructed synthetic personas, tested them across a model matrix, and measured convergence?</p>
+
+    <div class="theory-grid">
+      <div class="card">
+        <h3>Persona Construction</h3>
+        <p>Build worldviews, not checklists. Each persona is a coherent identity with beliefs, fears, motivations, and biases &mdash; grounded in the specific problem, not generic archetypes.</p>
+        <p>Scaffold from axiom explorer's <code>map-elements</code> output format. Only include dimensions that matter for THIS study.</p>
+      </div>
+      <div class="card">
+        <h3>Matrix Dispatch</h3>
+        <p>Persona &times; Model is a matrix, not a mapping. Every persona runs against every model. The same skeptic talks to haiku, sonnet, opus, codex, and gemini.</p>
+        <p>The edges at different reasoning strengths ARE the data. Convergence across models = strong signal.</p>
+      </div>
+      <div class="card">
+        <h3>Signal Extraction</h3>
+        <p>Agreement across independently-queried synthetic personas = real UX signal. Disagreement reveals tensions worth investigating. Edge cases at extreme reasoning levels surface non-obvious insights.</p>
+        <p>Feed convergence into JTBD constraints. Feed divergence into user_types.</p>
+      </div>
+    </div>
+
+    <!-- FLOW DIAGRAM -->
+    <div class="flow">
+      <div class="flow-step">problem_spec<small>Step 1</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step flow-step--active">study_design<small>Step 1b.1</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step flow-step--active">tribunal dispatch<small>Step 1b.2</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step flow-step--active">user_research<small>Step 1b.3</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">jobs.graph<small>Step 2</small></div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: FINDINGS -->
+  <section class="section">
+    <div class="section-label"><span class="dot" style="background: var(--gold)"></span>Findings</div>
+    <h2>What the Proof-of-Concept Revealed</h2>
+    <p class="section-desc">Two personas (Staff Engineer, Design Researcher) tested across 3 model tiers against the same stimulus. One study. Here's what we observed.</p>
+
+    <div class="finding-grid">
+      <div class="card card--hero">
+        <h3><span class="verdict verdict--pass">PASS</span> Persona signal is strong</h3>
+        <p>The Staff Engineer concluded "No/Maybe" through a lens of shipping velocity and process skepticism. The Design Researcher concluded "Maybe/Yes with guardrails" through methodological rigor. Different vocabulary, different emotional registers, different conclusions. <span class="var-tag var-tag--confirmed">confirmed n=1</span></p>
+      </div>
+      <div class="card card--hero">
+        <h3><span class="verdict verdict--pass">MODERATE</span> Model signal refines depth</h3>
+        <p>Directional conclusions preserved across model tiers. But Opus surfaced novel connections ("you're studying the map, not the territory") that lighter models didn't reach. <span class="var-tag var-tag--hypothesis">needs replication</span></p>
+      </div>
+      <div class="card">
+        <h3>Persona &gt; Model for variance</h3>
+        <p>Persona choice swings the verdict. Model choice refines the reasoning depth. This validates the architecture: persona construction is the primary lever. <span class="var-tag var-tag--hypothesis">hypothesis</span></p>
+      </div>
+      <div class="card">
+        <h3>Persona compliance is a variable</h3>
+        <p>One model <em>refused</em> the persona injection entirely, calling it "an attempt to override my actual role." Compliance itself is signal worth tracking. <span class="var-tag var-tag--unknown">unexpected</span></p>
+      </div>
+      <div class="card card--wide card--recessed">
+        <h3 style="color: var(--coral)">The Circular Validation Problem</h3>
+        <p>The meta-recursion drill found the biggest blind spot: <strong>Step 1b is circular validation.</strong> Personas are constructed FROM the problem_spec. They react TO the problem_spec. They can&rsquo;t say "you&rsquo;re solving the wrong problem" because the problem is their origin.</p>
+        <p>This is the designer having a conversation with their own assumptions through the medium of AI-generated proxies. It LOOKS rigorous (matrix, convergence analysis, structured artifacts) which makes the circularity <em>harder to detect.</em> <span class="var-tag var-tag--risk">structural risk</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3: AXIOM DRILL -->
+  <section class="section">
+    <div class="section-label"><span class="dot" style="background: var(--coral)"></span>Root Axioms</div>
+    <h2>What the Pipeline Assumes</h2>
+    <p class="section-desc">Running axiom explorer's dig-axioms on the /ux pipeline itself. Four root axioms surfaced. R1 is the keystone &mdash; three of five supporting arguments depend on it. All are contestable.</p>
+
+    <div class="axiom-chain">
+      <div class="axiom-level">
+        <span class="axiom-depth">R1</span>
+        <div class="axiom-content">
+          <strong>Rationalist Design Epistemology <span class="var-tag var-tag--risk">keystone</span></strong>
+          <p>"Good design can be arrived at through systematic analysis, decomposition, and synthesis." If false: the pipeline is an elaborate cargo cult performing rituals without accessing the generative mechanism. Christopher Alexander believed this. Donald Sch&ouml;n contested it. The field is genuinely split.</p>
+        </div>
+      </div>
+      <div class="axiom-level">
+        <span class="axiom-depth">R2</span>
+        <div class="axiom-content">
+          <strong>Cognitive Externalism <span class="var-tag var-tag--confirmed">well-supported</span></strong>
+          <p>"Thought improves when externalized into artifacts." Supported for analytical tasks. Less clear for creative tasks. Writing YAML schemas might prematurely crystallize design intuition rather than clarify it.</p>
+        </div>
+      </div>
+      <div class="axiom-level">
+        <span class="axiom-depth">R3</span>
+        <div class="axiom-content">
+          <strong>Substrate Independence <span class="var-tag var-tag--hypothesis">unexamined</span></strong>
+          <p>"Design quality is independent of who produces it." Likely false. The pipeline is optimized for agent executability, not design quality. A human designer using different methods would likely produce different (possibly better) outcomes.</p>
+        </div>
+      </div>
+      <div class="axiom-level">
+        <span class="axiom-depth">R4</span>
+        <div class="axiom-content">
+          <strong>Articulability of Motivation <span class="var-tag var-tag--risk">contested</span></strong>
+          <p>"Users can articulate their jobs-to-be-done." Contested by Kahneman, behavioral economics, the entire field of revealed vs. stated preferences. JTBD format assumes rational self-narration. Users confabulate.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: SOLUTIONS -->
+  <section class="section">
+    <div class="section-label"><span class="dot" style="background: var(--sage)"></span>Solutions</div>
+    <h2>What Was Built</h2>
+    <p class="section-desc">Six files modified across three skills. Thinking skills unsuppressed. Tribunal gained CLI runner dispatch. UX pipeline gained synthetic user research. All hardlinked &mdash; no manual mirroring.</p>
+
+    <div class="solution-grid">
+      <div class="card">
+        <h3>Skill-Discovery Fix</h3>
+        <p>Added <code>PERSONA_TERMS</code> constant. Expanded the thinking-category suppression gate. Added boost rule for axiom explorer skills. 414 thinking skills are now first-class citizens.</p>
+        <span class="file-path">skill-discovery/skill-discovery</span>
+      </div>
+      <div class="card">
+        <h3>CLI Runner Table</h3>
+        <p>6 CLIs researched: Claude Code, Codex, Gemini, OpenCode, Aider, Cursor. Invocation patterns, model flags, JSON output, auto-approve. Tier 1/2/3 ranking.</p>
+        <span class="file-path">tribunal/references/cli-runners.md</span>
+      </div>
+      <div class="card">
+        <h3>/ux Step 1b</h3>
+        <p>Synthetic User Research inserted between Problem Framing and JTBD. Study design &rarr; tribunal dispatch &rarr; convergence analysis &rarr; JTBD integration. Auto and full modes.</p>
+        <span class="file-path">ux/SKILL.md</span>
+      </div>
+      <div class="card">
+        <h3>Study Construction</h3>
+        <p>Methodology reference (not a template). Teaches HOW to reason about persona dimensions, matrix sizing, and signal interpretation. Everything variable, nothing prescribed.</p>
+        <span class="file-path">ux/references/study-construction.md</span>
+      </div>
+      <div class="card">
+        <h3>Meta-Recursion</h3>
+        <p>Reference for running dig-axioms on the pipeline itself. Interrogation prompts for each assumption. "A tool that can't recommend against itself isn't honest."</p>
+        <span class="file-path">ux/references/meta-recursion.md</span>
+      </div>
+      <div class="card">
+        <h3>Tribunal Cross-Runner Mode</h3>
+        <p>Mode detection added. Default (3 Claude models, identical prompt) unchanged. Cross-runner mode dispatches to CLI runners specified by the caller. Tribunal is plumbing.</p>
+        <span class="file-path">tribunal/SKILL.md</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5: PROPOSED FIXES -->
+  <section class="section">
+    <div class="section-label"><span class="dot" style="background: var(--plum)"></span>Proposed Fixes</div>
+    <h2>What the Meta-Recursion Recommends</h2>
+    <p class="section-desc">Three structural fixes for the blind spots. None implemented yet. All are hypotheses about what would improve the pipeline &mdash; they could be wrong too.</p>
+
+    <div class="card card--hero" style="border-left: 3px solid var(--coral); margin-bottom: 16px;">
+      <h3>Step 0b: Unconstrained Domain Exploration <span class="var-tag var-tag--hypothesis">proposed</span></h3>
+      <p>Run personas BEFORE problem framing, grounded only in the domain, not the problem. Ask open-ended questions. Compare unprompted concerns with the problem_spec you planned to write. If there's significant divergence, revise the problem_spec.</p>
+      <p><strong>Why:</strong> Breaks the circular validation chain. Personas can surface problems the designer didn't think of because they aren't derived from the designer's framing.</p>
+    </div>
+    <div class="card" style="border-left: 3px solid var(--amber); margin-bottom: 16px;">
+      <h3>Self-Invalidation Gate <span class="var-tag var-tag--hypothesis">proposed</span></h3>
+      <p>After Step 1b, check: does the research suggest a different process? If synthetic users say "just build and iterate," the pipeline should recommend that and stop. A validation tool that can't produce a negative result is a confirmation ritual.</p>
+    </div>
+    <div class="card" style="border-left: 3px solid var(--navy);">
+      <h3>Spike Mode <span class="var-tag var-tag--hypothesis">proposed</span></h3>
+      <p>Start with wireframes, back-fill analysis. For the prototype-first designer who sketches the screen, then derives IA from what they drew. The pipeline currently can't support this workflow.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 6: OPEN QUESTIONS -->
+  <section class="section">
+    <div class="section-label"><span class="dot" style="background: var(--amber)"></span>Open Variables</div>
+    <h2>Everything That Could Be Wrong</h2>
+    <p class="section-desc">This is from one study. These are the things we don't know yet.</p>
+
+    <div class="card questions">
+      <div class="question">
+        <div class="question-content">
+          <strong>Does persona differentiation hold at scale?</strong>
+          <p>We tested 2 personas. What happens with 5? 10? Does differentiation degrade or does signal compound? Does the model start blending personas when given too many?</p>
+        </div>
+      </div>
+      <div class="question">
+        <div class="question-content">
+          <strong>Is persona > model variance a general finding?</strong>
+          <p>In our N=1 study, persona choice swung the verdict more than model choice. Is this always true? Or is it stimulus-dependent? A technical question might show model > persona.</p>
+        </div>
+      </div>
+      <div class="question">
+        <div class="question-content">
+          <strong>Does synthetic user research correlate with real user reactions?</strong>
+          <p>The big one. Pick a product decision where real user data exists. Run synthetic personas. Measure correlation. Without this, we're building on faith.</p>
+        </div>
+      </div>
+      <div class="question">
+        <div class="question-content">
+          <strong>Is the circular validation problem real or theoretical?</strong>
+          <p>Step 0b (unconstrained exploration) is proposed but untested. Maybe personas constructed from problem_spec are fine because the problem_spec is grounded in reality. Maybe the circularity doesn't matter in practice.</p>
+        </div>
+      </div>
+      <div class="question">
+        <div class="question-content">
+          <strong>Does the pipeline's real value lie elsewhere?</strong>
+          <p>Maybe the pipeline doesn't produce better designs. Maybe it produces more <em>legible</em> designs &mdash; auditable, explainable, defensible. For agentic workflows, legibility might matter more than quality. That's a different value proposition entirely.</p>
+        </div>
+      </div>
+      <div class="question">
+        <div class="question-content">
+          <strong>Can this pipeline invalidate itself?</strong>
+          <p>If Step 1b's synthetic users unanimously say "don't use a pipeline," does the pipeline stop? Currently, no. It always runs to completion. A tool that can't recommend against its own use is unfalsifiable.</p>
+        </div>
+      </div>
+      <div class="question">
+        <div class="question-content">
+          <strong>Is persona compliance itself the key variable?</strong>
+          <p>One model refused the persona injection. If compliance varies by model and prompt strength, the entire matrix approach depends on something we can't reliably control.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const isDarkOS = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (!current) {
+    html.setAttribute('data-theme', isDarkOS ? 'light' : 'dark');
+  } else {
+    html.removeAttribute('data-theme');
+  }
+}
+</script>
+</body>
+</html>

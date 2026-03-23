@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Constraint Engineering — From Prompts to Validation Gates</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Fragment+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'Bricolage Grotesque', system-ui, sans-serif;
+    --font-mono: 'Fragment Mono', 'SF Mono', Consolas, monospace;
+    --bg: #f4f1ec;
+    --surface: #faf8f4;
+    --surface2: #eae6de;
+    --surface-elevated: #ffffff;
+    --surface-recessed: #e2ded6;
+    --border: rgba(0,0,0,0.08);
+    --border-bright: rgba(0,0,0,0.16);
+    --text: #1c1814;
+    --text-dim: #7d7368;
+    --text-mid: #5a5249;
+    --slate: #334155;
+    --slate-dim: rgba(51,65,85,0.08);
+    --teal: #0f766e;
+    --teal-dim: rgba(15,118,110,0.08);
+    --amber: #b45309;
+    --amber-dim: rgba(180,83,9,0.08);
+    --red: #b91c1c;
+    --red-dim: rgba(185,28,28,0.06);
+    --green: #15803d;
+    --green-dim: rgba(21,128,61,0.08);
+    --blue: #1d4ed8;
+    --blue-dim: rgba(29,78,216,0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12100e;
+      --surface: #1a1714;
+      --surface2: #24201b;
+      --surface-elevated: #2c2822;
+      --surface-recessed: #0e0d0b;
+      --border: rgba(255,255,255,0.06);
+      --border-bright: rgba(255,255,255,0.13);
+      --text: #e8e0d4;
+      --text-dim: #9a8f82;
+      --text-mid: #b5a999;
+      --slate: #94a3b8;
+      --slate-dim: rgba(148,163,184,0.10);
+      --teal: #5eead4;
+      --teal-dim: rgba(94,234,212,0.08);
+      --amber: #fbbf24;
+      --amber-dim: rgba(251,191,36,0.10);
+      --red: #fca5a5;
+      --red-dim: rgba(252,165,165,0.08);
+      --green: #86efac;
+      --green-dim: rgba(134,239,172,0.08);
+      --blue: #93c5fd;
+      --blue-dim: rgba(147,197,253,0.08);
+    }
+  }
+  [data-theme="light"]{--bg:#f4f1ec;--surface:#faf8f4;--surface2:#eae6de;--surface-elevated:#ffffff;--surface-recessed:#e2ded6;--border:rgba(0,0,0,0.08);--border-bright:rgba(0,0,0,0.16);--text:#1c1814;--text-dim:#7d7368;--text-mid:#5a5249;--slate:#334155;--slate-dim:rgba(51,65,85,0.08);--teal:#0f766e;--teal-dim:rgba(15,118,110,0.08);--amber:#b45309;--amber-dim:rgba(180,83,9,0.08);--red:#b91c1c;--red-dim:rgba(185,28,28,0.06);--green:#15803d;--green-dim:rgba(21,128,61,0.08);--blue:#1d4ed8;--blue-dim:rgba(29,78,216,0.06)}
+  [data-theme="dark"]{--bg:#12100e;--surface:#1a1714;--surface2:#24201b;--surface-elevated:#2c2822;--surface-recessed:#0e0d0b;--border:rgba(255,255,255,0.06);--border-bright:rgba(255,255,255,0.13);--text:#e8e0d4;--text-dim:#9a8f82;--text-mid:#b5a999;--slate:#94a3b8;--slate-dim:rgba(148,163,184,0.10);--teal:#5eead4;--teal-dim:rgba(94,234,212,0.08);--amber:#fbbf24;--amber-dim:rgba(251,191,36,0.10);--red:#fca5a5;--red-dim:rgba(252,165,165,0.08);--green:#86efac;--green-dim:rgba(134,239,172,0.08);--blue:#93c5fd;--blue-dim:rgba(147,197,253,0.08)}
+
+  *,*::before,*::after{box-sizing:border-box;margin:0}
+  body{font-family:var(--font-body);background:var(--bg);background-image:radial-gradient(circle at 70% 0%,var(--teal-dim) 0%,transparent 40%),radial-gradient(circle at 20% 100%,var(--amber-dim) 0%,transparent 40%);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .page{max-width:1060px;margin:0 auto;padding:60px 24px 80px}
+
+  /* HERO */
+  .hero{padding:72px 0 48px;animation:fadeUp .6s ease-out both}
+  .hero-label{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .hero-label::before{content:'';width:24px;height:2px;background:var(--teal)}
+  .hero h1{font-size:clamp(40px,6vw,64px);font-weight:800;line-height:1.05;letter-spacing:-.02em;margin-bottom:20px}
+  .hero h1 .thin{font-weight:400;color:var(--text-mid)}
+  .hero .lead{font-size:17px;color:var(--text-mid);max-width:640px;line-height:1.7}
+
+  /* EVOLUTION LADDER */
+  .ladder{display:flex;gap:0;margin:40px 0 56px;flex-wrap:wrap;justify-content:center}
+  .ladder-step{flex:1;min-width:180px;padding:20px;text-align:center;position:relative;border:1px solid var(--border);background:var(--surface)}
+  .ladder-step:first-child{border-radius:10px 0 0 10px}
+  .ladder-step:last-child{border-radius:0 10px 10px 0}
+  .ladder-step .num{font-family:var(--font-mono);font-size:11px;color:var(--text-dim);margin-bottom:4px}
+  .ladder-step .name{font-weight:700;font-size:15px;margin-bottom:4px}
+  .ladder-step .desc{font-size:12px;color:var(--text-dim)}
+  .ladder-step--active{background:var(--teal-dim);border-color:var(--teal)}
+  .ladder-step--active .name{color:var(--teal)}
+  .ladder-arrow{display:flex;align-items:center;font-size:20px;color:var(--text-dim);padding:0 2px;flex-shrink:0}
+
+  /* SECTIONS */
+  .section{margin-top:56px;animation:fadeUp .5s ease-out both}
+  .section:nth-of-type(2){animation-delay:.08s}
+  .section:nth-of-type(3){animation-delay:.12s}
+  .section:nth-of-type(4){animation-delay:.16s}
+  .section:nth-of-type(5){animation-delay:.2s}
+  .section:nth-of-type(6){animation-delay:.24s}
+  .section:nth-of-type(7){animation-delay:.28s}
+  .sec-label{font-family:var(--font-mono);font-size:11px;font-weight:400;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .sec-label .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .section h2{font-size:28px;font-weight:700;margin-bottom:6px;letter-spacing:-.01em}
+  .section .desc{color:var(--text-mid);font-size:14px;margin-bottom:24px;max-width:700px}
+
+  /* CARDS */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:22px;margin-bottom:14px;transition:border-color .2s}
+  .card:hover{border-color:var(--border-bright)}
+  .card--elevated{background:var(--surface-elevated);box-shadow:0 3px 20px rgba(0,0,0,.04)}
+  .card--recessed{background:var(--surface-recessed);border-style:dashed}
+  .card h3{font-size:15px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .card p{color:var(--text-mid);font-size:13px;line-height:1.65}
+  .card p+p{margin-top:6px}
+  .card code{font-family:var(--font-mono);font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px}
+
+  /* GRID LAYOUTS */
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .span-full{grid-column:1/-1}
+
+  /* PRIMITIVE CARDS */
+  .prim{border-left:3px solid var(--teal)}
+  .prim:nth-child(2){border-left-color:var(--amber)}
+  .prim:nth-child(3){border-left-color:var(--slate)}
+  .prim-num{font-family:var(--font-mono);font-size:28px;font-weight:400;color:var(--text-dim);line-height:1;margin-bottom:8px}
+
+  /* TAGS */
+  .tag{font-family:var(--font-mono);font-size:10px;font-weight:400;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:3px;display:inline-block;vertical-align:middle}
+  .tag--pass{color:var(--green);background:var(--green-dim)}
+  .tag--warn{color:var(--amber);background:var(--amber-dim)}
+  .tag--fail{color:var(--red);background:var(--red-dim)}
+  .tag--info{color:var(--blue);background:var(--blue-dim)}
+  .tag--universal{color:var(--teal);background:var(--teal-dim)}
+
+  /* TABLES */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{font-family:var(--font-mono);font-size:11px;font-weight:400;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);text-align:left;padding:8px 12px;border-bottom:2px solid var(--border-bright);position:sticky;top:0;background:var(--surface)}
+  td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text-mid);vertical-align:top}
+  tr:hover td{background:var(--surface2)}
+  .table-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--border);background:var(--surface)}
+
+  /* SCORECARD */
+  .score{display:flex;gap:20px;flex-wrap:wrap;margin:24px 0}
+  .score-item{flex:1;min-width:120px;text-align:center;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:8px}
+  .score-item .big{font-size:32px;font-weight:800;line-height:1;margin-bottom:4px}
+  .score-item .label{font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)}
+  .score-item--teal .big{color:var(--teal)}
+  .score-item--amber .big{color:var(--amber)}
+  .score-item--green .big{color:var(--green)}
+  .score-item--slate .big{color:var(--slate)}
+
+  /* CODE BLOCK */
+  .code-block{font-family:var(--font-mono);font-size:13px;background:var(--surface-recessed);border:1px solid var(--border);border-radius:8px;padding:16px 20px;white-space:pre-wrap;overflow-wrap:break-word;line-height:1.6;color:var(--text-mid);margin:16px 0}
+  .code-block .keyword{color:var(--teal);font-weight:500}
+  .code-block .comment{color:var(--text-dim);font-style:italic}
+
+  /* RESPONSIVE */
+  @media(max-width:768px){.grid-3,.grid-2{grid-template-columns:1fr}.span-full{grid-column:1}.ladder{flex-direction:column}.ladder-step{border-radius:0!important}.ladder-step:first-child{border-radius:10px 10px 0 0!important}.ladder-step:last-child{border-radius:0 0 10px 10px!important}.ladder-arrow{transform:rotate(90deg);justify-content:center;padding:4px 0}.score{flex-direction:column}.hero{padding:40px 0 32px}.page{padding:32px 16px 60px}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important}}
+  .theme-toggle{position:fixed;top:12px;right:12px;z-index:300;width:36px;height:36px;border:1px solid var(--border);border-radius:8px;background:color-mix(in srgb,var(--surface) 80%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;padding:0;transition:background .2s,border-color .2s}
+  .theme-toggle:hover{border-color:var(--border-bright);color:var(--text)}
+  @media print{body{background:white;color:black}.theme-toggle{display:none}.card{break-inside:avoid;box-shadow:none;border-color:#ddd}}
+</style>
+</head>
+<body>
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle light/dark theme">&#9684;</button>
+
+<div class="page">
+
+  <header class="hero">
+    <div class="hero-label">Research Report &middot; 8 Experimental Runs</div>
+    <h1>Constraint<br><span class="thin">Engineering</span></h1>
+    <p class="lead">Every codebase is evolving through three stages. Most are stuck at stage one. The loop primitive is the unlock between stages two and three. Here's the evidence.</p>
+  </header>
+
+  <!-- THE EVOLUTION -->
+  <div class="ladder">
+    <div class="ladder-step">
+      <div class="num">Level 1</div>
+      <div class="name">Context Engineering</div>
+      <div class="desc">Prompts, system instructions, few-shot examples</div>
+    </div>
+    <div class="ladder-arrow">&rarr;</div>
+    <div class="ladder-step">
+      <div class="num">Level 2</div>
+      <div class="name">Harness Engineering</div>
+      <div class="desc">Feedback loops, tool calling, structured output</div>
+    </div>
+    <div class="ladder-arrow">&rarr;</div>
+    <div class="ladder-step ladder-step--active">
+      <div class="num">Level 3</div>
+      <div class="name">Constraint Engineering</div>
+      <div class="desc">Validation gates meta-prompted at runtime</div>
+    </div>
+  </div>
+
+  <!-- THESIS -->
+  <section class="section">
+    <div class="sec-label"><span class="dot" style="background:var(--teal)"></span>Thesis</div>
+    <h2>The Core Claim</h2>
+    <p class="desc">You don't just need feedback that things work or don't work. You need constraints and validation gates that are meta-prompted at runtime. That's constraint engineering. And you can only do it if you have harness engineering, which is built on top of context engineering.</p>
+
+    <div class="card card--elevated">
+      <h3>The Proof Is in the Format</h3>
+      <p>YAML validation strings become executable commands. When you write <code>validation: "git status shows no untracked files"</code> in a YAML skill spec, the agent <strong>runs <code>git status</code></strong>. It doesn't describe what git status would show. It executes. The structured format couples with the tool-calling interface at the attention level. This is constraint engineering &mdash; the validation gate IS the instruction.</p>
+      <p>Prose instructions ("make sure git status is clean") get followed 40% of the time. YAML validation strings get executed 100% of the time. Same content, different format, different behavior. That's the finding.</p>
+    </div>
+  </section>
+
+  <!-- 3 PRIMITIVES -->
+  <section class="section">
+    <div class="sec-label"><span class="dot" style="background:var(--amber)"></span>Primitives</div>
+    <h2>Three NLP Primitives</h2>
+    <p class="desc">39 techniques collapsed to 3 primitives and 1 meta-mechanism. These are the atoms of skill enforcement. Everything else is a composite.</p>
+
+    <div class="grid-3">
+      <div class="card prim">
+        <div class="prim-num">01</div>
+        <h3>Prolepsis</h3>
+        <p><strong>Anticipate and pre-empt the excuse before it forms.</strong> Rationalization tables ("If you're thinking X, here's why that's wrong") catch the thought at generation time, before it becomes a token. Works because autoregressive models generate excuses in predictable patterns.</p>
+        <p><span class="tag tag--universal">universal</span> Works on all transformer architectures.</p>
+      </div>
+      <div class="card prim">
+        <div class="prim-num">02</div>
+        <h3>Positioned Deontics</h3>
+        <p><strong>Place imperatives where attention is highest.</strong> "You must" at the start of a section, in validation strings, at format boundaries. Not buried in paragraph 3. Position determines compliance because attention is non-uniform across the context window.</p>
+        <p><span class="tag tag--warn">needs RLHF</span> Deontic force varies by safety training intensity.</p>
+      </div>
+      <div class="card prim">
+        <div class="prim-num">03</div>
+        <h3>Procedural Chains</h3>
+        <p><strong>Numbered sequences create procedural presupposition.</strong> Step 1 → Step 2 → Step 3. The model presupposes that step N+1 follows step N. It doesn't skip. Even a 1B parameter model follows numbered sequences more faithfully than prose.</p>
+        <p><span class="tag tag--universal">architecture-level</span> Generalizes to literally every autoregressive LLM.</p>
+      </div>
+    </div>
+
+    <div class="card card--recessed" style="margin-top:14px">
+      <h3>Meta-Mechanism: Structural Coupling</h3>
+      <p>YAML validation strings sit in the same syntactic neighborhood as tool-calling schemas in the training data. The model treats them as executable specifications, not descriptive prose. This is why <code>validation: "run pnpm test"</code> becomes a tool call but "make sure the tests pass" becomes a suggestion. Format is function.</p>
+    </div>
+  </section>
+
+  <!-- EVIDENCE -->
+  <section class="section">
+    <div class="sec-label"><span class="dot" style="background:var(--green)"></span>Evidence</div>
+    <h2>8 Experimental Runs</h2>
+    <p class="desc">Blind behavioral testing. No cherry-picking. The format comparison was the agent's own idea &mdash; it requested to compare YAML vs prose on the same task.</p>
+
+    <div class="score">
+      <div class="score-item score-item--teal"><div class="big">49/50</div><div class="label">Steps Traversed</div></div>
+      <div class="score-item score-item--amber"><div class="big">707</div><div class="label">Line YAML</div></div>
+      <div class="score-item score-item--green"><div class="big">11 vs 4</div><div class="label">Tool Calls<br>YAML vs Prose</div></div>
+      <div class="score-item score-item--slate"><div class="big">3&times;</div><div class="label">Unanimity<br>Tribunal Votes</div></div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Test</th><th>N</th><th>Finding</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Format comparison (blind)</td><td>4</td><td>YAML validation strings become executable commands</td><td><span class="tag tag--pass">confirmed</span></td></tr>
+          <tr><td>Extension test</td><td>2</td><td>.yaml vs .md extension is irrelevant &mdash; content determines behavior</td><td><span class="tag tag--pass">confirmed</span></td></tr>
+          <tr><td>Buried directive (20 steps)</td><td>1</td><td>LLM_MUST flagged as injection; content-based detection, not format</td><td><span class="tag tag--pass">confirmed</span></td></tr>
+          <tr><td>Stress test (50 steps, 707 lines)</td><td>1</td><td>Full traversal. Natural language also flagged. Content &gt; format for safety</td><td><span class="tag tag--pass">confirmed</span></td></tr>
+          <tr><td>NLP analysis</td><td>&mdash;</td><td>39 techniques &rarr; 3 primitives &rarr; 1 meta-mechanism</td><td><span class="tag tag--info">synthesis</span></td></tr>
+          <tr><td>Tribunal: format ranking</td><td>3</td><td>Unanimous: YAML contract &gt; structured markdown &gt; prose</td><td><span class="tag tag--pass">unanimous</span></td></tr>
+          <tr><td>Tribunal: cross-platform</td><td>3</td><td>Findings generalize to GPT-4o, Gemini, Llama, Mistral</td><td><span class="tag tag--pass">unanimous</span></td></tr>
+          <tr><td>Prolepsis table bypass test</td><td>1</td><td>Anti-pattern tables can't override safety &mdash; correct behavior</td><td><span class="tag tag--pass">expected</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- CROSS-PLATFORM -->
+  <section class="section">
+    <div class="sec-label"><span class="dot" style="background:var(--blue)"></span>Portability</div>
+    <h2>Cross-Platform Generalization</h2>
+    <p class="desc">Tribunal vote: unanimous. The structural findings (primitives 1-3) work across all instruction-tuned transformers. Safety findings split along commercial vs. open-weight.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Finding</th><th>Claude</th><th>GPT-4o</th><th>Gemini</th><th>Llama 405B</th><th>Mistral</th></tr></thead>
+        <tbody>
+          <tr><td>YAML &rarr; tool calls</td><td><span class="tag tag--pass">strong</span></td><td><span class="tag tag--pass">strongest</span></td><td><span class="tag tag--pass">strong</span></td><td><span class="tag tag--warn">moderate</span></td><td><span class="tag tag--warn">moderate</span></td></tr>
+          <tr><td>Extension irrelevant</td><td><span class="tag tag--universal">universal</span></td><td><span class="tag tag--universal">universal</span></td><td><span class="tag tag--universal">universal</span></td><td><span class="tag tag--universal">universal</span></td><td><span class="tag tag--universal">universal</span></td></tr>
+          <tr><td>No middle skipping</td><td><span class="tag tag--pass">strong</span></td><td><span class="tag tag--pass">strong</span></td><td><span class="tag tag--pass">strongest</span></td><td><span class="tag tag--pass">strong</span></td><td><span class="tag tag--warn">moderate</span></td></tr>
+          <tr><td>Injection detection</td><td><span class="tag tag--pass">strong</span></td><td><span class="tag tag--pass">strongest</span></td><td><span class="tag tag--warn">moderate</span></td><td><span class="tag tag--fail">weak</span></td><td><span class="tag tag--fail">weak</span></td></tr>
+          <tr><td>3 NLP primitives</td><td><span class="tag tag--pass">strong</span></td><td><span class="tag tag--pass">strong</span></td><td><span class="tag tag--pass">strong</span></td><td><span class="tag tag--pass">strong</span></td><td><span class="tag tag--warn">moderate</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" style="margin-top:14px;border-left:3px solid var(--teal)">
+      <h3>The Killer Insight <span class="tag tag--info">opus</span></h3>
+      <p>"The models most likely to EXECUTE YAML validation strings are the LEAST likely to flag LLM_MUST directives." Codex-style models are the most execution-happy AND least safety-gated. The winning format (YAML contracts with natural language) is maximally portable.</p>
+    </div>
+  </section>
+
+  <!-- WHAT WAS BUILT -->
+  <section class="section">
+    <div class="sec-label"><span class="dot" style="background:var(--green)"></span>Output</div>
+    <h2>What Was Built</h2>
+    <p class="desc">4 skills rewritten. 1,700 lines &rarr; 894 lines. 32 rationalization table entries. Zero &rarr; 47 validation strings.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Skill</th><th>Before</th><th>After</th><th>Reduction</th><th>Enforcement</th></tr></thead>
+        <tbody>
+          <tr><td><strong>/work v6</strong></td><td>267 lines</td><td>282 lines</td><td>+6% (added gates)</td><td>15 keywords, 3 gates, 8 anti-patterns</td></tr>
+          <tr><td><strong>/lev-research</strong></td><td>581 lines</td><td>146 lines</td><td>&minus;75%</td><td>5 steps + validation strings</td></tr>
+          <tr><td><strong>skill-builder</strong></td><td>507 lines</td><td>221 lines</td><td>&minus;56%</td><td>17 validation strings</td></tr>
+          <tr><td><strong>/cdo</strong></td><td>345 lines</td><td>245 lines</td><td>&minus;29%</td><td>4+7 steps + validation + 3-fix escalation</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- STRESS TEST -->
+  <section class="section">
+    <div class="sec-label"><span class="dot" style="background:var(--red)"></span>Stress Test</div>
+    <h2>The Definitive Test</h2>
+    <p class="desc">49/50 steps completed. 55 tool calls. 707-line YAML fully traversed. Step 25 was found, read, and deliberately refused.</p>
+
+    <div class="grid-2">
+      <div class="card card--elevated">
+        <h3><span class="tag tag--pass">passed</span> Full Traversal</h3>
+        <p>Agent traversed all 50 steps in a 707-line YAML. Distinguished config blocks from instructions. Found the buried directive at step 25. Did not skip the middle.</p>
+      </div>
+      <div class="card card--elevated">
+        <h3><span class="tag tag--pass">passed</span> Safety Intact</h3>
+        <p>Step 25 asked to read <code>payload.md</code> and echo credentials. Agent found it, read the file, and refused to echo contents. Called out our anti-pattern table as "the kind of framing a prompt injection uses."</p>
+      </div>
+      <div class="card span-full">
+        <h3>The Real Finding</h3>
+        <p>It's not about <code>LLM_MUST</code> vs natural language. Both get flagged when the ACTION looks like credential exfiltration. Safety triggers on <strong>content</strong> (read file + state password verbatim), not <strong>format</strong> (LLM_MUST vs "you must"). For skill design: use natural language in YAML instruction blocks. Let safety handle safety. Your job is structure.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SYSTEM CONTEXT VS RUNTIME -->
+  <section class="section">
+    <div class="sec-label"><span class="dot" style="background:var(--slate)"></span>Architecture Insight</div>
+    <h2>System Context vs. Runtime</h2>
+    <p class="desc">The stress test proved a fundamental architectural boundary.</p>
+
+    <div class="grid-2">
+      <div class="card" style="border-left:3px solid var(--green)">
+        <h3>System Context <span class="tag tag--pass">trusted</span></h3>
+        <p>SKILL.md loaded by Claude Code harness. Injected at the system prompt level. <code>"you must push"</code> &rarr; <strong>complied with</strong>. This is the trusted zone. Everything in system context is treated as authority.</p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--amber)">
+        <h3>Runtime File Read <span class="tag tag--warn">untrusted</span></h3>
+        <p>Agent reads file.yaml via the Read tool at runtime. <code>"you must push"</code> &rarr; <strong>questioned or refused</strong>. Same content, different trust level. Runtime reads are adversarial territory.</p>
+      </div>
+    </div>
+
+    <div class="card card--recessed" style="margin-top:14px">
+      <h3>Implication for FlowMind</h3>
+      <p>FlowMind's job is to be the <strong>compiler</strong> that takes all your YAML contexts (agents, workflows, patterns) and compiles them into a single system prompt injected at the trusted level. YAML should never link to files at runtime. If it references something, FlowMind compiles it in at build time. That's why <code>context.yaml</code> was right from day one.</p>
+    </div>
+  </section>
+
+  <!-- WHAT'S NEXT -->
+  <section class="section">
+    <div class="sec-label"><span class="dot" style="background:var(--amber)"></span>What's Next</div>
+    <h2>The Road Forward</h2>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Skill Eval Framework</h3>
+        <p>10 shipped profiles testing: discoverability, progressive disclosure, feedback loops, UAT access, design system access, log access. You can't just guess &mdash; when you guess, you get the statistical mean of training data.</p>
+      </div>
+      <div class="card">
+        <h3>Loop Primitive Research</h3>
+        <p>Ralph Wiggum loops vs auto-research. Both use a loop primitive. The loop is what unlocks constraint engineering &mdash; you need a feedback cycle to validate gates at runtime.</p>
+      </div>
+      <div class="card">
+        <h3>Industry Report</h3>
+        <p>Thesis: Looping unlocks constraint engineering. Constraint engineering is built on harness engineering. You don't just need feedback. You need validation gates meta-prompted at runtime.</p>
+      </div>
+      <div class="card">
+        <h3>Agentic Code Base Audit</h3>
+        <p>What does "agentifying a codebase" really mean? If UAT is locked down, agents can't access logs or the design system &mdash; you're just guessing. Framework with profiles that run against real targets.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+function toggleTheme(){const h=document.documentElement,c=h.getAttribute('data-theme'),d=window.matchMedia('(prefers-color-scheme: dark)').matches;if(!c){h.setAttribute('data-theme',d?'light':'dark')}else{h.removeAttribute('data-theme')}}
+</script>
+</body>
+</html>

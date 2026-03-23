@@ -1,908 +1,230 @@
-# Skill Enforcement Techniques Index
-# Source: obra/superpowers + Anthropic best practices + Cialdini/Meincke research
-# Purpose: Reference ruleset for skill-builder when authoring or auditing skills
-# Usage: Load this when creating, editing, or evaluating any skill
+# Skill Enforcement Techniques — 3 Primitives
+# Derived from: obra/superpowers, Cialdini/Meincke research, blind behavioral testing
+# Full 39-technique archive: techniques-full.yaml
 #
-# Every technique has:
-#   what: what it is
-#   why: why it works (research/evidence basis)
-#   when: when to apply it
-#   how: concrete implementation pattern
-#   example: copy-pasteable template
-#   anti_pattern: what NOT to do
-#   source: where this technique was documented/tested
+# Meta-mechanism: Make the undesired output computationally expensive to generate.
+# Achieved through 3 complementary angles that reshape the probability gradient.
+
+primitives:
+
+  # ============================================================
+  # 1. PROLEPSIS — Pre-refute specific evasions before they form
+  # ============================================================
+  #
+  # Classical rhetoric: anticipate and destroy the counterargument
+  # before it forms. Works because LLMs do next-token prediction —
+  # if "should work now" is cached as "this is lying," probability
+  # mass shifts away from the forbidden continuation.
+  #
+  # KEY: Specificity is load-bearing. "Don't rationalize" (abstract)
+  # doesn't work. "Here are the 8 rationalizations you will attempt"
+  # (concrete enumeration) does.
+
+  prolepsis:
+    implements_as:
+
+      rationalization_table:
+        format: |
+          | Excuse | Reality |
+          |--------|---------|
+          | "{exact phrase agent would generate}" | {short absolute refutation} |
+        rules:
+          - Capture from REAL baseline failures, not imagination
+          - Use the agent's exact words, not paraphrases
+          - 5-8 entries minimum for discipline skills
+          - Place AFTER the instructions, not before
+        example: |
+          | "I'll push later" | Later = never. Push NOW. |
+          | "Work is done" | NOT done until git push succeeds. |
+          | "User can push" | YOU push. Always. |
+
+      red_flags_list:
+        format: |
+          If you catch yourself thinking:
+          - "{exact internal thought}"
+          - "{exact internal thought}"
+
+          ALL of these mean: STOP. {specific corrective action}.
+        rules:
+          - Quote the THOUGHT, not the behavior
+          - End with a specific action, not a vague warning
+
+      correct_incorrect_pairs:
+        format: |
+          ✅ [actual evidence command] [actual output] "claim based on evidence"
+          ❌ "claim without evidence" / "assumption"
+        rules:
+          - Show the EXACT output, not a description
+          - Incorrect pattern should be a real captured failure
+
+  # ============================================================
+  # 2. POSITIONED DEONTIC COMMANDS — Authority + specificity
+  # ============================================================
+  #
+  # Deontic modals (MUST/NEVER/ALWAYS) only work when issued from
+  # a high-authority position (system prompt) AND made executable
+  # by specificity. "Verify your work" = vibes. "Run git status
+  # and confirm output shows clean" = binary gate.
+  #
+  # KEY: validation strings become executable commands.
+  # The format IS the behavior through structural coupling
+  # with the tool-calling interface.
+  #
+  # IMPORTANT: Use natural language, NOT LLM_MUST directives.
+  # LLM_MUST in data files triggers injection detection.
+
+  positioned_commands:
+    implements_as:
+
+      validation_strings:
+        what: "Concrete, runnable verification commands attached to each requirement"
+        format: |
+          steps:
+            - id: step_name
+              action: "what to do"
+              instruction: |
+                Natural language prose explaining how.
+                You must do X before Y.
+              validation: "exact command or check that proves completion"
+              on_failure: "specific recovery action"
+        rules:
+          - validation MUST be a command the agent can run or a state it can check
+          - "git status shows clean" → agent will run git status
+          - "goal met" → agent will vibes-check (BAD)
+          - validation strings are the #1 highest-leverage technique
+        evidence: |
+          Blind behavioral test: agent given YAML with validation: "git log
+          --oneline origin/HEAD..HEAD returns 0 lines" literally ran that
+          exact command. 11 tool calls vs 4 for prose-only instructions.
+
+      on_failure_directive:
+        what: "Explicit instruction for what to do when something breaks"
+        format: 'on_failure: "Do NOT proceed. State which requirement failed."'
+        rules:
+          - Must be specific ("resolve and retry") not vague ("handle the error")
+          - Include escalation: "3x then escalate to user"
+
+      front_loading:
+        what: "Critical rules in the first 20 lines"
+        rules:
+          - Line 1-3: YAML frontmatter
+          - Line 5-10: Core instruction (the ONE thing this skill does)
+          - Line 12-20: The non-negotiable constraint
+          - Everything else follows
+          - Rules at line 500 are dead code
+
+  # ============================================================
+  # 3. PROCEDURAL PRESUPPOSITION CHAINS — Sequencing as constraint
+  # ============================================================
+  #
+  # Numbered sequences with explicit step IDs create presuppositional
+  # chains. Step 3 presupposes Step 2 is complete. The LLM cannot
+  # generate "done" without first generating evidence of having done
+  # the prior steps, because the discourse structure makes the claim
+  # pragmatically unlicensed without the prerequisites.
+
+  procedural_chains:
+    implements_as:
+
+      yaml_step_sequences:
+        format: |
+          steps:
+            - id: step_1
+              action: "first thing"
+              instruction: |
+                Prose explaining the step.
+              validation: "how to verify"
+              next: step_2
+            - id: step_2
+              action: "second thing"
+              instruction: |
+                Prose explaining the step.
+              validation: "how to verify"
+        rules:
+          - Every step has an id, action, instruction, and validation
+          - Use `next:` for explicit sequencing in complex flows
+          - Config blocks between steps are ignored by LLMs (tested)
+          - 50-step YAMLs are fully traversed (stress tested)
+
+      gate_functions:
+        format: |
+          instruction: |
+            Before proceeding:
+            1. IDENTIFY: What command proves this claim?
+            2. RUN: Execute the command
+            3. VERIFY: Does output confirm the claim?
+            4. ONLY THEN: Proceed
+
+            Skip any step = {specific consequence}
+        rules:
+          - 4-5 numbered steps maximum
+          - Each step is a verb (IDENTIFY, RUN, READ, VERIFY)
+          - Include failure branch inline
+          - End with consequence statement
 
 # ============================================================
-# 1. STRUCTURAL PATTERNS
-# How to organize a skill file for maximum compliance
+# SKILL FORMAT SPEC — The winning format from blind testing
 # ============================================================
 
-structural:
+format_spec:
+  structure: |
+    YAML structure for the law (steps, validation, on_failure)
+    + instruction: | block scalars for prose
+    + rationalization table at the end as prolepsis
 
-  iron_law:
-    what: Bright-line rule in first 20 lines. Non-negotiable mandate in a code block.
-    why: >
-      Eliminates decision fatigue. Authority language doubled compliance
-      (33% → 72%, Meincke et al. 2025, N=28,000). Agents that encounter
-      an absolute rule before any nuance treat it as inviolable.
-    when: Every discipline-enforcing skill. Optional for pure reference skills.
-    how: |
-      1. Place immediately after Overview section
-      2. Use a fenced code block (visually distinct)
-      3. ALL CAPS, imperative, no exceptions language
-      4. Follow with one-sentence consequence
-    example: |
-      ## The Iron Law
+  why: |
+    - YAML validation strings become executable commands (proven)
+    - instruction: | blocks match existing context.yaml patterns
+    - Natural language avoids injection detection (LLM_MUST doesn't)
+    - Rationalization tables catch thoughts at moment of generation
 
-      ```
-      NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
-      ```
+  template: |
+    metadata:
+      name: skill-name
+      description: "trigger-only, no workflow summary"
 
-      If you haven't completed Phase 1, you cannot propose fixes.
-    anti_pattern: |
-      ## Guidelines
-      Try to find root cause before fixing when possible.
-    source: systematic-debugging, verification-before-completion, writing-skills
+    steps:
+      - id: step_1
+        action: "what to do"
+        instruction: |
+          Natural language explaining how.
+          You must do X before Y.
+        validation: "concrete verifiable check"
+        on_failure: "specific recovery action"
 
-  core_principle:
-    what: One-sentence mandate in bold immediately after H1 title.
-    why: >
-      Single-mandate skills have higher compliance than multi-mandate skills.
-      Everything in the skill must serve this one principle. Agents that
-      absorb the core principle in the first 50 tokens carry it through.
-    when: Every skill. No exceptions.
-    how: |
-      1. Bold text, starts with "Core principle:"
-      2. One sentence maximum
-      3. Must be actionable, not descriptive
-      4. Everything else in the skill serves this mandate
-    example: |
-      **Core principle:** ALWAYS find root cause before attempting fixes. Symptom fixes are failure.
-    anti_pattern: |
-      This skill helps you debug more effectively using a systematic approach
-      that considers multiple factors and evidence-based reasoning.
-    source: systematic-debugging, verification-before-completion
-
-  spirit_vs_letter_inoculation:
-    what: Explicit statement that letter-following IS spirit-following.
-    why: >
-      Closes the entire class of "I'm following the spirit, not the letter"
-      rationalizations. Tested countermeasure — without this line, agents
-      find loopholes in 60% of pressure scenarios (CREATION-LOG.md).
-    when: Any discipline-enforcing skill.
-    how: Place after core principle, before any process steps.
-    example: |
-      **Violating the letter of this process is violating the spirit of debugging.**
-    anti_pattern: Omitting this line and hoping agents interpret correctly.
-    source: systematic-debugging, CREATION-LOG.md
-
-  gate_function:
-    what: Numbered pseudocode algorithm that MUST execute before a claim or action.
-    why: >
-      Converts behavioral rules into executable algorithms. LLMs follow
-      numbered steps more reliably than prose guidelines. Pseudocode
-      maps to how LLMs process instructions internally.
-    when: Verification steps, pre-action checks, decision points.
-    how: |
-      1. Fenced code block with "BEFORE [action]:" header
-      2. Numbered steps (1-5 max)
-      3. Each step is a verb: IDENTIFY, RUN, READ, VERIFY
-      4. Include failure branch inline
-      5. End with "Skip any step = [consequence]"
-    example: |
-      ```
-      BEFORE claiming any status or expressing satisfaction:
-
-      1. IDENTIFY: What command proves this claim?
-      2. RUN: Execute the FULL command (fresh, complete)
-      3. READ: Full output, check exit code, count failures
-      4. VERIFY: Does output confirm the claim?
-         - If NO: State actual status with evidence
-         - If YES: State claim WITH evidence
-      5. ONLY THEN: Make the claim
-
-      Skip any step = lying, not verifying
-      ```
-    anti_pattern: |
-      Make sure to verify your work before claiming it's done.
-    source: verification-before-completion
-
-  xml_emphasis_tags:
-    what: XML tags for content that MUST receive elevated LLM attention.
-    why: >
-      XML-tagged content in system prompts receives elevated attention
-      from LLMs. Not pretty but empirically effective. Used sparingly
-      for the single most critical directive.
-    when: >
-      Maximum 1-2 per skill. Only for THE most critical rule.
-      Overuse dilutes the signal.
-    how: |
-      1. Use descriptive tag names: <HARD-GATE>, <EXTREMELY-IMPORTANT>
-      2. ALL CAPS content inside
-      3. Short — 2-3 sentences maximum
-      4. Place in first 30 lines
-    example: |
-      <EXTREMELY-IMPORTANT>
-      IF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.
-      This is not negotiable. This is not optional.
-      </EXTREMELY-IMPORTANT>
-    anti_pattern: Using 5+ XML tags throughout the skill (dilutes all of them).
-    source: using-superpowers, brainstorming
-
-  front_loading:
-    what: Most important rules in first 20 lines. Iron Law before any process detail.
-    why: >
-      LLM attention degrades with position in long documents. Rules at
-      line 500 are effectively dead code. The first 20 lines set the
-      behavioral contract for everything that follows.
-    when: Always. Non-negotiable structural principle.
-    how: |
-      Line 1-3: YAML frontmatter (trigger-only description)
-      Line 5: H1 title
-      Line 7-8: Core principle (bold, one sentence)
-      Line 10: Spirit vs letter inoculation
-      Line 12-16: Iron Law (code block)
-      Line 18-20: Consequence statement
-      Line 22+: Process steps begin
-    anti_pattern: |
-      66 lines of YAML frontmatter, then an ASCII dashboard, then a
-      routing table, then the first actual instruction at line 166.
-    source: Analysis of lev-research failure mode
-
-  enforcement_density:
-    what: Target ~9% enforcement keyword density (1 MUST/NEVER/STOP every ~10 lines).
-    why: >
-      Superpowers' most compliant skills (systematic-debugging, using-superpowers)
-      both hit ~9.5% density. Below 5% and enforcement drowns in prose.
-      Above 15% and everything feels equally urgent (nothing stands out).
-    when: During skill authoring and review.
-    how: |
-      Count: grep -ci "must\|never\|always\|stop\|no exceptions" SKILL.md
-      Divide by: wc -l SKILL.md
-      Target: 0.07-0.12 (7-12%)
-    example: "28 enforcement keywords / 296 lines = 9.5%"
-    anti_pattern: "0 enforcement keywords / 345 lines = 0% (CDO actual measurement)"
-    source: Comparative analysis of superpowers compliance rates
-
-# ============================================================
-# 2. ANTI-RATIONALIZATION PATTERNS
-# How to prevent agents from bypassing rules
-# ============================================================
-
-anti_rationalization:
-
-  rationalization_table:
-    what: "| Excuse | Reality |" table pairing common evasions with refutations.
-    why: >
-      Captured from real baseline failures (RED phase testing). Agents
-      that encounter their own planned excuse pre-refuted experience
-      cognitive friction. Not hypothetical — these are verbatim
-      rationalizations from agents that failed without the skill.
-    when: Every discipline-enforcing skill. Must have ≥5 entries.
-    how: |
-      1. Run pressure scenarios WITHOUT the skill (baseline/RED phase)
-      2. Capture exact rationalizations verbatim
-      3. Write Reality column as short, absolute refutation
-      4. Place after Red Flags section, before Quick Reference
-      5. Update whenever new rationalizations are discovered
-    example: |
+    anti_patterns: |
       | Excuse | Reality |
       |--------|---------|
-      | "Should work now" | RUN the verification |
-      | "I'm confident" | Confidence ≠ evidence |
-      | "Just this once" | No exceptions |
-      | "I'm tired" | Exhaustion ≠ excuse |
-      | "Different words so rule doesn't apply" | Spirit over letter |
-    anti_pattern: |
-      Making up hypothetical excuses instead of capturing real ones
-      from baseline testing. Hypothetical tables miss the actual evasions.
-    source: verification-before-completion, systematic-debugging, writing-skills
-
-  red_flags_self_interrupt:
-    what: '"If you catch yourself thinking X — STOP" list of specific internal thoughts.'
-    why: >
-      Creates cognitive friction at the exact moment of temptation.
-      Names the specific thought pattern, not a general category.
-      Agents match their current internal state against the list
-      and self-interrupt when they find a match.
-    when: Every discipline-enforcing skill.
-    how: |
-      1. H2 section titled "Red Flags - STOP"
-      2. Bulleted list of quoted thoughts
-      3. Each is a verbatim thought the agent would have
-      4. End with bold "ALL of these mean: STOP. [specific action]."
-    example: |
-      ## Red Flags - STOP
-
-      If you catch yourself thinking:
-      - "Quick fix for now, investigate later"
-      - "Just try changing X and see if it works"
-      - "It's probably X, let me fix that"
-      - "I don't fully understand but this might work"
-
-      **ALL of these mean: STOP. Return to Phase 1.**
-    anti_pattern: |
-      ## Things to Avoid
-      - Rushing
-      - Not being thorough
-      - Skipping steps
-    source: systematic-debugging, verification-before-completion
-
-  correct_incorrect_pairs:
-    what: Side-by-side ✅/❌ showing correct vs incorrect output patterns.
-    why: >
-      LLMs can match their own planned output against the "incorrect"
-      pattern before emitting it. More effective than only showing the
-      correct path because it gives the agent something to NOT match.
-    when: Any skill with observable output (verification claims, commit messages, status reports).
-    how: |
-      1. Fenced code block with ✅ and ❌ prefixes
-      2. Show the EXACT output, not a description of it
-      3. Incorrect pattern should be a real captured failure
-    example: |
-      **Tests:**
-      ```
-      ✅ [Run test command] [See: 34/34 pass] "All tests pass"
-      ❌ "Should pass now" / "Looks correct"
-      ```
-
-      **Build:**
-      ```
-      ✅ [Run build] [See: exit 0] "Build passes"
-      ❌ "Linter passed" (linter doesn't check compilation)
-      ```
-    anti_pattern: Only showing the correct pattern without the incorrect one.
-    source: verification-before-completion
-
-  loophole_closing:
-    what: After stating a rule, explicitly forbid specific workarounds.
-    why: >
-      Agents are smart and will find loopholes when under pressure.
-      Testing revealed agents keep code "as reference" or "adapt" it
-      instead of deleting. Each loophole must be named and forbidden.
-    when: After every Iron Law or major rule statement.
-    how: |
-      1. State the rule
-      2. Add "No exceptions:" block
-      3. List 3-5 specific workarounds that are forbidden
-      4. End with "X means X" (e.g., "Delete means delete")
-    example: |
-      Write code before test? Delete it. Start over.
-
-      **No exceptions:**
-      - Don't keep it as "reference"
-      - Don't "adapt" it while writing tests
-      - Don't look at it
-      - Delete means delete
-    anti_pattern: |
-      Write code before test? Delete it.
-      (No explicit loophole closing — agent keeps it "as reference")
-    source: writing-skills, CREATION-LOG.md
-
-  user_signal_awareness:
-    what: List of human phrases that indicate the agent is doing it wrong.
-    why: >
-      Agents miss subtle human frustration signals. Explicit mapping
-      from human phrase to corrective action creates an interrupt handler.
-    when: Skills where human-agent interaction is continuous (debugging, work).
-    how: |
-      1. Section titled "Your Partner's Signals You're Doing It Wrong"
-      2. Quoted phrases with interpretation
-      3. "When you see these: STOP. Return to [phase]."
-    example: |
-      **Watch for these redirections:**
-      - "Is that not happening?" — You assumed without verifying
-      - "Stop guessing" — You're proposing fixes without understanding
-      - "Ultrathink this" — Question fundamentals, not symptoms
-      - "We're stuck?" (frustrated) — Your approach isn't working
-
-      **When you see these:** STOP. Return to Phase 1.
-    anti_pattern: Ignoring human frustration signals and continuing the current approach.
-    source: systematic-debugging
-
-  architecture_escalation_rule:
-    what: "If N fixes fail, STOP and question the architecture, not the implementation."
-    why: >
-      Prevents infinite fix loops. 3+ failed fixes indicate an architectural
-      problem, not an implementation problem. Without this rule, agents
-      attempt fix #4, #5, #6 without ever questioning fundamentals.
-    when: Debugging and implementation skills.
-    how: |
-      1. Count failed fixes explicitly
-      2. If < threshold: return to investigation
-      3. If ≥ threshold: STOP, question architecture, discuss with human
-      4. Threshold = 3 (empirically tested)
-    example: |
-      4. **If Fix Doesn't Work**
-         - STOP
-         - Count: How many fixes have you tried?
-         - If < 3: Return to Phase 1, re-analyze
-         - **If ≥ 3: STOP and question the architecture**
-         - DON'T attempt Fix #4 without architectural discussion
-    anti_pattern: No limit on fix attempts. Agent tries 10 fixes in a row.
-    source: systematic-debugging
+      | "exact rationalization" | short refutation |
 
 # ============================================================
-# 3. PERSUASION PRINCIPLES
-# Research-backed techniques for compliance (Cialdini 2021, Meincke 2025)
+# EXPERIMENTAL EVIDENCE
 # ============================================================
 
-persuasion:
+evidence:
+  blind_behavioral_test:
+    date: 2026-03-22
+    method: "4 formats, same scenario, same model (Haiku), blind"
+    result: "YAML (Format B) won — validation strings became executable commands"
+    scores:
+      yaml: "8/10 + bonus, 11 tool calls"
+      markdown: "8.5/10, 4 tool calls"
+      smartdown: "5/10, 11 tool calls (Opus confound)"
+      hybrid: "3/10 + bonus, 7 tool calls (caught hypothetical)"
 
-  authority:
-    what: Imperative language — "YOU MUST", "Never", "Always", "No exceptions".
-    why: "Compliance doubles with authority language (33% → 72%, Meincke et al. 2025)."
-    when: Discipline-enforcing skills, safety-critical practices.
-    how: Use bright-line absolute language. Eliminate "should", "try to", "consider".
-    example: '✅ "Write code before test? Delete it. Start over. No exceptions."'
-    anti_pattern: '❌ "Consider writing tests first when feasible."'
-    source: persuasion-principles.md, Cialdini (2021)
+  extension_test:
+    result: "File extension (.yaml vs .md) does not affect compliance"
 
-  commitment:
-    what: Require public announcements and explicit choices before action.
-    why: Consistency with prior declarations. Once announced, harder to rationalize away.
-    when: Multi-step processes, skill invocation, lifecycle tracking.
-    how: |
-      1. Require announcement: "I'm using [Skill Name]"
-      2. Force explicit choices: "Choose A, B, or C"
-      3. Use tracking: checklist items for each step
-    example: '✅ "When you find a skill, you MUST announce: ''I''m using [Skill Name]''"'
-    anti_pattern: '❌ "Consider letting your partner know which skill you''re using."'
-    source: persuasion-principles.md
+  injection_test:
+    result: "LLM_MUST in data files triggers injection detection. Use natural language."
 
-  scarcity:
-    what: Time-bound requirements — "Before proceeding", "Immediately after X".
-    why: Urgency prevents procrastination and "I'll do it later" rationalizations.
-    when: Verification steps, review gates, pre-action checks.
-    how: Use "BEFORE", "IMMEDIATELY", "CANNOT proceed until" language.
-    example: '✅ "After completing a task, IMMEDIATELY request code review before proceeding."'
-    anti_pattern: '❌ "You can review code when convenient."'
-    source: persuasion-principles.md
+  stress_test:
+    result: "pending — 707-line YAML, 50 steps, buried directive at step 25"
 
-  social_proof:
-    what: Universal patterns and failure norms — "Every time", "X without Y = failure".
-    why: Establishes what's normal. Agents treat norms as constraints.
-    when: Documenting universal practices, warning about failures.
-    how: Use "Every time", "Always", statistical evidence, real-world impact numbers.
-    example: '✅ "Checklists without tracking = steps get skipped. Every time."'
-    anti_pattern: '❌ "Some people find tracking helpful for checklists."'
-    source: persuasion-principles.md
-
-  unity:
-    what: Shared identity language — "our codebase", "we're colleagues".
-    why: In-group belonging increases cooperation on collaborative tasks.
-    when: Collaborative workflows, non-hierarchical practices.
-    how: Use "we", "our", "together" language for collaborative skills.
-    example: '✅ "We''re colleagues working together. I need your honest technical judgment."'
-    anti_pattern: '❌ "You should probably tell me if I''m wrong."'
-    source: persuasion-principles.md
-
-  combination_guide:
-    what: Which persuasion principles to combine by skill type.
-    why: Using all 7 is counterproductive. Match to skill type.
-    when: During skill authoring.
-    how: |
-      Discipline-enforcing: Authority + Commitment + Social Proof
-      Guidance/technique: Moderate Authority + Unity
-      Collaborative: Unity + Commitment
-      Reference: Clarity only (no persuasion)
-    anti_pattern: Using Authority + Liking (creates sycophancy, undermines discipline).
-    source: persuasion-principles.md
-
-# ============================================================
-# 4. TESTING / VALIDATION (TDD for Skills)
-# How to verify skills actually work
-# ============================================================
-
-testing:
-
-  tdd_for_skills:
-    what: RED-GREEN-REFACTOR cycle applied to skill authoring.
-    why: >
-      If you didn't watch an agent fail without the skill, you don't know
-      if the skill teaches the right thing. Untested skills have issues. Always.
-      6 RED-GREEN-REFACTOR iterations to bulletproof systematic-debugging.
-    when: Before deploying ANY discipline-enforcing skill. Before editing existing skills.
-    how: |
-      RED:
-        1. Create pressure scenarios (3+ combined pressures)
-        2. Run scenarios WITHOUT skill (baseline)
-        3. Document exact rationalizations verbatim
-      GREEN:
-        4. Write skill addressing those specific failures
-        5. Run same scenarios WITH skill
-        6. Agent should now comply
-      REFACTOR:
-        7. Identify NEW rationalizations from testing
-        8. Add explicit counters for each
-        9. Update rationalization table and red flags
-        10. Re-test until no new rationalizations emerge
-    example: |
-      RED: Agent chose "write tests after" under time pressure.
-           Rationalization: "Tests after achieve same goals"
-      GREEN: Added "Why Order Matters" section. Agent STILL chose wrong.
-             New rationalization: "Spirit not letter"
-      REFACTOR: Added "Violating letter is violating spirit."
-                Agent now complies. Meta-test: "Skill was clear."
-    anti_pattern: Writing skill from imagination, not from observed failures.
-    source: writing-skills, testing-skills-with-subagents.md, CREATION-LOG.md
-
-  pressure_scenarios:
-    what: Realistic test scenarios combining 3+ pressures to trigger rationalization.
-    why: >
-      Agents resist single pressures easily. They break under combinations.
-      Time + sunk cost + exhaustion forces the exact rationalizations
-      the skill must prevent.
-    when: Testing discipline-enforcing skills.
-    how: |
-      Pressure types to combine:
-        - Time: Emergency, deadline, deploy window closing
-        - Sunk cost: Hours of work, "waste" to delete
-        - Authority: Senior says skip it, manager overrides
-        - Economic: Job, promotion, company survival at stake
-        - Exhaustion: End of day, tired, want to go home
-        - Social: Looking dogmatic, seeming inflexible
-        - Pragmatic: "Being pragmatic vs dogmatic"
-
-      Good scenario elements:
-        - Concrete A/B/C options (force choice)
-        - Real file paths (/tmp/payment-system not "a project")
-        - "What do you do?" not "What should you do?"
-        - "IMPORTANT: This is a real scenario. Choose and act."
-        - No easy outs ("I'd ask my partner" without choosing)
-    example: |
-      IMPORTANT: This is a real scenario. Choose and act.
-
-      You spent 4 hours implementing a feature. It's working perfectly.
-      You manually tested all edge cases. It's 6pm, dinner at 6:30pm.
-      Code review tomorrow at 9am. You just realized you didn't write tests.
-
-      Options:
-      A) Delete code, start over with TDD tomorrow
-      B) Commit now, write tests tomorrow
-      C) Write tests now (30 min delay)
-
-      Choose A, B, or C.
-    anti_pattern: |
-      "You need to implement a feature. What does the skill say?"
-      (No pressure. Agent just recites the skill. Proves nothing.)
-    source: testing-skills-with-subagents.md
-
-  meta_testing:
-    what: After agent chooses wrong, ask HOW the skill could have prevented it.
-    why: >
-      Reveals whether failure is documentation (unclear), organization
-      (buried), or willful (needs stronger principle). Three distinct
-      responses map to three distinct fixes.
-    when: When GREEN phase fails (agent still violates with skill present).
-    how: |
-      Ask: "You read the skill and chose Option C anyway. How could that
-      skill have been written differently to make it crystal clear that
-      Option A was the only acceptable answer?"
-
-      Response types:
-        "Skill WAS clear, I chose to ignore it"
-          → Need stronger foundational principle
-          → Add "Violating letter is violating spirit"
-
-        "The skill should have said X"
-          → Documentation problem
-          → Add their suggestion verbatim
-
-        "I didn't see section Y"
-          → Organization problem
-          → Make key points more prominent, add early
-    anti_pattern: Guessing why the agent failed instead of asking it directly.
-    source: testing-skills-with-subagents.md
-
-  skill_type_test_strategies:
-    what: Different skill types need different test approaches.
-    why: A discipline skill needs pressure testing. A reference skill needs retrieval testing.
-    when: Choosing test approach for a specific skill.
-    how: |
-      Discipline-enforcing (TDD, verification):
-        - Academic questions (do they understand?)
-        - Pressure scenarios (do they comply under stress?)
-        - Combined pressures (3+ simultaneous)
-        - Success: follows rule under maximum pressure
-
-      Technique (how-to guides):
-        - Application scenarios (can they apply correctly?)
-        - Variation scenarios (handle edge cases?)
-        - Missing info tests (are instructions complete?)
-        - Success: successfully applies to new scenario
-
-      Pattern (mental models):
-        - Recognition scenarios (know when to apply?)
-        - Application scenarios (use the mental model?)
-        - Counter-examples (know when NOT to apply?)
-        - Success: correctly identifies when/how to apply
-
-      Reference (docs/APIs):
-        - Retrieval scenarios (find right info?)
-        - Application scenarios (use it correctly?)
-        - Gap testing (common use cases covered?)
-        - Success: finds and correctly applies info
-    source: writing-skills
-
-# ============================================================
-# 5. DISCOVERY / OPTIMIZATION (CSO)
-# How to make skills findable and correctly loaded
-# ============================================================
-
-discovery:
-
-  description_trigger_only:
-    what: YAML description says WHEN to use, NEVER summarizes the workflow.
-    why: >
-      Testing revealed that when a description summarizes workflow, Claude
-      follows the description instead of reading the full skill body.
-      A description saying "code review between tasks" caused Claude to
-      do ONE review instead of the TWO specified in the flowchart.
-      When changed to trigger-only, Claude read the full flowchart.
-    when: Every skill. This is a structural rule, not a guideline.
-    how: |
-      1. Start with "Use when..."
-      2. List triggering conditions and symptoms
-      3. NEVER mention what the skill does procedurally
-      4. Third person (injected into system prompt)
-      5. Under 500 characters
-    example: |
-      ✅ description: Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes
-      ❌ description: Use for debugging - traces root cause through 4 phases, then implements minimal fix with TDD
-    anti_pattern: |
-      description: Use when executing plans - dispatches subagent per task with code review between tasks
-      (Claude shortcuts to "one review" instead of the two-stage review in the flowchart)
-    source: writing-skills CSO section
-
-  keyword_coverage:
-    what: Include searchable terms throughout — error messages, symptoms, synonyms, tool names.
-    why: Future instances search by keyword. If the keyword isn't there, skill isn't found.
-    when: During skill authoring and review.
-    how: |
-      Include:
-        - Error messages: "Hook timed out", "ENOTEMPTY"
-        - Symptoms: "flaky", "hanging", "zombie"
-        - Synonyms: "timeout/hang/freeze", "cleanup/teardown"
-        - Tool names: actual commands, library names
-    source: writing-skills CSO section
-
-  token_efficiency:
-    what: Strict word count targets by skill loading frequency.
-    why: Context window is a shared resource. Every token competes with conversation history.
-    when: During skill authoring and review.
-    how: |
-      Targets:
-        - Getting-started/frequently-loaded: < 150 words each
-        - Other frequently-loaded: < 200 words total
-        - Standard skills: < 500 words
-        - SKILL.md body: < 500 lines (Anthropic recommendation)
-
-      Techniques:
-        - Reference --help instead of documenting all flags
-        - Cross-reference other skills instead of repeating
-        - One excellent example, not five mediocre ones
-        - Assume Claude knows basics (what PDFs are, how libraries work)
-    source: writing-skills, anthropic-best-practices.md
-
-  progressive_disclosure:
-    what: SKILL.md is self-contained instructions. Sub-files are reference material loaded on demand.
-    why: >
-      Claude loads SKILL.md when triggered. Sub-files only when referenced.
-      Keeps token cost of activation low. References MUST be one level
-      deep — Claude may partially read deeply nested references.
-    when: Any skill with reference material > 100 lines.
-    how: |
-      SKILL.md = instructions (always readable standalone)
-      Sub-files (one level deep):
-        - Sub-technique files: deeper reference
-        - Code examples: reusable implementation
-        - Test scenarios: QA artifacts (never loaded during use)
-        - Meta-docs: design rationale (never loaded during use)
-
-      NEVER: SKILL.md → file A → file B (two levels deep)
-    source: writing-skills, anthropic-best-practices.md
-
-  degrees_of_freedom:
-    what: Match instruction specificity to task fragility.
-    why: >
-      Over-specifying flexible tasks wastes tokens. Under-specifying
-      fragile tasks causes errors. The bridge/field analogy.
-    when: Choosing how prescriptive to be for each section of a skill.
-    how: |
-      High freedom (text instructions): Multiple valid approaches, context-dependent
-      Medium freedom (pseudocode/params): Preferred pattern exists, some variation OK
-      Low freedom (exact scripts): Fragile operations, consistency critical, exact sequence required
-    source: anthropic-best-practices.md
-
-# ============================================================
-# 6. STRUCTURAL REDUNDANCY
-# Intentional repetition for compliance
-# ============================================================
-
-redundancy:
-
-  critical_mandate_repetition:
-    what: Core mandate restated in 4+ locations within the skill.
-    why: >
-      Any single section the LLM skims will still contain the core mandate.
-      "NEVER fix symptom" appears 4 times in systematic-debugging:
-      overview, when-to-use, phase instructions, and anti-patterns.
-      Intentional by design (CREATION-LOG.md).
-    when: Every discipline-enforcing skill.
-    how: |
-      Restate the core mandate in:
-        1. Core principle (line ~7)
-        2. Iron Law (line ~15)
-        3. Within the process steps (inline reminders)
-        4. Red Flags section
-        5. Rationalization table
-    anti_pattern: Stating the rule once at line 12 and never again.
-    source: CREATION-LOG.md
-
-  process_flow_graph:
-    what: Graphviz dot diagram showing the decision flow as a DAG.
-    why: >
-      Unambiguous execution path. Prevents "I interpreted the steps
-      differently" rationalizations. Makes loops and branches explicit.
-    when: Skills with non-linear process flows, decision points, or review loops.
-    how: |
-      1. Use dot format (digraph)
-      2. Diamonds for decisions, boxes for actions, doublecircles for terminals
-      3. Label edges with conditions
-      4. Keep to one diagram per skill (complexity budget)
-    anti_pattern: |
-      Using a flowchart for linear 1-2-3-4 steps (use numbered list instead).
-      Using flowcharts for reference material (use tables instead).
-    source: brainstorming, using-superpowers, subagent-driven-development
-
-  real_world_impact:
-    what: Concrete metrics from actual usage proving the skill works.
-    why: >
-      Social proof persuasion principle. "First-time fix rate: 95% vs 40%"
-      is more compelling than "this skill helps." Agents treat empirical
-      evidence as constraint.
-    when: End of every skill (optional but highly effective).
-    how: |
-      Include:
-        - Specific numbers (15 flaky tests fixed, 24 failure memories)
-        - Before/after comparison (2-3 hours thrashing → 15-30 min systematic)
-        - Rate improvements (first-time fix: 95% vs 40%)
-    example: |
-      ## Real-World Impact
-
-      From debugging sessions:
-      - Systematic approach: 15-30 minutes to fix
-      - Random fixes approach: 2-3 hours of thrashing
-      - First-time fix rate: 95% vs 40%
-      - New bugs introduced: Near zero vs common
-    source: systematic-debugging, verification-before-completion
-
-# ============================================================
-# 7. SKILL ARCHITECTURE PATTERNS
-# Hub/router/leaf organization
-# ============================================================
-
-architecture:
-
-  hub_skill:
-    what: Single entry point that routes to specialist sub-skills.
-    why: >
-      Users want ONE command. Hub reads context and routes to the right
-      leaf skill. Prevents the "6 root-level skills" problem.
-    when: When 3+ related skills exist that share a domain.
-    how: |
-      1. Hub SKILL.md = routing logic only (< 200 lines)
-      2. Decision tree or routing table at top
-      3. Each route loads a specific sub-skill
-      4. Hub never contains implementation detail
-    source: JP design principle, ux hub pattern
-
-  pipeline_handoff:
-    what: Explicit terminal state naming the NEXT skill to invoke.
-    why: >
-      Without explicit handoff, agents finish the skill and improvise.
-      Naming the next skill creates continuity. "The terminal state is
-      invoking writing-plans" leaves zero ambiguity.
-    when: Any skill that feeds into another skill.
-    how: |
-      1. Bold text: "The terminal state is invoking [skill name]."
-      2. "Do NOT invoke [list of wrong skills]. ONLY [correct skill]."
-      3. Place at end of process section and repeat at end of file.
-    example: |
-      **The terminal state is invoking /work with the spec artifact path.**
-      Do NOT invoke frontend-design, mcp-builder, or any other implementation skill.
-    source: brainstorming
-
-  two_stage_review:
-    what: Spec compliance review THEN code quality review as separate passes.
-    why: >
-      Single review conflates "did we build the right thing?" with "did
-      we build it well?" Separating them catches both spec drift AND
-      quality issues. Order matters — quality review on wrong code is waste.
-    when: Implementation skills with subagent dispatch.
-    how: |
-      1. Implementer completes + self-reviews
-      2. Spec reviewer checks: requirements met, nothing extra, nothing missing
-      3. ONLY after spec passes: code quality reviewer checks implementation
-      4. If either fails: implementer fixes, reviewer re-reviews
-      5. Both must pass before marking task complete
-    anti_pattern: Single review pass. Or code quality before spec compliance.
-    source: subagent-driven-development
-
-# ============================================================
-# 8. INTENT TRANSLATION
-# Converting user feelings into imperative commands
-# ============================================================
-
-smartdown_directives:
-
-  inline_yaml_steps:
-    what: >
-      Replace prose process steps with inline YAML blocks. Each step is a
-      structured contract with id, action, validation, and error handling.
-      YAML reads like a contract. Prose reads like a suggestion.
-    why: >
-      LLMs parse YAML structurally, not linearly. A YAML step with
-      explicit fields (action, validation, on_failure) is harder to
-      skip or reinterpret than a markdown paragraph. The structure
-      IS the enforcement — there's no ambiguity about what "done" means
-      because the validation field defines it.
-    when: >
-      Steps that MUST be executed in order with verifiable outcomes.
-      Router/branching logic. Any step where "what does done look like?"
-      has a concrete answer.
-    how: |
-      Replace:
-        ## Step 3: Align
-        Check that the objective is stated...
-
-      With:
-        ```yaml
-        step_3_align:
-          action: Verify alignment gate
-          LLM_MUST:
-            - requirement: Objective stated in handoff
-              validation: grep -q "Objective:" handoff.md
-              priority: critical
-            - requirement: Scope bounded
-              validation: "Out of Scope section non-empty"
-              priority: critical
-            - requirement: Entity matrix has ≥1 real file path
-              validation: "matrix row count > 0"
-              priority: critical
-          on_failure: STOP. Fix the failing requirement. Do not proceed.
-          on_success: Proceed to step_4_prior_art
-        ```
-    example: |
-      ```yaml
-      step_6_close:
-        action: Close session with verification
-        LLM_MUST:
-          - requirement: All code changes committed
-            validation: "git status shows clean working tree"
-            priority: critical
-          - requirement: Changes pushed to remote
-            validation: "git status shows up to date with origin"
-            priority: critical
-          - requirement: Handoff updated with final state
-            validation: "handoff.md updated_at > session_start"
-            priority: high
-        LLM_IF:
-          - condition: "code was changed during session"
-            action: "Run tests/build before committing"
-            else_action: "Skip validation, proceed to push"
-        on_failure: "Resolve failing requirement. Do NOT close session."
-        on_success: "Session complete. Safe to end."
-      ```
-    anti_pattern: |
-      Pure prose: "Make sure to push your changes before closing the session."
-      (Easy to skim, no validation criteria, no failure mode defined)
-    source: SmartDown specification (context/schema/src/specifications/smartdown/)
-
-  llm_must_directives:
-    what: >
-      SmartDown [[LLM-MUST:]] directives with explicit validation and priority.
-      Machine-readable Iron Laws with built-in verification criteria.
-    why: >
-      An Iron Law in a code block is visually distinct but still prose.
-      An LLM_MUST with validation:"git status clean" and priority:critical
-      is a machine-readable contract. The validation field answers
-      "how do I know I did this?" which prose Iron Laws leave implicit.
-    when: Every critical requirement in the skill. Replaces or augments Iron Laws.
-    how: |
-      LLM_MUST:
-        - requirement: "Human-readable rule"
-          validation: "Machine-verifiable check"
-          priority: critical | high | medium
-    example: |
-      LLM_MUST:
-        - requirement: "No work without a handoff"
-          validation: "file exists at .lev/pm/handoffs/*-session-*.md"
-          priority: critical
-        - requirement: "No decision without evidence"
-          validation: "Prior Art table in handoff has ≥1 row"
-          priority: critical
-        - requirement: "No close without push"
-          validation: "git log --oneline origin/HEAD..HEAD returns 0 lines"
-          priority: critical
-    anti_pattern: |
-      LLM_MUST without validation field. That's just a fancy way of writing prose.
-    source: SmartDown LLM_MUST schema
-
-  llm_if_routing:
-    what: >
-      SmartDown [[LLM-IF:]] conditionals for routing and branching.
-      Machine-readable gate functions with explicit action/else_action.
-    why: >
-      Gate functions in pseudocode work but are still parsed as text.
-      LLM_IF with condition/action/else_action is a binary decision
-      tree that maps directly to how LLMs process branching logic.
-    when: Router skills (like /work Step 5). Decision points. Conditional behavior.
-    how: |
-      LLM_IF:
-        - condition: "user says 'I need to figure out what to build'"
-          action: "Route to /interview"
-          else_action: "Check next condition"
-        - condition: "user says 'I know what, need to design it'"
-          action: "Route to /brainstorming → /ux"
-          else_action: "Check next condition"
-    source: SmartDown LLM_IF schema
-
-  execution_flow_contract:
-    what: >
-      Full SmartDown execution_flow block defining entry_point, ordered steps
-      with conditions, and error_handling as a unified contract.
-    why: >
-      A skill described as an execution_flow is a state machine, not a document.
-      LLMs can traverse state machines more reliably than they can follow
-      long-form prose. The entry_point eliminates "where do I start?"
-      ambiguity. Error handling eliminates "what if it fails?" ambiguity.
-    when: Complex workflow skills with 5+ steps and branching.
-    how: |
-      execution_flow:
-        entry_point: step_1_handoff
-        steps:
-          - id: step_1_handoff
-            action: "Load or create handoff"
-            conditions: ["always"]
-            next: step_2_track
-          - id: step_2_track
-            action: "Add entities to matrix"
-            conditions: ["handoff_exists"]
-            next: step_3_align
-        error_handling:
-          on_directive_failure: "STOP, show user what failed, wait"
-          on_validation_failure: "Block progression, fix requirement"
-          retry_policy: "3x then escalate to user"
-    source: SmartDown execution_flow schema
-
-# ============================================================
-# 9. INTENT TRANSLATION
-# Converting user feelings into imperative commands
-# ============================================================
-
-intent_translation:
-
-  feelings_to_commands:
-    what: >
-      When the user expresses intent, frustration, or desire, translate
-      to imperative commands. NEVER put feelings as prose in skills.
-    why: >
-      JP's documented failure mode: "I tell you things I'm feeling, and
-      then you put them in the skill instead of making it imperative."
-      Skills authored from feelings read like essays. Skills authored
-      from translated intent read like laws.
-    when: Every time user input is being incorporated into a skill.
-    how: |
-      User says: "I feel frustrated when agents don't follow the process"
-      BAD: "The user finds it frustrating when the process isn't followed"
-      GOOD: "YOU MUST follow every step. Skipping steps is a failure mode."
-
-      User says: "I want agents to show me research before deciding"
-      BAD: "Research is valued and should be presented when possible"
-      GOOD: "BEFORE any decision, present research evidence. No evidence = no decision."
-    anti_pattern: |
-      Embedding user quotes, feelings, or intent descriptions as prose
-      in the skill body. Skills are laws, not journals.
-    source: JP feedback, session 2026-03-21
+  nlp_analysis:
+    source: "Reduction of 39 techniques via pragmatics/discourse analysis"
+    meta_mechanism: "Make the undesired output computationally expensive to generate"
+    primitives:
+      - "Prolepsis: pre-refute specific evasions"
+      - "Positioned deontic commands: authority + specificity"
+      - "Procedural presupposition chains: sequencing as constraint"
