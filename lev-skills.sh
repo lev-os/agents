@@ -31,6 +31,7 @@ COMMAND_HOOKED = {
 }
 
 ACTIVE_KEEP_FOLDERS = {
+    "cutting-edge-audit",
     "find-skills",
     "gitsync",
     "interview",
