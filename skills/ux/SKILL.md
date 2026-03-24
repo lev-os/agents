@@ -93,6 +93,8 @@ Treat the user's message (including any `/ux ...` text) as the input.
 
 - If it contains `continue`: resume the most recent run folder under `.lev/ux/`.
 
+- If it contains `spike`: Skip directly to Step 7 (Wireframes). Sketch the interface based on the request alone — no analysis, no artifacts, just wireframes. After wireframes, optionally back-fill Steps 1-6 from what was drawn. This is prototype-first design.
+
 - Otherwise: AUTO mode. Run all 7 steps end-to-end and produce wireframes.
 
 ## Output Location
@@ -105,11 +107,13 @@ Write artifacts below. If resuming, reuse the existing `RUN_DIR`.
 
 Artifacts (expected):
 
+- `domain_exploration.md`
+
 - `problem_spec.yaml`
 
 - `study_design.yaml`
 
-- `user_research.md`
+- `user_and_agent_research.md`
 
 - `routed_skills.json`
 
@@ -223,6 +227,38 @@ grep -i "{keyword}" ~/.agents/skills-db/thinking/11-ui-ux/task.csv \
 
 6. Continue pipeline regardless — routing enriches, never blocks.
 
+## Step 0b: Unconstrained Domain Exploration
+
+**Optional. Runs in `full` and `auto` modes. Skip with `step 1` or `spike`.**
+
+Before problem framing, construct 2-3 personas grounded ONLY in the domain — not in any specific problem. These personas don't know what you're building. They know the domain.
+
+### 0b.1: Construct Domain Personas
+
+From the user's request, identify the domain (e.g., "developer tooling", "healthcare scheduling", "social commerce"). Construct 2-3 personas who live in that domain daily — different roles, different frustrations, different expertise levels.
+
+Each persona: ~150 words. Who they are, what they deal with, what drives them crazy. No problem_spec to anchor to — that's the point.
+
+### 0b.2: Open-Ended Exploration
+
+Ask each persona (via tribunal or Agent dispatch):
+
+- "What frustrates you most about [domain] right now?"
+- "If you could change one thing about how [domain] works, what would it be?"
+- "What's broken that nobody talks about?"
+
+### 0b.3: Compare with Intended Problem
+
+After collecting responses, compare their unprompted concerns with the problem you planned to frame in Step 1.
+
+- **Strong overlap**: Your problem framing is grounded. Proceed.
+- **Partial overlap**: Adjust problem_spec to incorporate concerns you missed.
+- **Significant divergence**: Reconsider your problem framing entirely. The domain personas surfaced problems you didn't consider — maybe you're solving the wrong thing.
+
+Write `domain_exploration.md` with personas, responses, and comparison.
+
+**Why this exists**: Step 1b (synthetic user research) constructs personas FROM the problem_spec, which means they can't say "you're solving the wrong problem." Step 0b breaks that circular validation by exploring the domain before committing to a problem frame.
+
 ## Step 1: Problem Framing
 
 Write `problem_spec.yaml`:
@@ -303,7 +339,7 @@ The same persona runs against every model. The same model runs every persona. Th
 
 ### 1b.3: Analyze & Integrate
 
-Write `user_research.md`:
+Write `user_and_agent_research.md`:
 
 - **Per-persona across models**: Does reasoning strength change the reaction? Where do edges appear?
 
@@ -325,11 +361,25 @@ Feed into Step 2 (JTBD):
 
 - Edge cases → risk register or scope exclusions
 
+### 1b.4: Self-Invalidation Gate
+
+After collecting results, evaluate whether the pipeline should continue:
+
+- **gate_decision: proceed** — Clear signal. Personas differentiated. Convergence/divergence is actionable. Continue to Step 2.
+- **gate_decision: reframe** — Step 0b concerns diverge significantly from Step 1 problem_spec, OR personas surfaced a better problem. Go back to Step 1 and revise problem_spec.
+- **gate_decision: abort** — ALL personas across ALL models say "just build and iterate" or equivalent. OR convergence is below useful threshold (too much noise, no clear signal). Recommend a different approach: rapid prototyping, traditional user interviews, design sprint, or just-build-it.
+
+A pipeline that can't recommend against itself isn't honest. If the research says this tool is wrong for this problem, say so and stop.
+
+Append `gate_decision` to `user_and_agent_research.md`. If `abort`, write `summary.md` with the recommendation to NOT continue the pipeline, and why.
+
 ### Artifacts
 
 - `study_design.yaml` (study design with personas, matrix, rationale)
 
-- `user_research.md` (results, convergence/divergence analysis, JTBD integration notes)
+- `user_and_agent_research.md` (results, convergence/divergence analysis, gate decision, JTBD integration notes)
+
+- `domain_exploration.md` (Step 0b output, if run)
 
 ## Step 2: Jobs To Be Done (JTBD)
 

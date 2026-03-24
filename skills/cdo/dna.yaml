@@ -1,0 +1,112 @@
+name: cdo
+version: 2.1.0
+description: "Adaptive multi-agent deliberation for cdo/think/deep/debug/parliament workflows"
+entry: parse
+
+nodes:
+  parse:
+    description: "Parse invocation, resolve preset + modifiers + problem"
+    content: nodes/parse.md
+    routes:
+      quick: "Single question, known domain"
+      think: "Trade-off or design question"
+      deep: "Multi-stakeholder or high-uncertainty"
+      full: "Strategic or high-stakes"
+      debug: "Bug, failure, unexpected behavior"
+    validation:
+      rule: "preset is one of: quick, think, deep, full, debug"
+    on_failure: "Ask the user to clarify what they want analyzed"
+
+  quick:
+    description: "1-turn, 1-2 agents, fast analysis"
+    content: nodes/quick.md
+    requires: [parse]
+    next: final
+
+  think:
+    description: "2-3 turns, multi-perspective synthesis"
+    content: nodes/think.md
+    requires: [parse]
+    next: final
+
+  deep:
+    description: "3-5 turns, full deliberation with adversarial validation"
+    content: nodes/deep.md
+    requires: [parse]
+    next: final
+
+  full:
+    description: "5-10 turns, maximum depth with research + synthesis"
+    content: nodes/full.md
+    requires: [parse]
+    next: final
+
+  debug:
+    description: "7-turn fixed RCA protocol"
+    content: nodes/debug.md
+    requires: [parse]
+    next: final
+    validation:
+      rule: "all 7 debug steps completed with artifacts on disk"
+
+  final:
+    description: "Produce FINAL.md — the only user-facing deliverable"
+    content: nodes/final.md
+    requires: [quick, think, deep, full, debug]
+    terminal: true
+    validation:
+      rule: "FINAL.md exists with Decision, Confidence, Tensions, Minority Reports, Action Items"
+    on_failure: "Re-run synthesis with explicit section checklist"
+
+anti_patterns:
+  - excuse: "Let me synthesize the agents' output myself"
+    reality: "You are the router. Synthesis is always a separate agent."
+    priority: discipline
+    triggers:
+      - "I'll just summarize what the agents said"
+      - "let me combine their outputs"
+      - "I can synthesize this myself"
+      - "no need for a separate synthesis step"
+  - excuse: "I'll plan all turns upfront"
+    reality: "Turn N+1 comes from Turn N's synthesis. No pre-planning."
+    priority: discipline
+    triggers:
+      - "let me plan all the turns first"
+      - "here's my 5-turn plan"
+      - "I'll map out the full deliberation"
+      - "let me outline every round before starting"
+  - excuse: "The agents mostly agree, so we're done"
+    reality: ">70% agreement = groupthink. Add devil's advocate."
+    priority: discipline
+    triggers:
+      - "they all agree, let's move on"
+      - "consensus reached, we're done"
+      - "everyone is aligned"
+      - "no dissent, so wrap it up"
+      - "the agents converged quickly"
+  - excuse: "This is simple enough for CDO"
+    reality: "If one sentence answers it, just answer. CDO is for genuine problems."
+    priority: discipline
+    triggers:
+      - "let's run CDO on this"
+      - "use the parliament for this question"
+      - "spin up agents for this"
+      - "let's deliberate on this real quick"
+  - excuse: "I'll just run one more fix attempt"
+    reality: "3 failed fixes = wrong architecture. Stop fixing."
+    priority: safety
+    triggers:
+      - "let me try one more thing"
+      - "I think I know what's wrong now"
+      - "one more fix should do it"
+      - "almost there, just one more attempt"
+      - "this next fix will definitely work"
+  - excuse: "The directive says X but I think Y is better"
+    reality: "You do not override the synthesis directive. Ever."
+    priority: safety
+    triggers:
+      - "I think we should do Y instead"
+      - "the directive is wrong here"
+      - "I have a better approach"
+      - "let me override that recommendation"
+      - "the synthesis missed something obvious"

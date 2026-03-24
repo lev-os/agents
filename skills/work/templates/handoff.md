@@ -267,10 +267,11 @@ path/to/component/
 
 An entity is a **file or directory at a path**. Not a concept. Not a label.
 
-| # | File | Path | State | Canonical Ref | Decision | Next |
-|---|------|------|-------|---------------|----------|------|
-| 1 | {filename} | {path/to/file} | loaded | {spec or —} | {D1 or —} | {next action} |
+| # | File | Path | State | Impact | Canonical Ref | Decision | Next |
+|---|------|------|-------|--------|---------------|----------|------|
+| 1 | {filename} | {path/to/file} | loaded | {1-5} | {spec or —} | {D1 or —} | {next action} |
 
+**Impact** = 1 (cosmetic) · 2 (minor) · 3 (moderate) · 4 (significant) · 5 (critical).
 **Canonical Ref** = the spec, design, or doc this file is governed by (if any).
 **Decision** = which handoff decision(s) touch this entity (D1, D2, etc.).
 

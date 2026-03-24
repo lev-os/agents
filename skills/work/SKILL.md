@@ -222,6 +222,18 @@ BEFORE claiming this session is complete:
 Skip any step = incomplete session = stranded work
 ```
 
+If closing reveals unresolved or unprocessed handoffs:
+
+1. Keep `work` as the entry surface and update the active handoff first.
+2. If the operator already knows the exact handoff path, route to:
+   `bun plugins/prompt-stack/src/cli.ts init --stack sdlc-handoff-close --project-dir /absolute/project/path`
+3. If the operator needs to scan and choose from multiple handoffs, route to:
+   `bun plugins/prompt-stack/src/cli.ts init --stack sdlc-handoff-rollup --project-dir /absolute/project/path`
+4. Record each step output into `.lev/pm/reports/`.
+5. Return to the active handoff after `record`/`validate` and update continuity there.
+
+`work` owns the closeout decision. `stack` owns the execution-plane rollup loop.
+
 ```
 ✅ [Run git push] [See: "up to date with origin"] "Session complete"
 ❌ "Ready to push when you are" / "Work is done" (without pushing)

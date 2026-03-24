@@ -1,0 +1,142 @@
+name: skill-builder
+version: 1.0.0
+description: "Build, intake, and validate skills using the intent compiler pattern"
+entry: intake
+
+nodes:
+  intake:
+    description: "Classify the request and show alignment dashboard"
+    content: nodes/intake.md
+    routes:
+      interview: "User wants to create a skill from scratch or a concept"
+      seekers: "User provides a URL, GitHub repo, PDF, or skills.sh link"
+      security: "User wants to audit an existing skill"
+      merge: "User wants to merge or combine existing skills"
+    validation:
+      rule: "exactly one route selected and user confirmed alignment"
+    on_failure: "Ask a clarifying question. Do not guess the route."
+
+  interview:
+    description: "Question loop until full YAML contract is modeled"
+    content: nodes/interview.md
+    requires: [intake]
+    validation:
+      rule: "every step in the proposed skill has id, action, instruction, validation, on_failure"
+    on_failure: "Keep asking questions. You don't understand the skill yet."
+    next: authoring
+
+  seekers:
+    description: "Preflight, install, and run skill-seekers extraction"
+    content: nodes/seekers.md
+    requires: [intake]
+    validation:
+      rule: "output/{name}/ directory exists with extracted content"
+    on_failure: "Check skill-seekers installation. See references/setup.md."
+    next: authoring
+
+  authoring:
+    description: "Apply format spec — YAML contracts, nodes, schemas"
+    content: nodes/authoring.md
+    requires: [interview, seekers]
+    validation:
+      rule: "SKILL.md or dna.yaml exists with YAML frontmatter and all steps have validation strings"
+    on_failure: "Reformat. Every step needs id, action, instruction, validation, on_failure."
+    next: scaffold
+
+  scaffold:
+    description: "Generate the full skill directory structure"
+    content: nodes/scaffold.md
+    requires: [authoring]
+    validation:
+      rule: "dna.yaml exists AND bin/flow validate --skill {path} exits 0"
+      check: "python3 ~/.agents/skills/skill-builder/bin/flow validate --skill {output_path}"
+    on_failure: "Fix graph errors reported by flow validate. No orphans, no cycles."
+    next: security
+
+  security:
+    description: "Run 3-scanner security audit"
+    content: nodes/security.md
+    requires: [scaffold, intake]
+    validation:
+      rule: "security verdict is PASS or PASS-WITH-WARNINGS"
+      check: "bash ~/.agents/skills/skill-builder/scripts/run-security-audit.sh {skill_path}/SKILL.md"
+    on_failure: "Hard reject. Quarantine to .archive/ with reason."
+    next: validation
+
+  validation:
+    description: "Run BDD scenarios and self-check"
+    content: nodes/validation.md
+    requires: [security]
+    validation:
+      rule: "all BDD scenarios pass — skill guides agent to correct behavior"
+      self: "Load the skill in a subagent, give it a pressure scenario, check compliance"
+    on_failure: "Capture rationalization, add to anti_patterns, re-test."
+    next: deliver
+
+  deliver:
+    description: "Catalog, report, and activate"
+    content: nodes/deliver.md
+    requires: [validation]
+    terminal: true
+    produces: report
+    validation:
+      rule: "skill installed at target path and flow validate passes"
+
+  merge:
+    description: "Analyze overlap and produce merged skill"
+    content: nodes/merge.md
+    requires: [intake]
+    next: authoring
+
+anti_patterns:
+  - excuse: "I'll test the skill later"
+    reality: "Later = never. Validation node exists for this exact thought."
+    priority: discipline
+    triggers:
+      - "I'll test it later"
+      - "let's ship it and test next session"
+      - "testing can wait"
+      - "it works, I just know"
+      - "we'll validate in production"
+  - excuse: "This skill is obviously clear"
+    reality: "Clear to you ≠ clear to agents. Run the BDD scenario."
+    priority: discipline
+    triggers:
+      - "the instructions are self-explanatory"
+      - "any agent could follow this"
+      - "it's obvious what to do"
+      - "we don't need a BDD test for this"
+  - excuse: "Security scan is overkill for a local skill"
+    reality: "Every skill gets scanned. No exceptions."
+    priority: safety
+    triggers:
+      - "it's just a local skill, skip security"
+      - "I trust this source"
+      - "security scan is overkill"
+      - "nobody else will use this skill"
+      - "it's internal, skip the audit"
+  - excuse: "I'll skip the interview, I already know what to build"
+    reality: "If you can't model every step's input/output/on_fail, you don't know."
+    priority: discipline
+    triggers:
+      - "skip the interview, I know what I want"
+      - "I already have the skill mapped out"
+      - "just build what I described"
+      - "don't ask me questions, just do it"
+  - excuse: "Scaffold is just boilerplate"
+    reality: "Scaffold produces the dna.yaml. That IS the skill."
+    priority: discipline
+    triggers:
+      - "scaffold is just boilerplate"
+      - "skip the scaffold step"
+      - "I'll write the files manually"
+      - "just give me the YAML, I'll structure it"
+  - excuse: "The user said it's fine, skip validation"
+    reality: "The user doesn't know if agents will follow the skill. Test it."
+    priority: safety
+    triggers:
+      - "the user approved it, skip validation"
+      - "I said it's fine"
+      - "trust me, it works"
+      - "we don't have time to validate"
+      - "just install it"

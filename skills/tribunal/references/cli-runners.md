@@ -1,72 +1,68 @@
 ---
 name: cli-runners
-description: Headless invocation patterns for AI coding CLIs — how to dispatch prompts, select models, and collect structured output
+description: Dynamic CLI runner detection for tribunal cross-model dispatch
 ---
 
 # CLI Runner Reference
 
-Lookup table for headless AI CLI invocation. Tribunal uses this to dispatch prompts across models and providers. The caller decides what to test and why — this table just tells you HOW to invoke each runner.
+Tribunal detects installed coding agent CLIs dynamically. No hardcoded model lists — models change constantly.
 
-## Invocation Table
-
-| CLI | Non-Interactive Command | Model Flag | JSON Output | Auto-Approve | Install |
-|-----|------------------------|------------|-------------|--------------|---------|
-| **Claude Code** | `claude -p "prompt"` | `--model <id>` | `--output-format json` | `--dangerously-skip-permissions` | `npm i -g @anthropic-ai/claude-code` |
-| **Codex CLI** | `codex -q "prompt"` | `--model <name>` / `-m` | `--json` (NDJSON) | `-a never` | `npm i -g @openai/codex` |
-| **Gemini CLI** | `gemini -p "prompt"` | `--model <name>` / `-m` | `--output-format json` | `--yolo` | `npm i -g @google/gemini-cli` |
-| **OpenCode** | `opencode run --command "prompt"` | `--model provider/model` | `--format json` | N/A (non-interactive by design) | `curl -fsSL https://opencode.ai/install \| bash` |
-| **Aider** | `aider --message "prompt" --yes-always` | `--model <name>` | None | `--yes-always` | `curl https://aider.chat/install.sh \| sh` |
-| **Cursor CLI** | `echo "prompt" \| cursor agent -p` | None (`CURSOR_MODEL` env) | None | `--force` | `curl https://cursor.com/install -fsSS \| bash` |
-
-## Quick Recipes
+## Quick Commands
 
 ```bash
-# Claude Code — gold standard for headless
-echo "prompt" | claude -p --model sonnet --output-format json --dangerously-skip-permissions
+# Detect all installed runners
+~/.claude/skills/tribunal/bin/detect-runners
 
-# Codex CLI — true headless requires -a never
-codex -q "prompt" -m o4-mini -a never
+# Force refresh (bypass 24h cache)
+~/.claude/skills/tribunal/bin/detect-runners --refresh
 
-# Gemini CLI — mirrors Claude Code pattern
-gemini -p "prompt" -m gemini-2.5-flash --yolo --output-format json
+# JSON output (for programmatic use)
+~/.claude/skills/tribunal/bin/detect-runners --json
 
-# OpenCode — subcommand pattern
-opencode run --command "prompt" --model anthropic/claude-3-sonnet --format json
-
-# Aider — no JSON output, text only
-aider --message "prompt" --model gpt-4o --yes-always --no-stream --no-auto-commits
-
-# Cursor — limited, no JSON, can hang
-echo "prompt" | cursor agent -p --force
+# List models for a specific CLI
+~/.claude/skills/tribunal/bin/detect-runners --models cursor
+~/.claude/skills/tribunal/bin/detect-runners --models pi
+~/.claude/skills/tribunal/bin/detect-runners --models opencode
 ```
 
-## Capability Matrix
+## Invocation Patterns
 
-| Capability | Claude | Codex | Gemini | OpenCode | Aider | Cursor |
-|------------|--------|-------|--------|----------|-------|--------|
-| Pipe stdin | `-p` | Yes | `-p` | `run --command` | `--message` | Yes |
-| JSON output | Yes | NDJSON | Yes | Yes | No | No |
-| Schema validation | `--json-schema` | No | No | No | No | No |
-| Model flag | Yes | Yes | Yes | Yes | Yes | No |
-| Budget cap | `--max-budget-usd` | No | No | No | No | No |
-| Streaming JSON | `stream-json` | NDJSON | No | No | No | No |
-| Session resume | `-r` / `-c` | No | No | `-s` / `-c` | No | No |
-| Sandbox | Yes | `--sandbox` | No | No | No | No |
-| Fallback model | `--fallback-model` | No | No | No | No | No |
+Each runner has a headless invocation pattern. The detect-runners script caches these in `~/.cache/tribunal/runners.json`. The agent reads the cache to construct dispatch commands.
+
+| CLI | Prompt Flag | Model Flag | JSON Flag | Auto-Approve |
+|-----|-------------|-----------|-----------|-------------|
+| claude | `-p` | `--model` | `--output-format json` | `--dangerously-skip-permissions` |
+| codex | `-q` | `-m` | `--json` | `-a never` |
+| gemini | `-p` | `-m` | `--output-format json` | `--yolo` |
+| cursor-agent | `-p` | `--model` | `--output-format json` | `--yolo --trust` |
+| opencode | `run` | `-m provider/model` | `--format json` | N/A |
+| pi | N/A | `--model provider/id` | N/A | N/A |
+| aider | `--message` | `--model` | N/A | `--yes-always` |
+
+## Config Paths
+
+Where each CLI stores its config (for troubleshooting auth/model issues):
+
+| CLI | Config Location |
+|-----|----------------|
+| claude | `~/.claude/settings.json` |
+| codex | `~/.codex/config.toml` |
+| gemini | `~/.gemini/settings.json` |
+| cursor-agent | `~/.cursor-agent/` |
+| opencode | `~/.local/share/opencode/auth.json` |
+| pi | `~/.config/pi/` |
+| aider | `~/.aider.conf.yml` |
 
 ## Tiers
 
-**Tier 1** (production-ready headless): Claude Code, Codex CLI, Gemini CLI — all have prompt flags, model selection, JSON output.
+Tiers are set in detect-runners based on headless maturity:
 
-**Tier 2** (usable with caveats): OpenCode (subcommand pattern, less mature), Aider (no JSON, security risk with `--yes-always`).
+- **T1** (production headless): Claude, Codex, Gemini, Cursor — all have `-p`/`-q`, `--model`, JSON output
+- **T2** (usable with caveats): OpenCode (subcommand pattern), Pi (no JSON output), Aider (no JSON, `--yes-always` security risk)
 
-**Tier 3** (not ready): Cursor CLI (hangs, no model flag, no JSON, requires interactive trust setup).
+## Architecture
 
-## Notes
-
-- Claude Code is the most feature-complete: budget caps, schema validation, streaming, fallback models.
-- Codex's `-q` (quiet) prints only final output. `--full-auto` is NOT truly non-interactive — combine with `-a never`.
-- Gemini's `--yolo` is the full-auto equivalent. Auto-approvals persist globally in `~/.gemini/settings.json` — no project isolation.
-- OpenCode uses slash-notation for providers: `anthropic/claude-3-sonnet`, `openai/gpt-4`.
-- Aider tried JSON output but LLMs produce lower quality vs diff format — intentionally dropped.
-- Cursor only loads `~/.zshenv` (not `~/.zshrc`), so PATH tools need env-level config.
+- **No hardcoded models** — models change constantly. Use `--models <cli>` to query at runtime.
+- **24h cache** at `~/.cache/tribunal/runners.json` — refreshed with `--refresh`
+- **Script is the source of truth** — `~/.claude/skills/tribunal/bin/detect-runners`
+- **JSON output** for programmatic consumption by the tribunal adapter
