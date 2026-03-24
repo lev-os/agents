@@ -482,11 +482,8 @@ curl -X POST https://api.valyu.ai/v1/contents \
 ### Installation
 
 ```bash
-cd ~/.claude/skills/valyu/cli
-./install.sh
-
-# Configure API key
-echo "VALYU_API_KEY=your-key" > ~/.valyu/.env
+Use the stable wrapper installed at `~/.local/bin/valyu`.
+It reads `VALYU_API_KEY` from `~/.env.local`.
 ```
 
 ### Usage
@@ -565,7 +562,7 @@ valyu search "topic" --num 5 --fast
 valyu research "topic" --turns 10 --strategy depth
 ```
 
-**See:** `~/.claude/skills/valyu/cli/README.md` for complete CLI documentation.
+**See:** `~/.agents/skills/lev-research/backends/valyu-recursive-confidence/cli/README.md` for historical CLI documentation. The stable runtime surface is the `valyu` wrapper in `~/.local/bin`.
 
 ---
 

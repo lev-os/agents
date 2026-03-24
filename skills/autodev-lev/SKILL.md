@@ -1,3 +1,10 @@
+---
+name: autodev-lev
+description: Heartbeat-driven autonomous development loop using Lev primitives. Use when you want to run repeated SDLC scan and execute ticks through `lev loop autodev` with in-process state continuity, budget controls, and semantic exit conditions.
+skill_type: workflow
+category: automation
+---
+
 # autodev-lev
 
 > Heartbeat-driven autonomous development loop using Lev primitives.

@@ -47,7 +47,7 @@ Build a terminal UI for real-time research progress tracking. Shows confidence l
 **Goal:** Basic TUI shell with state machine
 
 **Deliverables:**
-- [ ] Project setup: `~/.claude/skills/lev-research/tui/`
+- [ ] Project setup: `~/.agents/skills/lev-research/tui/`
 - [ ] Package.json with Ink, XState, chalk deps
 - [ ] State machine definition (FSM from UX spec)
 - [ ] Basic layout components (Header, Footer, Panel)
@@ -165,7 +165,7 @@ research-tui --headless "query" --output=ndjson | jq .
 - Integrates with existing CLIs without modification
 
 ### TOUCHPOINTS
-- `~/.claude/skills/lev-research/backends/*/cli/`
+- `~/.agents/skills/lev-research/backends/*/cli/`
 - `~/.config/LEV/research/` (session storage)
 - `/search` command shim
 
@@ -214,8 +214,8 @@ Start with `oclaw-7y0` (Phase 1):
 
 ```bash
 bd update oclaw-7y0 --status=in_progress
-mkdir -p ~/.claude/skills/lev-research/tui
-cd ~/.claude/skills/lev-research/tui
+mkdir -p ~/.agents/skills/lev-research/tui
+cd ~/.agents/skills/lev-research/tui
 npm init -y
 npm install ink ink-spinner ink-box xstate chalk
 ```

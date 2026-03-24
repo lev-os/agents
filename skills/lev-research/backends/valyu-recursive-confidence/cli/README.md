@@ -6,7 +6,7 @@ Command-line interface for Valyu AI with recursive deep research capabilities.
 
 ```bash
 # Install
-cd ~/.claude/skills/valyu/cli
+cd ~/.agents/skills/lev-research/backends/valyu-recursive-confidence/cli
 ./install.sh
 
 # Configure API key
@@ -21,7 +21,7 @@ valyu research "quantum computing applications" --turns 5
 ## Installation
 
 ```bash
-cd ~/.claude/skills/valyu/cli
+cd ~/.agents/skills/lev-research/backends/valyu-recursive-confidence/cli
 ./install.sh
 ```
 
@@ -403,7 +403,7 @@ echo "VALYU_API_KEY=your-key" > ~/.valyu/.env
 **Command not found: valyu**
 ```bash
 # Re-run installer
-cd ~/.claude/skills/valyu/cli
+cd ~/.agents/skills/lev-research/backends/valyu-recursive-confidence/cli
 ./install.sh
 ```
 

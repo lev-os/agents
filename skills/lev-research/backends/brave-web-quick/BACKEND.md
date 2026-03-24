@@ -9,31 +9,21 @@ Headless web search and content extraction using Brave Search. No browser requir
 
 ## Setup
 
-Run once before first use:
-
-```bash
-cd ~/Projects/agent-scripts/skills/brave-search
-npm ci
-```
-
-Needs env: `BRAVE_API_KEY`.
+Use the stable wrapper installed at `~/.local/bin/brave-search`.
+It is dependency-free and reads `BRAVE_API_KEY` from `~/.env.local`.
 
 ## Search
 
 ```bash
-./search.js "query"                    # Basic search (5 results)
-./search.js "query" -n 10              # More results
-./search.js "query" --content          # Include page content as markdown
-./search.js "query" -n 3 --content     # Combined
+brave-search search "query"
+brave-search search "query" -n 10
+brave-search news "query"
+brave-search image "query" --json
 ```
 
 ## Extract Page Content
 
-```bash
-./content.js https://example.com/article
-```
-
-Fetches a URL and extracts readable content as markdown.
+Use `firecrawl scrape` for page extraction. `brave-search` is search-only in the stable wrapper surface.
 
 ## Output Format
 

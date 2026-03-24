@@ -49,7 +49,7 @@ curl -s https://api.x.ai/v1/chat/completions \
 For complex research, use the helper:
 
 ```bash
-~/.claude/skills/grok-research/scripts/grok-search.sh "your query"
+bash ~/.agents/skills/lev-research/backends/grok-web-twitter-realtime/scripts/grok-search.sh "your query"
 ```
 
 ## Integration
