@@ -1,0 +1,105 @@
+name: cutting-edge-audit
+version: 1.0.0
+description: "Full-repo audit against cutting-edge best practices — detect stack, research live, scan deep, fix everything, report changes"
+entry: detect
+
+nodes:
+  detect:
+    description: "Scan repo to identify languages, frameworks, versions, and architecture patterns"
+    content: nodes/detect.md
+    next: research
+    validation:
+      rule: "stack manifest exists with at least one language and framework identified"
+    on_failure: "Keep scanning. Check package manifests, config files, file extensions. Every repo has a stack."
+
+  research:
+    description: "Live web search for cutting-edge best practices per detected stack + cross-cutting concerns"
+    content: nodes/research.md
+    requires: [detect]
+    next: audit
+    validation:
+      rule: "research notes exist with at least 3 stack-specific and 3 cross-cutting practice categories, each with source URLs"
+    on_failure: "Search harder. Use multiple queries. No training-data-only answers — every practice needs a URL."
+
+  audit:
+    description: "Deep scan every file in the repo against researched practices — produce findings"
+    content: nodes/audit.md
+    requires: [research]
+    next: fix
+    validation:
+      rule: "audit findings list exists with file path, line number, category, severity, and suggested fix for every finding"
+    on_failure: "You missed files. Scan every directory. Check architecture, not just syntax."
+
+  fix:
+    description: "Apply all fixes — every finding gets a code change"
+    content: nodes/fix.md
+    requires: [audit]
+    next: verify
+    validation:
+      rule: "every finding from audit has a corresponding code change committed or a documented reason why it was not changed"
+    on_failure: "Do not skip findings. Fix them all. If a fix would break something, document why and fix it differently."
+
+  verify:
+    description: "Re-scan to confirm fixes, run tests if available, generate final report"
+    content: nodes/verify.md
+    requires: [fix]
+    terminal: true
+    produces: report
+    validation:
+      rule: "final report exists with: changes made, checklist with pass/fail, before/after code snippets, and test results if applicable"
+    on_failure: "Re-run verification. The report must be complete."
+
+anti_patterns:
+  - excuse: "I'll use my training data instead of searching"
+    reality: "Training data is stale. Best practices from 2024 are not cutting-edge in 2026. Search live."
+    priority: safety
+    triggers:
+      - "I already know the best practices"
+      - "no need to search, I can tell you"
+      - "from what I know..."
+      - "skip the research step"
+      - "web search is slow, let me just use what I know"
+  - excuse: "I'll just check the main files"
+    reality: "Full repo. Every file. Config, tests, CI, docs — all of it."
+    priority: discipline
+    triggers:
+      - "let me focus on the important files"
+      - "I'll skip the test files"
+      - "config files don't need auditing"
+      - "vendor code is fine"
+      - "just check src/"
+  - excuse: "This finding is minor, I'll skip the fix"
+    reality: "Fix everything. Minor today is tech debt tomorrow."
+    priority: discipline
+    triggers:
+      - "this one is too small to fix"
+      - "it's just a style issue"
+      - "not worth changing"
+      - "it works fine as is"
+      - "let's skip the minor ones"
+  - excuse: "I'll report the issues and let the user fix them"
+    reality: "You fix them. Report what you changed. That's the whole point."
+    priority: discipline
+    triggers:
+      - "here are the issues I found"
+      - "I recommend these changes"
+      - "the user should update this"
+      - "I'll list the suggestions"
+      - "these are left as exercises"
+  - excuse: "Only checking code style and formatting"
+    reality: "Style is the shallow layer. Check architecture, security, performance, patterns, dependencies."
+    priority: discipline
+    triggers:
+      - "the formatting looks good"
+      - "linting passes so we're fine"
+      - "code style is clean"
+      - "prettier handles this"
+      - "just need to check indentation"
+  - excuse: "Research found nothing new, moving on"
+    reality: "Search with different queries. Try framework-specific, version-specific, and 2025/2026 date-scoped searches."
+    priority: safety
+    triggers:
+      - "couldn't find anything relevant"
+      - "search returned no results"
+      - "best practices haven't changed"
+      - "nothing new since last year"
