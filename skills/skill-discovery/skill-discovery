@@ -26,6 +26,7 @@ CATEGORY_FILTER = [
 HARD_HIDDEN_CATEGORIES = {".archive", "_todo", "_workshop"}
 LOW_COVERAGE_TERMS = {"legal", "screenplay", "script", "video", "directing", "storyboarding"}
 PROBLEM_TERMS = {"problem solving", "root cause", "systems thinking", "decision making", "debugging"}
+PERSONA_TERMS = {"persona", "empathy", "user research", "synthetic user", "worldview", "simulation", "axiom", "tribal"}
 SDK_TERMS = {"sdk", "client", "api", "tooling", "package", "library", "cli"}
 SKILL_DOC_RE = re.compile(r"/skill(?:[.-][^/]+)?\.md$", re.I)
 README_RE = re.compile(r"/(?:readme|index)\.md$", re.I)
@@ -82,6 +83,11 @@ BOOST_RULES = [
         "terms": PROBLEM_TERMS,
         "categories": {"thinking"},
         "names": {"lev-cdo", "lev-cdo-debug", "sidequest"},
+    },
+    {
+        "terms": PERSONA_TERMS,
+        "categories": {"thinking"},
+        "names": {"map-elements", "dig-axioms", "multi-devils-debate", "emotional-tribal-mapper", "axiom-drill-down"},
     },
 ]
 
@@ -303,7 +309,7 @@ def enrich(matches: list[dict], roots: dict[str, str]) -> list[dict]:
             adjusted -= 4.0
         if category == "thinking" and "/work/" in path_lower:
             adjusted -= 0.45
-        if category == "thinking" and not contains_any(PROBLEM_TERMS | {"design", "ux", "ui"}, query_text):
+        if category == "thinking" and not contains_any(PROBLEM_TERMS | PERSONA_TERMS | {"design", "ux", "ui"}, query_text):
             adjusted -= 0.12
         if category == "sdk" and not contains_any(SDK_TERMS, query_text):
             adjusted -= 0.25

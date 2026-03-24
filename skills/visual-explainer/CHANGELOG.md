@@ -1,5 +1,98 @@
 # Changelog
 
+## [0.8.0] - 2026-03-14
+
+### Interaction Layer
+- **Live daemon connection** — `LevConnection` manager auto-connects to Lev daemon on `localhost:9849`. Health check with 2s timeout, WebSocket for exec streaming, auto-reconnect every 5s
+- **Connection indicator** — 8px dot in progress bar: green (connected), amber (fallback/clipboard), gray (disconnected)
+- **Response panel** — fixed panel above action bar shows streaming exec output with copy/dismiss buttons. Slide-up animation
+- **Upgraded `runWithClaude()`** — sends prompt via WebSocket when connected, falls back to clipboard when offline. Zero regression from v0.7.0 behavior
+
+### Search + Filter
+- **Search input** — debounced 200ms text search across decision title, insight, and detail text
+- **Bucket filter chips** — toggleable chips per bucket category, auto-generated from page data
+- **Undecided only** — checkbox toggle hides already-decided cards
+- **Pure DOM filtering** — no re-renders, uses CSS class toggle (`filtered-out`) for visibility
+
+### Embed Mode
+- **Query param** — `?embed=true` adds `embed-mode` class to body
+- **Hidden chrome** — hero, bucket nav, and action bar hidden in embed mode
+- **postMessage API** — parent frames can request `getDecisions` and receive current decision state as JSON
+
+### Reference
+- **`interaction-patterns.md`** — new reference doc covering connection manager, response panel, search/filter, and embed mode JavaScript patterns
+
+### Infrastructure
+- **`exec-api.ts`** — programmatic wrapper around `executeTask()` in `@lev-os/harness-sdk`. Builds `ExecOptions` without CLI parsing, forces `host: 'local'` to bypass tmux
+- **Bridge orchestrator routes** — `POST /exec` (synchronous) and `WS /exec/stream` (streaming) added to Fastify server on `:9849`
+
+### Quality
+- Version bump to 0.8.0
+
+## [0.7.0] - 2026-03-14
+
+### Decision / Feedback Capture Type
+- **New diagram type** — `decision` / `feedback` / `decide` / `poll` for interactive decision capture with localStorage persistence
+- **`decision.html` template** — Warm Charcoal + Copper palette, Space Grotesk + IBM Plex Mono. 10 fictional decisions across 3 buckets (Infrastructure, Architecture, Migration Strategy). Demonstrates all interactive patterns.
+- **localStorage auto-save** — debounced 300ms saves on every input/change event. Restores radio states, textarea values, and progress on page reload. Visual "Saved" indicator. Separate "Clear Saved Data" button with confirm dialog.
+- **`generate-decision.md` prompt** — instructions for data gathering, bucket organization, localStorage integration
+- **Form & Persistence Patterns** — new section in css-patterns.md with radio option rows, textarea styling, save indicator CSS, localStorage save/restore snippet, progress bar, and clear data button
+
+### Routing
+- Added `decision` type to unified command interface type table (SKILL.md)
+- Added `decision` / `feedback` / `decide` / `poll` aliases to arg parsing
+- Added routing entry in unified prompt (`visual-explainer.md`)
+- New "Decision / Feedback Capture" diagram type section in SKILL.md
+
+### Quality
+- Version bump to 0.7.0
+- Templates: 9 → 10
+- Types: 8 → 9 (with aliases)
+
+## [0.6.0] - 2026-03-13
+
+### Unified Command Interface
+- **Single entry point** — `/visual-explainer <type> [args...] [all|publish]` replaces the need for separate slash commands. All diagram types are now args to a unified prompt.
+- **Type routing** — 8 types with aliases: `diagram`, `comparison`/`compare`/`vs`, `diff-review`/`diff`, `plan-review`/`plan`, `project-recap`/`recap`, `fact-check`/`check`, `slides`/`deck`, `visual-plan`/`spec`. Unrecognized first tokens default to `diagram`.
+- **Quality modes** — three tiers: `default` (local, standard checks), `all` (full quality gate: print, responsive, slop test, fact-check), `publish` (`all` + here.now deployment). `publish` implies `all`.
+- **Tiered quality gate table** in SKILL.md Deliver section — clear matrix of which checks run at each quality level.
+- **here.now publish integration** — `publish` mode runs `./skills/here-now/scripts/publish.sh` with `--client visual-explainer` attribution after passing all quality checks.
+- New unified `visual-explainer.md` prompt that routes to type-specific prompt files for detailed instructions.
+
+### New Templates (4 → 9)
+- **`comparison.html`** — Tradeoff analysis template. Teal + Slate palette, DM Sans + Fira Code. Hero summary, candidate cards, dimension table with status badges, deep dives, recommendation with confidence. Fictional: REST vs GraphQL vs gRPC.
+- **`timeline.html`** — Roadmap/timeline template. Amber + Emerald palette, Bricolage Grotesque + Fragment Mono. Vertical central line with alternating left/right cards, phase markers, color progression from past to future, phase summary with progress bars. Fictional: Project Phoenix Q1-Q4 2026.
+- **`dashboard.html`** — Metrics dashboard template. Deep Blue + Gold palette, IBM Plex Sans + Plex Mono. Hero KPIs with countUp animation and sparklines, Chart.js line + doughnut charts, endpoint performance table, trend indicators. Fictional: API Gateway Performance.
+- **`implementation-plan.html`** — Feature spec template. Blueprint aesthetic (slate/blue, grid background), Plus Jakarta Sans + Azeret Mono. Before/after panels, Mermaid state machine, TypeScript code blocks with Prism.js, API table, edge cases, implementation notes. Fictional: WebSocket Connection Pool.
+- **`sequence-diagram.html`** — Sequence diagram template. Rose + Cranberry palette, Instrument Serif + JetBrains Mono. Mermaid `sequenceDiagram` with participants legend, activate/deactivate, alt/else/loop blocks, step-by-step breakdown, error scenarios table. Fictional: OAuth2 Authorization Code Flow.
+
+### Mermaid Theme Toggle
+- Mermaid diagrams now re-render with correct theme colors when toggling light/dark mode
+- Original Mermaid source stored in `data-original` attribute before first render
+- `getMermaidThemeVars()` reads current theme state on each reinit
+- Exposed `window.__mermaidReinit()` for use by theme toggle handlers
+
+### Quality
+- Version bump to 0.6.0
+- Updated SKILL.md Structure section to route all 9 templates by content type
+
+## [0.5.0] - 2026-03-13
+
+### New Features
+- **Print stylesheet** — `@media print` CSS block in css-patterns.md. Forces light palette, kills animations, linearizes slide decks, force-opens collapsed details. Cmd+P produces clean PDFs.
+- **Theme toggle** — In-page light/dark toggle button pattern in css-patterns.md. Uses `data-theme` attribute overrides alongside `prefers-color-scheme`. One-click theme switching for quality checks.
+- **Prism.js syntax highlighting** — New section in libraries.md with CDN import, CSS variable overrides that match page palettes, and usage guidance. For pages with 3+ code blocks.
+- **Code diff panels** — Line-level before/after comparison pattern in css-patterns.md with line numbers, red/green highlighting, sticky headers, and responsive stacking.
+- **Touch pinch-to-zoom** — Touch gesture support for Mermaid containers. Pinch-to-zoom + two-finger pan on mobile/tablet.
+- **Comparison / Tradeoff Analysis** — New diagram type in SKILL.md for evaluating options. Hero summary → candidate cards → dimension table → deep dives → recommendation.
+
+### Breaking Changes
+- **Output directory changed** from `~/.agent/diagrams/` to `~/.agents/diagrams/`. All prompts and SKILL.md updated. The `~/.agents` path has more community traction.
+
+### Quality
+- Added "Printable" quality check to SKILL.md
+- Version bump to 0.5.0
+
 ## [0.4.3] - 2026-03-01
 
 ### Mermaid Zoom and Positioning Fixes

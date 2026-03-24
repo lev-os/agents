@@ -82,7 +82,7 @@ templates/            ← reference templates with different palettes
 ├── data-table.html
 └── slide-deck.html
     ↓
-~/.agent/diagrams/filename.html → opens in browser
+~/.agents/diagrams/filename.html → opens in browser
 ```
 
 The skill routes to the right approach automatically: Mermaid for flowcharts and diagrams, CSS Grid for architecture overviews, HTML tables for data, Chart.js for dashboards.

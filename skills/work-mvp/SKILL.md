@@ -35,6 +35,8 @@ test -d core/flowmind || { echo "missing: core/flowmind"; exit 1; }
 test -f plugins/core-sdlc/config.yaml || { echo "missing: plugins/core-sdlc/config.yaml"; exit 1; }
 ```
 
+Before execution: check `.lev/validation-gates.yaml` enforced gates for target module.
+
 ### 2. Initialize FlowMind Session
 
 Start a session from the selected flow/stack. The session engine handles step-by-step progressive disclosure.

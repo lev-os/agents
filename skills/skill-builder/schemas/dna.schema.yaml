@@ -1,0 +1,88 @@
+# dna.yaml Schema — what makes a valid intent compiler skill
+# Used by: bin/flow validate, scaffold node, validation node
+# Version: 1.0.0
+
+required_fields:
+  - name        # string, skill identifier
+  - entry       # string, must match a key in nodes
+  - nodes       # map of node_id → node definition
+
+node_required_fields:
+  - description   # string, what this node does
+
+node_optional_fields:
+  content: "path to nodes/*.md file (must exist on disk)"
+  prompt: "alternative to content — inline prompt string"
+  routes: "map of target_node_id → condition description (intake pattern)"
+  next: "string, next node after this one (linear flow)"
+  edges: "list of {when, to} guarded transitions (formalized flow)"
+  requires: "list of node_ids that must complete before this node"
+  terminal: "boolean, true = this is an exit node"
+  produces: "string, what artifact this node outputs"
+  validation:
+    rule: "string, human-readable contract (LLM interprets)"
+    check: "string, CLI command that validates (machine-executable)"
+    self: "string, self-check the LLM performs"
+  contract: "string or path to schemas/*.yaml for output validation"
+  effect: "path to another dna.yaml (fractal — same shape all the way down)"
+  on_failure: "string, specific action when validation fails"
+
+top_level_optional:
+  version: "semver string — must match version_field.pattern"
+  description: "string, what the skill does"
+  anti_patterns: "list of {excuse, reality} pairs for prolepsis"
+
+# ─── Version Field Validation ─────────────────────────────────────────
+# Enforces Semantic Versioning 2.0.0 (https://semver.org)
+# Format: MAJOR.MINOR.PATCH[-prerelease][+buildmetadata]
+version_field:
+  type: string
+  required: false
+  pattern: "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(-((0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(\\.(0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(\\+[0-9a-zA-Z-]+(\\.[0-9a-zA-Z-]+)*)?$"
+  examples:
+    valid:
+      - "1.0.0"
+      - "0.1.0"
+      - "2.3.14"
+      - "1.0.0-alpha.1"
+      - "1.0.0-0.3.7"
+      - "1.0.0+build.123"
+      - "1.0.0-beta+exp.sha.5114f85"
+    invalid:
+      - "1.0"             # missing PATCH
+      - "v1.0.0"          # leading 'v' prefix not semver
+      - "1.0.0.0"         # too many segments
+      - "01.0.0"          # leading zero in MAJOR
+      - "1.0.0-"          # trailing hyphen
+      - ""                # empty string
+  on_failure: "version must be a valid semver string (MAJOR.MINOR.PATCH). See https://semver.org"
+
+graph_rules:
+  - "entry must exist as a key in nodes"
+  - "every node referenced in routes/next/edges/requires must exist in nodes"
+  - "every content/prompt path must resolve to a file on disk"
+  - "at least one node must be terminal (terminal: true or no next/edges)"
+  - "graph must be acyclic (DAG property — no cycles)"
+  - "every node must be reachable from entry (no orphans)"
+
+validation_levels:
+  level_1_structure:
+    checks:
+      - "required fields present"
+      - "node references resolve"
+      - "content paths exist"
+      - "if version present, matches version_field.pattern (semver)"
+    description: "bin/flow validate checks this"
+
+  level_2_contract:
+    checks:
+      - "every non-terminal node has validation or contract"
+      - "every node with validation has on_failure"
+      - "anti_patterns has 5+ entries"
+    description: "quality gate for shipping"
+
+  level_3_behavioral:
+    checks:
+      - "blind pressure test passes (agent follows the skill under pressure)"
+      - "tribunal convergence on BDD scenarios"
+    description: "production readiness"

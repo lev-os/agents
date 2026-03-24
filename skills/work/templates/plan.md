@@ -79,6 +79,16 @@ Explain why this is the right slice to execute next.
 - [ ] Check 2
 - [ ] Check 3
 
+## Validation Gates (.lev/validation-gates.yaml)
+<!--
+PURPOSE: Cross-reference plan against project validation gates.
+PROCESS: Load .lev/validation-gates.yaml, list applicable gates, confirm plan doesn't violate any enforced gates.
+-->
+
+| Gate | Status | Applicable | Plan Impact |
+|------|--------|-----------|-------------|
+| {{GATE_NAME}} | enforced/declared/aspirational | yes/no | {{IMPACT}} |
+
 ## Dependencies
 
 | Dependency | Type | Notes |

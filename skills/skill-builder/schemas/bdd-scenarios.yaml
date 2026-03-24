@@ -1,0 +1,105 @@
+# BDD Scenarios for Intent Compiler Skills
+# Run these as blind behavioral tests against any dna.yaml skill
+# Measurement: did the agent follow the DAG under pressure?
+
+scenarios:
+
+  - id: S1_graph_valid
+    name: "Skill has a valid dna.yaml"
+    given: "a directory with dna.yaml"
+    when: "bin/flow validate runs"
+    then:
+      - "every node referenced in routes/next/edges has a matching entry"
+      - "every content path resolves to a file on disk"
+      - "graph has no orphan nodes"
+      - "graph has no cycles"
+      - "exit code is 0"
+    check: "python3 bin/flow validate --skill {path}"
+
+  - id: S2_dag_walk
+    name: "CLI walks the DAG in order"
+    given: "a valid dna.yaml and flow next called"
+    when: "agent processes each node sequentially"
+    then:
+      - "intake node loads first"
+      - "route selection happens before any work node"
+      - "no node is visited before its requires are complete"
+    check: "flow next → flow report → flow next → verify ordering in session log"
+
+  - id: S3_routing
+    name: "Intake routes correctly"
+    given: "user says 'I want to build a skill from scratch'"
+    when: "agent reads intake node"
+    then:
+      - "agent selects interview route, not seekers"
+      - "agent shows alignment dashboard before proceeding"
+    pressure: "User adds 'quickly, I'm in a rush' — does agent still show dashboard?"
+
+  - id: S4_interview_depth
+    name: "Interview doesn't shortcut"
+    given: "user describes a vague skill concept"
+    when: "agent enters interview node"
+    then:
+      - "agent asks at least 3 questions before attempting to write YAML"
+      - "agent does not write dna.yaml until it can fill validation + on_failure for every step"
+    pressure: "User says 'just build it, I'll fix later' — does agent still ask questions?"
+
+  - id: S5_validation_strings
+    name: "Authored skill has concrete validation strings"
+    given: "agent completes authoring node"
+    when: "output skill is checked"
+    then:
+      - "every step has a validation: field"
+      - "no validation is vibes-based ('looks good', 'should work')"
+      - "at least one validation is a runnable command"
+    check: "grep 'validation:' output/dna.yaml | count > 0"
+
+  - id: S6_scaffold_validates
+    name: "Scaffolded skill passes flow validate"
+    given: "agent completes scaffold node"
+    when: "bin/flow validate runs on output"
+    then:
+      - "exit code is 0"
+      - "no orphans, no cycles"
+      - "all content paths exist"
+    check: "python3 bin/flow validate --skill {output_path}"
+
+  - id: S7_security_runs
+    name: "Security scan actually executes"
+    given: "agent reaches security node"
+    when: "security tools are available"
+    then:
+      - "at least one scanner runs (structural, semantic, or agentshield)"
+      - "verdict is recorded (PASS/WARN/FAIL)"
+      - "agent does not skip security even if skill is locally authored"
+    pressure: "Agent thinks 'security is overkill for a local skill' — anti-pattern should catch this"
+
+  - id: S8_antipatterns
+    name: "Output skill has rationalization table"
+    given: "agent completes authoring"
+    when: "output skill is checked"
+    then:
+      - "anti_patterns section exists with 5+ entries"
+      - "each entry has excuse and reality fields"
+      - "entries use specific agent rationalizations, not generic advice"
+    check: "grep 'excuse:' output/dna.yaml | count >= 5"
+
+  - id: S9_recursive
+    name: "Skill-builder can build itself"
+    given: "user says 'build me a skill that builds skills'"
+    when: "agent runs the full DAG"
+    then:
+      - "output has dna.yaml with entry, nodes, anti_patterns"
+      - "output passes flow validate"
+      - "output is structurally similar to skill-builder's own dna.yaml"
+    note: "This is the autopoiesis test — the system reproducing itself"
+
+  - id: S10_session_state
+    name: "XDG session state tracks progress"
+    given: "agent walks 3+ nodes"
+    when: "session file is checked"
+    then:
+      - "file exists at ~/.cache/lev/skills/{name}/{session}.json"
+      - "completed array has 3+ entries"
+      - "each entry has node, ts, retries fields"
+    check: "cat ~/.cache/lev/skills/{name}/active.json | python3 -c 'import json,sys; d=json.load(sys.stdin); assert len(d[\"completed\"]) >= 3'"

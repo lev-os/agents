@@ -1,0 +1,465 @@
+{
+  "url": "https://agent-flywheel.com/core-flywheel",
+  "title": "The Core Flywheel",
+  "content": "Three tools. One loop. Most of the value. Learn the beginner-friendly core of the Agentic Coding Flywheel: Agent Mail for coordination, br for task structure, and bv for intelligent routing.\n\nThe full Flywheel system has grown large enough that many people find it overwhelming on first contact. That reaction makes sense. But there is a much smaller core that already captures most of what makes the approach powerful.\n\nThe larger system includes planning workflows, memory systems, prompt libraries, launch tooling, safety tooling, skills, and a lot of accumulated operational detail. You do not need to absorb all of that up front.\n\nThe core loop uses just three tools. If you understand those three and use them together correctly, you already have the heart of the system.\n\nSeparate the process into two layers: the planning substrate (frontier models used to create and refine the markdown plan) and the core operating loop (Agent Mail, br, and bv once the plan is ready to drive execution).\n\nThis document is for a relatively smart software developer who is new to agentic coding and does not want to absorb the entire larger Flywheel guide up front. The goal is narrower: get you to the point where you can coordinate multiple agents without chaos, keep work organized as explicit tasks with dependencies, and keep agents working on the best next unblocked task instead of choosing randomly.\n\nIf that works well for you, the larger Flywheel stack becomes much easier to appreciate later.\n\nIf these five terms stay clear in your head, most of the rest of the guide gets much easier to follow.\n\nYou do not need to manually manage the coordination between these tools. When your AGENTS.md file is set up correctly, the agents handle the integration automatically: they use bead IDs as thread identifiers in Agent Mail, they announce claims and reserve files before editing, and they update bead status as they work. You configure this once in AGENTS.md and then the agents just do it.\n\nThe core loop is simple: generate a plan, encode it as beads, launch agents with marching orders, let them coordinate through Agent Mail while bv routes them toward the best next bead, and tend the swarm until the graph is done.\n\nEach closed bead reshapes the graph. The next agent gets a better map. Click any stage to see the details.\n\nCreate & refine markdown plan with multiple frontier models\n\nAsk 3+ frontier models, synthesize\n\nPlanning tokens are far cheaper than implementation tokens\n\nThe core loop moves work out of ephemeral chat and into explicit, inspectable artifacts. That is the short answer to \"why bother?\"\n\nFour agents, six tasks, side by side. One side uses the core loop, the other does not. Press Start.\n\nAll agents boot up and read the codebase\n\nAll agents boot up and read the codebase\n\nFour agents spin up in parallel and read the same codebase. Without coordination tools, they have no way to know what the others are doing.\n\nThese three tools solve three different failure modes. Each helps on its own, but the value shows up most clearly when they form a stable loop together.\n\nWithout Agent Mail, multiple agents constantly collide: two agents edit the same files, nobody knows who is doing what, messages disappear into chat history, and work gets stranded when an agent crashes.\n\nAgent Mail gives agents a shared coordination layer with identities, threads, inboxes, and file reservations. Agents announce what they are doing, reserve edit surfaces, and recover when another agent disappears. All of this happens automatically once your AGENTS.md tells agents to use Agent Mail.\n\nWithout br, work collapses into vague conversational intentions: \"fix the auth stuff,\" \"clean up the admin area,\" \"someone should improve tests.\" That kind of tasking is too fuzzy for a swarm.\n\nbr turns work into explicit beads with status, priority, and dependencies. Once work is represented that way, multiple agents can make progress without constant human steering.\n\nEven with good beads, agents still need to know what to do next. Without bv, they choose work based on local convenience or whatever they most recently saw in context.\n\nbv reads the bead graph and computes what is most worth doing next. That turns the swarm from \"many agents doing work\" into \"many agents pushing the project forward efficiently.\"\n\nHover or tap to inspect each piece. Click again to remove it and watch the system lose a capability it cannot replace. This is the Coordination Triangle.\n\nThe high-bandwidth negotiation layer.\n\nThe durable, localized issue state.\n\nThe graph-theory compass for triage.\n\nThe trio is not three nice-to-have tools. It is one operating system split into memory, communication, and leverage analysis. Remove any side of the triangle and the swarm loses determinism.\n\nOne reason agentic coding feels confusing at first is that the active artifact keeps changing. The easiest way to stay oriented is to know what the current artifact means and what you do with it next.\n\nAn idea becomes a plan, a plan becomes beads, beads become finished code. Click any stage to see the artifact, what it means, and your next move.\n\nYou know the goal, not the system.\n\nTurn it into a serious markdown plan.\n\nRaw idea to finished code. Each stage adds precision.\n\nProse becomes executable memory. This is where agents stop guessing.\n\nEach completed bead reshapes the graph and unblocks new work. Finished beads create ready beads.\n\nPlan space is where you decide the workflows, constraints, architecture, and testing expectations. Bead space is where you transform that thinking into executable memory for agents. Code space is where agents implement the local task that a bead defines.\n\nThe general rule is simple. Debates belong in plan space. Translation and dependency shaping belong in bead space. Implementation belongs in code space.\n\nA strong plan lets a fresh reader answer five questions without guessing: what are the main workflows? What constraints matter? What architecture are we choosing? How will we know it works? What failure cases must not disappear into hand-waving?\n\nIt gives a fresh agent workflows, constraints, architecture, testing, and failure handling in one place. Before you turn the plan into beads, check that these five questions are answerable from the plan alone.\n\nWhen something feels wrong, use the smallest escalation that actually fits the problem:\n\nA small project makes the workflow easier to picture. Imagine building an internal tool called Atlas Notes: team members upload Markdown notes, the system tags and indexes them, users can search them quickly, and admins can inspect failed ingestions.\n\nIf you gave four agents only that vague description, they would step on each other and make mismatched assumptions. The core loop instead looks like this:\n\nThe bead is the unit of work agents actually execute. Weak beads force improvisation. Rich beads make execution mechanical. Here is a real bead from the ACFS project:\n\nThe prose does not need polish. A fresh agent should be able to understand the task, the reason for it, and the acceptance criteria without reopening the whole markdown plan. You can browse real beads from actual Flywheel projects at FrankenEngine, FrankenTUI, and Asupersync.\n\nQuality thresholds get easier to feel when you compare weak and strong versions directly. The weak version names a topic. The strong version scopes the actual requirement, constraint, and testing obligation.\n\nA weak artifact names a topic. A strong one carries scope, constraints, and a test plan. See the difference.\n\nThe weak version names a topic. The strong version scopes the actual requirement, the constraint, and the testing obligation.\n\nOnce you launch agents with good marching orders, they automatically handle the coordination mechanics. A typical bead thread in Agent Mail looks like this — created entirely by agents, not by you:\n\nYou do not write these messages. The agents create them because your AGENTS.md tells them to coordinate through Agent Mail and use bead IDs as thread anchors. Your job is to monitor these threads to see if work is flowing or stuck.\n\nThis section describes what you, the human, actually do. The agents handle the coordination plumbing (Agent Mail messages, file reservations, bead status updates). Your job is to create the conditions for them to succeed.\n\nSteps 3-5 repeat for every bead. You stop thinking about the process after the second cycle.\n\nAsk 3+ frontier models for competing plans, synthesize into one\n\nA markdown plan covering workflows, architecture, and tests\n\nAsk 3+ frontier models for competing plans, synthesize into one\n\nA markdown plan covering workflows, architecture, and tests\n\nBefore beads or swarms or file reservations, create a serious markdown plan. Do not settle for one quick draft from one model.\n\nGPT Pro web app with Extended Reasoning, or your strongest available model\n\nDifferent frontier models have different blind spots. Competitive synthesis forces the model to admit where others are better and merge the strongest ideas.\n\nAt minimum, you want: the user-facing workflows, the important constraints, the major architectural decisions, and the testing expectations.\n\nYou do not need to manually create every bead yourself. Tell a coding agent to do the conversion:\n\nClaude Code with Opus\n\nBeads become the active source of truth for execution. Once they're strong enough, you never look back at the markdown plan.\n\nThen polish the beads 4-6 times with fresh review passes. Each round catches things the previous round missed. This is the \"measure twice, cut once\" of the methodology.\n\nOnce beads are polished and your AGENTS.md is solid, start up a swarm of agents. Give each one these marching orders:\n\nEvery agent in the swarm gets this as their initial prompt\n\nEvery agent is fungible and a generalist. The specifics come from AGENTS.md and the beads, not from the prompt. This generic prompt works for every project.\n\nStagger agent starts by at least 30 seconds to avoid the \"thundering herd\" problem where all agents grab the same bead. Start smaller than your ego wants to: 1 agent to learn, 2 to feel coordination, 4 for real swarm behavior.\n\nNow you are the operator. On roughly a 10-15 minute cadence, check on the swarm:\n\nThat is usually enough to keep the loop healthy without turning the human into a full-time traffic cop.\n\nAfter agents finish each bead, have them review their own work:\n\nAfter each bead is implemented — run until no more bugs found\n\nForces a mode switch from writing to adversarial reading while the code is still fresh. One of the cheapest quality multipliers in the whole method.\n\nThen they move to the next bead using bv to find the most impactful one. The cycle repeats until the graph is done.\n\nThe human is not supposed to micromanage every code edit or manually coordinate Agent Mail threads. The human is there to keep the structure clean enough that the agents can work effectively inside it.\n\nYou design the system and tend the swarm. Agents do the coordination work.\n\nGPT Pro, Claude, Gemini web apps\n\nAsk multiple frontier models for competing plans, then synthesize into one strong design document\n\nThis is where 85% of your thinking goes. No code yet.\n\nAll of this is configured once in your AGENTS.md. You do not need to manually invoke Agent Mail calls, update bead statuses, or thread bead IDs into messages. The agents do it because the operating manual tells them to.\n\nWhen the swarm looks active but you suspect it is not actually closing the real gap, stop and ask:\n\nIf the answer is \"no,\" the fix is usually not more implementation effort. Revise the bead graph, add missing work, or step back into planning.\n\nEven in the smaller core-loop version, you still need a minimal AGENTS.md. It does not have to be a giant doctrine document, but it should say:\n\nWhen an agent vanishes mid-bead, the recovery path should be boring:\n\nAt some point, the workflow stops feeling like extra ceremony and starts feeling like a calmer control surface:\n\nThat operator feeling is a good sign. It usually means the artifacts are carrying the work instead of your short-term memory.\n\nPeople often assume the magic of the Flywheel comes from the total number of tools. It does not. Most of the value comes from three things:\n\nThose three properties are already present in the core loop. That is why the smaller system gets you surprisingly far.\n\nYou probably do not need it for a tiny one-file change with no real dependency structure, a purely local experiment, or a quick one-agent cleanup that does not need externalized coordination.\n\nThe loop earns its keep when work has enough structure, enough ambiguity, or enough parallelism that explicit planning, explicit tasks, and explicit coordination start paying for themselves.\n\nOnce the core loop is running smoothly, three helper utilities significantly improve safety, quality, and learning. They are multipliers on top of the core loop, not prerequisites.\n\nA Claude Code hook that blocks dangerous git and filesystem commands before execution. Sub-millisecond latency, mechanical enforcement.\n\nWorks automatically. When a dangerous command is blocked, use safer alternatives or ask the user to run it manually.\n\nMulti-language bug scanner with guardrails. Run it on changed files before every commit to catch injection, unquoted variables, and other hazards.\n\nubs <changed-files> before every commit. Exit 0 = safe. Exit >0 = fix and re-run.\n\nIndexes prior agent conversations so solved problems can be reused. Finds patterns, decisions, and solutions across session history.\n\nSearch before reinventing a solution. If an agent solved a similar problem before, CASS will find it.\n\nIf you are just getting started, you do not need to master all of this immediately:\n\nThose things help. Some help a lot. But they are multipliers on top of the core loop, not prerequisites. You can run the core loop with separate terminal tabs and no special session manager.\n\nEven in the smaller version, a few principles still matter a lot:\n\nIf you violate those, the workflow quickly degrades back into ordinary multi-agent chaos.\n\nStart smaller than your ego wants to:\n\nIf you want to feel the method instead of only reading about it:\n\nThose five steps are enough to make the core loop stop feeling theoretical.\n\nIf you want the loop on one screen, keep this:\n\nMove up to the full guide when one or more of these becomes true:\n\nAt that point, the bigger document stops feeling like overhead and starts feeling like leverage.\n\nOnce the core loop feels natural, the full methodology adds richer planning workflows, memory systems, prompt libraries, and the complete Dicklesworthstone stack.",
+  "headings": [
+    {
+      "level": "h1",
+      "text": "The Core Flywheel",
+      "id": ""
+    },
+    {
+      "level": "h2",
+      "text": "Why a Simpler Starting Point",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "Who This Is For",
+      "id": ""
+    },
+    {
+      "level": "h2",
+      "text": "Five Terms You Need",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "How the Tools Work Together (Behind the Scenes)",
+      "id": ""
+    },
+    {
+      "level": "h2",
+      "text": "The Core Loop",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Six stages, one loop, compounding leverage",
+      "id": ""
+    },
+    {
+      "level": "h5",
+      "text": "Plan",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "Normal Chat Coding vs. The Core Loop",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Why the tools matter",
+      "id": ""
+    },
+    {
+      "level": "h2",
+      "text": "The Three Tools Are a Single Machine",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "Agent Mail Solves Coordination",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "br Solves Task Structure",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "bv Solves Routing",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Beads, Agent Mail, and bv are a single machine",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "What Goes Wrong If You Skip One",
+      "id": ""
+    },
+    {
+      "level": "h2",
+      "text": "The Artifact Ladder",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "What you produce at each stage",
+      "id": ""
+    },
+    {
+      "level": "h5",
+      "text": "Raw Idea",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "Plan Space, Bead Space, and Code Space",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "What a Good Plan Looks Like",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "Escalation Ladder",
+      "id": ""
+    },
+    {
+      "level": "h2",
+      "text": "A Concrete Example: Atlas Notes",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "What a Good Bead Looks Like",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "Weak vs. Strong Artifacts",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Weak vs. Strong Artifacts",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "What the Agents Do Automatically",
+      "id": ""
+    },
+    {
+      "level": "h2",
+      "text": "The Operating Rhythm",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "From plan to production in five steps",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "Step 1: Create an Excellent Markdown Plan",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "Step 2: Tell an Agent to Convert the Plan into Beads",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "Step 3: Launch Agents with Marching Orders",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "Step 4: Tend the Swarm",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "Step 5: Review, Close, Repeat",
+      "id": ""
+    },
+    {
+      "level": "h2",
+      "text": "The Human's Job",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "Who Does What in the Core Loop",
+      "id": ""
+    },
+    {
+      "level": "h5",
+      "text": "Create the Plan",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "What You Do",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "What the Agents Do (Not You)",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "The Reality Check",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "Minimum Viable AGENTS.md",
+      "id": ""
+    },
+    {
+      "level": "h2",
+      "text": "Common Failure Modes",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "Agent Disappeared Mid-Bead",
+      "id": ""
+    },
+    {
+      "level": "h2",
+      "text": "What It Feels Like Once It Clicks",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "Why This Captures Most of the Value",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "When Not to Use the Core Loop",
+      "id": ""
+    },
+    {
+      "level": "h2",
+      "text": "Helper Utilities: DCG, UBS & CASS",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "DCG",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "UBS",
+      "id": ""
+    },
+    {
+      "level": "h4",
+      "text": "CASS",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "What You Can Ignore for Now",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "What You Should Not Ignore",
+      "id": ""
+    },
+    {
+      "level": "h2",
+      "text": "Getting Started",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "The First 30 Minutes",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "Try This Now",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "The Cheat Card",
+      "id": ""
+    },
+    {
+      "level": "h3",
+      "text": "When to Graduate to the Full Flywheel",
+      "id": ""
+    },
+    {
+      "level": "h2",
+      "text": "Graduate to the Full Flywheel",
+      "id": ""
+    }
+  ],
+  "code_samples": [
+    {
+      "code": "## Upload workflow",
+      "language": "unknown"
+    },
+    {
+      "code": "- Users drag Markdown files into the upload surface.",
+      "language": "unknown"
+    },
+    {
+      "code": "- The system parses frontmatter plus body text and stores a normalized note record.",
+      "language": "unknown"
+    },
+    {
+      "code": "## Constraints",
+      "language": "unknown"
+    },
+    {
+      "code": "- Unauthorized users must never see note content or note metadata.",
+      "language": "unknown"
+    },
+    {
+      "code": "- Failed ingestions must be preserved for operator review instead of discarded.",
+      "language": "unknown"
+    },
+    {
+      "code": "## Architecture choice",
+      "language": "unknown"
+    },
+    {
+      "code": "- Use a dedicated ingestion pipeline so parse failures can be persisted and retried.",
+      "language": "unknown"
+    },
+    {
+      "code": "- Keep search indexing separate from upload handling so indexing can be retried independently.",
+      "language": "unknown"
+    },
+    {
+      "code": "## Tests and failure handling",
+      "language": "unknown"
+    },
+    {
+      "code": "- Unit coverage for parsing and index mapping.",
+      "language": "unknown"
+    },
+    {
+      "code": "- E2E coverage for upload, failed-ingestion review, retry, search, and filtering.",
+      "language": "unknown"
+    },
+    {
+      "code": "bd-01s: Add --deep flag to acfs doctor",
+      "language": "unknown"
+    },
+    {
+      "code": "Part of EPIC: Enhanced Doctor with Functional Tests.",
+      "language": "unknown"
+    },
+    {
+      "code": "What to Do:",
+      "language": "unknown"
+    },
+    {
+      "code": "Add --deep flag to doctor.sh that enables functional tests beyond",
+      "language": "unknown"
+    },
+    {
+      "code": "binary existence checks:",
+      "language": "unknown"
+    },
+    {
+      "code": "- Add DEEP_MODE=false global",
+      "language": "unknown"
+    },
+    {
+      "code": "- Parse --deep flag alongside existing --json",
+      "language": "unknown"
+    },
+    {
+      "code": "- --deep and --json can be combined",
+      "language": "unknown"
+    },
+    {
+      "code": "Acceptance Criteria:",
+      "language": "unknown"
+    },
+    {
+      "code": "- --deep flag parsed correctly",
+      "language": "unknown"
+    },
+    {
+      "code": "- Default doctor unchanged (fast, existence checks only)",
+      "language": "unknown"
+    },
+    {
+      "code": "- --deep runs additional functional tests",
+      "language": "unknown"
+    },
+    {
+      "code": "- Works with --json for structured output",
+      "language": "unknown"
+    },
+    {
+      "code": "Files to Modify:",
+      "language": "unknown"
+    },
+    {
+      "code": "- scripts/lib/doctor.sh: Argument parsing",
+      "language": "unknown"
+    },
+    {
+      "code": "[br-103] Start: Failed-ingestion admin screen",
+      "language": "unknown"
+    },
+    {
+      "code": "Claiming br-103. Reserving admin UI files plus retry handler path.",
+      "language": "unknown"
+    },
+    {
+      "code": "Will send update once list view is working and retry path is wired.",
+      "language": "unknown"
+    },
+    {
+      "code": "[br-103] Progress: Main path wired",
+      "language": "unknown"
+    },
+    {
+      "code": "List view and detail view working. Now handling edge cases and tests.",
+      "language": "unknown"
+    },
+    {
+      "code": "[br-103] Completed",
+      "language": "unknown"
+    },
+    {
+      "code": "Admin screen done. List view, detail view, and retry action wired.",
+      "language": "unknown"
+    },
+    {
+      "code": "Auth checks in place. E2E coverage for malformed upload → admin review → retry.",
+      "language": "unknown"
+    }
+  ],
+  "patterns": [
+    {
+      "description": "011Why a Simpler Starting PointThe full Flywheel system has grown large enough that many people find it overwhelming on first contact. That reaction makes sense. But there is a much smaller core that already captures most of what makes the approach powerful.The larger system includes planning workflows, memory systems, prompt libraries, launch tooling, safety tooling, skills, and a lot of accumulated operational detail. You do not need to absorb all of that up front.The core loop uses just three tools. If you understand those three and use them together correctly, you already have the heart of the system.LayerFrontier modelsWhat It Is ForGenerating and refining the markdown planLayerbr (beads_rust)What It Is ForTurning that plan into explicit task structure with dependenciesLayerbv (beads_viewer)What It Is ForRouting work through the dependency graph to find highest-leverage next beadLayerAgent MailWhat It Is ForCoordinating claims, reservations, progress, and handoff between agentsSeparate the process into two layers: the planning substrate (frontier models used to create and refine the markdown plan) and the core operating loop (Agent Mail, br, and bv once the plan is ready to drive execution).Who This Is ForThis document is for a relatively smart software developer who is new to agentic coding and does not want to absorb the entire larger Flywheel guide up front. The goal is narrower: get you to the point where you can coordinate multiple agents without chaos, keep work organized as explicit tasks with dependencies, and keep agents working on the best next unblocked task instead of choosing randomly.If that works well for you, the larger Flywheel stack becomes much easier to appreciate later.NoteWhen this guide says \"three-tool core,\" it means the durable execution substrate you keep live while the project is being carried out. It does not mean the planning phase happens in a vacuum. The first step is still creating an excellent markdown plan.022Five Terms You NeedIf these five terms stay clear in your head, most of the rest of the guide gets much easier to follow.TermBeadMeaningA self-contained task with enough context, dependency information, and completion criteria that an agent can work it without guessing.TermReady beadMeaningA bead whose blockers are cleared, so it can be started right now.TermClaimMeaningWhen an agent announces via Agent Mail that it is taking responsibility for a bead. Agents do this automatically.TermReservationMeaningA coordination lock on files so two agents do not unknowingly collide. Agents manage these automatically via Agent Mail.TermThreadMeaningThe Agent Mail conversation tied to one bead, where start, progress, and completion messages accumulate. Created automatically by agents.How the Tools Work Together (Behind the Scenes)You do not need to manually manage the coordination between these tools. When your AGENTS.md file is set up correctly, the agents handle the integration automatically: they use bead IDs as thread identifiers in Agent Mail, they announce claims and reserve files before editing, and they update bead status as they work. You configure this once in AGENTS.md and then the agents just do it.NoteThe human's job is to write a good plan, create good beads, launch agents with the right marching orders, and then tend the swarm. The agents handle the coordination plumbing themselves.033The Core LoopThe core loop is simple: generate a plan, encode it as beads, launch agents with marching orders, let them coordinate through Agent Mail while bv routes them toward the best next bead, and tend the swarm until the graph is done.Core LoopSix stages, one loop, compounding leverageEach closed bead reshapes the graph. The next agent gets a better map. Click any stage to see the details.Tour PausedPlanEncodeTriageCoordinateImplementCloseCore LoopPlanCreate & refine markdown plan with multiple frontier models1/6EncodeConvert plan into beads with dependencies using br2/6TriageLet bv route agents to highest-leverage ready bead3/6CoordinateClaim bead, reserve files, announce via Agent Mail4/6ImplementCode, test, and review with fresh eyes5/6CloseClose bead, update graph, ask bv what’s next6/6Stage DetailPlanCreate & refine markdown plan with multiple frontier modelsArtifactMarkdown PlanCommandAsk 3+ frontier models, synthesizePlanning tokens are far cheaper than implementation tokensStageNormal Chat Coding vs. The Core LoopNormal Chat CodingThe task mostly lives in chatThe Core LoopThe task gets formalized into a markdown plan and then beadsNormal Chat CodingCoordination lives in scrollback or in the human's headThe Core LoopCoordination is externalized through Agent MailNormal Chat CodingAgents pick work based on local convenienceThe Core Loopbv routes work from the dependency graphNormal Chat CodingProgress is hard to inspect laterThe Core LoopThe bead graph and message threads form a durable recordNormal Chat CodingA crashed agent often takes its local state with itThe Core LoopAnother agent can resume from the bead and the threadThe core loop moves work out of ephemeral chat and into explicit, inspectable artifacts. That is the short answer to \"why bother?\"Interactive ComparisonWhy the tools matterFour agents, six tasks, side by side. One side uses the core loop, the other does not. Press Start.Without the Core LoopAll agents boot up and read the codebaseAgentsA1reading codebase...A2reading codebase...A3reading codebase...A4reading codebase...TasksT1T2T3T4T5T6Conflicts0Idle Burn0Completed0/6With the Core LoopAll agents boot up and read the codebaseAgentsA1reading codebase...A2reading codebase...A3reading codebase...A4reading codebase...TasksT1T2T3T4T5T6T1 → T2T1 → T5T2 → T4T3 → T4Conflicts0Idle Burn0Completed0/6Four agents spin up in parallel and read the same codebase. Without coordination tools, they have no way to know what the others are doing.PhaseStart SimulationReset044The Three Tools Are a Single MachineThese three tools solve three different failure modes. Each helps on its own, but the value shows up most clearly when they form a stable loop together.Agent Mail Solves CoordinationWithout Agent Mail, multiple agents constantly collide: two agents edit the same files, nobody knows who is doing what, messages disappear into chat history, and work gets stranded when an agent crashes.Agent Mail gives agents a shared coordination layer with identities, threads, inboxes, and file reservations. Agents announce what they are doing, reserve edit surfaces, and recover when another agent disappears. All of this happens automatically once your AGENTS.md tells agents to use Agent Mail.br Solves Task StructureWithout br, work collapses into vague conversational intentions: \"fix the auth stuff,\" \"clean up the admin area,\" \"someone should improve tests.\" That kind of tasking is too fuzzy for a swarm.br turns work into explicit beads with status, priority, and dependencies. Once work is represented that way, multiple agents can make progress without constant human steering.bv Solves RoutingEven with good beads, agents still need to know what to do next. Without bv, they choose work based on local convenience or whatever they most recently saw in context.bv reads the bead graph and computes what is most worth doing next. That turns the swarm from \"many agents doing work\" into \"many agents pushing the project forward efficiently.\"Coordination LogicBeads, Agent Mail, and bv are a single machineHover or tap to inspect each piece. Click again to remove it and watch the system lose a capability it cannot replace. This is the Coordination Triangle.BeadsAgent MailbvCapability MapAgent MailThe high-bandwidth negotiation layer.brThe durable, localized issue state.bvThe graph-theory compass for triage.System ArchitectureThe trio is not three nice-to-have tools. It is one operating system split into memory, communication, and leverage analysis. Remove any side of the triangle and the swarm loses determinism.What Goes Wrong If You Skip OneIf You Skip...Agent MailWhat Usually HappensAgents overlap, duplicate work, and lose shared situational awarenessIf You Skip...brWhat Usually HappensWork stays vague, hidden in chat, and hard to coordinate across agentsIf You Skip...bvWhat Usually HappensAgents pick tasks based on convenience instead of graph-aware leverage055The Artifact LadderOne reason agentic coding feels confusing at first is that the active artifact keeps changing. The easiest way to stay oriented is to know what the current artifact means and what you do with it next.Artifact ProgressionWhat you produce at each stageAn idea becomes a plan, a plan becomes beads, beads become finished code. Click any stage to see the artifact, what it means, and your next move.Auto-PlayStage 1Raw IdeaStage 2Markdown PlanStage 3Bead GraphStage 4Ready BeadStage 5Claimed BeadStage 6Completed BeadActive StageRaw IdeaMain ArtifactA rough descriptionWhat It MeansYou know the goal, not the system.What You Do NextTurn it into a serious markdown plan.ProgressionTotal Stages6Raw idea to finished code. Each stage adds precision.Key TransitionPlan to BeadProse becomes executable memory. This is where agents stop guessing.The InsightEach completed bead reshapes the graph and unblocks new work. Finished beads create ready beads.Plan Space, Bead Space, and Code SpacePlan space is where you decide the workflows, constraints, architecture, and testing expectations. Bead space is where you transform that thinking into executable memory for agents. Code space is where agents implement the local task that a bead defines.The general rule is simple. Debates belong in plan space. Translation and dependency shaping belong in bead space. Implementation belongs in code space.CriticalIf the swarm starts discovering missing structure while coding, the answer is often to step back up into bead space or plan space instead of forcing more code through a weak task graph.What a Good Plan Looks LikeA strong plan lets a fresh reader answer five questions without guessing: what are the main workflows? What constraints matter? What architecture are we choosing? How will we know it works? What failure cases must not disappear into hand-waving?markdownCopy## Upload workflow- Users drag Markdown files into the upload surface.- The system parses frontmatter plus body text and stores a normalized note record.## Constraints- Unauthorized users must never see note content or note metadata.- Failed ingestions must be preserved for operator review instead of discarded.## Architecture choice- Use a dedicated ingestion pipeline so parse failures can be persisted and retried.- Keep search indexing separate from upload handling so indexing can be retried independently.## Tests and failure handling- Unit coverage for parsing and index mapping.- E2E coverage for upload, failed-ingestion review, retry, search, and filtering.It gives a fresh agent workflows, constraints, architecture, testing, and failure handling in one place. Before you turn the plan into beads, check that these five questions are answerable from the plan alone.Escalation LadderWhen something feels wrong, use the smallest escalation that actually fits the problem:Local code confusion — stay in code space and resolve it thereWeak or underspecified bead — step back into bead space and rewrite the beadWrong graph — fix the dependencies or add the missing beadMissing plan work — step back into plan space and revise the markdown planDegraded agent — restart it with a fresh session066A Concrete Example: Atlas NotesA small project makes the workflow easier to picture. Imagine building an internal tool called Atlas Notes: team members upload Markdown notes, the system tags and indexes them, users can search them quickly, and admins can inspect failed ingestions.If you gave four agents only that vague description, they would step on each other and make mismatched assumptions. The core loop instead looks like this:1You ask multiple frontier models to produce competing markdown plans, then synthesize them into one strong plan.2You tell an agent to convert that plan into beads — upload pipeline, indexing, admin screen, auth, and end-to-end tests — with explicit dependencies.3You launch 2-4 agents with marching orders. They read AGENTS.md, join Agent Mail, and start picking up beads using bv.4You tend the swarm: check progress every 10-15 minutes, rescue confused agents, and add missing beads when needed.5Agents implement, review their own work with fresh eyes, close beads, and move to the next one. You step in for strategic decisions.What a Good Bead Looks LikeThe bead is the unit of work agents actually execute. Weak beads force improvisation. Rich beads make execution mechanical. Here is a real bead from the ACFS project:markdownCopybd-01s: Add --deep flag to acfs doctorContext:Part of EPIC: Enhanced Doctor with Functional Tests.What to Do:Add --deep flag to doctor.sh that enables functional tests beyondbinary existence checks:- Add DEEP_MODE=false global- Parse --deep flag alongside existing --json- --deep and --json can be combinedAcceptance Criteria:- --deep flag parsed correctly- Default doctor unchanged (fast, existence checks only)- --deep runs additional functional tests- Works with --json for structured outputFiles to Modify:- scripts/lib/doctor.sh: Argument parsingThe prose does not need polish. A fresh agent should be able to understand the task, the reason for it, and the acceptance criteria without reopening the whole markdown plan. You can browse real beads from actual Flywheel projects at FrankenEngine, FrankenTUI, and Asupersync.Weak vs. Strong ArtifactsQuality thresholds get easier to feel when you compare weak and strong versions directly. The weak version names a topic. The strong version scopes the actual requirement, constraint, and testing obligation.Interactive ComparisonWeak vs. Strong ArtifactsA weak artifact names a topic. A strong one carries scope, constraints, and a test plan. See the difference.Plan BulletBeadMissing contextWeak1 line1- Add authNo scope, no constraints, no testsWeakQualityStrong❌Scope✅❌Constraints✅❌Tests✅Strong4 lines1- Internal-only auth gates every note and note-metadata surface.2- Unauthorized users must never see content, filenames, tags, or timestamps.3- Admin review routes require explicit permission checks and should be4 covered by e2e tests for allowed and denied access.The TakeawayThe weak version names a topic. The strong version scopes the actual requirement, the constraint, and the testing obligation.What the Agents Do AutomaticallyOnce you launch agents with good marching orders, they automatically handle the coordination mechanics. A typical bead thread in Agent Mail looks like this — created entirely by agents, not by you:textCopy[br-103] Start: Failed-ingestion admin screenClaiming br-103. Reserving admin UI files plus retry handler path.Will send update once list view is working and retry path is wired.[br-103] Progress: Main path wiredList view and detail view working. Now handling edge cases and tests.[br-103] CompletedAdmin screen done. List view, detail view, and retry action wired.Auth checks in place. E2E coverage for malformed upload → admin review → retry.You do not write these messages. The agents create them because your AGENTS.md tells them to coordinate through Agent Mail and use bead IDs as thread anchors. Your job is to monitor these threads to see if work is flowing or stuck.077The Operating RhythmThis section describes what you, the human, actually do. The agents handle the coordination plumbing (Agent Mail messages, file reservations, bead status updates). Your job is to create the conditions for them to succeed.Operating RhythmFrom plan to production in five stepsSteps 3-5 repeat for every bead. You stop thinking about the process after the second cycle.Repeating loop1Plan2Encode3Route4Coordinate/5Execute & Close1PlanActionAsk 3+ frontier models for competing plans, synthesize into oneOutputA markdown plan covering workflows, architecture, and testsTiming~1-3 hoursRepeating loopStep 1PlanActionAsk 3+ frontier models for competing plans, synthesize into oneOutputA markdown plan covering workflows, architecture, and testsTiming~1-3 hoursStep 2EncodeStep 3RouteStep 4CoordinateStep 5Execute & CloseRepeat from RoutePaused · 1/5Step 1: Create an Excellent Markdown PlanBefore beads or swarms or file reservations, create a serious markdown plan. Do not settle for one quick draft from one model.Multi-Model SynthesisCopyI asked 3 competing LLMs to do the exact same thing and they came up with pretty different plans which you can read below. I want you to REALLY carefully analyze their plans with an open mind and be intellectually honest about what they did that's better than your plan. Then I want you to come up with the best possible revisions to your plan that artfully and skillfully blends the \"best of all worlds\" to create a true, ultimate, superior hybrid version of the plan: [Paste all plans here]ContextGPT Pro web app with Extended Reasoning, or your strongest available modelPsychologyDifferent frontier models have different blind spots. Competitive synthesis forces the model to admit where others are better and merge the strongest ideas.At minimum, you want: the user-facing workflows, the important constraints, the major architectural decisions, and the testing expectations.Step 2: Tell an Agent to Convert the Plan into BeadsYou do not need to manually create every bead yourself. Tell a coding agent to do the conversion:Plan to Beads ConversionCopyOK so please take ALL of that and elaborate on it and use it to create a comprehensive and granular set of beads for all this with tasks, subtasks, and dependency structure overlaid, with detailed comments so that the whole thing is totally self-contained and self-documenting. The beads should be so detailed that we never need to consult back to the original markdown plan document. Remember to ONLY use the `br` tool to create and modify the beads and add the dependencies. Use ultrathink.ContextClaude Code with OpusPsychologyBeads become the active source of truth for execution. Once they're strong enough, you never look back at the markdown plan.Then polish the beads 4-6 times with fresh review passes. Each round catches things the previous round missed. This is the \"measure twice, cut once\" of the methodology.InsightBeads are executable memory. The markdown plan is the best artifact for whole-system thought. Beads are the plan after it has been transformed into a format optimized for distributed execution. Weak beads force improvisation. Rich beads make execution mechanical.Step 3: Launch Agents with Marching OrdersOnce beads are polished and your AGENTS.md is solid, start up a swarm of agents. Give each one these marching orders:Swarm Marching OrdersCopyFirst read ALL of the AGENTS.md file and README.md file super carefully and understand ALL of both! Then use your code investigation agent mode to fully understand the code, and technical architecture and purpose of the project. Then register with MCP Agent Mail and introduce yourself to the other agents. Be sure to check your agent mail and to promptly respond if needed to any messages; then proceed meticulously with your next assigned beads, working on the tasks systematically and meticulously and tracking your progress via beads and agent mail messages. Don't get stuck in \"communication purgatory\" where nothing is getting done; be proactive about starting tasks that need to be done, but inform your fellow agents via messages when you do so and mark beads appropriately. When you're not sure what to do next, use the bv tool mentioned in AGENTS.md to prioritize the best beads to work on next; pick the next one that you can usefully work on and get started. Use ultrathink.ContextEvery agent in the swarm gets this as their initial promptPsychologyEvery agent is fungible and a generalist. The specifics come from AGENTS.md and the beads, not from the prompt. This generic prompt works for every project.Stagger agent starts by at least 30 seconds to avoid the \"thundering herd\" problem where all agents grab the same bead. Start smaller than your ego wants to: 1 agent to learn, 2 to feel coordination, 4 for real swarm behavior.Step 4: Tend the SwarmNow you are the operator. On roughly a 10-15 minute cadence, check on the swarm:1Run bv --robot-triage and check whether the top recommendation still makes sense.2Glance through Agent Mail threads — are agents making progress or stuck?3Look for beads stuck in in_progress without movement.4If an agent seems confused after compaction, send: \"Reread AGENTS.md so it's still fresh in your mind.\"5If an agent is truly degraded, kill it and start a fresh one.That is usually enough to keep the loop healthy without turning the human into a full-time traffic cop.Step 5: Review, Close, RepeatAfter agents finish each bead, have them review their own work:Fresh-Eyes ReviewCopyGreat, now I want you to carefully read over all of the new code you just wrote and other existing code you just modified with \"fresh eyes\" looking super carefully for any obvious bugs, errors, problems, issues, confusion, etc. Carefully fix anything you uncover. Use ultrathink.ContextAfter each bead is implemented — run until no more bugs foundPsychologyForces a mode switch from writing to adversarial reading while the code is still fresh. One of the cheapest quality multipliers in the whole method.Then they move to the next bead using bv to find the most impactful one. The cycle repeats until the graph is done.088The Human's JobThe human is not supposed to micromanage every code edit or manually coordinate Agent Mail threads. The human is there to keep the structure clean enough that the agents can work effectively inside it.Interactive ExhibitWho Does What in the Core LoopYou design the system and tend the swarm. Agents do the coordination work.Breakdown5 you2 agents1 bothYouAgentsBothYouCreate the PlanWhoYouToolsGPT Pro, Claude, Gemini web appsAsk multiple frontier models for competing plans, then synthesize into one strong design documentThis is where 85% of your thinking goes. No code yet.StageAdvanceResetWhat You DoCreate the plan and beads — this is where most of your time and thinking goesWrite a good AGENTS.md — this is the operating manual that makes everything else workLaunch agents with marching orders — the same generic prompt every timeKeep the bead graph honest — notice when a missing task or dependency must be addedRestart or redirect agents when they drift, get loopy, or lose contextAsk the hard question periodically (see below)What the Agents Do (Not You)Register with Agent Mail and discover other active agentsClaim beads and announce what they are working onReserve files before editing to prevent conflictsUpdate bead status (in_progress, closed) as they workUse bv to find the next best bead when they finish oneSend progress updates and completion messages in Agent Mail threadsAll of this is configured once in your AGENTS.md. You do not need to manually invoke Agent Mail calls, update bead statuses, or thread bead IDs into messages. The agents do it because the operating manual tells them to.The Reality CheckWhen the swarm looks active but you suspect it is not actually closing the real gap, stop and ask:Where are we on this project? Do we actually have the thing we are trying to build? If not, what is blocking us? If we intelligently implement all open and in-progress beads, would we close that gap completely? Why or why not?If the answer is \"no,\" the fix is usually not more implementation effort. Revise the bead graph, add missing work, or step back into planning.Minimum Viable AGENTS.mdEven in the smaller core-loop version, you still need a minimal AGENTS.md. It does not have to be a giant doctrine document, but it should say:What the repo is forWhat the stack isAny non-negotiable safety or style rulesHow to use Agent Mail, br, and bv (include the prepared blurbs from each tool's docs)Treat AGENTS.md as the swarm's durable operating manual. It tells a fresh or partially confused agent how to behave, what tools exist, and what \"doing a good job\" looks like in this repo.CriticalAfter compaction, agents must re-read AGENTS.md. If an agent still seems confused or loopy after rereading it, stop trying to rescue the degraded state and start a fresh session instead.099Common Failure ModesSymptomAgents keep overlappingLikely CauseAGENTS.md doesn't emphasize Agent Mail claims and reservations enoughFixStrengthen the coordination section in AGENTS.mdSymptomAgents choose random workLikely CauseAGENTS.md doesn't explain bv usage clearlyFixAdd bv usage instructions to AGENTS.md with the robot-flag commandsSymptomA task keeps stallingLikely CauseThe bead is underspecified or missing a dependencyFixRewrite the bead or add the missing dependencySymptomThe swarm feels busy but confusedLikely CauseThe markdown plan was too weakFixGo back up a level and improve the plan before continuingAgent Disappeared Mid-BeadWhen an agent vanishes mid-bead, the recovery path should be boring:1Check the Agent Mail thread for the last meaningful progress update.2Launch a fresh agent with the standard marching orders.3The new agent will read AGENTS.md, discover the abandoned bead via bv, and pick it up.4If the bead was partially completed, the new agent can continue from the code state plus the thread history.NoteIf recovery feels hard, the bead or the AGENTS.md was probably too thin. That is a signal to write richer beads and a more thorough operating manual.1010What It Feels Like Once It ClicksAt some point, the workflow stops feeling like extra ceremony and starts feeling like a calmer control surface:Less duplicated work, because agents manage ownership and reservations automaticallyLess \"what should I do next?\" drift, because bv keeps answering that question for the agentsEasier restart after context loss, because the work lives in beads and threads instead of only in chat historyEasier handoff, because any agent can read the bead, read the thread, and continueThat operator feeling is a good sign. It usually means the artifacts are carrying the work instead of your short-term memory.Why This Captures Most of the ValuePeople often assume the magic of the Flywheel comes from the total number of tools. It does not. Most of the value comes from three things:1Work is explicit instead of implicit2Coordination is externalized instead of living in human memory3Task choice is graph-aware instead of randomThose three properties are already present in the core loop. That is why the smaller system gets you surprisingly far.When Not to Use the Core LoopYou probably do not need it for a tiny one-file change with no real dependency structure, a purely local experiment, or a quick one-agent cleanup that does not need externalized coordination.The loop earns its keep when work has enough structure, enough ambiguity, or enough parallelism that explicit planning, explicit tasks, and explicit coordination start paying for themselves.1111Helper Utilities: DCG, UBS & CASSOnce the core loop is running smoothly, three helper utilities significantly improve safety, quality, and learning. They are multipliers on top of the core loop, not prerequisites.Destructive Command GuardDCGA Claude Code hook that blocks dangerous git and filesystem commands before execution. Sub-millisecond latency, mechanical enforcement.UsageWorks automatically. When a dangerous command is blocked, use safer alternatives or ask the user to run it manually.dcg test 'rm -rf /' --explainUltimate Bug ScannerUBSMulti-language bug scanner with guardrails. Run it on changed files before every commit to catch injection, unquoted variables, and other hazards.Usageubs <changed-files> before every commit. Exit 0 = safe. Exit >0 = fix and re-run.ubs $(git diff --name-only --cached)Cross-Agent Session SearchCASSIndexes prior agent conversations so solved problems can be reused. Finds patterns, decisions, and solutions across session history.UsageSearch before reinventing a solution. If an agent solved a similar problem before, CASS will find it.cass search 'auth middleware' --robot --limit 5What You Can Ignore for NowIf you are just getting started, you do not need to master all of this immediately:Large-scale session memory systems like CASS and CMBig prompt librariesAdvanced launch tooling like ntmThe full exhaustive planning doctrineEvery supporting tool in ACFSThose things help. Some help a lot. But they are multipliers on top of the core loop, not prerequisites. You can run the core loop with separate terminal tabs and no special session manager.What You Should Not IgnoreEven in the smaller version, a few principles still matter a lot:Do not start a swarm with only vague goals — make a real plan firstDo not treat beads as tiny throwaway todo lines — they need rich contextDo not skip the bead polishing rounds — single-pass beads are never optimalDo not rely on chat scrollback as your coordination system — that is what Agent Mail is forIf you violate those, the workflow quickly degrades back into ordinary multi-agent chaos.1212Getting StartedThe First 30 Minutes1Pick one real project, not a toy.2Ask multiple frontier models for competing markdown plans.3Synthesize them into one strong plan.4Tell an agent to create beads from the plan with dependencies.5Polish the beads 4-6 times with fresh review passes.6Run bv --robot-triage to verify the graph makes sense.7Launch 2-4 agents with the standard marching orders.8Tend the swarm. Check every 10-15 minutes.Start smaller than your ego wants to:Mode1 agentWhat It Is Good ForLearn the artifact flow without coordination overheadMode2 agentsWhat It Is Good ForFeel the first real coordination benefitsMode4 agentsWhat It Is Good ForExperience meaningful swarm behavior where routing and handoff matterTry This NowIf you want to feel the method instead of only reading about it:1Pick one real repo2Write one serious markdown plan3Tell an agent to create two real beads with one dependency4Run bv --robot-next and check that the recommendation makes sense5Launch a second agent with the marching orders and watch them coordinateThose five steps are enough to make the core loop stop feeling theoretical.The Cheat CardIf you want the loop on one screen, keep this:1Plan with multiple models2Synthesize into one markdown plan3Tell an agent to create beads4Polish beads 4-6 times5Write a good AGENTS.md6Launch agents with marching orders7Tend the swarm every 10-15 minutes8Have agents do fresh-eyes review after each bead9Repeat until the graph is doneWhen to Graduate to the Full FlywheelMove up to the full guide when one or more of these becomes true:Your projects are large enough that you want much richer planning workflowsYou want stronger AGENTS.md operating manuals with comprehensive tool documentationYou want repeatable prompt libraries and skillsYou want better recovery from compaction and session lossYou want memory systems (CASS, CM) that improve the workflow over timeAt that point, the bigger document stops feeling like overhead and starts feeling like leverage.Ready for More?Graduate to the Full FlywheelOnce the core loop feels natural, the full methodology adds richer planning workflows, memory systems, prompt libraries, and the complete Dicklesworthstone stack.Read the Full GuideInstall the Stack",
+      "code": "AGENTS.md"
+    },
+    {
+      "description": "6A Concrete Example: Atlas Notes",
+      "code": "bd-01s: Add --deep flag to acfs doctorContext:Part of EPIC: Enhanced Doctor with Functional Tests.What to Do:Add --deep flag to doctor.sh that enables functional tests beyondbinary existence checks:- Add DEEP_MODE=false global- Parse --deep flag alongside existing --json- --deep and --json can be combinedAcceptance Criteria:- --deep flag parsed correctly- Default doctor unchanged (fast, existence checks only)- --deep runs additional functional tests- Works with --json for structured outputFiles to Modify:- scripts/lib/doctor.sh: Argument parsing"
+    },
+    {
+      "description": "6A Concrete Example: Atlas Notes",
+      "code": "bd-01s: Add --deep flag to acfs doctorContext:Part of EPIC: Enhanced Doctor with Functional Tests.What to Do:Add --deep flag to doctor.sh that enables functional tests beyondbinary existence checks:- Add DEEP_MODE=false global- Parse --deep flag alongside existing --json- --deep and --json can be combinedAcceptance Criteria:- --deep flag parsed correctly- Default doctor unchanged (fast, existence checks only)- --deep runs additional functional tests- Works with --json for structured outputFiles to Modify:- scripts/lib/doctor.sh: Argument parsing"
+    },
+    {
+      "description": "A Concrete Example: Atlas Notes",
+      "code": "bd-01s: Add --deep flag to acfs doctorContext:Part of EPIC: Enhanced Doctor with Functional Tests.What to Do:Add --deep flag to doctor.sh that enables functional tests beyondbinary existence checks:- Add DEEP_MODE=false global- Parse --deep flag alongside existing --json- --deep and --json can be combinedAcceptance Criteria:- --deep flag parsed correctly- Default doctor unchanged (fast, existence checks only)- --deep runs additional functional tests- Works with --json for structured outputFiles to Modify:- scripts/lib/doctor.sh: Argument parsing"
+    },
+    {
+      "description": "A Concrete Example: Atlas Notes",
+      "code": "bd-01s: Add --deep flag to acfs doctorContext:Part of EPIC: Enhanced Doctor with Functional Tests.What to Do:Add --deep flag to doctor.sh that enables functional tests beyondbinary existence checks:- Add DEEP_MODE=false global- Parse --deep flag alongside existing --json- --deep and --json can be combinedAcceptance Criteria:- --deep flag parsed correctly- Default doctor unchanged (fast, existence checks only)- --deep runs additional functional tests- Works with --json for structured outputFiles to Modify:- scripts/lib/doctor.sh: Argument parsing"
+    }
+  ],
+  "links": [
+    "https://agent-flywheel.com/core-flywheel",
+    "https://agent-flywheel.com/complete-guide"
+  ]
+}

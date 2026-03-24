@@ -1,0 +1,351 @@
+#!/usr/bin/env python3
+"""
+flow — DAG walker for dna.yaml skills
+
+Intent compiler CLI. Walks a dna.yaml graph, tracks state in XDG cache,
+feeds nodes to LLMs one at a time via progressive disclosure.
+
+Usage:
+  flow validate --skill <path>     Validate graph (no orphans, no cycles, paths resolve)
+  flow next [--skill <path>]       Print the next node's content
+  flow report [--skill <path>]     Record completion of current node, advance
+  flow status [--skill <path>]     Show current DAG position and session state
+  flow reset [--skill <path>]      Reset session state
+
+Environment:
+  FLOW_NEXT_ON_REPORT=1            Include next node content in report response (default: 1)
+  XDG_CACHE_HOME                   Override cache location (default: ~/.cache)
+"""
+
+import json
+import os
+import sys
+import time
+import uuid
+from pathlib import Path
+
+try:
+    import yaml
+except ImportError:
+    # Inline YAML parser for minimal deps — handles the subset we need
+    yaml = None
+
+# ─── XDG Paths ───────────────────────────────────────────────────────
+
+def xdg_cache() -> Path:
+    return Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
+
+def session_dir(skill_name: str) -> Path:
+    d = xdg_cache() / "lev" / "skills" / skill_name
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+def session_file(skill_name: str, session_id: str) -> Path:
+    return session_dir(skill_name) / f"{session_id}.json"
+
+# ─── YAML Loading ────────────────────────────────────────────────────
+
+def load_yaml(path: Path) -> dict:
+    text = path.read_text()
+    if yaml:
+        return yaml.safe_load(text)
+    # Fallback: use json if available via a yaml-to-json shim
+    import subprocess
+    result = subprocess.run(
+        ["python3", "-c", "import yaml,json,sys; print(json.dumps(yaml.safe_load(sys.stdin)))"],
+        input=text, capture_output=True, text=True
+    )
+    if result.returncode == 0:
+        return json.loads(result.stdout)
+    raise RuntimeError(f"Cannot parse YAML (install pyyaml): {path}")
+
+# ─── Graph Validation ────────────────────────────────────────────────
+
+def validate_graph(dna: dict, skill_path: Path) -> list[str]:
+    """Validate: no orphans, no cycles, all content paths resolve."""
+    errors = []
+    nodes = dna.get("nodes", {})
+    entry = dna.get("entry")
+
+    if not entry:
+        errors.append("Missing 'entry' field")
+        return errors
+
+    if entry not in nodes:
+        errors.append(f"Entry '{entry}' not found in nodes")
+
+    # Check all content paths exist
+    for node_id, node in nodes.items():
+        content = node.get("content") or node.get("prompt")
+        if content:
+            content_path = skill_path / content
+            if not content_path.exists():
+                errors.append(f"Node '{node_id}': content path '{content}' does not exist")
+
+    # Check all edge targets exist
+    for node_id, node in nodes.items():
+        # routes (intake-style)
+        for target in (node.get("routes") or {}).keys():
+            if target not in nodes:
+                errors.append(f"Node '{node_id}': route target '{target}' not in nodes")
+        # next
+        nxt = node.get("next")
+        if nxt and nxt not in nodes:
+            errors.append(f"Node '{node_id}': next target '{nxt}' not in nodes")
+        # edges (formalized style)
+        for edge in (node.get("edges") or []):
+            to = edge.get("to")
+            if to and to not in nodes:
+                errors.append(f"Node '{node_id}': edge target '{to}' not in nodes")
+        # requires
+        for req in (node.get("requires") or []):
+            if req not in nodes:
+                errors.append(f"Node '{node_id}': requires '{req}' not in nodes")
+
+    # Check reachability (no orphans)
+    reachable = set()
+    def walk(nid):
+        if nid in reachable:
+            return
+        reachable.add(nid)
+        node = nodes.get(nid, {})
+        for target in (node.get("routes") or {}).keys():
+            walk(target)
+        nxt = node.get("next")
+        if nxt:
+            walk(nxt)
+        for edge in (node.get("edges") or []):
+            to = edge.get("to")
+            if to:
+                walk(to)
+
+    if entry in nodes:
+        walk(entry)
+
+    for node_id in nodes:
+        if node_id not in reachable:
+            errors.append(f"Orphan node: '{node_id}' not reachable from entry '{entry}'")
+
+    # Cycle detection (DFS)
+    WHITE, GRAY, BLACK = 0, 1, 2
+    color = {nid: WHITE for nid in nodes}
+
+    def has_cycle(nid):
+        color[nid] = GRAY
+        node = nodes.get(nid, {})
+        successors = []
+        successors.extend((node.get("routes") or {}).keys())
+        nxt = node.get("next")
+        if nxt:
+            successors.append(nxt)
+        for edge in (node.get("edges") or []):
+            to = edge.get("to")
+            if to:
+                successors.append(to)
+        for succ in successors:
+            if succ not in color:
+                continue
+            if color[succ] == GRAY:
+                errors.append(f"Cycle detected involving '{nid}' → '{succ}'")
+                return True
+            if color[succ] == WHITE and has_cycle(succ):
+                return True
+        color[nid] = BLACK
+        return False
+
+    for nid in nodes:
+        if color.get(nid) == WHITE:
+            has_cycle(nid)
+
+    return errors
+
+# ─── Session State ───────────────────────────────────────────────────
+
+def load_session(skill_name: str) -> dict:
+    """Load or create session state."""
+    sdir = session_dir(skill_name)
+    active = sdir / "active.json"
+    if active.exists():
+        return json.loads(active.read_text())
+    return {
+        "session_id": str(uuid.uuid4())[:8],
+        "current_node": None,
+        "completed": [],
+        "retries": 0,
+        "started_at": time.time(),
+        "ticks": [],
+    }
+
+def save_session(skill_name: str, state: dict):
+    active = session_dir(skill_name) / "active.json"
+    active.write_text(json.dumps(state, indent=2))
+    # Append-only log
+    log = session_dir(skill_name) / f"{state['session_id']}.jsonl"
+    with open(log, "a") as f:
+        f.write(json.dumps({"ts": time.time(), **{k: v for k, v in state.items() if k != "ticks"}}) + "\n")
+
+# ─── Commands ────────────────────────────────────────────────────────
+
+def cmd_validate(skill_path: Path):
+    dna_path = skill_path / "dna.yaml"
+    if not dna_path.exists():
+        print(f"ERROR: {dna_path} not found", file=sys.stderr)
+        sys.exit(1)
+    dna = load_yaml(dna_path)
+    errors = validate_graph(dna, skill_path)
+    if errors:
+        print(f"FAIL: {len(errors)} error(s)")
+        for e in errors:
+            print(f"  - {e}")
+        sys.exit(1)
+    else:
+        node_count = len(dna.get("nodes", {}))
+        print(f"PASS: {node_count} nodes, 0 errors. Graph is valid.")
+
+def cmd_next(skill_path: Path):
+    dna = load_yaml(skill_path / "dna.yaml")
+    skill_name = dna.get("name", skill_path.name)
+    state = load_session(skill_name)
+    nodes = dna.get("nodes", {})
+
+    if state["current_node"] is None:
+        state["current_node"] = dna["entry"]
+
+    node_id = state["current_node"]
+    node = nodes.get(node_id)
+    if not node:
+        print(f"ERROR: Node '{node_id}' not found", file=sys.stderr)
+        sys.exit(1)
+
+    # Load content
+    content_ref = node.get("content") or node.get("prompt")
+    if content_ref:
+        content_path = skill_path / content_ref
+        if content_path.exists():
+            print(f"--- node: {node_id} ---")
+            print(content_path.read_text())
+        else:
+            print(f"--- node: {node_id} (no content file) ---")
+            print(f"Description: {node.get('description', 'No description')}")
+    else:
+        print(f"--- node: {node_id} ---")
+        print(f"Description: {node.get('description', 'No description')}")
+
+    # Show contract if present
+    contract = node.get("contract") or node.get("validation")
+    if contract:
+        if isinstance(contract, dict):
+            print(f"\nContract: {contract.get('rule', contract.get('self', ''))}")
+        else:
+            print(f"\nContract: {contract}")
+
+    save_session(skill_name, state)
+
+def cmd_report(skill_path: Path, route: str = None):
+    dna = load_yaml(skill_path / "dna.yaml")
+    skill_name = dna.get("name", skill_path.name)
+    state = load_session(skill_name)
+    nodes = dna.get("nodes", {})
+    node_id = state["current_node"]
+    node = nodes.get(node_id, {})
+
+    # Record completion
+    state["completed"].append({
+        "node": node_id,
+        "ts": time.time(),
+        "retries": state["retries"],
+    })
+    state["retries"] = 0
+
+    # Determine next node
+    next_node = None
+    if route and route in (node.get("routes") or {}):
+        next_node = route
+    elif node.get("next"):
+        next_node = node["next"]
+    elif node.get("edges"):
+        # Take first edge (runtime would evaluate guards)
+        next_node = node["edges"][0].get("to")
+
+    if node.get("terminal") or next_node is None:
+        state["current_node"] = None
+        save_session(skill_name, state)
+        print(f"DONE: Completed {len(state['completed'])} nodes. Session finished.")
+        return
+
+    state["current_node"] = next_node
+    save_session(skill_name, state)
+
+    # $nextOnReport: include next node content in response
+    next_on_report = os.environ.get("FLOW_NEXT_ON_REPORT", "1") == "1"
+    if next_on_report:
+        print(f"Completed: {node_id} → advancing to: {next_node}\n")
+        cmd_next(skill_path)
+    else:
+        print(f"Completed: {node_id} → next: {next_node}")
+        print("Run `flow next` to see the next node.")
+
+def cmd_status(skill_path: Path):
+    dna = load_yaml(skill_path / "dna.yaml")
+    skill_name = dna.get("name", skill_path.name)
+    state = load_session(skill_name)
+    nodes = dna.get("nodes", {})
+    completed_ids = [c["node"] for c in state["completed"]]
+
+    print(f"Skill: {skill_name}")
+    print(f"Session: {state['session_id']}")
+    print(f"Current: {state['current_node'] or '(not started)'}")
+    print(f"Completed: {len(completed_ids)}/{len(nodes)}")
+    for nid in nodes:
+        marker = "✓" if nid in completed_ids else ("→" if nid == state["current_node"] else " ")
+        print(f"  {marker} {nid}")
+
+def cmd_reset(skill_path: Path):
+    dna = load_yaml(skill_path / "dna.yaml")
+    skill_name = dna.get("name", skill_path.name)
+    active = session_dir(skill_name) / "active.json"
+    if active.exists():
+        active.unlink()
+    print(f"Session reset for {skill_name}")
+
+# ─── Main ────────────────────────────────────────────────────────────
+
+def main():
+    args = sys.argv[1:]
+    if not args:
+        print(__doc__)
+        sys.exit(0)
+
+    cmd = args[0]
+    skill_path = Path(".")
+
+    # Parse --skill flag
+    for i, arg in enumerate(args):
+        if arg == "--skill" and i + 1 < len(args):
+            skill_path = Path(args[i + 1])
+            break
+
+    # Parse --route flag (for report)
+    route = None
+    for i, arg in enumerate(args):
+        if arg == "--route" and i + 1 < len(args):
+            route = args[i + 1]
+            break
+
+    if cmd == "validate":
+        cmd_validate(skill_path)
+    elif cmd == "next":
+        cmd_next(skill_path)
+    elif cmd == "report":
+        cmd_report(skill_path, route)
+    elif cmd == "status":
+        cmd_status(skill_path)
+    elif cmd == "reset":
+        cmd_reset(skill_path)
+    else:
+        print(f"Unknown command: {cmd}")
+        print(__doc__)
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

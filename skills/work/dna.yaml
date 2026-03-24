@@ -1,0 +1,154 @@
+name: work
+version: 6.1.0
+description: "Session lifecycle router — handoff-first, entity-tracked, prior-art-aware"
+entry: handoff
+
+nodes:
+  handoff:
+    description: "Load or create session handoff"
+    content: nodes/handoff.md
+    routes:
+      track: "Handoff loaded or created successfully"
+    validation:
+      rule: "handoff file exists at .lev/pm/handoffs/ with You Are Here filled"
+      check: "ls .lev/pm/handoffs/*-session-*.md"
+    on_failure: "Create handoff from template before proceeding."
+
+  track:
+    description: "Add entities to the matrix — files at paths, not concepts"
+    content: nodes/track.md
+    requires: [handoff]
+    validation:
+      rule: "entity matrix has at least 1 row with a real file path"
+    on_failure: "Add a file. Not a concept. A path that exists on disk."
+    next: align
+
+  align:
+    description: "Gate — must pass before any execution"
+    content: nodes/align.md
+    requires: [track]
+    validation:
+      rule: "objective stated, scope bounded, user confirmed"
+      check: "grep -q 'Objective:' {handoff_path}"
+    on_failure: "Fill the missing field. Do not proceed without alignment."
+    next: prior_art
+
+  prior_art:
+    description: "Search before creating"
+    content: nodes/prior-art.md
+    requires: [align]
+    validation:
+      rule: "prior art search ran — results table exists or 'no artifacts found' stated"
+      check: "grep -rl '{topic}' .lev/pm/ docs/ || echo 'no artifacts found'"
+    on_failure: "Run the search. Do not skip prior art."
+    next: route
+
+  route:
+    description: "Match work type to the right sub-skill"
+    content: nodes/route.md
+    requires: [prior_art]
+    routes:
+      execute: "User has a concrete slice to build"
+      interview: "User needs to figure out WHAT to build"
+      brainstorm: "User knows what, needs to DESIGN it"
+      research: "User needs to research something"
+      debug: "Something is broken"
+    validation:
+      rule: "exactly one route selected"
+    on_failure: "Ask what the user is trying to do."
+
+  interview:
+    description: "Route to /interview skill for framework-driven questioning"
+    content: nodes/interview.md
+    requires: [route]
+    next: execute
+
+  brainstorm:
+    description: "Route to /brainstorming skill for design + spec"
+    content: nodes/brainstorm.md
+    requires: [route]
+    next: execute
+
+  research:
+    description: "Route to /lev-research skill"
+    content: nodes/research.md
+    requires: [route]
+    next: close
+
+  debug:
+    description: "Route to /cdo debug or /systematic-debugging"
+    content: nodes/debug.md
+    requires: [route]
+    next: close
+
+  execute:
+    description: "Plan and build the concrete slice"
+    content: nodes/execute.md
+    requires: [route, interview, brainstorm]
+    validation:
+      rule: "plan template filled or code changes made"
+    on_failure: "Use a template from templates/. Do not freestyle."
+    next: close
+
+  close:
+    description: "Verify, commit, push — session is not done until pushed"
+    content: nodes/close.md
+    requires: [execute, research, debug]
+    terminal: true
+    validation:
+      rule: "git push succeeded and git status shows up to date with origin"
+      check: "git log --oneline origin/HEAD..HEAD | wc -l"
+    on_failure: "Resolve and push. Do NOT close session without pushing."
+
+anti_patterns:
+  - excuse: "I'll just do this one quick thing without a handoff"
+    reality: "Quick things lose context too. Handoff takes 30 seconds."
+    priority: discipline
+    triggers:
+      - "don't bother with a handoff"
+      - "this is a quick fix"
+      - "just jump straight to the code"
+      - "I'll remember what I did"
+      - "skip the handoff, let's go"
+  - excuse: "Prior art search is overkill for this"
+    reality: "Finding existing work is faster than duplicating it."
+    priority: discipline
+    triggers:
+      - "we don't need to search for prior art"
+      - "nobody has done this before"
+      - "just build it from scratch"
+      - "skip the search, I already looked"
+  - excuse: "I know which route to take"
+    reality: "Route explicitly. 'I know' = assumption."
+    priority: discipline
+    triggers:
+      - "obviously this is a bug fix"
+      - "just start coding"
+      - "we both know what this is"
+      - "skip the routing step"
+  - excuse: "I'll push later"
+    reality: "Later = never. Push NOW."
+    priority: safety
+    triggers:
+      - "I'll push it later"
+      - "don't push yet"
+      - "hold off on pushing"
+      - "let me push when I'm ready"
+      - "I want to review before pushing"
+  - excuse: "Work is done"
+    reality: "NOT done until git push succeeds."
+    priority: safety
+    triggers:
+      - "that looks good, we're done"
+      - "ship it"
+      - "close it out"
+      - "mark it complete"
+      - "we can wrap up"
+  - excuse: "Ready to push when you are"
+    reality: "YOU push. Never defer to user."
+    priority: safety
+    triggers:
+      - "ready to push when you are"
+      - "I'll handle the push"
+      - "let me push it myself"
+      - "just leave the commit, I'll push"

@@ -1,40 +1,31 @@
 ---
 name: skill-builder
-description: |
-  [WHAT] Skill creation and documentation codification router
-  [HOW] Routes to codifier workflow (scrape/analyze/package docs) or skill-creator (author new skills) based on intent
-  [WHEN] Use when converting existing docs to skills, creating new skills from scratch, or combining/merging existing skills
-  [WHY] Unifies doc-to-skill conversion with new skill authoring under single entry point
-
-  Triggers: "create a skill from docs", "codify documentation", "convert docs to skill", "make this documentation searchable",
-            "make a skill", "create a skill", "combine a skill", "new skill", "skill from scratch", "codify", "skill-builder"
-
-  Routes:
-  - Documentation → codifier workflow (scrape, analyze, package)
-  - New skill authoring → skill-creator (standards, structure, progressive disclosure)
-  - Skill combination → both (analyze existing + author merged)
-version: 2.0.0
-dependencies: skill-seekers>=2.5.0
-skill_evolver:
-  enabled: true
-  version: 1.0.0
-  log_path: ~/.config/lev/logs/skills.jsonl
-  hooks:
-    - on_invoke
-    - on_fail
-    - on_success
-
-lifecycle_integration:
-  stage: crystallizing
-  input_artifact: documentation OR skill intent
-  output_artifact: SKILL.md file
+description: "Router for skill creation: routes doc/repo-to-skill codification or routes to skill-creator for authoring. Use for doc-to-skill, new skills, merging skills, security audit, skill security, audit skill."
+skill_type: workflow
+category: process-skill-builder
 ---
 
 # Lev Skill Builder
 
 ## Overview
 
-Unified skill creation hub. Routes between documentation codification (Skill_Seekers) and new skill authoring (skill-creator standards).
+Unified skill creation hub. Routes between documentation codification (Skill_Seekers v2.7.4) and new skill authoring (skill-creator standards). Supports website scraping, GitHub repository analysis (with AST parsing), PDF extraction, and unified multi-source with conflict detection.
+
+## When to Use This Skill
+
+Use skill-builder when you need to:
+
+| Scenario                      | Example                              | Route                       |
+| ----------------------------- | ------------------------------------ | --------------------------- |
+| Convert docs website to skill | "Codify the FastAPI docs"            | Codifier pipeline (see below) |
+| Convert GitHub repo to skill  | "Make a skill from facebook/react"   | Codifier pipeline (see below) |
+| Extract PDF into skill        | "Turn this manual into a skill"      | Codifier pipeline (see below) |
+| Combine multiple sources      | "Skill from React docs + repo + PDF" | Codifier pipeline (see below) |
+| Author new skill from scratch | "Create a skill for my workflow"     | skill-creator               |
+| Merge existing skills         | "Combine these 3 skills into one"    | Both routes                 |
+| Export for non-Claude LLMs    | "Package for Gemini/ChatGPT"         | Codifier with `--target`    |
+
+**Do NOT use** for: editing existing skills (use editor), searching skills (use `lev get`), or installing skills (use clawdhub).
 
 ## Quick Decision Tree
 
@@ -42,18 +33,10 @@ Unified skill creation hub. Routes between documentation codification (Skill_See
 What does the user want?
 │
 ├─→ Convert existing docs to skill?
-│   │
-│   ├─→ Documentation website only?
-│   │   └─→ See "Website Scraping" below
-│   │
-│   ├─→ GitHub repository only?
-│   │   └─→ See "GitHub Analysis" below
-│   │
-│   ├─→ PDF files only?
-│   │   └─→ See "PDF Extraction" below
-│   │
-│   └─→ Multiple sources (docs + GitHub + PDF)?
-│       └─→ See "Unified Multi-Source" below
+│   ├─→ Website only? → Website Scraping
+│   ├─→ GitHub repo only? → GitHub Analysis
+│   ├─→ PDF only? → PDF Extraction
+│   └─→ Multiple sources? → Unified Multi-Source
 │
 ├─→ Create NEW skill from scratch?
 │   └─→ Route to skill-creator
@@ -68,28 +51,261 @@ What does the user want?
 │       2. Author merged skill (skill-creator standards)
 │       3. Ensure router pattern if subsumes others
 │
-└─→ First time using this skill?
-    └─→ Check references/setup.md for installation
+├─→ Export for non-Claude platform?
+│   └─→ Package with --target (gemini|openai|markdown)
+│
+└─→ First time? → references/setup.md
 ```
 
-## Routing Summary
+## Skill Installation from External Sources
 
-| Intent | Route To | Action |
-|--------|----------|--------|
-| "codify docs", "convert docs to skill" | Codifier workflow | Scrape → analyze → package |
-| "make a skill", "new skill" | skill-creator | Author with standards |
-| "combine skills", "merge skills" | Both | Analyze + author |
-| "codify X" (ambiguous) | Ask clarification | Docs source or new authoring? |
+When intake routes a skills.sh URL or skill:// to skill-builder:
+
+### Step 1: Acquire → skills-db staging
+```bash
+# Extract GitHub repo URL from skills.sh page (WebFetch for the link ONLY)
+git clone --depth 1 {repo} /tmp/skill-intake-{ts}/
+# Find the skill: find /tmp/skill-intake-{ts}/ -name "SKILL.md" -path "*{name}*"
+# Stage to skills-db (NOT directly to active):
+cp -r /tmp/skill-intake-{ts}/skills/{name}/ ~/.agents/skills-db/_workshop/{source}/{name}/
+rm -rf /tmp/skill-intake-{ts}/
+```
+
+### Step 2: Validate (HARD GATES — run on staged copy)
+```bash
+file=~/.agents/skills-db/_workshop/{source}/{name}/SKILL.md
+head -1 "$file" | grep -q "^---$"           # Has YAML frontmatter
+grep -q "^name:" "$file"                     # Has name field
+grep -q "^description:" "$file"              # Has description field
+awk '/^---$/{c++} c==2{exit}' "$file"        # Has closing ---
+```
+If any hard gate fails → REJECT. Move to `.archive/` or delete. Do NOT promote.
+
+### Step 2b: Security Audit (external skills ONLY — skip for local authoring)
+
+Three sequential scanners with early termination. Each scanner is progressively more expensive.
+See `references/security-audit-gates.md` for full scoring rubric and quarantine protocol.
+
+**Scanner 1: Structural Decompile** (free, instant)
+```bash
+python3 ~/.agents/skills-db/security/skill-decompile/decompile.py "$file" --output yaml
+# Check: risk_score < 60 to proceed
+# If risk_score >= 60: REJECT with flags
+```
+
+**Scanner 2: Semantic Scan** (agent-based, ~10s)
+Load `security-scanner` skill (hiroro) against the staged skill directory:
+```bash
+# Runs in sandboxed subagent with Read-only tools
+# Checks for malicious NL instructions, social engineering patterns
+# Output: pass/warn/fail
+```
+
+**Scanner 3: AgentShield CLI** (CLI-based, ~5s)
+```bash
+npx ecc-agentshield scan --path "$staged_dir" --min-severity medium
+# Checks: hook injection, MCP risks, overpermissive configs
+# Output: findings JSON
+```
+
+**Security Verdict:**
+
+| Result | Action |
+|--------|--------|
+| All 3 pass | Proceed to Step 3 |
+| Scanner 1 pass + Scanner 2/3 warn | Proceed with user confirmation |
+| Scanner 1 fail (risk >= 60) | Hard REJECT, explain flags |
+| Scanner 3 critical finding | Hard REJECT, quarantine to .archive/ |
+
+### Step 3: Prior Art Check
+- Search ~/.agents/skills/ for name/trigger overlap
+- Exact match → compare quality (line count, scoring), keep better version
+- Partial overlap (>30% triggers) → recommend merge
+- No overlap → proceed to scoring
+
+### Step 4: Quality Score (run on staged copy, BEFORE promotion)
+Score 1-10 on 5 dimensions (read the SKILL.md content):
+
+| Dimension | What to evaluate |
+|-----------|-----------------|
+| Actionability | Concrete steps/code/templates vs vague advice |
+| Depth | Expert-level detail vs surface overview |
+| Structure | Decision trees/tables vs wall of text |
+| Trigger quality | WHAT/HOW/WHEN/WHY + tags vs bare description |
+| Uniqueness | Novel frameworks vs generic blog advice |
+
+Grades: A (8+) promote, B (7-7.9) promote with note, C (5-6.9) hold in _todo, D (<5) reject
+
+### Step 5: Catalog (move from staging to skills-db home)
+```bash
+# A/B grade → catalog in skills-db (DEFAULT destination):
+mv ~/.agents/skills-db/_workshop/{source}/{name}/ ~/.agents/skills-db/{domain}/{name}/
+# C grade → move to _todo for enhancement:
+mv ~/.agents/skills-db/_workshop/{source}/{name}/ ~/.agents/skills-db/_todo/{name}/
+# D grade → reject:
+mv ~/.agents/skills-db/_workshop/{source}/{name}/ ~/.agents/skills-db/.archive/{name}/
+```
+
+### Step 5b: Activate (ONLY if user requests)
+```bash
+# Only when user explicitly wants the skill loaded into Claude Code:
+cp -r ~/.agents/skills-db/{domain}/{name}/ ~/.agents/skills/{name}/
+# Or symlink:
+ln -s ~/.agents/skills-db/{domain}/{name}/ ~/.agents/skills/{name}
+```
+**NOTE**: Most skills stay in skills-db. Only day-to-day/global operational skills get activated.
+The user decides when to activate — skill-builder should PROPOSE activation, not assume it.
+
+### Step 6: Lifecycle Check
+- Is this skill a candidate for merging into an existing hub/router?
+- Does it overlap with 2+ existing skills in the same domain?
+- If yes → recommend leaf→hub→router graduation
+
+## Skill Lifecycle: Leaf → Hub → Router
+
+Skills grow organically through 3 stages:
+
+| Stage | Lines | Pattern | Example |
+|-------|-------|---------|---------|
+| LEAF | <300L | Standalone, no routing | writing-substack (147L) |
+| HUB | 300-500L | Cross-references peers | content-strategy (356L) |
+| ROUTER | 80-100L body | Dispatches to sub-skills | security-hub (80L → 4 sub-skills) |
+
+### Growth triggers
+- **Merge**: 2+ skills share >30% intent overlap → merge into hub
+- **Router**: Merged hub exceeds ~400L → graduate to router (move content to sub-skills)
+- **Split**: Single skill >500L without references/ → split into skill + references/
+
+### Router graduation checklist
+1. Create {domain}-hub/ directory
+2. Write SKILL.md routing header (<100L): decision tree + sub-skill table
+3. Add `skill_type: router` and `subsumes: [list]` to frontmatter
+4. Keep sub-skills as independent SKILL.md files
+5. Router description MUST include ALL sub-skill triggers (union of tags)
+
+## Full Pipeline (The Correct Order)
+
+Every codification job follows this pipeline. Do NOT skip steps.
+
+```
+1. PRIOR ART CHECK → Does this skill already exist?
+   ├─ lev get "{name}" --scope=knowledge --pattern="SKILL.md"
+   ├─ grep -rl "{name}" ~/.claude/skills/
+   └─ If found:
+      • Exact match → use as-is or enhance existing, skip to step 4
+      • Partial overlap → recommend merge/consolidation with existing
+      • Related but different → proceed, note in description for routing
+
+2. ESTIMATE (websites only) → How big is this job?
+   └─ skill-seekers estimate configs/{name}.json
+      • < 5K pages: single skill, proceed normally
+      • 5K-10K: consider category split
+      • 10K+: must split with router strategy
+
+3. EXTRACT → Get the raw content
+   ├─ Website:  skill-seekers scrape --name {name} --url {url}
+   ├─ GitHub:   skill-seekers github --repo {owner/repo}
+   ├─ PDF:      skill-seekers pdf --pdf {file} --name {name}
+   └─ Unified:  skill-seekers unified --config {config.json}
+
+4. ENHANCE → Transform raw extraction into a real skill
+   └─ skill-seekers enhance output/{name}/
+
+   ⚠️ KNOWN BUG (skill-seekers ≤2.7.4): enhance passes file path
+   as positional arg to claude CLI. SKILL.md never gets updated.
+   USE WORKAROUND: scripts/enhance-workaround.sh output/{name}
+
+5. REVIEW → Check the enhanced output
+   • Compare frontmatter against standards (what/how/when/why + triggers)
+   • Verify description is the PRIMARY trigger mechanism
+   • Check progressive disclosure (SKILL.md <500 lines, rest in references/)
+   • Validate: no stats-only wrappers, real actionable content
+
+6. PACKAGE → Bundle for distribution
+   └─ echo "y" | skill-seekers package output/{name}/ [--target claude|gemini|openai|markdown]
+
+7. INSTALL → Put it where it belongs
+   ├─ Global:  cp -r output/{name} ~/.claude/skills/{name}/
+   ├─ Project: cp -r output/{name} .claude/skills/{name}/
+   └─ Upload:  output/{name}.zip → https://claude.ai/skills
+```
+
+## Quick Reference: Essential Commands
+
+### 1. Installation Check
+
+```bash
+command -v skill-seekers || python3 -m skill_seekers --version
+```
+
+If not installed, see `references/setup.md` for uv/venv/pip auto-detection.
+
+### 2. Website Scraping (Preset)
+
+```bash
+skill-seekers scrape --config configs/react.json --enhance-local
+skill-seekers package output/react/
+```
+
+### 3. Website Scraping (Custom)
+
+```bash
+skill-seekers scrape --name myframework --url https://docs.example.com/
+skill-seekers package output/myframework/
+```
+
+### 4. GitHub Repository Analysis
+
+```bash
+skill-seekers github --repo facebook/react
+skill-seekers package output/react/
+```
+
+Supports deep AST parsing for Python, JavaScript, TypeScript, Java, C++, Go. Extracts APIs, issues, PRs, changelogs, and detects doc-vs-code conflicts.
+
+### 5. PDF Extraction
+
+```bash
+skill-seekers pdf --pdf docs/manual.pdf --name myskill
+skill-seekers package output/myskill/
+```
+
+Supports OCR for scanned PDFs, table extraction, password-protected files, and parallel processing.
+
+### 6. Unified Multi-Source (Docs + GitHub + PDF)
+
+```bash
+skill-seekers unified --config configs/react_unified.json
+skill-seekers package output/react/
+```
+
+Combines all sources with automatic conflict detection and intelligent merging.
+
+### 7. Multi-Platform Export
+
+```bash
+# Claude (default)
+skill-seekers package output/react/
+
+# Google Gemini
+skill-seekers package output/react/ --target gemini
+
+# OpenAI ChatGPT
+skill-seekers package output/react/ --target openai
+
+# Generic Markdown (any LLM)
+skill-seekers package output/react/ --target markdown
+```
+
+For large docs (10K+ pages), async mode, three-stream GitHub analysis, splitting strategies, and troubleshooting, see `references/advanced-commands.md`.
 
 ## Frontmatter Design Philosophy
 
 ### The Description is Everything
 
-The `description` field is the **PRIMARY trigger mechanism**. Agents read descriptions to route requests. Body loads AFTER triggering - too late to influence routing.
+The `description` field is the **PRIMARY trigger mechanism**. Agents read descriptions to route. Body loads AFTER triggering.
 
-### What/How/When/Why + Tag Soup
-
-Every description should answer:
+Every description needs What/How/When/Why + tag soup:
 
 ```yaml
 description: |
@@ -98,238 +314,194 @@ description: |
   [WHEN] - When to use it (trigger conditions)
   [WHY] - Why it exists (problem it solves)
 
-  Triggers: "tag1", "tag2", "tag3", ...  # Tag soup for semantic matching
-```
-
-**Example (lev-find):**
-```yaml
-description: |
-  Unified semantic search across codebase, documentation, and sessions.
-  Uses RRF fusion to combine results from multiple indexes (leann, ck, bd).
-  Use when searching for patterns, decisions, or related work across domains.
-  Enables context gathering without knowing exact file locations.
-
-  Triggers: "find", "search", "lookup", "where is", "locate", "discover",
-            "what do we have on", "related work", "prior art"
+  Triggers: "tag1", "tag2", "tag3", ...
 ```
 
 ### Intentional Tag Overlap
 
-Skills SHOULD have overlapping triggers. This enables semantic routing:
+Skills SHOULD have overlapping triggers for semantic routing:
 
+| Domain            | Shared Triggers             | Skills                             |
+| ----------------- | --------------------------- | ---------------------------------- |
+| Context gathering | find, search, lookup, get   | lev get, lev-research, lev-memory |
+| Modification      | update, patch, change, edit | lev-patch, bd, edit tools          |
+| Execution         | run, execute, do, make      | ralph, bash, Task tool             |
+
+**Anti-pattern:** Descriptions that only say WHAT without WHEN triggers:
+
+```yaml
+# BAD
+description: Manages memory storage and retrieval.
+
+# GOOD
+description: |
+  Store and recall information across sessions using AutoMem.
+  Triggers: "remember", "recall", "forget", "save this", "memory"
 ```
-User: "remember this pattern"
-       ↓
-Matches: lev-memory (remember, store, capture)
-         lev-find (pattern, search)
-         ↓
-Router picks best match OR asks clarification
-```
-
-**Overlap zones by domain:**
-
-| Domain | Shared Triggers | Skills |
-|--------|-----------------|--------|
-| Context gathering | find, search, lookup, get | lev-find, lev-research, lev-memory |
-| Modification | update, patch, change, edit | lev-patch, bd, edit tools |
-| Execution | run, execute, do, make | ralph, bash, Task tool |
 
 ### The 3-Tool Agent Model
 
-Skills are wrappers around 3 fundamental operations:
+Skills wrap 3 fundamental operations:
+
+1. **GET** (context gathering) - lev get, lev-research, read
+2. **EXECUTE** (run things) - ralph, bash, Task tool, skills
+3. **PATCH** (modify the graph) - bd, edit, write, memory_store
+
+Categorize your skill's operations to help semantic routing.
+
+## Skill Creator Standards (Quick Reference)
+
+When authoring a new skill from scratch:
+
+**Structure:**
 
 ```
-┌─────────────────────────────────────────────────────┐
-│  AGENT TOOL SURFACE                                 │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│  1. GET (context gathering)                         │
-│     └─ lev-find, lev-research, lev-memory, read    │
-│                                                     │
-│  2. EXECUTE (run things)                            │
-│     └─ ralph, bash, Task tool, skills              │
-│                                                     │
-│  3. PATCH (modify the graph)                        │
-│     └─ bd, edit, write, memory_store               │
-│                                                     │
-└─────────────────────────────────────────────────────┘
+skill-name/
+├── SKILL.md (required, 300-500 lines)
+│   ├── YAML frontmatter (name, description required)
+│   └── Markdown body with inline templates
+├── references/ (optional, for API docs or large schemas only)
+└── scripts/ (optional, deterministic code)
 ```
 
-When writing skill descriptions, categorize which operation(s) the skill performs. This helps semantic routing understand when to invoke it.
+**Rules:**
 
-### Semantic Routing Dogfooding
+- `description` is the PRIMARY trigger - include what + when
+- Use imperative/infinitive form
+- No separate README.md or CHANGELOG.md - the skill IS the docs
 
-By writing good descriptions with tag soup, you're training the semantic router:
-- Overlapping tags = soft boundaries between skills
-- Distinct tags = hard ownership of functionality
-- The agent's LLM does the fusion, not hardcoded rules
+## Skill Authoring Principles (Hard-Won)
 
-**Anti-pattern:** Descriptions that only say WHAT without WHEN triggers:
-```yaml
-# BAD - no routing signals
-description: Manages memory storage and retrieval.
+These principles come from rebuilding skills that agents couldn't follow. Apply them to every skill you create.
 
-# GOOD - clear routing signals
-description: |
-  Store and recall information across sessions using AutoMem.
-  Triggers: "remember", "recall", "forget", "what did we discuss",
-            "save this", "store", "memory", "did I mention"
-```
+**1. Steps are verbs, not states.** Section titles tell the agent what to DO. "Save the handoff" not "EMIT". "Search these 10 sources" not "DISCOVER". If the agent reads the title and doesn't know its next action, the title is wrong.
 
-## Documentation Codification (Skill_Seekers)
+**2. Inline templates at each step.** If a step produces an artifact, show the skeleton right there — 10-50 lines. Don't write "load templates/handoff.md" — agents won't do it. The template must be visible where the agent needs it.
 
-The following sections cover documentation → skill conversion using Skill_Seekers.
+**3. The first step is the most important output.** Whatever the skill's primary deliverable is, that's Step 1. Not background theory. Not architecture diagrams. Not "On Load" setup. The thing the agent produces first.
 
-### Installation Check
+**4. References don't get loaded.** Agents don't `cat references/gates.md` in practice. If information matters for execution, it lives in SKILL.md. Use references/ only for large API docs or schemas that are genuinely loaded on demand via explicit instructions. Never put operational instructions in references/.
 
-Before proceeding, verify Skill_Seekers is installed:
+**5. Prose is the enemy.** Every paragraph explaining WHY a rule exists is a paragraph the agent skips to find WHAT to do. Lead with the format/action. Add rationale as a single-line comment if needed. Cut everything else.
 
-```bash
-# Quick check
-command -v skill-seekers || python3 -m skill_seekers --version
-```
+**6. Labels don't enforce.** Marking 14 sections "Hard Contract" is the same as marking zero. The contract IS the inline format. Show the format. Skip the label.
 
-**If not installed**: Direct user to `references/setup.md` for complete installation instructions with uv/venv detection.
+**7. Target: 300-500 lines.** Under 300 and you're probably missing inline templates. Over 500 and the agent can't hold it in working memory. The 100-150 line "thin SKILL.md + references/" model produces skills that agents can't execute because the operational detail is in files they never read.
 
-## Website Scraping
-
-**For preset frameworks** (React, Vue, Django, FastAPI, etc.):
-```bash
-cd <project-directory>
-skill-seekers scrape --config configs/react.json --enhance-local
-skill-seekers package output/react/
-```
-
-**For custom documentation**:
-```bash
-skill-seekers scrape --interactive
-# OR
-skill-seekers scrape --name myframework --url https://docs.example.com/
-```
-
-**Advanced options**: See `references/advanced-workflows.md`
-
-## GitHub Analysis
-
-```bash
-skill-seekers github --repo facebook/react
-skill-seekers package output/react/
-```
-
-**With authentication** (for higher rate limits):
-```bash
-export GITHUB_TOKEN=ghp_your_token_here
-skill-seekers github --repo owner/repo
-```
-
-## PDF Extraction
-
-```bash
-skill-seekers pdf --pdf docs/manual.pdf --name myskill
-skill-seekers package output/myskill/
-```
-
-**Advanced features** (tables, OCR, parallel): See `references/advanced-workflows.md`
-
-## Unified Multi-Source
-
-Combines docs + GitHub + PDF with conflict detection:
-
-```bash
-skill-seekers unified --config configs/react_unified.json
-skill-seekers package output/react/
-```
-
-**Custom unified config**: See `references/advanced-workflows.md` (Unified Multi-Source section)
-
-## Registry Check (Before Scraping)
-
-Before scraping fresh, check existing skills:
-
-```
-REGISTRIES TO CHECK:
-- skillsmp.com (2,300+ indexed skills)
-- claude-plugins.dev (6,000+ public)
-- github.com/anthropics/skills (official)
-```
-
-**If found:** Offer as starting point, user can customize after pulling.
-
-## Validation (Progressive Disclosure)
-
-After extraction, validate structure:
+## Validation (Post-Authoring)
 
 ```
 VALIDATION RULES:
-1. SKILL.md > 150 lines? → Move to references/
-2. No references/ + heavy SKILL.md? → Create references/, split
-3. Any file > 500 lines? → Consider chunking
-4. Total skill > 2000 lines? → Consider sub-skills with router
+1. Can an agent read Step 1's title and immediately act? If not, rewrite.
+2. Does every step that produces an artifact have an inline template? If not, add it.
+3. Is SKILL.md 300-500 lines? Under → missing templates. Over → cut prose.
+4. Are there references/ the agent MUST read to function? Move that content into SKILL.md.
+5. Zero sections titled "Hard Contract" or abstract state names (DISCOVER, EMIT, etc.)
+6. Total skill > 2000 lines? → Consider sub-skills with router
 
 IDEAL STRUCTURE:
 skill-name/
-├── SKILL.md (~100-150 lines)
-│   ├── Frontmatter + decision tree
-│   └── "See references/X.md" pointers
-├── references/
-│   ├── api.md
-│   └── patterns.md
-└── scripts/ (optional)
+├── SKILL.md (300-500 lines)
+│   ├── Frontmatter (name + description with triggers)
+│   ├── Steps 1-N (verb-first titles, inline templates)
+│   └── Support sections (error handling, routing table)
+├── references/ (optional — API docs, large schemas ONLY)
+└── scripts/ (optional — deterministic code)
 ```
 
 ## Install Location
 
 Ask user where to install:
+
 - `~/.claude/skills/X/` - User-level (global)
 - `.claude/skills/X/` - Project-level (local)
 
 ## Output & Delivery
 
-All workflows create a `.zip` file in `output/<name>.zip`. Direct users to:
-1. Locate the output file
-2. Upload to Claude at https://claude.ai/skills
+All workflows create `.zip` in `output/<name>.zip`. Users upload to Claude at https://claude.ai/skills. For other platforms, use `--target` flag.
 
-## Troubleshooting
+## Working with This Skill
 
-**Command not found**: User needs installation - see `references/setup.md`
+### Beginners
 
-**No content extracted**: CSS selector issue - see `references/troubleshooting.md`
+1. Run installation check (`command -v skill-seekers`)
+2. If not installed, follow `references/setup.md` (auto-detects uv/venv/pip)
+3. Start with a preset: `skill-seekers scrape --config configs/react.json --enhance-local`
+4. Package: `skill-seekers package output/react/`
 
-**Rate limiting**: Configuration issue - see `references/troubleshooting.md`
+### Intermediate
 
-## Skill Creator Standards (Quick Reference)
+- Use unified multi-source for comprehensive skills (docs + code + PDF)
+- Enable async mode for docs over 500 pages
+- Use `--enhance-local` (no API key) or `--enhance` (with `ANTHROPIC_API_KEY`) for AI improvement
+- Export to multiple LLM platforms with `--target`
 
-When routing to skill-creator, these are the key standards:
+### Advanced
 
-**SKILL.md Structure:**
-```
-skill-name/
-├── SKILL.md (required)
-│   ├── YAML frontmatter (name, description required)
-│   └── Markdown body (<500 lines)
-└── references/ (optional, loaded on demand)
-```
+- Split 10K+ page docs with router strategy for parallel scraping
+- Use three-stream GitHub analysis (code + docs + insights) via Python API
+- Configure GitHub profiles for private repos: `skill-seekers config --github`
+- Resume interrupted scrapes: `skill-seekers scrape --config config.json --resume`
+- Custom endpoint support: set `ANTHROPIC_BASE_URL` for GLM-4.7 compatible APIs
 
-**Critical Rules:**
-- `description` is the PRIMARY trigger mechanism - include what + when
-- Body loads AFTER skill triggers (keep "when to use" in description)
-- Use imperative/infinitive form
-- No separate README.md or CHANGELOG.md - the skill IS the docs
+For troubleshooting, see `references/advanced-commands.md` or `references/troubleshooting.md`.
 
-**Progressive Disclosure Tiers:**
-1. Metadata (~100 words) - Always loaded
-2. Body (<5k words) - On trigger
-3. References (unlimited) - On demand
+## Reference Files
+
+| File                                 | Content                                                     |
+| ------------------------------------ | ----------------------------------------------------------- |
+| `references/setup.md`                | Installation with uv/venv/pip auto-detection                |
+| `references/advanced-commands.md`    | Large docs, async, three-stream, splitting, troubleshooting |
+| `references/advanced-workflows.md`   | Unified multi-source config, enhancement options            |
+| `references/troubleshooting.md`      | Installation issues, runtime errors, CSS selectors          |
+| `references/security-audit-gates.md` | Security audit thresholds, scoring rubric, quarantine protocol |
+| `references/skill-seekers-readme.md` | Full Skill_Seekers v2.7.4 feature matrix                    |
+| `scripts/enhance-workaround.sh`      | Fix for broken `skill-seekers enhance` CLI invocation       |
+
+## Routing Summary
+
+| Intent                                 | Route To          | Action                                            |
+| -------------------------------------- | ----------------- | ------------------------------------------------- |
+| "codify docs", "convert docs to skill" | Codifier pipeline | Prior art → extract → enhance → package → install |
+| "skill from GitHub repo"               | Codifier pipeline | Prior art → github → enhance → package → install  |
+| "skill from PDF"                       | Codifier pipeline | Prior art → pdf → enhance → package → install     |
+| "combine docs + code + PDF"            | Codifier pipeline | Prior art → unified → enhance → package → install |
+| "make a skill", "new skill"            | skill-creator     | Author with standards                             |
+| "combine skills", "merge skills"       | Both              | Analyze + author                                  |
+| "export for Gemini/ChatGPT"            | Codifier pipeline | Package with `--target` flag                      |
+| "enhance skill"                        | Enhance step      | Run enhance workaround (pipe to claude -p)        |
+| "codify X" (ambiguous)                 | Ask clarification | Docs source or new authoring?                     |
 
 For full skill authoring guidance, load the `skill-creator` skill.
 
-## References
+## Technique Map
 
-- **references/setup.md** - Complete installation with environment detection (uv/venv/pip)
-- **references/advanced-workflows.md** - Large docs, async mode, unified multi-source, custom configs, performance optimization
-- **references/troubleshooting.md** - Common issues and solutions
-- **skill-creator skill** - Full standards for authoring new skills from scratch
+- **Identify scope** — Determine what the skill applies to before executing.
+- **Follow workflow** — Use documented steps; avoid ad-hoc shortcuts.
+- **Verify outputs** — Check results match expected contract.
+- **Handle errors** — Graceful degradation when dependencies missing.
+- **Reference docs** — Load references/ when detail needed.
+- **Preserve state** — Don't overwrite user config or artifacts.
 
-**For Skill_Seekers deep reference:** After installation, refer to cloned Skill_Seekers repository documentation (README.md, docs/CLAUDE.md, and other docs/ files).
+## Technique Notes
 
-Load references as needed based on user context and questions.
+Skill-specific technique rationale. Apply patterns from the skill body. Progressive disclosure: metadata first, body on trigger, references on demand.
+
+## Prompt Architect Overlay
+
+**Role Definition:** Specialist for skill-builder domain. Executes workflows, produces artifacts, routes to related skills when needed.
+
+**Input Contract:** Context, optional config, artifacts from prior steps. Depends on skill.
+
+**Output Contract:** Artifacts, status, next-step recommendations. Format per skill.
+
+**Edge Cases & Fallbacks:** Missing context—ask or infer from workspace. Dependency missing—degrade gracefully; note in output. Ambiguous request—clarify before proceeding.
+
+## Agent Rules for Skill Operations
+
+HARD LEARNED (2026-02-11):
+1. NEVER use WebFetch to extract SKILL.md content — it summarizes
+2. NEVER use haiku agents for skill installation — they hallucinate content
+3. ALWAYS git clone source repo and cp files verbatim
+4. ALWAYS verify: head -1 == "---", wc -l matches source
+5. NEVER add custom frontmatter if source already has it

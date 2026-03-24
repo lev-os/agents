@@ -16,7 +16,7 @@ SKILLS_DIR = ROOT / "skills"
 SKILLS_DB_DIR = ROOT / "skills-db"
 DISCOVERY = SKILLS_DIR / "skill-discovery" / "skill-discovery"
 WORKFLOW_FLOWS_DIR = SKILLS_DIR / "workflow" / "flows"
-CDO_DIR = SKILLS_DIR / "lev-cdo"
+CDO_DIR = SKILLS_DIR / "cdo"
 CACHE_DIR = Path(os.environ.get("LEV_CACHE_DIR", Path.home() / ".cache" / "lev-skills"))
 CACHE_TTL_SECONDS = int(os.environ.get("LEV_SKILLS_CACHE_TTL", "300"))
 CACHE_BG_REFRESH_AFTER = int(os.environ.get("LEV_SKILLS_BG_REFRESH_AFTER", "60"))
@@ -24,7 +24,7 @@ CACHE_BG_REFRESH_AFTER = int(os.environ.get("LEV_SKILLS_BG_REFRESH_AFTER", "60")
 COMMAND_HOOKED = {
     "gitsync": "sync",
     "lev-intake": "intake",
-    "lev-orch-thinking-parliament": "think",
+    "cdo": "cdo",
     "ux": "ux",
     "interview": "interview",
     "work": "handoff",
@@ -37,7 +37,7 @@ ACTIVE_KEEP_FOLDERS = {
     "lev",
     "lev-align",
     "lev-builder",
-    "lev-cdo",
+    "cdo",
     "lev-design",
     "lev-design-os",
     "lev-find",
@@ -47,8 +47,9 @@ ACTIVE_KEEP_FOLDERS = {
     "lev-intake",
     "lev-learn",
     "lev-orch-sidequest",
-    "lev-orch-thinking-parliament",
+    "lev-plan",
     "lev-research",
+    "lev-sdlc",
     "lev-social",
     "lev-workshop",
     "skill-discovery",
@@ -63,11 +64,10 @@ ALLOWED_FOLDER_NAME_DRIFT = {
     "lev-find-llm-tldr",
     "lev-find-qmd",
     "lev-orch-sidequest",
-    "lev-orch-thinking-parliament",
     "lev-research",
 }
 
-REQUIRED_CDO_SUBSKILLS = {"debug", "router", "skill-discovery", "workflows"}
+REQUIRED_CDO_SUBSKILLS = {"engine", "dispatch", "domains", "modes"}
 
 REQUIRED_WORKFLOW_FLOWS = {
     "cited-research",
@@ -395,9 +395,9 @@ def cmd_list() -> int:
     for item in sorted(active, key=lambda row: (0 if row["folder"] == "lev" else 1, row["folder"])):
         print(f"- {item['name']} [{item['folder']}] :: {item['description']}")
 
-    print("\nTier 1: nested lev-cdo skills")
+    print("\nTier 1: nested cdo skills")
     for item in cdo_rows:
-        print(f"- {item['name']} [lev-cdo/{item['folder']}] :: {item['description']}")
+        print(f"- {item['name']} [cdo/{item['folder']}] :: {item['description']}")
 
     print("\nTier 1: workflow flows")
     for item in sorted(workflow_rows, key=lambda row: row["folder"]):
@@ -495,7 +495,7 @@ def cmd_validate() -> int:
     cdo_folders = {item["folder"] for item in cdo_rows}
     for required in sorted(REQUIRED_CDO_SUBSKILLS):
         if required not in cdo_folders:
-            errors.append(f"missing lev-cdo subskill: lev-cdo/{required}")
+            errors.append(f"missing cdo subskill: cdo/{required}")
 
     flow_folders = {item["folder"] for item in workflow_rows}
     for required in sorted(REQUIRED_WORKFLOW_FLOWS):

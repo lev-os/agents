@@ -1,8 +1,6 @@
 ---
 name: autodev-lev
-description: Heartbeat-driven autonomous development loop using Lev primitives. Use when you want to run repeated SDLC scan and execute ticks through `lev loop autodev` with in-process state continuity, budget controls, and semantic exit conditions.
-skill_type: workflow
-category: automation
+description: Heartbeat-driven autonomous development loop using `lev loop autodev`, with interval, budget, and tick controls for in-process SDLC execution.
 ---
 
 # autodev-lev
@@ -72,6 +70,7 @@ category: automation
 
 - Filesystem glob across configured surfaces (`.lev/pm/plans/`, `docs/specs/`)
 - Parse frontmatter for priority, lifecycle state, fitness functions
+- Validation gates alignment: load `.lev/validation-gates.yaml`, report gate status
 - Skip blocked/deferred entities
 - Sort by priority (P0 > P1 > P2 > P3 > P4)
 

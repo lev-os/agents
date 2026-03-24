@@ -1,0 +1,176 @@
+#!/usr/bin/env bash
+# tribunal/bin/detect-runners — detect installed coding agent CLIs, query capabilities, cache results
+# Usage: detect-runners [--refresh] [--json] [--models <cli>]
+set -euo pipefail
+
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/tribunal"
+CACHE_FILE="$CACHE_DIR/runners.json"
+CACHE_TTL=86400  # 24 hours
+
+mkdir -p "$CACHE_DIR"
+
+# --- Args ---
+REFRESH=false
+JSON_OUT=false
+MODELS_FOR=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --refresh) REFRESH=true; shift ;;
+    --json) JSON_OUT=true; shift ;;
+    --models) MODELS_FOR="$2"; shift 2 ;;
+    *) echo "Usage: detect-runners [--refresh] [--json] [--models <cli>]"; exit 1 ;;
+  esac
+done
+
+# --- Cache check ---
+if [[ "$REFRESH" == "false" && -f "$CACHE_FILE" && "$MODELS_FOR" == "" ]]; then
+  age=$(( $(date +%s) - $(stat -f %m "$CACHE_FILE" 2>/dev/null || stat -c %Y "$CACHE_FILE" 2>/dev/null) ))
+  if (( age < CACHE_TTL )); then
+    if [[ "$JSON_OUT" == "true" ]]; then
+      cat "$CACHE_FILE"
+    else
+      # Pretty print from cache
+      python3 -c "
+import json, sys
+data = json.load(open('$CACHE_FILE'))
+for r in data.get('runners', []):
+    status = '●' if r['installed'] else '○'
+    tier = r.get('tier', '?')
+    models = r.get('model_count', '?')
+    print(f\"  {status} {r['name']:<16} T{tier}  {r['cmd']:<20} {models} models  {r.get('json_output', False) and 'JSON' or 'text'}\")
+print(f\"\n  {len([r for r in data['runners'] if r['installed']])} runners detected  |  cached {age}s ago  |  --refresh to update\")
+"
+    fi
+    exit 0
+  fi
+fi
+
+# --- Model list for a specific CLI ---
+if [[ -n "$MODELS_FOR" ]]; then
+  case "$MODELS_FOR" in
+    claude)
+      echo "Claude Code models (use aliases or full IDs):"
+      echo "  haiku, sonnet, opus"
+      echo "  claude-haiku-4-5-20251001, claude-sonnet-4-6, claude-opus-4-6"
+      ;;
+    codex)
+      echo "Codex CLI models:"
+      codex --help 2>&1 | grep -i "model" | head -5
+      echo "  Common: o3, o4-mini, gpt-4.1"
+      ;;
+    gemini)
+      gemini --help 2>&1 | grep -i "model" | head -3
+      echo "  Use: gemini -m gemini-2.5-flash, gemini-2.5-pro, gemini-3-pro, etc."
+      ;;
+    cursor|cursor-agent)
+      cursor-agent --list-models 2>&1 | grep -v "Loading\|Available" | head -30
+      ;;
+    opencode)
+      echo "OpenCode providers (use -m provider/model):"
+      opencode auth list 2>&1 | grep "●" | sed 's/[^●]*● /  /'
+      ;;
+    pi)
+      pi --list-models 2>&1 | head -50
+      ;;
+    aider)
+      echo "Aider supports any litellm-compatible model:"
+      echo "  --model gpt-4o, --model claude-3-5-sonnet, --model deepseek-coder-v2"
+      echo "  --opus, --sonnet, --haiku, --4o, --mini (shortcuts)"
+      ;;
+    *)
+      echo "Unknown CLI: $MODELS_FOR"
+      echo "Known: claude, codex, gemini, cursor, opencode, pi, aider"
+      exit 1
+      ;;
+  esac
+  exit 0
+fi
+
+# --- Detect all runners ---
+detect_runner() {
+  local name="$1" cmd="$2" prompt_flag="$3" model_flag="$4" json_flag="$5" approve_flag="$6" tier="$7" config_path="$8"
+  local installed=false path=""
+
+  if path=$(which "$cmd" 2>/dev/null); then
+    installed=true
+  fi
+
+  # Get version if installed
+  local version=""
+  if [[ "$installed" == "true" ]]; then
+    version=$("$cmd" --version 2>&1 | head -1 | grep -oE '[0-9]+\.[0-9]+[.0-9]*' | head -1 || echo "unknown")
+  fi
+
+  # Count models (rough — from help/list output)
+  local model_count=0
+  if [[ "$installed" == "true" ]]; then
+    case "$cmd" in
+      cursor-agent) model_count=$(cursor-agent --list-models 2>&1 | grep -c " - " || echo 0) ;;
+      pi) model_count=$(pi --list-models 2>&1 | grep -cE "^[a-z]" || echo 0) ;;
+      *) model_count=-1 ;;  # unknown, needs --list-models or similar
+    esac
+  fi
+
+  cat <<RUNNER_JSON
+    {
+      "name": "$name",
+      "cmd": "$cmd",
+      "installed": $installed,
+      "path": "$path",
+      "version": "$version",
+      "prompt_flag": "$prompt_flag",
+      "model_flag": "$model_flag",
+      "json_flag": "$json_flag",
+      "json_output": $([ -n "$json_flag" ] && echo true || echo false),
+      "approve_flag": "$approve_flag",
+      "tier": $tier,
+      "config_path": "$config_path",
+      "model_count": $model_count
+    }
+RUNNER_JSON
+}
+
+# Build JSON array
+runners_json=$(cat <<EOF
+{
+  "detected_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "hostname": "$(hostname -s)",
+  "runners": [
+$(detect_runner "Claude Code" "claude" "-p" "--model" "--output-format json" "--dangerously-skip-permissions" 1 "~/.claude/settings.json"),
+$(detect_runner "Codex CLI" "codex" "-q" "-m" "--json" "-a never" 1 "~/.codex/config.toml"),
+$(detect_runner "Gemini CLI" "gemini" "-p" "-m" "--output-format json" "--yolo" 1 "~/.gemini/settings.json"),
+$(detect_runner "Cursor Agent" "cursor-agent" "-p" "--model" "--output-format json" "--yolo --trust" 1 "~/.cursor-agent/"),
+$(detect_runner "OpenCode" "opencode" "run" "-m" "--format json" "" 2 "~/.local/share/opencode/auth.json"),
+$(detect_runner "Pi Agent" "pi" "" "--model" "" "" 2 "~/.config/pi/"),
+$(detect_runner "Aider" "aider" "--message" "--model" "" "--yes-always" 2 "~/.aider.conf.yml")
+  ]
+}
+EOF
+)
+
+# Write cache
+echo "$runners_json" > "$CACHE_FILE"
+
+# Output
+if [[ "$JSON_OUT" == "true" ]]; then
+  cat "$CACHE_FILE"
+else
+  echo "  Tribunal Runner Detection"
+  echo "  ========================="
+  echo ""
+  python3 -c "
+import json, sys
+data = json.loads('''$runners_json''')
+for r in data.get('runners', []):
+    status = '●' if r['installed'] else '○'
+    tier = r.get('tier', '?')
+    v = r.get('version', '?')[:12]
+    json_ok = 'JSON' if r.get('json_output') else 'text'
+    print(f\"  {status} {r['name']:<16} T{tier}  v{v:<14} {json_ok:<6} {r['cmd']}\")
+installed = [r for r in data['runners'] if r['installed']]
+print(f\"\n  {len(installed)}/{len(data['runners'])} runners installed\")
+print(f\"  Cached to {sys.argv[1]}\")
+print(f\"  Run with --models <cli> to list available models\")
+print(f\"  Run with --refresh to force re-detection\")
+" "$CACHE_FILE"
+fi

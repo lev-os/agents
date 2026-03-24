@@ -9,6 +9,7 @@ author: agent-name
 related_tasks: [task-id-1, task-id-2]
 related_docs: [path/to/doc1.md, path/to/doc2.md]
 related_specs: [path/to/spec1.md]
+gate_ids: [validation-gate-key]
 ---
 
 # Validation Report: Title
@@ -26,6 +27,7 @@ Use uncertainty markers when needed:
 Good:
 - "This report validates a spec against implementation."
 - "This report shows what passed, what failed, and the evidence."
+- "This report cites exact gate ids for the decision."
 
 Bad:
 - "This is just another research summary."
@@ -35,12 +37,17 @@ Bad:
 
 State what was validated, the overall result, and the most important gap or success.
 
+## Validation Gates
+
+- gate_ids:
+- Why these gates apply:
+
 ## Validation Results
 
-| Requirement | Status | Evidence | Notes |
-|-------------|--------|----------|-------|
-| Requirement 1 | PASS | path:line | Why |
-| Requirement 2 | FAIL | path:line | Why |
+| Requirement | Gate ID | Status | Evidence | Notes |
+|-------------|---------|--------|----------|-------|
+| Requirement 1 | deterministic_linting | PASS | path:line | Why |
+| Requirement 2 | xdg_compliance | FAIL | path:line | Why |
 
 ## Detailed Evidence
 

@@ -1,0 +1,230 @@
+# Skill Enforcement Techniques — 3 Primitives
+# Derived from: obra/superpowers, Cialdini/Meincke research, blind behavioral testing
+# Full 39-technique archive: techniques-full.yaml
+#
+# Meta-mechanism: Make the undesired output computationally expensive to generate.
+# Achieved through 3 complementary angles that reshape the probability gradient.
+
+primitives:
+
+  # ============================================================
+  # 1. PROLEPSIS — Pre-refute specific evasions before they form
+  # ============================================================
+  #
+  # Classical rhetoric: anticipate and destroy the counterargument
+  # before it forms. Works because LLMs do next-token prediction —
+  # if "should work now" is cached as "this is lying," probability
+  # mass shifts away from the forbidden continuation.
+  #
+  # KEY: Specificity is load-bearing. "Don't rationalize" (abstract)
+  # doesn't work. "Here are the 8 rationalizations you will attempt"
+  # (concrete enumeration) does.
+
+  prolepsis:
+    implements_as:
+
+      rationalization_table:
+        format: |
+          | Excuse | Reality |
+          |--------|---------|
+          | "{exact phrase agent would generate}" | {short absolute refutation} |
+        rules:
+          - Capture from REAL baseline failures, not imagination
+          - Use the agent's exact words, not paraphrases
+          - 5-8 entries minimum for discipline skills
+          - Place AFTER the instructions, not before
+        example: |
+          | "I'll push later" | Later = never. Push NOW. |
+          | "Work is done" | NOT done until git push succeeds. |
+          | "User can push" | YOU push. Always. |
+
+      red_flags_list:
+        format: |
+          If you catch yourself thinking:
+          - "{exact internal thought}"
+          - "{exact internal thought}"
+
+          ALL of these mean: STOP. {specific corrective action}.
+        rules:
+          - Quote the THOUGHT, not the behavior
+          - End with a specific action, not a vague warning
+
+      correct_incorrect_pairs:
+        format: |
+          ✅ [actual evidence command] [actual output] "claim based on evidence"
+          ❌ "claim without evidence" / "assumption"
+        rules:
+          - Show the EXACT output, not a description
+          - Incorrect pattern should be a real captured failure
+
+  # ============================================================
+  # 2. POSITIONED DEONTIC COMMANDS — Authority + specificity
+  # ============================================================
+  #
+  # Deontic modals (MUST/NEVER/ALWAYS) only work when issued from
+  # a high-authority position (system prompt) AND made executable
+  # by specificity. "Verify your work" = vibes. "Run git status
+  # and confirm output shows clean" = binary gate.
+  #
+  # KEY: validation strings become executable commands.
+  # The format IS the behavior through structural coupling
+  # with the tool-calling interface.
+  #
+  # IMPORTANT: Use natural language, NOT LLM_MUST directives.
+  # LLM_MUST in data files triggers injection detection.
+
+  positioned_commands:
+    implements_as:
+
+      validation_strings:
+        what: "Concrete, runnable verification commands attached to each requirement"
+        format: |
+          steps:
+            - id: step_name
+              action: "what to do"
+              instruction: |
+                Natural language prose explaining how.
+                You must do X before Y.
+              validation: "exact command or check that proves completion"
+              on_failure: "specific recovery action"
+        rules:
+          - validation MUST be a command the agent can run or a state it can check
+          - "git status shows clean" → agent will run git status
+          - "goal met" → agent will vibes-check (BAD)
+          - validation strings are the #1 highest-leverage technique
+        evidence: |
+          Blind behavioral test: agent given YAML with validation: "git log
+          --oneline origin/HEAD..HEAD returns 0 lines" literally ran that
+          exact command. 11 tool calls vs 4 for prose-only instructions.
+
+      on_failure_directive:
+        what: "Explicit instruction for what to do when something breaks"
+        format: 'on_failure: "Do NOT proceed. State which requirement failed."'
+        rules:
+          - Must be specific ("resolve and retry") not vague ("handle the error")
+          - Include escalation: "3x then escalate to user"
+
+      front_loading:
+        what: "Critical rules in the first 20 lines"
+        rules:
+          - Line 1-3: YAML frontmatter
+          - Line 5-10: Core instruction (the ONE thing this skill does)
+          - Line 12-20: The non-negotiable constraint
+          - Everything else follows
+          - Rules at line 500 are dead code
+
+  # ============================================================
+  # 3. PROCEDURAL PRESUPPOSITION CHAINS — Sequencing as constraint
+  # ============================================================
+  #
+  # Numbered sequences with explicit step IDs create presuppositional
+  # chains. Step 3 presupposes Step 2 is complete. The LLM cannot
+  # generate "done" without first generating evidence of having done
+  # the prior steps, because the discourse structure makes the claim
+  # pragmatically unlicensed without the prerequisites.
+
+  procedural_chains:
+    implements_as:
+
+      yaml_step_sequences:
+        format: |
+          steps:
+            - id: step_1
+              action: "first thing"
+              instruction: |
+                Prose explaining the step.
+              validation: "how to verify"
+              next: step_2
+            - id: step_2
+              action: "second thing"
+              instruction: |
+                Prose explaining the step.
+              validation: "how to verify"
+        rules:
+          - Every step has an id, action, instruction, and validation
+          - Use `next:` for explicit sequencing in complex flows
+          - Config blocks between steps are ignored by LLMs (tested)
+          - 50-step YAMLs are fully traversed (stress tested)
+
+      gate_functions:
+        format: |
+          instruction: |
+            Before proceeding:
+            1. IDENTIFY: What command proves this claim?
+            2. RUN: Execute the command
+            3. VERIFY: Does output confirm the claim?
+            4. ONLY THEN: Proceed
+
+            Skip any step = {specific consequence}
+        rules:
+          - 4-5 numbered steps maximum
+          - Each step is a verb (IDENTIFY, RUN, READ, VERIFY)
+          - Include failure branch inline
+          - End with consequence statement
+
+# ============================================================
+# SKILL FORMAT SPEC — The winning format from blind testing
+# ============================================================
+
+format_spec:
+  structure: |
+    YAML structure for the law (steps, validation, on_failure)
+    + instruction: | block scalars for prose
+    + rationalization table at the end as prolepsis
+
+  why: |
+    - YAML validation strings become executable commands (proven)
+    - instruction: | blocks match existing context.yaml patterns
+    - Natural language avoids injection detection (LLM_MUST doesn't)
+    - Rationalization tables catch thoughts at moment of generation
+
+  template: |
+    metadata:
+      name: skill-name
+      description: "trigger-only, no workflow summary"
+
+    steps:
+      - id: step_1
+        action: "what to do"
+        instruction: |
+          Natural language explaining how.
+          You must do X before Y.
+        validation: "concrete verifiable check"
+        on_failure: "specific recovery action"
+
+    anti_patterns: |
+      | Excuse | Reality |
+      |--------|---------|
+      | "exact rationalization" | short refutation |
+
+# ============================================================
+# EXPERIMENTAL EVIDENCE
+# ============================================================
+
+evidence:
+  blind_behavioral_test:
+    date: 2026-03-22
+    method: "4 formats, same scenario, same model (Haiku), blind"
+    result: "YAML (Format B) won — validation strings became executable commands"
+    scores:
+      yaml: "8/10 + bonus, 11 tool calls"
+      markdown: "8.5/10, 4 tool calls"
+      smartdown: "5/10, 11 tool calls (Opus confound)"
+      hybrid: "3/10 + bonus, 7 tool calls (caught hypothetical)"
+
+  extension_test:
+    result: "File extension (.yaml vs .md) does not affect compliance"
+
+  injection_test:
+    result: "LLM_MUST in data files triggers injection detection. Use natural language."
+
+  stress_test:
+    result: "pending — 707-line YAML, 50 steps, buried directive at step 25"
+
+  nlp_analysis:
+    source: "Reduction of 39 techniques via pragmatics/discourse analysis"
+    meta_mechanism: "Make the undesired output computationally expensive to generate"
+    primitives:
+      - "Prolepsis: pre-refute specific evasions"
+      - "Positioned deontic commands: authority + specificity"
+      - "Procedural presupposition chains: sequencing as constraint"

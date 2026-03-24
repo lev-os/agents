@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Platform Migration Decision Framework</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ── COLOR SYSTEM: Warm Charcoal + Copper ──────────────────────────── */
+  :root {
+    --charcoal: #2d2926;
+    --charcoal-light: #3d3834;
+    --charcoal-muted: #5a5350;
+    --copper: #b87333;
+    --copper-light: #d4944e;
+    --copper-dim: #8f5a28;
+    --warm-white: #faf8f5;
+    --warm-white-dark: #f0ece6;
+    --sage: #8b9e7e;
+    --sage-dim: rgba(139, 158, 126, 0.12);
+    --ink: #2d2926;
+    --ink-light: #4a4440;
+    --ink-muted: #7a7370;
+    --paper: #ffffff;
+    --border: #e0dbd3;
+    --code-bg: #f5f0e8;
+    --green: #5a8a5e;
+    --green-dim: rgba(90, 138, 94, 0.1);
+    --red: #b54a4a;
+    --amber: #c47d2e;
+    --amber-dim: rgba(196, 125, 46, 0.08);
+    --card-shadow: 0 1px 3px rgba(45,41,38,0.06), 0 4px 12px rgba(45,41,38,0.04);
+  }
+
+  /* ── DARK MODE (primary aesthetic) ─────────────────────────────────── */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --warm-white: #1a1714;
+      --warm-white-dark: #23201c;
+      --ink: #e8e4de;
+      --ink-light: #c8c4be;
+      --ink-muted: #8a8680;
+      --paper: #2d2926;
+      --border: #3d3834;
+      --code-bg: #23201c;
+      --charcoal: #d4944e;
+      --charcoal-light: #e0a860;
+      --charcoal-muted: #b87333;
+      --copper-dim: #d4944e;
+      --sage: #a3b896;
+      --green: #7ab87e;
+      --green-dim: rgba(122, 184, 126, 0.12);
+      --amber-dim: rgba(212, 148, 78, 0.1);
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.15);
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { font-size: 17px; scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--warm-white);
+    color: var(--ink);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 0 1.5rem; }
+
+  /* ── HERO ──────────────────────────────────────────────────────────── */
+  .hero {
+    padding: 4rem 0 3rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem; font-weight: 600; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--copper-dim); margin-bottom: 1rem;
+  }
+  .hero h1 {
+    font-size: 2.8rem;
+    font-weight: 700; line-height: 1.1; color: var(--charcoal); margin-bottom: 1rem;
+  }
+  .hero .subtitle {
+    font-size: 0.82rem; color: var(--ink-muted); max-width: 600px; line-height: 1.8;
+  }
+  .hero .subtitle strong { color: var(--ink-light); font-weight: 600; }
+
+  /* ── PROGRESS BAR ──────────────────────────────────────────────────── */
+  .progress-bar-wrap {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--warm-white); border-bottom: 1px solid var(--border);
+    padding: 0.6rem 0;
+  }
+  .progress-inner {
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .progress-track {
+    flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--copper); border-radius: 3px;
+    transition: width 0.3s ease; width: 0%;
+  }
+  .progress-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem; color: var(--ink-muted); white-space: nowrap; min-width: 60px;
+    text-align: right;
+  }
+
+  /* ── SAVE INDICATOR ────────────────────────────────────────────────── */
+  .save-indicator {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--green);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    margin-left: 0.5rem;
+  }
+  .save-indicator.visible {
+    opacity: 1;
+  }
+
+  /* ── BUCKET NAV ────────────────────────────────────────────────────── */
+  .bucket-nav {
+    display: flex; gap: 0.5rem; flex-wrap: wrap;
+    padding: 1.5rem 0; border-bottom: 1px solid var(--border);
+  }
+  .bucket-nav a {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; text-decoration: none;
+    color: var(--ink-muted); padding: 0.3rem 0.6rem;
+    border: 1px solid var(--border); border-radius: 3px;
+    transition: all 0.15s ease;
+  }
+  .bucket-nav a:hover {
+    color: var(--copper); border-color: var(--copper);
+  }
+
+  /* ── BUCKET SECTIONS ───────────────────────────────────────────────── */
+  .bucket {
+    padding: 2.5rem 0 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .bucket:last-of-type { border-bottom: none; }
+  .bucket-header {
+    display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.5rem;
+  }
+  .bucket-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.4rem; color: var(--copper); font-weight: 600; flex-shrink: 0;
+  }
+  .bucket-title {
+    font-size: 1.5rem;
+    font-weight: 600; color: var(--charcoal);
+  }
+  .bucket-count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem; color: var(--ink-muted); letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ── ITEM CARD ─────────────────────────────────────────────────────── */
+  .item-card {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--card-shadow);
+    transition: border-color 0.2s ease;
+  }
+  .item-card.decided { border-left: 3px solid var(--sage); }
+  .item-card-header {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .item-id {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--copper-dim);
+    background: var(--amber-dim); padding: 0.15rem 0.5rem; border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .item-title {
+    font-size: 1.1rem;
+    color: var(--charcoal); font-weight: 600;
+  }
+
+  /* ── INSIGHT (brief) ───────────────────────────────────────────────── */
+  .item-insight {
+    font-size: 0.75rem; color: var(--ink-light); margin-bottom: 0.5rem;
+    padding: 0.75rem 1rem; background: var(--warm-white-dark); border-radius: 3px;
+    border-left: 2px solid var(--copper);
+  }
+  .item-insight strong { color: var(--ink); font-weight: 600; }
+  .item-insight code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem; background: var(--code-bg); padding: 0.1rem 0.35rem;
+    border-radius: 2px; color: var(--copper-dim);
+  }
+
+  /* ── DETAIL (expanded analysis) ────────────────────────────────────── */
+  .detail-toggle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem; color: var(--copper); cursor: pointer;
+    letter-spacing: 0.05em; margin-bottom: 0.75rem;
+    display: inline-block; border: none; background: none;
+    padding: 0.2rem 0; transition: color 0.15s;
+  }
+  .detail-toggle:hover { color: var(--copper-light); }
+  .detail-toggle::before { content: '\25B8 '; }
+  .detail-toggle.open::before { content: '\25BE '; }
+
+  .item-detail {
+    display: none;
+    font-size: 0.72rem; color: var(--ink-light);
+    margin-bottom: 1rem; padding: 0.75rem 1rem;
+    background: var(--warm-white-dark); border-radius: 3px;
+    border-left: 2px solid var(--sage);
+    line-height: 1.8;
+  }
+  .item-detail.open { display: block; }
+  .item-detail p { margin-bottom: 0.6rem; }
+  .item-detail p:last-child { margin-bottom: 0; }
+  .item-detail strong { color: var(--ink); font-weight: 600; }
+  .item-detail code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem; background: var(--code-bg); padding: 0.1rem 0.35rem;
+    border-radius: 2px; color: var(--copper-dim);
+  }
+  .item-detail .detail-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.55rem; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--copper-dim);
+    margin-top: 0.5rem; margin-bottom: 0.25rem;
+  }
+
+  /* ── RADIO OPTIONS ─────────────────────────────────────────────────── */
+  .options-grid {
+    display: grid; gap: 0.5rem; margin-bottom: 0.75rem;
+  }
+  .option-row {
+    display: flex; align-items: flex-start; gap: 0.5rem;
+    padding: 0.6rem 0.75rem; border: 1px solid var(--border); border-radius: 3px;
+    cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease;
+    font-size: 0.75rem;
+  }
+  .option-row:hover { background: var(--warm-white-dark); }
+  .option-row.selected {
+    background: var(--green-dim); border-color: var(--sage);
+  }
+  .option-row.recommended {
+    border-color: var(--copper);
+  }
+  .option-row.recommended.selected {
+    border-color: var(--sage);
+  }
+  .option-row input[type="radio"] {
+    margin-top: 3px; flex-shrink: 0; accent-color: var(--sage);
+  }
+  .option-label { flex: 1; min-width: 0; }
+  .option-label .rec-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    display: inline-block; font-size: 0.55rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--copper-dim); margin-left: 0.5rem;
+  }
+  .option-label .option-desc {
+    display: block; font-size: 0.68rem; color: var(--ink-muted);
+    margin-top: 0.2rem;
+  }
+
+  /* ── OTHER + NOTES ─────────────────────────────────────────────────── */
+  .other-input, .notes-input {
+    width: 100%; font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem; padding: 0.5rem 0.75rem;
+    background: var(--warm-white-dark); border: 1px solid var(--border);
+    border-radius: 3px; color: var(--ink); resize: vertical;
+  }
+  .other-input:focus, .notes-input:focus {
+    outline: none; border-color: var(--copper);
+  }
+  .other-input { min-height: 2rem; margin-top: 0.25rem; }
+  .notes-input { min-height: 2.5rem; margin-top: 0.5rem; }
+  .notes-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem; color: var(--ink-muted); letter-spacing: 0.08em;
+    text-transform: uppercase; margin-top: 0.5rem; display: block;
+  }
+
+  /* ── WAVE BADGE ────────────────────────────────────────────────────── */
+  .wave-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    display: inline-block; font-size: 0.55rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.12rem 0.4rem; border-radius: 2px;
+    color: var(--paper); margin-left: 0.5rem;
+  }
+  .wave-badge.w1 { background: var(--copper); }
+  .wave-badge.w2 { background: var(--charcoal-muted); }
+  .wave-badge.w3 { background: var(--sage); }
+
+  @media (prefers-color-scheme: dark) {
+    .wave-badge { color: var(--warm-white); }
+    .wave-badge.w1 { background: var(--copper-dim); color: #1a1714; }
+    .wave-badge.w2 { background: var(--charcoal-muted); color: #1a1714; }
+    .wave-badge.w3 { background: var(--sage); color: #1a1714; }
+  }
+
+  /* ── ACTION BAR ────────────────────────────────────────────────────── */
+  .action-bar {
+    position: sticky; bottom: 0; z-index: 100;
+    background: var(--paper); border-top: 2px solid var(--copper);
+    padding: 1rem 0;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+  }
+  .action-inner {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  }
+  .action-stats {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem; color: var(--ink-muted);
+  }
+  .action-stats strong { color: var(--ink); }
+  .btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem; font-weight: 600;
+    padding: 0.6rem 1.2rem; border: none; border-radius: 3px;
+    cursor: pointer; transition: background 0.2s ease, transform 0.1s ease;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: var(--copper); color: var(--warm-white);
+  }
+  .btn-primary:hover { background: var(--copper-light); }
+  .btn-secondary {
+    background: var(--warm-white-dark); color: var(--ink);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-danger {
+    background: transparent; color: var(--red);
+    border: 1px solid var(--red);
+  }
+  .btn-danger:hover { background: rgba(181, 74, 74, 0.08); }
+  .btn-accent {
+    background: linear-gradient(135deg, var(--copper), var(--copper-light));
+    color: var(--warm-white);
+    border: 1px solid var(--copper-dim);
+    box-shadow: 0 1px 4px rgba(184, 115, 51, 0.3);
+  }
+  .btn-accent:hover { background: linear-gradient(135deg, var(--copper-light), var(--copper)); }
+
+  /* ── TOAST ──────────────────────────────────────────────────────────── */
+  .toast {
+    position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%);
+    background: var(--sage); color: white;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem; font-weight: 500;
+    padding: 0.6rem 1.5rem; border-radius: 4px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    opacity: 0; transition: opacity 0.3s ease;
+    pointer-events: none; z-index: 200;
+  }
+  .toast.show { opacity: 1; }
+
+  /* ── RESPONSIVE ────────────────────────────────────────────────────── */
+  @media (max-width: 700px) {
+    html { font-size: 15px; }
+    .hero h1 { font-size: 2rem; }
+    .hero { padding: 2.5rem 0 2rem; }
+    .item-card { padding: 1rem; }
+    .action-inner { flex-direction: column; gap: 0.5rem; text-align: center; }
+    .action-buttons { flex-wrap: wrap; justify-content: center; }
+  }
+
+  /* ── CONNECTION INDICATOR ──────────────────────────────────────────── */
+  .conn-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-left: 0.5rem; vertical-align: middle; transition: background 0.3s; }
+  .conn-connected { background: var(--green); box-shadow: 0 0 4px var(--green); }
+  .conn-fallback { background: var(--amber); }
+  .conn-disconnected { background: var(--ink-muted); }
+
+  /* ── RESPONSE PANEL ─────────────────────────────────────────────────── */
+  .response-panel { position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%); width: min(90vw, 800px); max-height: 50vh; background: var(--paper); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--card-shadow); overflow-y: auto; padding: 1rem 1.25rem; z-index: 200; display: none; animation: slideUp 0.3s ease; }
+  .response-panel.show { display: block; }
+  .response-panel pre { white-space: pre-wrap; word-break: break-word; font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; line-height: 1.5; margin: 0; }
+  .response-panel .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+  .response-panel .panel-header h4 { margin: 0; font-size: 0.85rem; color: var(--ink-muted); }
+  .response-panel .panel-actions { display: flex; gap: 0.5rem; }
+  .response-panel .panel-actions button { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
+  @keyframes slideUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+  /* ── SEARCH + FILTER ────────────────────────────────────────────────── */
+  .search-bar { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; }
+  .search-bar input { flex: 1; padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: 4px; background: var(--paper); color: var(--ink); font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; }
+  .filter-chips { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+  .filter-chip { padding: 0.2rem 0.6rem; border: 1px solid var(--border); border-radius: 12px; font-size: 0.7rem; cursor: pointer; background: transparent; color: var(--ink-muted); transition: all 0.2s; }
+  .filter-chip.active { background: var(--copper); color: var(--warm-white); border-color: var(--copper); }
+  .item-card.filtered-out { display: none !important; }
+
+  /* ── EMBED MODE ─────────────────────────────────────────────────────── */
+  .embed-mode .hero, .embed-mode .bucket-nav, .embed-mode .action-bar { display: none !important; }
+  .embed-mode .progress-bar-wrap { position: static; }
+  .embed-mode { padding-top: 0; }
+
+  /* ── PRINT ──────────────────────────────────────────────────────────── */
+  @media print {
+    body { background: white !important; color: #1a1a1a !important; font-size: 10pt; }
+    .progress-bar-wrap, .action-bar, .toast, .bucket-nav, .save-indicator { display: none !important; }
+    .item-card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+    .hero h1 { color: #2d2926; font-size: 24pt; }
+    .item-detail { display: block !important; }
+    .wave-badge { color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-label">Platform Migration / Decision Framework / v1</div>
+    <h1>Platform Migration Decisions</h1>
+    <p class="subtitle">
+      <strong>10 decisions</strong> across <strong>3 domains</strong>.
+      Each has analysis context + 3 options (recommended highlighted) + "other" with free text.
+      Click "Analysis" to see the full context. Decisions auto-save to localStorage. Copy JSON when done.
+    </p>
+  </div>
+</header>
+
+<!-- PROGRESS -->
+<div class="progress-bar-wrap">
+  <div class="container">
+    <div class="progress-inner">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-text" id="progressText">0 / 10</div>
+      <span class="save-indicator" id="saveIndicator">Saved &#10003;</span>
+      <span id="conn-dot" class="conn-dot conn-disconnected"></span>
+    </div>
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="Search decisions..." />
+      <div class="filter-chips" id="filter-chips"></div>
+      <label style="font-size:0.75rem;white-space:nowrap;cursor:pointer;color:var(--ink-muted)">
+        <input type="checkbox" id="undecided-toggle" style="margin-right:0.25rem" /> Undecided only
+      </label>
+    </div>
+  </div>
+</div>
+
+<!-- BUCKET NAV -->
+<nav class="bucket-nav">
+  <div class="container" style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+    <a href="#bucket-1">1. Infrastructure</a>
+    <a href="#bucket-2">2. Architecture</a>
+    <a href="#bucket-3">3. Migration Strategy</a>
+  </div>
+</nav>
+
+<main class="container" id="mainContent" data-page-id="platform-migration"></main>
+
+<!-- ACTION BAR -->
+<div class="action-bar">
+  <div class="container">
+    <div class="action-inner">
+      <div class="action-stats">
+        <strong id="decidedCount">0</strong> of <strong>10</strong> decided
+      </div>
+      <div class="action-buttons" style="display:flex;gap:0.5rem;">
+        <button class="btn btn-secondary" onclick="resetAll()">Reset All</button>
+        <button class="btn btn-danger" onclick="clearSavedData()">Clear Saved Data</button>
+        <button class="btn btn-primary" onclick="copyDecisions()">Copy Decisions JSON</button>
+        <button class="btn btn-accent" onclick="runWithClaude()">Run with Claude</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESPONSE PANEL -->
+<div class="response-panel" id="response-panel">
+  <div class="panel-header">
+    <h4>Claude Response</h4>
+    <div class="panel-actions">
+      <button class="btn btn-secondary" onclick="copyResponse()">Copy</button>
+      <button class="btn btn-secondary" onclick="dismissResponse()">Dismiss</button>
+    </div>
+  </div>
+  <pre id="response-content"></pre>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">Decisions copied to clipboard</div>
+
+<script>
+// ── DATA MODEL ──────────────────────────────────────────────────────
+// Generalized decision items. Replace this array to reuse the template
+// for any decision set. Structure: bucket, id, title, insight, detail,
+// wave, options[].
+const ITEMS = [
+  // ═══════════════════════════════════════════════════════════════════
+  // BUCKET 1: Infrastructure (4 items)
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    bucket: 1, id: "INF1", title: "Cloud Provider Selection",
+    insight: "Current on-prem deployment costs <strong>3.2x more per request</strong> than equivalent cloud. The <code>deploy.yaml</code> pipeline already abstracts provider-specific config behind a facade, making migration less painful than expected.",
+    detail: `<p class="detail-label">Current state</p>
+<p>The existing on-premises infrastructure runs across 14 bare-metal nodes with manual capacity planning. Peak traffic causes <strong>23% request failures</strong> during quarterly spikes. The ops team spends roughly 40% of their time on hardware maintenance and firmware updates rather than platform improvement.</p>
+<p class="detail-label">Migration considerations</p>
+<p>AWS offers the broadest service catalog and the team has the most experience there. GCP provides better Kubernetes integration and ML tooling that aligns with the roadmap. Azure has the strongest enterprise compliance story, which matters for the financial services clients coming in Q3. The <code>deploy.yaml</code> abstraction layer means provider-specific lock-in is limited to managed services (databases, queues, object storage).</p>
+<p class="detail-label">Cost modeling</p>
+<p>Reserved instance pricing on AWS brings the per-request cost to <strong>$0.0004</strong> vs current on-prem <strong>$0.0013</strong>. GCP committed-use discounts are comparable. The real savings come from elastic scaling during off-peak hours — current hardware sits at 12% utilization overnight.</p>`,
+    wave: "1",
+    options: [
+      { label: "AWS with multi-region", desc: "Broadest service catalog, team familiarity, mature tooling. Multi-region for HA from day one.", recommended: true },
+      { label: "GCP with Anthos", desc: "Superior Kubernetes experience, better ML pipeline integration. Anthos for hybrid during transition." },
+      { label: "Azure with landing zones", desc: "Enterprise compliance story, Azure AD integration. Landing zone architecture for governance." }
+    ]
+  },
+  {
+    bucket: 1, id: "INF2", title: "Container Orchestration",
+    insight: "Team already runs <code>docker-compose</code> in production (yes, really). Moving to proper orchestration is non-negotiable — the question is <strong>managed vs self-hosted</strong> and how much control to retain.",
+    detail: `<p class="detail-label">The docker-compose problem</p>
+<p>The current <code>docker-compose.prod.yml</code> manages 23 services across 3 compose files with manual <code>docker-compose up -d</code> deploys via SSH. There is no health checking, no rolling updates, no automatic restart policy beyond Docker's built-in. A single node failure takes down 6-8 services simultaneously.</p>
+<p class="detail-label">Managed Kubernetes</p>
+<p>EKS, GKE, or AKS removes the control plane burden. The team has 2 engineers with Kubernetes experience and 6 without. Managed K8s costs roughly <strong>$75/month for the control plane</strong> plus node costs. The learning curve is real but the operational benefits (self-healing, rolling deploys, resource limits) justify the investment.</p>
+<p class="detail-label">Lighter alternatives</p>
+<p>ECS/Fargate eliminates node management entirely but locks you into AWS. Nomad is operationally simpler than Kubernetes but has a smaller ecosystem. For a team of 8 engineers, the operational overhead of self-hosted K8s is likely too high — managed is the pragmatic choice.</p>`,
+    wave: "1",
+    options: [
+      { label: "Managed Kubernetes (EKS/GKE)", desc: "Industry standard orchestration. Managed control plane eliminates ops burden. Rich ecosystem of tools and operators.", recommended: true },
+      { label: "ECS Fargate (serverless containers)", desc: "Zero node management. AWS-specific but dramatically simpler operations. Good for smaller teams." },
+      { label: "HashiCorp Nomad", desc: "Simpler than K8s, multi-runtime (containers + VMs + raw exec). Smaller community but lower cognitive overhead." }
+    ]
+  },
+  {
+    bucket: 1, id: "INF3", title: "Database Strategy",
+    insight: "Running <strong>PostgreSQL 12</strong> (EOL October 2024) on a single primary with async replication. The <code>migrations/</code> directory has <strong>847 migration files</strong> — schema evolution is well-managed, but the infrastructure under it is fragile.",
+    detail: `<p class="detail-label">Current risks</p>
+<p>PostgreSQL 12 stopped receiving security patches in November 2024. The single-primary topology means any primary failure causes write unavailability. Async replication introduces a 200-400ms lag window where data loss is possible during failover. The 2TB dataset makes point-in-time recovery take <strong>approximately 4 hours</strong> — well outside the 30-minute RTO target.</p>
+<p class="detail-label">Managed vs self-managed</p>
+<p>RDS/Aurora handles version upgrades, automated backups, and failover. The team currently spends 15 hours/month on database maintenance tasks that a managed service eliminates. Aurora's storage engine provides <strong>6-way replication</strong> and sub-10-second failover, which meets the RTO requirement without custom tooling.</p>
+<p class="detail-label">Schema migration path</p>
+<p>The 847 migration files use a standard sequential numbering scheme with <code>up</code>/<code>down</code> functions. This is compatible with every major managed database service. The migration from Postgres 12 to 16 requires testing against the <code>json_path</code> query changes in v14 and the <code>MERGE</code> syntax additions in v15, but the existing test suite covers 94% of query patterns.</p>`,
+    wave: "1",
+    options: [
+      { label: "Aurora PostgreSQL 16 with Global Database", desc: "Managed, multi-AZ, auto-failover, compatible engine. Upgrade to v16 for security and performance.", recommended: true },
+      { label: "Cloud SQL / AlloyDB on GCP", desc: "AlloyDB offers 4x throughput for analytical queries. Good if GCP is the primary cloud." },
+      { label: "Self-managed PostgreSQL 16 on VMs", desc: "Maximum control, minimum vendor lock-in. Requires dedicated DBA capacity." }
+    ]
+  },
+  {
+    bucket: 1, id: "INF4", title: "CDN / Edge Strategy",
+    insight: "Static assets served from the application servers. <strong>P95 latency for EU users is 1.8s</strong> vs 340ms for US users. No edge caching, no asset optimization pipeline, no <code>Cache-Control</code> headers on API responses.",
+    detail: `<p class="detail-label">The latency problem</p>
+<p>All servers are in <code>us-east-1</code>. European users (38% of traffic) experience round-trip times of 80-120ms before the server even begins processing. Static assets (JS bundles, images, fonts) account for <strong>2.1MB of uncached payload</strong> on first load. Without a CDN, every page load for every user hits the origin servers, wasting compute on serving bytes that rarely change.</p>
+<p class="detail-label">Edge compute vs simple CDN</p>
+<p>A basic CDN (CloudFront, Fastly) handles static asset distribution and reduces origin load by 60-70%. Edge compute (CloudFront Functions, Cloudflare Workers) enables request routing, A/B testing, and API response caching at the edge. The question is whether the complexity of edge compute is warranted now or if simple CDN distribution solves the immediate pain.</p>
+<p class="detail-label">API response caching</p>
+<p>Analysis of the API endpoints shows that <strong>43% of GET requests</strong> return identical responses for the same parameters within a 5-minute window. Adding <code>Cache-Control: public, max-age=300</code> to these endpoints and fronting them with a CDN would eliminate nearly half of all origin requests.</p>`,
+    wave: "1",
+    options: [
+      { label: "CloudFront with edge functions", desc: "AWS-native CDN with Lambda@Edge for routing logic. Tight integration with ALB and S3. Edge functions for A/B testing.", recommended: true },
+      { label: "Cloudflare with Workers", desc: "Provider-agnostic CDN. Workers runtime for edge compute. Excellent DDoS protection included." },
+      { label: "Fastly with Compute@Edge", desc: "Varnish-based CDN with instant purge. Compute@Edge for WASM-based edge logic. Best cache invalidation story." }
+    ]
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // BUCKET 2: Architecture (3 items)
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    bucket: 2, id: "ARC1", title: "API Gateway Pattern",
+    insight: "Currently running <strong>12 microservices</strong> behind a hand-rolled Node.js reverse proxy (<code>gateway/index.js</code>, 2400 LOC). Authentication is duplicated in 8 of the 12 services. Rate limiting exists in exactly one.",
+    detail: `<p class="detail-label">The custom gateway problem</p>
+<p>The custom <code>gateway/index.js</code> implements routing, SSL termination, request logging, and partial authentication. It was written 3 years ago and has accumulated features organically. There are 14 route-matching regular expressions, some of which conflict silently. The gateway handles <strong>4200 req/s at peak</strong> but has no circuit breaking, no request queuing, and no graceful degradation. When the gateway process crashes (roughly once per week), all 12 services become unreachable.</p>
+<p class="detail-label">Managed gateway options</p>
+<p>AWS API Gateway handles auth, rate limiting, and throttling out of the box but adds 30ms of latency per request. Kong or Envoy-based gateways (like Ambassador) run inside the cluster with sub-millisecond overhead. Kong provides a plugin ecosystem for auth, rate limiting, transformation, and observability. Envoy's proxy protocol offers the most flexibility but requires more configuration expertise.</p>
+<p class="detail-label">Auth consolidation</p>
+<p>Moving auth to the gateway eliminates the duplicated JWT verification code across 8 services (roughly 400 LOC of near-identical middleware). Services receive pre-validated user context via headers, reducing their surface area and simplifying testing.</p>`,
+    wave: "2",
+    options: [
+      { label: "Kong Gateway with plugins", desc: "Battle-tested API gateway with declarative config. Plugin ecosystem for auth, rate limiting, and observability. Runs in-cluster.", recommended: true },
+      { label: "AWS API Gateway + Lambda authorizer", desc: "Fully managed, zero ops. Higher per-request latency but eliminates all gateway maintenance." },
+      { label: "Envoy proxy with custom filters", desc: "Maximum performance and flexibility. Steeper learning curve but best long-term extensibility." }
+    ]
+  },
+  {
+    bucket: 2, id: "ARC2", title: "Service Mesh",
+    insight: "Inter-service communication uses direct HTTP calls with <strong>hardcoded hostnames</strong> in config files. No mTLS between services, no distributed tracing, no retry policies. A single slow service cascades failures across the entire platform.",
+    detail: `<p class="detail-label">Current failure mode</p>
+<p>When the <code>billing-service</code> experienced a 30-second database lock last month, it caused cascading timeouts across <code>order-service</code>, <code>notification-service</code>, and <code>user-service</code> — all of which call billing synchronously with a 60-second timeout and no circuit breaker. The incident took down 4 of 12 services for 12 minutes. With proper circuit breaking and retry policies, the blast radius would have been limited to billing-related functionality only.</p>
+<p class="detail-label">Service mesh trade-offs</p>
+<p>Istio provides the full feature set (mTLS, traffic management, observability) but adds <strong>significant resource overhead</strong> — the sidecar proxy consumes 50-100MB of memory per pod and adds 2-5ms of latency per hop. Linkerd is lighter (10-20MB per sidecar, sub-millisecond latency) but has a smaller feature set. Consul Connect offers a middle ground with HashiCorp ecosystem integration.</p>
+<p class="detail-label">Incremental adoption</p>
+<p>A service mesh does not need to be all-or-nothing. Starting with mTLS and observability (distributed tracing via OpenTelemetry) provides immediate security and debugging benefits. Traffic management policies (circuit breaking, retries, canary routing) can be added service-by-service as the team gains confidence.</p>`,
+    wave: "2",
+    options: [
+      { label: "Linkerd (lightweight mesh)", desc: "Minimal resource overhead, automatic mTLS, built-in observability. Simpler operational model than Istio.", recommended: true },
+      { label: "Istio (full-featured mesh)", desc: "Complete traffic management, security, and observability. Higher resource cost but most feature-rich." },
+      { label: "No mesh — library-based resilience", desc: "Implement circuit breaking and retries via application libraries (e.g., resilience4j). No infrastructure overhead." }
+    ]
+  },
+  {
+    bucket: 2, id: "ARC3", title: "Event Streaming Platform",
+    insight: "Async communication uses a <strong>Redis pub/sub</strong> with no persistence, no replay, no dead letter queue. Messages are fire-and-forget — if a consumer is down when a message is published, that message is <strong>permanently lost</strong>.",
+    detail: `<p class="detail-label">What's being lost</p>
+<p>Audit analysis of the Redis pub/sub channels shows <strong>14 event types</strong> across 9 publishers. During the last quarter, there were 47 incidents where consumer downtime caused event loss. The most impactful: 1,200 <code>payment.completed</code> events lost during a 4-minute <code>notification-service</code> restart, resulting in 1,200 users who were charged but never received confirmation emails. The manual reconciliation took 6 hours.</p>
+<p class="detail-label">Kafka vs managed alternatives</p>
+<p>Kafka provides persistent, replayable event streams with configurable retention. Self-hosted Kafka requires significant operational expertise (ZooKeeper/KRaft management, partition rebalancing, broker failures). Managed alternatives — Amazon MSK, Confluent Cloud, or Redpanda — reduce ops burden. Redpanda is Kafka-API-compatible but eliminates the JVM dependency and ZooKeeper, running as a single binary with <strong>10x lower tail latency</strong>.</p>
+<p class="detail-label">Event schema evolution</p>
+<p>Moving from ephemeral pub/sub to persistent streams requires schema discipline. Each event type needs a versioned schema (Avro, Protobuf, or JSON Schema). A schema registry (Confluent or Karapace) prevents producers from publishing backward-incompatible changes. This is a cultural shift as much as a technical one.</p>`,
+    wave: "2",
+    options: [
+      { label: "Managed Kafka (MSK or Confluent)", desc: "Industry-standard streaming with managed operations. Schema registry for event evolution. Broad ecosystem integration.", recommended: true },
+      { label: "Redpanda (Kafka-compatible)", desc: "Single binary, no JVM, Kafka API compatible. Lower latency, simpler operations. Growing ecosystem." },
+      { label: "Amazon EventBridge + SQS", desc: "Serverless event bus with native AWS integration. No cluster management. Limited replay capability." }
+    ]
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // BUCKET 3: Migration Strategy (3 items)
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    bucket: 3, id: "MIG1", title: "Rollout Approach",
+    insight: "The platform serves <strong>2.4M monthly active users</strong> across 3 time zones. Any migration must maintain <strong>99.9% uptime SLA</strong> — that's less than 44 minutes of downtime per month. Big-bang migration is not an option.",
+    detail: `<p class="detail-label">Traffic distribution</p>
+<p>Peak traffic is <strong>4,200 req/s</strong> between 10:00-14:00 EST. The lowest traffic window is 02:00-06:00 EST (180 req/s), which overlaps with European morning hours. There is no true "quiet period" — the platform serves users in US Eastern, US Pacific, and Western European time zones. Any cutover must be gradual or happen during a maintenance window with pre-announced downtime.</p>
+<p class="detail-label">Strangler fig vs parallel run</p>
+<p>The strangler fig pattern routes individual API endpoints from old to new infrastructure incrementally. This is the lowest-risk approach — each endpoint migration is independently reversible. A parallel run operates both systems simultaneously with traffic mirroring, validating that the new system produces identical results before switching. Parallel runs catch subtle behavioral differences but double infrastructure costs during the migration window.</p>
+<p class="detail-label">Feature flags as safety valves</p>
+<p>Wrapping each migrated endpoint in a feature flag (LaunchDarkly, Unleash, or even a simple config map) enables instant rollback at the routing level. Combined with canary deployments (1% → 5% → 25% → 100%), this gives the team confidence to move fast with the ability to retreat instantly.</p>`,
+    wave: "1",
+    options: [
+      { label: "Strangler fig with canary progression", desc: "Migrate endpoint-by-endpoint. Canary each at 1% → 5% → 25% → 100%. Feature flags for instant rollback. Lowest risk.", recommended: true },
+      { label: "Parallel run with traffic mirroring", desc: "Mirror production traffic to new infrastructure. Compare results. Switch when parity confirmed. Higher cost, highest confidence." },
+      { label: "Blue-green with scheduled cutover", desc: "Full environment duplication with DNS-based cutover during low-traffic window. Simple but all-or-nothing." }
+    ]
+  },
+  {
+    bucket: 3, id: "MIG2", title: "Data Migration",
+    insight: "The primary database is <strong>2.1TB</strong> with 847 migrations applied. A naive <code>pg_dump</code>/<code>pg_restore</code> takes <strong>4 hours 12 minutes</strong> — well outside the downtime budget. Need a zero-downtime data migration strategy.",
+    detail: `<p class="detail-label">The 2TB challenge</p>
+<p>A full logical dump and restore is not feasible within the 44-minute monthly downtime budget. Physical replication (streaming replication or <code>pg_basebackup</code>) can synchronize the dataset with minimal lag but requires network connectivity between old and new infrastructure. For cross-cloud migration, AWS DMS (Database Migration Service) handles continuous replication with <strong>sub-second lag</strong> for PostgreSQL sources.</p>
+<p class="detail-label">CDC-based approach</p>
+<p>Change Data Capture via logical replication (<code>pgoutput</code> plugin) streams row-level changes from the source to the target in near-real-time. The initial bulk load can happen over days or weeks while the CDC stream keeps the target synchronized. When the target is caught up (lag under 100ms), a brief cutover window (under 60 seconds) switches writes to the new database. This approach was validated at 3TB scale by the database team during the staging proof-of-concept.</p>
+<p class="detail-label">Verification strategy</p>
+<p>Post-migration verification requires row-count comparison, checksum validation on critical tables, and a reconciliation query that compares recent transactions. The verification suite should run automatically and block the cutover if any discrepancy is detected. Budget 2 hours for automated verification before declaring the migration complete.</p>`,
+    wave: "1",
+    options: [
+      { label: "Logical replication with CDC cutover", desc: "Continuous replication via pgoutput. Bulk load + CDC stream. Sub-minute cutover when lag reaches zero.", recommended: true },
+      { label: "AWS DMS continuous replication", desc: "Managed replication service. Handles schema conversion and ongoing sync. AWS-specific." },
+      { label: "Dump/restore with extended maintenance window", desc: "Simplest approach. Requires 4+ hours of planned downtime. Acceptable only if SLA permits." }
+    ]
+  },
+  {
+    bucket: 3, id: "MIG3", title: "Rollback Strategy",
+    insight: "Every migration step must be independently reversible. The question is <strong>how long</strong> to maintain rollback capability and <strong>what triggers</strong> an automatic rollback vs a human decision.",
+    detail: `<p class="detail-label">Rollback window</p>
+<p>Industry practice suggests maintaining rollback capability for <strong>2-4 weeks</strong> after each migration phase. During this window, the old infrastructure must remain operational (scaled down but functional), data replication must continue in both directions, and the team must be able to switch back within minutes. After the rollback window closes, the old infrastructure is decommissioned. Keeping it running longer is expensive but safe.</p>
+<p class="detail-label">Automatic vs manual triggers</p>
+<p>Automatic rollback should trigger on clear failure signals: error rate exceeding 5% (sustained for 2 minutes), P99 latency exceeding 3x baseline (sustained for 5 minutes), or any data integrity check failure. Manual rollback is appropriate for subtle degradation: user complaints, business metric anomalies, or performance regressions that don't breach hard thresholds. The on-call engineer should have a single command (<code>migrate rollback --phase=N</code>) that executes the full rollback runbook.</p>
+<p class="detail-label">Dual-write complexity</p>
+<p>During the rollback window, writes must propagate to both old and new databases to enable clean rollback. This dual-write period is the most operationally complex phase. Conflict resolution (what happens when the same row is modified in both databases?) must be defined before migration begins. Last-writer-wins with timestamp comparison is the simplest policy; application-level merge logic is more correct but significantly more complex to implement.</p>`,
+    wave: "3",
+    options: [
+      { label: "Automated rollback with 2-week window", desc: "Auto-trigger on error rate / latency thresholds. 2-week dual-write rollback window per phase. Single-command manual rollback.", recommended: true },
+      { label: "Manual rollback with 4-week window", desc: "Human decision for all rollbacks. Longer safety window. Higher cost but eliminates false-positive auto-rollbacks." },
+      { label: "Point-of-no-return after validation", desc: "No rollback capability. Rely on thorough validation before cutover. Lowest cost, highest risk." }
+    ]
+  }
+];
+
+const BUCKET_NAMES = {
+  1: "Infrastructure",
+  2: "Architecture",
+  3: "Migration Strategy"
+};
+
+const NUM_BUCKETS = 3;
+
+// ── STATE ───────────────────────────────────────────────────────────
+const decisions = {};
+
+// ── LOCALSTORAGE PERSISTENCE ────────────────────────────────────────
+const PAGE_ID = document.getElementById('mainContent').getAttribute('data-page-id') || 'default';
+const STORAGE_KEY = `ve-decisions-${PAGE_ID}`;
+const SAVE_DELAY = 300; // ms debounce
+
+let saveTimeout = null;
+let saveIndicatorTimeout = null;
+
+function getKey(item) { return `${item.bucket}-${item.id}`; }
+
+/**
+ * Debounced save to localStorage.
+ * Stores the full decision state with version and timestamp.
+ */
+function scheduleSave() {
+  if (saveTimeout) clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(function() {
+    const payload = {
+      version: 1,
+      pageId: PAGE_ID,
+      savedAt: new Date().toISOString(),
+      decisions: {}
+    };
+
+    for (const key in decisions) {
+      if (decisions.hasOwnProperty(key)) {
+        const d = decisions[key];
+        payload.decisions[key] = {
+          choice: d.choice !== undefined ? d.choice : null,
+          other: d.other || null,
+          notes: d.notes || null
+        };
+      }
+    }
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      showSaveIndicator();
+    } catch (e) {
+      console.warn('localStorage save failed:', e);
+    }
+  }, SAVE_DELAY);
+}
+
+/**
+ * Restore saved state from localStorage.
+ * Called after initial render() to populate radios, textareas, etc.
+ */
+function restoreFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+
+    const payload = JSON.parse(raw);
+    if (!payload || payload.version !== 1 || !payload.decisions) return;
+
+    // Restore decision state
+    for (const key in payload.decisions) {
+      if (payload.decisions.hasOwnProperty(key)) {
+        const saved = payload.decisions[key];
+        decisions[key] = {
+          choice: saved.choice !== null ? saved.choice : undefined,
+          other: saved.other || null,
+          notes: saved.notes || null
+        };
+
+        // Update DOM to reflect saved state
+        const card = document.getElementById('item-' + key);
+        if (!card) continue;
+
+        // Mark as decided if a choice was saved
+        if (saved.choice !== null && saved.choice !== undefined) {
+          card.classList.add('decided');
+
+          // Set radio states and row selection
+          card.querySelectorAll('.option-row').forEach(function(row) {
+            var rowChoice = row.dataset.choice === 'other' ? 'other' : parseInt(row.dataset.choice);
+            var isMatch = rowChoice === saved.choice;
+            row.classList.toggle('selected', isMatch);
+            var radio = row.querySelector('input[type="radio"]');
+            if (radio) radio.checked = isMatch;
+          });
+        }
+
+        // Restore "Other" text input
+        if (saved.other) {
+          var otherInput = card.querySelector('.other-input');
+          if (otherInput) otherInput.value = saved.other;
+        }
+
+        // Restore notes textarea
+        if (saved.notes) {
+          var notesInput = card.querySelector('.notes-input');
+          if (notesInput) notesInput.value = saved.notes;
+        }
+      }
+    }
+
+    updateProgress();
+  } catch (e) {
+    console.warn('localStorage restore failed:', e);
+  }
+}
+
+/**
+ * Show brief "Saved" indicator next to progress bar.
+ * Fades in, holds for 1s, fades out.
+ */
+function showSaveIndicator() {
+  var indicator = document.getElementById('saveIndicator');
+  if (!indicator) return;
+
+  // Clear any pending fade-out
+  if (saveIndicatorTimeout) clearTimeout(saveIndicatorTimeout);
+
+  indicator.classList.add('visible');
+  saveIndicatorTimeout = setTimeout(function() {
+    indicator.classList.remove('visible');
+  }, 1000);
+}
+
+/**
+ * Clear all saved data from localStorage.
+ * Prompts for confirmation, then resets state and re-renders.
+ */
+function clearSavedData() {
+  if (!confirm('Clear all saved data from localStorage? This cannot be undone.')) return;
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (e) {
+    console.warn('localStorage clear failed:', e);
+  }
+  Object.keys(decisions).forEach(function(k) { delete decisions[k]; });
+  render();
+  showToast('Saved data cleared');
+}
+
+// ── RENDER ──────────────────────────────────────────────────────────
+function render() {
+  var main = document.getElementById('mainContent');
+  var html = '';
+
+  for (var b = 1; b <= NUM_BUCKETS; b++) {
+    var items = ITEMS.filter(function(i) { return i.bucket === b; });
+    html += '<section class="bucket" id="bucket-' + b + '">' +
+      '<div class="bucket-header">' +
+        '<span class="bucket-num">' + b + '</span>' +
+        '<span class="bucket-title">' + BUCKET_NAMES[b] + '</span>' +
+        '<span class="bucket-count">' + items.length + ' items</span>' +
+      '</div>' +
+      items.map(function(item) { return renderItem(item); }).join('') +
+    '</section>';
+  }
+  main.innerHTML = html;
+  updateProgress();
+}
+
+function renderItem(item) {
+  var key = getKey(item);
+  var d = decisions[key];
+  var decided = d && (d.choice !== undefined);
+  var waveCls = item.wave.startsWith('1') ? 'w1' :
+    item.wave.startsWith('2') ? 'w2' :
+    item.wave.startsWith('3') ? 'w3' : 'w1';
+
+  var hasDetail = !!item.detail;
+
+  var optionsHtml = item.options.map(function(opt, i) {
+    return '<label class="option-row' +
+      (opt.recommended ? ' recommended' : '') +
+      (d && d.choice === i ? ' selected' : '') +
+      '" data-key="' + key + '" data-choice="' + i + '">' +
+      '<input type="radio" name="opt-' + key + '" value="' + i + '"' +
+        (d && d.choice === i ? ' checked' : '') + '>' +
+      '<div class="option-label">' +
+        '<span>' + opt.label + '</span>' +
+        (opt.recommended ? '<span class="rec-badge">recommended</span>' : '') +
+        '<span class="option-desc">' + opt.desc + '</span>' +
+      '</div>' +
+    '</label>';
+  }).join('');
+
+  // "Other" option row
+  optionsHtml += '<label class="option-row' +
+    (d && d.choice === 'other' ? ' selected' : '') +
+    '" data-key="' + key + '" data-choice="other">' +
+    '<input type="radio" name="opt-' + key + '" value="other"' +
+      (d && d.choice === 'other' ? ' checked' : '') + '>' +
+    '<div class="option-label">' +
+      '<span>Other</span>' +
+      '<input type="text" class="other-input" placeholder="Your alternative..."' +
+        ' value="' + (d && d.other ? d.other.replace(/"/g, '&quot;') : '') + '"' +
+        ' data-key="' + key + '">' +
+    '</div>' +
+  '</label>';
+
+  return '<div class="item-card' + (decided ? ' decided' : '') + '" id="item-' + key + '" data-item-id="' + item.id + '">' +
+    '<div class="item-card-header">' +
+      '<span class="item-id">' + item.id + '</span>' +
+      '<span class="item-title">' + item.title + '</span>' +
+      '<span class="wave-badge ' + waveCls + '">W' + item.wave + '</span>' +
+    '</div>' +
+    '<div class="item-insight">' + item.insight + '</div>' +
+    (hasDetail ?
+      '<button class="detail-toggle" type="button">Analysis</button>' +
+      '<div class="item-detail">' + item.detail + '</div>'
+    : '') +
+    '<div class="options-grid">' + optionsHtml + '</div>' +
+    '<label class="notes-label">Notes</label>' +
+    '<textarea class="notes-input" placeholder="Additional notes..."' +
+      ' data-key="' + key + '">' + (d && d.notes ? d.notes : '') + '</textarea>' +
+  '</div>';
+}
+
+// ── INTERACTIONS (EVENT DELEGATION) ─────────────────────────────────
+// Delegated click handler — same pattern as original
+document.addEventListener('click', function(e) {
+  // Handle detail toggle
+  if (e.target.classList.contains('detail-toggle')) {
+    var detail = e.target.nextElementSibling;
+    e.target.classList.toggle('open');
+    detail.classList.toggle('open');
+    return;
+  }
+
+  // Handle option row clicks
+  var row = e.target.closest('.option-row');
+  if (row && !e.target.classList.contains('other-input')) {
+    var key = row.dataset.key;
+    var choice = row.dataset.choice === 'other' ? 'other' : parseInt(row.dataset.choice);
+    selectOption(key, choice);
+  }
+});
+
+// Delegated input handler — captures text changes in "other" and "notes"
+document.addEventListener('input', function(e) {
+  if (e.target.classList.contains('other-input')) {
+    var key = e.target.dataset.key;
+    if (!decisions[key]) decisions[key] = {};
+    decisions[key].other = e.target.value;
+    scheduleSave();
+  }
+  if (e.target.classList.contains('notes-input')) {
+    var key = e.target.dataset.key;
+    if (!decisions[key]) decisions[key] = {};
+    decisions[key].notes = e.target.value;
+    scheduleSave();
+  }
+});
+
+// Delegated focus handler — auto-selects "other" radio when text input is focused
+document.addEventListener('focus', function(e) {
+  if (e.target.classList.contains('other-input')) {
+    var key = e.target.dataset.key;
+    selectOption(key, 'other');
+  }
+}, true);
+
+function selectOption(key, choice) {
+  if (!decisions[key]) decisions[key] = {};
+  decisions[key].choice = choice;
+
+  // Update DOM without re-rendering — toggle classes and radio states
+  var card = document.getElementById('item-' + key);
+  if (!card) return;
+
+  card.classList.add('decided');
+
+  card.querySelectorAll('.option-row').forEach(function(row) {
+    var radio = row.querySelector('input[type="radio"]');
+    var rowChoice = row.dataset.choice === 'other' ? 'other' : parseInt(row.dataset.choice);
+    var isMatch = rowChoice === choice;
+    row.classList.toggle('selected', isMatch);
+    radio.checked = isMatch;
+  });
+
+  updateProgress();
+  scheduleSave();
+}
+
+function updateProgress() {
+  var decided = Object.values(decisions).filter(function(d) {
+    return d.choice !== undefined;
+  }).length;
+  var total = ITEMS.length;
+  var pct = (decided / total * 100).toFixed(0);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = decided + ' / ' + total;
+  document.getElementById('decidedCount').textContent = decided;
+}
+
+// ── EXPORT ──────────────────────────────────────────────────────────
+function copyDecisions() {
+  var output = {
+    pageId: PAGE_ID,
+    savedAt: new Date().toISOString(),
+    total_items: ITEMS.length,
+    decided: 0,
+    decisions: {}
+  };
+
+  for (var idx = 0; idx < ITEMS.length; idx++) {
+    var item = ITEMS[idx];
+    var key = getKey(item);
+    var d = decisions[key];
+    var entry = {
+      id: item.id,
+      bucket: item.bucket,
+      bucket_name: BUCKET_NAMES[item.bucket],
+      title: item.title,
+      wave: item.wave,
+      choice: null,
+      choice_label: null,
+      other_text: null,
+      notes: null
+    };
+
+    if (d && d.choice !== undefined) {
+      output.decided++;
+      if (d.choice === 'other') {
+        entry.choice = 'other';
+        entry.choice_label = d.other || '(no text)';
+        entry.other_text = d.other || null;
+      } else {
+        entry.choice = d.choice;
+        entry.choice_label = item.options[d.choice].label;
+        entry.other_text = null;
+      }
+      entry.notes = d.notes || null;
+    }
+
+    output.decisions[key] = entry;
+  }
+
+  var json = JSON.stringify(output, null, 2);
+
+  navigator.clipboard.writeText(json).then(function() {
+    showToast('Decisions copied to clipboard');
+  }).catch(function() {
+    var w = window.open('', '_blank');
+    w.document.write('<pre>' + json + '</pre>');
+    showToast('Opened in new tab (clipboard blocked)');
+  });
+
+  console.log('Decisions Export:', output);
+}
+
+// ── RESET (in-memory only) ──────────────────────────────────────────
+function resetAll() {
+  if (!confirm('Reset all decisions? This clears in-memory state only (saved data remains in localStorage).')) return;
+  Object.keys(decisions).forEach(function(k) { delete decisions[k]; });
+  render();
+  showToast('Decisions reset (saved data preserved)');
+}
+
+// ── RUN WITH CLAUDE ──────────────────────────────────────────────
+function runWithClaude() {
+  var decided = [];
+  for (var idx = 0; idx < ITEMS.length; idx++) {
+    var item = ITEMS[idx];
+    var key = getKey(item);
+    var d = decisions[key];
+    if (!d || d.choice === undefined) continue;
+
+    var label;
+    if (d.choice === 'other') {
+      label = d.other || '(custom)';
+    } else {
+      label = item.options[d.choice].label;
+    }
+
+    var entry = (decided.length + 1) + '. ' + item.title + ': ' + label;
+    if (d.notes) entry += ' — Notes: ' + d.notes;
+    decided.push(entry);
+  }
+
+  if (decided.length === 0) {
+    showToast('No decisions made yet — select some options first');
+    return;
+  }
+
+  var pageTitle = document.title.replace(/ Decision Framework$/i, '').trim();
+  var prompt = 'Based on these ' + pageTitle.toLowerCase() + ' decisions:\n' +
+    decided.join('\n') +
+    '\nAnalyze these choices for consistency and suggest implementation order.';
+
+  // Try live connection first
+  if (LevConnection.status === 'connected') {
+    showResponsePanel('Executing...');
+    LevConnection.exec(prompt).then(function(result) {
+      if (result) {
+        showResponsePanel(result.output || result.chunks.join(''));
+        showToast('Response received');
+      } else {
+        // Fallback to clipboard on exec failure
+        clipboardFallback(prompt);
+      }
+    });
+    return;
+  }
+
+  // Clipboard fallback
+  clipboardFallback(prompt);
+}
+
+function clipboardFallback(prompt) {
+  var cmd = 'claude -p "' + prompt.replace(/"/g, '\\"') + '"';
+  navigator.clipboard.writeText(cmd).then(function() {
+    showToast('Command copied — paste in terminal');
+  }).catch(function() {
+    var w = window.open('', '_blank');
+    w.document.write('<pre>' + cmd.replace(/</g, '&lt;') + '</pre>');
+    showToast('Opened in new tab (clipboard blocked)');
+  });
+}
+
+function showResponsePanel(content) {
+  var panel = document.getElementById('response-panel');
+  var pre = document.getElementById('response-content');
+  pre.textContent = content;
+  panel.classList.add('show');
+}
+
+function dismissResponse() {
+  document.getElementById('response-panel').classList.remove('show');
+}
+
+function copyResponse() {
+  var text = document.getElementById('response-content').textContent;
+  navigator.clipboard.writeText(text).then(function() {
+    showToast('Response copied');
+  });
+}
+
+// ── TOAST ───────────────────────────────────────────────────────────
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2500);
+}
+
+// ── CONNECTION MANAGER ──────────────────────────────────────────
+var LevConnection = {
+  ws: null,
+  status: 'disconnected',
+  reconnectTimer: null,
+  init: function() {
+    var self = this;
+    fetch('http://localhost:9849/health', { signal: AbortSignal.timeout(2000) })
+      .then(function(r) { if (!r.ok) throw new Error(); return r; })
+      .then(function() {
+        self.ws = new WebSocket('ws://localhost:9849/exec/stream');
+        self.ws.onopen = function() { self.status = 'connected'; self.updateIndicator(); };
+        self.ws.onclose = function() { self.status = 'fallback'; self.updateIndicator(); self.scheduleReconnect(); };
+        self.ws.onerror = function() { self.status = 'fallback'; self.updateIndicator(); };
+      })
+      .catch(function() { self.status = 'fallback'; self.updateIndicator(); });
+  },
+  scheduleReconnect: function() {
+    if (this.reconnectTimer) return;
+    var self = this;
+    this.reconnectTimer = setTimeout(function() { self.reconnectTimer = null; self.init(); }, 5000);
+  },
+  updateIndicator: function() {
+    var dot = document.getElementById('conn-dot');
+    if (!dot) return;
+    dot.className = 'conn-dot conn-' + this.status;
+  },
+  exec: function(task) {
+    if (this.status !== 'connected' || !this.ws || this.ws.readyState !== 1) return Promise.resolve(null);
+    var ws = this.ws;
+    return new Promise(function(resolve) {
+      var chunks = [];
+      var handler = function(e) {
+        var msg = JSON.parse(e.data);
+        if (msg.type === 'chunk') chunks.push(msg.data);
+        else if (msg.type === 'done') { ws.removeEventListener('message', handler); resolve({ output: msg.output, chunks: chunks }); }
+        else if (msg.type === 'error') { ws.removeEventListener('message', handler); resolve(null); }
+      };
+      ws.addEventListener('message', handler);
+      ws.send(JSON.stringify({ type: 'exec', task: task }));
+    });
+  }
+};
+
+// ── EMBED MODE ──────────────────────────────────────────────────
+if (new URLSearchParams(window.location.search).get('embed') === 'true') {
+  document.body.classList.add('embed-mode');
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'getDecisions') {
+      var pageId = document.querySelector('main').dataset.pageId;
+      window.parent.postMessage({
+        type: 'decisions',
+        pageId: pageId,
+        timestamp: new Date().toISOString(),
+        decisions: decisions,
+        items: ITEMS.map(function(item) {
+          var key = getKey(item);
+          var d = decisions[key];
+          return { id: item.id, title: item.title, bucket: item.bucket, decided: !!(d && d.choice !== undefined), choice: d ? d.choice : null, notes: d ? d.notes : '' };
+        })
+      }, '*');
+    }
+  });
+}
+
+// Init connection
+LevConnection.init();
+
+// ── SEARCH + FILTER ─────────────────────────────────────────────
+var searchTimer = null;
+document.getElementById('search-input').addEventListener('input', function() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(applyFilters, 200);
+});
+document.getElementById('undecided-toggle').addEventListener('change', applyFilters);
+
+// Build filter chips from bucket names
+(function() {
+  var chips = document.getElementById('filter-chips');
+  var buckets = {};
+  ITEMS.forEach(function(item) { buckets[item.bucket] = true; });
+  Object.keys(buckets).forEach(function(bucket) {
+    var chip = document.createElement('button');
+    chip.className = 'filter-chip active';
+    chip.textContent = BUCKET_NAMES[bucket] || bucket;
+    chip.dataset.bucket = bucket;
+    chip.addEventListener('click', function() {
+      this.classList.toggle('active');
+      applyFilters();
+    });
+    chips.appendChild(chip);
+  });
+})();
+
+function applyFilters() {
+  var query = (document.getElementById('search-input').value || '').toLowerCase();
+  var undecidedOnly = document.getElementById('undecided-toggle').checked;
+  var activeChips = {};
+  document.querySelectorAll('.filter-chip.active').forEach(function(c) {
+    activeChips[c.dataset.bucket] = true;
+  });
+
+  var cards = document.querySelectorAll('.item-card');
+  cards.forEach(function(card) {
+    var itemId = card.dataset.itemId;
+    var item = null;
+    for (var i = 0; i < ITEMS.length; i++) {
+      if (ITEMS[i].id === itemId) { item = ITEMS[i]; break; }
+    }
+    if (!item) return;
+
+    var visible = true;
+
+    // Bucket filter
+    if (!activeChips[item.bucket]) visible = false;
+
+    // Search filter
+    if (query && visible) {
+      var searchable = (item.title + ' ' + item.insight + ' ' + (item.detail || '')).toLowerCase();
+      if (searchable.indexOf(query) === -1) visible = false;
+    }
+
+    // Undecided filter
+    if (undecidedOnly && visible) {
+      var key = getKey(item);
+      if (decisions[key] && decisions[key].choice !== undefined) visible = false;
+    }
+
+    if (visible) {
+      card.classList.remove('filtered-out');
+    } else {
+      card.classList.add('filtered-out');
+    }
+  });
+}
+
+// ── INIT ────────────────────────────────────────────────────────────
+render();
+restoreFromStorage();
+</script>
+</body>
+</html>
