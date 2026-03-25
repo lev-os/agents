@@ -3,7 +3,7 @@
 ## Working Directory
 
 ```bash
-/Users/jean-patricksmith/digital/leviathan/poc/skills
+$HOME/digital/leviathan/poc/skills
 ```
 
 All paths below are relative to this directory unless specified as absolute.
@@ -118,7 +118,7 @@ You are executing the research-artifact-generator for the Skills & Frameworks Ca
 
 **Agent Definition**: Read agents/research-artifact-generator.md completely and follow it exactly.
 
-**Working Directory**: /Users/jean-patricksmith/digital/leviathan/poc/skills
+**Working Directory**: $HOME/digital/leviathan/poc/skills
 
 **Framework**:
 - ID: {framework-id}
@@ -159,7 +159,7 @@ You are executing the quality-validator for the Skills & Frameworks Catalog.
 
 **Agent Definition**: Read agents/quality-validator.md completely and follow it exactly.
 
-**Working Directory**: /Users/jean-patricksmith/digital/leviathan/poc/skills
+**Working Directory**: $HOME/digital/leviathan/poc/skills
 
 **Framework**:
 - ID: {framework-id}

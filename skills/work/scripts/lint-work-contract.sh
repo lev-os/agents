@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="/Users/jean-patricksmith/.agents/skills/work"
+ROOT="$HOME/.agents/skills/work"
 SKILL="$ROOT/SKILL.md"
 H_TPL="$ROOT/templates/handoff.md"
 TEMPLATES=(

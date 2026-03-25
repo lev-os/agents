@@ -1,11 +1,13 @@
 ---
 name: workflow-dotfiles-sync
-description: Deterministic source-first dotfiles sync workflow for chezmoi plus the local dotfiles control plane. Invoke with /workflow dotfiles-sync.
+description: "Deterministic source-first dotfiles sync workflow for chezmoi plus the local dotfiles control plane. Invoke with /workflow dotfiles-sync."
 disable-model-invocation: true
-allowed-tools: Read, Write, Bash, Glob, Grep
+allowed-tools: "Read, Write, Bash, Glob, Grep"
 ---
 
 # Workflow: Dotfiles Sync
+
+NEVER REBASE. ALWAYS MERGE.
 
 ## Trigger
 
@@ -17,7 +19,7 @@ Run this workflow when you need to:
 
 ## Inputs
 
-- Active dotfiles source repo at `/Users/jean-patricksmith/.local/share/chezmoi`
+- Active dotfiles source repo at `$HOME/.local/share/chezmoi`
 - Local target state under `$HOME`
 - `dotfiles` helper available on PATH
 - Optional handoff context in `.lev/pm/handoffs/`
@@ -37,7 +39,7 @@ Run this workflow when you need to:
 4. If source truth changed:
    - review `git -C ~/.local/share/chezmoi status --short`
    - commit
-   - pull `--rebase`
+   - fetch, then merge remote changes
    - push
 5. Only after source truth is settled:
    - run `chezmoi apply --force` on the chosen target set

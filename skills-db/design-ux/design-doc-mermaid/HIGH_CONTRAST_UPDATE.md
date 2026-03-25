@@ -16,7 +16,7 @@ The `design-doc-mermaid` skill has been updated with **MANDATORY high-contrast r
 
 ### 1. SKILL.md Updates
 
-**Location**: `/Users/richardhightower/.claude/skills/design-doc-mermaid/SKILL.md`
+**Location**: `$HOME/.claude/skills/design-doc-mermaid/SKILL.md`
 
 #### Section 4: "Use Consistent Styling" → "Use Consistent Styling with High Contrast"
 
@@ -45,7 +45,7 @@ classDef database fill:#87CEEB,stroke:#333,stroke-width:2px,color:darkblue
 
 ### 2. mermaid-diagram-guide.md Updates
 
-**Location**: `/Users/richardhightower/.claude/skills/design-doc-mermaid/references/mermaid-diagram-guide.md`
+**Location**: `$HOME/.claude/skills/design-doc-mermaid/references/mermaid-diagram-guide.md`
 
 #### Color Coding Section → "Color Coding with High Contrast"
 
@@ -165,7 +165,7 @@ grep "classDef" yourfile.md | grep -v "color:"
 ## Related Updates
 
 This update aligns with parallel updates to:
-- `/Users/richardhightower/articles/CLAUDE.md` (Phase 3: Diagram Creation)
+- `$HOME/articles/CLAUDE.md` (Phase 3: Diagram Creation)
 - All article Mermaid diagrams now use high-contrast colors
 
 **Consistency**: The same high-contrast requirements and examples are now documented across:

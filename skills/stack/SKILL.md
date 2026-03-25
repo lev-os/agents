@@ -6,7 +6,7 @@ description: Use when listing, inspecting, running, or managing prompt-stack ses
 # Stack
 
 Thin launcher for the prompt-stack runtime at
-`/Users/jean-patricksmith/digital/leviathan/plugins/prompt-stack`.
+`$HOME/digital/leviathan/plugins/prompt-stack`.
 
 Runtime ownership stays with the plugin. This skill teaches agents how to
 call it correctly and present results as a dashboard, not raw JSON.
@@ -15,7 +15,7 @@ call it correctly and present results as a dashboard, not raw JSON.
 
 When the user says `/stack list`, do NOT dump raw JSON. Instead:
 
-1. Run `cd /Users/jean-patricksmith/digital/leviathan && bun plugins/prompt-stack/src/cli.ts list`
+1. Run `cd $HOME/digital/leviathan && bun plugins/prompt-stack/src/cli.ts list`
 2. Parse the JSON response
 3. Format as a grouped dashboard — one line per stack:
 
@@ -85,7 +85,7 @@ Context detection rules:
 ## Commands
 
 ```bash
-cd /Users/jean-patricksmith/digital/leviathan
+cd $HOME/digital/leviathan
 
 # List (then format as dashboard above)
 bun plugins/prompt-stack/src/cli.ts list

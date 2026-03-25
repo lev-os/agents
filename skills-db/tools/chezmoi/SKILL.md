@@ -109,7 +109,7 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply $GITHUB_USERNAME
 {{ if eq .chezmoi.os "darwin" -}}
 export HOMEBREW_PREFIX="/opt/homebrew"
 {{ else if eq .chezmoi.os "linux" -}}
-export HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
+export HOMEBREW_PREFIX="${HOMEBREW_PREFIX:-$HOME/.linuxbrew}"
 {{ end -}}
 ```
 

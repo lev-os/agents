@@ -10,6 +10,7 @@ If you wrote a skill before watching an agent fail without it, delete it and sta
 
 ## Routing
 
+```yaml
 steps:
   - id: route
     action: Classify the request and dispatch
@@ -24,9 +25,11 @@ steps:
       Ambiguous? Ask: "Are you converting existing material or authoring from scratch?"
     validation: "User intent classified into exactly one workflow"
     on_failure: "Ask a clarifying question. Do not guess."
+```
 
 ## Workflow 1: Intake & Install
 
+```yaml
 steps:
   - id: intake_acquire
     action: Clone and stage the skill
@@ -75,9 +78,11 @@ steps:
       Activation to ~/.agents/skills/ happens ONLY if user explicitly requests it.
     validation: "Skill no longer in _workshop/. ls confirms new location."
     on_failure: "Check permissions and path. Retry mv."
+```
 
 ## Workflow 2: Author from Scratch (TDD)
 
+```yaml
 steps:
   - id: author_red
     action: "RED — Establish baseline failure"
@@ -127,9 +132,11 @@ steps:
       - Procedural chains: step IDs create presuppositional sequences
     validation: "Rationalization table has 5+ real entries. Re-test produces zero new evasions."
     on_failure: "New rationalization found. Add to table. Re-test. Repeat until clean."
+```
 
 ## Workflow 3: Extraction Pipeline
 
+```yaml
 steps:
   - id: extract_prior_art
     action: Check if this skill already exists
@@ -161,9 +168,11 @@ steps:
       Then follow intake_score → intake_catalog for installation.
     validation: "SKILL.md has YAML frontmatter, description starts with 'Use when', wc -l under 300"
     on_failure: "Enhancement failed. Manually apply author_green standards."
+```
 
 ## Workflow 4: Security Scan
 
+```yaml
 steps:
   - id: security
     action: Run 3-scanner security audit (sequential, early termination)
@@ -182,9 +191,11 @@ steps:
       Full rubric: references/security-audit-gates.md
     validation: "All 3 scanners ran. Verdict recorded as PASS, WARN, or REJECT."
     on_failure: "Tooling unavailable → flag UNAUDITED, require user sign-off before activation."
+```
 
 ## Workflow 5: Merge
 
+```yaml
 steps:
   - id: merge
     action: Analyze overlap and produce merged skill
@@ -196,6 +207,7 @@ steps:
       4. Run author_red → author_green → author_refactor on the result
     validation: "Merged skill exists. No source triggers lost. wc -l under ceiling."
     on_failure: "Too large. Split into router + sub-skills."
+```
 
 ## References
 
