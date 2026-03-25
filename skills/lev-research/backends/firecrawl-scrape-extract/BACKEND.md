@@ -42,19 +42,13 @@ Output when ready:
 - **Concurrency**: Max parallel jobs. Run parallel operations close to this limit but not above.
 - **Credits**: Remaining API credits. Each scrape/crawl consumes credits.
 
-If not installed: `npm install -g firecrawl-cli`
+Use the stable wrapper installed at `~/.local/bin/firecrawl`.
 
 Always refer to the installation rules in [rules/install.md](rules/install.md) for more information if the user is not logged in.
 
 ## Authentication
 
-If not authenticated, run:
-
-```bash
-firecrawl login --browser
-```
-
-The `--browser` flag automatically opens the browser for authentication without prompting. This is the recommended method for agents. Don't tell users to run the commands themselves - just execute the command and have it prompt them to authenticate in their browser.
+Authentication is API-key based in the stable wrapper. Set `FIRECRAWL_API_KEY` in `~/.env.local`.
 
 ## Organization
 

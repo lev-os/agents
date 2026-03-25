@@ -110,7 +110,7 @@ All 6 colors from spec implemented:
 To verify the implementation works:
 
 ```bash
-cd ~/.claude/skills/lev-research/apps/research-hub
+cd ~/.agents/skills/lev-research/apps/research-hub
 npm install  # If needed
 npm run dev  # Start dev server
 ```
@@ -143,7 +143,7 @@ If you need to revert changes:
 
 ```bash
 # Restore original Dashboard
-cp ~/.claude/skills/lev-research/apps/research-hub/src/components/Dashboard.tsx.backup ~/.claude/skills/lev-research/apps/research-hub/src/components/Dashboard.tsx
+cp ~/.agents/skills/lev-research/apps/research-hub/src/components/Dashboard.tsx.backup ~/.agents/skills/lev-research/apps/research-hub/src/components/Dashboard.tsx
 
 # Original files are in git history
 git diff HEAD -- index.html src/styles.css src/App.css src/components/Dashboard.tsx

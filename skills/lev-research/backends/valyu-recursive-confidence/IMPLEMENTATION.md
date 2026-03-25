@@ -8,7 +8,7 @@
 ## What Was Built
 
 ### 1. Valyu AI Skill Documentation
-**File:** `~/.claude/skills/valyu/SKILL.md` (11.5KB)
+**File:** `~/.agents/skills/lev-research/backends/valyu-recursive-confidence/SKILL.md` (11.5KB)
 
 - Complete API reference for 4 endpoints (Search, Answer, Contents, DeepResearch)
 - Full request/response schemas
@@ -18,7 +18,7 @@
 - Integration examples
 
 ### 2. Valyu CLI Tool (Quick Implementation)
-**Location:** `~/.claude/skills/valyu/cli/`
+**Location:** `~/.agents/skills/lev-research/backends/valyu-recursive-confidence/cli/`
 
 **Files:**
 - `package.json` - Dependencies (valyu-js, commander, chalk, ora)
@@ -81,7 +81,7 @@ valyu research <query>    # Recursive deep research (1-10 turns)
 ## Installation
 
 ```bash
-cd ~/.claude/skills/valyu/cli
+cd ~/.agents/skills/lev-research/backends/valyu-recursive-confidence/cli
 ./install.sh
 
 # Configure
@@ -232,14 +232,14 @@ lev exec valyu:research --query "topic" --turns 5
 
 ## Files Created
 
-1. `~/.claude/skills/valyu/SKILL.md` (11.5KB)
-2. `~/.claude/skills/valyu/cli/package.json`
-3. `~/.claude/skills/valyu/cli/tsconfig.json`
-4. `~/.claude/skills/valyu/cli/src/valyu.ts` (CLI entry)
-5. `~/.claude/skills/valyu/cli/src/research.ts` (Recursive orchestrator)
-6. `~/.claude/skills/valyu/cli/install.sh`
-7. `~/.claude/skills/valyu/cli/README.md` (5KB)
-8. `~/.claude/skills/valyu/IMPLEMENTATION.md` (this file)
+1. `~/.agents/skills/lev-research/backends/valyu-recursive-confidence/SKILL.md` (11.5KB)
+2. `~/.agents/skills/lev-research/backends/valyu-recursive-confidence/cli/package.json`
+3. `~/.agents/skills/lev-research/backends/valyu-recursive-confidence/cli/tsconfig.json`
+4. `~/.agents/skills/lev-research/backends/valyu-recursive-confidence/cli/src/valyu.ts` (CLI entry)
+5. `~/.agents/skills/lev-research/backends/valyu-recursive-confidence/cli/src/research.ts` (Recursive orchestrator)
+6. `~/.agents/skills/lev-research/backends/valyu-recursive-confidence/cli/install.sh`
+7. `~/.agents/skills/lev-research/backends/valyu-recursive-confidence/cli/README.md` (5KB)
+8. `~/.agents/skills/lev-research/backends/valyu-recursive-confidence/IMPLEMENTATION.md` (this file)
 
 **Total:** ~20KB documentation + working CLI implementation
 
@@ -248,7 +248,7 @@ lev exec valyu:research --query "topic" --turns 5
 ## Next Steps
 
 ### Immediate
-1. Install CLI: `cd ~/.claude/skills/valyu/cli && ./install.sh`
+1. Install CLI: `cd ~/.agents/skills/lev-research/backends/valyu-recursive-confidence/cli && ./install.sh`
 2. Configure API key: `echo "VALYU_API_KEY=key" > ~/.valyu/.env`
 3. Test: `valyu research "test query" --turns 3`
 

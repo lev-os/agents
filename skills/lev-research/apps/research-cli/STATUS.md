@@ -60,7 +60,7 @@ Style::new().fg(PackedRgba::rgb(128, 128, 128))
 ## Files Created
 
 ```
-~/.claude/skills/lev-research/apps/research-cli/
+~/.agents/skills/lev-research/apps/research-cli/
 ├── Cargo.toml
 ├── README.md
 ├── FIXES.md
@@ -83,7 +83,7 @@ Style::new().fg(PackedRgba::rgb(128, 128, 128))
 ## Build Command
 
 ```bash
-cd ~/.claude/skills/lev-research/apps/research-cli
+cd ~/.agents/skills/lev-research/apps/research-cli
 cargo check
 ```
 

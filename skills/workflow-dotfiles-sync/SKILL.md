@@ -5,6 +5,8 @@ disable-model-invocation: true
 allowed-tools: "Read, Write, Bash, Glob, Grep"
 ---
 
+// Hint shown during autocomplete to indicate expected arguments. Example: [issue-number] or [filename] [format]
+
 # Workflow: Dotfiles Sync
 
 NEVER REBASE. ALWAYS MERGE.

@@ -162,6 +162,141 @@ BAD:  "The system should be reliable."
 - **Scenario:** {{STIMULUS}} → {{RESPONSE}} within {{MEASURE}}
 - **Trade-off:** {{WHAT_WE_GIVE_UP}} for {{WHAT_WE_GAIN}}
 
+## ATAM / Trade-off Analysis
+<!--
+PURPOSE: Capture architectural drivers, trade-offs, sensitivity points, and recommendation rationale.
+PROCESS: Use when the spec has architectural implications or competing quality attributes. Start with
+         a utility tree, then compare 2-3 candidate approaches. If the change is trivial, explicitly
+         mark this section as "not needed for this spec".
+GOOD: "Option A optimizes simplicity but sacrifices observability. Option B adds explicit event typing
+      and wins on modifiability at the cost of one extra adapter layer."
+BAD:  "We picked this because it felt cleaner."
+-->
+
+### Utility Tree
+
+```text
+[Quality Attribute]
+  |
+  +-- [Refinement]
+       |
+       +-- (H,H) Scenario: <stimulus> -> <response> | <measure>
+       +-- (M,H) Scenario: ...
+```
+
+### Candidate Approaches
+
+| Approach | Description | Quality Attributes Optimized | Trade-offs |
+|----------|-------------|------------------------------|------------|
+| Option A | {{OPTION_A}} | {{QA_SET}} | {{TRADE_OFF}} |
+| Option B | {{OPTION_B}} | {{QA_SET}} | {{TRADE_OFF}} |
+| Option C | {{OPTION_C}} | {{QA_SET}} | {{TRADE_OFF}} |
+
+### Sensitivity Points
+
+- Point 1: What input/threshold/decision is highly sensitive and why
+- Point 2: What small change materially shifts an outcome
+
+### Recommendation
+
+- **Chosen approach:** {{CHOSEN_OPTION}}
+- **Why:** {{RATIONALE}}
+- **What is deliberately sacrificed:** {{SACRIFICE}}
+
+## C1-C4 Views
+<!--
+PURPOSE: Give lightweight architecture views when the spec spans multiple systems, containers,
+         components, or a non-trivial call flow. These diagrams are optional but strongly recommended
+         for cross-boundary work.
+PROCESS: Use Mermaid. Fill only the levels that add clarity. If a level is unnecessary, say so.
+GOOD: "C1 shows external systems and trust boundaries; C2 shows FE/DXL/container split; C3 shows
+      the target internal modules; C4 shows the critical request/response call flow."
+BAD:  "Draw boxes with no labels" or "Use prose when a diagram would clarify ownership."
+-->
+
+### C1: System Context
+
+```mermaid
+flowchart LR
+    User["User"]
+    System["Target System"]
+    External["External System"]
+
+    User --> System
+    System --> External
+```
+
+### C2: Containers
+
+```mermaid
+flowchart LR
+    subgraph System["Target System"]
+        ContainerA["Container A"]
+        ContainerB["Container B"]
+    end
+
+    External["External System"]
+
+    ContainerA --> ContainerB
+    ContainerB --> External
+```
+
+### C3: Components
+
+```mermaid
+flowchart TD
+    ComponentA["Component A"]
+    ComponentB["Component B"]
+    ComponentC["Component C"]
+
+    ComponentA --> ComponentB
+    ComponentB --> ComponentC
+```
+
+### C4: Code / Interaction Flow
+
+```mermaid
+sequenceDiagram
+    participant A as "Caller"
+    participant B as "Boundary"
+    participant C as "Component"
+
+    A->>B: request
+    B->>C: delegate
+    C-->>B: result
+    B-->>A: response
+```
+
+## MoSCoW Priorities
+<!--
+PURPOSE: Separate the essential contract from adjacent nice-to-haves and explicitly call out what
+         is out of scope for the current spec.
+PROCESS: Populate every category. If a category is empty, write "None". Keep items specific and
+         testable, not vague aspirations.
+GOOD: "Must: emit typed event X; Should: expose devLogger topic Y; Won't: generalize to all providers now."
+BAD:  "Must: make it better" or "Could: maybe do some cleanup."
+-->
+
+### Must
+
+- Requirement 1
+- Requirement 2
+
+### Should
+
+- Requirement 1
+- Requirement 2
+
+### Could
+
+- Requirement 1
+- Requirement 2
+
+### Won't (Now)
+
+- Explicitly out-of-scope item 1
+- Explicitly out-of-scope item 2
+
 ## Fitness Functions
 <!--
 PURPOSE: Automated governance checks with thresholds. Run in CI or validation gates.

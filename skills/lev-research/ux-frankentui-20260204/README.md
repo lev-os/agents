@@ -211,7 +211,7 @@ This synthesis applies the **7-step UX pipeline** originally developed for Kingl
 ## File Structure
 
 ```
-~/.claude/skills/lev-research/ux-frankentui-20260204/
+~/.agents/skills/lev-research/ux-frankentui-20260204/
 ├── README.md                    (this file)
 ├── SYNTHESIS.md                 (full 7-step UX pipeline)
 └── [future: component specs, API schema, session format]

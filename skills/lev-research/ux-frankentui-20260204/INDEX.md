@@ -1,6 +1,6 @@
 # UX Discovery Index — Research Hub CLI (FrankenTUI)
 
-**Location:** `~/.claude/skills/lev-research/ux-frankentui-20260204/`
+**Location:** `~/.agents/skills/lev-research/ux-frankentui-20260204/`
 **Date:** 2026-02-04
 **Framework:** FrankenTUI 7-Step UX Pipeline + Elm/Bubbletea Architecture
 

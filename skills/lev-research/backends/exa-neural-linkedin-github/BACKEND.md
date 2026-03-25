@@ -1,13 +1,13 @@
 ---
-name: exa-plus
-version: 1.0.0
-description: Neural web search via Exa AI. Search people, companies, news, research, code. Supports deep search, domain filters, date ranges.
+name: exa
+version: 1.1.1
+description: Exa AI wrapper for search, contents extraction, and answers with citations. Use when you need semantic search, direct page contents, or grounded answer synthesis.
 metadata: {"clawdbot":{"emoji":"🧠","requires":{"bins":["curl","jq"]}}}
 ---
 
-# Exa - Neural Web Search
+# Exa
 
-Powerful AI-powered search with LinkedIn, news, research papers, and more.
+Powerful Exa AI wrapper covering search, contents, and answers.
 
 ## Setup
 
@@ -18,11 +18,13 @@ export EXA_API_KEY="your-exa-api-key"
 
 Fallback: `~/.clawdbot/credentials/exa/config.json` with `{"apiKey": "..."}`
 
+Use the stable wrapper installed at `~/.local/bin/exa`.
+
 ## Commands
 
 ### General Search
 ```bash
-bash scripts/search.sh "query" [options]
+exa search "query" [options]
 ```
 
 Options (as env vars):
@@ -39,40 +41,47 @@ Options (as env vars):
 
 ```bash
 # Basic search
-bash scripts/search.sh "AI agents 2024"
+exa search "AI agents 2024"
 
-# LinkedIn people search
-CATEGORY=people bash scripts/search.sh "software engineer Amsterdam"
+# LinkedIn / people search
+exa search "software engineer Amsterdam" --category people
 
 # Company search
-CATEGORY=company bash scripts/search.sh "fintech startup Netherlands"
+exa search "fintech startup Netherlands" --category company
 
 # News from specific domain
-CATEGORY=news DOMAINS="reuters.com,bbc.com" bash scripts/search.sh "Netherlands"
+exa search "Netherlands" --category news --domains "reuters.com,bbc.com"
 
 # Research papers
-CATEGORY="research paper" bash scripts/search.sh "transformer architecture"
+exa search "transformer architecture" --category "research paper"
 
-# Deep search (comprehensive)
-TYPE=deep bash scripts/search.sh "climate change solutions"
+# Deep search
+exa search "climate change solutions" --type deep
 
 # Date-filtered news
-CATEGORY=news SINCE="2026-01-01" bash scripts/search.sh "tech layoffs"
+exa search "tech layoffs" --category news --since 2026-01-01
 ```
 
 ### Get Content
 Extract full text from URLs:
 ```bash
-bash scripts/content.sh "url1" "url2"
+exa contents "url1" "url2"
+```
+
+### Answer
+
+Get an answer grounded in Exa search results:
+```bash
+exa answer "What is the latest valuation of SpaceX?"
 ```
 
 ## Related Search Tools
 
-**exa-plus specializes in neural search (people, companies, research). For other needs:**
+**Exa specializes in semantic search plus answer/contents. For orchestration, use Timetravel via the skill router.**
 
 | Tool | Specialty | Use When |
 |------|-----------|----------|
-| **exa-plus** (this) | Neural web, GitHub, LinkedIn, papers | People/company search, academic research |
+| **exa** (this) | Semantic search, contents, answer | Direct Exa API access |
 | **valyu** | Recursive turn-based research | `valyu research "query" --turns 5` |
 | **deep-research** | Multi-query Tavily synthesis | `deep-research "query" --deep` |
 | **lev-research** | Multi-perspective orchestration | `lev-research "query"` |
@@ -89,16 +98,19 @@ bash scripts/content.sh "url1" "url2"
 - ✅ Research papers (`CATEGORY="research paper"`)
 - ✅ GitHub code search (`CATEGORY=github`)
 - ✅ Neural semantic search (not just keywords)
-- ❌ General web (use brave-search or tavily-search)
-- ❌ Turn-based refinement (use valyu)
+- ✅ Full page contents extraction
+- ✅ Answer generation with citations
 
 **Integration pattern:**
 ```bash
-# 1. Find people/companies with Exa
-CATEGORY=people exa search "ML engineer Amsterdam"
+# 1. Search
+exa search "ML engineer Amsterdam" --category people
 
-# 2. Deep research on findings
-valyu research "machine learning hiring trends" --turns 5
+# 2. Pull contents
+exa contents "https://example.com/profile"
+
+# 3. Ask a grounded question
+exa answer "What patterns show up across these sources?"
 ```
 
 See `skill://lev-research` for comprehensive research workflows.

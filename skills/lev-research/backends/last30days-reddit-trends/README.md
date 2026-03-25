@@ -10,7 +10,7 @@
 
 ```bash
 # Clone the repo
-git clone https://github.com/mvanhorn/last30days-skill.git ~/.claude/skills/last30days
+git clone https://github.com/mvanhorn/last30days-skill.git ~/.agents/skills/lev-research/backends/last30days-reddit-trends
 
 # Add your API keys
 mkdir -p ~/.config/last30days
