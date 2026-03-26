@@ -1,0 +1,127 @@
+# RaptorQ Fountain Coding and Distributed Systems
+
+## RaptorQ Overview
+
+Source: `src/raptorq/`
+
+RFC 6330 systematic RaptorQ codes: any K-of-N encoded symbols suffice to recover original K source symbols. Underpins distributed snapshot distribution.
+
+| Module | Purpose |
+|--------|---------|
+| `rfc6330.rs` | Standard-compliant parameter computation |
+| `systematic.rs` | Systematic encoder/decoder |
+| `gf256.rs` | GF(2^8) arithmetic (add, multiply, inversion) |
+| `linalg.rs` | Matrix operations over GF(256) |
+| `pipeline.rs` | Full sender/receiver pipelines with symbol authentication |
+| `proof.rs` | Decode proof system for verifiable recovery |
+| `decoder.rs` | Policy-driven deterministic decode planner |
+| `test_log_schema.rs` | Hard-regime transitions and fallback recording |
+
+### Decoder Policy Selection
+
+Runtime policy can choose:
+- Conservative baseline
+- High-support-first
+- Block-Schur low-rank hard-regime plans
+
+Based on extracted matrix features. Hard-regime transitions recorded with reason labels.
+
+### Dense-Factor Caching
+
+Bounded capacity with hit/miss/eviction telemetry in decode stats.
+
+### GF(256) Kernel Selection
+
+Deterministic per-process selection. Policy snapshots for dual-lane fused operations. Optional SIMD acceleration via `simd-intrinsics` feature (AVX2/NEON).
+
+### Validation
+
+```bash
+# Fast smoke
+NO_PREFLIGHT=1 ./scripts/run_raptorq_e2e.sh --profile fast --bundle
+
+# Full profile
+NO_PREFLIGHT=1 ./scripts/run_raptorq_e2e.sh --profile full --bundle
+
+# Forensics (includes repair_campaign perf smoke)
+NO_PREFLIGHT=1 ./scripts/run_raptorq_e2e.sh --profile forensics --bundle
+```
+
+Outputs: `summary.json`, `scenarios.ndjson`, `validation_stages.ndjson`.
+
+## Distributed Primitives
+
+Source: `src/remote.rs`, `src/distributed/`
+
+### Named Remote Spawn
+
+Not closure shipping. Named computations with serialized input:
+
+```rust
+spawn_remote(cx, RemoteCap::new(), ComputationName("my_task"), input)
+```
+
+### Lease Obligations
+
+Leases are obligation-backed, participate in region close/quiescence.
+
+### Idempotency Store
+
+Deduplicates spawn retries with TTL-bounded records and conflict detection.
+
+### Session-Typed Protocol
+
+Origin/remote state machines validate legal spawn/ack/cancel/result/renewal transitions.
+
+### Saga Compensations
+
+Forward steps and compensations tracked as structured rollback flow.
+
+```rust
+let saga = Saga::new("transfer")
+    .step("debit", debit_fn, compensate_debit)
+    .step("credit", credit_fn, compensate_credit);
+```
+
+### Logical-Time Envelopes
+
+Protocol messages carry logical clock metadata for causal correlation.
+
+## Consistent Hashing
+
+Source: `src/distributed/consistent_hash.rs`
+
+Deterministic consistent hashing for stable assignment. No iteration-order landmines.
+
+Used for assigning encoded symbols to replicas in snapshot distribution.
+
+## Distributed Snapshots
+
+Region state encoded via RaptorQ, symbols assigned via consistent hashing, recovery requires quorum of symbols from surviving nodes.
+
+## Security Layer
+
+Source: `src/security/`
+
+Per-symbol authentication tags prevent Byzantine symbol injection. Integrates with RaptorQ pipeline.
+
+## Testing Distributed Logic
+
+- Test quorum loss, recovery, and cancellation explicitly
+- Use `VirtualTcp` for deterministic network behavior
+- Use lab scenarios: `examples/scenarios/partition_heal.yaml`, `examples/scenarios/clock_skew_lease.yaml`
+- Test idempotency and lease expiry under chaos
+- Verify saga compensations fire correctly
+- Use `src/lab/scenario.rs` for repeatable validation
+
+## Distributed Model Summary
+
+| Primitive | Source | Behavior |
+|-----------|--------|----------|
+| Remote spawn | `src/remote.rs` | Named, serialized, `RemoteCap`-gated |
+| Leases | `src/remote.rs` | Obligation-backed, region-owned |
+| Idempotency | `src/remote.rs` | TTL records, dedup retries |
+| Sagas | `src/remote.rs` | Forward/compensate with structured rollback |
+| Logical clocks | `src/trace/distributed/vclock.rs` | Lamport, Vector, Hybrid modes |
+| Consistent hash | `src/distributed/consistent_hash.rs` | Deterministic, stable assignment |
+| Sheaf checks | `src/trace/distributed/sheaf.rs` | Global consistency from local observations |
