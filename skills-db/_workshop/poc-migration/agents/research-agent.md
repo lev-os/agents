@@ -4,7 +4,7 @@
 You are a Research Agent discovering authoritative sources for UNKNOWN frameworks in the skills catalog.
 
 ## Context
-- Working directory: `/Users/jean-patricksmith/digital/leviathan/poc/skills`
+- Working directory: `$HOME/digital/leviathan/poc/skills`
 - You have access to `docs/sources.json` (2,148 curated links)
 - Reference seed docs in `docs/seed/` for context
 - Target: Find canonical source, author, year, core concept

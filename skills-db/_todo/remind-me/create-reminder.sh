@@ -4,7 +4,7 @@
 
 MESSAGE="$1"
 WHEN="$2"
-REMINDERS_FILE="/home/julian/clawd/reminders.md"
+REMINDERS_FILE="$HOME/clawd/reminders.md"
 TIMEZONE="Europe/Warsaw"
 
 [[ -z "$MESSAGE" ]] && echo "Error: No message provided" && exit 1
@@ -58,7 +58,7 @@ fi
 DISPLAY_TIME=$(date -d "$TIMESTAMP" '+%Y-%m-%d %H:%M')
 
 # Create cron job
-cd /home/julian/clawdbot
+cd $HOME/clawdbot
 JOB_OUTPUT=$(npx tsx src/index.ts cron add \
     --name "Reminder: $MESSAGE" \
     --at "$TIMESTAMP" \

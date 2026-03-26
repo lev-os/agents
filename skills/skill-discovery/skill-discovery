@@ -1,21 +1,33 @@
 #!/usr/bin/env python3
-"""Local skill discovery over qmd collections."""
+"""Local skill discovery over qmd collections.
+
+Layer 0 (primary): Metadata-aware scorer — reads SKILL.md frontmatter
+         (name, description, triggers, tags) with field-weighted scoring.
+         Splits multi-word queries into individual terms for broad coverage.
+Layer 1 (optional): CM context — curated playbook matches.
+Layer 2 (fallback): QMD semantic search — only when metadata returns <3 results.
+"""
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
 import shutil
 import subprocess
 import sys
+import time
+import yaml
 from pathlib import Path
 
 
 ROOT = Path(os.environ.get("SKILLS_ROOT", str(Path.home() / ".agents"))).resolve()
+CACHE_DIR = Path(os.environ.get("XDG_CACHE_HOME", str(Path.home() / ".cache"))) / "lev-skills"
 JSON_MODE = False
 TASK = ""
 USE_CM = os.environ.get("SKILL_DISCOVERY_USE_CM", "0") == "1"
+SKIP_METADATA = os.environ.get("SKILL_DISCOVERY_SKIP_METADATA", "0") == "1"
 ALL_COLLECTIONS = os.environ.get("SKILL_DISCOVERY_ALL", "1") == "1"
 CATEGORY_FILTER = [
     item.strip().lower()
@@ -157,6 +169,177 @@ def collection_roots(collections: list[str]) -> dict[str, str]:
         if match:
             roots[name] = match.group(1)
     return roots
+
+
+## ── Metadata-Aware Scorer (Layer 0) ────────────────────────────────────────
+
+
+FIELD_WEIGHTS = {"name": 10, "triggers": 8, "tags": 6, "description": 3}
+CACHE_TTL = 300  # seconds
+
+
+def _extract_frontmatter(path: Path) -> dict:
+    """Parse YAML frontmatter from a SKILL.md file."""
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return {}
+    if not text.startswith("---"):
+        return {}
+    end = text.find("\n---", 3)
+    if end < 0:
+        return {}
+    try:
+        return yaml.safe_load(text[3:end]) or {}
+    except yaml.YAMLError:
+        return {}
+
+
+def _build_index() -> list[dict]:
+    """Scan all SKILL.md files and extract searchable metadata."""
+    entries = []
+    skill_dirs = [ROOT / "skills", ROOT / "skills-db"]
+    for base in skill_dirs:
+        if not base.exists():
+            continue
+        for skill_md in sorted(base.rglob("SKILL.md")):
+            meta = _extract_frontmatter(skill_md)
+            if not meta:
+                # Try lowercase
+                alt = skill_md.parent / "skill.md"
+                if alt.exists():
+                    meta = _extract_frontmatter(alt)
+            if not meta:
+                continue
+
+            # Derive category from path
+            try:
+                rel = skill_md.relative_to(base)
+                parts = rel.parts
+            except ValueError:
+                parts = ()
+            if str(base).endswith("skills-db") and len(parts) >= 2:
+                category = parts[0]
+            else:
+                category = "skills"
+            skill_name = meta.get("name", "") or (parts[-2] if len(parts) >= 2 else "")
+
+            # Normalize fields to lowercase strings
+            name_str = str(skill_name).lower()
+            desc_str = str(meta.get("description", "")).lower()
+            tags_raw = meta.get("tags", [])
+            if isinstance(tags_raw, str):
+                tags_raw = [t.strip() for t in tags_raw.split(",")]
+            tags_str = " ".join(str(t).lower() for t in (tags_raw or []))
+            triggers_raw = meta.get("triggers", [])
+            if isinstance(triggers_raw, str):
+                triggers_raw = [triggers_raw]
+            triggers_str = " ".join(str(t).lower() for t in (triggers_raw or []))
+
+            entries.append({
+                "path": str(skill_md.resolve()),
+                "name": name_str,
+                "description": desc_str,
+                "tags": tags_str,
+                "triggers": triggers_str,
+                "category": category,
+                "collection": "skills-db" if "skills-db" in str(base) else "skills-full",
+            })
+    return entries
+
+
+def _get_index() -> list[dict]:
+    """Get or build cached index."""
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cache_file = CACHE_DIR / "metadata-index.json"
+
+    # Check cache freshness
+    if cache_file.exists():
+        age = time.time() - cache_file.stat().st_mtime
+        if age < CACHE_TTL:
+            try:
+                return json.loads(cache_file.read_text())
+            except (json.JSONDecodeError, OSError):
+                pass
+
+    entries = _build_index()
+    try:
+        cache_file.write_text(json.dumps(entries))
+    except OSError:
+        pass
+    return entries
+
+
+def _tokenize_query(query: str) -> list[str]:
+    """Split query into individual search terms, handling hyphens."""
+    raw = re.sub(r"[^\w\s-]", " ", query.lower())
+    tokens = []
+    for word in raw.split():
+        tokens.append(word)
+        # Also add hyphen-split parts for compound terms
+        if "-" in word:
+            tokens.extend(word.split("-"))
+    # Deduplicate while preserving order
+    seen = set()
+    result = []
+    for t in tokens:
+        if t not in seen and len(t) > 1:
+            seen.add(t)
+            result.append(t)
+    return result
+
+
+def run_metadata_search() -> list[dict]:
+    """Score skills by field-weighted term matching on frontmatter metadata."""
+    if SKIP_METADATA:
+        return []
+
+    index = _get_index()
+    terms = _tokenize_query(TASK)
+    if not terms:
+        return []
+
+    scored = []
+    for entry in index:
+        if entry.get("category", "") in HARD_HIDDEN_CATEGORIES:
+            continue
+        total = 0
+        matched_fields = set()
+        for term in terms:
+            for field, weight in FIELD_WEIGHTS.items():
+                value = entry.get(field, "")
+                if term in value:
+                    total += weight
+                    matched_fields.add(field)
+                    # Exact name match gets bonus
+                    if field == "name" and term == value:
+                        total += 5
+        # Penalize legal category (2,173 skills that match generic words)
+        if entry.get("category") == "legal" and "legal" not in TASK.lower():
+            total = int(total * 0.4)
+
+        # Boost skills where multiple fields match (cross-field relevance)
+        if len(matched_fields) >= 3:
+            total += 8
+        elif len(matched_fields) >= 2:
+            total += 3
+
+        if total > 0:
+            scored.append({
+                "path": entry["path"],
+                "score": total,
+                "collection": entry["collection"],
+                "skill_name": entry["name"],
+                "category": entry["category"],
+                "matched_fields": list(matched_fields),
+                "local_path": entry["path"],
+                "doc_type": "skill",
+                "adjusted_score": round(total, 4),
+                "source": "metadata",
+            })
+
+    scored.sort(key=lambda x: x["adjusted_score"], reverse=True)
+    return scored[:30]
 
 
 def run_cm() -> list[str]:
@@ -408,24 +591,72 @@ def quality_report(enriched: list[dict]) -> tuple[list[str], dict, bool]:
 def main() -> int:
     parse_args()
 
-    if shutil.which("qmd") is None:
-        print("error: qmd is required but not found in PATH", file=sys.stderr)
+    # Layer 0: Metadata-aware scorer (primary)
+    meta_results = run_metadata_search()
+    used_qmd = False
+
+    # Layer 1: CM context (optional)
+    cm_bullets = run_cm()
+
+    # Layer 2: QMD fallback (only when metadata returns <3 results)
+    if len(meta_results) < 3 and shutil.which("qmd"):
+        collections = discover_qmd_collections()
+        roots = collection_roots(collections)
+        qmd_matches = run_qmd(collections)
+        qmd_enriched = enrich(qmd_matches, roots)
+        used_qmd = True
+
+        # Merge: deduplicate by path, metadata results take priority
+        seen_paths = {r["path"] for r in meta_results}
+        for item in qmd_enriched:
+            lp = item.get("local_path", item.get("path", ""))
+            if lp not in seen_paths:
+                seen_paths.add(lp)
+                meta_results.append(item)
+        meta_results.sort(key=lambda x: x.get("adjusted_score", 0), reverse=True)
+    elif not meta_results and not shutil.which("qmd"):
+        print("error: no results from metadata search and qmd not found", file=sys.stderr)
         return 1
 
-    collections = discover_qmd_collections()
-    roots = collection_roots(collections)
-    cm_bullets = run_cm()
-    matches = run_qmd(collections)
-    enriched = enrich(matches, roots)
-    skill_paths, quality, recommend_find_skills = quality_report(enriched)
+    enriched = meta_results[:30]
+
+    # Build skill_paths and quality report
+    seen = set()
+    skill_paths: list[str] = []
+    primary_hits: list[dict] = []
+    for item in enriched:
+        lp = item.get("local_path", item.get("path", ""))
+        if lp in seen:
+            continue
+        seen.add(lp)
+        if item.get("doc_type") == "skill":
+            skill_paths.append(lp)
+            primary_hits.append(item)
+
+    top_score = primary_hits[0]["adjusted_score"] if primary_hits else 0.0
+    if len(primary_hits) >= 5 and top_score >= 8:
+        quality_verdict = "high"
+    elif len(primary_hits) >= 3 and top_score >= 4:
+        quality_verdict = "medium"
+    else:
+        quality_verdict = "low"
+
+    recommend_find_skills = quality_verdict == "low"
+
+    quality = {
+        "verdict": quality_verdict,
+        "top_primary_score": round(top_score, 4),
+        "primary_skill_hits": len(primary_hits),
+        "reasons": [],
+        "source": "metadata" if not used_qmd else "metadata+qmd",
+    }
 
     output = {
         "query": TASK,
         "category_filter": CATEGORY_FILTER,
         "cm_bullets": cm_bullets,
-        "qmd_collections": collections,
-        "qmd_matches": enriched[:10],
-        "skill_paths": skill_paths,
+        "matches": enriched[:10],
+        "skill_paths": skill_paths[:10],
         "quality": quality,
         "recommend_find_skills": recommend_find_skills,
     }
@@ -436,13 +667,14 @@ def main() -> int:
 
     print("=== Skill Discovery ===")
     print(f"Query: {TASK}")
+    print(f"Source: {quality['source']}")
     print()
-    print(f"QMD collections: {', '.join(collections)}")
-    print(f"Quality: {quality['verdict']}")
+    print(f"Quality: {quality_verdict} ({len(primary_hits)} skills, top score: {top_score})")
     print()
     print("Top skill paths:")
-    for path in skill_paths:
-        print(f"  - {path}")
+    for i, path in enumerate(skill_paths[:10], 1):
+        score = next((x["adjusted_score"] for x in enriched if x.get("local_path", x.get("path", "")) == path), 0)
+        print(f"  {i}. [{score:>5.1f}] {path}")
     if recommend_find_skills:
         print()
         print("Recommendation: local results are low quality; consider find-skills as a fallback.")

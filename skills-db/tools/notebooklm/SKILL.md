@@ -62,8 +62,8 @@ notebooklm use <notebook-id>
 
 | User says | Workflow |
 |-----------|----------|
-| "import notebook", "notebooklm import", "import sources" | [workflows/import.md](/Users/jean-patricksmith/.agents/skills/notebooklm/workflows/import.md) |
-| "notebooklm ask", "ask notebook", "Q&A" | [workflows/ask.md](/Users/jean-patricksmith/.agents/skills/notebooklm/workflows/ask.md) |
+| "import notebook", "notebooklm import", "import sources" | [workflows/import.md](workflows/import.md) |
+| "notebooklm ask", "ask notebook", "Q&A" | [workflows/ask.md](workflows/ask.md) |
 
 ## Reference Projection Layout
 
