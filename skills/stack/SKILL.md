@@ -141,6 +141,12 @@ Workers then know what specialized skills are available during execution.
 - `record` REJECTS invalid reports — fix and re-submit
 - Report format: YAML frontmatter + required sections (varies by stack)
 - If part of active `$work` handoff, keep planning there — stack is execution only
+- If the stack is being used inside active `$work`, stack state is **not** the only artifact. You must also persist the corresponding disk-backed `work` template artifact:
+  - planning / execution slice -> `.lev/pm/plans/plan-*.md`
+  - research lane -> `.lev/pm/reports/report-*.md`
+  - shaping / architecture lane -> `.lev/pm/designs/*.md`, `.lev/pm/proposals/*.md`, or `.lev/pm/specs/*.md`
+- For large or multi-workstream implementation planning, route through `writing-plans` and split independent workstreams into separate plan files. Do not keep one thin coordination plan where the actual execution detail belongs in child plans.
+- A good default: stack session for runtime state, `work` artifact for durable repo state, handoff for continuity. All three should agree.
 - For subagent orchestration: `plugins/prompt-stack/references/subagent-contract.md`
 
 ## References

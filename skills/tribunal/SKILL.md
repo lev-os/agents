@@ -22,13 +22,57 @@ metadata:
 
 ## Mode Detection
 
-Tribunal operates in two modes:
+Tribunal operates in three modes:
 
 **Default mode (Steps 1-4 below)**: Same prompt, 3 Claude models, compare answers. Use this for naming, architecture, bikesheds — anything where independent convergence is the goal.
 
 **Cross-runner mode**: When the caller specifies CLI runners, model lists, or a test matrix — load `references/cli-runners.md` for invocation patterns. Dispatch to the specified runners/models with the specified prompts. The caller decides what to test and why. Tribunal just knows how to invoke the runners and collect results.
 
 Cross-runner dispatch uses Bash to invoke external CLIs. The prompt can vary per-dispatch (the caller decides). Tribunal's job is execution and collection, not study design.
+
+**Exec mode** (`/tribunal exec <runner> <task...>`): Headless task execution via an external CLI runner. Instead of asking for opinions, tribunal dispatches WORK to the specified runner and monitors its output. This is "codex-style" — the runner does the work, tribunal tracks and verifies.
+
+### Exec Mode Protocol
+
+1. **Parse**: `/tribunal exec <runner> <task description>`
+2. **Resolve runner**: Map the runner name to the CLI invocation (see Runner Aliases below)
+3. **Dispatch**: Launch the runner headlessly via Bash with `-p` (print mode), `--yolo --trust` (auto-approve), `--output-format stream-json` if supported
+4. **Monitor**: Track the process. If running in a loop, check output periodically and report status
+5. **Verify**: When the runner completes, verify its work (read changed files, run tests, check git status)
+6. **Report**: Present results in tribunal table format
+
+Multiple runners can be dispatched in parallel for independent tasks. Use `run_in_background` for each.
+
+### Runner Aliases
+
+| Alias | CLI Command | Notes |
+|-------|-------------|-------|
+| `cursor`, `cursor-cli`, `cursor-agent` | `agent` | Cursor Agent CLI. Invoked as `agent` on the command line. |
+| `codex` | `codex` | OpenAI Codex CLI. |
+| `claude` | `claude` | Claude Code CLI (self-dispatch). |
+| `gemini` | `gemini` | Gemini CLI. |
+
+### Exec Invocation Patterns
+
+```bash
+# Cursor Agent (headless, auto-approve, print mode)
+agent -p --yolo --trust --output-format stream-json "<prompt>"
+
+# Codex (headless, quiet mode)
+codex -q "<prompt>" --json
+
+# Claude (headless, print mode)
+claude -p --dangerously-skip-permissions --output-format json "<prompt>"
+```
+
+### Managing Multiple Processes
+
+When dispatching multiple tasks to the same runner:
+- Launch each as a separate Bash `run_in_background` process
+- Track PIDs for status checks
+- Check output files periodically (tail the stream-json output)
+- Kill stale processes if they hang beyond a timeout
+- Verify each task's output independently
 
 ## Step 1: Frame the Question
 

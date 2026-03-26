@@ -7,10 +7,16 @@ feeds nodes to LLMs one at a time via progressive disclosure.
 
 Usage:
   flow validate --skill <path>     Validate graph (no orphans, no cycles, paths resolve)
+  flow eval --skill <path> --scenario <name>   Run eval scenario against skill (Layer 2)
   flow next [--skill <path>]       Print the next node's content
   flow report [--skill <path>]     Record completion of current node, advance
   flow status [--skill <path>]     Show current DAG position and session state
   flow reset [--skill <path>]      Reset session state
+
+Eval layers:
+  Layer 1: Self-eval      flow validate (dna.yaml validation rules)
+  Layer 2: CLI-eval        flow eval (scenario-based, deterministic)
+  Layer 3: Tribunal-eval  autoresearch LLM-as-judge (external)
 
 Environment:
   FLOW_NEXT_ON_REPORT=1            Include next node content in report response (default: 1)
@@ -308,6 +314,86 @@ def cmd_reset(skill_path: Path):
         active.unlink()
     print(f"Session reset for {skill_name}")
 
+# ─── Eval (Layer 2 — CLI-eval) ──────────────────────────────────────
+
+def cmd_eval(skill_path: Path, scenario: str = None):
+    """Layer 2 eval stub: load skill dna.yaml + eval.yaml, run scenario.
+
+    Three-layer eval model:
+      L1: flow validate (self-eval via dna.yaml validation rules) — shipped
+      L2: flow eval (this command — scenario-based deterministic eval)
+      L3: autoresearch LLM-as-judge (external, already built in core/)
+
+    Eval types from core/orchestration/src/eval/types.ts:
+      gate-based, metric-based, llm-as-judge, adversarial
+    """
+    dna_path = skill_path / "dna.yaml"
+    if not dna_path.exists():
+        print(f"ERROR: {dna_path} not found", file=sys.stderr)
+        sys.exit(1)
+
+    dna = load_yaml(dna_path)
+    skill_name = dna.get("name", skill_path.name)
+    node_count = len(dna.get("nodes", {}))
+
+    # Check for eval.yaml alongside dna.yaml
+    eval_path = skill_path / "eval.yaml"
+    has_eval_spec = eval_path.exists()
+
+    if has_eval_spec:
+        eval_spec = load_yaml(eval_path)
+        test_cases = eval_spec.get("test_cases", [])
+        case_ids = [tc.get("id", f"case-{i}") for i, tc in enumerate(test_cases)]
+    else:
+        test_cases = []
+        case_ids = []
+
+    # Resolve which scenario to run
+    if scenario and has_eval_spec:
+        matched = [tc for tc in test_cases if tc.get("id") == scenario]
+        if not matched:
+            print(f"ERROR: scenario '{scenario}' not found in {eval_path}", file=sys.stderr)
+            print(f"  Available: {', '.join(case_ids)}", file=sys.stderr)
+            sys.exit(1)
+        print(f"flow eval: would run scenario '{scenario}' against skill at {skill_path}")
+        print(f"  Skill: {skill_name} ({node_count} nodes)")
+        print(f"  Scenario: {matched[0].get('description', scenario)}")
+        expected = matched[0].get("expected", {})
+        if "trajectory" in expected:
+            print(f"  Expected trajectory: {' -> '.join(expected['trajectory'])}")
+            print(f"  Trajectory mode: {expected.get('trajectory_mode', 'strict')}")
+        if "artifacts" in expected:
+            print(f"  Expected artifacts: {len(expected['artifacts'])}")
+        if "claims" in expected:
+            print(f"  Claims to verify: {len(expected['claims'])}")
+    elif scenario and not has_eval_spec:
+        print(f"flow eval: would run scenario '{scenario}' against skill at {skill_path}")
+        print(f"  Skill: {skill_name} ({node_count} nodes)")
+        print(f"  NOTE: no eval.yaml found — scenario will use dna.yaml validation rules only")
+    elif has_eval_spec:
+        print(f"flow eval: would run all {len(test_cases)} scenarios against skill at {skill_path}")
+        print(f"  Skill: {skill_name} ({node_count} nodes)")
+        for tc in test_cases:
+            print(f"  - {tc.get('id', '?')}: {tc.get('description', 'no description')}")
+    else:
+        print(f"flow eval: would run default eval against skill at {skill_path}")
+        print(f"  Skill: {skill_name} ({node_count} nodes)")
+        print(f"  NOTE: no eval.yaml found — would use dna.yaml validation rules as eval criteria")
+
+    # Validate graph as prerequisite (Layer 1 must pass before Layer 2)
+    errors = validate_graph(dna, skill_path)
+    if errors:
+        print(f"\n  BLOCKED: Layer 1 (validate) has {len(errors)} error(s) — fix before eval")
+        for e in errors:
+            print(f"    - {e}")
+        sys.exit(1)
+    else:
+        print(f"\n  Layer 1 (validate): PASS ({node_count} nodes, 0 errors)")
+
+    print("\n  Status: STUB — eval execution not yet implemented")
+    print("  Next: wire to core/orchestration EvalStrategy types for real execution")
+
+
 # ─── Main ────────────────────────────────────────────────────────────
 
 def main():
@@ -332,8 +418,17 @@ def main():
             route = args[i + 1]
             break
 
+    # Parse --scenario flag (for eval)
+    scenario = None
+    for i, arg in enumerate(args):
+        if arg == "--scenario" and i + 1 < len(args):
+            scenario = args[i + 1]
+            break
+
     if cmd == "validate":
         cmd_validate(skill_path)
+    elif cmd == "eval":
+        cmd_eval(skill_path, scenario)
     elif cmd == "next":
         cmd_next(skill_path)
     elif cmd == "report":
