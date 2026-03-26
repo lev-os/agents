@@ -1,7 +1,7 @@
 ---
 name: cass-daily-scan
 description: Workspace-first daily context scan for CASS outcomes, Lev insights, and coding-agent history patterns with actionable infra recommendations.
-version: 0.1.4
+version: 0.1.5
 skill_type: workflow
 category: memory-analysis
 ---
@@ -9,7 +9,7 @@ category: memory-analysis
 # CASS Daily Scan
 
 ## Purpose
-Run one pass over local session/outcome memory and produce a compact, actionable infra report.
+Run one pass over local session/outcome memory and produce conclusion-first, actionable infra decisions.
 
 ## Inputs
 - Workspace root (default: current directory)
@@ -80,14 +80,31 @@ Notes:
 - When raw artifacts and CASS disagree, prefer filtered `.cass/outcomes.jsonl` plus repo-root `.beads`.
 - If the filtered high-signal set is sparse, say so explicitly instead of over-synthesizing.
 
-### 4) Report contract
-Always produce:
-1. Top repeated pain points (max 10), each with at least one `timestamp — clause snippet` citation
-2. Top repeated wins (max 10), each with at least one `timestamp — clause snippet` citation
-3. Infra actions to run next (max 10, concrete command/file target)
-4. Watchlist for next scan (max 10 terms)
-5. Self-learning lessons derived only from the high-signal subset, with timestamped evidence snippets
-6. Weak/noisy evidence disclosure section explaining what was retained but downgraded and why
+### 4) Report contract (conclusions-only)
+Return a numbered list of conclusions (`1..N`) and avoid timeline/log narration.
+
+For each conclusion, use this exact structure:
+
+1. You should `<action>` because `<specific thing that failed/worked/could be better in this scan>`.
+   - Evidence: `<timestamp — clause snippet>`
+   - Evidence quality: `strong|moderate|weak`
+   - 3 potential solutions:
+     - A) `<solution A>`
+     - B) `<solution B>`
+     - C) `<solution C>`
+   - Recommended now: `<A|B|C + one sentence why>`
+
+Hard requirements:
+- Every conclusion must include at least one `timestamp — clause snippet` citation.
+- Minimum 5 conclusions unless fewer than 5 evidence-backed conclusions exist.
+- If fewer than 5 exist, explicitly state: `Insufficient high-signal evidence for more conclusions.`
+- Ban generic filler: do not use vague advice like "improve/optimize/consider" without concrete command/file target.
+- If evidence is noisy or weak, keep the conclusion but mark `Evidence quality: weak` and explain the downgrade in one sentence.
+
+After the numbered conclusions, include only:
+1. `Watchlist for next scan` (max 10 terms)
+2. `Self-Learning` section with durable lessons and concrete skill/prompt/process changes
+3. `Weak/Noisy Evidence Disclosure` section
 
 ## Fail-fast
 - If neither `.cass/outcomes.jsonl` nor `.beads` exists and `cass` is unavailable, stop and return a missing-data error.

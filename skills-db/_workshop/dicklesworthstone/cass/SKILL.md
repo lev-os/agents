@@ -294,8 +294,8 @@ cass sources doctor --source laptop --json
 
 # Path mappings (rewrite remote paths to local)
 cass sources mappings list laptop
-cass sources mappings add laptop --from /home/user/projects --to /Users/me/projects
-cass sources mappings test laptop /home/user/projects/myapp/src/main.rs
+cass sources mappings add laptop --from $HOME/projects --to $HOME/projects
+cass sources mappings test laptop $HOME/projects/myapp/src/main.rs
 
 # Remove source
 cass sources remove laptop --purge -y

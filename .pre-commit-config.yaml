@@ -1,0 +1,19 @@
+# See https://pre-commit.com for more information
+default_language_version:
+  python: python3
+
+repos:
+  # Secret scanning
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.28.0
+    hooks:
+      - id: gitleaks
+        args: ["--verbose", "--redact"]
+
+  # Hardcoded path detection
+  - repo: local
+    hooks:
+      - id: check-hardcoded-paths
+        name: check hardcoded paths
+        entry: bash scripts/check-hardcoded-paths.sh
+        language: system

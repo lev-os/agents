@@ -183,7 +183,7 @@ openskills read grim-repo-auditor
 
 ```bash
 # User explicitly invokes
-/grim-repo-auditor /Users/user/projects/my-repo
+/grim-repo-auditor $HOME/projects/my-repo
 
 # Skill activates
 # User is warned about harshness

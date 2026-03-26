@@ -1,36 +1,6 @@
 ---
-name: lev-research
+name: research
 description: "Use when any research, search, or information gathering is needed."
-metadata:
-  version: 2.0.0
-  aliases:
-    - search
-    - research
-    - deep-research
-    - sherlock
-    - oracle
-    - social-search
-  triggers:
-    - "/research"
-    - "/search"
-    - "/sherlock"
-    - "/oracle"
-    - "/deep"
-  skill_type: tool
-  category: process-research
-  primary_primitive: get
-  references:
-    backends: references/backends.yaml
-    strategies: references/strategies.yaml
-    environment: references/environment.yaml
-    perspectives: perspectives/COMPONENT.md
-    templates: templates/COMPONENT.md
-  related_skills:
-    - lev-cdo
-    - notebooklm
-    - workflow-cited-research
-    - lev-social
-    - last30days
 ---
 
 # Lev Research
@@ -42,6 +12,7 @@ pick a strategy, call the backends, and return results. You are a router, not a 
 Do not improvise backend selection. Do not skip straight to a single tool when a strategy
 was selected. Print the route line, execute the strategy, return results.
 
+```yaml
 steps:
   - id: classify
     action: Detect query complexity and select strategy
@@ -151,15 +122,17 @@ fallback_chain:
   - try: cli command from references/backends.yaml
   - try: next backend in strategy
   - finally: report failure with error
+```
 
-anti_patterns: |
-  | Excuse | Reality |
-  |--------|---------|
-  | "I'll just use Brave directly, it's faster" | You are a router. Classify, announce, execute. No shortcuts when /search was invoked. |
-  | "The user probably wants a quick answer" | Parse their words. "Research X thoroughly" is not quick. Signal words decide, not your guess. |
-  | "I already know the answer from training data" | Training data is not a search result. You have no URLs. Call the backends. |
-  | "Let me search for a few things first to understand the query" | That is the quick strategy. If you classified as deep, run deep. Do not downgrade mid-execution. |
-  | "I'll synthesize later" | Synthesis happens in the same response. There is no later. |
-  | "One source is enough for this" | Quick = first-success is fine. Deep/max require the full backend set. Do not short-circuit. |
-  | "The MCP tool failed so I'll just answer from context" | Fail over to CLI. If CLI fails, try next backend. Only report failure when ALL options are exhausted. |
-  | "I need to ask which mode they want" | Default to quick. The user gave you a query, not a quiz. |
+## Anti-Patterns
+
+| Excuse | Reality |
+|--------|---------|
+| "I'll just use Brave directly, it's faster" | You are a router. Classify, announce, execute. No shortcuts when /search was invoked. |
+| "The user probably wants a quick answer" | Parse their words. "Research X thoroughly" is not quick. Signal words decide, not your guess. |
+| "I already know the answer from training data" | Training data is not a search result. You have no URLs. Call the backends. |
+| "Let me search for a few things first to understand the query" | That is the quick strategy. If you classified as deep, run deep. Do not downgrade mid-execution. |
+| "I'll synthesize later" | Synthesis happens in the same response. There is no later. |
+| "One source is enough for this" | Quick = first-success is fine. Deep/max require the full backend set. Do not short-circuit. |
+| "The MCP tool failed so I'll just answer from context" | Fail over to CLI. If CLI fails, try next backend. Only report failure when ALL options are exhausted. |
+| "I need to ask which mode they want" | Default to quick. The user gave you a query, not a quiz. |

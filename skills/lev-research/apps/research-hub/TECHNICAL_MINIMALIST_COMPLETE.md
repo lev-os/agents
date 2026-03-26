@@ -11,7 +11,7 @@ Successfully applied the Technical Minimalist design system to the Tauri Researc
 - Updated theme color to `#F7F7F5` (--paper)
 - Changed title to "Research Hub"
 
-**Location:** `/Users/jean-patricksmith/.claude/skills/lev-research/apps/research-hub/index.html`
+**Location:** `$HOME/.claude/skills/lev-research/apps/research-hub/index.html`
 
 ### 2. **src/styles.css** (2.8 KB)
 Complete rewrite implementing Technical Minimalist design tokens:
@@ -35,7 +35,7 @@ Complete rewrite implementing Technical Minimalist design tokens:
 - Shadows: NONE (enforced with `box-shadow: none !important`)
 - Images: mix-blend-mode luminosity 90%, full color on hover
 
-**Location:** `/Users/jean-patricksmith/.claude/skills/lev-research/apps/research-hub/src/styles.css`
+**Location:** `$HOME/.claude/skills/lev-research/apps/research-hub/src/styles.css`
 
 ### 3. **src/App.css** (1.8 KB)
 Complete rewrite with Technical Minimalist button and input styles:
@@ -57,7 +57,7 @@ Complete rewrite with Technical Minimalist button and input styles:
 - Forest color with 30% opacity underline
 - Coral underline on hover
 
-**Location:** `/Users/jean-patricksmith/.claude/skills/lev-research/apps/research-hub/src/App.css`
+**Location:** `$HOME/.claude/skills/lev-research/apps/research-hub/src/App.css`
 
 ### 4. **src/components/Dashboard.tsx** (20 KB)
 Complete rewrite with inline styles matching Technical Minimalist spec:
@@ -79,8 +79,8 @@ Complete rewrite with inline styles matching Technical Minimalist spec:
 - All business logic and state management
 - SolidJS reactivity patterns
 
-**Location:** `/Users/jean-patricksmith/.claude/skills/lev-research/apps/research-hub/src/components/Dashboard.tsx`
-**Backup:** `/Users/jean-patricksmith/.claude/skills/lev-research/apps/research-hub/src/components/Dashboard.tsx.backup`
+**Location:** `$HOME/.claude/skills/lev-research/apps/research-hub/src/components/Dashboard.tsx`
+**Backup:** `$HOME/.claude/skills/lev-research/apps/research-hub/src/components/Dashboard.tsx.backup`
 
 ## Design System Verification
 
@@ -151,4 +151,4 @@ git diff HEAD -- index.html src/styles.css src/App.css src/components/Dashboard.
 
 ## Design System Documentation
 
-See `/Users/jean-patricksmith/.claude/skills/lev-research/apps/research-hub/DESIGN_SYSTEM_CHANGES.md` for detailed token reference and implementation notes.
+See `$HOME/.claude/skills/lev-research/apps/research-hub/DESIGN_SYSTEM_CHANGES.md` for detailed token reference and implementation notes.

@@ -7,6 +7,7 @@ Every skill must follow this format:
 3. **validation strings are concrete** — commands the agent can run or states it can check
 4. **on_failure is specific** — not "handle the error" but "do THIS specific thing"
 5. **anti_patterns table** at the end with 5+ entries from real agent failure modes
+6. **All YAML in markdown must be fenced** — wrap every `steps:`, config, or example YAML block in ` ```yaml ` / ` ``` ` code fences. Bare YAML in markdown is invisible structure that agents parse as prose.
 
 Decide the skill's interaction mode:
 - **Autonomous**: runs without stopping (validation gates are the only checkpoints)

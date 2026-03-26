@@ -22,7 +22,6 @@ CACHE_TTL_SECONDS = int(os.environ.get("LEV_SKILLS_CACHE_TTL", "300"))
 CACHE_BG_REFRESH_AFTER = int(os.environ.get("LEV_SKILLS_BG_REFRESH_AFTER", "60"))
 
 COMMAND_HOOKED = {
-    "gitsync": "sync",
     "lev-intake": "intake",
     "cdo": "cdo",
     "ux": "ux",
@@ -32,7 +31,6 @@ COMMAND_HOOKED = {
 
 ACTIVE_KEEP_FOLDERS = {
     "find-skills",
-    "gitsync",
     "interview",
     "lev",
     "lev-align",

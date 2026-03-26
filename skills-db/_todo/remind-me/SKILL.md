@@ -28,7 +28,7 @@ For repeating reminders:
 
 1. Parse the time from your message
 2. Create a one-time cron job with `--at`
-3. Log to `/home/julian/clawd/reminders.md` for history
+3. Log to `$HOME/clawd/reminders.md` for history
 4. At the scheduled time, you get a message
 
 ## Time Parsing
@@ -70,7 +70,7 @@ For repeating reminders:
 
 ## Reminder Log
 
-All reminders are logged to `/home/julian/clawd/reminders.md`:
+All reminders are logged to `$HOME/clawd/reminders.md`:
 
 ```markdown
 - [scheduled] 2026-01-06 17:00 | Pay for Gumroad (id: abc123)
@@ -90,7 +90,7 @@ All reminders are logged to `/home/julian/clawd/reminders.md`:
 cron list
 
 # View reminder log
-cat /home/julian/clawd/reminders.md
+cat $HOME/clawd/reminders.md
 
 # Remove a scheduled reminder
 cron rm <job-id>
@@ -103,14 +103,14 @@ cron rm <job-id>
 When the user says "remind me to X at Y":
 
 ```bash
-bash /home/julian/clawd/skills/remind-me/create-reminder.sh "X" "Y"
+bash $HOME/clawd/skills/remind-me/create-reminder.sh "X" "Y"
 ```
 
 **Examples:**
 ```bash
-bash /home/julian/clawd/skills/remind-me/create-reminder.sh "Pay for Gumroad" "later today"
-bash /home/julian/clawd/skills/remind-me/create-reminder.sh "Call dentist" "tomorrow at 3pm"
-bash /home/julian/clawd/skills/remind-me/create-reminder.sh "Check email" "in 2 hours"
+bash $HOME/clawd/skills/remind-me/create-reminder.sh "Pay for Gumroad" "later today"
+bash $HOME/clawd/skills/remind-me/create-reminder.sh "Call dentist" "tomorrow at 3pm"
+bash $HOME/clawd/skills/remind-me/create-reminder.sh "Check email" "in 2 hours"
 ```
 
 ### Recurring Reminders
@@ -118,18 +118,18 @@ bash /home/julian/clawd/skills/remind-me/create-reminder.sh "Check email" "in 2 
 When the user says "remind me every X to Y":
 
 ```bash
-bash /home/julian/clawd/skills/remind-me/create-recurring.sh "Y" "every X"
+bash $HOME/clawd/skills/remind-me/create-recurring.sh "Y" "every X"
 ```
 
 **Examples:**
 ```bash
-bash /home/julian/clawd/skills/remind-me/create-recurring.sh "Stand up and stretch" "every 2 hours"
-bash /home/julian/clawd/skills/remind-me/create-recurring.sh "Check email" "daily at 9am"
-bash /home/julian/clawd/skills/remind-me/create-recurring.sh "Weekly team meeting" "every Monday at 2pm"
+bash $HOME/clawd/skills/remind-me/create-recurring.sh "Stand up and stretch" "every 2 hours"
+bash $HOME/clawd/skills/remind-me/create-recurring.sh "Check email" "daily at 9am"
+bash $HOME/clawd/skills/remind-me/create-recurring.sh "Weekly team meeting" "every Monday at 2pm"
 ```
 
 Both scripts automatically:
 1. Parse the time/schedule
 2. Create a cron job (one-time with `--at` or recurring with `--every`/`--cron`)
-3. Log to `/home/julian/clawd/reminders.md`
+3. Log to `$HOME/clawd/reminders.md`
 4. Return confirmation with job ID

@@ -1,0 +1,42 @@
+name: Security Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  secrets:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history for accurate scanning
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  hardcoded-paths:
+    name: Hardcoded path check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for hardcoded home paths
+        run: |
+          set -e
+          # Match /Users/username or /home/username (Unix paths, not URL path segments)
+          PATTERN='(/Users|/home)/[a-zA-Z0-9_.-]{3,}/'
+          EXCLUDES='\.git/|node_modules/|skills/last30days/|sources\.json|/seed/|test-run\.log'
+          FOUND=$(grep -r -l -E "$PATTERN" \
+            --include='*.md' --include='*.yaml' --include='*.yml' --include='*.json' \
+            --include='*.sh' --include='*.py' --include='*.ts' --include='*.tsx' --include='*.js' \
+            . 2>/dev/null | grep -v -E "$EXCLUDES" || true)
+          if [ -n "$FOUND" ]; then
+            echo "ERROR: Hardcoded home paths found. Use \$HOME or relative paths."
+            echo "$FOUND" | head -20
+            exit 1
+          fi
+          echo "No hardcoded paths found."

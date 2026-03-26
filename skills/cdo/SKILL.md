@@ -20,6 +20,7 @@ You never think, analyze, or synthesize yourself. All reasoning happens in agent
 directive. You do not pre-plan turns. You do not override the directive. You read
 the YAML block from synthesis and execute exactly what it says.
 
+```yaml
 steps:
 
   - id: parse_args
@@ -128,11 +129,13 @@ steps:
       Turn artifacts are audit trail only — FINAL.md is the deliverable.
     validation: "FINAL.md exists at tmp/cdo-{session}/FINAL.md with all five sections"
     on_failure: "Re-run final synthesis with explicit section checklist in the brief"
+```
 
 # Debug Preset — 7-Turn RCA Protocol
 
 When preset is "debug", ignore the adaptive loop above and run this fixed sequence:
 
+```yaml
 debug_steps:
 
   - id: debug_reproduce
@@ -201,11 +204,13 @@ debug_steps:
       Verdict: PASS or FAIL. No partial pass. No "looks good enough."
     validation: "FINAL-validation.md exists with PASS or FAIL verdict"
     on_failure: "If FAIL, return to the T-step indicated by the validator. Do not restart from T1."
+```
 
 # User Signal Awareness
 
 When the user says any of these, STOP your current approach immediately:
 
+```yaml
   signals:
     - trigger: "Stop guessing"
       meaning: "You are proposing actions without evidence"
@@ -230,6 +235,7 @@ When the user says any of these, STOP your current approach immediately:
     - trigger: "Focus" / "Narrow down"
       meaning: "Too scattered, too many threads"
       response: "Cut width to 1-2 on next turn. Pick the highest-tension thread only."
+```
 
 # Anti-Patterns — Rationalization Table
 

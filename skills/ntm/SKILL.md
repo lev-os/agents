@@ -1,32 +1,36 @@
 ---
 name: ntm
-description: >-
-  Run NTM for multi-agent tmux orchestration, work triage, robot mode, safety,
-  coordination, and local APIs. Use when spawning swarms, dispatching work, or
-  operating `ntm` as an agent or human operator.
+description: Named Tmux Manager for orchestrating Claude, Codex, and Gemini agents in tmux sessions. Use when you need to spawn, attach, message, inspect, or doctor a multi-agent tmux workspace.
 ---
 
-<!-- TOC: Quick Start | Session Orchestration | Dispatch & Reusable Assets | Work Intelligence | Coordination | Safety | Robot Mode | Serve API | Project Resolution | References | Related Skills -->
+# NTM
 
-# NTM — Named Tmux Manager
+Use `ntm` when the job is bigger than one agent and tmux becomes the coordination surface.
 
-> **Core capability:** Turn `tmux` into a structured, recoverable multi-agent workspace.
+## Install
 
-> **Read the repo first.** If the target repository has `AGENTS.md` or `README.md`, read those before applying this skill. Repo-local instructions override generic NTM advice.
+```bash
+brew install tmux
+brew install dicklesworthstone/tap/ntm
+```
 
-> **Interactive vs automation:**
-> - `ntm dashboard`, `ntm palette`, and other TUI surfaces are for humans.
-> - For machine-readable automation, prefer `--robot-*`.
-> - Non-interactive CLI commands such as `ntm send`, `ntm work triage`, `ntm locks list`, `ntm pipeline status`, and `ntm serve` are fine when they are the clearest tool.
+## Shell Integration
 
-> **Coordination and isolation:**
-> - Agent Mail reservations are the default coordination primitive.
-> - `--worktrees` and `ntm worktrees ...` are supported isolation tools when the repo policy allows them.
-> - If a repo `AGENTS.md` prefers reservations-only or has worktree-specific rules, follow that repo.
+```bash
+eval "$(ntm shell zsh)"
+```
+
+## When to Use
+
+- starting a multi-agent session in tmux
+- broadcasting or targeting prompts across panes
+- checking health, dependencies, or quota
+- resuming from a handoff or attaching to an existing session
 
 ## Quick Start
 
 ```bash
+<<<<<<< HEAD
 # Install / sanity check
 curl -fsSL "https://raw.githubusercontent.com/Dicklesworthstone/ntm/main/install.sh?$(date +%s)" | bash -s -- --easy-mode
 ntm deps -v
@@ -266,3 +270,33 @@ Read these when you need deeper detail without bloating the main skill body:
 - `br` for bead state changes and syncing
 - `bv` for graph-aware task prioritization
 - `cass` for prior-session retrieval
+=======
+ntm spawn myproject --cc=2 --cod=1 --gmi=1
+ntm attach myproject
+ntm send myproject --all "Read AGENTS.md and start on the next bead"
+ntm status myproject
+ntm doctor
+```
+
+## Useful Commands
+
+```bash
+ntm deps
+ntm health myproject
+ntm activity myproject
+ntm handoff myproject
+ntm mail myproject
+ntm locks myproject
+ntm checkpoint myproject
+ntm watch myproject
+ntm tutorial
+```
+
+## Agent Notes
+
+- Use `ntm doctor` first in a fresh environment.
+- Use `ntm deps` when agents or tmux integration look broken.
+- `ntm send` is for prompt fan-out; use targeted flags when you only want one model family.
+- If shell integration is missing, load it before assuming the binary is broken.
+
+>>>>>>> 50315879c20dddd69daaaf831b532c34f123d98e

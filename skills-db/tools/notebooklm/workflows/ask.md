@@ -36,7 +36,7 @@ Flags:
 ## Step 3: Extract Passages
 
 ```bash
-python3 /Users/jean-patricksmith/.agents/skills/notebooklm/scripts/extract_passages.py \
+python3 $HOME/.agents/skills/notebooklm/scripts/extract_passages.py \
   --qa /tmp/qa-output.json \
   --sources /tmp/notebooklm-sources.json \
   --slug {notebook-slug} > /tmp/passage-map.json
@@ -47,7 +47,7 @@ This appends `## Cited Passages / ### Passage N` blocks to source files.
 ## Step 4: Resolve Citations
 
 ```bash
-python3 /Users/jean-patricksmith/.agents/skills/notebooklm/scripts/resolve_citations.py \
+python3 $HOME/.agents/skills/notebooklm/scripts/resolve_citations.py \
   --qa /tmp/qa-output.json \
   --sources /tmp/notebooklm-sources.json \
   --slug {notebook-slug} \
