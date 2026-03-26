@@ -1,9 +1,17 @@
 ---
 name: autodev-lev
-description: Heartbeat-driven autonomous development loop using `lev loop autodev`, with interval, budget, and tick controls for in-process SDLC execution.
+description: "Heartbeat-driven autonomous development loop using `lev loop autodev`, with interval, budget, and tick controls for in-process SDLC execution."
+metadata:
+  version: 1.0.0
+  related_skills:
+    - autodev-loop
+    - work
+    - lev-core
+  skill_type: workflow
+  category: process-lifecycle
 ---
 
-# autodev-lev
+# Autodev Lev
 
 > Heartbeat-driven autonomous development loop using Lev primitives.
 > Unlike `/autodev-loop` (which uses Claude Code CronCreate), this runs through `lev loop autodev`

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: {{WIDTH}}px;
+      height: {{HEIGHT}}px;
+      overflow: hidden;
+      background: transparent;
+    }
+
+    .timer-container {
+      position: absolute;
+      top: calc({{HEIGHT}}px * 0.03);
+      left: calc({{WIDTH}}px * 0.025);
+      display: flex;
+      align-items: center;
+      gap: calc({{WIDTH}}px * 0.012);
+      padding: calc({{HEIGHT}}px * 0.012) calc({{WIDTH}}px * 0.018);
+      background: rgba(0, 0, 0, 0.65);
+      border-radius: calc({{HEIGHT}}px * 0.015);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .speed-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: calc({{HEIGHT}}px * 0.006) calc({{WIDTH}}px * 0.01);
+      background: linear-gradient(135deg, rgba(255, 120, 50, 0.9) 0%, rgba(255, 80, 30, 0.9) 100%);
+      border-radius: calc({{HEIGHT}}px * 0.008);
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: calc({{HEIGHT}}px * 0.022);
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      letter-spacing: 0.05em;
+    }
+
+    .timer-display {
+      font-family: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+      font-size: calc({{HEIGHT}}px * 0.032);
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.95);
+      text-shadow:
+        0 0 10px rgba(255, 180, 100, 0.5),
+        0 2px 4px rgba(0, 0, 0, 0.5);
+      letter-spacing: 0.08em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Segment display effect for digits */
+    .digit {
+      display: inline-block;
+      min-width: 0.65em;
+      text-align: center;
+    }
+
+    .colon {
+      opacity: 1;
+      animation: colonBlink 1s ease-in-out infinite;
+    }
+
+    @keyframes colonBlink {
+      0%, 45% { opacity: 1; }
+      50%, 95% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+
+    /* Subtle glow animation */
+    .timer-container {
+      animation: timerGlow 2s ease-in-out infinite;
+    }
+
+    @keyframes timerGlow {
+      0%, 100% {
+        box-shadow:
+          0 4px 20px rgba(0, 0, 0, 0.4),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1),
+          0 0 15px rgba(255, 140, 60, 0.15);
+      }
+      50% {
+        box-shadow:
+          0 4px 20px rgba(0, 0, 0, 0.4),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1),
+          0 0 25px rgba(255, 140, 60, 0.25);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="timer-container">
+    <div class="speed-badge">2X</div>
+    <div class="timer-display" id="timer">
+      <span class="digit">0</span><span class="digit">0</span><span class="colon">:</span><span class="digit">0</span><span class="digit">0</span>
+    </div>
+  </div>
+
+  <script>
+    const CONFIG = {
+      width: {{WIDTH}},
+      height: {{HEIGHT}},
+      duration: {{DURATION}},  // Total duration in ms at 2x speed
+      fps: {{FPS}},
+      speedMultiplier: 2  // Shows time at 2x speed
+    };
+
+    // Frame-based animation for synchronized capture
+    class TimerAnimation {
+      constructor() {
+        this.timerEl = document.getElementById('timer');
+        this.frameCount = 0;
+        this.totalFrames = Math.ceil((CONFIG.duration / 1000) * CONFIG.fps);
+        this.fixedDt = 1 / CONFIG.fps;
+
+        window.CONFIG = CONFIG;
+        window.timerAnimation = this;
+        window.animationComplete = false;
+        window.stepFrame = () => this.stepFrame();
+      }
+
+      formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        const m1 = Math.floor(mins / 10);
+        const m2 = mins % 10;
+        const s1 = Math.floor(secs / 10);
+        const s2 = secs % 10;
+
+        return `<span class="digit">${m1}</span><span class="digit">${m2}</span><span class="colon">:</span><span class="digit">${s1}</span><span class="digit">${s2}</span>`;
+      }
+
+      updateDisplay() {
+        // Calculate elapsed time at 2x speed
+        const realTimeMs = (this.frameCount / CONFIG.fps) * 1000;
+        const displayTimeMs = realTimeMs * CONFIG.speedMultiplier;
+        const displaySeconds = displayTimeMs / 1000;
+
+        this.timerEl.innerHTML = this.formatTime(displaySeconds);
+      }
+
+      stepFrame() {
+        if (this.frameCount >= this.totalFrames) {
+          window.animationComplete = true;
+          return true;
+        }
+
+        this.updateDisplay();
+        this.frameCount++;
+
+        if (this.frameCount >= this.totalFrames) {
+          window.animationComplete = true;
+          return true;
+        }
+
+        return false;
+      }
+
+      renderInitial() {
+        this.updateDisplay();
+      }
+    }
+
+    // Initialize
+    const timer = new TimerAnimation();
+    timer.renderInitial();
+  </script>
+</body>
+</html>
