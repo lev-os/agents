@@ -1,10 +1,14 @@
 ---
 name: workflow-dotfiles-sync
-description: Deterministic source-first dotfiles sync workflow for chezmoi plus the local dotfiles control plane. Invoke with /workflow dotfiles-sync.
+description: >
+  Deterministic source-first dotfiles sync workflow for chezmoi plus the local
+  dotfiles control plane. Invoke with /workflow dotfiles-sync.
 disable-model-invocation: true
+argument-hint: "[machine] [scope]"
+allowed-tools: Read, Write, Bash, Glob, Grep
+skill_type: workflow
+category: process-workflow
 ---
-
-// Hint shown during autocomplete to indicate expected arguments. Example: [issue-number] or [filename] [format]
 
 # Workflow: Dotfiles Sync
 

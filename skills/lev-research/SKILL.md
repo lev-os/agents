@@ -1,20 +1,39 @@
 ---
-name: research
-version: 2.0.0
-aliases: [search, research, deep-research, sherlock, oracle, social-search]
-triggers: [/research, /search, /sherlock, /oracle, /deep]
+name: lev-research
 description: "Use when any research, search, or information gathering is needed."
-skill_type: tool
-category: process-research
-primary_primitive: get
-references:
-  backends: references/backends.yaml
-  strategies: references/strategies.yaml
-  environment: references/environment.yaml
-  perspectives: perspectives/COMPONENT.md
-  templates: templates/COMPONENT.md
-related_skills: [lev-cdo, notebooklm, workflow-cited-research, lev-social, last30days]
+metadata:
+  version: 2.0.0
+  aliases:
+    - search
+    - research
+    - deep-research
+    - sherlock
+    - oracle
+    - social-search
+  triggers:
+    - "/research"
+    - "/search"
+    - "/sherlock"
+    - "/oracle"
+    - "/deep"
+  skill_type: tool
+  category: process-research
+  primary_primitive: get
+  references:
+    backends: references/backends.yaml
+    strategies: references/strategies.yaml
+    environment: references/environment.yaml
+    perspectives: perspectives/COMPONENT.md
+    templates: templates/COMPONENT.md
+  related_skills:
+    - lev-cdo
+    - notebooklm
+    - workflow-cited-research
+    - lev-social
+    - last30days
 ---
+
+# Lev Research
 
 This skill does ONE thing: route a research query to the right backend at the right depth.
 

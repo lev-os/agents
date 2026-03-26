@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 4096px;
+      height: 2304px;
+      overflow: hidden;
+      background: #000;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    #bg-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .title {
+      font-size: calc(2304px * 0.09);
+      font-weight: 800;
+      color: white;
+      text-shadow:
+        0 0 80px rgba(100, 200, 255, 0.8),
+        0 0 160px rgba(100, 200, 255, 0.4),
+        0 4px 20px rgba(0, 0, 0, 0.8);
+      letter-spacing: -0.02em;
+      text-align: center;
+      max-width: 85%;
+      opacity: 0;
+      transform: translateY(40px) scale(0.9);
+      animation: titleReveal 1s ease-out 0.5s forwards;
+    }
+
+    .description {
+      font-size: calc(2304px * 0.035);
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.85);
+      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
+      margin-top: calc(2304px * 0.025);
+      text-align: center;
+      max-width: 70%;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeUp 0.8s ease-out 1s forwards;
+    }
+
+    .author-section {
+      position: absolute;
+      bottom: calc(2304px * 0.08);
+      display: flex;
+      align-items: center;
+      gap: calc(4096px * 0.025);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.8s ease-out 1.5s forwards;
+    }
+
+    .author-name {
+      font-size: calc(2304px * 0.032);
+      font-weight: 600;
+      color: white;
+      text-shadow: 0 2px 15px rgba(0, 0, 0, 0.7);
+    }
+
+    .author-divider {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .author-handle {
+      font-size: calc(2304px * 0.028);
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.7);
+      text-shadow: 0 2px 15px rgba(0, 0, 0, 0.7);
+    }
+
+    .date {
+      position: absolute;
+      top: calc(2304px * 0.05);
+      right: calc(4096px * 0.04);
+      font-size: calc(2304px * 0.022);
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.5);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+      opacity: 0;
+      animation: fadeIn 0.8s ease-out 0.3s forwards;
+    }
+
+    /* Animations */
+    @keyframes titleReveal {
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    /* Fade out at end */
+    .fade-out .title,
+    .fade-out .description,
+    .fade-out .author-section,
+    .fade-out .date {
+      animation: fadeOut 0.8s ease-in forwards !important;
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg-canvas"></canvas>
+
+  <div class="overlay" id="overlay">
+    <div class="date">January 20, 2026</div>
+    <div class="title">Recursive AI Self-Improvement</div>
+    <div class="description">Agents building and refining their own tools in real-time</div>
+    <div class="author-section">
+      <span class="author-name">Jeffrey Emanuel</span>
+      <span class="author-divider"></span>
+      <span class="author-handle">@doodlestein</span>
+      <span class="author-divider"></span>
+      <span class="author-handle">Dicklesworthstone</span>
+    </div>
+  </div>
+
+  <script>
+    const CONFIG = {
+      width: 4096,
+      height: 2304,
+      duration: 5000,
+      fps: 30,
+      effectType: 'nebula'
+    };
+
+    // ============================================================
+    // ORBITAL MÖBIUS CELLULAR AUTOMATON
+    // ============================================================
+    class OrbitalMobiusCA {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.gl = canvas.getContext('webgl2', {
+          antialias: false,
+          premultipliedAlpha: false,
+          preserveDrawingBuffer: true,
+          powerPreference: 'high-performance'
+        });
+
+        if (!this.gl) {
+          console.error('WebGL2 not available');
+          return;
+        }
+
+        const gl = this.gl;
+        const floatExt = gl.getExtension('EXT_color_buffer_float');
+        gl.getExtension('OES_texture_float_linear');
+
+        if (!floatExt) {
+          console.warn('EXT_color_buffer_float not available, using fallback');
+        }
+
+        this.W = CONFIG.width;
+        this.H = CONFIG.height;
+        canvas.width = this.W;
+        canvas.height = this.H;
+
+        this.time = 0;
+        this.params = this.getPreset(CONFIG.effectType);
+        this.ready = false;
+
+        try {
+          this.initShaders();
+          this.initBuffers();
+          this.seed();
+          this.ready = true;
+        } catch (e) {
+          console.error('WebGL initialization failed:', e);
+        }
+      }
+
+      getPreset(type) {
+        const presets = {
+          'cosmic': {
+            dt: 0.036, flowGain: 0.74, swirlGain: 0.82, damping: 0.075, spinBias: 0.32,
+            mobiusBias: 0.18, defectDrive: 0.55, warpAmp: 0.0058, warpScale: 2.9,
+            noiseAmp: 0.009, fuelFeed: 0.34, fuelDecay: 0.18, trailRate: 0.45,
+            colorShift: 0.0, colorSat: 1.0, colorGain: 1.02
+          },
+          'plasma': {
+            dt: 0.042, flowGain: 0.85, swirlGain: 0.65, damping: 0.06, spinBias: 0.45,
+            mobiusBias: 0.22, defectDrive: 0.48, warpAmp: 0.0075, warpScale: 2.4,
+            noiseAmp: 0.012, fuelFeed: 0.42, fuelDecay: 0.15, trailRate: 0.55,
+            colorShift: 0.33, colorSat: 1.2, colorGain: 1.0
+          },
+          'aurora': {
+            dt: 0.030, flowGain: 0.65, swirlGain: 0.90, damping: 0.085, spinBias: 0.28,
+            mobiusBias: 0.15, defectDrive: 0.62, warpAmp: 0.0045, warpScale: 3.2,
+            noiseAmp: 0.007, fuelFeed: 0.30, fuelDecay: 0.20, trailRate: 0.40,
+            colorShift: 0.5, colorSat: 0.95, colorGain: 1.15
+          },
+          'neon': {
+            dt: 0.048, flowGain: 0.92, swirlGain: 0.55, damping: 0.05, spinBias: 0.55,
+            mobiusBias: 0.25, defectDrive: 0.42, warpAmp: 0.009, warpScale: 2.0,
+            noiseAmp: 0.015, fuelFeed: 0.50, fuelDecay: 0.12, trailRate: 0.65,
+            colorShift: 0.7, colorSat: 1.4, colorGain: 0.95
+          },
+          'nebula': {
+            dt: 0.034, flowGain: 0.70, swirlGain: 0.78, damping: 0.07, spinBias: 0.35,
+            mobiusBias: 0.20, defectDrive: 0.52, warpAmp: 0.006, warpScale: 2.7,
+            noiseAmp: 0.010, fuelFeed: 0.38, fuelDecay: 0.16, trailRate: 0.48,
+            colorShift: 0.15, colorSat: 1.1, colorGain: 1.08
+          }
+        };
+        return presets[type] || presets['cosmic'];
+      }
+
+      initShaders() {
+        const gl = this.gl;
+
+        const VERT = `#version 300 es
+          precision highp float;
+          const vec2 V[3] = vec2[3](vec2(-1,-1), vec2(3,-1), vec2(-1,3));
+          out vec2 v_uv;
+          void main() { vec2 p = V[gl_VertexID]; v_uv = 0.5*p + 0.5; gl_Position = vec4(p,0,1); }
+        `;
+
+        const FRAG_INIT = `#version 300 es
+          precision highp float;
+          in vec2 v_uv; out vec4 o;
+          uniform float u_seed; uniform vec2 u_res;
+          float h(vec2 p) { return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
+          void main() {
+            vec2 q = v_uv * u_res + vec2(u_seed, u_seed*1.973);
+            float a = h(q), b = h(q*1.331 + 3.7), c = h(q*0.711 - 5.3);
+            float r = 0.16 + 0.09*cos(6.28318*a) + 0.07*b;
+            float th = 6.28318*b + 0.6*cos(6.28318*c);
+            vec2 z = r * vec2(cos(th), sin(th));
+            float fuel = clamp(0.45 + 0.35*(b-0.5) + 0.1*a, 0.0, 1.0);
+            float trail = fract(0.37 + 0.5*c + 0.15*a);
+            o = vec4(z, fuel, trail);
+          }
+        `;
+
+        const FRAG_UPDATE = `#version 300 es
+          precision highp float;
+          in vec2 v_uv; out vec4 o;
+          uniform sampler2D u_curr;
+          uniform vec2 u_res, u_texel;
+          uniform float u_dt, u_time;
+          uniform float u_flowGain, u_swirlGain, u_damping, u_spinBias;
+          uniform float u_mobiusBias, u_defectDrive;
+          uniform float u_warpAmp, u_warpScale, u_noiseAmp;
+          uniform float u_fuelFeed, u_fuelDecay, u_trailRate;
+
+          const float TAU = 6.283185307179586;
+          const float GOLD = 2.399963229728653;
+
+          float h1(vec2 p) { return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
+          float h2(vec2 p) { return fract(sin(dot(p, vec2(269.5,183.3)))*41541.3432); }
+
+          float noise(vec2 p) {
+            vec2 i = floor(p), f = fract(p);
+            float a = h1(i), b = h1(i+vec2(1,0)), c = h1(i+vec2(0,1)), d = h1(i+vec2(1,1));
+            vec2 u = f*f*(3.0-2.0*f);
+            return mix(mix(a,b,u.x), mix(c,d,u.x), u.y);
+          }
+
+          vec2 warp(vec2 uv, float t, float activity) {
+            float nScale = u_warpScale * (1.0 + 0.5*sin(t*0.2));
+            vec2 n = vec2(noise(uv*nScale + t*vec2(0.17,-0.19)), noise(uv*nScale*1.37 - t*vec2(0.21,0.13)));
+            return uv + u_warpAmp * (1.0 + 2.0*activity) * (n*2.0-1.0);
+          }
+
+          vec2 rot90(vec2 v) { return vec2(-v.y, v.x); }
+          vec2 cconj(vec2 z) { return vec2(z.x, -z.y); }
+          float cnorm2(vec2 z) { return dot(z,z); }
+          vec2 cmul(vec2 a, vec2 b) { return vec2(a.x*b.x - a.y*b.y, a.x*b.y + a.y*b.x); }
+          vec2 cdiv(vec2 a, vec2 b) { float d = max(1e-6, cnorm2(b)); return vec2((a.x*b.x + a.y*b.y)/d, (a.y*b.x - a.x*b.y)/d); }
+
+          void wirtinger(vec2 uv, out vec2 dHol, out vec2 dAnti) {
+            vec2 zr = texture(u_curr, uv + vec2(u_texel.x, 0.0)).rg;
+            vec2 zl = texture(u_curr, uv - vec2(u_texel.x, 0.0)).rg;
+            vec2 zu = texture(u_curr, uv + vec2(0.0, u_texel.y)).rg;
+            vec2 zd = texture(u_curr, uv - vec2(0.0, u_texel.y)).rg;
+            vec2 dx = 0.5*(zr - zl);
+            vec2 dy = 0.5*(zu - zd);
+            vec2 iDy = rot90(dy);
+            dHol = 0.5*(dx - iDy);
+            dAnti = 0.5*(dx + iDy);
+          }
+
+          void orbitalAggregate(vec2 uv, float baseAng, out vec2 mean, out float chirality) {
+            vec2 acc = vec2(0.0);
+            float wsum = 0.0, csum = 0.0;
+            float act = texture(u_curr, uv).b;
+
+            float orbitR[5] = float[5](2.0, 3.6, 6.4, 11.0, 18.0);
+            float orbitW[5] = float[5](1.0, 0.86, 0.71, 0.52, 0.38);
+
+            for(int i = 0; i < 5; i++) {
+              float R = orbitR[i] * (1.0 + 0.15*sin(u_time*0.4 + float(i)*1.1));
+              float wR = orbitW[i];
+
+              for(int k = 0; k < 14; k++) {
+                float ang = baseAng + float(k)*GOLD + float(i)*0.27;
+                vec2 dir = vec2(cos(ang), sin(ang));
+
+                vec2 uvF = warp(uv + dir*R*u_texel, u_time, act);
+                vec2 uvB = warp(uv - dir*R*u_texel, u_time, act);
+
+                vec2 fwd = texture(u_curr, uvF).rg;
+                vec2 back = texture(u_curr, uvB).rg;
+
+                acc += wR * 0.5 * (fwd + back);
+                wsum += wR;
+                csum += wR * sin(atan(fwd.y, fwd.x) - atan(back.y, back.x));
+              }
+            }
+            mean = wsum > 0.0 ? acc/wsum : texture(u_curr, uv).rg;
+            chirality = wsum > 0.0 ? csum/wsum : 0.0;
+          }
+
+          void main() {
+            vec4 st = texture(u_curr, v_uv);
+            vec2 z = st.rg;
+            float fuel = st.b;
+            float trail = st.a;
+
+            vec2 dHol, dAnti;
+            wirtinger(v_uv, dHol, dAnti);
+            vec2 mu = cdiv(dAnti, cnorm2(dHol) > 1e-6 ? dHol : vec2(1e-3, 0.0));
+            float muMag = clamp(length(mu), 0.0, 2.0);
+            float muPhase = atan(mu.y, mu.x);
+
+            float baseAng = muPhase*0.5 + 0.34*u_time + (trail-0.5)*TAU;
+            vec2 mean; float chirality;
+            orbitalAggregate(v_uv, baseAng, mean, chirality);
+
+            vec2 adv = u_flowGain * (mean - z);
+            vec2 swirl = (u_spinBias + u_swirlGain * chirality) * rot90(z);
+
+            vec2 centerDir = normalize(mean + vec2(1e-4, -1e-4));
+            float cAmp = clamp(u_mobiusBias + u_defectDrive*muMag + 0.25*fuel, 0.0, 0.98);
+            vec2 c = cAmp * centerDir;
+            vec2 mob = cdiv(z - c, vec2(1.0,0.0) - cmul(cconj(c), z));
+            vec2 mobPush = mob - z;
+
+            vec2 noiseVec = u_noiseAmp * (1.0 + fuel) * vec2(
+              h2(v_uv*u_res*vec2(0.73,1.11) + u_time*vec2(0.37,-0.29)) - 0.5,
+              h2(v_uv*u_res*vec2(1.37,-0.81) - u_time*vec2(0.21,0.33)) - 0.5
+            );
+
+            vec2 dz = adv + swirl + 0.6*mobPush - u_damping*z + noiseVec;
+            vec2 zNew = z + u_dt * dz;
+            zNew *= 1.0 / (1.0 + 0.42 * u_dt * dot(zNew, zNew));
+
+            float fuelR = texture(u_curr, v_uv + vec2(u_texel.x, 0.0)).b;
+            float fuelL = texture(u_curr, v_uv - vec2(u_texel.x, 0.0)).b;
+            float fuelU = texture(u_curr, v_uv + vec2(0.0, u_texel.y)).b;
+            float fuelD = texture(u_curr, v_uv - vec2(0.0, u_texel.y)).b;
+            float lapFuel = fuelR + fuelL + fuelU + fuelD - 4.0*fuel;
+
+            float amp = length(zNew);
+            float fuelTarget = clamp(0.35 + 0.6*amp + 0.25*sin(chirality*2.1) - 0.3*muMag, 0.0, 1.2);
+            fuelTarget *= (1.0 - smoothstep(1.3, 1.5, amp));
+            float dfuel = u_fuelFeed*(fuelTarget - fuel) - u_fuelDecay*fuel + 0.22*lapFuel;
+            float fuelNew = clamp(fuel + u_dt*dfuel, 0.0, 1.0);
+
+            float tTarget = clamp(0.5 + 0.5*tanh(chirality*1.4 + (fuelNew-0.5)*1.3), 0.0, 1.0);
+            float trailNew = mix(trail, tTarget, 1.0 - exp(-u_trailRate * u_dt));
+
+            o = vec4(zNew, fuelNew, trailNew);
+          }
+        `;
+
+        const FRAG_RENDER = `#version 300 es
+          precision highp float;
+          in vec2 v_uv; out vec4 o;
+          uniform sampler2D u_state;
+          uniform float u_colorShift, u_colorSat, u_colorGain, u_gamma;
+
+          vec3 palette(float t) {
+            vec3 a = vec3(0.5), b = vec3(0.5), c = vec3(1.0), d = vec3(0.00, 0.33, 0.67);
+            return a + b*cos(6.28318*(c*t + d));
+          }
+
+          void main() {
+            vec4 st = texture(u_state, v_uv);
+            vec2 z = st.rg;
+            float fuel = st.b;
+            float trail = st.a;
+
+            float amp = length(z);
+            float ph = atan(z.y, z.x);
+
+            float h = fract(ph/6.283 + trail*0.3 + u_colorShift);
+            vec3 col = palette(h);
+
+            float glow = smoothstep(0.1, 1.2, amp);
+            col *= glow;
+
+            vec3 ember = vec3(1.0, 0.6, 0.2) * pow(fuel, 3.0);
+            col += ember * 0.8;
+
+            col *= mix(0.4, 1.0, smoothstep(0.2, 0.6, trail));
+
+            float gray = dot(col, vec3(0.299, 0.587, 0.114));
+            col = mix(vec3(gray), col, u_colorSat);
+
+            col = pow(col, vec3(u_gamma));
+            col *= u_colorGain;
+
+            vec2 vc = v_uv - 0.5;
+            col *= 1.0 - dot(vc, vc) * 0.3;
+
+            o = vec4(col, 1.0);
+          }
+        `;
+
+        this.progInit = this.createProgram(VERT, FRAG_INIT);
+        this.progUpdate = this.createProgram(VERT, FRAG_UPDATE);
+        this.progRender = this.createProgram(VERT, FRAG_RENDER);
+      }
+
+      createProgram(vertSrc, fragSrc) {
+        const gl = this.gl;
+        const vs = gl.createShader(gl.VERTEX_SHADER);
+        gl.shaderSource(vs, vertSrc); gl.compileShader(vs);
+        if (!gl.getShaderParameter(vs, gl.COMPILE_STATUS)) {
+          throw new Error('Vertex shader error: ' + gl.getShaderInfoLog(vs));
+        }
+        const fs = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(fs, fragSrc); gl.compileShader(fs);
+        if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) {
+          throw new Error('Fragment shader error: ' + gl.getShaderInfoLog(fs));
+        }
+        const prog = gl.createProgram();
+        gl.attachShader(prog, vs); gl.attachShader(prog, fs);
+        gl.linkProgram(prog);
+        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+          throw new Error('Program link error: ' + gl.getProgramInfoLog(prog));
+        }
+        return prog;
+      }
+
+      initBuffers() {
+        const gl = this.gl;
+        this.vao = gl.createVertexArray();
+        gl.bindVertexArray(this.vao);
+
+        this.tex = [this.createTex(), this.createTex()];
+        this.fbo = [gl.createFramebuffer(), gl.createFramebuffer()];
+        for (let i = 0; i < 2; i++) {
+          gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo[i]);
+          gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.tex[i], 0);
+
+          const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+          if (status !== gl.FRAMEBUFFER_COMPLETE) {
+            throw new Error('Framebuffer not complete: ' + status);
+          }
+        }
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        this.pingpong = 0;
+      }
+
+      createTex() {
+        const gl = this.gl;
+        const tex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, this.W, this.H, 0, gl.RGBA, gl.FLOAT, null);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+        return tex;
+      }
+
+      seed() {
+        const gl = this.gl;
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo[0]);
+        gl.viewport(0, 0, this.W, this.H);
+        gl.useProgram(this.progInit);
+        gl.uniform1f(gl.getUniformLocation(this.progInit, 'u_seed'), Math.random()*1000);
+        gl.uniform2f(gl.getUniformLocation(this.progInit, 'u_res'), this.W, this.H);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        this.pingpong = 0;
+      }
+
+      update(dt) {
+        if (!this.ready) return;
+
+        const gl = this.gl;
+        const p = this.params;
+        this.time += dt;
+
+        for (let step = 0; step < 2; step++) {
+          const src = this.pingpong, dst = 1 - this.pingpong;
+          gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo[dst]);
+          gl.viewport(0, 0, this.W, this.H);
+          gl.useProgram(this.progUpdate);
+
+          gl.activeTexture(gl.TEXTURE0);
+          gl.bindTexture(gl.TEXTURE_2D, this.tex[src]);
+
+          const loc = (n) => gl.getUniformLocation(this.progUpdate, n);
+          gl.uniform1i(loc('u_curr'), 0);
+          gl.uniform2f(loc('u_res'), this.W, this.H);
+          gl.uniform2f(loc('u_texel'), 1/this.W, 1/this.H);
+          gl.uniform1f(loc('u_dt'), p.dt);
+          gl.uniform1f(loc('u_time'), this.time);
+          gl.uniform1f(loc('u_flowGain'), p.flowGain);
+          gl.uniform1f(loc('u_swirlGain'), p.swirlGain);
+          gl.uniform1f(loc('u_damping'), p.damping);
+          gl.uniform1f(loc('u_spinBias'), p.spinBias);
+          gl.uniform1f(loc('u_mobiusBias'), p.mobiusBias);
+          gl.uniform1f(loc('u_defectDrive'), p.defectDrive);
+          gl.uniform1f(loc('u_warpAmp'), p.warpAmp);
+          gl.uniform1f(loc('u_warpScale'), p.warpScale);
+          gl.uniform1f(loc('u_noiseAmp'), p.noiseAmp);
+          gl.uniform1f(loc('u_fuelFeed'), p.fuelFeed);
+          gl.uniform1f(loc('u_fuelDecay'), p.fuelDecay);
+          gl.uniform1f(loc('u_trailRate'), p.trailRate);
+
+          gl.drawArrays(gl.TRIANGLES, 0, 3);
+          this.pingpong = dst;
+        }
+      }
+
+      render() {
+        if (!this.ready) return;
+
+        const gl = this.gl;
+        const p = this.params;
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.viewport(0, 0, this.W, this.H);
+        gl.useProgram(this.progRender);
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, this.tex[this.pingpong]);
+
+        const loc = (n) => gl.getUniformLocation(this.progRender, n);
+        gl.uniform1i(loc('u_state'), 0);
+        gl.uniform1f(loc('u_colorShift'), p.colorShift);
+        gl.uniform1f(loc('u_colorSat'), p.colorSat);
+        gl.uniform1f(loc('u_colorGain'), p.colorGain);
+        gl.uniform1f(loc('u_gamma'), 0.97);
+
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+      }
+    }
+
+    // ============================================================
+    // MAIN ANIMATION CONTROLLER
+    // Step-driven animation for synchronized frame capture
+    // ============================================================
+    class IntroAnimation {
+      constructor() {
+        this.bgCanvas = document.getElementById('bg-canvas');
+        this.overlay = document.getElementById('overlay');
+
+        this.bg = new OrbitalMobiusCA(this.bgCanvas);
+
+        this.frameCount = 0;
+        this.totalFrames = Math.ceil((CONFIG.duration / 1000) * CONFIG.fps);
+        this.fixedDt = 1 / CONFIG.fps;
+
+        window.CONFIG = CONFIG;
+        window.introAnimation = this;
+        window.animationComplete = false;
+
+        // Expose stepFrame globally for recorder to call
+        window.stepFrame = () => this.stepFrame();
+
+        // Calculate CSS animation timing for manual control
+        // CSS animations run for 6s by default, we need to map our progress to them
+        this.cssAnimDuration = 6; // seconds
+      }
+
+      getProgress() {
+        return Math.min(1, this.frameCount / this.totalFrames);
+      }
+
+      // Update CSS animation states based on current frame
+      updateCSSAnimations() {
+        const progress = this.getProgress();
+        const simTime = progress * (CONFIG.duration / 1000); // simulated time in seconds
+
+        // Set animation delay to negative value to "jump" to the right position
+        // This effectively pauses CSS animations at the correct frame
+        const elements = this.overlay.querySelectorAll('.title, .description, .author-section, .date');
+        elements.forEach(el => {
+          // Pause the animation
+          el.style.animationPlayState = 'paused';
+          // Set the delay to jump to current time position
+          el.style.animationDelay = `-${simTime}s`;
+        });
+
+        // Trigger fade out animation at 80% progress
+        if (progress >= 0.8 && !this.overlay.classList.contains('fade-out')) {
+          this.overlay.classList.add('fade-out');
+          // Re-apply pause to new fade-out animations
+          setTimeout(() => {
+            const fadeElements = this.overlay.querySelectorAll('.title, .description, .author-section, .date');
+            fadeElements.forEach(el => {
+              el.style.animationPlayState = 'paused';
+            });
+          }, 0);
+        }
+      }
+
+      // Step one frame - called by the recorder after each screenshot
+      stepFrame() {
+        if (this.frameCount >= this.totalFrames) {
+          window.animationComplete = true;
+          return true; // animation complete
+        }
+
+        // Update WebGL background
+        this.bg.update(this.fixedDt);
+        this.bg.render();
+
+        // Update CSS animations to match current time
+        this.updateCSSAnimations();
+
+        this.frameCount++;
+
+        if (this.frameCount >= this.totalFrames) {
+          window.animationComplete = true;
+          return true;
+        }
+
+        return false; // animation still running
+      }
+
+      // Render initial frame without advancing
+      renderInitial() {
+        this.bg.render();
+        this.updateCSSAnimations();
+      }
+    }
+
+    // Initialize but don't auto-animate - wait for recorder to step frames
+    const intro = new IntroAnimation();
+    intro.renderInitial();
+  </script>
+</body>
+</html>
