@@ -50,7 +50,7 @@ Inspect source fields: `id`, `title`, `type`, `url`, `created_at`.
 ## Step 5: Create Source Files
 
 ```bash
-python3 /Users/jean-patricksmith/.agents/skills/notebooklm/scripts/import_sources.py \
+python3 $HOME/.agents/skills/notebooklm/scripts/import_sources.py \
   --sources /tmp/notebooklm-sources.json \
   --slug {notebook-slug} \
   --dashboard "{dashboard-title}"

@@ -4,7 +4,7 @@
 
 MESSAGE="$1"
 SCHEDULE="$2"
-REMINDERS_FILE="/home/julian/clawd/reminders.md"
+REMINDERS_FILE="$HOME/clawd/reminders.md"
 TIMEZONE="Europe/Warsaw"
 
 [[ -z "$MESSAGE" ]] && echo "Error: No message provided" && exit 1
@@ -95,7 +95,7 @@ fi
 # Build cron command based on type
 if [[ "$PARSED" =~ ^duration:(.+)$ ]]; then
     DURATION="${BASH_REMATCH[1]}"
-    cd /home/julian/clawdbot
+    cd $HOME/clawdbot
     JOB_OUTPUT=$(npx tsx src/index.ts cron add \
         --name "Recurring: $MESSAGE" \
         --every "$DURATION" \
@@ -109,7 +109,7 @@ if [[ "$PARSED" =~ ^duration:(.+)$ ]]; then
     SCHEDULE_DISPLAY="every $DURATION"
 elif [[ "$PARSED" =~ ^cron:(.+)$ ]]; then
     CRON_EXPR="${BASH_REMATCH[1]}"
-    cd /home/julian/clawdbot
+    cd $HOME/clawdbot
     JOB_OUTPUT=$(npx tsx src/index.ts cron add \
         --name "Recurring: $MESSAGE" \
         --cron "$CRON_EXPR" \

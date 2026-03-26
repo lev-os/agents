@@ -4,7 +4,7 @@
 Single agent that researches framework sources AND generates lean SKILL.md (100-200 lines).
 
 ## Context
-- Working directory: `/Users/jean-patricksmith/digital/leviathan/poc/skills`
+- Working directory: `$HOME/digital/leviathan/poc/skills`
 - Input: Framework from task.csv (status: UNKNOWN or VAGUE)
 - Output: Single SKILL.md file (Claude Code standard)
 - Status flow: UNKNOWN → ARTIFACTS_READY

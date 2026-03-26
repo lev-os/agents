@@ -204,9 +204,9 @@ Evaluate data protection compliance:
 
 ## Links
 
-- [Agent Implementation](/Users/ryan/src/Fritmp/amplihack/.claude/skills/lawyer-analyst/lawyer-analyst.md)
-- [Quick Reference](/Users/ryan/src/Fritmp/amplihack/.claude/skills/lawyer-analyst/QUICK_REFERENCE.md)
-- [All Skills](/Users/ryan/src/Fritmp/amplihack/.claude/skills/README.md)
+- [Agent Implementation]($HOME/src/amplihack/.claude/skills/lawyer-analyst/lawyer-analyst.md)
+  - [Quick Reference]($HOME/src/amplihack/.claude/skills/lawyer-analyst/QUICK_REFERENCE.md)
+  - [All Skills]($HOME/src/amplihack/.claude/skills/README.md)
 
 ## Best Practices
 

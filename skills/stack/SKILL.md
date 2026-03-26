@@ -6,7 +6,7 @@ description: Use when listing, inspecting, running, or managing prompt-stack ses
 # Stack
 
 Thin launcher for the prompt-stack runtime at
-`/Users/jean-patricksmith/digital/leviathan/plugins/prompt-stack`.
+`$HOME/digital/leviathan/plugins/prompt-stack`.
 
 Runtime ownership stays with the plugin. This skill teaches agents how to
 call it correctly and present results as a dashboard, not raw JSON.
@@ -15,7 +15,7 @@ call it correctly and present results as a dashboard, not raw JSON.
 
 When the user says `/stack list`, do NOT dump raw JSON. Instead:
 
-1. Run `cd /Users/jean-patricksmith/digital/leviathan && bun plugins/prompt-stack/src/cli.ts list`
+1. Run `cd $HOME/digital/leviathan && bun plugins/prompt-stack/src/cli.ts list`
 2. Parse the JSON response
 3. Format as a grouped dashboard — one line per stack:
 
@@ -85,7 +85,7 @@ Context detection rules:
 ## Commands
 
 ```bash
-cd /Users/jean-patricksmith/digital/leviathan
+cd $HOME/digital/leviathan
 
 # List (then format as dashboard above)
 bun plugins/prompt-stack/src/cli.ts list
@@ -141,6 +141,12 @@ Workers then know what specialized skills are available during execution.
 - `record` REJECTS invalid reports — fix and re-submit
 - Report format: YAML frontmatter + required sections (varies by stack)
 - If part of active `$work` handoff, keep planning there — stack is execution only
+- If the stack is being used inside active `$work`, stack state is **not** the only artifact. You must also persist the corresponding disk-backed `work` template artifact:
+  - planning / execution slice -> `.lev/pm/plans/plan-*.md`
+  - research lane -> `.lev/pm/reports/report-*.md`
+  - shaping / architecture lane -> `.lev/pm/designs/*.md`, `.lev/pm/proposals/*.md`, or `.lev/pm/specs/*.md`
+- For large or multi-workstream implementation planning, route through `writing-plans` and split independent workstreams into separate plan files. Do not keep one thin coordination plan where the actual execution detail belongs in child plans.
+- A good default: stack session for runtime state, `work` artifact for durable repo state, handoff for continuity. All three should agree.
 - For subagent orchestration: `plugins/prompt-stack/references/subagent-contract.md`
 
 ## References

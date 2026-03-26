@@ -247,7 +247,7 @@ export PATH="/opt/homebrew/bin:$PATH"
 
 ```go
 {{ joinPath .chezmoi.homeDir ".config" "nvim" }}
-// /home/user/.config/nvim
+// $HOME/.config/nvim
 
 {{ base "/path/to/file.txt" }}   // file.txt
 {{ dir "/path/to/file.txt" }}    // /path/to

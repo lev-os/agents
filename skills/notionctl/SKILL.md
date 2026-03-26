@@ -7,7 +7,7 @@ description: Thin direct Notion API CLI for the Leviathan workspace. Use when wo
 
 ## Overview
 
-Use this skill to work on Leviathan's direct Notion API CLI in `/Users/jean-patricksmith/digital/leviathan/crates/lev-notionctl/`.
+Use this skill to work on Leviathan's direct Notion API CLI in `$HOME/digital/leviathan/crates/lev-notionctl/`.
 
 Keep the surface thin. `notionctl` owns direct API operations and the local `doctor` check. Workflow semantics, policy logic, and inbox triage belong above the CLI in FlowMind or other skills.
 
@@ -36,12 +36,12 @@ If the request is really about higher-level workflow behavior, stop changing not
 
 Read these files first when changing the CLI:
 
-- `/Users/jean-patricksmith/digital/leviathan/crates/lev-notionctl/src/main.rs`
-- `/Users/jean-patricksmith/digital/leviathan/crates/lev-notionctl/tests/robot_mode.rs`
-- `/Users/jean-patricksmith/digital/leviathan/docs/plugins/notion.md`
-- `/Users/jean-patricksmith/digital/leviathan/plugins/notion/README.md`
-- `/Users/jean-patricksmith/digital/leviathan/.lev/pm/specs/spec-notion-plugin-cli-2026-03-06.md`
-- `/Users/jean-patricksmith/digital/leviathan/.lev/pm/handoffs/20260309-notionctl-plugin-core-execution-session-2.md`
+- `$HOME/digital/leviathan/crates/lev-notionctl/src/main.rs`
+- `$HOME/digital/leviathan/crates/lev-notionctl/tests/robot_mode.rs`
+- `$HOME/digital/leviathan/docs/plugins/notion.md`
+- `$HOME/digital/leviathan/plugins/notion/README.md`
+- `$HOME/digital/leviathan/.lev/pm/specs/spec-notion-plugin-cli-2026-03-06.md`
+- `$HOME/digital/leviathan/.lev/pm/handoffs/20260309-notionctl-plugin-core-execution-session-2.md`
 
 ## Workflow
 
@@ -56,11 +56,11 @@ Read these files first when changing the CLI:
 Run these commands after changes:
 
 ```bash
-cargo fmt --check --manifest-path /Users/jean-patricksmith/digital/leviathan/crates/lev-notionctl/Cargo.toml
-cargo check --manifest-path /Users/jean-patricksmith/digital/leviathan/crates/lev-notionctl/Cargo.toml
-cargo clippy --manifest-path /Users/jean-patricksmith/digital/leviathan/crates/lev-notionctl/Cargo.toml -- -D warnings
-cargo test --manifest-path /Users/jean-patricksmith/digital/leviathan/crates/lev-notionctl/Cargo.toml
-cargo run --manifest-path /Users/jean-patricksmith/digital/leviathan/crates/lev-notionctl/Cargo.toml -- --json doctor
+cargo fmt --check --manifest-path $HOME/digital/leviathan/crates/lev-notionctl/Cargo.toml
+cargo check --manifest-path $HOME/digital/leviathan/crates/lev-notionctl/Cargo.toml
+cargo clippy --manifest-path $HOME/digital/leviathan/crates/lev-notionctl/Cargo.toml -- -D warnings
+cargo test --manifest-path $HOME/digital/leviathan/crates/lev-notionctl/Cargo.toml
+cargo run --manifest-path $HOME/digital/leviathan/crates/lev-notionctl/Cargo.toml -- --json doctor
 ```
 
 For live smoke, require `NOTION_ACCESS_TOKEN` and safe shared IDs before mutating anything. Treat timeouts, missing shared objects, and auth failures as blockers to record, not reasons to widen the CLI.

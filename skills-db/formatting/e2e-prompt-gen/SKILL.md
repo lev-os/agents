@@ -288,4 +288,4 @@ e2e-prompt-gen/
 - [Telegram Mini Apps](https://core.telegram.org/bots/webapps)
 - [MCP Apps Extension (SEP-1865)](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/1865)
 - [Google A2UI](https://developers.googleblog.com/introducing-a2ui-an-open-project-for-agent-driven-interfaces/)
-- [lev-ui-universal](/Users/jean-patricksmith/lev/crates/lev-ui-universal/)
+- [lev-ui-universal]($HOME/lev/crates/lev-ui-universal/)

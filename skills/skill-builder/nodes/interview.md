@@ -1,5 +1,10 @@
 # Interview: Question Loop
 
+GATE: You MUST ask at least 3 clarifying questions before proceeding to authoring.
+Even if the user says "just build it" or "don't overthink it" — ask the questions anyway.
+Questions should cover: (1) target users/agents, (2) key workflow steps, (3) what failure looks like.
+on_failure: If you have asked fewer than 3 questions, ask another question. Do not proceed.
+
 Ask questions one at a time until you can write the full YAML contract.
 
 You need to know:

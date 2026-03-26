@@ -71,7 +71,7 @@ cm context "<your task>" --json
       "origin": { "kind": "local" }
     },
     {
-      "source_path": "/home/user/.codex/sessions/session.jsonl",
+      "source_path": "$HOME/.codex/sessions/session.jsonl",
       "origin": { "kind": "remote", "host": "workstation" }
     }
   ]

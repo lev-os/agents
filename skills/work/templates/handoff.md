@@ -370,7 +370,7 @@ BAD: **Project State:** Working on stuff. **Current Focus:** Continuing work.
 <!--
 PURPOSE: Let the next session start executing within 30 seconds of reading.
 PROCESS: Include cd, git status, and the most relevant run/test commands. Use absolute paths. Only include commands that are actually needed.
-GOOD: cd /Users/dev/project && git status && bash ~/.agents/skills/work/scripts/lint-work-contract.sh
+GOOD: cd $HOME/project && git status && bash ~/.agents/skills/work/scripts/lint-work-contract.sh
 BAD: npm start
 -->
 
