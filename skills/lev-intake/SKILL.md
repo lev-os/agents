@@ -2,7 +2,7 @@
 name: lev-intake
 description: |
   [WHAT] Config-driven content intake system for GitHub repos, videos, articles, PDFs, and skill packages.
-  [HOW] Phase 0 resolves workshop overlays from `~/.config/lev/config.yaml` and `<project>/.lev/config.yaml`. Phase 1 acquires content into the resolved workshop root. Phase 2 analyzes against configured playbooks or project docs. Phase 3 writes an intake report and recommends integrate/extract/monitor/pass/vendor.
+  [HOW] Phase 0 resolves workshop overlays from `~/.config/lev/config.yaml` and `<project>/.lev/config.yaml`. Phase 1 acquires content into the resolved workshop root. Phase 2 analyzes against configured playbooks or project docs. Phase 3 writes the canonical workshop analysis artifact under the resolved `analysis/` zone and recommends integrate/extract/monitor/pass/vendor.
   [WHEN] Use when the user provides a URL to analyze, says "intake/download", wants to evaluate outside work, or references a skill package.
   [WHY] Makes intake multi-project by default while preserving legacy `~/lev/workshop` flows through config instead of hardcoded assumptions.
 
@@ -13,7 +13,7 @@ category: process-intake
 lifecycle_integration:
   stage: ephemeral
   input_artifact: URL (repo/video/article/pdf/skill)
-  output_artifact: intake report written to the configured report destination
+  output_artifact: canonical workshop analysis written to the resolved analysis destination
 ---
 
 # Config-Driven Workshop Intake
@@ -72,12 +72,8 @@ Use this resolution order:
    - if set, resolve it
    - else default to `<workshopRoot>/manifest.yaml`
 
-3. `workshop.reports.intake`
-   - if set, use it
-   - else default to `<projectRoot>/.lev/pm/intake`
-
-4. `workshop.playbooks.repo_intake`
-5. `workshop.playbooks.papers_intake`
+3. `workshop.playbooks.repo_intake`
+4. `workshop.playbooks.papers_intake`
 
 ### 0.4 Load manifest if present
 
@@ -132,7 +128,7 @@ If the active project is KinglyAssistant / ClawBuddy, the expected defaults are:
 
 - workshop root: `.lev/workshop/`
 - workshop manifest: `.lev/workshop/manifest.yaml`
-- intake reports: `.lev/pm/intake/`
+- canonical analysis: `.lev/workshop/analysis/<slug>/analysis.md`
 - guide: `AGENTS.md`
 - product direction: `docs/NORTH_STAR.md`
 - architecture: `docs/01-architecture.md`
@@ -261,7 +257,7 @@ Use project-specific decisions:
 ## Output Artifacts
 
 Write the final report to:
-- `<resolved report dir>/<slug>-intake.md`
+- `<workshopRoot>/<folders.analysis>/<slug>/analysis.md`
 
 The report must include:
 - target URL
@@ -288,7 +284,7 @@ The report must include:
 - Repo Playbook: <path or null>
 - Papers Playbook: <path or null>
 - Staged Source: <path>
-- Report Path: <path>
+- Analysis Path: <path>
 
 ## Project Context
 - Guide: <path>
@@ -319,10 +315,11 @@ The report must include:
 - Manifest-driven folder resolution works when present
 - Legacy Lev workflow remains possible through global config
 - Project-local workshop defaults work when no global override exists
-- Report is written to the configured report destination
+- Canonical analysis is written to the resolved `analysis/` destination
 
 ## Notes
 
-- For Lev itself, set `workshop.root` to `~/lev/workshop` and point playbooks at the existing `intake.md` / `papers/intake.md`.
+- Default behavior for most repos should remain `<projectRoot>/.lev/workshop`.
+- For Lev itself, repo-local overlays can point `workshop.root` at `workshop/` while preserving the global default.
 - For project repos, default to `<projectRoot>/.lev/workshop`.
 - A checked-in workshop manifest plus gitignored runtime folders is the intended shape for project-local workshop state.
