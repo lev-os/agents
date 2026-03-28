@@ -11,6 +11,39 @@ Thin launcher for the prompt-stack runtime at
 Runtime ownership stays with the plugin. This skill teaches agents how to
 call it correctly and present results as a dashboard, not raw JSON.
 
+## Autopilot Rule
+
+When the user says `/stack next`, treat it as an autopilot command, not a checkpoint request.
+
+- Prefer the most recent active session for the current project before initializing a new stack.
+- If an active session exists:
+  1. run `next` or `status` to confirm the true active step
+  2. finish that step
+  3. run `record`
+  4. immediately follow the CLI response
+  5. continue until the stack completes or a real blocker occurs
+- Do not stop after each successful step to ask for permission to continue.
+- Send short progress updates, but keep the session moving.
+
+Only stop for:
+- missing required artifact or context that cannot be inferred from disk
+- contradictory session state after re-checking with `status`
+- failed `record` that cannot be corrected locally
+- a true product decision that is not covered by existing plan/spec/proposal artifacts
+
+## Session Serialization
+
+A stack session is single-writer state.
+
+- Never run `next`, `record`, `status`, or `validate` in parallel against the same session.
+- Always use this order:
+  1. `status` or `next`
+  2. do the step work
+  3. `record`
+  4. `status` or `next` again
+  5. repeat
+- After any interruption, timeout, or aborted turn, re-run `status` and trust the session file over memory.
+
 ## Dashboard Mode (`/stack list`)
 
 When the user says `/stack list`, do NOT dump raw JSON. Instead:
@@ -119,6 +152,8 @@ bun plugins/prompt-stack/src/cli.ts validate --session <id> --project-dir <path>
 6. `record --session <id> --step <step-id> --report <path>` → validates + advances
 7. Repeat 4-6 until all steps complete
 8. `validate --session <id>` → checks lifecycle integrity
+
+For `/stack next`, steps 4-8 are one continuous autopilot loop. Do not pause between them unless blocked.
 
 ## Skill Discovery Integration
 
