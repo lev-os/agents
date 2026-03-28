@@ -94,6 +94,15 @@ if [[ -n "$SLUG" && -z "$CLAIM_TOKEN" && -z "$API_KEY" && -f "$STATE_FILE" ]]; t
   CLAIM_TOKEN=$("$JQ_BIN" -r --arg s "$SLUG" '.publishes[$s].claimToken // empty' "$STATE_FILE" 2>/dev/null || true)
 fi
 
+compute_sha256() {
+  local f="$1"
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$f" | cut -d' ' -f1
+  else
+    shasum -a 256 "$f" | cut -d' ' -f1
+  fi
+}
+
 guess_content_type() {
   local f="$1"
   case "${f##*.}" in
@@ -132,8 +141,9 @@ if [[ -f "$TARGET" ]]; then
   sz=$(wc -c < "$TARGET" | tr -d ' ')
   ct=$(guess_content_type "$TARGET")
   bn=$(basename "$TARGET")
-  FILES_JSON=$("$JQ_BIN" -n --arg p "$bn" --argjson s "$sz" --arg c "$ct" \
-    '[{"path":$p,"size":$s,"contentType":$c}]')
+  h=$(compute_sha256 "$TARGET")
+  FILES_JSON=$("$JQ_BIN" -n --arg p "$bn" --argjson s "$sz" --arg c "$ct" --arg h "$h" \
+    '[{"path":$p,"size":$s,"contentType":$c,"hash":$h}]')
   FILE_MAP=$("$JQ_BIN" -n --arg p "$bn" --arg a "$(cd "$(dirname "$TARGET")" && pwd)/$(basename "$TARGET")" \
     '{($p):$a}')
 elif [[ -d "$TARGET" ]]; then
@@ -144,9 +154,10 @@ elif [[ -d "$TARGET" ]]; then
     [[ "$(basename "$rel")" == ".DS_Store" ]] && continue
     sz=$(wc -c < "$f" | tr -d ' ')
     ct=$(guess_content_type "$f")
+    h=$(compute_sha256 "$f")
     abs=$(cd "$(dirname "$f")" && pwd)/$(basename "$f")
-    FILES_JSON=$(echo "$FILES_JSON" | "$JQ_BIN" --arg p "$rel" --argjson s "$sz" --arg c "$ct" \
-      '. + [{"path":$p,"size":$s,"contentType":$c}]')
+    FILES_JSON=$(echo "$FILES_JSON" | "$JQ_BIN" --arg p "$rel" --argjson s "$sz" --arg c "$ct" --arg h "$h" \
+      '. + [{"path":$p,"size":$s,"contentType":$c,"hash":$h}]')
     FILE_MAP=$(echo "$FILE_MAP" | "$JQ_BIN" --arg p "$rel" --arg a "$abs" '. + {($p):$a}')
   done < <(find "$TARGET" -type f -print0 | sort -z)
 else
@@ -225,11 +236,16 @@ VERSION_ID=$(echo "$RESPONSE" | "$JQ_BIN" -r '.upload.versionId')
 FINALIZE_URL=$(echo "$RESPONSE" | "$JQ_BIN" -r '.upload.finalizeUrl')
 SITE_URL=$(echo "$RESPONSE" | "$JQ_BIN" -r '.siteUrl')
 UPLOAD_COUNT=$(echo "$RESPONSE" | "$JQ_BIN" '.upload.uploads | length')
+SKIPPED_COUNT=$(echo "$RESPONSE" | "$JQ_BIN" '.upload.skipped // [] | length')
 
 [[ "$OUT_SLUG" != "null" ]] || die "unexpected response: $RESPONSE"
 
-# Step 2: Upload files in parallel
-echo "uploading $UPLOAD_COUNT files..." >&2
+# Step 2: Upload files (skipped files are unchanged from previous version)
+if [[ "$SKIPPED_COUNT" -gt 0 ]]; then
+  echo "uploading $UPLOAD_COUNT files ($SKIPPED_COUNT unchanged, skipped)..." >&2
+else
+  echo "uploading $UPLOAD_COUNT files..." >&2
+fi
 upload_errors=0
 
 for i in $(seq 0 $((UPLOAD_COUNT - 1))); do
@@ -322,7 +338,9 @@ echo "publish_result.persistence=$PERSISTENCE" >&2
 echo "publish_result.expires_at=$RESPONSE_EXPIRES" >&2
 echo "publish_result.claim_url=$SAFE_CLAIM_URL" >&2
 
-if [[ "$AUTH_MODE" == "anonymous" ]]; then
+if [[ "$AUTH_MODE" == "authenticated" ]]; then
+  echo "authenticated publish (permanent, saved to your account)" >&2
+else
   echo "anonymous publish (expires in 24h)" >&2
   if [[ -n "$SAFE_CLAIM_URL" ]]; then
     echo "claim URL: $SAFE_CLAIM_URL" >&2
