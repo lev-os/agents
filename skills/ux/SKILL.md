@@ -1,6 +1,6 @@
 ---
 name: ux
-description: "UX design hub: 7-step wireframe pipeline + product design (design-os) + visual prototyping (pencil) + agentic UX patterns (lev-ref). Use for wireframes, flows, IA, JTBD, product design, CLI design, agentic UX, design systems, or component architecture."
+description: "UX design hub: 8-step wireframe pipeline (+ constraint_bundle for agents) + product design (design-os) + visual prototyping (pencil) + agentic UX patterns (lev-ref). Use for wireframes, flows, IA, JTBD, product design, CLI design, agentic UX, design systems, or component architecture."
 skill_type: hub
 category: design-ux
 related_skills:
@@ -17,7 +17,7 @@ hub_routes:
 
 # UX Design Hub
 
-Routes to specialist sub-skills or runs the built-in 7-step UX pipeline.
+Routes to specialist sub-skills or runs the built-in 8-step UX pipeline.
 
 ## Hub Decision Tree
 
@@ -128,6 +128,8 @@ Artifacts (expected):
 - `components.md`
 
 - `wireframes.md`
+
+- `constraint_bundle.yaml`
 
 - `summary.md`
 
@@ -511,6 +513,76 @@ Write `wireframes.md`:
 - State variants: idle/loading/empty/error/success.
 
 If the user asks for a design-file deliverable, propose using the `pencil` tool to generate a `.pen` wireframe and confirm the target path under `.lev/ux/`.
+
+## Step 8: Constraint Bundle
+
+Write `constraint_bundle.yaml` — a compressed, agent-optimized summary of the entire run. This is what an agent consumes as context before implementing UI.
+
+**Target: <6K tokens.** If the bundle exceeds 8K tokens, you're not compressing enough. Rank and cut.
+
+```yaml
+# constraint_bundle.yaml
+meta:
+  source: "{RUN_DIR}"
+  confidence: synthetic
+  pipeline_version: "ux-v1"
+
+problem: |
+  {1-2 sentence problem statement from problem_spec.yaml}
+
+primary_jobs:
+  - id: job-1
+    statement: "{JTBD statement}"
+    priority: 1
+  # Top 3-5 jobs only, ranked by research signal strength
+
+entities:
+  - name: "{Entity}"
+    attributes: ["{attr}"]
+    primary_action: "{verb}"
+  # From ia_schema.json — only entities with user-facing actions
+
+navigation:
+  primary: ["{screen}"]
+  secondary: ["{screen}"]
+
+layout_constraints:
+  # Extracted from research convergence + wireframe patterns
+  - "{constraint}: {true|false|value}"
+
+anti_patterns:
+  # From research divergence + edge cases — explicit "don't" list
+  - "{what not to do and why}"
+
+design_tokens:
+  palette: "{name or hex values}"
+  fonts: ["{font}"]
+  # Only if the pipeline produced design direction
+
+user_types:
+  - id: "{type-id}"
+    needs: "{what this user type prioritizes}"
+  # From research divergence — different users want different things
+
+research_signal:
+  convergence: ["{what all personas agreed on}"]
+  tensions: ["{where personas split — the tradeoffs}"]
+  gate_decision: proceed | reframe | abort
+```
+
+Rules:
+
+- **Rank everything.** Jobs by priority. Entities by user-facing importance. Anti-patterns by severity.
+
+- **Anti-patterns are mandatory.** Agents default to training data averages without explicit "don't" signals. Every bundle needs at least 3 anti-patterns.
+
+- **`confidence: synthetic` always present.** This is synthetic research, not real user data.
+
+- **Omit empty sections.** If no design tokens were produced, don't include the key.
+
+- **This replaces nothing.** The full artifacts (13 files) remain the source of truth. The bundle is a compressed handoff for agents who need context, not the complete picture.
+
+**Skip in spike mode** — spike has no research to compress.
 
 ## Final Summary
 
