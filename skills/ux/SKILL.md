@@ -542,6 +542,28 @@ entities:
     primary_action: "{verb}"
   # From ia_schema.json — only entities with user-facing actions
 
+relationships:
+  - from: "{Entity}"
+    to: "{Entity}"
+    cardinality: "1:1 | 1:N | N:M"
+    ownership: contains | references
+  # From ia_schema.json — how entities compose. Agents guess without this.
+
+modes:
+  auto:
+    description: "Full pipeline, no stops. Default."
+    gates: [self_invalidation]  # only this gate pauses auto
+    output: constraint_bundle.yaml
+  interactive:
+    description: "Pause at each step for review."
+    gates: [study_design, tribunal_dispatch, analysis, self_invalidation]
+    output: all artifacts + constraint_bundle.yaml
+  spike:
+    description: "Straight to wireframes. No research."
+    gates: []
+    output: wireframes.md
+  # From research divergence — user_types map to modes differently
+
 navigation:
   primary: ["{screen}"]
   secondary: ["{screen}"]
@@ -562,12 +584,30 @@ design_tokens:
 user_types:
   - id: "{type-id}"
     needs: "{what this user type prioritizes}"
+    default_mode: auto | interactive | spike
   # From research divergence — different users want different things
+  # default_mode maps each user type to its natural pipeline mode
 
 research_signal:
   convergence: ["{what all personas agreed on}"]
   tensions: ["{where personas split — the tradeoffs}"]
   gate_decision: proceed | reframe | abort
+
+validation_rubric:
+  # Two tiers: bundle_checks (verify against this YAML now) and run_checks (verify after pipeline execution)
+  bundle_checks:
+    # Verifiable right now against this file's structure
+    - check: "{what to verify}"
+      pass_if: "{concrete condition checkable in this YAML}"
+      severity: must | should | nice
+    # Must = hard fail. Should = flag. Nice = bonus.
+    # Min 3 bundle_checks. Derive from anti_patterns + layout_constraints.
+  run_checks:
+    # Verifiable after pipeline execution against RUN_DIR artifacts
+    - check: "{what to verify}"
+      pass_if: "{condition requiring pipeline output files}"
+      severity: must | should | nice
+    # Min 2 run_checks. Validates actual execution quality.
 ```
 
 Rules:
