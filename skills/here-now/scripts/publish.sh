@@ -16,6 +16,7 @@ DESCRIPTION=""
 TTL=""
 CLIENT=""
 TARGET=""
+HANDLE_PATH=""
 
 usage() {
   cat <<'USAGE'
@@ -29,6 +30,7 @@ Options:
   --description <text>    Viewer description
   --ttl <seconds>         Expiry (authenticated only)
   --client <name>         Agent name for attribution (e.g. cursor, claude-code)
+  --handle-path <path>    Attach to handle at this path (e.g. genuievolve → lev.here.now/genuievolve/)
   --base-url <url>        API base (default: https://here.now)
   --allow-nonherenow-base-url
                          Allow auth requests to non-default API base URL
@@ -63,6 +65,7 @@ while [[ $# -gt 0 ]]; do
     --description)  DESCRIPTION="$2"; shift 2 ;;
     --ttl)          TTL="$2"; shift 2 ;;
     --client)       CLIENT="$2"; shift 2 ;;
+    --handle-path)  HANDLE_PATH="$2"; shift 2 ;;
     --base-url)     BASE_URL="$2"; shift 2 ;;
     --allow-nonherenow-base-url) ALLOW_NON_HERENOW_BASE_URL=1; shift ;;
     --help|-h)      usage ;;
@@ -348,4 +351,38 @@ else
   if [[ -n "$RESPONSE_CLAIM_TOKEN" ]]; then
     echo "claim token saved to $STATE_FILE" >&2
   fi
+fi
+
+# Step 4: Handle path linking (optional)
+# When --handle-path is passed, attach the slug to lev.here.now/<path>/
+# via the Links API. Idempotent — creates or updates as needed.
+if [[ -n "$HANDLE_PATH" && -n "$API_KEY" ]]; then
+  echo "" >&2
+  LINK_SLUG="$OUT_SLUG"
+  LINK_RESP=$(curl -sS "$BASE_URL/api/v1/links/$HANDLE_PATH" \
+    -H "Authorization: Bearer $API_KEY" 2>/dev/null || echo "{}")
+  CURRENT=$(echo "$LINK_RESP" | "$JQ_BIN" -r '.slug // empty' 2>/dev/null || echo "")
+
+  if [[ "$CURRENT" == "$LINK_SLUG" ]]; then
+    echo "handle link OK: $HANDLE_PATH/ → $LINK_SLUG" >&2
+  elif [[ -n "$CURRENT" ]]; then
+    curl -sS -X PATCH "$BASE_URL/api/v1/links/$HANDLE_PATH" \
+      -H "Authorization: Bearer $API_KEY" \
+      -H "Content-Type: application/json" \
+      -d "{\"slug\": \"$LINK_SLUG\"}" >/dev/null 2>&1
+    echo "handle link updated: $HANDLE_PATH/ → $LINK_SLUG" >&2
+  else
+    curl -sS -X POST "$BASE_URL/api/v1/links" \
+      -H "Authorization: Bearer $API_KEY" \
+      -H "Content-Type: application/json" \
+      -d "{\"location\": \"$HANDLE_PATH\", \"slug\": \"$LINK_SLUG\"}" >/dev/null 2>&1
+    echo "handle link created: $HANDLE_PATH/ → $LINK_SLUG" >&2
+  fi
+
+  HANDLE_HOST=$(echo "$LINK_RESP" | "$JQ_BIN" -r '.hostname // empty' 2>/dev/null || echo "")
+  if [[ -n "$HANDLE_HOST" ]]; then
+    echo "publish_result.handle_url=https://$HANDLE_HOST/$HANDLE_PATH/" >&2
+  fi
+elif [[ -n "$HANDLE_PATH" && -z "$API_KEY" ]]; then
+  echo "WARN: --handle-path requires authenticated publish (API key)" >&2
 fi

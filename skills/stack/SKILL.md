@@ -31,6 +31,41 @@ Only stop for:
 - failed `record` that cannot be corrected locally
 - a true product decision that is not covered by existing plan/spec/proposal artifacts
 
+## Run Modes
+
+Once launch is approved, do not ask again until completion or blocker.
+
+- `foreground` = current agent/session drives the run in-process through the returned CLI contract
+- `background` = detached execution managed by prompt-stack and `lev exec`
+- chained runs continue across stacks without stopping
+- blockers come from merged runtime + project + invocation policy
+
+## Hard Rules
+
+- Respect the chosen run mode after launch approval.
+- Never ask “should I continue?” after go.
+- Stack session serialization stays single-writer per session.
+- Git checkpoint serialization stays single-writer per repo through `.lev/steering/checkpoint.lock`.
+- Use the prompt-stack checkpoint helper, not ad hoc repo-local scripts.
+
+## Checkpoint Mode
+
+Use the canonical prompt-stack helper layer when multiple runs share one repo and need serialized git checkpoints:
+
+```bash
+cd $HOME/digital/leviathan
+
+prompt-stack checkpoint-lock status --project-dir <path>
+prompt-stack checkpoint-lock acquire --project-dir <path> --owner-tag <tag>
+prompt-stack checkpoint-lock release --project-dir <path> --owner-tag <tag>
+```
+
+Rules:
+
+- concurrent prompt-stack runs keep runtime state under `.lev/steering/runs/<run-id>/...`
+- git checkpointing is serialized through `.lev/steering/checkpoint.lock`
+- dirty worktrees are warning-only, not automatic blockers
+
 ## Session Serialization
 
 A stack session is single-writer state.
