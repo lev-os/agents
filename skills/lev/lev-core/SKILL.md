@@ -68,55 +68,66 @@ Before we begin, let me understand your quest:
 
 ## Architecture Overview
 
+> For full architecture details, run these bash commands against ~/lev or see:
+> `~/.agents/skills/lev/references/architecture-primer.md`
+
 ```
-~/.config/lev/                     # Global (user-level)
+~/.config/lev/              # Global (user-level, XDG-compliant)
 ├── config.yaml             # Global settings
-├── logs/                   # Daemon log files
-└── daemons/                # pmdaemon process configs
+├── profiles/               # Exec profiles (planned)
+└── runners/                # Runner protocol manifests (planned)
 
 .lev/                       # Local (project-level)
-├── config.yaml             # Project configuration
-├── indexes/                # LEANN vector indexes
-└── cache/                  # Temporary artifacts
+├── config.yaml             # Project configuration (fractal: inline key → domain file → domain folder glob)
+├── config/{domain}.yaml    # Per-domain config files
+├── exec-profiles/          # Project exec profiles
+└── pm/                     # Project management (handoffs, plans, intake)
 
-core/                       # Fractal package ownership
-├── index/config.yaml       # Declares: lev get
-├── memory/config.yaml      # Declares: event emitters
-├── polyglot-runners/       # Declares: lev install, lev daemon
-└── triggers/config.yaml    # Declares: lifecycle hooks
+core/                       # 20 modules (real layout)
+├── domain/                 # Shared contracts: ProtocolAdapter, ExecTransport, Route, Target, Action
+├── poly/                   # Protocol projector: registry.yaml, 5 surfaces (CLI/MCP/HTTP/gRPC/WS), codegen
+├── exec/                   # Thin execution engine: createExec(dispatch), CLIAdapter, MCPAdapter
+├── harness/                # Heavy runtime: TmuxHarness, AdapterRegistry (6 adapters), profile-loader
+├── orchestration/          # Dispatch: A2A dispatcher, loop, DAG, stage policies
+├── flowmind/               # Flow compilation + session management
+├── graph/                  # Graph runtime: types, views, adapters, compositor
+├── index/                  # Semantic search indexes
+├── config/                 # Fractal config resolution
+└── ...                     # + event-bus, event-machines, plugin-manager, etc.
 ```
 
-## The Fractal Pattern
+## Key Patterns
 
-Each `core/*` package owns its domain and declares commands in `config.yaml`:
-
-```yaml
-# core/<package>/config.yaml
-poly:
-  sdk:
-    commands:
-      <command-name>:
-        handler: src/commands/<name>.js
-        description: 'Command description'
-```
-
-The poly registry builder scans all `config.yaml` files and auto-generates CLI entries.
-
-**Rule:** New commands go in the appropriate `core/` package, NOT in `agent/src/commands/` (legacy).
+- **ProtocolAdapter<TExternal, TInternal>** — pure-function transforms between API conventions (domain)
+- **ExecTransport** — domain defines interface, poly implements at boot (DI pattern)
+- **Route.parse('lev://module/fractal/item')** — URI routing for everything (domain)
+- **A2A Job Dispatcher** — AgentJob → JobExecutor → AgentJobResult (orchestration)
+- **TmuxHarness** — owned spawn primitive: spawn/send/capture/kill on lev-<id> sessions (harness)
+- **Fractal Config** — inline key → domain file → domain folder glob (NOT single config.yaml)
+- **DNA Contracts** — 3 .dna.yaml files, 25+ constraints, gate vs aspirational enforcement
 
 ## Protocols
 
-Lev uses URI-style protocols for resource addressing:
-
 | Protocol | Purpose | Example |
 |----------|---------|---------|
+| `lev://` | Internal routing | `lev://poly/runners/claude` |
+| `bin://` | Binary handler dispatch | `bin://ck` |
+| `grpc://` | gRPC service dispatch | `grpc://leann:50052` |
+| `http://` | HTTP handler dispatch | `http://deer-flow:8001` |
 | `skill://` | Load agent skills | `skill://lev-core` |
 | `bd://` | Query beads issues | `bd://lev-001b` |
-| `lev://` | Lev resources | `lev://daemon/ck-lite` |
+
+## External Tools (NOT our code)
+
+- **ntm** — External Go tool for tmux agent spawning. We own TmuxHarness instead.
+- **bd/beads** — Issue tracking (Rust CLI)
+- **ck** — Code knowledge search (Rust CLI)
 
 ## Related Skills
 
 - `bd` - Issue tracking with dependency graphs
+- `lev-builder` - Module placement decisions
+- `lev-cdo` - Architecture-aware deliberation
 - `lev get` - Semantic search across codebase (`lev-find` backend, legacy name)
 - `lev-index` - Vector index management
 - `lev-learn` - Event analysis and system improvement
