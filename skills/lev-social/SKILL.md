@@ -15,12 +15,20 @@ category: process-research-social
 
 ---
 
+## Architecture Context
+
+> Social research outputs land in project workshop dirs, not hardcoded paths.
+> Resolve output location via fractal config: `workshop.reports.social` in .lev/config.yaml
+> or default to `.lev/workshop/reports/social/`.
+> For lev architecture context: `ls ~/lev/core/ | sort` and check architecture-primer.md.
+
 ## Prerequisites
 
 - **Bird CLI**: `/opt/homebrew/bin/bird` (Twitter/X GraphQL API)
 - **PostCrawl**: `pip install postcrawl` (Reddit/TikTok API)
 - **Exa API**: `EXA_API_KEY` env var (background research)
 - **Tavily API**: `TAVILY_API_KEY` env var (supplemental search)
+- **ScrapCreators**: `SCRAPCREATORS_API_KEY` env var (27+ platform unified API — alternative to Bird+PostCrawl)
 
 ---
 

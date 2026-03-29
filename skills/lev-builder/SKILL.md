@@ -56,8 +56,8 @@ SOLUTION:
 │                                                                 │
 │  3️⃣ PLACEMENT DECISION (Where does it go?)                      │
 │  ├─ Escalate to user if ambiguous                              │
-│  │   "Should this be in core/auth or core/vault?"              │
-│  ├─ Consult LEVIATHAN_PATHS.md                                 │
+│  │   "Should this be in core/domain or a new plugin?"          │
+│  ├─ Consult paths reference above + architecture primer        │
 │  └─ Output: Target path confirmed                              │
 │                                                                 │
 │  4️⃣ GRAPH PLAN + FILE PATCH                                     │
@@ -83,26 +83,55 @@ SOLUTION:
 
 ## Leviathan Paths Reference
 
+> For current architecture, see `~/.agents/skills/lev/references/architecture-primer.md`
+
 ```yaml
-# Where things go in Leviathan
+# Where things go in Leviathan — sourced from real filesystem
 
 ~/lev/core/
-├── harness/          # Agent execution, adapters, Ralph
-├── auth/             # Fleet RBAC, permissions (NEW)
-├── cdo/              # Graph runtime, state machines
-├── commands/         # CLI commands
-├── config/            # Configuration system
-├── daemons/          # Background services
+├── build/            # Build system
+├── config/           # Configuration system
+├── daemon/           # Background services
+├── domain/           # Domain models
+├── event-bus/        # Event bus infrastructure
+├── event-machines/   # Event-driven state machines
+├── event-providers/  # Event source providers
+├── exec/             # Execution layer
+├── flowmind/         # Flow/mind orchestration
 ├── graph/            # Graph primitives
-├── lifecycle/        # Entity lifecycle, state transitions
+├── harness/          # Agent execution, adapters, Ralph
+├── index/            # Index/registry
+├── logger/           # Logging infrastructure
 ├── memory/           # Memory layer
-├── vault/            # Data vault, leases (NEW)
-└── ...
+├── orchestration/    # Orchestration engine
+├── plugin-manager/   # Plugin lifecycle management
+├── poly/             # Polyglot/multi-runtime support
+├── storage/          # Storage abstractions
+├── telemetry/        # Telemetry/observability
+└── ui/               # UI layer
+
+~/lev/plugins/        # Plugin ecosystem (60+ plugins)
+├── auth-sniffer/     # Auth sniffing
+├── beads/            # Issue tracking (bd)
+├── browser-cascade/  # Browser automation
+├── code-graph/       # Code graph analysis
+├── deploy/           # Deployment
+├── evolve-memory/    # Memory evolution
+├── graph-adapters/   # Graph adapter layer
+├── guardrails/       # Safety guardrails
+├── mastra/           # Mastra integration
+├── osint/            # OSINT tooling
+├── voice/            # Voice capabilities
+├── workshop/         # Workshop plugin
+└── ...               # See ~/lev/plugins/ for full list
 
 ~/lev/workshop/
 ├── intake/           # Ingested external projects
 ├── poc/              # Proof of concepts
-│   └── lookup/       # Skill discovery system
+│   ├── lookup/       # Skill discovery system
+│   ├── agentctl/     # Agent control POC
+│   ├── cdo/          # CDO POC
+│   └── ...           # See ~/lev/workshop/poc/ for full list
 └── ...
 ```
 
@@ -113,16 +142,19 @@ SOLUTION:
 ```bash
 # If `lev get` is not available yet in your CLI build, substitute `lev find`.
 # Full assessment
-lev get "fleet authorization" --indexes codebase,docs,skills,tasks
+lev get "topic" --indexes codebase,docs,skills,tasks
 
 # Check core modules
-ls ~/lev/core/ | grep -i auth
+ls ~/lev/core/ | grep -i <topic>
+
+# Check plugins
+ls ~/lev/plugins/ | grep -i <topic>
 
 # Check POCs
-ls ~/lev/workshop/poc/ | grep -i auth
+ls ~/lev/workshop/poc/ | grep -i <topic>
 
 # Check skills
-ls ~/.agents/skills/ | grep -i auth
+ls ~/.agents/skills/ | grep -i <topic>
 ```
 
 ### 2. Prior Art Check
@@ -145,10 +177,10 @@ node ~/lev/workshop/poc/lookup/cli.js search "authorization"
 # In agent context
 escalate({
   type: "PLACEMENT_DECISION",
-  question: "Should fleet-rbac.ts go in core/auth or core/permissions?",
+  question: "Should fleet-rbac.ts go in core/domain or plugins/guardrails?",
   options: [
-    { path: "core/auth/fleet-rbac.ts", reason: "Auth is about identity" },
-    { path: "core/permissions/fleet-rbac.ts", reason: "RBAC is permissions" }
+    { path: "core/domain/fleet-rbac.ts", reason: "Core domain logic" },
+    { path: "plugins/guardrails/fleet-rbac.ts", reason: "Safety/access is a plugin concern" }
   ],
   context: "Fleet auth controls who can spawn agents and access data"
 })
@@ -158,14 +190,14 @@ escalate({
 
 ```bash
 # Generate patch plan from design doc
-cat pm/designs/fleet-swarm-authorization.md | \
-  ./scripts/design-to-patch.sh > patches/fleet-auth.patch
+cat pm/designs/<feature>.md | \
+  ./scripts/design-to-patch.sh > patches/<feature>.patch
 
 # Apply patch (preview)
-./scripts/apply-patch.sh patches/fleet-auth.patch --dry-run
+./scripts/apply-patch.sh patches/<feature>.patch --dry-run
 
-# Apply patch (execute)
-./scripts/apply-patch.sh patches/fleet-auth.patch --target ~/lev/core/auth/
+# Apply patch (execute — target a REAL core/ or plugins/ path)
+./scripts/apply-patch.sh patches/<feature>.patch --target ~/lev/core/<module>/
 ```
 
 ### 5. Validate E2E
@@ -174,11 +206,11 @@ cat pm/designs/fleet-swarm-authorization.md | \
 # Typecheck
 cd ~/lev && bun run typecheck
 
-# Run tests for module
-bun test core/auth/
+# Run tests for target module
+bun test core/<module>/
 
 # Integration test
-bun test:integration --filter "fleet"
+bun test:integration --filter "<feature>"
 ```
 
 ### 6. Migrate POC
@@ -202,31 +234,31 @@ cd ~/lev && git add . && git commit -m "feat: migrate lev-builder from POC"
 | `lev-patch` | Prior art - check before creating |
 | `planning` | Spec authoring backend - CDO graph to execution |
 | `ralph` | Execution - run tasks with validation |
-| `lev-cdo` | Graph operations - state machines |
+| `cdo` | Graph operations - state machines |
 
 ## Common Workflows
 
 ### Workflow 1: New Feature
 
 ```
-USER: "Add fleet authorization to Leviathan"
+USER: "Add event-driven scheduling to Leviathan"
 
 BUILDER:
-1. ASSESS: lev get "fleet\|authorization\|rbac"
-   → Found: core/config has some auth, no fleet module
-   
-2. PRIOR ART: bd search "authorization"
-   → Found: lev-qtpq.7 task exists for this
-   
-3. PLACEMENT: Escalate "core/auth vs core/permissions?"
-   → User: "core/auth"
-   
-4. PATCH: Generate fleet-rbac.ts from design doc
-   → Created: ~/lev/core/auth/fleet-rbac.ts
-   
-5. VALIDATE: bun run typecheck && bun test core/auth/
+1. ASSESS: lev get "scheduling\|event\|cron"
+   → Found: core/event-machines has state machines, core/orchestration exists
+
+2. PRIOR ART: bd search "scheduling"
+   → Found: core-scheduling plugin exists in plugins/
+
+3. PLACEMENT: Escalate "core/orchestration vs plugins/core-scheduling?"
+   → User: "core/orchestration — it's a core concern"
+
+4. PATCH: Generate scheduler.ts from design doc
+   → Created: ~/lev/core/orchestration/scheduler.ts
+
+5. VALIDATE: bun run typecheck && bun test core/orchestration/
    → Passed
-   
+
 6. MIGRATE: N/A (already in lev/core)
 ```
 
@@ -242,13 +274,13 @@ BUILDER:
 2. PRIOR ART: ls ~/lev/core/builder/
    → Not found (new module)
    
-3. PLACEMENT: "core/builder" (builder is core infra)
+3. PLACEMENT: "core/exec" or "plugins/" (depends on scope)
    → Confirmed
-   
+
 4. PATCH: Copy + adapt for lev structure
-   → Created: ~/lev/core/builder/
-   
-5. VALIDATE: bun test core/builder/
+   → Created: ~/lev/core/exec/builder/ (or plugins/builder/)
+
+5. VALIDATE: bun test core/exec/
    → Passed
    
 6. MIGRATE: git commit, update registry
@@ -258,23 +290,23 @@ BUILDER:
 ### Workflow 3: Assess & Consolidate
 
 ```
-USER: "What exists for caching in Leviathan?"
+USER: "What exists for memory persistence in Leviathan?"
 
 BUILDER:
-1. ASSESS: 
-   lev get "cache\|caching" --indexes codebase,docs
-   → Found: 
-     - core/config/cache.ts (config caching)
-     - workshop/poc/redis-cache/ (POC)
-     - docs/adr/ADR-045-caching.md (decision)
-   
+1. ASSESS:
+   lev get "memory\|persistence\|storage" --indexes codebase,docs
+   → Found:
+     - core/memory/ (memory layer)
+     - core/storage/ (storage abstractions)
+     - plugins/evolve-memory/ (memory evolution plugin)
+
 2. REPORT:
-   "Caching exists in 3 places:
-    - Config cache: production (core/config)
-    - Redis POC: not migrated (workshop/poc)
-    - ADR-045: recommends unified cache layer
-    
-    Recommend: Consolidate into core/cache/"
+   "Memory/persistence exists in 3 places:
+    - core/memory: production memory layer
+    - core/storage: storage abstractions
+    - plugins/evolve-memory: evolution/migration plugin
+
+    Recommend: Verify boundaries are clean, consolidate if overlapping"
 
 3. ESCALATE: "Proceed with consolidation?"
 ```
@@ -297,8 +329,8 @@ await escalate({
   question: "...",
   options: [...],
   buttons: [
-    { text: "Option A", callback_data: "placement:core/auth" },
-    { text: "Option B", callback_data: "placement:core/permissions" },
+    { text: "Option A", callback_data: "placement:core/domain" },
+    { text: "Option B", callback_data: "placement:plugins/guardrails" },
     { text: "Discuss", callback_data: "placement:discuss" },
   ]
 });
@@ -308,11 +340,11 @@ await escalate({
 
 ```jsonl
 # .lev/builder/state.jsonl
-{"ts":"...","action":"assess","topic":"fleet auth","results":["core/auth","lev-qtpq.7"]}
-{"ts":"...","action":"prior_art","topic":"fleet auth","found":true,"matches":1}
-{"ts":"...","action":"escalate","type":"PLACEMENT_DECISION","resolved":true,"choice":"core/auth"}
-{"ts":"...","action":"patch","target":"core/auth/fleet-rbac.ts","status":"created"}
-{"ts":"...","action":"validate","target":"core/auth/","passed":true}
+{"ts":"...","action":"assess","topic":"scheduling","results":["core/orchestration","plugins/core-scheduling"]}
+{"ts":"...","action":"prior_art","topic":"scheduling","found":true,"matches":1}
+{"ts":"...","action":"escalate","type":"PLACEMENT_DECISION","resolved":true,"choice":"core/orchestration"}
+{"ts":"...","action":"patch","target":"core/orchestration/scheduler.ts","status":"created"}
+{"ts":"...","action":"validate","target":"core/orchestration/","passed":true}
 ```
 
 ## Summary
