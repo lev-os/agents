@@ -1,29 +1,27 @@
 ---
 name: lev-design
-description: |
-  [WHAT] UX-first design workflow from problem framing to wireframes
-  [HOW] 7-step agentic pipeline with parallel research and framework-driven analysis
-  [WHEN] Use when starting new features, redesigns, or product discovery requiring structured UX thinking
-  [WHY] Design is late-stage compression - must understand users, jobs, tasks, and structure before drawing rectangles
+description: "UX-first design workflow from problem framing to wireframes. 7-step agentic pipeline with parallel research. Also handles product planning (merged from lev-design-os). Use when starting new features, redesigns, product discovery, or preparing export packages for coding agents."
 
-  Triggers: "design", "ux", "wireframe", "user flow", "screen", "interface", "prototype"
-skill_type: workflow
-category: process-design
+---
 
-lifecycle_integration:
-  stage: crystallizing
-  input_artifact: idea.md | report.md
-  output_artifact: wireframe.v1.json + SYNTHESIS.md
+## Modes
 
-required_skills:
-  - lev-research         # Prior art + industry research
-  - lev-find            # `lev get` backend for codebase pattern discovery
-  - interview           # Framework-powered questioning
+- **auto** (`/ux`): Runs through all 7 steps without stopping
+- **full** (`/ux full`): Asks questions at each step
+- **product**: Product planning — vision, roadmap, data model, design system, export (merged from lev-design-os)
 
-related_skills:
-  - design-to-bd        # Creates BD tasks from design
-  - lev-cdo             # Complex design decisions
-  - sidequest           # Routes by complexity
+## Architecture Context
+
+> `ls ~/lev/core/ | sort` for real module layout
+> Poly surfaces (CLI/MCP/HTTP/gRPC/WS) are the delivery targets for designed features
+> DNA contracts govern what plugins/core modules must declare
+> HostSurface interface in domain defines capability-based surface registration
+
+## Related Skills
+
+- `design-to-bd` — Creates BD tasks from design
+- `lev-cdo` — Complex design decisions
+- `sidequest` — Routes by complexity
 
 protocol_handlers:
   - lev://design?mode={auto|full|step}

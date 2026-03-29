@@ -1,29 +1,6 @@
 ---
 name: lev-workshop
-description: |
-  [WHAT] Workshop lifecycle for building and evolving plugins, hooks, and integrations
-  [HOW] Four phases: intake (capture ideas), analysis (scope/approach), POC (build prototype), poly integration (promote to production targets)
-  [WHEN] Use when developing new lev capabilities, promoting POCs to production, or systematically building hooks/plugins
-  [WHY] Ensures systematic development from idea to production with quality gates at each phase
-
-  Triggers: "workshop this", "analyze for workshop", "poc this", "integrate to poly", "workshop status", "build capability", "new hook"
-version: 1.0.0
-skill_type: workflow
-category: process-workshop
-extends: lev-lifecycle
-tools:
-  - lifecycle hooks (references/hooks.md)
-  - claude-agent-sdk (for LLM decision points)
-  - bd (for tracking workshop items)
-storage:
-  workshop_items: ~/lev/workshop/
-  poc_staging: ~/lev/workshop/poc/
-  integration_queue: ~/lev/workshop/integration/
-
-lifecycle_integration:
-  stage: all stages (workshop lifecycle)
-  input_artifact: idea/requirement/integration request
-  output_artifact: production-ready plugin/hook/integration
+description: "Workshop lifecycle for building and evolving plugins, hooks, and integrations. Four phases: intake → analysis → POC → poly integration. Use when developing new lev capabilities, promoting POCs to production, or building hooks/plugins."
 ---
 
 # Lev Workshop

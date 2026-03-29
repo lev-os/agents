@@ -1,14 +1,6 @@
 ---
 name: cdo
-description: "Adaptive multi-agent deliberation for cdo/think/deep/debug/parliament workflows."
-skill_type: playbook
-category: process-thinking
-protocol_handlers:
-  - lev://cdo?preset={quick|think|deep|full|debug}
-plankton: false
-metadata:
-  triggers: [cdo, think, deliberate, parliament, multi-agent, deep analysis, debug rca]
-  tools: [Read, Write, Edit, Bash, Grep, Glob, Agent]
+description: "Adaptive multi-agent deliberation for cdo/think/deep/debug/parliament workflows. Fractal context loop (CONTEXT→PLAN→ACT→VERIFY) at every level. Mandatory Turn 0 context gathering (skills, codebase, web). Convergence requires evidence, not just agreement."
 ---
 
 # CDO — Adaptive Multi-Agent Deliberation
@@ -249,3 +241,223 @@ When the user says any of these, STOP your current approach immediately:
 | "I'll just run one more fix attempt" | 3 failed fixes = wrong architecture. Stop fixing. Report the pattern. |
 | "The directive says X but I think Y is better" | You do not override the synthesis directive. Ever. Execute what it says. |
 | "I'll let agents see each other's work for context" | Independence produces genuine diversity. Cross-pollination happens only through synthesis. |
+
+# Fractal Context Loop (CONTEXT → PLAN → ACT → VERIFY)
+
+Every layer of CDO execution follows the same loop. Context gathering comes FIRST — you cannot plan what you don't understand. This is non-negotiable.
+
+```yaml
+fractal_loop:
+  description: "The same cycle applies at every level of the CDO"
+  levels:
+    session:
+      context: "Turn 0 — gather evidence: read code, search cass, web research, acquire skills"
+      plan: "Gauge problem, select preset, compose DAG from what you learned"
+      act: "Execute turns per synthesis directives"
+      verify: "Final synthesis confirms convergence with evidence"
+
+    turn:
+      context: "Calibrate context depth per agent, discover relevant skills, read actual files"
+      plan: "Read synthesis directive, compose agent briefs with gathered context"
+      act: "Dispatch agents in parallel"
+      verify: "Synthesis checks for evidence, not just agreement"
+
+    agent:
+      context: "Scan codebase/docs/web per calibrated depth BEFORE forming opinions"
+      plan: "Agent identifies approach based on what it actually read"
+      act: "Agent produces artifact with citations"
+      verify: "Agent self-checks: did I cite evidence or reason abstractly?"
+```
+
+## Skill Acquisition (Part of Context Phase)
+
+Before planning any CDO, discover which skills are relevant. This is context gathering, not planning.
+
+```yaml
+skill_acquisition:
+  purpose: "Surface the right skills from 800-1000 available before composing agent briefs"
+  methods:
+    1_decompose_to_tags:
+      action: "Break the problem into keyword tags"
+      example: "protocol design → [protocol, interop, agent, registry, manifest, capability, discovery, mesh]"
+
+    2_search_skills_db:
+      action: "rg the tags across ~/.agents/skills/ and ~/.agents/skills-db/"
+      command: "rg -l '<tag>' ~/.agents/skills/ ~/.agents/skills-db/ --type md | head -20"
+      fallback: "If rg misses, try ~/.agents/lev-skills.sh or skill-discovery skill"
+
+    3_check_thinking_patterns:
+      action: "Browse ~/.agents/skills-db/thinking/patterns/ for relevant mental models"
+      example: "protocol design → mechanism-design, protocol-networks, nash-equilibrium, requisite-variety"
+
+    4_inject_into_briefs:
+      action: "Each CDO agent gets 1-3 relevant skills injected as context in their system prompt"
+      rule: "Skills are context, not instructions. The agent reads the skill to understand patterns, not to follow a script."
+
+  anti_pattern: "Dispatching CDO agents without checking what skills exist is like coding without reading the docs."
+```
+
+## Turn 0 — Mandatory Research Phase
+
+Before Turn 1 dispatches any deliberation agents, execute a research phase:
+
+```yaml
+turn_0:
+  purpose: "Establish ground truth before opinions form"
+  actions:
+    - "Read actual source code relevant to the problem"
+    - "Check cass for prior session evidence"
+    - "Web search for prior art if the problem involves external standards"
+    - "Generate a context manifest: files read, facts established, unknowns identified"
+  output: "tmp/cdo-{session}/t0-research.md"
+  rule: "Turn 1 agents receive t0-research.md as part of their brief"
+```
+
+## Context Depth Calibration
+
+Not every agent needs 112k tokens. Calibrate per problem shape:
+
+```yaml
+context_depth:
+  trivial:
+    signal: "1 file, known path, clear answer"
+    tools: "Read the file directly"
+    cost: "~100 tokens of context"
+
+  focused:
+    signal: "2-5 files, clear scope"
+    tools: "grep + glob, maybe 1 explore agent"
+    cost: "~2k tokens of context"
+
+  broad:
+    signal: "Unknown scope, multiple modules"
+    tools: "rp-cli context_builder OR multi-agent explore"
+    cost: "~20k-50k tokens of context"
+
+  deep:
+    signal: "Protocol design, architecture review, cross-cutting"
+    tools: "rp-cli + web research + cass history + prior art scan"
+    cost: "~100k+ tokens of context"
+```
+
+## Convergence Requirements
+
+Convergence now requires EVIDENCE, not just agreement:
+
+```yaml
+convergence_check:
+  required:
+    - "All blocking tensions resolved"
+    - "At least 1 agent cited specific code/docs (not abstract reasoning)"
+    - "Anti-groupthink check passed (>70% agreement triggers devil's advocate)"
+
+  skeptical_convergence:
+    rule: "Before declaring convergence, ask: what did we ASSUME without evidence?"
+    action: "If any assumption is load-bearing and unverified, add a depth probe turn"
+    budget: "Use all budgeted turns. Early convergence is a smell, not a feature."
+```
+
+## Per-Entity Expert Agents
+
+When the problem has distinct entities (e.g., multiple runners, multiple modules, multiple protocols), spawn a specialist agent per entity:
+
+```yaml
+per_entity_experts:
+  trigger: "Problem involves 3+ distinct entities that each have their own docs/code"
+  action: "Spawn 1 expert agent per entity who reads that entity's actual documentation"
+  example: "Protocol design → Claude Expert, Codex Expert, Gemini Expert (each reads real docs)"
+  why: "Generic reasoning misses entity-specific behavior. ChatGPT beat CDO on this."
+```
+
+## Meta-Agent: "What Would Deep Research Find?"
+
+Add this agent to any `deep` or `full` CDO:
+
+```yaml
+meta_agent:
+  role: "Deep Research Proxy"
+  prompt: "If a single model with 100k+ tokens of real source code were analyzing this problem, what would it find that our multi-agent survey missed?"
+  when: "deep or full preset, Turn 2+"
+  why: "Multi-agent CDO excels at breadth and adversarial testing. Single-model deep research excels at ground truth. This agent forces CDO to consider what it's missing."
+```
+
+## Implementation Spike Agents Early
+
+Don't wait until Turn 2+ for real probes:
+
+```yaml
+early_spikes:
+  rule: "Turn 1 should include at least 1 agent that actually RUNS something"
+  examples:
+    - "Invoke the binary with --help and parse the output"
+    - "Read the actual source file and report what it exports"
+    - "Run a test and report what passes/fails"
+  why: "Abstract reasoning about code you haven't read produces hallucinated architectures (see: lev-builder fabricated paths)"
+```
+
+## Negotiate Phase (Claim vs Reality)
+
+From the ChatGPT vs CDO comparison: CDO agents reason abstractly about what code CAN do. ChatGPT reads the code and knows what it ACTUALLY does. The negotiate phase closes that gap.
+
+```yaml
+negotiate:
+  trigger: "Any turn where agents make architectural claims"
+  process:
+    1: "Agent makes a claim: 'ExecTransport handles this'"
+    2: "Negotiate agent reads the actual code (grep, read file)"
+    3: "Reports fidelity: exact (code does this) | approximate (partial) | rejected (code doesn't do this)"
+  output: "Annotated claims with fidelity scores"
+
+  fidelity_levels:
+    exact: "Code confirms the claim. Agent cited the right file and function."
+    approximate: "Code partially supports the claim. Missing pieces identified."
+    rejected: "Code contradicts the claim. Agent was reasoning abstractly."
+
+  rule: "For deep+ presets, add a negotiate agent to Turn 2+ that reads actual code to verify Turn 1 claims. This is the single biggest quality improvement from the ChatGPT comparison."
+
+  anti_pattern: "Accepting architectural claims without code evidence is the #1 cause of CDO producing designs that don't fit the codebase."
+```
+
+## Structured Debate Mode
+
+When a CDO has two clear opposing positions (not just multiple perspectives), use debate format instead of independent analysis:
+
+```yaml
+debate:
+  trigger: "Binary architectural question — e.g., 'should X live in poly or domain?'"
+  structure:
+    round_1:
+      - "Advocate A argues FOR position 1 (with code evidence)"
+      - "Advocate B argues FOR position 2 (with code evidence)"
+    round_2:
+      - "Advocate A rebuts B's strongest point"
+      - "Advocate B rebuts A's strongest point"
+    round_3:
+      - "Synthesis agent reads all 4 artifacts, picks winner with reasoning"
+
+  rules:
+    - "Each advocate MUST cite actual files/functions, not abstract principles"
+    - "Rebuttals must address the other side's evidence, not restate their own"
+    - "Synthesis must explain why the losing position was wrong, not just why the winner was right"
+
+  when_to_use: "Module placement, protocol ownership, 'should this exist?', binary trade-offs"
+  when_NOT_to_use: "Open-ended design (use standard CDO width), research tasks, debugging"
+```
+
+## Depth vs Breadth Gauge
+
+Add this to the parse_args step:
+
+```yaml
+depth_breadth_gauge:
+  question: "Does this problem need per-entity depth, or architectural breadth?"
+  per_entity_depth:
+    signal: "Multiple implementations of the same concept (runners, adapters, protocols)"
+    action: "Spawn per-entity experts. Reduce breadth agents. Add research phase."
+  architectural_breadth:
+    signal: "Cross-cutting concern, module placement, trade-off analysis"
+    action: "Standard CDO breadth. Multiple perspectives. No per-entity drill."
+  both:
+    signal: "Protocol design, system unification"
+    action: "Research phase (depth) + CDO turns (breadth). Budget 5 turns minimum."
+```

@@ -31,6 +31,16 @@ Takes any job description and autonomously determines the right execution strate
 /sidequest redesign the authentication system to support multi-tenant
 ```
 
+## Architecture Context
+
+> For current lev architecture, generate on the fly:
+> `ls ~/lev/core/ | sort` (20 modules: domain, poly, exec, harness, orchestration, flowmind, graph...)
+> `grep "id:" ~/lev/dna/*.dna.yaml` (DNA contracts — behavioral gates)
+>
+> Key primitives: ExecTransport (domain→poly DI), TmuxHarness (owned spawn), AdapterRegistry (6 adapters),
+> A2A Dispatcher (AgentJob→JobExecutor), Route.parse('lev://module/fractal/item'), fractal config.
+> ntm is EXTERNAL — use TmuxHarness for owned tmux spawn.
+
 ## Phase 0: Context Gathering (`lev get` pre-step)
 
 Before classifying, gather context with semantic search:
