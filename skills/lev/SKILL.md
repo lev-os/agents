@@ -2,291 +2,295 @@
 name: lev
 description: |
   Practical CLI reference for the Lev agent framework.
-  Maps natural language to primitives: get, work, check, go.
-  Triggers: "lev", "leviathan", "get", "search", "find", "lookup",
-            "research", "work", "check", "align", "go", "handoff",
-            "learn", "index", "build", "design", "execute"
+  Start with: lev exec --help
+  Core primitives: exec (run agents), stack (prompt workflows), work (lifecycle)
 skill_type: how-to
 category: cli
 
 sub_skills:
   - work
-  - lev-cdo
-  - lev-research
-  - lev-workshop
-  - lev-builder
-  - lev-intake
-  - lev-design
-  - lev-design-os
-  - lev-social
-  - lev-orch-sidequest
-  - lev-orch-thinking-parliament
-  - skill-discovery
+  - stack
+  - autodev-loop
 ---
 
-# lev CLI — Practical Reference
+# lev — Agent Runtime CLI
 
-Four primitives: **get** (gather context), **work** (lifecycle), **check** (validate), **go** (execute/close).
+Run `lev exec --help` for the full reference. This skill covers the essentials.
 
----
+## Quick Start: lev-ralph (the default for real work)
 
-## get (context gathering)
-
-Everything about finding information. Subsumes the old lev-find, lev-index, lev-find-qmd, and llm-tldr skills.
-
-### Local search
+**For most tasks, use `lev-ralph`.** It runs a two-model constraint engineering loop:
+worker (cursor/sonnet) codes -> deterministic gate -> oracle (opus) reviews -> ship or iterate.
 
 ```bash
-lev get "auth middleware"                         # auto-selects indexes
-lev get "auth" --indexes codebase,documentation   # explicit indexes
-lev get "auth" --depth=fs                         # filesystem only
-lev get "auth" --depth=bd                         # include bd issues
-lev get "auth" --depth=research                   # include external backends
+# The main thing — worker + oracle review loop
+lev exec "implement user auth" --flow lev-ralph
+
+# With a validation gate (tests must pass before review)
+lev exec "fix login bug" --flow lev-ralph --until="bun test"
+
+# Simple single-model loop (no review, just iterate)
+lev exec "make all tests pass" --until="bun test"
+
+# Single dispatch (one-shot, no loop)
+lev exec "quick fix" --adapter=cursor --model=composer-2-fast
 ```
 
-Depth order: `context -> filesystem -> bd -> research`.
-
-### External research backends
-
-When `--depth=research` or `--scope=research`:
-
-| Backend | What it does | Command |
-|---------|-------------|---------|
-| exa | Neural web + GitHub search | `lev get "query" --scope=web` |
-| valyu | Recursive turn-based refinement | `valyu research "query" --turns 5` |
-| deep-research | Tavily multi-query synthesis | `deep-research "query" --deep` |
-| brave-search | Quick web lookup | `brave-search "query"` |
-
-### Index management (LEANN)
-
-Source: `core/index/` (gRPC server on port 50052, LEANN vendor lib)
-
-```bash
-lev index build ~/path my-index    # create index from directory
-lev index search "query" --index X # semantic search
-lev index add file.md --index X    # add content incrementally
-lev index status --all             # list all indexes
-```
-
-Index locations: `~/.config/lev/indexes/` (leann/*.leann, ck/*.index)
-
-Env: `LEV_INDEX_PATH` overrides base directory.
-
-### Markdown/session search (qmd)
-
-Binary: `~/.bun/bin/qmd` — BM25 + vector + reranking for local text files.
-
-```bash
-qmd query "topic" -c claude-sessions --full -n 10
-qmd query "topic" -c claudesp-sessions -c clawdbot-sessions
-qmd update           # incremental re-index
-qmd embed -f         # generate embeddings
-```
-
-Index: `~/.cache/qmd/index.sqlite`. Keep sessions < 2 months in index.
-
-### Code analysis (llm-tldr)
-
-```bash
-pip install llm-tldr
-tldr warm /path/to/project         # index once
-tldr context func_name --project . # function summary (95% token savings)
-tldr semantic "validate JWT" .     # natural language code search
-tldr impact func_name .            # callers + affected tests
-tldr slice file.py func 42        # minimal code affecting line 42
-```
-
-### Search decision tree
+lev runs from source via bun. No build step. Changes to core/ are live immediately.
 
 ```
-Local code/docs    → lev get "query"
-Session history    → qmd query "topic" -c <collection>
-Code structure     → tldr context / tldr semantic
-External web       → brave-search, exa, tavily-search
-Deep research      → valyu research, deep-research
-Social/real-time   → grok-research
-Multi-perspective  → skill://lev-research
-```
-
-### Domain expansion ladder (when stuck)
-
-Start at your certainty level, climb UP when results are sparse:
-
-1. **File/Function** — `"find auth.ts"` (exact)
-2. **Component** — `"authentication module"` (sweet spot for codebase)
-3. **Topic** — `"auth patterns"` (pattern match)
-4. **Similar** — `"how NextAuth does this"` (prior art)
-5. **Goals** — `"secure user sessions"` (problem space)
-6. **Ideas** — `"zero-trust principles"` (concepts)
-
----
-
-## work (lifecycle routing)
-
-Source: `plugins/core-sdlc/src/commands/work.ts`
-
-The `work` command owns lifecycle detection, artifact generation, and stage transitions.
-
-```bash
-work                              # auto-detect stage from context
-work --stage=crystallizing        # force stage
-work "spec auth system"           # keyword routing
-```
-
-Related commands in `plugins/core-sdlc/src/commands/`:
-- `review.ts` — review queue
-- `instruct.ts` — instruction generation
-- `loop.ts` — autodev chore loop
-
-### Lifecycle stages
-
-```
-ephemeral → captured → classified → crystallizing → crystallized → manifesting → completed
-  [inline]   [report]    [typed]     [proposal]      [spec]       [handoff]     [archive]
-```
-
-### Keyword routing
-
-| Keywords | Stage | Route |
-|----------|-------|-------|
-| research, analyze, prior art | captured | `lev get --depth=research` |
-| design, propose, architect | crystallizing | `lev-cdo` |
-| plan, spec, implement | crystallized | `work` |
-| execute, do it | manifesting | `bd` |
-| handoff, checkpoint, resume | manifesting | `work` |
-
-### Learn mode
-
-For fuzzy/early-stage intent that needs structured intake before spec:
-
-```bash
-learn                    # guided question-by-question interview
-learn "some context"     # with seed context
-```
-
-Produces a proposal in `.lev/pm/proposals/`, then hands off to `work --stage=crystallized`.
-
----
-
-## check (validation/ops)
-
-Alignment, drift detection, and health checks. Runs inside `work` by default.
-
-### Alignment audit
-
-```bash
-work "check alignment"           # preferred: runs inside work
-```
-
-What it checks:
-- North star freshness (README.md vision, docs/, `.lev/pm/`)
-- Priority alignment (bd issues vs. stated roadmap)
-- Drift types: stale docs, product pivot, coverage gap, status drift, path drift
-
-For deep standalone audit: scan git log, bd issues, ADRs, session handoffs, compare against north star docs.
-
-### Issue tracking (bd)
-
-```bash
-bd ready --json                  # unblocked work
-bd create "title" -p 1 --json   # new issue
-bd update <id> --claim --json   # claim task
-bd close <id> --reason "Done"   # complete
-bd list --limit 100 --json      # list issues
-```
-
-### Doctor / status
-
-```bash
-lev index status --all           # index health
-qmd status                       # qmd collection freshness
+~/.local/share/pnpm/lev -> exec bun core/poly/bin/lev -> imports .ts directly
 ```
 
 ---
 
-## go (execute/close)
+## exec
 
-Ship work and hand off.
-
+### Single dispatch
 ```bash
-bd close <id> --reason "Completed"   # close issue
-git add <files> && git commit        # commit work
-git push                             # push (MANDATORY before session end)
+lev exec "implement user auth"
+lev exec "fix the login bug" --model=opus
+lev exec "quick fix" --adapter=cursor --model=composer-2-fast
 ```
 
-### Session handoff checklist
+### lev-ralph (two-model constraint loop) — USE THIS
+```bash
+lev exec "task" --flow lev-ralph                                    # cursor codes, opus reviews
+lev exec "task" --flow lev-ralph --until="bun test"                 # with hard gate
+lev exec "task" --flow lev-ralph --adapter=claude-agent-sdk         # override default adapter
+```
 
-1. File bd issues for remaining work
-2. Run quality gates (tests, lint, build) if code changed
-3. Update bd status — close finished, update in-progress
-4. `git pull --rebase && git push` — work is NOT done until push succeeds
-5. Write handoff context for next session
+Topology: `work -> hard_gate -> review -> [green: done | advice: work]`
+- **work**: Fresh worker session. Codes ONE thing. Gets oracle advice from previous review.
+- **hard_gate**: Runs validation command (shell exit code). Auto-pass if empty.
+- **review**: Fresh oracle session. Reads DNA, validation gates, git diff. Says GREEN or gives ADVICE.
+- Per-node adapter: work uses `cursor`/`composer-2-fast`, review uses `claude-agent-sdk`/`opus`.
+- Knobs: `worker_adapter`, `worker_model`, `reviewer_adapter`, `reviewer_model`, `validation_command`, `max_iterations`.
+
+### ralph (simple single-model loop)
+```bash
+lev exec "task" --flow ralph                      # single adapter, fresh context per iteration
+lev exec "task" --flow ralph --until="bun test"   # with validation gate
+```
+
+### Iterative loop (--until, no flow needed)
+```bash
+lev exec "make all tests pass" --until="bun test"
+lev exec "implement feature X" --until="bun test && bun run typecheck" --max-iterations=10
+```
+
+Fresh context each iteration. Agent reads filesystem, not prior output.
+Prompt: task -> "Do the most important thing. Run tests. Stop." -> DONE/CONTINUE.
+
+### Flow execution (advanced)
+```bash
+# Graph-format flows (nodes:{})
+lev exec "task" --flow plugins/core-sdlc/flows/exec-validate.flow.yaml
+
+# Session-format flows (steps:[])
+lev exec "task" --flow plugins/core-sdlc/flows/spec-lifecycle.flow.yaml
+
+# Dry-run (shows graph info without executing)
+lev exec "task" --flow <file> --dry-run
+```
+
+25+ SDLC flows in `plugins/core-sdlc/flows/`. All loadable via `--flow`.
+
+### Semantic ops in flows
+
+Flow YAML nodes can use semantic ops that the runner dispatches:
+
+| Op | What it does | Branch routing |
+|----|-------------|----------------|
+| `lev.exec` | Dispatch task through adapter (per-node adapter/model override) | Last-line keyword match against `branches:` |
+| `lev.validate` | Run shell command, branch on exit code | `pass` (exit 0) / `fail` (exit != 0) |
+
+```yaml
+# lev.exec — agent dispatch with per-node adapter
+work:
+  op: lev.exec
+  inputs:
+    task: "{{knobs.task}}"
+    adapter: cursor
+    model: composer-2-fast
+  output: work_result
+  next: gate
+
+# lev.validate — deterministic shell gate
+gate:
+  op: lev.validate
+  inputs:
+    command: "bun test"
+  branches:
+    pass: done
+    fail: work
+```
+
+### Adapters (CLI runners)
+
+| Adapter | Binary | Models | Best for |
+|---------|--------|--------|----------|
+| cursor | `agent` | composer-2-fast, composer-2, claude-4 | Fast implementation work |
+| codex | `codex` | gpt-5.3, o1, o3, o4 | Complex multi-file, OpenAI models |
+| claude-agent-sdk | (SDK) | opus, sonnet, haiku | Programmatic control, SDK features |
+| pi | `pi` | any | Multi-provider routing |
+| opencode | `opencode` | any | Open-source alternative |
+
+```bash
+lev exec "task" --adapter=cursor --model=composer-2-fast   # fastest
+lev exec "task" --adapter=codex --model=codex              # OpenAI
+lev exec "task" --adapter=claude-agent-sdk --model=sonnet  # Claude SDK
+```
+
+**Strategy:** lev-ralph for real work. composer-2-fast for routine. opus for review/oracle. haiku for triage.
+
+### Key flags
+```bash
+--model=<model>        # opus, sonnet, haiku, composer-2-fast, codex, etc.
+--adapter=<adapter>    # cursor, codex, claude-agent-sdk, pi, auto
+--until=<condition>    # loop until shell command exits 0
+--flow=<file>          # execute flow YAML (shorthand: --flow lev-ralph)
+--max-iterations=<n>   # cap iterations (default 5)
+--dry-run              # show plan without executing
+--profile=<id>         # named execution profile
+--host=<host>          # tmux://ralph (default), local, ssh://...
+```
+
+---
+
+## Flows (FlowMind)
+
+Flows are YAML files that define execution topology. Two formats:
+
+### Graph format (nodes:{})
+```yaml
+name: my-flow
+entry: work
+knobs:
+  task: { type: string, required: true }
+nodes:
+  work:
+    op: lev.exec
+    inputs: { task: "{{knobs.task}}", adapter: cursor }
+    output: work_result
+    next: gate
+  gate:
+    op: lev.validate
+    inputs: { command: "bun test" }
+    branches: { pass: done, fail: work }
+    max_iterations: 5
+    on_timeout: done
+  done:
+    terminal: true
+```
+
+Key concepts:
+- **`op: lev.exec`** — dispatches to adapter with per-node adapter/model override
+- **`op: lev.validate`** — runs shell command, branches on exit code (deterministic)
+- **`branches:`** — route to different nodes based on result
+- **`max_iterations` + `on_timeout`** — cap loops, redirect on timeout
+- **`knobs:`** — flow-level parameters, CLI task auto-injected as `knobs.task`
+- **`output:`** — stores result in flow vars for downstream nodes
+- **`{{#if var}}...{{/if}}`** — conditional blocks in inputs
+
+### Session format (steps:[])
+```yaml
+name: my-flow
+steps:
+  - id: gather
+    op: exec
+    command: "git log --oneline -10"
+  - id: analyze
+    description: "Analyze the recent changes"
+  - id: report
+    op: exec
+    command: "echo 'done' > /tmp/report.txt"
+```
+
+Steps with `op: exec` + `command:` run as shell. Others dispatch to LLM adapter.
+
+### Key flows
+- `lev-ralph.flow.yaml` — **USE THIS** — worker + oracle review, per-node adapters
+- `ralph.flow.yaml` — simple single-model loop
+- `exec-validate.flow.yaml` — implement -> validate -> emit/escalate
+- `plan-to-beads.flow.yaml` — plan -> issues with 3-pass anti-laziness review
+- `hygiene.flow.yaml` — drift scan -> alignment check -> proposals
+
+```bash
+ls plugins/core-sdlc/flows/*.yaml   # 25+ flows
+```
+
+---
+
+## stack (prompt workflows)
+
+Prompt-stack provides structured multi-step workflows. Being replaced by flows.
+
+```bash
+bun plugins/prompt-stack/src/cli.ts list          # see all stacks
+bun plugins/prompt-stack/src/cli.ts show <id>     # inspect a stack
+bun plugins/prompt-stack/src/cli.ts init --stack <id>  # start session
+```
+
+Use `/stack list` for the full dashboard.
+
+---
+
+## work (SDLC lifecycle)
+
+Use `/work` skill for lifecycle management (plans, specs, handoffs, beads).
 
 ---
 
 ## Config
 
-Source: `core/config/src/` — resolver chain, schema validation, XDG paths.
+```yaml
+# .lev/config.yaml (project level)
+logging:
+  display_level: info    # what shows in CLI (info/warn/debug)
 
-### Resolution chain (later overrides earlier)
+exec:
+  adapterVariants: {}    # custom adapter configs
+```
 
-1. System: `~/.config/lev/config.yaml`
-2. Project: `<project>/.lev/config.yaml`
-3. Module: `<module>/config.yaml`
-4. Environment: `LEV_*` variables
+Resolution: system (~/.config/lev/) -> project (.lev/) -> module -> env vars.
+Config > env > defaults. Don't rely on env vars — LLMs forget them.
 
 ### Key paths
-
 ```
-~/.config/lev/              # user config (XDG_CONFIG_HOME/lev)
-~/.local/share/lev/         # persistent data
+~/.config/lev/              # user config
+~/.local/share/lev/         # persistent data (traces, events, indexes)
 ~/.local/state/lev/         # runtime state
 ~/.cache/lev/               # disposable cache
+.lev/                       # project config + steering
+.lev/pm/                    # plans, handoffs, decisions, specs
 ```
-
-### Autodev surfaces
-
-- Plan files: `.lev/pm/plans/plan-*.md`
-- Proposals: `.lev/pm/proposals/`
-- Handoffs: `.lev/pm/handoffs/`
-- Specs: `docs/specs/`
 
 ---
 
 ## Source map
 
-| Domain | Path | What it does |
-|--------|------|-------------|
-| CLI dispatch | `core/poly/src/surfaces/cli/` | Envelope, discovery, aliases |
-| CLI binary | `core/poly/bin/lev` | Entry point |
-| Work/review | `plugins/core-sdlc/src/commands/` | Lifecycle routing, review queue |
-| Exec runtime | `core/exec/src/` | Execution SDK |
-| Config | `core/config/src/` | Resolver chain, XDG paths |
-| Index | `core/index/` | LEANN vector search, gRPC service |
-| Domain types | `core/domain/` | Shared contracts and interfaces |
-| Event bus | `core/event-bus/` | Inter-module events (LevEvent) |
-| FlowMind | `core/flowmind/` | Flow declaration/runtime |
-| Daemon | `core/daemon/` | Process supervision, health |
+| Domain | Path | What |
+|--------|------|------|
+| CLI binary | `core/poly/bin/lev` | Entry point (bun shim) |
+| CLI dispatch | `core/poly/src/surfaces/cli/` | Discovery, aliases |
+| Exec engine | `core/harness/src/` | Adapter registry, runner, loop |
+| Orchestration | `core/orchestration/src/` | Iterative runner, execution contract |
+| FlowMind | `core/flowmind/src/` | Flow compilation, session manager |
+| SDLC plugin | `plugins/core-sdlc/` | Flows, autodev, work lifecycle |
+| Prompt stack | `plugins/prompt-stack/` | Structured prompt workflows |
+| Domain types | `core/domain/` | Shared contracts |
+| Event bus | `core/event-bus/` | Inter-module events |
+| Logger | `core/logger/` | Pino-based, reads .lev/config.yaml |
+| Config | `core/config/` | Resolver chain, XDG paths |
 
 ---
 
-## Sub-skills (specialists)
+## DNA (system constraints)
 
-These have real independent logic and remain as separate skills:
+Read `dna/graph.yaml` before touching core. Key constraints:
+- **C1 Finitude:** Every operation must be bounded. No infinite loops.
+- **C2 Non-commutation:** Order matters. Append-only. Immutable receipts.
+- Validation gates: `.lev/validation-gates.yaml`
 
-| Skill | What it does |
-|-------|-------------|
-| `work` | Lifecycle router — auto-detects stage, generates artifacts |
-| `lev-cdo` | CDO deliberation framework — multi-perspective design decisions |
-| `lev-research` | Deep research orchestration — multi-backend, cross-validation |
-| `lev-workshop` | Workshop lifecycle — intake, analysis, POC, poly pipeline |
-| `lev-builder` | Build/migrate workflows — POC to production placement |
-| `lev-intake` | Content intake system |
-| `lev-design` | UX pipeline |
-| `lev-design-os` | Product design |
-| `lev-social` | Social research |
-| `lev-orch-sidequest` | Autonomous SDLC router |
-| `lev-orch-thinking-parliament` | Multi-model deliberation |
-| `skill-discovery` | Find skills: `~/.agents/skills/` |
-
-Load any sub-skill with `s://<skill-name>`.
+Execution primitives: loop, eval, effect, session, receipt, edge, execution_contract.
