@@ -117,7 +117,7 @@ Use these specific sources per investigation phase:
 Task({ subagent_type: "PerplexityResearcher", prompt: "Search Pipl, Spokeo, BeenVerified, TruePeopleSearch, WhitePages, FastPeopleSearch, and Radaris for identity records on [name]. Cross-reference addresses, phone numbers, and known associates." })
 
 // Professional Background — LinkedIn, OpenCorporates, USPTO
-Task({ subagent_type: "ClaudeResearcher", prompt: "Research [name] professional background via LinkedIn, OpenCorporates (corporate officer filings), and USPTO (patent searches). Map career history, business affiliations, and credentials." })
+Task({ subagent_type: "ClaudeResearcher", prompt: "Research [name] professional background using public professional-network profiles, OpenCorporates corporate officer filings, and USPTO patent records. Map career history, business affiliations, and credentials." })
 
 // Username & Email Enumeration — Sherlock, Maigret, WhatsMyName, Hunter.io, Epieos, Holehe, HIBP
 Task({ subagent_type: "GeminiResearcher", prompt: "Enumerate usernames for [name] across Sherlock, Maigret, and WhatsMyName. Check email addresses via Hunter.io, Epieos, Holehe, and HIBP for breach exposure." })
