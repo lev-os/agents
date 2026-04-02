@@ -1,5 +1,9 @@
 # Agent Field Kit — Tool Bundle
 
+> **Source of truth:** `~/.local/share/chezmoi/.chezmoidata/packages.toml`
+> On chezmoi-managed machines, `dotfiles packages` installs everything.
+> This file documents usage guidance and routing — not install lists.
+
 ## Bundle Contents
 
 ### Core baseline
@@ -15,6 +19,7 @@
 | `xh` | Readable HTTP client |
 | `watchexec` | Rerun on file changes |
 | `just` | Simple task runner |
+| `repomix` | Pack repos into AI-friendly context |
 | `semgrep` | Deterministic static analysis |
 | `tmux` | Required for `ntm` |
 
