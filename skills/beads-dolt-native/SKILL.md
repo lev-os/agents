@@ -52,11 +52,11 @@ For every Beads repo:
 Use the rollout helper:
 
 ```bash
-python3 /Users/jean-patricksmith/.agents/skills/beads-dolt-native/scripts/beads_rollout.py scan --roots /Users/jean-patricksmith/digital
+python3 $HOME/.agents/skills/beads-dolt-native/scripts/beads_rollout.py scan --roots $HOME/digital
 
-python3 /Users/jean-patricksmith/.agents/skills/beads-dolt-native/scripts/beads_rollout.py apply --roots /Users/jean-patricksmith/digital --sync push
+python3 $HOME/.agents/skills/beads-dolt-native/scripts/beads_rollout.py apply --roots $HOME/digital --sync push
 
-python3 /Users/jean-patricksmith/.agents/skills/beads-dolt-native/scripts/beads_rollout.py apply --roots /Users/jean-patricksmith/digital --sync pull
+python3 $HOME/.agents/skills/beads-dolt-native/scripts/beads_rollout.py apply --roots $HOME/digital --sync pull
 ```
 
 `scan` reports what would change.
