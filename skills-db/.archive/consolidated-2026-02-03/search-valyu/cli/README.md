@@ -41,7 +41,7 @@ This will:
 Create `~/.valyu/.env`:
 
 ```bash
-VALYU_API_KEY=your-api-key-here
+VALYU_API_KEY=YOUR_VALYU_API_KEY_HERE
 ```
 
 Get your API key: https://platform.valyu.ai
