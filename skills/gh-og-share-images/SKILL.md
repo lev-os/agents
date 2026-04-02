@@ -32,7 +32,7 @@ Generate GitHub social preview images (1280x640 PNG) for repositories via an ite
 Run `generate_og_image.py` with the repo path. This produces a first draft at `gh_og_share_image.png` (or `--output` path).
 
 ```bash
-python3 /Users/jemanuel/projects/je_private_skills_repo/.claude/skills/gh-og-share-images/generate_og_image.py /path/to/repo --output /tmp/preview.png
+python3 $HOME/.claude/skills/gh-og-share-images/generate_og_image.py /path/to/repo --output /tmp/preview.png
 ```
 
 ### Step 3: Visual review (MANDATORY — at least 5 passes)

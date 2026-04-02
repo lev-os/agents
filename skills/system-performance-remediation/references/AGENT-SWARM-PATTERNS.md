@@ -78,8 +78,8 @@ for pid in 5521 902432; do
 done
 
 # Good children (active work):
-# /home/ubuntu/.rustup/.../cargo check --all-targets
-# node /home/ubuntu/.bun/bin/vercel deploy
+# ~/.rustup/.../cargo check --all-targets
+# node ~/.bun/bin/vercel deploy
 
 # Bad children (idle MCP servers only):
 # npm exec @morphllm/morphmcp
