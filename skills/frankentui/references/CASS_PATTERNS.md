@@ -31,7 +31,7 @@ cass view /path/to/session.jsonl -n <line> -C 20
 
 Source:
 
-- `/home/ubuntu/.claude/projects/-data-projects-frankentui/636d87b6-e82e-40c1-92cf-2995341901d7/subagents/agent-a9d065a.jsonl:1`
+- `~/.claude/projects/-data-projects-frankentui/636d87b6-e82e-40c1-92cf-2995341901d7/subagents/agent-a9d065a.jsonl:1`
 
 Observed ask pattern:
 
@@ -45,7 +45,7 @@ Observed ask pattern:
 
 Source:
 
-- `/home/ubuntu/.claude/projects/-data-projects-frankentui/2a2428ec-9bc8-4f2e-9ade-24bf62d09921.jsonl:4`
+- `~/.claude/projects/-data-projects-frankentui/2a2428ec-9bc8-4f2e-9ade-24bf62d09921.jsonl:4`
 
 Observed ask pattern:
 
@@ -57,7 +57,7 @@ Observed ask pattern:
 
 Source:
 
-- `/home/ubuntu/.claude/projects/-data-projects-frankentui/154fc5bf-7e6f-436b-9237-d95b26d06135/subagents/agent-a76ea13.jsonl:1`
+- `~/.claude/projects/-data-projects-frankentui/154fc5bf-7e6f-436b-9237-d95b26d06135/subagents/agent-a76ea13.jsonl:1`
 
 Observed ask pattern:
 
@@ -263,9 +263,9 @@ cass search "table theme" --workspace /data/projects/frankentui --json --fields 
 
 ## 7. Additional Useful Sessions
 
-- `/home/ubuntu/.claude/projects/-data-projects-frankentui/51ac1233-eb71-4199-9b87-1cfc1fb077b6.jsonl`
-- `/home/ubuntu/.claude/projects/-data-projects-frankentui/4b571e13-20b7-43a2-bf32-ee3cf42f247f.jsonl`
-- `/home/ubuntu/.claude/projects/-data-projects-frankentui/d8396483-ef5d-4a59-b2f1-941964b17c7b.jsonl`
-- `/home/ubuntu/.claude/projects/-data-projects-frankentui/971aa952-637b-40b7-aa84-2fded3559a1e.jsonl`
+- `~/.claude/projects/-data-projects-frankentui/51ac1233-eb71-4199-9b87-1cfc1fb077b6.jsonl`
+- `~/.claude/projects/-data-projects-frankentui/4b571e13-20b7-43a2-bf32-ee3cf42f247f.jsonl`
+- `~/.claude/projects/-data-projects-frankentui/d8396483-ef5d-4a59-b2f1-941964b17c7b.jsonl`
+- `~/.claude/projects/-data-projects-frankentui/971aa952-637b-40b7-aa84-2fded3559a1e.jsonl`
 
 Use these when you need more examples of "polish escalation" prompts and outcomes.

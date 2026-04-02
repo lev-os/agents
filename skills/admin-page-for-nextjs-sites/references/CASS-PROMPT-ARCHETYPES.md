@@ -39,7 +39,7 @@ Be very thorough. List all admin-related files and what each does.
 ```
 
 Source:
-- `/home/ubuntu/.claude/projects/-data-projects-jeffreys-skills-md/da9ad1fd-8156-40f0-9a18-8efe8872471e/subagents/agent-a754342.jsonl:1`
+- `~/.claude/projects/-data-projects-jeffreys-skills-md/da9ad1fd-8156-40f0-9a18-8efe8872471e/subagents/agent-a754342.jsonl:1`
 
 ## Archetype 2: Cross-Repo Pattern Mining
 
@@ -61,7 +61,7 @@ Return detailed findings with file paths and reusable code patterns.
 ```
 
 Source:
-- `/home/ubuntu/.claude/projects/-data-projects-jeffreys-skills-md/a5934f39-1b3b-4a18-8d52-c03fed683447/subagents/agent-ae84e71.jsonl:1`
+- `~/.claude/projects/-data-projects-jeffreys-skills-md/a5934f39-1b3b-4a18-8d52-c03fed683447/subagents/agent-ae84e71.jsonl:1`
 
 ## Archetype 3: Moderation Queue Build Prep
 
@@ -83,7 +83,7 @@ Provide file paths and relevant code patterns.
 ```
 
 Source:
-- `/home/ubuntu/.claude/projects/-data-projects-jeffreys-skills-md/038a8514-2aaf-476d-90b9-c39dbf6d074f/subagents/agent-a0c14cb.jsonl:1`
+- `~/.claude/projects/-data-projects-jeffreys-skills-md/038a8514-2aaf-476d-90b9-c39dbf6d074f/subagents/agent-a0c14cb.jsonl:1`
 
 ## Archetype 4: API Route Inventory + Contract Mapping
 
@@ -105,7 +105,7 @@ Return file paths and concise summaries.
 ```
 
 Source:
-- `/home/ubuntu/.claude/projects/-data-projects-jeffreys-skills-md/14ca84d4-7d1e-46d7-b7af-c883cd152eb5/subagents/agent-afbb9c6.jsonl:1`
+- `~/.claude/projects/-data-projects-jeffreys-skills-md/14ca84d4-7d1e-46d7-b7af-c883cd152eb5/subagents/agent-afbb9c6.jsonl:1`
 
 ## Archetype 5: Broken Route Sweep (Consistency + Coverage)
 
@@ -125,7 +125,7 @@ Return all issues with file path + line number, ordered by severity.
 ```
 
 Source:
-- `/home/ubuntu/.claude/projects/-data-projects-jeffreys-skills-md/42f04754-ddfe-4828-9da6-0d7cbd4de542/subagents/agent-a3b46cf.jsonl:1`
+- `~/.claude/projects/-data-projects-jeffreys-skills-md/42f04754-ddfe-4828-9da6-0d7cbd4de542/subagents/agent-a3b46cf.jsonl:1`
 
 ## Archetype 6: Security + Audit Threat-Hunt
 
@@ -151,8 +151,8 @@ Trace imports and execution flow. Report concrete bugs:
 ```
 
 Sources:
-- `/home/ubuntu/.claude/projects/-data-projects-jeffreysprompts-premium/d075f557-0af8-4168-bb5e-fba07eccb60f/subagents/agent-a1dcb0d.jsonl:1`
-- `/home/ubuntu/.claude/projects/-data-projects-jeffreysprompts-premium/54ce73a2-354c-4d6d-ad51-54b0655d9cdb/subagents/agent-a55a8e0.jsonl:1`
+- `~/.claude/projects/-data-projects-jeffreysprompts-premium/d075f557-0af8-4168-bb5e-fba07eccb60f/subagents/agent-a1dcb0d.jsonl:1`
+- `~/.claude/projects/-data-projects-jeffreysprompts-premium/54ce73a2-354c-4d6d-ad51-54b0655d9cdb/subagents/agent-a55a8e0.jsonl:1`
 
 ## Archetype 7: World-Class Enhancement Plan Spec
 
@@ -179,7 +179,7 @@ Deliver:
 ```
 
 Source:
-- `/home/ubuntu/.claude/projects/-data-projects-jeffreys-skills-md/a5934f39-1b3b-4a18-8d52-c03fed683447/subagents/agent-ad03ab4.jsonl:1`
+- `~/.claude/projects/-data-projects-jeffreys-skills-md/a5934f39-1b3b-4a18-8d52-c03fed683447/subagents/agent-ad03ab4.jsonl:1`
 
 ## Ritual Frequency Snapshot (Last ~180 days)
 

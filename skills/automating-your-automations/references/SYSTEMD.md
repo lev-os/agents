@@ -79,10 +79,10 @@ Description=<Same description>
 
 [Service]
 Type=oneshot
-ExecStart=/home/ubuntu/.local/bin/<script>
+ExecStart=$HOME/.local/bin/<script>
 # Environment variables
-Environment=PATH=/home/ubuntu/.local/bin:/usr/bin:/bin
-Environment=HOME=/home/ubuntu
+Environment=PATH=$HOME/.local/bin:/usr/bin:/bin
+Environment=HOME=$HOME
 # Resource limits
 TimeoutStartSec=3600
 Nice=10
