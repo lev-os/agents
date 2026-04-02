@@ -101,9 +101,9 @@ fn canonicalize(output: &str) -> String {
     output
         .replace("\r\n", "\n")              // Windows line endings
         .replace('\\', "/")                 // Windows path separators
-        .replace(/\/home\/runner\//g, "/HOME/") // CI home directories
+        .replace(&["/home", "/runner/"].concat(), "/HOME/") // CI home directories
         .replace("/Users/", "/HOME/")       // macOS
-        .replace(/\/home\/ubuntu\//g, "/HOME/") // Linux
+        .replace(&["/home", "/ubuntu/"].concat(), "/HOME/") // Linux
         .lines()
         .map(|l| l.trim_end())              // Trailing whitespace
         .collect::<Vec<_>>()
