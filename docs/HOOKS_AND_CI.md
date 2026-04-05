@@ -35,4 +35,4 @@ On every push and PR to `main`:
 ## Fixing failures
 
 - **Secret detected**: Remove the secret, use env vars or a secrets manager, add to `.env` (gitignored)
-- **Hardcoded path**: Replace `/Users/yourname/...` with `$HOME/...` or a relative path
+- **Hardcoded path**: Replace user-specific home-directory examples with `$HOME/...` or a relative path
