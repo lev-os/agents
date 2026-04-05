@@ -76,6 +76,9 @@ Notes:
 - Do not treat `.lev/store/.beads` as live evidence unless it contains actual issue data.
 - CASS outcomes should be high-signal only for analysis: ignore launch chatter, task-notification noise, `local-command-caveat`, background-agent narration, and generic `Let me...` planning text.
 - Apply a second-stage Leviathan relevance guard before promoting any clause into an infra conclusion. Confidence-bearing language without Lev context is weak evidence by default.
+- Record filter counts explicitly, including a freshness ratio line (`stage2_since_last / retained_strict`) when a prior run timestamp is available.
+- If `stage2_since_last=0`, declare `trend mode` explicitly instead of phrasing conclusions as fresh same-day incidents.
+- Collapse duplicate clauses before ranking conclusions and include a duplicate-clause note or collapse metric in the report when recurrence materially affects confidence.
 - Preserve `recordedAt` for every retained clause. Every synthesized claim in the report must point back to at least one `timestamp — clause snippet` citation.
 - When raw artifacts and CASS disagree, prefer filtered `.cass/outcomes.jsonl` plus repo-root `.beads`.
 - If the filtered high-signal set is sparse, say so explicitly instead of over-synthesizing.
