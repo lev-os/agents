@@ -86,7 +86,7 @@ Explain why each less-restrictive option is insufficient:
 
 Specify guardianship type. Enumerate only the powers needed.
 
-**Person:** medical decisions, residential placement, access to records, consent/refusal of treatment, social decisions.
+**Person:** medical decisions, residential placement, access to records, treatment decision authority, social decisions.
 
 **Estate:** manage income/assets, pay debts, enter contracts, manage real property.
 

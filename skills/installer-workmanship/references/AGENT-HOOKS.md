@@ -19,7 +19,7 @@ Complete JSON/YAML formats for every supported AI coding agent.
         "hooks": [
           {
             "type": "command",
-            "command": "/home/user/.local/bin/my-tool"
+            "command": "$HOME/.local/bin/my-tool"
           }
         ]
       }
@@ -73,7 +73,7 @@ Full implementation: [PYTHON3-JSON-MERGE.md](PYTHON3-JSON-MERGE.md)
           {
             "name": "my-tool",
             "type": "command",
-            "command": "/home/user/.local/bin/my-tool",
+            "command": "$HOME/.local/bin/my-tool",
             "timeout": 5000
           }
         ]
@@ -142,8 +142,8 @@ git-commit-verify: true
     "preToolUse": [
       {
         "type": "command",
-        "bash": "/home/user/.local/bin/my-tool",
-        "powershell": "/home/user/.local/bin/my-tool",
+        "bash": "$HOME/.local/bin/my-tool",
+        "powershell": "$HOME/.local/bin/my-tool",
         "cwd": ".",
         "timeoutSec": 30
       }
@@ -192,7 +192,7 @@ proc = subprocess.run(["my-tool"], input=json.dumps(hook_input), text=True, capt
   "version": 1,
   "hooks": {
     "beforeShellExecution": [
-      {"command": "/home/user/.cursor/hooks/my-tool-pre-shell.py"}
+      {"command": "$HOME/.cursor/hooks/my-tool-pre-shell.py"}
     ]
   }
 }

@@ -122,12 +122,23 @@ log ""
 
 write_env_file
 
-if [ "$OS" = "Darwin" ]; then
+# On chezmoi-managed machines, packages.toml is the single source of truth.
+# Field kit only uses its own hardcoded list as a fallback for containers/remote.
+if command_exists dotfiles; then
+  log "Detected chezmoi-managed machine — delegating to dotfiles packages"
+  dotfiles packages
+  # npm-only tools not in packages.toml
+  if [ "$PROFILE" = "full" ]; then
+    install_npm_if_missing agentmail-cli agentmail
+  fi
+elif [ "$OS" = "Darwin" ] || { [ "$OS" = "Linux" ] && command_exists brew; }; then
   command_exists brew || {
     echo "Homebrew is required on macOS" >&2
     exit 1
   }
 
+  # Fallback: hardcoded list for environments without chezmoi
+  log "No chezmoi detected — using embedded tool list"
   install_homebrew_if_missing ripgrep rg
   install_homebrew_if_missing fd fd
   install_homebrew_if_missing fzf fzf
@@ -137,48 +148,22 @@ if [ "$OS" = "Darwin" ]; then
   install_homebrew_if_missing watchexec watchexec
   install_homebrew_if_missing just just
   install_homebrew_if_missing semgrep semgrep
+  install_homebrew_if_missing repomix repomix
   install_homebrew_if_missing tree tree
   install_homebrew_if_missing tmux tmux
 
   if [ "$PROFILE" = "full" ]; then
     install_homebrew_if_missing dicklesworthstone/tap/dcg dcg
-    install_homebrew_if_missing dicklesworthstone/tap/cass cass
-    install_homebrew_if_missing dicklesworthstone/tap/ubs ubs
-    install_homebrew_if_missing dicklesworthstone/tap/ntm ntm
     install_npm_if_missing agentmail-cli agentmail
   fi
-elif [ "$OS" = "Linux" ]; then
-  if command_exists brew; then
-    install_homebrew_if_missing ripgrep rg
-    install_homebrew_if_missing fd fd
-    install_homebrew_if_missing fzf fzf
-    install_homebrew_if_missing duckdb duckdb
-    install_homebrew_if_missing git-delta delta
-    install_homebrew_if_missing xh xh
-    install_homebrew_if_missing watchexec watchexec
-    install_homebrew_if_missing just just
-    install_homebrew_if_missing semgrep semgrep
-    install_homebrew_if_missing tree tree
-    install_homebrew_if_missing tmux tmux
-    if [ "$PROFILE" = "full" ]; then
-      install_homebrew_if_missing dicklesworthstone/tap/dcg dcg
-      install_homebrew_if_missing dicklesworthstone/tap/cass cass
-      install_homebrew_if_missing dicklesworthstone/tap/ubs ubs
-      install_homebrew_if_missing dicklesworthstone/tap/ntm ntm
-      install_npm_if_missing agentmail-cli agentmail
-    fi
-  elif command_exists apt-get; then
-    install_apt_packages curl git ca-certificates ripgrep fd-find fzf tree tmux python3 python3-pip npm
-    if [ "$PROFILE" = "full" ]; then
-      log "Full Linux profile is best-effort without Homebrew; baseline installed, advanced tools may need manual follow-up."
-      install_npm_if_missing agentmail-cli agentmail || true
-    fi
-  else
-    echo "Unsupported Linux environment: need Homebrew or apt-get" >&2
-    exit 1
+elif [ "$OS" = "Linux" ] && command_exists apt-get; then
+  install_apt_packages curl git ca-certificates ripgrep fd-find fzf tree tmux python3 python3-pip npm
+  if [ "$PROFILE" = "full" ]; then
+    log "Full Linux profile is best-effort without Homebrew; baseline installed, advanced tools may need manual follow-up."
+    install_npm_if_missing agentmail-cli agentmail || true
   fi
 else
-  echo "Unsupported OS: $OS" >&2
+  echo "Unsupported environment: need chezmoi, Homebrew, or apt-get" >&2
   exit 1
 fi
 
