@@ -92,7 +92,7 @@ echo '{"tool_name":"Bash","tool_input":{"command":"cargo build"}}' | /usr/local/
 ### Step 4: Full Diagnostic
 
 ```bash
-/home/ubuntu/.claude/skills/rch/scripts/diagnose-rch.sh
+~/.claude/skills/rch/scripts/diagnose-rch.sh
 ```
 
 ---
@@ -223,7 +223,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/home/ubuntu/.local/bin/rchd
+ExecStart=$HOME/.local/bin/rchd
 Restart=on-failure
 RestartSec=5
 

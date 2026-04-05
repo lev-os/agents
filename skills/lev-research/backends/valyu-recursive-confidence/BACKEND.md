@@ -13,7 +13,7 @@ All API requests require an API key:
 
 ```bash
 # Header format
-x-api-key: your-api-key-here
+x-api-key: YOUR_VALYU_API_KEY_HERE
 ```
 
 Get your API key at: https://platform.valyu.ai
@@ -238,7 +238,7 @@ pip install valyu
 ```python
 from valyu import ValyuClient
 
-client = ValyuClient(api_key="your-api-key")
+client = ValyuClient(api_key="YOUR_VALYU_API_KEY_HERE")
 
 # Search
 results = client.search(
@@ -269,7 +269,7 @@ npm install valyu-js
 ```javascript
 import { ValyuClient } from 'valyu-js';
 
-const client = new ValyuClient({ apiKey: 'your-api-key' });
+const client = new ValyuClient({ apiKey: 'YOUR_VALYU_API_KEY_HERE' });
 
 // Search
 const results = await client.search({
@@ -446,8 +446,9 @@ results = client.search(
 
 ```bash
 # cURL Example - Search
+VALYU_API_KEY="YOUR_VALYU_API_KEY_HERE"
+
 curl -X POST https://api.valyu.ai/v1/search \
-  -H "x-api-key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
     "query": "AI agents",
@@ -455,24 +456,28 @@ curl -X POST https://api.valyu.ai/v1/search \
     "search_type": "web"
   }'
 
+# Add the x-api-key header using your shell or HTTP client before running the request above.
+
 # cURL Example - Answer
 curl -X POST https://api.valyu.ai/v1/answer \
-  -H "x-api-key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
     "query": "What are transformers in AI?",
     "streaming": false
   }'
 
+# Add the x-api-key header using your shell or HTTP client before running the request above.
+
 # cURL Example - Contents
 curl -X POST https://api.valyu.ai/v1/contents \
-  -H "x-api-key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
     "urls": ["https://example.com"],
     "response_length": "medium",
     "summary": "Extract key information"
   }'
+
+# Add the x-api-key header using your shell or HTTP client before running the request above.
 ```
 
 ---

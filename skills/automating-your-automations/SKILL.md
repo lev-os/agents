@@ -47,9 +47,17 @@ description: >-
 | **Journalctl** | `journalctl --user` | Failure patterns |
 | **bash/git/cron** | `~/.bash_history`, `git log`, `crontab -l` | Fallback sources |
 
+If `~/.atuin/history.db` is missing, check XDG-style paths such as `~/.local/share/atuin/history.db` before concluding Atuin is unavailable. If Atuin truly is unavailable, fall back to `~/.zsh_history` / `~/.bash_history` and downgrade confidence on timing/failure-rate scoring.
+
 ### Essential Atuin Queries
 
 Open read-only: `sqlite3 -readonly ~/.atuin/history.db`
+
+If that path does not exist, discover the DB first:
+
+```bash
+find ~ ~/.local/share -maxdepth 3 \( -name 'history.db' -o -name '*atuin*' \) 2>/dev/null
+```
 
 Atuin stores `timestamp` and `duration` in **nanoseconds**. Exit 0 = success.
 

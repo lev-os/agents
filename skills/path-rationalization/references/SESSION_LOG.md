@@ -32,7 +32,7 @@ Machine: Ubuntu dev server, heavy multi-agent AI coding use.
 $ which ntm
 /run/user/1000/fnm_multishells/1918156_1774109763499/bin/ntm  # OLD binary from March 20
 
-$ ls -la /home/ubuntu/.local/bin/ntm  # NEW binary from March 21
+$ ls -la ~/.local/bin/ntm  # NEW binary from March 21
 # This one was shadowed and never ran
 ```
 

@@ -73,9 +73,9 @@ When a binary exists at multiple PATH locations:
 
 ```
 ntm is /run/user/1000/fnm_multishells/.../bin/ntm    # BAD: ephemeral
-ntm is /home/ubuntu/.bun/bin/ntm                      # BAD: wrong tool's dir
-ntm is /home/ubuntu/.local/bin/ntm                    # GOOD: canonical
-ntm is /home/ubuntu/go/bin/ntm                        # OK: go install location
+ntm is ~/.bun/bin/ntm                      # BAD: wrong tool's dir
+ntm is ~/.local/bin/ntm                    # GOOD: canonical
+ntm is ~/go/bin/ntm                        # OK: go install location
 ntm is /usr/local/bin/ntm                             # OK: system-wide
 ```
 

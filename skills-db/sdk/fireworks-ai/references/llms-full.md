@@ -21000,9 +21000,9 @@ To get started with the Fireworks AI Python SDK, you need to install the `firect
 
     ```bash {1,4} theme={null}
     $ firectl api-key create --key-name "quick-start"
-    Key Id: key_42vAYeb7rwt9zzg1
+    Key Id: <key id shown by CLI>
     Display Name: quick-start
-    Key: fw_3ZLd....
+    Key: <api key shown once by CLI>
     Secure: true
     Be sure to save this key. It will not be shown again.
     ```
@@ -21010,7 +21010,7 @@ To get started with the Fireworks AI Python SDK, you need to install the `firect
     Copy the value of the `Key` field to your environment variable `FIREWORKS_API_KEY`.
 
     ```bash theme={null}
-    export FIREWORKS_API_KEY=fw_3ZLd....
+    export FIREWORKS_API_KEY="<paste api key here>"
     ```
   </Step>
 
