@@ -17,6 +17,12 @@ CREATE TABLE history (
 
 Always open read-only: `sqlite3 -readonly ~/.atuin/history.db`
 
+If the legacy path is missing, discover XDG-style installs before falling back:
+
+```bash
+find ~ ~/.local/share -maxdepth 3 \( -name 'history.db' -o -name '*atuin*' \) 2>/dev/null
+```
+
 ---
 
 ## Pattern Detection Queries
