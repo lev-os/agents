@@ -44,6 +44,87 @@ lev runs from source via bun. No build step. Changes to core/ are live immediate
 
 ---
 
+## Meta-Prompting: How to Write lev exec Prompts
+
+Agents are junior contractors. They don't know the codebase, the constraints, or what "done" means unless you spell it out. Every prompt must answer 5 questions:
+
+### The 5 Questions
+
+1. **What does PASSING look like?** Show a reference file/module that already works.
+2. **What does FAILING look like?** Show the exact current error output.
+3. **What specifically needs to change?** File, line, old value → new value.
+4. **What must NOT change?** Scope boundary. "Touch ONLY these files."
+5. **How do I verify?** Shell command that exits 0 on success.
+
+### Template
+
+```bash
+lev exec "You are fixing {what} for {module} so it passes \`{verification command}\`.
+
+## Context
+{Which contract/spec governs this. Tell the agent to READ it first.}
+
+## Current failures (from \`{command that shows failures}\`)
+1. {constraint_id}: {exact error message}. Fix: {exact change}.
+2. {constraint_id}: {exact error message}. Fix: {exact change}.
+
+## Reference: what PASSING looks like
+Read {path/to/passing/example} — it passes all constraints. Key differences:
+- {field}: {passing value} vs {failing value}
+- {field}: {what's present vs missing}
+
+## What to do
+1. Read {file to modify}
+2. {Exact change 1 — file, line, old → new}
+3. {Exact change 2}
+4. Do NOT change anything else.
+
+## DONE criteria
+1. \`{verify command 1}\` shows PASS
+2. \`{verify command 2}\` shows PASS
+3. {artifact exists check}
+4. No other files modified
+5. git diff shows only expected changes" \
+  --flow lev-ralph \
+  --verifier="{shell command that exits 0 when done}"
+```
+
+### Bad vs Good
+
+**Bad** (vague, no context, no verification):
+```bash
+lev exec "fix config.yaml schema compliance for core/exec" --flow lev-ralph
+```
+
+**Good** (specific, reference, verification):
+```bash
+lev exec "You are fixing config.yaml for core/exec so it passes lev validate.
+
+## Current failures
+1. namespace_is_lev: package.namespace is 'exec', must start with '@lev-os/'.
+   Fix: change line 8 from namespace: exec to namespace: \"@lev-os/exec\"
+
+## Reference
+Read plugins/browser-cascade/config.yaml — namespace: \"@lev-os/browser-ops\"
+
+## DONE criteria
+1. lev validate core/exec | grep namespace_is_lev shows PASS
+2. No other files modified" --flow lev-ralph --verifier="npx lev validate core/exec 2>&1 | grep -c ERROR | grep -q '^0$'"
+```
+
+### Orchestrator Loop Protocol
+
+When running ralph in a loop (multiple items from a queue):
+
+1. **Before firing:** Run the verifier for the PREVIOUS item. If it fails, don't move on — escalate.
+2. **Gather context:** Run `lev validate {module}` to get exact current failures. Don't assume.
+3. **Write the prompt:** Use the 5 questions template. Include a passing reference.
+4. **Set the verifier:** `--verifier` must be a shell command that exits 0 ONLY when the work is correct.
+5. **After completion:** Check git diff. If unexpected files changed, revert and re-prompt.
+6. **Escalate when unsure:** If the agent loops 3+ times or touches unexpected files, STOP and ask the human.
+
+---
+
 ## exec
 
 ### Single dispatch
@@ -260,10 +341,25 @@ Config > env > defaults. Don't rely on env vars — LLMs forget them.
 ```
 ~/.config/lev/              # user config
 ~/.local/share/lev/         # persistent data (traces, events, indexes)
+~/.local/share/lev/events.jsonl          # global LevEvent log (git, exec, daemon)
+~/.local/share/lev/exec/traces/traces.jsonl  # per-execution traces
 ~/.local/state/lev/         # runtime state
 ~/.cache/lev/               # disposable cache
 .lev/                       # project config + steering
+.lev/agentfs/exec/events.jsonl  # graph exec events (node transitions, branches, completions)
 .lev/pm/                    # plans, handoffs, decisions, specs
+```
+
+### Observability
+```bash
+# Recent graph exec events (ralph loop traces)
+tail -20 .lev/agentfs/exec/events.jsonl | python3 -c "import json,sys; [print(f'{json.loads(l)[\"type\"]:30s} {json.loads(l)[\"data\"].get(\"nodeId\",\"\")}') for l in sys.stdin]"
+
+# Global events (exec.started, exec.failed, git commits)
+tail -10 ~/.local/share/lev/events.jsonl | python3 -c "import json,sys; [print(f'{json.loads(l)[\"type\"]:25s} {json.loads(l).get(\"data\",{}).get(\"executionId\",\"\")}') for l in sys.stdin]"
+
+# Token usage from last exec
+grep "token\|cost\|usage" .lev/agentfs/exec/events.jsonl | tail -5
 ```
 
 ---

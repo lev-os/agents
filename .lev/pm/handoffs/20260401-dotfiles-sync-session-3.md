@@ -91,6 +91,34 @@ Full sync complete. All four status checks green, zero drift. 10 diffs resolved:
 **Files Modified:** `dot_claude/private_settings.json` (removed model override), `exact_dot_codex/AGENTS.md` (promoted target wording)
 **Progress:** 10/10 diffs resolved. 4 remote commits merged. Source pushed. Target applied.
 
+| T+9 | Diagnosed PreToolUse:Bash hook error — `dcg` not installed on PATH |
+| T+10 | Investigated: dcg is external Rust binary (dicklesworthstone/destructive_command_guard), not in either repo |
+| T+11 | brew install failed — stale checksum in tap. Falling back to `cargo install` |
+| T+12 | Added `[critical]` section to packages.toml with sync-blocking deps |
+| T+13 | Updated `dotfiles doctor` to check critical deps separately |
+| T+14 | Updated `dotfiles packages` to install critical taps+formulae first |
+| T+15 | Added `check_critical_deps` gate to `show_plan` |
+| T+16 | Committed + pushed `18bfe9e6` — packages.toml + dotfiles binary |
+
+### CHECKPOINT 3 — Critical Deps Infrastructure
+
+**Current State:** packages.toml now has `[critical]` section. `dotfiles doctor` shows red/green per dep. `dotfiles packages` bootstraps critical deps first. `cargo install destructive_command_guard` building.
+**Files Modified:** `.chezmoidata/packages.toml`, `dot_local/bin/executable_dotfiles`
+**Understanding:** The infrastructure for "runbook on a new machine" was already there (packages.toml + dotfiles packages + dotfiles doctor) but the manifest was stale and didn't distinguish blocking deps from nice-to-haves.
+
+| T+17 | Mapped overlap between packages.toml and agent-field-kit install.sh |
+| T+18 | Added 7 missing field-kit tools to packages.toml: fd, duckdb, xh, watchexec, just, semgrep, repomix |
+| T+19 | Refactored field-kit install.sh to delegate to `dotfiles packages` on chezmoi-managed machines |
+| T+20 | Updated tool-bundle.md — packages.toml is now documented as source of truth |
+| T+21 | Installed repomix v1.13.1 via brew |
+| T+22 | Committed + pushed both repos (dotfiles `ed6ed646`, agents `dca5301`) |
+
+### CHECKPOINT 4 — Dependency Reconciliation Complete
+
+**Current State:** packages.toml is the single source of truth for brew installs. Field kit delegates to it on managed machines, keeps hardcoded fallback for containers only. Repomix installed and available.
+**Files Modified:** `.chezmoidata/packages.toml`, `skills/agent-field-kit/scripts/install.sh`, `skills/agent-field-kit/references/tool-bundle.md`
+**Understanding:** The overlap was packages.toml (stale, incomplete) vs field-kit (hardcoded, duplicative). Fix: packages.toml is canonical, field kit reads from it when available.
+
 ## Decisions Log
 
 ### D1: blocklist.json fetchedAt is noise — skip (consistent with session 2 D1)
