@@ -8,6 +8,7 @@ from pathlib import Path
 from autoresearch_helpers import (
     AutoresearchError,
     default_results_path,
+    default_state_path,
     default_launch_manifest_path,
     default_runtime_log_path,
     default_runtime_state_path,
@@ -185,12 +186,15 @@ def main() -> int:
             args.runtime_path,
             default_runtime_state_path(repo, run_tag),
         )
+        state_path_arg = args.state_path
+        if not state_path_arg:
+            state_path_arg = str(default_state_path(repo, run_tag))
         print(
             json.dumps(
                 runtime_summary(
                     repo=repo,
                     results_path=results_path,
-                    state_path_arg=args.state_path,
+                    state_path_arg=state_path_arg,
                     launch_path=launch_path,
                     runtime_path=runtime_path,
                 ),

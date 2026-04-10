@@ -135,3 +135,24 @@ Always include source paths or session references when possible. If no strong pr
 - Do not treat search hits as proof until you have read the underlying file, expanded the session hit, or inspected the diagram.
 - Do not stop after one search angle. Rephrase the question, then search again.
 - Do not assume `lev get` or `qmd` collections are healthy; they are accelerators, not a reason to stop.
+
+### Search Exclusions (avoid getting lost in the woods)
+
+Always exclude noise directories from `rg` and file-system searches. These directories contain vendored code, build artifacts, and virtual environments that generate massive false-positive floods and waste context:
+
+```bash
+rg --glob '!.venv' --glob '!venv' --glob '!node_modules' --glob '!.git' \
+   --glob '!dist' --glob '!build' --glob '!__pycache__' --glob '!.next' \
+   --glob '!*.min.js' --glob '!*.min.css' --glob '!pnpm-lock.yaml' \
+   --glob '!package-lock.json' --glob '!yarn.lock' --glob '!Cargo.lock' \
+   --glob '!*.pyc' --glob '!site-packages'
+```
+
+Common footguns that waste entire searches:
+- `.venv/` and `node_modules/` contain vendored copies of the entire Python/JS ecosystem — tokens like `Z3`, `proof`, `constraint` will match thousands of lines in library code
+- `pnpm-lock.yaml` / `package-lock.json` match nearly any package name substring
+- `*.min.js` / `*.min.css` match random substrings in minified bundles
+- `workshop/intake/*/` may contain full cloned repos — search them intentionally by name, not as part of broad sweeps
+- `__pycache__/` and `site-packages/` contain compiled bytecode and installed packages
+
+When a broad search returns >50 hits dominated by one of these directories, re-run with the exclusion rather than trying to filter mentally.

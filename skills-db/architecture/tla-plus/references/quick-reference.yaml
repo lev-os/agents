@@ -1,0 +1,72 @@
+triggers:
+  - model, specify, or formally verify a system, protocol, or algorithm
+  - mentions TLA+, PlusCal, TLC, SANY, Apalache, or TLAPS
+  - asks about safety, liveness, invariants, deadlock freedom, or refinement
+  - needs help with a `.tla` or `.cfg` file
+  - wants example specs or toolchain setup
+
+anti_triggers:
+  - Lean-specific theorem proving outside TLA+
+  - pure unit or integration testing with no behavioral modeling intent
+  - non-TLA+ formal methods such as Alloy, Z, or B
+
+key_concepts:
+  behavior: A sequence of states; a spec defines a set of allowed behaviors.
+  step: A pair of consecutive states in a behavior.
+  state_predicate: A boolean formula over state variables, typically checked as an invariant.
+  temporal_formula: A formula using temporal operators such as `[]`, `<>`, or `~>`, checked as a property.
+  stuttering: A step where variables do not change; `[Next]_vars` already permits stuttering.
+  refinement: Every behavior of the concrete spec is allowed by the abstract spec.
+  sany: Parser and level-checker; run first.
+  tlc: Explicit-state model checker for finite models.
+  apalache: Symbolic SMT-based bounded checker; experimental.
+  tlaps: Proof system strongest on safety-oriented proofs.
+  pluscal: Algorithmic notation translated into TLA+.
+
+starter_snippets:
+  spec_skeleton: |
+    ------------------------------ MODULE Name ------------------------------
+    EXTENDS Naturals, Sequences
+
+    VARIABLES vars
+
+    Init == ...
+    Next == ...
+    Spec == Init /\ [][Next]_vars
+
+    TypeOK == ...
+    Safety == ...
+    =============================================================================
+  cfg_skeleton: |
+    SPECIFICATION Spec
+    CONSTANTS
+        N <- MC_N
+    INVARIANTS
+        TypeOK
+        Safety
+    PROPERTIES
+        Liveness
+  refinement_mapping: |
+    Abstract == INSTANCE AbstractSpec
+        WITH x <- concreteX, y <- F(concreteY)
+
+    Refinement == Abstract!Spec
+    \* Then in .cfg: PROPERTY Refinement
+  fairness_and_liveness: |
+    FairSpec == Spec /\ WF_vars(Next)
+    StrongFairSpec == Spec /\ SF_vars(Next)
+
+    Liveness == \A p \in Procs : pc[p] = "wait" ~> pc[p] = "cs"
+
+cli_commands:
+  - java -cp tla2tools.jar tla2sany.SANY MySpec.tla
+  - java -jar tla2tools.jar -config MySpec.cfg MySpec.tla
+  - java -jar tla2tools.jar -workers 1 -config MySpec.cfg MySpec.tla
+  - java -cp tla2tools.jar pcal.trans MySpec.tla
+  - java -cp tla2tools.jar tlc2.REPL
+
+pitfalls:
+  invariant_vs_property:
+    invariant: INVARIANT I checks I in every reachable state.
+    property: PROPERTY I checks I only as written.
+    fix: If you intend an invariant-style temporal obligation, write `PROPERTY []I`, not `PROPERTY I`.
