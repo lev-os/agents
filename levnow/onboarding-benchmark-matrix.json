@@ -1,0 +1,463 @@
+{
+  "meta": {
+    "title": "Onboarding Benchmark Matrix",
+    "description": "1:1 comparison of onboarding, install, setup knobs, progressive disclosure, migration, and first-run UX across Lev, Hermes, OpenClaw, Oh My OpenAgent, Oh My Codex, and Oh My ClaudeCode.",
+    "fonts": [
+      "IBM Plex Sans",
+      "IBM Plex Mono",
+      "Instrument Serif"
+    ]
+  },
+  "theme": {
+    "preset": "amber-emerald",
+    "mode": "light"
+  },
+  "root": [
+    "hero",
+    "section-takeaways",
+    "section-install",
+    "section-ops",
+    "section-evidence"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "BENCHMARK",
+        "title": "Onboarding, Install, and Project-Init Matrix",
+        "subtitle": "Evidence-backed comparison across Lev, Hermes Agent, OpenClaw, Oh My OpenAgent, Oh My Codex, and Oh My ClaudeCode using workshop intake docs plus two local lev.exec scouts.",
+        "meta": "sources: workshop/intake/*, workshop/analysis/*, docs/specs/spec-onboarding.md, /tmp/lev-scout-cluster-a.md, /tmp/lev-scout-cluster-b.md"
+      }
+    },
+    "section-takeaways": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "TAKEAWAYS",
+        "title": "What Each Platform Optimizes For",
+        "subtitle": "The best onboarding experience depends on whether the system is a gateway, a plugin, or a workflow layer."
+      },
+      "children": [
+        "card-openclaw",
+        "card-hermes",
+        "card-omo",
+        "card-omx",
+        "card-omc",
+        "card-lev"
+      ]
+    },
+    "card-openclaw": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\ud83e\udd9e OpenClaw",
+        "content": "Most complete operator onboarding. `openclaw onboard` plus a very deep `doctor`/migration surface, daemon install, control-plane runbook, and explicit security defaults."
+      }
+    },
+    "card-hermes": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\u2624 Hermes",
+        "content": "Hybrid script + wizard + gateway model. Strong migration story from OpenClaw, profile-aware homes, and broad provider portability, but less consumer-polished than OpenClaw."
+      }
+    },
+    "card-omo": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\ud83e\udde0 OpenAgent",
+        "content": "Most explicit provider questionnaire. Install guide asks subscription-by-subscription questions, drives auth setup, and writes agent-specific model config rather than one global provider default."
+      }
+    },
+    "card-omx": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\u2699\ufe0f OMX",
+        "content": "Best scoped setup. `omx setup` clearly owns prompts, skills, config, `AGENTS.md`, `.omx/` runtime state, and user vs project scope. Onboarding cleanly hands off into the canonical workflow."
+      }
+    },
+    "card-omc": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "\ud83e\udde9 OMC",
+        "content": "Fastest plugin-first quick start, but the install story is split: marketplace/plugin path, npm path, local setup, and variant repos all coexist. Good UX, weaker source-of-truth discipline."
+      }
+    },
+    "card-lev": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "\ud83d\udf02 Lev",
+        "content": "Cleanest conceptual split: `lev install` for machine infra, `lev init` for project bootstrap, `install()` SDK for lifecycle orchestration. Least productized operator surface today."
+      }
+    },
+    "section-install": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "MATRIX A",
+        "title": "Install and First-Run Surface",
+        "subtitle": "Primary install entry, setup path, scope model, and what happens before the user can do real work."
+      },
+      "children": [
+        "install-matrix",
+        "install-note"
+      ]
+    },
+    "install-matrix": {
+      "type": "data-table",
+      "props": {
+        "stickyHeader": true,
+        "columns": [
+          {
+            "key": "capability",
+            "label": "Capability"
+          },
+          {
+            "key": "lev",
+            "label": "Lev"
+          },
+          {
+            "key": "hermes",
+            "label": "Hermes"
+          },
+          {
+            "key": "openclaw",
+            "label": "OpenClaw"
+          },
+          {
+            "key": "openagent",
+            "label": "Oh My OpenAgent"
+          },
+          {
+            "key": "omx",
+            "label": "OMX"
+          },
+          {
+            "key": "omc",
+            "label": "OMC"
+          }
+        ],
+        "rows": [
+          {
+            "capability": "Primary install entry",
+            "lev": "`lev install` machine infra; `lev init` project bootstrap",
+            "hermes": "curl installer or `setup-hermes.sh`",
+            "openclaw": "global package + `openclaw onboard --install-daemon`",
+            "openagent": "`bunx/npx oh-my-opencode install`",
+            "omx": "`npm install -g @openai/codex oh-my-codex`",
+            "omc": "plugin marketplace install; npm path also documented"
+          },
+          {
+            "capability": "Prerequisites",
+            "lev": "intended package split; no polished checklist yet",
+            "hermes": "git only for quick install; script provisions uv, Python, Node deps",
+            "openclaw": "Node 24 recommended or 22.16+, npm/pnpm/bun",
+            "openagent": "OpenCode must already be installed",
+            "omx": "Node 20+, Codex CLI installed and authenticated, tmux/psmux for team mode",
+            "omc": "Claude Code plugin path; npm package optional depending on doc"
+          },
+          {
+            "capability": "Guided setup path",
+            "lev": "`--wizard-mode=agentic|human|none` in intended design",
+            "hermes": "`hermes setup` full wizard",
+            "openclaw": "`openclaw onboard` guides gateway, workspace, channels, skills",
+            "openagent": "install guide for humans and LLMs; explicit step sequence",
+            "omx": "`omx setup` then launch workflow (`$deep-interview`, `$ralplan`, `$team/$ralph`)",
+            "omc": "`/setup` or `/omc-setup`; then autopilot or deep-interview"
+          },
+          {
+            "capability": "Non-interactive / headless path",
+            "lev": "`lev init --json --dry-run`; install has non-wizard modes",
+            "hermes": "installer flags `--skip-setup`, `--no-venv`, `--dir`, `--branch`",
+            "openclaw": "doctor has `--yes`, `--repair`, `--force`, `--non-interactive`, `--deep`",
+            "openagent": "`--no-tui` install plus explicit provider flags",
+            "omx": "`--scope`, `--force`, `--dry-run` on setup/uninstall surfaces",
+            "omc": "stefandevo installer is interactive; plugin path is low-ceremony but not strongly headless"
+          },
+          {
+            "capability": "Provider or auth onboarding",
+            "lev": "planned, not yet productized",
+            "hermes": "`hermes model`, `hermes tools`, broad provider portability",
+            "openclaw": "model auth + gateway auth token/password/trusted-proxy",
+            "openagent": "rich questionnaire: Claude, OpenAI, Gemini, Copilot, OpenCode Zen, Z.ai, OpenCode Go",
+            "omx": "assumes Codex auth already configured",
+            "omc": "Claude first; optional Codex/Gemini worker CLIs; OpenClaw/ask integration env"
+          },
+          {
+            "capability": "Service or daemon install",
+            "lev": "`lev install --boot` machine service path",
+            "hermes": "`hermes gateway install`",
+            "openclaw": "`--install-daemon`; gateway install/restart/stop for launchd/systemd/schtasks",
+            "openagent": "none; runs inside OpenCode",
+            "omx": "none; runtime layer over Codex",
+            "omc": "none in mainline; stefan variant wires hooks and MCP into Claude settings"
+          },
+          {
+            "capability": "Project-init artifacts",
+            "lev": "`.lev/config.yaml`, `.lev/.gitignore`, `.lev/exec-profiles/`, `validation-gates.yaml`",
+            "hermes": "venv, `.env`, symlink, synced skills, optional wizard run",
+            "openclaw": "workspace + channels + skills + daemon state",
+            "openagent": "plugin registration in `opencode.json`; agent models configured; auth steps queued",
+            "omx": "prompts, skills, `config.toml`, scoped `AGENTS.md`, `.omx/setup-scope.json`, `.omx/` runtime dirs",
+            "omc": "global or local setup files; plugin path plus `.omc/` and optional local `CLAUDE.md`"
+          },
+          {
+            "capability": "Config and state home",
+            "lev": "XDG + `.lev/` project root",
+            "hermes": "`~/.hermes` / profile-scoped `HERMES_HOME`; `config.yaml`, `.env`",
+            "openclaw": "`~/.openclaw/openclaw.json` + `.env` + state dir",
+            "openagent": "`~/.config/opencode/opencode.json`; plugin JSONC in user/project scopes",
+            "omx": "`~/.codex` or `./.codex`; `~/.omx` or `./.omx`",
+            "omc": "`~/.claude/settings.json`, optional project `.claude/settings.json`, `.omc/`"
+          }
+        ]
+      }
+    },
+    "install-note": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "\ud83d\udccc OMC Variant Note",
+        "content": "The matrix uses the Yeachan-Heo OMC mainline as the primary column. The stefan-devo fork adds a real shell installer with explicit per-project vs system-wide mode, MCP wiring, research-tool setup, permission mode selection, and update/uninstall scripts."
+      }
+    },
+    "section-ops": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "MATRIX B",
+        "title": "Doctor, Migration, Progressive Disclosure, and Knobs",
+        "subtitle": "The differentiator is not just install. It\u2019s what each platform does after install to keep users on the rails."
+      },
+      "children": [
+        "ops-matrix",
+        "ops-matrix-2"
+      ]
+    },
+    "ops-matrix": {
+      "type": "data-table",
+      "props": {
+        "stickyHeader": true,
+        "columns": [
+          {
+            "key": "capability",
+            "label": "Capability"
+          },
+          {
+            "key": "lev",
+            "label": "Lev"
+          },
+          {
+            "key": "hermes",
+            "label": "Hermes"
+          },
+          {
+            "key": "openclaw",
+            "label": "OpenClaw"
+          },
+          {
+            "key": "openagent",
+            "label": "Oh My OpenAgent"
+          },
+          {
+            "key": "omx",
+            "label": "OMX"
+          },
+          {
+            "key": "omc",
+            "label": "OMC"
+          }
+        ],
+        "rows": [
+          {
+            "capability": "Doctor / repair",
+            "lev": "none yet",
+            "hermes": "`hermes doctor` diagnostics",
+            "openclaw": "best-in-class `doctor` with repair, force, deep scan, legacy migrations, config normalization",
+            "openagent": "`bunx oh-my-opencode doctor` verifies plugin, config, models, environment",
+            "omx": "`omx doctor`, `omx doctor --team`",
+            "omc": "`/omc-doctor`; stefan variant uses update/install scripts and settings repair"
+          },
+          {
+            "capability": "Migration / import",
+            "lev": "none yet",
+            "hermes": "OpenClaw migration built in; dry-run, preset, overwrite",
+            "openclaw": "doctor performs many legacy config/state migrations",
+            "openagent": "legacy package-name compatibility and config basename migration",
+            "omx": "mainline docs include setup-scope migration and uninstall/cleanup semantics",
+            "omc": "MIGRATION guide across major versions and runtime shifts"
+          },
+          {
+            "capability": "Progressive disclosure path",
+            "lev": "clean machine vs project split, but thin UX",
+            "hermes": "quick install \u2192 setup \u2192 chat; CLI vs messaging quick reference",
+            "openclaw": "README pushes one command, then docs split into wizard/config/runbook/doctor/security",
+            "openagent": "humans paste a prompt; agent fetches install guide; detailed step 0 questionnaire",
+            "omx": "main path separated from operator surfaces; setup/doctor/HUD are explicitly secondary",
+            "omc": "3-step quick start, then optional deep-interview/team runtime and magic keywords"
+          },
+          {
+            "capability": "Project vs user scope",
+            "lev": "machine infra vs project bootstrap",
+            "hermes": "profile-scoped homes, not project bootstrap oriented",
+            "openclaw": "single-user assistant scope, not per-project",
+            "openagent": "user config and project `.opencode/` config both supported",
+            "omx": "first-class `user` vs `project` setup scope",
+            "omc": "mainline local vs global setup; stefan variant has explicit per-project/system-wide install selector"
+          },
+          {
+            "capability": "Generated guidance files",
+            "lev": "intended `.lev/` project bootstrap",
+            "hermes": "skills synced under `~/.hermes/skills`; workspace instructions migratable",
+            "openclaw": "skills and workspace setup via onboard",
+            "openagent": "plugin config plus compatibility-aware file names",
+            "omx": "scoped `AGENTS.md`, prompts, skills, config.toml",
+            "omc": "global or local `CLAUDE.md`; stefan variant merges hooks and MCP into settings.json"
+          },
+          {
+            "capability": "Update path",
+            "lev": "none yet",
+            "hermes": "`hermes update`",
+            "openclaw": "`openclaw update --channel stable|beta|dev`",
+            "openagent": "doctor/local version checks; upgrade path less centralized",
+            "omx": "npm reinstall/update path",
+            "omc": "npm upgrade or `/plugin marketplace update omc` then rerun setup"
+          },
+          {
+            "capability": "Uninstall path",
+            "lev": "none yet",
+            "hermes": "`hermes uninstall`",
+            "openclaw": "`openclaw uninstall` and `openclaw gateway uninstall`",
+            "openagent": "manual plugin/config cleanup in README",
+            "omx": "first-class `omx uninstall` with cleanup flags",
+            "omc": "plugin uninstall path; npm/global uninstall docs are inconsistent"
+          }
+        ]
+      }
+    },
+    "ops-matrix-2": {
+      "type": "data-table",
+      "props": {
+        "stickyHeader": true,
+        "columns": [
+          {
+            "key": "platform",
+            "label": "Platform"
+          },
+          {
+            "key": "knobs",
+            "label": "Notable Install or Setup Knobs"
+          },
+          {
+            "key": "evidence",
+            "label": "Key Evidence"
+          }
+        ],
+        "rows": [
+          {
+            "platform": "Lev",
+            "knobs": "`--deps`, `--boot`, `--no-hooks`, `--no-skills-sync`, `--skills-source`, `--skills-targets`, `--sync-repo`, `--namespace`, `--config`, `--wizard-mode`, `--human`, `--no-wizard`, `--allow-system-writes`; plus `lev init [path] --json --dry-run`",
+            "evidence": "`core/build/src/handlers/install.ts` L145-L173; `core/build/src/handlers/init.ts` L231-L280"
+          },
+          {
+            "platform": "Hermes",
+            "knobs": "`setup-hermes.sh --skip-setup --no-venv --dir --branch`; `hermes claw migrate --dry-run --preset user-data --overwrite`; profile-scoped `--profile`",
+            "evidence": "`workshop/intake/hermes-agent/setup-hermes.sh` L8-L17, L53-L75, L287-L306; `README.md` L109-L134"
+          },
+          {
+            "platform": "OpenClaw",
+            "knobs": "`openclaw onboard --install-daemon`; `doctor --yes --repair --force --non-interactive --deep`; update channels; DM pairing defaults",
+            "evidence": "`workshop/intake/openclaw/README.md` L28-L30, L118-L139, L167-L170; `docs/gateway/doctor.md` L20-L52"
+          },
+          {
+            "platform": "OpenAgent",
+            "knobs": "`--no-tui`, `--claude`, `--openai`, `--gemini`, `--copilot`, `--opencode-zen`, `--zai-coding-plan`, `--opencode-go`; auth login flows and plugin config overrides",
+            "evidence": "`workshop/intake/oh-my-openagent/docs/guide/installation.md` L43-L205"
+          },
+          {
+            "platform": "OMX",
+            "knobs": "`--scope user|project`, `--force`, `--dry-run`, `--yolo`, `--high`, `--xhigh`, `--madmax`; `OMX_MCP_WORKDIR_ROOTS`; AGENTS merge semantics",
+            "evidence": "`workshop/intake/oh-my-codex/README.de.md` L95-L118, L182-L199"
+          },
+          {
+            "platform": "OMC",
+            "knobs": "plugin marketplace path, local `omc-setup --local`, `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`, optional Codex/Gemini worker CLIs; stefan variant adds per-project/system-wide mode, research tools, permission mode, MCP merge",
+            "evidence": "`workshop/intake/oh-my-claudecode/README.md` L45-L169; `workshop/intake/stefandevo-omc/install.sh` L29-L67, L221-L256, L296-L345"
+          }
+        ]
+      }
+    },
+    "section-evidence": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "EVIDENCE",
+        "title": "Grounding and Variant Notes",
+        "subtitle": "These are the highest-signal local sources I used to build the matrix."
+      },
+      "children": [
+        "evidence-openclaw",
+        "evidence-hermes",
+        "evidence-openagent",
+        "evidence-omx",
+        "evidence-omc",
+        "evidence-scouts"
+      ]
+    },
+    "evidence-openclaw": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "\ud83e\udd9e OpenClaw Evidence",
+        "content": "`workshop/intake/openclaw/README.md` lines 26-31, 118-157, 167-170; `workshop/intake/openclaw/docs/gateway/doctor.md` lines 11-93; gateway runbook for service lifecycle."
+      }
+    },
+    "evidence-hermes": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "\u2624 Hermes Evidence",
+        "content": "`workshop/intake/hermes-agent/README.md` lines 30-45, 49-60, 109-134; `workshop/intake/hermes-agent/setup-hermes.sh` lines 8-18, 53-75, 287-306."
+      }
+    },
+    "evidence-openagent": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "\ud83e\udde0 OpenAgent Evidence",
+        "content": "`workshop/intake/oh-my-openagent/docs/guide/installation.md` lines 14-205 and README uninstall/config sections at lines 272-340."
+      }
+    },
+    "evidence-omx": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "\u2699\ufe0f OMX Evidence",
+        "content": "`workshop/intake/oh-my-codex/README.md` lines 48-165; `docs/getting-started.html` lines 25-65; translated README sections with scope and generated files at `README.de.md` lines 95-118 and 182-199."
+      }
+    },
+    "evidence-omc": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "\ud83e\udde9 OMC Evidence",
+        "content": "Mainline: `workshop/intake/oh-my-claudecode/README.md` lines 45-169. Variant installer surface: `workshop/intake/stefandevo-omc/install.sh` lines 29-67, 77-107, 221-256, 296-345, 424-448."
+      }
+    },
+    "evidence-scouts": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "\ud83e\udd16 Scout Corroboration",
+        "content": "Local `lev exec` scout report completed for the Hermes/OpenClaw/OpenAgent cluster at `/tmp/lev-scout-cluster-a.md`. A second scout was launched for the OMX/OMC cluster and direct intake evidence was used regardless."
+      }
+    }
+  }
+}

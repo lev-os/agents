@@ -141,6 +141,8 @@ def parse_stop_condition_rule(
     text = replace_word_numbers(normalized_text(stop_condition))
     if not text:
         return None
+    # Accept controller-authored forms like `metric==0` in addition to phrase-style rules.
+    text = re.sub(r"^(?:current\s+)?metric\s*", "", text)
 
     threshold_operator = "<=" if direction == "lower" else ">="
     threshold_description = (
@@ -149,6 +151,7 @@ def parse_stop_condition_rule(
         else "current metric >= {target}"
     )
     patterns: list[tuple[str, str, str]] = [
+        (rf"(?:==|=)\s*({NUMBER_PATTERN})", "==", "current metric == {target}"),
         (rf"(?:<=|=<)\s*({NUMBER_PATTERN})", "<=", "current metric <= {target}"),
         (rf"(?:>=|=>)\s*({NUMBER_PATTERN})", ">=", "current metric >= {target}"),
         (rf"(?<![<>])<\s*({NUMBER_PATTERN})", "<", "current metric < {target}"),

@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lev Meta-Substrate Pattern</title>
+  <meta name="description" content="Declaration to compiler to IR to runtime across FlowMind, Poly, core modules, plugins, and specs." />
+  <meta property="og:title" content="Lev Meta-Substrate Pattern" />
+  <meta property="og:description" content="Declaration to compiler to IR to runtime across FlowMind, Poly, core modules, plugins, and specs." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM%20Plex%20Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM%20Plex%20Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Instrument%20Serif:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+/* === Reset === */
+*, *::before, *::after { box-sizing: border-box; }
+body, h1, h2, h3, h4, p, ul, ol, blockquote, figure { margin: 0; padding: 0; }
+
+/* === Theme Variables === */
+:root, [data-theme="dark"] {
+  --color-primary: #0891b2;
+  --color-accent: #0369a1;
+  --color-surface: #0f172a;
+  --color-surface-alt: #1e293b;
+  --color-text: #f1f5f9;
+  --color-text-muted: #94a3b8;
+  --color-border: rgba(8,145,178,0.18);
+  --color-success: #2dd4bf;
+  --color-warning: #fbbf24;
+  --color-error: #fb7185;
+  --font-display: 'IBM Plex Sans', Georgia, serif;
+  --font-body: 'IBM Plex Mono', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Sans', 'Courier New', monospace;
+  --color-accent-dim: color-mix(in srgb, var(--color-accent) 15%, transparent);
+  --color-accent-bright: color-mix(in srgb, var(--color-accent) 80%, white);
+  --color-border-strong: color-mix(in srgb, var(--color-accent) 30%, transparent);
+  --radius: 12px;
+  --shadow: 0 4px 16px rgba(0,0,0,0.25);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+  --transition: 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-theme="light"] {
+  --color-primary: #f8fafc; --color-accent: #0891b2; --color-accent-dim: rgba(8,145,178,0.1);
+  --color-accent-bright: #06b6d4; --color-surface: #f8fafc; --color-surface-alt: #f1f5f9;
+  --color-text: #0f172a; --color-text-muted: #64748b; --color-border: rgba(8,145,178,0.15);
+  --color-border-strong: rgba(8,145,178,0.3); --color-success: #059669; --color-warning: #d97706; --color-error: #dc2626;
+}
+
+/* === Base === */
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--color-surface);
+  color: var(--color-text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  overflow-wrap: break-word;
+  background-image:
+    radial-gradient(ellipse 1000px 600px at 50% 0%, var(--color-accent-dim), transparent),
+    radial-gradient(ellipse 600px 400px at 80% 30%, rgba(201,169,78,0.04), transparent);
+}
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem 80px;
+}
+
+/* === Animations === */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulseGold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201,169,78,0.3); }
+  50% { box-shadow: 0 0 20px 4px rgba(201,169,78,0.15); }
+}
+/* Progressive: visible by default. JS adds .has-anim to html, hiding .anim until .visible */
+.anim { opacity: 1; transform: none; }
+.has-anim .anim {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--i, 0) * 0.05s);
+}
+.has-anim .anim.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* KPI cards use scale-fade instead of translateY */
+.has-anim .kpi-card.anim {
+  transform: scale(0.92);
+}
+.has-anim .kpi-card.anim.visible {
+  transform: scale(1);
+}
+
+/* CSS Counter for animated KPI values */
+@property --count {
+  syntax: '<integer>';
+  initial-value: 0;
+  inherits: false;
+}
+@keyframes countUp {
+  to { --count: var(--target); }
+}
+
+/* Flow arrows between pipeline steps */
+.flow-arrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-text-muted);
+  padding: 8px 0;
+}
+.flow-arrow svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: var(--color-border);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* === Reduced Motion === */
+@media (prefers-reduced-motion: reduce) {
+  .has-anim .anim, .has-anim .kpi-card.anim { opacity: 1; transform: none; transition: none; }
+}
+
+/* === Hero === */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 80px 2rem 60px;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 900px;
+  background: radial-gradient(circle, var(--color-accent) 0%, transparent 70%);
+  opacity: 0.06;
+  pointer-events: none;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: linear-gradient(to top, var(--color-surface), transparent);
+  pointer-events: none;
+}
+.hero__inner { position: relative; z-index: 1; }
+.hero--centered { text-align: center; }
+.hero--centered .hero__inner { max-width: 800px; margin: 0 auto; }
+.hero--editorial .hero__inner { max-width: 960px; }
+.hero__category {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 20px;
+  padding: 6px 16px;
+  background: var(--color-accent-dim);
+  border-radius: 100px;
+}
+.hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 6vw, 5rem);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  margin-bottom: 20px;
+}
+.hero__subtitle {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-style: italic;
+  color: var(--color-accent);
+  margin-bottom: 16px;
+}
+.hero__meta {
+  font-size: 15px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+}
+
+/* === Section === */
+.section {
+  padding: 6rem 0;
+  border-top: 1px solid var(--color-accent-dim);
+}
+.section:first-of-type { border-top: none; }
+.section:nth-child(even) {
+  background: var(--color-surface-alt);
+  margin-left: -2rem;
+  margin-right: -2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  border-top-color: var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+.section-label {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 12px;
+}
+.section-label::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  margin-right: 10px;
+  vertical-align: middle;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  font-weight: 400;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+.section-subtitle {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  margin-bottom: 2rem;
+  max-width: 65ch;
+  line-height: 1.7;
+}
+
+/* Showcase: two-column alternating layout */
+.section__showcase {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+.section:nth-child(even) .section__showcase { direction: rtl; }
+.section:nth-child(even) .section__showcase > * { direction: ltr; }
+.section__showcase-content { }
+.section__showcase-visual { }
+
+/* Section layout variants */
+.section__body > * + * { margin-top: 1.5rem; }
+.section__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+.section__kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1.25rem;
+}
+.section__pipeline {
+  display: flex;
+  align-items: stretch;
+  gap: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+.section__pipeline > * {
+  flex: 1;
+  min-width: 240px;
+  position: relative;
+}
+.section__pipeline > *:not(:last-child)::after {
+  content: '\2192';
+  position: absolute;
+  right: -1.25rem;
+  top: 50%;
+  transform: translateX(50%) translateY(-50%);
+  font-size: 22px;
+  color: var(--color-text-muted);
+  z-index: 1;
+}
+.section__comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.section--collapsible details { border: 1px solid var(--color-border); border-radius: var(--radius); padding: 16px; }
+.section--collapsible summary { cursor: pointer; list-style: none; }
+.section--collapsible summary::-webkit-details-marker { display: none; }
+
+/* === Card === */
+.ve-card {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.ve-card:hover { border-color: var(--color-border-strong); }
+.ve-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-bright));
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.ve-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px var(--color-border-strong);
+}
+.ve-card:hover::before { opacity: 1; }
+.ve-card:hover { border-color: var(--color-border-strong); }
+.ve-card--elevated {
+  background: var(--color-surface-alt);
+  box-shadow: var(--shadow);
+}
+.ve-card--elevated:hover { box-shadow: var(--shadow-lg); }
+.ve-card--recessed {
+  background: var(--color-surface);
+  border-style: dashed;
+}
+.ve-card--hero {
+  background: linear-gradient(135deg, var(--color-surface-alt), var(--color-surface));
+  border-color: var(--color-accent);
+  padding: 2.5rem;
+}
+.ve-card--glass {
+  background: rgba(255,255,255,0.02);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.ve-card--glass:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.12);
+}
+.ve-card--glass::before { display: none; }
+[data-theme="light"] .ve-card--glass {
+  background: rgba(0,0,0,0.015);
+  border-color: rgba(0,0,0,0.06);
+}
+[data-theme="light"] .ve-card--glass:hover {
+  background: rgba(0,0,0,0.03);
+  border-color: rgba(0,0,0,0.1);
+}
+.ve-card--slide { scroll-snap-align: start; min-width: 300px; }
+.ve-card__label {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+.ve-card__title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+.ve-card__content {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  line-height: 1.8;
+}
+.ve-card__content ul { padding-left: 18px; margin-top: 8px; }
+.ve-card__content li { margin-bottom: 4px; }
+.ve-card__content li::marker { color: var(--color-accent); }
+
+/* === KPI Card === */
+.kpi-card {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-align: center;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.kpi-card__value {
+  font-size: 36px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+.kpi-card__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.kpi-card__trend {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 6px;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.kpi-card__trend--up { color: var(--color-success); background: rgba(74,222,128,0.1); }
+.kpi-card__trend--down { color: var(--color-error); background: rgba(248,113,113,0.1); }
+.kpi-card__trend--flat { color: var(--color-text-muted); background: rgba(128,128,128,0.1); }
+.kpi-card__sparkline {
+  display: block;
+  width: 100%;
+  height: 24px;
+  margin-top: 8px;
+}
+
+/* === Callout === */
+.callout {
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  border-left: 4px solid;
+}
+.callout--info { border-color: var(--color-accent); background: rgba(26,115,232,0.06); }
+.callout--warning { border-color: var(--color-warning); background: rgba(251,191,36,0.06); }
+.callout--success { border-color: var(--color-success); background: rgba(74,222,128,0.06); }
+.callout__title { font-weight: 600; margin-bottom: 6px; }
+.callout__content { font-size: 14px; color: var(--color-text-muted); }
+
+/* === Text === */
+.prose { max-width: 65ch; }
+.prose p + p { margin-top: 1em; }
+.lead {
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+  max-width: 65ch;
+  line-height: 1.8;
+}
+.lead p:first-child::first-letter {
+  font-size: 2.4em;
+  float: left;
+  line-height: 0.8;
+  margin-right: 8px;
+  font-weight: 700;
+  color: var(--color-accent);
+}
+.pullquote {
+  border-left: 3px solid var(--color-accent);
+  padding: 16px 24px;
+  font-size: 1.15rem;
+  font-style: italic;
+  color: var(--color-text-muted);
+  margin: 24px 0;
+}
+
+/* === Data Table === */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--color-border); }
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.data-table th {
+  background: var(--color-surface-alt);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding: 10px 14px;
+  text-align: left;
+  white-space: nowrap;
+}
+.data-table--sticky th { position: sticky; top: 0; z-index: 1; }
+.data-table td { padding: 10px 14px; border-top: 1px solid var(--color-border); }
+.data-table tbody tr:nth-child(even) { background: rgba(255,255,255,0.015); }
+[data-theme="light"] .data-table tbody tr:nth-child(even) { background: rgba(0,0,0,0.02); }
+.data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.data-table tfoot td { font-size: 11px; color: var(--color-text-muted); padding-top: 8px; }
+
+/* === Code === */
+.code-block, .code-file {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 13px;
+}
+.code-file__header {
+  background: var(--color-surface-alt);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid var(--color-border);
+}
+.code-file__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-border);
+}
+.code-file__dot:nth-child(1) { background: #ff5f57; }
+.code-file__dot:nth-child(2) { background: #ffbd2e; }
+.code-file__dot:nth-child(3) { background: #28ca42; }
+.code-file__name {
+  margin-left: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+.code-file__body, .code-block {
+  display: flex;
+  background: var(--color-surface);
+}
+pre {
+  margin: 0;
+  padding: 14px;
+  overflow-x: auto;
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+code { font-family: inherit; }
+.line-numbers {
+  padding: 14px 10px;
+  text-align: right;
+  user-select: none;
+  color: var(--color-text-muted);
+  opacity: 0.4;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  border-right: 1px solid var(--color-border);
+}
+.line-numbers span { display: block; }
+.code-keyword { color: #f472b6; font-weight: 500; }
+.code-string { color: #6ee7b7; }
+.code-comment { color: var(--color-text-muted); font-style: italic; }
+.code-func { color: #fbbf24; }
+.code-number { color: #93c5fd; }
+[data-theme="light"] .code-keyword { color: #be185d; }
+[data-theme="light"] .code-string { color: #047857; }
+[data-theme="light"] .code-func { color: #b45309; }
+[data-theme="light"] .code-number { color: #1d4ed8; }
+
+/* === Timeline === */
+.timeline {
+  position: relative;
+  padding-left: 32px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-border);
+}
+.timeline-item {
+  position: relative;
+  padding-bottom: 28px;
+}
+.timeline-item__marker {
+  position: absolute;
+  left: -28px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  background: var(--color-surface);
+}
+.timeline-item--completed .timeline-item__marker { background: var(--color-success); border-color: var(--color-success); }
+.timeline-item--in-progress .timeline-item__marker { background: var(--color-warning); border-color: var(--color-warning); }
+.timeline-item--upcoming .timeline-item__marker { background: var(--color-surface); }
+.timeline-item__date {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
+}
+.timeline-item__title { font-weight: 600; margin: 4px 0; }
+.timeline-item__desc { font-size: 14px; color: var(--color-text-muted); }
+
+/* === Diagram / Mermaid === */
+.mermaid-wrap {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  overflow-x: auto;
+  text-align: center;
+}
+.mermaid-controls {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+.mermaid-zoom {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text-muted);
+  padding: 2px 8px;
+  cursor: pointer;
+}
+.mermaid-zoom:hover { color: var(--color-text); border-color: var(--color-accent); }
+.mermaid-fullscreen { font-size: 14px; }
+.mermaid { transition: transform 0.2s ease; zoom: 1.4; }
+.mermaid-wrap--fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  border-radius: 0;
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  overflow: auto;
+}
+.mermaid-wrap--fullscreen .mermaid-controls {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--color-surface);
+  padding-bottom: 0.5rem;
+}
+.mermaid-wrap--fullscreen .mermaid { zoom: 2; margin: auto; }
+.mermaid-wrap--fullscreen .mermaid-fullscreen::after { content: ' ESC'; font-size: 10px; }
+.mermaid-caption {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 12px;
+  font-style: italic;
+}
+
+/* === Inline === */
+.status {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+.status--match { background: rgba(74,222,128,0.12); color: var(--color-success); }
+.status--gap { background: rgba(248,113,113,0.12); color: var(--color-error); }
+.status--warn { background: rgba(251,191,36,0.12); color: var(--color-warning); }
+.status--info { background: rgba(26,115,232,0.12); color: var(--color-accent); }
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 32px 0;
+}
+
+/* === Theme Toggle === */
+.theme-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition), border-color var(--transition);
+}
+.theme-toggle:hover { border-color: var(--color-accent); }
+.theme-toggle svg { width: 18px; height: 18px; fill: var(--color-text); }
+
+/* === CTA Section (hero used as CTA at bottom) === */
+.section--cta {
+  text-align: center;
+  padding: 8rem 0;
+  background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-surface-alt) 50%, var(--color-surface) 100%);
+  border-top: 1px solid var(--color-accent);
+}
+.section--cta .section-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+.section--cta .section__body {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* === Footer === */
+footer, .footer {
+  padding: 3rem 0 2rem;
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+footer a, .footer a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+footer a:hover, .footer a:hover { color: var(--color-accent); }
+
+/* === Card Subtitle / Code Label === */
+.ve-card__subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  opacity: 0.7;
+  margin-top: 0.5rem;
+  display: block;
+}
+
+/* === Card Icon === */
+.ve-card__icon {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+/* === Feature List === */
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+}
+.feature-list li {
+  padding: 6px 0 6px 20px;
+  position: relative;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+.feature-list li::before {
+  content: '\203A';
+  position: absolute;
+  left: 0;
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+/* === Sticky Nav === */
+.site-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 0 2rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: color-mix(in srgb, var(--color-surface) 85%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.3s;
+}
+.site-nav__logo {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+.site-nav__links {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.site-nav__links a {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+.site-nav__links a:hover { color: var(--color-accent); }
+@media (max-width: 768px) {
+  .site-nav__links { display: none; }
+  .site-nav { padding: 0 1rem; }
+}
+@media print { .site-nav { display: none; } }
+
+/* === Diff Panels (before/after comparison) === */
+.diff-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+.diff-panel { padding: 1.25rem; }
+.diff-panel__header {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.diff-panel--before { background: rgba(248,113,113,0.04); }
+.diff-panel--before .diff-panel__header { color: var(--color-error); }
+.diff-panel--after { background: rgba(52,211,153,0.04); }
+.diff-panel--after .diff-panel__header { color: var(--color-success); }
+.diff-panel__body { font-size: 0.9rem; line-height: 1.7; }
+.diff-panel__body code {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  background: var(--color-accent-dim);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+}
+
+/* === Badge/Tag === */
+.badge, .tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  background: var(--color-accent-dim);
+  color: var(--color-accent);
+}
+
+/* === Links === */
+a { color: var(--color-accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* === Inline Code === */
+code:not(pre code) {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--color-accent-dim);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .hero { min-height: auto; padding: 80px 16px 60px; }
+  .hero__title { font-size: 2rem; }
+  .section { padding: 3rem 0; }
+  .section:nth-child(even) { margin-left: -16px; margin-right: -16px; padding-left: 16px; padding-right: 16px; }
+  .section__showcase { grid-template-columns: 1fr; gap: 1.5rem; }
+  .section:nth-child(even) .section__showcase { direction: ltr; }
+  .section__comparison, .diff-panels { grid-template-columns: 1fr; }
+  .section__pipeline { flex-direction: column; }
+  .section__pipeline > *:not(:last-child)::after { content: '\2193'; position: static; text-align: center; display: block; margin: 8px 0; }
+  .container { padding: 0 16px 60px; }
+}
+@media (max-width: 480px) {
+  .section__grid { grid-template-columns: 1fr; }
+  .kpi-card__value { font-size: 28px; }
+}
+
+/* === Print === */
+@media print {
+  :root { --color-surface: #fff; --color-surface-alt: #fff; --color-text: #000; --color-text-muted: #444; --color-border: #ccc; }
+  body { background: #fff; color: #000; background-image: none; }
+  .theme-toggle, .mermaid-controls { display: none; }
+  .hero { min-height: auto; page-break-after: always; }
+  .hero::before, .hero::after { display: none; }
+  .anim { opacity: 1; animation: none; }
+  .section:nth-child(even) { background: none; }
+  .ve-card { break-inside: avoid; }
+  details { open: true; }
+  details[open] summary ~ * { display: block; }
+}
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="site-nav__logo" href="#">Lev</a>
+    <div class="site-nav__links">
+      <a href="#section-structure">PATTERN</a>
+      <a href="#section-fit-classes">FIT CLASSES</a>
+      <a href="#section-survey">SURVEY</a>
+      <a href="#section-rules">SCAFFOLDING</a>
+    </div>
+  </nav>
+  <div class="container">
+<section data-lev-id="hero" class="anim hero hero--editorial" style="--i:0">
+  <div class="hero__inner">
+    <span class="hero__category">META SUBSTRATE</span>
+    <h1 class="hero__title">Declaration -&gt; Compiler -&gt; IR -&gt; Runtime</h1>
+    <p class="hero__subtitle">A recurring Lev pattern, but not a universal religion.</p>
+    <p class="hero__meta">April 2026 · core / plugins / specs sweep</p>
+    
+  </div>
+</section>
+
+<section data-lev-id="section-structure" class="anim section section--default section--showcase" style="--i:1" id="section-structure">
+  <span class="section-label">PATTERN</span>
+  <h2 class="section-title">The shape that keeps reappearing</h2>
+  <p class="section-subtitle">The strongest subsystems share a four-layer structure, with an optional fifth layer for discovery or federation.</p>
+  <div class="section__showcase"><div data-lev-id="structure-text" class="anim lead" style="--i:2;">
+  <p>The pattern is simplest in plain English: authored truth becomes normalized meaning, then a stable intermediate form, then a runtime or projection layer consumes that stable form. FlowMind, Poly, orchestration, graph, and UI all already lean this way.
+
+The useful part is not that every module must have a named compiler package. The useful part is that serious subsystems stop being mushy when they can answer four questions honestly: what is the declaration, where is the lowering seam, what is the stable form, and who owns runtime.</p>
+</div>
+<div data-lev-id="structure-diagram" class="anim mermaid-wrap" style="--i:3">
+  <div class="mermaid-controls">
+    <button class="mermaid-zoom" onclick="this.closest('.mermaid-wrap').querySelector('.mermaid').style.transform='scale('+(parseFloat(this.closest('.mermaid-wrap').querySelector('.mermaid').style.transform.replace('scale(','').replace(')',''))||1.4)+0.3+')'">+</button>
+    <button class="mermaid-zoom" onclick="this.closest('.mermaid-wrap').querySelector('.mermaid').style.transform='scale(1.4)'">1:1</button>
+    <button class="mermaid-zoom" onclick="this.closest('.mermaid-wrap').querySelector('.mermaid').style.transform='scale('+(Math.max(0.5,parseFloat(this.closest('.mermaid-wrap').querySelector('.mermaid').style.transform.replace('scale(','').replace(')',''))||1.4)-0.3)+')'">−</button>
+    <button class="mermaid-zoom mermaid-fullscreen" onclick="this.closest('.mermaid-wrap').classList.toggle('mermaid-wrap--fullscreen')" title="Toggle fullscreen">⛶</button>
+  </div>
+  <pre class="mermaid">flowchart TD
+  A[Declaration\n.flow.yaml / config / DSL / schema] --&gt; B[Compiler / Lowering / Normalization]
+  B --&gt; C[Stable Form / IR\nGraphDocument / PolyIR / LevUI IR / typed result]
+  C --&gt; D[Runtime / Projection / Execution\nexec / CLI / Stack / renderer / adapter]
+  D --&gt; E[Optional Discovery / Federation / Composition]</pre>
+  <p class="mermaid-caption">The reusable shape</p>
+</div></div>
+</section>
+
+<section data-lev-id="section-fit-classes" class="anim section section--card-grid" style="--i:4" id="section-fit-classes">
+  <span class="section-label">FIT CLASSES</span>
+  <h2 class="section-title">Where the pattern is strong, partial, or forced</h2>
+  <p class="section-subtitle">The sweep only becomes useful if we name the exceptions.</p>
+  <div class="section__grid"><div data-lev-id="card-strong" class="anim ve-card ve-card--elevated" style="--i:5">
+  <span class="ve-card__icon">✅</span>
+  
+  <h3 class="ve-card__title">Strong fit</h3>
+  <div class="ve-card__content"><p>FlowMind, Orchestration, Poly, Graph, UI, Prompt-Stack, Validator, Timetravel, Browser Cascade, LevUI.</p>
+<p>These own a real declaration surface, a real lowering seam, and a stable form that multiple consumers can reuse.</p></div>
+  
+</div>
+<div data-lev-id="card-partial" class="anim ve-card ve-card--elevated" style="--i:6">
+  <span class="ve-card__icon">🟨</span>
+  
+  <h3 class="ve-card__title">Partial fit</h3>
+  <div class="ve-card__content"><p>Memory, Config, Build, EventBus, Storage, Telemetry, Defendr, System Dashboard, Code Graph.</p>
+<p>These usually have normalization and stable envelopes, but not always a first-class named IR or full compiler stage.</p></div>
+  
+</div>
+<div data-lev-id="card-nonfit" class="anim ve-card ve-card--elevated" style="--i:7">
+  <span class="ve-card__icon">⛔</span>
+  
+  <h3 class="ve-card__title">Non-fit</h3>
+  <div class="ve-card__content"><p>Domain, Logger, thin wrappers like Graph Adapters, and some runtime-only helpers.</p>
+<p>Do not invent fake compilers or fake IRs just to satisfy the pattern. Some modules are contracts or utilities and should stay that way.</p></div>
+  
+</div></div>
+</section>
+
+<section data-lev-id="section-survey" class="anim section section--default section--showcase" style="--i:8" id="section-survey">
+  <span class="section-label">SURVEY</span>
+  <h2 class="section-title">What the repo sweep actually found</h2>
+  <p class="section-subtitle">Core, plugins, and specs all converged on the same broad conclusion.</p>
+  <div class="section__showcase"><div data-lev-id="survey-table" class="anim table-wrap" style="--i:9">
+  <table class="data-table data-table--sticky">
+    <thead><tr><th>Surface</th><th>Pattern strength</th><th>Best examples</th><th>Why it matters</th></tr></thead>
+    <tbody>
+      <tr><td>Core modules</td><td><span class="status status--match">Strong in spine</span></td><td>FlowMind, Orchestration, Poly, Graph, UI</td><td>This is the architectural backbone where the doctrine is already real.</td></tr>
+      <tr><td>Plugin sample</td><td><span class="status status--match">Strong when plugin owns DSL</span></td><td>Prompt-Stack, Validator, Timetravel, Browser Cascade, Lev Now</td><td>Plugins fit best when they own either a small DSL or a stable typed result form.</td></tr>
+      <tr><td>Specs surface</td><td><span class="status status--warn">Uneven</span></td><td>FlowMind and UI explicit; Poly/Forge partial; memory/event/storage weak</td><td>The doctrine exists more clearly in design than in some runtime specs.</td></tr>
+      <tr><td>Exceptions</td><td><span class="status status--gap">Do not force</span></td><td>Domain, Logger, thin wrappers</td><td>These are not missing architecture. They are different kinds of modules.</td></tr>
+    </tbody>
+    
+  </table>
+</div>
+<div data-lev-id="survey-callout" class="anim callout callout--info" style="--i:10">
+  <div class="callout__title">📌 Key read</div>
+  <div class="callout__content">The pattern is strong enough to guide scaffolding and generated software, but only if we preserve fit classes. The win is repeatable shape, not total uniformity.</div>
+</div></div>
+</section>
+
+<section data-lev-id="section-rules" class="anim section section--default section--showcase" style="--i:10" id="section-rules">
+  <span class="section-label">SCAFFOLDING</span>
+  <h2 class="section-title">How to apply it going forward</h2>
+  <p class="section-subtitle">This is the actionable doctrine for plugin scaffolding and dynamic generation.</p>
+  <div class="section__showcase"><div data-lev-id="rules-code" class="anim code-file" style="--i:10">
+  <div class="code-file__header"><span class="code-file__dot"></span><span class="code-file__dot"></span><span class="code-file__dot"></span><span class="code-file__name">design-checklist.txt</span></div>
+  <div class="code-file__body"><pre><code class="language-text"><span class="code-number">1</span>. What is the declaration surface?
+<span class="code-number">2</span>. Where is the lowering or normalization seam?
+<span class="code-number">3</span>. What is the stable intermediate form?
+<span class="code-number">4</span>. Who owns runtime or projection?
+<span class="code-number">5</span>. Is there a discovery / federation layer above runtime?
+
+If you cannot answer those honestly, the subsystem is probably still mushy.
+If the answers are fake, do not force the pattern.</code></pre></div>
+</div>
+<div data-lev-id="rules-card" class="anim ve-card ve-card--elevated" style="--i:10">
+  <span class="ve-card__icon">⚡</span>
+  
+  <h3 class="ve-card__title">Immediate impact</h3>
+  <div class="ve-card__content"><p>For the current workstream, nothing changes about the next execution step: implement Poly protocol nouns, the Poly compiler seam, fixture goldens, and the CLI proof. This note is a doctrine lens, not a reason to reopen the Poly architecture.</p></div>
+  
+</div></div>
+</section>
+
+<section class="section source-section" style="margin-top: 4rem; border-top: 2px solid var(--color-accent);">
+  <span class="section-label">SOURCE</span>
+  <h2 class="section-title">How This Page Was Made</h2>
+  <p class="section-subtitle">This page was rendered from a JSON spec by the lev.now deterministic template engine.</p>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+    <div class="kpi-card">
+      <div class="kpi-card__value">14</div>
+      <div class="kpi-card__label">Elements</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card__value">teal-slate</div>
+      <div class="kpi-card__label">Theme Preset</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card__value">214</div>
+      <div class="kpi-card__label">JSON Lines</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card__value">&lt;2ms</div>
+      <div class="kpi-card__label">Render Time</div>
+    </div>
+  </div>
+
+  <h3 style="font-family: var(--font-display); font-size: 1.3rem; margin-bottom: 1rem;">Command</h3>
+  <div class="code-file">
+    <div class="code-file__header">
+      <span class="code-file__dot"></span>
+      <span class="code-file__dot"></span>
+      <span class="code-file__dot"></span>
+      <span class="code-file__name">terminal</span>
+    </div>
+    <div class="code-file__body"><pre><code><span class="code-func">$</span> npx tsx plugins/lev-now/src/cli.ts /Users/jean-patricksmith/.agents/levnow/meta-substrate-pattern.json --output /Users/jean-patricksmith/.agents/levnow/meta-substrate-pattern.html --show-source</code></pre></div>
+  </div>
+
+  <details style="margin-top: 2rem;">
+    <summary style="cursor: pointer; font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent); padding: 0.75rem 0; border-bottom: 1px solid var(--color-border);">
+      View RenderSpec JSON (214 lines)
+    </summary>
+    <div class="code-file" style="margin-top: 1rem;">
+      <div class="code-file__header">
+        <span class="code-file__dot"></span>
+        <span class="code-file__dot"></span>
+        <span class="code-file__dot"></span>
+        <span class="code-file__name">spec.json</span>
+      </div>
+      <div class="code-file__body" style="max-height: 600px; overflow-y: auto;"><pre><code>{
+  &quot;meta&quot;: {
+    &quot;title&quot;: &quot;Lev Meta-Substrate Pattern&quot;,
+    &quot;description&quot;: &quot;Declaration to compiler to IR to runtime across FlowMind, Poly, core modules, plugins, and specs.&quot;,
+    &quot;fonts&quot;: [
+      &quot;IBM Plex Sans&quot;,
+      &quot;IBM Plex Mono&quot;,
+      &quot;Instrument Serif&quot;
+    ]
+  },
+  &quot;theme&quot;: {
+    &quot;preset&quot;: &quot;teal-slate&quot;,
+    &quot;mode&quot;: &quot;dark&quot;
+  },
+  &quot;root&quot;: [
+    &quot;hero&quot;,
+    &quot;section-structure&quot;,
+    &quot;section-fit-classes&quot;,
+    &quot;section-survey&quot;,
+    &quot;section-rules&quot;
+  ],
+  &quot;elements&quot;: {
+    &quot;hero&quot;: {
+      &quot;type&quot;: &quot;hero&quot;,
+      &quot;variant&quot;: &quot;editorial&quot;,
+      &quot;props&quot;: {
+        &quot;category&quot;: &quot;META SUBSTRATE&quot;,
+        &quot;title&quot;: &quot;Declaration -&gt; Compiler -&gt; IR -&gt; Runtime&quot;,
+        &quot;subtitle&quot;: &quot;A recurring Lev pattern, but not a universal religion.&quot;,
+        &quot;meta&quot;: &quot;April 2026 · core / plugins / specs sweep&quot;
+      }
+    },
+    &quot;section-structure&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;default&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;PATTERN&quot;,
+        &quot;title&quot;: &quot;The shape that keeps reappearing&quot;,
+        &quot;subtitle&quot;: &quot;The strongest subsystems share a four-layer structure, with an optional fifth layer for discovery or federation.&quot;
+      },
+      &quot;children&quot;: [
+        &quot;structure-text&quot;,
+        &quot;structure-diagram&quot;
+      ]
+    },
+    &quot;structure-text&quot;: {
+      &quot;type&quot;: &quot;text&quot;,
+      &quot;variant&quot;: &quot;lead&quot;,
+      &quot;props&quot;: {
+        &quot;content&quot;: &quot;The pattern is simplest in plain English: authored truth becomes normalized meaning, then a stable intermediate form, then a runtime or projection layer consumes that stable form. FlowMind, Poly, orchestration, graph, and UI all already lean this way.\n\nThe useful part is not that every module must have a named compiler package. The useful part is that serious subsystems stop being mushy when they can answer four questions honestly: what is the declaration, where is the lowering seam, what is the stable form, and who owns runtime.&quot;
+      }
+    },
+    &quot;structure-diagram&quot;: {
+      &quot;type&quot;: &quot;diagram&quot;,
+      &quot;props&quot;: {
+        &quot;engine&quot;: &quot;mermaid&quot;,
+        &quot;caption&quot;: &quot;The reusable shape&quot;,
+        &quot;content&quot;: &quot;flowchart TD\n  A[Declaration\\n.flow.yaml / config / DSL / schema] --&gt; B[Compiler / Lowering / Normalization]\n  B --&gt; C[Stable Form / IR\\nGraphDocument / PolyIR / LevUI IR / typed result]\n  C --&gt; D[Runtime / Projection / Execution\\nexec / CLI / Stack / renderer / adapter]\n  D --&gt; E[Optional Discovery / Federation / Composition]&quot;
+      }
+    },
+    &quot;section-fit-classes&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;card-grid&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;FIT CLASSES&quot;,
+        &quot;title&quot;: &quot;Where the pattern is strong, partial, or forced&quot;,
+        &quot;subtitle&quot;: &quot;The sweep only becomes useful if we name the exceptions.&quot;
+      },
+      &quot;children&quot;: [
+        &quot;card-strong&quot;,
+        &quot;card-partial&quot;,
+        &quot;card-nonfit&quot;
+      ]
+    },
+    &quot;card-strong&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;elevated&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;✅ Strong fit&quot;,
+        &quot;content&quot;: &quot;FlowMind, Orchestration, Poly, Graph, UI, Prompt-Stack, Validator, Timetravel, Browser Cascade, LevUI.\n\nThese own a real declaration surface, a real lowering seam, and a stable form that multiple consumers can reuse.&quot;
+      }
+    },
+    &quot;card-partial&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;elevated&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;🟨 Partial fit&quot;,
+        &quot;content&quot;: &quot;Memory, Config, Build, EventBus, Storage, Telemetry, Defendr, System Dashboard, Code Graph.\n\nThese usually have normalization and stable envelopes, but not always a first-class named IR or full compiler stage.&quot;
+      }
+    },
+    &quot;card-nonfit&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;elevated&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;⛔ Non-fit&quot;,
+        &quot;content&quot;: &quot;Domain, Logger, thin wrappers like Graph Adapters, and some runtime-only helpers.\n\nDo not invent fake compilers or fake IRs just to satisfy the pattern. Some modules are contracts or utilities and should stay that way.&quot;
+      }
+    },
+    &quot;section-survey&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;default&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;SURVEY&quot;,
+        &quot;title&quot;: &quot;What the repo sweep actually found&quot;,
+        &quot;subtitle&quot;: &quot;Core, plugins, and specs all converged on the same broad conclusion.&quot;
+      },
+      &quot;children&quot;: [
+        &quot;survey-table&quot;,
+        &quot;survey-callout&quot;
+      ]
+    },
+    &quot;survey-table&quot;: {
+      &quot;type&quot;: &quot;data-table&quot;,
+      &quot;props&quot;: {
+        &quot;stickyHeader&quot;: true,
+        &quot;columns&quot;: [
+          {
+            &quot;key&quot;: &quot;surface&quot;,
+            &quot;label&quot;: &quot;Surface&quot;
+          },
+          {
+            &quot;key&quot;: &quot;pattern&quot;,
+            &quot;label&quot;: &quot;Pattern strength&quot;
+          },
+          {
+            &quot;key&quot;: &quot;examples&quot;,
+            &quot;label&quot;: &quot;Best examples&quot;
+          },
+          {
+            &quot;key&quot;: &quot;note&quot;,
+            &quot;label&quot;: &quot;Why it matters&quot;
+          }
+        ],
+        &quot;rows&quot;: [
+          {
+            &quot;surface&quot;: &quot;Core modules&quot;,
+            &quot;pattern&quot;: {
+              &quot;text&quot;: &quot;Strong in spine&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;examples&quot;: &quot;FlowMind, Orchestration, Poly, Graph, UI&quot;,
+            &quot;note&quot;: &quot;This is the architectural backbone where the doctrine is already real.&quot;
+          },
+          {
+            &quot;surface&quot;: &quot;Plugin sample&quot;,
+            &quot;pattern&quot;: {
+              &quot;text&quot;: &quot;Strong when plugin owns DSL&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;examples&quot;: &quot;Prompt-Stack, Validator, Timetravel, Browser Cascade, Lev Now&quot;,
+            &quot;note&quot;: &quot;Plugins fit best when they own either a small DSL or a stable typed result form.&quot;
+          },
+          {
+            &quot;surface&quot;: &quot;Specs surface&quot;,
+            &quot;pattern&quot;: {
+              &quot;text&quot;: &quot;Uneven&quot;,
+              &quot;status&quot;: &quot;warn&quot;
+            },
+            &quot;examples&quot;: &quot;FlowMind and UI explicit; Poly/Forge partial; memory/event/storage weak&quot;,
+            &quot;note&quot;: &quot;The doctrine exists more clearly in design than in some runtime specs.&quot;
+          },
+          {
+            &quot;surface&quot;: &quot;Exceptions&quot;,
+            &quot;pattern&quot;: {
+              &quot;text&quot;: &quot;Do not force&quot;,
+              &quot;status&quot;: &quot;gap&quot;
+            },
+            &quot;examples&quot;: &quot;Domain, Logger, thin wrappers&quot;,
+            &quot;note&quot;: &quot;These are not missing architecture. They are different kinds of modules.&quot;
+          }
+        ]
+      }
+    },
+    &quot;survey-callout&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;callout&quot;,
+      &quot;props&quot;: {
+        &quot;variant&quot;: &quot;info&quot;,
+        &quot;title&quot;: &quot;📌 Key read&quot;,
+        &quot;content&quot;: &quot;The pattern is strong enough to guide scaffolding and generated software, but only if we preserve fit classes. The win is repeatable shape, not total uniformity.&quot;
+      }
+    },
+    &quot;section-rules&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;default&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;SCAFFOLDING&quot;,
+        &quot;title&quot;: &quot;How to apply it going forward&quot;,
+        &quot;subtitle&quot;: &quot;This is the actionable doctrine for plugin scaffolding and dynamic generation.&quot;
+      },
+      &quot;children&quot;: [
+        &quot;rules-code&quot;,
+        &quot;rules-card&quot;
+      ]
+    },
+    &quot;rules-code&quot;: {
+      &quot;type&quot;: &quot;code-block&quot;,
+      &quot;props&quot;: {
+        &quot;language&quot;: &quot;text&quot;,
+        &quot;filename&quot;: &quot;design-checklist.txt&quot;,
+        &quot;showLineNumbers&quot;: false,
+        &quot;content&quot;: &quot;1. What is the declaration surface?\n2. Where is the lowering or normalization seam?\n3. What is the stable intermediate form?\n4. Who owns runtime or projection?\n5. Is there a discovery / federation layer above runtime?\n\nIf you cannot answer those honestly, the subsystem is probably still mushy.\nIf the answers are fake, do not force the pattern.&quot;
+      }
+    },
+    &quot;rules-card&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;elevated&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;⚡ Immediate impact&quot;,
+        &quot;content&quot;: &quot;For the current workstream, nothing changes about the next execution step: implement Poly protocol nouns, the Poly compiler seam, fixture goldens, and the CLI proof. This note is a doctrine lens, not a reason to reopen the Poly architecture.&quot;
+      }
+    }
+  }
+}</code></pre></div>
+    </div>
+  </details>
+</section>
+  </div>
+
+  <button class="theme-toggle" aria-label="Toggle theme">
+    <svg class="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM11 1h2v3h-2V1zm0 19h2v3h-2v-3zM3.515 4.929l1.414-1.414L7.05 5.636 5.636 7.05 3.515 4.93zM16.95 18.364l1.414-1.414 2.121 2.121-1.414 1.414-2.121-2.121zm2.121-14.85 1.414 1.415-2.121 2.121-1.414-1.414 2.121-2.121zM5.636 16.95l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM23 11v2h-3v-2h3zM4 11v2H1v-2h3z"/></svg>
+  </button>
+
+  <script>
+    // Theme toggle with localStorage persistence
+    (function() {
+      var toggle = document.querySelector('.theme-toggle');
+      var html = document.documentElement;
+      var stored = localStorage.getItem('lev-now-theme');
+      if (stored) html.dataset.theme = stored;
+      toggle.addEventListener('click', function() {
+        var next = html.dataset.theme === 'dark' ? 'light' : 'dark';
+        html.dataset.theme = next;
+        localStorage.setItem('lev-now-theme', next);
+      });
+    })();
+
+    // Progressive animation: enable only when IO is available
+    (function() {
+      var els = document.querySelectorAll('.anim');
+      if (!('IntersectionObserver' in window)) return;
+
+      // Enable animation mode
+      document.documentElement.classList.add('has-anim');
+
+      // Immediately reveal elements already in viewport
+      els.forEach(function(el) {
+        var rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight + 100 && rect.bottom > -100) {
+          el.classList.add('visible');
+        }
+      });
+
+      // Observe remaining for scroll reveal
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.05, rootMargin: '50px 0px -20px 0px' });
+
+      els.forEach(function(el) {
+        if (!el.classList.contains('visible')) observer.observe(el);
+      });
+
+      // Safety: reveal any stragglers after 2s (covers edge cases)
+      setTimeout(function() {
+        document.querySelectorAll('.anim:not(.visible)').forEach(function(el) {
+          el.classList.add('visible');
+        });
+      }, 2000);
+    })();
+  </script>
+    <script>
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default',
+        themeVariables: {
+          primaryColor: '#1e293b',
+          primaryTextColor: '#f1f5f9',
+          primaryBorderColor: 'rgba(8,145,178,0.18)',
+          lineColor: '#0369a1',
+          secondaryColor: '#0f172a',
+          tertiaryColor: '#1e293b'
+        }
+      });
+    </script>
+</body>
+</html>
