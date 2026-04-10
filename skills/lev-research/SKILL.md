@@ -23,7 +23,7 @@ Run that command to see available subcommands, strategies, adapters, and options
 
 ## For agents
 
-1. Classify the query (quick/full/deep/max/social/academic) using the signal words below
+1. Classify the query (quick/full/deep/max/social/academic/pilot-training) using the signal words below
 2. Print: `research-route: <strategy> | lev timetravel search -s <strategy>`
 3. Run `lev timetravel search "<query>" -s <strategy>` via Bash
 4. Return results. Synthesize for deep/max/academic.
@@ -34,6 +34,7 @@ Run that command to see available subcommands, strategies, adapters, and options
 |---|---|
 | "search", "lookup", "find", "what is" | `quick` |
 | "twitter", "reddit", "trending", "sentiment" | `social` |
+| "student pilot", "how they learned", "training material", "ATC phraseology resources", "free youtube", "learning styles", "corpus" (aviation training) | `pilot-training` |
 | "paper", "arxiv", "academic", "scholarly" | `academic` |
 | "research", "deep", "comprehensive", "analyze", "compare", "investigate" | `deep` |
 | "complete analysis", "exhaustive", "all angles" | `max` |

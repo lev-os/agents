@@ -1,0 +1,140 @@
+{
+  "meta": {
+    "title": "Terracotta Component Coverage",
+    "description": "Tests collapsible section, diff-panels section, diagram, chart, progress-bar inline, noise and title-underline effects",
+    "effects": ["noise", "title-underline"]
+  },
+  "theme": { "preset": "terracotta-sage", "mode": "light" },
+  "root": ["hero", "sec-collapsible", "sec-diff", "sec-diagram", "sec-chart", "sec-progress"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "centered",
+      "props": {
+        "category": "EDITORIAL TEST",
+        "title": "Terracotta Component Coverage",
+        "subtitle": "Testing collapsible, diff, diagram, chart"
+      }
+    },
+
+    "sec-collapsible": {
+      "type": "section",
+      "variant": "collapsible",
+      "props": {
+        "title": "Collapsible Section"
+      },
+      "children": ["collapse-text", "collapse-card"]
+    },
+    "collapse-text": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "This section is collapsible. It has a toggle."
+      }
+    },
+    "collapse-card": {
+      "type": "card",
+      "props": {
+        "title": "Hidden Card",
+        "content": "This card is revealed when the collapsible section is expanded."
+      }
+    },
+
+    "sec-diff": {
+      "type": "section",
+      "variant": "diff-panels",
+      "props": {
+        "title": "Before vs After"
+      },
+      "children": ["diff-before", "diff-after"]
+    },
+    "diff-before": {
+      "type": "code-block",
+      "props": {
+        "content": "const old = 'before';",
+        "language": "javascript",
+        "filename": "old.js"
+      }
+    },
+    "diff-after": {
+      "type": "code-block",
+      "props": {
+        "content": "const updated = 'after';",
+        "language": "javascript",
+        "filename": "new.js"
+      }
+    },
+
+    "sec-diagram": {
+      "type": "section",
+      "props": {
+        "title": "Diagram Test"
+      },
+      "children": ["diagram-flow"]
+    },
+    "diagram-flow": {
+      "type": "diagram",
+      "props": {
+        "content": "graph LR; A-->B; B-->C; C-->D;",
+        "caption": "Simple flow"
+      }
+    },
+
+    "sec-chart": {
+      "type": "section",
+      "props": {
+        "title": "Chart Test"
+      },
+      "children": ["chart-bar"]
+    },
+    "chart-bar": {
+      "type": "chart",
+      "props": {
+        "chartType": "bar",
+        "title": "Quarterly Revenue",
+        "labels": ["Q1", "Q2", "Q3", "Q4"],
+        "datasets": [
+          {
+            "data": [120, 190, 150, 220],
+            "backgroundColor": ["#c2410c", "#65a30d", "#c2410c", "#65a30d"]
+          }
+        ]
+      }
+    },
+
+    "sec-progress": {
+      "type": "section",
+      "props": {
+        "title": "Progress Bars"
+      },
+      "children": ["pb-coverage", "pb-migration", "pb-debt"]
+    },
+    "pb-coverage": {
+      "type": "inline",
+      "variant": "progress-bar",
+      "props": {
+        "value": 85,
+        "label": "Coverage",
+        "color": "success"
+      }
+    },
+    "pb-migration": {
+      "type": "inline",
+      "variant": "progress-bar",
+      "props": {
+        "value": 42,
+        "label": "Migration",
+        "color": "warning"
+      }
+    },
+    "pb-debt": {
+      "type": "inline",
+      "variant": "progress-bar",
+      "props": {
+        "value": 12,
+        "label": "Debt",
+        "color": "error"
+      }
+    }
+  }
+}
