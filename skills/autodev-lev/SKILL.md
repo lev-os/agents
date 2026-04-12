@@ -203,3 +203,20 @@ $ lev loop autodev --interval=5m --max-ticks=10 --budget=50k
 - `plugins/core-sdlc/src/workflows/sdlc-loop.ts` — runSdlcLoop
 - `plugins/prompt-stack` — prompt composition (until FlowMind absorbs)
 - `core/exec` — execution engine with semaphore + token tracking
+
+## Auto-Nudge + Stale Detection Heuristics (from OMX + Clawhip)
+
+Enhanced idle/stale detection beyond basic `pane_last_active`:
+
+### Stale Session Detection (from Clawhip cw-04)
+- **Content hashing:** Hash tmux pane output before/after intervals. No change = stale.
+- **Keyword windows:** Aggregate keyword hits (error, complete, stuck) over N-second windows. Burst = event.
+- **Parent process tracking:** If the parent process of a tmux session dies, the session is orphaned.
+- **Configurable stale_minutes:** Per-session stale threshold (default 30min from Clawhip).
+
+### Auto-Nudge (from OMX omx-09)
+- **Proceed-intent detection:** OMX detects when an agent is waiting for input vs genuinely stuck.
+- **Stall signature matching:** Match against known stall patterns (repeated output, token exhaustion, rate limit).
+- **Nudge escalation:** nudge → checkpoint → escalate → EXIT_SIGNAL (progressive, not immediate kill).
+
+**Source:** `.lev/pm/parity/clawhip.yaml` (cw-04), `.lev/pm/parity/omx.yaml` (omx-09), tribunal items 18+24 (UNANIMOUS AGREE)
