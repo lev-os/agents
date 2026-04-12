@@ -1,0 +1,280 @@
+{
+  "meta": {
+    "title": "ClawTok: Project Overview",
+    "description": "TikTok for AI content — specs, scores, and implementation status",
+    "effects": ["card-glow", "grid-dots", "title-underline"],
+    "layout": "sidebar-toc"
+  },
+  "theme": { "preset": "teal-slate", "mode": "dark" },
+  "root": ["hero", "kpi-section", "stack-section", "specs-table", "discover-section", "remaining-section", "infra-section", "codebase-section"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "centered",
+      "props": {
+        "category": "APPS ROADMAP",
+        "title": "ClawTok",
+        "subtitle": "TikTok-style iOS app for AI-generated content",
+        "meta": "April 11, 2026 — apps/claw-tok"
+      },
+      "children": ["lead"]
+    },
+    "lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "Swift 6.0 / SwiftUI, targeting iOS 17+. 47 Swift files, ~14,800 LOC, 14 bundled AI videos, 10 AI music tracks, 10 AI tool screens. Purple (#8B5CF6) + Gold (#F59E0B) brand. 100% mock data — zero backend. Discover Categories track now IMPLEMENTED."
+      }
+    },
+    "kpi-section": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "STATUS",
+        "title": "At a Glance"
+      },
+      "children": ["kpi-specs", "kpi-impl", "kpi-score", "kpi-loc"]
+    },
+    "kpi-specs": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": 4,
+        "label": "Feature Specs",
+        "trend": { "direction": "flat", "value": "all GO" }
+      }
+    },
+    "kpi-impl": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": 1,
+        "label": "Implemented",
+        "trend": { "direction": "up", "value": "Discover (P0)" }
+      }
+    },
+    "kpi-score": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": 80,
+        "label": "Top Score",
+        "trend": { "direction": "up", "value": "Discover" }
+      }
+    },
+    "kpi-loc": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": 14800,
+        "label": "Current LOC",
+        "trend": { "direction": "up", "value": "+370 this session" }
+      }
+    },
+    "stack-section": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "TECH STACK",
+        "title": "Foundation"
+      },
+      "children": ["stack-ios", "stack-arch", "stack-brand"]
+    },
+    "stack-ios": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "iOS / Swift",
+        "content": "Swift 6.0, SwiftUI, iOS 17+. @Observable state (AppState, VideoPlayerManager, CameraManager). 5-player AVPlayer pool with preloading and 3x loop."
+      }
+    },
+    "stack-arch": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Architecture",
+        "content": "Feature-based modules under Features/ (12 areas). Core/ for models, theme, utilities. SharedUI/ for reusable components. NavigationStack + sheets/fullScreenCovers."
+      }
+    },
+    "stack-brand": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Brand",
+        "content": "Electric Purple #8B5CF6 primary, Amber Gold #F59E0B secondary, pure black background. Red seal + lightning bolt verified badge. Dark-mode only. 13 color tokens."
+      }
+    },
+    "specs-table": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "SPECS",
+        "title": "All 4 Feature Specs",
+        "subtitle": "Scored via 10-point go/no-go matrix"
+      },
+      "children": ["specs-data"]
+    },
+    "specs-data": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "feature", "label": "Feature" },
+          { "key": "priority", "label": "Priority" },
+          { "key": "score", "label": "Score" },
+          { "key": "status", "label": "Status" },
+          { "key": "files", "label": "File Impact" },
+          { "key": "loc", "label": "Est. LOC" }
+        ],
+        "rows": [
+          {
+            "feature": "Discover: Category Landing Pages",
+            "priority": { "text": "P0", "status": "warn" },
+            "score": "80",
+            "status": { "text": "DONE", "status": "match" },
+            "files": "3 new / 3 mod",
+            "loc": "~430"
+          },
+          {
+            "feature": "Profile: View/Creator Mode Split",
+            "priority": { "text": "P1", "status": "match" },
+            "score": "66",
+            "status": { "text": "Draft", "status": "info" },
+            "files": "3 new / 3 mod",
+            "loc": "~350"
+          },
+          {
+            "feature": "Music: Podcast Support",
+            "priority": { "text": "P2", "status": "gap" },
+            "score": "68",
+            "status": { "text": "Draft", "status": "info" },
+            "files": "4 new / 2 mod",
+            "loc": "~850"
+          },
+          {
+            "feature": "kingly.cloud Inference Router",
+            "priority": { "text": "P3", "status": "gap" },
+            "score": "66",
+            "status": { "text": "Draft", "status": "info" },
+            "files": "16 new / 2 mod",
+            "loc": "~3,700"
+          }
+        ]
+      }
+    },
+    "discover-section": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "IMPLEMENTED",
+        "title": "Discover: Category Landing Pages",
+        "subtitle": "Score 80 (highest) — levloop ct-1 through ct-6 complete"
+      },
+      "children": ["discover-detail", "discover-timeline"]
+    },
+    "discover-detail": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "What shipped",
+        "content": "**CategoryGridView** — 2-column LazyVGrid, all 12 AICategory cases, gradient cells, trending badge, video count capsule.\n\n**CategoryFeedView** — Filtered video feed per category, pull-to-refresh, VideoFeedSheet fullscreen cover, category header with icon + stats.\n\n**StickyCategoryBar** — Horizontal ScrollView with gradient underline on selected category, auto-scroll via ScrollViewReader.\n\n**DiscoverView wired** — Quick-access row (6 categories) with NavigationLink to CategoryFeedView. 'See all' navigates to CategoryGridView."
+      }
+    },
+    "discover-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          { "date": "ct-1", "title": "CategoryGridView.swift", "description": "2-column grid + Models.swift extensions (videoCount, isTrending) + Theme.swift categoryGradient", "status": "done" },
+          { "date": "ct-2", "title": "CategoryFeedView.swift", "description": "Filtered video feed, thumbnail grid, pull-to-refresh, VideoFeedSheet integration", "status": "done" },
+          { "date": "ct-3", "title": "StickyCategoryBar.swift", "description": "Horizontal category selector with gradient underline, auto-scroll", "status": "done" },
+          { "date": "ct-4", "title": "DiscoverView wiring", "description": "Quick-access row (6 cats) → CategoryFeedView, See All → CategoryGridView", "status": "done" },
+          { "date": "ct-5", "title": "Models + Theme", "description": "Folded into ct-1 (videoCount, isTrending, formattedVideoCount, categoryGradient)", "status": "done" },
+          { "date": "ct-6", "title": "Validation", "description": "0 Swift errors, 0 warnings, 0 hardcoded colors, all files in pbxproj", "status": "done" }
+        ]
+      }
+    },
+    "remaining-section": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "REMAINING",
+        "title": "Next Specs",
+        "subtitle": "3 features waiting for implementation"
+      },
+      "children": ["remaining-profile", "remaining-podcasts", "remaining-router"]
+    },
+    "remaining-profile": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Profile Redesign (P1, Score: 66)",
+        "content": "Split ProfileView.swift (698 lines) into View mode (portfolio) and Creator mode (horizontal quick-action bar). Extract CreatorQuickActionsBar + ProfileOverflowMenu. @AppStorage persistence. **~350 LOC.**"
+      }
+    },
+    "remaining-podcasts": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Podcast Support (P2, Score: 68)",
+        "content": "Podcast/Episode/Chapter models, 7 AI podcast tools, PodcastPlayerView with speed/sleep/chapters/transcript. 4 new views. NotebookLM integration badge. **~850 LOC.**"
+      }
+    },
+    "remaining-router": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "kingly.cloud Router (P3, Score: 66)",
+        "content": "Cross-cutting multi-provider inference gateway. POST /v1/inference, credit reserve/consume/release, 12 tool types, multi-tenant. Go + Swift + SQL. Multi-month epic, 5 phases. **~3,700 LOC.**"
+      }
+    },
+    "infra-section": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "APP DOCS",
+        "title": "Project Documentation",
+        "subtitle": "Architecture, backend plan, brand, features, changelog"
+      },
+      "children": ["doc-arch", "doc-backend", "doc-features"]
+    },
+    "doc-arch": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Architecture",
+        "content": "Feature-based modular SwiftUI. 12 feature modules, @Observable state, 5-player AVPlayer pool, NavigationStack. 46 Swift files in Core/ + Features/ + SharedUI/."
+      }
+    },
+    "doc-backend": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Backend Plan (57K words)",
+        "content": "Go (Fiber) API, PostgreSQL 16 (Supabase), Redis 7 (Upstash), Cloudflare R2 + CDN, BullMQ, Meilisearch, RevenueCat+Stripe, Temporal.io, Grafana, Fly.io. Full production spec."
+      }
+    },
+    "doc-features": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Feature Inventory",
+        "content": "FYP with 5-player AVPlayer pool, Live VC tab, Following feed, double-tap hearts, share sheet, 10 AI tool screens, AI Music hub, creator tools, bookmarks, analytics."
+      }
+    },
+    "codebase-section": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "KEY RISK",
+        "title": "Backend Gap"
+      },
+      "children": ["risk-quote"]
+    },
+    "risk-quote": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": {
+        "content": "100% mock data, zero backend, zero auth, zero tests. The backend plan exists (57K words, Go + Supabase + Redis + R2) but nothing is implemented. All MVP specs are deliberately UI-only to avoid this dependency. The kingly.cloud inference router is the first cross-cutting backend piece — but it's P3 for a reason."
+      }
+    }
+  }
+}

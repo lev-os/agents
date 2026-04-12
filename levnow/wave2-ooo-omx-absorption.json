@@ -1,0 +1,833 @@
+{
+  "meta": {
+    "title": "Wave 2 \u2014 OOO + OMX Absorption Pass",
+    "description": "Full Ouroboros + oh-my-codex feature pass. Classify, map, absorb. Follows Wave 1 AXI pattern.",
+    "layout": "sidebar-toc",
+    "effects": [
+      "card-glow",
+      "title-underline",
+      "grid-dots"
+    ]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "kpis",
+    "status-overview",
+    "ooo-section",
+    "ooo-table",
+    "ooo-absorptions",
+    "omx-section",
+    "omx-table",
+    "omx-absorptions",
+    "delta-section",
+    "combined-table",
+    "next"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "WAVE 2 \u00b7 ABSORPTION PASS",
+        "title": "OOO + OMX Full Pass",
+        "subtitle": "21 features across Ouroboros (12) and oh-my-codex (9). Classify what Lev already has, absorb the patterns we don't.",
+        "meta": "2026-04-11 \u00b7 Wave 2 \u00b7 Follows Wave 1 (AXI)"
+      },
+      "children": [
+        "hero-lead"
+      ]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "Wave 1 absorbed AXI patterns into /ux and /tribunal. Wave 2 does the same for Ouroboros (the spec-first workflow engine) and oh-my-codex (the Codex orchestration runtime). These are the two most architecturally similar projects to Lev \u2014 OOO converges on the same primitives from a different direction, OMX ships the tmux runtime we need. Most of what they have, Lev already has. This pass surfaces the gaps and maps the absorptions."
+      }
+    },
+    "kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "WAVE 2 INVENTORY",
+        "title": "Feature Counts"
+      },
+      "children": [
+        "kpi-ooo",
+        "kpi-omx",
+        "kpi-impl",
+        "kpi-partial",
+        "kpi-missing",
+        "kpi-absorbs"
+      ]
+    },
+    "kpi-ooo": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": 12,
+        "label": "OOO Features"
+      }
+    },
+    "kpi-omx": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": 9,
+        "label": "OMX Features"
+      }
+    },
+    "kpi-impl": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": 6,
+        "label": "Already Implemented",
+        "trend": {
+          "direction": "up",
+          "value": "Lev covers"
+        }
+      }
+    },
+    "kpi-partial": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": 11,
+        "label": "Partial (enhance)",
+        "trend": {
+          "direction": "flat",
+          "value": "absorb patterns"
+        }
+      }
+    },
+    "kpi-missing": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": 4,
+        "label": "Missing (gaps)",
+        "trend": {
+          "direction": "down",
+          "value": "build or reject"
+        }
+      }
+    },
+    "kpi-absorbs": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": 14,
+        "label": "Wave 2 Absorptions",
+        "trend": {
+          "direction": "up",
+          "value": "into 8 Lev skills"
+        }
+      }
+    },
+    "status-overview": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "STATUS BREAKDOWN",
+        "title": "What We Already Have vs What's Missing"
+      },
+      "children": [
+        "stat-impl",
+        "stat-partial",
+        "stat-missing"
+      ]
+    },
+    "stat-impl": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\u2705 Implemented (6)",
+        "content": "**Lev already has equivalents \u2014 no absorption needed, just validate parity.**\n\n- ooo-02 Immutable seed spec \u2192 `dna/*.yaml` + `.lev/pm/specs/`\n- ooo-04 3-stage eval gate \u2192 `core/orchestration/src/eval/types.ts`\n- ooo-07 PAL Router \u2192 `core/harness/` adapter selection\n- ooo-08 Ralph loop \u2192 `plugins/core-sdlc/flows/lev-ralph.flow.yaml`\n- ooo-09 Event sourcing \u2192 `core/event-bus/` + LevEvent JSONL\n- omx-04 Ralph loop \u2192 same as ooo-08\n- omx-08 Role prompts \u2192 `~/.claude/skills/` + plugins"
+      }
+    },
+    "stat-partial": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\ud83d\udd00 Partial (11)",
+        "content": "**Lev has the primitive, OOO/OMX has the refinement. Absorb the refinement.**\n\n- Ambiguity scoring (ooo-01, omx-02)\n- Double Diamond (ooo-03)\n- Ontology convergence (ooo-05)\n- 9 personas (ooo-06)\n- Drift measurement (ooo-10)\n- Brownfield detection (ooo-11)\n- 4-lane model (omx-01)\n- Tmux team lifecycle (omx-03)\n- RALPLAN consensus (omx-05)\n- Auto-nudge (omx-09)"
+      }
+    },
+    "stat-missing": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\u274c Missing (4)",
+        "content": "**Lev has no equivalent. Build, reject, or absorb partially.**\n\n- ooo-12 TUI dashboard \u2192 deferred to lev-tmux Rust crate (Wave 3)\n- omx-06 Machine API (programmatic mode control) \u2192 needs design\n- omx-07 HUD status display \u2192 deferred to lev-tmux\n- omx-03 Tmux team lifecycle \u2192 this IS the tmux-control-plane workstream"
+      }
+    },
+    "ooo-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "OUROBOROS PASS",
+        "title": "12 Features \u00d7 Absorption Map",
+        "subtitle": "OOO is architecturally closest to Lev. Its Socratic interview + ambiguity gate + ontology convergence are the refinement layer on top of what Lev already has."
+      },
+      "children": [
+        "ooo-intro"
+      ]
+    },
+    "ooo-intro": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "The key OOO insight: **ambiguity is measurable**. OOO scores alignment on 5 dimensions (intent, outcome, scope, constraints, success) with a mathematical threshold (\u22640.2) before allowing work to proceed. Lev has `interview` and `cdo` but doesn't gate on a score. That's the absorption target.\n\nThe second insight: **ontology convergence as exit condition**. OOO's evolutionary loop runs until the ontology similarity between iterations hits \u22650.95 \u2014 which is a deterministic stopping criterion. Lev's loops stop on `--until` semantic completion, which is regex-based and fragile. Absorbing convergence math gives us deterministic exit."
+      }
+    },
+    "ooo-table": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "OOO \u00d7 LEV",
+        "title": "12 Features Mapped"
+      },
+      "children": [
+        "ooo-data"
+      ]
+    },
+    "ooo-data": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "id",
+            "label": "ID"
+          },
+          {
+            "key": "feature",
+            "label": "Feature",
+            "wide": true
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          },
+          {
+            "key": "lev_has",
+            "label": "Lev Equivalent"
+          },
+          {
+            "key": "action",
+            "label": "Action"
+          }
+        ],
+        "rows": [
+          {
+            "id": "ooo-01",
+            "feature": "Socratic interview with ambiguity scoring (threshold 0.2)",
+            "status": {
+              "text": "partial",
+              "status": "warn"
+            },
+            "lev_has": "plugins/core-sdlc + interview",
+            "action": {
+              "text": "ABSORB \u2192 /interview",
+              "status": "match"
+            }
+          },
+          {
+            "id": "ooo-02",
+            "feature": "Immutable seed spec (crystallized from interview)",
+            "status": {
+              "text": "implemented",
+              "status": "match"
+            },
+            "lev_has": "dna/*.yaml + .lev/pm/specs/",
+            "action": "validate parity"
+          },
+          {
+            "id": "ooo-03",
+            "feature": "Double Diamond decomposition (Discover\u2192Define\u2192Design\u2192Deliver)",
+            "status": {
+              "text": "partial",
+              "status": "warn"
+            },
+            "lev_has": "plugins/core-sdlc/flows/",
+            "action": {
+              "text": "ABSORB \u2192 /work lifecycle",
+              "status": "match"
+            }
+          },
+          {
+            "id": "ooo-04",
+            "feature": "3-stage eval gate (Mechanical\u2192Semantic\u2192Multi-Model)",
+            "status": {
+              "text": "implemented",
+              "status": "match"
+            },
+            "lev_has": "core/orchestration/src/eval/types.ts",
+            "action": "validate parity"
+          },
+          {
+            "id": "ooo-05",
+            "feature": "Evolutionary loop with ontology convergence (0.95)",
+            "status": {
+              "text": "partial",
+              "status": "warn"
+            },
+            "lev_has": "eval-harness.flow.yaml",
+            "action": {
+              "text": "ABSORB \u2192 /validate + eval-harness",
+              "status": "match"
+            }
+          },
+          {
+            "id": "ooo-06",
+            "feature": "Nine agent personas (Socratic/Ontologist/Contrarian)",
+            "status": {
+              "text": "partial",
+              "status": "warn"
+            },
+            "lev_has": "tribunal + cdo + adversarial-review",
+            "action": {
+              "text": "ABSORB persona list \u2192 /cdo",
+              "status": "match"
+            }
+          },
+          {
+            "id": "ooo-07",
+            "feature": "PAL Router (3-tier cost 1x/10x/30x)",
+            "status": {
+              "text": "implemented",
+              "status": "match"
+            },
+            "lev_has": "core/harness/ adapter selection",
+            "action": "validate parity"
+          },
+          {
+            "id": "ooo-08",
+            "feature": "Ralph persistent loop across sessions",
+            "status": {
+              "text": "implemented",
+              "status": "match"
+            },
+            "lev_has": "lev-ralph.flow.yaml",
+            "action": "validate parity"
+          },
+          {
+            "id": "ooo-09",
+            "feature": "Event sourcing with checkpoint recovery",
+            "status": {
+              "text": "implemented",
+              "status": "match"
+            },
+            "lev_has": "core/event-bus + LevEvent JSONL",
+            "action": "validate parity"
+          },
+          {
+            "id": "ooo-10",
+            "feature": "Drift measurement (goal 50% + constraint 30% + ontology 20%)",
+            "status": {
+              "text": "partial",
+              "status": "warn"
+            },
+            "lev_has": "plugins/validator + dna/gates.yaml",
+            "action": {
+              "text": "ABSORB formula \u2192 /lev-align",
+              "status": "match"
+            }
+          },
+          {
+            "id": "ooo-11",
+            "feature": "Brownfield auto-detection (scan existing repo patterns)",
+            "status": {
+              "text": "partial",
+              "status": "warn"
+            },
+            "lev_has": "core/config fractal resolver",
+            "action": {
+              "text": "ABSORB \u2192 /prior-art",
+              "status": "match"
+            }
+          },
+          {
+            "id": "ooo-12",
+            "feature": "TUI dashboard",
+            "status": {
+              "text": "missing",
+              "status": "gap"
+            },
+            "lev_has": "N/A",
+            "action": "defer to lev-tmux Wave 3"
+          }
+        ]
+      }
+    },
+    "ooo-absorptions": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "OOO ABSORPTIONS",
+        "title": "7 Patterns Mapped"
+      },
+      "children": [
+        "ooo-ab-1",
+        "ooo-ab-2",
+        "ooo-ab-3",
+        "ooo-ab-4"
+      ]
+    },
+    "ooo-ab-1": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\ud83e\udded \u2192 /interview",
+        "content": "**Absorb:** Ambiguity scoring formula\n\n`ambiguity = 1 - sum(clarity_i \u00d7 weight_i)`\nweights: intent 30%, outcome 25%, scope 20%, constraints 15%, success 10%\nGate: score \u2264 0.2 before proceeding\n\n**Also absorb:** Double Diamond phases (Discover \u2192 Define \u2192 Design \u2192 Deliver) as the default interview flow structure.\n\n**Section to add:** 'Mathematical Ambiguity Gate (from OOO + OMX)'"
+      }
+    },
+    "ooo-ab-2": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\u2705 \u2192 /validate + eval-harness",
+        "content": "**Absorb:** Ontology convergence as stopping criterion\n\n`similarity = 0.5 \u00d7 name_overlap + 0.3 \u00d7 type_match + 0.2 \u00d7 exact_match`\nExit when \u2265 0.95 OR max_iterations reached\n\n**Section to add to eval-harness.flow.yaml:** 'Ontology Convergence Exit (from OOO)'\n\n**Why:** Replaces fragile regex-based --until with deterministic math."
+      }
+    },
+    "ooo-ab-3": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\ud83c\udfaf \u2192 /lev-align",
+        "content": "**Absorb:** Composite drift measurement\n\n`drift = 0.5 \u00d7 goal_drift + 0.3 \u00d7 constraint_drift + 0.2 \u00d7 ontology_drift`\n\n**Section to add:** 'Weighted Drift Composite (from OOO)'\n\n**Why:** Lev has per-gate drift but no unified composite score. OOO's formula gives one number to watch."
+      }
+    },
+    "ooo-ab-4": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\ud83d\udd0d \u2192 /prior-art + /cdo",
+        "content": "**Absorb into /prior-art:** Brownfield auto-detection patterns \u2014 scan repo structure, detect conventions, surface deviations.\n\n**Absorb into /cdo:** Nine personas as optional expansion roster (Socratic/Ontologist/Contrarian/Systemsist/Devil's-Advocate/Synthesizer/etc.) \u2014 CDO can invoke by name when tribunal is too wide.\n\n**Already covered by tribunal/cdo/adversarial** \u2014 just document the bridge."
+      }
+    },
+    "omx-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "OMX PASS",
+        "title": "9 Features \u00d7 Absorption Map",
+        "subtitle": "OMX is the tmux runtime + 4-lane operator model. Most tmux lifecycle maps to the lev-tmux Rust crate (Wave 3). The lane model + deep-interview patterns absorb now."
+      },
+      "children": [
+        "omx-intro"
+      ]
+    },
+    "omx-intro": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "OMX is split across two planes: **(1) operator UX** (4-lane model, deep-interview, role prompts, RALPLAN) \u2014 this is what we absorb now into skills. **(2) runtime infrastructure** (tmux team lifecycle, machine API, HUD, auto-nudge) \u2014 this belongs in lev-tmux Wave 3, not skill absorption.\n\nThe 4-lane model IS the Lev taxonomy v1 already. OMX's deep-interview skill is the working production implementation of OOO's ambiguity scoring (same formula, verified live at .worktrees/lev-omx/.omx/state/). RALPLAN consensus is CDO by another name."
+      }
+    },
+    "omx-table": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "OMX \u00d7 LEV",
+        "title": "9 Features Mapped"
+      },
+      "children": [
+        "omx-data"
+      ]
+    },
+    "omx-data": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "id",
+            "label": "ID"
+          },
+          {
+            "key": "feature",
+            "label": "Feature",
+            "wide": true
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          },
+          {
+            "key": "lev_has",
+            "label": "Lev Equivalent"
+          },
+          {
+            "key": "action",
+            "label": "Action"
+          }
+        ],
+        "rows": [
+          {
+            "id": "omx-01",
+            "feature": "4-lane operator model (deep-interview \u2192 ralplan \u2192 team/ralph \u2192 verify)",
+            "status": {
+              "text": "partial",
+              "status": "warn"
+            },
+            "lev_has": "plugins/core-sdlc + taxonomy-v1",
+            "action": {
+              "text": "ABSORB lane labels \u2192 /work",
+              "status": "match"
+            }
+          },
+          {
+            "id": "omx-02",
+            "feature": "Deep-interview with mathematical ambiguity scoring",
+            "status": {
+              "text": "partial",
+              "status": "warn"
+            },
+            "lev_has": "pattern in .worktrees/lev-omx/, not core",
+            "action": {
+              "text": "ABSORB \u2192 /interview",
+              "status": "match"
+            }
+          },
+          {
+            "id": "omx-03",
+            "feature": "Tmux team lifecycle (N workers, shared task list, commit ledger)",
+            "status": {
+              "text": "partial",
+              "status": "warn"
+            },
+            "lev_has": "NTM (external)",
+            "action": "defer to lev-tmux Wave 3"
+          },
+          {
+            "id": "omx-04",
+            "feature": "Ralph persistent loop with architect verification",
+            "status": {
+              "text": "implemented",
+              "status": "match"
+            },
+            "lev_has": "lev-ralph.flow.yaml",
+            "action": "validate parity"
+          },
+          {
+            "id": "omx-05",
+            "feature": "RALPLAN consensus planning (structured deliberation)",
+            "status": {
+              "text": "partial",
+              "status": "warn"
+            },
+            "lev_has": "CDO deliberation",
+            "action": {
+              "text": "ABSORB \u2192 /cdo + /lev-plan",
+              "status": "match"
+            }
+          },
+          {
+            "id": "omx-06",
+            "feature": "Machine API (programmatic mode control)",
+            "status": {
+              "text": "missing",
+              "status": "gap"
+            },
+            "lev_has": "N/A",
+            "action": "design needed (Wave 3)"
+          },
+          {
+            "id": "omx-07",
+            "feature": "HUD status display",
+            "status": {
+              "text": "missing",
+              "status": "gap"
+            },
+            "lev_has": "N/A",
+            "action": "defer to lev-tmux Wave 3"
+          },
+          {
+            "id": "omx-08",
+            "feature": "20 role prompts (analyst, architect, debugger, etc.)",
+            "status": {
+              "text": "implemented",
+              "status": "match"
+            },
+            "lev_has": "~/.claude/skills + plugins",
+            "action": {
+              "text": "ABSORB role list \u2192 /cdo roster",
+              "status": "match"
+            }
+          },
+          {
+            "id": "omx-09",
+            "feature": "Auto-nudge / autopilot",
+            "status": {
+              "text": "partial",
+              "status": "warn"
+            },
+            "lev_has": "autodev-loop",
+            "action": {
+              "text": "ABSORB \u2192 /autodev-lev",
+              "status": "match"
+            }
+          }
+        ]
+      }
+    },
+    "omx-absorptions": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "OMX ABSORPTIONS",
+        "title": "5 Patterns Mapped"
+      },
+      "children": [
+        "omx-ab-1",
+        "omx-ab-2",
+        "omx-ab-3"
+      ]
+    },
+    "omx-ab-1": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\ud83e\udded \u2192 /interview (shared with OOO)",
+        "content": "**Absorb:** Production-verified ambiguity scoring formula\n\nFrom `.worktrees/lev-omx/.codex/skills/deep-interview/`. Same formula as OOO but with live state proof:\n- Round 1 ambiguity: 0.2455 (above threshold)\n- Round 2 ambiguity: 0.159 (below threshold, gate passed)\n- Dimensions scored: intent, outcome, scope, constraints, success, brownfield context\n\n**Single absorption serves both OOO and OMX.**"
+      }
+    },
+    "omx-ab-2": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\ud83d\udcdd \u2192 /cdo + /lev-plan",
+        "content": "**Absorb:** RALPLAN consensus pattern\n\nStructured deliberation flow: proposal \u2192 3 model perspectives \u2192 consensus score \u2192 commit or iterate.\n\n**Section to add to /cdo:** 'RALPLAN Consensus Pattern (from OMX)'\n**Section to add to /lev-plan:** 'Consensus Gate Before Plan Commit'\n\n**Already close to CDO's team mode** \u2014 the absorption is mostly naming + exit criteria."
+      }
+    },
+    "omx-ab-3": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\ud83d\udd04 \u2192 /autodev-lev + /cdo roster",
+        "content": "**Absorb into /autodev-lev:** Auto-nudge heuristics \u2014 when to interrupt agents, stall detection, proceed-intent signals (OMX has these working in production).\n\n**Absorb into /cdo:** 20-role OMX roster as optional personas:\nanalyst, architect, build-fixer, code-reviewer, code-simplifier, critic, debugger, dependency-expert, designer, executor, explore, git-master, planner, researcher, security-reviewer, team-executor, test-engineer, verifier, vision, writer"
+      }
+    },
+    "delta-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "WHAT'S NEW",
+        "title": "Wave 2 Delta \u2014 Net Gains for Lev"
+      },
+      "children": [
+        "delta-body"
+      ]
+    },
+    "delta-body": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "**Net new to Lev after Wave 2 absorption:**\n\n1. **Mathematical ambiguity gate** \u2014 not just Socratic interview, but a score with a threshold. Before: subjective. After: ambiguity \u2264 0.2 to proceed.\n2. **Ontology convergence exit** \u2014 not just --until regex, but `similarity \u2265 0.95` as deterministic stopping criterion.\n3. **Composite drift score** \u2014 one number combining goal/constraint/ontology drift weighted 50/30/20.\n4. **Named 20-role roster in /cdo** \u2014 tribunal was generic 3-model; now CDO can invoke specific roles by name.\n5. **Brownfield detection in /prior-art** \u2014 scan for repo conventions, surface deviations as evidence.\n6. **RALPLAN consensus pattern** \u2014 proposal \u2192 3-perspective \u2192 consensus \u2192 commit/iterate.\n7. **Auto-nudge heuristics in /autodev-lev** \u2014 production-tested stall detection from OMX live state."
+      }
+    },
+    "combined-table": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "WAVE 2 RECIPE",
+        "title": "14 Absorptions Across 8 Skills"
+      },
+      "children": [
+        "combined-data"
+      ]
+    },
+    "combined-data": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "from",
+            "label": "Source"
+          },
+          {
+            "key": "pattern",
+            "label": "Pattern",
+            "wide": true
+          },
+          {
+            "key": "into",
+            "label": "Target Skill"
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          }
+        ],
+        "rows": [
+          {
+            "from": "OOO + OMX",
+            "pattern": "Mathematical ambiguity scoring (weighted 5 dimensions, gate \u2264 0.2)",
+            "into": "/interview",
+            "status": {
+              "text": "proposed",
+              "status": "warn"
+            }
+          },
+          {
+            "from": "OOO",
+            "pattern": "Double Diamond decomposition (Discover \u2192 Define \u2192 Design \u2192 Deliver)",
+            "into": "/work",
+            "status": {
+              "text": "proposed",
+              "status": "warn"
+            }
+          },
+          {
+            "from": "OOO",
+            "pattern": "Ontology convergence exit (similarity \u2265 0.95)",
+            "into": "/validate + eval-harness.flow.yaml",
+            "status": {
+              "text": "proposed",
+              "status": "warn"
+            }
+          },
+          {
+            "from": "OOO",
+            "pattern": "Composite drift measurement (50/30/20 weighted)",
+            "into": "/lev-align",
+            "status": {
+              "text": "proposed",
+              "status": "warn"
+            }
+          },
+          {
+            "from": "OOO",
+            "pattern": "Nine-persona expansion (Socratic/Ontologist/Contrarian/etc.)",
+            "into": "/cdo",
+            "status": {
+              "text": "proposed",
+              "status": "warn"
+            }
+          },
+          {
+            "from": "OOO",
+            "pattern": "Brownfield auto-detection (repo conventions scan)",
+            "into": "/prior-art",
+            "status": {
+              "text": "proposed",
+              "status": "warn"
+            }
+          },
+          {
+            "from": "OMX",
+            "pattern": "Production-verified ambiguity formula + dimensions + weights",
+            "into": "/interview (same as OOO absorption)",
+            "status": {
+              "text": "proposed",
+              "status": "warn"
+            }
+          },
+          {
+            "from": "OMX",
+            "pattern": "4-lane operator labels + transition semantics",
+            "into": "/work",
+            "status": {
+              "text": "proposed",
+              "status": "warn"
+            }
+          },
+          {
+            "from": "OMX",
+            "pattern": "RALPLAN consensus pattern (proposal \u2192 3 perspectives \u2192 score)",
+            "into": "/cdo",
+            "status": {
+              "text": "proposed",
+              "status": "warn"
+            }
+          },
+          {
+            "from": "OMX",
+            "pattern": "Consensus gate before plan commit",
+            "into": "/lev-plan",
+            "status": {
+              "text": "proposed",
+              "status": "warn"
+            }
+          },
+          {
+            "from": "OMX",
+            "pattern": "20-role persona roster (analyst/architect/debugger/etc.)",
+            "into": "/cdo roster",
+            "status": {
+              "text": "proposed",
+              "status": "warn"
+            }
+          },
+          {
+            "from": "OMX",
+            "pattern": "Auto-nudge heuristics + stall detection + proceed-intent",
+            "into": "/autodev-lev",
+            "status": {
+              "text": "proposed",
+              "status": "warn"
+            }
+          },
+          {
+            "from": "OOO",
+            "pattern": "Immutable seed spec from interview output",
+            "into": "/lev-plan (crystallization phase)",
+            "status": {
+              "text": "proposed",
+              "status": "warn"
+            }
+          },
+          {
+            "from": "OOO",
+            "pattern": "3-stage eval gate (Mechanical \u2192 Semantic \u2192 Multi-Model)",
+            "into": "/validate (document existing parity)",
+            "status": {
+              "text": "implemented",
+              "status": "match"
+            }
+          }
+        ]
+      }
+    },
+    "next": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "NEXT",
+        "title": "3 Actions"
+      },
+      "children": [
+        "next-1",
+        "next-2",
+        "next-3"
+      ]
+    },
+    "next-1": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "1. Edit skill docs",
+        "content": "Add absorption sections to 8 Lev skills:\n\n- /interview (ambiguity gate)\n- /work (Double Diamond + 4 lanes)\n- /validate + eval-harness (convergence exit)\n- /lev-align (drift composite)\n- /cdo (personas + RALPLAN + roster)\n- /prior-art (brownfield detection)\n- /lev-plan (crystallization + consensus gate)\n- /autodev-lev (auto-nudge heuristics)"
+      }
+    },
+    "next-2": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "2. Update parity YAMLs",
+        "content": "Mark absorbed features with `action: absorbed` + `absorbed_into: /skill-name`. Schema still frozen through 2026-04-17, but these are non-breaking field additions.\n\nUpdate `.lev/pm/parity/ouroboros.yaml` and `.lev/pm/parity/omx.yaml`."
+      }
+    },
+    "next-3": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "3. Defer missing to Wave 3",
+        "content": "Wave 3 = lev-tmux Rust crate. Handles:\n- omx-03 Tmux team lifecycle\n- omx-06 Machine API\n- omx-07 HUD status display\n- ooo-12 TUI dashboard\n\nAll four are infrastructure, not skill absorptions."
+      }
+    }
+  }
+}
