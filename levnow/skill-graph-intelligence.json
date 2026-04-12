@@ -1,0 +1,1099 @@
+{
+  "meta": {
+    "title": "Skill Graph Intelligence Dashboard",
+    "description": "Complete intelligence report: 25 spikes, 6 sidecars, 155 nodes, 3 independent validations, full metadata",
+    "layout": "sidebar-toc",
+    "effects": [
+      "grid-dots",
+      "card-glow",
+      "title-underline",
+      "glass"
+    ]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "sec-what-is",
+    "sec-stats",
+    "sec-lane-bucketing",
+    "sec-centrality",
+    "sec-validations",
+    "sec-duplicates",
+    "sec-gates",
+    "sec-sidecars",
+    "sec-spikes-all",
+    "sec-schema",
+    "sec-metadata",
+    "sec-promoted",
+    "sec-deferred",
+    "sec-next"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "GRAPH INTELLIGENCE \u00b7 v1.0",
+        "title": "The Graph Analyzes Itself",
+        "subtitle": "25 spikes \u00b7 6 sidecars \u00b7 155 nodes \u00b7 3 independent validations \u00b7 95.10% cluster agreement \u00b7 \u03c7=4",
+        "meta": "April 11, 2026 \u00b7 Leviathan Core"
+      },
+      "children": [
+        "hero-lead"
+      ]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "Graph intelligence = what the graph tells us about itself WITHOUT being told. Community detection finds clusters we didn't name. TopoNetX proves closure via Euler characteristic. Betweenness centrality surfaces bridges. Duplicate detection spots merges. sklearn predicts labels. Scope nesting enables hierarchical queries. Chirality enforces direction. The more sidecars, the more the graph earns its keep."
+      }
+    },
+    "sec-what-is": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "CONCEPT",
+        "title": "What Is Graph Intelligence?",
+        "subtitle": "Seven forms of insight the graph computes about itself"
+      },
+      "children": [
+        "gi-body",
+        "gi-types"
+      ]
+    },
+    "gi-body": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "A dumb graph is a bag of nodes and edges you query with exact-match. A smart graph COMPUTES things about itself. Our skill graph has 155 nodes, 112 edges, and now runs 7 kinds of self-analysis on every rebuild. Each form of intelligence is a sidecar that reads the owner stack and writes a report to `~/.cache/lev/harness/skill-graph/`. None of them can write to the owner graph (per SIDECAR_POLICY.md), but they surface insights that shape human decisions."
+      }
+    },
+    "gi-types": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "**1. Topological validation** \u2014 TopoNetX computes Euler characteristic. If \u03c7 \u2260 4, a lane lost closure.\n\n**2. Community detection** \u2014 NetworkX Louvain/Label Prop/Greedy agree 95.10% on the 4-lane structure. No new clusters to discover.\n\n**3. Centrality analysis** \u2014 Betweenness centrality ranks nodes by how many paths pass through them. The bridges.\n\n**4. Duplicate detection** \u2014 difflib fuzzy matching surfaces merge candidates within the same lane.\n\n**5. Drift tracking** \u2014 `graph_diff.py` compares two snapshots and reports added/removed/changed.\n\n**6. Classification prediction** \u2014 sklearn TF-IDF + LogReg suggests lanes for unlabeled skills.\n\n**7. Scope traversal** \u2014 `nx.ancestors()` walks the `parent_id` chain: skill \u2192 lane \u2192 workstream \u2192 project."
+      }
+    },
+    "sec-stats": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "CURRENT STATE",
+        "title": "Graph Statistics",
+        "subtitle": "Live numbers from ~/.agents/skill-graph.json"
+      },
+      "children": [
+        "kpi-nodes",
+        "kpi-edges",
+        "kpi-skills",
+        "kpi-features",
+        "kpi-lanes",
+        "kpi-roles"
+      ]
+    },
+    "kpi-nodes": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "label": "Total Nodes",
+        "value": "155",
+        "delta": "+155 from session 0"
+      }
+    },
+    "kpi-edges": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "label": "Total Edges",
+        "value": "112",
+        "delta": "+112"
+      }
+    },
+    "kpi-skills": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "label": "Skills",
+        "value": "46",
+        "delta": "active"
+      }
+    },
+    "kpi-features": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "label": "Features (4 O's+Hermes+Claw)",
+        "value": "81",
+        "delta": "parity"
+      }
+    },
+    "kpi-lanes": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "label": "Operator Lanes",
+        "value": "4",
+        "delta": "\u03c7=4"
+      }
+    },
+    "kpi-roles": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "label": "Agent Roles",
+        "value": "24",
+        "delta": "expands_to"
+      }
+    },
+    "sec-lane-bucketing": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "BUCKETING",
+        "title": "Full Lane Classification \u2014 155 Nodes \u00d7 4 Lanes \u00d7 4 Kinds",
+        "subtitle": "Every node mapped, every edge counted"
+      },
+      "children": [
+        "lane-table",
+        "lane-cards"
+      ]
+    },
+    "lane-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "lane",
+            "label": "Lane"
+          },
+          {
+            "key": "stage",
+            "label": "Lifecycle Stage"
+          },
+          {
+            "key": "skills",
+            "label": "Skills"
+          },
+          {
+            "key": "features",
+            "label": "Features"
+          },
+          {
+            "key": "roles",
+            "label": "Roles"
+          },
+          {
+            "key": "edges",
+            "label": "Same-Lane Edges"
+          },
+          {
+            "key": "top",
+            "label": "Top Skill"
+          }
+        ],
+        "rows": [
+          {
+            "lane": "Shape",
+            "stage": "alignment",
+            "skills": "12",
+            "features": "6",
+            "roles": "7",
+            "edges": "25",
+            "top": "interview"
+          },
+          {
+            "lane": "Plan",
+            "stage": "crystallization",
+            "skills": "11",
+            "features": "3",
+            "roles": "5",
+            "edges": "19",
+            "top": "work"
+          },
+          {
+            "lane": "Deliver",
+            "stage": "execution",
+            "skills": "14",
+            "features": "11",
+            "roles": "7",
+            "edges": "32",
+            "top": "cdo"
+          },
+          {
+            "lane": "Close",
+            "stage": "validation",
+            "skills": "9",
+            "features": "8",
+            "roles": "5",
+            "edges": "26",
+            "top": "handoff"
+          }
+        ]
+      }
+    },
+    "lane-cards": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "**Shape (alignment)** \u2014 25 nodes total. `interview`, `brainstorming` (superseded), `prior-art`, `cass`, `cdo`, `arch`, `cass-memory`, `codebase-archaeology`, `skill-discovery`, `lev-research`, `sherlock`, `search`, `product-manager`, `ux-researcher`, `information-architect`. External: omx-01/02, ooo-01/03/11, omo-01.\n\n**Plan (crystallization)** \u2014 19 nodes. `planning-workflow`, `writing-plans`, `lev-plan`, `arch`, `lev-cdo`, `cdo-team`, `lev-align`, `review-queue`, `lev-roadmap`, `lev-sdlc`, `work`, `validate`. External: omx-05, ooo-05/10.\n\n**Deliver (execution)** \u2014 32 nodes. `executing-plans`, `subagent-driven-development`, `dispatching-parallel-agents`, `multi-agent-swarm-workflow`, `test-driven-development`, `systematic-debugging`, `multi-pass-bug-hunting`, `autodev-loop`, `simplify`, `ntm`, `agent-browser`, `lev-workshop`, `vibing-with-ntm`. External: omx-03/04/06/09, omc-01/03, ooo-07/08/09, omo-02, hm-03.\n\n**Close (validation)** \u2014 26 nodes. `verification-before-completion`, `requesting-code-review`, `receiving-code-review`, `codebase-audit`, `ubs`, `handoff`, `lev-align`, `de-slopify`, `finishing-a-development-branch`, `changelog-md-workmanship`, `readme-writing`. External: ooo-04/06, omc-02, omx-07, omo-03, hm-02, oc-01/02."
+      }
+    },
+    "sec-centrality": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "INTELLIGENCE \u00b7 CENTRALITY",
+        "title": "Bridge Finder \u2014 Top 10 by Betweenness",
+        "subtitle": "Who sits on the most paths between lanes?"
+      },
+      "children": [
+        "cent-table",
+        "cent-note"
+      ]
+    },
+    "cent-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "rank",
+            "label": "Rank"
+          },
+          {
+            "key": "node",
+            "label": "Node"
+          },
+          {
+            "key": "centrality",
+            "label": "Centrality"
+          },
+          {
+            "key": "lane",
+            "label": "Lane"
+          },
+          {
+            "key": "kind",
+            "label": "Kind"
+          }
+        ],
+        "rows": [
+          {
+            "rank": "1",
+            "node": "lane:deliver",
+            "centrality": "0.0074",
+            "lane": "deliver",
+            "kind": "lane"
+          },
+          {
+            "rank": "2",
+            "node": "lane:close",
+            "centrality": "0.0064",
+            "lane": "close",
+            "kind": "lane"
+          },
+          {
+            "rank": "3",
+            "node": "lane:shape",
+            "centrality": "0.0053",
+            "lane": "shape",
+            "kind": "lane"
+          },
+          {
+            "rank": "4",
+            "node": "lane:plan",
+            "centrality": "0.0033",
+            "lane": "plan",
+            "kind": "lane"
+          },
+          {
+            "rank": "5",
+            "node": "cdo",
+            "centrality": "0.0003",
+            "lane": "shape",
+            "kind": "skill"
+          },
+          {
+            "rank": "6",
+            "node": "omx-05",
+            "centrality": "0.0002",
+            "lane": "plan",
+            "kind": "feature"
+          },
+          {
+            "rank": "7",
+            "node": "omx-04",
+            "centrality": "0.0002",
+            "lane": "deliver",
+            "kind": "feature"
+          },
+          {
+            "rank": "8",
+            "node": "ooo-08",
+            "centrality": "0.0002",
+            "lane": "deliver",
+            "kind": "feature"
+          },
+          {
+            "rank": "9",
+            "node": "interview",
+            "centrality": "0.0000",
+            "lane": "shape",
+            "kind": "skill"
+          },
+          {
+            "rank": "10",
+            "node": "brainstorming",
+            "centrality": "0.0000",
+            "lane": "shape",
+            "kind": "skill"
+          }
+        ]
+      }
+    },
+    "cent-note": {
+      "type": "text",
+      "variant": "callout",
+      "props": {
+        "content": "**Reading:** Lane hubs dominate (as expected \u2014 they're the hubs of same_lane spokes). `cdo` is the highest-centrality non-lane skill, making it a true bridge between multiple concerns. `omx-04 / ooo-08` (Ralph persistent loop) shows up as a cross-framework attractor. `interview` and `brainstorming` tie at zero because they only connect to their lane hub. Graph distribution: mean=0.0002, median=0.0000 \u2014 the structure is hub-and-spoke, not mesh."
+      }
+    },
+    "sec-validations": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "INTELLIGENCE \u00b7 VALIDATION",
+        "title": "3 Independent Validations of the 4-Lane Model",
+        "subtitle": "Hand-authored taxonomy + NetworkX community + TopoNetX topology"
+      },
+      "children": [
+        "val-1",
+        "val-2",
+        "val-3",
+        "val-4"
+      ]
+    },
+    "val-1": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "01 NetworkX Community",
+        "content": "**95.10% lane agreement** across 3 algorithms.\n\nLouvain, Label Propagation, Greedy Modularity all find the same 4 dominant clusters.\n\nModularity = 0.69 (typical social graphs: 0.3-0.4). Plan lane is fuzziest at 0.86 purity."
+      }
+    },
+    "val-2": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "02 TopoNetX Euler \u03c7",
+        "content": "**\u03c7 = 4** \u2014 exactly 4 contractible discs.\n\n78 nodes, 148 edges, 74 rank-2 cells.\n\nThe lifecycle ring (shape\u2192plan\u2192deliver\u2192close) closes cleanly as a higher-level 2-cell. Drift alarm ready for future seeds."
+      }
+    },
+    "val-3": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "03 Hand-Authored Taxonomy",
+        "content": "`.lev/pm/manifests/skill-taxonomy-v1.yaml`\n\n42 external features + 68 skills mapped by hand from session context + adoption matrix.\n\nMath agrees with author. That's the whole point."
+      }
+    },
+    "val-4": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "04 sklearn Macro-F1",
+        "content": "**0.2143** on 10-sample test set.\n\nBelow the threshold (0.6) to beat trivial baselines. Expected at 46 labeled skills / 4 classes.\n\nFlip trigger: >1000 nodes or <0.6 F1. Baseline exists for when graph grows."
+      }
+    },
+    "sec-duplicates": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "INTELLIGENCE \u00b7 DEDUP",
+        "title": "Duplicate Detector \u2014 Merge Candidates",
+        "subtitle": "difflib fuzzy matching across same-lane pairs"
+      },
+      "children": [
+        "dup-table",
+        "dup-note"
+      ]
+    },
+    "dup-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "a",
+            "label": "A"
+          },
+          {
+            "key": "b",
+            "label": "B"
+          },
+          {
+            "key": "sim",
+            "label": "Similarity"
+          },
+          {
+            "key": "lane",
+            "label": "Lane"
+          },
+          {
+            "key": "action",
+            "label": "Action"
+          }
+        ],
+        "rows": [
+          {
+            "a": "subagent-driven-development",
+            "b": "test-driven-development",
+            "sim": "84.0%",
+            "lane": "deliver",
+            "action": "KEEP BOTH \u2014 semantically distinct"
+          }
+        ]
+      }
+    },
+    "dup-note": {
+      "type": "text",
+      "variant": "callout",
+      "props": {
+        "content": "Only 1 pair found. False positive \u2014 the names share `-driven-development` suffix but the skills are semantically distinct (subagent coordination vs TDD discipline). The detector correctly fires on surface similarity, but semantic judgment stays human. This is the point: graph intelligence SURFACES candidates, humans DECIDE."
+      }
+    },
+    "sec-gates": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "INTELLIGENCE \u00b7 GATES",
+        "title": "Promotion Gates \u2014 Codex-Ratchet Framework",
+        "subtitle": "5 general requirements + 4 specific gates"
+      },
+      "children": [
+        "gate-table"
+      ]
+    },
+    "gate-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "gate",
+            "label": "Gate"
+          },
+          {
+            "key": "desc",
+            "label": "Description"
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          },
+          {
+            "key": "evidence",
+            "label": "Evidence"
+          }
+        ],
+        "rows": [
+          {
+            "gate": "Negative proof",
+            "desc": "Does removing it break something measurable?",
+            "status": "\u2b1c Pending",
+            "evidence": "No SIM yet"
+          },
+          {
+            "gate": "Pydantic schema",
+            "desc": "Typed contract exists",
+            "status": "\u2705 PASS",
+            "evidence": "schema.py: SkillNode, SkillEdge, SkillGraph"
+          },
+          {
+            "gate": "JSON round-trip",
+            "desc": "Serialize \u2192 deserialize identical",
+            "status": "\u2705 PASS",
+            "evidence": "7/7 gate tests in 0.31s"
+          },
+          {
+            "gate": "No sidecar at read",
+            "desc": "Read works with only Pydantic+JSON+NetworkX+YAML",
+            "status": "\u2705 PASS",
+            "evidence": "Verified via sys.modules purge"
+          },
+          {
+            "gate": "Human audit",
+            "desc": "At least one human verified",
+            "status": "\u2b1c Pending",
+            "evidence": "Requires human review ceremony"
+          },
+          {
+            "gate": "Gate 1: Lane coverage",
+            "desc": "Promote TopoNetX 2-cells to owner",
+            "status": "\u2b1c Blocked",
+            "evidence": "Missing negative SIM + round-trip"
+          },
+          {
+            "gate": "Gate 2: Chirality payload",
+            "desc": "Promote clifford payloads to owner",
+            "status": "\u2b1c DEFERRED",
+            "evidence": "Using chirality: int instead"
+          },
+          {
+            "gate": "Gate 3: Edge prediction",
+            "desc": "Promote sklearn/PyG predictions to owner",
+            "status": "\u2b1c Blocked",
+            "evidence": "Needs human validator"
+          },
+          {
+            "gate": "Gate 4: Semantic retrieval",
+            "desc": "Promote LightRAG index to owner",
+            "status": "\u2b1c NEVER",
+            "evidence": "Can't meet no-sidecar-at-read"
+          }
+        ]
+      }
+    },
+    "sec-sidecars": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "INTELLIGENCE \u00b7 SIDECARS",
+        "title": "6 Sidecars \u2014 Bounded Read-Only Projections",
+        "subtitle": "Each reads the owner graph, writes to ~/.cache/lev/harness/skill-graph/"
+      },
+      "children": [
+        "sc-table"
+      ]
+    },
+    "sc-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "sidecar",
+            "label": "Sidecar"
+          },
+          {
+            "key": "deps",
+            "label": "Deps"
+          },
+          {
+            "key": "reads",
+            "label": "Owner-Read"
+          },
+          {
+            "key": "writes",
+            "label": "Writes To"
+          },
+          {
+            "key": "verdict",
+            "label": "Verdict"
+          }
+        ],
+        "rows": [
+          {
+            "sidecar": "toponetx_alarm.py",
+            "deps": "toponetx 0.4.0",
+            "reads": "skill-graph.json",
+            "writes": "toponetx_reports/alarm.json",
+            "verdict": "\u2705 Runs, \u03c7=4 PASS"
+          },
+          {
+            "sidecar": "bridge_finder.py",
+            "deps": "networkx (core)",
+            "reads": "skill-graph.json",
+            "writes": "stdout only",
+            "verdict": "\u2705 Top 10 logged"
+          },
+          {
+            "sidecar": "sklearn_lane_predictor.py",
+            "deps": "scikit-learn",
+            "reads": "skill-graph.json",
+            "writes": "sklearn_predictions/*.jsonl",
+            "verdict": "\u26a0 F1=0.21 (below floor)"
+          },
+          {
+            "sidecar": "duplicate_detector.py",
+            "deps": "difflib (stdlib)",
+            "reads": "skill-graph.json",
+            "writes": "stdout only",
+            "verdict": "\u2705 1 candidate, false positive"
+          },
+          {
+            "sidecar": "batch_tagger.py",
+            "deps": "stdlib",
+            "reads": "~/.agents/skills/*/",
+            "writes": "skills-state.json",
+            "verdict": "\u2705 mtime clustering"
+          },
+          {
+            "sidecar": "graph_diff.py",
+            "deps": "stdlib",
+            "reads": "two snapshots",
+            "writes": "stdout only",
+            "verdict": "\u2705 Zero-diff smoke test"
+          }
+        ]
+      }
+    },
+    "sec-spikes-all": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "SPIKES \u00b7 ALL 25",
+        "title": "Research \u2192 Application",
+        "subtitle": "Batch 1 (1-10) explored. Batch 2 (11-25) applied."
+      },
+      "children": [
+        "sp-batch1",
+        "sp-batch2-schema",
+        "sp-batch2-sidecars",
+        "sp-batch2-integration"
+      ]
+    },
+    "sp-batch1": {
+      "type": "card",
+      "variant": "feature",
+      "props": {
+        "title": "Batch 1 \u2014 Research (10)",
+        "content": "**01** Gephi Lite viewer \u00b7 **02** Gate pytest 7/7 \u00b7 **03** PyG SKIP (<GNN floor) \u00b7 **04** TopoNetX \u03c7=4 \u00b7 **05** clifford SKIP (numpy pin) \u00b7 **06** LightRAG DEFER (descs too short) \u00b7 **07** NetworkX 95.10% \u00b7 **08** Hopf SIMPLIFY \u00b7 **09** Obsidian 13,678 files \u2192 Phase A \u00b7 **10** Resolver working."
+      }
+    },
+    "sp-batch2-schema": {
+      "type": "card",
+      "variant": "feature",
+      "props": {
+        "title": "Batch 2 \u2014 Schema (3)",
+        "content": "**11** `chirality: int` on SkillEdge, 6 directed kinds \u00b7 **12** `ScopeLevel` enum + `parent_id` for nesting \u00b7 **13** Description backfill from SKILL.md frontmatter."
+      }
+    },
+    "sp-batch2-sidecars": {
+      "type": "card",
+      "variant": "feature",
+      "props": {
+        "title": "Batch 2 \u2014 Sidecars (6)",
+        "content": "**14** TopoNetX Euler alarm \u00b7 **15** sklearn TF-IDF classifier \u00b7 **16** Bridge finder (betweenness) \u00b7 **18** Batch tagger (mtime clusters) \u00b7 **19** Duplicate detector (difflib) \u00b7 **24** Graph diff tool."
+      }
+    },
+    "sp-batch2-integration": {
+      "type": "card",
+      "variant": "feature",
+      "props": {
+        "title": "Batch 2 \u2014 Integration (5)",
+        "content": "**17** CLI dispatcher (resolve/list/prereqs/stats) \u00b7 **20** Keep-list YAML fix + lifecycle marker \u00b7 **21** /now dashboard \u00b7 **22** Full ceremony run \u00b7 **23** FlowMind export (pending) \u00b7 **25** README front door."
+      }
+    },
+    "sec-schema": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "SCHEMA",
+        "title": "Pydantic Owner Model",
+        "subtitle": "SkillNode + SkillEdge + SkillGraph \u2014 all fields exposed"
+      },
+      "children": [
+        "schema-table"
+      ]
+    },
+    "schema-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "class",
+            "label": "Class"
+          },
+          {
+            "key": "field",
+            "label": "Field"
+          },
+          {
+            "key": "type",
+            "label": "Type"
+          },
+          {
+            "key": "default",
+            "label": "Default"
+          },
+          {
+            "key": "purpose",
+            "label": "Purpose"
+          }
+        ],
+        "rows": [
+          {
+            "class": "SkillNode",
+            "field": "id",
+            "type": "str",
+            "default": "\u2014",
+            "purpose": "unique identifier (skill://<id>)"
+          },
+          {
+            "class": "SkillNode",
+            "field": "kind",
+            "type": "NodeKind",
+            "default": "\u2014",
+            "purpose": "skill|feature|role|lane|flow|entity"
+          },
+          {
+            "class": "SkillNode",
+            "field": "name",
+            "type": "str",
+            "default": "\u2014",
+            "purpose": "human-readable name"
+          },
+          {
+            "class": "SkillNode",
+            "field": "description",
+            "type": "str",
+            "default": "\"\"",
+            "purpose": "from SKILL.md frontmatter (spike 13)"
+          },
+          {
+            "class": "SkillNode",
+            "field": "lane",
+            "type": "Lane?",
+            "default": "None",
+            "purpose": "shape|plan|deliver|close|cross"
+          },
+          {
+            "class": "SkillNode",
+            "field": "scope",
+            "type": "ScopeLevel",
+            "default": "SKILL",
+            "purpose": "skill|lane|workstream|project (spike 12)"
+          },
+          {
+            "class": "SkillNode",
+            "field": "parent_id",
+            "type": "str?",
+            "default": "None",
+            "purpose": "nesting pointer (spike 12)"
+          },
+          {
+            "class": "SkillNode",
+            "field": "lifecycle",
+            "type": "Lifecycle",
+            "default": "active",
+            "purpose": "active|archived|workshop|todo|deprecated"
+          },
+          {
+            "class": "SkillNode",
+            "field": "usage_7d",
+            "type": "int",
+            "default": "0",
+            "purpose": "recent mention count"
+          },
+          {
+            "class": "SkillNode",
+            "field": "usage_30d",
+            "type": "int",
+            "default": "0",
+            "purpose": "CASS history count"
+          },
+          {
+            "class": "SkillNode",
+            "field": "rotation_weight",
+            "type": "float",
+            "default": "1.0",
+            "purpose": "surfacing bias (1.35 for premium)"
+          },
+          {
+            "class": "SkillNode",
+            "field": "premium_batch",
+            "type": "str?",
+            "default": "None",
+            "purpose": "mtime cluster tag (spike 18)"
+          },
+          {
+            "class": "SkillNode",
+            "field": "tags",
+            "type": "list[str]",
+            "default": "[]",
+            "purpose": "semantic tags"
+          },
+          {
+            "class": "SkillEdge",
+            "field": "source",
+            "type": "str",
+            "default": "\u2014",
+            "purpose": "source node ID"
+          },
+          {
+            "class": "SkillEdge",
+            "field": "target",
+            "type": "str",
+            "default": "\u2014",
+            "purpose": "target node ID"
+          },
+          {
+            "class": "SkillEdge",
+            "field": "kind",
+            "type": "EdgeKind",
+            "default": "\u2014",
+            "purpose": "9 kinds: depends_on, supersedes, \u2026"
+          },
+          {
+            "class": "SkillEdge",
+            "field": "weight",
+            "type": "float",
+            "default": "1.0",
+            "purpose": "edge weight for ranking"
+          },
+          {
+            "class": "SkillEdge",
+            "field": "chirality",
+            "type": "int",
+            "default": "0",
+            "purpose": "0=commutative, +1=forward, -1=reverse (spike 11)"
+          },
+          {
+            "class": "SkillEdge",
+            "field": "metadata",
+            "type": "dict",
+            "default": "{}",
+            "purpose": "free-form"
+          }
+        ]
+      }
+    },
+    "sec-metadata": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "METADATA \u00b7 EDGE KINDS",
+        "title": "9 Edge Kinds \u2014 Full Semantic Vocabulary",
+        "subtitle": "Which are chiral, what they encode"
+      },
+      "children": [
+        "edge-table"
+      ]
+    },
+    "edge-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "kind",
+            "label": "Edge Kind"
+          },
+          {
+            "key": "chirality",
+            "label": "Chirality"
+          },
+          {
+            "key": "count",
+            "label": "Count"
+          },
+          {
+            "key": "meaning",
+            "label": "Meaning"
+          },
+          {
+            "key": "example",
+            "label": "Example"
+          }
+        ],
+        "rows": [
+          {
+            "kind": "depends_on",
+            "chirality": "+1",
+            "count": "0",
+            "meaning": "A requires B",
+            "example": "deploy depends_on build"
+          },
+          {
+            "kind": "supersedes",
+            "chirality": "+1",
+            "count": "2",
+            "meaning": "A replaces B",
+            "example": "interview supersedes brainstorming"
+          },
+          {
+            "kind": "same_lane",
+            "chirality": "0",
+            "count": "75",
+            "meaning": "A and B in same operator lane",
+            "example": "work \u2194 lane:plan"
+          },
+          {
+            "kind": "enriches",
+            "chirality": "0",
+            "count": "0",
+            "meaning": "A enhances B",
+            "example": "\u2014"
+          },
+          {
+            "kind": "implements",
+            "chirality": "+1",
+            "count": "8",
+            "meaning": "skill A implements feature B",
+            "example": "work implements omx-04"
+          },
+          {
+            "kind": "routes_to",
+            "chirality": "+1",
+            "count": "0",
+            "meaning": "router dispatches",
+            "example": "\u2014"
+          },
+          {
+            "kind": "expands_to",
+            "chirality": "+1",
+            "count": "27",
+            "meaning": "lane fans out to roles",
+            "example": "lane:shape expands_to explore"
+          },
+          {
+            "kind": "compiles_to",
+            "chirality": "+1",
+            "count": "0",
+            "meaning": "flow compiles to graph",
+            "example": "\u2014"
+          },
+          {
+            "kind": "premium_batch",
+            "chirality": "0",
+            "count": "0",
+            "meaning": "imported in same mtime cluster",
+            "example": "\u2014"
+          }
+        ]
+      }
+    },
+    "sec-promoted": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "PROMOTED",
+        "title": "5 Promotions Applied",
+        "subtitle": "Shipped in this session"
+      },
+      "children": [
+        "pr-1",
+        "pr-2",
+        "pr-3",
+        "pr-4",
+        "pr-5"
+      ]
+    },
+    "pr-1": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Chirality Int",
+        "content": "Added `chirality: int = 0` to SkillEdge. 6 directed edge kinds set to +1. No clifford needed."
+      }
+    },
+    "pr-2": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Scope Nesting",
+        "content": "`ScopeLevel` enum (SKILL/LANE/WORKSTREAM/PROJECT) + `parent_id` field. Hierarchical queries via `nx.ancestors()`."
+      }
+    },
+    "pr-3": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Description Backfill",
+        "content": "Parse SKILL.md frontmatter in seed.py. Populates `SkillNode.description`. Resolver fuzzy search works now."
+      }
+    },
+    "pr-4": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "TopoNetX Alarm",
+        "content": "Sidecar runs on every seed rebuild. \u03c7 \u2260 4 = lane degradation. Single scalar drift alarm."
+      }
+    },
+    "pr-5": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "sklearn Baseline",
+        "content": "TF-IDF + LogReg lane classifier. Current macro-F1 = 0.21 (too small). Ready for when graph grows."
+      }
+    },
+    "sec-deferred": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "DEFERRED",
+        "title": "5 Deferrals \u2014 Not Yet Worth It",
+        "subtitle": "Each has a flip trigger"
+      },
+      "children": [
+        "df-1",
+        "df-2",
+        "df-3",
+        "df-4",
+        "df-5"
+      ]
+    },
+    "df-1": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "PyTorch Geometric",
+        "content": "**Flip trigger:** >1k nodes or sklearn F1 < 0.6.\n\nReason: 155 < GNN floor. sklearn baseline covers it."
+      }
+    },
+    "df-2": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "clifford",
+        "content": "**Flip trigger:** Never.\n\nReason: numpy 2.0 pin conflict + `chirality: int` captures the 1 bit we need."
+      }
+    },
+    "df-3": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "LightRAG",
+        "content": "**Flip trigger:** >500 nodes + >200 char descs + >100 queries/day.\n\nReason: substring wins at 155 nodes with 60-char descriptions."
+      }
+    },
+    "df-4": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Obsidian Full Import",
+        "content": "**Flip trigger:** Downstream consumer exists for prior knowledge.\n\nReason: 6k nodes would swamp 155. Phase A only."
+      }
+    },
+    "df-5": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "kingdon",
+        "content": "**Flip trigger:** Notebook-driven exploration.\n\nReason: Jupyter widget stack bloat for headless runtime."
+      }
+    },
+    "sec-next": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "NEXT",
+        "title": "What Follows",
+        "subtitle": "The owner stack is locked. The muscle comes next."
+      },
+      "children": [
+        "next-body"
+      ]
+    },
+    "next-body": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "**Short term:** Spike 23 FlowMind export completes. Backfill descriptions for the 24 role nodes that are still dangling (they wire via expands_to, not same_lane \u2014 TopoNetX spike 4 finding). Run duplicate_detector nightly to surface merges as they emerge.\n\n**Medium term:** Connect skill-graph.json to `~/.agents/skills-inventory.jsonl` so the canonical sources stay in sync. Extend the CLI with `skill://` URI dispatch so `lev exec skill://work` actually resolves through the graph.\n\n**Long term:** Phase A Obsidian import of 200-500 CROSS_VALIDATED nodes \u2014 the first prior-knowledge injection. Then the sklearn F1 threshold to unlock PyG. Then the LightRAG threshold for semantic queries. Each flip is gated by measurable criteria, not hunch.\n\nThe graph analyzes itself. Every sidecar adds a form of intelligence. The more we run them, the more the graph earns its keep."
+      }
+    }
+  }
+}

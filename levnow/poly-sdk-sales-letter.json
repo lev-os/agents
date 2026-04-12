@@ -1,0 +1,232 @@
+{
+  "meta": {
+    "title": "Leviathan — One dispatch loop. Every surface.",
+    "description": "How Poly, registry routing, DNA exec contracts, and @lev-os packages turn agent work into auditable execution—not another chat thread.",
+    "effects": ["card-glow", "hero-gradient"]
+  },
+  "theme": {
+    "preset": "terracotta-sage",
+    "mode": "light"
+  },
+  "root": [
+    "hero",
+    "section-promise",
+    "section-pillars",
+    "section-dispatch",
+    "section-contracts",
+    "section-packages",
+    "section-honest",
+    "section-cta"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "centered",
+      "props": {
+        "category": "EXECUTION",
+        "title": "Ship agent work like infrastructure—not improvisation",
+        "subtitle": "Poly is the registry-driven dispatch layer: daemons first, cold binaries when needed, typed runners for the long tail. DNA locks the exec contract so orchestration stays out of the hot path.",
+        "meta": "Leviathan · open agent runtime"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "If your team is tired of “it worked in the demo thread,” you need the same thing production software always needed: **routing you can explain**, **handlers you can swap**, and **contracts that don’t silently fork**."
+      }
+    },
+    "section-promise": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "WHY THIS MATTERS",
+        "title": "Chat is alignment. Execution is the product.",
+        "subtitle": "Leviathan is built for teams who want receipts: declarative surfaces (CLI, MCP, HTTP, gRPC, and more), graph-aware work, and a harness that treats `lev exec` as first-class—not a bolt-on script."
+      },
+      "children": ["text-promise"]
+    },
+    "text-promise": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "Most “agent platforms” optimize for the message UI. Leviathan optimizes for the **dispatch loop**: who is allowed to run, how overload is handled, what events get emitted, and how capability is described as data (cards, topology, manifests) instead of tribal knowledge.\n\n**Poly** is the SDK-shaped entry to that loop: one `call(provider, method, ctx)` that resolves through a cached registry and lands on the right transport—HTTP daemons, local binaries, or registered `lev://` handlers—without turning your repo into a maze of one-off integrations."
+      }
+    },
+    "section-pillars": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "THREE PILLARS",
+        "title": "What “runtime-grade” looks like here",
+        "subtitle": "Concrete mechanisms, not slogans."
+      },
+      "children": ["card-registry", "card-exec-dna", "card-surfaces"]
+    },
+    "card-registry": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "🔀 Registry-first routing",
+        "content": "Load `registry-runtime.yaml` / `registry.yaml`, match **daemons** (HTTP/S when healthy), fall back to **binaries**, then **runners** keyed as `provider:method`. Same mental model as internal service discovery—because agents are services."
+      }
+    },
+    "card-exec-dna": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "📜 DNA-locked exec contract",
+        "content": "`exec-contract` defines how `@lev-os/exec` behaves: bounded concurrency, backpressure, event sequences (`exec.started`, `exec.completed`, `exec.failed`), and a hard line—**no sneaking orchestration into exec**. Adapters stay honest; the control plane stays separate."
+      }
+    },
+    "card-surfaces": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "🧭 Surfaces, not a default chat protocol",
+        "content": "Domain types describe **capabilities** and **surfaces** (CLI, MCP, HTTP, gRPC, …). The product story is “route work to the right interface,” not “everything is a thread.” Chat overlays exist where they help; they don’t define the architecture."
+      }
+    },
+    "section-dispatch": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "UNDER THE HOOD",
+        "title": "The Poly dispatch order (the part buyers audit)",
+        "subtitle": "Fast path → cold path → codegen handler path."
+      },
+      "children": ["timeline-dispatch", "code-snippet"]
+    },
+    "timeline-dispatch": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          {
+            "date": "1",
+            "title": "Daemons",
+            "description": "If a provider maps to a healthy HTTP/HTTPS daemon, call across the wire with executeHandler — same primitive the SDK uses for remote surfaces.",
+            "status": "completed"
+          },
+          {
+            "date": "2",
+            "title": "Binaries",
+            "description": "On failure (or when configured), fall back to registered binaries — spawned processes with structured args, not shell improvisation.",
+            "status": "completed"
+          },
+          {
+            "date": "3",
+            "title": "Runners",
+            "description": "Registry runners resolve provider:method to handlers — lev:// modules dynamically imported, or bin:// paths with manifest-mapped flags.",
+            "status": "in-progress"
+          }
+        ]
+      }
+    },
+    "code-snippet": {
+      "type": "code-block",
+      "props": {
+        "content": "// Canonical entry: @lev-os/poly — call(provider, method, ctx)\n// → registry load → daemon | binary | runner → handler executor\n\nawait call(\"my.provider\", \"doThing\", { input: \"...\" });",
+        "language": "typescript",
+        "filename": "poly-call.ts"
+      }
+    },
+    "section-contracts": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "CLARITY",
+        "title": "Two URI worlds—on purpose",
+        "subtitle": "Strict route objects vs. filesystem-backed handler modules."
+      },
+      "children": ["card-routes", "card-handlers"]
+    },
+    "card-routes": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Route.parse (lev://module/fractal/item)",
+        "content": "The domain **Route** type enforces a three-segment shape for structured addressing—great for graph-native links and tooling."
+      }
+    },
+    "card-handlers": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Handler executor (lev:// → import path)",
+        "content": "The **codegen executor** resolves `lev://` to workspace-relative modules (`plugins/`, `core/`, `packages/`) and invokes `module[method](ctx)`. When you need both, document the hand-off—Leviathan’s codebase is honest that these segment rules differ today."
+      }
+    },
+    "section-packages": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "PLATFORM",
+        "title": "Representative @lev-os packages (execution stack)",
+        "subtitle": "A slice of the workspace—enough to see the spine: domain types, exec, poly, harness, graph, flowmind."
+      },
+      "children": ["table-packages"]
+    },
+    "table-packages": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "pkg", "label": "Package" },
+          { "key": "role", "label": "Role" }
+        ],
+        "rows": [
+          { "pkg": "@lev-os/domain", "role": "Poly-protocol types, Route, ARM, shared vocabulary" },
+          { "pkg": "@lev-os/exec", "role": "Execution boundary + client facade (DNA: exec-contract)" },
+          { "pkg": "@lev-os/poly", "role": "Registry dispatch, transports, `call` / `executeHandler`" },
+          { "pkg": "@lev-os/harness-sdk", "role": "Harness: `lev exec`, runners, manifests" },
+          { "pkg": "@lev-os/flowmind", "role": "Declarative control plane (workflows, ticks)" },
+          { "pkg": "@lev-os/graph", "role": "Graph-native state and operations" },
+          { "pkg": "@lev-os/plugin-manager", "role": "Plugin lifecycle and composition" }
+        ]
+      }
+    },
+    "section-honest": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "TRUST",
+        "title": "E-E-A-T for technical buyers",
+        "subtitle": "Experience, expertise, authority, transparency."
+      },
+      "children": ["quote-trust", "text-trust"]
+    },
+    "quote-trust": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": {
+        "content": "ARM means **Agent Runtime Manifest** here—YAML manifests that normalize to capability cards—not CPU architecture. Naming is load-bearing; we say it plainly."
+      }
+    },
+    "text-trust": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "This page is a **sales letter**, not a spec: it translates repo-grounded behavior into buyer language. When you’re ready to go deeper, the same concepts appear as contracts (`dna/core/exec.dna.yaml`), types (`core/domain/src/poly-protocol/`), and the Poly SDK entrypoint (`core/poly/src/sdk/index.ts`).\n\n**What you should do next:** run your own audit—trace one provider end-to-end, compare event logs to DNA expectations, and decide whether your organization wants chat-shaped demos or runtime-shaped shipping."
+      }
+    },
+    "section-cta": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "NEXT STEP",
+        "title": "If execution is the product, prove it in your environment",
+        "subtitle": "Fork the repo, wire one runner, emit one receipted `lev exec` path—then scale."
+      },
+      "children": ["card-cta"]
+    },
+    "card-cta": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Evaluate Leviathan where it wins",
+        "content": "Multi-surface agents, contract-first exec, registry routing, and graph-aware work—not a single-vendor chat lock-in. **Clone, integrate, measure.** If the dispatch story doesn’t hold up in your stack, you’ll know quickly—that’s the point."
+      }
+    }
+  }
+}

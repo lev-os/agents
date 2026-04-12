@@ -1,0 +1,490 @@
+{
+  "meta": {
+    "title": "Stigmergy: Leviathan Through the Elixir Lens",
+    "description": "OTP Supervision Trees, Graph-Addressed Mail, and the Missing Memory Layer — mapping Leviathan's core modules to Erlang/OTP primitives.",
+    "layout": "sidebar-toc",
+    "effects": ["grid-dots", "card-glow"]
+  },
+  "theme": { "preset": "deep-blue-gold", "mode": "dark" },
+  "root": [
+    "hero",
+    "section-elixir-mapping",
+    "section-stickmergy-memory",
+    "section-rich-node-model",
+    "section-addressing-modes",
+    "section-dna-supervision",
+    "section-zone-heat-map",
+    "section-naming-consolidation",
+    "section-runtime-joins",
+    "section-levmail-upgrade",
+    "section-precedent"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "ARCHITECTURE OVERVIEW",
+        "title": "Stigmergy: Leviathan Through the Elixir Lens",
+        "subtitle": "OTP Supervision Trees, Graph-Addressed Mail, and the Missing Memory Layer",
+        "meta": "April 2026 · Leviathan Architecture Series"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "Leviathan's core/ modules map almost 1:1 onto Erlang/OTP primitives — GenServers, Supervisors, Registries, PubSub. This page makes the mapping explicit, reveals the memory layer that completes the picture, and charts the path from today's levmail to tomorrow's graph-addressed bulletin system."
+      }
+    },
+
+    "section-elixir-mapping": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "MODULE TAXONOMY",
+        "title": "The Elixir Mapping",
+        "subtitle": "Every core/ module has an OTP counterpart. Here's the Rosetta Stone."
+      },
+      "children": [
+        "card-graph", "card-flowmind", "card-poly", "card-orchestration", "card-config",
+        "card-harness", "card-memory", "card-event-bus", "card-afk", "card-daemon"
+      ]
+    },
+    "card-graph": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "🔷 graph → GenServer + Registry + PubSub",
+        "content": "Holds entity state, dispatches events, registers flows. The FlowRegistry bridges GenServer state management with PubSub event distribution."
+      }
+    },
+    "card-flowmind": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "⚙️ flowmind → Application + Compiler",
+        "content": "Loads YAML IR, compiles to executable graph operations, manages sessions. The Application behavior spec that boots the system's brain."
+      }
+    },
+    "card-poly": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "🔀 poly → Registry + Supervisor dispatch",
+        "content": "Named handler lookup, surface routing (CLI / MCP / HTTP / gRPC / WS). **RENAME CANDIDATE** — it's really the handler registry + surface multiplexer."
+      }
+    },
+    "card-orchestration": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "🎯 orchestration → Supervisor + Task + GenStage",
+        "content": "DAG waves, queues, execution contracts, loop machinery. The heavy-duty process orchestration layer."
+      }
+    },
+    "card-config": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "📐 config → Application.get_env",
+        "content": "Fractal cascading config resolution. Reads from DNA, project, user, and global scopes — just like `Application.get_env` with nested fallback."
+      }
+    },
+    "card-harness": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "🧪 harness → Supervisor + DynamicSupervisor",
+        "content": "Process lifecycle, agent sessions, multi-provider dispatch. DynamicSupervisor because agent sessions are started and stopped at runtime."
+      }
+    },
+    "card-memory": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "🧠 memory → Registry + GenServer facade",
+        "content": "Backend registry, hybrid orchestrator. Routes to the right memory backend (episodic, procedural, semantic) through a unified GenServer facade."
+      }
+    },
+    "card-event-bus": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "📡 event-bus → Phoenix.PubSub",
+        "content": "Event routing. Topic-based publish/subscribe with the same semantics as Phoenix.PubSub — fire, subscribe, broadcast."
+      }
+    },
+    "card-afk": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "🤖 afk → Supervisor with max_restarts kill gates",
+        "content": "Autonomous run supervision. Like a Supervisor that counts restarts and kills the child permanently when it crosses the threshold."
+      }
+    },
+    "card-daemon": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "🌳 daemon → Application / Supervisor root",
+        "content": "Daemon lifecycle, startup tree. The root of the supervision tree — `Application.start` that boots every other process."
+      }
+    },
+
+    "section-stickmergy-memory": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "MEMORY ARCHITECTURE",
+        "title": "Stigmergy: The Missing Memory Layer",
+        "subtitle": "Four memory types complete the cognitive stack. Three exist. One is designed and ready to build."
+      },
+      "children": ["table-memory-types"]
+    },
+    "table-memory-types": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "type", "label": "Type" },
+          { "key": "stores", "label": "What It Stores" },
+          { "key": "access", "label": "Access Pattern" },
+          { "key": "primitive", "label": "Current Primitive" },
+          { "key": "status", "label": "Status" }
+        ],
+        "rows": [
+          { "type": "Episodic", "stores": "What happened", "access": "`cass search`", "primitive": "Session transcripts", "status": { "text": "EXISTS", "status": "match" } },
+          { "type": "Procedural", "stores": "How to do things", "access": "`cm context`, skill loader", "primitive": "Playbooks, skills", "status": { "text": "EXISTS", "status": "match" } },
+          { "type": "Semantic", "stores": "Entities + relationships", "access": "`graph.query`, `graph.walk`", "primitive": "EntityGraph", "status": { "text": "EXISTS", "status": "match" } },
+          { "type": "Topological", "stores": "What agents learned about a region", "access": "Walk graph, encounter bulletins", "primitive": "Bulletin (graph-addressed mail)", "status": { "text": "NEW — DESIGNED", "status": "info" } }
+        ]
+      }
+    },
+
+    "section-rich-node-model": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": {
+        "label": "NODE ARCHITECTURE",
+        "title": "The Rich Node Model",
+        "subtitle": "Each graph node accumulates facets over time. Here's what sticks — and who reads it."
+      },
+      "children": [
+        "pipe-dna", "pipe-config", "pipe-hooks", "pipe-exec-history",
+        "pipe-agent-trace", "pipe-bulletins", "pipe-manifestation"
+      ]
+    },
+    "pipe-dna": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "DNA",
+        "content": "Constraint definitions, behaviors, failure modes, validation rules. Written by architects, read by every runtime process."
+      }
+    },
+    "pipe-config": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Config",
+        "content": "Resolved configuration values from fractal cascade. Written by config resolver, read by handlers and orchestration."
+      }
+    },
+    "pipe-hooks": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Hooks",
+        "content": "Lifecycle callbacks — pre/post execution, validation gates, side-effect triggers. Written by plugin authors, read by harness."
+      }
+    },
+    "pipe-exec-history": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Exec History",
+        "content": "Run records, pass/fail, timing, resource usage. Written by orchestration, read by FlowMind and dashboards."
+      }
+    },
+    "pipe-agent-trace": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Agent Trace",
+        "content": "Which agent touched this node, when, what it did. Written by harness sessions, read by coordination and audit."
+      }
+    },
+    "pipe-bulletins": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Bulletins",
+        "content": "Graph-addressed mail with TTL decay and cascade radius. Written by any agent, read by agents traversing the region. **NEW.**"
+      }
+    },
+    "pipe-manifestation": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Manifestation",
+        "content": "Final rendered output — the artifact this node produces. Written by surface renderers, read by users and downstream consumers."
+      }
+    },
+
+    "section-addressing-modes": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "MAIL ROUTING",
+        "title": "Three Addressing Modes",
+        "subtitle": "From point-to-point to topological proximity — three ways to route information."
+      },
+      "children": ["card-direct", "card-broadcast", "card-bulletin"]
+    },
+    "card-direct": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "📬 Direct",
+        "content": "**to: agent://A3** — Point-to-point delivery. Only A3 sees it. Standard levmail behavior today."
+      }
+    },
+    "card-broadcast": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "📢 Broadcast",
+        "content": "**to: graph://* cascade: inf** — Everyone sees it. Current all-agents broadcast. No topology awareness."
+      }
+    },
+    "card-bulletin": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "📌 Bulletin",
+        "content": "**to: graph://<node> cascade: N** — Topological proximity with bounded spread. Agents within N hops encounter the message. **NEW.**"
+      }
+    },
+
+    "section-dna-supervision": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "DNA ↔ OTP",
+        "title": "DNA as Supervision Specs",
+        "subtitle": "DNA constraint files map directly to OTP child_spec fields — fault tolerance, observability, and restart policy."
+      },
+      "children": ["table-dna-otp"]
+    },
+    "table-dna-otp": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "dna", "label": "DNA Field" },
+          { "key": "otp", "label": "OTP child_spec" },
+          { "key": "purpose", "label": "Purpose" }
+        ],
+        "rows": [
+          { "dna": "`constraints`", "otp": "`restart:`, `shutdown:` policies", "purpose": "When and how to restart" },
+          { "dna": "`behaviors`", "otp": "Module callbacks / `@behaviour`", "purpose": "What the process does" },
+          { "dna": "`failure_modes`", "otp": "`max_restarts`, `max_seconds`", "purpose": "Fault tolerance bounds" },
+          { "dna": "`validation`", "otp": "Telemetry / health checks", "purpose": "Observability" }
+        ]
+      }
+    },
+
+    "section-zone-heat-map": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "TOPOLOGY",
+        "title": "FlowMind Zone Heat Map",
+        "subtitle": "Bulletin density and agent activity create four zone types across the graph."
+      },
+      "children": ["card-hot", "card-cold", "card-conflict", "card-settled"]
+    },
+    "card-hot": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "🔴 Hot Zone",
+        "content": "Many recent bulletins, multiple agents active. **Action:** Coordinate before touching — high collision risk."
+      }
+    },
+    "card-cold": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "🔵 Cold Zone",
+        "content": "No bulletins, no claims. The output of `findGaps()`. **Action:** Unexplored territory — safe to claim and start fresh."
+      }
+    },
+    "card-conflict": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "⚡ Conflict Zone",
+        "content": "Contradictory bulletins on adjacent nodes. **Action:** Route to CDO / architecture review before proceeding."
+      }
+    },
+    "card-settled": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "🟢 Settled Zone",
+        "content": "Old bulletins, consistent, low activity. **Action:** Stable ground — safe to build on without coordination overhead."
+      }
+    },
+
+    "section-naming-consolidation": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "NAMING",
+        "title": "Naming Consolidation Candidates",
+        "subtitle": "Known naming inconsistencies across the codebase. Options listed, not decided."
+      },
+      "children": ["table-naming"]
+    },
+    "table-naming": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "current", "label": "Current" },
+          { "key": "problem", "label": "Problem" },
+          { "key": "options", "label": "Options (NOT decided)" },
+          { "key": "rationale", "label": "Rationale" }
+        ],
+        "rows": [
+          { "current": "`poly`", "problem": "Opaque name", "options": "`runtime`, `dispatch`, `registry`, `surface`", "rationale": "It's the handler registry + surface multiplexer" },
+          { "current": "IR (arch context)", "problem": "Overloaded — means intermediate representation AND architecture review", "options": "Drop IR for arch, keep for compiler", "rationale": "`arch` is already the skill name" },
+          { "current": "`handlers` vs `sdk` vs `commands`", "problem": "Three names for same concept", "options": "Standardize on `handlers`", "rationale": "`sdk` and `commands` are legacy" },
+          { "current": "surfaces count inconsistency", "problem": "`poly.surfaces` vs `poly.mcp.tools` vs `poly.cli`", "options": "Normalize to `surfaces` + `handlers`", "rationale": "Two concepts: where + what" },
+          { "current": "`core-timetravel` / `core-workshop` / `core-platforms`", "problem": "Legacy `core-*` prefix in nested dirs", "options": "Flatten or alias", "rationale": "Already partially renamed" }
+        ]
+      }
+    },
+
+    "section-runtime-joins": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": {
+        "label": "EXECUTION",
+        "title": "What's Left — Runtime Joins",
+        "subtitle": "Four P0 tasks to full integration. All status: READY."
+      },
+      "children": ["pipe-s1", "pipe-s2", "pipe-s3", "pipe-s4"]
+    },
+    "pipe-s1": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "S1: Agent Smoke Test",
+        "content": "13 MCP tools exercised end-to-end. Validates that the handler registry resolves every registered tool. **Status: READY**"
+      }
+    },
+    "pipe-s2": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "S2: Integration + Harness",
+        "content": "Multi-provider harness sessions, lifecycle hooks, and error propagation. **Status: READY**"
+      }
+    },
+    "pipe-s3": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "S3: FlowMind Graph-Ops",
+        "content": "FlowMind sessions compile to graph operations. Verify the IR → graph-op pipeline is lossless. **Status: READY**"
+      }
+    },
+    "pipe-s4": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "S4: EventBridge Wiring",
+        "content": "Daemon boots the event bus, all modules subscribe at startup. The root of the supervision tree comes alive. **Status: READY**"
+      }
+    },
+
+    "section-levmail-upgrade": {
+      "type": "section",
+      "variant": "stepper",
+      "props": {
+        "label": "UPGRADE PATH",
+        "title": "levmail Upgrade Path",
+        "subtitle": "Three layers — from zero-code-change adoption to full graph-backed resolution."
+      },
+      "children": ["step-layer1", "step-layer2", "step-layer3"]
+    },
+    "step-layer1": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Layer 1 — Zero Code Change",
+        "content": "Use **graph://** strings in the `to:` field now. The file format already holds it. Agents and humans can start writing bulletin-addressed mail today with no tooling changes."
+      }
+    },
+    "step-layer2": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Layer 2 — ~30 Lines Bash",
+        "content": "`levmail bulletin <node> --cascade 2 --ttl 48h` — Validates the `graph://` prefix, adds frontmatter fields (cascade, TTL, posted-at). A thin wrapper, not a rewrite."
+      }
+    },
+    "step-layer3": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Layer 3 — Stigmergy",
+        "content": "Full graph-backed resolution: cascade hops, agent-claim registry, TTL decay, zone heat maps. Depends on S4 EventBridge wiring. The complete topological memory system. [Design doc →](https://github.com/jean-patricksmith/digital-leviathan/blob/main/docs/design/design-graph-addressed-mail.md)"
+      }
+    },
+
+    "section-precedent": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "PRIOR ART",
+        "title": "Precedent",
+        "subtitle": "Four decades of indirect coordination research that converge here."
+      },
+      "children": ["card-stigmergy", "card-blackboard", "card-tuple-spaces", "card-otp"]
+    },
+    "card-stigmergy": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "🐜 Stigmergy (Grassé, 1959)",
+        "content": "Ant pheromone trails. Indirect coordination through environmental modification. Agents don't talk to each other — they modify the shared environment and others react. [Read →](https://en.wikipedia.org/wiki/Stigmergy)"
+      }
+    },
+    "card-blackboard": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "📋 Blackboard Architecture (Hayes-Roth, 1985)",
+        "content": "Shared workspace, independent knowledge sources post partial solutions. No direct communication — all coordination flows through the board. [Read →](https://en.wikipedia.org/wiki/Blackboard_(design_pattern))"
+      }
+    },
+    "card-tuple-spaces": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "📦 Tuple Spaces (Gelernter, 1985)",
+        "content": "Linda coordination language. Processes communicate by writing and reading tuples in a shared associative space. Decoupled in time and space. [Read →](https://en.wikipedia.org/wiki/Tuple_space)"
+      }
+    },
+    "card-otp": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "⚡ Elixir/OTP (Erlang, 1986+)",
+        "content": "Lightweight processes, message passing, supervision trees, let-it-crash philosophy. The production-proven realization of actor-model fault tolerance. [Read →](https://elixir-lang.org/getting-started/mix-otp/supervisor-and-application.html)"
+      }
+    }
+  }
+}

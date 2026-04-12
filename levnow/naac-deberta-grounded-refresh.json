@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "title": "NAAC DeBERTa Grounded Refresh",
+    "theme": "teal-slate",
+    "layout": "sidebar-toc",
+    "effects": ["grid-lines", "card-glow", "title-underline"]
+  },
+  "summary": {
+    "headline": "Grounded-source training flow repaired",
+    "subheadline": "Code paths now use grounded partner sources and projected eval scenarios instead of the stale enriched_scenarios artifact, and train_v10 is assembled."
+  },
+  "kpis": [
+    { "label": "Grounded Scenarios", "value": 5 },
+    { "label": "Projected WAV Fixtures", "value": 97 },
+    { "label": "Partner Consensus Rows", "value": 63 },
+    { "label": "Compound Phrase Seeds", "value": 22 },
+    { "label": "Train V10 Rows", "value": 100142 },
+    { "label": "Whisper Rows Added", "value": 49 },
+    { "label": "Focused Regressions", "value": 46 }
+  ],
+  "changes": [
+    "Added grounded_scenarios helper and rewired project_eval to use it.",
+    "Patched partner training slices to consume grounded source scenarios.",
+    "Rebuilt partner_slices with 63 consensus, 12 corrections, 22 phrase seeds, and 1 ambient row.",
+    "Rewrote generate_tts to synthesize from output/scenarios/*.json.",
+    "Added --local transcription fallback alias and Thor-default ASR URL behavior.",
+    "Built data/training/deberta/train_v10.jsonl from train_v8 + grounded partner slices + 49 Whisper-noisy rows.",
+    "Refreshed high-signal stale docs/contracts/handoffs that still treated enriched_scenarios as canonical.",
+    "Focused verification is green: 46 passed."
+  ],
+  "refreshed_surfaces": [
+    "modules/readback/readback_contract.py",
+    "tests/integration/test_golden_readbacks.py",
+    "harness/engine/contracts/readback.yaml",
+    "data/AGENTS.md",
+    "data/SCHEMAS.md",
+    "data/dna/partner_graph.dna.yaml",
+    "data/dna/standards.yaml",
+    "docs/specs/chore-deberta-v9-manual-lane.md",
+    "docs/specs/spec-readback-slot-extraction.md",
+    "poc/deberta_intent/V9_TRAINING_TODO.md",
+    "data/atc/workshop/deberta-training-requests.json",
+    "nine active handoff files"
+  ],
+  "next_steps": [
+    "Decide whether partner_slices should keep the current filenames or move to grounded_* names.",
+    "Add append or per-scenario output mode to transcribe_fixtures to avoid clobbering transcriptions.jsonl on smoke runs.",
+    "Mine transcriptions.jsonl into training rows that preserve clean_text + whisper_text pairs for noise-aware augmentation.",
+    "Fold compound_extraction_gaps and reviewed failure buckets into a train_v10b follow-on dataset.",
+    "Investigate why evaluate-model burns CPU for minutes without emitting a result JSON in this environment.",
+    "Run the narrow DeBERTa eval surface once the eval runner behavior is fixed.",
+    "Run the broader grounded scenario pipeline suite after retrain only as a compatibility check, not as the primary model gate.",
+    "Decide whether to regenerate all projected scenarios now or only the 5 grounded scenarios in the active lane.",
+    "Refresh lower-priority historical scratch/docs surfaces that still mention enriched_scenarios.",
+    "Start the actual V10 retrain from train_v10.jsonl once the eval-run blocker is understood."
+  ]
+}

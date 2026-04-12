@@ -1,0 +1,433 @@
+{
+  "meta": {
+    "title": "graph-os: Roadmap & Competitive Intelligence",
+    "description": "Full synthesis — 3 research tracks, poly meta-substrate, infrastructure decisions, 4-phase roadmap",
+    "effects": ["card-glow", "hero-gradient", "glass", "grid-dots"],
+    "layout": "sidebar-toc"
+  },
+  "theme": { "preset": "deep-blue-gold", "mode": "dark" },
+  "root": [
+    "hero",
+    "principle-section",
+    "landscape-section",
+    "landscape-table",
+    "gap-section",
+    "substrate-section",
+    "substrate-diagram",
+    "infra-section",
+    "graph-db-table",
+    "memory-table",
+    "inference-table",
+    "sandbox-table",
+    "protocols-section",
+    "mesh-section",
+    "mesh-table",
+    "roadmap-section",
+    "roadmap-timeline",
+    "config-section"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "centered",
+      "props": {
+        "category": "STRATEGIC SYNTHESIS",
+        "title": "graph-os Roadmap",
+        "subtitle": "Competitive intelligence + infrastructure decisions + 4-phase execution plan",
+        "meta": "April 12, 2026 — Synthesized from 3 deep research agents"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "Lev = everything. graph-os = Lev with a cloud config.yaml. Local-first capable, model-agnostic, constraint-enforced. The ONLY runtime where local and cloud are the same binary with a different config, and the ONLY one with a non-crypto federated mesh."
+      }
+    },
+    "principle-section": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "DESIGN PRINCIPLE",
+        "title": "config.yaml = Everything"
+      },
+      "children": ["principle-code"]
+    },
+    "principle-code": {
+      "type": "code-block",
+      "props": {
+        "language": "yaml",
+        "filename": "config.yaml",
+        "content": "# Switch modes without changing code\nprovider:\n  inference: ollama          # local: free, offline\n  # inference: kingly.cloud  # cloud: multi-provider, pay-per-token\n  # inference: mesh          # federated: earn credits by serving\n  graph: sqlite              # local: zero deps\n  # graph: falkordb          # cloud: sub-ms latency\n  # graph: neo4j-aura        # enterprise: ecosystem\n  memory: local              # filesystem-backed\n  # memory: graphiti         # temporal knowledge graph\n  storage: filesystem        # local disk\n  # storage: supabase        # managed cloud"
+      }
+    },
+    "landscape-section": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "COMPETITIVE INTEL",
+        "title": "The Big 3 vs graph-os",
+        "subtitle": "Vertical integration race — April 2026"
+      },
+      "children": ["landscape-quote"]
+    },
+    "landscape-quote": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": {
+        "content": "Anthropic offers model → SDK → Managed Agents. Google offers model → ADK → Vertex Agent Engine. OpenAI offers model → Codex (cloud-only). graph-os offers ANY model → Lev (local-first) → graph-os.ai (cloud) + federated mesh (no one else has this)."
+      }
+    },
+    "landscape-table": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "HEAD TO HEAD",
+        "title": "Platform Comparison"
+      },
+      "children": ["platform-table"]
+    },
+    "platform-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "dim", "label": "Dimension" },
+          { "key": "anthropic", "label": "Anthropic" },
+          { "key": "google", "label": "Google" },
+          { "key": "openai", "label": "OpenAI" },
+          { "key": "graphos", "label": "graph-os" }
+        ],
+        "rows": [
+          { "dim": "Default exec", "anthropic": "Cloud (Managed Agents)", "google": "Cloud (Vertex)", "openai": "Cloud (Codex)", "graphos": { "text": "Local-first", "status": "match" } },
+          { "dim": "Model lock-in", "anthropic": { "text": "Claude only", "status": "gap" }, "google": { "text": "Gemini only", "status": "gap" }, "openai": { "text": "GPT only", "status": "gap" }, "graphos": { "text": "Any model", "status": "match" } },
+          { "dim": "Offline capable", "anthropic": { "text": "SDK only", "status": "warn" }, "google": { "text": "No", "status": "gap" }, "openai": { "text": "No", "status": "gap" }, "graphos": { "text": "Yes (default)", "status": "match" } },
+          { "dim": "Federated mesh", "anthropic": { "text": "No", "status": "gap" }, "google": { "text": "No", "status": "gap" }, "openai": { "text": "No", "status": "gap" }, "graphos": { "text": "Yes", "status": "match" } },
+          { "dim": "Constraint engine", "anthropic": { "text": "No", "status": "gap" }, "google": { "text": "No", "status": "gap" }, "openai": { "text": "No", "status": "gap" }, "graphos": { "text": "DNA + gates", "status": "match" } },
+          { "dim": "Graph-native state", "anthropic": "Event log", "google": "Sessions", "openai": "Containers", "graphos": { "text": "Entity graph", "status": "match" } },
+          { "dim": "Pricing", "anthropic": "$0.08/session-hr", "google": "$0.0864/vCPU-hr", "openai": "Sub + container fee", "graphos": { "text": "Free (local)", "status": "match" } },
+          { "dim": "Open source", "anthropic": { "text": "Partial (SDK)", "status": "warn" }, "google": { "text": "ADK only", "status": "warn" }, "openai": { "text": "CLI only", "status": "warn" }, "graphos": { "text": "Full (Lev)", "status": "match" } }
+        ]
+      }
+    },
+    "gap-section": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "THE GAP",
+        "title": "What Nobody Else Has"
+      },
+      "children": ["gap-local", "gap-mesh", "gap-constraint", "gap-graph"]
+    },
+    "gap-local": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": 0, "label": "Cloud-to-local competitors", "trend": { "direction": "flat", "value": "We're the only one" } }
+    },
+    "gap-mesh": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": 0, "label": "Non-crypto meshes", "trend": { "direction": "flat", "value": "Bittensor is crypto" } }
+    },
+    "gap-constraint": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": 0, "label": "Constraint engines", "trend": { "direction": "flat", "value": "YAML + eval + flowmind" } }
+    },
+    "gap-graph": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": 944, "label": "Entities in our graph", "trend": { "direction": "up", "value": "IR is real, not theoretical" } }
+    },
+    "substrate-section": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "ARCHITECTURE",
+        "title": "Poly Meta-Substrate → graph-os",
+        "subtitle": "The 5-layer pattern maps perfectly"
+      },
+      "children": ["substrate-desc"]
+    },
+    "substrate-desc": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "Lev's strongest subsystems converge on: **declaration → compiler → IR → runtime → federation**. This is not metaphorical — each layer has a concrete implementation:\n\n**Declaration** = config.yaml, .flow.yaml, dna/*.yaml (the authored truth)\n**Compiler** = lev install / config resolver (normalize, validate, lower)\n**IR** = entity graph + event store (stable form, 944 entities, multiple consumers)\n**Runtime** = graph-os.ai / local Lev / ClawBuddy / kingly.cloud (projections)\n**Federation** = graph.store mesh (5th substrate layer — discovery, composition, credit settlement)"
+      }
+    },
+    "substrate-diagram": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "TOPOLOGY",
+        "title": "Meta-Substrate Layers"
+      },
+      "children": ["substrate-mermaid"]
+    },
+    "substrate-mermaid": {
+      "type": "diagram",
+      "props": {
+        "content": "graph LR\n    D[\"config.yaml\\nDeclaration\"] --> C[\"lev install\\nCompiler\"]\n    C --> IR[\"Entity Graph\\nIR\"]\n    IR --> R1[\"Local Lev\\nRuntime\"]\n    IR --> R2[\"graph-os.ai\\nRuntime\"]\n    IR --> R3[\"ClawBuddy\\nRuntime\"]\n    IR --> R4[\"kingly.cloud\\nRuntime\"]\n    R1 --> F[\"graph.store\\nFederation\"]\n    R2 --> F\n    R3 --> F\n    R4 --> F"
+      }
+    },
+    "infra-section": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "INFRASTRUCTURE DECISIONS",
+        "title": "Build vs Buy vs Integrate",
+        "subtitle": "Switchable via config.yaml — no lock-in at any layer"
+      },
+      "children": ["infra-lead"]
+    },
+    "infra-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "Every infrastructure choice is a config.yaml option. SQLite for local MVP, FalkorDB for cloud performance, Neo4j for enterprise ecosystem. Graphiti for temporal memory. E2B/Daytona for sandboxes (don't build one). MCP + A2A for protocols."
+      }
+    },
+    "graph-db-table": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "GRAPH DB",
+        "title": "Graph Database Selection"
+      },
+      "children": ["gdb-table"]
+    },
+    "gdb-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "option", "label": "Option" },
+          { "key": "latency", "label": "Latency" },
+          { "key": "agent_memory", "label": "Agent Memory" },
+          { "key": "local", "label": "Local-First" },
+          { "key": "rec", "label": "Role" }
+        ],
+        "rows": [
+          { "option": "SQLite", "latency": { "text": "sub-ms", "status": "match" }, "agent_memory": "Simple KV + relational", "local": { "text": "Yes", "status": "match" }, "rec": { "text": "MVP default", "status": "match" } },
+          { "option": "FalkorDB", "latency": { "text": "sub-ms", "status": "match" }, "agent_memory": "Context graphs, Graphiti integration", "local": { "text": "Docker", "status": "warn" }, "rec": { "text": "Cloud perf", "status": "info" } },
+          { "option": "Neo4j", "latency": "ms", "agent_memory": "3-tier (short/long/reasoning), MAF partner", "local": { "text": "Heavy", "status": "gap" }, "rec": { "text": "Enterprise", "status": "info" } }
+        ]
+      }
+    },
+    "memory-table": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "MEMORY",
+        "title": "Agent Memory Layer"
+      },
+      "children": ["mem-table"]
+    },
+    "mem-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "option", "label": "Option" },
+          { "key": "temporal", "label": "Temporal" },
+          { "key": "local", "label": "Local-First" },
+          { "key": "score", "label": "LongMemEval" },
+          { "key": "rec", "label": "Decision" }
+        ],
+        "rows": [
+          { "option": "Graphiti (Zep OSS)", "temporal": { "text": "Yes", "status": "match" }, "local": { "text": "Yes (OSS)", "status": "match" }, "score": { "text": "63.8%", "status": "match" }, "rec": { "text": "BUILD ON", "status": "match" } },
+          { "option": "Mem0", "temporal": { "text": "No", "status": "gap" }, "local": { "text": "Yes", "status": "match" }, "score": "49.0%", "rec": "Simplest but weaker" },
+          { "option": "Zep Cloud", "temporal": { "text": "Yes", "status": "match" }, "local": { "text": "No (killed CE)", "status": "gap" }, "score": { "text": "63.8%", "status": "match" }, "rec": "Lock-in risk" },
+          { "option": "Letta", "temporal": "Self-editing", "local": { "text": "Yes", "status": "match" }, "score": "N/A", "rec": "Full runtime lock-in" }
+        ]
+      }
+    },
+    "inference-table": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "INFERENCE",
+        "title": "kingly.cloud Backend Options"
+      },
+      "children": ["inf-table"]
+    },
+    "inf-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "backend", "label": "Backend" },
+          { "key": "use", "label": "Use Case" },
+          { "key": "pricing", "label": "Pricing" },
+          { "key": "local", "label": "Local" }
+        ],
+        "rows": [
+          { "backend": "Ollama / llama.cpp", "use": "Dev, privacy, offline", "pricing": { "text": "Free", "status": "match" }, "local": { "text": "Yes", "status": "match" } },
+          { "backend": "kingly.cloud (multi-provider)", "use": "Production routing", "pricing": "5-10x markup", "local": { "text": "No", "status": "gap" } },
+          { "backend": "Together.ai", "use": "Open-source models", "pricing": "Cheapest centralized", "local": { "text": "No", "status": "gap" } },
+          { "backend": "Akash Network", "use": "Decentralized GPU", "pricing": { "text": "70-85% below AWS", "status": "match" }, "local": { "text": "Provider nodes", "status": "warn" } },
+          { "backend": "Managed Agents", "use": "Long-running cloud tasks", "pricing": "$0.08/session-hr", "local": { "text": "No", "status": "gap" } },
+          { "backend": "Mesh (graph-os)", "use": "Federated, earn credits", "pricing": { "text": "Credit-based", "status": "match" }, "local": { "text": "Yes", "status": "match" } }
+        ]
+      }
+    },
+    "sandbox-table": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "SANDBOX",
+        "title": "Execution Sandbox — Don't Build, Partner"
+      },
+      "children": ["sbox-table"]
+    },
+    "sbox-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "platform", "label": "Platform" },
+          { "key": "cold", "label": "Cold Start" },
+          { "key": "gpu", "label": "GPU" },
+          { "key": "cost", "label": "Cost" },
+          { "key": "note", "label": "Note" }
+        ],
+        "rows": [
+          { "platform": "E2B", "cold": { "text": "80ms", "status": "match" }, "gpu": { "text": "No", "status": "gap" }, "cost": "$0.05/vCPU-hr", "note": "88% Fortune 100. Market leader." },
+          { "platform": "Daytona", "cold": "200ms", "gpu": { "text": "No", "status": "gap" }, "cost": "Usage-based", "note": "$24M Series A. Stateful, forkable." },
+          { "platform": "Fly Sprites", "cold": "300ms", "gpu": { "text": "No", "status": "gap" }, "cost": "$0.07/CPU-hr", "note": "Persistence-first. Scale to zero." },
+          { "platform": "Modal", "cold": "seconds", "gpu": { "text": "H100/A100", "status": "match" }, "cost": "$0.0003/sec", "note": "Only GPU sandbox. $1.1B valuation." },
+          { "platform": "Rivet agentOS", "cold": { "text": "6ms", "status": "match" }, "gpu": { "text": "No", "status": "gap" }, "cost": { "text": "Free (OSS)", "status": "match" }, "note": "Wasm + V8 isolates. Fastest." }
+        ]
+      }
+    },
+    "protocols-section": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "PROTOCOLS",
+        "title": "graph-os Must Speak"
+      },
+      "children": ["proto-mcp", "proto-a2a", "proto-agui"]
+    },
+    "proto-mcp": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "MCP (Anthropic)",
+        "content": "**Unanimous adoption.** Every framework, every tool, every agent runtime supports MCP. Lev already has MCP adapters. Non-negotiable."
+      }
+    },
+    "proto-a2a": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "A2A (Google, 150+ orgs)",
+        "content": "**Agent-to-agent interop.** Linux Foundation governance. graph.store nodes should be A2A-addressable. This is how federation talks to the outside world."
+      }
+    },
+    "proto-agui": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "AG-UI (Microsoft)",
+        "content": "**Emerging.** Watch but don't commit. Agent-to-UI protocol. May matter for ClawBuddy's assistant surface. Low urgency."
+      }
+    },
+    "mesh-section": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "FEDERATED MESH",
+        "title": "The Non-Crypto Gap",
+        "subtitle": "Crypto proves the model. graph-os removes the blockchain overhead."
+      },
+      "children": ["mesh-quote"]
+    },
+    "mesh-quote": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": {
+        "content": "Hyperspace has 2M+ nodes. Bittensor has $712M in subnets. Akash has $4.3M ARR. They all prove federated mesh works. But they all require crypto tokens. graph-os fills the gap: credit-based incentives, no blockchain overhead, same economic model."
+      }
+    },
+    "mesh-table": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "PRIOR ART",
+        "title": "Existing Mesh Networks"
+      },
+      "children": ["mesh-data"]
+    },
+    "mesh-data": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "project", "label": "Project" },
+          { "key": "model", "label": "Model" },
+          { "key": "scale", "label": "Scale" },
+          { "key": "crypto", "label": "Crypto?" },
+          { "key": "gap", "label": "graph-os Advantage" }
+        ],
+        "rows": [
+          { "project": "Hyperspace", "model": "P2P libp2p inference", "scale": "2M+ nodes", "crypto": { "text": "Points/tokens", "status": "warn" }, "gap": "No crypto needed" },
+          { "project": "Bittensor", "model": "128 subnet marketplace", "scale": "$712M valuation", "crypto": { "text": "TAO token", "status": "warn" }, "gap": "Simpler, no chain" },
+          { "project": "Akash", "model": "GPU marketplace", "scale": "$4.3M ARR", "crypto": { "text": "AKT token", "status": "warn" }, "gap": "Credit-based" },
+          { "project": "io.net", "model": "Agent Cloud", "scale": "7K+ GPUs", "crypto": { "text": "IO token", "status": "warn" }, "gap": "No wallet needed" },
+          { "project": "graph-os", "model": "Federated agent mesh", "scale": "Building", "crypto": { "text": "Credits only", "status": "match" }, "gap": { "text": "THIS IS US", "status": "match" } }
+        ]
+      }
+    },
+    "roadmap-section": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "EXECUTION",
+        "title": "4-Phase Roadmap",
+        "subtitle": "Ship B (unified ClawBuddy), grow into C (graph-os platform)"
+      },
+      "children": ["roadmap-lead"]
+    },
+    "roadmap-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "Phase 0: Foundation (rename + core features). Phase 1: Product (assistant + AgentPing + kingly.cloud standalone). Phase 2: Platform (graph-os.ai portal + cloud mode + A2A). Phase 3: Federation (mesh + credits + enterprise)."
+      }
+    },
+    "roadmap-timeline": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "TIMELINE",
+        "title": "Phase Milestones"
+      },
+      "children": ["roadmap-tl"]
+    },
+    "roadmap-tl": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          { "date": "Phase 0 (Wk 1-4)", "title": "Foundation", "description": "Rename ClawTok → ClawBuddy. graph.store domain. SQLiteStorageAdapter. Compare + Trailers. Profile redesign.", "status": "active" },
+          { "date": "Phase 1 (Wk 5-8)", "title": "Product", "description": "AI Assistant (kingly.cloud). AgentPing health strip. kingly.cloud dev portal + API keys. Graphiti memory integration.", "status": "upcoming" },
+          { "date": "Phase 2 (Wk 9-16)", "title": "Platform", "description": "graph-os.ai developer portal. config.yaml cloud mode. Managed Agents backend. A2A protocol. Generate-Similar. Creator Analytics.", "status": "upcoming" },
+          { "date": "Phase 3 (Mo 4-6)", "title": "Federation", "description": "graph.store federation protocol. Mesh inference. Credit incentives. Enterprise private nodes. graph-os.ai managed dashboard.", "status": "upcoming" },
+          { "date": "Phase 4 (Mo 6-12)", "title": "Scale", "description": "Agent Trials (E2B sandbox). Bundles. lev-forge CI/CD. White-label graph.store. iOS App Store launch.", "status": "upcoming" }
+        ]
+      }
+    },
+    "config-section": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "BOTTOM LINE",
+        "title": "One Binary, One Config, Every Mode"
+      },
+      "children": ["config-quote"]
+    },
+    "config-quote": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": {
+        "content": "Lev is everything. graph-os.ai is Lev with a cloud config.yaml. kingly.cloud is the pipes. graph.store is the marketplace. ClawBuddy is the consumer face. Everything works locally. Cloud is optional. This is the selling point. The only agent runtime where one YAML declaration generates every surface and executes under formal constraints — not a workflow builder, a physics engine for agents."
+      }
+    }
+  }
+}
