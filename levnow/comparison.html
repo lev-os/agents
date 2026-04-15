@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="light" class="fx-title-underline">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
   <title>Onboarding Benchmark Matrix</title>
   <meta name="description" content="1:1 comparison of onboarding, install, setup knobs, progressive disclosure, migration, and first-run UX across Lev, Hermes, OpenClaw, Oh My OpenAgent, Oh My Codex, and Oh My ClaudeCode." />
   <meta property="og:title" content="Onboarding Benchmark Matrix" />
@@ -36,7 +37,11 @@ body, h1, h2, h3, h4, p, ul, ol, blockquote, figure { margin: 0; padding: 0; }
   --radius: 12px;
   --shadow: 0 4px 16px rgba(0,0,0,0.25);
   --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
-  --transition: 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  --elevation-0: 0 1px 2px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.2);
+  --elevation-1: 0 2px 8px -2px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04);
+  --elevation-2: 0 12px 32px -8px rgba(0,0,0,0.5), 0 4px 12px -4px color-mix(in srgb, var(--color-accent) 8%, transparent), 0 0 0 1px rgba(255,255,255,0.06);
+  --elevation-3: 0 24px 48px -12px rgba(0,0,0,0.6), 0 8px 24px -8px color-mix(in srgb, var(--color-accent) 12%, transparent), 0 0 0 1px rgba(255,255,255,0.08);
+  --transition: 0.35s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 [data-theme="dark"] {
@@ -61,17 +66,32 @@ body { background-image:
   radial-gradient(circle at 85% 15%, rgba(5,150,105,0.05) 0%, transparent 25%),
   radial-gradient(circle at 50% 85%, rgba(217,119,6,0.03) 0%, transparent 30%);
 }
+
+/* === Selection + Focus + Scrollbar (AESTHETIC-DNA Premium Test) === */
+::selection { background: color-mix(in srgb, var(--color-accent) 30%, transparent); color: #fff; }
+:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 4px; }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--color-surface); }
+::-webkit-scrollbar-thumb { background: var(--color-surface-alt); border: 2px solid var(--color-surface); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }
+
+/* === Noise Texture (always-on, AESTHETIC-DNA §8) === */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  contain: strict;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch' seed='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@media (prefers-reduced-motion: reduce) { body::before { display: none; } }
+
 .container {
-  max-width: 1200px;
+  max-width: 1360px;
   margin: 0 auto;
-  padding: 0 clamp(1rem, 3vw, 2rem) 60px;
-}
-/* Tables break out of container slightly for breathing room, capped at 1400px */
-@media (min-width: 1300px) {
-  .table-wrap { margin-left: -3rem; margin-right: -3rem; max-width: calc(100% + 6rem); }
-}
-@media (min-width: 1600px) {
-  .table-wrap { margin-left: calc((1200px - min(1400px, 90vw)) / 2); margin-right: calc((1200px - min(1400px, 90vw)) / 2); max-width: min(1400px, 90vw); }
+  padding: 0 clamp(1rem, 4vw, 3rem) 60px;
 }
 
 /* === Animations === */
@@ -132,20 +152,35 @@ body { background-image:
   stroke-linejoin: round;
 }
 
+/* === SectionShell Split Entrance (SCROLL-NARRATIVE.md) === */
+.has-anim .anim-from-left {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.8s cubic-bezier(0.19, 1, 0.22, 1), transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+}
+.has-anim .anim-from-left.visible { opacity: 1; transform: translateX(0); }
+.has-anim .anim-delayed {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 1s cubic-bezier(0.19, 1, 0.22, 1), transform 1s cubic-bezier(0.19, 1, 0.22, 1);
+  transition-delay: 0.2s;
+}
+.has-anim .anim-delayed.visible { opacity: 1; transform: translateY(0); }
+
 /* === Reduced Motion === */
 @media (prefers-reduced-motion: reduce) {
-  .has-anim .anim, .has-anim .kpi-card.anim { opacity: 1; transform: none; transition: none; }
+  .has-anim .anim, .has-anim .kpi-card.anim, .has-anim .anim-from-left, .has-anim .anim-delayed { opacity: 1; transform: none; transition: none; }
 }
 
 /* === Hero === */
 .hero {
-  min-height: 80vh;
+  min-height: 60vh;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: hidden;
-  padding: 60px 2rem 40px;
+  padding: 90px 2rem 0px;
 }
 .hero::before {
   content: '';
@@ -156,18 +191,19 @@ body { background-image:
   width: 900px;
   height: 900px;
   background: radial-gradient(circle, var(--color-accent) 0%, transparent 70%);
-  opacity: 0.06;
+  opacity: 0.1;
   pointer-events: none;
 }
 .hero::after {
   content: '';
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: -10%;
+  left: 25%;
+  width: 50%;
   height: 200px;
-  background: linear-gradient(to top, var(--color-surface), transparent);
+  background: rgba(0, 0, 0, 0.5);
   pointer-events: none;
+  filter: blur(150px);
 }
 .hero__inner { position: relative; z-index: 1; }
 .hero--centered { text-align: center; }
@@ -226,9 +262,9 @@ body { background-image:
 .section-label {
   display: inline-block;
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-accent);
   margin-bottom: 12px;
@@ -446,6 +482,19 @@ body { background-image:
   pointer-events: none;
 }
 
+/* Stepper: prev/next temporal walkthrough */
+.section__stepper { position: relative; }
+.stepper-step { display: none; }
+.stepper-step.active { display: block; }
+.stepper-controls { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 2rem; }
+.stepper-btn { background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: 8px; padding: 8px 20px; cursor: pointer; font-family: var(--font-body); font-size: 0.85rem; color: var(--color-text); transition: all 0.2s; }
+.stepper-btn:hover { background: var(--color-accent-dim); border-color: var(--color-accent); color: var(--color-accent); }
+.stepper-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.stepper-dots { display: flex; gap: 8px; }
+.stepper-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-border); border: none; cursor: pointer; transition: all 0.2s; }
+.stepper-dot.active { background: var(--color-accent); transform: scale(1.3); }
+.stepper-counter { font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-text-muted); }
+
 /* Custom HTML element */
 .custom-html { position: relative; }
 
@@ -520,27 +569,14 @@ body { background-image:
   padding: 2rem;
   position: relative;
   overflow: hidden;
+  box-shadow: var(--elevation-1);
   transition: transform var(--transition), box-shadow var(--transition);
 }
-.ve-card:hover { border-color: var(--color-border-strong); }
-.ve-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-bright));
-  opacity: 0;
-  transition: opacity var(--transition);
-  border-radius: var(--radius) var(--radius) 0 0;
-}
 .ve-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: var(--elevation-2);
   border-color: var(--color-border-strong);
 }
-.ve-card:hover::before { opacity: 1; }
 .ve-card--elevated {
   background: var(--color-surface-alt);
   box-shadow: var(--shadow);
@@ -552,7 +588,7 @@ body { background-image:
 }
 .ve-card--hero {
   background: linear-gradient(135deg, var(--color-surface-alt), var(--color-surface));
-  border-color: var(--color-accent);
+  border-color: var(--color-border);
   padding: 2.5rem;
 }
 .ve-card--glass {
@@ -589,6 +625,19 @@ body { background-image:
 [data-theme="light"] .section:nth-child(even) { background: #fff; }
 [data-theme="light"] .section-subtitle { color: var(--color-text-muted); }
 .ve-card--slide { scroll-snap-align: start; min-width: 300px; }
+
+/* === Card Detail Overlay (click-to-expand) === */
+.ve-card[data-expandable] { cursor: pointer; }
+.ve-card[data-expandable]::after { content: 'Click to expand'; position: absolute; bottom: 8px; right: 12px; font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-text-muted); opacity: 0; transition: opacity 0.2s; text-transform: uppercase; letter-spacing: 0.08em; }
+.ve-card[data-expandable]:hover::after { opacity: 0.6; }
+.card-detail-overlay { position: fixed; inset: 0; z-index: 9999; background: color-mix(in srgb, var(--color-surface) 97%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); overflow-y: auto; padding: 3rem 4rem; display: none; animation: overlayIn 0.25s ease-out; }
+.card-detail-overlay.active { display: block; }
+.card-detail-overlay__close { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 10000; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: 8px; padding: 8px 16px; cursor: pointer; font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-text-muted); transition: all 0.2s; }
+.card-detail-overlay__close:hover { background: var(--color-accent-dim); color: var(--color-accent); }
+.card-detail-overlay__content { max-width: 900px; margin: 2rem auto; }
+.card-detail-overlay__content .ve-card { cursor: default; transform: none; max-width: none; }
+.card-detail-overlay__content .ve-card:hover { transform: none; }
+@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* Card subtle differentiation in grids — icon bg color rotation instead of borders */
 .section__grid > .ve-card:nth-child(6n+1) .ve-card__icon { background: color-mix(in srgb, var(--color-accent) 12%, transparent); }
@@ -655,13 +704,13 @@ body { background-image:
 .dag-node--defer { background: rgba(217,119,6,0.08); }
 
 /* === Sidebar TOC Layout (VE plan-triage-dashboard style) === */
-.page-wrap--toc { max-width: 1500px; margin: 0 auto; display: grid; grid-template-columns: 180px 1fr; gap: 0 32px; }
-.page-toc { position: sticky; top: 24px; align-self: start; padding: 24px 16px; display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-family: var(--font-mono); max-height: calc(100vh - 48px); overflow-y: auto; }
+.page-wrap--toc { max-width: 1500px; margin: 0 auto; display: grid; grid-template-columns: 180px 1fr; gap: 0 32px; padding-top: 60px; }
+.page-toc { position: sticky; top: 64px; align-self: start; padding: 16px; display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-family: var(--font-mono); max-height: calc(100vh - 80px); overflow-y: auto; z-index: 50; }
 .page-toc__title { font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-muted); margin-bottom: 8px; }
 .page-toc a { color: var(--color-text-muted); text-decoration: none; padding: 4px 8px; border-radius: 4px; transition: all 0.15s; line-height: 1.4; display: block; }
 .page-toc a:hover { color: var(--color-text); background: var(--color-surface-alt); }
 .page-toc a.active { color: var(--color-text); background: var(--color-surface-alt); font-weight: 600; }
-.page-main { min-width: 0; }
+.page-main { min-width: 0; position: relative; z-index: 1; }
 @media (max-width: 900px) {
   .page-wrap--toc { grid-template-columns: 1fr; }
   .page-toc { position: sticky; top: 0; z-index: 100; flex-direction: row; overflow-x: auto; overflow-y: visible; background: var(--color-surface); border-bottom: 1px solid var(--color-border); padding: 12px 16px; max-height: none; gap: 2px; }
@@ -754,8 +803,10 @@ body { background-image:
 .callout__content { font-size: 14px; color: var(--color-text-muted); }
 
 /* === Text === */
-.prose { max-width: 65ch; }
+.prose { max-width: 65ch; font-size: 1rem; line-height: 1.7; }
 .prose p + p { margin-top: 1em; }
+.prose--narrow { max-width: 55ch; line-height: 1.85; font-size: 1.05rem; }
+.prose--wide { max-width: 80ch; line-height: 1.6; }
 .lead {
   font-size: 1.1rem;
   color: var(--color-text-muted);
@@ -783,11 +834,15 @@ body { background-image:
 .table-fullscreen-btn { position: absolute; top: 8px; right: 8px; z-index: 5; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 13px; color: var(--color-text-muted); transition: all 0.2s; opacity: 0.6; }
 .table-wrap:hover .table-fullscreen-btn { opacity: 1; }
 .table-fullscreen-btn:hover { background: var(--color-accent-dim); color: var(--color-accent); }
-.table-wrap--fullscreen { position: fixed; inset: 0; z-index: 9999; border-radius: 0; background: var(--color-surface); padding: 3rem 4rem; overflow: auto; margin: 0; max-width: none; border: none; box-shadow: 0 0 0 100vmax rgba(0,0,0,0.5); }
-.table-wrap--fullscreen .data-table { font-size: 15px; max-width: 1600px; margin: 0 auto; }
-.table-wrap--fullscreen .data-table td { padding: 14px 18px; }
-.table-wrap--fullscreen .data-table th { padding: 12px 18px; font-size: 11px; }
-.table-wrap--fullscreen .table-fullscreen-btn { position: fixed; top: 20px; right: 20px; z-index: 10000; font-size: 16px; padding: 8px 14px; opacity: 1; }
+/* Fullscreen mode — applied to the ORIGINAL element via .is-fullscreen class */
+.is-fullscreen { position: fixed !important; inset: 0 !important; z-index: 99999 !important; background: var(--color-surface) !important; margin: 0 !important; border-radius: 0 !important; border: none !important; overflow: auto !important; padding: 0 !important; }
+.is-fullscreen .table-wrap { max-height: none; border: none; border-radius: 0; }
+.is-fullscreen .data-table { font-size: 15px; }
+.is-fullscreen .data-table td { padding: 14px 16px; }
+.is-fullscreen .data-table th { padding: 12px 16px; }
+.is-fullscreen .mermaid-wrap { width: 100%; height: 100vh; }
+.fs-close { position: fixed; top: 0; right: 0; z-index: 100000; background: var(--color-surface-alt); border: none; border-bottom-left-radius: 10px; padding: 6px 14px; cursor: pointer; font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-text-muted); letter-spacing: 0.05em; }
+.fs-close:hover { background: var(--color-accent-dim); color: var(--color-accent); }
 .data-table {
   width: 100%;
   border-collapse: collapse;
@@ -817,13 +872,14 @@ body { background-image:
 /* === Code === */
 .code-block, .code-file {
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius);
   overflow: hidden;
-  font-size: 13px;
+  font-size: 14px;
 }
+.code-file__body { padding: 16px 20px; line-height: 1.6; }
 .code-file__header {
   background: var(--color-surface-alt);
-  padding: 8px 14px;
+  padding: 10px 16px;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -948,42 +1004,65 @@ code { font-family: inherit; }
 .mermaid-zoom {
   font-family: var(--font-mono);
   font-size: 11px;
-  background: var(--color-surface-alt);
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
+  background: transparent;
+  border: none;
   color: var(--color-text-muted);
-  padding: 2px 8px;
+  padding: 3px 8px;
   cursor: pointer;
+  border-radius: 4px;
 }
-.mermaid-zoom:hover { color: var(--color-text); border-color: var(--color-accent); }
-.mermaid-fullscreen { font-size: 14px; }
+.mermaid-zoom:hover { color: var(--color-text); background: rgba(255,255,255,0.06); }
+.mermaid-fullscreen { font-size: 13px; }
 .mermaid { transition: transform 0.2s ease; zoom: 1.4; }
 .mermaid-wrap--fullscreen {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  border-radius: 0;
   background: var(--color-surface);
   display: flex;
   flex-direction: column;
-  padding: 1rem;
-  overflow: auto;
+  padding: 0;
+  overflow: hidden;
 }
 .mermaid-wrap--fullscreen .mermaid-controls {
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 1;
-  background: var(--color-surface);
-  padding-bottom: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  background: var(--color-surface-alt);
+  border: none;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  padding: 6px 12px;
+  display: flex;
+  gap: 4px;
 }
-.mermaid-wrap--fullscreen .mermaid { zoom: 2; margin: auto; }
-.mermaid-wrap--fullscreen .mermaid-fullscreen::after { content: ' ESC'; font-size: 10px; }
+.mermaid-wrap--fullscreen .mermaid { margin: auto; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: auto; }
+.mermaid-wrap--fullscreen .mermaid svg { width: 100%; height: auto; min-height: 60vh; }
+.mermaid-wrap--fullscreen .mermaid-fullscreen::after { content: ' esc'; font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.6; }
 .mermaid-caption {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 12px;
   color: var(--color-text-muted);
-  margin-top: 12px;
   font-style: italic;
+  z-index: 100000;
+  background: var(--color-surface-alt);
+  padding: 4px 16px;
+  border-radius: 6px;
+  white-space: nowrap;
 }
+/* Mermaid dark theme node overrides — prevent black fills */
+[data-theme="dark"] .mermaid .node rect,
+[data-theme="dark"] .mermaid .node circle,
+[data-theme="dark"] .mermaid .node polygon { fill: var(--color-surface-alt) !important; stroke: var(--color-border) !important; }
+[data-theme="dark"] .mermaid .node .label { color: var(--color-text) !important; }
+[data-theme="dark"] .mermaid .edgePath .path { stroke: var(--color-text-muted) !important; }
+[data-theme="dark"] .mermaid .edgeLabel { background: var(--color-surface) !important; color: var(--color-text-muted) !important; }
+[data-theme="dark"] .mermaid .cluster rect { fill: var(--color-surface) !important; stroke: var(--color-border) !important; }
 
 /* === Inline === */
 .status {
@@ -1054,6 +1133,14 @@ code { font-family: inherit; }
   max-width: 600px;
   margin: 0 auto;
 }
+
+/* === Byline (author attribution) === */
+.byline { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+.byline__avatar { font-size: 2rem; width: 3rem; height: 3rem; display: flex; align-items: center; justify-content: center; background: var(--color-accent-dim); border-radius: 50%; flex-shrink: 0; }
+.byline__info { display: flex; flex-direction: column; gap: 2px; }
+.byline__name { font-weight: 600; font-size: 0.95rem; }
+.byline__role { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-accent); text-transform: uppercase; letter-spacing: 0.08em; }
+.byline__meta { font-size: 0.8rem; color: var(--color-text-muted); }
 
 /* === Footer === */
 footer, .footer {
@@ -1148,9 +1235,10 @@ footer a:hover, .footer a:hover { color: var(--color-accent); }
   padding: 0;
 }
 .site-nav__links a {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--color-text-muted);
   text-decoration: none;
@@ -1237,7 +1325,7 @@ code:not(pre code) {
   .section__sidebar { grid-template-columns: 1fr; }
   .section__sidebar > *:first-child { position: static; max-height: none; }
   .section__asymmetric { grid-template-columns: 1fr; }
-  .container { padding: 0 16px 60px; }
+  .container { padding: 0 16px 40px; }
 }
 @media (max-width: 480px) {
   .section__grid { grid-template-columns: 1fr; }
@@ -1257,6 +1345,76 @@ code:not(pre code) {
   details { open: true; }
   details[open] summary ~ * { display: block; }
 }
+
+/* === Effect Knobs (opt-in via meta.effects array) === */
+
+/* Grid background — subtle dot grid or line grid, faded under content */
+.fx-grid-dots body::after,
+.fx-grid-lines body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.4;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, transparent 20%, black 80%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, transparent 20%, black 80%);
+}
+.fx-grid-dots body::after {
+  background-image:
+    radial-gradient(circle, var(--color-border) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.fx-grid-lines body::after {
+  background-image:
+    linear-gradient(var(--color-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Card glow on hover — subtle accent glow */
+.fx-card-glow .ve-card:hover {
+  box-shadow: var(--shadow-lg), 0 0 20px color-mix(in srgb, var(--color-accent) 15%, transparent);
+}
+.fx-card-glow .kpi-card:hover {
+  box-shadow: var(--shadow), 0 0 16px color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+/* Frosted glass sections — alternating sections get glassmorphism */
+.fx-glass .section:nth-child(even) {
+  background: color-mix(in srgb, var(--color-surface-alt) 80%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Gradient border on hero — top-edge gradient accent */
+.fx-hero-gradient .hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+}
+
+/* Noise texture — film grain overlay */
+.fx-noise body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.015;
+  pointer-events: none;
+  z-index: 9998;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Accent underlines on section titles */
+.fx-title-underline .section-title {
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--color-accent-dim);
+}
+
   </style>
 </head>
 <body>
@@ -1295,39 +1453,34 @@ code:not(pre code) {
   
   <h3 class="ve-card__title">OpenClaw</h3>
   <div class="ve-card__content"><p>Most complete operator onboarding. <code>openclaw onboard</code> plus a very deep <code>doctor</code>/migration surface, daemon install, control-plane runbook, and explicit security defaults.</p></div>
-  
 </div>
 <div data-lev-id="card-hermes" class="anim ve-card ve-card--elevated" style="--i:3">
   
   
   <h3 class="ve-card__title">☤ Hermes</h3>
   <div class="ve-card__content"><p>Hybrid script + wizard + gateway model. Strong migration story from OpenClaw, profile-aware homes, and broad provider portability, but less consumer-polished than OpenClaw.</p></div>
-  
 </div>
 <div data-lev-id="card-omo" class="anim ve-card ve-card--elevated" style="--i:4">
   <span class="ve-card__icon">🧠</span>
   
   <h3 class="ve-card__title">OpenAgent</h3>
   <div class="ve-card__content"><p>Most explicit provider questionnaire. Install guide asks subscription-by-subscription questions, drives auth setup, and writes agent-specific model config rather than one global provider default.</p></div>
-  
 </div>
 <div data-lev-id="card-omx" class="anim ve-card ve-card--elevated" style="--i:5">
   <span class="ve-card__icon">⚙️</span>
   
   <h3 class="ve-card__title">OMX</h3>
   <div class="ve-card__content"><p>Best scoped setup. <code>omx setup</code> clearly owns prompts, skills, config, <code>AGENTS.md</code>, <code>.omx/</code> runtime state, and user vs project scope. Onboarding cleanly hands off into the canonical workflow.</p></div>
-  
 </div>
 <div data-lev-id="card-omc" class="anim callout callout--warning" style="--i:6">
   <div class="callout__title">🧩 OMC</div>
-  <div class="callout__content">Fastest plugin-first quick start, but the install story is split: marketplace/plugin path, npm path, local setup, and variant repos all coexist. Good UX, weaker source-of-truth discipline.</div>
+  <div class="callout__content"><p>Fastest plugin-first quick start, but the install story is split: marketplace/plugin path, npm path, local setup, and variant repos all coexist. Good UX, weaker source-of-truth discipline.</p></div>
 </div>
 <div data-lev-id="card-lev" class="anim ve-card ve-card--glass" style="--i:7">
   
   
   <h3 class="ve-card__title">🜂 Lev</h3>
   <div class="ve-card__content"><p>Cleanest conceptual split: <code>lev install</code> for machine infra, <code>lev init</code> for project bootstrap, <code>install()</code> SDK for lifecycle orchestration. Least productized operator surface today.</p></div>
-  
 </div></div>
 </section>
 
@@ -1336,7 +1489,7 @@ code:not(pre code) {
   <h2 class="section-title">Install and First-Run Surface</h2>
   <p class="section-subtitle">Primary install entry, setup path, scope model, and what happens before the user can do real work.</p>
   <div class="section__full-width"><div data-lev-id="install-matrix" class="anim table-wrap" style="--i:9">
-  <button class="table-fullscreen-btn" onclick="this.closest('.table-wrap').classList.toggle('table-wrap--fullscreen')" title="Toggle fullscreen">&#x26F6;</button>
+  <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
   <table class="data-table data-table--sticky">
     <thead><tr><th>Capability</th><th>Lev</th><th>Hermes</th><th>OpenClaw</th><th>Oh My OpenAgent</th><th>OMX</th><th>OMC</th></tr></thead>
     <tbody>
@@ -1354,7 +1507,7 @@ code:not(pre code) {
 </div>
 <div data-lev-id="install-note" class="anim callout callout--info" style="--i:10">
   <div class="callout__title">📌 OMC Variant Note</div>
-  <div class="callout__content">The matrix uses the Yeachan-Heo OMC mainline as the primary column. The stefan-devo fork adds a real shell installer with explicit per-project vs system-wide mode, MCP wiring, research-tool setup, permission mode selection, and update/uninstall scripts.</div>
+  <div class="callout__content"><p>The matrix uses the Yeachan-Heo OMC mainline as the primary column. The stefan-devo fork adds a real shell installer with explicit per-project vs system-wide mode, MCP wiring, research-tool setup, permission mode selection, and update/uninstall scripts.</p></div>
 </div></div>
 </section>
 
@@ -1363,7 +1516,7 @@ code:not(pre code) {
   <h2 class="section-title">Doctor, Migration, Progressive Disclosure, and Knobs</h2>
   <p class="section-subtitle">The differentiator is not just install. It’s what each platform does after install to keep users on the rails.</p>
   <div class="section__full-width"><div data-lev-id="ops-matrix" class="anim table-wrap" style="--i:10">
-  <button class="table-fullscreen-btn" onclick="this.closest('.table-wrap').classList.toggle('table-wrap--fullscreen')" title="Toggle fullscreen">&#x26F6;</button>
+  <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
   <table class="data-table data-table--sticky">
     <thead><tr><th>Capability</th><th>Lev</th><th>Hermes</th><th>OpenClaw</th><th>Oh My OpenAgent</th><th>OMX</th><th>OMC</th></tr></thead>
     <tbody>
@@ -1404,42 +1557,36 @@ code:not(pre code) {
   
   <h3 class="ve-card__title">OpenClaw Evidence</h3>
   <div class="ve-card__content"><p><code>workshop/intake/openclaw/README.md</code> lines 26-31, 118-157, 167-170; <code>workshop/intake/openclaw/docs/gateway/doctor.md</code> lines 11-93; gateway runbook for service lifecycle.</p></div>
-  
 </div>
 <div data-lev-id="evidence-hermes" class="anim ve-card ve-card--default" style="--i:10">
   
   
   <h3 class="ve-card__title">☤ Hermes Evidence</h3>
   <div class="ve-card__content"><p><code>workshop/intake/hermes-agent/README.md</code> lines 30-45, 49-60, 109-134; <code>workshop/intake/hermes-agent/setup-hermes.sh</code> lines 8-18, 53-75, 287-306.</p></div>
-  
 </div>
 <div data-lev-id="evidence-openagent" class="anim ve-card ve-card--default" style="--i:10">
   <span class="ve-card__icon">🧠</span>
   
   <h3 class="ve-card__title">OpenAgent Evidence</h3>
   <div class="ve-card__content"><p><code>workshop/intake/oh-my-openagent/docs/guide/installation.md</code> lines 14-205 and README uninstall/config sections at lines 272-340.</p></div>
-  
 </div>
 <div data-lev-id="evidence-omx" class="anim ve-card ve-card--default" style="--i:10">
   <span class="ve-card__icon">⚙️</span>
   
   <h3 class="ve-card__title">OMX Evidence</h3>
   <div class="ve-card__content"><p><code>workshop/intake/oh-my-codex/README.md</code> lines 48-165; <code>docs/getting-started.html</code> lines 25-65; translated README sections with scope and generated files at <code>README.de.md</code> lines 95-118 and 182-199.</p></div>
-  
 </div>
 <div data-lev-id="evidence-omc" class="anim ve-card ve-card--default" style="--i:10">
   <span class="ve-card__icon">🧩</span>
   
   <h3 class="ve-card__title">OMC Evidence</h3>
   <div class="ve-card__content"><p>Mainline: <code>workshop/intake/oh-my-claudecode/README.md</code> lines 45-169. Variant installer surface: <code>workshop/intake/stefandevo-omc/install.sh</code> lines 29-67, 77-107, 221-256, 296-345, 424-448.</p></div>
-  
 </div>
 <div data-lev-id="evidence-scouts" class="anim ve-card ve-card--glass" style="--i:10">
   <span class="ve-card__icon">🤖</span>
   
   <h3 class="ve-card__title">Scout Corroboration</h3>
   <div class="ve-card__content"><p>Local <code>lev exec</code> scout report completed for the Hermes/OpenClaw/OpenAgent cluster at <code>/tmp/lev-scout-cluster-a.md</code>. A second scout was launched for the OMX/OMC cluster and direct intake evidence was used regardless.</p></div>
-  
 </div></div>
 </section>
 
@@ -1475,7 +1622,7 @@ code:not(pre code) {
       <span class="code-file__dot"></span>
       <span class="code-file__name">terminal</span>
     </div>
-    <div class="code-file__body"><pre><code><span class="code-func">$</span> npx tsx plugins/lev-now/src/cli.ts /private/tmp/lev-now-onboarding-benchmark-matrix.json --output /Users/jean-patricksmith/.agents/levnow/onboarding-benchmark-matrix.html --show-source</code></pre></div>
+    <div class="code-file__body"><pre><code><span class="code-func">$</span> npx tsx plugins/lev-now/src/cli.ts /Users/jean-patricksmith/.agents/levnow/comparison.json --show-source --output /Users/jean-patricksmith/.agents/levnow/comparison.html</code></pre></div>
   </div>
 
   <details style="margin-top: 2rem;">
@@ -1962,6 +2109,68 @@ code:not(pre code) {
   </button>
 
   <script>
+    // Mermaid zoom — clean implementation
+    window.levNowMermaidZoom = function(wrapperId, delta) {
+      var wrap = document.getElementById(wrapperId);
+      if (!wrap) return;
+      var svg = wrap.querySelector('.mermaid svg') || wrap.querySelector('.mermaid');
+      if (!svg) return;
+      var current = parseFloat(svg.dataset.zoom || '1') || 1;
+      var next = delta === 0 ? 1 : Math.max(0.3, Math.min(3, current + delta));
+      svg.dataset.zoom = next;
+      svg.style.transform = 'scale(' + next + ')';
+      svg.style.transformOrigin = 'center center';
+    };
+
+    // Universal fullscreen — toggles .is-fullscreen on the ORIGINAL element (no cloning)
+    (function() {
+      var currentFs = null;
+      var closeBtn = null;
+
+      window.levNowFullscreen = function(el) {
+        if (currentFs) levNowClosePortal();
+        el.classList.add('is-fullscreen');
+        currentFs = el;
+        // Add close button
+        closeBtn = document.createElement('button');
+        closeBtn.className = 'fs-close';
+        closeBtn.textContent = 'ESC';
+        closeBtn.onclick = levNowClosePortal;
+        el.appendChild(closeBtn);
+        document.body.style.overflow = 'hidden';
+      };
+      window.levNowClosePortal = function() {
+        if (currentFs) {
+          currentFs.classList.remove('is-fullscreen');
+          if (closeBtn && closeBtn.parentNode) closeBtn.parentNode.removeChild(closeBtn);
+          currentFs = null;
+          closeBtn = null;
+        }
+        document.body.style.overflow = '';
+      };
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && currentFs) levNowClosePortal();
+      });
+    })();
+
+    // Card detail overlay expand/close
+    window.levNowExpandCard = function(id) {
+      var overlay = document.getElementById('overlay-' + id);
+      if (overlay) { overlay.classList.add('active'); document.body.style.overflow = 'hidden'; }
+    };
+    window.levNowCloseOverlay = function(id) {
+      var overlay = document.getElementById('overlay-' + id);
+      if (overlay) { overlay.classList.remove('active'); document.body.style.overflow = ''; }
+    };
+    // Close overlay on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.card-detail-overlay.active').forEach(function(o) {
+          o.classList.remove('active'); document.body.style.overflow = '';
+        });
+      }
+    });
+
     // Theme toggle with localStorage persistence
     (function() {
       var toggle = document.querySelector('.theme-toggle');
@@ -2058,5 +2267,6 @@ code:not(pre code) {
       targets.forEach(function(t) { tocObs.observe(t); });
     })();
   </script>
+
 </body>
 </html>

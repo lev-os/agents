@@ -1,0 +1,395 @@
+{
+  "meta": {
+    "title": "AgentPing Unification — Architecture Brief",
+    "description": "Merging GenUI + lev-now + dashboard-runner + websocket dispatch into one control plane",
+    "layout": "sidebar-toc",
+    "effects": [
+      "grid-dots",
+      "title-underline"
+    ]
+  },
+  "theme": {
+    "preset": "deep-blue-gold",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "current-state",
+    "target-state",
+    "convergence",
+    "venn",
+    "migration",
+    "questions"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "A2 / ARCHITECTURE BRIEF",
+        "title": "One Control Plane",
+        "subtitle": "AgentPing absorbs GenUI, lev-now, dashboard-runner, and websocket dispatch into a unified surface",
+        "meta": "2026-04-11 — Agent A2 (Dashboard)"
+      },
+      "children": [
+        "hero-lead"
+      ]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "Three systems built independently are converging. The scanner discovers 75 projects. The dashboard-runner manages their processes. The lev-now engine renders their state as pages. The websocket layer dispatches lev exec for lifecycle transitions. This brief maps the merge."
+      }
+    },
+    "current-state": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "CURRENT STATE",
+        "title": "Three Separate Systems",
+        "subtitle": "Built independently, now ready to converge"
+      },
+      "children": [
+        "sys-genui",
+        "sys-runner",
+        "sys-ui"
+      ]
+    },
+    "sys-genui": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "GenUI / lev-now",
+        "content": "**Rendering engine.** POST JSON spec, get HTML. Zero-dep markdown engine. File manifest auto-scaffold. 6 themes, 11 element types, 13 section variants.\n\n**Key files:**\n- `plugins/lev-now/src/engine/render.ts`\n- `plugins/lev-now/src/handlers/manifest.ts`\n- `plugins/lev-now/src/engine/markdown.ts`\n\n**Status:** Produces the /now pages, session feedback, content dashboards. Not yet integrated with AgentPing."
+      }
+    },
+    "sys-runner": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Dashboard Runner",
+        "content": "**Process management.** Manages 9 dashboards with auto-restart, port finding, health monitoring. YAML-driven config.\n\n**Key files:**\n- `dashboard-runner/src/runner.ts`\n- `dashboard-runner/src/spawn-runner.ts`\n- `dashboard-runner/config/dashboards.yaml`\n\n**Status:** Live on :3030. SpawnRunner ships both build-and-exit and detected→ready flows."
+      }
+    },
+    "sys-ui": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "AgentPing Web UI",
+        "content": "**React dashboard.** dashboard-manager-ui with Apps section, Parity Registry, Setup button, lifecycle badges. Plus studio (Electron), web-ui (ping responder).\n\n**Key files:**\n- `dashboard-manager-ui/src/components/DashboardList.tsx`\n- `dashboard-manager-ui/src/components/ParitySection.tsx`\n- `dashboard-manager-ui/src/components/SetupPanel.tsx`\n\n**Status:** Rendering 11 parity frameworks, 9 dashboards, filter chips, health dots."
+      }
+    },
+    "target-state": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "TARGET STATE",
+        "title": "Unified Control Plane",
+        "subtitle": "AgentPing becomes the interface where everything converges"
+      },
+      "children": [
+        "target-diagram",
+        "target-desc"
+      ]
+    },
+    "target-diagram": {
+      "type": "diagram",
+      "props": {
+        "content": "graph TD\n    Scanner[\"Workspace Scanner\\n75 projects, 6 runtimes\"]\n    Config[\".lev/config.yaml\\nprojects: section\"]\n    Runner[\"Dashboard Runner\\nSpawnRunner + health\"]\n    API[\"REST + WebSocket API\\n:3030\"]\n    LevNow[\"lev-now Engine\\nJSON → HTML\"]\n    UI[\"AgentPing Web UI\\nReact dashboard\"]\n    Tmux[\"tmux panes\\nA0's harness\"]\n    DevServer[\"lev-now dev server\\nhot reload\"]\n    Setup[\"Setup Flow\\nSSE + lev exec\"]\n    Review[\"Component Review\\n400+ migrations\"]\n    Parity[\"Parity Registry\\n11 frameworks\"]\n\n    Config --> Scanner\n    Scanner --> Runner\n    Scanner --> API\n    Runner --> API\n    API --> UI\n    API --> Tmux\n    API --> DevServer\n    LevNow --> UI\n    LevNow --> DevServer\n    Setup --> Runner\n    UI --> Setup\n    UI --> Review\n    UI --> Parity",
+        "title": "Unified Architecture"
+      }
+    },
+    "target-desc": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "The scanner is the single source of truth. It reads `config.yaml`, detects all projects, and feeds the dashboard-runner (process management), the API (REST + WebSocket), and all three render targets (React UI, tmux panes, lev-now HTML).\n\n**lev-now becomes a component library for AgentPing.** Instead of generating standalone pages, lev-now renders components INSIDE the dashboard. The parity cards, KPI rows, and project cards are already lev-now element types — they just need to render as React components instead of static HTML.\n\n**Component review happens inline.** The 400+ migrated @kingly/ui components each get a card in the dashboard. GenUI renders variants, you approve/reject, lifecycle transitions. The dashboard IS the review tool."
+      }
+    },
+    "convergence": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "CONVERGENCE PATH",
+        "title": "What Moves Where",
+        "subtitle": "What gets absorbed, what stays separate"
+      },
+      "children": [
+        "convergence-table"
+      ]
+    },
+    "convergence-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "component",
+            "label": "Component"
+          },
+          {
+            "key": "current",
+            "label": "Current Home"
+          },
+          {
+            "key": "target",
+            "label": "Target Home"
+          },
+          {
+            "key": "action",
+            "label": "Action"
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          }
+        ],
+        "rows": [
+          {
+            "component": "Workspace Scanner",
+            "current": "core/build/src/scanner.ts",
+            "target": "stays (shared)",
+            "action": "Imported by all consumers",
+            "status": {
+              "text": "Done",
+              "status": "match"
+            }
+          },
+          {
+            "component": "Dashboard Runner",
+            "current": "agentping/dashboard-runner",
+            "target": "stays",
+            "action": "API consumed by all surfaces",
+            "status": {
+              "text": "Done",
+              "status": "match"
+            }
+          },
+          {
+            "component": "SpawnRunner",
+            "current": "dashboard-runner/spawn-runner",
+            "target": "stays (keystone)",
+            "action": "Powers build-and-exit + setup",
+            "status": {
+              "text": "Done",
+              "status": "match"
+            }
+          },
+          {
+            "component": "Setup Endpoint",
+            "current": "dashboard-manager-server",
+            "target": "stays (SSE)",
+            "action": "POST /setup → lev exec",
+            "status": {
+              "text": "Done",
+              "status": "match"
+            }
+          },
+          {
+            "component": "Parity Section",
+            "current": "dashboard-manager-ui",
+            "target": "stays",
+            "action": "11 frameworks, filter chips",
+            "status": {
+              "text": "Done",
+              "status": "match"
+            }
+          },
+          {
+            "component": "Setup Panel",
+            "current": "dashboard-manager-ui",
+            "target": "stays",
+            "action": "SSE terminal drawer",
+            "status": {
+              "text": "Done",
+              "status": "match"
+            }
+          },
+          {
+            "component": "lev-now Renderer",
+            "current": "plugins/lev-now/engine",
+            "target": "ABSORB into AgentPing",
+            "action": "React wrapper around engine",
+            "status": {
+              "text": "P2",
+              "status": "warn"
+            }
+          },
+          {
+            "component": "File Manifest",
+            "current": "plugins/lev-now/handlers",
+            "target": "stays + feed dashboard",
+            "action": "Output → project cards",
+            "status": {
+              "text": "P1",
+              "status": "warn"
+            }
+          },
+          {
+            "component": "Component Review",
+            "current": "not yet built",
+            "target": "dashboard-manager-ui",
+            "action": "GenUI renders variants",
+            "status": {
+              "text": "P2",
+              "status": "gap"
+            }
+          },
+          {
+            "component": "config.yaml manifest",
+            "current": ".lev/config.yaml",
+            "target": "runner reads directly",
+            "action": "Replaces dashboards.yaml",
+            "status": {
+              "text": "P3",
+              "status": "gap"
+            }
+          },
+          {
+            "component": "GenUI Exec Daemon",
+            "current": "plugins/genui-exec-daemon",
+            "target": "DORMANT",
+            "action": "Parked sandbox",
+            "status": {
+              "text": "Skip",
+              "status": "info"
+            }
+          }
+        ]
+      }
+    },
+    "venn": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "3-WAY VENN",
+        "title": "Same Data, Three Surfaces",
+        "subtitle": "Each surface is a projection of the same scanner + API output"
+      },
+      "children": [
+        "venn-left",
+        "venn-right"
+      ]
+    },
+    "venn-left": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Data Sources (shared)",
+        "content": "**Scanner output** — 75 projects, 6 runtimes, 6 frameworks\n**Dashboard-runner API** — 9 dashboards, health, metrics, lifecycle\n**Parity registry** — 11 frameworks, 88 features, adoption health\n**.lev/config.yaml** — scan_dirs, self, external projects\n**FlowMind sessions** — agent states (idle/running/paused/completed)\n**Agent mail** — cross-agent coordination messages"
+      }
+    },
+    "venn-right": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Render Targets (separate)",
+        "content": "**AgentPing Web** (React) — interactive dashboard at :5175. Rich interactions, Setup button, parity filter chips, websocket streaming. Owned by A2.\n\n**tmux panes** (terminal) — keyboard-driven workstream dashboard. NTM palette patterns. Floating panes via tmux display-popup. Owned by A0.\n\n**lev-now HTML** (static) — deterministic page rendering with hot reload at :3456. Beautiful self-contained HTML. Content dashboards, session feedback, articles. Owned by A2 + A4."
+      }
+    },
+    "migration": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "MIGRATION SEQUENCE",
+        "title": "Execution Order",
+        "subtitle": "What to build next, in dependency order"
+      },
+      "children": [
+        "migration-timeline"
+      ]
+    },
+    "migration-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          {
+            "date": "Done",
+            "title": "Scanner + Dashboard Types",
+            "description": "75 projects detected, apps lane, lifecycle metadata, build-and-exit health check",
+            "status": "done"
+          },
+          {
+            "date": "Done",
+            "title": "Storybook Fix + Parity Section",
+            "description": "SB8→SB10 migration (359 imports), 11 framework cards with filter chips and health dots",
+            "status": "done"
+          },
+          {
+            "date": "Done",
+            "title": "SpawnRunner + Setup Endpoint",
+            "description": "Generalized spawn with StreamOp streaming. POST /setup dispatches lev exec, promotes lifecycle",
+            "status": "done"
+          },
+          {
+            "date": "Done",
+            "title": "Stats Endpoint + File Manifest",
+            "description": "/api/projects/stats for A4. manifest.ts + markdown.ts for site generation",
+            "status": "done"
+          },
+          {
+            "date": "P1 Next",
+            "title": "Card-Grid Projects View",
+            "description": "Fork buildIndex() from lev-now. 75 projects as searchable cards with runtime/framework badges",
+            "status": "active"
+          },
+          {
+            "date": "P1",
+            "title": "Tag DSL Dashboard Scope",
+            "description": "[[dashboard:refresh]], [[dashboard:filter]], [[dashboard:open]]. Wired via config.yaml tag_handlers",
+            "status": "upcoming"
+          },
+          {
+            "date": "P2",
+            "title": "lev-now React Wrapper",
+            "description": "Render lev-now components as React elements inside dashboard-manager-ui. Convergence point.",
+            "status": "upcoming"
+          },
+          {
+            "date": "P2",
+            "title": "Component Review Pipeline",
+            "description": "400+ @kingly/ui migrations as dashboard cards. GenUI renders variants. Approve/reject inline.",
+            "status": "upcoming"
+          },
+          {
+            "date": "P3",
+            "title": "config.yaml as Single Source",
+            "description": "dashboard-runner reads .lev/config.yaml projects: directly. Eliminates dashboards.yaml.",
+            "status": "upcoming"
+          }
+        ]
+      }
+    },
+    "questions": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "OPEN QUESTIONS",
+        "title": "Decisions Pending",
+        "subtitle": "Blocking items for user review"
+      },
+      "children": [
+        "q-canvas",
+        "q-review"
+      ]
+    },
+    "q-canvas": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Delete packages/canvas/",
+        "content": "Arch verdict: delete (rm -rf). dcg blocked the command. Run manually:\n`rm -rf community/agentping/packages/canvas/`\nPackage is DEPRECATED, builds disabled, zero consumers, merged into web-ui."
+      }
+    },
+    "q-review": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Component Review Entry Point",
+        "content": "When we start the 400-component review: should each component be a bead (trackable lifecycle) or a dashboard card (visual triage)? Current state: 327 beads exist but are all OPEN awaiting human visual QA. Proposal: render each component via GenUI in the dashboard, approve/reject there, beads close automatically."
+      }
+    }
+  }
+}

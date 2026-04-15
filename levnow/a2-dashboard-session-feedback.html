@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A2 / Dashboard — Session Feedback</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b1220;
+    --bg-grid: rgba(148, 163, 184, 0.04);
+    --surface: #101a2e;
+    --surface-2: #162139;
+    --surface-3: #1c2947;
+    --border: rgba(148, 163, 184, 0.12);
+    --border-strong: rgba(148, 163, 184, 0.22);
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --text-mute: #64748b;
+    --accent: #60a5fa;
+    --accent-dim: rgba(96, 165, 250, 0.14);
+    --gold: #d4a73a;
+    --gold-dim: rgba(212, 167, 58, 0.14);
+    --green: #22c55e;
+    --green-dim: rgba(34, 197, 94, 0.14);
+    --red: #ef4444;
+    --red-dim: rgba(239, 68, 68, 0.14);
+    --amber: #f59e0b;
+    --amber-dim: rgba(245, 158, 11, 0.14);
+    --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f5f7fb;
+      --bg-grid: rgba(71, 85, 105, 0.05);
+      --surface: #ffffff;
+      --surface-2: #f0f4fa;
+      --surface-3: #e4eaf3;
+      --border: rgba(71, 85, 105, 0.14);
+      --border-strong: rgba(71, 85, 105, 0.28);
+      --text: #0f172a;
+      --text-dim: #475569;
+      --text-mute: #64748b;
+      --accent: #1e3a5f;
+      --accent-dim: rgba(30, 58, 95, 0.1);
+      --gold: #9a6b1a;
+      --gold-dim: rgba(154, 107, 26, 0.1);
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body, h1, h2, h3, h4, p, ul, ol { margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-wrap: break-word;
+    background-image:
+      linear-gradient(to right, var(--bg-grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--bg-grid) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  .container { max-width: 1280px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem) 80px; }
+
+  /* ═══════════════════════════════════════════════ */
+  /* HERO                                             */
+  /* ═══════════════════════════════════════════════ */
+
+  .hero {
+    padding: clamp(3rem, 8vw, 5rem) 0 clamp(2rem, 5vw, 3rem);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 40% at 20% 0%, var(--accent-dim), transparent 70%);
+    pointer-events: none;
+  }
+  .hero-kicker {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    position: relative;
+  }
+  .hero-kicker::before {
+    content: '';
+    width: 24px; height: 1px;
+    background: var(--accent);
+  }
+  .hero h1 {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+  .hero-lead {
+    font-size: clamp(1.1rem, 2vw, 1.35rem);
+    color: var(--text-dim);
+    max-width: 60ch;
+    position: relative;
+  }
+  .hero-meta {
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    position: relative;
+  }
+  .meta-pill {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    padding: 0.4rem 0.75rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .meta-pill--ok { border-color: rgba(34, 197, 94, 0.3); color: var(--green); }
+  .meta-pill--accent { border-color: rgba(96, 165, 250, 0.3); color: var(--accent); }
+
+  /* ═══════════════════════════════════════════════ */
+  /* SECTIONS                                         */
+  /* ═══════════════════════════════════════════════ */
+
+  .section { padding: clamp(2rem, 5vw, 4rem) 0; border-bottom: 1px solid var(--border); }
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-label::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+  .section h2 {
+    font-size: clamp(1.6rem, 3vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+  .section-intro {
+    color: var(--text-dim);
+    max-width: 70ch;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+  }
+
+  /* ═══════════════════════════════════════════════ */
+  /* KPI BAR                                          */
+  /* ═══════════════════════════════════════════════ */
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+    position: relative;
+  }
+  .kpi-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--accent);
+  }
+  .kpi-card--ok::before { background: var(--green); }
+  .kpi-card--gold::before { background: var(--gold); }
+  .kpi-card--red::before { background: var(--red); }
+  .kpi-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+  .kpi-value {
+    font-family: var(--font-mono);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi-sub {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-top: 0.5rem;
+  }
+
+  /* ═══════════════════════════════════════════════ */
+  /* SHIPPED CARDS                                    */
+  /* ═══════════════════════════════════════════════ */
+
+  .ship-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  .ship-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    position: relative;
+  }
+  .ship-card__head {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  .ship-card__id {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .ship-card__status {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
+    background: var(--green-dim);
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+  .ship-card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .ship-card p {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+  .ship-card code {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    padding: 0.1rem 0.35rem;
+    background: var(--surface-3);
+    color: var(--accent);
+    border-radius: 2px;
+  }
+  .ship-card ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 0.5rem;
+  }
+  .ship-card li {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    padding: 0.15rem 0;
+    padding-left: 1rem;
+    position: relative;
+  }
+  .ship-card li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+
+  /* ═══════════════════════════════════════════════ */
+  /* BEFORE / AFTER                                   */
+  /* ═══════════════════════════════════════════════ */
+
+  .ba-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  @media (max-width: 720px) { .ba-grid { grid-template-columns: 1fr; } }
+  .ba-panel {
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    position: relative;
+  }
+  .ba-panel--before {
+    border-left: 3px solid var(--red);
+  }
+  .ba-panel--after {
+    border-left: 3px solid var(--green);
+  }
+  .ba-panel__label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+  .ba-panel--before .ba-panel__label { color: var(--red); }
+  .ba-panel--after .ba-panel__label { color: var(--green); }
+  .ba-panel h4 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+  .ba-panel table { width: 100%; border-collapse: collapse; font-size: 0.85rem; font-family: var(--font-mono); }
+  .ba-panel td { padding: 0.35rem 0; border-bottom: 1px solid var(--border); color: var(--text-dim); }
+  .ba-panel td:last-child { text-align: right; font-weight: 600; color: var(--text); }
+
+  /* ═══════════════════════════════════════════════ */
+  /* VENN DIAGRAM                                     */
+  /* ═══════════════════════════════════════════════ */
+
+  .venn-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+    padding: 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .venn-caption {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    margin-top: 1rem;
+    font-style: italic;
+  }
+
+  /* ═══════════════════════════════════════════════ */
+  /* BEADS TABLE                                      */
+  /* ═══════════════════════════════════════════════ */
+
+  .queue-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    font-size: 0.88rem;
+  }
+  .queue-table th,
+  .queue-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .queue-table th {
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    position: sticky;
+    top: 0;
+  }
+  .queue-table tr:nth-child(even) td { background: rgba(148, 163, 184, 0.03); }
+  .queue-table tr:hover td { background: var(--accent-dim); }
+  .queue-table td:first-child { font-family: var(--font-mono); font-size: 0.78rem; }
+  .priority {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+  .priority--p0 { background: var(--red-dim); color: var(--red); }
+  .priority--p1 { background: var(--amber-dim); color: var(--amber); }
+  .priority--p2 { background: var(--gold-dim); color: var(--gold); }
+  .priority--p3 { background: var(--accent-dim); color: var(--accent); }
+  .status-pill {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .status-pill--done { background: var(--green-dim); color: var(--green); }
+  .status-pill--open { background: var(--surface-3); color: var(--text-dim); }
+
+  /* ═══════════════════════════════════════════════ */
+  /* QUESTIONS                                        */
+  /* ═══════════════════════════════════════════════ */
+
+  .q-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    padding: 1.25rem;
+  }
+  .q-card__num {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  .q-card h4 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+  .q-card p {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+  .q-card code {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 0.1rem 0.3rem;
+    background: var(--surface-3);
+    color: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* ═══════════════════════════════════════════════ */
+  /* PULL QUOTE                                       */
+  /* ═══════════════════════════════════════════════ */
+
+  .pull-quote {
+    margin: 3rem 0;
+    padding: 2.5rem 3rem;
+    background: linear-gradient(135deg, var(--accent-dim), transparent);
+    border-left: 4px solid var(--accent);
+    position: relative;
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+  }
+  .pull-quote::before {
+    content: '"';
+    position: absolute;
+    top: 0.5rem;
+    left: 1rem;
+    font-size: 4rem;
+    color: var(--accent);
+    opacity: 0.2;
+    font-family: serif;
+    line-height: 1;
+  }
+  .pull-quote cite {
+    display: block;
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: var(--text-mute);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-style: normal;
+  }
+
+  /* ═══════════════════════════════════════════════ */
+  /* SCANNER BREAKDOWN                                */
+  /* ═══════════════════════════════════════════════ */
+
+  .scanner-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  @media (max-width: 900px) { .scanner-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 520px) { .scanner-grid { grid-template-columns: 1fr; } }
+  .sc-card {
+    padding: 1rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+  }
+  .sc-card__label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.75rem;
+  }
+  .sc-card__total {
+    font-family: var(--font-mono);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .sc-card ul { list-style: none; padding: 0; margin-top: 0.75rem; }
+  .sc-card li {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    display: flex;
+    justify-content: space-between;
+    padding: 0.2rem 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .sc-card li span:last-child { color: var(--text); font-weight: 600; }
+
+  /* ═══════════════════════════════════════════════ */
+  /* VISION PANEL                                     */
+  /* ═══════════════════════════════════════════════ */
+
+  .vision {
+    margin-top: 2rem;
+    padding: 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    position: relative;
+  }
+  .vision::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+    background: linear-gradient(to bottom, var(--gold), var(--accent));
+  }
+  .vision h3 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+  .vision p {
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+  .vision-flow {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    padding: 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    white-space: pre;
+    overflow-x: auto;
+    margin: 1rem 0;
+    line-height: 1.5;
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .section, .hero, .kpi-card, .ship-card, .ba-panel, .q-card, .sc-card { animation: fadeUp 0.6s ease-out backwards; }
+  .kpi-card:nth-child(1) { animation-delay: 0.1s; }
+  .kpi-card:nth-child(2) { animation-delay: 0.15s; }
+  .kpi-card:nth-child(3) { animation-delay: 0.2s; }
+  .kpi-card:nth-child(4) { animation-delay: 0.25s; }
+  .kpi-card:nth-child(5) { animation-delay: 0.3s; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+
+  @media print {
+    body { background: white; color: black; }
+    .hero, .section { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-kicker">A2 / DASHBOARD-AGENTPING / SESSION 1</div>
+    <h1>Everything green,<br>queue loaded, report out.</h1>
+    <p class="hero-lead">
+      Storybook collision fixed, system-dashboard unstuck, FreyMarket revived,
+      build-and-exit health check shipped, stats endpoint live, scanner wiring
+      complete. Six questions for JP before I go further.
+    </p>
+    <div class="hero-meta">
+      <span class="meta-pill meta-pill--ok">6/6 runnable green</span>
+      <span class="meta-pill meta-pill--accent">75 projects detected</span>
+      <span class="meta-pill">14 beads · P0–P3</span>
+      <span class="meta-pill">7 autonomous fixes</span>
+      <span class="meta-pill">10m heartbeat</span>
+    </div>
+  </header>
+
+  <!-- KPI -->
+  <section class="section">
+    <div class="section-label">At a glance</div>
+    <h2>Session impact</h2>
+    <p class="section-intro">The numbers the rest of this page unpacks.</p>
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-card--ok">
+        <div class="kpi-label">Dashboards online</div>
+        <div class="kpi-value">6 / 6</div>
+        <div class="kpi-sub">+ 2 build-and-exit (iOS)</div>
+      </div>
+      <div class="kpi-card kpi-card--gold">
+        <div class="kpi-label">Projects detected</div>
+        <div class="kpi-value">75</div>
+        <div class="kpi-sub">6 runtimes · 6 frameworks</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Storybook stories fixed</div>
+        <div class="kpi-value">359</div>
+        <div class="kpi-sub">SB8 → SB10 imports migrated</div>
+      </div>
+      <div class="kpi-card kpi-card--red">
+        <div class="kpi-label">Crashes before</div>
+        <div class="kpi-value">4,973</div>
+        <div class="kpi-sub">stale ports + missing data files</div>
+      </div>
+      <div class="kpi-card kpi-card--ok">
+        <div class="kpi-label">Crashes after</div>
+        <div class="kpi-value">0</div>
+        <div class="kpi-sub">all paths clean</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BEFORE / AFTER -->
+  <section class="section">
+    <div class="section-label">Dashboard runner state</div>
+    <h2>Before &amp; after</h2>
+    <p class="section-intro">
+      Started the session with 11 dashboards, 4 failing, thousands of crashes.
+      Finished with 8 clean entries, zero real failures.
+    </p>
+    <div class="ba-grid">
+      <div class="ba-panel ba-panel--before">
+        <div class="ba-panel__label">Before · chaotic</div>
+        <h4>11 entries, 4 failing</h4>
+        <table>
+          <tr><td>agentping (stale SB8 storybook)</td><td>online</td></tr>
+          <tr><td>sofia (SB10, 359 broken imports)</td><td>⚠ collision</td></tr>
+          <tr><td>web-ui-storybook (1 story)</td><td>stale</td></tr>
+          <tr><td>canvas (deprecated)</td><td>ghost :5174</td></tr>
+          <tr><td>system-dashboard (missing data/)</td><td>✖ 1003×</td></tr>
+          <tr><td>frey-market (port held)</td><td>✖ 2108×</td></tr>
+          <tr><td>ai-devs (xcodebuild exit 0)</td><td>✖ treated as crash</td></tr>
+          <tr><td>claw-tok (xcodebuild exit 0)</td><td>✖ treated as crash</td></tr>
+        </table>
+      </div>
+      <div class="ba-panel ba-panel--after">
+        <div class="ba-panel__label">After · clean</div>
+        <h4>8 entries, 0 real failures</h4>
+        <table>
+          <tr><td>agentping-storybook (SB10, 376 stories)</td><td>online</td></tr>
+          <tr><td>web-ui</td><td>online</td></tr>
+          <tr><td>dashboard-manager-ui</td><td>online</td></tr>
+          <tr><td>studio</td><td>online</td></tr>
+          <tr><td>system-dashboard</td><td>online</td></tr>
+          <tr><td>frey-market</td><td>online :3100</td></tr>
+          <tr><td>ai-devs (build-and-exit)</td><td>✓ completed</td></tr>
+          <tr><td>claw-tok (build-and-exit)</td><td>✓ completed</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- SHIPPED -->
+  <section class="section">
+    <div class="section-label">Work shipped autonomously</div>
+    <h2>What moved without your input</h2>
+    <p class="section-intro">
+      Seven fixes, one new endpoint, one new health check type, 14 beads, one cron job, one dashboard heartbeat.
+    </p>
+    <div class="ship-grid">
+
+      <div class="ship-card">
+        <div class="ship-card__head">
+          <div class="ship-card__id">FIX · storybook collision</div>
+          <div class="ship-card__status">Done</div>
+        </div>
+        <h3>Storybook 8 → 10 consolidation</h3>
+        <p>359 <code>@storybook/react</code> imports in <code>packages/ui/src/</code> rewritten to <code>@storybook/react-vite</code>. Removed 16 SB 8 devDeps from studio + web-ui package.jsons. Source of the "fucked storybook links."</p>
+      </div>
+
+      <div class="ship-card">
+        <div class="ship-card__head">
+          <div class="ship-card__id">FIX · stale storybooks purged</div>
+          <div class="ship-card__status">Done</div>
+        </div>
+        <h3>Single-source storybook</h3>
+        <p>Deleted <code>packages/studio/.storybook/</code> (16 stale stories, all dupes of @kingly/ui). Deleted <code>packages/adapters/web-ui/.storybook/</code> (1 story). Renamed <code>sofia</code> → <code>agentping-storybook</code> as the one true storybook.</p>
+      </div>
+
+      <div class="ship-card">
+        <div class="ship-card__head">
+          <div class="ship-card__id">FIX · canvas deprecated</div>
+          <div class="ship-card__status">Done</div>
+        </div>
+        <h3><code>@agentping/canvas</code> disabled</h3>
+        <p>DEPRECATED.md already existed but package was still failing 5 TS errors. Replaced dev/build scripts with deprecation echo. Source preserved. Removed from dashboards.yaml.</p>
+      </div>
+
+      <div class="ship-card">
+        <div class="ship-card__head">
+          <div class="ship-card__id">FIX · system-dashboard</div>
+          <div class="ship-card__status">Done</div>
+        </div>
+        <h3>Missing data files = 1003 crashes</h3>
+        <p>Created empty <code>plugins/system-dashboard/data/timeline.jsonl</code> + <code>state.json</code>. That's it. Plugin code was never broken — just couldn't find its bootstrap files.</p>
+      </div>
+
+      <div class="ship-card">
+        <div class="ship-card__head">
+          <div class="ship-card__id">FIX · frey-market</div>
+          <div class="ship-card__status">Done</div>
+        </div>
+        <h3>Port 3100 was held</h3>
+        <p>My earlier manual <code>pnpm dev --port 3100</code> test didn't get torn down. Runner hit collision on every restart (2108×). Killed stuck process + clean restart.</p>
+      </div>
+
+      <div class="ship-card">
+        <div class="ship-card__head">
+          <div class="ship-card__id">FEATURE · P0 build-and-exit</div>
+          <div class="ship-card__status">Done</div>
+        </div>
+        <h3>New health check type</h3>
+        <p>iOS apps exit 0 after successful xcodebuild — runner treated that as crash. Added <code>'build-and-exit'</code> to HealthCheckConfig.type, new <code>'completed'</code> status, exit handler detects exit 0 + type and emits <code>process_completed</code> (no restart).</p>
+        <ul>
+          <li><code>dashboard-runner/src/types.ts</code></li>
+          <li><code>dashboard-runner/src/process-manager.ts</code></li>
+          <li><code>dashboard-runner/src/runner.ts</code></li>
+          <li>Zod schema updated</li>
+          <li>dashboards.yaml updated for ai-devs / claw-tok</li>
+        </ul>
+      </div>
+
+      <div class="ship-card">
+        <div class="ship-card__head">
+          <div class="ship-card__id">FEATURE · P0 stats endpoint</div>
+          <div class="ship-card__status">Done</div>
+        </div>
+        <h3><code>GET /api/projects/stats</code></h3>
+        <p>A4 blocker. Reads <code>.lev/detected-projects.yaml</code>, returns aggregated runtimes, frameworks, package managers, lanes, lifecycle, internal/external/self counts. Verified returning 75 projects.</p>
+        <ul>
+          <li><code>dashboard-manager-server/src/routes/projects.ts</code> (NEW)</li>
+          <li>Mounted at <code>/api/projects</code></li>
+          <li>Also: <code>/api/projects/raw</code> for full entry list</li>
+          <li>Zero-dep minimal YAML parser</li>
+        </ul>
+      </div>
+
+      <div class="ship-card">
+        <div class="ship-card__head">
+          <div class="ship-card__id">REVIEW · P0 dashboard.dna.yaml</div>
+          <div class="ship-card__status">Claimed</div>
+        </div>
+        <h3>7 constraints, no changes</h3>
+        <p>A4 drafted. Reviewed — all align with C1 Finitude + C5 Locality. Key insight from <code>meta_refresh_fallback</code>: "WebSocket is an enhancement, not a requirement." This shapes the detected→ready flow design.</p>
+      </div>
+
+      <div class="ship-card">
+        <div class="ship-card__head">
+          <div class="ship-card__id">INFRA · heartbeat loop</div>
+          <div class="ship-card__status">Live</div>
+        </div>
+        <h3>10-minute cron health check</h3>
+        <p>Cron <code>f05e44f7</code> runs every 10m. Checks all dashboards, skips iOS expected-exits, restarts real failures, logs heartbeats to the handoff. Auto-expires in 7 days. 5 successful heartbeats so far.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SCANNER BREAKDOWN -->
+  <section class="section">
+    <div class="section-label">Scanner output</div>
+    <h2>What lives in the workspace</h2>
+    <p class="section-intro">75 projects across 6 runtimes, 6 frameworks, 6 package managers. 68 internal, 6 external, 1 self (workspace root).</p>
+    <div class="scanner-grid">
+      <div class="sc-card">
+        <div class="sc-card__label">Runtimes</div>
+        <div class="sc-card__total">6</div>
+        <ul>
+          <li><span>node</span><span>70</span></li>
+          <li><span>swift</span><span>2</span></li>
+          <li><span>rust</span><span>1</span></li>
+          <li><span>python</span><span>1</span></li>
+          <li><span>go</span><span>1</span></li>
+        </ul>
+      </div>
+      <div class="sc-card">
+        <div class="sc-card__label">Frameworks</div>
+        <div class="sc-card__total">6</div>
+        <ul>
+          <li><span>turbo</span><span>7</span></li>
+          <li><span>vite</span><span>5</span></li>
+          <li><span>nextjs</span><span>4</span></li>
+          <li><span>xcodegen</span><span>2</span></li>
+          <li><span>astro</span><span>1</span></li>
+          <li><span>langgraph</span><span>1</span></li>
+        </ul>
+      </div>
+      <div class="sc-card">
+        <div class="sc-card__label">Package managers</div>
+        <div class="sc-card__total">6</div>
+        <ul>
+          <li><span>npm</span><span>60</span></li>
+          <li><span>pnpm</span><span>10</span></li>
+          <li><span>xcode</span><span>2</span></li>
+          <li><span>cargo</span><span>1</span></li>
+          <li><span>uv</span><span>1</span></li>
+          <li><span>go</span><span>1</span></li>
+        </ul>
+      </div>
+      <div class="sc-card">
+        <div class="sc-card__label">Scope</div>
+        <div class="sc-card__total">75</div>
+        <ul>
+          <li><span>internal</span><span>68</span></li>
+          <li><span>external</span><span>6</span></li>
+          <li><span>self</span><span>1</span></li>
+          <li><span>detected</span><span>75</span></li>
+          <li><span>ready</span><span>0</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- PULL QUOTE -->
+  <div class="pull-quote">
+    AgentPing becomes the unified control plane where GenUI, lev-now, and dashboard-runner
+    all feed into one interface. Component review wires into that same interface.
+    One surface, three rendering targets, one data source.
+    <cite>— the unification thesis</cite>
+  </div>
+
+  <!-- UNIFICATION VISION -->
+  <section class="section">
+    <div class="section-label">Architecture insight</div>
+    <h2>The AgentPing unification vision</h2>
+    <p class="section-intro">
+      Three surfaces you already have. One scanner output. Merge them, and component review
+      (400+ migrations) becomes visual triage inside the same interface.
+    </p>
+
+    <div class="vision">
+      <h3>Same data, three surfaces</h3>
+      <p>The scanner at <code>core/build/src/scanner.ts</code> is already the discovery layer. It reads <code>.lev/config.yaml projects:</code> and writes <code>.lev/detected-projects.yaml</code>. A0 is consuming it for the tmux harness. A4 is pulling it into content dashboards. I'm rendering it in dashboard-manager-ui.</p>
+      <div class="vision-flow">
+   .lev/config.yaml → scanner.ts → .lev/detected-projects.yaml
+                                         │
+                   ┌─────────────────────┼─────────────────────┐
+                   ▼                     ▼                     ▼
+          AgentPing web          tmux floating panes    lev-now dev server
+          (React interactive)    (keyboard-first TUI)   (HTML hot reload)
+                │                     │                     │
+                ├── dashboard-runner  ─┤                     │
+                ├── storybook         │                     │
+                ├── canvas / studio   │                     │
+                ├── [component review]│                     │
+                └── GenUI widgets  ◄──┴─────────────────────┘
+                         ▲                                   ▲
+                         │                                   │
+                      lev-now RenderSpec JSON ←── LLM ──┐    │
+                                                         │   │
+                                                       visual-explainer
+                                                       (skill / template DNA)
+      </div>
+      <p>When we get to component review: each of the 400+ migrated <code>@kingly/ui</code> components gets a card in AgentPing. Click → GenUI renders the component with variants → you approve/reject → lifecycle transitions. The dashboard IS the review tool.</p>
+      <p>The detected→ready flow (P1) is the foundation: websocket endpoint in dashboard-manager-server, Setup button in dashboard-manager-ui, spawns <code>lev exec</code>, streams progress, mutates lifecycle on success. Same pattern extends to component review later.</p>
+    </div>
+  </section>
+
+  <!-- VENN NOTE -->
+  <section class="section">
+    <div class="section-label">Open architectural question</div>
+    <h2>Websocket dispatch substrate</h2>
+    <p class="section-intro">
+      You asked: clawhip or FlowMind for the detected→ready websocket dispatch?
+    </p>
+
+    <div class="ba-grid">
+      <div class="ba-panel">
+        <div class="ba-panel__label" style="color: var(--accent);">Option A · FlowMind</div>
+        <h4>In-process TypeScript</h4>
+        <p style="color: var(--text-dim); font-size: 0.9rem;">
+          <code>core/flowmind/src/session.ts</code> (409 LOC) already has session lifecycle:
+          <code>idle → running → paused → completed → failed</code>. Persists to XDG.
+          Ships with Lev. Direct import into dashboard-manager-server. WebSocket wraps session events.
+        </p>
+        <p style="color: var(--text); margin-top: 1rem; font-size: 0.85rem;">
+          <strong>Best for:</strong> the dispatch itself. Lifecycle mutation, lev exec invocation, progress streaming, state persistence.
+        </p>
+      </div>
+      <div class="ba-panel">
+        <div class="ba-panel__label" style="color: var(--gold);">Option B · clawhip</div>
+        <h4>Rust tmux harness</h4>
+        <p style="color: var(--text-dim); font-size: 0.9rem;">
+          MIT, 34K LOC. Already vendored by A0 for the tmux-control-plane P0. Handles tmux session spawning, lifecycle events, content hashing.
+          Not TypeScript — would need FFI or subprocess.
+        </p>
+        <p style="color: var(--text); margin-top: 1rem; font-size: 0.85rem;">
+          <strong>Best for:</strong> the terminal side — if you want component review to spawn agents in tmux panes.
+        </p>
+      </div>
+    </div>
+    <p style="margin-top: 1.5rem; color: var(--text-dim);">
+      <strong>My recommendation:</strong> FlowMind for the websocket dispatch (it's the right tool for session state mutation), clawhip for anything that needs to spawn a terminal agent. They're not competing — they stack. FlowMind owns the session graph, clawhip owns the pane.
+    </p>
+  </section>
+
+  <!-- NEXT QUEUE -->
+  <section class="section">
+    <div class="section-label">Execution queue</div>
+    <h2>14 beads · P0–P3</h2>
+    <p class="section-intro">
+      Without tmux floating pane TUI (that's A0's lane per your correction). P0 mostly shipped this session.
+    </p>
+    <div style="overflow-x: auto;">
+    <table class="queue-table">
+      <thead>
+        <tr>
+          <th>Bead</th>
+          <th>Priority</th>
+          <th>Title</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>A2-P0.1</td><td><span class="priority priority--p0">P0</span></td><td>/api/projects/stats endpoint</td><td><span class="status-pill status-pill--done">Shipped</span></td></tr>
+        <tr><td>A2-P0.2</td><td><span class="priority priority--p0">P0</span></td><td>build-and-exit health check type</td><td><span class="status-pill status-pill--done">Shipped</span></td></tr>
+        <tr><td>A2-P0.3</td><td><span class="priority priority--p0">P0</span></td><td>dashboard.dna.yaml review (7 constraints)</td><td><span class="status-pill status-pill--done">Claimed</span></td></tr>
+        <tr><td>A2-P1.1</td><td><span class="priority priority--p1">P1</span></td><td>Parity registry dashboard section (11 entries, 88 features)</td><td><span class="status-pill status-pill--open">Open</span></td></tr>
+        <tr><td>A2-P1.2</td><td><span class="priority priority--p1">P1</span></td><td>detected → ready lifecycle + websocket + Setup button</td><td><span class="status-pill status-pill--open">Open</span></td></tr>
+        <tr><td>A2-P1.3</td><td><span class="priority priority--p1">P1</span></td><td>Card-grid fork from lev-now into projects view</td><td><span class="status-pill status-pill--open">Open</span></td></tr>
+        <tr><td>A2-P1.4</td><td><span class="priority priority--p1">P1</span></td><td>[[dashboard:…]] tag DSL scope</td><td><span class="status-pill status-pill--open">Open</span></td></tr>
+        <tr><td>A2-P1.5</td><td><span class="priority priority--p1">P1</span></td><td>Verify A4 renderer fixes in dashboard-manager-ui</td><td><span class="status-pill status-pill--open">Open</span></td></tr>
+        <tr><td>A2-P2.1</td><td><span class="priority priority--p2">P2</span></td><td>Scanner tmux-session detector (FlowMind XDG state)</td><td><span class="status-pill status-pill--open">Open</span></td></tr>
+        <tr><td>A2-P2.2</td><td><span class="priority priority--p2">P2</span></td><td>Parity-aware ScannedProject + adoption health</td><td><span class="status-pill status-pill--open">Open</span></td></tr>
+        <tr><td>A2-P2.3</td><td><span class="priority priority--p2">P2</span></td><td>lev scan CLI command</td><td><span class="status-pill status-pill--open">Open</span></td></tr>
+        <tr><td>A2-P2.4</td><td><span class="priority priority--p2">P2</span></td><td>Filter non-runnable plugins (runnable: bool)</td><td><span class="status-pill status-pill--open">Open</span></td></tr>
+        <tr><td>A2-P3.1</td><td><span class="priority priority--p3">P3</span></td><td>AgentPing unification — runner reads config.yaml</td><td><span class="status-pill status-pill--open">Open</span></td></tr>
+        <tr><td>A2-P3.2</td><td><span class="priority priority--p3">P3</span></td><td>GenUI dashboard generation via lev-now</td><td><span class="status-pill status-pill--open">Open</span></td></tr>
+        <tr><td>A2-P3.3</td><td><span class="priority priority--p3">P3</span></td><td>Add ~/k/apps/ external projects</td><td><span class="status-pill status-pill--open">Open</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- QUESTIONS -->
+  <section class="section">
+    <div class="section-label">Blocked on you</div>
+    <h2>6 questions before I proceed</h2>
+    <p class="section-intro">
+      These are the calls only you can make. Answer any or all and I'll unblock.
+    </p>
+    <div class="q-grid">
+      <div class="q-card">
+        <div class="q-card__num">Q1 · canvas source</div>
+        <h4>Delete or archive?</h4>
+        <p><code>packages/canvas/</code> is DEPRECATED.md'd and builds are disabled but source still there. Delete outright, move to <code>_archive/</code>, or leave as-is?</p>
+      </div>
+      <div class="q-card">
+        <div class="q-card__num">Q2 · studio dashboard entry</div>
+        <h4>Vite dev server vs Electron launch</h4>
+        <p>The <code>studio</code> entry in dashboards.yaml runs Vite on :5180 (the renderer dev server). The real GUI is the Electron app via <code>pnpm start</code>. Keep the Vite entry, replace with an Electron launch health check, or split into two entries?</p>
+      </div>
+      <div class="q-card">
+        <div class="q-card__num">Q3 · daemon README</div>
+        <h4>Port fix only or full rewrite</h4>
+        <p><code>packages/daemon/README.md</code> says default <code>PORT=3000</code>. Reality is <code>:7890</code> + <code>:7891</code> CDP proxy + lease manager + tool API + browser-CDP bridge. Minimum port fix or full feature rewrite?</p>
+      </div>
+      <div class="q-card">
+        <div class="q-card__num">Q4 · site/ directory</div>
+        <h4>Archive or wire a build</h4>
+        <p><code>community/agentping/site/</code> is a scatter of static HTML (index.html, v2.html, poly.html, constraint-engineering/, prompt-stack/, timetravel/, etc). No build pipeline, no package.json. Archive, wire to Astro/Next, or leave?</p>
+      </div>
+      <div class="q-card">
+        <div class="q-card__num">Q5 · ext-apps adapter</div>
+        <h4>Audit or skip</h4>
+        <p><code>packages/adapters/ext-apps</code> has no README, unclear status, builds clean but not wired anywhere. Audit now or defer?</p>
+      </div>
+      <div class="q-card">
+        <div class="q-card__num">Q6 · websocket substrate</div>
+        <h4>FlowMind + clawhip, or only one</h4>
+        <p>For the detected→ready dispatch (P1), my read is FlowMind for session state + clawhip for terminal spawning. Confirm the split, or tell me to pick one.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

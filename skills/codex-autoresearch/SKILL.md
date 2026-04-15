@@ -33,6 +33,60 @@ Autonomous goal-directed iteration. Modify -> Verify -> Keep/Discard -> Repeat.
 7. Log the result.
 8. Repeat.
 
+## CDO Scheduler Consumer
+
+`cdo` may use `codex-autoresearch` as its long-running scheduler/runtime for adaptive deliberation runs.
+
+Split of responsibility:
+
+- `cdo` owns the epistemology:
+  - turn composition
+  - agent roles
+  - evidence discipline
+  - synthesis directives
+  - anti-groupthink / debate / negotiate behavior
+- `codex-autoresearch` owns the runtime loop:
+  - foreground/background execution
+  - run tags
+  - scheduler counters
+  - artifact persistence
+  - pause/resume
+  - health checks
+  - pivot/refine escalation
+  - checkpoint discipline
+  - finalization gates
+
+For CDO scheduler runs, reinterpret the generic loop:
+
+```text
+one focused change per iteration
+  -> one focused turn strategy per iteration
+
+mechanical verification
+  -> mechanical scheduler constraints + evidence-backed synthesis
+
+keep/discard experiment
+  -> promote/carry/discard hypotheses and tensions
+```
+
+Minimum scheduler state for CDO runs:
+
+```yaml
+cdo_scheduler:
+  mode: autoresearch
+  run_tag: "cdo-{slug}"
+  min_turns: 10
+  min_total_agents: 50
+  skills_per_agent: 2
+  adaptive_turn_width: true
+  turn_count: 0
+  total_agents: 0
+  unique_skills: []
+  exit_eligible: false
+```
+
+Do not use this mode for ordinary one-shot CDO work. Use it when the run has hard breadth/depth KPIs or needs unattended pause/resume behavior.
+
 ## Modes
 
 | Mode | Purpose | Primary Reference |

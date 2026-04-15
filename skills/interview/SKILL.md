@@ -192,3 +192,25 @@ Skill-specific technique rationale. Apply patterns from the skill body. Progress
 **Output Contract:** Artifacts, status, next-step recommendations. Format per skill.
 
 **Edge Cases & Fallbacks:** Missing context—ask or infer from workspace. Missing lifecycle artifacts—create minimal continuity notes and continue. Dependency missing—degrade gracefully and state what could not be validated. Ambiguous request—clarify before proceeding.
+
+## Mathematical Ambiguity Gate (from OOO + OMX)
+
+Before proceeding past the Shape phase, compute an ambiguity score:
+
+```
+ambiguity = 1 - sum(clarity_i × weight_i)
+```
+
+| Dimension | Weight | What to assess |
+|-----------|--------|---------------|
+| Intent | 30% | Is the goal clear? |
+| Outcome | 25% | Can we describe success? |
+| Scope | 20% | Are boundaries explicit? |
+| Constraints | 15% | Are non-negotiables stated? |
+| Success criteria | 10% | Is there a measurable exit? |
+
+**Gate:** Score must be ≤ 0.2 (80%+ clarity) to proceed. If above threshold, ask another round of questions targeting the weakest dimension.
+
+**Production proof:** OMX deep-interview skill scored Round 1 = 0.2455 (above), Round 2 = 0.159 (below, gate passed). Dimensions: intent 0.90, outcome 0.84, scope 0.80, constraints 0.92, success 0.56, brownfield 0.93.
+
+**Source:** `.lev/pm/parity/ouroboros.yaml` (ooo-01), `.lev/pm/parity/omx.yaml` (omx-02), `.lev/pm/decisions/20260411-tribunal-absorption-verdicts.md` (item 10, UNANIMOUS AGREE)

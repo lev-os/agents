@@ -1,0 +1,619 @@
+{
+  "meta": {
+    "title": "Architecture Brief: Graph Footer Hook + Skills CMS",
+    "description": "Four architecture decisions for entity status propagation, skills CMS backend, editorial surface, and publish targets — with 6-phase implementation plan and risk matrix.",
+    "layout": "sidebar-toc",
+    "effects": ["title-underline", "grid-dots"]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "hero-lead",
+    "section-context",
+    "section-decision-1",
+    "section-decision-2",
+    "section-decision-3",
+    "section-decision-4",
+    "section-architecture-diagram",
+    "section-implementation",
+    "section-loc-budget",
+    "section-risks",
+    "section-constraints"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "ARCHITECTURE BRIEF",
+        "title": "Graph Footer Hook + Skills CMS",
+        "subtitle": "Four decisions that connect entity lifecycle, queryable storage, editorial workflow, and multi-target publishing into a single event-driven pipeline.",
+        "meta": "Proposed  |  2026-04-10  |  Constraints: C1 Finitude, C2 Non-Commutation, C5 Locality"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "The graph layer can extract and classify entities, but it has no way to learn about status changes. 2,857 skills sit in flat files with no query surface. This brief proposes four interlocking decisions — a LevEvent-driven graph hook, a SQLite CMS backend, a CLI-first editorial surface, and a FlowMind publish chain — that close both gaps with ~560 LOC across 8 files."
+      }
+    },
+
+    "section-context": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "CONTEXT",
+        "title": "What Exists vs. What's Missing",
+        "id": "context"
+      },
+      "children": ["context-exists", "context-missing"]
+    },
+    "context-exists": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "What Exists",
+        "content": "**Graph layer** (`core/graph/`): `GraphAdapter` pipeline — extract, classify, validate, apply. 8 V0 entity types. `InMemoryGraphAdapter` reference impl.\n\n**Storage layer** (`core/storage/`): 4 adapters (bd, notion, firestore, markdown). `CanonicalStorageAdapter` mandates emit-on-write LevEvent discipline. SQLite slot declared in spec but not implemented.\n\n**Universal hooks**: Dispatcher architecture planned. AbstractHooks pattern defines YAML protocol descriptors — adding a hook = adding a config row, not TypeScript.\n\n**Skills corpus**: 2,857 skills indexed in `skills-inventory.jsonl`. Taxonomy classifies into 4 operator lanes (Shape/Plan/Deliver/Close). Teaser pipeline already publishes to here.now."
+      }
+    },
+    "context-missing": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "What's Missing",
+        "content": "**No entity status hook** — lifecycle changes don't emit LevEvents. Graph can't track status.\n\n**No SQLiteStorageAdapter** — spec slot exists, implementation doesn't. No local-first queryable backend.\n\n**No skills CMS** — 2,857 skills in flat files. No structured query, lifecycle, or editorial workflow.\n\n**No publish orchestration** — teasers publish individually. No gallery index, no llms.txt, no multi-target chain."
+      }
+    },
+
+    "section-decision-1": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "DECISION 1",
+        "title": "Graph Footer Hook Architecture",
+        "subtitle": "How should entity status changes reach the graph?",
+        "id": "decision-1"
+      },
+      "children": ["d1-table", "d1-callout", "d1-dataflow", "d1-compliance"]
+    },
+    "d1-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "option", "label": "Option" },
+          { "key": "description", "label": "Description", "wide": true },
+          { "key": "verdict", "label": "Verdict" }
+        ],
+        "rows": [
+          {
+            "option": { "text": "A. LevEvent emit-on-write", "status": "match" },
+            "description": "Storage adapter writes emit LevEvents; EntityStatusGraphAdapter calls extract() on those events",
+            "verdict": { "text": "RECOMMENDED", "status": "match" }
+          },
+          {
+            "option": "B. Filesystem scan on timer",
+            "description": "Daemon scans .lev/ for changes, emits synthetic events",
+            "verdict": { "text": "Rejected", "status": "gap" }
+          },
+          {
+            "option": "C. Dedicated status daemon",
+            "description": "fswatch/inotify watcher translates FS events to LevEvents",
+            "verdict": { "text": "Rejected", "status": "gap" }
+          }
+        ]
+      }
+    },
+    "d1-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Why Option A",
+        "content": "This follows the existing `CanonicalStorageAdapter` contract exactly. The \"hook\" is not a new concept — it is a `GraphAdapter` that handles `entity.status.changed` LevEvents emitted by storage writes. No new abstractions. No platform dependencies. One event per write, one extract call per event."
+      }
+    },
+    "d1-dataflow": {
+      "type": "code-block",
+      "props": {
+        "content": "Storage write (SQLite/bd/Notion)\n  -> emit LevEvent { type: \"entity.status.changed\",\n       data: { entityType, id, field, old, new } }\n  -> EntityStatusGraphAdapter.extract(event)\n  -> GraphOperation[] { type: \"update_claim\",\n       predicate: \"has_status\", object: newValue }\n  -> classify -> validate -> apply",
+        "language": "text",
+        "filename": "data-flow.txt"
+      }
+    },
+    "d1-compliance": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Constraint Compliance",
+        "content": "**C1 Finitude** — Bounded: one event per write, one extract call per event.\n\n**C2 Non-Commutation** — LevEvent is timestamped, append-only, causal_parent linked.\n\n**C5 Locality** — Adapter only sees its own domain events."
+      }
+    },
+
+    "section-decision-2": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "DECISION 2",
+        "title": "CMS Backend for Skills",
+        "subtitle": "What backend should store skill metadata for query, lifecycle, and editorial workflow?",
+        "id": "decision-2"
+      },
+      "children": ["d2-table", "d2-callout", "d2-schema"]
+    },
+    "d2-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "option", "label": "Option" },
+          { "key": "description", "label": "Description", "wide": true },
+          { "key": "verdict", "label": "Verdict" }
+        ],
+        "rows": [
+          {
+            "option": { "text": "A. SQLiteStorageAdapter", "status": "match" },
+            "description": "Implement the spec-declared slot; seed from skills-inventory.jsonl",
+            "verdict": { "text": "RECOMMENDED", "status": "match" }
+          },
+          {
+            "option": "B. Markdown + frontmatter",
+            "description": "Parse SKILL.md frontmatter as queryable records",
+            "verdict": { "text": "Rejected — linear scan at 2,857 files", "status": "gap" }
+          },
+          {
+            "option": "C. Notion CMS",
+            "description": "Store skills in Notion database",
+            "verdict": { "text": "Rejected — cloud-dependent", "status": "gap" }
+          },
+          {
+            "option": "D. Beads (bd)",
+            "description": "Store skills as bd issues",
+            "verdict": { "text": "Rejected — wrong abstraction", "status": "gap" }
+          }
+        ]
+      }
+    },
+    "d2-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Why SQLite",
+        "content": "The spec slot already exists at `core/storage/src/adapters/sqlite-storage.ts`. SQLite delivers FTS5 full-text search, JSON functions for metadata, WAL mode for concurrent reads, and zero external dependencies. As a `CanonicalStorageAdapter`, every write emits a LevEvent — directly feeding Decision 1."
+      }
+    },
+    "d2-schema": {
+      "type": "code-block",
+      "props": {
+        "content": "CREATE TABLE skills (\n  id          TEXT PRIMARY KEY,\n  name        TEXT NOT NULL,\n  slug        TEXT UNIQUE NOT NULL,\n  category    TEXT NOT NULL,\n  lane        TEXT CHECK(lane IN ('shape','plan','deliver','close')),\n  lifecycle   TEXT DEFAULT 'draft'\n              CHECK(lifecycle IN ('draft','review','published','deprecated')),\n  description TEXT,\n  hook_pattern TEXT,\n  skill_path  TEXT,\n  metadata    JSON,\n  created_at  TEXT DEFAULT (datetime('now')),\n  updated_at  TEXT DEFAULT (datetime('now')),\n  version     INTEGER DEFAULT 1\n);\n\nCREATE VIRTUAL TABLE skills_fts USING fts5(\n  name, description, category, content=skills\n);",
+        "language": "sql",
+        "filename": "001-skills.sql",
+        "showLineNumbers": true
+      }
+    },
+
+    "section-decision-3": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "DECISION 3",
+        "title": "Editorial Surface",
+        "subtitle": "Where do humans and agents edit skill metadata?",
+        "id": "decision-3"
+      },
+      "children": ["d3-table", "d3-callout", "d3-cli-commands"]
+    },
+    "d3-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "option", "label": "Option" },
+          { "key": "description", "label": "Description", "wide": true },
+          { "key": "verdict", "label": "Verdict" }
+        ],
+        "rows": [
+          {
+            "option": { "text": "A. CLI-first", "status": "match" },
+            "description": "lev skill create/edit/publish/search commands",
+            "verdict": { "text": "RECOMMENDED (primary)", "status": "match" }
+          },
+          {
+            "option": "B. Notion bridge",
+            "description": "Edit in Notion, sync to SQLite",
+            "verdict": { "text": "Rejected — two sources of truth", "status": "gap" }
+          },
+          {
+            "option": "C. Web admin panel",
+            "description": "Localhost UI for editorial workflow",
+            "verdict": { "text": "Rejected — overkill for current team", "status": "gap" }
+          },
+          {
+            "option": { "text": "D. SKILL.md frontmatter", "status": "match" },
+            "description": "Edit files directly, sync to SQLite",
+            "verdict": { "text": "RECOMMENDED (escape hatch)", "status": "match" }
+          }
+        ]
+      }
+    },
+    "d3-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "A + D Hybrid",
+        "content": "Primary interface: CLI commands that write to SQLite. Both agents and humans use the same surface. Escape hatch: SKILL.md frontmatter via `lev skill sync` — a manual operation (not a live watcher) to avoid C1 concerns with continuous scanning."
+      }
+    },
+    "d3-cli-commands": {
+      "type": "code-block",
+      "props": {
+        "content": "lev skill create <name> --category technical --lane deliver\nlev skill edit <name>                    # opens in $EDITOR\nlev skill edit <name> --field hook_pattern \"...\"\nlev skill search \"fuzzy query\"           # FTS5\nlev skill list --lane shape --lifecycle published\nlev skill publish <name>                 # draft -> published\nlev skill deprecate <name>              # published -> deprecated",
+        "language": "bash",
+        "filename": "CLI surface"
+      }
+    },
+
+    "section-decision-4": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "DECISION 4",
+        "title": "Publish Targets",
+        "subtitle": "Where do skill teasers get published?",
+        "id": "decision-4"
+      },
+      "children": ["d4-table", "d4-callout", "d4-pipeline"]
+    },
+    "d4-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "option", "label": "Option" },
+          { "key": "description", "label": "Description", "wide": true },
+          { "key": "verdict", "label": "Verdict" }
+        ],
+        "rows": [
+          {
+            "option": "A. here.now pages",
+            "description": "Individual pages at lev.here.now/skills/slug",
+            "verdict": { "text": "Already works", "status": "info" }
+          },
+          {
+            "option": "B. Gallery index",
+            "description": "Browsable index page listing all published skills",
+            "verdict": { "text": "Additive", "status": "info" }
+          },
+          {
+            "option": "C. llms.txt",
+            "description": "AI-discoverable skill listing",
+            "verdict": { "text": "Additive", "status": "info" }
+          },
+          {
+            "option": { "text": "D. All via publish chain", "status": "match" },
+            "description": "FlowMind chains A + B + C on every publish event",
+            "verdict": { "text": "RECOMMENDED", "status": "match" }
+          }
+        ]
+      }
+    },
+    "d4-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Publish Chain",
+        "content": "`lev skill publish <name>` triggers a FlowMind chain: render teaser HTML (existing), deploy to here.now (existing), regenerate gallery index from SQLite (~40 LOC), update llms.txt from SQLite (~20 LOC). Each target is an independent adapter — disable any one without affecting others."
+      }
+    },
+    "d4-pipeline": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": {
+        "title": "Publish Chain Flow"
+      },
+      "children": ["d4-step-1", "d4-step-2", "d4-step-3", "d4-step-4"]
+    },
+    "d4-step-1": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "1. Render Teaser",
+        "content": "skill-teaser-pipeline.flow.yaml generates HTML teaser from SKILL.md"
+      }
+    },
+    "d4-step-2": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "2. Deploy to here.now",
+        "content": "Push to here.now/skills/<slug>"
+      }
+    },
+    "d4-step-3": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "3. Gallery Index",
+        "content": "Regenerate index page from SQLite query of published skills (~40 LOC)"
+      }
+    },
+    "d4-step-4": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "4. Update llms.txt",
+        "content": "Query published skills and write AI-discoverable listing (~20 LOC)"
+      }
+    },
+
+    "section-architecture-diagram": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "TOPOLOGY",
+        "title": "System Architecture",
+        "subtitle": "How editorial surfaces, storage, events, graph, and publish targets connect.",
+        "id": "architecture"
+      },
+      "children": ["arch-diagram"]
+    },
+    "arch-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "content": "graph TD\n    subgraph Editorial[\"Editorial Surfaces\"]\n        CLI[\"lev skill create/edit/publish\"]\n        SKILLMD[\"SKILL.md frontmatter\"]\n        SYNC[\"lev skill sync\"]\n    end\n\n    subgraph Storage[\"Storage Layer\"]\n        SQLITE[\"SQLiteStorageAdapter\"]\n        SEED[\"skills-inventory.jsonl\\n2,857 records\"]\n    end\n\n    subgraph Events[\"Event Bus\"]\n        LEVEVENT[\"LevEvent\\nentity.status.changed\"]\n    end\n\n    subgraph Graph[\"Graph Layer\"]\n        ESGA[\"EntityStatusGraphAdapter\"]\n        EXTRACT[\"extract -> GraphOperation[]\"]\n        CLASSIFY[\"ClassifyFn / LWW default\"]\n        APPLY[\"apply -> graph state\"]\n    end\n\n    subgraph Publish[\"Publish Chain\"]\n        TEASER[\"skill-teaser-pipeline\"]\n        HERENOW[\"here.now/skills/slug\"]\n        GALLERY[\"Gallery index page\"]\n        LLMSTXT[\"llms.txt\"]\n    end\n\n    CLI --> SQLITE\n    SKILLMD --> SYNC --> SQLITE\n    SEED -->|seed migration| SQLITE\n\n    SQLITE -->|emit-on-write| LEVEVENT\n    LEVEVENT --> ESGA\n    ESGA --> EXTRACT --> CLASSIFY --> APPLY\n\n    CLI -->|lev skill publish| TEASER\n    TEASER --> HERENOW\n    TEASER --> GALLERY\n    TEASER --> LLMSTXT\n\n    SQLITE -->|query published| GALLERY\n    SQLITE -->|query published| LLMSTXT",
+        "caption": "End-to-end data flow: editorial -> storage -> events -> graph + publish chain"
+      }
+    },
+
+    "section-implementation": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "IMPLEMENTATION",
+        "title": "6-Phase Build Plan",
+        "subtitle": "Each phase has a natural validation gate. Do not proceed until the current phase passes.",
+        "id": "implementation"
+      },
+      "children": ["impl-timeline", "impl-deps-diagram"]
+    },
+    "impl-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          {
+            "date": "Phase 1",
+            "title": "SQLiteStorageAdapter",
+            "description": "Implement CanonicalStorageAdapter with better-sqlite3. Create skills table + FTS5 index. No dependencies — start here. ~230 LOC across 3 files.",
+            "status": "upcoming"
+          },
+          {
+            "date": "Phase 2",
+            "title": "Seed Migration",
+            "description": "Parse skills-inventory.jsonl (2,857 records). Validate each record against Zod schema. Upsert into SQLite. Target: <2s for full seed. Depends on Phase 1.",
+            "status": "upcoming"
+          },
+          {
+            "date": "Phase 3",
+            "title": "EntityStatusGraphAdapter",
+            "description": "GraphAdapter handling entity.status.changed events. extract() produces update_claim operations. ~80 LOC. Depends on LevEvent shape from @lev-os/domain.",
+            "status": "upcoming"
+          },
+          {
+            "date": "Phase 4",
+            "title": "CLI Surface",
+            "description": "Handlers for create/edit/publish/search/sync/deprecate. Surface-agnostic in src/handlers/. ~120 LOC. Depends on Phase 1.",
+            "status": "upcoming"
+          },
+          {
+            "date": "Phase 5",
+            "title": "Publish Chain Flow",
+            "description": "FlowMind chaining teaser + gallery + llms.txt. Each target is an independent adapter. ~60 LOC. Depends on Phase 4.",
+            "status": "upcoming"
+          },
+          {
+            "date": "Phase 6",
+            "title": "Hook Registration",
+            "description": "YAML protocol descriptor for entity status hook. Registers EntityStatusGraphAdapter via FlowMind dispatcher. ~30 LOC. Depends on Phase 3 + universal hooks dispatcher.",
+            "status": "upcoming"
+          }
+        ]
+      }
+    },
+    "impl-deps-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "content": "graph LR\n    P1[\"Phase 1\\nSQLiteStorageAdapter\"] --> P2[\"Phase 2\\nSeed Migration\"]\n    P1 --> P4[\"Phase 4\\nCLI Surface\"]\n    P4 --> P5[\"Phase 5\\nPublish Chain\"]\n    P3[\"Phase 3\\nEntityStatusGraphAdapter\"] --> P6[\"Phase 6\\nHook Registration\"]\n\n    style P1 fill:#0891b2,stroke:#0369a1,color:#fff\n    style P3 fill:#0891b2,stroke:#0369a1,color:#fff",
+        "caption": "Phase dependency graph — two independent tracks converge at Phase 6"
+      }
+    },
+
+    "section-loc-budget": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "BUDGET",
+        "title": "LOC Budget",
+        "subtitle": "~560 new LOC across 8 files. 3 lines of modifications to existing code.",
+        "id": "loc-budget"
+      },
+      "children": ["loc-kpis", "loc-table"]
+    },
+    "loc-kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {},
+      "children": ["kpi-files", "kpi-new-loc", "kpi-modified", "kpi-modules"]
+    },
+    "kpi-files": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "8",
+        "label": "Total Files"
+      }
+    },
+    "kpi-new-loc": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "~560",
+        "label": "New LOC"
+      }
+    },
+    "kpi-modified": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "~3",
+        "label": "Modified LOC"
+      }
+    },
+    "kpi-modules": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "4",
+        "label": "Modules Touched"
+      }
+    },
+    "loc-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "module", "label": "Module", "wide": true },
+          { "key": "files", "label": "Files", "numeric": true },
+          { "key": "newLoc", "label": "New LOC", "numeric": true },
+          { "key": "modifiedLoc", "label": "Modified LOC", "numeric": true }
+        ],
+        "rows": [
+          { "module": "core/storage", "files": 3, "newLoc": "~270", "modifiedLoc": "~2" },
+          { "module": "core/graph", "files": 2, "newLoc": "~80", "modifiedLoc": "~1" },
+          { "module": "plugins/lev-now", "files": 2, "newLoc": "~180", "modifiedLoc": "0" },
+          { "module": "context/hooks", "files": 1, "newLoc": "~30", "modifiedLoc": "0" }
+        ],
+        "footer": { "module": "Total", "files": 8, "newLoc": "~560", "modifiedLoc": "~3" }
+      }
+    },
+
+    "section-risks": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "RISK MATRIX",
+        "title": "Dependencies and Risks",
+        "subtitle": "Six identified risks with mitigations. All rated Low-Medium impact.",
+        "id": "risks"
+      },
+      "children": ["risk-table"]
+    },
+    "risk-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "risk", "label": "Risk", "wide": true },
+          { "key": "impact", "label": "Impact" },
+          { "key": "mitigation", "label": "Mitigation", "wide": true }
+        ],
+        "rows": [
+          {
+            "risk": "SQLite concurrent write contention",
+            "impact": { "text": "Medium", "status": "warn" },
+            "mitigation": "WAL mode + busy_timeout (5s). Single-writer is fine at current scale."
+          },
+          {
+            "risk": "Schema migration discipline",
+            "impact": { "text": "Low", "status": "info" },
+            "mitigation": "Version table + numbered migration files. `lev storage migrate` command."
+          },
+          {
+            "risk": "skills-inventory.jsonl format drift",
+            "impact": { "text": "Medium", "status": "warn" },
+            "mitigation": "Validate each record against Zod schema before import. Log and skip bad records."
+          },
+          {
+            "risk": "Graph adapter boot replay",
+            "impact": { "text": "Medium", "status": "warn" },
+            "mitigation": "Replay LevEvents since last checkpoint timestamp. Store checkpoint in SQLite."
+          },
+          {
+            "risk": "Universal hooks dispatcher not built yet",
+            "impact": { "text": "Low", "status": "info" },
+            "mitigation": "Phase 6 can wait. Phases 1-5 self-contained. Register programmatically until dispatcher lands."
+          },
+          {
+            "risk": "better-sqlite3 native dependency",
+            "impact": { "text": "Low", "status": "info" },
+            "mitigation": "Already in ecosystem. Falls back to sql.js (pure WASM) if native build fails."
+          }
+        ]
+      }
+    },
+
+    "section-constraints": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "VALIDATION",
+        "title": "Constraint Compliance Checklist",
+        "subtitle": "Every decision validated against system DNA constraints.",
+        "id": "constraints"
+      },
+      "children": ["constraint-c1", "constraint-c2", "constraint-c5", "constraint-local", "constraint-contract", "constraint-barrel"]
+    },
+    "constraint-c1": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "C1 Finitude",
+        "content": "All operations bounded: busy_timeout, query LIMIT, FTS5 rank cutoff. One event per write, one extract per event."
+      }
+    },
+    "constraint-c2": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "C2 Non-Commutation",
+        "content": "Every write emits a timestamped, append-only LevEvent with causal_parent linkage. Event ordering preserved."
+      }
+    },
+    "constraint-c5": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "C5 Locality",
+        "content": "Each adapter scoped to its own domain events. No cross-domain leakage or global state pollution."
+      }
+    },
+    "constraint-local": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "Local-First",
+        "content": "SQLite with zero cloud dependencies. All data lives on the local filesystem. WAL mode for concurrent reads."
+      }
+    },
+    "constraint-contract": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "Contract-First",
+        "content": "Implements existing CanonicalStorageAdapter and GraphAdapter interfaces. No new abstractions needed."
+      }
+    },
+    "constraint-barrel": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "No Barrel Re-exports",
+        "content": "Each module owns its API surface. Shared types in @lev-os/domain, utils in @lev-os/utils."
+      }
+    }
+  }
+}

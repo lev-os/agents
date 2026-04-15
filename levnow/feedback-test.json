@@ -1,0 +1,87 @@
+{
+  "meta": {
+    "title": "Spec Review: ClawTok MVP",
+    "description": "Interactive feedback capture for ClawTok spec review",
+    "effects": ["card-glow", "grid-dots"]
+  },
+  "theme": { "preset": "deep-blue-gold", "mode": "dark" },
+  "root": ["hero", "feedback-section"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "centered",
+      "props": {
+        "category": "SPEC REVIEW",
+        "title": "ClawTok MVP Feedback",
+        "subtitle": "Rate each spec — your decisions persist in localStorage",
+        "meta": "April 11, 2026"
+      }
+    },
+    "feedback-section": {
+      "type": "feedback",
+      "props": {
+        "pageId": "clawtok-mvp-review-v1",
+        "title": "Rate Each Spec",
+        "buckets": [
+          { "name": "MVP (Ship Now)" },
+          { "name": "Post-MVP" },
+          { "name": "Cross-Cutting" }
+        ],
+        "items": [
+          {
+            "id": "discover-categories",
+            "bucket": 0,
+            "title": "Discover: CLP Tier-1 Categories",
+            "wave": "P0",
+            "insight": "Full-screen 2-column category grid as Discover entry point. All 12 AICategory cases displayed. **Score: 80** (highest overall). Uses existing enum — low risk, high impact.",
+            "detail": "3 new files (CategoryGridView, CategoryFeedView, StickyCategoryBar). ~400 LOC new. No backend dependency. Mock data only.",
+            "options": [
+              { "label": "Ship it", "desc": "Ready for implementation as specced", "recommended": true },
+              { "label": "Needs revision", "desc": "Good direction, spec needs changes" },
+              { "label": "Defer", "desc": "Not MVP priority" }
+            ]
+          },
+          {
+            "id": "profile-redesign",
+            "bucket": 0,
+            "title": "Profile: View/Creator Mode Split",
+            "wave": "P1",
+            "insight": "Split portfolio (viewing) from creator tools (creating). Horizontal scroll quick-action bar replacing 2x3 grid. **Score: 66**. Addresses verbatim user feedback.",
+            "detail": "Major refactor of ProfileView.swift (698 → ~500 lines). 3 new files. ~350 LOC new. @AppStorage persistence.",
+            "options": [
+              { "label": "Ship it", "desc": "Ready for implementation as specced", "recommended": true },
+              { "label": "Needs revision", "desc": "Good direction, spec needs changes" },
+              { "label": "Defer", "desc": "Not MVP priority" }
+            ]
+          },
+          {
+            "id": "podcasts",
+            "bucket": 1,
+            "title": "Music Module: Podcast Support",
+            "wave": "P2",
+            "insight": "Extend Music module with Podcast/Episode/Chapter models. NotebookLM badge. Player with speed/sleep/chapters. **Score: 68**. AI podcasts are exploding.",
+            "detail": "4 new views, ~800 LOC new. New models in MusicModels.swift. MusicHubView gets tab. No backend dependency.",
+            "options": [
+              { "label": "Ship it", "desc": "Ready for post-MVP sprint" },
+              { "label": "Needs revision", "desc": "Scope or approach needs changes" },
+              { "label": "Defer", "desc": "Not a priority right now", "recommended": true }
+            ]
+          },
+          {
+            "id": "inference-router",
+            "bucket": 2,
+            "title": "kingly.cloud Inference Router",
+            "wave": "P3",
+            "insight": "Cross-cutting multi-provider LLM gateway. **Score: 66** (GO with caveats). Multi-month epic. Seed exists at plugins/claw-router/.",
+            "detail": "~3,700 LOC (Go + Swift + SQL). 5 phases over 15 weeks. Unified architecture doc at docs/_inbox/. claw-router routing is decorative — needs real logic.",
+            "options": [
+              { "label": "Start Phase 0", "desc": "Scaffold kingly.cloud service now" },
+              { "label": "Research only", "desc": "Keep researching, don't build yet", "recommended": true },
+              { "label": "Deprioritize", "desc": "Focus on app MVPs first" }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

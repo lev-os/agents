@@ -1,0 +1,159 @@
+{
+  "meta": {
+    "title": "NAAC Template Grounding — Loop Complete",
+    "description": "50 intents processed, 415 rows, 95% FAA sourced",
+    "theme": "teal-slate",
+    "layout": "default",
+    "effects": ["grid-dots", "card-glow"]
+  },
+  "elements": [
+    {
+      "type": "hero",
+      "content": {
+        "title": "Template Grounding Loop",
+        "subtitle": "50 canonical intents — all processed in one session",
+        "lead": "Systematic per-intent grounding pass across graph, templates, and runtime parser. FAA source proof added, wrong sections corrected, readbacks populated, misclassifications flagged."
+      }
+    },
+    {
+      "type": "section",
+      "variant": "kpi-row",
+      "content": {
+        "title": "Summary",
+        "children": [
+          { "type": "card", "content": { "title": "50", "subtitle": "Intents Processed", "description": "All canonical intents from the hand-maintained enum" }},
+          { "type": "card", "content": { "title": "415", "subtitle": "Template Rows", "description": "Total rows in base.json across all 50 intents" }},
+          { "type": "card", "content": { "title": "95%", "subtitle": "FAA Sourced", "description": "398/415 rows now have _source.section + page" }},
+          { "type": "card", "content": { "title": "58%", "subtitle": "Readbacks Added", "description": "242/415 rows have expected_readback (rest intentionally null)" }},
+          { "type": "card", "content": { "title": "0", "subtitle": "Test Regressions", "description": "40 tests passed at every checkpoint" }}
+        ]
+      }
+    },
+    {
+      "type": "section",
+      "content": {
+        "title": "Readback Coverage by Intent (Top 15 by Size)",
+        "children": [
+          {
+            "type": "chart",
+            "content": {
+              "chartType": "bar",
+              "data": {
+                "labels": ["other (28)", "altitude (21)", "heading (21)", "taxi (20)", "traffic (21)", "frequency (16)", "informational (15)", "spacing (15)", "squawk (15)", "sequencing (12)", "position (11)", "acknowledgment (11)", "hold_instr (10)", "ground_hold (9)", "speed (9)"],
+                "datasets": [
+                  { "label": "With Readback", "data": [0, 21, 18, 20, 0, 15, 0, 0, 15, 0, 5, 0, 10, 8, 9] },
+                  { "label": "Null (by design)", "data": [28, 0, 3, 0, 21, 1, 15, 15, 0, 12, 6, 11, 0, 1, 0] }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "section",
+      "variant": "full-width",
+      "content": {
+        "title": "Wrong FAA Section Corrections",
+        "description": "The loop found 9+ intents with incorrect FAA section citations in the original templates. All corrected.",
+        "children": [
+          {
+            "type": "data-table",
+            "content": {
+              "headers": ["Intent", "Old Section", "Old Meaning", "New Section", "Correct Meaning"],
+              "rows": [
+                ["cleared_option", "4-8-9", "Missed Approach", "3-8-1", "Sequence/Spacing Application"],
+                ["cleared_touch_and_go", "3-10-8", "(wrong number)", "3-8-2", "Touch-and-Go/Stop-and-Go"],
+                ["crossing_restriction", "4-6-1", "Clearance to Holding Fix", "4-5-7", "Altitude Information"],
+                ["departure_instruction", "4-3-1", "Departure Terminology", "4-3-2", "Departure Clearances"],
+                ["direct_to", "4-4-3", "Military Degree-Distance Routes", "4-2-5 / 5-6-4", "Route Amendments / Navigation"],
+                ["extend_downwind", "5-8-3", "Successive Departures", "3-8-1", "Sequence/Spacing Application"],
+                ["go_around", "3-1-6", "Traffic Information", "3-8-1", "Sequence/Spacing Application"],
+                ["hold_for_release", "4-3-2", "Departure Clearances (parent)", "4-3-4", "Hold for Release (specific)"],
+                ["hold_instruction", "6-4-1", "(transposed digits!)", "4-6-1", "Clearance to Holding Fix"],
+                ["frequency_change (10 rows)", "2-4-1", "Radio Communications (policy)", "2-1-17", "Radio Communications (transfer)"],
+                ["heading_instruction (7 rows)", "5-6-1", "Application (when)", "5-6-2", "Methods (how)"],
+                ["ground_hold (5 rows)", "3-6-1", "Traffic Info & Runway Assignment", "3-7-2", "Taxi & Ground Movement"],
+                ["pattern_entry (2 rows)", "3-10-6", "LAHSO", "3-10-1", "Landing Information"],
+                ["position_report (11 rows)", "5-3-1", "Radar ID Application", "5-3-6 / 6-5-1", "Position Information"],
+                ["radar_identification (8 rows)", "5-3-1", "Radar ID Application", "5-3-7 / 5-1-13", "Identification Status"],
+                ["ident (7 rows)", "5-3-2", "Primary Radar Methods", "5-3-3", "Beacon/ADS-B Methods"]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "section",
+      "content": {
+        "title": "Needs Review Flags",
+        "description": "Items requiring human decision before full grounding.",
+        "children": [
+          {
+            "type": "data-table",
+            "content": {
+              "headers": ["Intent", "Flagged Rows", "Reason"],
+              "rows": [
+                ["other", "28", "ALL misclassified — need reclassification to correct intents"],
+                ["spacing_instruction", "15", "Readback patterns need verification"],
+                ["sequencing", "12", "Readback patterns need verification"],
+                ["informational", "7", "5 possibly misclassified (taxi/squawk), 2 AIM refs need page"],
+                ["heading_instruction", "3", "3 traffic advisories misclassified as heading"],
+                ["disregard", "3", "No Docling evidence — standard vocab, no PHRASEOLOGY block"],
+                ["unable_response", "3", "Readback patterns need verification"],
+                ["squawk_code_set", "2", "2 invented templates (SQUAWK CODE, SQUAWK ASSIGNED CODE)"],
+                ["ground_hold", "2", "hold_short overlap — intent boundary ambiguous"],
+                ["emergency_declaration", "1", "ROGER MAYDAY — no explicit Docling match"],
+                ["traffic_advisory", "1", "Needs review"],
+                ["radar_identification", "1", "CONFIRMED ON RADAR — informal, may not be standard"]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "section",
+      "variant": "full-width",
+      "content": {
+        "title": "'Other' Bucket Reclassification Map",
+        "description": "All 28 'other' templates are misclassified. Here's where they belong.",
+        "children": [
+          {
+            "type": "data-table",
+            "content": {
+              "headers": ["Target Intent", "Row Count", "Templates"],
+              "rows": [
+                ["heading_instruction", "7", "TURN LEFT/RIGHT HEADING, DEPART fix HEADING, crossed final approach course"],
+                ["informational", "5", "Runway closed/unsafe, no braking, simulated flameout, RUNWAY number, miles from touchdown"],
+                ["altimeter_setting", "4", "THE facility ALTIMETER setting (4 variants)"],
+                ["position_report", "3", "OVER/PASSING fix, miles from fix, miles from facility"],
+                ["traffic_advisory", "2", "TRAFFIC clock position (2 variants)"],
+                ["weather_advisory", "1", "AREA OF PRECIPITATION"],
+                ["taxi_instruction", "1", "TURN on taxiway"],
+                ["ifr_clearance", "1", "CLEARED THROUGH"],
+                ["altitude_instruction", "1", "EXPECT ALTITUDE"],
+                ["hold_instruction", "1", "CLEARED TO fix, HOLD"],
+                ["acknowledgment", "1", "APPROVED (duplicate of acknowledgment:6)"],
+                ["route_clearance", "1", "CLEARED TO CONDUCT evasive action"]
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "section",
+      "content": {
+        "title": "Architecture Changes",
+        "children": [
+          { "type": "card", "content": { "title": "Enum: Hand-Maintained", "description": "graph_shared/enums.py converted from auto-generated to hand-maintained canonical source. 51 → 50 intents (killed altitude_assignment ghost). Graph build validates against it." }},
+          { "type": "card", "content": { "title": "3 Supplemental Graph Nodes", "description": "cleared_option (AIM 4-3-23), disregard (JO 2-1-5), hold_for_release (JO 4-3-4) — injected via overlay during build." }},
+          { "type": "card", "content": { "title": "Codegen Removed", "description": "generate_enums(), _write_enum_class(), _py_name() deleted from faa_graph/__main__.py. Replaced with validation step." }},
+          { "type": "card", "content": { "title": "4 Blocking Hardcodings Found", "description": "_KNOWN_SINGLE_INTENTS in daemon.py, emergency_declaration literal in parser.py, airline regex in callsign extractor, INTENT_SLOT_REQUIREMENTS in join_strategy.py" }}
+        ]
+      }
+    }
+  ]
+}

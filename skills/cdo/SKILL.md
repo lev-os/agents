@@ -1,6 +1,6 @@
 ---
 name: cdo
-description: "Adaptive multi-agent deliberation for cdo/think/deep/debug/parliament workflows. Fractal context loop (CONTEXT→PLAN→ACT→VERIFY) at every level. Mandatory Turn 0 context gathering (skills, codebase, web). Convergence requires evidence, not just agreement."
+description: "Adaptive multi-agent deliberation for cdo/think/deep/debug/parliament workflows. Fractal context loop (CONTEXT→PLAN→ACT→VERIFY) at every level. Mandatory Turn 0 context gathering (skills, codebase, web). Convergence requires evidence, not just agreement. Use autoresearch/adaptive-runtime for long CDOs that need scheduler state, hard minimum turns, hard minimum agent counts, and pause/resume."
 ---
 
 # CDO — Adaptive Multi-Agent Deliberation
@@ -22,7 +22,7 @@ steps:
 
       Args are composable, comma-separated. Split tokens and classify:
         - Base preset: quick | think | deep | full | debug
-        - Modifiers: hitl, bd, team, adaptive, lev-exec, exec
+        - Modifiers: hitl, bd, team, adaptive, autoresearch, adaptive-runtime, lev-exec, exec
         - Domain: token after "exec" (dev, arch, or <tag>)
         - Problem: everything remaining
 
@@ -56,6 +56,7 @@ steps:
         - bd: force beads tracking (`bd create epic "CDO: {problem}"`)
         - team: force TeamCreate even for quick/think
         - adaptive: width varies per turn based on synthesis
+        - autoresearch | adaptive-runtime: use codex-autoresearch as the long-run scheduler/runtime for CDO. CDO still owns reasoning; autoresearch owns run state, counters, health checks, pause/resume, and exit-gate enforcement.
         - lev-exec: route roles to different models via codex/openrouter
         - exec <domain>: inject domain team shape for T1
 
@@ -65,6 +66,72 @@ steps:
       Load sub-files only as needed (see references/architecture.md for table).
     validation: "width, max_turns, team_mode, and convergence_type are all set"
     on_failure: "Default to think preset if configuration is ambiguous"
+
+  - id: resolve_autoresearch_scheduler_mode
+    action: "If requested, convert CDO into a scheduler-managed autoresearch run"
+    instruction: |
+      If `autoresearch` or `adaptive-runtime` is present, OR if the problem declares hard scheduling KPIs (`min_turns`, `min_total_agents`, `skills_per_agent`), enter CDO Autoresearch Scheduler Mode.
+
+      This mode is for long-running deliberation only. It is not a normal CDO preset.
+
+      Load the `codex-autoresearch` skill as the runtime contract:
+        - `references/core-principles.md`
+        - `references/runtime-hard-invariants.md`
+        - `references/loop-workflow.md`
+        - `references/pivot-protocol.md`
+        - `references/health-check-protocol.md`
+        - `references/parallel-experiments-protocol.md`
+
+      Then initialize a scheduler state object before Turn 1:
+
+      ```yaml
+      cdo_scheduler:
+        mode: autoresearch
+        run_tag: "cdo-{slug}"
+        min_turns: 10              # default for deep unknowns runs unless user specifies otherwise
+        min_total_agents: 50       # default for deep unknowns runs unless user specifies otherwise
+        skills_per_agent: 2        # default when user requests skill rotation
+        adaptive_turn_width: true
+        turn_count: 0
+        total_agents: 0
+        unique_skills: []
+        open_tensions: []
+        exit_eligible: false
+      ```
+
+      The scheduler state is the run contract. The DAG is not.
+
+      Hard rules in this mode:
+        - Do not plan all turns upfront.
+        - Do not pre-generate a 50-agent roster as the execution plan.
+        - Plan only the next scheduling quantum.
+        - Every turn chooses strategy from current evidence, open tensions, remaining metrics, and health checks.
+        - Final synthesis is blocked until `turn_count >= min_turns` AND `total_agents >= min_total_agents`, unless the user explicitly interrupts with "ship it", "just do it", or another clear stop signal.
+        - Each turn must emit a scheduler update.
+
+      Scheduler update format:
+
+      ```yaml
+      scheduler_update:
+        turn_count: <int>
+        agents_this_turn: <int>
+        total_agents: <int>
+        skills_used_this_turn: [skill-id]
+        unique_skills: [skill-id]
+        exit_eligible: <bool>
+        remaining_turns_min: <int>
+        remaining_agents_min: <int>
+        next_turn_strategy: research | fanout | debate | negotiate | synthesize | devil_advocate | reduce | checkpoint
+      ```
+
+      The mental model is CPU scheduling:
+        - a turn is a scheduling quantum
+        - agents are runnable tasks
+        - skill pairs are execution contexts
+        - synthesis is scheduler feedback
+        - hard metrics are exit gates
+    validation: "If autoresearch/adaptive-runtime or hard scheduling KPIs are present, cdo_scheduler exists and final synthesis is blocked until hard metrics are met"
+    on_failure: "Do not continue with normal CDO. Rebuild scheduler state and continue from the next turn."
 
   - id: execute_turns
     action: "Run the adaptive turn loop"
@@ -76,6 +143,7 @@ steps:
         - Decide roles from directive (or preset/domain default for T1)
         - For deep+: discover 2-3 skills per agent via skill-discovery
         - Generate agent briefs with role, context, constraints, output format
+        - In Autoresearch Scheduler Mode: first read `cdo_scheduler`, compute unmet metrics, then decide this turn's width and strategy. Do not follow a preplanned roster if current evidence says to change strategy.
 
       DISPATCH: Send agents in parallel.
         - Subagent mode: parallel Agent calls in single message
@@ -95,12 +163,14 @@ steps:
             recommended_next_turn:
               width: <int>
               agents: [{role, skills, focus}]
+            scheduler_update: {turn_count, agents_this_turn, total_agents, unique_skills, exit_eligible, remaining_turns_min, remaining_agents_min, next_turn_strategy}
 
       ADAPT: Check exit criteria.
         - confidence >= threshold AND convergence_met → go to synthesize_final
         - Max turns reached → go to synthesize_final (forced)
         - All tensions resolved, no new gaps in 2 consecutive turns → synthesize_final
         - hitl active → present updated dashboard, user decides
+        - Autoresearch Scheduler Mode: even if confidence is high, final synthesis is blocked until hard scheduler metrics are met. If progress stalls for 3 consecutive turns, use codex-autoresearch pivot/refine escalation instead of brute-force repeating the same fanout.
         - Otherwise → next turn using the directive
     validation: "Each turn has artifact files on disk AND a synthesis with YAML directive block"
     on_failure: "If synthesis missing, re-dispatch synthesis agent. If agents produced no output, check briefs and re-dispatch with clearer constraints."
@@ -235,6 +305,7 @@ When the user says any of these, STOP your current approach immediately:
 |--------|---------|
 | "Let me synthesize the agents' output myself" | You are the router. Synthesis is always a separate agent. Dispatch it. |
 | "I'll plan all turns upfront for efficiency" | Pre-planning defeats adaptive deliberation. Turn N+1 comes from Turn N's synthesis. |
+| "I'll write a complete 50-agent roster and execute it" | In autoresearch/adaptive-runtime mode, the roster is only a candidate queue. The scheduler chooses the next quantum from live evidence and unmet metrics. |
 | "The agents mostly agree, so we're done" | >70% agreement is a groupthink smell. Add a devil's advocate, don't exit. |
 | "I'll skip the dashboard for this one" | Dashboard catches bad composition before you waste 5 agent calls. Show it. |
 | "This is simple enough for CDO" | If the answer fits in one sentence, just answer it. CDO is for genuine multi-perspective problems. |

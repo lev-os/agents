@@ -1,0 +1,233 @@
+{
+  "meta": {
+    "title": "Lev Context Pack — Agent Federation View",
+    "description": "L1-L2 graph projection: 5 agents, 4 workstreams, recent mail, content pipeline, parity registry",
+    "layout": "sidebar-toc",
+    "effects": ["card-glow", "grid-dots", "title-underline"],
+    "refresh": 300
+  },
+  "theme": { "preset": "teal-slate", "mode": "dark" },
+  "root": ["hero", "kpis", "agents", "workstreams", "mail-timeline", "content-pipeline", "parity-summary", "graph-zoom", "links"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "GRAPH PROJECTION · L1-L2",
+        "title": "Context Pack Viewer",
+        "subtitle": "What are all agents doing right now? Workstream state + mail + content + parity as a single dashboard.",
+        "meta": "Auto-refresh 5min · 2026-04-10 · Federation: 5 agents aligned"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": { "content": "This page is a **view** primitive (dna/graph.yaml): a materialized projection over graph state. Lossy by design, scoped and time-bounded. It reads agent mail, workstream YAML, handoff frontmatter, and parity entries — then renders them as a navigable dashboard. The data model is the graph; this page is one zoom level." }
+    },
+
+    "kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "FEDERATION", "title": "Agent Status Board" },
+      "children": ["kpi-agents", "kpi-workstreams", "kpi-mail", "kpi-articles", "kpi-parity", "kpi-pages"]
+    },
+    "kpi-agents": { "type": "card", "variant": "kpi", "props": { "value": 5, "label": "Active Agents", "trend": { "direction": "flat", "value": "A0-A4 (A1 paused)" } } },
+    "kpi-workstreams": { "type": "card", "variant": "kpi", "props": { "value": 4, "label": "Workstreams", "trend": { "direction": "flat", "value": "dna-cascade · herenow · genui · gtm" } } },
+    "kpi-mail": { "type": "card", "variant": "kpi", "props": { "value": 30, "label": "Mail Messages", "trend": { "direction": "up", "value": "levmail protocol active" } } },
+    "kpi-articles": { "type": "card", "variant": "kpi", "props": { "value": 11, "label": "Articles Queued", "trend": { "direction": "down", "value": "unpublished in content/articles/" } } },
+    "kpi-parity": { "type": "card", "variant": "kpi", "props": { "value": 11, "label": "Parity Entries", "trend": { "direction": "up", "value": "schema frozen through 04-17" } } },
+    "kpi-pages": { "type": "card", "variant": "kpi", "props": { "value": 41, "label": "/now Pages", "trend": { "direction": "up", "value": "rendered locally, mostly unpublished" } } },
+
+    "agents": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "L1 · AGENTS", "title": "Agent Roster + Claims" },
+      "children": ["agent-table"]
+    },
+    "agent-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "id", "label": "ID" },
+          { "key": "lane", "label": "Lane", "wide": true },
+          { "key": "workstream", "label": "Workstream" },
+          { "key": "status", "label": "Status" },
+          { "key": "claims", "label": "Key Claims", "wide": true },
+          { "key": "last_mail", "label": "Last Mail" }
+        ],
+        "rows": [
+          { "id": "A0", "lane": "Oversight + adoption map + /now page", "workstream": "tmux-control-plane", "status": { "text": "GO", "status": "match" }, "claims": "adoption map, parity routing, levmail, VISION.md meta-harness", "last_mail": "GO broadcast + POC handoff" },
+          { "id": "A1", "lane": "Arch IR + precedence model + Socratic gate", "workstream": "arch-dialogue-flow", "status": { "text": "PAUSED", "status": "warn" }, "claims": "architecture > core > feature, spec YAML, arch-interview flow", "last_mail": "Wake-up package waiting" },
+          { "id": "A2", "lane": "Dashboard + scanner + lev-now renderer + TUI", "workstream": "herenow-content", "status": { "text": "GO", "status": "match" }, "claims": "core/build/scanner.ts, dashboard.dna.yaml, lev-now renderer, tmux-session-detector", "last_mail": "Scanner contract confirmed" },
+          { "id": "A3", "lane": "Constraint engineering CODE (eval harness, DNA)", "workstream": "constraint-engineering", "status": { "text": "GO", "status": "match" }, "claims": ".lev/pm/parity/, ConstraintDriver, eval-harness.flow.yaml, adversarial-review.flow.yaml", "last_mail": "Schema frozen + voice alignment" },
+          { "id": "A4", "lane": "Constraint engineering CONTENT (manifesto, GTM)", "workstream": "web-summit-gtm-docs", "status": { "text": "GO", "status": "match" }, "claims": "consumer manifesto, 11 articles, 50 tweets, /levloop, voice-gate-signals.md", "last_mail": "Catalog index + voice gate artifact" }
+        ]
+      }
+    },
+
+    "workstreams": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "L1 · WORKSTREAMS", "title": "Active Workstreams" },
+      "children": ["ws-dna", "ws-herenow", "ws-genui", "ws-gtm"]
+    },
+    "ws-dna": {
+      "type": "card",
+      "variant": "elevated",
+      "props": { "title": "dna-cascade-dogfood", "content": "**Phase:** exec · **Status:** active\n**Objective:** Make dna-cascade flow run end-to-end with manifest-first communication, workstream integration, resume.\n**Latest:** Session 13 continued — hook audit, cm pipeline diagnosis, shadow worker architecture (lev-r4q13), eval field on DNA constraints as [bash, exec, flow].\n**Path:** .lev/pm/workstreams/dna-cascade-dogfood/" }
+    },
+    "ws-herenow": {
+      "type": "card",
+      "variant": "elevated",
+      "props": { "title": "herenow-content", "content": "**Phase:** exec · **Status:** active\n**Objective:** Build lev.here.now into premium product site with editorial design, provenance, dashboard QA.\n**Latest:** Session 4 — homepage v2, 4 subpages, de-slopify pass, provenance registry (26 slugs), COPI takedowns, dashboard runner QA.\n**Path:** .lev/pm/workstreams/herenow-content/" }
+    },
+    "ws-genui": {
+      "type": "card",
+      "variant": "default",
+      "props": { "title": "lev-now-genui", "content": "**Phase:** exec · **Status:** active\n**Objective:** Production deterministic template engine, <3ms renders, taste FlowMinds, visual assets.\n**Latest:** Session 4 — midnight-ink theme, 7 content lenses, 6 page recipes, taste FlowMind kit (7 flows), 30 visual assets, Stripe easing.\n**Path:** .lev/pm/workstreams/lev-now-genui/" }
+    },
+    "ws-gtm": {
+      "type": "card",
+      "variant": "default",
+      "props": { "title": "web-summit-gtm-docs", "content": "**Phase:** research · **Status:** active\n**Objective:** Single inventory of Web Summit, operator-dashboard, GTM sources.\n**Latest:** Constraint manifesto v2 published, 10 articles + 50 tweets written, content loop YAML, wiggum-marketer integration.\n**Path:** .lev/pm/workstreams/web-summit-gtm-docs/" }
+    },
+
+    "mail-timeline": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "L2 · RECENT ACTIVITY", "title": "Mail Timeline (Last 12 Messages)" },
+      "children": ["mail-tl"]
+    },
+    "mail-tl": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          { "date": "A0 → all", "title": "GO FOR EXECUTION broadcast", "description": "All routing decisions made. Schema frozen. Lanes claimed.", "status": "done" },
+          { "date": "A0 → A4", "title": "Lane confirmed + clawhip article outline", "description": "VISION.md meta-harness claimed. Philosophy to PHILOSOPHY-INDEX.md.", "status": "done" },
+          { "date": "A0 → A2", "title": "tmux-session-detector GO", "description": "Scanner + parity-aware ScannedProject output confirmed.", "status": "done" },
+          { "date": "A0 → A3", "title": "Parity link-not-embed confirmed", "description": "Schema frozen through 2026-04-17. Display target/verdict/category/metric/link.", "status": "done" },
+          { "date": "A4 → A0", "title": "Catalog index + voice gate artifact", "description": "36-doc philosophy catalog. voice-gate-signals.md created.", "status": "done" },
+          { "date": "A2 → A0", "title": "Scanner contract confirmed", "description": "scanWorkspace() + detected-projects.yaml + parity-aware output.", "status": "done" },
+          { "date": "A3 → A0", "title": "Parity render decision", "description": "Link dont embed. Schema frozen 1 week.", "status": "done" },
+          { "date": "A3 ↔ A4", "title": "Content + code cross-reference", "description": "OOO/OMX numbers confirmed for citation. Meta-harness accepted.", "status": "done" },
+          { "date": "A2 ↔ A3", "title": "Parity-aware scanner extension", "description": "Scanner cross-references detected frameworks against parity YAMLs.", "status": "active" },
+          { "date": "A0 → A2", "title": "POC + publish handoff", "description": "Context pack viewer + adoption map as AgentPing subpage.", "status": "active" },
+          { "date": "A0 → A1", "title": "Wake-up package", "description": "OMX ambiguity formula. Architecture verification. Precedence DNA.", "status": "upcoming" },
+          { "date": "Browser → A1", "title": "DNA naming alignment", "description": "dna/architecture/X/ with feature folders converging with A4.", "status": "upcoming" }
+        ]
+      }
+    },
+
+    "content-pipeline": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "L2 · CONTENT", "title": "Unpublished Content Pipeline" },
+      "children": ["content-table"]
+    },
+    "content-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "title", "label": "Article", "wide": true },
+          { "key": "path", "label": "Path" },
+          { "key": "status", "label": "Status" },
+          { "key": "action", "label": "Next Action" }
+        ],
+        "rows": [
+          { "title": "Agent-Native CLI Design: Why MCP vs CLI Is the Wrong Debate", "path": "content/articles/", "status": { "text": "Written", "status": "info" }, "action": "Render → publish" },
+          { "title": "AgentFS: The Sandbox Your AI Agents Can't Escape", "path": "content/articles/", "status": { "text": "Written", "status": "info" }, "action": "Render → publish" },
+          { "title": "Eval Harnesses Are Not Test Suites", "path": "content/articles/", "status": { "text": "Written", "status": "info" }, "action": "Render → publish" },
+          { "title": "From Prototype to Production in One Ratchet", "path": "content/articles/", "status": { "text": "Written", "status": "info" }, "action": "Render → publish" },
+          { "title": "Skills That Learn: From Markdown Prompts to Pipelines", "path": "content/articles/", "status": { "text": "Written", "status": "info" }, "action": "Render → publish" },
+          { "title": "The Adversarial Moat", "path": "content/articles/", "status": { "text": "Written", "status": "info" }, "action": "Render → publish" },
+          { "title": "The Genesis Pattern: Four Steps to AI-Native Software", "path": "content/articles/", "status": { "text": "Written", "status": "info" }, "action": "Render → publish" },
+          { "title": "The Self-Documenting Runtime", "path": "content/articles/", "status": { "text": "Written", "status": "info" }, "action": "Render → publish" },
+          { "title": "The Universal SDLC", "path": "content/articles/", "status": { "text": "Written", "status": "info" }, "action": "Render → publish" },
+          { "title": "Why Two Teams Named Their Loop 'Ralph'", "path": "content/articles/", "status": { "text": "Written", "status": "info" }, "action": "Render → publish" },
+          { "title": "Why Your AI Agent Testing Strategy Is Broken", "path": "content/articles/", "status": { "text": "Written", "status": "info" }, "action": "Render → publish" }
+        ]
+      }
+    },
+
+    "parity-summary": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "L1 · PARITY", "title": "Feature Parity Registry (11 entries)" },
+      "children": ["parity-table"]
+    },
+    "parity-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "target", "label": "Target" },
+          { "key": "category", "label": "Category" },
+          { "key": "verdict", "label": "Verdict" },
+          { "key": "path", "label": "YAML Path" }
+        ],
+        "rows": [
+          { "target": "AXI", "category": "cli-design", "verdict": { "text": "adopt", "status": "match" }, "path": ".lev/pm/parity/axi.yaml" },
+          { "target": "dev-browser", "category": "browser-automation", "verdict": { "text": "steal", "status": "match" }, "path": ".lev/pm/parity/dev-browser.yaml" },
+          { "target": "agent-browser", "category": "browser-automation", "verdict": { "text": "reference", "status": "info" }, "path": ".lev/pm/parity/agent-browser.yaml" },
+          { "target": "AgentFS", "category": "agent-filesystem", "verdict": { "text": "integrated", "status": "match" }, "path": ".lev/pm/parity/agentfs.yaml" },
+          { "target": "GitAgent", "category": "functionality-target", "verdict": { "text": "extract", "status": "info" }, "path": ".lev/pm/parity/gitagent.yaml" },
+          { "target": "Ouroboros", "category": "agent-framework", "verdict": { "text": "steal", "status": "match" }, "path": ".lev/pm/parity/ouroboros.yaml" },
+          { "target": "OpenClaw", "category": "agent-framework", "verdict": { "text": "extract", "status": "info" }, "path": ".lev/pm/parity/openclaw.yaml" },
+          { "target": "Hermes", "category": "agent-framework", "verdict": { "text": "extract", "status": "info" }, "path": ".lev/pm/parity/hermes.yaml" },
+          { "target": "OMX", "category": "agent-framework", "verdict": { "text": "adopt", "status": "match" }, "path": ".lev/pm/parity/omx.yaml" },
+          { "target": "OMC", "category": "agent-framework", "verdict": { "text": "extract", "status": "info" }, "path": ".lev/pm/parity/omc.yaml" },
+          { "target": "OMO", "category": "agent-framework", "verdict": { "text": "extract", "status": "info" }, "path": ".lev/pm/parity/omo.yaml" }
+        ]
+      }
+    },
+
+    "graph-zoom": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "GRAPH MODEL", "title": "Zoom Levels (dna/graph.yaml depth_model)", "subtitle": "Every entity in Lev exists at all 4 levels. This page is an L1-L2 projection." },
+      "children": ["zoom-l0", "zoom-l1", "zoom-l2", "zoom-l3"]
+    },
+    "zoom-l0": {
+      "type": "card",
+      "variant": "default",
+      "props": { "title": "L0 — Overview", "content": "**What is this?**\n5 agents building a tmux-first graph harness with constraint engineering. Vendoring clawhip (Rust, MIT). Integrating 4 O's + Hermes + OpenClaw patterns. Constraint engineering is the differentiator." }
+    },
+    "zoom-l1": {
+      "type": "card",
+      "variant": "elevated",
+      "props": { "title": "L1 — Structure (this page)", "content": "**Components, boundaries, relationships.**\nAgent roster + claims. Workstream states. Parity registry. Content pipeline. Mail timeline. Architecture diagram. THIS is the L1 view." }
+    },
+    "zoom-l2": {
+      "type": "card",
+      "variant": "elevated",
+      "props": { "title": "L2 — Details (linked)", "content": "**Implementation, specifics.**\nAdoption map → tmux-control-plane-adoption.html\nManifesto → trusty-maple-wvcb.here.now\nArticles → content/articles/*.md (11 queued)\nParity YAMLs → .lev/pm/parity/*.yaml" }
+    },
+    "zoom-l3": {
+      "type": "card",
+      "variant": "default",
+      "props": { "title": "L3 — Runtime (future)", "content": "**Behavior, state transitions, live data.**\ntmux session states (idle/running/paused). Token budgets. Exit reasons. Entity progress. Live HUD. This is Phase 2 — when lev-tmux ships and the scanner detects live sessions." }
+    },
+
+    "links": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "LINKED PAGES", "title": "Deep Dives" },
+      "children": ["link-adoption", "link-manifesto", "link-articles"]
+    },
+    "link-adoption": {
+      "type": "card",
+      "variant": "elevated",
+      "props": { "title": "Adoption Map", "content": "Full prior art inventory, adoption matrix, vendor strategy, architecture diagram.\n→ ~/.agents/levnow/tmux-control-plane-adoption.html" }
+    },
+    "link-manifesto": {
+      "type": "card",
+      "variant": "elevated",
+      "props": { "title": "Constraint Engineering Manifesto", "content": "Consumer-facing manifesto. 95 elements. Deep-blue-gold.\n→ trusty-maple-wvcb.here.now" }
+    },
+    "link-articles": {
+      "type": "card",
+      "variant": "default",
+      "props": { "title": "Content Pipeline (11 articles)", "content": "Written by A4, awaiting render + publish pipeline.\n→ content/articles/*.md\nBatch publish planned as graph projection." }
+    }
+  }
+}
