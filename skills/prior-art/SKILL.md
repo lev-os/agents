@@ -21,7 +21,7 @@ If the repo itself is unfamiliar, pair this with `codebase-archaeology` first so
 
 ## 2. Use agent tools first, CLI second
 
-**Principle:** Agent-native tools (Grep, Glob, Read, SemanticSearch) are instant. CLI tools (`lev get`, `lev find`, `cass`) have cold-start overhead (tsx compilation, FlowMind boot) and can take 30-60 seconds per invocation. **Always prefer agent tools over CLI for prior-art searches.**
+**Principle:** Agent-native tools (Grep, Glob, Read, SemanticSearch) are instant. CLI tools (`lev find`, `cass`) have startup and backend costs. **Always prefer agent tools over CLI for prior-art searches unless the question is genuinely cross-domain and local fused retrieval would add signal.**
 
 **Tool priority order:**
 1. **Grep** — exact keyword/pattern search across the repo (instant)
@@ -31,14 +31,19 @@ If the repo itself is unfamiliar, pair this with `codebase-archaeology` first so
 5. **cass** — session history search (5-10s, reasonable)
 6. **`lev find`** — multi-backend fusion search (bd + qmd + ck; ~20s including cold start — **use only if agent tools found nothing**)
 
-**NEVER use `lev get` or `lev gather` for prior-art.** These commands have the same cold start as `lev find` plus additional overhead (research backends, artifact writes). They are composition commands, not search primitives.
+**NEVER use `lev get` or `lev gather` for prior-art.** They are removed. `lev find` is the only local fused retrieval surface.
 
 **Session cache (in-process):** Before running a tool again, check whether this session already ran the **same** query + scope. Reuse prior results instead of re-fetching.
+
+**Workspace cache (behavioral):**
+- If you need CLI health context, run `lev find --status --backends --json` at most **once per workspace per session**.
+- Cache that result mentally/in-session and reuse it when deciding whether to trust `lev find` or fall back to direct reads.
+- Prefer `--workspace <project-root>` when searching a specific repo; widen to global memory/sessions only after the project pass is thin.
 
 **Burst budget (defaults):**
 - Grep/Glob/SemanticSearch: unlimited — these are instant
 - `cass`: at least **three** distinct query bands total across the task, but **no duplicate** band in the same session
-- `lev find`: at most **one** call, only if agent tools returned nothing useful. Use `--json` flag. Default engine timeout is 20s.
+- `lev find`: at most **one** query call, only if agent tools returned nothing useful. Use `--json`; prefer `--workspace` and `--scope` or `--collection` when you already know the lane.
 - Diagrams (`~/.agents/diagrams`): at most **one** filename sweep + **one** content sweep per user question
 
 **On failure:** If agent tools find nothing, note it and synthesize from what you have. Do not spawn CLI processes hoping for better results.
@@ -113,13 +118,13 @@ SemanticSearch: query="<full question>" target_directories=["docs/"]
 
 **CLI fallback (last resort only):**
 
-If agent tools found nothing and you believe `lev find`'s multi-backend fusion would add value, run it with a timeout:
+If agent tools found nothing and you believe `lev find`'s multi-backend fusion would add value, run it with project-local bias first:
 
 ```bash
-timeout 15 lev find "<query>" --json 2>/dev/null || echo '{"timeout": true}'
+timeout 25 lev find "<query>" --workspace "<project-root>" --json 2>/dev/null || echo '{"timeout": true}'
 ```
 
-Do NOT use `lev get` or `lev gather` — they alias to `gather` which spawns additional sub-processes (research backends, artifact writes) and doubles the cold-start cost.
+If the repo-scoped call is thin and the question truly needs outside-world/current information, switch to `lev-research` / `lev timetravel` instead of inventing more local search bursts.
 
 If `.lev` is missing, keep crawling the repo's remaining markdown, docs, and exported reports instead of stopping.
 
@@ -185,8 +190,8 @@ Always include source paths or session references when possible. If no strong pr
 - Do not replace `lev-research`; use this skill when the question is specifically about prior art, provenance, lineage, or decision history.
 - Do not treat search hits as proof until you have read the underlying file, expanded the session hit, or inspected the diagram.
 - Do not stop after one search angle. Rephrase the question, then search again.
-- **NEVER spawn `lev get`, `lev gather`, or unbounded `lev find` calls.** These are 30-60s cold-start processes that create zombie monsters when called repeatedly. Use agent-native tools (Grep, Glob, SemanticSearch, Read) as primary.
-- If you must use `lev find`, wrap it with `timeout 15` and limit to one call per session.
+- **NEVER spawn `lev get` or `lev gather` calls.** They are removed. Use agent-native tools as primary and `lev find` as the single fused local fallback.
+- If you must use `lev find`, wrap it with `timeout 25`, limit it to one query call per session, and bias it to the current workspace first.
 - Do not assume `qmd` collections are healthy; they are accelerators, not a reason to stop.
 
 ### Search Exclusions (avoid getting lost in the woods)
