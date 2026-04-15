@@ -309,6 +309,30 @@ The report must include:
 - Recommended next step:
 ```
 
+## Hook-Envelope Bridge (from Clawhip, Wave 4 — cw-03)
+
+When intaking repos that emit hook events (OMC/OMX, GitHub Actions, CI systems), use this envelope contract to normalize inbound hook payloads before routing through the intake pipeline:
+
+```json
+{
+  "source_agent": "omx",
+  "event_type": "hook.triggered",
+  "payload": {
+    "hook_name": "post-commit",
+    "repo": "...",
+    "data": {}
+  },
+  "timestamp": "2026-01-01T00:00:00Z",
+  "session_id": "..."
+}
+```
+
+The envelope wraps any external hook source. `source_agent` lets downstream consumers filter by origin. `event_type` follows `hook.<action>` naming and feeds into Lev's LevEvent router after deserialization.
+
+Use this pattern for intake flows that forward hook events between runtimes (e.g., OMC → Lev → downstream analysis). The envelope is the seam — not the hook implementation.
+
+Source: `.lev/pm/parity/clawhip.yaml`
+
 ## Success Criteria
 
 - Workshop paths come from merged config, not hardcoded defaults

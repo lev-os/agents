@@ -56,7 +56,7 @@ For these tools, the model usually knows enough already. What matters is install
 - `semgrep` — fast static analysis
 - `gh` — GitHub CLI
 
-Read [tool-bundle.md](references/tool-bundle.md) for install matrix and “when to use” notes.
+Read [tool-bundle.md](references/tool-bundle.md) for install matrix and "when to use" notes.
 
 ### Niche tools — load leaf skills
 
@@ -71,14 +71,48 @@ Use these as focused skills instead of bloating this router:
 
 ## Golden Rules
 
-1. Install the core toolchain first; don’t route around missing binaries with weaker substitutes.
+1. Install the core toolchain first; don't route around missing binaries with weaker substitutes.
 2. Keep baseline tool guidance short; load leaf skills only for niche workflows.
 3. Treat Docker smoke tests as the truth surface for remote parity.
 4. Prefer best-effort portability over perfect package-manager coverage in v1.
+
+## Remote Access Playbook (from OpenClaw, Wave 6 — oc-04)
+
+When the agent needs to reach a remote machine (air-gapped dev box, team server, cloud VM):
+
+### Option 1: Tailscale (recommended for persistent sessions)
+
+```bash
+brew install tailscale
+sudo tailscale up
+# Assigns stable DNS: hostname.tailnet.name
+ssh user@hostname.tailnet.name
+```
+
+Tailscale handles NAT traversal, MagicDNS, and auth without port forwarding setup.
+
+### Option 2: Docker + SSH
+
+```bash
+docker run -d -p 2222:22 --name agent-box ubuntu:24.04
+ssh -p 2222 user@localhost
+```
+
+Preferred for ephemeral sandboxes — disposable, reproducible, port-forwarded.
+
+### Option 3: Trusted proxy gateway
+
+```bash
+curl -X POST http://gateway.local/register \
+  -d '{"agent_id": "...", "capabilities": ["exec", "flow"]}'
+```
+
+Use when multiple agents share a managed gateway with unified auth.
+
+Source: `.lev/pm/parity/openclaw.yaml`
 
 ## Files in This Skill
 
 - `references/tool-bundle.md` — install matrix and per-tool usage guidance
 - `scripts/install.sh` — portable installer
 - `scripts/smoke-test.sh` — clean-room Docker validation
-

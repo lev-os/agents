@@ -1,11 +1,29 @@
 {
   "meta": {
-    "title": "Web Summit 2026 — Campaign Command Center",
-    "description": "Kingly x Leviathan sprint dashboard. 34 days to booth.",
-    "effects": ["card-glow", "grid-dots", "title-underline"]
+    "title": "Web Summit 2026 \u2014 Campaign Command Center",
+    "description": "30-day GTM dashboard for Kingly x Leviathan ahead of Web Summit Vancouver.",
+    "effects": [
+      "card-glow",
+      "grid-dots",
+      "title-underline"
+    ],
+    "refresh": 300
   },
-  "theme": { "preset": "deep-blue-gold", "mode": "dark" },
-  "root": ["hero", "kpi-section", "lanes-section", "products-section", "timeline-section", "next-steps-section"],
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "kpi-section",
+    "budget-section",
+    "phases-section",
+    "content-section",
+    "channels-section",
+    "products-section",
+    "source-section",
+    "next-steps-section"
+  ],
   "elements": {
     "hero": {
       "type": "hero",
@@ -13,171 +31,558 @@
       "props": {
         "category": "CAMPAIGN DASHBOARD",
         "title": "Web Summit Vancouver 2026",
-        "subtitle": "Kingly x Leviathan — 34 days to booth",
-        "meta": "Updated April 10, 2026 — Deadline: May 14, 2026"
+        "subtitle": "Kingly x Leviathan \u2014 30-day GTM command center",
+        "meta": "Updated April 12, 2026 \u2014 Event floor May 11\u201314"
       },
-      "children": ["hero-lead"]
+      "children": [
+        "hero-lead"
+      ]
     },
     "hero-lead": {
       "type": "text",
       "variant": "lead",
-      "props": { "content": "7 execution lanes. 3 products shipping. DNA cascade running daily. The sprint is live — this page tracks what's done, what's in flight, and what's blocking." }
+      "props": {
+        "content": "This dashboard is the operating surface for the final 30 days: backlog, paid budget, content engine, product milestones, and what the room with Steve and Sunny needs to lock next. Strategy is already synthesized \u2014 the focus now is owned execution."
+      }
     },
-
     "kpi-section": {
       "type": "section",
       "variant": "kpi-row",
-      "props": { "label": "PULSE", "title": "Campaign Health" },
-      "children": ["kpi-days", "kpi-lanes-done", "kpi-lanes-active", "kpi-products", "kpi-milestones", "kpi-blocked"]
+      "props": {
+        "label": "PULSE",
+        "title": "Campaign Health"
+      },
+      "children": [
+        "kpi-days",
+        "kpi-backlog",
+        "kpi-budget",
+        "kpi-content",
+        "kpi-skills",
+        "kpi-products"
+      ]
     },
     "kpi-days": {
       "type": "card",
       "variant": "kpi",
-      "props": { "value": "34", "label": "Days to Booth", "trend": { "direction": "down", "value": "-1/day" } }
+      "props": {
+        "value": 29,
+        "label": "Days To Floor",
+        "trend": {
+          "direction": "down",
+          "value": "May 11"
+        }
+      }
     },
-    "kpi-lanes-done": {
+    "kpi-backlog": {
       "type": "card",
       "variant": "kpi",
-      "props": { "value": "1", "label": "Lanes Done", "trend": { "direction": "up", "value": "1 of 7" } }
+      "props": {
+        "value": 70,
+        "label": "Backlog Items",
+        "trend": {
+          "direction": "flat",
+          "value": "4-week execution plan"
+        }
+      }
     },
-    "kpi-lanes-active": {
+    "kpi-budget": {
       "type": "card",
       "variant": "kpi",
-      "props": { "value": "2", "label": "Lanes Active", "trend": { "direction": "flat", "value": "tactical + surfaces" } }
+      "props": {
+        "value": "$10K",
+        "label": "Marketing Budget",
+        "trend": {
+          "direction": "up",
+          "value": "paid + content + booth"
+        }
+      }
+    },
+    "kpi-content": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": 98,
+        "label": "Planned Content Pieces",
+        "trend": {
+          "direction": "up",
+          "value": "20 LI + 30 X + 3 YT + 5 ext + 40+ WS posts"
+        }
+      }
+    },
+    "kpi-skills": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": 14,
+        "label": "Decision/Marketing Skills",
+        "trend": {
+          "direction": "up",
+          "value": "mapped to execution"
+        }
+      }
     },
     "kpi-products": {
       "type": "card",
       "variant": "kpi",
-      "props": { "value": "3", "label": "Products Shipping", "trend": { "direction": "up", "value": "ClawTok, AgentPing, lev.now" } }
+      "props": {
+        "value": 3,
+        "label": "Products Tracked",
+        "trend": {
+          "direction": "warn",
+          "value": "ClawTok, AgentPing, lev.now"
+        }
+      }
     },
-    "kpi-milestones": {
-      "type": "card",
-      "variant": "kpi",
-      "props": { "value": "10", "label": "Milestones Done", "trend": { "direction": "up", "value": "of 22 total" } }
-    },
-    "kpi-blocked": {
-      "type": "card",
-      "variant": "kpi",
-      "props": { "value": "1", "label": "Blocked", "trend": { "direction": "down", "value": "Notion OAuth" } }
-    },
-
-    "lanes-section": {
+    "budget-section": {
       "type": "section",
-      "variant": "full-width",
-      "props": { "label": "EXECUTION LANES", "title": "7 Lanes — Status Matrix" },
-      "children": ["lanes-table"]
+      "variant": "comparison",
+      "props": {
+        "label": "BUDGET",
+        "title": "$10K Allocation"
+      },
+      "children": [
+        "budget-chart",
+        "budget-table"
+      ]
     },
-    "lanes-table": {
+    "budget-chart": {
+      "type": "chart",
+      "props": {
+        "chartType": "doughnut",
+        "title": "Budget Mix",
+        "labels": [
+          "Paid Ads",
+          "Content Production",
+          "Booth",
+          "Pre-event Outreach",
+          "Post-Launch"
+        ],
+        "datasets": [
+          {
+            "data": [
+              3500,
+              1500,
+              3000,
+              1000,
+              1000
+            ],
+            "backgroundColor": [
+              "#14b8a6",
+              "#0ea5e9",
+              "#f59e0b",
+              "#a855f7",
+              "#ef4444"
+            ]
+          }
+        ]
+      }
+    },
+    "budget-table": {
       "type": "data-table",
       "props": {
         "columns": [
-          { "key": "lane", "label": "Lane", "wide": true },
-          { "key": "status", "label": "Status" },
-          { "key": "done", "label": "Done", "numeric": true },
-          { "key": "remaining", "label": "Remaining", "numeric": true },
-          { "key": "deadline", "label": "Deadline" },
-          { "key": "note", "label": "Note", "wide": true }
+          {
+            "key": "bucket",
+            "label": "Bucket"
+          },
+          {
+            "key": "amount",
+            "label": "Amount"
+          },
+          {
+            "key": "notes",
+            "label": "Notes",
+            "wide": true
+          }
         ],
         "rows": [
-          { "lane": "Web Summit Tactical", "status": { "text": "In Progress", "status": "warn" }, "done": "4", "remaining": "6", "deadline": "May 14", "note": "Strategy strong; execution artifacts not built yet" },
-          { "lane": "Lev Runtime / Dogfood", "status": { "text": "Done", "status": "match" }, "done": "5", "remaining": "—", "deadline": "Complete", "note": "DNA cascade runs daily. Graph walker fixed." },
-          { "lane": "Kingly Surfaces", "status": { "text": "In Progress", "status": "warn" }, "done": "3", "remaining": "3", "deadline": "Apr 25", "note": "ClawTok v1.0.0 shipped. AgentPing sprinting." },
-          { "lane": "CMS / Notion", "status": { "text": "Deferred", "status": "info" }, "done": "1", "remaining": "2", "deadline": "—", "note": "Firestore adapter landed. Notion auth blocked." },
-          { "lane": "Operator Dashboard", "status": { "text": "Deferred", "status": "info" }, "done": "2", "remaining": "1", "deadline": "—", "note": "Superseded by lev.now GenUI engine." },
-          { "lane": "Holdco / vSaaS", "status": { "text": "Deferred", "status": "info" }, "done": "0", "remaining": "2", "deadline": "Post-event", "note": "Needs attorney." },
-          { "lane": "Marketplace", "status": { "text": "Frozen", "status": "gap" }, "done": "0", "remaining": "1", "deadline": "Post-event", "note": "Explicit freeze until after Web Summit." }
+          {
+            "bucket": "Paid Ads",
+            "amount": "$3,500",
+            "notes": "LinkedIn Sponsored Content + Google Ads. Apr 21 launch target."
+          },
+          {
+            "bucket": "Content Production",
+            "amount": "$1,500",
+            "notes": "Demo reel, editing, social cuts, editorial assets."
+          },
+          {
+            "bucket": "Booth",
+            "amount": "$3,000",
+            "notes": "Collateral, print, swag, screens, physical presentation."
+          },
+          {
+            "bucket": "Pre-event Outreach",
+            "amount": "$1,000",
+            "notes": "Partner/influencer/meeting booking support."
+          },
+          {
+            "bucket": "Post-Launch",
+            "amount": "$1,000",
+            "notes": "Follow-up content, retargeting, launch momentum after event."
+          }
+        ]
+      }
+    },
+    "phases-section": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": {
+        "label": "4-WEEK PLAN",
+        "title": "Execution Phases",
+        "subtitle": "The 70-item backlog is sequenced; this is the short version for the room."
+      },
+      "children": [
+        "phase-1",
+        "phase-2",
+        "phase-3",
+        "phase-4"
+      ]
+    },
+    "phase-1": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Week 1 \u2014 Ship + Secure",
+        "content": "ClawTok launch, security P0s, product-marketing-context, content-gtm loop activation, manifesto publish, demo reel commission."
+      }
+    },
+    "phase-2": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Week 2 \u2014 Wire + Paid Launch",
+        "content": "Dispatch loop work, AgentPing ship, legal compliance, lead capture, LinkedIn + Google ads live, event marketer engaged."
+      }
+    },
+    "phase-3": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Week 3 \u2014 Prove + Demo + Surge",
+        "content": "Demo scripts, tutorial/video wave, external articles, Reddit/communities, pre-written Web Summit social content."
+      }
+    },
+    "phase-4": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Week 4 \u2014 Launch Posture",
+        "content": "Product Hunt + HN on May 10, dry run, meeting confirmations, event-week content barrage, post-event follow-up."
+      }
+    },
+    "content-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "CONTENT ENGINE",
+        "title": "Planned Output And Current Constraints"
+      },
+      "children": [
+        "content-table"
+      ]
+    },
+    "content-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "stream",
+            "label": "Stream"
+          },
+          {
+            "key": "count",
+            "label": "Count"
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          },
+          {
+            "key": "note",
+            "label": "Note",
+            "wide": true
+          }
+        ],
+        "rows": [
+          {
+            "stream": "LinkedIn posts",
+            "count": "20",
+            "status": {
+              "text": "Planned",
+              "status": "info"
+            },
+            "note": "Builder + runtime + event awareness mix."
+          },
+          {
+            "stream": "Tweets / threads",
+            "count": "30",
+            "status": {
+              "text": "Planned",
+              "status": "info"
+            },
+            "note": "Pair with owned pages; do not let rented channels become the archive."
+          },
+          {
+            "stream": "YouTube tutorials",
+            "count": "3",
+            "status": {
+              "text": "Planned",
+              "status": "info"
+            },
+            "note": "Demo and runtime proof content."
+          },
+          {
+            "stream": "External platform articles",
+            "count": "5",
+            "status": {
+              "text": "Planned",
+              "status": "info"
+            },
+            "note": "Seed category narrative beyond owned surfaces."
+          },
+          {
+            "stream": "Pre-written Web Summit posts",
+            "count": "40+",
+            "status": {
+              "text": "Planned",
+              "status": "info"
+            },
+            "note": "Daily event week and pre-event scheduling bank."
+          },
+          {
+            "stream": "content-gtm loop",
+            "count": "10+ ticks",
+            "status": {
+              "text": "Needs activation",
+              "status": "warn"
+            },
+            "note": "Loop exists but needs first tick to become operational."
+          }
         ],
         "stickyHeader": true
       }
     },
-
+    "channels-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "CHANNELS",
+        "title": "ORB Channel Discipline"
+      },
+      "children": [
+        "channels-table"
+      ]
+    },
+    "channels-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "layer",
+            "label": "Layer"
+          },
+          {
+            "key": "channels",
+            "label": "Channels",
+            "wide": true
+          },
+          {
+            "key": "job",
+            "label": "Job",
+            "wide": true
+          }
+        ],
+        "rows": [
+          {
+            "layer": "Owned",
+            "channels": "lev.now, manifesto/docs pages, email, direct meeting follow-up",
+            "job": "Store the narrative and compound value."
+          },
+          {
+            "layer": "Rented",
+            "channels": "LinkedIn, X, YouTube",
+            "job": "Drive attention back to owned pages and meeting CTAs."
+          },
+          {
+            "layer": "Borrowed",
+            "channels": "Product Hunt, Hacker News, Reddit, conference moments",
+            "job": "Create spikes and social proof around launch and event week."
+          }
+        ]
+      }
+    },
     "products-section": {
       "type": "section",
       "variant": "card-grid",
-      "props": { "label": "PRODUCTS", "title": "What's Shipping" },
-      "children": ["product-clawtok", "product-agentping", "product-levnow"]
+      "props": {
+        "label": "PRODUCT TRACKS",
+        "title": "What The Event Story Can Point To"
+      },
+      "children": [
+        "product-clawtok",
+        "product-agentping",
+        "product-levnow"
+      ]
     },
     "product-clawtok": {
       "type": "card",
       "variant": "elevated",
       "props": {
-        "title": "🎬 ClawTok",
-        "content": "**TikTok for AI content.** Swift 6 / SwiftUI / iOS 17+. v1.0.0 client tagged April 10.\n\n**Status:** Launching — App Store target April 13\n\n**Stack:** XcodeGen, AVFoundation, Supabase backend (migrations ready, mock data)\n\n**Remaining:** Wire credits sync, withdrawal flow, real auth. Landing page via lev.now."
+        "title": "ClawTok",
+        "content": "Launching track. Use as a visible product surface and creator-story anchor."
       }
     },
     "product-agentping": {
       "type": "card",
       "variant": "elevated",
       "props": {
-        "title": "🔔 AgentPing",
-        "content": "**Agent-Human Interaction Protocol.** Monorepo: core, daemon, dashboard, 10+ adapters, studio.\n\n**Status:** Sprint — ship target April 25\n\n**Remaining:** Canvas/renderer dedup, Storybook unification, CI workflow, dashboard-runner config."
+        "title": "AgentPing",
+        "content": "Sprint track. Use to show surfaces, approvals, and human-loop interaction instead of generic chat."
       }
     },
     "product-levnow": {
       "type": "card",
       "variant": "elevated",
       "props": {
-        "title": "⚡ lev.now",
-        "content": "**Deterministic GenUI engine.** Renders pages from JSON specs in <3ms. 108 visual assets, 7 themes, taste system.\n\n**Status:** Launched and operational\n\n**Next:** Brand theme compilation, React islands, standalone CLI scaffold, event-facing content."
+        "title": "lev.now",
+        "content": "Already live. Use for sendable pages, dashboards, manifestos, and booth/meeting support assets."
       }
     },
-
-    "timeline-section": {
+    "source-section": {
       "type": "section",
-      "variant": "default",
-      "props": { "label": "COUNTDOWN", "title": "Critical Path to May 14" },
-      "children": ["campaign-timeline"]
-    },
-    "campaign-timeline": {
-      "type": "timeline",
+      "variant": "full-width",
       "props": {
-        "items": [
-          { "date": "Mar 15", "title": "Booth confirmed", "description": "Web Summit Vancouver booth secured", "status": "completed" },
-          { "date": "Mar 20", "title": "Strategy synthesized", "description": "8weeks.md — 3-model synthesis of positioning, demos, sequencing", "status": "completed" },
-          { "date": "Mar 27", "title": "Operator dashboard brief", "description": "Design brief for leadership cockpit. Deferred — lev.now supersedes.", "status": "completed" },
-          { "date": "Apr 7", "title": "Lev runtime lane DONE", "description": "DNA cascade 8-node E2E. lev exec canonical. Graph walker fixed.", "status": "completed" },
-          { "date": "Apr 10", "title": "ClawTok v1.0.0", "description": "Client tagged. 15.5K LOC SwiftUI app. Backend wiring in progress.", "status": "completed" },
-          { "date": "Apr 10", "title": "Campaign consolidated", "description": ".lev/campaigns/web-summit-2026/ — all plans, proposals, reports symlinked", "status": "completed" },
-          { "date": "Apr 13", "title": "ClawTok launch", "description": "App Store submission + landing page", "status": "in-progress" },
-          { "date": "Apr 20", "title": "Legal sweep", "description": "Sweepstakes compliance, prize structure, T&C", "status": "upcoming" },
-          { "date": "Apr 25", "title": "AgentPing ship + Lead capture", "description": "AP consolidation done. QR referral + CRM pipeline live.", "status": "upcoming" },
-          { "date": "Apr 28", "title": "Pitch scripts", "description": "60-second 'Production AI for Physical World' + 4-demo rotation", "status": "upcoming" },
-          { "date": "May 1", "title": "Booth collateral + outreach", "description": "Print assets, Screen 2 loop, pre-event meeting schedule", "status": "upcoming" },
-          { "date": "May 11–14", "title": "EVENT WEEK", "description": "Booth setup, demo rotation, lead capture, daily debrief", "status": "upcoming" }
-        ]
+        "label": "SOURCE OF TRUTH",
+        "title": "Campaign Entry, Graph Entity, And Attached Workstreams",
+        "subtitle": "The event campaign is no longer just a state file. It has a browse surface and graph handle."
+      },
+      "children": [
+        "source-table"
+      ]
+    },
+    "source-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "surface",
+            "label": "Surface"
+          },
+          {
+            "key": "value",
+            "label": "Value",
+            "wide": true
+          },
+          {
+            "key": "why",
+            "label": "Why It Matters",
+            "wide": true
+          }
+        ],
+        "rows": [
+          {
+            "surface": "Campaign folder",
+            "value": ".lev/campaigns/web-summit-2026/",
+            "why": "Default browse surface for plans, reports, handoffs, and strategy."
+          },
+          {
+            "surface": "Human entrypoint",
+            "value": ".lev/campaigns/web-summit-2026/README.md",
+            "why": "Lets a human start from the campaign without repo archaeology."
+          },
+          {
+            "surface": "State file",
+            "value": ".lev/campaigns/web-summit-2026/state/campaign.yaml",
+            "why": "Lane state, attached workstreams, and product execution snapshot."
+          },
+          {
+            "surface": "Graph entity",
+            "value": "campaign:web-summit-2026",
+            "why": "Graph-addressable campaign id for products, lanes, assets, and workstream relations."
+          },
+          {
+            "surface": "Graph file",
+            "value": ".lev/campaigns/web-summit-2026/graph.json",
+            "why": "Campaign graph now includes workstream and UX attachment triples."
+          },
+          {
+            "surface": "Active workstream",
+            "value": "herenow-content",
+            "why": "Durable umbrella workstream for current GTM/editorial continuity."
+          },
+          {
+            "surface": "Historical workstream",
+            "value": "web-summit-gtm-docs",
+            "why": "Superseded history still points at the same campaign entity."
+          }
+        ],
+        "stickyHeader": true
       }
     },
-
     "next-steps-section": {
       "type": "section",
       "variant": "card-grid",
-      "props": { "label": "NEXT 5 ACTIONS", "title": "This Week's Priorities" },
-      "children": ["action-1", "action-2", "action-3", "action-4", "action-5"]
+      "props": {
+        "label": "IMMEDIATE ACTIONS",
+        "title": "What Needs To Be Decided Or Done Next"
+      },
+      "children": [
+        "next-1",
+        "next-2",
+        "next-3",
+        "next-4",
+        "next-5",
+        "next-6"
+      ]
     },
-    "action-1": {
+    "next-1": {
       "type": "card",
       "variant": "default",
-      "props": { "title": "1. ClawTok App Store", "content": "Wire remaining TODOs or mark as v1.1. TestFlight submission. Landing page via lev.now." }
+      "props": {
+        "title": "1. Lock Product Story",
+        "content": "Agree on the room order: outcomes first, runtime reveal second, protocol only for infra-native people."
+      }
     },
-    "action-2": {
+    "next-2": {
       "type": "card",
       "variant": "default",
-      "props": { "title": "2. AgentPing Sprint", "content": "Continue consolidation. Canvas/renderer dedup. Dashboard-runner config unification." }
+      "props": {
+        "title": "2. Assign Admin Owners",
+        "content": "Business cards, shirts, Mac mini, Claude seat, tax email, GTM/event hire all need names and dates."
+      }
     },
-    "action-3": {
+    "next-3": {
       "type": "card",
       "variant": "default",
-      "props": { "title": "3. Legal Sweep", "content": "Schedule 2-hour attorney review. Sweepstakes compliance. Prize: $10K AI Transformation vs iPads." }
+      "props": {
+        "title": "3. Activate content-gtm loop",
+        "content": "The loop exists; it needs the first tick so content production becomes a machine instead of a promise."
+      }
     },
-    "action-4": {
+    "next-4": {
       "type": "card",
       "variant": "default",
-      "props": { "title": "4. Lead Capture Build", "content": "QR-activated referral + leaderboard. Firestore-backed CRM pipeline. Landing page with email capture." }
+      "props": {
+        "title": "4. Paid Launch Prep",
+        "content": "Confirm landing domain, Insight Tag/pixel, creative specs, and Apr 21 start dates."
+      }
     },
-    "action-5": {
+    "next-5": {
       "type": "card",
       "variant": "default",
-      "props": { "title": "5. Pitch Narrative", "content": "Draft 60-second script: 'Production AI for Physical World'. 4-demo rotation scripts. Rehearse with Sunny." }
+      "props": {
+        "title": "5. Demo Reel + Pitch Scripts",
+        "content": "Commission the reel and finalize the 60-second booth narrative before print and outreach."
+      }
+    },
+    "next-6": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "6. Hire Event Support",
+        "content": "Decide if the GTM/Web Summit hire is the same slice as the freelance event marketer or a broader role."
+      }
     }
   }
 }

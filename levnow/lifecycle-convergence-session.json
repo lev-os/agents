@@ -1,0 +1,270 @@
+{
+  "meta": {
+    "title": "Lifecycle Convergence — Session Recap",
+    "description": "10 verbs, one envelope — the trigger schema that unifies /capture, /close, /sitrep, HUD, next-actions",
+    "fonts": ["IBM Plex Sans", "IBM Plex Mono"],
+    "layout": "sidebar-toc",
+    "effects": ["grid-dots", "title-underline", "card-glow"]
+  },
+  "theme": { "preset": "teal-slate", "mode": "dark" },
+
+  "root": [
+    "hero",
+    "lead",
+    "section-kpis",
+    "section-arc",
+    "section-skills",
+    "section-diff",
+    "section-schema",
+    "section-proposals",
+    "section-pain",
+    "section-corrections",
+    "section-next",
+    "section-insight"
+  ],
+
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "LIFECYCLE ENGINE · SESSION 3 CONTINUATION",
+        "title": "10 verbs, one envelope",
+        "subtitle": "Every lifecycle skill emits ad-hoc shapes. Underneath, one trigger schema is trying to get out.",
+        "meta": "2026-04-14 → 2026-04-15 · Leviathan · lifecycle-engine workstream"
+      }
+    },
+
+    "lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "This session started with /ws resume burning 40% of an agent's context window and ended with a unifying insight: /capture, /close, /sitrep, HUD, next-actions, flowminds — they're all projections of one stream. What's missing is the stream itself."
+      }
+    },
+
+    "section-kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "SESSION FOOTPRINT", "title": "What moved" },
+      "children": ["kpi-commits", "kpi-tokens", "kpi-files", "kpi-concepts"]
+    },
+    "kpi-commits": { "type": "card", "variant": "kpi", "props": { "value": "4", "label": "Commits pushed", "trend": { "direction": "up", "value": "+422 LOC" } } },
+    "kpi-tokens": { "type": "card", "variant": "kpi", "props": { "value": "40%", "label": "Context lost to /ws resume", "trend": { "direction": "down", "value": "target <1%" } } },
+    "kpi-files": { "type": "card", "variant": "kpi", "props": { "value": "7", "label": "Durable artifacts written", "trend": { "direction": "flat", "value": "capture + 2 proposals + 4 updates" } } },
+    "kpi-concepts": { "type": "card", "variant": "kpi", "props": { "value": "3", "label": "Concepts crystallized", "trend": { "direction": "up", "value": "overlays · beads-ws · trigger-schema" } } },
+
+    "section-arc": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "ARC", "title": "How the session converged", "subtitle": "Eight turns, one realization" },
+      "children": ["arc-timeline"]
+    },
+    "arc-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          { "date": "04-14 04:50", "title": "Workstream split approved", "status": "completed", "description": "lifecycle-engine (workflow) vs graph-cms (substrate). User: 'I agree.' 0.75 confidence decision filed." },
+          { "date": "04-14 05:10", "title": "Ownership boundary formalized", "status": "completed", "description": "graph-cms read-only for this agent. Other agent owns substrate. Sole active workstream = lifecycle-engine." },
+          { "date": "04-14 05:40", "title": "/ws resume pain surfaced", "status": "completed", "description": "40% context burned reading workstream + N handoffs. Cursor pattern proposed." },
+          { "date": "04-15 01:20", "title": "NAAC investigation", "status": "completed", "description": "demo-eval = 1011 lines, 64 sessions, 77 handoffs in ONE workstream. Agents never shard." },
+          { "date": "04-15 01:40", "title": "Standards rejected", "status": "completed", "description": "User: standards are abstract. Behavior must live in skills + ws YAML itself. Agents must shard autonomously." },
+          { "date": "04-15 01:55", "title": "Capture + propose reprioritized", "status": "completed", "description": "User barely uses /ws. Real drivers are /capture, /close, /handoff. Priority queue flipped." },
+          { "date": "04-15 02:10", "title": "Trigger schema convergence", "status": "in-progress", "description": "10 skills table reveals it: every verb wants the same envelope. /sitrep = projection, /close absorbs /capture, learnings become typed." },
+          { "date": "next", "title": "Ship trigger schema v1", "status": "upcoming", "description": "One file defines the envelope. /close + /sitrep migrated first. Rest follow." }
+        ]
+      }
+    },
+
+    "section-skills": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "THE CATALOG", "title": "10 lifecycle verbs — math, metrics, KPIs, gaps", "subtitle": "Each verb carries its own ad-hoc output shape today. The right column is what's missing." },
+      "children": ["skills-table"]
+    },
+    "skills-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "verb", "label": "Verb" },
+          { "key": "math", "label": "Math (formula)" },
+          { "key": "metric", "label": "Runtime metric" },
+          { "key": "kpi", "label": "KPI target" },
+          { "key": "next", "label": "Next action" },
+          { "key": "output", "label": "Structured output today" },
+          { "key": "gap", "label": "Gap" }
+        ],
+        "rows": [
+          { "verb": "/research", "math": "novelty = 1 − max_similarity(prior_art)", "metric": "source diversity count", "kpi": "# good links · innovation %", "next": "/propose when corpus ≥ N", "output": "handoff MD only", "gap": { "text": "no sources:[] typed block", "status": "gap" } },
+          { "verb": "/interview", "math": "ambiguity = 1 − Σ(clarity·weight)", "metric": "ambiguity score", "kpi": "≤ 0.2 to proceed", "next": "/propose on gate pass", "output": "clarity_scores in handoff", "gap": { "text": "not standardized cross-repo", "status": "warn" } },
+          { "verb": "/propose", "math": "confidence = weighted(evidence,fit,risk)", "metric": "cascade DAG depth", "kpi": "completeness ≥ 0.8", "next": "/exec if approved", "output": "dna.yaml + execution.yaml", "gap": { "text": "shipped", "status": "match" } },
+          { "verb": "/capture", "math": "fidelity = 0.30·det + 0.25·rel + 0.20·attr + 0.15·nbr + 0.10·act", "metric": "per-item fidelity", "kpi": "≥ 0.8 to pass", "next": "/propose or re-capture", "output": "items[] YAML w/ fidelity", "gap": { "text": "scoring simulated not wired", "status": "warn" } },
+          { "verb": "/exec", "math": "batch_safety = disjoint_writes ∧ deps_ordered", "metric": "verifier pass rate", "kpi": "100% or block", "next": "/close on all pass", "output": "TodoWrite + verifier cmds", "gap": { "text": "not persisted post-run", "status": "gap" } },
+          { "verb": "/close", "math": "drift = 1 − scope_adherence", "metric": "drift_gate + lev-align", "kpi": "drift ≤ threshold", "next": "/handoff", "output": "commit SHA + prose learnings", "gap": { "text": "learnings in PROSE not typed", "status": "gap" } },
+          { "verb": "/handoff", "math": "— (mechanical)", "metric": "resume-cost (tokens)", "kpi": "< 1K to resume", "next": "/work next session", "output": "handoff MD + pbcopy", "gap": { "text": "no cursor block", "status": "gap" } },
+          { "verb": "/work", "math": "route_confidence = classifier(state)", "metric": "classification accuracy", "kpi": "correct verb first try", "next": "dispatches to verb", "output": "— pure router", "gap": { "text": "no artifact emitted", "status": "info" } },
+          { "verb": "/sitrep", "math": "aggregator (read-only)", "metric": "freshness", "kpi": "< 60s staleness", "next": "suggests verb", "output": "prose table", "gap": { "text": "duplicates /capture's job", "status": "gap" } },
+          { "verb": "/ll", "math": "tick scheduler math", "metric": "tick pass rate", "kpi": "≥ 90%", "next": "next tick", "output": "schedule.yaml entry", "gap": { "text": "not unified with cursor", "status": "warn" } }
+        ],
+        "stickyHeader": true
+      }
+    },
+
+    "section-diff": {
+      "type": "section",
+      "variant": "diff-panels",
+      "props": { "label": "THE FIX", "title": "Before → after", "subtitle": "10 ad-hoc shapes collapse to one envelope + N projections" },
+      "children": ["diff-before", "diff-after"]
+    },
+    "diff-before": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "⚠ Today",
+        "content": "**10 verbs** each write their own output shape.\n\n**3 dashboards** (/sitrep, HUD, handoff pbcopy) read **3 different sources**.\n\n**/close** emits prose learnings — bg agents can't apply them without NLP.\n\n**/ws resume** reads workstream + N handoffs + git diff to reconstruct state.\n\n**NAAC proof:** one workstream accumulated 64 sessions, 1011 lines, cursor pointer exists but nobody trusts it."
+      }
+    },
+    "diff-after": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "✓ After",
+        "content": "**1 envelope** — every verb emits `lifecycle_trigger.v1`.\n\n**1 stream** — `.lev/pm/workstreams/<id>/triggers/` — tail it, project it, ship it.\n\n**/close absorbs /capture** — one trigger writes items + learnings + gates + cursor + commit. Nothing in memory by contract.\n\n**/sitrep = projection** — tail the stream, group by cursor.blocker, done. No custom logic.\n\n**Bg agents apply self-learnings** — iterate learnings[*], select by applies_to. Mechanical, no NLP."
+      }
+    },
+
+    "section-schema": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "THE ENVELOPE", "title": "lifecycle_trigger.v1 — one schema, ten fillers", "subtitle": "Every verb fills different slots. The shape is constant." },
+      "children": ["trigger-schema"]
+    },
+    "trigger-schema": {
+      "type": "code-block",
+      "props": {
+        "language": "yaml",
+        "filename": ".lev/pm/workstreams/<id>/triggers/<ts>-<verb>.yaml",
+        "content": "schema: lifecycle_trigger.v1\nverb: capture | research | interview | propose | exec | close | handoff | work | sitrep | ll\nentity_ref: ws://lifecycle-engine | task://... | proposal://...\ntimestamp: 2026-04-15T02:10:00Z\nagent: claude-session-3\ncommit_before: af0fccf827\n\n# WHAT WAS DONE (structured, typed per-verb)\noutputs:\n  items: []            # /capture, /research — entities touched\n  learnings: []        # /close, /exec — {id, claim, evidence, applies_to, propagates}\n  gates: []            # /exec, /close, /interview — {gate_id, score, threshold, pass}\n  artifacts: []        # any verb — paths written\n  decisions: []        # /propose, /interview — {id, decision, rationale}\n  sources: []          # /research — {url, evidence_type, novelty}\n\n# MATH — computed scores this verb's math produced\nmetrics:\n  fidelity: 0.85       # /capture\n  ambiguity: 0.16      # /interview\n  confidence: 0.78     # /propose\n  drift: 0.08          # /close\n  novelty: 0.62        # /research\n\n# CURSOR — the only thing /ws resume reads\ncursor:\n  last_verb: capture\n  last_at: 2026-04-15T02:10:00Z\n  last_commit: 903ba126e9\n  next_verb: propose\n  next_input: \"ship workstream-as-meta-prompt + beads trial\"\n  blocker: null\n\n# NEIGHBORS — graph edges to touch\nrecommend:\n  - { entity: ws://graph-cms, verdict: monitor, note: \"other agent owns\" }\n  - { entity: skill://sitrep, verdict: rewrite, note: \"duplicates /capture\" }"
+      }
+    },
+
+    "section-proposals": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "PROPOSALS FILED", "title": "Three doors to the same room", "subtitle": "Trigger schema is the substrate. Overlays and beads are implementations." },
+      "children": ["prop-overlays", "prop-beads", "prop-trigger"]
+    },
+    "prop-overlays": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "🧬 Workstream as meta-prompt",
+        "content": "**Confidence 0.78.** Workstream YAML carries overlay instructions — agents read them and behave. Portable cross-repo because the instruction lives INSIDE the file, not in a standards/ directory they can't see.\n\nKey blocks: `cursor:`, `overlays:`, `archive_policy:`.\n\n`.lev/pm/proposals/20260415-workstream-as-meta-prompt.yaml`"
+      }
+    },
+    "prop-beads": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "🪢 Beads-backed workstream trial",
+        "content": "**Confidence 0.72.** One workstream = one beads epic. `lev ws` wraps `bd`. Resume = `bd ready --epic=<id>`. Shard = `bd create --blocks`.\n\nFile-based ws was always dogfooding the graph. Graph is ready.\n\nTrial: lifecycle-engine ws, 1 week, rollback if resume-cost stays high.\n\n`.lev/pm/proposals/20260415-ws-beads-trial.yaml`"
+      }
+    },
+    "prop-trigger": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "⚡ Lifecycle trigger schema",
+        "content": "**Emerging — not yet filed as proposal.** The substrate both above proposals implement. Every verb emits `lifecycle_trigger.v1`. Stream becomes source of truth.\n\nUnlocks: /close absorbs /capture · /sitrep becomes projection · bg agents apply learnings mechanically · HUD reads one source.\n\nNext turn: promote this to a formal proposal."
+      }
+    },
+
+    "section-pain": {
+      "type": "section",
+      "variant": "comparison",
+      "props": { "label": "PAIN POINTS OBSERVED", "title": "Two failure modes, one root cause", "subtitle": "NAAC and Lev break in opposite directions from the same skill design" },
+      "children": ["fail-naac", "fail-lev"]
+    },
+    "fail-naac": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "NAAC: under-split",
+        "content": "**1 workstream · 64 sessions · 1011 lines.** 77 handoffs point to demo-eval. 2 sibling workstreams for a multi-week, multi-topic project.\n\nCursor pointer (line 10) exists but unused — agents read the whole file defensively.\n\n**Root cause:** cost asymmetry. Appending session_N is 1 edit. Sharding is a decision file + new ws + lineage_ref + handoff + 4 commits. Agents take the cheap path 64 times."
+      }
+    },
+    "fail-lev": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Lev: over-investigate",
+        "content": "**40% of context window** on /ws resume. Reads workstream.yaml + N handoffs + git diff + asks anchor question before doing real work.\n\n**Root cause:** skill doesn't trust any specific block. No cursor contract. Every resume re-derives state from prose — archaeology instead of reading one pointer.\n\nSame skill runs in lev + naac. Fix lands both repos."
+      }
+    },
+
+    "section-corrections": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "USER CORRECTIONS", "title": "Four rejections that shaped the design", "subtitle": "Each one killed a false path" },
+      "children": ["corrections-table"]
+    },
+    "corrections-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "proposed", "label": "Proposed" },
+          { "key": "verdict", "label": "User said" },
+          { "key": "replaced", "label": "What lived instead" }
+        ],
+        "rows": [
+          { "proposed": "New dna/standards/ file for ws discipline", "verdict": { "text": "rejected", "status": "gap" }, "replaced": "Behavior baked into ws YAML itself (overlays)" },
+          { "proposed": "`/ws shard <id>` as user command", "verdict": { "text": "rejected", "status": "gap" }, "replaced": "Agents shard autonomously via overlay trigger" },
+          { "proposed": "Workstream layer as next slice", "verdict": { "text": "rejected", "status": "gap" }, "replaced": "/capture + /propose — the real daily drivers" },
+          { "proposed": "/sitrep = execution dashboard", "verdict": { "text": "rejected", "status": "gap" }, "replaced": "/sitrep = freestyle dashboard · fidelity + memory view" }
+        ]
+      }
+    },
+
+    "section-next": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "NEXT LEVERS", "title": "Where the energy is", "subtitle": "Ordered by leverage, not chronology" },
+      "children": ["next-table"]
+    },
+    "next-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "n", "label": "#" },
+          { "key": "lever", "label": "Lever" },
+          { "key": "effort", "label": "Effort" },
+          { "key": "unblocks", "label": "Unblocks" },
+          { "key": "verb", "label": "Verb" }
+        ],
+        "rows": [
+          { "n": "1", "lever": "Define lifecycle_trigger.v1 envelope", "effort": "XS", "unblocks": "everything below", "verb": "/propose" },
+          { "n": "2", "lever": "/close absorbs /capture + emits typed learnings", "effort": "S", "unblocks": "bg self-learning · /sitrep simplification", "verb": "/exec" },
+          { "n": "3", "lever": "/sitrep rewrite as trigger-stream projection", "effort": "S", "unblocks": "freestyle dashboard · kills dup logic", "verb": "/exec" },
+          { "n": "4", "lever": "Backfill cursor block in 7 lev workstreams", "effort": "S", "unblocks": "cheap /ws resume", "verb": "/exec" },
+          { "n": "5", "lever": "Trial beads-backed ws on lifecycle-engine", "effort": "M", "unblocks": "infra simplification · kills ws.yaml long-term", "verb": "/exec" },
+          { "n": "6", "lever": "Wire real fidelity scoring into /capture", "effort": "S", "unblocks": "stops simulation theater · enforces gate", "verb": "/exec" },
+          { "n": "7", "lever": "Levmail NAAC team the overlay pattern", "effort": "XS", "unblocks": "fixes their 1011-line ws", "verb": "/handoff" }
+        ]
+      }
+    },
+
+    "section-insight": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "THE INSIGHT", "title": "One schema. Ten projections. Endless leverage." },
+      "children": ["insight-quote"]
+    },
+    "insight-quote": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": {
+        "content": "Skills are YAML. FlowMind is YAML. Workstreams are becoming YAML-with-overlays. Now triggers — the events those verbs emit — want the same treatment. Declaration → runtime reads → behavior follows. Same pattern, every layer. That's the meta-substrate Lev keeps rediscovering."
+      }
+    }
+  }
+}
