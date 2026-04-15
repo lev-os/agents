@@ -317,3 +317,40 @@ Skill-specific technique rationale. Apply patterns from the skill body. Progress
 **Output Contract:** Artifacts, status, next-step recommendations. Format per skill.
 
 **Edge Cases & Fallbacks:** Missing context—ask or infer from workspace. Dependency missing—degrade gracefully; note in output. Ambiguous request—clarify before proceeding.
+
+---
+
+## Absorbed Patterns (Waves 4–6)
+
+Reference patterns from external parity analysis. Use as architectural vocabulary in ADR, C4, and fitness function work.
+
+### Edge Delivery Pipeline (from Clawhip, Wave 4 — cw-02)
+
+4-stage event delivery pipeline shape. Use when designing event bus delivery or agent output routing:
+
+```
+Dispatcher → Router → Renderer → Sink
+```
+
+- **Dispatcher**: Normalizes event shape, attaches trace context
+- **Router**: Pattern-matches event type to registered handler set
+- **Renderer**: Formats for human consumption (markdown, ANSI, JSON)
+- **Sink**: Delivers to destination (terminal, file, webhook, channel)
+
+The renderer/sink split is the key insight: separating them enables surface-agnostic delivery, testable rendering without sending, and sink multiplexing without renderer duplication. Lev's current event bus collapses Renderer + Sink — this is the canonical target shape.
+
+Source: `workshop/analysis/clawhip/analysis.md`, `.lev/pm/parity/clawhip.yaml`
+
+### Gateway Control Plane Pattern (from OpenClaw, Wave 6 — oc-01)
+
+Run typed WebSocket + OpenAI-compatible HTTP on a **single gateway process**:
+
+- **WS control plane**: Real-time bidirectional control (session state, tool streaming, exec lifecycle)
+- **HTTP API plane**: OpenAI-compatible REST for standard consumers (SDK compat, curl, 3rd-party tools)
+- **Single process**: One auth context, one network boundary, unified observability
+
+The two transports share authentication, rate limiting, and session management — consumers pick their transport, the gateway handles both identically. This is the strongest conceptual model for Lev's eventual gateway surface.
+
+ADR trigger: choose this pattern when the system must serve both real-time agent clients AND standard tool-calling consumers from the same runtime.
+
+Source: `workshop/analysis/openclaw/analysis.md`, `.lev/pm/parity/openclaw.yaml`

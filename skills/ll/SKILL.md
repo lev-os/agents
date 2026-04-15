@@ -1,26 +1,86 @@
 ---
-name: levloop
+name: ll
 description: "Loop maker + scheduler. Creates typed tick loops with dynamic flowmind validation, meta-prompting, and AXI-first output. Use when starting recurring work, building content pipelines, running quality loops, or scheduling autonomous ticks."
-argument-hint: "[create|schedule|run|status|ticks|list|stop] <description or loop-file>"
+triggers:
+  - ll
+  - levloop
+argument-hint: "[create|schedule|run|status|ticks|list|stop|pause|proposal] <description or loop-file>"
 allowed-tools: [Read, Write, Edit, Bash, Glob, Grep, Agent]
 ---
 
-# /levloop — Loop Maker + Tick Scheduler
+# /ll — Loop Maker + Tick Scheduler
 
 Create, schedule, and run typed tick loops with constraint engineering discipline.
 
 ## Invocation
 
 ```
-/levloop create "iterate on manifesto content"    # Generate loop YAML
-/levloop schedule 10m                              # Schedule via CronCreate
-/levloop run                                       # Run one tick now
-/levloop status                                    # Show loop state + tick history
-/levloop ticks                                     # Show tick type distribution
-/levloop list                                      # List all loops
-/levloop stop                                      # CronDelete active loop
-/levloop inspect <tick-id>                         # Show tick details + report
+/ll create "iterate on manifesto content"    # Generate loop YAML
+/ll schedule 10m                              # Schedule via CronCreate
+/ll run                                       # Run one tick now
+/ll status                                    # Show loop state + tick history
+/ll ticks                                     # Show tick type distribution
+/ll list                                      # List all loops
+/ll stop                                      # CronDelete active loop
+/ll pause                                     # Pause loop (user can resume)
+/ll proposal                                  # Loop proposes next actions instead of executing
+/ll inspect <tick-id>                         # Show tick details + report
 ```
+
+## Tick Execution Model
+
+**Every tick parallelizes all independent work:**
+- Dispatch flowminds, tasks, exec items simultaneously via Agent tool
+- Use haiku subagents for small/research items (parallel_safe)
+- Use direct execution for serial/dependent items
+- Max 3 parallel exec agents per tick (C1 bounded)
+- Each agent reports: DONE | NEEDS_CONTEXT | BLOCKED
+
+**Self-learning:** Loop rescheduling when new data arrives mid-tick.
+When /capture or user input adds new items, reschedule with updated queue.
+
+**Preflight:** Before each tick, check:
+1. Dependencies resolved (blockers cleared?)
+2. Critical path via samurai scout (what unblocks the most?)
+3. Budget remaining (max iterations, token budget)
+4. Workstream + lifecycle hygiene (graph footer, handoff current?)
+
+**After first schedule:** Run first tick immediately (don't wait for cron).
+
+**CPU scheduling:** Each loop has workstream-scoped lifecycle hygiene ticks
+interleaved with execution ticks. Hygiene = drift check, orphan scan, HUD check.
+
+## HUD — Always-On Status Line
+
+Every /ll response ends with a single HUD line. Not a footer. A status bar.
+
+```
+🧬 {ws} ⚡{exec} 📥{capture} ⏸️{paused} ✅{done} | 🚦{gate}={score} | ⏭️ {next} | 🔁ll:t{N} {delay}s
+```
+
+**Symbols:**
+- `⚡` = executing right now
+- `📥` = in capture/classify
+- `⏸️` = paused (needs decision)
+- `✅` = done this session
+- `🚦` = current gate + score
+- `⏭️` = what's next
+- `🔁` = loop tick + delay
+
+**/siterep** = expanded view (full dashboard). The HUD is the collapsed always-on version.
+
+**This replaces the graph footer.** One line > six lines. Always present. Never forgotten.
+
+## /ll IS /work (converging)
+
+/ll and /work are the same thing at different timescales:
+- `/work` = interactive, human-paced, one entity at a time
+- `/ll` = autonomous, loop-paced, parallel entities per tick
+- Both use `lifecycle-manifest.yaml` for verb→skill routing
+- Both check gates via `DefaultGateEvaluator` (now with UNCERTAIN + variable triples)
+- Both follow `idle-exec-policy.yaml` for auto-advance vs HITL decisions
+
+The merge: /work calls /ll for execution. /ll calls /siterep for status. /siterep reads the same state.
 
 ---
 

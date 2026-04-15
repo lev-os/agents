@@ -134,49 +134,86 @@ Report findings:
 
 ## Step 5: Route + Execute
 
+**4-Lane Operator Model** (from tribunal #20, unanimous):
+
+| Lane | Steps | Verbs | Gate to Next |
+|------|-------|-------|-------------|
+| **Shape** | 1-3 (Handoff, Track, Align) | /research, /prior-art, /interview | ambiguity ≤ 0.2 |
+| **Plan** | 4 (Search + /propose + /capture) | /propose, /capture | frame_complete |
+| **Exec** | 5 (Route + Execute) | /exec, /manifest | convergence ≥ 0.95 |
+| **Close** | 6 (Close) | /qa, /accept, /handoff | drift < 0.3 |
+
 Match work type to the right approach. This is a router, not a freestyle zone.
 
 ```
-WHAT IS THE WORK?
-
+WHAT IS THE WORK?                          LIFECYCLE NODE
+                                           (lifecycle.flow.yaml)
 → "I need to figure out WHAT to build"
-    ROUTE: /interview (framework-driven questioning)
-    Load skill, follow its process, return here with decisions
+    ENTRY: research → prior_art → ambiguity_check
+    SKILL: /lev-research, /prior-art, /interview
 
 → "I know what to build, need to DESIGN it"
-    ROUTE: /brainstorming (spec writing + review loop)
-    For visual work: /brainstorming routes to /ux
-    Returns: spec artifact in .lev/pm/specs/
+    ENTRY: propose → frame_check → capture → decision_point
+    SKILL: /capture (inline propose prompt writes dna.yaml + execution.yaml)
 
 → "I need to RESEARCH something"
-    ROUTE: /lev-research
-    Returns: report artifact in .lev/pm/reports/
+    ENTRY: research (direct --entry=research)
+    SKILL: /lev-research → report artifact in .lev/pm/reports/
 
 → "I need to encode or update DNA first"
-    ROUTE: /capture if the contract is still being shaped
-    Then use the repo DNA surface (`lev dna compile|validate|cascade`) through the tracked work contract
-    Returns: DNA artifact + cascade-ready execution path
+    ENTRY: capture (direct --entry=capture)
+    SKILL: /capture → DNA artifact + cascade-ready execution path
 
 → "I have a spec, need to BUILD it"
-    Use plan template:
-    cp ~/.agents/skills/work/templates/plan.md .lev/pm/plans/plan-{slug}.md
-    Follow template instructions. Dispatch subagents for multi-file work.
-    Each subagent returns: edited_files + 1-2 sentence summary
+    ENTRY: exec → convergence_check
+    SKILL: /exec (resolves topology from execution.yaml)
 
 → "Something is BROKEN"
-    ROUTE: /cdo debug OR /systematic-debugging
-    For simple bugs: systematic-debugging (single agent, 4 phases)
-    For complex bugs: /cdo debug (multi-agent, parallel trace)
+    ENTRY: exec (debug topology)
+    SKILL: /cdo debug (multi-agent) OR /systematic-debugging (single)
 
 → "I need to DECIDE something"
-    ROUTE: /interview --framework=FirstPrinciples
-    OR: /cdo think (multi-agent deliberation)
+    ENTRY: interview → ambiguity_check
+    SKILL: /interview --framework=FirstPrinciples OR /cdo think
 
 → "I need to write a PROPOSAL or DESIGN doc"
-    Use template:
-    cp ~/.agents/skills/work/templates/design.md .lev/pm/designs/{slug}.md
-    cp ~/.agents/skills/work/templates/proposal.md .lev/pm/proposals/{slug}.md
+    ENTRY: propose → frame_check
+    Templates: design.md, proposal.md → .lev/pm/{designs,proposals}/
 ```
+
+## Lifecycle FlowMind Router
+
+`/work` is the **entry skill** for `lifecycle.flow.yaml` (18 nodes, 4 lanes, math-backed gates).
+Every verb collapses to a lifecycle entry point. The router node inspects task state and branches.
+
+### Verb Collapse Table
+
+| Invocation | Entry Node | What Happens |
+|------------|------------|-------------|
+| `/work` (bare) | `router` | Scan task state, pick lane, run |
+| `/work --entry=shape` | `research` | Shape lane: research → prior_art → ambiguity_check |
+| `/capture` | `capture` | Plan lane: capture → decision_point |
+| `/exec` | `exec` | Exec lane: exec → convergence_check |
+| `/ok` | `ok` | Close lane: ok → drift_check → handoff → done |
+| `/handoff` | `handoff` | Terminal: emit session continuity artifact |
+
+### Manifest Lookup
+
+`lifecycle-manifest.yaml` (`core/flowmind/system/lifecycle-manifest.yaml`) is the verb-to-skill-to-flow
+source of truth. For any verb, it resolves: `skill` + `skill_dir` + `flow` + `entry_node` + `gate` + `gate_formula`.
+
+### HUD Line
+
+Every `/work` invocation emits a HUD status line:
+
+```
+[lifecycle] node={current} lane={shape|plan|exec|close} gate={name} score={value} → next={node|done}
+```
+
+### Aliases
+
+- **`/ll` IS `/work` at loop pace.** Same router, same gates, tick-scheduled via `tick-loop.flow.yaml`.
+- **`/siterep` IS `/work` status.** Reads lifecycle state without advancing. Dashboard, not action.
 
 ### Templates
 

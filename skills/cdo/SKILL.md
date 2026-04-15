@@ -428,6 +428,24 @@ convergence_check:
     budget: "Use all budgeted turns. Early convergence is a smell, not a feature."
 ```
 
+## Delegation with Budget Inheritance (from Hermes, Wave 5 — hm-05)
+
+When dispatching child agents in the `team` modifier mode, apply these constraints borrowed from Hermes delegation semantics:
+
+```yaml
+child_agent_contract:
+  iteration_budget: <int>        # max turns child can run autonomously
+  tool_inheritance: <bool>       # inherits parent's available tools by default
+  skip_memory: <bool>            # optionally isolate child from shared memory
+  return_on: [done, budget_exceeded, blocked]
+```
+
+**Why this matters**: Standard CDO dispatch doesn't cap per-child work. Hermes's model gives each child agent its own iteration budget, inherits tools from parent, and can optionally skip shared memory to enforce isolation. Parent sets constraints; child executes autonomously within them.
+
+Practical application: use `iteration_budget: 3` for quick sub-tasks in a `team` preset CDO. Use `skip_memory: true` when you need clean deliberation without contaminating session state from one child spilling into another.
+
+Source: `.lev/pm/parity/hermes.yaml`
+
 ## Per-Entity Expert Agents
 
 When the problem has distinct entities (e.g., multiple runners, multiple modules, multiple protocols), spawn a specialist agent per entity:
