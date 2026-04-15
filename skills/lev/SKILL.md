@@ -390,3 +390,60 @@ Read `dna/graph.yaml` before touching core. Key constraints:
 - Validation gates: `.lev/validation-gates.yaml`
 
 Execution primitives: loop, eval, effect, session, receipt, edge, execution_contract.
+
+---
+
+## Parity Absorptions (Waves 4–6)
+
+Patterns absorbed from external parity analysis. Source attribution: `.lev/pm/parity/`.
+
+### Session Event Normalization (from Clawhip, Wave 4 — cw-01)
+
+Canonical event name alias contract for Lev event producers that emit legacy `agent.*` shapes:
+
+| Legacy | Canonical | Required fields |
+|--------|-----------|-----------------|
+| `agent.started` | `session.started` | source_agent, session_id |
+| `agent.finished` | `session.completed` | duration, exit_code |
+| `agent.failed` | `session.error` | error_type, message |
+
+When receiving events from external adapters, normalize to `session.*` before routing through the event bus. Do not route `agent.*` events to downstream consumers — they expect normalized form.
+
+Source: `workshop/analysis/clawhip/analysis.md`, `.lev/pm/parity/clawhip.yaml`
+
+### ACP Editor Integration Registry (from Hermes, Wave 5 — hm-03)
+
+Register Lev capabilities with editors (VS Code, Zed, JetBrains) using a JSON manifest:
+
+```json
+{
+  "name": "lev",
+  "version": "0.1.0",
+  "capabilities": { "exec": true, "flow": true, "validate": true },
+  "endpoints": {
+    "exec": "lev exec {{task}}",
+    "validate": "lev validate {{path}}"
+  }
+}
+```
+
+Manifest declares capabilities; editors discover and activate them via ACP. Lev's primary surface is terminal — this is a future integration reference for KinglyAssistant editor integration.
+
+Source: `workshop/analysis/hermes-agent/analysis.md`, `.lev/pm/parity/hermes.yaml`
+
+### Runtime Health Shell (from Hermes + OpenClaw, Waves 5–6 — hm-02 + oc-03)
+
+Design reference for `lev doctor` / `lev repair` (not yet implemented — target: `lev-core` runtime ops).
+
+What a full health check should cover:
+- Provider connectivity (AI SDK key validity, rate limits)
+- Tool availability (binaries present, executable)
+- Terminal backend health (tmux session, shell integration)
+- Memory plugin status (if configured)
+- Config resolution (XDG paths, project overrides)
+
+Returns actionable remediation steps, not just pass/fail. OpenClaw's repair surface adds migration support for in-place upgrades. Hermes does this per provider/terminal/tool/message-channel section — one obvious pass, clean output.
+
+Distinct from `lev-align`, which validates spec/gate alignment (not runtime ops).
+
+Source: `.lev/pm/parity/hermes.yaml`, `.lev/pm/parity/openclaw.yaml`

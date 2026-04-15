@@ -1,16 +1,17 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" class="fx-card-glow fx-hero-gradient fx-grid-dots fx-title-underline">
+<html lang="en" data-theme="dark" class="fx-card-glow fx-title-underline fx-grid-dots">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
+  <meta http-equiv="refresh" content="300">
   <title>Web Summit 2026 — Campaign Command Center</title>
-  <meta name="description" content="Kingly x Leviathan sprint dashboard. 34 days to booth." />
+  <meta name="description" content="30-day GTM dashboard for Kingly x Leviathan ahead of Web Summit Vancouver." />
   <meta property="og:title" content="Web Summit 2026 — Campaign Command Center" />
-  <meta property="og:description" content="Kingly x Leviathan sprint dashboard. 34 days to booth." />
+  <meta property="og:description" content="30-day GTM dashboard for Kingly x Leviathan ahead of Web Summit Vancouver." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Instrument%20Serif:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM%20Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains%20Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM%20Plex%20Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM%20Plex%20Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <style>
 /* === Reset === */
 *, *::before, *::after { box-sizing: border-box; }
@@ -18,19 +19,19 @@ body, h1, h2, h3, h4, p, ul, ol, blockquote, figure { margin: 0; padding: 0; }
 
 /* === Theme Variables === */
 :root, [data-theme="dark"] {
-  --color-primary: #0a0e1a;
-  --color-accent: #d4a73a;
-  --color-surface: #0c1020;
-  --color-surface-alt: #1c2545;
-  --color-text: #ede9e0;
-  --color-text-muted: #b0b6c8;
-  --color-border: rgba(212,167,58,0.28);
-  --color-success: #34d399;
+  --color-primary: #0891b2;
+  --color-accent: #0369a1;
+  --color-surface: #0f172a;
+  --color-surface-alt: #1e293b;
+  --color-text: #f1f5f9;
+  --color-text-muted: #94a3b8;
+  --color-border: rgba(8,145,178,0.18);
+  --color-success: #2dd4bf;
   --color-warning: #fbbf24;
   --color-error: #fb7185;
-  --font-display: 'Instrument Serif', Georgia, serif;
-  --font-body: 'DM Sans', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --font-display: 'IBM Plex Sans', Georgia, serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
   --color-accent-dim: color-mix(in srgb, var(--color-accent) 15%, transparent);
   --color-accent-bright: color-mix(in srgb, var(--color-accent) 80%, white);
   --color-border-strong: color-mix(in srgb, var(--color-accent) 30%, transparent);
@@ -45,10 +46,10 @@ body, h1, h2, h3, h4, p, ul, ol, blockquote, figure { margin: 0; padding: 0; }
 }
 
 [data-theme="light"] {
-  --color-primary: #faf8f4; --color-accent: #b8942e; --color-accent-dim: rgba(184,148,46,0.1);
-  --color-accent-bright: #d4a73a; --color-surface: #faf8f4; --color-surface-alt: #f0ece4;
-  --color-text: #1a1a2e; --color-text-muted: #6b7280; --color-border: rgba(184,148,46,0.15);
-  --color-border-strong: rgba(184,148,46,0.3); --color-success: #059669; --color-warning: #d97706; --color-error: #dc2626;
+  --color-primary: #f8fafc; --color-accent: #0891b2; --color-accent-dim: rgba(8,145,178,0.1);
+  --color-accent-bright: #06b6d4; --color-surface: #f8fafc; --color-surface-alt: #f1f5f9;
+  --color-text: #0f172a; --color-text-muted: #64748b; --color-border: rgba(8,145,178,0.15);
+  --color-border-strong: rgba(8,145,178,0.3); --color-success: #059669; --color-warning: #d97706; --color-error: #dc2626;
 }
 
 /* === Base === */
@@ -62,8 +63,10 @@ body {
   overflow-wrap: break-word;
 }
 body { background-image:
-  radial-gradient(ellipse at 30% -10%, rgba(212,167,58,0.06) 0%, transparent 50%),
-  radial-gradient(ellipse at 70% 100%, rgba(56,189,248,0.04) 0%, transparent 40%);
+  radial-gradient(ellipse at 20% 0%, rgba(8,145,178,0.08) 0%, transparent 50%),
+  radial-gradient(ellipse at 80% 80%, rgba(3,105,161,0.05) 0%, transparent 40%),
+  repeating-linear-gradient(0deg, rgba(8,145,178,0.02) 0px, rgba(8,145,178,0.02) 1px, transparent 1px, transparent 40px),
+  repeating-linear-gradient(90deg, rgba(8,145,178,0.02) 0px, rgba(8,145,178,0.02) 1px, transparent 1px, transparent 40px);
 }
 
 /* === Selection + Focus + Scrollbar (AESTHETIC-DNA Premium Test) === */
@@ -181,50 +184,28 @@ body::before {
   overflow: hidden;
   padding: 90px 2rem 0px;
 }
-@keyframes blobAnimOne {
-  0% { transform: translateX(-50%) translate(0, 0) scale(0.95); opacity: 0.12; }
-  33% { transform: translateX(-50%) translate(-2%, 4%) scale(1.06); opacity: 0.06; }
-  66% { transform: translateX(-50%) translate(3%, -2%) scale(1.02); opacity: 0.16; }
-  100% { transform: translateX(-50%) translate(0, 0) scale(0.95); opacity: 0.12; }
-}
-@keyframes blobAnimTwo {
-  0% { transform: translate(0, 0) scale(0.9); opacity: 0.5; }
-  25% { transform: translate(-3%, 6%) scale(1.12); opacity: 0.85; }
-  50% { transform: translate(5%, -4%) scale(1.05); opacity: 0.4; }
-  75% { transform: translate(2%, 4%) scale(0.96); opacity: 0.7; }
-  100% { transform: translate(0, 0) scale(0.9); opacity: 0.5; }
-}
 .hero::before {
   content: '';
   position: absolute;
   top: -30%;
   left: 50%;
+  transform: translateX(-50%);
   width: 900px;
   height: 900px;
   background: radial-gradient(circle, var(--color-accent) 0%, transparent 70%);
-  mix-blend-mode: overlay;
+  opacity: 0.1;
   pointer-events: none;
-  filter: blur(90px);
-  animation: blobAnimOne 38s ease-in-out infinite alternate;
-}
-[data-theme="light"] .hero::before {
-  mix-blend-mode: multiply;
 }
 .hero::after {
   content: '';
   position: absolute;
-  bottom: -15%;
-  left: 20%;
-  width: 60%;
-  height: 350px;
+  bottom: -10%;
+  left: 25%;
+  width: 50%;
+  height: 200px;
   background: rgba(0, 0, 0, 0.5);
   pointer-events: none;
-  filter: blur(110px);
-  animation: blobAnimTwo 27s ease-in-out infinite alternate-reverse;
-}
-[data-theme="light"] .hero::after {
-  background: radial-gradient(ellipse at center, rgba(235, 180, 20, 0.25) 0%, rgba(255, 230, 80, 0.15) 50%, transparent 80%);
-  mix-blend-mode: multiply;
+  filter: blur(150px);
 }
 .hero__inner { position: relative; z-index: 1; }
 .hero--centered { text-align: center; }
@@ -276,8 +257,8 @@ body::before {
   margin-right: calc(-1 * clamp(1rem, 3vw, 2rem));
   padding-left: clamp(1rem, 3vw, 2rem);
   padding-right: clamp(1rem, 3vw, 2rem);
-  border-top: 1px solid var(--color-border-strong);
-  border-bottom: 1px solid var(--color-border-strong);
+  border-top-color: var(--color-border);
+  border-bottom: 1px solid var(--color-border);
   border-radius: var(--radius);
 }
 .section-label {
@@ -1443,28 +1424,34 @@ code:not(pre code) {
     <a class="site-nav__logo" href="#">Web</a>
     <div class="site-nav__links">
       <a href="#kpi-section">PULSE</a>
-      <a href="#lanes-section">EXECUTION LANES</a>
-      <a href="#products-section">PRODUCTS</a>
-      <a href="#timeline-section">COUNTDOWN</a>
-      <a href="#next-steps-section">NEXT 5 ACTIONS</a>
+      <a href="#budget-section">BUDGET</a>
+      <a href="#phases-section">4-WEEK PLAN</a>
+      <a href="#content-section">CONTENT ENGINE</a>
+      <a href="#channels-section">CHANNELS</a>
+      <a href="#products-section">PRODUCT TRACKS</a>
+      <a href="#source-section">SOURCE OF TRUTH</a>
+      <a href="#next-steps-section">IMMEDIATE ACTIONS</a>
     </div>
   </nav>
   <nav class="nav-rail" aria-label="Page sections">
     <button class="nav-dot active" data-label="PULSE" onclick="scrollToSection(0)"></button>
-    <button class="nav-dot" data-label="EXECUTION LANES" onclick="scrollToSection(1)"></button>
-    <button class="nav-dot" data-label="PRODUCTS" onclick="scrollToSection(2)"></button>
-    <button class="nav-dot" data-label="COUNTDOWN" onclick="scrollToSection(3)"></button>
-    <button class="nav-dot" data-label="NEXT 5 ACTIONS" onclick="scrollToSection(4)"></button>
+    <button class="nav-dot" data-label="BUDGET" onclick="scrollToSection(1)"></button>
+    <button class="nav-dot" data-label="4-WEEK PLAN" onclick="scrollToSection(2)"></button>
+    <button class="nav-dot" data-label="CONTENT ENGINE" onclick="scrollToSection(3)"></button>
+    <button class="nav-dot" data-label="CHANNELS" onclick="scrollToSection(4)"></button>
+    <button class="nav-dot" data-label="PRODUCT TRACKS" onclick="scrollToSection(5)"></button>
+    <button class="nav-dot" data-label="SOURCE OF TRUTH" onclick="scrollToSection(6)"></button>
+    <button class="nav-dot" data-label="IMMEDIATE ACTIONS" onclick="scrollToSection(7)"></button>
   </nav>
   <div class="container">
 <section data-lev-id="hero" class="anim hero hero--centered" style="--i:0">
   <div class="hero__inner">
     <span class="hero__category">CAMPAIGN DASHBOARD</span>
     <h1 class="hero__title">Web Summit Vancouver 2026</h1>
-    <p class="hero__subtitle">Kingly x Leviathan — 34 days to booth</p>
-    <p class="hero__meta">Updated April 10, 2026 — Deadline: May 14, 2026</p>
+    <p class="hero__subtitle">Kingly x Leviathan — 30-day GTM command center</p>
+    <p class="hero__meta">Updated April 12, 2026 — Event floor May 11–14</p>
     <div data-lev-id="hero-lead" class="anim lead" style="--i:1;">
-  <p>7 execution lanes. 3 products shipping. DNA cascade running daily. The sprint is live — this page tracks what&#39;s done, what&#39;s in flight, and what&#39;s blocking.</p>
+  <p>This dashboard is the operating surface for the final 30 days: backlog, paid budget, content engine, product milestones, and what the room with Steve and Sunny needs to lock next. Strategy is already synthesized — the focus now is owned execution.</p>
 </div>
   </div>
 </section>
@@ -1474,59 +1461,149 @@ code:not(pre code) {
   <h2 class="section-title">Campaign Health</h2>
   
   <div class="section__kpi-row"><div data-lev-id="kpi-days" class="anim kpi-card" style="--i:3">
-  <div class="kpi-card__value">34</div>
-  <div class="kpi-card__label">Days to Booth</div>
-  <span class="kpi-card__trend kpi-card__trend--down">-1/day</span>
+  <div class="kpi-card__value kpi-card__value--animated" style="--target:29">29</div>
+  <div class="kpi-card__label">Days To Floor</div>
+  <span class="kpi-card__trend kpi-card__trend--down">May 11</span>
   
 </div>
-<div data-lev-id="kpi-lanes-done" class="anim kpi-card" style="--i:4">
-  <div class="kpi-card__value">1</div>
-  <div class="kpi-card__label">Lanes Done</div>
-  <span class="kpi-card__trend kpi-card__trend--up">1 of 7</span>
+<div data-lev-id="kpi-backlog" class="anim kpi-card" style="--i:4">
+  <div class="kpi-card__value kpi-card__value--animated" style="--target:70">70</div>
+  <div class="kpi-card__label">Backlog Items</div>
+  <span class="kpi-card__trend kpi-card__trend--flat">4-week execution plan</span>
   
 </div>
-<div data-lev-id="kpi-lanes-active" class="anim kpi-card" style="--i:5">
-  <div class="kpi-card__value">2</div>
-  <div class="kpi-card__label">Lanes Active</div>
-  <span class="kpi-card__trend kpi-card__trend--flat">tactical + surfaces</span>
+<div data-lev-id="kpi-budget" class="anim kpi-card" style="--i:5">
+  <div class="kpi-card__value">$10K</div>
+  <div class="kpi-card__label">Marketing Budget</div>
+  <span class="kpi-card__trend kpi-card__trend--up">paid + content + booth</span>
   
 </div>
-<div data-lev-id="kpi-products" class="anim kpi-card" style="--i:6">
-  <div class="kpi-card__value">3</div>
-  <div class="kpi-card__label">Products Shipping</div>
-  <span class="kpi-card__trend kpi-card__trend--up">ClawTok, AgentPing, lev.now</span>
+<div data-lev-id="kpi-content" class="anim kpi-card" style="--i:6">
+  <div class="kpi-card__value kpi-card__value--animated" style="--target:98">98</div>
+  <div class="kpi-card__label">Planned Content Pieces</div>
+  <span class="kpi-card__trend kpi-card__trend--up">20 LI + 30 X + 3 YT + 5 ext + 40+ WS posts</span>
   
 </div>
-<div data-lev-id="kpi-milestones" class="anim kpi-card" style="--i:7">
-  <div class="kpi-card__value">10</div>
-  <div class="kpi-card__label">Milestones Done</div>
-  <span class="kpi-card__trend kpi-card__trend--up">of 22 total</span>
+<div data-lev-id="kpi-skills" class="anim kpi-card" style="--i:7">
+  <div class="kpi-card__value kpi-card__value--animated" style="--target:14">14</div>
+  <div class="kpi-card__label">Decision/Marketing Skills</div>
+  <span class="kpi-card__trend kpi-card__trend--up">mapped to execution</span>
   
 </div>
-<div data-lev-id="kpi-blocked" class="anim kpi-card" style="--i:8">
-  <div class="kpi-card__value">1</div>
-  <div class="kpi-card__label">Blocked</div>
-  <span class="kpi-card__trend kpi-card__trend--down">Notion OAuth</span>
+<div data-lev-id="kpi-products" class="anim kpi-card" style="--i:8">
+  <div class="kpi-card__value kpi-card__value--animated" style="--target:3">3</div>
+  <div class="kpi-card__label">Products Tracked</div>
+  <span class="kpi-card__trend kpi-card__trend--warn">ClawTok, AgentPing, lev.now</span>
   
 </div></div>
 </section>
 
-<section data-lev-id="lanes-section" class="anim section section--full-width" style="--i:9" id="lanes-section">
-  <span class="section-label">EXECUTION LANES</span>
-  <h2 class="section-title">7 Lanes — Status Matrix</h2>
+<section data-lev-id="budget-section" class="anim section section--comparison" style="--i:9" id="budget-section">
+  <span class="section-label">BUDGET</span>
+  <h2 class="section-title">$10K Allocation</h2>
   
-  <div class="section__full-width"><div data-lev-id="lanes-table" class="anim table-wrap" style="--i:10">
-  <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
-  <table class="data-table data-table--sticky">
-    <thead><tr><th>Lane</th><th>Status</th><th class="num">Done</th><th class="num">Remaining</th><th>Deadline</th><th>Note</th></tr></thead>
+  <div class="section__comparison"><div data-lev-id="budget-chart" class="anim chart-wrap" style="--i:10">
+  <div class="chart-wrap__title">Budget Mix</div>
+  <canvas id="chart-budget-chart" height="200"></canvas>
+  <script>
+    (function() {
+      var cs = getComputedStyle(document.documentElement);
+      var gc = function(v) { return cs.getPropertyValue(v).trim(); };
+      var cfg = {"type":"doughnut","data":{"labels":["Paid Ads","Content Production","Booth","Pre-event Outreach","Post-Launch"],"datasets":[{"data":[3500,1500,3000,1000,1000],"backgroundColor":["#14b8a6","#0ea5e9","#f59e0b","#a855f7","#ef4444"],"borderWidth":0}]},"options":{"responsive":true,"plugins":{"legend":{"display":true,"position":"bottom"}}}};
+      // Theme-aware: replace CSS var references in colors
+      cfg.options.scales && Object.values(cfg.options.scales).forEach(function(s) {
+        s.ticks = { color: gc('--color-text-muted'), font: { family: gc('--font-mono'), size: 10 } };
+        s.grid = s.grid || {};
+        s.grid.color = gc('--color-border');
+      });
+      cfg.options.plugins.legend && (cfg.options.plugins.legend.labels = {
+        color: gc('--color-text-muted'),
+        font: { family: gc('--font-mono'), size: 10 },
+        padding: 12
+      });
+      new Chart(document.getElementById('chart-budget-chart'), cfg);
+    })();
+  </script>
+</div>
+<div data-lev-id="budget-table" class="anim table-wrap" style="--i:10">
+  
+  <table class="data-table">
+    <thead><tr><th>Bucket</th><th>Amount</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td>Web Summit Tactical</td><td><span class="status status--warn">In Progress</span></td><td class="num">4</td><td class="num">6</td><td>May 14</td><td>Strategy strong; execution artifacts not built yet</td></tr>
-      <tr><td>Lev Runtime / Dogfood</td><td><span class="status status--match">Done</span></td><td class="num">5</td><td class="num">—</td><td>Complete</td><td>DNA cascade runs daily. Graph walker fixed.</td></tr>
-      <tr><td>Kingly Surfaces</td><td><span class="status status--warn">In Progress</span></td><td class="num">3</td><td class="num">3</td><td>Apr 25</td><td>ClawTok v1.0.0 shipped. AgentPing sprinting.</td></tr>
-      <tr><td>CMS / Notion</td><td><span class="status status--info">Deferred</span></td><td class="num">1</td><td class="num">2</td><td>—</td><td>Firestore adapter landed. Notion auth blocked.</td></tr>
-      <tr><td>Operator Dashboard</td><td><span class="status status--info">Deferred</span></td><td class="num">2</td><td class="num">1</td><td>—</td><td>Superseded by lev.now GenUI engine.</td></tr>
-      <tr><td>Holdco / vSaaS</td><td><span class="status status--info">Deferred</span></td><td class="num">0</td><td class="num">2</td><td>Post-event</td><td>Needs attorney.</td></tr>
-      <tr><td>Marketplace</td><td><span class="status status--gap">Frozen</span></td><td class="num">0</td><td class="num">1</td><td>Post-event</td><td>Explicit freeze until after Web Summit.</td></tr>
+      <tr><td>Paid Ads</td><td>$3,500</td><td>LinkedIn Sponsored Content + Google Ads. Apr 21 launch target.</td></tr>
+      <tr><td>Content Production</td><td>$1,500</td><td>Demo reel, editing, social cuts, editorial assets.</td></tr>
+      <tr><td>Booth</td><td>$3,000</td><td>Collateral, print, swag, screens, physical presentation.</td></tr>
+      <tr><td>Pre-event Outreach</td><td>$1,000</td><td>Partner/influencer/meeting booking support.</td></tr>
+      <tr><td>Post-Launch</td><td>$1,000</td><td>Follow-up content, retargeting, launch momentum after event.</td></tr>
+    </tbody>
+    
+  </table>
+</div></div>
+</section>
+
+<section data-lev-id="phases-section" class="anim section section--pipeline" style="--i:10" id="phases-section">
+  <span class="section-label">4-WEEK PLAN</span>
+  <h2 class="section-title">Execution Phases</h2>
+  <p class="section-subtitle">The 70-item backlog is sequenced; this is the short version for the room.</p>
+  <div class="section__pipeline"><div data-lev-id="phase-1" class="anim ve-card ve-card--default" style="--i:10">
+  
+  
+  <h3 class="ve-card__title">Week 1 — Ship + Secure</h3>
+  <div class="ve-card__content"><p>ClawTok launch, security P0s, product-marketing-context, content-gtm loop activation, manifesto publish, demo reel commission.</p></div>
+</div>
+<div data-lev-id="phase-2" class="anim ve-card ve-card--default" style="--i:10">
+  
+  
+  <h3 class="ve-card__title">Week 2 — Wire + Paid Launch</h3>
+  <div class="ve-card__content"><p>Dispatch loop work, AgentPing ship, legal compliance, lead capture, LinkedIn + Google ads live, event marketer engaged.</p></div>
+</div>
+<div data-lev-id="phase-3" class="anim ve-card ve-card--default" style="--i:10">
+  
+  
+  <h3 class="ve-card__title">Week 3 — Prove + Demo + Surge</h3>
+  <div class="ve-card__content"><p>Demo scripts, tutorial/video wave, external articles, Reddit/communities, pre-written Web Summit social content.</p></div>
+</div>
+<div data-lev-id="phase-4" class="anim ve-card ve-card--default" style="--i:10">
+  
+  
+  <h3 class="ve-card__title">Week 4 — Launch Posture</h3>
+  <div class="ve-card__content"><p>Product Hunt + HN on May 10, dry run, meeting confirmations, event-week content barrage, post-event follow-up.</p></div>
+</div></div>
+</section>
+
+<section data-lev-id="content-section" class="anim section section--full-width" style="--i:10" id="content-section">
+  <span class="section-label">CONTENT ENGINE</span>
+  <h2 class="section-title">Planned Output And Current Constraints</h2>
+  
+  <div class="section__full-width"><div data-lev-id="content-table" class="anim table-wrap" style="--i:10">
+  
+  <table class="data-table data-table--sticky">
+    <thead><tr><th>Stream</th><th>Count</th><th>Status</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td>LinkedIn posts</td><td>20</td><td><span class="status status--info">Planned</span></td><td>Builder + runtime + event awareness mix.</td></tr>
+      <tr><td>Tweets / threads</td><td>30</td><td><span class="status status--info">Planned</span></td><td>Pair with owned pages; do not let rented channels become the archive.</td></tr>
+      <tr><td>YouTube tutorials</td><td>3</td><td><span class="status status--info">Planned</span></td><td>Demo and runtime proof content.</td></tr>
+      <tr><td>External platform articles</td><td>5</td><td><span class="status status--info">Planned</span></td><td>Seed category narrative beyond owned surfaces.</td></tr>
+      <tr><td>Pre-written Web Summit posts</td><td>40+</td><td><span class="status status--info">Planned</span></td><td>Daily event week and pre-event scheduling bank.</td></tr>
+      <tr><td>content-gtm loop</td><td>10+ ticks</td><td><span class="status status--warn">Needs activation</span></td><td>Loop exists but needs first tick to become operational.</td></tr>
+    </tbody>
+    
+  </table>
+</div></div>
+</section>
+
+<section data-lev-id="channels-section" class="anim section section--full-width" style="--i:10" id="channels-section">
+  <span class="section-label">CHANNELS</span>
+  <h2 class="section-title">ORB Channel Discipline</h2>
+  
+  <div class="section__full-width"><div data-lev-id="channels-table" class="anim table-wrap" style="--i:10">
+  
+  <table class="data-table">
+    <thead><tr><th>Layer</th><th>Channels</th><th>Job</th></tr></thead>
+    <tbody>
+      <tr><td>Owned</td><td>lev.now, manifesto/docs pages, email, direct meeting follow-up</td><td>Store the narrative and compound value.</td></tr>
+      <tr><td>Rented</td><td>LinkedIn, X, YouTube</td><td>Drive attention back to owned pages and meeting CTAs.</td></tr>
+      <tr><td>Borrowed</td><td>Product Hunt, Hacker News, Reddit, conference moments</td><td>Create spikes and social proof around launch and event week.</td></tr>
     </tbody>
     
   </table>
@@ -1534,173 +1611,90 @@ code:not(pre code) {
 </section>
 
 <section data-lev-id="products-section" class="anim section section--card-grid" style="--i:10" id="products-section">
-  <span class="section-label">PRODUCTS</span>
-  <h2 class="section-title">What&#39;s Shipping</h2>
+  <span class="section-label">PRODUCT TRACKS</span>
+  <h2 class="section-title">What The Event Story Can Point To</h2>
   
   <div class="section__grid"><div data-lev-id="product-clawtok" class="anim ve-card ve-card--elevated" style="--i:10">
-  <span class="ve-card__icon">🎬</span>
+  
   
   <h3 class="ve-card__title">ClawTok</h3>
-  <div class="ve-card__content"><p><strong>TikTok for AI content.</strong> Swift 6 / SwiftUI / iOS 17+. v1.0.0 client tagged April 10.</p>
-<p><strong>Status:</strong> Launching — App Store target April 13</p>
-<p><strong>Stack:</strong> XcodeGen, AVFoundation, Supabase backend (migrations ready, mock data)</p>
-<p><strong>Remaining:</strong> Wire credits sync, withdrawal flow, real auth. Landing page via lev.now.</p></div>
+  <div class="ve-card__content"><p>Launching track. Use as a visible product surface and creator-story anchor.</p></div>
 </div>
 <div data-lev-id="product-agentping" class="anim ve-card ve-card--elevated" style="--i:10">
-  <span class="ve-card__icon">🔔</span>
+  
   
   <h3 class="ve-card__title">AgentPing</h3>
-  <div class="ve-card__content"><p><strong>Agent-Human Interaction Protocol.</strong> Monorepo: core, daemon, dashboard, 10+ adapters, studio.</p>
-<p><strong>Status:</strong> Sprint — ship target April 25</p>
-<p><strong>Remaining:</strong> Canvas/renderer dedup, Storybook unification, CI workflow, dashboard-runner config.</p></div>
+  <div class="ve-card__content"><p>Sprint track. Use to show surfaces, approvals, and human-loop interaction instead of generic chat.</p></div>
 </div>
 <div data-lev-id="product-levnow" class="anim ve-card ve-card--elevated" style="--i:10">
-  <span class="ve-card__icon">⚡</span>
+  
   
   <h3 class="ve-card__title">lev.now</h3>
-  <div class="ve-card__content"><p><strong>Deterministic GenUI engine.</strong> Renders pages from JSON specs in &lt;3ms. 108 visual assets, 7 themes, taste system.</p>
-<p><strong>Status:</strong> Launched and operational</p>
-<p><strong>Next:</strong> Brand theme compilation, React islands, standalone CLI scaffold, event-facing content.</p></div>
+  <div class="ve-card__content"><p>Already live. Use for sendable pages, dashboards, manifestos, and booth/meeting support assets.</p></div>
 </div></div>
 </section>
 
-<section data-lev-id="timeline-section" class="anim section section--default" style="--i:10" id="timeline-section">
-  <span class="section-label">COUNTDOWN</span>
-  <h2 class="section-title">Critical Path to May 14</h2>
+<section data-lev-id="source-section" class="anim section section--full-width" style="--i:10" id="source-section">
+  <span class="section-label">SOURCE OF TRUTH</span>
+  <h2 class="section-title">Campaign Entry, Graph Entity, And Attached Workstreams</h2>
+  <p class="section-subtitle">The event campaign is no longer just a state file. It has a browse surface and graph handle.</p>
+  <div class="section__full-width"><div data-lev-id="source-table" class="anim table-wrap" style="--i:10">
   
-  <div class="section__body"><div data-lev-id="campaign-timeline" class="anim timeline" style="--i:10">
-    <div class="timeline-item timeline-item--completed" style="--i:16">
-      <div class="timeline-item__marker"></div>
-      <div class="timeline-item__content">
-        <span class="timeline-item__date">Mar 15</span>
-        <h4 class="timeline-item__title">Booth confirmed</h4>
-        <p class="timeline-item__desc">Web Summit Vancouver booth secured</p>
-      </div>
-    </div>
-    <div class="timeline-item timeline-item--completed" style="--i:17">
-      <div class="timeline-item__marker"></div>
-      <div class="timeline-item__content">
-        <span class="timeline-item__date">Mar 20</span>
-        <h4 class="timeline-item__title">Strategy synthesized</h4>
-        <p class="timeline-item__desc">8weeks.md — 3-model synthesis of positioning, demos, sequencing</p>
-      </div>
-    </div>
-    <div class="timeline-item timeline-item--completed" style="--i:18">
-      <div class="timeline-item__marker"></div>
-      <div class="timeline-item__content">
-        <span class="timeline-item__date">Mar 27</span>
-        <h4 class="timeline-item__title">Operator dashboard brief</h4>
-        <p class="timeline-item__desc">Design brief for leadership cockpit. Deferred — lev.now supersedes.</p>
-      </div>
-    </div>
-    <div class="timeline-item timeline-item--completed" style="--i:19">
-      <div class="timeline-item__marker"></div>
-      <div class="timeline-item__content">
-        <span class="timeline-item__date">Apr 7</span>
-        <h4 class="timeline-item__title">Lev runtime lane DONE</h4>
-        <p class="timeline-item__desc">DNA cascade 8-node E2E. lev exec canonical. Graph walker fixed.</p>
-      </div>
-    </div>
-    <div class="timeline-item timeline-item--completed" style="--i:20">
-      <div class="timeline-item__marker"></div>
-      <div class="timeline-item__content">
-        <span class="timeline-item__date">Apr 10</span>
-        <h4 class="timeline-item__title">ClawTok v1.0.0</h4>
-        <p class="timeline-item__desc">Client tagged. 15.5K LOC SwiftUI app. Backend wiring in progress.</p>
-      </div>
-    </div>
-    <div class="timeline-item timeline-item--completed" style="--i:21">
-      <div class="timeline-item__marker"></div>
-      <div class="timeline-item__content">
-        <span class="timeline-item__date">Apr 10</span>
-        <h4 class="timeline-item__title">Campaign consolidated</h4>
-        <p class="timeline-item__desc">.lev/campaigns/web-summit-2026/ — all plans, proposals, reports symlinked</p>
-      </div>
-    </div>
-    <div class="timeline-item timeline-item--in-progress" style="--i:22">
-      <div class="timeline-item__marker"></div>
-      <div class="timeline-item__content">
-        <span class="timeline-item__date">Apr 13</span>
-        <h4 class="timeline-item__title">ClawTok launch</h4>
-        <p class="timeline-item__desc">App Store submission + landing page</p>
-      </div>
-    </div>
-    <div class="timeline-item timeline-item--upcoming" style="--i:23">
-      <div class="timeline-item__marker"></div>
-      <div class="timeline-item__content">
-        <span class="timeline-item__date">Apr 20</span>
-        <h4 class="timeline-item__title">Legal sweep</h4>
-        <p class="timeline-item__desc">Sweepstakes compliance, prize structure, T&amp;C</p>
-      </div>
-    </div>
-    <div class="timeline-item timeline-item--upcoming" style="--i:24">
-      <div class="timeline-item__marker"></div>
-      <div class="timeline-item__content">
-        <span class="timeline-item__date">Apr 25</span>
-        <h4 class="timeline-item__title">AgentPing ship + Lead capture</h4>
-        <p class="timeline-item__desc">AP consolidation done. QR referral + CRM pipeline live.</p>
-      </div>
-    </div>
-    <div class="timeline-item timeline-item--upcoming" style="--i:25">
-      <div class="timeline-item__marker"></div>
-      <div class="timeline-item__content">
-        <span class="timeline-item__date">Apr 28</span>
-        <h4 class="timeline-item__title">Pitch scripts</h4>
-        <p class="timeline-item__desc">60-second &#39;Production AI for Physical World&#39; + 4-demo rotation</p>
-      </div>
-    </div>
-    <div class="timeline-item timeline-item--upcoming" style="--i:26">
-      <div class="timeline-item__marker"></div>
-      <div class="timeline-item__content">
-        <span class="timeline-item__date">May 1</span>
-        <h4 class="timeline-item__title">Booth collateral + outreach</h4>
-        <p class="timeline-item__desc">Print assets, Screen 2 loop, pre-event meeting schedule</p>
-      </div>
-    </div>
-    <div class="timeline-item timeline-item--upcoming" style="--i:27">
-      <div class="timeline-item__marker"></div>
-      <div class="timeline-item__content">
-        <span class="timeline-item__date">May 11–14</span>
-        <h4 class="timeline-item__title">EVENT WEEK</h4>
-        <p class="timeline-item__desc">Booth setup, demo rotation, lead capture, daily debrief</p>
-      </div>
-    </div>
+  <table class="data-table data-table--sticky">
+    <thead><tr><th>Surface</th><th>Value</th><th>Why It Matters</th></tr></thead>
+    <tbody>
+      <tr><td>Campaign folder</td><td>.lev/campaigns/web-summit-2026/</td><td>Default browse surface for plans, reports, handoffs, and strategy.</td></tr>
+      <tr><td>Human entrypoint</td><td>.lev/campaigns/web-summit-2026/README.md</td><td>Lets a human start from the campaign without repo archaeology.</td></tr>
+      <tr><td>State file</td><td>.lev/campaigns/web-summit-2026/state/campaign.yaml</td><td>Lane state, attached workstreams, and product execution snapshot.</td></tr>
+      <tr><td>Graph entity</td><td>campaign:web-summit-2026</td><td>Graph-addressable campaign id for products, lanes, assets, and workstream relations.</td></tr>
+      <tr><td>Graph file</td><td>.lev/campaigns/web-summit-2026/graph.json</td><td>Campaign graph now includes workstream and UX attachment triples.</td></tr>
+      <tr><td>Active workstream</td><td>herenow-content</td><td>Durable umbrella workstream for current GTM/editorial continuity.</td></tr>
+      <tr><td>Historical workstream</td><td>web-summit-gtm-docs</td><td>Superseded history still points at the same campaign entity.</td></tr>
+    </tbody>
+    
+  </table>
 </div></div>
 </section>
 
 <section data-lev-id="next-steps-section" class="anim section section--card-grid" style="--i:10" id="next-steps-section">
-  <span class="section-label">NEXT 5 ACTIONS</span>
-  <h2 class="section-title">This Week&#39;s Priorities</h2>
+  <span class="section-label">IMMEDIATE ACTIONS</span>
+  <h2 class="section-title">What Needs To Be Decided Or Done Next</h2>
   
-  <div class="section__grid"><div data-lev-id="action-1" class="anim ve-card ve-card--default" style="--i:10">
+  <div class="section__grid"><div data-lev-id="next-1" class="anim ve-card ve-card--default" style="--i:10">
   <span class="ve-card__icon">1</span>
   
-  <h3 class="ve-card__title">. ClawTok App Store</h3>
-  <div class="ve-card__content"><p>Wire remaining TODOs or mark as v1.1. TestFlight submission. Landing page via lev.now.</p></div>
+  <h3 class="ve-card__title">. Lock Product Story</h3>
+  <div class="ve-card__content"><p>Agree on the room order: outcomes first, runtime reveal second, protocol only for infra-native people.</p></div>
 </div>
-<div data-lev-id="action-2" class="anim ve-card ve-card--default" style="--i:10">
+<div data-lev-id="next-2" class="anim ve-card ve-card--default" style="--i:10">
   <span class="ve-card__icon">2</span>
   
-  <h3 class="ve-card__title">. AgentPing Sprint</h3>
-  <div class="ve-card__content"><p>Continue consolidation. Canvas/renderer dedup. Dashboard-runner config unification.</p></div>
+  <h3 class="ve-card__title">. Assign Admin Owners</h3>
+  <div class="ve-card__content"><p>Business cards, shirts, Mac mini, Claude seat, tax email, GTM/event hire all need names and dates.</p></div>
 </div>
-<div data-lev-id="action-3" class="anim ve-card ve-card--default" style="--i:10">
+<div data-lev-id="next-3" class="anim ve-card ve-card--default" style="--i:10">
   <span class="ve-card__icon">3</span>
   
-  <h3 class="ve-card__title">. Legal Sweep</h3>
-  <div class="ve-card__content"><p>Schedule 2-hour attorney review. Sweepstakes compliance. Prize: $10K AI Transformation vs iPads.</p></div>
+  <h3 class="ve-card__title">. Activate content-gtm loop</h3>
+  <div class="ve-card__content"><p>The loop exists; it needs the first tick so content production becomes a machine instead of a promise.</p></div>
 </div>
-<div data-lev-id="action-4" class="anim ve-card ve-card--default" style="--i:10">
+<div data-lev-id="next-4" class="anim ve-card ve-card--default" style="--i:10">
   <span class="ve-card__icon">4</span>
   
-  <h3 class="ve-card__title">. Lead Capture Build</h3>
-  <div class="ve-card__content"><p>QR-activated referral + leaderboard. Firestore-backed CRM pipeline. Landing page with email capture.</p></div>
+  <h3 class="ve-card__title">. Paid Launch Prep</h3>
+  <div class="ve-card__content"><p>Confirm landing domain, Insight Tag/pixel, creative specs, and Apr 21 start dates.</p></div>
 </div>
-<div data-lev-id="action-5" class="anim ve-card ve-card--default" style="--i:10">
+<div data-lev-id="next-5" class="anim ve-card ve-card--default" style="--i:10">
   <span class="ve-card__icon">5</span>
   
-  <h3 class="ve-card__title">. Pitch Narrative</h3>
-  <div class="ve-card__content"><p>Draft 60-second script: &#39;Production AI for Physical World&#39;. 4-demo rotation scripts. Rehearse with Sunny.</p></div>
+  <h3 class="ve-card__title">. Demo Reel + Pitch Scripts</h3>
+  <div class="ve-card__content"><p>Commission the reel and finalize the 60-second booth narrative before print and outreach.</p></div>
+</div>
+<div data-lev-id="next-6" class="anim ve-card ve-card--default" style="--i:10">
+  <span class="ve-card__icon">6</span>
+  
+  <h3 class="ve-card__title">. Hire Event Support</h3>
+  <div class="ve-card__content"><p>Decide if the GTM/Web Summit hire is the same slice as the freelance event marketer or a broader role.</p></div>
 </div></div>
 </section>
 
@@ -1711,15 +1705,15 @@ code:not(pre code) {
 
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
     <div class="kpi-card">
-      <div class="kpi-card__value">23</div>
+      <div class="kpi-card__value">34</div>
       <div class="kpi-card__label">Elements</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-card__value">deep-blue-gold</div>
+      <div class="kpi-card__value">teal-slate</div>
       <div class="kpi-card__label">Theme Preset</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-card__value">441</div>
+      <div class="kpi-card__value">588</div>
       <div class="kpi-card__label">JSON Lines</div>
     </div>
     <div class="kpi-card">
@@ -1736,12 +1730,12 @@ code:not(pre code) {
       <span class="code-file__dot"></span>
       <span class="code-file__name">terminal</span>
     </div>
-    <div class="code-file__body"><pre><code><span class="code-func">$</span> npx tsx plugins/lev-now/src/cli.ts /Users/jean-patricksmith/.agents/levnow/web-summit-2026-campaign-dashboard.json --output /Users/jean-patricksmith/.agents/levnow/web-summit-2026-campaign-dashboard.html --show-source</code></pre></div>
+    <div class="code-file__body"><pre><code><span class="code-func">$</span> npx tsx plugins/lev-now/src/cli.ts /Users/jean-patricksmith/.agents/levnow/web-summit-2026-campaign-dashboard.json --show-source --output /Users/jean-patricksmith/.agents/levnow/web-summit-2026-campaign-dashboard.html</code></pre></div>
   </div>
 
   <details style="margin-top: 2rem;">
     <summary style="cursor: pointer; font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent); padding: 0.75rem 0; border-bottom: 1px solid var(--color-border);">
-      View RenderSpec JSON (441 lines)
+      View RenderSpec JSON (588 lines)
     </summary>
     <div class="code-file" style="margin-top: 1rem;">
       <div class="code-file__header">
@@ -1753,23 +1747,27 @@ code:not(pre code) {
       <div class="code-file__body" style="max-height: 600px; overflow-y: auto;"><pre><code>{
   &quot;meta&quot;: {
     &quot;title&quot;: &quot;Web Summit 2026 — Campaign Command Center&quot;,
-    &quot;description&quot;: &quot;Kingly x Leviathan sprint dashboard. 34 days to booth.&quot;,
+    &quot;description&quot;: &quot;30-day GTM dashboard for Kingly x Leviathan ahead of Web Summit Vancouver.&quot;,
     &quot;effects&quot;: [
       &quot;card-glow&quot;,
       &quot;grid-dots&quot;,
       &quot;title-underline&quot;
-    ]
+    ],
+    &quot;refresh&quot;: 300
   },
   &quot;theme&quot;: {
-    &quot;preset&quot;: &quot;deep-blue-gold&quot;,
+    &quot;preset&quot;: &quot;teal-slate&quot;,
     &quot;mode&quot;: &quot;dark&quot;
   },
   &quot;root&quot;: [
     &quot;hero&quot;,
     &quot;kpi-section&quot;,
-    &quot;lanes-section&quot;,
+    &quot;budget-section&quot;,
+    &quot;phases-section&quot;,
+    &quot;content-section&quot;,
+    &quot;channels-section&quot;,
     &quot;products-section&quot;,
-    &quot;timeline-section&quot;,
+    &quot;source-section&quot;,
     &quot;next-steps-section&quot;
   ],
   &quot;elements&quot;: {
@@ -1779,8 +1777,8 @@ code:not(pre code) {
       &quot;props&quot;: {
         &quot;category&quot;: &quot;CAMPAIGN DASHBOARD&quot;,
         &quot;title&quot;: &quot;Web Summit Vancouver 2026&quot;,
-        &quot;subtitle&quot;: &quot;Kingly x Leviathan — 34 days to booth&quot;,
-        &quot;meta&quot;: &quot;Updated April 10, 2026 — Deadline: May 14, 2026&quot;
+        &quot;subtitle&quot;: &quot;Kingly x Leviathan — 30-day GTM command center&quot;,
+        &quot;meta&quot;: &quot;Updated April 12, 2026 — Event floor May 11–14&quot;
       },
       &quot;children&quot;: [
         &quot;hero-lead&quot;
@@ -1790,7 +1788,7 @@ code:not(pre code) {
       &quot;type&quot;: &quot;text&quot;,
       &quot;variant&quot;: &quot;lead&quot;,
       &quot;props&quot;: {
-        &quot;content&quot;: &quot;7 execution lanes. 3 products shipping. DNA cascade running daily. The sprint is live — this page tracks what&#39;s done, what&#39;s in flight, and what&#39;s blocking.&quot;
+        &quot;content&quot;: &quot;This dashboard is the operating surface for the final 30 days: backlog, paid budget, content engine, product milestones, and what the room with Steve and Sunny needs to lock next. Strategy is already synthesized — the focus now is owned execution.&quot;
       }
     },
     &quot;kpi-section&quot;: {
@@ -1802,46 +1800,70 @@ code:not(pre code) {
       },
       &quot;children&quot;: [
         &quot;kpi-days&quot;,
-        &quot;kpi-lanes-done&quot;,
-        &quot;kpi-lanes-active&quot;,
-        &quot;kpi-products&quot;,
-        &quot;kpi-milestones&quot;,
-        &quot;kpi-blocked&quot;
+        &quot;kpi-backlog&quot;,
+        &quot;kpi-budget&quot;,
+        &quot;kpi-content&quot;,
+        &quot;kpi-skills&quot;,
+        &quot;kpi-products&quot;
       ]
     },
     &quot;kpi-days&quot;: {
       &quot;type&quot;: &quot;card&quot;,
       &quot;variant&quot;: &quot;kpi&quot;,
       &quot;props&quot;: {
-        &quot;value&quot;: &quot;34&quot;,
-        &quot;label&quot;: &quot;Days to Booth&quot;,
+        &quot;value&quot;: 29,
+        &quot;label&quot;: &quot;Days To Floor&quot;,
         &quot;trend&quot;: {
           &quot;direction&quot;: &quot;down&quot;,
-          &quot;value&quot;: &quot;-1/day&quot;
+          &quot;value&quot;: &quot;May 11&quot;
         }
       }
     },
-    &quot;kpi-lanes-done&quot;: {
+    &quot;kpi-backlog&quot;: {
       &quot;type&quot;: &quot;card&quot;,
       &quot;variant&quot;: &quot;kpi&quot;,
       &quot;props&quot;: {
-        &quot;value&quot;: &quot;1&quot;,
-        &quot;label&quot;: &quot;Lanes Done&quot;,
-        &quot;trend&quot;: {
-          &quot;direction&quot;: &quot;up&quot;,
-          &quot;value&quot;: &quot;1 of 7&quot;
-        }
-      }
-    },
-    &quot;kpi-lanes-active&quot;: {
-      &quot;type&quot;: &quot;card&quot;,
-      &quot;variant&quot;: &quot;kpi&quot;,
-      &quot;props&quot;: {
-        &quot;value&quot;: &quot;2&quot;,
-        &quot;label&quot;: &quot;Lanes Active&quot;,
+        &quot;value&quot;: 70,
+        &quot;label&quot;: &quot;Backlog Items&quot;,
         &quot;trend&quot;: {
           &quot;direction&quot;: &quot;flat&quot;,
-          &quot;value&quot;: &quot;tactical + surfaces&quot;
+          &quot;value&quot;: &quot;4-week execution plan&quot;
+        }
+      }
+    },
+    &quot;kpi-budget&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;kpi&quot;,
+      &quot;props&quot;: {
+        &quot;value&quot;: &quot;$10K&quot;,
+        &quot;label&quot;: &quot;Marketing Budget&quot;,
+        &quot;trend&quot;: {
+          &quot;direction&quot;: &quot;up&quot;,
+          &quot;value&quot;: &quot;paid + content + booth&quot;
+        }
+      }
+    },
+    &quot;kpi-content&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;kpi&quot;,
+      &quot;props&quot;: {
+        &quot;value&quot;: 98,
+        &quot;label&quot;: &quot;Planned Content Pieces&quot;,
+        &quot;trend&quot;: {
+          &quot;direction&quot;: &quot;up&quot;,
+          &quot;value&quot;: &quot;20 LI + 30 X + 3 YT + 5 ext + 40+ WS posts&quot;
+        }
+      }
+    },
+    &quot;kpi-skills&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;kpi&quot;,
+      &quot;props&quot;: {
+        &quot;value&quot;: 14,
+        &quot;label&quot;: &quot;Decision/Marketing Skills&quot;,
+        &quot;trend&quot;: {
+          &quot;direction&quot;: &quot;up&quot;,
+          &quot;value&quot;: &quot;mapped to execution&quot;
         }
       }
     },
@@ -1849,75 +1871,178 @@ code:not(pre code) {
       &quot;type&quot;: &quot;card&quot;,
       &quot;variant&quot;: &quot;kpi&quot;,
       &quot;props&quot;: {
-        &quot;value&quot;: &quot;3&quot;,
-        &quot;label&quot;: &quot;Products Shipping&quot;,
+        &quot;value&quot;: 3,
+        &quot;label&quot;: &quot;Products Tracked&quot;,
         &quot;trend&quot;: {
-          &quot;direction&quot;: &quot;up&quot;,
+          &quot;direction&quot;: &quot;warn&quot;,
           &quot;value&quot;: &quot;ClawTok, AgentPing, lev.now&quot;
         }
       }
     },
-    &quot;kpi-milestones&quot;: {
-      &quot;type&quot;: &quot;card&quot;,
-      &quot;variant&quot;: &quot;kpi&quot;,
-      &quot;props&quot;: {
-        &quot;value&quot;: &quot;10&quot;,
-        &quot;label&quot;: &quot;Milestones Done&quot;,
-        &quot;trend&quot;: {
-          &quot;direction&quot;: &quot;up&quot;,
-          &quot;value&quot;: &quot;of 22 total&quot;
-        }
-      }
-    },
-    &quot;kpi-blocked&quot;: {
-      &quot;type&quot;: &quot;card&quot;,
-      &quot;variant&quot;: &quot;kpi&quot;,
-      &quot;props&quot;: {
-        &quot;value&quot;: &quot;1&quot;,
-        &quot;label&quot;: &quot;Blocked&quot;,
-        &quot;trend&quot;: {
-          &quot;direction&quot;: &quot;down&quot;,
-          &quot;value&quot;: &quot;Notion OAuth&quot;
-        }
-      }
-    },
-    &quot;lanes-section&quot;: {
+    &quot;budget-section&quot;: {
       &quot;type&quot;: &quot;section&quot;,
-      &quot;variant&quot;: &quot;full-width&quot;,
+      &quot;variant&quot;: &quot;comparison&quot;,
       &quot;props&quot;: {
-        &quot;label&quot;: &quot;EXECUTION LANES&quot;,
-        &quot;title&quot;: &quot;7 Lanes — Status Matrix&quot;
+        &quot;label&quot;: &quot;BUDGET&quot;,
+        &quot;title&quot;: &quot;$10K Allocation&quot;
       },
       &quot;children&quot;: [
-        &quot;lanes-table&quot;
+        &quot;budget-chart&quot;,
+        &quot;budget-table&quot;
       ]
     },
-    &quot;lanes-table&quot;: {
+    &quot;budget-chart&quot;: {
+      &quot;type&quot;: &quot;chart&quot;,
+      &quot;props&quot;: {
+        &quot;chartType&quot;: &quot;doughnut&quot;,
+        &quot;title&quot;: &quot;Budget Mix&quot;,
+        &quot;labels&quot;: [
+          &quot;Paid Ads&quot;,
+          &quot;Content Production&quot;,
+          &quot;Booth&quot;,
+          &quot;Pre-event Outreach&quot;,
+          &quot;Post-Launch&quot;
+        ],
+        &quot;datasets&quot;: [
+          {
+            &quot;data&quot;: [
+              3500,
+              1500,
+              3000,
+              1000,
+              1000
+            ],
+            &quot;backgroundColor&quot;: [
+              &quot;#14b8a6&quot;,
+              &quot;#0ea5e9&quot;,
+              &quot;#f59e0b&quot;,
+              &quot;#a855f7&quot;,
+              &quot;#ef4444&quot;
+            ]
+          }
+        ]
+      }
+    },
+    &quot;budget-table&quot;: {
       &quot;type&quot;: &quot;data-table&quot;,
       &quot;props&quot;: {
         &quot;columns&quot;: [
           {
-            &quot;key&quot;: &quot;lane&quot;,
-            &quot;label&quot;: &quot;Lane&quot;,
+            &quot;key&quot;: &quot;bucket&quot;,
+            &quot;label&quot;: &quot;Bucket&quot;
+          },
+          {
+            &quot;key&quot;: &quot;amount&quot;,
+            &quot;label&quot;: &quot;Amount&quot;
+          },
+          {
+            &quot;key&quot;: &quot;notes&quot;,
+            &quot;label&quot;: &quot;Notes&quot;,
             &quot;wide&quot;: true
+          }
+        ],
+        &quot;rows&quot;: [
+          {
+            &quot;bucket&quot;: &quot;Paid Ads&quot;,
+            &quot;amount&quot;: &quot;$3,500&quot;,
+            &quot;notes&quot;: &quot;LinkedIn Sponsored Content + Google Ads. Apr 21 launch target.&quot;
+          },
+          {
+            &quot;bucket&quot;: &quot;Content Production&quot;,
+            &quot;amount&quot;: &quot;$1,500&quot;,
+            &quot;notes&quot;: &quot;Demo reel, editing, social cuts, editorial assets.&quot;
+          },
+          {
+            &quot;bucket&quot;: &quot;Booth&quot;,
+            &quot;amount&quot;: &quot;$3,000&quot;,
+            &quot;notes&quot;: &quot;Collateral, print, swag, screens, physical presentation.&quot;
+          },
+          {
+            &quot;bucket&quot;: &quot;Pre-event Outreach&quot;,
+            &quot;amount&quot;: &quot;$1,000&quot;,
+            &quot;notes&quot;: &quot;Partner/influencer/meeting booking support.&quot;
+          },
+          {
+            &quot;bucket&quot;: &quot;Post-Launch&quot;,
+            &quot;amount&quot;: &quot;$1,000&quot;,
+            &quot;notes&quot;: &quot;Follow-up content, retargeting, launch momentum after event.&quot;
+          }
+        ]
+      }
+    },
+    &quot;phases-section&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;pipeline&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;4-WEEK PLAN&quot;,
+        &quot;title&quot;: &quot;Execution Phases&quot;,
+        &quot;subtitle&quot;: &quot;The 70-item backlog is sequenced; this is the short version for the room.&quot;
+      },
+      &quot;children&quot;: [
+        &quot;phase-1&quot;,
+        &quot;phase-2&quot;,
+        &quot;phase-3&quot;,
+        &quot;phase-4&quot;
+      ]
+    },
+    &quot;phase-1&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;default&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;Week 1 — Ship + Secure&quot;,
+        &quot;content&quot;: &quot;ClawTok launch, security P0s, product-marketing-context, content-gtm loop activation, manifesto publish, demo reel commission.&quot;
+      }
+    },
+    &quot;phase-2&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;default&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;Week 2 — Wire + Paid Launch&quot;,
+        &quot;content&quot;: &quot;Dispatch loop work, AgentPing ship, legal compliance, lead capture, LinkedIn + Google ads live, event marketer engaged.&quot;
+      }
+    },
+    &quot;phase-3&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;default&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;Week 3 — Prove + Demo + Surge&quot;,
+        &quot;content&quot;: &quot;Demo scripts, tutorial/video wave, external articles, Reddit/communities, pre-written Web Summit social content.&quot;
+      }
+    },
+    &quot;phase-4&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;default&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;Week 4 — Launch Posture&quot;,
+        &quot;content&quot;: &quot;Product Hunt + HN on May 10, dry run, meeting confirmations, event-week content barrage, post-event follow-up.&quot;
+      }
+    },
+    &quot;content-section&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;full-width&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;CONTENT ENGINE&quot;,
+        &quot;title&quot;: &quot;Planned Output And Current Constraints&quot;
+      },
+      &quot;children&quot;: [
+        &quot;content-table&quot;
+      ]
+    },
+    &quot;content-table&quot;: {
+      &quot;type&quot;: &quot;data-table&quot;,
+      &quot;props&quot;: {
+        &quot;columns&quot;: [
+          {
+            &quot;key&quot;: &quot;stream&quot;,
+            &quot;label&quot;: &quot;Stream&quot;
+          },
+          {
+            &quot;key&quot;: &quot;count&quot;,
+            &quot;label&quot;: &quot;Count&quot;
           },
           {
             &quot;key&quot;: &quot;status&quot;,
             &quot;label&quot;: &quot;Status&quot;
-          },
-          {
-            &quot;key&quot;: &quot;done&quot;,
-            &quot;label&quot;: &quot;Done&quot;,
-            &quot;numeric&quot;: true
-          },
-          {
-            &quot;key&quot;: &quot;remaining&quot;,
-            &quot;label&quot;: &quot;Remaining&quot;,
-            &quot;numeric&quot;: true
-          },
-          {
-            &quot;key&quot;: &quot;deadline&quot;,
-            &quot;label&quot;: &quot;Deadline&quot;
           },
           {
             &quot;key&quot;: &quot;note&quot;,
@@ -1927,92 +2052,118 @@ code:not(pre code) {
         ],
         &quot;rows&quot;: [
           {
-            &quot;lane&quot;: &quot;Web Summit Tactical&quot;,
+            &quot;stream&quot;: &quot;LinkedIn posts&quot;,
+            &quot;count&quot;: &quot;20&quot;,
             &quot;status&quot;: {
-              &quot;text&quot;: &quot;In Progress&quot;,
+              &quot;text&quot;: &quot;Planned&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;note&quot;: &quot;Builder + runtime + event awareness mix.&quot;
+          },
+          {
+            &quot;stream&quot;: &quot;Tweets / threads&quot;,
+            &quot;count&quot;: &quot;30&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Planned&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;note&quot;: &quot;Pair with owned pages; do not let rented channels become the archive.&quot;
+          },
+          {
+            &quot;stream&quot;: &quot;YouTube tutorials&quot;,
+            &quot;count&quot;: &quot;3&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Planned&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;note&quot;: &quot;Demo and runtime proof content.&quot;
+          },
+          {
+            &quot;stream&quot;: &quot;External platform articles&quot;,
+            &quot;count&quot;: &quot;5&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Planned&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;note&quot;: &quot;Seed category narrative beyond owned surfaces.&quot;
+          },
+          {
+            &quot;stream&quot;: &quot;Pre-written Web Summit posts&quot;,
+            &quot;count&quot;: &quot;40+&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Planned&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;note&quot;: &quot;Daily event week and pre-event scheduling bank.&quot;
+          },
+          {
+            &quot;stream&quot;: &quot;content-gtm loop&quot;,
+            &quot;count&quot;: &quot;10+ ticks&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Needs activation&quot;,
               &quot;status&quot;: &quot;warn&quot;
             },
-            &quot;done&quot;: &quot;4&quot;,
-            &quot;remaining&quot;: &quot;6&quot;,
-            &quot;deadline&quot;: &quot;May 14&quot;,
-            &quot;note&quot;: &quot;Strategy strong; execution artifacts not built yet&quot;
-          },
-          {
-            &quot;lane&quot;: &quot;Lev Runtime / Dogfood&quot;,
-            &quot;status&quot;: {
-              &quot;text&quot;: &quot;Done&quot;,
-              &quot;status&quot;: &quot;match&quot;
-            },
-            &quot;done&quot;: &quot;5&quot;,
-            &quot;remaining&quot;: &quot;—&quot;,
-            &quot;deadline&quot;: &quot;Complete&quot;,
-            &quot;note&quot;: &quot;DNA cascade runs daily. Graph walker fixed.&quot;
-          },
-          {
-            &quot;lane&quot;: &quot;Kingly Surfaces&quot;,
-            &quot;status&quot;: {
-              &quot;text&quot;: &quot;In Progress&quot;,
-              &quot;status&quot;: &quot;warn&quot;
-            },
-            &quot;done&quot;: &quot;3&quot;,
-            &quot;remaining&quot;: &quot;3&quot;,
-            &quot;deadline&quot;: &quot;Apr 25&quot;,
-            &quot;note&quot;: &quot;ClawTok v1.0.0 shipped. AgentPing sprinting.&quot;
-          },
-          {
-            &quot;lane&quot;: &quot;CMS / Notion&quot;,
-            &quot;status&quot;: {
-              &quot;text&quot;: &quot;Deferred&quot;,
-              &quot;status&quot;: &quot;info&quot;
-            },
-            &quot;done&quot;: &quot;1&quot;,
-            &quot;remaining&quot;: &quot;2&quot;,
-            &quot;deadline&quot;: &quot;—&quot;,
-            &quot;note&quot;: &quot;Firestore adapter landed. Notion auth blocked.&quot;
-          },
-          {
-            &quot;lane&quot;: &quot;Operator Dashboard&quot;,
-            &quot;status&quot;: {
-              &quot;text&quot;: &quot;Deferred&quot;,
-              &quot;status&quot;: &quot;info&quot;
-            },
-            &quot;done&quot;: &quot;2&quot;,
-            &quot;remaining&quot;: &quot;1&quot;,
-            &quot;deadline&quot;: &quot;—&quot;,
-            &quot;note&quot;: &quot;Superseded by lev.now GenUI engine.&quot;
-          },
-          {
-            &quot;lane&quot;: &quot;Holdco / vSaaS&quot;,
-            &quot;status&quot;: {
-              &quot;text&quot;: &quot;Deferred&quot;,
-              &quot;status&quot;: &quot;info&quot;
-            },
-            &quot;done&quot;: &quot;0&quot;,
-            &quot;remaining&quot;: &quot;2&quot;,
-            &quot;deadline&quot;: &quot;Post-event&quot;,
-            &quot;note&quot;: &quot;Needs attorney.&quot;
-          },
-          {
-            &quot;lane&quot;: &quot;Marketplace&quot;,
-            &quot;status&quot;: {
-              &quot;text&quot;: &quot;Frozen&quot;,
-              &quot;status&quot;: &quot;gap&quot;
-            },
-            &quot;done&quot;: &quot;0&quot;,
-            &quot;remaining&quot;: &quot;1&quot;,
-            &quot;deadline&quot;: &quot;Post-event&quot;,
-            &quot;note&quot;: &quot;Explicit freeze until after Web Summit.&quot;
+            &quot;note&quot;: &quot;Loop exists but needs first tick to become operational.&quot;
           }
         ],
         &quot;stickyHeader&quot;: true
+      }
+    },
+    &quot;channels-section&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;full-width&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;CHANNELS&quot;,
+        &quot;title&quot;: &quot;ORB Channel Discipline&quot;
+      },
+      &quot;children&quot;: [
+        &quot;channels-table&quot;
+      ]
+    },
+    &quot;channels-table&quot;: {
+      &quot;type&quot;: &quot;data-table&quot;,
+      &quot;props&quot;: {
+        &quot;columns&quot;: [
+          {
+            &quot;key&quot;: &quot;layer&quot;,
+            &quot;label&quot;: &quot;Layer&quot;
+          },
+          {
+            &quot;key&quot;: &quot;channels&quot;,
+            &quot;label&quot;: &quot;Channels&quot;,
+            &quot;wide&quot;: true
+          },
+          {
+            &quot;key&quot;: &quot;job&quot;,
+            &quot;label&quot;: &quot;Job&quot;,
+            &quot;wide&quot;: true
+          }
+        ],
+        &quot;rows&quot;: [
+          {
+            &quot;layer&quot;: &quot;Owned&quot;,
+            &quot;channels&quot;: &quot;lev.now, manifesto/docs pages, email, direct meeting follow-up&quot;,
+            &quot;job&quot;: &quot;Store the narrative and compound value.&quot;
+          },
+          {
+            &quot;layer&quot;: &quot;Rented&quot;,
+            &quot;channels&quot;: &quot;LinkedIn, X, YouTube&quot;,
+            &quot;job&quot;: &quot;Drive attention back to owned pages and meeting CTAs.&quot;
+          },
+          {
+            &quot;layer&quot;: &quot;Borrowed&quot;,
+            &quot;channels&quot;: &quot;Product Hunt, Hacker News, Reddit, conference moments&quot;,
+            &quot;job&quot;: &quot;Create spikes and social proof around launch and event week.&quot;
+          }
+        ]
       }
     },
     &quot;products-section&quot;: {
       &quot;type&quot;: &quot;section&quot;,
       &quot;variant&quot;: &quot;card-grid&quot;,
       &quot;props&quot;: {
-        &quot;label&quot;: &quot;PRODUCTS&quot;,
-        &quot;title&quot;: &quot;What&#39;s Shipping&quot;
+        &quot;label&quot;: &quot;PRODUCT TRACKS&quot;,
+        &quot;title&quot;: &quot;What The Event Story Can Point To&quot;
       },
       &quot;children&quot;: [
         &quot;product-clawtok&quot;,
@@ -2024,169 +2175,159 @@ code:not(pre code) {
       &quot;type&quot;: &quot;card&quot;,
       &quot;variant&quot;: &quot;elevated&quot;,
       &quot;props&quot;: {
-        &quot;title&quot;: &quot;🎬 ClawTok&quot;,
-        &quot;content&quot;: &quot;**TikTok for AI content.** Swift 6 / SwiftUI / iOS 17+. v1.0.0 client tagged April 10.\n\n**Status:** Launching — App Store target April 13\n\n**Stack:** XcodeGen, AVFoundation, Supabase backend (migrations ready, mock data)\n\n**Remaining:** Wire credits sync, withdrawal flow, real auth. Landing page via lev.now.&quot;
+        &quot;title&quot;: &quot;ClawTok&quot;,
+        &quot;content&quot;: &quot;Launching track. Use as a visible product surface and creator-story anchor.&quot;
       }
     },
     &quot;product-agentping&quot;: {
       &quot;type&quot;: &quot;card&quot;,
       &quot;variant&quot;: &quot;elevated&quot;,
       &quot;props&quot;: {
-        &quot;title&quot;: &quot;🔔 AgentPing&quot;,
-        &quot;content&quot;: &quot;**Agent-Human Interaction Protocol.** Monorepo: core, daemon, dashboard, 10+ adapters, studio.\n\n**Status:** Sprint — ship target April 25\n\n**Remaining:** Canvas/renderer dedup, Storybook unification, CI workflow, dashboard-runner config.&quot;
+        &quot;title&quot;: &quot;AgentPing&quot;,
+        &quot;content&quot;: &quot;Sprint track. Use to show surfaces, approvals, and human-loop interaction instead of generic chat.&quot;
       }
     },
     &quot;product-levnow&quot;: {
       &quot;type&quot;: &quot;card&quot;,
       &quot;variant&quot;: &quot;elevated&quot;,
       &quot;props&quot;: {
-        &quot;title&quot;: &quot;⚡ lev.now&quot;,
-        &quot;content&quot;: &quot;**Deterministic GenUI engine.** Renders pages from JSON specs in &lt;3ms. 108 visual assets, 7 themes, taste system.\n\n**Status:** Launched and operational\n\n**Next:** Brand theme compilation, React islands, standalone CLI scaffold, event-facing content.&quot;
+        &quot;title&quot;: &quot;lev.now&quot;,
+        &quot;content&quot;: &quot;Already live. Use for sendable pages, dashboards, manifestos, and booth/meeting support assets.&quot;
       }
     },
-    &quot;timeline-section&quot;: {
+    &quot;source-section&quot;: {
       &quot;type&quot;: &quot;section&quot;,
-      &quot;variant&quot;: &quot;default&quot;,
+      &quot;variant&quot;: &quot;full-width&quot;,
       &quot;props&quot;: {
-        &quot;label&quot;: &quot;COUNTDOWN&quot;,
-        &quot;title&quot;: &quot;Critical Path to May 14&quot;
+        &quot;label&quot;: &quot;SOURCE OF TRUTH&quot;,
+        &quot;title&quot;: &quot;Campaign Entry, Graph Entity, And Attached Workstreams&quot;,
+        &quot;subtitle&quot;: &quot;The event campaign is no longer just a state file. It has a browse surface and graph handle.&quot;
       },
       &quot;children&quot;: [
-        &quot;campaign-timeline&quot;
+        &quot;source-table&quot;
       ]
     },
-    &quot;campaign-timeline&quot;: {
-      &quot;type&quot;: &quot;timeline&quot;,
+    &quot;source-table&quot;: {
+      &quot;type&quot;: &quot;data-table&quot;,
       &quot;props&quot;: {
-        &quot;items&quot;: [
+        &quot;columns&quot;: [
           {
-            &quot;date&quot;: &quot;Mar 15&quot;,
-            &quot;title&quot;: &quot;Booth confirmed&quot;,
-            &quot;description&quot;: &quot;Web Summit Vancouver booth secured&quot;,
-            &quot;status&quot;: &quot;completed&quot;
+            &quot;key&quot;: &quot;surface&quot;,
+            &quot;label&quot;: &quot;Surface&quot;
           },
           {
-            &quot;date&quot;: &quot;Mar 20&quot;,
-            &quot;title&quot;: &quot;Strategy synthesized&quot;,
-            &quot;description&quot;: &quot;8weeks.md — 3-model synthesis of positioning, demos, sequencing&quot;,
-            &quot;status&quot;: &quot;completed&quot;
+            &quot;key&quot;: &quot;value&quot;,
+            &quot;label&quot;: &quot;Value&quot;,
+            &quot;wide&quot;: true
           },
           {
-            &quot;date&quot;: &quot;Mar 27&quot;,
-            &quot;title&quot;: &quot;Operator dashboard brief&quot;,
-            &quot;description&quot;: &quot;Design brief for leadership cockpit. Deferred — lev.now supersedes.&quot;,
-            &quot;status&quot;: &quot;completed&quot;
-          },
-          {
-            &quot;date&quot;: &quot;Apr 7&quot;,
-            &quot;title&quot;: &quot;Lev runtime lane DONE&quot;,
-            &quot;description&quot;: &quot;DNA cascade 8-node E2E. lev exec canonical. Graph walker fixed.&quot;,
-            &quot;status&quot;: &quot;completed&quot;
-          },
-          {
-            &quot;date&quot;: &quot;Apr 10&quot;,
-            &quot;title&quot;: &quot;ClawTok v1.0.0&quot;,
-            &quot;description&quot;: &quot;Client tagged. 15.5K LOC SwiftUI app. Backend wiring in progress.&quot;,
-            &quot;status&quot;: &quot;completed&quot;
-          },
-          {
-            &quot;date&quot;: &quot;Apr 10&quot;,
-            &quot;title&quot;: &quot;Campaign consolidated&quot;,
-            &quot;description&quot;: &quot;.lev/campaigns/web-summit-2026/ — all plans, proposals, reports symlinked&quot;,
-            &quot;status&quot;: &quot;completed&quot;
-          },
-          {
-            &quot;date&quot;: &quot;Apr 13&quot;,
-            &quot;title&quot;: &quot;ClawTok launch&quot;,
-            &quot;description&quot;: &quot;App Store submission + landing page&quot;,
-            &quot;status&quot;: &quot;in-progress&quot;
-          },
-          {
-            &quot;date&quot;: &quot;Apr 20&quot;,
-            &quot;title&quot;: &quot;Legal sweep&quot;,
-            &quot;description&quot;: &quot;Sweepstakes compliance, prize structure, T&amp;C&quot;,
-            &quot;status&quot;: &quot;upcoming&quot;
-          },
-          {
-            &quot;date&quot;: &quot;Apr 25&quot;,
-            &quot;title&quot;: &quot;AgentPing ship + Lead capture&quot;,
-            &quot;description&quot;: &quot;AP consolidation done. QR referral + CRM pipeline live.&quot;,
-            &quot;status&quot;: &quot;upcoming&quot;
-          },
-          {
-            &quot;date&quot;: &quot;Apr 28&quot;,
-            &quot;title&quot;: &quot;Pitch scripts&quot;,
-            &quot;description&quot;: &quot;60-second &#39;Production AI for Physical World&#39; + 4-demo rotation&quot;,
-            &quot;status&quot;: &quot;upcoming&quot;
-          },
-          {
-            &quot;date&quot;: &quot;May 1&quot;,
-            &quot;title&quot;: &quot;Booth collateral + outreach&quot;,
-            &quot;description&quot;: &quot;Print assets, Screen 2 loop, pre-event meeting schedule&quot;,
-            &quot;status&quot;: &quot;upcoming&quot;
-          },
-          {
-            &quot;date&quot;: &quot;May 11–14&quot;,
-            &quot;title&quot;: &quot;EVENT WEEK&quot;,
-            &quot;description&quot;: &quot;Booth setup, demo rotation, lead capture, daily debrief&quot;,
-            &quot;status&quot;: &quot;upcoming&quot;
+            &quot;key&quot;: &quot;why&quot;,
+            &quot;label&quot;: &quot;Why It Matters&quot;,
+            &quot;wide&quot;: true
           }
-        ]
+        ],
+        &quot;rows&quot;: [
+          {
+            &quot;surface&quot;: &quot;Campaign folder&quot;,
+            &quot;value&quot;: &quot;.lev/campaigns/web-summit-2026/&quot;,
+            &quot;why&quot;: &quot;Default browse surface for plans, reports, handoffs, and strategy.&quot;
+          },
+          {
+            &quot;surface&quot;: &quot;Human entrypoint&quot;,
+            &quot;value&quot;: &quot;.lev/campaigns/web-summit-2026/README.md&quot;,
+            &quot;why&quot;: &quot;Lets a human start from the campaign without repo archaeology.&quot;
+          },
+          {
+            &quot;surface&quot;: &quot;State file&quot;,
+            &quot;value&quot;: &quot;.lev/campaigns/web-summit-2026/state/campaign.yaml&quot;,
+            &quot;why&quot;: &quot;Lane state, attached workstreams, and product execution snapshot.&quot;
+          },
+          {
+            &quot;surface&quot;: &quot;Graph entity&quot;,
+            &quot;value&quot;: &quot;campaign:web-summit-2026&quot;,
+            &quot;why&quot;: &quot;Graph-addressable campaign id for products, lanes, assets, and workstream relations.&quot;
+          },
+          {
+            &quot;surface&quot;: &quot;Graph file&quot;,
+            &quot;value&quot;: &quot;.lev/campaigns/web-summit-2026/graph.json&quot;,
+            &quot;why&quot;: &quot;Campaign graph now includes workstream and UX attachment triples.&quot;
+          },
+          {
+            &quot;surface&quot;: &quot;Active workstream&quot;,
+            &quot;value&quot;: &quot;herenow-content&quot;,
+            &quot;why&quot;: &quot;Durable umbrella workstream for current GTM/editorial continuity.&quot;
+          },
+          {
+            &quot;surface&quot;: &quot;Historical workstream&quot;,
+            &quot;value&quot;: &quot;web-summit-gtm-docs&quot;,
+            &quot;why&quot;: &quot;Superseded history still points at the same campaign entity.&quot;
+          }
+        ],
+        &quot;stickyHeader&quot;: true
       }
     },
     &quot;next-steps-section&quot;: {
       &quot;type&quot;: &quot;section&quot;,
       &quot;variant&quot;: &quot;card-grid&quot;,
       &quot;props&quot;: {
-        &quot;label&quot;: &quot;NEXT 5 ACTIONS&quot;,
-        &quot;title&quot;: &quot;This Week&#39;s Priorities&quot;
+        &quot;label&quot;: &quot;IMMEDIATE ACTIONS&quot;,
+        &quot;title&quot;: &quot;What Needs To Be Decided Or Done Next&quot;
       },
       &quot;children&quot;: [
-        &quot;action-1&quot;,
-        &quot;action-2&quot;,
-        &quot;action-3&quot;,
-        &quot;action-4&quot;,
-        &quot;action-5&quot;
+        &quot;next-1&quot;,
+        &quot;next-2&quot;,
+        &quot;next-3&quot;,
+        &quot;next-4&quot;,
+        &quot;next-5&quot;,
+        &quot;next-6&quot;
       ]
     },
-    &quot;action-1&quot;: {
+    &quot;next-1&quot;: {
       &quot;type&quot;: &quot;card&quot;,
       &quot;variant&quot;: &quot;default&quot;,
       &quot;props&quot;: {
-        &quot;title&quot;: &quot;1. ClawTok App Store&quot;,
-        &quot;content&quot;: &quot;Wire remaining TODOs or mark as v1.1. TestFlight submission. Landing page via lev.now.&quot;
+        &quot;title&quot;: &quot;1. Lock Product Story&quot;,
+        &quot;content&quot;: &quot;Agree on the room order: outcomes first, runtime reveal second, protocol only for infra-native people.&quot;
       }
     },
-    &quot;action-2&quot;: {
+    &quot;next-2&quot;: {
       &quot;type&quot;: &quot;card&quot;,
       &quot;variant&quot;: &quot;default&quot;,
       &quot;props&quot;: {
-        &quot;title&quot;: &quot;2. AgentPing Sprint&quot;,
-        &quot;content&quot;: &quot;Continue consolidation. Canvas/renderer dedup. Dashboard-runner config unification.&quot;
+        &quot;title&quot;: &quot;2. Assign Admin Owners&quot;,
+        &quot;content&quot;: &quot;Business cards, shirts, Mac mini, Claude seat, tax email, GTM/event hire all need names and dates.&quot;
       }
     },
-    &quot;action-3&quot;: {
+    &quot;next-3&quot;: {
       &quot;type&quot;: &quot;card&quot;,
       &quot;variant&quot;: &quot;default&quot;,
       &quot;props&quot;: {
-        &quot;title&quot;: &quot;3. Legal Sweep&quot;,
-        &quot;content&quot;: &quot;Schedule 2-hour attorney review. Sweepstakes compliance. Prize: $10K AI Transformation vs iPads.&quot;
+        &quot;title&quot;: &quot;3. Activate content-gtm loop&quot;,
+        &quot;content&quot;: &quot;The loop exists; it needs the first tick so content production becomes a machine instead of a promise.&quot;
       }
     },
-    &quot;action-4&quot;: {
+    &quot;next-4&quot;: {
       &quot;type&quot;: &quot;card&quot;,
       &quot;variant&quot;: &quot;default&quot;,
       &quot;props&quot;: {
-        &quot;title&quot;: &quot;4. Lead Capture Build&quot;,
-        &quot;content&quot;: &quot;QR-activated referral + leaderboard. Firestore-backed CRM pipeline. Landing page with email capture.&quot;
+        &quot;title&quot;: &quot;4. Paid Launch Prep&quot;,
+        &quot;content&quot;: &quot;Confirm landing domain, Insight Tag/pixel, creative specs, and Apr 21 start dates.&quot;
       }
     },
-    &quot;action-5&quot;: {
+    &quot;next-5&quot;: {
       &quot;type&quot;: &quot;card&quot;,
       &quot;variant&quot;: &quot;default&quot;,
       &quot;props&quot;: {
-        &quot;title&quot;: &quot;5. Pitch Narrative&quot;,
-        &quot;content&quot;: &quot;Draft 60-second script: &#39;Production AI for Physical World&#39;. 4-demo rotation scripts. Rehearse with Sunny.&quot;
+        &quot;title&quot;: &quot;5. Demo Reel + Pitch Scripts&quot;,
+        &quot;content&quot;: &quot;Commission the reel and finalize the 60-second booth narrative before print and outreach.&quot;
+      }
+    },
+    &quot;next-6&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;default&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;6. Hire Event Support&quot;,
+        &quot;content&quot;: &quot;Decide if the GTM/Web Summit hire is the same slice as the freelance event marketer or a broader role.&quot;
       }
     }
   }
@@ -2359,6 +2500,8 @@ code:not(pre code) {
       targets.forEach(function(t) { tocObs.observe(t); });
     })();
   </script>
-
+  <div style="position:fixed;bottom:8px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:0.7rem;color:var(--color-text-muted);opacity:0.5;z-index:50">
+    Last updated: <span id="lev-now-ts">2026-04-13 17:17:11</span> &middot; Refreshes every 300s
+  </div>
 </body>
 </html>

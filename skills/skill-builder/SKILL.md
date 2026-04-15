@@ -209,6 +209,46 @@ steps:
     on_failure: "Too large. Split into router + sub-skills."
 ```
 
+## Workflow 6: Fractal Auto-Generation
+
+```yaml
+steps:
+  - id: autogen_detect
+    action: Detect repeated handler patterns that lack a dedicated skill
+    instruction: |
+      Sources of auto-generation signals (check in order):
+      1. FlowMind flow metadata — skills can be emitted from typed flow YAML
+         (ref: proposals/20260412-flowmind-typed-schemas.yaml)
+      2. lifecycle-manifest.yaml — any verb without a matching skill is a scaffold candidate
+      3. Agent telemetry — 3+ identical handler invocations across sessions = repetition signal
+      Pattern: observe agent behavior → detect repetition → propose skill scaffold → validate → promote.
+    validation: "At least one signal source checked. Candidate list is non-empty or explicitly empty."
+    on_failure: "No signals found. Skip auto-generation. Do not fabricate candidates."
+
+  - id: autogen_scaffold
+    action: Generate candidate SKILL.md from detected pattern
+    instruction: |
+      Dogfood approach — pipe flow YAML to stdin, dry-run without writing:
+      ```bash
+      cat flow.yaml | lev skill scaffold --dry-run --from-flow -
+      ```
+      Output goes to stdout for review, never directly to disk.
+      Scaffold must satisfy author_green rules: trigger-only description, validation on every step, under 300 lines.
+      For lifecycle verbs: extract the verb's handler signature as the skill's first step.
+    validation: "Dry-run output parses as valid SKILL.md frontmatter + steps. No files written."
+    on_failure: "Scaffold invalid. Fix or discard. Never auto-promote broken output."
+
+  - id: autogen_promote
+    action: Validate scaffold and promote to intake pipeline
+    instruction: |
+      1. Run author_red baseline — does an agent fail WITHOUT this skill?
+      2. If yes → run intake_score and intake_catalog (Workflow 1)
+      3. If no → the pattern is not worth a skill. Archive the candidate.
+      Auto-generated skills are NEVER activated without passing the full intake pipeline.
+    validation: "Candidate either promoted through intake or archived with reason."
+    on_failure: "Ambiguous value. Hold in _todo/ for human review."
+```
+
 ## References
 
 | File | Content |
