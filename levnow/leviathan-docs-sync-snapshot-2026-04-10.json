@@ -1,0 +1,402 @@
+{
+  "meta": {
+    "title": "Leviathan Docs + Sync Snapshot",
+    "description": "April 10, 2026 status page for docs recovery, autoresearch runs, and sync blocker state.",
+    "layout": "default",
+    "effects": ["grid-dots", "card-glow", "title-underline"]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "section-kpis",
+    "section-docs-table",
+    "section-freshness",
+    "section-runs",
+    "section-cass",
+    "section-timeline",
+    "section-sync",
+    "section-next"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "centered",
+      "props": {
+        "category": "STATUS",
+        "title": "Leviathan Docs + Sync Snapshot",
+        "subtitle": "Recovered intent, current docs state, and the exact blocker still in the way",
+        "meta": "Snapshot date: 2026-04-10 · Source of truth: repo + CASS + autoresearch runtime"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "The lost thread is recovered. `lev-roadmap` owned the ROADMAP refresh, while broader docs cleanup belonged to the follow-on documentation-management runs. One run finished cleanly at metric 0. The second broader top-docs run was launched, then stopped before its first recorded row. Full repo sync is still blocked by one oversized video file in the `community/agentping` submodule."
+      }
+    },
+
+    "section-kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "AT A GLANCE",
+        "title": "Current State"
+      },
+      "children": [
+        "kpi-roadmap",
+        "kpi-docsrun1",
+        "kpi-docsrun2",
+        "kpi-drift",
+        "kpi-sync"
+      ]
+    },
+    "kpi-roadmap": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "2026-04-07",
+        "label": "ROADMAP Refreshed",
+        "trend": { "direction": "up", "value": "back in sync" }
+      }
+    },
+    "kpi-docsrun1": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "0",
+        "label": "Managed Docs Metric",
+        "trend": { "direction": "up", "value": "goal reached" },
+        "sparkline": [2, 156, 12, 0]
+      }
+    },
+    "kpi-docsrun2": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "STOPPED",
+        "label": "Top Docs Run",
+        "trend": { "direction": "down", "value": "user_stopped" }
+      }
+    },
+    "kpi-drift": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "10",
+        "label": "Top-Level Drift Checks",
+        "trend": { "direction": "flat", "value": "baseline only" }
+      }
+    },
+    "kpi-sync": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "1",
+        "label": "Sync Blocker",
+        "trend": { "direction": "down", "value": "oversized file" }
+      }
+    },
+
+    "section-docs-table": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "TOP-LEVEL DOCS",
+        "title": "Audit Status by File",
+        "subtitle": "What is healthy, what is stale, and what still needs a deliberate second pass."
+      },
+      "children": ["table-docs"]
+    },
+    "table-docs": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "doc", "label": "Document" },
+          { "key": "status", "label": "Status" },
+          { "key": "date", "label": "Reviewed / Updated" },
+          { "key": "truth", "label": "Current Truth" },
+          { "key": "next", "label": "Next Move" }
+        ],
+        "rows": [
+          {
+            "doc": "docs/MANIFESTO.md",
+            "status": { "text": "Present", "status": "match" },
+            "date": "2026-04-07",
+            "truth": "Exists in repo and is linked from NORTH_STAR.",
+            "next": "No urgent gap."
+          },
+          {
+            "doc": "docs/ROADMAP.md",
+            "status": { "text": "Refreshed", "status": "match" },
+            "date": "2026-04-07",
+            "truth": "No longer frozen at 03-23 / Step 2 of 10.",
+            "next": "Second-pass run should add broader OMC/top-doc context if intended."
+          },
+          {
+            "doc": "README.md",
+            "status": { "text": "Mixed", "status": "warn" },
+            "date": "undated",
+            "truth": "Quick Start exists, but product/install honesty still needs review.",
+            "next": "Tighten claims and install framing."
+          },
+          {
+            "doc": "docs/README.md",
+            "status": { "text": "Gap", "status": "gap" },
+            "date": "undated",
+            "truth": "Acts as a router, not a real docs quickstart or boot path.",
+            "next": "Link bootup/quickstart path explicitly."
+          },
+          {
+            "doc": "docs/NORTH_STAR.md",
+            "status": { "text": "Stale", "status": "warn" },
+            "date": "2026-03-23",
+            "truth": "Still lacks explicit OMC / exec-profile / agent-roster framing.",
+            "next": "Freshen positioning layer with current runtime language."
+          },
+          {
+            "doc": "docs/ARCHITECTURE.md",
+            "status": { "text": "Mostly good", "status": "info" },
+            "date": "2026-03-29",
+            "truth": "Still the strongest top-level doc, but roster/profile ownership is thin.",
+            "next": "Add ownership-map updates if/when OMC language lands."
+          },
+          {
+            "doc": "docs/VISION.md",
+            "status": { "text": "Current", "status": "match" },
+            "date": "2026-04-05",
+            "truth": "Structural destination doc is in decent shape.",
+            "next": "Use as boundary doc, not task list."
+          },
+          {
+            "doc": "docs/bootup.md",
+            "status": { "text": "Exists", "status": "info" },
+            "date": "2026-04-07",
+            "truth": "Boot path exists, but docs index does not foreground it as the quickstart/boot route.",
+            "next": "Surface it in docs README."
+          }
+        ],
+        "stickyHeader": true
+      }
+    },
+
+    "section-freshness": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "FRESHNESS",
+        "title": "Review-Date Drift"
+      },
+      "children": ["chart-freshness", "freshness-note"]
+    },
+    "chart-freshness": {
+      "type": "chart",
+      "props": {
+        "chartType": "bar",
+        "title": "Days Since Review / Update (as of 2026-04-10)",
+        "labels": ["MANIFESTO", "ROADMAP", "VISION", "ARCHITECTURE", "NORTH_STAR"],
+        "datasets": [
+          {
+            "label": "Days stale",
+            "data": [3, 3, 5, 12, 18],
+            "backgroundColor": ["#14b8a6", "#14b8a6", "#22c55e", "#f59e0b", "#ef4444"]
+          }
+        ]
+      }
+    },
+    "freshness-note": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Interpretation",
+        "content": "The real freshness gap is not ROADMAP anymore — it is NORTH_STAR, then ARCHITECTURE. VISION and MANIFESTO are newer. ROADMAP was already repaired in the first pass."
+      }
+    },
+
+    "section-runs": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "AUTORESEARCH",
+        "title": "Run Status",
+        "subtitle": "Two related runs, two different outcomes."
+      },
+      "children": ["table-runs"]
+    },
+    "table-runs": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "run", "label": "Run Tag" },
+          { "key": "scope", "label": "Purpose" },
+          { "key": "status", "label": "Status" },
+          { "key": "reason", "label": "Reason" },
+          { "key": "metric", "label": "Metric" }
+        ],
+        "rows": [
+          {
+            "run": "docs-management-20260407-omx",
+            "scope": "Managed docs + validator plumbing",
+            "status": { "text": "Terminal", "status": "match" },
+            "reason": "goal_reached",
+            "metric": "2 → 156 → 12 → 0"
+          },
+          {
+            "run": "docs-topdocs-20260407-omx",
+            "scope": "Top-level docs: README / docs index / NORTH_STAR / ARCHITECTURE / ROADMAP / MANIFESTO / VISION / bootup",
+            "status": { "text": "Stopped", "status": "warn" },
+            "reason": "user_stopped",
+            "metric": "Baseline 10, no recorded rows yet"
+          }
+        ],
+        "stickyHeader": true
+      }
+    },
+
+    "section-cass": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "RECOVERED INTENT",
+        "title": "What CASS Actually Settled"
+      },
+      "children": ["cass-left", "cass-right"]
+    },
+    "cass-left": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Recovered from CASS",
+        "content": "The index was already fresh. The lost session history showed the intended two-step plan: **(1)** recover and run the roadmap surface, **then (2)** run `codex-autoresearch documentation management` for the broader docs work."
+      }
+    },
+    "cass-right": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": {
+        "content": "The bug was not stale indexing. The bug was me collapsing two steps into one. `lev-roadmap` owned the ROADMAP refresh; the rest of the docs audit belonged to the follow-on docs-management loop."
+      }
+    },
+
+    "section-timeline": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "TIMELINE",
+        "title": "Recent Sequence"
+      },
+      "children": ["timeline-main"]
+    },
+    "timeline-main": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          {
+            "date": "2026-04-07",
+            "title": "Prior-art recovery",
+            "description": "Recovered `.claude/skills/lev-roadmap/SKILL.md` as the live roadmap maintenance surface.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-04-07",
+            "title": "ROADMAP repaired",
+            "description": "`docs/ROADMAP.md` was moved back onto the MVP blocker spine and refreshed to April 7.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-04-07",
+            "title": "Managed docs run",
+            "description": "Background docs-management loop completed at metric 0 after validator runtime + policy cleanup.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-04-07",
+            "title": "CASS recovery",
+            "description": "Recovered the lost conversation and restored the correct split between roadmap refresh and broader docs management.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-04-07 → 2026-04-10",
+            "title": "Top-level docs run",
+            "description": "Second broader run launched for README/docs/NORTH_STAR/ARCHITECTURE alignment, then ended with `user_stopped` before first result row.",
+            "status": "in-progress"
+          },
+          {
+            "date": "Current",
+            "title": "Sync blocker remains",
+            "description": "Full sync is still blocked by an oversized MP4 in the `community/agentping` submodule.",
+            "status": "upcoming"
+          }
+        ]
+      }
+    },
+
+    "section-sync": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "SYNC",
+        "title": "Why Sync Is Still Blocked"
+      },
+      "children": ["sync-callout", "sync-code"]
+    },
+    "sync-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "community/agentping push rejected",
+        "content": "The submodule has a local checkpoint commit `b1075f0` and is ahead of `origin/main` by one commit, but GitHub rejected the push because it includes `output/nate-substack/your-ai-agent-depends-on-six-layers-video.mp4` at 546.90 MB. Because submodule push failed, parent-repo sync intentionally stopped."
+      }
+    },
+    "sync-code": {
+      "type": "code-block",
+      "props": {
+        "language": "text",
+        "filename": "github-pre-receive.txt",
+        "content": "remote: error: File output/nate-substack/your-ai-agent-depends-on-six-layers-video.mp4 is 546.90 MB\nremote: error: this exceeds GitHub's file size limit of 100.00 MB\n! [remote rejected] main -> main (pre-receive hook declined)",
+        "showLineNumbers": false
+      }
+    },
+
+    "section-next": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "NEXT MOVES",
+        "title": "What Would Actually Move This Forward"
+      },
+      "children": ["next-1", "next-2", "next-3"]
+    },
+    "next-1": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Resume the top-docs run",
+        "content": "Restart `docs-topdocs-20260407-omx` or launch a fresh replacement run so the remaining 10 drift checks can be burned down with evidence."
+      }
+    },
+    "next-2": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Repair sync blocker",
+        "content": "The only hard blocker to full sync is the oversized unpublished video blob inside `community/agentping`. That requires explicit history repair or another storage strategy."
+      }
+    },
+    "next-3": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Refresh NORTH_STAR + ARCHITECTURE",
+        "content": "The real top-level docs freshness gap now sits in `docs/NORTH_STAR.md` and `docs/ARCHITECTURE.md`, especially around OMC/runtime phrasing, exec profiles, and roster language."
+      }
+    }
+  }
+}

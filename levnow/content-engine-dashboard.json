@@ -1,0 +1,142 @@
+{
+  "meta": {
+    "title": "Content Engine Dashboard",
+    "description": "GTM content pipeline: manifesto, articles, tweets, publishing",
+    "layout": "default",
+    "effects": ["grid-dots", "card-glow"],
+    "refresh": 60
+  },
+  "theme": { "preset": "deep-blue-gold", "mode": "dark" },
+  "root": ["hero", "sec-kpis", "sec-pipeline", "sec-themes", "sec-timeline", "sec-articles", "sec-infra"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "centered",
+      "props": {
+        "category": "LIVE DASHBOARD",
+        "title": "Content Engine",
+        "subtitle": "Constraint Engineering GTM Pipeline",
+        "meta": "Session: 2026-04-10 \u00b7 Auto-refreshes every 60s"
+      }
+    },
+
+    "sec-kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "PIPELINE STATUS", "title": "Content Corpus", "subtitle": "" },
+      "children": ["kpi-articles", "kpi-tweets", "kpi-elements", "kpi-themes"]
+    },
+    "kpi-articles": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": "10", "label": "Articles Written", "trend": { "direction": "up", "value": "de-slopified, ~15K words" } }
+    },
+    "kpi-tweets": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": "50", "label": "Tweets Ready", "trend": { "direction": "up", "value": "2 batches, 5 categories" } }
+    },
+    "kpi-elements": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": "95", "label": "Manifesto Elements", "trend": { "direction": "up", "value": "v2, 20 sections" } }
+    },
+    "kpi-themes": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": "6", "label": "Top-Level Themes", "trend": { "direction": "flat", "value": "1 has manifesto, 5 need" } }
+    },
+
+    "sec-pipeline": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": { "label": "WORKFLOW", "title": "Content Pipeline", "subtitle": "Source docs flow through the engine to published content" },
+      "children": ["pipe-source", "pipe-manifesto", "pipe-articles", "pipe-review", "pipe-social", "pipe-publish"]
+    },
+    "pipe-source": { "type": "card", "variant": "default", "props": { "title": "Source Docs", "content": "14+ DNA files, specs, designs, substack drafts, thesis.yaml, alignment.dna.yaml" } },
+    "pipe-manifesto": { "type": "card", "variant": "elevated", "props": { "title": "Manifesto", "content": "95 elements, deep-blue-gold, sidebar-toc. Consumer-facing constraint engineering philosophy." } },
+    "pipe-articles": { "type": "card", "variant": "default", "props": { "title": "Articles", "content": "10 long-form pieces. ~1200-2100 words each. Grounded in DNA constraints." } },
+    "pipe-review": { "type": "card", "variant": "default", "props": { "title": "De-slopify", "content": "45 surgical edits. Signature phrases in 8/10. Concrete numbers injected." } },
+    "pipe-social": { "type": "card", "variant": "default", "props": { "title": "Social", "content": "50 tweets: hot takes, educational, threads, quotes, CTAs. 2 batches." } },
+    "pipe-publish": { "type": "card", "variant": "default", "props": { "title": "Publish", "content": "here.now, Substack, Twitter/X. Tag DSL: [[scope:action]]" } },
+
+    "sec-themes": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "TOP-LEVEL THEMES", "title": "Six Themes for Manifesto Treatment", "subtitle": "3+ articles on a topic = gets its own manifesto-length /now page" },
+      "children": ["theme-ce", "theme-dna", "theme-graph", "theme-axi", "theme-eval", "theme-trust"]
+    },
+    "theme-ce": { "type": "card", "variant": "callout", "props": { "variant": "success", "title": "Constraint Engineering", "content": "5 articles \u00b7 MANIFESTO DONE (95 elements)\nArticles: testing strategy, genesis pattern, eval harnesses, adversarial moat, skills that learn" } },
+    "theme-dna": { "type": "card", "variant": "callout", "props": { "variant": "warning", "title": "DNA-Driven Development", "content": "0 articles \u00b7 NEEDS MANIFESTO\nSource: thesis.yaml, meta-substrate design\nKey quote: \"Code is an artifact of DNA\"" } },
+    "theme-graph": { "type": "card", "variant": "callout", "props": { "variant": "warning", "title": "The Graph Is Alive", "content": "0 articles \u00b7 NEEDS MANIFESTO\nSource: alignment.dna.yaml, loop.dna.yaml\nKey quote: \"Agents are dead. The graph is alive.\"" } },
+    "theme-axi": { "type": "card", "variant": "callout", "props": { "variant": "info", "title": "AXI & Poly Surfaces", "content": "2 articles \u00b7 NEEDS MANIFESTO\nArticles: agent-native CLI design, self-documenting runtime" } },
+    "theme-eval": { "type": "card", "variant": "callout", "props": { "variant": "info", "title": "The Eval Harness", "content": "2 articles \u00b7 NEEDS MANIFESTO\nArticles: eval harnesses not test suites, adversarial moat" } },
+    "theme-trust": { "type": "card", "variant": "callout", "props": { "variant": "warning", "title": "Memory & Trust", "content": "0 articles \u00b7 NEEDS MANIFESTO\nSource: NORTH_STAR.md\nKey quotes: \"Memory that ages like wine\", \"Leases, not permissions\"" } },
+
+    "sec-timeline": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "SESSION LOG", "title": "Activity Timeline", "subtitle": "2026-04-10 session progress" },
+      "children": ["timeline-events"]
+    },
+    "timeline-events": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          { "date": "17:57", "title": "Session start", "description": "Loaded manifesto sources, skill discovery, wiggum-marketer plugin", "status": "completed" },
+          { "date": "18:02", "title": "Consumer manifesto v1", "description": "50 elements, deep-blue-gold, centered hero. First pass.", "status": "completed" },
+          { "date": "18:07", "title": "Content dispatched", "description": "5 agents: 10 articles (2 batches), 50 tweets (2 batches), dev server", "status": "completed" },
+          { "date": "18:10", "title": "Infrastructure built", "description": "Dev server with WebSocket hot reload, card-grid index with search", "status": "completed" },
+          { "date": "18:15", "title": "Consumer manifesto v2", "description": "95 elements, 20 sections, sidebar-toc. 14+ source docs integrated.", "status": "completed" },
+          { "date": "18:25", "title": "Deep source read", "description": "36 philosophy docs cataloged. thesis.yaml, alignment.dna.yaml, loop.dna.yaml revealed.", "status": "completed" },
+          { "date": "18:30", "title": "Articles de-slopified", "description": "45 surgical edits across 10 files. Signature phrases 8/10. Numbers injected.", "status": "completed" },
+          { "date": "18:35", "title": "Tag DSL designed", "description": "[[scope:action]] syntax. 14KB design doc + 12KB TypeScript contracts.", "status": "completed" },
+          { "date": "18:40", "title": "Dashboard plan approved", "description": "5-phase plan: dashboard-first, /levloop, GTM convergence, DNA cascade, tag integration.", "status": "completed" },
+          { "date": "18:45", "title": "/levloop skill written", "description": "Loop maker + scheduler. 12 sections, 4 catalog patterns, tick type system.", "status": "completed" },
+          { "date": "NOW", "title": "Content engine dashboard", "description": "This dashboard. Pipeline KPIs, theme tracker, timeline.", "status": "in-progress" }
+        ]
+      }
+    },
+
+    "sec-articles": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "INVENTORY", "title": "Article Inventory", "subtitle": "10 articles, de-slopified, ready for publish" },
+      "children": ["articles-table"]
+    },
+    "articles-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "title", "label": "Title", "wide": true },
+          { "key": "words", "label": "Words", "numeric": true },
+          { "key": "topic", "label": "Theme" },
+          { "key": "status", "label": "Status" }
+        ],
+        "rows": [
+          { "title": "Why Your AI Agent Testing Strategy Is Fundamentally Broken", "words": "1,624", "topic": "Constraint Eng", "status": { "text": "Ready", "status": "match" } },
+          { "title": "The Genesis Pattern: Four Steps to AI-Native Software", "words": "2,118", "topic": "Constraint Eng", "status": { "text": "Ready", "status": "match" } },
+          { "title": "Eval Harnesses Are Not Test Suites", "words": "1,726", "topic": "Eval Harness", "status": { "text": "Ready", "status": "match" } },
+          { "title": "The Adversarial Moat: Every Exploit Makes Your System Stronger", "words": "1,652", "topic": "Eval Harness", "status": { "text": "Ready", "status": "match" } },
+          { "title": "Skills That Learn: From Markdown to Deterministic Pipelines", "words": "1,798", "topic": "Constraint Eng", "status": { "text": "Ready", "status": "match" } },
+          { "title": "Agent-Native CLI Design: Why MCP vs CLI Is Wrong", "words": "~1,400", "topic": "AXI", "status": { "text": "Ready", "status": "match" } },
+          { "title": "The Self-Documenting Runtime", "words": "~1,100", "topic": "AXI", "status": { "text": "Ready", "status": "match" } },
+          { "title": "AgentFS: The Sandbox Your AI Agents Can't Escape", "words": "~1,400", "topic": "Constraint Eng", "status": { "text": "Ready", "status": "match" } },
+          { "title": "From Prototype to Production in One Ratchet", "words": "~1,200", "topic": "Constraint Eng", "status": { "text": "Ready", "status": "match" } },
+          { "title": "The Universal SDLC: Works for Everything, Not Just Code", "words": "~1,400", "topic": "Constraint Eng", "status": { "text": "Ready", "status": "match" } }
+        ]
+      }
+    },
+
+    "sec-infra": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "INFRASTRUCTURE", "title": "Systems Built This Session", "subtitle": "" },
+      "children": ["infra-dev", "infra-prd", "infra-dsl", "infra-loop"]
+    },
+    "infra-dev": { "type": "card", "variant": "elevated", "props": { "title": "Dev Server", "content": "Port 3456 \u00b7 WebSocket hot reload \u00b7 Card-grid index with search \u00b7 File watcher + auto-render" } },
+    "infra-prd": { "type": "card", "variant": "elevated", "props": { "title": "Ralph PRD", "content": "6 themes \u00b7 10 stories \u00b7 Voice DNA defined \u00b7 content/ralph/prd.json" } },
+    "infra-dsl": { "type": "card", "variant": "elevated", "props": { "title": "Tag DSL", "content": "[[scope:action]] syntax \u00b7 6 scopes \u00b7 15+ tags \u00b7 Registry \u2192 flowmind/cmd" } },
+    "infra-loop": { "type": "card", "variant": "elevated", "props": { "title": "/levloop", "content": "Loop maker + scheduler \u00b7 Tick types \u00b7 Dynamic flowmind \u00b7 Rounds vs turns" } }
+  }
+}

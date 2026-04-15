@@ -152,6 +152,11 @@ WHAT IS THE WORK?
     ROUTE: /lev-research
     Returns: report artifact in .lev/pm/reports/
 
+→ "I need to encode or update DNA first"
+    ROUTE: /capture if the contract is still being shaped
+    Then use the repo DNA surface (`lev dna compile|validate|cascade`) through the tracked work contract
+    Returns: DNA artifact + cascade-ready execution path
+
 → "I have a spec, need to BUILD it"
     Use plan template:
     cp ~/.agents/skills/work/templates/plan.md .lev/pm/plans/plan-{slug}.md

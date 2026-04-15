@@ -136,3 +136,21 @@ The `/work` ALIGN phase calls lev-align automatically when `.lev/validation-gate
 - **Checking aspirational gates as blocking** — aspirational is informational only
 - **Running without reading specs** — gate checking requires reading the actual spec invariants
 - **Hardcoding gate lists** — always read from validation-gates.yaml, never maintain a separate list
+
+## Composite Drift Score (from OOO)
+
+When reporting alignment, compute a single composite drift number:
+
+```
+drift = 0.5 × goal_drift + 0.3 × constraint_drift + 0.2 × ontology_drift
+```
+
+| Component | Weight | What It Measures |
+|-----------|--------|-----------------|
+| Goal drift | 50% | How far current state is from stated objective |
+| Constraint drift | 30% | How many gates are failing vs passing |
+| Ontology drift | 20% | How much naming/structure has diverged from DNA canon |
+
+One number to watch. If drift > 0.3, flag as WARNING. If drift > 0.5, flag as CRITICAL.
+
+**Source:** `.lev/pm/parity/ouroboros.yaml` (ooo-10), tribunal item 13 (UNANIMOUS AGREE)
