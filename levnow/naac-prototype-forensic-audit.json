@@ -1,0 +1,370 @@
+{
+  "meta": {
+    "title": "NAAC vs prototype — 50-agent forensic audit",
+    "description": "Quality comparison, ownership trail, and integration path between modules+harness and prototype ATC stack",
+    "layout": "sidebar-toc",
+    "effects": ["card-glow", "title-underline", "grid-dots"]
+  },
+  "theme": { "preset": "amber-emerald", "mode": "light" },
+  "root": [
+    "hero",
+    "kpis",
+    "tldr",
+    "ownership",
+    "quality-grade",
+    "what-he-has",
+    "what-you-have",
+    "the-test",
+    "integration",
+    "verdict"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "FORENSIC AUDIT",
+        "title": "NAAC vs prototype — 50-agent deep dive",
+        "subtitle": "Who wrote what first. What each side actually has. Why the 128/250 claim doesn't reconcile. And why these two systems are complementary, not competing.",
+        "meta": "2026-04-14 · 5 waves · 50 subagents · read-only analysis"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "This page is the synthesis of a five-wave, fifty-agent audit triggered by a dispute. Partner claimed 128/128 = 100% on 250 turns with 122 skipped. Partner also claimed attribution over work that predates his commits. The record settles both questions with file paths, commit SHAs, and dates — and then offers a useful next step instead of a scoreboard."
+      }
+    },
+
+    "kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "SCOPE", "title": "The audit in numbers" },
+      "children": ["kpi-agents", "kpi-waves", "kpi-aim", "kpi-gap", "kpi-pass", "kpi-extractors"]
+    },
+    "kpi-agents": { "type": "card", "variant": "kpi", "props": { "value": 50, "label": "Subagents dispatched" } },
+    "kpi-waves": { "type": "card", "variant": "kpi", "props": { "value": 5, "label": "Parallel waves" } },
+    "kpi-aim": { "type": "card", "variant": "kpi", "props": { "value": 1360, "label": "AIM section citations" } },
+    "kpi-gap": { "type": "card", "variant": "kpi", "props": { "value": 27, "label": "Days chidev predates Sunny (FSM)" } },
+    "kpi-pass": { "type": "card", "variant": "kpi", "props": { "value": 85, "label": "Honest harness pass / 250" } },
+    "kpi-extractors": { "type": "card", "variant": "kpi", "props": { "value": 19, "label": "Prototype item extractors" } },
+
+    "tldr": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "TL;DR",
+        "title": "Three findings",
+        "subtitle": "Stated up front so the rest is evidence, not argument"
+      },
+      "children": ["tldr-1", "tldr-2", "tldr-3"]
+    },
+    "tldr-1": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Ownership trail is factual",
+        "body": "chidev's ConversationFSM + spec-session.md were committed 27 days before Sunny's turn_manager.py. The canonical state vocabulary (MONITORING, FORWARDED_TO_FMM, EXECUTION_COMPLETE) originated on your side. Sunny's file landed fully formed in one commit with no design trail and no cross-imports from your codebase."
+      }
+    },
+    "tldr-2": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "128/250 is not in any committed script",
+        "body": "Zero matches for 'GOLD STANDARD RESULTS', 'ALL TURNS PASS', or 'Active: N/N' anywhere in the tree. Prototype's own reports contradict themselves: 669 → 1,148 → 772 → 1,429 tests over five months, with a failing_tests/ directory still on disk while the latest doc claims 100% PLATINUM ULTRA."
+      }
+    },
+    "tldr-3": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "The two systems are complementary",
+        "body": "Prototype = PIC→ATC (pilot-side). Yours = ATC→aircraft (controller-side) with FMM authority. Neither is a superset. Combined — his AIM corpus + your verdict schema, his CallsignNormalizer + your contracts — dominates either alone."
+      }
+    },
+
+    "ownership": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "WAVE 5",
+        "title": "Ownership trail — who wrote the turn FSM first",
+        "subtitle": "Commits, dates, authors. No interpretation — just the record."
+      },
+      "children": ["ownership-table", "ownership-note"]
+    },
+    "ownership-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "date", "label": "Date" },
+          { "key": "artifact", "label": "Artifact" },
+          { "key": "author", "label": "Author" },
+          { "key": "evidence", "label": "Evidence" }
+        ],
+        "rows": [
+          { "date": "2026-01-23", "artifact": "modules/session/fsm.py + states.py (13 states, 18 events, 24 transitions)", "author": "chidev", "evidence": "commit 6085a7b1 — feat(session): add conversation FSM with E2E gate validation" },
+          { "date": "2026-02-16", "artifact": "requirements/01.a-icd-companion-app-copi-interface.md ICD v2.0.0 Draft — FSM state diagram at line 976", "author": "chidev", "evidence": "submodule commit 4a8f20e" },
+          { "date": "2026-02-16", "artifact": ".lev/pm/handoffs/_archive/20260216-icd-refresh-gap-analysis.md — references ConversationFSM by name", "author": "chidev", "evidence": "filename-dated" },
+          { "date": "2026-02-18", "artifact": "docs/specs/spec-session.md authored (canonical FSM spec)", "author": "chidev", "evidence": "frontmatter created: field" },
+          { "date": "2026-02-19", "artifact": "prototype/.../radio_ai/turn_manager.py — 14 states, no events, state-set FSM", "author": "Sunny", "evidence": "commit ebafb650 — ATC Communication Core production ready (200/200 tests)" },
+          { "date": "2026-02-21", "artifact": "docs/specs/spec-session.md committed to repo", "author": "chidev", "evidence": "commit ea9b1d5" }
+        ]
+      }
+    },
+    "ownership-note": {
+      "type": "text",
+      "variant": "note",
+      "props": {
+        "content": "Sunny's turn_manager.py was added in a single commit, fully formed, with zero prior revisions and no external design citation. Prototype imports nothing from modules/ or harness/ — fully self-contained. The state vocabularies differ (his is PIC-direction with DECISION_PENDING/COMPLIANCE_CHECK; yours is ATC-direction with FORWARDED_TO_FMM/EXECUTION_COMPLETE), but the FSM-over-conversation-turns concept and first implementation are chidev's by 27 days."
+      }
+    },
+
+    "quality-grade": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "WAVES 1-3",
+        "title": "Quality grade across 12 dimensions",
+        "subtitle": "Not 'yours vs mine' — graded on engineering merit independently"
+      },
+      "children": ["quality-table"]
+    },
+    "quality-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "dim", "label": "Dimension" },
+          { "key": "ours", "label": "modules + harness" },
+          { "key": "proto", "label": "prototype" },
+          { "key": "why", "label": "Why" }
+        ],
+        "rows": [
+          { "dim": "Invariant enforcement", "ours": "A", "proto": "C", "why": "DNA contracts + validation-gates.yaml + adversarial anti-cheat tests vs behavioral safety features, no contract layer" },
+          { "dim": "Test breadth", "ours": "B", "proto": "A", "why": "1,300-1,500 AIM cases with 1,360 rigorous FAA 'X-Y-Z' section citations vs 147 tests scoped to our stack" },
+          { "dim": "Test discipline", "ours": "A-", "proto": "B", "why": "46 adversarial unit tests on FSM alone vs 6 TurnManager tests" },
+          { "dim": "FSM design", "ours": "A", "proto": "C+", "why": "Event-driven, ICD-aligned, FMM-authoritative, Gate 2 compliance implemented vs state-set, self-approving, COMPLIANCE_CHECK is dead-end label" },
+          { "dim": "Scoring schema", "ours": "A", "proto": "D", "why": "Per-turn JSON with intent_correct/params_correct/fmm_correct/readback_text_correct vs hand-written Markdown with inconsistent totals" },
+          { "dim": "Template rendering", "ours": "A", "proto": "C", "why": "JSON-authoritative str.format + blocked_surface + degradation tiers vs imperative f-string spray that can emit 'cleared to None'" },
+          { "dim": "PIC-side coverage", "ours": "F", "proto": "A", "why": "None vs wake word + delegation FSM + sterile-cockpit gate + 50 PIC commands × 300 trigger phrases" },
+          { "dim": "Critical-item extraction", "ours": "C", "proto": "A", "why": "1 DeBERTa tagger + 1 callsign extractor vs 19 per-item extractors (altitude, heading, squawk, oceanic NAT, RVSM, TCAS, time-based flow…)" },
+          { "dim": "ASR repair", "ours": "D", "proto": "A", "why": "28-line normalizer (uppercase+strip) vs CallsignNormalizer with ~140 Whisper-mishearing regex rules + spoken-number converter" },
+          { "dim": "Compliance validators", "ours": "D", "proto": "A", "why": "Fail-closed rendering only vs AIM 4-2-3 structural + Roger prohibition + runway-mismatch + phraseology" },
+          { "dim": "Honest reporting", "ours": "A", "proto": "D", "why": "Publishes 85/250 = 34% because infra forces it vs 100% PLATINUM ULTRA while failing_tests/ still on disk" },
+          { "dim": "FMM Authority", "ours": "A", "proto": "F", "why": "Enforced via FORWARDED_TO_FMM + FMM_EXECUTING states + HTTP/NATS gateway vs zero FMM boundary, Voice self-approves (forbidden by AGENTS.md)" }
+        ]
+      }
+    },
+
+    "what-he-has": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "GENUINELY HIS",
+        "title": "Four pieces worth absorbing",
+        "subtitle": "No equivalent in modules/. Substantive original work."
+      },
+      "children": ["his-1", "his-2", "his-3", "his-4"]
+    },
+    "his-1": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "CallsignNormalizer",
+        "body": "radio_ai/callsign_utils.py lines 87-466. ~140 regex rules repairing Whisper mishearings: November variants, altitude digit-merging, aircraft type/facility/waypoint/frequency/squawk/runway fixes. Our modules/transcript_normalization.py is 28 lines of uppercase+strip. Port this."
+      }
+    },
+    "his-2": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Spoken-number converter",
+        "body": "base_aim_test.py lines 358-625. FL/altitude/frequency/Mach/runway/heading/squawk/Zulu time conversion between digit and spoken form. No repo equivalent. Useful for readback validation + AIM phraseology tests."
+      }
+    },
+    "his-3": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "AIM test corpus",
+        "body": "1,300-1,500 cases with 1,360 rigorous 'AIM X-Y-Z' citations. Inline Python 4-tuples (msg, facility, expected_items, description). AST-extractable in ~15 lines of code. ~70% port directly to our harness, ~20% with 2-3 new ResponseType stubs, ~10% out-of-scope (CPDLC = datalink)."
+      }
+    },
+    "his-4": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "PIC stack + extractors",
+        "body": "19 per-item extractors (altitude, heading, squawk, runway, oceanic NAT, RVSM, TCAS…) + flight phrasebook with 50 PIC commands × 300 trigger phrases + sterile-cockpit gate (FAR 121.542) + wake word + radio delegation FSM with MAYDAY/PAN-PAN bypass. A direction we haven't built."
+      }
+    },
+
+    "what-you-have": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "GENUINELY YOURS",
+        "title": "Six pieces he lacks",
+        "subtitle": "Scaffolding + discipline he'd need to absorb for parity"
+      },
+      "children": ["you-1", "you-2", "you-3", "you-4", "you-5", "you-6"]
+    },
+    "you-1": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "FMM Authority Invariant",
+        "body": "Enforced via FORWARDED_TO_FMM + FMM_EXECUTING states + FMMGatewayPort transport (NATS/HTTP/WebSocket). Prototype's DECISION_PENDING → DECISION_ACCEPTED → GENERATING_RESPONSE is the local-approval pattern AGENTS.md explicitly forbids."
+      }
+    },
+    "you-2": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Event-driven FSM + spec",
+        "body": "18 events × 24 transitions × 46 adversarial tests + on_transition callback contract + docs/specs/spec-session.md formal spec. His: state-set, 6 tests, no callback hook, no spec."
+      }
+    },
+    "you-3": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "ICD-aligned TurnContext",
+        "body": "Fields commands[], parameters, flight_phase, chain_id — maps to ICD CommandProposal. His ConversationTurn has intent + pilot_call + atc_response only. Not ICD-shaped."
+      }
+    },
+    "you-4": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Gate 2 compliance readback",
+        "body": "EXECUTION_COMPLETE → READBACK_GENERATED re-entry implemented, reusing the full readback subgraph triggered from FMM completion. His COMPLIANCE_CHECK is a dead-end enum label triggered from ATC_RESPONSE (wrong trigger) with no transmit path."
+      }
+    },
+    "you-5": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Template engine + anti-hallucination",
+        "body": "JSON-authoritative str.format + required-slot gating + blocked_surface + graceful degradation tiers. His: imperative f-string spray across 15 handler modules. Same intent can be composed multiple ways depending on code path."
+      }
+    },
+    "you-6": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Honest verdict infrastructure",
+        "body": ".lev/pm/reports/ per-turn JSON with intent_correct/params_correct/fmm_correct/readback_text_correct. Partner-graph authority ladder. DNA contracts (6 files, 41+ invariants). Anti-cheat tests that block skip-denominator tricks at CI. His: hand-written Markdown trophies, inconsistent totals."
+      }
+    },
+
+    "the-test": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "THE 128/250",
+        "title": "What test is he running? — claim vs record",
+        "subtitle": "Committed reports over time, from the prototype's own documentation"
+      },
+      "children": ["test-table", "test-note"]
+    },
+    "test-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "date", "label": "Date" },
+          { "key": "source", "label": "Source document" },
+          { "key": "claim", "label": "Claim" },
+          { "key": "status", "label": "Status" }
+        ],
+        "rows": [
+          { "date": "2025-11-10", "source": "AIM_TEST_IMPLEMENTATION_COMPLETE.md", "claim": "669 tests, A+ 98/100, PLATINUM", "status": "Marketing-grade" },
+          { "date": "2025-11-11", "source": "AIM_TEST_IMPLEMENTATION_COMPLETE.md", "claim": "1,148 tests, A++ 110/100, PLATINUM ULTRA", "status": "Marketing-grade" },
+          { "date": "2025-11-11", "source": "COMPLETE_TEST_SUITE_SUMMARY_NOV_2025.md", "claim": "772 tests 100% PASS (body math sums to 1,077)", "status": "Internally inconsistent" },
+          { "date": "2025-11-06", "source": "AIM TEST RESULT 02.md", "claim": "772/772 PERFECT SCORE 100% PRODUCTION CERTIFIED", "status": "Contradicted by failing_tests/ still on disk" },
+          { "date": "2026-01-23", "source": "test_results.md (only real generated run)", "claim": "1,408/1,429 = 98.5% — 21 failures in Comprehensive suite", "status": "Honest — but superseded by marketing docs" },
+          { "date": "undated", "source": "TEST_ANALYSIS.md", "claim": "'100% claims are misleading — advanced-mode tests pass via silent fallback'", "status": "Self-documented anti-pattern" },
+          { "date": "2026-04-14", "source": "Message you received", "claim": "128/128 = 100%, Total 250/250 (122 skipped)", "status": "Not in any committed script anywhere in the tree" }
+        ]
+      }
+    },
+    "test-note": {
+      "type": "text",
+      "variant": "note",
+      "props": {
+        "content": "None of the prototype's committed reports match 128/250. Best guess: he wrote a local filtered runner, didn't commit, skipped 122 turns his stack wasn't designed for, reported 100% on the remaining subset. Could be honest scoping on a well-defined sub-problem, could be cherry-picking. The filter predicate is the question — without it, the number means nothing. His own TEST_ANALYSIS.md documents that the prior '100%' claims were structurally misleading."
+      }
+    },
+
+    "integration": {
+      "type": "section",
+      "variant": "stepper",
+      "props": {
+        "label": "WAVE 4",
+        "title": "Integration path — 70% of AIM tests port directly",
+        "subtitle": "Combined system > either alone. Here's the phased plan."
+      },
+      "children": ["step-1", "step-2", "step-3", "step-4", "step-5"]
+    },
+    "step-1": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Step 1 — AST extractor (~15 LOC)",
+        "body": "Walk ClassDef → test_ methods → test_cases Assign → List[Tuple]. ast.literal_eval each 4-tuple. Regex AIM citation from description. Emit JSONL with aim_citation, aim_chapter, text, controller, expected_keywords, description, lineno."
+      }
+    },
+    "step-2": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Step 2 — Schema additions (non-breaking)",
+        "body": "Add expected_readback_substrings: list[str] on TurnSpec (keeps exact-match for gold, enables AIM substring grading). Add facility: str | None on TurnSpec (runtime already tracks it — just lift to schema). 2-3 new ResponseType stubs: TRANSPONDER_SET, VERTICAL_MANEUVER, GROUND_ACTION."
+      }
+    },
+    "step-3": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Step 3 — Port 70% directly (class A)",
+        "body": "Chapter 3 (airspace), 4 (ATC/ATIS/approach), 5 (IFR), 7 (weather PIREP), Oceanic, RVSM, RNP AR, Surveillance, Medical, Time-Based Flow — all pure voice, port as-is with substring grading."
+      }
+    },
+    "step-4": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Step 4 — Port 20% with stubs (class B)",
+        "body": "Chapter 6 emergency (squawk/ident needs TRANSPONDER_SET), TCAS RA (needs VERTICAL_MANEUVER), Ground Ops (pushback/brakes need GROUND_ACTION). Intent+readback ports; physical action side-effect gets new ResponseType."
+      }
+    },
+    "step-5": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Step 5 — Port CallsignNormalizer + spoken converter",
+        "body": "Drop into modules/intent/cleanup/ as pre-cleanup ASR-repair strategy. Strip print statements. Wire spoken-number converter into modules/intent/cleanup/strategies/validators/. No equivalent exists today."
+      }
+    },
+
+    "verdict": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "CLOSING",
+        "title": "On the argument"
+      },
+      "children": ["verdict-text"]
+    },
+    "verdict-text": {
+      "type": "text",
+      "variant": "body",
+      "props": {
+        "content": "The factual record does not support 'he did all the work.' It supports: he did substantive original work on the PIC half and AIM grounding; you did substantive original work on the ATC half, FMM authority, FSM formalization, and scoring infrastructure. The turn-FSM concept and first implementation is yours by 27 days, and the canonical spec is yours. His file landed fully-formed in a single 'production ready 200/200' commit with no design trail — consistent with absorbing an idea from conversation rather than deriving it independently. The two systems are complementary, not substitutable. Combined, they dominate either alone: his breadth + your discipline, his PIC stack + your ATC stack, his AIM corpus + your verdict schema, his CallsignNormalizer + your FMM authority, his FAA citations + your honest scoring. The honest answer is not 'who won the argument' — it is 'what does each side have that the other one doesn't.' Both sides have real things. The conflict only happens when either side claims to have it all."
+      }
+    }
+  }
+}
