@@ -1,0 +1,308 @@
+{
+  "meta": {
+    "title": "DNA-Driven Development",
+    "description": "Code is an artifact of DNA, not the other way around. Stop prompting. Start compiling.",
+    "layout": "sidebar-toc",
+    "effects": ["hero-gradient", "card-glow", "title-underline", "grid-dots"]
+  },
+  "theme": { "preset": "deep-blue-gold", "mode": "dark" },
+  "root": ["hero", "sec-thesis", "sec-triangle", "sec-pipeline", "sec-proof", "sec-compiled", "sec-parasitism", "sec-why", "sec-evolution", "sec-series-nav", "sec-cta"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "centered",
+      "props": {
+        "category": "MANIFESTO \u00b7 PART 2",
+        "title": "Code Is an Artifact of DNA",
+        "subtitle": "Not the other way around.",
+        "meta": "Leviathan Project \u00b7 April 2026 \u00b7 The Constraint Engineering Series"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "Markdown describes. Agents need prescriptions, not descriptions. YAML prescribes\u2014behaviors, conditions, failure modes, constraints\u2014executable structure that compiles into runtime behavior.\n\nYou're not telling an agent what the system does. You're telling it what the system IS.\n\nProved: 14/15 treatment vs 0/15 control across Claude + Gemini. DNA YAML steers agent behavior. Prose does not."
+      }
+    },
+
+    "sec-thesis": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "THE THESIS",
+        "title": "Stop Prompting. Start Compiling.",
+        "subtitle": "DNA is the behavioral contract layer. Not a file format\u2014a concept."
+      },
+      "children": ["thesis-quote", "thesis-explain"]
+    },
+    "thesis-quote": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": {
+        "content": "DNA is NOT a file format. It is a concept. The .dna.yaml extension is a hint for humans, not a parser requirement. DNA sections\u2014constraints, behaviors, failure_modes\u2014can live IN config.yaml, in .flow.yaml, anywhere. The compiler takes a FeatureDna object, not a file extension."
+      }
+    },
+    "thesis-explain": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "A constraint is a flowmind definition. A harness is the tooling to run it. Leviathan is a meta-harness\u2014it defines and runs its own constraint harnesses.\n\n90% of cases: Lev IS the harness. Define the DNA, write the flowmind, Lev executes and validates. 10% of cases: custom harness needed (AppTestr for iOS, NAAC for ATC). But you STILL define the DNA first. The DNA cascade builds code around the behavioral contract.\n\nThis is not theory. The compilation pipeline is built. The intent compiler exists at `core/flowmind/src/intent-compiler/`. The target compilers emit to 8+ framework formats. The eval triad validates structural, behavioral, and cross-framework correctness."
+      }
+    },
+
+    "sec-triangle": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "THE REPRESENTATION TRIANGLE",
+        "title": "Three Layers. One Compilation Pipeline.",
+        "subtitle": "Every feature has three representations. They are a compilation pipeline, not three independent documents."
+      },
+      "children": ["tri-md", "tri-dna", "tri-flow"]
+    },
+    "tri-md": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Markdown = Intent",
+        "content": "**Question**: What does the human want?\n**Consumers**: Humans, intent compiler\n**Shearing layer**: Stuff (daily\u2014intent changes frequently)\n**Compilation**: Ambiguous NL \u2192 gated (Gate 0 regex, Gate 1 LLM disambiguation)\n\nExample: \"I want a button that can only be red/green and when I click and I'm mad tell JP in Slack.\""
+      }
+    },
+    "tri-dna": {
+      "type": "card",
+      "variant": "hero",
+      "props": {
+        "title": "DNA YAML = Behavioral Contract",
+        "content": "**Question**: What IS this thing? Behaviors, constraints, failure modes, conditions.\n**Consumers**: Agents, QA agents, gates, compilers, tribunal, validator chain\n**Shearing layer**: Site (decades\u2014behavioral truth changes rarely)\n**Compilation**: Canonical YAML \u2192 deterministic structural transform (no gates needed)\n\nExample: `colors_allowed: [red, green]`, `failure_modes: [invalid_color, sentiment_negative_click]`"
+      }
+    },
+    "tri-flow": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "FlowMind = Execution Contract",
+        "content": "**Question**: How do you DO it? Triggers, actions, topology, wiring.\n**Consumers**: FlowMind, lev exec, orchestration, execution contract\n**Shearing layer**: Structure (30-50 years\u2014execution contracts are load-bearing)\n**Compilation**: GraphDocument \u2192 ecStart()/ecNext() state machine \u2192 adapter dispatch\n\nExample: `trigger: click + sentiment.negative \u2192 action: slack.send(channel: jp)`"
+      }
+    },
+
+    "sec-pipeline": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "THE COMPILATION PIPELINE",
+        "title": "Human Speaks \u2192 Code Ships",
+        "subtitle": "Four forward steps. Two reverse steps. One feedback loop."
+      },
+      "children": ["pipeline-forward", "pipeline-reverse", "pipeline-feedback"]
+    },
+    "pipeline-forward": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": { "label": "FORWARD", "title": "Compile Down", "subtitle": "" },
+      "children": ["fw-1", "fw-2", "fw-3", "fw-4"]
+    },
+    "fw-1": { "type": "card", "variant": "default", "props": { "title": "Human Intent", "content": "Natural language \u2192 *.md\nCompiler: human" } },
+    "fw-2": { "type": "card", "variant": "default", "props": { "title": "Intent Compiler", "content": "*.md \u2192 *.dna.yaml\nGated: regex + LLM disambiguation" } },
+    "fw-3": { "type": "card", "variant": "default", "props": { "title": "DNA Compiler", "content": "*.dna.yaml \u2192 *.flow.yaml\nDeterministic structural transform" } },
+    "fw-4": { "type": "card", "variant": "default", "props": { "title": "Execution", "content": "*.flow.yaml \u2192 runtime artifacts\nlev exec --flow=<path>" } },
+    "pipeline-reverse": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": { "label": "REVERSE", "title": "Decompile Up", "subtitle": "" },
+      "children": ["rv-1", "rv-2"]
+    },
+    "rv-1": { "type": "card", "variant": "default", "props": { "title": "Decompiler", "content": "*.flow.yaml \u2192 *.dna.yaml\nFor audit, debugging, review" } },
+    "rv-2": { "type": "card", "variant": "default", "props": { "title": "NLU Decompiler", "content": "*.dna.yaml \u2192 *.md\nHuman-readable rendering" } },
+    "pipeline-feedback": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "The Feedback Loop",
+        "content": "**Trigger**: Regression found in runtime.\n**Action**: Update *.dna.yaml \u2192 recompile *.flow.yaml \u2192 regenerate tests.\n**Rule**: Never fix code directly. Fix DNA. Code follows."
+      }
+    },
+
+    "sec-proof": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "THE EVIDENCE",
+        "title": "14/15 Treatment vs 0/15 Control",
+        "subtitle": "DNA YAML steers agent behavior. Prose does not. This is not opinion\u2014it's measured."
+      },
+      "children": ["proof-explain", "proof-kpis"]
+    },
+    "proof-explain": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "We ran the experiment on 2026-03-22. Same task, same models (Claude + Gemini), two conditions:\n\n**Treatment**: Agent receives DNA YAML with constraints, behaviors, and failure modes. 14 out of 15 runs produced correct, constraint-compliant output.\n\n**Control**: Agent receives prose markdown with the same information described in natural language. 0 out of 15 runs produced fully constraint-compliant output.\n\nThe model is the same. The information is the same. The format changes everything. Prompts converge, harnesses differentiate. DNA YAML is the harness."
+      }
+    },
+    "proof-kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "", "title": "", "subtitle": "" },
+      "children": ["proof-kpi-1", "proof-kpi-2", "proof-kpi-3"]
+    },
+    "proof-kpi-1": { "type": "card", "variant": "kpi", "props": { "value": "14/15", "label": "DNA Treatment (YAML)", "trend": { "direction": "up", "value": "93% compliance" } } },
+    "proof-kpi-2": { "type": "card", "variant": "kpi", "props": { "value": "0/15", "label": "Prose Control (Markdown)", "trend": { "direction": "down", "value": "0% compliance" } } },
+    "proof-kpi-3": { "type": "card", "variant": "kpi", "props": { "value": "96%", "label": "Production (Cheapest Model)", "trend": { "direction": "up", "value": "vs <30% industry" } } },
+
+    "sec-compiled": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "EVERYTHING COMPILES",
+        "title": "These Concepts Are No Longer Hand-Authored",
+        "subtitle": "Prompts, skills, agents, chains, workflows, RAG, tool use\u2014all compilation artifacts from DNA."
+      },
+      "children": ["cmp-1", "cmp-2", "cmp-3", "cmp-4", "cmp-5", "cmp-6", "cmp-7"]
+    },
+    "cmp-1": { "type": "card", "variant": "default", "props": { "title": "Prompts", "content": "A node field in a FlowMind graph. The system-prompt target compiler generates them from DNA. You don't write prompts\u2014you compile them." } },
+    "cmp-2": { "type": "card", "variant": "default", "props": { "title": "Skills", "content": "A FlowMind document with trigger conditions. No separate skill format. A skill IS a reactive graph." } },
+    "cmp-3": { "type": "card", "variant": "default", "props": { "title": "Agents", "content": "A FlowMind node type. 50 flowminds don't need 50 agents\u2014one runtime walks all graphs." } },
+    "cmp-4": { "type": "card", "variant": "default", "props": { "title": "Chains", "content": "Linear FlowMind topology (node.next). The degenerate case of a graph." } },
+    "cmp-5": { "type": "card", "variant": "default", "props": { "title": "Workflows", "content": "FlowMind graphs with typed nodes (action, gate, loop, subgraph, parallel)." } },
+    "cmp-6": { "type": "card", "variant": "default", "props": { "title": "RAG", "content": "A LOAD node with a search fusion step. Context assembly is a target compiler, not a separate system." } },
+    "cmp-7": { "type": "card", "variant": "default", "props": { "title": "Tool Use", "content": "A function node type with op/action fields. The tool registry is a node in the graph." } },
+
+    "sec-parasitism": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "FRAMEWORK PARASITISM",
+        "title": "DNA Compiles to Any Framework",
+        "subtitle": "Like LLVM targeting x86/ARM/WASM. Each new target = ~100-200 LOC."
+      },
+      "children": ["para-explain", "para-table"]
+    },
+    "para-explain": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "DNA is framework-agnostic. The behavioral contract is the source of truth. Target compilers project it into any framework's native format. Today it compiles to FlowMind graphs and reactive hooks. Tomorrow it could compile to CrewAI, LangGraph, AutoGen, or anything else.\n\nThe constraints are framework-agnostic. The runtime is a projection. This means you can switch frameworks without rewriting your contracts. Your DNA survives the framework churn."
+      }
+    },
+    "para-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "target", "label": "Target" },
+          { "key": "format", "label": "Output Format" },
+          { "key": "difficulty", "label": "Difficulty" }
+        ],
+        "rows": [
+          { "target": "CrewAI", "format": "YAML (agents.yaml + tasks.yaml)", "difficulty": { "text": "Easy", "status": "match" } },
+          { "target": "IntentC", "format": "Markdown (.ic + .icv)", "difficulty": { "text": "Easy", "status": "match" } },
+          { "target": "GitAgent", "format": "agent.yaml + SOUL.md", "difficulty": { "text": "Easy", "status": "match" } },
+          { "target": "Google ADK", "format": "JSON (.evalset.json)", "difficulty": { "text": "Medium", "status": "info" } },
+          { "target": "AutoGen", "format": "Python dict", "difficulty": { "text": "Medium", "status": "info" } },
+          { "target": "Mastra", "format": "TypeScript + Zod", "difficulty": { "text": "Medium", "status": "info" } },
+          { "target": "OpenAI Agents", "format": "TypeScript + Handoffs", "difficulty": { "text": "Medium", "status": "info" } },
+          { "target": "LangChain", "format": "Python StateGraph", "difficulty": { "text": "Hard", "status": "warn" } }
+        ]
+      }
+    },
+
+    "sec-why": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "WHY THIS WORKS",
+        "title": "The Fractal Property",
+        "subtitle": "Every feature has its own DNA. Every module has its own DNA. They compose."
+      },
+      "children": ["why-quote", "why-eval"]
+    },
+    "why-quote": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": {
+        "content": "QA agents validate against DNA. Regressions update DNA. Code is regenerated. The human stays on intent. The machine handles the rest. This is not configuration. This is compilation."
+      }
+    },
+    "why-eval": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": { "label": "EVAL TRIAD", "title": "Three Layers of Validation", "subtitle": "" },
+      "children": ["eval-1", "eval-2", "eval-3"]
+    },
+    "eval-1": { "type": "card", "variant": "default", "props": { "title": "Structural", "content": "Does the DNA compile? Does output match the golden .flow.yaml?\nSpeed: milliseconds. Gate: CI-blocking." } },
+    "eval-2": { "type": "card", "variant": "default", "props": { "title": "Behavioral", "content": "Does the compiled graph execute correctly through ecStart/ecNext?\nSpeed: seconds. Gate: CI-blocking." } },
+    "eval-3": { "type": "card", "variant": "default", "props": { "title": "Cross-Framework", "content": "Do all target exports produce semantically equivalent output?\nTargets: LangChain, CrewAI, AutoGen, OpenAI, GitAgent, IntentC, Google ADK, Mastra.\nSpeed: minutes. Gate: scheduled." } },
+
+    "sec-evolution": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "THE EVOLUTION",
+        "title": "Context \u2192 Harness \u2192 Constraint",
+        "subtitle": "Three eras. Most teams are still in era one."
+      },
+      "children": ["evo-explain", "evo-pipeline"]
+    },
+    "evo-explain": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "Context engineering (2024): Craft the perfect prompt, stuff the context window, hope. Harness engineering (2025): Build eval loops, add quality gates, measure before shipping. Constraint engineering (2026): Define what the system IS, not what it should do. DNA contracts compile into harnesses, which compile into runtime behavior.\n\nThe constraints are the product. Code is the downstream artifact."
+      }
+    },
+    "evo-pipeline": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": { "label": "", "title": "", "subtitle": "" },
+      "children": ["evo-1", "evo-2", "evo-3"]
+    },
+    "evo-1": { "type": "card", "variant": "default", "props": { "title": "2024: Prompting", "content": "Craft prompts. Hope they work. Iterate manually. The BASIC era." } },
+    "evo-2": { "type": "card", "variant": "default", "props": { "title": "2025: Harnesses", "content": "Build eval loops. Add gates. Measure. Prompts converge, harnesses differentiate." } },
+    "evo-3": { "type": "card", "variant": "elevated", "props": { "title": "2026: DNA Compilation", "content": "Define what the system IS. DNA compiles to harnesses. Harnesses compile to runtime. Code is an artifact." } },
+
+    "sec-series-nav": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "THE CONSTRAINT ENGINEERING SERIES", "title": "Continue Reading", "subtitle": "" },
+      "children": ["nav-part1", "nav-home"]
+    },
+    "nav-part1": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\u2190 Part 1: Constraints Are the Product",
+        "content": "The philosophy. Why constraint-first engineering is the only approach that scales. The Genesis Pattern, the eval flow, the adversarial moat.",
+        "href": "https://lev.here.now/constraints/"
+      }
+    },
+    "nav-home": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\u2190 Leviathan Home",
+        "content": "The Universal Agent Runtime. One runtime, every agent, every surface.",
+        "href": "https://lev.here.now/"
+      }
+    },
+    "sec-cta": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "", "title": "", "subtitle": "" },
+      "children": ["cta-block"]
+    },
+    "cta-block": {
+      "type": "hero",
+      "variant": "centered",
+      "props": {
+        "title": "Stop Prompting. Start Compiling.",
+        "subtitle": "The DNA is the README.",
+        "cta": [
+          { "text": "Read dna/thesis.yaml", "href": "https://github.com/lev-os/lev/blob/main/dna/thesis.yaml", "variant": "primary" },
+          { "text": "Part 1: Constraints Are the Product", "href": "https://lev.here.now/constraints/", "variant": "secondary" }
+        ]
+      }
+    }
+  }
+}
