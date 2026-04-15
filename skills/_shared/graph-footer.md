@@ -1,28 +1,47 @@
-# Graph Footer — Shared Skill Fragment
+# HUD — Heads-Up Display (replaces graph footer)
 
-Every lifecycle skill MUST append this footer after output. Single source of truth.
+One line. Always. Every response. This IS the status bar.
 
-## How to Include
-
-Add to the end of any lifecycle skill's SKILL.md:
+## The HUD Line
 
 ```
-## Graph Footer
-@import ~/.claude/skills/_shared/graph-footer.md
+🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count} ✅{done_count} | 🚦{gate}={score} | ⏭️ {next} | 🔁{loop_state}
 ```
 
-Or just paste the template below into the skill's output format.
-
-## The Footer Template
+## Example
 
 ```
----
-🧬 {workstream_id} | 📐 {active_overlays} | 🎯 {lifecycle_stage}
-⏭️  Next: {proposed_next_verb(s)}
-🚦 Gate: {current_gate} = {pass|fail|pending}
-🌀 Decision: keep | monitor | execute | reject
----
+🧬 lifecycle-engine ⚡2 📥0 ⏸️3 ✅20 | 🚦convergence=0.78 | ⏭️ flow.schema | 🔁ll:t2 180s
 ```
+
+## Expanded View = /siterep
+
+When you need more than the HUD line, run /siterep for the full dashboard.
+The HUD is the collapsed view. /siterep is the expanded view. Same data.
+
+## HUD vs Footer — When to Use Which
+
+| Context | Use | Format |
+|---------|-----|--------|
+| `/ll` (loop ticks) | **HUD** | 1-line status bar |
+| `/siterep` | **HUD** | 1-line status bar (+ expanded dashboard above) |
+| `/lev` (bare) | **HUD** | 1-line status bar (= big dashboard) |
+| `/work`, `/capture`, `/exec`, `/propose` | **HUD** | 1-line status bar at end |
+| `/interview`, `/research`, `/prior-art` | **Footer** | Skill-specific output template |
+| `/now`, `/tribunal`, `/cdo` | **Footer** | Skill-specific output template |
+
+**Rule:** Loop-aware skills get HUD. Domain skills get footer. Each skill declares which.
+
+## Skill Output Template Contract
+
+Every skill needs one of:
+- `output_template: hud` — 1-line status bar (lifecycle-aware skills)
+- `output_template: footer` — skill-specific multi-line block (domain skills)
+- `output_template: dashboard` — full /siterep-style expanded view (status skills)
+
+This becomes a field in SKILL.md frontmatter. The WASM convo walker checks for it.
+
+## Old Footer Template (for domain skills that use footer mode)
 
 ## How to Populate
 

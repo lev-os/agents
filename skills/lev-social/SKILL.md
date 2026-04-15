@@ -13,6 +13,8 @@ category: process-research-social
 
 [WHEN] Use for market research, competitive analysis, sentiment tracking, community feedback collection, and trend identification.
 
+**Position in the unified model:** prefer `lev-research` / `lev timetravel search -s social` as the main entry point. Use this skill directly only when you are working on the social adapter itself or need raw platform-specific collection behavior.
+
 ---
 
 ## Architecture Context
@@ -33,6 +35,14 @@ category: process-research-social
 ---
 
 ## Commands
+
+If the user asked for "research" rather than "run Bird/PostCrawl directly", route through:
+
+```bash
+lev timetravel search "query" -s social
+```
+
+Use the direct commands below only when the social-specific raw collection matters.
 
 ### Twitter Search (Bird CLI)
 
@@ -190,7 +200,7 @@ postcrawl search --platforms reddit --query "openclaw" --results 50
 
 - `lev-research` - General research orchestration
 - `lev-intake` - URL/content intake
-- `lev get` - Code/docs search
+- `lev-find` - Local code/docs/task retrieval
 
 ## Technique Map
 - **Role definition** - Clarifies operating scope and prevents ambiguous execution.

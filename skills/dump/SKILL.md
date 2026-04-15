@@ -1,11 +1,11 @@
 ---
 name: dump
-description: "Brain dump mode. Runs /capture on everything, auto /research + /prior-art per topic, produces proposals. The 'throw everything at the wall' lifecycle trigger."
+description: "Brain dump mode. Runs /capture on everything, auto /research + /prior-art per topic, dispatches shovel-ready items to /exec, and /propose's the rest. Nothing should remain in memory."
 ---
 
-# /dump — Brain Dump → Auto-Research → Proposals
+# /dump — Brain Dump → Auto-Research → Exec / Propose
 
-One command. You talk, it captures, researches, and proposes.
+One command. You talk, it captures, researches, and routes every item to a durable next state.
 
 ## What It Does
 
@@ -31,7 +31,10 @@ BRAIN DUMP (you talk)
 /research (if topic needs evidence gathering)
     │ evidence gathered
     ▼
-/propose (if item is ready — ambiguity ≤ 0.2)
+/exec (if item is shovel-ready)
+    │ execution started or verifier-bound batch prepared
+    ▼
+/propose (everything else that is concrete but not shovel-ready)
     │ dna.yaml + execution.yaml written
     ▼
 DECISION POINT
@@ -47,10 +50,12 @@ NOT exhaustive. Per topic, the skill:
    - Synonym/adjacent concept search
    - `cass search` for session history (if cass healthy)
 
-2. **Route decision** (based on probe):
+2. **Route decision** (based on probe + execution readiness):
    - Found existing file → UPDATE that file (don't create new)
    - Found prior art in cass → surface the session reference
-   - Found nothing → mark as genuinely new, continue to /propose
+   - Shovel-ready with clear verifier/write scope → route to `/exec`
+   - Concrete but not execution-ready → route to `/propose`
+   - Found nothing → mark as genuinely new, continue to `/propose` or `/interview`
 
 3. **Batch, don't serial**:
    - Group related topics together
@@ -92,11 +97,11 @@ action: needs /interview before /propose
 | Just want to inventory without acting | `/capture` |
 | Need deep research on one thing | `/research` |
 
-`/dump` = `/capture` + `/prior-art` + `/research` + `/propose` composed. It's the "I just talked for 20 minutes, now process it all" button.
+`/dump` = `/capture` + `/prior-art` + `/research` + `/exec?` + `/propose?`. It's the "I just talked for 20 minutes, now process it all" button.
 
 ## Anti-Patterns
 
-- **Don't dump and disappear** — `/dump` produces proposals that need `/accept` before they execute
+- **Don't dump and disappear** — `/dump` must leave nothing only in memory; every item needs a durable route
 - **Don't dump 50 topics** — if > 10 topics, `/dump` should suggest splitting into workstreams
 - **Don't skip prior-art** — the whole point is avoiding duplicate work. If you skip it, just use `/capture`
 
@@ -116,10 +121,10 @@ Show the stats table (from /capture format):
 
 ## Relationship to /capture
 
-`/capture` inventories and routes. `/dump` inventories, researches, and proposes. `/dump` calls `/capture` as its first step, then extends with research + proposals.
+`/capture` inventories and routes. `/dump` inventories, researches, then dispatches shovel-ready work to `/exec` and sends the rest to `/propose`. `/dump` calls `/capture` as its first step, then extends with research + durable routing.
 
 ```
-/dump = /capture + for_each(topic => /prior-art → /research? → /propose?)
+/dump = /capture + for_each(topic => /prior-art → /research? → (/exec | /propose))
 ```
 
 ## Skill Builder Fast-Follow

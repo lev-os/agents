@@ -1,0 +1,232 @@
+{
+  "meta": {
+    "title": "NAAC Eval Dashboard",
+    "subtitle": "Unified schema — fast-path + final-boss + triad",
+    "theme": "teal-slate",
+    "layout": "sidebar-toc",
+    "effects": ["grid-dots", "card-glow"],
+    "refresh": 0
+  },
+  "sections": [
+    {
+      "id": "kpis",
+      "title": "Pipeline Health",
+      "variant": "kpi-row",
+      "children": [
+        {
+          "type": "card",
+          "title": "Pass Rate",
+          "value": "63.6%",
+          "subtitle": "159 / 250 turns",
+          "tone": "warning"
+        },
+        {
+          "type": "card",
+          "title": "Scenarios",
+          "value": "8",
+          "subtitle": "grounded flights",
+          "tone": "neutral"
+        },
+        {
+          "type": "card",
+          "title": "Intent Failures",
+          "value": "78",
+          "subtitle": "intent_classification stage",
+          "tone": "danger"
+        },
+        {
+          "type": "card",
+          "title": "Param Failures",
+          "value": "11",
+          "subtitle": "parameter_extraction stage",
+          "tone": "warning"
+        },
+        {
+          "type": "card",
+          "title": "FMM Failures",
+          "value": "2",
+          "subtitle": "fmm_decision stage",
+          "tone": "success"
+        },
+        {
+          "type": "card",
+          "title": "DeBERTa",
+          "value": "Active",
+          "subtitle": "intent + splitter loaded",
+          "tone": "success"
+        }
+      ]
+    },
+    {
+      "id": "per-scenario",
+      "title": "Per-Scenario Accuracy",
+      "variant": "full-width",
+      "children": [
+        {
+          "type": "data-table",
+          "headers": ["Scenario", "Passed", "Total", "Rate", "Intent", "Params", "FMM"],
+          "rows": [
+            ["single_intent_vfr_baseline", "19", "20", "95.0%", "1", "0", "0"],
+            ["vfr_pattern_intensive", "15", "20", "75.0%", "3", "2", "0"],
+            ["ifr_cross_country_hold_approach", "18", "22", "81.8%", "4", "0", "0"],
+            ["emergency_diversion", "17", "25", "68.0%", "8", "0", "0"],
+            ["end_to_end_complete_flight", "24", "48", "50.0%", "22", "2", "0"],
+            ["360_for_spacing", "36", "54", "66.7%", "14", "2", "2"],
+            ["adiz_penetration_procedures", "26", "48", "54.2%", "19", "3", "0"],
+            ["intent_coverage_gap_filler", "4", "13", "30.8%", "7", "2", "0"]
+          ],
+          "sortable": true,
+          "highlightColumn": 3
+        }
+      ]
+    },
+    {
+      "id": "schema",
+      "title": "Unified Report Schema",
+      "variant": "comparison",
+      "children": [
+        {
+          "type": "data-table",
+          "headers": ["Field", "Fast Path", "Final Boss", "Parity"],
+          "rows": [
+            ["turn_id", "from TurnSpec", "from daemon", "27/27"],
+            ["passed / intent_correct / params_correct", "derived", "derived", "exact match"],
+            ["expected_intent / observed_intent", "from cascade", "from daemon cascade", "exact match"],
+            ["expected_parameters / observed_parameters", "from cascade", "from daemon cascade", "exact match"],
+            ["expected_fmm / observed_fmm", "from FMM rules", "from FMM daemon", "exact match"],
+            ["readback_text / readback_ok", "from resolver", "from response daemon", "exact match"],
+            ["first_broken_stage", "derived", "derived", "exact match"],
+            ["failure_domain / failed_gate", "from _FAILURE_DOMAIN_MAP", "from enricher", "exact match"],
+            ["splitter_telemetry", "real (DeBERTa splitter)", "real (daemon compound)", "populated"],
+            ["reducer_telemetry", "simplified (best-segment)", "full (daemon reducer)", "partial"],
+            ["cascade_ab", "from CascadeResult.provenance", "from daemon cascade", "populated"],
+            ["timeline", "wall-clock (in-process)", "wall-clock (cross-daemon)", "populated (different scope)"],
+            ["spec_refs / remediation / stage", "from lookup table", "from enricher", "exact match"]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runners",
+      "title": "Runner Comparison",
+      "variant": "card-grid",
+      "children": [
+        {
+          "type": "card",
+          "variant": "default",
+          "title": "Fast Path (in-process)",
+          "children": [
+            {"type": "text", "content": "**Speed:** 0.6s (regex) / 75s (DeBERTa)"},
+            {"type": "text", "content": "**Exercises:** IntentCascade, CompoundSplitter, DispatchEngine, ReadbackResolver, VerdictEngine"},
+            {"type": "text", "content": "**Skips:** NATS transport, daemon lifecycle, health checks"},
+            {"type": "text", "content": "**Report:** `.lev/pm/reports/fast-path-report-*.json`"},
+            {"type": "text", "content": "**Command:** `just fast-report`"}
+          ]
+        },
+        {
+          "type": "card",
+          "variant": "default",
+          "title": "Final Boss (daemon)",
+          "children": [
+            {"type": "text", "content": "**Speed:** 3-5 minutes"},
+            {"type": "text", "content": "**Exercises:** Everything — real daemons, NATS, HTTP FMM, disk artifacts"},
+            {"type": "text", "content": "**Skips:** Nothing — THE authoritative test"},
+            {"type": "text", "content": "**Report:** `.lev/pm/reports/final-boss-report-*.json`"},
+            {"type": "text", "content": "**Command:** `just harness-results`"}
+          ]
+        },
+        {
+          "type": "card",
+          "variant": "default",
+          "title": "Triad Dashboard",
+          "children": [
+            {"type": "text", "content": "**Speed:** Instant (reads history.jsonl)"},
+            {"type": "text", "content": "**Exercises:** Pytest unit + integration test history"},
+            {"type": "text", "content": "**Shows:** Pass/fail trends, sparklines, failure clusters"},
+            {"type": "text", "content": "**Report:** `data/flights/_triad/aggregate/history.jsonl`"},
+            {"type": "text", "content": "**Command:** `just triad-dashboard --open`"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anticheat",
+      "title": "Anti-Cheat Status",
+      "variant": "kpi-row",
+      "children": [
+        {
+          "type": "card",
+          "title": "No Custom Normalization",
+          "value": "PASS",
+          "subtitle": "_whisper_normalize deleted from 3 files",
+          "tone": "success"
+        },
+        {
+          "type": "card",
+          "title": "Mock Transport Only",
+          "value": "PASS",
+          "subtitle": "No business logic mocks in integration/e2e",
+          "tone": "success"
+        },
+        {
+          "type": "card",
+          "title": "Import Direction",
+          "value": "PASS",
+          "subtitle": "modules/ clean of harness imports",
+          "tone": "success"
+        },
+        {
+          "type": "card",
+          "title": "Scenario Loader",
+          "value": "PASS",
+          "subtitle": "All tests use load_scenarios_dir()",
+          "tone": "success"
+        },
+        {
+          "type": "card",
+          "title": "Pytest Guards",
+          "value": "26/26",
+          "subtitle": "FMM + compound + architecture",
+          "tone": "success"
+        }
+      ]
+    },
+    {
+      "id": "pipeline",
+      "title": "Failure Pipeline",
+      "variant": "pipeline",
+      "children": [
+        {
+          "type": "card",
+          "title": "Transcript",
+          "value": "250",
+          "subtitle": "turns injected"
+        },
+        {
+          "type": "card",
+          "title": "Intent Classification",
+          "value": "172 pass",
+          "subtitle": "78 fail at this stage"
+        },
+        {
+          "type": "card",
+          "title": "Parameter Extraction",
+          "value": "161 pass",
+          "subtitle": "11 fail at this stage"
+        },
+        {
+          "type": "card",
+          "title": "FMM Decision",
+          "value": "159 pass",
+          "subtitle": "2 fail at this stage"
+        },
+        {
+          "type": "card",
+          "title": "Readback",
+          "value": "159 pass",
+          "subtitle": "0 fail at this stage"
+        }
+      ]
+    }
+  ]
+}
