@@ -25,16 +25,17 @@ Flow ref: `plugins/sdlc/flows/close-and-learn.flow.yaml`
 
 ### Step 0: Absorb /capture (HARD GATE — day-1 scope)
 
-**/close subsumes /capture.** Before anything else: run an inventory sweep. Nothing must be left in-memory.
+**/close subsumes /capture.** Before anything else: run the shared inventory sweep in **gate mode**.
 
-```
-1. Scan conversation for any in-memory items (ideas discussed, decisions made, follow-ups promised, artifacts mentioned but not filed).
-2. Route each item: write to disk (plans/proposals/captures/decisions/scratch) OR mark as blocked with explicit blocker.
-3. Compute in_memory_count.
-4. GATE: in_memory_count MUST be 0 to proceed. If >0, either file the items or /close halts.
-```
+**Protocol**: `@include ~/.claude/skills/_shared/capture-sweep.md` with `mode=gate`.
+
+This reads the canonical sweep protocol (inventory → classify → route → fidelity score → durable artifact write) from the single source of truth. No prose re-implementation — prior drift between /capture and /close proved that path fails (see `tmp/capture-sweep-diff-test.sh`).
+
+**Gate requirement:** the shared sweep returns `in_memory_count`. It MUST be 0 to proceed to Step 1. If > 0, either file the remaining items or /close halts.
 
 Rationale: bg agents should be able to apply the trigger output without NLP on prose. If /close seals a session with items still floating in conversation context, those items die at compact.
+
+Canonical routes + fidelity formula + durable artifact schema: see `~/.claude/skills/_shared/capture-sweep.md` — NOT duplicated here.
 
 ### Step 1: QA
 
