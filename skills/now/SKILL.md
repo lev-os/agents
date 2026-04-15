@@ -71,4 +71,7 @@ After rendering, describe the **design choices** — not just stats:
 - Layout structure and content type classification
 - Key visual elements (which of the 11 types used, which variants)
 - Render time + element count (brief)
-- Published URL if applicable
+
+**If the command was a publish:** Report ONLY the published URL. Do NOT show the local `~/.agents/levnow/*.html` path — the local file is an intermediate artifact, not the deliverable. The user follows the published link, not the local file.
+
+**If the command was NOT a publish:** Show the local path (it IS the deliverable).
