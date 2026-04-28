@@ -115,14 +115,19 @@ body::before {
 }
 .has-anim .anim.visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
+}
+/* Anim inside open details: always visible (no scroll-reveal trap) */
+.has-anim details[open] .anim {
+  opacity: 1;
+  transform: none;
 }
 /* KPI cards use scale-fade instead of translateY */
 .has-anim .kpi-card.anim {
   transform: scale(0.92);
 }
 .has-anim .kpi-card.anim.visible {
-  transform: scale(1);
+  transform: none;
 }
 
 /* CSS Counter for animated KPI values */
@@ -183,28 +188,51 @@ body::before {
   overflow: hidden;
   padding: 90px 2rem 0px;
 }
+@keyframes blobAnimOne {
+  0% { transform: translateX(-50%) translate(0, 0) scale(0.95); opacity: 0.12; }
+  33% { transform: translateX(-50%) translate(-2%, 4%) scale(1.06); opacity: 0.06; }
+  66% { transform: translateX(-50%) translate(3%, -2%) scale(1.02); opacity: 0.16; }
+  100% { transform: translateX(-50%) translate(0, 0) scale(0.95); opacity: 0.12; }
+}
+@keyframes blobAnimTwo {
+  0% { transform: translate(0, 0) scale(0.9); opacity: 0.5; }
+  25% { transform: translate(-3%, 6%) scale(1.12); opacity: 0.85; }
+  50% { transform: translate(5%, -4%) scale(1.05); opacity: 0.4; }
+  75% { transform: translate(2%, 4%) scale(0.96); opacity: 0.7; }
+  100% { transform: translate(0, 0) scale(0.9); opacity: 0.5; }
+}
 .hero::before {
   content: '';
   position: absolute;
   top: -30%;
   left: 50%;
-  transform: translateX(-50%);
   width: 900px;
   height: 900px;
   background: radial-gradient(circle, var(--color-accent) 0%, transparent 70%);
-  opacity: 0.1;
+  mix-blend-mode: overlay;
+  opacity: 0.5;
   pointer-events: none;
+  filter: blur(90px);
+  animation: blobAnimOne 38s ease-in-out infinite alternate;
+}
+[data-theme="light"] .hero::before {
+  mix-blend-mode: multiply;
 }
 .hero::after {
   content: '';
   position: absolute;
-  bottom: -10%;
-  left: 25%;
-  width: 50%;
-  height: 200px;
+  bottom: -15%;
+  left: 20%;
+  width: 60%;
+  height: 350px;
   background: rgba(0, 0, 0, 0.5);
   pointer-events: none;
-  filter: blur(150px);
+  filter: blur(110px);
+  animation: blobAnimTwo 27s ease-in-out infinite alternate-reverse;
+}
+[data-theme="light"] .hero::after {
+  background: radial-gradient(ellipse at center, rgba(235, 180, 20, 0.25) 0%, rgba(255, 230, 80, 0.15) 50%, transparent 80%);
+  mix-blend-mode: multiply;
 }
 .hero__inner { position: relative; z-index: 1; }
 .hero--centered { text-align: center; }
@@ -830,8 +858,38 @@ body::before {
   margin: 24px 0;
 }
 
+.testimonial-card {
+  border-left: 3px solid var(--color-accent);
+  padding: 20px 24px;
+  margin: 20px 0;
+  background: var(--color-surface-alt);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.testimonial-card__quote {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--color-text);
+}
+.testimonial-card__footer {
+  margin-top: 12px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  font-style: normal;
+}
+[data-theme="light"] .testimonial-card {
+  background: #fff;
+  border-left-color: var(--color-accent);
+}
+
 /* === Data Table === */
 .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--color-border); position: relative; }
+.data-table__caption {
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  padding: 12px 14px 0;
+}
 .table-fullscreen-btn { position: absolute; top: 8px; right: 8px; z-index: 5; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 13px; color: var(--color-text-muted); transition: all 0.2s; opacity: 0.6; }
 .table-wrap:hover .table-fullscreen-btn { opacity: 1; }
 .table-fullscreen-btn:hover { background: var(--color-accent-dim); color: var(--color-accent); }
@@ -1416,6 +1474,130 @@ code:not(pre code) {
   border-bottom: 2px solid var(--color-accent-dim);
 }
 
+/* === Feedback Element === */
+.feedback-wrap { position: relative; margin: 2rem 0; }
+.feedback-progress {
+  position: sticky; top: 0; z-index: 20;
+  background: var(--color-surface-alt); border-radius: var(--radius);
+  height: 28px; margin-bottom: 1.5rem; overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+.feedback-progress__fill {
+  height: 100%; background: var(--color-accent); transition: width 0.4s ease;
+  border-radius: var(--radius);
+}
+.feedback-progress__text {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+.feedback-save {
+  position: fixed; top: 16px; right: 16px; z-index: 30;
+  background: var(--color-success); color: #fff; padding: 6px 14px;
+  border-radius: var(--radius); font-family: var(--font-mono); font-size: 0.75rem;
+  transition: opacity 0.3s ease; pointer-events: none;
+}
+.feedback-buckets {
+  display: flex; gap: 0.5rem; margin-bottom: 1.5rem;
+  overflow-x: auto; padding-bottom: 4px;
+}
+.feedback-bucket {
+  background: var(--color-surface-alt); color: var(--color-text-muted);
+  border: 1px solid var(--color-border); border-radius: var(--radius);
+  padding: 6px 14px; font-family: var(--font-mono); font-size: 0.75rem;
+  cursor: pointer; white-space: nowrap; transition: all 0.2s;
+}
+.feedback-bucket:hover { border-color: var(--color-accent); }
+.feedback-bucket.active {
+  background: var(--color-accent); color: var(--color-surface);
+  border-color: var(--color-accent);
+}
+.feedback-card {
+  background: var(--color-surface-alt); border: 1px solid var(--color-border);
+  border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem;
+  transition: border-color 0.3s;
+}
+.feedback-card.decided { border-color: var(--color-accent); }
+.feedback-card__header {
+  display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+.feedback-card__id {
+  font-family: var(--font-mono); font-size: 0.7rem; padding: 2px 8px;
+  background: var(--color-border); border-radius: 3px; color: var(--color-text-muted);
+}
+.feedback-card__title {
+  font-family: var(--font-body); font-weight: 600; font-size: 1rem;
+  color: var(--color-text); flex: 1;
+}
+.feedback-card__wave {
+  font-family: var(--font-mono); font-size: 0.65rem; text-transform: uppercase;
+  letter-spacing: 0.08em; padding: 2px 8px; border-radius: 10px;
+  background: var(--color-accent); color: var(--color-surface);
+}
+.feedback-card__insight {
+  margin-bottom: 0.75rem; font-size: 0.95rem; color: var(--color-text-muted);
+}
+.feedback-card__detail {
+  display: none; padding: 0.75rem; margin-bottom: 0.75rem;
+  background: var(--color-surface); border-radius: var(--radius);
+  font-size: 0.85rem; color: var(--color-text-muted);
+}
+.feedback-card__detail.open { display: block; }
+.feedback-detail-toggle {
+  background: none; border: 1px solid var(--color-border); border-radius: var(--radius);
+  color: var(--color-text-muted); font-family: var(--font-mono); font-size: 0.7rem;
+  padding: 3px 10px; cursor: pointer; margin-bottom: 0.5rem;
+}
+.feedback-detail-toggle:hover { border-color: var(--color-accent); }
+.feedback-options {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+@media (max-width: 600px) { .feedback-options { grid-template-columns: 1fr; } }
+.feedback-option {
+  display: flex; flex-direction: column; gap: 2px; padding: 0.6rem;
+  border: 1px solid var(--color-border); border-radius: var(--radius);
+  cursor: pointer; transition: all 0.2s; font-size: 0.85rem;
+}
+.feedback-option:hover { border-color: var(--color-accent); }
+.feedback-option.selected { background: var(--color-accent); color: var(--color-surface); }
+.feedback-option.selected .feedback-option__desc { color: var(--color-surface); opacity: 0.8; }
+.feedback-option.recommended { border-color: #d97706; box-shadow: inset 0 0 0 1px rgba(217,119,6,0.2); }
+.feedback-option input[type=radio] { display: none; }
+.feedback-option__label { font-weight: 600; font-family: var(--font-body); }
+.feedback-option__desc { font-size: 0.75rem; color: var(--color-text-muted); }
+.feedback-other { margin-bottom: 0.5rem; font-size: 0.85rem; }
+.feedback-other label { display: flex; align-items: center; gap: 0.5rem; color: var(--color-text-muted); }
+.feedback-other__input {
+  flex: 1; background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius); padding: 4px 8px; color: var(--color-text);
+  font-family: var(--font-body); font-size: 0.85rem;
+}
+.feedback-notes {
+  width: 100%; background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius); padding: 8px; color: var(--color-text);
+  font-family: var(--font-body); font-size: 0.85rem; resize: vertical;
+}
+.feedback-actions {
+  display: flex; gap: 0.75rem; margin-top: 1rem; justify-content: flex-end;
+}
+.feedback-actions button {
+  font-family: var(--font-mono); font-size: 0.75rem; padding: 8px 16px;
+  border-radius: var(--radius); cursor: pointer; border: 1px solid var(--color-border);
+  transition: all 0.2s;
+}
+.feedback-actions__copy { background: var(--color-accent); color: var(--color-surface); border-color: var(--color-accent); }
+.feedback-actions__copy:hover { opacity: 0.85; }
+.feedback-actions__clear { background: var(--color-surface-alt); color: var(--color-text-muted); }
+.feedback-actions__clear:hover { border-color: var(--color-error); color: var(--color-error); }
+.feedback-toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--color-surface-alt); color: var(--color-text); padding: 8px 20px;
+  border-radius: var(--radius); font-family: var(--font-mono); font-size: 0.75rem;
+  border: 1px solid var(--color-border); z-index: 40; pointer-events: none;
+}
+
   </style>
 </head>
 <body>
@@ -1439,7 +1621,7 @@ code:not(pre code) {
     <p class="hero__subtitle">What are all agents doing right now? Workstream state + mail + content + parity as a single dashboard.</p>
     <p class="hero__meta">Auto-refresh 5min · 2026-04-10 · Federation: 5 agents aligned</p>
     <div data-lev-id="hero-lead" class="anim lead" style="--i:1;">
-  <p>This page is a **view** primitive (dna/graph.yaml): a materialized projection over graph state. Lossy by design, scoped and time-bounded. It reads agent mail, workstream YAML, handoff frontmatter, and parity entries — then renders them as a navigable dashboard. The data model is the graph; this page is one zoom level.</p>
+  <p>This page is a <strong>view</strong> primitive (dna/graph.yaml): a materialized projection over graph state. Lossy by design, scoped and time-bounded. It reads agent mail, workstream YAML, handoff frontmatter, and parity entries — then renders them as a navigable dashboard. The data model is the graph; this page is one zoom level.</p>
 </div>
   </div>
 </section>
@@ -1505,6 +1687,7 @@ code:not(pre code) {
   <h2 class="section-title">Agent Roster + Claims</h2>
   
   <div class="section__full-width"><div data-lev-id="agent-table" class="anim table-wrap" style="--i:10">
+  
   <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
   <table class="data-table">
     <thead><tr><th>ID</th><th>Lane</th><th>Workstream</th><th>Status</th><th>Key Claims</th><th>Last Mail</th></tr></thead>
@@ -1671,6 +1854,7 @@ code:not(pre code) {
   <h2 class="section-title">Unpublished Content Pipeline</h2>
   
   <div class="section__full-width"><div data-lev-id="content-table" class="anim table-wrap" style="--i:10">
+  
   <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
   <table class="data-table">
     <thead><tr><th>Article</th><th>Path</th><th>Status</th><th>Next Action</th></tr></thead>
@@ -1694,9 +1878,10 @@ code:not(pre code) {
 
 <section data-lev-id="parity-summary" class="anim section section--full-width" style="--i:10" id="parity-summary">
   <span class="section-label">L1 · PARITY</span>
-  <h2 class="section-title">Feature Parity Registry (11 entries)</h2>
+  <h2 class="section-title">Feature Parity Registry (12 entries)</h2>
   
   <div class="section__full-width"><div data-lev-id="parity-table" class="anim table-wrap" style="--i:10">
+  
   <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
   <table class="data-table">
     <thead><tr><th>Target</th><th>Category</th><th>Verdict</th><th>YAML Path</th></tr></thead>
@@ -1706,6 +1891,7 @@ code:not(pre code) {
       <tr><td>agent-browser</td><td>browser-automation</td><td><span class="status status--info">reference</span></td><td>.lev/pm/parity/agent-browser.yaml</td></tr>
       <tr><td>AgentFS</td><td>agent-filesystem</td><td><span class="status status--match">integrated</span></td><td>.lev/pm/parity/agentfs.yaml</td></tr>
       <tr><td>GitAgent</td><td>functionality-target</td><td><span class="status status--info">extract</span></td><td>.lev/pm/parity/gitagent.yaml</td></tr>
+      <tr><td>codemix/graph</td><td>graph-runtime</td><td><span class="status status--info">extract</span></td><td>.lev/pm/parity/codemix-graph.yaml</td></tr>
       <tr><td>Ouroboros</td><td>agent-framework</td><td><span class="status status--match">steal</span></td><td>.lev/pm/parity/ouroboros.yaml</td></tr>
       <tr><td>OpenClaw</td><td>agent-framework</td><td><span class="status status--info">extract</span></td><td>.lev/pm/parity/openclaw.yaml</td></tr>
       <tr><td>Hermes</td><td>agent-framework</td><td><span class="status status--info">extract</span></td><td>.lev/pm/parity/hermes.yaml</td></tr>
@@ -1781,6 +1967,795 @@ tmux session states (idle/running/paused). Token budgets. Exit reasons. Entity p
 → content/articles/*.md
 Batch publish planned as graph projection.</p></div>
 </div></div>
+</section>
+
+<section class="section source-section" style="margin-top: 4rem; border-top: 2px solid var(--color-accent);">
+  <span class="section-label">SOURCE</span>
+  <h2 class="section-title">How This Page Was Made</h2>
+  <p class="section-subtitle">This page was rendered from a JSON spec by the lev.now deterministic template engine.</p>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+    <div class="kpi-card">
+      <div class="kpi-card__value">31</div>
+      <div class="kpi-card__label">Elements</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card__value">teal-slate</div>
+      <div class="kpi-card__label">Theme Preset</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card__value">739</div>
+      <div class="kpi-card__label">JSON Lines</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card__value">&lt;2ms</div>
+      <div class="kpi-card__label">Render Time</div>
+    </div>
+  </div>
+
+  <h3 style="font-family: var(--font-display); font-size: 1.3rem; margin-bottom: 1rem;">Command</h3>
+  <div class="code-file">
+    <div class="code-file__header">
+      <span class="code-file__dot"></span>
+      <span class="code-file__dot"></span>
+      <span class="code-file__dot"></span>
+      <span class="code-file__name">terminal</span>
+    </div>
+    <div class="code-file__body"><pre><code><span class="code-func">$</span> npx tsx plugins/lev-now/src/cli.ts /Users/jean-patricksmith/.agents/levnow/context-pack-viewer.json --output /Users/jean-patricksmith/.agents/levnow/context-pack-viewer.html --show-source</code></pre></div>
+  </div>
+
+  <details style="margin-top: 2rem;">
+    <summary style="cursor: pointer; font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent); padding: 0.75rem 0; border-bottom: 1px solid var(--color-border);">
+      View RenderSpec JSON (739 lines)
+    </summary>
+    <div class="code-file" style="margin-top: 1rem;">
+      <div class="code-file__header">
+        <span class="code-file__dot"></span>
+        <span class="code-file__dot"></span>
+        <span class="code-file__dot"></span>
+        <span class="code-file__name">spec.json</span>
+      </div>
+      <div class="code-file__body" style="max-height: 600px; overflow-y: auto;"><pre><code>{
+  &quot;meta&quot;: {
+    &quot;title&quot;: &quot;Lev Context Pack — Agent Federation View&quot;,
+    &quot;description&quot;: &quot;L1-L2 graph projection: 5 agents, 4 workstreams, recent mail, content pipeline, parity registry&quot;,
+    &quot;layout&quot;: &quot;sidebar-toc&quot;,
+    &quot;effects&quot;: [
+      &quot;card-glow&quot;,
+      &quot;grid-dots&quot;,
+      &quot;title-underline&quot;
+    ],
+    &quot;refresh&quot;: 300
+  },
+  &quot;theme&quot;: {
+    &quot;preset&quot;: &quot;teal-slate&quot;,
+    &quot;mode&quot;: &quot;dark&quot;
+  },
+  &quot;root&quot;: [
+    &quot;hero&quot;,
+    &quot;kpis&quot;,
+    &quot;agents&quot;,
+    &quot;workstreams&quot;,
+    &quot;mail-timeline&quot;,
+    &quot;content-pipeline&quot;,
+    &quot;parity-summary&quot;,
+    &quot;graph-zoom&quot;,
+    &quot;links&quot;
+  ],
+  &quot;elements&quot;: {
+    &quot;hero&quot;: {
+      &quot;type&quot;: &quot;hero&quot;,
+      &quot;variant&quot;: &quot;editorial&quot;,
+      &quot;props&quot;: {
+        &quot;category&quot;: &quot;GRAPH PROJECTION · L1-L2&quot;,
+        &quot;title&quot;: &quot;Context Pack Viewer&quot;,
+        &quot;subtitle&quot;: &quot;What are all agents doing right now? Workstream state + mail + content + parity as a single dashboard.&quot;,
+        &quot;meta&quot;: &quot;Auto-refresh 5min · 2026-04-10 · Federation: 5 agents aligned&quot;
+      },
+      &quot;children&quot;: [
+        &quot;hero-lead&quot;
+      ]
+    },
+    &quot;hero-lead&quot;: {
+      &quot;type&quot;: &quot;text&quot;,
+      &quot;variant&quot;: &quot;lead&quot;,
+      &quot;props&quot;: {
+        &quot;content&quot;: &quot;This page is a **view** primitive (dna/graph.yaml): a materialized projection over graph state. Lossy by design, scoped and time-bounded. It reads agent mail, workstream YAML, handoff frontmatter, and parity entries — then renders them as a navigable dashboard. The data model is the graph; this page is one zoom level.&quot;
+      }
+    },
+    &quot;kpis&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;kpi-row&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;FEDERATION&quot;,
+        &quot;title&quot;: &quot;Agent Status Board&quot;
+      },
+      &quot;children&quot;: [
+        &quot;kpi-agents&quot;,
+        &quot;kpi-workstreams&quot;,
+        &quot;kpi-mail&quot;,
+        &quot;kpi-articles&quot;,
+        &quot;kpi-parity&quot;,
+        &quot;kpi-pages&quot;
+      ]
+    },
+    &quot;kpi-agents&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;kpi&quot;,
+      &quot;props&quot;: {
+        &quot;value&quot;: 5,
+        &quot;label&quot;: &quot;Active Agents&quot;,
+        &quot;trend&quot;: {
+          &quot;direction&quot;: &quot;flat&quot;,
+          &quot;value&quot;: &quot;A0-A4 (A1 paused)&quot;
+        }
+      }
+    },
+    &quot;kpi-workstreams&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;kpi&quot;,
+      &quot;props&quot;: {
+        &quot;value&quot;: 4,
+        &quot;label&quot;: &quot;Workstreams&quot;,
+        &quot;trend&quot;: {
+          &quot;direction&quot;: &quot;flat&quot;,
+          &quot;value&quot;: &quot;dna-cascade · herenow · genui · gtm&quot;
+        }
+      }
+    },
+    &quot;kpi-mail&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;kpi&quot;,
+      &quot;props&quot;: {
+        &quot;value&quot;: 30,
+        &quot;label&quot;: &quot;Mail Messages&quot;,
+        &quot;trend&quot;: {
+          &quot;direction&quot;: &quot;up&quot;,
+          &quot;value&quot;: &quot;levmail protocol active&quot;
+        }
+      }
+    },
+    &quot;kpi-articles&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;kpi&quot;,
+      &quot;props&quot;: {
+        &quot;value&quot;: 11,
+        &quot;label&quot;: &quot;Articles Queued&quot;,
+        &quot;trend&quot;: {
+          &quot;direction&quot;: &quot;down&quot;,
+          &quot;value&quot;: &quot;unpublished in content/articles/&quot;
+        }
+      }
+    },
+    &quot;kpi-parity&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;kpi&quot;,
+      &quot;props&quot;: {
+        &quot;value&quot;: 11,
+        &quot;label&quot;: &quot;Parity Entries&quot;,
+        &quot;trend&quot;: {
+          &quot;direction&quot;: &quot;up&quot;,
+          &quot;value&quot;: &quot;schema frozen through 04-17&quot;
+        }
+      }
+    },
+    &quot;kpi-pages&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;kpi&quot;,
+      &quot;props&quot;: {
+        &quot;value&quot;: 41,
+        &quot;label&quot;: &quot;/now Pages&quot;,
+        &quot;trend&quot;: {
+          &quot;direction&quot;: &quot;up&quot;,
+          &quot;value&quot;: &quot;rendered locally, mostly unpublished&quot;
+        }
+      }
+    },
+    &quot;agents&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;full-width&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;L1 · AGENTS&quot;,
+        &quot;title&quot;: &quot;Agent Roster + Claims&quot;
+      },
+      &quot;children&quot;: [
+        &quot;agent-table&quot;
+      ]
+    },
+    &quot;agent-table&quot;: {
+      &quot;type&quot;: &quot;data-table&quot;,
+      &quot;props&quot;: {
+        &quot;columns&quot;: [
+          {
+            &quot;key&quot;: &quot;id&quot;,
+            &quot;label&quot;: &quot;ID&quot;
+          },
+          {
+            &quot;key&quot;: &quot;lane&quot;,
+            &quot;label&quot;: &quot;Lane&quot;,
+            &quot;wide&quot;: true
+          },
+          {
+            &quot;key&quot;: &quot;workstream&quot;,
+            &quot;label&quot;: &quot;Workstream&quot;
+          },
+          {
+            &quot;key&quot;: &quot;status&quot;,
+            &quot;label&quot;: &quot;Status&quot;
+          },
+          {
+            &quot;key&quot;: &quot;claims&quot;,
+            &quot;label&quot;: &quot;Key Claims&quot;,
+            &quot;wide&quot;: true
+          },
+          {
+            &quot;key&quot;: &quot;last_mail&quot;,
+            &quot;label&quot;: &quot;Last Mail&quot;
+          }
+        ],
+        &quot;rows&quot;: [
+          {
+            &quot;id&quot;: &quot;A0&quot;,
+            &quot;lane&quot;: &quot;Oversight + adoption map + /now page&quot;,
+            &quot;workstream&quot;: &quot;tmux-control-plane&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;GO&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;claims&quot;: &quot;adoption map, parity routing, levmail, VISION.md meta-harness&quot;,
+            &quot;last_mail&quot;: &quot;GO broadcast + POC handoff&quot;
+          },
+          {
+            &quot;id&quot;: &quot;A1&quot;,
+            &quot;lane&quot;: &quot;Arch IR + precedence model + Socratic gate&quot;,
+            &quot;workstream&quot;: &quot;arch-dialogue-flow&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;PAUSED&quot;,
+              &quot;status&quot;: &quot;warn&quot;
+            },
+            &quot;claims&quot;: &quot;architecture &gt; core &gt; feature, spec YAML, arch-interview flow&quot;,
+            &quot;last_mail&quot;: &quot;Wake-up package waiting&quot;
+          },
+          {
+            &quot;id&quot;: &quot;A2&quot;,
+            &quot;lane&quot;: &quot;Dashboard + scanner + lev-now renderer + TUI&quot;,
+            &quot;workstream&quot;: &quot;herenow-content&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;GO&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;claims&quot;: &quot;core/build/scanner.ts, dashboard.dna.yaml, lev-now renderer, tmux-session-detector&quot;,
+            &quot;last_mail&quot;: &quot;Scanner contract confirmed&quot;
+          },
+          {
+            &quot;id&quot;: &quot;A3&quot;,
+            &quot;lane&quot;: &quot;Constraint engineering CODE (eval harness, DNA)&quot;,
+            &quot;workstream&quot;: &quot;constraint-engineering&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;GO&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;claims&quot;: &quot;.lev/pm/parity/, ConstraintDriver, eval-harness.flow.yaml, adversarial-review.flow.yaml&quot;,
+            &quot;last_mail&quot;: &quot;Schema frozen + voice alignment&quot;
+          },
+          {
+            &quot;id&quot;: &quot;A4&quot;,
+            &quot;lane&quot;: &quot;Constraint engineering CONTENT (manifesto, GTM)&quot;,
+            &quot;workstream&quot;: &quot;web-summit-gtm-docs&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;GO&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;claims&quot;: &quot;consumer manifesto, 11 articles, 50 tweets, /levloop, voice-gate-signals.md&quot;,
+            &quot;last_mail&quot;: &quot;Catalog index + voice gate artifact&quot;
+          }
+        ]
+      }
+    },
+    &quot;workstreams&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;card-grid&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;L1 · WORKSTREAMS&quot;,
+        &quot;title&quot;: &quot;Active Workstreams&quot;
+      },
+      &quot;children&quot;: [
+        &quot;ws-dna&quot;,
+        &quot;ws-herenow&quot;,
+        &quot;ws-genui&quot;,
+        &quot;ws-gtm&quot;
+      ]
+    },
+    &quot;ws-dna&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;elevated&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;dna-cascade-dogfood&quot;,
+        &quot;content&quot;: &quot;**Phase:** exec · **Status:** active\n**Objective:** Make dna-cascade flow run end-to-end with manifest-first communication, workstream integration, resume.\n**Latest:** Session 13 continued — hook audit, cm pipeline diagnosis, shadow worker architecture (lev-r4q13), eval field on DNA constraints as [bash, exec, flow].\n**Path:** .lev/pm/workstreams/dna-cascade-dogfood/&quot;
+      }
+    },
+    &quot;ws-herenow&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;elevated&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;herenow-content&quot;,
+        &quot;content&quot;: &quot;**Phase:** exec · **Status:** active\n**Objective:** Build lev.here.now into premium product site with editorial design, provenance, dashboard QA.\n**Latest:** Session 4 — homepage v2, 4 subpages, de-slopify pass, provenance registry (26 slugs), COPI takedowns, dashboard runner QA.\n**Path:** .lev/pm/workstreams/herenow-content/&quot;
+      }
+    },
+    &quot;ws-genui&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;default&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;lev-now-genui&quot;,
+        &quot;content&quot;: &quot;**Phase:** exec · **Status:** active\n**Objective:** Production deterministic template engine, &lt;3ms renders, taste FlowMinds, visual assets.\n**Latest:** Session 4 — midnight-ink theme, 7 content lenses, 6 page recipes, taste FlowMind kit (7 flows), 30 visual assets, Stripe easing.\n**Path:** .lev/pm/workstreams/lev-now-genui/&quot;
+      }
+    },
+    &quot;ws-gtm&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;default&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;web-summit-gtm-docs&quot;,
+        &quot;content&quot;: &quot;**Phase:** research · **Status:** active\n**Objective:** Single inventory of Web Summit, operator-dashboard, GTM sources.\n**Latest:** Constraint manifesto v2 published, 10 articles + 50 tweets written, content loop YAML, wiggum-marketer integration.\n**Path:** .lev/pm/workstreams/web-summit-gtm-docs/&quot;
+      }
+    },
+    &quot;mail-timeline&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;default&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;L2 · RECENT ACTIVITY&quot;,
+        &quot;title&quot;: &quot;Mail Timeline (Last 12 Messages)&quot;
+      },
+      &quot;children&quot;: [
+        &quot;mail-tl&quot;
+      ]
+    },
+    &quot;mail-tl&quot;: {
+      &quot;type&quot;: &quot;timeline&quot;,
+      &quot;props&quot;: {
+        &quot;items&quot;: [
+          {
+            &quot;date&quot;: &quot;A0 → all&quot;,
+            &quot;title&quot;: &quot;GO FOR EXECUTION broadcast&quot;,
+            &quot;description&quot;: &quot;All routing decisions made. Schema frozen. Lanes claimed.&quot;,
+            &quot;status&quot;: &quot;done&quot;
+          },
+          {
+            &quot;date&quot;: &quot;A0 → A4&quot;,
+            &quot;title&quot;: &quot;Lane confirmed + clawhip article outline&quot;,
+            &quot;description&quot;: &quot;VISION.md meta-harness claimed. Philosophy to PHILOSOPHY-INDEX.md.&quot;,
+            &quot;status&quot;: &quot;done&quot;
+          },
+          {
+            &quot;date&quot;: &quot;A0 → A2&quot;,
+            &quot;title&quot;: &quot;tmux-session-detector GO&quot;,
+            &quot;description&quot;: &quot;Scanner + parity-aware ScannedProject output confirmed.&quot;,
+            &quot;status&quot;: &quot;done&quot;
+          },
+          {
+            &quot;date&quot;: &quot;A0 → A3&quot;,
+            &quot;title&quot;: &quot;Parity link-not-embed confirmed&quot;,
+            &quot;description&quot;: &quot;Schema frozen through 2026-04-17. Display target/verdict/category/metric/link.&quot;,
+            &quot;status&quot;: &quot;done&quot;
+          },
+          {
+            &quot;date&quot;: &quot;A4 → A0&quot;,
+            &quot;title&quot;: &quot;Catalog index + voice gate artifact&quot;,
+            &quot;description&quot;: &quot;36-doc philosophy catalog. voice-gate-signals.md created.&quot;,
+            &quot;status&quot;: &quot;done&quot;
+          },
+          {
+            &quot;date&quot;: &quot;A2 → A0&quot;,
+            &quot;title&quot;: &quot;Scanner contract confirmed&quot;,
+            &quot;description&quot;: &quot;scanWorkspace() + detected-projects.yaml + parity-aware output.&quot;,
+            &quot;status&quot;: &quot;done&quot;
+          },
+          {
+            &quot;date&quot;: &quot;A3 → A0&quot;,
+            &quot;title&quot;: &quot;Parity render decision&quot;,
+            &quot;description&quot;: &quot;Link dont embed. Schema frozen 1 week.&quot;,
+            &quot;status&quot;: &quot;done&quot;
+          },
+          {
+            &quot;date&quot;: &quot;A3 ↔ A4&quot;,
+            &quot;title&quot;: &quot;Content + code cross-reference&quot;,
+            &quot;description&quot;: &quot;OOO/OMX numbers confirmed for citation. Meta-harness accepted.&quot;,
+            &quot;status&quot;: &quot;done&quot;
+          },
+          {
+            &quot;date&quot;: &quot;A2 ↔ A3&quot;,
+            &quot;title&quot;: &quot;Parity-aware scanner extension&quot;,
+            &quot;description&quot;: &quot;Scanner cross-references detected frameworks against parity YAMLs.&quot;,
+            &quot;status&quot;: &quot;active&quot;
+          },
+          {
+            &quot;date&quot;: &quot;A0 → A2&quot;,
+            &quot;title&quot;: &quot;POC + publish handoff&quot;,
+            &quot;description&quot;: &quot;Context pack viewer + adoption map as AgentPing subpage.&quot;,
+            &quot;status&quot;: &quot;active&quot;
+          },
+          {
+            &quot;date&quot;: &quot;A0 → A1&quot;,
+            &quot;title&quot;: &quot;Wake-up package&quot;,
+            &quot;description&quot;: &quot;OMX ambiguity formula. Architecture verification. Precedence DNA.&quot;,
+            &quot;status&quot;: &quot;upcoming&quot;
+          },
+          {
+            &quot;date&quot;: &quot;Browser → A1&quot;,
+            &quot;title&quot;: &quot;DNA naming alignment&quot;,
+            &quot;description&quot;: &quot;dna/architecture/X/ with feature folders converging with A4.&quot;,
+            &quot;status&quot;: &quot;upcoming&quot;
+          }
+        ]
+      }
+    },
+    &quot;content-pipeline&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;full-width&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;L2 · CONTENT&quot;,
+        &quot;title&quot;: &quot;Unpublished Content Pipeline&quot;
+      },
+      &quot;children&quot;: [
+        &quot;content-table&quot;
+      ]
+    },
+    &quot;content-table&quot;: {
+      &quot;type&quot;: &quot;data-table&quot;,
+      &quot;props&quot;: {
+        &quot;columns&quot;: [
+          {
+            &quot;key&quot;: &quot;title&quot;,
+            &quot;label&quot;: &quot;Article&quot;,
+            &quot;wide&quot;: true
+          },
+          {
+            &quot;key&quot;: &quot;path&quot;,
+            &quot;label&quot;: &quot;Path&quot;
+          },
+          {
+            &quot;key&quot;: &quot;status&quot;,
+            &quot;label&quot;: &quot;Status&quot;
+          },
+          {
+            &quot;key&quot;: &quot;action&quot;,
+            &quot;label&quot;: &quot;Next Action&quot;
+          }
+        ],
+        &quot;rows&quot;: [
+          {
+            &quot;title&quot;: &quot;Agent-Native CLI Design: Why MCP vs CLI Is the Wrong Debate&quot;,
+            &quot;path&quot;: &quot;content/articles/&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Written&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;action&quot;: &quot;Render → publish&quot;
+          },
+          {
+            &quot;title&quot;: &quot;AgentFS: The Sandbox Your AI Agents Can&#39;t Escape&quot;,
+            &quot;path&quot;: &quot;content/articles/&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Written&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;action&quot;: &quot;Render → publish&quot;
+          },
+          {
+            &quot;title&quot;: &quot;Eval Harnesses Are Not Test Suites&quot;,
+            &quot;path&quot;: &quot;content/articles/&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Written&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;action&quot;: &quot;Render → publish&quot;
+          },
+          {
+            &quot;title&quot;: &quot;From Prototype to Production in One Ratchet&quot;,
+            &quot;path&quot;: &quot;content/articles/&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Written&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;action&quot;: &quot;Render → publish&quot;
+          },
+          {
+            &quot;title&quot;: &quot;Skills That Learn: From Markdown Prompts to Pipelines&quot;,
+            &quot;path&quot;: &quot;content/articles/&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Written&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;action&quot;: &quot;Render → publish&quot;
+          },
+          {
+            &quot;title&quot;: &quot;The Adversarial Moat&quot;,
+            &quot;path&quot;: &quot;content/articles/&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Written&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;action&quot;: &quot;Render → publish&quot;
+          },
+          {
+            &quot;title&quot;: &quot;The Genesis Pattern: Four Steps to AI-Native Software&quot;,
+            &quot;path&quot;: &quot;content/articles/&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Written&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;action&quot;: &quot;Render → publish&quot;
+          },
+          {
+            &quot;title&quot;: &quot;The Self-Documenting Runtime&quot;,
+            &quot;path&quot;: &quot;content/articles/&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Written&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;action&quot;: &quot;Render → publish&quot;
+          },
+          {
+            &quot;title&quot;: &quot;The Universal SDLC&quot;,
+            &quot;path&quot;: &quot;content/articles/&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Written&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;action&quot;: &quot;Render → publish&quot;
+          },
+          {
+            &quot;title&quot;: &quot;Why Two Teams Named Their Loop &#39;Ralph&#39;&quot;,
+            &quot;path&quot;: &quot;content/articles/&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Written&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;action&quot;: &quot;Render → publish&quot;
+          },
+          {
+            &quot;title&quot;: &quot;Why Your AI Agent Testing Strategy Is Broken&quot;,
+            &quot;path&quot;: &quot;content/articles/&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Written&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;action&quot;: &quot;Render → publish&quot;
+          }
+        ]
+      }
+    },
+    &quot;parity-summary&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;full-width&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;L1 · PARITY&quot;,
+        &quot;title&quot;: &quot;Feature Parity Registry (12 entries)&quot;
+      },
+      &quot;children&quot;: [
+        &quot;parity-table&quot;
+      ]
+    },
+    &quot;parity-table&quot;: {
+      &quot;type&quot;: &quot;data-table&quot;,
+      &quot;props&quot;: {
+        &quot;columns&quot;: [
+          {
+            &quot;key&quot;: &quot;target&quot;,
+            &quot;label&quot;: &quot;Target&quot;
+          },
+          {
+            &quot;key&quot;: &quot;category&quot;,
+            &quot;label&quot;: &quot;Category&quot;
+          },
+          {
+            &quot;key&quot;: &quot;verdict&quot;,
+            &quot;label&quot;: &quot;Verdict&quot;
+          },
+          {
+            &quot;key&quot;: &quot;path&quot;,
+            &quot;label&quot;: &quot;YAML Path&quot;
+          }
+        ],
+        &quot;rows&quot;: [
+          {
+            &quot;target&quot;: &quot;AXI&quot;,
+            &quot;category&quot;: &quot;cli-design&quot;,
+            &quot;verdict&quot;: {
+              &quot;text&quot;: &quot;adopt&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;path&quot;: &quot;.lev/pm/parity/axi.yaml&quot;
+          },
+          {
+            &quot;target&quot;: &quot;dev-browser&quot;,
+            &quot;category&quot;: &quot;browser-automation&quot;,
+            &quot;verdict&quot;: {
+              &quot;text&quot;: &quot;steal&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;path&quot;: &quot;.lev/pm/parity/dev-browser.yaml&quot;
+          },
+          {
+            &quot;target&quot;: &quot;agent-browser&quot;,
+            &quot;category&quot;: &quot;browser-automation&quot;,
+            &quot;verdict&quot;: {
+              &quot;text&quot;: &quot;reference&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;path&quot;: &quot;.lev/pm/parity/agent-browser.yaml&quot;
+          },
+          {
+            &quot;target&quot;: &quot;AgentFS&quot;,
+            &quot;category&quot;: &quot;agent-filesystem&quot;,
+            &quot;verdict&quot;: {
+              &quot;text&quot;: &quot;integrated&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;path&quot;: &quot;.lev/pm/parity/agentfs.yaml&quot;
+          },
+          {
+            &quot;target&quot;: &quot;GitAgent&quot;,
+            &quot;category&quot;: &quot;functionality-target&quot;,
+            &quot;verdict&quot;: {
+              &quot;text&quot;: &quot;extract&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;path&quot;: &quot;.lev/pm/parity/gitagent.yaml&quot;
+          },
+          {
+            &quot;target&quot;: &quot;codemix/graph&quot;,
+            &quot;category&quot;: &quot;graph-runtime&quot;,
+            &quot;verdict&quot;: {
+              &quot;text&quot;: &quot;extract&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;path&quot;: &quot;.lev/pm/parity/codemix-graph.yaml&quot;
+          },
+          {
+            &quot;target&quot;: &quot;Ouroboros&quot;,
+            &quot;category&quot;: &quot;agent-framework&quot;,
+            &quot;verdict&quot;: {
+              &quot;text&quot;: &quot;steal&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;path&quot;: &quot;.lev/pm/parity/ouroboros.yaml&quot;
+          },
+          {
+            &quot;target&quot;: &quot;OpenClaw&quot;,
+            &quot;category&quot;: &quot;agent-framework&quot;,
+            &quot;verdict&quot;: {
+              &quot;text&quot;: &quot;extract&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;path&quot;: &quot;.lev/pm/parity/openclaw.yaml&quot;
+          },
+          {
+            &quot;target&quot;: &quot;Hermes&quot;,
+            &quot;category&quot;: &quot;agent-framework&quot;,
+            &quot;verdict&quot;: {
+              &quot;text&quot;: &quot;extract&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;path&quot;: &quot;.lev/pm/parity/hermes.yaml&quot;
+          },
+          {
+            &quot;target&quot;: &quot;OMX&quot;,
+            &quot;category&quot;: &quot;agent-framework&quot;,
+            &quot;verdict&quot;: {
+              &quot;text&quot;: &quot;adopt&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;path&quot;: &quot;.lev/pm/parity/omx.yaml&quot;
+          },
+          {
+            &quot;target&quot;: &quot;OMC&quot;,
+            &quot;category&quot;: &quot;agent-framework&quot;,
+            &quot;verdict&quot;: {
+              &quot;text&quot;: &quot;extract&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;path&quot;: &quot;.lev/pm/parity/omc.yaml&quot;
+          },
+          {
+            &quot;target&quot;: &quot;OMO&quot;,
+            &quot;category&quot;: &quot;agent-framework&quot;,
+            &quot;verdict&quot;: {
+              &quot;text&quot;: &quot;extract&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;path&quot;: &quot;.lev/pm/parity/omo.yaml&quot;
+          }
+        ]
+      }
+    },
+    &quot;graph-zoom&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;card-grid&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;GRAPH MODEL&quot;,
+        &quot;title&quot;: &quot;Zoom Levels (dna/graph.yaml depth_model)&quot;,
+        &quot;subtitle&quot;: &quot;Every entity in Lev exists at all 4 levels. This page is an L1-L2 projection.&quot;
+      },
+      &quot;children&quot;: [
+        &quot;zoom-l0&quot;,
+        &quot;zoom-l1&quot;,
+        &quot;zoom-l2&quot;,
+        &quot;zoom-l3&quot;
+      ]
+    },
+    &quot;zoom-l0&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;default&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;L0 — Overview&quot;,
+        &quot;content&quot;: &quot;**What is this?**\n5 agents building a tmux-first graph harness with constraint engineering. Vendoring clawhip (Rust, MIT). Integrating 4 O&#39;s + Hermes + OpenClaw patterns. Constraint engineering is the differentiator.&quot;
+      }
+    },
+    &quot;zoom-l1&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;elevated&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;L1 — Structure (this page)&quot;,
+        &quot;content&quot;: &quot;**Components, boundaries, relationships.**\nAgent roster + claims. Workstream states. Parity registry. Content pipeline. Mail timeline. Architecture diagram. THIS is the L1 view.&quot;
+      }
+    },
+    &quot;zoom-l2&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;elevated&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;L2 — Details (linked)&quot;,
+        &quot;content&quot;: &quot;**Implementation, specifics.**\nAdoption map → tmux-control-plane-adoption.html\nManifesto → trusty-maple-wvcb.here.now\nArticles → content/articles/*.md (11 queued)\nParity YAMLs → .lev/pm/parity/*.yaml&quot;
+      }
+    },
+    &quot;zoom-l3&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;default&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;L3 — Runtime (future)&quot;,
+        &quot;content&quot;: &quot;**Behavior, state transitions, live data.**\ntmux session states (idle/running/paused). Token budgets. Exit reasons. Entity progress. Live HUD. This is Phase 2 — when lev-tmux ships and the scanner detects live sessions.&quot;
+      }
+    },
+    &quot;links&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;card-grid&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;LINKED PAGES&quot;,
+        &quot;title&quot;: &quot;Deep Dives&quot;
+      },
+      &quot;children&quot;: [
+        &quot;link-adoption&quot;,
+        &quot;link-manifesto&quot;,
+        &quot;link-articles&quot;
+      ]
+    },
+    &quot;link-adoption&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;elevated&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;Adoption Map&quot;,
+        &quot;content&quot;: &quot;Full prior art inventory, adoption matrix, vendor strategy, architecture diagram.\n→ ~/.agents/levnow/tmux-control-plane-adoption.html&quot;
+      }
+    },
+    &quot;link-manifesto&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;elevated&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;Constraint Engineering Manifesto&quot;,
+        &quot;content&quot;: &quot;Consumer-facing manifesto. 95 elements. Deep-blue-gold.\n→ trusty-maple-wvcb.here.now&quot;
+      }
+    },
+    &quot;link-articles&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;default&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;Content Pipeline (11 articles)&quot;,
+        &quot;content&quot;: &quot;Written by A4, awaiting render + publish pipeline.\n→ content/articles/*.md\nBatch publish planned as graph projection.&quot;
+      }
+    }
+  }
+}</code></pre></div>
+    </div>
+  </details>
 </section>
     </div>
   </div>
@@ -1949,7 +2924,7 @@ Batch publish planned as graph projection.</p></div>
     })();
   </script>
   <div style="position:fixed;bottom:8px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:0.7rem;color:var(--color-text-muted);opacity:0.5;z-index:50">
-    Last updated: <span id="lev-now-ts">2026-04-11 04:24:32</span> &middot; Refreshes every 300s
+    Last updated: <span id="lev-now-ts">2026-04-19 23:07:50</span> &middot; Refreshes every 300s
   </div>
 </body>
 </html>

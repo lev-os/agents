@@ -1,6 +1,6 @@
 ---
 name: workflow
-description: Scaffold, list, and run reusable workflow skills. Use when the user wants to create a new workflow, list available workflows, or execute an existing workflow by name.
+description: "Scaffolds, lists, and runs workflow skills under flows directories. Use when creating workflows, listing /workflow options, or executing a workflow skill by name."
 argument-hint: "[create <name> \"<description>\" [--global]] | [<name>] | [list]"
 allowed-tools: Read, Write, Bash, Glob, Grep
 skill_type: workflow

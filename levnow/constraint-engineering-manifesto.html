@@ -10,7 +10,7 @@
   <meta property="og:description" content="The spine of Leviathan: constraints as product, eval harnesses as development loops, and DNA contracts that ground autonomous agent behavior." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Instrument%20Serif:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM%20Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains%20Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM%20Serif%20Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM%20Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains%20Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
   <style>
 /* === Reset === */
@@ -21,15 +21,15 @@ body, h1, h2, h3, h4, p, ul, ol, blockquote, figure { margin: 0; padding: 0; }
 :root, [data-theme="dark"] {
   --color-primary: #0a0e1a;
   --color-accent: #d4a73a;
-  --color-surface: #0a0e1a;
-  --color-surface-alt: #161d32;
-  --color-text: #e8e4dc;
-  --color-text-muted: #9da3b4;
-  --color-border: rgba(212,167,58,0.18);
+  --color-surface: #0c1020;
+  --color-surface-alt: #1c2545;
+  --color-text: #ede9e0;
+  --color-text-muted: #b0b6c8;
+  --color-border: rgba(212,167,58,0.28);
   --color-success: #34d399;
   --color-warning: #fbbf24;
   --color-error: #fb7185;
-  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-display: 'DM Serif Display', Georgia, serif;
   --font-body: 'DM Sans', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Courier New', monospace;
   --color-accent-dim: color-mix(in srgb, var(--color-accent) 15%, transparent);
@@ -114,14 +114,19 @@ body::before {
 }
 .has-anim .anim.visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
+}
+/* Anim inside open details: always visible (no scroll-reveal trap) */
+.has-anim details[open] .anim {
+  opacity: 1;
+  transform: none;
 }
 /* KPI cards use scale-fade instead of translateY */
 .has-anim .kpi-card.anim {
   transform: scale(0.92);
 }
 .has-anim .kpi-card.anim.visible {
-  transform: scale(1);
+  transform: none;
 }
 
 /* CSS Counter for animated KPI values */
@@ -182,28 +187,51 @@ body::before {
   overflow: hidden;
   padding: 90px 2rem 0px;
 }
+@keyframes blobAnimOne {
+  0% { transform: translateX(-50%) translate(0, 0) scale(0.95); opacity: 0.12; }
+  33% { transform: translateX(-50%) translate(-2%, 4%) scale(1.06); opacity: 0.06; }
+  66% { transform: translateX(-50%) translate(3%, -2%) scale(1.02); opacity: 0.16; }
+  100% { transform: translateX(-50%) translate(0, 0) scale(0.95); opacity: 0.12; }
+}
+@keyframes blobAnimTwo {
+  0% { transform: translate(0, 0) scale(0.9); opacity: 0.5; }
+  25% { transform: translate(-3%, 6%) scale(1.12); opacity: 0.85; }
+  50% { transform: translate(5%, -4%) scale(1.05); opacity: 0.4; }
+  75% { transform: translate(2%, 4%) scale(0.96); opacity: 0.7; }
+  100% { transform: translate(0, 0) scale(0.9); opacity: 0.5; }
+}
 .hero::before {
   content: '';
   position: absolute;
   top: -30%;
   left: 50%;
-  transform: translateX(-50%);
   width: 900px;
   height: 900px;
   background: radial-gradient(circle, var(--color-accent) 0%, transparent 70%);
-  opacity: 0.1;
+  mix-blend-mode: overlay;
+  opacity: 0.5;
   pointer-events: none;
+  filter: blur(90px);
+  animation: blobAnimOne 38s ease-in-out infinite alternate;
+}
+[data-theme="light"] .hero::before {
+  mix-blend-mode: multiply;
 }
 .hero::after {
   content: '';
   position: absolute;
-  bottom: -10%;
-  left: 25%;
-  width: 50%;
-  height: 200px;
+  bottom: -15%;
+  left: 20%;
+  width: 60%;
+  height: 350px;
   background: rgba(0, 0, 0, 0.5);
   pointer-events: none;
-  filter: blur(150px);
+  filter: blur(110px);
+  animation: blobAnimTwo 27s ease-in-out infinite alternate-reverse;
+}
+[data-theme="light"] .hero::after {
+  background: radial-gradient(ellipse at center, rgba(235, 180, 20, 0.25) 0%, rgba(255, 230, 80, 0.15) 50%, transparent 80%);
+  mix-blend-mode: multiply;
 }
 .hero__inner { position: relative; z-index: 1; }
 .hero--centered { text-align: center; }
@@ -255,8 +283,8 @@ body::before {
   margin-right: calc(-1 * clamp(1rem, 3vw, 2rem));
   padding-left: clamp(1rem, 3vw, 2rem);
   padding-right: clamp(1rem, 3vw, 2rem);
-  border-top-color: var(--color-border);
-  border-bottom: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-border-strong);
+  border-bottom: 1px solid var(--color-border-strong);
   border-radius: var(--radius);
 }
 .section-label {
@@ -829,8 +857,38 @@ body::before {
   margin: 24px 0;
 }
 
+.testimonial-card {
+  border-left: 3px solid var(--color-accent);
+  padding: 20px 24px;
+  margin: 20px 0;
+  background: var(--color-surface-alt);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.testimonial-card__quote {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--color-text);
+}
+.testimonial-card__footer {
+  margin-top: 12px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  font-style: normal;
+}
+[data-theme="light"] .testimonial-card {
+  background: #fff;
+  border-left-color: var(--color-accent);
+}
+
 /* === Data Table === */
 .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--color-border); position: relative; }
+.data-table__caption {
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  padding: 12px 14px 0;
+}
 .table-fullscreen-btn { position: absolute; top: 8px; right: 8px; z-index: 5; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 13px; color: var(--color-text-muted); transition: all 0.2s; opacity: 0.6; }
 .table-wrap:hover .table-fullscreen-btn { opacity: 1; }
 .table-fullscreen-btn:hover { background: var(--color-accent-dim); color: var(--color-accent); }
@@ -1415,6 +1473,130 @@ code:not(pre code) {
   border-bottom: 2px solid var(--color-accent-dim);
 }
 
+/* === Feedback Element === */
+.feedback-wrap { position: relative; margin: 2rem 0; }
+.feedback-progress {
+  position: sticky; top: 0; z-index: 20;
+  background: var(--color-surface-alt); border-radius: var(--radius);
+  height: 28px; margin-bottom: 1.5rem; overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+.feedback-progress__fill {
+  height: 100%; background: var(--color-accent); transition: width 0.4s ease;
+  border-radius: var(--radius);
+}
+.feedback-progress__text {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+.feedback-save {
+  position: fixed; top: 16px; right: 16px; z-index: 30;
+  background: var(--color-success); color: #fff; padding: 6px 14px;
+  border-radius: var(--radius); font-family: var(--font-mono); font-size: 0.75rem;
+  transition: opacity 0.3s ease; pointer-events: none;
+}
+.feedback-buckets {
+  display: flex; gap: 0.5rem; margin-bottom: 1.5rem;
+  overflow-x: auto; padding-bottom: 4px;
+}
+.feedback-bucket {
+  background: var(--color-surface-alt); color: var(--color-text-muted);
+  border: 1px solid var(--color-border); border-radius: var(--radius);
+  padding: 6px 14px; font-family: var(--font-mono); font-size: 0.75rem;
+  cursor: pointer; white-space: nowrap; transition: all 0.2s;
+}
+.feedback-bucket:hover { border-color: var(--color-accent); }
+.feedback-bucket.active {
+  background: var(--color-accent); color: var(--color-surface);
+  border-color: var(--color-accent);
+}
+.feedback-card {
+  background: var(--color-surface-alt); border: 1px solid var(--color-border);
+  border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem;
+  transition: border-color 0.3s;
+}
+.feedback-card.decided { border-color: var(--color-accent); }
+.feedback-card__header {
+  display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+.feedback-card__id {
+  font-family: var(--font-mono); font-size: 0.7rem; padding: 2px 8px;
+  background: var(--color-border); border-radius: 3px; color: var(--color-text-muted);
+}
+.feedback-card__title {
+  font-family: var(--font-body); font-weight: 600; font-size: 1rem;
+  color: var(--color-text); flex: 1;
+}
+.feedback-card__wave {
+  font-family: var(--font-mono); font-size: 0.65rem; text-transform: uppercase;
+  letter-spacing: 0.08em; padding: 2px 8px; border-radius: 10px;
+  background: var(--color-accent); color: var(--color-surface);
+}
+.feedback-card__insight {
+  margin-bottom: 0.75rem; font-size: 0.95rem; color: var(--color-text-muted);
+}
+.feedback-card__detail {
+  display: none; padding: 0.75rem; margin-bottom: 0.75rem;
+  background: var(--color-surface); border-radius: var(--radius);
+  font-size: 0.85rem; color: var(--color-text-muted);
+}
+.feedback-card__detail.open { display: block; }
+.feedback-detail-toggle {
+  background: none; border: 1px solid var(--color-border); border-radius: var(--radius);
+  color: var(--color-text-muted); font-family: var(--font-mono); font-size: 0.7rem;
+  padding: 3px 10px; cursor: pointer; margin-bottom: 0.5rem;
+}
+.feedback-detail-toggle:hover { border-color: var(--color-accent); }
+.feedback-options {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+@media (max-width: 600px) { .feedback-options { grid-template-columns: 1fr; } }
+.feedback-option {
+  display: flex; flex-direction: column; gap: 2px; padding: 0.6rem;
+  border: 1px solid var(--color-border); border-radius: var(--radius);
+  cursor: pointer; transition: all 0.2s; font-size: 0.85rem;
+}
+.feedback-option:hover { border-color: var(--color-accent); }
+.feedback-option.selected { background: var(--color-accent); color: var(--color-surface); }
+.feedback-option.selected .feedback-option__desc { color: var(--color-surface); opacity: 0.8; }
+.feedback-option.recommended { border-color: #d97706; box-shadow: inset 0 0 0 1px rgba(217,119,6,0.2); }
+.feedback-option input[type=radio] { display: none; }
+.feedback-option__label { font-weight: 600; font-family: var(--font-body); }
+.feedback-option__desc { font-size: 0.75rem; color: var(--color-text-muted); }
+.feedback-other { margin-bottom: 0.5rem; font-size: 0.85rem; }
+.feedback-other label { display: flex; align-items: center; gap: 0.5rem; color: var(--color-text-muted); }
+.feedback-other__input {
+  flex: 1; background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius); padding: 4px 8px; color: var(--color-text);
+  font-family: var(--font-body); font-size: 0.85rem;
+}
+.feedback-notes {
+  width: 100%; background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius); padding: 8px; color: var(--color-text);
+  font-family: var(--font-body); font-size: 0.85rem; resize: vertical;
+}
+.feedback-actions {
+  display: flex; gap: 0.75rem; margin-top: 1rem; justify-content: flex-end;
+}
+.feedback-actions button {
+  font-family: var(--font-mono); font-size: 0.75rem; padding: 8px 16px;
+  border-radius: var(--radius); cursor: pointer; border: 1px solid var(--color-border);
+  transition: all 0.2s;
+}
+.feedback-actions__copy { background: var(--color-accent); color: var(--color-surface); border-color: var(--color-accent); }
+.feedback-actions__copy:hover { opacity: 0.85; }
+.feedback-actions__clear { background: var(--color-surface-alt); color: var(--color-text-muted); }
+.feedback-actions__clear:hover { border-color: var(--color-error); color: var(--color-error); }
+.feedback-toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--color-surface-alt); color: var(--color-text); padding: 8px 20px;
+  border-radius: var(--radius); font-family: var(--font-mono); font-size: 0.75rem;
+  border: 1px solid var(--color-border); z-index: 40; pointer-events: none;
+}
+
   </style>
 </head>
 <body>
@@ -1553,7 +1735,7 @@ code:not(pre code) {
   <div class="code-file__body"><pre><code class="language-typescript"><span class="code-keyword">interface</span> EvalStrategy {
   readonly id: string;
   readonly kind: EvalStrategyKind;
-  <span <span class="code-keyword">class</span>="code-comment">// <span class="code-keyword">gate</span>-based | metric-based | llm-as-judge | adversarial</span>
+  <span class="code-comment">// gate-based | metric-based | llm-as-judge | adversarial</span>
   evaluate(input: EvalInput): Promise&lt;EvalResult&gt;;
   compare(a: EvalResult[], b: EvalResult[]): EvalComparison;
 }</code></pre></div>
@@ -1581,6 +1763,7 @@ code:not(pre code) {
   <h2 class="section-title">AXI — Agent eXperience Interface</h2>
   <p class="section-subtitle">10 design principles for agent-ergonomic CLIs, validated by 490 benchmark runs</p>
   <div class="section__stacked"><div data-lev-id="axi-bench" class="anim table-wrap" style="--i:10">
+  
   <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
   <table class="data-table">
     <thead><tr><th>Condition</th><th>Success</th><th class="num">Cost</th><th class="num">Duration</th><th class="num">Turns</th></tr></thead>
@@ -1594,6 +1777,7 @@ code:not(pre code) {
   </table>
 </div>
 <div data-lev-id="axi-mapping" class="anim table-wrap" style="--i:10">
+  
   <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
   <table class="data-table">
     <thead><tr><th>AXI Principle</th><th>Leviathan Parallel</th></tr></thead>
@@ -1647,19 +1831,19 @@ code:not(pre code) {
   <h2 class="section-title">The Adapter Landscape</h2>
   <p class="section-subtitle">Pluggable backends for storage, memory, reactive hooks, and DNA validation</p>
   <div class="section__kpi-row"><div data-lev-id="kpi-storage" class="anim kpi-card" style="--i:10">
-  <div class="kpi-card__value kpi-card__value--animated" style="--target:4">4</div>
+  <div class="kpi-card__value">4</div>
   <div class="kpi-card__label">Storage Adapters</div>
   <span class="kpi-card__trend kpi-card__trend--flat">Firestore · Notion · Beads · Markdown</span>
   
 </div>
 <div data-lev-id="kpi-memory" class="anim kpi-card" style="--i:10">
-  <div class="kpi-card__value kpi-card__value--animated" style="--target:4">4</div>
+  <div class="kpi-card__value">4</div>
   <div class="kpi-card__label">Memory Backends</div>
   <span class="kpi-card__trend kpi-card__trend--flat">Graphiti · OpenMem · AGI · SQLite</span>
   
 </div>
 <div data-lev-id="kpi-validators" class="anim kpi-card" style="--i:10">
-  <div class="kpi-card__value kpi-card__value--animated" style="--target:8">8</div>
+  <div class="kpi-card__value kpi-card__value--animated" style="--target:8"></div>
   <div class="kpi-card__label">DNA Validators</div>
   <span class="kpi-card__trend kpi-card__trend--up">Extensible</span>
   
@@ -1677,7 +1861,7 @@ code:not(pre code) {
   <h2 class="section-title">ATC Template Grounding Loop</h2>
   <p class="section-subtitle">A real constraint regime governing 50 canonical ATC intents across templates, graph nodes, and runtime parsers</p>
   <div class="section__body"><blockquote data-lev-id="grounding-purpose" class="anim pullquote" style="--i:10;">
-  <p>Per-intent alignment pass across graph, templates, and runtime parser. For each of 50 canonical intents, verify template text accuracy, slot correctness, FAA source proof, expected pilot readback, graph node alignment, and intent classification.</p>
+  <p><p>Per-intent alignment pass across graph, templates, and runtime parser. For each of 50 canonical intents, verify template text accuracy, slot correctness, FAA source proof, expected pilot readback, graph node alignment, and intent classification.</p></p>
 </blockquote></div>
 </section>
 
@@ -1804,6 +1988,7 @@ code:not(pre code) {
   <h2 class="section-title">Runtime Regex Gold Mine</h2>
   <p class="section-subtitle">14 extractor families covering squawk, frequency, altitude, heading, runway, taxi, holding, clearance, emergency, traffic, weather, comms, surveillance, and special ops</p>
   <div class="section__full-width"><div data-lev-id="regex-table" class="anim table-wrap" style="--i:10">
+  
   <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
   <table class="data-table">
     <thead><tr><th>Extractor</th><th>Covers Intents</th><th>Pattern Value</th></tr></thead>
@@ -1833,6 +2018,7 @@ code:not(pre code) {
   <h2 class="section-title">Parity Registry Targets</h2>
   <p class="section-subtitle">Structured tracking of product parity against external frameworks</p>
   <div class="section__full-width"><div data-lev-id="parity-table" class="anim table-wrap" style="--i:10">
+  
   <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
   <table class="data-table">
     <thead><tr><th>Target</th><th>Category</th><th>Priority</th></tr></thead>
@@ -1845,6 +2031,7 @@ code:not(pre code) {
       <tr><td>LangGraph</td><td>agent-framework</td><td><span class="status status--info">P2</span></td></tr>
       <tr><td>AutoGen</td><td>agent-framework</td><td><span class="status status--info">P2</span></td></tr>
       <tr><td><span class="status status--warn">GitAgent</span></td><td>functionality-target</td><td><span class="status status--match">P1</span></td></tr>
+      <tr><td><span class="status status--info">codemix/graph</span></td><td>graph-runtime</td><td><span class="status status--match">P1</span></td></tr>
     </tbody>
     
   </table>
@@ -1980,7 +2167,7 @@ code:not(pre code) {
       <div class="kpi-card__label">Theme Preset</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-card__value">978</div>
+      <div class="kpi-card__value">989</div>
       <div class="kpi-card__label">JSON Lines</div>
     </div>
     <div class="kpi-card">
@@ -2002,7 +2189,7 @@ code:not(pre code) {
 
   <details style="margin-top: 2rem;">
     <summary style="cursor: pointer; font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent); padding: 0.75rem 0; border-bottom: 1px solid var(--color-border);">
-      View RenderSpec JSON (978 lines)
+      View RenderSpec JSON (989 lines)
     </summary>
     <div class="code-file" style="margin-top: 1rem;">
       <div class="code-file__header">
@@ -2807,6 +2994,17 @@ code:not(pre code) {
               &quot;text&quot;: &quot;P1&quot;,
               &quot;status&quot;: &quot;match&quot;
             }
+          },
+          {
+            &quot;target&quot;: {
+              &quot;text&quot;: &quot;codemix/graph&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;category&quot;: &quot;graph-runtime&quot;,
+            &quot;priority&quot;: {
+              &quot;text&quot;: &quot;P1&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            }
           }
         ]
       }
@@ -3163,12 +3361,12 @@ code:not(pre code) {
         startOnLoad: true,
         theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default',
         themeVariables: {
-          primaryColor: '#161d32',
-          primaryTextColor: '#e8e4dc',
-          primaryBorderColor: 'rgba(212,167,58,0.18)',
+          primaryColor: '#1c2545',
+          primaryTextColor: '#ede9e0',
+          primaryBorderColor: 'rgba(212,167,58,0.28)',
           lineColor: '#d4a73a',
-          secondaryColor: '#0a0e1a',
-          tertiaryColor: '#161d32'
+          secondaryColor: '#0c1020',
+          tertiaryColor: '#1c2545'
         }
       });
     </script>

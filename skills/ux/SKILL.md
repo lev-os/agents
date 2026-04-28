@@ -1,6 +1,6 @@
 ---
 name: ux
-description: "UX design hub: 8-step wireframe pipeline (+ constraint_bundle for agents) + product design (design-os) + visual prototyping (pencil) + agentic UX patterns (lev-ref). Use for wireframes, flows, IA, JTBD, product design, CLI design, agentic UX, design systems, or component architecture."
+description: "Routes wireframes, flows, product design, pencil visuals, and agentic CLI UX. Use for design systems, IA, or coding-agent export handoffs."
 skill_type: hub
 category: design-ux
 related_skills:

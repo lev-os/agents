@@ -1,0 +1,278 @@
+{
+  "meta": {
+    "title": "ATC Reading Script — KPAO to KSQL",
+    "description": "Complete pilot-side reading script for N17XX, KPAO→KSQL VFR. Read each turn at controller cadence to drive ownship-only ATC dialog.",
+    "layout": "sidebar-toc",
+    "effects": ["grid-dots", "title-underline"]
+  },
+  "theme": { "preset": "teal-slate", "mode": "dark" },
+  "root": [
+    "hero",
+    "stats",
+    "how-to",
+    "phase-0",
+    "phase-1",
+    "phase-2",
+    "phase-3",
+    "phase-4",
+    "phase-5",
+    "phase-6",
+    "phase-7"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "centered",
+      "props": {
+        "category": "OWNSHIP READING SCRIPT",
+        "title": "ATC Reading Script",
+        "subtitle": "KPAO → KSQL · November One Seven X-ray X-ray",
+        "meta": "ATC-to-ownship only · 14 turns across 8 phases · 5 compound, 9 single"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "Every line below is you speaking as ATC to **November One Seven X-ray X-ray**. Read each line at normal controller cadence, including the full phonetic callsign every time — never \"N17XX\". Compound turns must be split by the system, with a single composed readback covering every segment."
+      }
+    },
+    "stats": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "SCRIPT METRICS", "title": "Turn Inventory" },
+      "children": ["kpi-total", "kpi-simple", "kpi-compound"]
+    },
+    "kpi-total": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": 14, "label": "turns to read" }
+    },
+    "kpi-simple": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": 9, "label": "single-instruction" }
+    },
+    "kpi-compound": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": 5, "label": "compound (expect split)" }
+    },
+    "how-to": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "How to read this",
+        "content": "Each turn shows: **transcript** (what you say as ATC), **expected readback** (what the system should compose back), and an **optional note** (compound segments, AIM grounding). Compound badges flag instructions with 2+ segments — the system must split them and produce one composite readback covering every segment.\n\nTurn IDs use **P{phase}.{idx}** notation matching the original canvas indexing."
+      }
+    },
+
+    "phase-0": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "PHASE 0 · FLIGHT SERVICE STATION",
+        "title": "Pre-Flight Briefing"
+      },
+      "children": ["p0-t2"]
+    },
+    "p0-t2": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "P0.2 — November One Seven X-ray X-ray, Flight Service, conditions VFR, ceiling unlimited, winds calm at surface, winds aloft two nine zero at one two, visibility one five plus, no significant weather",
+        "content": "**Expected readback →** Roger, conditions VFR, November One Seven X-ray X-ray."
+      }
+    },
+
+    "phase-1": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "PHASE 1 · PALO ALTO GROUND",
+        "title": "Startup and Taxi"
+      },
+      "children": ["p1-t2", "p1-t4"]
+    },
+    "p1-t2": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "P1.2 — November One Seven X-ray X-ray, Palo Alto ATIS Information Golf, wind three one zero at one zero, visibility one five, sky clear, temperature two zero, dewpoint one four, altimeter three zero point zero two, runway three one in use",
+        "content": "**Expected readback →** Information Golf, November One Seven X-ray X-ray."
+      }
+    },
+    "p1-t4": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "P1.4 · COMPOUND — November One Seven X-ray X-ray, Palo Alto Ground, taxi runway three one via Alpha, Bravo, hold short",
+        "content": "**Expected readback →** Runway three one, taxi via Alpha, Bravo, hold short, November One Seven X-ray X-ray.\n\n_compound: taxi_instruction + hold_short_"
+      }
+    },
+
+    "phase-2": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "PHASE 2 · PALO ALTO TOWER",
+        "title": "Takeoff"
+      },
+      "children": ["p2-t0", "p2-t2", "p2-t4"]
+    },
+    "p2-t0": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "P2.0 · COMPOUND — November One Seven X-ray X-ray, Palo Alto Tower, runway three one, wind three one zero at one zero, cleared for takeoff, maintain VFR",
+        "content": "**Expected readback →** Runway three one, cleared for takeoff, Maintain VFR, November One Seven X-ray X-ray.\n\n_compound: takeoff_clearance + vfr_instruction_"
+      }
+    },
+    "p2-t2": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "P2.2 — November One Seven X-ray X-ray, Palo Alto Tower, positive rate, gear up, climb to two thousand five hundred",
+        "content": "**Expected readback →** Climb and maintain two thousand five hundred, November One Seven X-ray X-ray."
+      }
+    },
+    "p2-t4": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "P2.4 · COMPOUND — November One Seven X-ray X-ray, Palo Alto Tower, climb to two thousand five hundred, contact NorCal Departure one two one point five",
+        "content": "**Expected readback →** climb and maintain 2500, Roger, 121.5, November One Seven X-ray X-ray.\n\n_compound: altitude_instruction + frequency_change_"
+      }
+    },
+
+    "phase-3": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "PHASE 3 · NORCAL DEPARTURE",
+        "title": "Departure"
+      },
+      "children": ["p3-t0"]
+    },
+    "p3-t0": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "P3.0 · COMPOUND — November One Seven X-ray X-ray, NorCal Departure, radar contact, climbing through one thousand, maintain two thousand five hundred, direct San Carlos",
+        "content": "**Expected readback →** Radar contact, maintain two thousand five hundred, direct San Carlos, November One Seven X-ray X-ray.\n\n_compound: radar_identification + altitude + direct_to_"
+      }
+    },
+
+    "phase-4": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "PHASE 4 · OAKLAND CENTER",
+        "title": "Cruise"
+      },
+      "children": ["p4-t4"]
+    },
+    "p4-t4": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "P4.4 — November One Seven X-ray X-ray, Oakland Center, one zero miles northwest of San Carlos, maintaining two thousand five hundred, contact San Carlos Tower one one eight point three when ready",
+        "content": "**Expected readback →** Roger, 118.3, November One Seven X-ray X-ray."
+      }
+    },
+
+    "phase-5": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "PHASE 5 · SAN CARLOS TOWER",
+        "title": "Approach"
+      },
+      "children": ["p5-t0", "p5-t4"]
+    },
+    "p5-t0": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "P5.0 · COMPOUND — November One Seven X-ray X-ray, San Carlos Tower, radar contact, one zero miles northwest, begin descent to one thousand five hundred, enter left downwind runway three zero, report downwind",
+        "content": "**Expected readback →** Radar contact, descend and maintain 1500, Enter left downwind, runway three zero, Report downwind, November One Seven X-ray X-ray.\n\n_compound: radar + altitude + pattern_entry + report_request_"
+      }
+    },
+    "p5-t4": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "P5.4 — November One Seven X-ray X-ray, San Carlos Tower, downwind, runway three zero, report base",
+        "content": "**Expected readback →** Report base, Runway three zero, November One Seven X-ray X-ray."
+      }
+    },
+
+    "phase-6": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "PHASE 6 · SAN CARLOS TOWER",
+        "title": "Pattern and Final"
+      },
+      "children": ["p6-t0", "p6-t2"]
+    },
+    "p6-t0": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "P6.0 — November One Seven X-ray X-ray, San Carlos Tower, turn base, number two, follow Cessna on final",
+        "content": "**Expected readback →** November One Seven X-ray X-ray, Roger.\n\n_sequencing — AIM 4-2-3.c pilot-echo policy_"
+      }
+    },
+    "p6-t2": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "P6.2 — November One Seven X-ray X-ray, San Carlos Tower, turn final, runway three zero, wind three zero zero at one zero, cleared to land",
+        "content": "**Expected readback →** Runway three zero, cleared to land, November One Seven X-ray X-ray."
+      }
+    },
+
+    "phase-7": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "PHASE 7 · SAN CARLOS GROUND",
+        "title": "Taxi to Parking"
+      },
+      "children": ["p7-t2", "p7-t4"]
+    },
+    "p7-t2": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "P7.2 — November One Seven X-ray X-ray, San Carlos Ground, runway clear, taxi to parking spot one two via Bravo",
+        "content": "**Expected readback →** Taxi to parking via Bravo, November One Seven X-ray X-ray."
+      }
+    },
+    "p7-t4": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "P7.4 — November One Seven X-ray X-ray, San Carlos Ground, parking spot one two available",
+        "content": "**Expected readback →** Roger, November One Seven X-ray X-ray."
+      }
+    }
+  }
+}

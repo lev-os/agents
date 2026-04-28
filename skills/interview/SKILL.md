@@ -1,6 +1,6 @@
 ---
 name: interview
-description: Wizard-mode questioning skill for structured decision-making. Uses framework library (SCAMPER, First Principles, Systems Thinking, etc.) to guide users through complex decisions one question at a time.
+description: "Wizard-mode questioning with framework library (SCAMPER, First Principles, Systems Thinking). Use for structured decision-making one question at a time."
 version: 1.2.0
 skill_type: playbook
 category: process-ask

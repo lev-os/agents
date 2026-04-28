@@ -1,6 +1,6 @@
 ---
 name: now
-description: Generate beautiful pages from JSON specs in <2ms. Deterministic rendering — faster and cheaper than visual-explainer. Use when the user wants a report, dashboard, comparison, architecture overview, timeline, or any visual page. Also use proactively when about to render a complex table (4+ rows, 3+ columns). Supports publish to here.now and handle-path attachment.
+description: "Deterministic lev.now renders JSON specs to styled HTML with publish and attach. Use when user wants dashboards, reports, timelines, or rich pages instead of large markdown tables."
 argument-hint: '[publish|attach|render] <topic or spec.json> [--theme preset] [--path handle-path]'
 allowed-tools: Read Write Bash Glob Grep
 ---

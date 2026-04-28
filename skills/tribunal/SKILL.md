@@ -1,12 +1,6 @@
 ---
 name: tribunal
-description: |
-  [WHAT] Multi-model consensus tool — same prompt, 3 models, zero coordination, compare outputs.
-  [HOW] Spawns Haiku, Sonnet, Opus as parallel subagents with identical prompts. No leading. Compares answers for agreement, tension, and surprise.
-  [WHEN] Naming decisions, architecture questions, design bikesheds, "what would you call this", any question where independent convergence beats one model's opinion.
-  [WHY] Three models agreeing independently is stronger evidence than one model being confident. Eliminates anchoring bias. If they disagree, the disagreement itself is the insight.
-
-  Triggers: "tribunal", "ask all models", "multi-model", "consensus", "what would you name", "3 models", "independent vote", "naming vote", "architecture vote", "cross-model", "cli runner", "test across models"
+description: "Parallel multi-model runs on one prompt with answer comparison for consensus. Use when user wants tribunal, independent votes, naming or architecture decisions, or test matrices."
 skill_type: workflow
 category: decision-support
 metadata:

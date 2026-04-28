@@ -1,6 +1,6 @@
 ---
 name: sitrep
-description: "Freestyle dashboard. Projects the lifecycle_trigger stream into a live view of entities + fidelity + memory + next actions. The /lev dashboard for mid-flow work. Invoke as /sitrep (alias: /status)."
+description: "Read-only dashboard projecting lifecycle triggers into entities and next actions. Use mid-flow via /sitrep or /status."
 triggers:
   - sitrep
   - siterep
@@ -12,7 +12,7 @@ output_template: hud
 
 **/sitrep is a PROJECTION, not a writer.** It reads the lifecycle trigger stream and renders current state. Never mutates. Never archaeology.
 
-Source of truth: `.lev/pm/workstreams/*/triggers/*.yaml` (lifecycle_trigger.v1)
+Source of truth: `.lev/pm/workstreams/*/trace/*.yaml` (lifecycle_trigger.v1)
 
 Schema ref: `.lev/pm/proposals/20260415-lifecycle-trigger-envelope.yaml`
 
@@ -30,8 +30,8 @@ Distinct from /capture (which WRITES and sweeps) — /sitrep only READS.
 ### 1. Read the stream (cheap, no archaeology)
 
 ```
-Default scope: the active workstream's triggers/ dir.
-  → .lev/pm/workstreams/<active-ws>/triggers/*.yaml
+Default scope: the active workstream's trace/ dir.
+  → .lev/pm/workstreams/<active-ws>/trace/*.yaml
   → Read only the tail (last N triggers, default 20)
   → Parse cursor + outputs.items + outputs.gates + metrics
 
@@ -127,7 +127,7 @@ Inline emotes run a flow (flow://lifecycle/<emote>) but DON'T require /close's f
 - **Cheap read.** Tail the stream. Don't re-compute from git or handoffs.
 - **Bucketed.** 5 active, 5 next actions, rest as counts.
 - **Theater check.** Any /close trigger with items != [] gets a ⚠ flag. Non-negotiable.
-- **Fallback.** If no triggers/ dir exists yet, fall back to the old TaskList + workstream.yaml scan — but print a hint: `"no trigger stream — run /close to start the stream"`.
+- **Fallback.** If no trace/ dir exists yet, fall back to the old TaskList + workstream.yaml scan — but print a hint: `"no trigger stream — run /close to start the stream"`.
 - **Graph footer.** Always end with HUD line from `~/.claude/skills/_shared/graph-footer.md`.
 
 ## Exec Menu (same pattern as /capture — this is the convergence)
