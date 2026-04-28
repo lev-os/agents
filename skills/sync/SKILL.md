@@ -1,6 +1,6 @@
 ---
 name: sync
-description: Full checkpoint sync only. Use when Codex must commit, pull, merge, and push all dirty work in the current checkout, its paired main checkout, and their recursive submodules. Never use this for partial/path-scoped syncs.
+description: "Full-boundary checkpoint sync: commit, pull, merge, push across current + paired main checkouts and recursive submodules. Use for complete syncs, never partial/path-scoped."
 ---
 
 # Sync
@@ -68,8 +68,16 @@ CHECKPOINT(repo):
   if repo has changes:
     git add .
     git commit -m "<simple message based on changed files>"
-  git pull --no-rebase
-  git push
+  if branch_has_upstream:          # git rev-parse --abbrev-ref @{u} succeeds
+    git pull --no-rebase
+    git push
+  # else: local-only branch — skip pull/push, work will land on main at MERGE step
+
+MERGE_WORKTREE_INTO_MAIN(current_repo, main_repo):
+  # cd into main_repo checkout, then:
+  git merge <current_worktree_branch> --no-ff --no-edit
+  # --no-rebase is NOT a valid merge flag; merge is merge-only by default
+  # --no-ff preserves the merge commit so the worktree branch is visible in history
 ```
 
 ## Workflow
@@ -86,20 +94,22 @@ CHECKPOINT(repo):
 4. In each dirty repo/submodule:
    - `git add .`
    - `git commit -m "<simple message based on changed files>"` if there is anything to commit
-   - `git pull --no-rebase`
-   - `git push`
-5. After submodules are synced, checkpoint the current checkout repo itself.
+   - if the branch has an upstream (`git rev-parse --abbrev-ref @{u}` succeeds): `git pull --no-rebase && git push`
+   - if no upstream (local-only branch): skip pull/push — the work lands on `main` at step 6
+5. After the current checkout's submodules are synced, checkpoint the current checkout repo itself (same commit/pull/push rules).
 6. If the current checkout is a non-main worktree:
    - locate the paired `main` checkout
-   - recurse into **all dirty submodules** in that `main` checkout
-   - checkpoint the `main` checkout repo itself
-   - merge the current worktree branch into `main`
-   - `git pull --no-rebase`
+   - recurse into **all dirty submodules** in that `main` checkout (apply step 4 to each)
+   - checkpoint the `main` checkout repo itself (apply step 4)
+   - merge the current worktree branch into `main`:
+     - `git merge <worktree-branch> --no-ff --no-edit` (NOT `--no-rebase` — that flag is pull-only)
+     - stop and report on conflict; do not switch to PR workflow
+   - `git pull --no-rebase` (only if main tracks an upstream, which it should)
    - `git push`
 7. Finish by confirming the entire boundary is checkpointed:
    - current checkout clean or committed
    - paired `main` checkout clean or committed
-   - dirty submodules in both handled
+   - all submodules in both checkouts handled in the required order: current-worktree subs → current worktree → main subs → main
    - worktree branch landed on `main` when applicable
 
 ## Commit Message Guidance

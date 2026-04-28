@@ -1,6 +1,6 @@
 ---
 name: ll
-description: "Loop maker + scheduler. Creates typed tick loops with dynamic flowmind validation, meta-prompting, and AXI-first output. Use when starting recurring work, building content pipelines, running quality loops, or scheduling autonomous ticks."
+description: "Typed tick loops with FlowMind validation and parallel tick dispatch. Use when running /ll, recurring pipelines, quality loops, or autonomous scheduler ticks."
 triggers:
   - ll
   - levloop

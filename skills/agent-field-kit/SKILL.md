@@ -1,6 +1,6 @@
 ---
 name: agent-field-kit
-description: Portable coding-agent bootstrap bundle. Use when a local, remote, or containerized coding environment is missing the core CLI toolchain, PATH wiring, or niche operational skills like dcg, ntm, cass, ubs, defendr, and agentmail-cli.
+description: "Portable coding-agent bootstrap bundle (CLI toolchain, PATH wiring, ops skills). Use when a local, remote, or container env is missing dcg, ntm, cass, ubs, defendr, or agentmail-cli."
 ---
 
 # Agent Field Kit

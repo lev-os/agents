@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Component — statline (GXW)</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="statline.css" />
+<style>
+  :root {
+    /* obsidian dark (default) */
+    --bg: #0a0e1a;
+    --surface: #11162a;
+    --on-surface: #e8e4dc;
+    --on-surface-variant: #9da3b4;
+    --primary: #d4a73a;
+    --outline: rgba(212,167,58,0.18);
+    --font-sans: 'DM Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    --font-serif: 'Instrument Serif', Georgia, serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--on-surface);
+    font-family: var(--font-sans);
+    line-height: 1.55;
+    padding: 2.5rem 1.5rem 5rem;
+  }
+
+  .page { max-width: 1080px; margin: 0 auto; }
+
+  header.doc {
+    border-bottom: 1px solid var(--outline);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  header.doc h1 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    letter-spacing: -0.01em;
+    margin-bottom: 0.35rem;
+  }
+  header.doc .sub {
+    color: var(--on-surface-variant);
+    font-size: 0.9rem;
+    font-family: var(--font-mono);
+  }
+
+  .demo {
+    margin: 2.5rem 0;
+    padding: 1rem 0 0;
+  }
+  .demo + .demo { border-top: 1px dashed var(--outline); padding-top: 2rem; }
+
+  .demo h2 {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--primary);
+    margin-bottom: 0.3rem;
+    font-weight: 500;
+  }
+  .demo .desc {
+    color: var(--on-surface-variant);
+    font-size: 0.88rem;
+    margin-bottom: 1rem;
+  }
+  .demo pre {
+    margin-top: 1rem;
+    padding: 0.85rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--on-surface-variant);
+    overflow-x: auto;
+    line-height: 1.55;
+  }
+
+  /* Daybreak (light) demo preview block */
+  .daybreak-preview {
+    --bg: #f6f2ea;
+    --surface: #ffffff;
+    --on-surface: #1f1d1a;
+    --on-surface-variant: #6b6a66;
+    --primary: #b8872a;
+    --outline: rgba(184,135,42,0.25);
+    background: var(--bg);
+    color: var(--on-surface);
+    padding: 1.25rem;
+    border-radius: 6px;
+    margin-top: 1rem;
+  }
+  .daybreak-preview .label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--on-surface-variant);
+    margin-bottom: 0.5rem;
+    font-family: var(--font-mono);
+  }
+
+  .scroll-pad {
+    height: 40vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--on-surface-variant);
+    font-style: italic;
+    font-size: 0.85rem;
+    border: 1px dashed var(--outline);
+    border-radius: 6px;
+    margin-bottom: 1rem;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="doc">
+    <h1>statline — reusable KPI row</h1>
+    <div class="sub">Component · 4 demos · theme-agnostic (CSS custom props only)</div>
+  </header>
+
+  <!-- ─── DEMO 1: GXW masthead stats ─── -->
+  <section class="demo" id="demo-1">
+    <h2>01 · Default 4-cell (GXW parity stats)</h2>
+    <p class="desc">Original GXW variant masthead — 13 impls, 12 flows, 8 lanes, 5 outliers. Responsive 4→2x2→1.</p>
+
+    <div class="statline" data-stats='[
+      {"k":"Graph impls","v":"13","unit":"simulated"},
+      {"k":"Projection flows","v":"12","unit":"minimum set"},
+      {"k":"Promotion lanes","v":"8","unit":"ordered"},
+      {"k":"Uniqueness outliers","v":"5","unit":"high-leverage"}
+    ]'></div>
+
+<pre>&lt;div class="statline" data-stats='[
+  {"k":"Graph impls","v":"13","unit":"simulated"},
+  {"k":"Projection flows","v":"12","unit":"minimum set"},
+  {"k":"Promotion lanes","v":"8","unit":"ordered"},
+  {"k":"Uniqueness outliers","v":"5","unit":"high-leverage"}
+]'&gt;&lt;/div&gt;</pre>
+  </section>
+
+  <!-- ─── DEMO 2: Financial ─── -->
+  <section class="demo" id="demo-2">
+    <h2>02 · Financial (string values, 2-col variant)</h2>
+    <p class="desc">Mixed-format values (currency, percentages, index). Uses <code>.statline--2col</code> for always-2 layout.</p>
+
+    <div class="statline statline--2col" data-stats='[
+      {"k":"Revenue (TTM)","v":"$4.2M","unit":"+18% YoY"},
+      {"k":"MRR","v":"$380K","unit":"as of Apr"},
+      {"k":"Churn","v":"2.1%","unit":"monthly"},
+      {"k":"NPS","v":"62","unit":"detractor-adj."}
+    ]'></div>
+
+<pre>&lt;div class="statline statline--2col" data-stats='[
+  {"k":"Revenue (TTM)","v":"$4.2M","unit":"+18% YoY"},
+  {"k":"MRR","v":"$380K","unit":"as of Apr"},
+  {"k":"Churn","v":"2.1%","unit":"monthly"},
+  {"k":"NPS","v":"62","unit":"detractor-adj."}
+]'&gt;&lt;/div&gt;</pre>
+  </section>
+
+  <!-- ─── DEMO 3: DevOps w/ animated counters ─── -->
+  <section class="demo" id="demo-3">
+    <h2>03 · DevOps (integer values, animated on scroll)</h2>
+    <p class="desc">Integer cells tween 0 → target once (800ms). Scroll this block into view to trigger.</p>
+
+    <div class="scroll-pad">↓ scroll down to trigger counter animation ↓</div>
+
+    <div class="statline" data-animate="true" data-stats='[
+      {"k":"Uptime","v":"99","unit":"% p99"},
+      {"k":"P95 latency","v":"142","unit":"ms"},
+      {"k":"Deploys / wk","v":"47","unit":"green"},
+      {"k":"Incidents","v":"3","unit":"this qtr"}
+    ]'></div>
+
+<pre>&lt;div class="statline" data-animate="true" data-stats='[
+  {"k":"Uptime","v":"99","unit":"% p99"},
+  {"k":"P95 latency","v":"142","unit":"ms"},
+  {"k":"Deploys / wk","v":"47","unit":"green"},
+  {"k":"Incidents","v":"3","unit":"this qtr"}
+]'&gt;&lt;/div&gt;</pre>
+  </section>
+
+  <!-- ─── DEMO 4: Inline variant ─── -->
+  <section class="demo" id="demo-4">
+    <h2>04 · Inline mini-stat (pipe-separated)</h2>
+    <p class="desc">Compact single-line form for bylines, footers, table captions. Wraps gracefully on narrow viewports.</p>
+
+    <div class="statline statline--inline" data-stats='[
+      {"k":"Impls","v":"13"},
+      {"k":"Flows","v":"12"},
+      {"k":"Lanes","v":"8"},
+      {"k":"Outliers","v":"5"},
+      {"k":"Rev","v":"0.79"}
+    ]'></div>
+
+    <!-- Daybreak preview to prove theme-agnostic behavior -->
+    <div class="daybreak-preview">
+      <div class="label">↳ same component under Daybreak light palette</div>
+      <div class="statline statline--inline" data-stats='[
+        {"k":"Impls","v":"13"},
+        {"k":"Flows","v":"12"},
+        {"k":"Lanes","v":"8"},
+        {"k":"Outliers","v":"5"},
+        {"k":"Rev","v":"0.79"}
+      ]'></div>
+    </div>
+
+<pre>&lt;div class="statline statline--inline" data-stats='[
+  {"k":"Impls","v":"13"},
+  {"k":"Flows","v":"12"},
+  {"k":"Lanes","v":"8"},
+  {"k":"Outliers","v":"5"},
+  {"k":"Rev","v":"0.79"}
+]'&gt;&lt;/div&gt;</pre>
+  </section>
+
+</div>
+
+<script src="statline.js"></script>
+</body>
+</html>

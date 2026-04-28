@@ -1,6 +1,6 @@
 ---
 name: work-mvp
-description: Execute the work lifecycle through Lev runtime contracts with FlowMind session-driven execution and bead-first artifacts. Use when the task is a dev workload and execution must be CLI-first (`lev work contract`), session-driven (`FlowmindSessionManager`), bead-first for artifacts (`bd`), and fail-fast on missing runtime/files/gates.
+description: "Runs Lev work lifecycle with FlowMind sessions, bd artifacts, and strict preflight. Use when dev work must be CLI-first via lev work plus enforced validation gates."
 ---
 
 # Work MVP

@@ -1,6 +1,6 @@
 ---
 name: arch
-description: Think and reason like a software architect. Analyze systems through quality attributes, trade-off analysis, and architectural drivers. Use for system design, tech selection, ADRs, architecture reviews, C4 descriptions, fitness functions, and PR review.
+description: "Architecture reasoning with trade-offs, ADRs, C4, and fitness functions. Use when user asks for system design, tech selection, architecture review, or ADR drafts."
 metadata:
   triggers:
     - architect this

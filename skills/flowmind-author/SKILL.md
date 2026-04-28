@@ -1,10 +1,6 @@
 ---
 name: flowmind-author
-description: >
-  Write, validate, fix, promote, and measure FlowMind flows. Routes to authoring
-  guide for writing, audit flow for validation, meta-prompt KB for fixing, and
-  promotion ladder for lifecycle advancement. Use when creating new .flow.yaml
-  files, reviewing existing flows, or measuring flow effectiveness.
+description: "Authors FlowMind .flow.yaml graphs with validate, fix, promote, and measure steps. Use when user writes or audits flows, fixes violations, or advances lifecycle quality."
 triggers:
   - "write a flow"
   - "create a flow"
