@@ -1,12 +1,6 @@
 ---
 name: cm
-description: |
-  [WHAT] Procedural-memory wrapper around the external `cm` CLI (CASS Memory System).
-  [HOW] Pulls task context with `cm context --json`, inspects playbook health, and optionally reflects sessions, while keeping Lev as the router and source of workflow truth.
-  [WHEN] Use before non-trivial implementation, debugging, handoffs, retrospection, or when the user asks for memory, playbook, or cross-agent lessons.
-  [WHY] Reuses durable cross-agent memory without letting an external memory tool become the project control plane.
-
-  Triggers: "cm", "cass memory", "memory", "playbook", "procedural memory", "reflect", "session memory", "cross-agent memory"
+description: "cm CLI procedural memory for task context, playbook health, and optional reflection. Use when user mentions memory, playbooks, cm, or wants context before substantive work."
 ---
 
 # CM

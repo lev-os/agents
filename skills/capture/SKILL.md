@@ -1,6 +1,6 @@
 ---
 name: capture
-description: "Inventory + route + auto-research + durable dispatch. Use /capture for standard sweep, /capture --deep for full auto mode: shovel-ready -> /exec, everything else concrete -> /propose. Nothing should remain in memory."
+description: "Inventories chat into artifacts and routes shovel-ready work to exec and the rest to propose. Use after dumps or before structured work."
 triggers:
   - capture
   - dump
@@ -313,13 +313,13 @@ This IS the bridge between /capture and /exec. Samurai-style critical path.
 ```
 ## Exec Menu (5 of N)
 
-1. **[Item Name]** → skill: /exec | flow: ralph | adapter: scout
+1. **[Item Name]** → skill: /exec | flow: ralph | adapter: scout | model: sonnet
    a. [Subtask 1] — write_scope: path/to/file
    b. [Subtask 2] — write_scope: path/to/other
    c. [Subtask 3] — verifier: test command
    ⏱ unblocks: #3, #7 | effort: S
 
-2. **[Item Name]** → skill: /propose | flow: none | adapter: opus
+2. **[Item Name]** → skill: /propose | flow: none | adapter: direct | model: opus
    a. [Subtask] — write_scope: dna/graph.yaml
    ⏱ unblocks: #5 | effort: XS
 
@@ -334,16 +334,26 @@ Queue: N more items (breakdown by priority)
 2. **Filter shovel-ready** — has enough fidelity (≥0.8), clear scope, known verifier, and no unresolved blocker
 3. **Critical path sort** — items that unblock the most other items rank first
 4. **Assign skill/flow** — classify each item:
-   | Item Type | Skill | Flow | Adapter |
-   |-----------|-------|------|---------|
-| DNA/standard write | /propose | none | direct |
-| Code implementation with verifier | /exec | ralph | scout/pi |
-   | Design decision | /interview or /tribunal | none | opus |
-   | Research needed | /prior-art | scout.flow | haiku |
-   | Sweep/audit | /exec | lev-ralph | scout |
-   | Skill update | /skill-builder | none | direct |
+   | Item Type | Skill | Flow | Adapter | Model |
+   |-----------|-------|------|---------|-------|
+   | DNA/standard write | /propose | none | direct | opus |
+   | Code implementation with verifier | /exec | ralph | codex | codex-5.4-xhigh |
+   | Design decision | /interview or /tribunal | none | direct | opus |
+   | Research needed | /prior-art | scout.flow | scout or pi | haiku |
+   | Sweep / audit / inventory | /exec | lev-ralph | scout or pi | haiku or sonnet |
+   | Review / verification | /exec | none | claude-agent-sdk | opus |
+   | Skill update | /skill-builder | none | direct | sonnet |
 5. **Bundle where possible** — items sharing a skill/flow become one menu entry with subtasks
 6. **Present the bucket** — top 5, rest queued
+
+`adapter` is the execution mechanism. `model` is the reasoning tier. Hard rules:
+- Do NOT put `opus`, `haiku`, or `sonnet` in the adapter column.
+- `pi` is a **scout-only adapter** — it does not run implementation, review,
+  or direct-write lanes. Only use `pi` for scout-shaped work (inventory,
+  audit, prior-art, evidence gathering, repo scan).
+- `ralph` is a flow/orchestration surface, not an adapter — put it in `flow`.
+- Match the adapter to the work shape per item. A menu where every entry
+  uses the same adapter is usually a smell.
 
 ### Dispatch
 

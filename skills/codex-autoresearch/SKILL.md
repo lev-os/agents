@@ -1,6 +1,6 @@
 ---
 name: codex-autoresearch
-description: "Autonomous long-running iteration for Codex CLI. Use when the user wants Codex to plan or run an unattended improve-verify loop toward a measurable or verifiable outcome, especially for overnight runs; it also covers repeated debugging, fixing, security auditing, and ship-readiness workflows. Do not use for ordinary one-shot coding help or casual Q&A."
+description: "Runs long Codex improve-verify loops with metrics and logged artifacts. Use when you want unattended overnight fix, debug, security, or ship workflows, not one-shot help."
 metadata:
   short-description: "Run an unattended improve-verify loop"
 ---

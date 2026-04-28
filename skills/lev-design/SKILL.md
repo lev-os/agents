@@ -1,6 +1,6 @@
 ---
 name: lev-design
-description: "UX-first design workflow from problem framing to wireframes. 7-step agentic pipeline with parallel research. Also handles product planning (merged from lev-design-os). Use when starting new features, redesigns, product discovery, or preparing export packages for coding agents."
+description: "Runs a 7-step UX pipeline with parallel research plus product planning. Use for features, redesigns, discovery, or agent-ready exports."
 
 ---
 

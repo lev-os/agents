@@ -1,6 +1,6 @@
 ---
 name: skill-discovery
-description: "[WHAT] Local skills runtime lookup over the canonical Leviathan skills inventory.\n[HOW] Uses `~/.agents/lev-skills.sh` + `~/.agents/skills-inventory.jsonl` as the source of truth, merges lifecycle and usage metadata, and only recommends `find-skills` when local results are low quality.\n[WHEN] Used implicitly by `work`, `lev`, and runtime hubs when locating local capabilities."
+description: "Filesystem-first local skill lookup and ranking from lev-skills inventory. Use when work, lev, or hubs need to discover installed skills without low-quality fallbacks."
 skill_type: tool
 category: process-find
 primary_primitive: get

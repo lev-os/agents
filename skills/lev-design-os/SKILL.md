@@ -1,6 +1,6 @@
 ---
 name: design-os
-description: Product planning and design workflow for creating UI components, data models, and implementation handoffs. Use when starting a new product, defining features, designing screens, or preparing export packages for coding agents.
+description: "Product planning and design workflow for UI components, data models, and agent handoffs. Use when starting a new product, defining features, or preparing coding-agent export packages."
 skill_type: playbook
 category: process-design
 ---

@@ -96,9 +96,30 @@ subject: parity-update
 Message body here.
 ```
 
-## Known Issue
+## Identity (env-var primary, file fallback)
 
-The `.lev/mail/.agent-id` file gets clobbered by parallel sessions. Each session overwrites it. Workaround: re-register at session start. Future fix: use env var `LEVMAIL_AGENT_ID` so each shell holds its own identity.
+Identity precedence (highest to lowest):
+
+1. `LEVMAIL_AGENT_ID` env var — per-shell, clobber-safe (PREFERRED)
+2. `.lev/mail/.agent-id` file — shared across all shells, last writer wins
+3. `"unregistered"` — no identity at all
+
+### Recommended session-start ritual
+
+```bash
+export LEVMAIL_AGENT_ID=<your-id>
+levmail register <your-id>   # optional; also writes the file for shells that don't export
+```
+
+The export pins identity for this shell. Parallel sessions registering different ids in the file no longer clobber you. Verify with `levmail roster` — the current-agent row shows `(source: env LEVMAIL_AGENT_ID — clobber-safe)` when correctly set.
+
+### Legacy behavior
+
+Shells that don't export `LEVMAIL_AGENT_ID` fall back to the `.agent-id` file as before. The env var is opt-in. `cmd_register` warns when the env var is set but differs from the id you just registered.
+
+### History
+
+The clobber problem was load-bearing in 2026-04-22 multi-session work (thor-runtime-proof session 8 + flight-observability-blackbox session 2 had concurrent registrations stepping on each other). Fix landed 2026-04-22 in `~/.local/bin/levmail`; broadcast announcement at `.lev/mail/20260422-100203-broadcast-A-arch-levmail-cli-fix-env-var-clobber-immunity-landed.md`.
 
 ## Data Sources
 

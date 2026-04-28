@@ -1,6 +1,6 @@
 ---
 name: cdo
-description: "Adaptive multi-agent deliberation for cdo/think/deep/debug/parliament workflows. Fractal context loop (CONTEXT→PLAN→ACT→VERIFY) at every level. Mandatory Turn 0 context gathering (skills, codebase, web). Convergence requires evidence, not just agreement. Use autoresearch/adaptive-runtime for long CDOs that need scheduler state, hard minimum turns, hard minimum agent counts, and pause/resume."
+description: "Routes adaptive multi-agent deliberation with fractal context cycles. Use when using /cdo, think/deep/debug/parliament work, or long runs paired with autoresearch scheduling."
 ---
 
 # CDO — Adaptive Multi-Agent Deliberation
@@ -186,11 +186,24 @@ steps:
         - Key Tensions: what was debated, what won, why
         - Minority Reports: dissenting views preserved, not buried
         - Action Items: concrete next steps if applicable
+        - Layer Tags: every structural claim tagged with its hierarchy layer
+          (see "Layer Discipline" section). Cross-layer claims MUST cite
+          admission evidence at every intermediate layer, or be marked
+          CANDIDATE not EQUIVALENT.
+        - Language Discipline: use exclusion language, not construction.
+          "admissible under probe X," "not-yet-killed," "coupled with,"
+          "co-varies under" — NOT "is," "equals," "creates," "drives."
 
       If bd tracking active: close the epic.
       Turn artifacts are audit trail only — FINAL.md is the deliverable.
-    validation: "FINAL.md exists at tmp/cdo-{session}/FINAL.md with all five sections"
-    on_failure: "Re-run final synthesis with explicit section checklist in the brief"
+
+      EXTERNAL VALIDATOR GATE (mandatory for external-facing output):
+      Before FINAL.md is considered complete, run the external-validator pass
+      (see "External Validator Before Broadcast" section). Any claim that
+      fails recognition against the ground-truth surface is either retracted
+      or downgraded to CANDIDATE.
+    validation: "FINAL.md exists at tmp/cdo-{session}/FINAL.md with all six sections AND external-validator pass logged"
+    on_failure: "Re-run final synthesis with explicit section checklist + external-validator brief"
 ```
 
 # Debug Preset — 7-Turn RCA Protocol
@@ -312,6 +325,147 @@ When the user says any of these, STOP your current approach immediately:
 | "I'll just run one more fix attempt" | 3 failed fixes = wrong architecture. Stop fixing. Report the pattern. |
 | "The directive says X but I think Y is better" | You do not override the synthesis directive. Ever. Execute what it says. |
 | "I'll let agents see each other's work for context" | Independence produces genuine diversity. Cross-pollination happens only through synthesis. |
+| "The shared premise in the brief is just framing" | If the brief asserts X = Y, ALL parallel agents anchor on it. The = sign is your hypothesis, not evidence. Present as CANDIDATE, add an explicit falsification lane. |
+| "T1 said 'MIXED' but the punchy claim is more useful" | Nuanced T1 caveats are the kill signal. Synthesis must quote T1 verdicts verbatim for any elevated claim, preserve uncertainty language, and refuse to launder "mixed" into "equivalent." |
+| "We can map MBTI / polyvagal / Jung directly to the primary math" | Correlation-layer labels are NOT primary math. Cross-layer claims require admission at every intermediate layer. See Layer Discipline. |
+| "We're converging so we can ship the external-facing draft" | Internal convergence ≠ external validity. Ground-truth surface (partner's code, user's prior feedback, repo state) must pass recognition BEFORE broadcast. See External Validator. |
+
+# Layer Discipline — No Cross-Level Claims Without Admission
+
+Deliberation failures in multi-level systems almost always come from layer
+conflation: treating a correlation-layer label as if it were primary-math
+equivalence. The fix is forcing every claim to carry a LAYER tag.
+
+```yaml
+layer_discipline:
+  rule: "Every structural claim carries a layer tag. Cross-layer equivalence claims require admission evidence at each intermediate layer."
+
+  example_layer_stack:
+    # From Josh/QIT framework — generalize the pattern to any multi-level system
+    L0_surface: "The constraint surface itself (F01 + N01, or equivalent axioms)"
+    L1_chart: "The candidate mathematical chart on the surface (operators, carriers, Weyl spinors, Hopf tori)"
+    L2_axes: "Derived axes atop the chart (Axis 0..Axis 6 in QIT; phase parameters elsewhere)"
+    L3_correlations: "Correlation overlays used for human recognition (MBTI, polyvagal, Jung, I-Ching)"
+
+  admission_rule: |
+    To claim "X at layer L3 ≡ Y at layer L1", you need admission evidence at:
+      - L3 → L2 (correlation admitted to axis layer)
+      - L2 → L1 (axis admitted to chart)
+    Without that, the claim is a MAPPING CANDIDATE, not an equivalence.
+
+  language_enforcement:
+    banned_when_cross_layer: ["is", "equals", "=", "≡", "maps to", "creates", "drives"]
+    required_when_cross_layer: ["candidate under probe", "admissible with", "survives coupling with", "co-varies under", "not-yet-killed by"]
+
+  graveyard_discipline: "Claims that fail cross-layer admission go to the graveyard WITH the layer that killed them. Graveyard is the scientific output, not a failure log."
+
+  build_order_rule: |
+    In any stacked system, layers must be admitted bottom-up before top-layer
+    claims are evaluated. "Build everything BEFORE the axes" (Josh 2026-04-17)
+    generalizes to: no top-layer equivalence claims until bottom layers are
+    admissible. Check: is the layer stack I'm claiming across mostly at L0-L2
+    while the target framework has only done L0? Then claims are premature.
+
+  anti_pattern: "CDO synthesis produced 'SNS/PSNS ≡ Left/Right Weyl chirality' — SNS/PSNS is L3 (polyvagal correlation), Weyl chirality is L1 (chart math). Two layers jumped, zero admission. Partner NACK'd within one message. See .lev/pm/decisions/20260417-cdo-manufacturing-consent-failure-mode.yaml"
+```
+
+# External Validator Before Broadcast
+
+Any CDO output that will be transmitted to a human or external system passes
+one more gate: the ground-truth surface must recognize it as its own framing.
+
+```yaml
+external_validator:
+  purpose: "Catch internal-convergence-but-external-incoherence BEFORE broadcast"
+
+  when_to_run:
+    - "Any message to a human partner"
+    - "Any handoff that names the partner's framework, concepts, or code"
+    - "Any external-facing artifact (reports, decisions, PRs, issues)"
+
+  ground_truth_sources:
+    - "Partner's latest text / messages (last 20-50 messages)"
+    - "Partner's own code / schemas (treat pydantic classes, type enums, and field names as LEVEL INDICATORS)"
+    - "Partner's promoted docs (not drafts, not archives)"
+    - "User's prior feedback / corrections"
+    - "Repo current state (not 6-month-old cached mental model)"
+
+  pass_criterion: "Would the ground-truth author recognize every structural claim as their own, at the correct layer, in their current vocabulary?"
+
+  on_fail:
+    - "Retract the claim (do NOT soften into hedged version and ship anyway)"
+    - "File the failure in graveyard with the layer that killed it"
+    - "Redispatch synthesis with explicit pointer to the ground-truth surface that killed the claim"
+
+  anti_pattern: "Treating partner's prior messages as training context instead of live validator surface. Partner's code is the oracle; don't ship without consulting it."
+```
+
+# Multi-Wave Discipline
+
+For high-stakes or cross-level deliberations, single-turn CDO is insufficient.
+Use multi-wave mode: N agents × up to 10 waves, with each wave rotating in
+NEW skills and angles.
+
+```yaml
+multi_wave:
+  when_required:
+    - "Cross-layer claims (see Layer Discipline)"
+    - "External-facing synthesis that will be broadcast"
+    - "Problems where the first synthesis shows >70% agreement (groupthink smell)"
+    - "Problems where T1 verdicts are MIXED (don't launder into punchy claim)"
+
+  shape: "5 agents minimum per wave. Up to 10 waves. Default 3 waves minimum for cross-layer."
+
+  per_wave_delta:
+    rule: "Each wave MUST introduce 2-3 skills not used in prior wave, OR a new adversarial angle."
+    examples_of_new_angles:
+      - wave_2: "shift from 'is this convergence real?' to 'what layer would kill this claim?'"
+      - wave_3: "shift from internal reasoning to ground-truth validator (partner's code/text)"
+      - wave_4: "shift from defending the claim to steelmanning the retraction"
+      - wave_5: "shift from structural to historical (has a similar claim been made and killed before?)"
+
+  axiom_finder_micro_pass:
+    rule: "Every wave runs through an axiom-finder 7-step compression before dispatch"
+    source: "workshop/poc/skills/domains/axioms/axioms.md (Josh's axiom-finder chain)"
+    steps:
+      1_paraphrase: "Rephrase the turn's question in 3-5 ways. Different phrasings reveal different latent axioms."
+      2_steelman: "Build the strongest opposing framing before defending current."
+      3_dig_axioms: "What does this claim rest on? Score each presumption against evidence."
+      4_map_elements: "Tag every element with its layer (see Layer Discipline)."
+      5_multi_devils_debate: "3+ perspectives, not 1. Devil's advocate attacks foundation, not edge cases."
+      6_synthesize_with_provenance: "Quote T1 verdicts verbatim. Preserve uncertainty language."
+      7_reflect: "Did this wave poison the next wave? Did we over-anchor on one angle? Adjust."
+
+  convergence_not_agreement:
+    rule: "Convergence = tensions resolved WITH evidence + layer tags + external-validator pass. NOT mere agreement."
+    forbidden: "Declaring convergence from high agreement without external-validator pass."
+
+  wave_exit_gate:
+    require_all: true
+    criteria:
+      - "All cross-layer claims carry layer tags AND admission evidence"
+      - "Language discipline enforced (no construction language on cross-layer claims)"
+      - "External validator pass logged"
+      - "Graveyard non-empty if any claims were retracted"
+      - "Minority reports preserved verbatim"
+```
+
+# User Signal Extension — The NACK Signal
+
+```yaml
+additional_signals:
+  - trigger: "NO NO NO" / "That is wrong" / "You conflated X and Y"
+    meaning: "Ground-truth surface detected a layer conflation or premise error in your output. Often arrives after broadcast because the external validator didn't run."
+    response: |
+      STOP. File postmortem immediately (see Layer Discipline + External Validator).
+      Root-cause which failure mode produced the conflation:
+        - shared premise in brief?
+        - synthesis over-promoted MIXED to EQUIVALENT?
+        - no external validator before broadcast?
+        - layer tags missing?
+      Do NOT re-attempt the claim in softened form. Retract, identify the layer,
+      rebuild from admission discipline upward.
+```
 
 # Fractal Context Loop (CONTEXT → PLAN → ACT → VERIFY)
 
