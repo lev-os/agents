@@ -1,6 +1,6 @@
 ---
 name: lev-workshop
-description: "Workshop lifecycle for building and evolving plugins, hooks, and integrations. Four phases: intake → analysis → POC → poly integration. Use when developing new lev capabilities, promoting POCs to production, or building hooks/plugins."
+description: "Workshop lifecycle intake→analysis→POC→poly for lev hooks, plugins, and integrations. Use when building or promoting lev capabilities."
 ---
 
 # Lev Workshop
