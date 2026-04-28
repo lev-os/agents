@@ -1,12 +1,6 @@
 ---
 name: testing-golden-artifacts
-description: >-
-  Build golden artifact test suites that freeze known-good outputs and catch
-  regressions through exact comparison. Use when: snapshot testing, approval
-  testing, characterization testing, compiler output validation, query plan
-  verification, UI snapshot comparison, CLI output regression, serialization
-  format stability. Supports insta (Rust), jest snapshots, golden file
-  workflows, scrubbing, canonicalization, and multi-format goldens.
+description: "Golden tests freeze known-good outputs and diff for regressions. Use when user adds snapshots, approval tests, CLI or UI goldens, scrubbed baselines, or serialization checks."
 metadata:
   filePattern:
     - "**/golden*"

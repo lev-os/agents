@@ -1,6 +1,6 @@
 ---
 name: agentping
-description: Agent-human interaction protocol for AI agents. Use when agents need human approvals, selections, research direction, or async feedback. Triggers on "human in the loop", "approval", "agent interaction", "get human input", or "wait for response".
+description: "Structured agent-to-human pings for approvals, selections, and open questions across surfaces. Use for human-in-the-loop or async feedback."
 version: 0.2.0
 dependencies: node>=18.0.0
 status: production-ready

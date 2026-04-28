@@ -1,0 +1,80 @@
+/* ============================================================
+   lane-chip-filter.css
+   Chip-group filter styling. Inherits host design tokens where
+   available; provides GXW-aligned defaults (dark obsidian + teal).
+   ============================================================ */
+
+.lane-chip-filter {
+  --lcf-bg:          var(--surface-container-low,  #131b2e);
+  --lcf-bg-hover:    var(--surface-container-high, #222a3d);
+  --lcf-fg:          var(--on-surface-variant,     #8b95b4);
+  --lcf-fg-hover:    var(--on-surface,             #dae2fd);
+  --lcf-accent:      var(--primary,                #57f1db);
+  --lcf-on-accent:   var(--on-primary,             #042722);
+  --lcf-border:      var(--outline,                #3c4a6b);
+  --lcf-radius:      999px;
+  --lcf-focus-ring:  var(--primary,                #57f1db);
+
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.lcf-chip {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--lcf-radius);
+  border: 1px solid var(--lcf-border);
+  background: var(--lcf-bg);
+  color: var(--lcf-fg);
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 120ms ease, background 120ms ease, border-color 120ms ease, transform 120ms ease;
+  line-height: 1;
+  user-select: none;
+}
+
+.lcf-chip:hover {
+  background: var(--lcf-bg-hover);
+  color: var(--lcf-fg-hover);
+  border-color: color-mix(in srgb, var(--lcf-border) 60%, var(--lcf-accent) 40%);
+}
+
+.lcf-chip:focus-visible {
+  outline: 2px solid var(--lcf-focus-ring);
+  outline-offset: 2px;
+}
+
+.lcf-chip[aria-pressed="true"] {
+  background: var(--lcf-accent);
+  color: var(--lcf-on-accent);
+  border-color: var(--lcf-accent);
+  font-weight: 700;
+}
+
+.lcf-chip[aria-pressed="true"] .lcf-chip__count {
+  color: var(--lcf-on-accent);
+  opacity: 0.7;
+}
+
+.lcf-chip__label { font-variant: tabular-nums; }
+
+.lcf-chip__count {
+  font-size: 10px;
+  opacity: 0.55;
+  font-weight: 400;
+  min-width: 1ch;
+  text-align: right;
+}
+
+/* Target-child hidden utility. Host may also define .hidden — the
+   component only toggles this class. */
+.hidden { display: none !important; }

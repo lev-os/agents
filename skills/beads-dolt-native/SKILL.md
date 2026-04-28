@@ -1,6 +1,6 @@
 ---
 name: beads-dolt-native
-description: Use when standardizing Beads across many repos or machines, especially to move projects onto one Dolt-native shared-server playbook with deterministic database names, fixed ports, and repeatable sync commands.
+description: "Dolt-native Beads playbook with deterministic DB names, fixed ports, and repeatable sync commands. Use when standardizing Beads across multiple repos or machines."
 ---
 
 # Beads Dolt Native

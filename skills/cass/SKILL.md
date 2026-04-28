@@ -1,12 +1,6 @@
 ---
 name: cass
-description: |
-  [WHAT] Search wrapper around the external `cass` CLI for coding-agent session history.
-  [HOW] Uses `cass` in machine-readable mode (`--json` or `--robot`) for health checks, search, expansion, and session inspection across Claude, Codex, Cursor, Gemini, Aider, ChatGPT, and related tools.
-  [WHEN] Use when you need prior session evidence, cross-agent search, handoff recovery, or raw conversational history behind a memory/playbook claim.
-  [WHY] Gives Lev a strong episodic-memory tool without importing another search runtime into core ownership paths.
-
-  Triggers: "cass", "session search", "agent history", "search prior sessions", "cross-agent search", "hindsight", "session evidence"
+description: "cass CLI session search across coding agents with JSON or robot output. Use when user needs session evidence, cross-agent search, handoff recovery, or transcript-backed claims."
 ---
 
 # CASS

@@ -1,0 +1,507 @@
+{
+  "meta": {
+    "title": "NAAC Test Audit — Recipe Surface + Smell Hunt",
+    "description": "Full-fidelity classification of every test/demo/baseline just recipe and every test smell across tests/. Excluding harness.",
+    "layout": "sidebar-toc",
+    "effects": ["grid-dots", "title-underline"]
+  },
+  "theme": {
+    "preset": "obsidian-monolith",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "context",
+    "summary-kpi",
+    "recipes-real",
+    "recipes-demo-drift",
+    "recipes-docker",
+    "recipes-not-tests",
+    "smell-kpi",
+    "smell-top-5",
+    "smell-acceptable",
+    "smell-clean-signals",
+    "concerns-map",
+    "recommendations",
+    "next-steps"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "AUDIT — 2026-04-24",
+        "title": "NAAC Test Surface Audit",
+        "subtitle": "Where the tests lie, where 'demo' lost its meaning, and where the production pathway gets mocked away",
+        "meta": "Scope: every test/demo/baseline just recipe + tests/ tree (excluding harness/)"
+      },
+      "children": ["lead"]
+    },
+    "lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "Two complaints, one audit. (1) A class of 'faster tests' that became 'I'm going to fuck your shit up and lie.' (2) The word 'demo' now means five different things. Below: every recipe classified, every test smell ranked, and the three issue classes mapped to evidence."
+      }
+    },
+    "context": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "INVENTORY",
+        "title": "What We're Looking At"
+      },
+      "children": ["kpi-recipes", "kpi-tests", "kpi-mocked", "kpi-clean"]
+    },
+    "kpi-recipes": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "30+",
+        "label": "test/demo/baseline recipes",
+        "trend": { "direction": "flat", "value": "10 are not tests" }
+      }
+    },
+    "kpi-tests": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "290",
+        "label": "test files in tests/",
+        "trend": { "direction": "up", "value": "120+ integration" }
+      }
+    },
+    "kpi-mocked": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "5",
+        "label": "files holding ~80% of mock load",
+        "trend": { "direction": "down", "value": "bimodal — most files 0-mock" }
+      }
+    },
+    "kpi-clean": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "1 / 290",
+        "label": "tautology (documented, OK)",
+        "trend": { "direction": "up", "value": "unusually clean" }
+      }
+    },
+    "summary-kpi": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "VERDICT — TL;DR",
+        "title": "Three findings, one fix list"
+      },
+      "children": ["summary-callout-1", "summary-callout-2", "summary-callout-3"]
+    },
+    "summary-callout-1": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "FINDING 1 — Five files lie about production",
+        "content": "Top 5 mock-heavy unit tests carry ~80% of all mock load. The worst patches modules.intent.daemon.create_broker AND DispatchEngine.from_config — so a real wiring regression doesn't flip the test red. These are the 'faster tests that lie'."
+      }
+    },
+    "summary-callout-2": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "FINDING 2 — 'demo' means five different things",
+        "content": "test-demo (integration test), demo-dump (scoring tool), baseline-demo (scorecard wrapper), gate-demo-mode-prod (profile guardrail), voice-demo-up (runtime stack). Same anti-pattern that produced the baseline-* sprawl already pinned in CLAUDE.md."
+      }
+    },
+    "summary-callout-3": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "FINDING 3 — Docker test lane is vestigial",
+        "content": "test-nats-e2e / test-audio-e2e / test-golden all spin Docker NATS. FakeDigiRig adapter (tests/integration/helpers/) already gives you the right surface. Docker lane predates that adoption. Collapse it."
+      }
+    },
+    "recipes-real": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "PART 1A — RECIPES",
+        "title": "Real, value-based tests (KEEP)",
+        "subtitle": "These resolve to actual pytest runs against production code paths."
+      },
+      "children": ["recipes-real-table"]
+    },
+    "recipes-real-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "recipe", "label": "Recipe", "wide": true },
+          { "key": "resolves", "label": "Resolves to" },
+          { "key": "mode", "label": "Mode" },
+          { "key": "verdict", "label": "Verdict" }
+        ],
+        "rows": [
+          { "recipe": "test-unit", "resolves": "pytest tests/unit + modules/*/tests", "mode": "unit", "verdict": { "text": "clean (contains the smell outliers)", "status": "warn" } },
+          { "recipe": "test-integration", "resolves": "pytest tests/integration -m 'not integration'", "mode": "non-NATS integration", "verdict": { "text": "clean", "status": "match" } },
+          { "recipe": "test-integration-nats", "resolves": "pytest tests/integration -m integration", "mode": "needs NATS", "verdict": { "text": "clean", "status": "match" } },
+          { "recipe": "test-iso", "resolves": "4 hand-picked integration files", "mode": "isolation", "verdict": { "text": "clean", "status": "match" } },
+          { "recipe": "test-readback", "resolves": "pytest test_readback_accuracy.py", "mode": "single", "verdict": { "text": "clean", "status": "match" } },
+          { "recipe": "test-strict-scenarios", "resolves": "scorecard tool + strict pytest", "mode": "scorecard+test", "verdict": { "text": "clean", "status": "match" } },
+          { "recipe": "test-demo", "resolves": "pytest test_demo_suite.py::TestDemoSlice", "mode": "integration", "verdict": { "text": "clean", "status": "match" } },
+          { "recipe": "test-modules / -tooling / -poc / -all", "resolves": "scope wrappers", "mode": "aggregate", "verdict": { "text": "clean", "status": "match" } },
+          { "recipe": "test-intent-data / -intent-data-asr", "resolves": "test_all_intents_template_rows*.py", "mode": "template-row sweep", "verdict": { "text": "clean", "status": "match" } },
+          { "recipe": "test-matrix", "resolves": "scenario × profile matrix", "mode": "matrix", "verdict": { "text": "clean", "status": "match" } },
+          { "recipe": "test-cli-driver", "resolves": "pytest poc/liveatc/tests -m cli_driver", "mode": "pexpect", "verdict": { "text": "unknown — not scanned", "status": "info" } }
+        ]
+      }
+    },
+    "recipes-demo-drift": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "PART 1B — RECIPES",
+        "title": "The 'demo' word means five different things",
+        "subtitle": "User flag #2 confirmed. Same anti-pattern as baseline-* sprawl."
+      },
+      "children": ["demo-drift-table"]
+    },
+    "demo-drift-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "recipe", "label": "Recipe", "wide": true },
+          { "key": "does", "label": "What it actually does" },
+          { "key": "concept", "label": "Real concept" },
+          { "key": "rename", "label": "Suggested rename" }
+        ],
+        "rows": [
+          { "recipe": "test-demo", "does": "pytest test_demo_suite.py::TestDemoSlice", "concept": "integration test (asserts pass/fail)", "rename": "test-demo-slice" },
+          { "recipe": "demo-dump / demo-dump-all", "does": "python data/atc/workshop/tools/dump_demo_turns.py", "concept": "scoring dump tool, no gate", "rename": "score-turns" },
+          { "recipe": "baseline-demo", "does": "wrapper of dump_demo_turns + intent-data pytest", "concept": "scorecard wrapper", "rename": "stays as baseline-*" },
+          { "recipe": "gate-demo-mode-prod", "does": "grep demo_mode: true in prod profiles", "concept": "profile guardrail (lint-shaped)", "rename": "gate-no-demo-mode-in-prod" },
+          { "recipe": "voice-demo-up / -down / -attach / -doctor / -status / -thor-*", "does": "tmux stack with sidecar + PTT", "concept": "interactive runtime", "rename": "already distinct prefix — keep" }
+        ]
+      }
+    },
+    "recipes-docker": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "PART 1C — RECIPES",
+        "title": "Docker-NATS lane (USER FLAG #1 confirmed)",
+        "subtitle": "These spin Docker NATS for tests. FakeDigiRig adapter exists; this lane is vestigial."
+      },
+      "children": ["docker-table", "docker-callout"]
+    },
+    "docker-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "recipe", "label": "Recipe", "wide": true },
+          { "key": "does", "label": "What it does" },
+          { "key": "smell", "label": "Smell" }
+        ],
+        "rows": [
+          { "recipe": "test-nats-e2e", "does": "docker compose up --abort-on-container-exit", "smell": { "text": "spins Docker NATS", "status": "gap" } },
+          { "recipe": "test-audio-e2e", "does": "docker compose up -d nats; sleep 3; pytest", "smell": { "text": "spins NATS for one test", "status": "gap" } },
+          { "recipe": "test-golden", "does": "docker compose --build + --wait test-runner for 10 ATC clips", "smell": { "text": "full Docker stack", "status": "gap" } },
+          { "recipe": "test-thor", "does": "ssh remote box, run pytest", "smell": { "text": "infra-heavy, but legit (GPU)", "status": "warn" } }
+        ]
+      }
+    },
+    "docker-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Why the Docker lane should die",
+        "content": "FakeDigiRig in tests/integration/helpers/ feeds audio IN through real adapters — exactly the boundary you want for E2E. The Docker lane was the way before that helper landed. Now it just adds 30s of compose orchestration per CI run for tests the FakeDigiRig path covers deterministically."
+      }
+    },
+    "recipes-not-tests": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "PART 1D — RECIPES",
+        "title": "Not tests at all (RELABEL)",
+        "subtitle": "The 'test-' prefix has been overloaded to mean 'anything I run before merging'."
+      },
+      "children": ["not-tests-table"]
+    },
+    "not-tests-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "recipe", "label": "Recipe", "wide": true },
+          { "key": "category", "label": "Real category" },
+          { "key": "gate", "label": "Has pass/fail gate?" }
+        ],
+        "rows": [
+          { "recipe": "baseline / baseline-pe / baseline-pe-full / baseline-grounded / baseline-bulk / baseline-ci / baseline-demo (×7)", "category": "scorecard generators", "gate": { "text": "no", "status": "gap" } },
+          { "recipe": "demo-dump / demo-dump-all", "category": "scoring tool wrappers", "gate": { "text": "no", "status": "gap" } },
+          { "recipe": "gate-demo-mode-prod", "category": "profile guardrail (lint-shaped)", "gate": { "text": "yes (lint-style)", "status": "match" } },
+          { "recipe": "gate-1 / gate-2 / gate-3 / gate-arch / gate-release", "category": "quality gates (lint+type+test gradient)", "gate": { "text": "yes", "status": "match" } },
+          { "recipe": "review-staged / -files / -codex / -grok / -alpha-bravo / -production (×7)", "category": "agent-driven code review jobs", "gate": { "text": "no", "status": "info" } },
+          { "recipe": "test-report", "category": "report rendering", "gate": { "text": "no", "status": "gap" } }
+        ]
+      }
+    },
+    "smell-kpi": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "PART 2 — SMELL HUNT",
+        "title": "Test tree shape"
+      },
+      "children": ["smell-kpi-bimodal", "smell-kpi-archive", "smell-kpi-integration", "smell-kpi-tautology"]
+    },
+    "smell-kpi-bimodal": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "80%",
+        "label": "of mock load in 5 unit files",
+        "trend": { "direction": "down", "value": "bimodal — most files 0-mock" }
+      }
+    },
+    "smell-kpi-archive": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "13",
+        "label": "dead files in _archive/",
+        "trend": { "direction": "flat", "value": "no recipe touches them" }
+      }
+    },
+    "smell-kpi-integration": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "1 / 120+",
+        "label": "integration files with mocks",
+        "trend": { "direction": "up", "value": "remarkably clean" }
+      }
+    },
+    "smell-kpi-tautology": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "1",
+        "label": "tautology (documented, OK)",
+        "trend": { "direction": "up", "value": "no `assert True` epidemic" }
+      }
+    },
+    "smell-top-5": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "PART 2 — HOTLIST",
+        "title": "Top lie candidates (priority order)",
+        "subtitle": "These tests can pass while production breaks. Hand-inspect first."
+      },
+      "children": ["smell-top-5-table"]
+    },
+    "smell-top-5-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "rank", "label": "#", "numeric": true },
+          { "key": "file", "label": "File", "wide": true },
+          { "key": "mocks", "label": "Mocks", "numeric": true },
+          { "key": "smell", "label": "Specific smell" },
+          { "key": "severity", "label": "Severity" }
+        ],
+        "rows": [
+          { "rank": "1", "file": "tests/unit/intent/test_intent_decision_gate.py:490-523", "mocks": "18", "smell": "patches modules.intent.daemon.create_broker AND DispatchEngine.from_config — decision gate runs against fake dispatch", "severity": { "text": "HIGHEST", "status": "gap" } },
+          { "rank": "2", "file": "tests/unit/dispatch/test_dispatch_engine.py", "mocks": "27", "smell": "tests the engine itself with 27 mocks; if patches replace internal handlers, routing isn't exercised", "severity": { "text": "HIGH", "status": "gap" } },
+          { "rank": "3", "file": "tests/unit/audio/test_ingest_daemon.py", "mocks": "26", "smell": "state-machine tests are common gutting sites; 750 lines — verify assertions exercise real transitions", "severity": { "text": "MEDIUM", "status": "warn" } },
+          { "rank": "4", "file": "tests/unit/transcription/test_asr_flight_recorder.py", "mocks": "14", "smell": "line 177 sets rc.gate.allow_transcript_injection = False on MagicMock RuntimeConfig — recorder may not run real path", "severity": { "text": "MEDIUM", "status": "warn" } },
+          { "rank": "5", "file": "tests/simulation/test_gate3_phraseology_sim.py", "mocks": "11", "smell": "simulation lane, less load-bearing", "severity": { "text": "LOW", "status": "info" } }
+        ]
+      }
+    },
+    "smell-acceptable": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "PART 2 — NOT SMELLS",
+        "title": "Acceptable mock concentration",
+        "subtitle": "High mock count alone isn't a smell. These are doing it right."
+      },
+      "children": ["smell-acceptable-table"]
+    },
+    "smell-acceptable-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "file", "label": "File", "wide": true },
+          { "key": "mocks", "label": "Mocks" },
+          { "key": "why", "label": "Why it's OK" }
+        ],
+        "rows": [
+          { "file": "tests/unit/hardware/test_capture_adapters.py", "mocks": "38–60", "why": "Mocks shutil.which + subprocess.run for ffmpeg detection — INFRA mocking, exactly what the rule allows" },
+          { "file": "tests/unit/daemon/test_daemon_core.py", "mocks": "9", "why": "patch('modules.daemon.messaging.logger') — benign logger swap" },
+          { "file": "tests/unit/session/test_flight_state.py", "mocks": "1", "why": "_utcnow clock control — benign" },
+          { "file": "tests/integration/test_pipeline_e2e.py", "mocks": "2", "why": "both legit network injection — only mocks in 120+ integration files" }
+        ]
+      }
+    },
+    "smell-clean-signals": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "PART 2 — UNEXPECTED",
+        "title": "Surprising clean signals",
+        "subtitle": "Things I expected to find that aren't there. Corrects my own pre-scan flags."
+      },
+      "children": ["clean-tautology", "clean-injection", "clean-mock-pipeline", "clean-integration"]
+    },
+    "clean-tautology": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "✅ No `assert True` epidemic",
+        "content": "Only one hit: tests/integration/pe/test_pe_adversarial_gates.py:228 — and it's a documented dormant-gate placeholder with explanatory message. Could be pytest.skip for clarity but acceptable. Whole rest of the suite is unusually clean on tautology."
+      }
+    },
+    "clean-injection": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "✅ `inject_transcript` is NOT a smell",
+        "content": "It's a real production gate (gate.allow_transcript_injection). test_injection_only_start.py validates the daemon does NOT call create_backend when injection is enabled. Structural assertion, not a fake. (Correcting my own earlier pre-scan flag.)"
+      }
+    },
+    "clean-mock-pipeline": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "✅ No `mock_pipeline.parse` patterns",
+        "content": "Searched the whole tree — no 'wrote test to its own fake output' style anywhere. The smell exists but it's concentrated in the 5 files above, not spread."
+      }
+    },
+    "clean-integration": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "✅ Integration lane is mock-free",
+        "content": "120+ active integration tests. Only 1 file (test_pipeline_e2e.py) has any mocks (2, both legit). Whatever cleanup ran recently scrubbed this lane very well. Don't undo that work."
+      }
+    },
+    "concerns-map": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "PART 3",
+        "title": "Your three concerns mapped to evidence"
+      },
+      "children": ["concern-1", "concern-2", "concern-3"]
+    },
+    "concern-1": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "1. 'Faster tests' that lie",
+        "content": "**CONFIRMED.** Unit lane is bimodal — top 5 files carry ~80% of mock load. Files #1 and #2 (test_intent_decision_gate, test_dispatch_engine) patch the production module their tests are supposed to validate. These are the candidates the previous agent over-mocked."
+      }
+    },
+    "concern-2": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "2. 'demo' semantic drift",
+        "content": "**CONFIRMED.** 5 distinct concepts under one word: integration test / scorecard tool / scorecard wrapper / profile guardrail / runtime stack. Same anti-pattern as the baseline-* proliferation pinned in CLAUDE.md."
+      }
+    },
+    "concern-3": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "3. Hardcoded / over-mocking / fake values",
+        "content": "**MOSTLY CLEAN** with 5 hot spots (above). The 'overboard' mocking is concentrated, not spread. Suite has no widespread tautology, no fake-pipeline patterns, and integration lane is essentially mock-free."
+      }
+    },
+    "recommendations": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "PART 4",
+        "title": "Recommendations (priority order)",
+        "subtitle": "What top test-engineering experts would do this week."
+      },
+      "children": ["rec-table"]
+    },
+    "rec-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "rank", "label": "#", "numeric": true },
+          { "key": "action", "label": "Action", "wide": true },
+          { "key": "tool", "label": "Skill / Tool" },
+          { "key": "why", "label": "Why now" }
+        ],
+        "rows": [
+          { "rank": "1", "action": "Inspect & fix tests/unit/intent/test_intent_decision_gate.py:490-523", "tool": "manual + pytest", "why": "Highest payoff. Real DispatchEngine wiring regressions silently pass today." },
+          { "rank": "2", "action": "Spot-check #2 (test_dispatch_engine.py) and #3 (test_ingest_daemon.py)", "tool": "manual review", "why": "Decide whether mocks are at SUT boundary (OK) or inside it (rip out)." },
+          { "rank": "3", "action": "Delete tests/integration/_archive/ (13 files)", "tool": "git rm + git log", "why": "Dead lane, no recipe touches it, only adds context noise." },
+          { "rank": "4", "action": "Collapse Docker test lane → FakeDigiRig + recorded fixtures", "tool": "rewrite test-nats-e2e / test-audio-e2e / test-golden", "why": "Tests shouldn't spin Docker. Helper already exists." },
+          { "rank": "5", "action": "Rename 'demo' recipes to one-meaning-per-word", "tool": "justfile edit", "why": "Stops the sprawl before it gets worse. CLAUDE.md already pins this discipline for baseline." },
+          { "rank": "6", "action": "Add fitness test: grep-ban patch('modules.*') in tests/unit with allowlist", "tool": "tests/unit/test_architecture_fitness.py", "why": "Prevents regression. One-line gate beats six months of vigilance." }
+        ]
+      }
+    },
+    "next-steps": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "🪄 NEXT STEPS",
+        "title": "Pick a path"
+      },
+      "children": ["ns-fix", "ns-fitness", "ns-archive", "ns-rename", "ns-back"]
+    },
+    "ns-fix": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "1. Fix the worst offender",
+        "content": "Open tests/unit/intent/test_intent_decision_gate.py:490-523. If DispatchEngine is the SUT's collaborator, keep mock at boundary. If it IS production logic the test cares about, instantiate real. ~30 min."
+      }
+    },
+    "ns-fitness": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "2. Fitness test for module-mocking",
+        "content": "Grep-ban patch('modules\\.') in tests/unit/ with explicit allowlist (logger, clock). One-time write, ongoing safety. 15 min."
+      }
+    },
+    "ns-archive": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "3. Delete the _archive lane",
+        "content": "13 files, no callers. git log to confirm last touch, then git rm. 10 min."
+      }
+    },
+    "ns-rename": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "4. Rename 'demo' recipes",
+        "content": "demo-dump → score-turns. test-demo → test-demo-slice. gate-demo-mode-prod → gate-no-demo-mode-in-prod. 20 min."
+      }
+    },
+    "ns-back": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "⬅️ Back",
+        "content": "Return to PE compound-readback fix or voice-demo NATS work — both depend on these tests not lying."
+      }
+    }
+  }
+}

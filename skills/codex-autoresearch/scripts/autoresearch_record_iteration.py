@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 from autoresearch_decision import apply_status_transition, requires_trial_commit
@@ -140,6 +141,19 @@ def main() -> int:
         labels=normalized_labels,
     )
     write_json_atomic(state_path, final_payload)
+
+    marker_path = os.environ.get("AUTORESEARCH_HELPER_MARKER")
+    if marker_path:
+        write_json_atomic(
+            Path(marker_path),
+            {
+                "iteration": next_iteration,
+                "status": final_status,
+                "metric": float(metric),
+                "results_path": str(results_path),
+                "state_path": str(state_path),
+            },
+        )
 
     append_iteration_lesson(
         lessons_path=lessons_path_from_results(results_path),

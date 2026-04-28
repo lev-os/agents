@@ -1,11 +1,6 @@
 ---
 name: sidequest
-description: |
-  Autonomous SDLC router. Takes a job, classifies complexity, executes the appropriate
-  lev-* workflow (from trivial fix to full epic), and returns "done" with runnable instructions.
-  One shot to full auto: spec/bd/poc/impl. Subagent returns completion artifact.
-
-  Triggers: "sidequest", "side quest", "just do it", "autonomous", "one shot"
+description: "Routes any job into the right lev workflow by complexity and returns runnable next steps. Use when you want one-shot autonomous SDLC from quick fix through epic."
 version: 1.0.0
 skill_type: workflow
 category: process-execution

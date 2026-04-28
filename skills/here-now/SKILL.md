@@ -1,11 +1,6 @@
 ---
 name: here-now
-description: >
-  Publish files and folders to the web instantly. Static hosting for HTML sites,
-  images, PDFs, and any file type. Use when asked to "publish this", "host this",
-  "deploy this", "share this on the web", "make a website", "put this online",
-  "upload to the web", "create a webpage", "share a link", "serve this site",
-  or "generate a URL". Outputs a live, shareable URL at {slug}.here.now.
+description: "Publishes static folders or files to instant shareable here.now URLs. Use when the user wants publish, host, deploy, share a link, or put HTML or assets on the web."
 ---
 
 # here.now
