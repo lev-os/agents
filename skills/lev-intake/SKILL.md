@@ -1,12 +1,6 @@
 ---
 name: lev-intake
-description: |
-  [WHAT] Config-driven content intake system for GitHub repos, videos, articles, PDFs, and skill packages.
-  [HOW] Phase 0 resolves workshop overlays from `~/.config/lev/config.yaml` and `<project>/.lev/config.yaml`. Phase 1 acquires content into the resolved workshop root. Phase 2 analyzes against configured playbooks or project docs. Phase 3 writes the canonical workshop analysis artifact under the resolved `analysis/` zone and recommends integrate/extract/monitor/pass/vendor.
-  [WHEN] Use when the user provides a URL to analyze, says "intake/download", wants to evaluate outside work, or references a skill package.
-  [WHY] Makes intake multi-project by default while preserving legacy `~/lev/workshop` flows through config instead of hardcoded assumptions.
-
-  Triggers: "intake", "download", "analyze this url", "check out this repo", "review this video", "evaluate content", "install skill", "skill://"
+description: "Config-driven workshop intake for URLs, repos, media, PDFs, and skill packages. Use when user wants intake, download, or external content analyzed with project playbooks."
 skill_type: workflow
 category: process-intake
 

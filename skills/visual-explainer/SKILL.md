@@ -1,6 +1,6 @@
 ---
 name: visual-explainer
-description: Generate beautiful, self-contained HTML pages that visually explain systems, code changes, plans, and data. Use when the user asks for a diagram, architecture overview, diff review, plan review, project recap, comparison table, or any visual explanation of technical concepts. Also use proactively when you are about to render a complex ASCII table (4+ rows or 3+ columns) — present it as a styled HTML page instead.
+description: "Builds self-contained HTML visuals for diagrams, diffs, plans, and tables. Use when explaining systems visually or a markdown table would be 4+ rows or 3+ columns."
 license: MIT
 compatibility: Requires a browser to view generated HTML files. Optional surf-cli for AI image generation.
 metadata:

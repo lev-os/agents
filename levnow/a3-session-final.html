@@ -10,7 +10,7 @@
   <meta property="og:description" content="April 10-12: 21 artifacts, 13 parity entries, 4 nouns frozen, overlay model, taxonomy soup, 18 checkpoints. With feedback sections for ambiguous decisions." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Instrument%20Serif:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM%20Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains%20Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM%20Serif%20Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM%20Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains%20Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
   <style>
 /* === Reset === */
 *, *::before, *::after { box-sizing: border-box; }
@@ -28,7 +28,7 @@ body, h1, h2, h3, h4, p, ul, ol, blockquote, figure { margin: 0; padding: 0; }
   --color-success: #34d399;
   --color-warning: #fbbf24;
   --color-error: #fb7185;
-  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-display: 'DM Serif Display', Georgia, serif;
   --font-body: 'DM Sans', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Courier New', monospace;
   --color-accent-dim: color-mix(in srgb, var(--color-accent) 15%, transparent);
@@ -115,12 +115,17 @@ body::before {
   opacity: 1;
   transform: none;
 }
+/* Anim inside open details: always visible (no scroll-reveal trap) */
+.has-anim details[open] .anim {
+  opacity: 1;
+  transform: none;
+}
 /* KPI cards use scale-fade instead of translateY */
 .has-anim .kpi-card.anim {
   transform: scale(0.92);
 }
 .has-anim .kpi-card.anim.visible {
-  transform: scale(1);
+  transform: none;
 }
 
 /* CSS Counter for animated KPI values */
@@ -203,6 +208,7 @@ body::before {
   height: 900px;
   background: radial-gradient(circle, var(--color-accent) 0%, transparent 70%);
   mix-blend-mode: overlay;
+  opacity: 0.5;
   pointer-events: none;
   filter: blur(90px);
   animation: blobAnimOne 38s ease-in-out infinite alternate;
@@ -850,8 +856,38 @@ body::before {
   margin: 24px 0;
 }
 
+.testimonial-card {
+  border-left: 3px solid var(--color-accent);
+  padding: 20px 24px;
+  margin: 20px 0;
+  background: var(--color-surface-alt);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.testimonial-card__quote {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--color-text);
+}
+.testimonial-card__footer {
+  margin-top: 12px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  font-style: normal;
+}
+[data-theme="light"] .testimonial-card {
+  background: #fff;
+  border-left-color: var(--color-accent);
+}
+
 /* === Data Table === */
 .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--color-border); position: relative; }
+.data-table__caption {
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  padding: 12px 14px 0;
+}
 .table-fullscreen-btn { position: absolute; top: 8px; right: 8px; z-index: 5; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 13px; color: var(--color-text-muted); transition: all 0.2s; opacity: 0.6; }
 .table-wrap:hover .table-fullscreen-btn { opacity: 1; }
 .table-fullscreen-btn:hover { background: var(--color-accent-dim); color: var(--color-accent); }
@@ -1477,9 +1513,9 @@ code:not(pre code) {
 .feedback-card {
   background: var(--color-surface-alt); border: 1px solid var(--color-border);
   border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem;
-  border-left: 3px solid transparent; transition: border-color 0.3s;
+  transition: border-color 0.3s;
 }
-.feedback-card.decided { border-left-color: var(--color-accent); }
+.feedback-card.decided { border-color: var(--color-accent); }
 .feedback-card__header {
   display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;
   flex-wrap: wrap;
@@ -1498,8 +1534,7 @@ code:not(pre code) {
   background: var(--color-accent); color: var(--color-surface);
 }
 .feedback-card__insight {
-  border-left: 2px solid var(--color-accent); padding-left: 0.75rem;
-  margin-bottom: 0.75rem; font-size: 0.9rem; color: var(--color-text-muted);
+  margin-bottom: 0.75rem; font-size: 0.95rem; color: var(--color-text-muted);
 }
 .feedback-card__detail {
   display: none; padding: 0.75rem; margin-bottom: 0.75rem;
@@ -1583,7 +1618,7 @@ code:not(pre code) {
     <p class="hero__subtitle">3 days, 18 checkpoints, 21 artifacts shipped, 10 items need your feedback</p>
     <p class="hero__meta">2026-04-10 → 2026-04-12 · A3 (constraint-engineering) · doc_maturity: L3</p>
     <div data-lev-id="hero-lead" class="anim lead" style="--i:1;">
-  <p>A constraint is a flowmind definition. A harness is the tooling to run it. **Leviathan is a meta-harness.** This session produced the manifesto, the overlay model, the taxonomy overlay, 13 parity entries, 12 cohesified articles, and a 5-agent federation. Now we need your decisions on 10 ambiguous items before the next phase.</p>
+  <p>A constraint is a flowmind definition. A harness is the tooling to run it. <strong>Leviathan is a meta-harness.</strong> This session produced the manifesto, the overlay model, the taxonomy overlay, 13 parity entries, 12 cohesified articles, and a 5-agent federation. Now we need your decisions on 10 ambiguous items before the next phase.</p>
 </div>
   </div>
 </section>
@@ -1651,12 +1686,12 @@ code:not(pre code) {
     </summary>
     <p class="section-subtitle">Expand to see the full list</p>
     <div class="section__body"><div data-lev-id="done-prose" class="anim prose" style="--i:10;">
-  <p>**Documents**: Manifesto (905L) + Product doc (199L) + ConstraintDriver interface (.ts) + Taxonomy overlay (212L) + DNA overlay model + Overlay schema (310L)</p>
-  <p>**FlowMind Flows**: eval-harness (6 nodes + OOO convergence) + adversarial-review (5 nodes) + doc-refine-tick (autowiki)</p>
-  <p>**Parity Registry**: 13 entries (AXI, dev-browser, agent-browser, AgentFS, GitAgent, Ouroboros, OpenClaw, Hermes, OMX, OMC, OMO, clawhip, lev-self-parity)</p>
-  <p>**Content**: Case study article + 12 articles interlinked (43 cross-links) + 3-pass narrative cohesion (16 threads, 0 slop)</p>
-  <p>**Federation**: 5-agent detangle (A0-A4), 58 mail messages, nugget dumps, claims/counterclaims resolved</p>
-  <p>**DNA**: Four nouns frozen in vernacular + overlay.schema.yaml + index.yaml updated with authoring_overlays activity</p>
+  <p><strong>Documents</strong>: Manifesto (905L) + Product doc (199L) + ConstraintDriver interface (.ts) + Taxonomy overlay (212L) + DNA overlay model + Overlay schema (310L)</p>
+<p><strong>FlowMind Flows</strong>: eval-harness (6 nodes + OOO convergence) + adversarial-review (5 nodes) + doc-refine-tick (autowiki)</p>
+<p><strong>Parity Registry</strong>: 13 entries (AXI, dev-browser, agent-browser, AgentFS, GitAgent, Ouroboros, OpenClaw, Hermes, OMX, OMC, OMO, clawhip, lev-self-parity)</p>
+<p><strong>Content</strong>: Case study article + 12 articles interlinked (43 cross-links) + 3-pass narrative cohesion (16 threads, 0 slop)</p>
+<p><strong>Federation</strong>: 5-agent detangle (A0-A4), 58 mail messages, nugget dumps, claims/counterclaims resolved</p>
+<p><strong>DNA</strong>: Four nouns frozen in vernacular + overlay.schema.yaml + index.yaml updated with authoring_overlays activity</p>
 </div></div>
   </details>
 </section>
@@ -1666,11 +1701,11 @@ code:not(pre code) {
   <h2 class="section-title">5-Phase SDLC: Lev vs OOO vs OMX</h2>
   <p class="section-subtitle">With actual usage data from skill invocations</p>
   <div class="section__stacked"><div data-lev-id="phase-prose" class="anim prose" style="--i:10;">
-  <p>**Phase 1 SHAPE**: Lev has /interview (71/mo) but no mathematical readiness gate. OOO has ambiguity scoring (0.2 threshold). OMX has $deep-interview with live scoring (0.2455 to 0.159). **Other agent now landed 10 canonical lifecycle_verbs including research, prior_art, interview with ambiguity_gate.**</p>
-  <p>**Phase 2 PLAN**: Lev dominates with /work (182/mo), /arch (12/mo), deepen-plan flow. OOO has Seed + Double Diamond. OMX has $ralplan. **Canonical verb: /propose (produces dna.yaml + execution.yaml)**</p>
-  <p>**Phase 3 EXECUTE**: Lev has lev-ralph + exec-validate + codex-autoresearch (14/mo). OOO has PAL Router (1x/10x/30x). OMX has $team + $ralph. **Canonical verb: /exec (runs execution.yaml topology)**</p>
-  <p>**Phase 4 EVALUATE**: LEV WINS. eval-harness + cdo (20/mo) + tribunal (9/mo) + adversarial-review. Constraint engineering is Lev-only. **Canonical verbs: /qa (auto) + /accept (human)**</p>
-  <p>**Phase 5 EVOLVE**: Lev has convergence (ontology + statistical), cass (13/mo), handoffs. OOO has Wonder-Reflect cycle. **Canonical verb: /handoff (close→shape transition)**</p>
+  <p><strong>Phase 1 SHAPE</strong>: Lev has /interview (71/mo) but no mathematical readiness gate. OOO has ambiguity scoring (0.2 threshold). OMX has $deep-interview with live scoring (0.2455 to 0.159). <strong>Other agent now landed 10 canonical lifecycle_verbs including research, prior_art, interview with ambiguity_gate.</strong></p>
+<p><strong>Phase 2 PLAN</strong>: Lev dominates with /work (182/mo), /arch (12/mo), deepen-plan flow. OOO has Seed + Double Diamond. OMX has $ralplan. <strong>Canonical verb: /propose (produces dna.yaml + execution.yaml)</strong></p>
+<p><strong>Phase 3 EXECUTE</strong>: Lev has lev-ralph + exec-validate + codex-autoresearch (14/mo). OOO has PAL Router (1x/10x/30x). OMX has $team + $ralph. <strong>Canonical verb: /exec (runs execution.yaml topology)</strong></p>
+<p><strong>Phase 4 EVALUATE</strong>: LEV WINS. eval-harness + cdo (20/mo) + tribunal (9/mo) + adversarial-review. Constraint engineering is Lev-only. <strong>Canonical verbs: /qa (auto) + /accept (human)</strong></p>
+<p><strong>Phase 5 EVOLVE</strong>: Lev has convergence (ontology + statistical), cass (13/mo), handoffs. OOO has Wonder-Reflect cycle. <strong>Canonical verb: /handoff (close→shape transition)</strong></p>
 </div></div>
 </section>
 
@@ -1753,15 +1788,11 @@ code:not(pre code) {
   <h2 class="section-title">What Changed While A3 Worked</h2>
   <p class="section-subtitle">Other agent landed canonical terms. Here&#39;s what needs updating.</p>
   <div class="section__stacked"><div data-lev-id="recon-prose" class="anim prose" style="--i:10;">
-  <p>**Canonical lifecycle_dimensions** (from other agent, now in vernacular.yaml):
-- ontology → **aligned** with my ontology
-- dna → **renames** my &#39;definition&#39; (I used &#39;definition&#39;, they used &#39;dna&#39;)
-- execution → **aligned**
-- projection → **aligned**</p>
-  <p>**Canonical lifecycle_verbs** (10 verbs, supersedes my 6 triggers):
+  <p><strong>Canonical lifecycle_dimensions</strong> (from other agent, now in vernacular.yaml):</p><ul><li>ontology → <strong>aligned</strong> with my ontology</li><li>dna → <strong>renames</strong> my &#39;definition&#39; (I used &#39;definition&#39;, they used &#39;dna&#39;)</li><li>execution → <strong>aligned</strong></li><li>projection → <strong>aligned</strong></li></ul>
+<p><strong>Canonical lifecycle_verbs</strong> (10 verbs, supersedes my 6 triggers):
 research, prior_art, interview, propose, capture, exec, qa, accept, handoff, work</p>
-  <p>**New concept: decision_point** with 4 outcomes: keep (→autowiki), monitor (→workshop), execute (→sdlc), reject (→circuit breaker)</p>
-  <p>All A3 files that reference &#39;definition&#39; or my 6 triggers need updating.</p>
+<p><strong>New concept: decision_point</strong> with 4 outcomes: keep (→autowiki), monitor (→workshop), execute (→sdlc), reject (→circuit breaker)</p>
+<p>All A3 files that reference &#39;definition&#39; or my 6 triggers need updating.</p>
 </div></div>
 </section>
 
@@ -2436,33 +2467,33 @@ research, prior_art, interview, propose, capture, exec, qa, accept, handoff, wor
   <h2 class="section-title">Priority Queue</h2>
   <p class="section-subtitle">Based on /capture results and feedback needed</p>
   <div class="section__grid"><div data-lev-id="na1" class="anim ve-card ve-card--default" style="--i:10">
-  <span class="ve-card__icon">1</span>
   
-  <h3 class="ve-card__title">. Reconcile four_nouns (P1)</h3>
+  
+  <h3 class="ve-card__title">1. Reconcile four_nouns (P1)</h3>
   <div class="ve-card__content"><p>lev-lchbr — definition→dna rename across all A3 files. Blocked on feedback item &#39;definition-vs-dna&#39;.</p></div>
 </div>
 <div data-lev-id="na2" class="anim ve-card ve-card--default" style="--i:10">
-  <span class="ve-card__icon">2</span>
   
-  <h3 class="ve-card__title">. Validation depth reporting (P2)</h3>
+  
+  <h3 class="ve-card__title">2. Validation depth reporting (P2)</h3>
   <div class="ve-card__content"><p>lev-sx9pc — Make lev validate show L0-L5 depth. Blocked on feedback item &#39;validation-depth&#39;.</p></div>
 </div>
 <div data-lev-id="na3" class="anim ve-card ve-card--default" style="--i:10">
-  <span class="ve-card__icon">3</span>
   
-  <h3 class="ve-card__title">. FlowMind authoring guide (P2)</h3>
+  
+  <h3 class="ve-card__title">3. FlowMind authoring guide (P2)</h3>
   <div class="ve-card__content"><p>lev-2fzrt — Find all authoring guides, consolidate, hook overlay schema into it.</p></div>
 </div>
 <div data-lev-id="na4" class="anim ve-card ve-card--default" style="--i:10">
-  <span class="ve-card__icon">4</span>
   
-  <h3 class="ve-card__title">. Overlay compiler POC (P1)</h3>
+  
+  <h3 class="ve-card__title">4. Overlay compiler POC (P1)</h3>
   <div class="ve-card__content"><p>Minimal script that reads 2 overlay YAMLs + task DNA and merges them. Proves the model. Blocked on feedback items &#39;overlay-compiler-priority&#39; and &#39;task-directory-location&#39;.</p></div>
 </div>
 <div data-lev-id="na5" class="anim ve-card ve-card--default" style="--i:10">
-  <span class="ve-card__icon">5</span>
   
-  <h3 class="ve-card__title">. Security P0 fixes (P0)</h3>
+  
+  <h3 class="ve-card__title">5. Security P0 fixes (P0)</h3>
   <div class="ve-card__content"><p>lev-3bthw + lev-jy2cm — 4 critical issues. Blocked on feedback item &#39;security-p0s&#39; (this workstream or separate?).</p></div>
 </div></div>
 </section>

@@ -1,0 +1,171 @@
+/* gallery.css — additions on top of gxw styles.css for the GXW index page */
+
+.gallery-wrap {
+  max-width: var(--maxw, 1280px);
+  margin: 0 auto;
+  padding: 24px 32px 96px;
+}
+
+.gallery-section {
+  margin-top: 64px;
+}
+.gallery-section .hd {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 8px;
+  margin-bottom: 24px;
+}
+.gallery-section .hd .num {
+  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.gallery-section .hd h2 {
+  font-size: 22px;
+  font-weight: 500;
+  margin: 0;
+}
+.gallery-section .hd .lede {
+  color: var(--fg-dim);
+  font-size: 13px;
+  margin-left: auto;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border: 1px solid var(--rule);
+}
+
+.gallery-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg-1);
+  text-decoration: none;
+  color: inherit;
+  transition: background 120ms ease, box-shadow 200ms ease;
+  position: relative;
+  overflow: hidden;
+}
+.gallery-grid .gallery-card:nth-child(3n) { border-right: none; }
+.gallery-grid .gallery-card:nth-last-child(-n+3) { border-bottom: none; }
+
+.gallery-card:hover {
+  background: var(--bg-2);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklch, var(--accent) 35%, transparent),
+    0 0 32px color-mix(in oklch, var(--accent) 18%, transparent);
+}
+
+.gallery-card .thumb {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg-2);
+}
+.gallery-card .thumb.missing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg-dimmer);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.gallery-card .body {
+  padding: 18px 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.gallery-card .eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-dimmer);
+}
+.gallery-card .title {
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+.gallery-card .blurb {
+  font-size: 13px;
+  color: var(--fg-dim);
+  line-height: 1.5;
+}
+.gallery-card .meta {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-dimmer);
+  letter-spacing: 0.08em;
+}
+.gallery-card .meta .pass { color: var(--ok); }
+.gallery-card .meta .fail { color: var(--danger); }
+
+/* QA Matrix */
+.parity-matrix {
+  width: 100%;
+  margin-top: 16px;
+  border: 1px solid var(--rule);
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.parity-matrix th,
+.parity-matrix td {
+  padding: 8px 10px;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  text-align: center;
+  white-space: nowrap;
+}
+.parity-matrix th {
+  background: var(--bg-2);
+  color: var(--fg-dim);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+.parity-matrix td:first-child,
+.parity-matrix th:first-child {
+  text-align: left;
+  color: var(--fg);
+  font-weight: 500;
+}
+.parity-matrix td.pass { color: var(--ok); }
+.parity-matrix td.fail { color: var(--danger); font-weight: 600; }
+.parity-matrix td.na   { color: var(--fg-dimmer); }
+
+.gallery-footer {
+  margin-top: 96px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+  color: var(--fg-dimmer);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  display: flex;
+  justify-content: space-between;
+}
+
+@media (max-width: 900px) {
+  .gallery-grid { grid-template-columns: 1fr; }
+  .gallery-grid .gallery-card { border-right: none; }
+  .gallery-grid .gallery-card:nth-last-child(-n+1) { border-bottom: none; }
+}

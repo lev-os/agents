@@ -1,12 +1,6 @@
 ---
 name: lev-builder
-description: |
-  [WHAT] Builder workflow for developing `~/lev` and migrating proven work to core paths.
-  [HOW] Assess existing code, run prior art checks, decide placement against `~/lev/docs`, apply patches, validate E2E.
-  [WHEN] Use when formalizing POCs, placing modules, or migrating workshop output into production architecture.
-  [WHY] Prevents drift and duplicate effort by enforcing file-based routing and docs-aligned placement.
-
-  Triggers: "build feature", "migrate poc", "where should this go", "prior art check", "placement decision", "formalize"
+description: "lev POC-to-core builder with prior art, placement, patches, and E2E validation. Use when formalizing POCs, migrating workshop code, or choosing canonical paths under lev docs."
 skill_type: workflow
 category: process-builder
 

@@ -1,6 +1,6 @@
 ---
 name: notionctl
-description: Thin direct Notion API CLI for the Leviathan workspace. Use when working with `notionctl`, `crates/lev-notionctl`, or `docs/plugins/notion.md`; when you need to inspect auth/config, query data sources, fetch pages, create or update pages, or add comments through the direct API; or when you need to enforce the boundary that workflows such as triage belong in FlowMind/skills rather than in the CLI.
+description: "Thin Notion API CLI for doctor, search, queries, pages, and comments. Use when changing notionctl/lev-notionctl or keeping triage and policy out of the CLI surface."
 ---
 
 # Notionctl
