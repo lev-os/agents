@@ -35,9 +35,9 @@ LOG="$CACHE_ROOT/bake.log"
 : > "$LOG"
 
 OVERRIDE_STYLE='<style id="__lev_override">
-.message,.message-user,.message-assistant,.message-agent,.message-system,.message-tool,.message-thinking{border-left:0 !important;border-left-width:0 !important;transition:none !important}
+.message,.message-user,.message-assistant,.message-agent,.message-system,.message-tool,.message-thinking{border-left:0 !important;border-left-width:0 !important;transition:none !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
 .agent-claude .message-assistant,.agent-codex .message-assistant,.agent-cursor .message-assistant,.agent-claude .message-user,.agent-codex .message-user,.agent-cursor .message-user,.agent-claude .message-system,.agent-codex .message-system,.agent-cursor .message-system,.agent-claude .message-tool,.agent-codex .message-tool,.agent-cursor .message-tool{border-left-color:transparent !important;border-left-width:0 !important}
-.message:hover{background:var(--card,#131318) !important;background-color:var(--card,#131318) !important}
+.message:hover,.message-user:hover,.message-assistant:hover,.message-agent:hover,.message-system:hover,.message-tool:hover{background:transparent !important;background-color:transparent !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important;filter:none !important;box-shadow:none !important}
 .message-link{opacity:0.4 !important}.message:hover .message-link{opacity:0.8 !important}
 .message{padding-left:var(--space-4,12px) !important}
 </style>'
