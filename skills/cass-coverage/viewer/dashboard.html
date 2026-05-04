@@ -75,10 +75,12 @@ input#search:focus{border-color:var(--line2)}
 .rng span{color:var(--accent);font-variant-numeric:tabular-nums;min-width:22px}
 .stats{margin-left:auto;color:var(--muted);font-size:11px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:10px}
-.chain{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:11px 13px;display:flex;flex-direction:column;gap:5px;cursor:pointer;content-visibility:auto;contain-intrinsic-size:auto 180px}
+.chain{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;cursor:pointer;content-visibility:auto;contain-intrinsic-size:auto 200px;contain:layout paint style}
 .chain:hover{border-color:var(--accent)}
+.chain.active{border-color:var(--accent);background:var(--card-h)}
 .chain.queued{background:#0d2520}
 .chain.is-fold{background:#161425}
+.chain-stub{height:200px;background:transparent;border:1px dashed var(--line);border-radius:6px;opacity:.3}
 .row1{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:10.5px}
 .agent{padding:1.5px 5px;border-radius:3px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;font-size:9px}
 .agent-claude_code{background:#1e2a45;color:#bfdbfe}
@@ -93,7 +95,7 @@ input#search:focus{border-color:var(--line2)}
 .lin-n{font-size:10px;color:var(--accent);margin-left:3px;font-weight:600}
 .is-fold .lin .d{background:var(--purple)}
 .is-fold .lin-n{color:var(--purple)}
-.topic{margin:2px 0 4px;font-size:13px;font-weight:500;line-height:1.4;color:var(--fg)}
+.topic{margin:3px 0 5px;font-size:13.5px;font-weight:500;line-height:1.45;color:var(--fg);overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
 .meta{display:flex;gap:8px;align-items:center;font-size:10.5px;color:var(--muted);flex-wrap:wrap}
 .meta code{background:var(--bg2);padding:0.5px 5px;border-radius:3px;font-size:10px;font-family:ui-monospace,monospace}
 .suggest{padding:1px 6px;border-radius:3px;font-size:10px;font-weight:500;cursor:help}
@@ -114,7 +116,16 @@ input#search:focus{border-color:var(--line2)}
 .qmark::before{content:"✓ queued"}
 .loading{padding:40px;text-align:center;color:var(--muted)}
 .error{padding:40px;text-align:center;color:var(--bad);font-family:ui-monospace,monospace;white-space:pre-wrap}
-@media (max-width:600px){.grid{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
+.scroll-fab{position:absolute;right:16px;display:flex;flex-direction:column;gap:6px;z-index:30;pointer-events:none}
+.scroll-fab.show{pointer-events:auto}
+.scroll-fab button{width:32px;height:32px;border-radius:16px;border:1px solid var(--line2);background:var(--card-h);color:var(--fg);cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s}
+.scroll-fab.show button{opacity:.85}
+.scroll-fab button:hover{opacity:1;background:var(--accent);color:var(--bg)}
+.scroll-top{bottom:auto;top:60px}
+.scroll-bottom{bottom:24px}
+.btn-resume{padding:3.5px 7px;font-size:11px;font-family:ui-monospace,monospace}
+.btn-resume::before{content:"↻ "}
+@media (max-width:600px){.grid{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.scroll-fab{right:8px}.scroll-fab button{width:28px;height:28px}}
 </style>
 </head>
 <body>
@@ -127,9 +138,13 @@ input#search:focus{border-color:var(--line2)}
       <span class="crumb" id="crumb">Dashboard</span>
       <div class="actions"><button id="btn-home">Dashboard</button></div>
     </div>
-    <div class="body-area">
+    <div class="body-area" id="body-area">
       <div class="grid-wrap show" id="grid-wrap"><div class="loading">Loading coverage.json…</div></div>
-      <div class="frame-wrap" id="frame-wrap"><iframe id="frame" class="frame" src="about:blank"></iframe></div>
+      <div class="frame-wrap" id="frame-wrap"><iframe id="frame" class="frame" src="about:blank" loading="lazy"></iframe></div>
+    </div>
+    <div class="scroll-fab" id="scroll-fab">
+      <button class="scroll-top" id="scroll-top" title="scroll to top">▲</button>
+      <button class="scroll-bottom" id="scroll-bottom" title="scroll to bottom">▼</button>
     </div>
   </section>
 </div>
@@ -140,9 +155,9 @@ input#search:focus{border-color:var(--line2)}
 const QKEY = "lev-cap-queued-v1";
 const SBKEY = "lev-cap-sidebar-collapsed";
 const TRANSCRIPT_OVERRIDE = `<style id="__lev_override">
-.message,.message-user,.message-assistant,.message-agent,.message-system,.message-tool,.message-thinking{border-left:0 !important;border-left-width:0 !important;transition:none !important}
+.message,.message-user,.message-assistant,.message-agent,.message-system,.message-tool,.message-thinking{border-left:0 !important;border-left-width:0 !important;transition:none !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
 .agent-claude .message-assistant,.agent-codex .message-assistant,.agent-cursor .message-assistant,.agent-claude .message-user,.agent-codex .message-user,.agent-cursor .message-user,.agent-claude .message-system,.agent-codex .message-system,.agent-cursor .message-system,.agent-claude .message-tool,.agent-codex .message-tool,.agent-cursor .message-tool{border-left-color:transparent !important;border-left-width:0 !important}
-.message:hover{background:var(--card,#131318) !important;background-color:var(--card,#131318) !important}
+.message:hover,.message-user:hover,.message-assistant:hover,.message-agent:hover,.message-system:hover,.message-tool:hover{background:transparent !important;background-color:transparent !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important;filter:none !important;box-shadow:none !important}
 .message-link{opacity:0.4 !important}.message:hover .message-link{opacity:0.8 !important}
 .message{padding-left:var(--space-4,12px) !important}
 </style>
@@ -218,10 +233,18 @@ function chainCard(c){
     ${handoffs}
     <div class="actions">
       <button class="btn btn-read">read</button>
+      <button class="btn btn-resume" title="copy resume command">resume</button>
       <button class="btn btn-cap">/capture</button>
       <span class="qmark"></span>
     </div>
   </article>`;
+}
+
+function buildResumeCmd(c){
+  const sid = (c.lineage && c.lineage[0]) || c.id;
+  if (c.agent === "claude_code") return `claude --resume ${sid}`;
+  if (c.agent === "codex") return `codex resume ${sid}`;
+  return `# resume ${c.agent} session: ${sid}`;
 }
 
 function sidebarItem(c, indent){
@@ -352,21 +375,31 @@ function bindEvents(cov){
     }catch(e){}
   });
 
-  function showDashboard(){
+  function setHash(h){
+    if (window.location.hash === h) return;
+    history.replaceState({}, "", h || window.location.pathname + window.location.search);
+  }
+  function showDashboard({push=true}={}){
     gridWrap.classList.add("show");
     frameWrap.classList.remove("show");
     crumb.textContent = "Dashboard";
     document.querySelectorAll(".nav-item").forEach(a => a.classList.toggle("active", a.dataset.id === "__dashboard__"));
+    document.querySelectorAll(".chain.active").forEach(el => el.classList.remove("active"));
+    if (push) setHash("");
   }
-  function showTranscript(c){
-    if (!c.transcript_path){ toast("no transcript baked for this chain"); return; }
+  function showTranscript(c, {push=true}={}){
+    if (!c.transcript_path){ toast("no transcript baked — bake.sh --coverage <path>"); return; }
     const href = transcriptHref(c, baseDir);
     frame.src = href;
     gridWrap.classList.remove("show");
     frameWrap.classList.add("show");
     crumb.textContent = c.id;
     document.querySelectorAll(".nav-item").forEach(a => a.classList.toggle("active", a.dataset.id === c.id));
+    document.querySelectorAll(".chain.active").forEach(el => el.classList.remove("active"));
+    const card = document.querySelector(`.chain[data-id="${c.id}"]`);
+    if (card) card.classList.add("active");
     if (window.innerWidth < 900) app.classList.remove("sidebar-open");
+    if (push) setHash("#chain-" + c.id);
   }
 
   // Sidebar nav
@@ -418,12 +451,51 @@ function bindEvents(cov){
       if (c) showTranscript(c);
       return;
     }
+    const res = e.target.closest(".btn-resume");
+    if (res){
+      e.preventDefault(); e.stopPropagation();
+      const c = chainsById[res.closest(".chain").dataset.id];
+      if (!c) return;
+      const cmd = buildResumeCmd(c);
+      navigator.clipboard.writeText(cmd).then(
+        () => toast(`copied: ${cmd.slice(0,40)}${cmd.length>40?"…":""}`),
+        () => { console.log(cmd); toast("clipboard failed — see console"); }
+      );
+      return;
+    }
     const chainEl = e.target.closest(".chain");
     if (chainEl && !e.target.closest("button")){
       const c = chainsById[chainEl.dataset.id];
       if (c) showTranscript(c);
     }
   });
+
+  // Scroll FAB
+  const bodyArea = document.getElementById("body-area");
+  const fab = document.getElementById("scroll-fab");
+  function updateFab(){
+    const s = bodyArea.scrollTop;
+    const max = bodyArea.scrollHeight - bodyArea.clientHeight;
+    fab.classList.toggle("show", max > 200);
+    document.getElementById("scroll-top").style.visibility = s > 100 ? "visible" : "hidden";
+    document.getElementById("scroll-bottom").style.visibility = (max - s) > 100 ? "visible" : "hidden";
+  }
+  bodyArea.addEventListener("scroll", () => requestAnimationFrame(updateFab), {passive:true});
+  document.getElementById("scroll-top").addEventListener("click", () => bodyArea.scrollTo({top:0, behavior:"smooth"}));
+  document.getElementById("scroll-bottom").addEventListener("click", () => bodyArea.scrollTo({top:bodyArea.scrollHeight, behavior:"smooth"}));
+  setTimeout(updateFab, 100);
+
+  // Hash routing — load chain from URL, listen for nav
+  function applyHash(){
+    const m = window.location.hash.match(/^#chain-(.+)$/);
+    if (m){
+      const c = chainsById[m[1]];
+      if (c){ showTranscript(c, {push:false}); return; }
+    }
+    showDashboard({push:false});
+  }
+  window.addEventListener("hashchange", applyHash);
+  setTimeout(applyHash, 0);
 
   // Filters + search
   const state = { agent: "all", status: "all", min: 5, q: "" };
