@@ -27,6 +27,22 @@ steps:
     on_failure: "Ask a clarifying question. Do not guess."
 ```
 
+## Technique: XML Sections
+
+Use XML sections directly in the skill body for reusable output templates and semantic response blocks. Do not wrap active XML sections in fenced Markdown or XML code blocks. Fenced blocks are for literal examples only; active templates live as real sections.
+
+<decision>
+## {Decision Title}
+
+Recommended: {option} — {reason}
+
+a. {option_a}
+b. {option_b}
+c. {option_c}
+</decision>
+
+YAML is for contracts, FSM/process steps, validation rules, and machine-checkable state. Templates are Markdown prose inside live XML sections.
+
 ## Workflow 1: Intake & Install
 
 ```yaml
@@ -100,10 +116,14 @@ steps:
     instruction: |
       Write SKILL.md addressing the specific rationalizations from RED.
 
-      Format: YAML frontmatter + steps with id/action/instruction:/validation:/on_failure:
+      Format: standard skill frontmatter + body:
+      - Frontmatter contains `name` and `description`; optional metadata only if the local runtime consumes it
+      - Do not invent version/status/provenance keys
       - description starts with "Use when..." — trigger conditions ONLY, never workflow summary
       - Steps are verbs not states. "Search these sources" not "DISCOVER"
-      - Inline templates at each step — if it produces an artifact, show the skeleton
+      - YAML blocks define contracts, FSM/process, validation, and state
+      - Reusable output templates are live XML sections with Markdown prose inside, e.g. `<report>...</report>` or `<decision>...</decision>`
+      - Do not put active XML templates inside fenced markdown or fenced XML code blocks
       - First step = most important output, not background theory
       - Operational content lives in SKILL.md, not references/ (agents don't cat them)
       - validation: strings are concrete verifiable checks (commands or binary states)
@@ -111,7 +131,7 @@ steps:
       - Under 300 lines total. Prose is the enemy.
 
       Run the same pressure scenarios WITH the skill. Agent should now comply.
-    validation: "wc -l SKILL.md under 300. All steps have validation: strings. Subagent passes scenarios that failed in RED."
+    validation: "wc -l SKILL.md under 300. Frontmatter has supported keys. All steps have validation: strings. Reusable templates use live XML sections, not fenced code blocks. Subagent passes scenarios that failed in RED."
     on_failure: "Scenarios still fail → skill doesn't address the right rationalizations. Back to RED captures."
 
   - id: author_refactor
@@ -234,8 +254,9 @@ steps:
       ```
       Output goes to stdout for review, never directly to disk.
       Scaffold must satisfy author_green rules: trigger-only description, validation on every step, under 300 lines.
+      Reusable output templates must use live XML sections with Markdown prose inside, not fenced code blocks.
       For lifecycle verbs: extract the verb's handler signature as the skill's first step.
-    validation: "Dry-run output parses as valid SKILL.md frontmatter + steps. No files written."
+    validation: "Dry-run output parses as valid SKILL.md frontmatter + steps. Live XML sections wrap reusable templates. No files written."
     on_failure: "Scaffold invalid. Fix or discard. Never auto-promote broken output."
 
   - id: autogen_promote

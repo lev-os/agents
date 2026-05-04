@@ -49,9 +49,17 @@ For each in-memory item:
 - If it's a decision → `.lev/pm/decisions/`
 - If it's a parity observation → `.lev/pm/parity/`
 - If it's a design insight → `.lev/pm/designs/`
+- If the conversation already contains design-grade framing → create or update
+  `.lev/pm/designs/<slug>.md` before routing to `/propose`
 - If it's an agent coordination item → `.lev/mail/`
 - If it needs deliberation → suggest `/cdo` or `/think`
 - If it needs research → suggest `/prior-art` or `/lev-research`
+
+Design-grade framing means the session has enough of these to preserve the
+decision without another interview: problem, desired direction, boundaries,
+acceptance horizon, out-of-scope, implementation decisions, testing decisions,
+and unresolved questions. If those are present with confidence >= 0.7, write
+the design artifact first, then route the crystallized effort to `/propose`.
 
 ### Step 4: Show the Delta
 

@@ -1,0 +1,314 @@
+{
+  "meta": {
+    "title": "How We Are Using Argo",
+    "description": "A long-form GTM article on using Argo as FlowMind's deterministic gate kernel, with three concrete use cases and the next 10 workstream steps.",
+    "layout": "default",
+    "effects": ["card-glow", "hero-gradient", "title-underline"]
+  },
+  "theme": {
+    "preset": "terracotta-sage",
+    "mode": "light"
+  },
+  "root": [
+    "hero",
+    "section-thesis",
+    "section-positioning",
+    "section-use-cases",
+    "section-how-it-works",
+    "section-why-now",
+    "section-gtm",
+    "section-next-steps",
+    "section-cta"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "FLOWMIND / ARGO",
+        "title": "How We Are Using Argo",
+        "subtitle": "The deterministic gate kernel underneath adaptive agent work.",
+        "meta": "Long-form GTM article · April 30, 2026"
+      },
+      "children": ["hero-lead", "hero-pullquote"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "Argo is not the agent. Argo is the part of the runtime that decides, deterministically, whether a gate is open. FlowMind still describes the work. Codex and other agents still do semantic execution. But the branch predicates, safety checks, and repeatable pass/fail routing move into a frozen Rust/WASM kernel."
+      }
+    },
+    "hero-pullquote": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": {
+        "content": "The pitch is simple: let agents reason where reasoning is useful, and let a deterministic kernel decide where correctness must not drift."
+      }
+    },
+    "section-thesis": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "THESIS",
+        "title": "The missing layer is not another agent. It is deterministic agency control.",
+        "subtitle": "Argo gives FlowMind a hard substrate for gates, predicates, and routing."
+      },
+      "children": ["thesis-prose", "thesis-kpis"]
+    },
+    "thesis-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "Most agent systems fail in the same place: the work may be intelligent, but the control loop is soft. A model decides what to do, then another model decides if it worked, then a prompt asks whether to continue. That can be useful for exploration. It is not enough for an operating substrate.\n\nOur direction is different. FlowMind is the declarative control plane: graphs, nodes, branches, validation gates, and lifecycle transitions. Argo is the deterministic execution kernel for the expression side of that control plane. When a FlowMind node has a predicate that can be evaluated as data, Argo evaluates it through a Rust/WASM path. When the predicate requires semantic judgment, FlowMind still routes to an agent or node executor.\n\nThat separation matters. We do not want LLMs deciding every boolean. We want LLMs to handle ambiguous semantic work, and we want the runtime to own deterministic branching, safety gates, and repeatable receipt checks. Argo is how we start drawing that boundary."
+      }
+    },
+    "thesis-kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "WHAT CHANGES",
+        "title": "A cleaner runtime bargain"
+      },
+      "children": ["kpi-determinism", "kpi-speed", "kpi-safety"]
+    },
+    "kpi-determinism": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "1",
+        "label": "Deterministic branch kernel",
+        "trend": { "direction": "up", "value": "less drift" },
+        "sparkline": [2, 3, 3, 5, 8, 13]
+      }
+    },
+    "kpi-speed": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "0",
+        "label": "LLM calls for pure expressions",
+        "trend": { "direction": "down", "value": "lower spend" },
+        "sparkline": [13, 8, 5, 3, 2, 1]
+      }
+    },
+    "kpi-safety": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "3",
+        "label": "Gate classes: pass, fail, uncertain",
+        "trend": { "direction": "flat", "value": "explicit" },
+        "sparkline": [3, 3, 3, 3, 3, 3]
+      }
+    },
+    "section-positioning": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "POSITIONING",
+        "title": "Why this is a product wedge",
+        "subtitle": "Argo turns FlowMind from workflow description into trustworthy runtime governance."
+      },
+      "children": ["positioning-before", "positioning-after"]
+    },
+    "positioning-before": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Without Argo",
+        "content": "Every branch can become a prompt. The system spends tokens to answer questions the runtime already has enough data to answer. Validation becomes expensive, noisy, and hard to replay."
+      }
+    },
+    "positioning-after": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "With Argo",
+        "content": "Expression predicates move into a frozen kernel. Agents still execute creative or semantic work, but the runtime owns deterministic branch routing, gate evaluation, and repeatable control decisions."
+      }
+    },
+    "section-use-cases": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "3 USE CASES",
+        "title": "Where Argo becomes leverage",
+        "subtitle": "These are not abstract benchmarks. They are the places where deterministic routing makes the whole agent OS more credible."
+      },
+      "children": ["usecase-autodev", "usecase-control-kernel", "usecase-learning"]
+    },
+    "usecase-autodev": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "1. Autodev tick routing",
+        "content": "In the SDLC loop, FlowMind can represent scan, execute, validate, promote, fail-fast, and circuit-breaker paths. Argo makes the data predicates hard: did the tick fail, did it exceed budget, did the status move to done, did the queue hit zero? Those should not be interpreted by a model. They should be evaluated, logged, and replayed.\n\nThe GTM value: buyers get autonomous development without invisible prompt soup. Every tick has a route, a reason, and a receipt."
+      }
+    },
+    "usecase-control-kernel": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "2. Universal control safety gates",
+        "content": "The universal control kernel needs to drive hostile legacy systems: terminal/mainframe, USB serial, desktop automation, browser fallback, and eventually hardware-adjacent targets. Before any action, we need gates: does the agent hold the lease, is the operation destructive, is the target in the expected state, did verification pass, should the runtime escalate?\n\nArgo is the right layer for these predicates. It can evaluate the structured preconditions while FlowMind decides the policy path and agents handle the messy semantic work."
+      }
+    },
+    "usecase-learning": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "3. Learning admission and evals",
+        "content": "The next native-AI-OS substrate needs learning, but not every observation should mutate memory or policy. Argo can gate admission: is the receipt complete, did the eval pass, is confidence above threshold, is the change reversible, does this update violate a safety invariant?\n\nThat lets the system adapt without becoming mush. The agent can propose a lesson. FlowMind can route the lesson. Argo can decide whether the structured conditions are actually satisfied."
+      }
+    },
+    "section-how-it-works": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "MECHANICS",
+        "title": "The operating model",
+        "subtitle": "Fast path for expressions. Semantic fallback for judgment."
+      },
+      "children": ["how-code", "how-prose"]
+    },
+    "how-code": {
+      "type": "code-block",
+      "props": {
+        "filename": "flowmind-gate-path.ts",
+        "language": "ts",
+        "showLineNumbers": true,
+        "content": "const gate = createArgoGateEvaluator({ nodeExecutor });\n\n// Expression path: deterministic Rust/WASM predicate.\nawait gate.evaluate(node, nodeId, variables);\n\n// Semantic path: only when the graph needs judgment.\n// The nodeExecutor remains available for LLM-backed decisions."
+      }
+    },
+    "how-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "The implementation pattern is intentionally boring. FlowMind creates the graph runtime. The graph runtime asks for a gate evaluator. The factory tries Argo first unless the environment disables it. If the WASM bridge is unavailable, the system falls back to the TypeScript evaluator.\n\nThat boring fallback is important. The product story is not 'rewrite the runtime in Rust overnight.' The product story is progressive hardening: keep the adaptive surface, move deterministic predicates into a kernel, and preserve the fallback while the kernel expands.\n\nThis is how an AI-native OS should evolve. Not by asking a model to be more careful, but by shrinking the territory where care is optional."
+      }
+    },
+    "section-why-now": {
+      "type": "section",
+      "variant": "asymmetric",
+      "props": {
+        "label": "WHY NOW",
+        "title": "Agent work is moving from chat to control",
+        "subtitle": "The market does not need another assistant demo. It needs reliable execution on messy surfaces."
+      },
+      "children": ["why-prose", "why-table"]
+    },
+    "why-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "The interesting frontier is no longer whether an agent can draft an answer. The frontier is whether it can safely act across real systems: codebases, queues, terminals, browsers, desktops, serial devices, and legacy enterprise software. That is an operating problem, not a chat problem.\n\nArgo gives us a wedge into that operating problem. It makes the control layer less negotiable. It also gives us a sales story that is sharper than 'better agents': deterministic gates for adaptive systems.\n\nFor teams evaluating autonomous development or AI operations, that distinction matters. They do not only ask whether the model is smart. They ask what happens when it is wrong, stale, over budget, out of lease, or uncertain. Argo is part of the answer."
+      }
+    },
+    "why-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "anxiety", "label": "Buyer anxiety" },
+          { "key": "weak", "label": "Weak answer" },
+          { "key": "argo", "label": "Argo-backed answer" }
+        ],
+        "rows": [
+          { "anxiety": "Will it drift?", "weak": "We prompt it carefully.", "argo": "Branch predicates are deterministic and replayable." },
+          { "anxiety": "Will it spend too much?", "weak": "We tell it to be efficient.", "argo": "Budget gates are evaluated as data." },
+          { "anxiety": "Can it touch risky systems?", "weak": "We trust the agent.", "argo": "Lease, guard, and verification predicates run before action." },
+          { "anxiety": "Can we audit it?", "weak": "Read the transcript.", "argo": "Receipts record observation, action, verification, and outcome." }
+        ]
+      }
+    },
+    "section-gtm": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "BLOG / SALES / GTM",
+        "title": "How to talk about it",
+        "subtitle": "Lead with the business problem: reliable adaptive execution."
+      },
+      "children": ["gtm-table", "gtm-pullquote"]
+    },
+    "gtm-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "audience", "label": "Audience" },
+          { "key": "message", "label": "Message" },
+          { "key": "proof", "label": "Proof point" },
+          { "key": "cta", "label": "CTA" }
+        ],
+        "rows": [
+          { "audience": "Engineering leaders", "message": "Autonomous dev needs deterministic gates, not just smarter prompts.", "proof": "Autodev tick routing + replayable receipts.", "cta": "Run a bounded SDLC loop." },
+          { "audience": "Platform teams", "message": "Use one control plane across code, browser, terminal, desktop, and devices.", "proof": "Universal control kernel with channel/capability/guard contracts.", "cta": "Map one legacy workflow." },
+          { "audience": "Security/compliance", "message": "Separate semantic judgment from deterministic admission control.", "proof": "Pass/fail/uncertain gates with append-only receipts.", "cta": "Review the gate taxonomy." },
+          { "audience": "Enterprise buyers", "message": "The agent can adapt, but the runtime owns the rules.", "proof": "WASM-backed predicates plus semantic fallback.", "cta": "Pilot a high-friction legacy task." }
+        ]
+      }
+    },
+    "gtm-pullquote": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": {
+        "content": "Position Argo as the control kernel for agentic reliability: the part that lets adaptive systems act without turning every decision into vibes."
+      }
+    },
+    "section-next-steps": {
+      "type": "section",
+      "variant": "timeline",
+      "props": {
+        "label": "WORKSTREAM",
+        "title": "Next 10 steps",
+        "subtitle": "A concrete path from exciting kernel log line to shippable product surface."
+      },
+      "children": ["next-timeline"]
+    },
+    "next-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          { "date": "Step 01", "title": "Freeze the Argo/FlowMind boundary", "status": "in-progress", "description": "Document exactly which predicates belong in Argo, which stay in TypeScript, and which require semantic node execution." },
+          { "date": "Step 02", "title": "Add gate coverage metrics", "status": "upcoming", "description": "Measure how many FlowMind branches are expression predicates versus semantic predicates." },
+          { "date": "Step 03", "title": "Define the pass/fail/uncertain contract", "status": "upcoming", "description": "Make uncertain a first-class outcome instead of forcing every gate into boolean success or failure." },
+          { "date": "Step 04", "title": "Wire Argo receipts into autodev ticks", "status": "upcoming", "description": "Attach gate-evaluation results to tick receipts so loop outcomes can be replayed and audited." },
+          { "date": "Step 05", "title": "Promote control-kernel guards", "status": "upcoming", "description": "Map lease, guard, verification, and destructive-operation predicates onto the Argo gate path." },
+          { "date": "Step 06", "title": "Build three demo flows", "status": "upcoming", "description": "One autodev flow, one terminal/mainframe flow, and one learning-admission flow." },
+          { "date": "Step 07", "title": "Add a failure gallery", "status": "upcoming", "description": "Show where Argo refuses, escalates, or marks uncertain; this is more credible than only showing happy paths." },
+          { "date": "Step 08", "title": "Package a buyer-facing proof", "status": "upcoming", "description": "Turn the three demo flows into a repeatable sales artifact with before/after metrics." },
+          { "date": "Step 09", "title": "Publish a technical RFC", "status": "upcoming", "description": "Separate the GTM story from the contract-level specification engineers can inspect." },
+          { "date": "Step 10", "title": "Run the next bounded autodev slice", "status": "upcoming", "description": "Target implementation work that converts the current universal-control-kernel plan into code-level contracts." }
+        ]
+      }
+    },
+    "section-cta": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "CTA",
+        "title": "The product promise",
+        "subtitle": "Adaptive agents. Deterministic control. Receipts you can trust."
+      },
+      "children": ["cta-copy", "cta-card"]
+    },
+    "cta-copy": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "This is the path to a true native AI OS: agents that can learn and act, but inside a runtime that knows when to stop, when to verify, when to escalate, and when to refuse. Argo is one of the first hard pieces of that runtime.\n\nThe next milestone is not a bigger demo. It is a smaller, more defensible proof: one FlowMind graph, one Argo-backed gate path, one receipt, one risky action prevented or safely executed. Repeat that pattern across development loops, legacy control, and learning admission, and the OS starts to become real."
+      }
+    },
+    "cta-card": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "One-line positioning",
+        "content": "Argo is the deterministic gate kernel that lets FlowMind control adaptive agents without turning reliability into another prompt."
+      }
+    }
+  }
+}

@@ -45,6 +45,41 @@ What exists today? What is awkward, unclear, or incomplete?
 
 What should the user, operator, or system experience look like when this design succeeds?
 
+## Product Requirements
+
+These sections capture PRD-style content inside the design. Do not create a
+separate PRD unless the user explicitly asks for one.
+
+### Problem Statement
+
+Describe the problem from the user, operator, or system perspective.
+
+### Solution Direction
+
+Describe the proposed solution from the user, operator, or system perspective.
+
+### User / Operator Stories
+
+1. As a `<role>`, I want `<capability>`, so that `<benefit>`.
+
+### Implementation Decisions
+
+- Modules or surfaces to build or modify
+- Interfaces, schemas, contracts, or interactions to clarify
+- Domain vocabulary and ADRs that must shape the design
+- Deep-module candidates with simple, testable interfaces
+
+### Testing Decisions
+
+- External behavior that proves success
+- Modules, flows, or contracts that need tests
+- Prior-art tests, validators, fixtures, or replay checks to reuse
+
+### Out of Scope
+
+- Explicit non-goal 1
+- Explicit non-goal 2
+
 ## Constraints
 
 - Constraint 1
@@ -108,4 +143,3 @@ State the preferred design direction and why.
 - [ ] Ready to promote to `docs/_inbox`
 - [ ] Needs spec follow-up
 - [ ] Needs prototype or examples
-

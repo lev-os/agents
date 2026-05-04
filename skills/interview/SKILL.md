@@ -1,216 +1,255 @@
 ---
 name: interview
-description: "Wizard-mode questioning with framework library (SCAMPER, First Principles, Systems Thinking). Use for structured decision-making one question at a time."
-version: 1.2.0
-skill_type: playbook
-category: process-ask
-extends: []
-related_skills:
-  - think
-  - work
-  - lev-cdo
+description: Use when guiding decision interviews that produce a design artifact in .lev/pm/designs before proposal or implementation planning.
 ---
 
-# Interview: Wizard-Mode Questioning
+# Interview
 
-**Framework-powered interactive decision-making.** Guides users through complex problems using strategic, creative, and philosophical frameworks.
+<goal>
+Run a design interview. Ask one researched question at a time, recommend an answer, and walk the decision tree until a design artifact is ready under `.lev/pm/designs/`.
 
-## Quick Start
+The interview output is a design, not a spec. It should carry the product
+framing normally expected from a PRD, but inside the design artifact.
+`propose` is the next lifecycle step after design alignment.
+</goal>
+
+<commands>
 
 ```bash
-/interview                    # Start new interview session
-/interview --framework=SCAMPER  # Start with specific framework
+/interview                      # compact mode, default
+/interview --compact            # explicit compact mode
+/interview --full               # rich mode for complex or agent-driven flows
+/interview --framework=SCAMPER  # use this lens internally; show only the tag unless --full
 ```
 
-## Hard Requirements (Non-Optional)
+</commands>
 
-1. **Research between every question** — run fresh evidence-gathering before each new question.
-2. **Work lifecycle coupling** — when `.lev/pm/` exists, treat interview as part of `work` lifecycle and update active artifacts.
-3. **Context-rich questions only** — never ask "ingredient-only" option prompts without decision context and consequences.
-4. **Trade-off transparency** — always surface trade-offs, validation-gate impact, and side effects.
+<operational-contract>
 
-## How It Works
-
-1. **Context Analysis** - Detect complexity and classify decision level (strategic/integrative/tactical).
-2. **Framework Selection** - Choose one primary framework and one cross-check lens.
-3. **Per-Question Research (required)** - Before each question, collect new evidence from workspace, prior answers, and constraints.
-4. **Lifecycle Sync (required with `work`)** - Track entities/decisions and iterate handoff/spec/proposal docs as context evolves.
-5. **Question Loop (reciprocal)** - Ask one structured question, answer one reciprocal user question, then continue.
-6. **Decision Assimilation** - After each answer, update artifacts and convert resolved questions into explicit decisions.
-7. **MBTI Overlay** (optional) - Use only when perspective-testing is useful.
-
-## Per-Question Research Protocol (Required)
-
-Before each question, do all of:
-
-1. Pull evidence from current workspace context (specs, handoffs, plans, code).
-2. Check active constraints and quality gates.
-3. Validate whether the next question still matters based on newly discovered facts.
-
-Minimum evidence set per question:
-
-- One artifact fact from `.lev/pm/` (spec/handoff/proposal/plan).
-- One implementation or architecture fact from code/docs.
-- One validation constraint from `.lev/validation-gates.yaml` when present.
-
-If no new evidence exists, explicitly state that and why the next question is still needed.
-
-## Work Lifecycle Coupling (Required when `.lev/pm/` exists)
-
-Interview mode is not standalone Q&A. It is a foreground intake loop inside `work` DISCOVER/ALIGN.
-
-When active:
-
-1. Locate active handoff under `.lev/pm/handoffs/` and keep it current.
-2. Track entities (state changes, blockers, decisions) using lifecycle language.
-3. Iterate affected docs after each major answer:
-   - specs (`.lev/pm/specs/`)
-   - proposals (`.lev/pm/proposals/`)
-   - handoffs (`.lev/pm/handoffs/`)
-4. Convert resolved open questions into decisions with rationale and consequence.
-5. Carry unresolved items forward with explicit owner/next action.
-
-Degrade gracefully if artifacts are missing, but do not skip lifecycle sync silently.
-
-## Session Handoff Bootstrap (Hard Rule)
-
-If there is no active session handoff, the interview must not proceed as normal Q&A.
-
-Required behavior:
-
-1. Load `$work` and run DISCOVER lifecycle preflight.
-2. Create or update the active handoff under `.lev/pm/handoffs/`.
-3. Record stage, objective, and initial evidence before asking decision questions.
-4. Resume interview loop only after handoff continuity exists.
-
-Enforcement:
-
-- If `$work` cannot be loaded, stop and ask the user to resolve the blocker.
-- Do not run fallback interview behavior without `work` lifecycle initialization.
-
-## Framework Library
-
-### Strategic/Systems Thinking
-- SWOT, First Principles, Systems Thinking, Theory of Constraints
-- McKinsey 7S, Cynefin, Jobs to Be Done
-
-### Creative Thinking
-- SCAMPER, Reverse Brainstorming, Extreme Users
-- Six Thinking Hats, Figure Storming, TRIZ, Design Thinking
-
-### Philosophical/Spiritual
-- Taoist Wu Wei, Ubuntu, Ayurvedic Doshas
-- Buddhist Non-Attachment, Sufi/Rumi Poetry, I Ching, Stoicism
-
-### Psychological/Cognitive
-- MBTI (8 Cognitive Functions), Big Five (OCEAN), Ladder of Inference
-
-## Output Format
-
-Single question with grounded options:
+```yaml
+rules:
+  - "Compact vs full changes only the amount of text shown to the user."
+  - "Both modes must walk the same design tree, inspect the same codebase context, and maintain the same design artifact."
+  - "Walk one branch of the design tree at a time; resolve dependencies between decisions instead of dumping all questions."
+  - "If a branch can be answered by exploring the codebase, docs, workstream state, or existing artifacts, inspect those first and answer it without asking the user."
+  - "Ask the user only for decisions that remain judgment-bound after lookup."
+  - "For every asked question, provide the recommended answer and the design consequence of each option."
+  - "Carry resolved and deferred branches forward so the design tree stays explicit."
+validation: "Every interview turn has a current branch, lookup result or lookup gap, one recommended answer, and an updated unresolved branch count."
+on_failure: "Do not ask another broad question. Inspect context or split the branch."
 ```
-q1) {Question title}
-🎯 Decision Context:
-- {What decision is being made}
-- {Why this decision is needed now}
-- {What gets blocked/unblocked}
-- {What could break if wrong}
 
-🧠 {Framework Name} Analysis:
-{Framework-based interpretation of the decision and pressure points}
+</operational-contract>
 
-🔎 Evidence (research run this turn):
-- {Prior answer + artifact evidence with path}
-- {Code/doc fact relevant to this decision}
-- {Validation gate(s) impacted from .lev/validation-gates.yaml}
-- {Constraint/conflict/assumption check}
+<process-contract>
 
-⚖️ Trade-off Summary:
+```yaml
+steps:
+  - id: select_mode
+    action: Choose output mode
+    instruction: |
+      Default to compact mode unless the user passes --full.
+      Mode controls output verbosity only, not operational behavior.
+      Compact mode fits roughly half a page.
+      Full mode shows richer evidence and trade-offs.
+    validation: "Mode is compact or full."
+    on_failure: "Default to compact and state that full detail is available with --full or d. Deep dive."
+
+  - id: load_design_template
+    action: Load the canonical design template
+    instruction: |
+      Before creating or updating the design artifact, load:
+      /Users/jean-patricksmith/.agents/skills/work/templates/design.md
+      Use it as the artifact skeleton under .lev/pm/designs/.
+      Do not create a spec artifact from interview output.
+    validation: "Design template loaded and target artifact path is under .lev/pm/designs/."
+    on_failure: "Stop and load the design template before writing interview artifacts."
+
+  - id: discover_context
+    action: Lookup before asking
+    instruction: |
+      Before each branch question, inspect the local workspace when the answer may be discoverable.
+      Search code, docs, designs, proposals, workstreams, validation gates, and existing task artifacts as relevant.
+      Pull one useful artifact fact, one implementation/doc fact, and one constraint or gate when available.
+      If lookup resolves the branch, update the design and move to the next branch without asking.
+      If lookup cannot resolve the branch, ask the smallest human judgment question that remains.
+    validation: "Each question is grounded in lookup evidence or an explicit lookup gap."
+    on_failure: "Do not ask a generic question. Search files/docs first or say what evidence is missing."
+
+  - id: shape_product_requirements
+    action: Fold PRD-style content into the design
+    instruction: |
+      The design artifact should include the PRD-derived content needed for later slicing:
+      problem statement, solution direction, user/operator stories, implementation decisions,
+      testing decisions, and out-of-scope boundaries.
+
+      Before asking the user, inspect repo/docs for domain vocabulary, ADRs, major modules,
+      deep-module candidates, and test prior art. Ask only for product or design judgment
+      that lookup cannot answer.
+    validation: "Design artifact has product framing, stories, implementation decisions, testing decisions, and out-of-scope boundaries when relevant."
+    on_failure: "Ask one compact design question for the missing product/design requirement."
+
+  - id: synthesize_lenses
+    action: Think through perspectives silently
+    instruction: |
+      Consider systems thinking, first principles, trade-off analysis, Thinking Hats, and other useful lenses internally.
+      Print only one compact lens tag, such as (systems thinking), near the question title or recommendation.
+      Do not print a framework essay unless the user asks for d. Deep dive or uses --full.
+    validation: "Output contains at most one visible lens tag in compact mode."
+    on_failure: "Remove framework prose and leave only the tag."
+
+  - id: walk_tree
+    action: Resolve one decision branch
+    instruction: |
+      Ask one question that resolves the next meaningful branch in the design tree.
+      Name the current branch and the dependency it unblocks.
+      Provide three researched answers when viable; use two only if a third branch would be fake.
+      Recommend one answer and name the design consequence of each option.
+      Carry unresolved branches forward instead of dumping all branches at once.
+    validation: "Question has current branch, lookup result or gap, one decision, 2-3 options, one recommendation, and unresolved branch count."
+    on_failure: "Split the question or collapse fake options."
+
+  - id: update_design
+    action: Update the design artifact
+    instruction: |
+      Treat interview as a design loop, not a generic planning loop.
+      The output target is a design artifact: problem framing, constraints, direction, alternatives, interaction model, PRD-style product sections, risks, and recommendation.
+      Write or update the design under .lev/pm/designs/ using the canonical design template.
+      When the user says propose, stop interviewing and hand the aligned design to propose.
+    validation: "A design artifact path under .lev/pm/designs/ is named or updated."
+    on_failure: "Add a concrete design artifact target before asking."
+```
+
+</process-contract>
+
+<lifecycle-contract>
+
+```yaml
+steps:
+  - id: lifecycle_sync
+    action: Keep work artifacts current when .lev/pm/ exists
+    instruction: |
+      If .lev/pm/ exists, treat interview as part of the work lifecycle.
+      Prefer updating active workstream state, handoff, and .lev/pm/designs/ artifacts.
+      Update proposals only when the user enters proposition mode or asks to run propose.
+    validation: "Relevant lifecycle artifact is updated or explicitly not needed for read-only/trivial work."
+    on_failure: "Pause and create or resume lifecycle continuity before continuing substantial work."
+```
+
+</lifecycle-contract>
+
+<compact-template>
+## q{n}) {decision_title} ({lens_tag})
+
+Design target: `.lev/pm/designs/{design_slug}.md` -> {design_section}
+Decision: {one_sentence_decision}
+
+Recommended: {a|b|c} - {short_reason}
+
+a. {researched_answer_a} -> {design_consequence}
+b. {researched_answer_b} -> {design_consequence}
+c. {researched_answer_c} -> {design_consequence}
+d. Deep dive: evidence, gates, trade-offs, codebase exploration, or alternate lens
+
+Progress: ambiguity {0.xx}; alignment {xx%}; unresolved branches {n}
+Next: answer a/b/c, ask d, or say "propose" if the design is aligned.
+</compact-template>
+
+<full-template>
+## q{n}) {decision_title} ({lens_tag})
+
+<decision-context>
+
+- Design artifact: `.lev/pm/designs/{design_slug}.md`
+- Design section: {design_section}
+- Decision: {design_decision}
+- Needed now: {why_now}
+- Unblocks: {what_unblocks}
+- Risk if wrong: {failure_mode}
+
+</decision-context>
+
+<analysis lens="{framework}">
+
+{framework_read_of_pressure_points}
+
+</analysis>
+
+<decision-tree>
+
+- Current branch: {branch_under_test}
+- Resolved branches: {resolved}
+- Deferred branches: {deferred}
+
+</decision-tree>
+
+<evidence>
+
+- {artifact_fact_with_path}
+- {code_or_doc_fact_with_path}
+- {constraint_or_gate}
+- {assumption_check}
+
+</evidence>
+
+<tradeoffs>
+
 | Option | Benefits | Costs/Risks | Gate Impact | Side Effects |
 |---|---|---|---|---|
 | a | ... | ... | ... | ... |
 | b | ... | ... | ... | ... |
-| c | ... | ... | ... | ... |  # optional
+| c | ... | ... | ... | ... |
 
-Options (2-3 researched):
-a. {Concrete option A with trade-off}
-b. {Concrete option B with trade-off}
-c. {Concrete option C with trade-off}  # optional
+</tradeoffs>
 
-✅ Recommended: {Option letter} — {Why this best fits evidence and constraints}
+<options>
 
-🤝 Reciprocal:
-User may ask one question; answer directly before next interview question.
+a. {researched_option_a} -> {design_consequence}
+b. {researched_option_b} -> {design_consequence}
+c. {researched_option_c} -> {design_consequence}
+d. Deep dive / branch expansion
 
-🧭 Follow-Up Menu:
-1. [{Action for option A}]
-2. [{Action for option B}]
-3. [{Alternative perspective}]
-4. [Deep dive into trade-offs]
-5. [Go back]
-6. [Switch framework]
+</options>
+
+Recommended: {a|b|c} ({lens_tag}) - {why}
+
+Progress: ambiguity {0.xx}; alignment {xx%}; unresolved branches {n}; design target `.lev/pm/designs/{design_slug}.md`
+</full-template>
+
+<ambiguity-contract>
+
+```yaml
+score:
+  formula: "ambiguity = 1 - sum(clarity_i * weight_i)"
+  dimensions:
+    intent: 0.30
+    outcome: 0.25
+    scope: 0.20
+    constraints: 0.15
+    success_criteria: 0.10
+  gate: "ambiguity <= 0.20 means the design is clear enough to propose."
+  compact_output: "Progress: ambiguity {0.xx}; alignment {xx%}; unresolved branches {n}"
 ```
 
-## Integration
+</ambiguity-contract>
 
-- **Command:** `/interview` (formerly `/guideme`)
-- **Skill Route:** `skill://interview`
-- **Used by:** `work` skill for wizard-mode context gathering
-- **Lifecycle Hook:** In repos with `.lev/pm`, interview must update entities/handoffs/docs as part of `work` progression
-- **Gate Awareness:** Interview must consult `.lev/validation-gates.yaml` for option-level compliance and side effects
+<guardrails>
 
----
-
-**Status:** v1.2.0
-**Migrated from:** /guideme command
-
-## Technique Map
-
-- **Identify scope** — Determine what the skill applies to before executing.
-- **Follow workflow** — Use documented steps; avoid ad-hoc shortcuts.
-- **Ground every question** — No question without fresh per-turn evidence from context/research.
-- **Show research trace** — Make evidence visible in every question.
-- **Update lifecycle artifacts** — Maintain handoff/spec/proposal continuity when `.lev/pm` is active.
-- **Recommend explicitly** — Always include a best option and rationale.
-- **Expose trade-offs** — Include gate impact, side effects, and blast radius.
-- **Use reciprocity** — Handle one user counter-question before advancing.
-- **Verify outputs** — Check results match expected contract.
-- **Handle errors** — Graceful degradation when dependencies missing.
-- **Reference docs** — Load references/ when detail needed.
-- **Preserve state** — Don't overwrite user config or artifacts.
-
-## Technique Notes
-
-Skill-specific technique rationale. Apply patterns from the skill body. Progressive disclosure: metadata first, body on trigger, references on demand.
-
-## Prompt Architect Overlay
-
-**Role Definition:** Specialist for interview domain. Executes workflows, produces artifacts, routes to related skills when needed.
-
-**Input Contract:** Context, optional config, artifacts from prior steps. Depends on skill.
-
-**Output Contract:** Artifacts, status, next-step recommendations. Format per skill.
-
-**Edge Cases & Fallbacks:** Missing context—ask or infer from workspace. Missing lifecycle artifacts—create minimal continuity notes and continue. Dependency missing—degrade gracefully and state what could not be validated. Ambiguous request—clarify before proceeding.
-
-## Mathematical Ambiguity Gate (from OOO + OMX)
-
-Before proceeding past the Shape phase, compute an ambiguity score:
-
-```
-ambiguity = 1 - sum(clarity_i × weight_i)
+```yaml
+rules:
+  - "Interview output is always a design artifact under .lev/pm/designs/."
+  - "Load /Users/jean-patricksmith/.agents/skills/work/templates/design.md before creating or updating the design."
+  - "Do not create spec artifacts from interview output."
+  - "Do not create a separate PRD artifact; PRD-style product content lives inside the design."
+  - "Never ask ingredient-only option prompts; every option needs a design consequence."
+  - "Do not print hidden chain-of-thought or full framework analysis in compact mode."
+  - "Do not mention stale provenance, deprecated project names, or internal origin stories."
+  - "Use YAML for workflow, contracts, scoring, validation, and state."
+  - "Use live XML sections for reusable output templates; do not wrap active XML templates in fenced Markdown blocks."
+  - "Use d. Deep dive for evidence, gates, trade-offs, codebase exploration, and alternate lenses."
+  - "When the user says propose, stop interviewing and route the aligned design to propose."
+validation: "Output is a compact design question by default, full only behind --full or d. Deep dive."
+on_failure: "Rewrite the response using the compact live XML section template."
 ```
 
-| Dimension | Weight | What to assess |
-|-----------|--------|---------------|
-| Intent | 30% | Is the goal clear? |
-| Outcome | 25% | Can we describe success? |
-| Scope | 20% | Are boundaries explicit? |
-| Constraints | 15% | Are non-negotiables stated? |
-| Success criteria | 10% | Is there a measurable exit? |
-
-**Gate:** Score must be ≤ 0.2 (80%+ clarity) to proceed. If above threshold, ask another round of questions targeting the weakest dimension.
-
-**Production proof:** OMX deep-interview skill scored Round 1 = 0.2455 (above), Round 2 = 0.159 (below, gate passed). Dimensions: intent 0.90, outcome 0.84, scope 0.80, constraints 0.92, success 0.56, brownfield 0.93.
-
-**Source:** `.lev/pm/parity/ouroboros.yaml` (ooo-01), `.lev/pm/parity/omx.yaml` (omx-02), `.lev/pm/decisions/20260411-tribunal-absorption-verdicts.md` (item 10, UNANIMOUS AGREE)
+</guardrails>
