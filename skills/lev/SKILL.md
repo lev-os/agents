@@ -207,6 +207,33 @@ gate:
     fail: work
 ```
 
+### Token Budgets / Adapter Context Costs
+
+**For batch CLI-only tasks, prefer claude-agent-sdk.** Each adapter loads a
+different amount of baseline context before seeing your prompt. Choosing the
+wrong adapter for CLI-only work wastes tokens (up to 14x measured overhead).
+
+| Adapter          | Baseline Tokens | Loads IDE Context | Best For                          | Measured Total (smoke) |
+| ---------------- | ---------------:| :---------------: | --------------------------------- | ----------------------:|
+| cursor           |      60-100K    |        Yes        | File editing, IDE-context tasks   |               488,611  |
+| codex            |        ~15K     |        No         | Multi-file, OpenAI models         |                52,100  |
+| claude-agent-sdk |         ~5K     |        No         | CLI-only, batch loops, SDK work   |                34,398  |
+| opencode         |         ~8K     |        No         | Open-source alternative           |                41,200  |
+| gemini           |        ~10K     |        No         | Gemini models                     |                44,800  |
+
+*Measurements from NaaC project dogfood (5 trial runs, 2026-04-05).
+Report: `.lev/pm/reports/adapter-cost-baseline-20260430.md`*
+
+**Runtime warning:** `lev exec` emits an `exec.cost_warning` event when a
+CLI-only prompt routes to a high-IDE-context adapter. The warning suggests
+using `--adapter=claude-agent-sdk` instead.
+
+**Quick reference:**
+- CLI-only work (git, deploy, read output) -> `--adapter=claude-agent-sdk`
+- File editing / IDE context needed -> `--adapter=cursor`
+- Batch loop with verifier -> `--adapter=claude-agent-sdk`
+- When unsure -> `--adapter=claude-agent-sdk` (default is safe)
+
 ### Adapters (CLI runners)
 
 | Adapter | Binary | Models | Best for |
