@@ -30,7 +30,6 @@ eval "$(ntm shell zsh)"
 ## Quick Start
 
 ```bash
-<<<<<<< HEAD
 # Install / sanity check
 curl -fsSL "https://raw.githubusercontent.com/Dicklesworthstone/ntm/main/install.sh?$(date +%s)" | bash -s -- --easy-mode
 ntm deps -v
@@ -270,33 +269,3 @@ Read these when you need deeper detail without bloating the main skill body:
 - `br` for bead state changes and syncing
 - `bv` for graph-aware task prioritization
 - `cass` for prior-session retrieval
-=======
-ntm spawn myproject --cc=2 --cod=1 --gmi=1
-ntm attach myproject
-ntm send myproject --all "Read AGENTS.md and start on the next bead"
-ntm status myproject
-ntm doctor
-```
-
-## Useful Commands
-
-```bash
-ntm deps
-ntm health myproject
-ntm activity myproject
-ntm handoff myproject
-ntm mail myproject
-ntm locks myproject
-ntm checkpoint myproject
-ntm watch myproject
-ntm tutorial
-```
-
-## Agent Notes
-
-- Use `ntm doctor` first in a fresh environment.
-- Use `ntm deps` when agents or tmux integration look broken.
-- `ntm send` is for prompt fan-out; use targeted flags when you only want one model family.
-- If shell integration is missing, load it before assuming the binary is broken.
-
->>>>>>> 50315879c20dddd69daaaf831b532c34f123d98e
