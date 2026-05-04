@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lev-os.dev/cass-coverage/coverage.schema.json",
+  "title": "Lev Capture Coverage",
+  "description": "Canonical artifact emitted by cass-coverage. Cross-references coding-agent session inventory (cass) with Leviathan workstream registry (.lev/pm/workstreams/) to surface what fraction of human-owned work is captured by a workstream. Designed to be the single shareable file; viewer/dashboard.html consumes it via fetch().",
+  "type": "object",
+  "required": ["meta", "agents", "workstreams", "chains"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["window", "generated_at", "totals", "project"],
+      "properties": {
+        "schema_version": {"type": "string", "const": "1.0"},
+        "project": {"type": "string", "description": "project slug, e.g. 'leviathan'"},
+        "machine": {"type": "string", "description": "hostname (machine-local cass index identity)"},
+        "window": {"type": "array", "items": {"type": "string", "format": "date"}, "minItems": 2, "maxItems": 2},
+        "generated_at": {"type": "string", "format": "date-time"},
+        "totals": {
+          "type": "object",
+          "required": ["chains", "captured", "orphan", "capture_pct"],
+          "properties": {
+            "chains": {"type": "integer"},
+            "captured": {"type": "integer"},
+            "orphan": {"type": "integer"},
+            "capture_pct": {"type": "number"},
+            "multi_session": {"type": "integer"},
+            "fold_count": {"type": "integer"},
+            "fold_collapsed": {"type": "integer"},
+            "auto_attribute": {"type": "integer"}
+          }
+        }
+      }
+    },
+    "agents": {
+      "type": "object",
+      "description": "Per-agent raw counts (claude_code, codex, cursor) — for context, not the source of truth (chains array is)",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "raw_sessions": {"type": "integer"},
+          "all_chains": {"type": "integer"},
+          "human_rooted": {
+            "type": "object",
+            "properties": {
+              "chains": {"type": "integer"},
+              "captured": {"type": "integer"},
+              "orphan": {"type": "integer"},
+              "capture_pct": {"type": "number"},
+              "multi_session": {"type": "integer"}
+            }
+          }
+        }
+      }
+    },
+    "workstreams": {
+      "type": "array",
+      "description": "Snapshot of registered workstreams (.lev/pm/workstreams/*/state/workstream.yaml) at generation time; used for sidebar grouping + classifier labels",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {"type": "string"},
+          "title": {"type": "string"},
+          "objective": {"type": "string"},
+          "status": {"type": "string"},
+          "phase": {"type": "string"}
+        }
+      }
+    },
+    "chains": {
+      "type": "array",
+      "description": "All human-rooted chains (msg_total ≥ 5), sorted by msg_total desc. Includes virtual fold parents (is_fold=true) collapsing autoresearch/CDO/NTM/Hermes/Discover parallel fan-outs.",
+      "items": {
+        "type": "object",
+        "required": ["id", "agent", "msgs", "topic", "status"],
+        "properties": {
+          "id": {"type": "string", "description": "chain root session id, OR synthetic 'fold:<name>:<bucket>' for virtual parents"},
+          "agent": {"type": "string", "enum": ["claude_code", "codex", "cursor"]},
+          "topic": {"type": "string", "description": "first user message text, ≤200 chars"},
+          "topic_short": {"type": "string", "description": "≤60 char version for sidebar"},
+          "msgs": {"type": "integer", "description": "total messages across all sessions in lineage"},
+          "lineage": {"type": "array", "items": {"type": "string"}, "description": "ordered session ids from root to latest resumption"},
+          "n_sessions": {"type": "integer"},
+          "started": {"type": "string", "format": "date"},
+          "ended": {"type": "string", "format": "date"},
+          "started_full": {"type": "string", "format": "date-time"},
+          "ws": {"type": ["string", "null"], "description": "matched workstream id, or null"},
+          "status": {"type": "string", "enum": ["captured", "orphan"]},
+          "session_paths": {"type": "array", "items": {"type": "string"}, "description": "absolute jsonl paths in lineage order"},
+          "transcript_path": {"type": ["string", "null"], "description": "absolute path to baked HTML at ~/.cache/cass-lev/<project>/<chain>/<sid>.html, or null if not baked"},
+          "handoff_refs": {"type": "array", "items": {"type": "string"}, "description": "handoff filenames referenced in chain content"},
+          "resume_signals": {"type": "array", "items": {"type": "string"}},
+          "is_fold": {"type": "boolean", "default": false},
+          "fold_kind": {"type": "string", "description": "autoresearch | cdo-turn | hermes | ntm-mode | discover-agent | cursor-telemetry | etc"},
+          "fold_members": {"type": "array", "items": {"type": "string"}, "description": "child chain ids if is_fold=true"},
+          "classification": {
+            "type": ["object", "null"],
+            "description": "classifier output for orphan chains with msg_total ≥ 50",
+            "properties": {
+              "ws": {"type": ["string", "null"]},
+              "score": {"type": "number"},
+              "bucket": {"type": "string", "enum": ["auto_attribute", "needs_review", "archive", "bot_dispatch"]},
+              "alts": {"type": "array", "items": {"type": "object"}},
+              "hint_ws": {"type": ["string", "null"]},
+              "reason": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  }
+}
