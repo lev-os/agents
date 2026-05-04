@@ -161,12 +161,14 @@ Then:
 
 ### Video / Media
 
-Route through:
-- `~/digital/homie/yt/cli.py`
-- fallback `~/digital/homie/yt/yt.py`
+**MUST route through `~/digital/homie/yt` pipeline.**
 
-Save transcript to:
-- `<workshopRoot>/<folders.intake>/<slug>/transcript.md`
+Command:
+```
+yt "<URL>" -t -o <workshopRoot>/<folders.analysis>/<slug>/transcript.txt --wait
+```
+
+NEVER use `youtube-transcript-api` directly. NEVER use `yt-dlp` for transcripts. The `yt` CLI handles all fallbacks (API → Whisper) automatically.
 
 ### Article / Documentation
 

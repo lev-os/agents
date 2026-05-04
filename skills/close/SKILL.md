@@ -41,7 +41,7 @@ Canonical routes + fidelity formula + durable artifact schema: see `~/.claude/sk
 
 Validate task output against acceptance criteria.
 ```
-Read .lev/tasks/<task-id>/dna.yaml → acceptance field
+Read .lev/pm/tasks/<task-id>/dna.yaml → acceptance field
 Check each criterion. Report pass/fail per criterion.
 ALL must pass to proceed. Any fail → rework (back to /exec).
 ```
