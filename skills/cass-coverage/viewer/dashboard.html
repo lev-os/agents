@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Lev Capture</title>
+<style>
+:root{--bg:#0a0a0c;--bg2:#0f0f12;--side:#0d0d10;--panel:#101013;--card:#131318;--card-h:#181820;--line:#1d1d22;--line2:#27272e;--fg:#d4d4d8;--muted:#71717a;--muted2:#a1a1aa;--accent:#5eead4;--good:#10b981;--bad:#f87171;--warn:#fbbf24;--purple:#a78bfa}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--fg);font:13px/1.5 -apple-system,ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.app{display:grid;grid-template-columns:280px 1fr;height:100vh;overflow:hidden}
+.app.sidebar-collapsed{grid-template-columns:1fr}
+.app.sidebar-collapsed .side{display:none}
+.side{background:var(--side);border-right:1px solid var(--line);overflow-y:auto;padding:8px 0}
+.side::-webkit-scrollbar{width:6px}.side::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}.side::-webkit-scrollbar-track{background:transparent}
+.brand{padding:8px 14px 12px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.brand .b1{font-size:12px;font-weight:600;color:var(--fg)}
+.brand .b2{font-size:10px;color:var(--muted);margin-top:1px}
+.nav-section{display:flex;align-items:baseline;gap:6px;padding:10px 14px 4px;font-size:10px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted)}
+.nav-h{font-weight:600}.nav-h-n{font-weight:400;opacity:.6}
+.nav-item{display:flex;align-items:center;gap:8px;padding:5px 14px;color:var(--muted2);text-decoration:none;font-size:12.5px;cursor:pointer}
+.nav-item:hover{background:var(--panel);color:var(--fg)}
+.nav-item.active{background:var(--panel);color:var(--accent)}
+.nav-item.ind{padding-left:30px;font-size:12px}
+.nav-item.is-fold{color:#a78bfa}
+.nav-icon{display:inline-block;font-size:12px;color:var(--muted);width:12px;text-align:center}
+.nav-item.active .nav-icon{color:var(--accent)}
+.nav-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muted);flex-shrink:0}
+.nav-dot.dot-good{background:var(--good)}.nav-dot.dot-bad{background:var(--bad)}
+.nav-title{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-msgs{font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums;flex-shrink:0}
+.ind-x{font-size:10px;color:var(--accent);font-weight:600;flex-shrink:0}
+.ind-x.ind-fold{color:var(--purple)}
+.nav-toggle{display:flex;width:100%;align-items:center;gap:6px;background:transparent;border:none;color:var(--muted);padding:5px 14px;font-size:11px;font-weight:600;cursor:pointer;text-align:left}
+.nav-toggle:hover{color:var(--fg);background:var(--panel)}
+.caret{display:inline-block;font-size:9px;width:10px;color:var(--muted)}
+.nav-group:not(.open) .caret{display:inline-block;transform:rotate(-90deg)}
+.nav-group:not(.open) .nav-children{display:none}
+.ws-name{flex:1}.ws-n{font-size:10px;font-weight:400;color:var(--muted);opacity:.6}
+.main{overflow:hidden;background:var(--bg);position:relative;display:flex;flex-direction:column;height:100vh}
+.tab-bar{display:flex;align-items:center;height:34px;background:var(--bg2);border-bottom:1px solid var(--line);padding:0 8px;gap:8px;font-size:11.5px;color:var(--muted);flex-shrink:0}
+.tab-bar .toggle-side{background:transparent;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:4px 8px;border-radius:4px}
+.tab-bar .toggle-side:hover{color:var(--fg);background:var(--panel)}
+.tab-bar .crumb{color:var(--fg);font-weight:500}
+.tab-bar .crumb-sep{opacity:.4}
+.tab-bar .actions{margin-left:auto;display:flex;gap:6px}
+.tab-bar .actions button{background:transparent;border:1px solid var(--line);color:var(--muted);padding:3px 9px;border-radius:4px;font-size:11px;cursor:pointer}
+.tab-bar .actions button:hover{color:var(--fg);border-color:var(--line2)}
+.body-area{flex:1;overflow:auto;background:var(--bg)}
+.frame-wrap{display:none;width:100%;height:100%;flex:1}
+.frame-wrap.show{display:block}
+.frame{width:100%;height:100%;border:0;background:var(--bg)}
+.grid-wrap{display:none;padding:14px 20px 50px}
+.grid-wrap.show{display:block}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--good);color:#0a0a0c;padding:8px 14px;border-radius:6px;font-size:12.5px;font-weight:600;opacity:0;transform:translateY(6px);transition:all .18s;pointer-events:none;z-index:100}
+.toast.show{opacity:1;transform:translateY(0)}
+@media (max-width:900px){.app{grid-template-columns:1fr}.app:not(.sidebar-open) .side{display:none}.app.sidebar-open .side{display:block;position:fixed;left:0;top:0;bottom:0;width:280px;z-index:40;box-shadow:0 0 24px rgba(0,0,0,0.5)}.app.sidebar-open::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:35}}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:10px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:9px 12px}
+.kl{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:3px}
+.kv{font-size:22px;font-weight:600;letter-spacing:-0.02em;line-height:1.1;color:var(--fg)}
+.kv-good{color:var(--good)}.kv-bad{color:var(--bad)}.kv-warn{color:var(--warn)}
+.kv small{font-size:11px;color:var(--muted);font-weight:400;margin-left:4px}
+.bar{display:flex;height:4px;border-radius:2px;overflow:hidden;background:var(--line);margin-bottom:12px}
+.seg-good{background:var(--good)}.seg-bad{background:var(--bad);opacity:.65}
+.controls{display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;position:sticky;top:0;background:var(--bg);padding:6px 0;z-index:5}
+.g{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:5px;padding:1px}
+.g button{background:transparent;border:0;color:var(--muted);padding:4px 9px;border-radius:3px;font-size:10.5px;font-weight:500;cursor:pointer;text-transform:uppercase;letter-spacing:0.04em}
+.g button:hover{color:var(--fg);background:var(--card-h)}
+.g button.on{background:var(--fg);color:var(--bg)}
+input#search{background:var(--card);border:1px solid var(--line);color:var(--fg);padding:5px 9px;border-radius:5px;font-size:12px;min-width:200px;outline:none}
+input#search:focus{border-color:var(--line2)}
+.rng{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;color:var(--muted)}
+.rng input{width:80px;accent-color:var(--accent)}
+.rng span{color:var(--accent);font-variant-numeric:tabular-nums;min-width:22px}
+.stats{margin-left:auto;color:var(--muted);font-size:11px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:10px}
+.chain{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:11px 13px;display:flex;flex-direction:column;gap:5px;cursor:pointer;content-visibility:auto;contain-intrinsic-size:auto 180px}
+.chain:hover{border-color:var(--accent)}
+.chain.queued{background:#0d2520}
+.chain.is-fold{background:#161425}
+.row1{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:10.5px}
+.agent{padding:1.5px 5px;border-radius:3px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;font-size:9px}
+.agent-claude_code{background:#1e2a45;color:#bfdbfe}
+.agent-codex{background:#3a3525;color:#fde68a}
+.pill{padding:1.5px 6px;border-radius:3px;font-size:10px;font-weight:500}
+.pill-good{background:#0c3527;color:#a7f3d0}
+.pill-bad{background:#3a1818;color:#fca5a5}
+.fold-badge{padding:1.5px 6px;border-radius:3px;font-size:10px;background:#26214a;color:#c4b5fd;font-weight:500}
+.msgs{color:var(--muted);font-variant-numeric:tabular-nums}
+.lin{display:inline-flex;align-items:center;gap:2px;margin-left:auto}
+.lin .d{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.lin-n{font-size:10px;color:var(--accent);margin-left:3px;font-weight:600}
+.is-fold .lin .d{background:var(--purple)}
+.is-fold .lin-n{color:var(--purple)}
+.topic{margin:2px 0 4px;font-size:13px;font-weight:500;line-height:1.4;color:var(--fg)}
+.meta{display:flex;gap:8px;align-items:center;font-size:10.5px;color:var(--muted);flex-wrap:wrap}
+.meta code{background:var(--bg2);padding:0.5px 5px;border-radius:3px;font-size:10px;font-family:ui-monospace,monospace}
+.suggest{padding:1px 6px;border-radius:3px;font-size:10px;font-weight:500;cursor:help}
+.suggest.s-auto{background:#0c3527;color:#86efac}
+.suggest.s-review{background:#3a3210;color:#fcd34d}
+.suggest.s-archive{background:#2a2a30;color:var(--muted2)}
+.suggest.s-bot{background:#26214a;color:#c4b5fd}
+.refs{display:flex;flex-wrap:wrap;gap:3px}
+.ref{background:var(--bg2);color:var(--muted2);padding:0.5px 5px;border-radius:3px;font-size:9.5px}
+.more{color:var(--muted);font-size:9.5px;align-self:center}
+.actions{display:flex;gap:5px;margin-top:6px;align-items:center;border-top:1px solid var(--line);padding-top:7px}
+.btn{font-size:10.5px;padding:3.5px 9px;border-radius:4px;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer;font-weight:500;font-family:inherit}
+.btn:hover{border-color:var(--line2);background:var(--bg2)}
+.btn-cap{background:var(--accent);color:#0a0a0c;border-color:var(--accent);font-weight:600}
+.btn-cap:hover{background:#7df0d6}
+.qmark{color:var(--good);font-size:10.5px;margin-left:auto;opacity:0}
+.chain.queued .qmark{opacity:1}
+.qmark::before{content:"✓ queued"}
+.loading{padding:40px;text-align:center;color:var(--muted)}
+.error{padding:40px;text-align:center;color:var(--bad);font-family:ui-monospace,monospace;white-space:pre-wrap}
+@media (max-width:600px){.grid{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side"><div class="loading">Loading…</div></aside>
+  <section class="main">
+    <div class="tab-bar">
+      <button class="toggle-side" id="toggle-side" title="toggle sidebar">≡</button>
+      <span class="crumb-sep">▸</span>
+      <span class="crumb" id="crumb">Dashboard</span>
+      <div class="actions"><button id="btn-home">Dashboard</button></div>
+    </div>
+    <div class="body-area">
+      <div class="grid-wrap show" id="grid-wrap"><div class="loading">Loading coverage.json…</div></div>
+      <div class="frame-wrap" id="frame-wrap"><iframe id="frame" class="frame" src="about:blank"></iframe></div>
+    </div>
+  </section>
+</div>
+<div id="toast" class="toast"></div>
+<script src="coverage.js" onerror="window.__COVERAGE_JS_MISSING=true"></script>
+<script>
+"use strict";
+const QKEY = "lev-cap-queued-v1";
+const SBKEY = "lev-cap-sidebar-collapsed";
+const TRANSCRIPT_OVERRIDE = `<style id="__lev_override">
+.message,.message-user,.message-assistant,.message-agent,.message-system,.message-tool,.message-thinking{border-left:0 !important;border-left-width:0 !important;transition:none !important}
+.agent-claude .message-assistant,.agent-codex .message-assistant,.agent-cursor .message-assistant,.agent-claude .message-user,.agent-codex .message-user,.agent-cursor .message-user,.agent-claude .message-system,.agent-codex .message-system,.agent-cursor .message-system,.agent-claude .message-tool,.agent-codex .message-tool,.agent-cursor .message-tool{border-left-color:transparent !important;border-left-width:0 !important}
+.message:hover{background:var(--card,#131318) !important;background-color:var(--card,#131318) !important}
+.message-link{opacity:0.4 !important}.message:hover .message-link{opacity:0.8 !important}
+.message{padding-left:var(--space-4,12px) !important}
+</style>
+`;
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fmtNum = n => Number(n||0).toLocaleString();
+
+function loadQ(){try{return new Set(JSON.parse(localStorage.getItem(QKEY)||"[]"))}catch{return new Set()}}
+function saveQ(s){localStorage.setItem(QKEY,JSON.stringify([...s]))}
+const queued = loadQ();
+
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1800)}
+
+function getCoverageUrl(){
+  const u = new URL(window.location.href);
+  return u.searchParams.get("coverage") || "./coverage.json";
+}
+
+function transcriptHref(c, baseDir){
+  // c.transcript_path is absolute (XDG cache) OR relative to coverage.json
+  // For file:// the absolute path needs file:// prefix
+  if (!c.transcript_path) return "";
+  if (c.transcript_path.startsWith("/")) return "file://" + c.transcript_path;
+  if (c.transcript_path.startsWith("file://") || c.transcript_path.startsWith("http")) return c.transcript_path;
+  return baseDir + c.transcript_path;
+}
+
+function chainCard(c){
+  const cls = (c.status==="captured"?"captured":"orphan") + (c.is_fold?" is-fold":"");
+  const queuedCls = queued.has(c.id) ? " queued" : "";
+  let lin = "";
+  if (c.n_sessions > 1){
+    const n = Math.min(c.n_sessions, 6);
+    lin = `<span class="lin">${"<span class=d></span>".repeat(n)}<span class="lin-n">×${c.n_sessions}</span></span>`;
+  }
+  const wsPill = c.ws ? `<span class="pill pill-good">${esc(c.ws)}</span>` : `<span class="pill pill-bad">orphan</span>`;
+  let suggest = "";
+  if (c.classification){
+    const cl = c.classification;
+    const ws = cl.ws || cl.hint_ws;
+    if (ws){
+      const score = cl.score!=null ? ` (${Math.round(cl.score)})` : "";
+      const k = cl.bucket==="auto_attribute"?"auto":cl.bucket==="needs_review"?"review":cl.bucket==="archive"?"archive":"bot";
+      suggest = `<span class="suggest s-${k}" title="${esc(cl.bucket)}">⚙ ${esc(ws)}${score}</span>`;
+    } else if (cl.bucket==="bot_dispatch"){
+      suggest = `<span class="suggest s-bot">bot dispatch</span>`;
+    } else if (cl.bucket==="archive"){
+      suggest = `<span class="suggest s-archive">→ archive</span>`;
+    }
+  }
+  let handoffs = "";
+  if (c.handoff_refs && c.handoff_refs.length){
+    const chips = c.handoff_refs.slice(0,2).map(h => `<span class="ref">${esc(h.slice(0,32))}${h.length>32?"…":""}</span>`).join(" ");
+    const more = c.handoff_refs.length > 2 ? ` <span class="more">+${c.handoff_refs.length-2}</span>` : "";
+    handoffs = `<div class="refs">${chips}${more}</div>`;
+  }
+  const fold = c.is_fold ? `<span class="fold-badge">⌥ fold</span>` : "";
+  const dateRange = c.started + (c.ended && c.ended !== c.started ? ` → ${c.ended}` : "");
+  return `<article class="chain ${cls}${queuedCls}" data-id="${esc(c.id)}" data-agent="${c.agent}" data-status="${c.status}" data-msgs="${c.msgs}">
+    <div class="row1">
+      <span class="agent agent-${c.agent}">${c.agent.replace("_code","")}</span>
+      ${wsPill}${fold}
+      <span class="msgs">${fmtNum(c.msgs)}</span>
+      ${lin}
+    </div>
+    <h3 class="topic">${esc((c.topic||"").slice(0,200))}</h3>
+    <div class="meta">
+      <code>${esc((c.id||"").slice(0,12))}</code>
+      <span>${esc(dateRange)}</span>
+      ${suggest}
+    </div>
+    ${handoffs}
+    <div class="actions">
+      <button class="btn btn-read">read</button>
+      <button class="btn btn-cap">/capture</button>
+      <span class="qmark"></span>
+    </div>
+  </article>`;
+}
+
+function sidebarItem(c, indent){
+  const dot = c.status==="captured" ? "good" : "bad";
+  let multi = "";
+  if (c.n_sessions > 1){
+    const cls = c.is_fold ? "ind-fold" : "";
+    multi = `<span class="ind-x ${cls}">×${c.n_sessions}</span>`;
+  }
+  const cls = (indent?"ind ":"") + (c.is_fold?"is-fold":"");
+  return `<div class="nav-item ${cls}" data-action="open-chain" data-id="${esc(c.id)}" title="${esc((c.topic||"").slice(0,300))}">
+    <span class="nav-dot dot-${dot}"></span>
+    <span class="nav-title">${esc(c.topic_short||c.topic||"")}</span>
+    <span class="nav-msgs">${fmtNum(c.msgs)}</span>
+    ${multi}
+  </div>`;
+}
+
+function buildSidebar(cov){
+  const captured = cov.chains.filter(c => c.status === "captured");
+  const orphan = cov.chains.filter(c => c.status !== "captured");
+  const wsGroups = {};
+  for (const c of captured){
+    const k = c.ws || "(unregistered)";
+    (wsGroups[k] ||= []).push(c);
+  }
+  const wsOrder = Object.keys(wsGroups).sort((a,b) => {
+    const sa = wsGroups[a].reduce((t,c)=>t+c.msgs,0);
+    const sb = wsGroups[b].reduce((t,c)=>t+c.msgs,0);
+    return sb - sa;
+  });
+  const orphanClaude = orphan.filter(c => c.agent === "claude_code").sort((a,b)=>b.msgs-a.msgs);
+  const orphanCodex = orphan.filter(c => c.agent === "codex").sort((a,b)=>b.msgs-a.msgs);
+
+  let html = `<div class="brand">
+    <div class="b1">Lev Capture</div>
+    <div class="b2">${esc(cov.meta.window[0])} → ${esc(cov.meta.window[1])} · ${cov.meta.totals.capture_pct}% · ${cov.meta.totals.fold_count} folds</div>
+  </div>`;
+  html += `<div class="nav-item nav-home active" data-action="dashboard" data-id="__dashboard__">
+    <span class="nav-icon">▦</span><span class="nav-title">Dashboard</span><span class="nav-msgs">${cov.meta.totals.chains}</span>
+  </div>`;
+  html += `<div class="nav-section"><span class="nav-h">Captured</span><span class="nav-h-n">${captured.length}</span></div>`;
+  for (const ws of wsOrder){
+    const items = [...wsGroups[ws]].sort((a,b)=>b.msgs-a.msgs);
+    html += `<div class="nav-group" data-group="ws:${esc(ws)}">
+      <button class="nav-toggle"><span class="caret">▾</span><span class="ws-name">${esc(ws)}</span><span class="ws-n">${items.length}</span></button>
+      <div class="nav-children">${items.map(c=>sidebarItem(c,true)).join("")}</div>
+    </div>`;
+  }
+  html += `<div class="nav-section"><span class="nav-h">Orphans</span><span class="nav-h-n">${orphan.length}</span></div>`;
+  if (orphanClaude.length){
+    html += `<div class="nav-group open" data-group="orphan:claude">
+      <button class="nav-toggle"><span class="caret">▾</span><span class="ws-name">claude</span><span class="ws-n">${orphanClaude.length}</span></button>
+      <div class="nav-children">${orphanClaude.map(c=>sidebarItem(c,true)).join("")}</div>
+    </div>`;
+  }
+  if (orphanCodex.length){
+    html += `<div class="nav-group" data-group="orphan:codex">
+      <button class="nav-toggle"><span class="caret">▾</span><span class="ws-name">codex</span><span class="ws-n">${orphanCodex.length}</span></button>
+      <div class="nav-children">${orphanCodex.map(c=>sidebarItem(c,true)).join("")}</div>
+    </div>`;
+  }
+  return html;
+}
+
+function buildGrid(cov){
+  const t = cov.meta.totals;
+  const pctCls = t.capture_pct >= 50 ? "good" : t.capture_pct >= 25 ? "warn" : "bad";
+  const claude = cov.agents.claude_code?.human_rooted || {chains:0,capture_pct:0};
+  const codex = cov.agents.codex?.human_rooted || {chains:0,capture_pct:0};
+  let html = `<div class="kpis">
+    <div class="kpi"><div class="kl">Capture</div><div class="kv kv-${pctCls}">${t.capture_pct}%</div></div>
+    <div class="kpi"><div class="kl">Chains</div><div class="kv">${t.chains}</div></div>
+    <div class="kpi"><div class="kl">Captured</div><div class="kv kv-good">${t.captured}</div></div>
+    <div class="kpi"><div class="kl">Orphans</div><div class="kv kv-bad">${t.orphan}</div></div>
+    <div class="kpi"><div class="kl">Multi-session</div><div class="kv">${t.multi_session}</div></div>
+    <div class="kpi"><div class="kl">⌥ Folds</div><div class="kv" style="color:#a78bfa">${t.fold_count}<small> · ${t.fold_collapsed} runs</small></div></div>
+    <div class="kpi"><div class="kl">Auto-attr</div><div class="kv kv-good">${t.auto_attribute||0}</div></div>
+  </div>
+  <div class="bar"><div class="seg-good" style="flex:${t.captured}"></div><div class="seg-bad" style="flex:${t.orphan}"></div></div>
+  <div class="controls">
+    <div class="g"><button data-f="agent:all" class="on">all</button><button data-f="agent:claude_code">claude</button><button data-f="agent:codex">codex</button></div>
+    <div class="g"><button data-f="status:all" class="on">all</button><button data-f="status:captured">captured</button><button data-f="status:orphan">orphan</button><button data-f="status:queued">queued</button></div>
+    <input id="search" type="search" placeholder="search…"/>
+    <label class="rng">min msgs <input id="minmsgs" type="range" min="5" max="500" value="5" step="5"/><span id="minmsgs-v">5</span></label>
+    <span id="stats" class="stats"></span>
+  </div>
+  <div class="grid">${cov.chains.map(chainCard).join("")}</div>`;
+  return html;
+}
+
+function buildPrompt(c){
+  return `/capture orphan-chain ${c.id}
+agent: ${c.agent}
+msg_total: ${c.msgs}
+sessions: ${(c.lineage||[]).join(", ")}
+session_paths:
+${(c.session_paths||[]).map(x=>"  - "+x).join("\n")}
+started: ${c.started||""}
+ended: ${c.ended||""}
+handoff_refs: ${(c.handoff_refs||[]).join(", ")||"(none)"}
+suggested_workstream: ${(c.classification && (c.classification.ws||c.classification.hint_ws)) || "tbd"}
+topic: |
+  ${(c.topic||"").replace(/\n/g," ")}`;
+}
+
+function bindEvents(cov){
+  const chainsById = Object.fromEntries(cov.chains.map(c=>[c.id, c]));
+  const baseDir = (() => {
+    const u = new URL(getCoverageUrl(), window.location.href);
+    return u.href.substring(0, u.href.lastIndexOf("/")+1);
+  })();
+  const app = document.querySelector(".app");
+  const frame = document.getElementById("frame");
+  const frameWrap = document.getElementById("frame-wrap");
+  const gridWrap = document.getElementById("grid-wrap");
+  const crumb = document.getElementById("crumb");
+
+  // Restore sidebar collapsed state
+  if (localStorage.getItem(SBKEY) === "1") app.classList.add("sidebar-collapsed");
+
+  // Inject CSS into iframe transcripts on load
+  frame.addEventListener("load", () => {
+    try{
+      const doc = frame.contentDocument;
+      if (!doc || doc.getElementById("__lev_override")) return;
+      doc.head.insertAdjacentHTML("beforeend", TRANSCRIPT_OVERRIDE);
+    }catch(e){}
+  });
+
+  function showDashboard(){
+    gridWrap.classList.add("show");
+    frameWrap.classList.remove("show");
+    crumb.textContent = "Dashboard";
+    document.querySelectorAll(".nav-item").forEach(a => a.classList.toggle("active", a.dataset.id === "__dashboard__"));
+  }
+  function showTranscript(c){
+    if (!c.transcript_path){ toast("no transcript baked for this chain"); return; }
+    const href = transcriptHref(c, baseDir);
+    frame.src = href;
+    gridWrap.classList.remove("show");
+    frameWrap.classList.add("show");
+    crumb.textContent = c.id;
+    document.querySelectorAll(".nav-item").forEach(a => a.classList.toggle("active", a.dataset.id === c.id));
+    if (window.innerWidth < 900) app.classList.remove("sidebar-open");
+  }
+
+  // Sidebar nav
+  document.querySelector(".side").addEventListener("click", (e) => {
+    const item = e.target.closest("[data-action]");
+    if (item){
+      e.preventDefault();
+      if (item.dataset.action === "dashboard") showDashboard();
+      else if (item.dataset.action === "open-chain"){
+        const c = chainsById[item.dataset.id];
+        if (c) showTranscript(c);
+      }
+      return;
+    }
+    const toggle = e.target.closest(".nav-toggle");
+    if (toggle) toggle.parentElement.classList.toggle("open");
+  });
+
+  // Header buttons
+  document.getElementById("btn-home").addEventListener("click", showDashboard);
+  document.getElementById("toggle-side").addEventListener("click", () => {
+    if (window.innerWidth < 900) app.classList.toggle("sidebar-open");
+    else {
+      const c = app.classList.toggle("sidebar-collapsed");
+      localStorage.setItem(SBKEY, c?"1":"0");
+    }
+  });
+
+  // Grid: card clicks, capture button, read button
+  gridWrap.addEventListener("click", async (e) => {
+    const cap = e.target.closest(".btn-cap");
+    if (cap){
+      e.preventDefault(); e.stopPropagation();
+      const card = cap.closest(".chain");
+      const c = chainsById[card.dataset.id];
+      if (!c) return;
+      try{
+        await navigator.clipboard.writeText(buildPrompt(c));
+        card.classList.add("queued");
+        queued.add(card.dataset.id); saveQ(queued);
+        toast("/capture copied");
+      }catch(err){ console.error(err); console.log(buildPrompt(c)); toast("clipboard failed"); }
+      return;
+    }
+    const read = e.target.closest(".btn-read");
+    if (read){
+      e.stopPropagation();
+      const c = chainsById[read.closest(".chain").dataset.id];
+      if (c) showTranscript(c);
+      return;
+    }
+    const chainEl = e.target.closest(".chain");
+    if (chainEl && !e.target.closest("button")){
+      const c = chainsById[chainEl.dataset.id];
+      if (c) showTranscript(c);
+    }
+  });
+
+  // Filters + search
+  const state = { agent: "all", status: "all", min: 5, q: "" };
+  let debounce;
+  function applyFilters(){
+    let shown = 0, total = 0;
+    const cards = document.querySelectorAll(".chain");
+    for (const el of cards){
+      total++;
+      const a = el.dataset.agent, s = el.dataset.status, m = +el.dataset.msgs;
+      let ok = (state.agent === "all" || a === state.agent)
+        && (state.status === "all" || s === state.status || (state.status === "queued" && el.classList.contains("queued")))
+        && m >= state.min;
+      if (ok && state.q) ok = el.textContent.toLowerCase().indexOf(state.q) !== -1;
+      el.style.display = ok ? "" : "none";
+      if (ok) shown++;
+    }
+    const sEl = document.getElementById("stats");
+    if (sEl) sEl.textContent = `${shown} / ${total} shown`;
+  }
+
+  gridWrap.addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-f]");
+    if (!b) return;
+    const [k, v] = b.dataset.f.split(":");
+    state[k] = v;
+    document.querySelectorAll(`button[data-f^="${k}:"]`).forEach(x => x.classList.toggle("on", x === b));
+    applyFilters();
+  });
+  const search = document.getElementById("search");
+  if (search) search.addEventListener("input", e => {
+    clearTimeout(debounce);
+    debounce = setTimeout(() => { state.q = e.target.value.toLowerCase(); applyFilters(); }, 120);
+  });
+  const minmsgs = document.getElementById("minmsgs");
+  if (minmsgs) minmsgs.addEventListener("input", e => {
+    state.min = +e.target.value;
+    document.getElementById("minmsgs-v").textContent = state.min;
+    applyFilters();
+  });
+  applyFilters();
+}
+
+async function loadCoverage(){
+  // 1. If coverage.js loaded successfully (file:// or hosted), prefer it
+  if (window.__COVERAGE) return window.__COVERAGE;
+  // 2. Fall back to fetch (works on http:// when ?coverage=url is provided)
+  const url = getCoverageUrl();
+  try{
+    const res = await fetch(url, {cache: "no-store"});
+    if (!res.ok) throw new Error(`HTTP ${res.status} loading ${url}`);
+    return await res.json();
+  }catch(fetchErr){
+    // 3. Last resort: dynamic <script> tag pointing at .js variant
+    const jsUrl = url.endsWith(".json") ? url.replace(/\.json$/, ".js") : url;
+    return new Promise((ok, fail) => {
+      const s = document.createElement("script");
+      s.src = jsUrl;
+      s.onload = () => window.__COVERAGE ? ok(window.__COVERAGE) : fail(new Error(`${jsUrl} loaded but window.__COVERAGE not set`));
+      s.onerror = () => fail(new Error(`fetch failed (${fetchErr.message}); script-tag fallback also failed for ${jsUrl}`));
+      document.head.appendChild(s);
+    });
+  }
+}
+
+async function init(){
+  try{
+    const cov = await loadCoverage();
+    document.querySelector(".side").innerHTML = buildSidebar(cov);
+    document.getElementById("grid-wrap").innerHTML = buildGrid(cov);
+    bindEvents(cov);
+    document.title = `Lev Capture · ${cov.meta.window[0]} → ${cov.meta.window[1]}`;
+  }catch(err){
+    console.error(err);
+    document.querySelector(".side").innerHTML = `<div class="brand"><div class="b1">Lev Capture</div><div class="b2">load failed</div></div>`;
+    document.getElementById("grid-wrap").innerHTML = `<div class="error">Failed to load coverage:\n\n${esc(err.message)}\n\nExpected coverage.js (file://) or coverage.json (http://) next to dashboard.html.\n\nRun:  python3 ~/.claude/skills/cass-coverage/scripts/render.py --coverage &lt;coverage.json&gt; --output-dir &lt;dir&gt;</div>`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,2746 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" class="fx-card-glow fx-title-underline fx-grid-dots">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>chiDEV Middleware Prior Art and Branch Review</title>
+  <meta name="description" content="Evidence-first review of middleware prior art, current middleware reality, chiDEV branch file-by-file calls, and graph/prior-art direction." />
+  <meta property="og:title" content="chiDEV Middleware Prior Art and Branch Review" />
+  <meta property="og:description" content="Evidence-first review of middleware prior art, current middleware reality, chiDEV branch file-by-file calls, and graph/prior-art direction." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM%20Plex%20Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM%20Plex%20Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+/* === Reset === */
+*, *::before, *::after { box-sizing: border-box; }
+body, h1, h2, h3, h4, p, ul, ol, blockquote, figure { margin: 0; padding: 0; }
+
+/* === Theme Variables === */
+:root, [data-theme="dark"] {
+  --color-primary: #0891b2;
+  --color-accent: #0369a1;
+  --color-surface: #0f172a;
+  --color-surface-alt: #1e293b;
+  --color-text: #f1f5f9;
+  --color-text-muted: #94a3b8;
+  --color-border: rgba(8,145,178,0.18);
+  --color-success: #2dd4bf;
+  --color-warning: #fbbf24;
+  --color-error: #fb7185;
+  --font-display: 'IBM Plex Sans', Georgia, serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  --color-accent-dim: color-mix(in srgb, var(--color-accent) 15%, transparent);
+  --color-accent-bright: color-mix(in srgb, var(--color-accent) 80%, white);
+  --color-border-strong: color-mix(in srgb, var(--color-accent) 30%, transparent);
+  --radius: 12px;
+  --shadow: 0 4px 16px rgba(0,0,0,0.25);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+  --elevation-0: 0 1px 2px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.2);
+  --elevation-1: 0 2px 8px -2px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04);
+  --elevation-2: 0 12px 32px -8px rgba(0,0,0,0.5), 0 4px 12px -4px color-mix(in srgb, var(--color-accent) 8%, transparent), 0 0 0 1px rgba(255,255,255,0.06);
+  --elevation-3: 0 24px 48px -12px rgba(0,0,0,0.6), 0 8px 24px -8px color-mix(in srgb, var(--color-accent) 12%, transparent), 0 0 0 1px rgba(255,255,255,0.08);
+  --transition: 0.35s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+[data-theme="light"] {
+  --color-primary: #f8fafc; --color-accent: #0891b2; --color-accent-dim: rgba(8,145,178,0.1);
+  --color-accent-bright: #06b6d4; --color-surface: #f8fafc; --color-surface-alt: #f1f5f9;
+  --color-text: #0f172a; --color-text-muted: #64748b; --color-border: rgba(8,145,178,0.15);
+  --color-border-strong: rgba(8,145,178,0.3); --color-success: #059669; --color-warning: #d97706; --color-error: #dc2626;
+}
+
+/* === Base === */
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--color-surface);
+  color: var(--color-text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  overflow-wrap: break-word;
+}
+body { background-image:
+  radial-gradient(ellipse at 20% 0%, rgba(8,145,178,0.08) 0%, transparent 50%),
+  radial-gradient(ellipse at 80% 80%, rgba(3,105,161,0.05) 0%, transparent 40%),
+  repeating-linear-gradient(0deg, rgba(8,145,178,0.02) 0px, rgba(8,145,178,0.02) 1px, transparent 1px, transparent 40px),
+  repeating-linear-gradient(90deg, rgba(8,145,178,0.02) 0px, rgba(8,145,178,0.02) 1px, transparent 1px, transparent 40px);
+}
+
+/* === Selection + Focus + Scrollbar (AESTHETIC-DNA Premium Test) === */
+::selection { background: color-mix(in srgb, var(--color-accent) 30%, transparent); color: #fff; }
+:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 4px; }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--color-surface); }
+::-webkit-scrollbar-thumb { background: var(--color-surface-alt); border: 2px solid var(--color-surface); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }
+
+/* === Noise Texture (always-on, AESTHETIC-DNA §8) === */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  contain: strict;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch' seed='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@media (prefers-reduced-motion: reduce) { body::before { display: none; } }
+
+.container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 4vw, 3rem) 60px;
+}
+
+/* === Animations === */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulseGold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201,169,78,0.3); }
+  50% { box-shadow: 0 0 20px 4px rgba(201,169,78,0.15); }
+}
+/* Progressive: visible by default. JS adds .has-anim to html, hiding .anim until .visible */
+.anim { opacity: 1; transform: none; }
+.has-anim .anim {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--i, 0) * 0.05s);
+}
+.has-anim .anim.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* KPI cards use scale-fade instead of translateY */
+.has-anim .kpi-card.anim {
+  transform: scale(0.92);
+}
+.has-anim .kpi-card.anim.visible {
+  transform: scale(1);
+}
+
+/* CSS Counter for animated KPI values */
+@property --count {
+  syntax: '<integer>';
+  initial-value: 0;
+  inherits: false;
+}
+@keyframes countUp {
+  to { --count: var(--target); }
+}
+
+/* Flow arrows between pipeline steps */
+.flow-arrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-text-muted);
+  padding: 8px 0;
+}
+.flow-arrow svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: var(--color-border);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* === SectionShell Split Entrance (SCROLL-NARRATIVE.md) === */
+.has-anim .anim-from-left {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.8s cubic-bezier(0.19, 1, 0.22, 1), transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+}
+.has-anim .anim-from-left.visible { opacity: 1; transform: translateX(0); }
+.has-anim .anim-delayed {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 1s cubic-bezier(0.19, 1, 0.22, 1), transform 1s cubic-bezier(0.19, 1, 0.22, 1);
+  transition-delay: 0.2s;
+}
+.has-anim .anim-delayed.visible { opacity: 1; transform: translateY(0); }
+
+/* === Reduced Motion === */
+@media (prefers-reduced-motion: reduce) {
+  .has-anim .anim, .has-anim .kpi-card.anim, .has-anim .anim-from-left, .has-anim .anim-delayed { opacity: 1; transform: none; transition: none; }
+}
+
+/* === Hero === */
+.hero {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 90px 2rem 0px;
+}
+@keyframes blobAnimOne {
+  0% { transform: translateX(-50%) translate(0, 0) scale(0.95); opacity: 0.12; }
+  33% { transform: translateX(-50%) translate(-2%, 4%) scale(1.06); opacity: 0.06; }
+  66% { transform: translateX(-50%) translate(3%, -2%) scale(1.02); opacity: 0.16; }
+  100% { transform: translateX(-50%) translate(0, 0) scale(0.95); opacity: 0.12; }
+}
+@keyframes blobAnimTwo {
+  0% { transform: translate(0, 0) scale(0.9); opacity: 0.5; }
+  25% { transform: translate(-3%, 6%) scale(1.12); opacity: 0.85; }
+  50% { transform: translate(5%, -4%) scale(1.05); opacity: 0.4; }
+  75% { transform: translate(2%, 4%) scale(0.96); opacity: 0.7; }
+  100% { transform: translate(0, 0) scale(0.9); opacity: 0.5; }
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  left: 50%;
+  width: 900px;
+  height: 900px;
+  background: radial-gradient(circle, var(--color-accent) 0%, transparent 70%);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  filter: blur(90px);
+  animation: blobAnimOne 38s ease-in-out infinite alternate;
+}
+[data-theme="light"] .hero::before {
+  mix-blend-mode: multiply;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -15%;
+  left: 20%;
+  width: 60%;
+  height: 350px;
+  background: rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  filter: blur(110px);
+  animation: blobAnimTwo 27s ease-in-out infinite alternate-reverse;
+}
+[data-theme="light"] .hero::after {
+  background: radial-gradient(ellipse at center, rgba(235, 180, 20, 0.25) 0%, rgba(255, 230, 80, 0.15) 50%, transparent 80%);
+  mix-blend-mode: multiply;
+}
+.hero__inner { position: relative; z-index: 1; }
+.hero--centered { text-align: center; }
+.hero--centered .hero__inner { max-width: 800px; margin: 0 auto; }
+.hero--editorial .hero__inner { max-width: 960px; }
+.hero__category {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 20px;
+  padding: 6px 16px;
+  background: var(--color-accent-dim);
+  border-radius: 100px;
+}
+.hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 6vw, 5rem);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  margin-bottom: 20px;
+}
+.hero__subtitle {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-style: italic;
+  color: var(--color-accent);
+  margin-bottom: 16px;
+}
+.hero__meta {
+  font-size: 15px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+}
+
+/* === Section === */
+.section {
+  padding: 4rem 0;
+  border-top: 1px solid var(--color-accent-dim);
+}
+.section:first-of-type { border-top: none; }
+.section:nth-child(even) {
+  background: var(--color-surface-alt);
+  margin-left: calc(-1 * clamp(1rem, 3vw, 2rem));
+  margin-right: calc(-1 * clamp(1rem, 3vw, 2rem));
+  padding-left: clamp(1rem, 3vw, 2rem);
+  padding-right: clamp(1rem, 3vw, 2rem);
+  border-top: 1px solid var(--color-border-strong);
+  border-bottom: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
+}
+.section-label {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 12px;
+}
+.section-label::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  margin-right: 10px;
+  vertical-align: middle;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  font-weight: 400;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+.section-subtitle {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  margin-bottom: 2rem;
+  max-width: 65ch;
+  line-height: 1.7;
+}
+
+/* Showcase: two-column alternating layout */
+.section__showcase {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+.section:nth-child(even) .section__showcase { direction: rtl; }
+.section:nth-child(even) .section__showcase > * { direction: ltr; }
+.section__showcase-content { }
+.section__showcase-visual { }
+
+/* Section layout variants */
+.section__body > * + * { margin-top: 1.5rem; }
+.section__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+/* 2-item grids should be equal halves, not auto-fit to full-width */
+.section__grid > *:first-child:nth-last-child(2),
+.section__grid > *:first-child:nth-last-child(2) ~ * {
+  min-width: 0;
+}
+.section__kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1.25rem;
+}
+.section__pipeline {
+  display: flex;
+  align-items: stretch;
+  gap: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+.section__pipeline > * {
+  flex: 1;
+  min-width: 240px;
+  position: relative;
+}
+.section__pipeline > *:not(:last-child)::after {
+  content: '\2192';
+  position: absolute;
+  right: -1.25rem;
+  top: 50%;
+  transform: translateX(50%) translateY(-50%);
+  font-size: 22px;
+  color: var(--color-text-muted);
+  z-index: 1;
+}
+.section__comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+/* Full-width: children stack vertically at max container width — ideal for tables */
+.section__full-width > * + * { margin-top: 1.5rem; }
+.section--full-width { max-width: none; }
+.section--full-width .table-wrap { max-width: none; overflow-x: auto; }
+.section--full-width .data-table { min-width: 100%; }
+
+/* Sidebar: first child is sticky sidebar, rest is main content */
+.section__sidebar {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+.section__sidebar > *:first-child {
+  position: sticky;
+  top: 80px;
+  align-self: start;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+/* Asymmetric: 2fr 1fr split (wide main + narrow sidebar) */
+.section__asymmetric {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* Stacked: vertical stack with generous spacing — for long-form content */
+.section__stacked > * + * { margin-top: 2rem; }
+
+.section--collapsible details { border: 1px solid var(--color-border); border-radius: var(--radius); padding: 20px 24px; background: var(--color-surface-alt); transition: border-color 0.2s ease; }
+.section--collapsible details:hover { border-color: var(--color-border-strong); }
+.section--collapsible details[open] { border-color: var(--color-accent); }
+.section--collapsible summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; font-weight: 600; user-select: none; }
+.section--collapsible summary::-webkit-details-marker { display: none; }
+.section--collapsible summary::before { content: '\25B8'; display: inline-block; transition: transform 0.2s ease; color: var(--color-accent); font-size: 0.8em; }
+.section--collapsible details[open] summary::before { transform: rotate(90deg); }
+.section--collapsible details[open] .section__body { animation: accordionOpen 0.3s ease-out; }
+@keyframes accordionOpen { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Deck: scroll-snap slide presentation */
+.section--deck {
+  padding: 0;
+  max-width: none;
+  position: relative;
+}
+.section--deck .section-label,
+.section--deck .section-title,
+.section--deck .section-subtitle {
+  position: absolute;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  text-align: center;
+}
+.section--deck .section-label { top: 1.5rem; }
+.section--deck .section-title { top: 2rem; }
+.section--deck .section-subtitle { top: 4rem; }
+.section__deck {
+  scroll-snap-type: y mandatory;
+  overflow-y: auto;
+  height: 100vh;
+  position: relative;
+}
+.section__deck .deck-slide {
+  min-height: 100vh;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 2rem 4rem;
+  position: relative;
+  box-sizing: border-box;
+}
+.section__deck .deck-slide:nth-child(even) {
+  background: var(--color-surface-alt);
+}
+/* Slide type hints */
+.section__deck .deck-slide--title {
+  text-align: center;
+}
+.section__deck .deck-slide--title .hero__title,
+.section__deck .deck-slide--title .ve-card__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 4rem);
+}
+.section__deck .deck-slide--content {
+  max-width: 900px;
+  width: 100%;
+}
+.section__deck .deck-slide--dashboard {
+  max-width: 1200px;
+  width: 100%;
+}
+.section__deck .deck-slide--dashboard .kpi-card,
+.section__deck .deck-slide--dashboard .data-table {
+  width: 100%;
+}
+/* Slide counter — bottom-right */
+.deck-counter {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 2rem;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 4px 12px;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.85;
+}
+/* Slide progress bar — fixed at top */
+.deck-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: var(--color-accent);
+  z-index: 100;
+  transition: width 0.15s ease-out;
+  pointer-events: none;
+}
+
+/* Stepper: prev/next temporal walkthrough */
+.section__stepper { position: relative; }
+.stepper-step { display: none; }
+.stepper-step.active { display: block; }
+.stepper-controls { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 2rem; }
+.stepper-btn { background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: 8px; padding: 8px 20px; cursor: pointer; font-family: var(--font-body); font-size: 0.85rem; color: var(--color-text); transition: all 0.2s; }
+.stepper-btn:hover { background: var(--color-accent-dim); border-color: var(--color-accent); color: var(--color-accent); }
+.stepper-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.stepper-dots { display: flex; gap: 8px; }
+.stepper-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-border); border: none; cursor: pointer; transition: all 0.2s; }
+.stepper-dot.active { background: var(--color-accent); transform: scale(1.3); }
+.stepper-counter { font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-text-muted); }
+
+/* Custom HTML element */
+.custom-html { position: relative; }
+
+/* === Score Bars (from VE) === */
+.score-bar { display: flex; align-items: center; gap: 12px; margin: 8px 0; }
+.score-bar__label { font-family: var(--font-mono); font-size: 12px; color: var(--color-text-muted); min-width: 120px; }
+.score-bar__track { flex: 1; height: 8px; background: var(--color-surface-alt); border-radius: 4px; overflow: hidden; border: 1px solid var(--color-border); }
+.score-bar__fill { height: 100%; border-radius: 4px; transition: width 0.6s ease-out; background: var(--color-accent); }
+.score-bar__fill--success { background: var(--color-success); }
+.score-bar__fill--warning { background: var(--color-warning); }
+.score-bar__fill--error { background: var(--color-error); }
+.score-bar__value { font-family: var(--font-mono); font-size: 13px; font-weight: 600; min-width: 30px; }
+
+/* === Versus / Comparison Cards (from VE) === */
+.versus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 24px 0; }
+.versus-card { border-top: 3px solid var(--color-accent); }
+.versus-card--alt { border-top-color: var(--color-success); }
+.versus-card--merged { grid-column: 1 / -1; border-top-color: var(--color-warning); }
+@media (max-width: 768px) { .versus-grid { grid-template-columns: 1fr; } .versus-card--merged { grid-column: auto; } }
+
+/* === Numbered Step List (from VE) === */
+.step-list { list-style: none; margin: 0; padding: 0; }
+.step-list__item { background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: 10px; padding: 16px 20px; margin-bottom: 12px; display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; }
+.step-list__num { font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--color-accent); opacity: 0.5; }
+
+/* === Nav Dot Rail (from VE) === */
+.nav-rail { position: fixed; right: 1.5rem; top: 50%; transform: translateY(-50%); z-index: 999; display: flex; flex-direction: column; gap: 12px; }
+.nav-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--color-text-muted); opacity: 0.3; border: none; cursor: pointer; transition: all 0.3s ease; position: relative; }
+.nav-dot:hover, .nav-dot.active { opacity: 1; background: var(--color-accent); transform: scale(1.4); }
+.nav-dot::after { content: attr(data-label); position: absolute; right: 20px; top: 50%; transform: translateY(-50%); white-space: nowrap; font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-accent); opacity: 0; transition: opacity 0.2s ease; pointer-events: none; background: var(--color-surface); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--color-border); }
+.nav-dot:hover::after { opacity: 1; }
+@media (max-width: 768px) { .nav-rail { display: none; } }
+@media print { .nav-rail { display: none; } }
+
+/* === CTA Buttons (from VE) === */
+.cta-section { text-align: center; padding: 6rem 0; position: relative; }
+.cta-section::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; background: radial-gradient(circle, var(--color-accent-dim), transparent 70%); pointer-events: none; }
+.cta-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+.cta-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.85rem 2rem; border-radius: 8px; font-family: var(--font-mono); font-size: 0.82rem; font-weight: 600; text-decoration: none; transition: all 0.3s ease; letter-spacing: 0.03em; }
+.cta-btn--primary { background: var(--color-accent); color: var(--color-surface); border: 1px solid var(--color-accent); }
+.cta-btn--primary:hover { filter: brightness(1.15); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+.cta-btn--secondary { background: transparent; color: var(--color-accent); border: 1px solid var(--color-border-strong); }
+.cta-btn--secondary:hover { background: var(--color-accent-dim); border-color: var(--color-accent); transform: translateY(-2px); }
+
+/* === Hero Stats (from VE) === */
+.hero__stats { display: flex; justify-content: center; gap: 3rem; margin-top: 2rem; flex-wrap: wrap; }
+.hero__stat { text-align: center; }
+.hero__stat-value { font-family: var(--font-display); font-size: 2.5rem; color: var(--color-accent); font-weight: 400; line-height: 1.2; }
+.hero__stat-label { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-muted); }
+
+/* === Chart Container (from VE) === */
+.chart-row { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-top: 1rem; }
+.chart-wrap { background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem; }
+.chart-wrap__title { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); margin-bottom: 0.8rem; }
+@media (max-width: 768px) { .chart-row { grid-template-columns: 1fr; } }
+
+/* === Gradient Text (from VE) === */
+.gradient-text { background: linear-gradient(135deg, var(--color-accent), var(--color-accent-bright)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+/* === Card Tags (from VE) === */
+.card-tag { display: inline-block; font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.2em 0.6em; border-radius: 4px; margin-bottom: 0.75rem; }
+.card-tag--accent { background: var(--color-accent-dim); color: var(--color-accent); }
+.card-tag--success { background: rgba(74,222,128,0.1); color: var(--color-success); }
+.card-tag--warning { background: rgba(251,191,36,0.1); color: var(--color-warning); }
+.card-tag--error { background: rgba(248,113,113,0.1); color: var(--color-error); }
+
+/* === Card === */
+.ve-card {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--elevation-1);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.ve-card:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: var(--elevation-2);
+  border-color: var(--color-border-strong);
+}
+.ve-card--elevated {
+  background: var(--color-surface-alt);
+  box-shadow: var(--shadow);
+}
+.ve-card--elevated:hover { box-shadow: var(--shadow-lg); }
+.ve-card--recessed {
+  background: var(--color-surface);
+  border-style: dashed;
+}
+.ve-card--hero {
+  background: linear-gradient(135deg, var(--color-surface-alt), var(--color-surface));
+  border-color: var(--color-border);
+  padding: 2.5rem;
+}
+.ve-card--glass {
+  background: rgba(255,255,255,0.02);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.ve-card--glass:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.12);
+}
+.ve-card--glass::before { display: none; }
+[data-theme="light"] .ve-card--glass {
+  background: rgba(0,0,0,0.015);
+  border-color: rgba(0,0,0,0.06);
+}
+[data-theme="light"] .ve-card--glass:hover {
+  background: rgba(0,0,0,0.03);
+  border-color: rgba(0,0,0,0.1);
+}
+/* Light theme card contrast boost — cards get white bg + shadow for depth */
+[data-theme="light"] .ve-card { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 0 1px rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.08); }
+[data-theme="light"] .ve-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.1), 0 2px 6px rgba(0,0,0,0.06); }
+[data-theme="light"] .ve-card--elevated { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+[data-theme="light"] .kpi-card { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.08); border-color: rgba(0,0,0,0.08); }
+[data-theme="light"] .table-wrap { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+[data-theme="light"] .callout { background: #fff; border-color: var(--color-border); }
+[data-theme="light"] .callout--info { border-left-color: var(--color-accent); }
+[data-theme="light"] .callout--warning { border-left-color: var(--color-warning); }
+[data-theme="light"] .callout--success { border-left-color: var(--color-success); }
+[data-theme="light"] .code-block, [data-theme="light"] .code-file { background: #fff; }
+[data-theme="light"] .pullquote { background: #fff; border-left-color: var(--color-accent); }
+[data-theme="light"] .section:nth-child(even) { background: #fff; }
+[data-theme="light"] .section-subtitle { color: var(--color-text-muted); }
+.ve-card--slide { scroll-snap-align: start; min-width: 300px; }
+
+/* === Card Detail Overlay (click-to-expand) === */
+.ve-card[data-expandable] { cursor: pointer; }
+.ve-card[data-expandable]::after { content: 'Click to expand'; position: absolute; bottom: 8px; right: 12px; font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-text-muted); opacity: 0; transition: opacity 0.2s; text-transform: uppercase; letter-spacing: 0.08em; }
+.ve-card[data-expandable]:hover::after { opacity: 0.6; }
+.card-detail-overlay { position: fixed; inset: 0; z-index: 9999; background: color-mix(in srgb, var(--color-surface) 97%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); overflow-y: auto; padding: 3rem 4rem; display: none; animation: overlayIn 0.25s ease-out; }
+.card-detail-overlay.active { display: block; }
+.card-detail-overlay__close { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 10000; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: 8px; padding: 8px 16px; cursor: pointer; font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-text-muted); transition: all 0.2s; }
+.card-detail-overlay__close:hover { background: var(--color-accent-dim); color: var(--color-accent); }
+.card-detail-overlay__content { max-width: 900px; margin: 2rem auto; }
+.card-detail-overlay__content .ve-card { cursor: default; transform: none; max-width: none; }
+.card-detail-overlay__content .ve-card:hover { transform: none; }
+@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Card subtle differentiation in grids — icon bg color rotation instead of borders */
+.section__grid > .ve-card:nth-child(6n+1) .ve-card__icon { background: color-mix(in srgb, var(--color-accent) 12%, transparent); }
+.section__grid > .ve-card:nth-child(6n+2) .ve-card__icon { background: color-mix(in srgb, var(--color-success) 12%, transparent); }
+.section__grid > .ve-card:nth-child(6n+3) .ve-card__icon { background: color-mix(in srgb, var(--color-warning) 12%, transparent); }
+.section__grid > .ve-card:nth-child(6n+4) .ve-card__icon { background: color-mix(in srgb, var(--color-error) 12%, transparent); }
+.section__grid > .ve-card:nth-child(6n+5) .ve-card__icon { background: color-mix(in srgb, var(--color-accent) 8%, var(--color-success) 4%); }
+.section__grid > .ve-card:nth-child(6n+6) .ve-card__icon { background: color-mix(in srgb, var(--color-warning) 8%, var(--color-error) 4%); }
+
+/* Card accent-left variant — subtle colored left edge for emphasis */
+.ve-card--accent-left { border-left: 3px solid var(--color-accent); }
+
+/* Phase badges (VE ulta-turbo style) */
+.badge { display: inline-flex; align-items: center; padding: 5px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; border: 1px solid transparent; white-space: nowrap; font-family: var(--font-mono); }
+.badge--success { background: rgba(74,222,128,0.1); color: var(--color-success); border-color: rgba(74,222,128,0.3); }
+.badge--warning { background: rgba(251,191,36,0.1); color: var(--color-warning); border-color: rgba(251,191,36,0.3); }
+.badge--error { background: rgba(248,113,113,0.1); color: var(--color-error); border-color: rgba(248,113,113,0.3); }
+.badge--accent { background: var(--color-accent-dim); color: var(--color-accent); border-color: var(--color-border-strong); }
+.badge--muted { background: var(--color-surface-alt); color: var(--color-text-muted); border-color: var(--color-border); }
+
+/* Chip tags (VE ulta-turbo style) */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 999px; border: 1px solid var(--color-border); background: var(--color-surface-alt); color: var(--color-text-muted); font-size: 11px; font-family: var(--font-mono); }
+.chip::before { content: ''; width: 8px; height: 8px; border-radius: 999px; background: var(--color-accent); }
+
+/* === Blueprint Background (VE convergence-roadmap style) === */
+.section--blueprint {
+  background-image:
+    repeating-linear-gradient(0deg, var(--color-border) 0px, var(--color-border) 1px, transparent 1px, transparent 40px),
+    repeating-linear-gradient(90deg, var(--color-border) 0px, var(--color-border) 1px, transparent 1px, transparent 40px);
+  background-size: 40px 40px;
+  background-position: center;
+}
+
+/* === Color-Tinted Cards (VE lane-card style) === */
+.ve-card--tint-success { background: color-mix(in srgb, var(--color-surface-alt) 90%, var(--color-success) 10%); }
+.ve-card--tint-warning { background: color-mix(in srgb, var(--color-surface-alt) 90%, var(--color-warning) 10%); }
+.ve-card--tint-error { background: color-mix(in srgb, var(--color-surface-alt) 90%, var(--color-error) 10%); }
+.ve-card--tint-accent { background: color-mix(in srgb, var(--color-surface-alt) 90%, var(--color-accent) 10%); }
+
+/* === Architecture Layer (VE agentping style) === */
+.arch-layer { display: flex; align-items: center; gap: 1.5rem; padding: 1.5rem 2rem; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius); transition: all 0.35s ease; }
+.arch-layer:hover { border-color: var(--color-border-strong); background: var(--color-surface); }
+.arch-layer__num { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; color: var(--color-surface); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--color-accent); }
+.arch-layer__content h4 { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
+.arch-layer__content p { font-size: 0.85rem; color: var(--color-text-muted); line-height: 1.5; }
+
+/* === SVG Architecture Connectors === */
+.arch-connector { text-align: center; padding: 4px 0; color: var(--color-text-muted); }
+.arch-connector svg { width: 24px; height: 32px; }
+.arch-connector svg line, .arch-connector svg path { stroke: var(--color-border); stroke-width: 1.5; }
+.arch-connector svg polygon { fill: var(--color-text-muted); }
+
+/* === DAG Grid (VE plan-triage-dashboard style) === */
+.dag-grid { display: grid; gap: 8px; min-width: 700px; overflow-x: auto; }
+.dag-phase { text-align: center; padding: 8px 4px; }
+.dag-phase-label { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); margin-bottom: 8px; }
+.dag-node { font-size: 11px; font-family: var(--font-mono); padding: 6px 8px; border-radius: 5px; margin: 4px 0; border: 1px solid var(--color-border); line-height: 1.3; overflow-wrap: break-word; background: var(--color-surface-alt); }
+.dag-node--p0 { background: rgba(185,28,28,0.08); border-color: #b91c1c; }
+.dag-node--p1 { background: rgba(194,65,12,0.08); border-color: #c2410c; }
+.dag-node--p2 { background: rgba(3,105,161,0.08); }
+.dag-node--p3 { background: rgba(101,163,13,0.08); }
+.dag-node--done { background: rgba(22,163,74,0.08); }
+.dag-node--defer { background: rgba(217,119,6,0.08); }
+
+/* === Sidebar TOC Layout (VE plan-triage-dashboard style) === */
+.page-wrap--toc { max-width: 1500px; margin: 0 auto; display: grid; grid-template-columns: 180px 1fr; gap: 0 32px; padding-top: 60px; }
+.page-toc { position: sticky; top: 64px; align-self: start; padding: 16px; display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-family: var(--font-mono); max-height: calc(100vh - 80px); overflow-y: auto; z-index: 50; }
+.page-toc__title { font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-muted); margin-bottom: 8px; }
+.page-toc a { color: var(--color-text-muted); text-decoration: none; padding: 4px 8px; border-radius: 4px; transition: all 0.15s; line-height: 1.4; display: block; }
+.page-toc a:hover { color: var(--color-text); background: var(--color-surface-alt); }
+.page-toc a.active { color: var(--color-text); background: var(--color-surface-alt); font-weight: 600; }
+.page-main { min-width: 0; position: relative; z-index: 1; }
+@media (max-width: 900px) {
+  .page-wrap--toc { grid-template-columns: 1fr; }
+  .page-toc { position: sticky; top: 0; z-index: 100; flex-direction: row; overflow-x: auto; overflow-y: visible; background: var(--color-surface); border-bottom: 1px solid var(--color-border); padding: 12px 16px; max-height: none; gap: 2px; }
+  .page-toc a { white-space: nowrap; }
+}
+.ve-card__label {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+.ve-card__title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+.ve-card__content {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  line-height: 1.8;
+}
+.ve-card__content ul { padding-left: 18px; margin-top: 8px; }
+.ve-card__content li { margin-bottom: 4px; }
+.ve-card__content li::marker { color: var(--color-accent); }
+
+/* === KPI Card === */
+.kpi-card {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-align: center;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.kpi-card__value {
+  font-size: 36px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+/* Animated KPI counter — pure CSS integer interpolation via @property */
+.has-anim .kpi-card__value--animated {
+  animation: countUp 1.2s ease-out forwards;
+  counter-reset: kpi-count var(--count);
+}
+.has-anim .kpi-card__value--animated::after {
+  content: counter(kpi-count);
+}
+.kpi-card__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.kpi-card__trend {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 6px;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.kpi-card__trend--up { color: var(--color-success); background: rgba(74,222,128,0.1); }
+.kpi-card__trend--down { color: var(--color-error); background: rgba(248,113,113,0.1); }
+.kpi-card__trend--flat { color: var(--color-text-muted); background: rgba(128,128,128,0.1); }
+.kpi-card__sparkline {
+  display: block;
+  width: 100%;
+  height: 24px;
+  margin-top: 8px;
+}
+
+/* === Callout === */
+.callout {
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  border-left: 4px solid;
+}
+.callout--info { border-color: var(--color-accent); background: rgba(26,115,232,0.06); }
+.callout--warning { border-color: var(--color-warning); background: rgba(251,191,36,0.06); }
+.callout--success { border-color: var(--color-success); background: rgba(74,222,128,0.06); }
+.callout__title { font-weight: 600; margin-bottom: 6px; }
+.callout__content { font-size: 14px; color: var(--color-text-muted); }
+
+/* === Text === */
+.prose { max-width: 65ch; font-size: 1rem; line-height: 1.7; }
+.prose p + p { margin-top: 1em; }
+.prose--narrow { max-width: 55ch; line-height: 1.85; font-size: 1.05rem; }
+.prose--wide { max-width: 80ch; line-height: 1.6; }
+.lead {
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+  max-width: 65ch;
+  line-height: 1.8;
+}
+/* Drop cap disabled — caused layout reflow issues. Lead text uses accent first-line instead. */
+.lead p:first-child::first-line {
+  color: var(--color-text);
+  font-weight: 500;
+}
+.pullquote {
+  border-left: 3px solid var(--color-accent);
+  padding: 20px 28px;
+  font-size: 1.1rem;
+  background: var(--color-surface-alt);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-style: italic;
+  color: var(--color-text-muted);
+  margin: 24px 0;
+}
+
+/* === Data Table === */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--color-border); position: relative; }
+.table-fullscreen-btn { position: absolute; top: 8px; right: 8px; z-index: 5; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 13px; color: var(--color-text-muted); transition: all 0.2s; opacity: 0.6; }
+.table-wrap:hover .table-fullscreen-btn { opacity: 1; }
+.table-fullscreen-btn:hover { background: var(--color-accent-dim); color: var(--color-accent); }
+/* Fullscreen mode — applied to the ORIGINAL element via .is-fullscreen class */
+.is-fullscreen { position: fixed !important; inset: 0 !important; z-index: 99999 !important; background: var(--color-surface) !important; margin: 0 !important; border-radius: 0 !important; border: none !important; overflow: auto !important; padding: 0 !important; }
+.is-fullscreen .table-wrap { max-height: none; border: none; border-radius: 0; }
+.is-fullscreen .data-table { font-size: 15px; }
+.is-fullscreen .data-table td { padding: 14px 16px; }
+.is-fullscreen .data-table th { padding: 12px 16px; }
+.is-fullscreen .mermaid-wrap { width: 100%; height: 100vh; }
+.fs-close { position: fixed; top: 0; right: 0; z-index: 100000; background: var(--color-surface-alt); border: none; border-bottom-left-radius: 10px; padding: 6px 14px; cursor: pointer; font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-text-muted); letter-spacing: 0.05em; }
+.fs-close:hover { background: var(--color-accent-dim); color: var(--color-accent); }
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.data-table th {
+  background: var(--color-surface-alt);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding: 10px 14px;
+  text-align: left;
+  white-space: nowrap;
+}
+.data-table--sticky th { position: sticky; top: 0; z-index: 1; }
+.data-table td { padding: 12px 14px; border-top: 1px solid var(--color-border); line-height: 1.5; }
+.data-table tbody tr:nth-child(even) { background: rgba(255,255,255,0.015); }
+.data-table tbody tr:hover { background: var(--color-accent-dim); }
+[data-theme="light"] .data-table tbody tr:nth-child(even) { background: rgba(0,0,0,0.02); }
+[data-theme="light"] .data-table tbody tr:hover { background: rgba(0,0,0,0.04); }
+.data-table td code { font-family: var(--font-mono); font-size: 0.85em; background: var(--color-surface); padding: 1px 5px; border-radius: 3px; }
+.data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.data-table tfoot td { font-size: 11px; color: var(--color-text-muted); padding-top: 8px; }
+
+/* === Code === */
+.code-block, .code-file {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  font-size: 14px;
+}
+.code-file__body { padding: 16px 20px; line-height: 1.6; }
+.code-file__header {
+  background: var(--color-surface-alt);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid var(--color-border);
+}
+.code-file__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-border);
+}
+.code-file__dot:nth-child(1) { background: #ff5f57; }
+.code-file__dot:nth-child(2) { background: #ffbd2e; }
+.code-file__dot:nth-child(3) { background: #28ca42; }
+.code-file__name {
+  margin-left: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+.code-file__body, .code-block {
+  display: flex;
+  background: var(--color-surface);
+}
+pre {
+  margin: 0;
+  padding: 14px;
+  overflow-x: auto;
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+code { font-family: inherit; }
+.line-numbers {
+  padding: 14px 10px;
+  text-align: right;
+  user-select: none;
+  color: var(--color-text-muted);
+  opacity: 0.4;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  border-right: 1px solid var(--color-border);
+}
+.line-numbers span { display: block; }
+.code-keyword { color: #f472b6; font-weight: 500; }
+.code-string { color: #6ee7b7; }
+.code-comment { color: var(--color-text-muted); font-style: italic; }
+.code-func { color: #fbbf24; }
+.code-number { color: #93c5fd; }
+[data-theme="light"] .code-keyword { color: #be185d; }
+[data-theme="light"] .code-string { color: #047857; }
+[data-theme="light"] .code-func { color: #b45309; }
+[data-theme="light"] .code-number { color: #1d4ed8; }
+
+/* === Timeline === */
+.timeline {
+  position: relative;
+  padding-left: 32px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-border);
+}
+.timeline-item {
+  position: relative;
+  padding-bottom: 28px;
+}
+.timeline-item__marker {
+  position: absolute;
+  left: -28px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  background: var(--color-surface);
+}
+.timeline-item--completed .timeline-item__marker,
+.timeline-item--done .timeline-item__marker { background: var(--color-success); border-color: var(--color-success); }
+.timeline-item--in-progress .timeline-item__marker,
+.timeline-item--active .timeline-item__marker { background: var(--color-warning); border-color: var(--color-warning); box-shadow: 0 0 8px rgba(251,191,36,0.4); }
+.timeline-item--upcoming .timeline-item__marker { background: var(--color-surface); }
+.timeline-item--active .timeline-item__content { border-left: 2px solid var(--color-warning); padding-left: 12px; margin-left: -14px; }
+.timeline-item__date {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.timeline-item__title { font-weight: 600; margin: 4px 0; font-size: 1rem; }
+.timeline-item__desc { font-size: 14px; color: var(--color-text-muted); line-height: 1.5; }
+/* Completed items get muted text */
+.timeline-item--completed .timeline-item__title,
+.timeline-item--done .timeline-item__title { color: var(--color-text-muted); }
+.timeline-item--completed .timeline-item__desc,
+.timeline-item--done .timeline-item__desc { opacity: 0.7; }
+
+/* === Diagram / Mermaid === */
+.mermaid-wrap {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  overflow-x: auto;
+  text-align: center;
+}
+.mermaid-controls {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+.mermaid-zoom {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  padding: 3px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.mermaid-zoom:hover { color: var(--color-text); background: rgba(255,255,255,0.06); }
+.mermaid-fullscreen { font-size: 13px; }
+.mermaid { transition: transform 0.2s ease; zoom: 1.4; }
+.mermaid-wrap--fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+.mermaid-wrap--fullscreen .mermaid-controls {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  background: var(--color-surface-alt);
+  border: none;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  padding: 6px 12px;
+  display: flex;
+  gap: 4px;
+}
+.mermaid-wrap--fullscreen .mermaid { margin: auto; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: auto; }
+.mermaid-wrap--fullscreen .mermaid svg { width: 100%; height: auto; min-height: 60vh; }
+.mermaid-wrap--fullscreen .mermaid-fullscreen::after { content: ' esc'; font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.6; }
+.mermaid-caption {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-style: italic;
+  z-index: 100000;
+  background: var(--color-surface-alt);
+  padding: 4px 16px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+/* Mermaid dark theme node overrides — prevent black fills */
+[data-theme="dark"] .mermaid .node rect,
+[data-theme="dark"] .mermaid .node circle,
+[data-theme="dark"] .mermaid .node polygon { fill: var(--color-surface-alt) !important; stroke: var(--color-border) !important; }
+[data-theme="dark"] .mermaid .node .label { color: var(--color-text) !important; }
+[data-theme="dark"] .mermaid .edgePath .path { stroke: var(--color-text-muted) !important; }
+[data-theme="dark"] .mermaid .edgeLabel { background: var(--color-surface) !important; color: var(--color-text-muted) !important; }
+[data-theme="dark"] .mermaid .cluster rect { fill: var(--color-surface) !important; stroke: var(--color-border) !important; }
+
+/* === Inline === */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.status::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+.status--match { background: rgba(74,222,128,0.12); color: var(--color-success); }
+.status--gap { background: rgba(248,113,113,0.12); color: var(--color-error); }
+.status--warn { background: rgba(251,191,36,0.12); color: var(--color-warning); }
+.status--info { background: rgba(26,115,232,0.12); color: var(--color-accent); }
+.status--done { background: rgba(74,222,128,0.12); color: var(--color-success); }
+.status--active { background: rgba(251,191,36,0.12); color: var(--color-warning); }
+.status--upcoming { background: rgba(128,128,128,0.12); color: var(--color-text-muted); }
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 32px 0;
+}
+
+/* === Theme Toggle === */
+.theme-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition), border-color var(--transition);
+}
+.theme-toggle:hover { border-color: var(--color-accent); }
+.theme-toggle svg { width: 18px; height: 18px; fill: var(--color-text); }
+
+/* === CTA Section (hero used as CTA at bottom) === */
+.section--cta {
+  text-align: center;
+  padding: 8rem 0;
+  background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-surface-alt) 50%, var(--color-surface) 100%);
+  border-top: 1px solid var(--color-accent);
+}
+.section--cta .section-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+.section--cta .section__body {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* === Byline (author attribution) === */
+.byline { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+.byline__avatar { font-size: 2rem; width: 3rem; height: 3rem; display: flex; align-items: center; justify-content: center; background: var(--color-accent-dim); border-radius: 50%; flex-shrink: 0; }
+.byline__info { display: flex; flex-direction: column; gap: 2px; }
+.byline__name { font-weight: 600; font-size: 0.95rem; }
+.byline__role { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-accent); text-transform: uppercase; letter-spacing: 0.08em; }
+.byline__meta { font-size: 0.8rem; color: var(--color-text-muted); }
+
+/* === Footer === */
+footer, .footer {
+  padding: 3rem 0 2rem;
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+footer a, .footer a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+footer a:hover, .footer a:hover { color: var(--color-accent); }
+
+/* === Card Subtitle / Code Label === */
+.ve-card__subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  opacity: 0.7;
+  margin-top: 0.5rem;
+  display: block;
+}
+
+/* === Card Icon === */
+.ve-card__icon {
+  font-size: 1.8rem;
+  margin-bottom: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 10px;
+  background: var(--color-accent-dim);
+}
+
+/* === Feature List === */
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+}
+.feature-list li {
+  padding: 6px 0 6px 20px;
+  position: relative;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+.feature-list li::before {
+  content: '\203A';
+  position: absolute;
+  left: 0;
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+/* === Sticky Nav === */
+.site-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 0 2rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: color-mix(in srgb, var(--color-surface) 85%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.3s;
+}
+.site-nav__logo {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+.site-nav__links {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.site-nav__links a {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+.site-nav__links a:hover { color: var(--color-accent); }
+@media (max-width: 768px) {
+  .site-nav__links { display: none; }
+  .site-nav { padding: 0 1rem; }
+}
+@media print { .site-nav { display: none; } }
+
+/* === Diff Panels (before/after comparison) === */
+.diff-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+.diff-panel { padding: 1.25rem; }
+.diff-panel__header {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.diff-panel--before { background: rgba(248,113,113,0.04); }
+.diff-panel--before .diff-panel__header { color: var(--color-error); }
+.diff-panel--after { background: rgba(52,211,153,0.04); }
+.diff-panel--after .diff-panel__header { color: var(--color-success); }
+.diff-panel__body { font-size: 0.9rem; line-height: 1.7; }
+.diff-panel__body code {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  background: var(--color-accent-dim);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+}
+
+/* === Badge/Tag === */
+.badge, .tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  background: var(--color-accent-dim);
+  color: var(--color-accent);
+}
+
+/* === Links === */
+a { color: var(--color-accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* === Inline Code === */
+code:not(pre code) {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--color-accent-dim);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .hero { min-height: auto; padding: 80px 16px 60px; }
+  .hero__title { font-size: 2rem; }
+  .section { padding: 3rem 0; }
+  .section:nth-child(even) { margin-left: -16px; margin-right: -16px; padding-left: 16px; padding-right: 16px; }
+  .section__showcase { grid-template-columns: 1fr; gap: 1.5rem; }
+  .section:nth-child(even) .section__showcase { direction: ltr; }
+  .section__comparison, .diff-panels { grid-template-columns: 1fr; }
+  .section__pipeline { flex-direction: column; }
+  .section__pipeline > *:not(:last-child)::after { content: '\2193'; position: static; text-align: center; display: block; margin: 8px 0; }
+  .section__sidebar { grid-template-columns: 1fr; }
+  .section__sidebar > *:first-child { position: static; max-height: none; }
+  .section__asymmetric { grid-template-columns: 1fr; }
+  .container { padding: 0 16px 40px; }
+}
+@media (max-width: 480px) {
+  .section__grid { grid-template-columns: 1fr; }
+  .kpi-card__value { font-size: 28px; }
+}
+
+/* === Print === */
+@media print {
+  :root { --color-surface: #fff; --color-surface-alt: #fff; --color-text: #000; --color-text-muted: #444; --color-border: #ccc; }
+  body { background: #fff; color: #000; background-image: none; }
+  .theme-toggle, .mermaid-controls { display: none; }
+  .hero { min-height: auto; page-break-after: always; }
+  .hero::before, .hero::after { display: none; }
+  .anim { opacity: 1; animation: none; }
+  .section:nth-child(even) { background: none; }
+  .ve-card { break-inside: avoid; }
+  details { open: true; }
+  details[open] summary ~ * { display: block; }
+}
+
+/* === Effect Knobs (opt-in via meta.effects array) === */
+
+/* Grid background — subtle dot grid or line grid, faded under content */
+.fx-grid-dots body::after,
+.fx-grid-lines body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.4;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, transparent 20%, black 80%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, transparent 20%, black 80%);
+}
+.fx-grid-dots body::after {
+  background-image:
+    radial-gradient(circle, var(--color-border) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.fx-grid-lines body::after {
+  background-image:
+    linear-gradient(var(--color-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Card glow on hover — subtle accent glow */
+.fx-card-glow .ve-card:hover {
+  box-shadow: var(--shadow-lg), 0 0 20px color-mix(in srgb, var(--color-accent) 15%, transparent);
+}
+.fx-card-glow .kpi-card:hover {
+  box-shadow: var(--shadow), 0 0 16px color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+/* Frosted glass sections — alternating sections get glassmorphism */
+.fx-glass .section:nth-child(even) {
+  background: color-mix(in srgb, var(--color-surface-alt) 80%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Gradient border on hero — top-edge gradient accent */
+.fx-hero-gradient .hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+}
+
+/* Noise texture — film grain overlay */
+.fx-noise body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.015;
+  pointer-events: none;
+  z-index: 9998;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Accent underlines on section titles */
+.fx-title-underline .section-title {
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--color-accent-dim);
+}
+
+/* === Feedback Element === */
+.feedback-wrap { position: relative; margin: 2rem 0; }
+.feedback-progress {
+  position: sticky; top: 0; z-index: 20;
+  background: var(--color-surface-alt); border-radius: var(--radius);
+  height: 28px; margin-bottom: 1.5rem; overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+.feedback-progress__fill {
+  height: 100%; background: var(--color-accent); transition: width 0.4s ease;
+  border-radius: var(--radius);
+}
+.feedback-progress__text {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+.feedback-save {
+  position: fixed; top: 16px; right: 16px; z-index: 30;
+  background: var(--color-success); color: #fff; padding: 6px 14px;
+  border-radius: var(--radius); font-family: var(--font-mono); font-size: 0.75rem;
+  transition: opacity 0.3s ease; pointer-events: none;
+}
+.feedback-buckets {
+  display: flex; gap: 0.5rem; margin-bottom: 1.5rem;
+  overflow-x: auto; padding-bottom: 4px;
+}
+.feedback-bucket {
+  background: var(--color-surface-alt); color: var(--color-text-muted);
+  border: 1px solid var(--color-border); border-radius: var(--radius);
+  padding: 6px 14px; font-family: var(--font-mono); font-size: 0.75rem;
+  cursor: pointer; white-space: nowrap; transition: all 0.2s;
+}
+.feedback-bucket:hover { border-color: var(--color-accent); }
+.feedback-bucket.active {
+  background: var(--color-accent); color: var(--color-surface);
+  border-color: var(--color-accent);
+}
+.feedback-card {
+  background: var(--color-surface-alt); border: 1px solid var(--color-border);
+  border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem;
+  border-left: 3px solid transparent; transition: border-color 0.3s;
+}
+.feedback-card.decided { border-left-color: var(--color-accent); }
+.feedback-card__header {
+  display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+.feedback-card__id {
+  font-family: var(--font-mono); font-size: 0.7rem; padding: 2px 8px;
+  background: var(--color-border); border-radius: 3px; color: var(--color-text-muted);
+}
+.feedback-card__title {
+  font-family: var(--font-body); font-weight: 600; font-size: 1rem;
+  color: var(--color-text); flex: 1;
+}
+.feedback-card__wave {
+  font-family: var(--font-mono); font-size: 0.65rem; text-transform: uppercase;
+  letter-spacing: 0.08em; padding: 2px 8px; border-radius: 10px;
+  background: var(--color-accent); color: var(--color-surface);
+}
+.feedback-card__insight {
+  border-left: 2px solid var(--color-accent); padding-left: 0.75rem;
+  margin-bottom: 0.75rem; font-size: 0.9rem; color: var(--color-text-muted);
+}
+.feedback-card__detail {
+  display: none; padding: 0.75rem; margin-bottom: 0.75rem;
+  background: var(--color-surface); border-radius: var(--radius);
+  font-size: 0.85rem; color: var(--color-text-muted);
+}
+.feedback-card__detail.open { display: block; }
+.feedback-detail-toggle {
+  background: none; border: 1px solid var(--color-border); border-radius: var(--radius);
+  color: var(--color-text-muted); font-family: var(--font-mono); font-size: 0.7rem;
+  padding: 3px 10px; cursor: pointer; margin-bottom: 0.5rem;
+}
+.feedback-detail-toggle:hover { border-color: var(--color-accent); }
+.feedback-options {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+@media (max-width: 600px) { .feedback-options { grid-template-columns: 1fr; } }
+.feedback-option {
+  display: flex; flex-direction: column; gap: 2px; padding: 0.6rem;
+  border: 1px solid var(--color-border); border-radius: var(--radius);
+  cursor: pointer; transition: all 0.2s; font-size: 0.85rem;
+}
+.feedback-option:hover { border-color: var(--color-accent); }
+.feedback-option.selected { background: var(--color-accent); color: var(--color-surface); }
+.feedback-option.selected .feedback-option__desc { color: var(--color-surface); opacity: 0.8; }
+.feedback-option.recommended { border-color: #d97706; box-shadow: inset 0 0 0 1px rgba(217,119,6,0.2); }
+.feedback-option input[type=radio] { display: none; }
+.feedback-option__label { font-weight: 600; font-family: var(--font-body); }
+.feedback-option__desc { font-size: 0.75rem; color: var(--color-text-muted); }
+.feedback-other { margin-bottom: 0.5rem; font-size: 0.85rem; }
+.feedback-other label { display: flex; align-items: center; gap: 0.5rem; color: var(--color-text-muted); }
+.feedback-other__input {
+  flex: 1; background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius); padding: 4px 8px; color: var(--color-text);
+  font-family: var(--font-body); font-size: 0.85rem;
+}
+.feedback-notes {
+  width: 100%; background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius); padding: 8px; color: var(--color-text);
+  font-family: var(--font-body); font-size: 0.85rem; resize: vertical;
+}
+.feedback-actions {
+  display: flex; gap: 0.75rem; margin-top: 1rem; justify-content: flex-end;
+}
+.feedback-actions button {
+  font-family: var(--font-mono); font-size: 0.75rem; padding: 8px 16px;
+  border-radius: var(--radius); cursor: pointer; border: 1px solid var(--color-border);
+  transition: all 0.2s;
+}
+.feedback-actions__copy { background: var(--color-accent); color: var(--color-surface); border-color: var(--color-accent); }
+.feedback-actions__copy:hover { opacity: 0.85; }
+.feedback-actions__clear { background: var(--color-surface-alt); color: var(--color-text-muted); }
+.feedback-actions__clear:hover { border-color: var(--color-error); color: var(--color-error); }
+.feedback-toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--color-surface-alt); color: var(--color-text); padding: 8px 20px;
+  border-radius: var(--radius); font-family: var(--font-mono); font-size: 0.75rem;
+  border: 1px solid var(--color-border); z-index: 40; pointer-events: none;
+}
+
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="site-nav__logo" href="#">chiDEV</a>
+    <div class="site-nav__links">
+      <a href="#status-section">CURRENT STATUS</a>
+      <a href="#provenance-section">PROVENANCE</a>
+      <a href="#live-middleware-section">LIVE REALITY</a>
+      <a href="#pr86-section">PR86</a>
+      <a href="#pr87-section">PR87</a>
+      <a href="#chi-section">DISAMBIGUATION</a>
+      <a href="#graph-section">GRAPH DIRECTION</a>
+      <a href="#feedback-section">FEEDBACK</a>
+    </div>
+  </nav>
+<section data-lev-id="hero" class="anim hero hero--editorial" style="--i:0">
+  <div class="hero__inner">
+    <span class="hero__category">TECHNICAL REVIEW</span>
+    <h1 class="hero__title">chiDEV Middleware Prior Art and Branch Review</h1>
+    <p class="hero__subtitle">What the middleware idea was, what exists now, what pr86 and pr87 still add, and where retained ideas should live.</p>
+    <p class="hero__meta">Repo: leviathan | Date: 2026-04-10</p>
+    <div data-lev-id="hero-lead" class="anim lead" style="--i:1;">
+  <p>The core answer is: yes, middleware exists in current main, but the repo canon explicitly treats it as a thin transitional runtime wrapper. FlowMind, hooks, LevEvent, and orchestration remain the real ownership surfaces. The right question for the old chiDEV branches is therefore not whether to merge middleware, but which ideas or examples are still worth preserving as references.</p>
+</div>
+  </div>
+</section>
+  <div class="page-wrap--toc">
+    <nav class="page-toc" id="page-toc">
+      <div class="page-toc__title">chiDEV</div>
+      <a href="#status-section">CURRENT STATUS</a>
+      <a href="#provenance-section">PROVENANCE</a>
+      <a href="#live-middleware-section">LIVE REALITY</a>
+      <a href="#pr86-section">PR86</a>
+      <a href="#pr87-section">PR87</a>
+      <a href="#chi-section">DISAMBIGUATION</a>
+      <a href="#graph-section">GRAPH DIRECTION</a>
+      <a href="#feedback-section">FEEDBACK</a>
+    </nav>
+    <div class="page-main">
+
+
+<section data-lev-id="status-section" class="anim section section--kpi-row" style="--i:2" id="status-section">
+  <span class="section-label">CURRENT STATUS</span>
+  <h2 class="section-title">Where the repo stands right now</h2>
+  
+  <div class="section__kpi-row"><div data-lev-id="kpi-worktree" class="anim kpi-card" style="--i:3">
+  <div class="kpi-card__value">2</div>
+  <div class="kpi-card__label">active review worktrees</div>
+  <span class="kpi-card__trend kpi-card__trend--flat">claude + harvester</span>
+  
+</div>
+<div data-lev-id="kpi-pushed" class="anim kpi-card" style="--i:4">
+  <div class="kpi-card__value">1</div>
+  <div class="kpi-card__label">current clean branch pushed</div>
+  <span class="kpi-card__trend kpi-card__trend--up">codex/workshop-harvester-cutover</span>
+  
+</div>
+<div data-lev-id="kpi-live-middleware" class="anim kpi-card" style="--i:5">
+  <div class="kpi-card__value">6</div>
+  <div class="kpi-card__label">middleware modules in main</div>
+  <span class="kpi-card__trend kpi-card__trend--flat">3 disabled policy-ish, 3 enabled runtime-ish</span>
+  
+</div>
+<div data-lev-id="kpi-branches" class="anim kpi-card" style="--i:6">
+  <div class="kpi-card__value">4</div>
+  <div class="kpi-card__label">remaining remote refs in lane</div>
+  <span class="kpi-card__trend kpi-card__trend--down">pr86, pr87, feature/chitown-setup, lev/browser</span>
+  
+</div></div>
+</section>
+
+<section data-lev-id="provenance-section" class="anim section section--full-width" style="--i:7" id="provenance-section">
+  <span class="section-label">PROVENANCE</span>
+  <h2 class="section-title">What the prior art says about middleware vs hooks / FlowMind</h2>
+  
+  <div class="section__full-width"><div data-lev-id="provenance-lead" class="anim prose" style="--i:8;">
+  <p>The repo contains both the experiment and the correction. The DeerFlow branch work introduced a middleware chain model, but the canonical docs later constrain that surface and explicitly move declarative policy back to FlowMind and orchestration. There is also a later freeze note that says Poly owns the WHAT and FlowMind owns the WHEN.</p>
+</div>
+<div data-lev-id="provenance-table" class="anim table-wrap" style="--i:9">
+  
+  <table class="data-table">
+    <thead><tr><th>Source</th><th>Status</th><th>Finding</th><th>Why It Matters</th></tr></thead>
+    <tbody>
+      <tr><td>docs/specs/spec-harness-middleware.md</td><td><span class="status status--match">Verified</span></td><td>Harness middleware is a transitional runtime decorator surface, not the canonical owner of context policy.</td><td>This is the clearest current canon statement.</td></tr>
+      <tr><td>docs/specs/spec-harness.md</td><td><span class="status status--match">Verified</span></td><td>FlowMind owns context composition, lifecycle routing, loop policy, and guard semantics. Harness owns transport/runtime glue.</td><td>This is the broader owner map, not just the middleware-specific one.</td></tr>
+      <tr><td>.lev/mail/20260405-oracle-freeze-decisions.md</td><td><span class="status status--match">Verified</span></td><td>FlowMind owns topology, iteration, gates, and sequencing. Poly owns invoke/task/receipt semantics.</td><td>This freezes the architectural split after the branch experiments.</td></tr>
+      <tr><td>docs/specs/spec-lifecycle-hooks.md</td><td><span class="status status--warn">Stale</span></td><td>Hooks are documented mainly through the archived agent-adapter path.</td><td>Useful lineage, but not the current runtime owner.</td></tr>
+      <tr><td>workshop/analysis/deer-flow/analysis.md</td><td><span class="status status--warn">Stale</span></td><td>DeerFlow middleware chain is treated as pattern source, not ownership template.</td><td>This is where the experiment entered the repo.</td></tr>
+    </tbody>
+    
+  </table>
+</div>
+<div data-lev-id="provenance-callout" class="anim callout callout--warning" style="--i:10">
+  <div class="callout__title">Plain-English answer</div>
+  <div class="callout__content"><p>You were remembering the <strong>decision</strong> correctly. The repo still has middleware code, but the repo no longer treats middleware as the place where policy truth should live.</p></div>
+</div></div>
+</section>
+
+<section data-lev-id="live-middleware-section" class="anim section section--full-width" style="--i:10" id="live-middleware-section">
+  <span class="section-label">LIVE REALITY</span>
+  <h2 class="section-title">Do we already have middleware?</h2>
+  
+  <div class="section__full-width"><div data-lev-id="live-lead" class="anim prose" style="--i:10;">
+  <p>Yes. Main has a real middleware chain and concrete modules under core/harness. What matters is how we classify them. The repo already classifies some as enabled runtime-only helpers and others as disabled policy-ish experiments.</p>
+</div>
+<div data-lev-id="live-table" class="anim table-wrap" style="--i:10">
+  
+  <table class="data-table">
+    <thead><tr><th>File</th><th>Enabled</th><th>Role</th><th>Interpretation</th></tr></thead>
+    <tbody>
+      <tr><td>core/harness/src/middleware/context-retrieval.ts</td><td><span class="status status--warn">false</span></td><td>Prompt enrichment via workspace retrieval.</td><td>Exists, but the config says FlowMind should own dynamic context composition.</td></tr>
+      <tr><td>core/harness/src/middleware/memory.ts</td><td><span class="status status--warn">false</span></td><td>Prompt injection + post-run memory extraction.</td><td>Exists, but policy ownership is intentionally not canonical here.</td></tr>
+      <tr><td>core/harness/src/middleware/summarization.ts</td><td><span class="status status--warn">false</span></td><td>Between-iteration summarization.</td><td>Exists as an opt-in long-session helper, not the final compaction architecture.</td></tr>
+      <tr><td>core/harness/src/middleware/subagent-limit.ts</td><td><span class="status status--match">true</span></td><td>Runtime concurrency / subagent guardrail.</td><td>This is the kind of middleware the canon still allows: transport/runtime fence.</td></tr>
+      <tr><td>core/harness/src/middleware/artifact-detection.ts</td><td><span class="status status--match">true</span></td><td>Post-run artifact capture.</td><td>Still aligned as runtime-side helper.</td></tr>
+      <tr><td>core/harness/src/middleware/lev-event.ts</td><td><span class="status status--match">true</span></td><td>Lifecycle event bridge.</td><td>Still aligned as event-emission helper.</td></tr>
+    </tbody>
+    
+  </table>
+</div></div>
+</section>
+
+<section data-lev-id="pr86-section" class="anim section section--full-width" style="--i:10" id="pr86-section">
+  <span class="section-label">PR86</span>
+  <h2 class="section-title">pr86-sentinel-audit — file-by-file calls</h2>
+  
+  <div class="section__full-width"><div data-lev-id="pr86-lead" class="anim prose" style="--i:10;">
+  <p>This branch is worth keeping around only as a mining/reference branch. The key distinction for each file is: what idea the branch was trying to add, what current main already has, and where we should preserve the idea if we keep it.</p>
+</div>
+<div data-lev-id="pr86-table" class="anim table-wrap" style="--i:10">
+  <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
+  <table class="data-table">
+    <thead><tr><th>Item</th><th>Branch Idea</th><th>Current Main</th><th>Call</th><th>If Kept, Store It As</th></tr></thead>
+    <tbody>
+      <tr><td>core/daemon/src/lifecycle.ts</td><td>Introduce a daemon lifecycle facade over adapters and dependency ordering.</td><td>Main has daemon runtime pieces but not this exact facade file.</td><td><span class="status status--info">Keep idea</span></td><td>Reference implementation note or fresh extraction branch, not direct cherry-pick.</td></tr>
+      <tr><td>core/config/src/schemas/global-config.schema.ts</td><td>Strict root schema plus permissive fallback variant.</td><td>Main still has the looser passthrough global schema.</td><td><span class="status status--info">Keep idea</span></td><td>Config-schema design follow-up; compare against current config canon before coding.</td></tr>
+      <tr><td>.github/workflows/critical-path-sentinel.yml</td><td>Tighten sentinel structure and lane shape.</td><td>Main already has the sentinel workflow and newer action pins.</td><td><span class="status status--warn">Reference only</span></td><td>Sentinel tuning notes, not a branch merge.</td></tr>
+      <tr><td>.lev/critical-path-expected-failures.yaml</td><td>Alter expected-failure regexes and failure classification.</td><td>Main has the active expected-failure list.</td><td><span class="status status--warn">Reference only</span></td><td>Sentinel false-positive audit notes.</td></tr>
+      <tr><td>tests/e2e/critical-path-sentinel.test.js</td><td>Minor sentinel test behavior shift.</td><td>Main already has the real sentinel test.</td><td><span class="status status--gap">Drop branch tip</span></td><td>No separate storage needed.</td></tr>
+      <tr><td>core/poly/src/surfaces/cli/aliases.ts</td><td>Small CLI alias surface adjustments.</td><td>Main has a newer CLI surface.</td><td><span class="status status--gap">Drop branch tip</span></td><td>No separate storage needed.</td></tr>
+      <tr><td>core/harness/src/exec-types.ts</td><td>Alternative harness execution shape.</td><td>Main has a live execution type system that moved further.</td><td><span class="status status--warn">Reference only</span></td><td>Execution-shape notes if we reopen harness API cleanup.</td></tr>
+      <tr><td>middleware files in core/harness/src/middleware/*</td><td>Policy-like middleware around retrieval/memory/summarization.</td><td>Main already has these modules and disables the policy-ish ones.</td><td><span class="status status--match">Already represented</span></td><td>Current main + middleware specs already preserve the idea.</td></tr>
+      <tr><td>plugins/core-scheduling/*</td><td>Loop/scheduling glue around cron/executor/loading.</td><td>Main has its own scheduling surfaces.</td><td><span class="status status--warn">Reference only</span></td><td>Scheduling note, not immediate extraction.</td></tr>
+      <tr><td>generated reports / lockfiles</td><td>Checkpoint state from branch time.</td><td>Stale now.</td><td><span class="status status--gap">Drop</span></td><td>Nowhere.</td></tr>
+    </tbody>
+    
+  </table>
+</div></div>
+</section>
+
+<section data-lev-id="pr87-section" class="anim section section--full-width" style="--i:10" id="pr87-section">
+  <span class="section-label">PR87</span>
+  <h2 class="section-title">pr87-main-merge — file-by-file calls</h2>
+  
+  <div class="section__full-width"><div data-lev-id="pr87-lead" class="anim prose" style="--i:10;">
+  <p>This branch still has unmatched patches, but they should still be treated as reference ideas. The question is whether the branch contains useful examples for future FlowMind-first design, not whether it should shape current runtime ownership.</p>
+</div>
+<div data-lev-id="pr87-table" class="anim table-wrap" style="--i:10">
+  <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
+  <table class="data-table">
+    <thead><tr><th>Item</th><th>Branch Idea</th><th>Current Main</th><th>Call</th><th>If Kept, Store It As</th></tr></thead>
+    <tbody>
+      <tr><td>core/harness/src/execution.ts</td><td>Harness-owned loop(), graph(), graphEpic() convenience and alternate execution sequencing.</td><td>Main keeps harness execution narrower and does not expose that branch shape.</td><td><span class="status status--info">Keep idea</span></td><td>Harness/orchestration design note, not code merge.</td></tr>
+      <tr><td>core/harness/src/middleware/chain.ts</td><td>DeerFlow-inspired middleware chain and extensibility wiring.</td><td>Main already has a middleware chain plus a spec that constrains it.</td><td><span class="status status--match">Already represented</span></td><td>Current main + spec-harness-middleware.md preserve the experiment.</td></tr>
+      <tr><td>core/harness/config.yaml</td><td>YAML-declared middleware/control-plane experiments.</td><td>Main already has a live harness.middleware chain declaration.</td><td><span class="status status--match">Already represented</span></td><td>Current main.</td></tr>
+      <tr><td>core/flowmind/examples/runtime-context-extensibility.flow.yaml</td><td>FlowMind-first extensibility example.</td><td>Main still has the example, but the branch adds a small semantic tweak.</td><td><span class="status status--info">Keep idea</span></td><td>FlowMind example/reference, not runtime merge.</td></tr>
+      <tr><td>docs/specs/proposal-deerflow-harness-features.md</td><td>Document the DeerFlow harness feature extraction as pattern intake.</td><td>This doc already exists in main.</td><td><span class="status status--match">Already represented</span></td><td>Current main docs.</td></tr>
+      <tr><td>docs/specs/spec-harness-middleware.md</td><td>Formalize middleware as transitional and constrained.</td><td>Already exists and is the current canon.</td><td><span class="status status--match">Already represented</span></td><td>Current main docs.</td></tr>
+      <tr><td>docs/specs/spec-harness.md</td><td>Broader harness ownership framing around runtime decorators and lifecycle bridge.</td><td>Current main already has the evolved version.</td><td><span class="status status--warn">Reference only</span></td><td>Spec lineage only.</td></tr>
+      <tr><td>workshop/analysis/deer-flow/analysis.md</td><td>Capture DeerFlow as pattern source.</td><td>Already exists in workshop analysis.</td><td><span class="status status--match">Already represented</span></td><td>Current workshop analysis.</td></tr>
+      <tr><td>poly cycle-break / scheduling side slices</td><td>Fix cyclic deps and control-plane glue around harness.</td><td>Main has moved on substantially.</td><td><span class="status status--warn">Reference only</span></td><td>Architecture notes only.</td></tr>
+    </tbody>
+    
+  </table>
+</div></div>
+</section>
+
+<section data-lev-id="chi-section" class="anim section section--comparison" style="--i:10" id="chi-section">
+  <span class="section-label">DISAMBIGUATION</span>
+  <h2 class="section-title">chiDEV vs chiTOWN</h2>
+  
+  <div class="section__comparison"><div data-lev-id="chidev-card" class="anim ve-card ve-card--elevated" style="--i:10">
+  
+  
+  <h3 class="ve-card__title">chiDEV</h3>
+  <div class="ve-card__content"><p>This is the branch set we just triaged and cleaned. The meaningful leftovers are now only <code>pr86</code> and <code>pr87</code>, both as reference-idea branches, not merge candidates.</p></div>
+</div>
+<div data-lev-id="chitown-card" class="anim ve-card ve-card--elevated" style="--i:10">
+  
+  
+  <h3 class="ve-card__title">chiTOWN</h3>
+  <div class="ve-card__content"><p>This is your partner contributor’s work. Based on your note, his meaningful direction is in open PRs around product direction and Bayesian graph work. That means the next pass should be PR-first, not branch-first.</p></div>
+</div></div>
+</section>
+
+<section data-lev-id="graph-section" class="anim section section--full-width" style="--i:10" id="graph-section">
+  <span class="section-label">GRAPH DIRECTION</span>
+  <h2 class="section-title">What the branch/worktree warm-cache and graph direction already has</h2>
+  
+  <div class="section__full-width"><div data-lev-id="graph-lead" class="anim prose" style="--i:10;">
+  <p>There is real repo prior art for a graph-backed or graph-plus-vector direction. The strongest pattern is not “put all markdown into one giant vector store and stop.” The stronger direction is graph-backed primary structure with vectorized markdown summaries and/or chunks as secondary retrieval aids.</p>
+</div>
+<div data-lev-id="graph-table" class="anim table-wrap" style="--i:10">
+  
+  <table class="data-table">
+    <thead><tr><th>Area</th><th>Evidence</th><th>Implication</th></tr></thead>
+    <tbody>
+      <tr><td>Graph + vector hybrid</td><td>workshop/papers/INTEGRATION-ROADMAP-2026-01-21.md and workshop/pocs/graph-storage-adapters/*</td><td>The repo already leans toward hybrid retrieval, not vector-only.</td></tr>
+      <tr><td>Harvester as graph producer</td><td>graph-draft.jsonl output in Harvester runs</td><td>Harvester already emits graph-facing artifacts that could back prior-art lookup.</td></tr>
+      <tr><td>Markdown storage</td><td>Multiple workshop analyses and graph-storage adapter notes</td><td>Markdown should likely stay filesystem-backed, with graph nodes carrying summaries, refs, hashes, and optionally embeddings/chunk projections.</td></tr>
+      <tr><td>Warm branch/worktree cache</td><td>Current repo has many worktrees and branch-local archaeology pain; no clean branch cache product surface exists yet.</td><td>A warm cache of branch/worktree graph projections would make prior-art queries much cheaper than brute-force grep across every ref.</td></tr>
+    </tbody>
+    
+  </table>
+</div></div>
+</section>
+
+<section data-lev-id="feedback-section" class="anim section section--stacked" style="--i:10" id="feedback-section">
+  <span class="section-label">FEEDBACK</span>
+  <h2 class="section-title">Decision Review — per item</h2>
+  <p class="section-subtitle">Each item has 3 concrete choices, a recommended option with rationale, an Other field, and a notes box. Auto-saved locally; copy/export controls included.</p>
+  <div class="section__stacked"><style data-scope="lev-custom-feedback-custom">
+/* Scoped to #lev-custom-feedback-custom */
+#lev-custom-feedback-custom { display:block; .review-shell{display:grid;gap:18px}.review-toolbar{position:sticky;top:16px;z-index:40;display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:14px 16px;border:1px solid var(--color-border);border-radius:16px;background:color-mix(in srgb, var(--color-surface) 88%, transparent);backdrop-filter:blur(10px)}.review-toolbar__left{display:grid;gap:6px}.review-status{font-family:var(--font-mono);font-size:12px;color:var(--color-text-muted)}.review-counts{font-family:var(--font-mono);font-size:12px;color:var(--color-accent)}.review-toolbar__right{display:flex;gap:10px;flex-wrap:wrap}.review-btn{border:1px solid var(--color-border-strong);background:var(--color-surface-alt);color:var(--color-text);border-radius:10px;padding:10px 14px;font:600 12px var(--font-mono);cursor:pointer}.review-btn--ghost{opacity:.75}.review-groups{display:grid;gap:22px}.review-group{display:grid;gap:14px}.review-group__title{font:700 15px var(--font-body);color:var(--color-text);margin:4px 0 0}.review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.review-card{border:1px solid var(--color-border);border-radius:18px;background:var(--color-surface-alt);padding:18px;display:grid;gap:14px;box-shadow:var(--elevation-1)}.review-card__head{display:grid;gap:8px}.review-card__meta{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.review-card__title{font:600 15px var(--font-body);color:var(--color-text)}.review-card__group{font:600 10px var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--color-accent)}.review-card__summary,.review-card__current,.review-card__store{font-size:13px;line-height:1.65;color:var(--color-text-muted)}.review-callout{border:1px solid var(--color-border);border-left:4px solid var(--color-accent);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.02)}.review-callout strong{display:block;font-size:12px;font-family:var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--color-accent);margin-bottom:6px}.review-callout p{margin:0;font-size:13px;line-height:1.65;color:var(--color-text-muted)}.review-options{display:grid;gap:10px}.review-option{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;border:1px solid var(--color-border);border-radius:12px;padding:12px;background:var(--color-surface)}.review-option[data-recommended='true']{border-color:var(--color-accent);box-shadow:0 0 0 1px color-mix(in srgb, var(--color-accent) 25%, transparent)}.review-option input{margin-top:3px}.review-option__label{font-size:13px;color:var(--color-text)}.review-option__desc{font-size:12px;line-height:1.55;color:var(--color-text-muted);margin-top:4px}.review-other,.review-notes{display:grid;gap:8px}.review-other input,.review-notes textarea{width:100%;border-radius:12px;border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text);padding:12px 14px;font:13px/1.6 var(--font-body)}.review-notes textarea{min-height:120px;resize:vertical}.review-mini{font:600 10px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-muted)}@media (max-width: 980px){.review-grid{grid-template-columns:1fr}.review-toolbar{position:static;grid-template-columns:1fr}} }
+</style>
+<div data-lev-id="feedback-custom" class="anim custom-html" style="--i:10" id="lev-custom-feedback-custom">
+  <div class="review-shell" data-page-id="chidev-middleware-review-v3">
+    <div class="review-toolbar">
+      <div class="review-toolbar__left">
+        <div class="review-status" id="review-status">Loading saved decisions…</div>
+        <div class="review-counts" id="review-counts"></div>
+      </div>
+      <div class="review-toolbar__right">
+        <button class="review-btn" id="copy-json">Copy JSON</button>
+        <button class="review-btn" id="download-json">Download JSON</button>
+        <button class="review-btn review-btn--ghost" id="reset-review">Reset</button>
+      </div>
+    </div>
+    <div class="review-groups" id="review-groups"></div>
+  </div>
+  
+</div>
+<script>(() => { const el = document.getElementById('lev-custom-feedback-custom'); if(!el)return; const STORAGE_KEY='now:chidev-middleware-review:v3'; const items=[{"id":"mw-context-retrieval","group":"Live Middleware","title":"context-retrieval.ts","context":"Disabled middleware for prompt enrichment via workspace retrieval.","current":"Exists in main, but harness config explicitly says FlowMind should own dynamic context composition.","store":"Keep the code as transitional reference in current main + spec-harness-middleware.md, not as policy owner.","recommended":"keep-disabled","why":"The idea is valid, but the repo already decided that retrieval policy belongs in FlowMind, not middleware.","options":[["keep-disabled","Keep disabled as transitional reference","Preserve implementation, but keep policy ownership in FlowMind."],["extract-flowmind","Extract behavior into FlowMind surfaces","Use the file as migration input and shrink middleware ownership."],["delete-now","Delete the module now","Remove the code and rely only on current FlowMind/context surfaces."]]},{"id":"mw-memory","group":"Live Middleware","title":"memory.ts","context":"Disabled middleware for memory injection and post-run extraction.","current":"Exists in main, but policy ownership is intentionally not canonical here.","store":"Preserve as transitional runtime reference; move durable policy decisions into memory + FlowMind docs/artifacts.","recommended":"keep-disabled","why":"The branch proves an implementation approach, but memory policy is too important to stay in middleware ownership.","options":[["keep-disabled","Keep disabled as reference","Retain the runtime example while policy stays elsewhere."],["extract-policy","Extract memory policy into FlowMind/memory canon","Keep only reusable runtime helpers."],["delete-now","Delete now","Drop the transitional module entirely."]]},{"id":"mw-summarization","group":"Live Middleware","title":"summarization.ts","context":"Disabled middleware for between-iteration summarization.","current":"Opt-in long-session helper only; not the canonical compaction architecture.","store":"Retain as reference helper; compaction policy should live in runtime/session/FlowMind artifacts.","recommended":"keep-disabled","why":"Summarization is still useful, but current canon treats compaction as broader runtime policy than a middleware hook.","options":[["keep-disabled","Keep disabled as helper/reference","Useful for comparison without making it canonical."],["reframe-compaction","Move compaction semantics into FlowMind/session policy","Use this file only as implementation reference."],["delete-now","Delete now","Remove the old approach entirely."]]},{"id":"mw-subagent-limit","group":"Live Middleware","title":"subagent-limit.ts","context":"Enabled runtime concurrency / subagent guardrail.","current":"This aligns with the kind of middleware current canon still allows: runtime fence, not policy brain.","store":"Keep in current main as a runtime helper.","recommended":"keep-enabled","why":"This is exactly the kind of narrow runtime concern the middleware layer is still good at.","options":[["keep-enabled","Keep enabled as runtime helper","Matches current ownership boundaries."],["move-to-other-runtime-surface","Move to another runtime surface later","Keep behavior, but retire the middleware implementation form later."],["disable-now","Disable and audit impact","Conservatively remove it from active path."]]},{"id":"mw-artifact-detection","group":"Live Middleware","title":"artifact-detection.ts","context":"Enabled post-run artifact capture.","current":"Still aligned as runtime-side helper.","store":"Keep in current main as a runtime helper, possibly feeding Harvester/graph artifacts later.","recommended":"keep-enabled","why":"Artifact capture is an execution-side concern and does not steal policy ownership from FlowMind.","options":[["keep-enabled","Keep enabled as artifact helper","Good fit for the middleware layer today."],["wire-to-harvester","Keep but wire outputs more directly into Harvester/graph","Strengthen downstream value without changing ownership."],["disable-now","Disable and replace elsewhere","Move capture fully out of middleware."]]},{"id":"mw-lev-event","group":"Live Middleware","title":"lev-event.ts","context":"Enabled lifecycle event bridge.","current":"Still aligned as event-emission helper.","store":"Keep in main as runtime/event bridge while event ownership remains LevEvent-first.","recommended":"keep-enabled","why":"Event emission is a runtime boundary helper, not the same thing as owning lifecycle policy.","options":[["keep-enabled","Keep enabled as event bridge","Aligned with current canon."],["tighten-bridge","Keep but reduce scope to pure bridge only","Strip any accidental policy behavior."],["disable-now","Disable and move to non-middleware event emitters","Use other runtime seams only."]]},{"id":"pr86-daemon-lifecycle","group":"pr86","title":"core/daemon/src/lifecycle.ts","context":"Branch introduces a daemon lifecycle facade over adapters and dependency ordering.","current":"Current main does not have this exact facade file.","store":"Manifest as a daemon-lifecycle design/extraction candidate, not direct cherry-pick.","recommended":"manifest-extract","why":"This is the strongest material idea left in pr86, but it needs to be reconciled against current daemon/runtime boundaries first.","options":[["manifest-extract","Manifest as a fresh extraction candidate","Capture the idea and re-implement against current main."],["reference-only","Keep as reference only","Preserve for later daemon design work."],["drop","Drop as stale","Do not preserve this idea."]]},{"id":"pr86-config-schema","group":"pr86","title":"core/config/src/schemas/global-config.schema.ts","context":"Branch adds a stricter root schema plus a permissive variant split.","current":"Main still has the looser passthrough global schema.","store":"Manifest as config-schema follow-up, not branch merge.","recommended":"manifest-extract","why":"There is real value here, but schema strictness has cross-cutting blast radius and should not arrive via stale branch merge.","options":[["manifest-extract","Manifest as config-schema follow-up","Open a focused design or task around strict/permissive split."],["reference-only","Keep as reference only","Do nothing now but retain the idea."],["drop","Drop as stale","Keep current config shape without revisiting this."]]},{"id":"pr86-sentinel-workflow","group":"pr86","title":".github/workflows/critical-path-sentinel.yml","context":"Branch tightens sentinel structure and lane shape.","current":"Main already has sentinel workflow plus newer action pins.","store":"Sentinel tuning notes only.","recommended":"reference-only","why":"The branch downgrades actions and is not safe to copy, but some structure/tuning may still be worth remembering.","options":[["reference-only","Use only as tuning reference","Keep the shape ideas but not the exact workflow file."],["manifest-ticket","Manifest as sentinel tuning ticket","Capture what to verify in current CI."],["drop","Drop completely","Treat current main as sufficient."]]},{"id":"pr86-expected-failures","group":"pr86","title":".lev/critical-path-expected-failures.yaml","context":"Branch changes expected-failure regexes and failure classification.","current":"Main has the active expected-failure list.","store":"Sentinel false-positive audit notes.","recommended":"manifest-ticket","why":"This is only worth keeping if it sharpens current false-positive handling; otherwise it is stale branch noise.","options":[["manifest-ticket","Manifest as sentinel false-positive audit","Create a small audit task against current failures."],["reference-only","Keep as reference only","No execution work now."],["drop","Drop completely","Do not preserve this diff."]]},{"id":"pr86-sentinel-test","group":"pr86","title":"tests/e2e/critical-path-sentinel.test.js","context":"Minor sentinel test behavior shift.","current":"Main already has the active sentinel test.","store":"No separate destination needed.","recommended":"drop","why":"The branch-tip delta is too small and too stale to justify preserving separately.","options":[["drop","Drop branch tip","Do not preserve this difference."],["reference-only","Reference only","Keep a note if a sentinel regression appears later."],["manifest-ticket","Manifest as test audit ticket","Open an audit if current sentinel tests become suspect."]]},{"id":"pr86-cli-aliases","group":"pr86","title":"core/poly/src/surfaces/cli/aliases.ts","context":"Small CLI alias surface adjustments.","current":"Main has a newer CLI surface.","store":"No separate destination needed.","recommended":"drop","why":"This is stale branch-tip detail, not durable product direction.","options":[["drop","Drop branch tip","Do not preserve this diff."],["reference-only","Reference only","Keep only if alias confusion resurfaces."],["manifest-ticket","Manifest as CLI alias audit","Open a targeted CLI cleanup later."]]},{"id":"pr86-exec-types","group":"pr86","title":"core/harness/src/exec-types.ts","context":"Alternative harness execution shape.","current":"Main already has a live execution type system that moved further.","store":"Execution-shape note if harness API cleanup is reopened.","recommended":"reference-only","why":"There may be useful type-shape thinking here, but it is not the right place to reintroduce it directly.","options":[["reference-only","Keep as execution-shape note","Retain the idea for later API cleanup."],["manifest-ticket","Manifest as harness API cleanup ticket","Capture it as a future design task."],["drop","Drop completely","Treat current type shape as good enough."]]},{"id":"pr86-middleware-set","group":"pr86","title":"middleware files under core/harness/src/middleware/*","context":"Policy-like middleware around retrieval, memory, summarization.","current":"Main already has these modules and disables the policy-ish ones.","store":"Current main + middleware specs already preserve this idea.","recommended":"already-represented","why":"There is no extra preservation work needed; the experiment is already present in main and documented.","options":[["already-represented","Keep current main as the preserved form","No extra work needed."],["manifest-ticket","Manifest deprecation/migration work","Capture next cleanup if desired."],["drop","Forget the branch context","Rely only on main and current specs."]]},{"id":"pr86-core-scheduling","group":"pr86","title":"plugins/core-scheduling/*","context":"Loop and scheduling glue around cron/executor/loading.","current":"Main has its own scheduling surfaces.","store":"Scheduling note only.","recommended":"reference-only","why":"There is some systems-thinking value here, but not a branch-tip merge case.","options":[["reference-only","Keep as scheduling note","Retain context without implementation work."],["manifest-ticket","Manifest as scheduling audit ticket","Open future scheduler review."],["drop","Drop completely","Ignore this branch slice."]]},{"id":"pr86-generated","group":"pr86","title":"generated reports / lockfiles","context":"Checkpoint state from branch time.","current":"Stale now.","store":"Nowhere.","recommended":"drop","why":"These are branch artifacts, not ideas.","options":[["drop","Drop","Do not preserve generated cruft."],["reference-only","Reference only","Keep only if forensic debugging later needs it."],["manifest-ticket","Manifest as reproducibility note","Only if a historical reproduction effort appears."]]},{"id":"pr87-execution","group":"pr87","title":"core/harness/src/execution.ts","context":"Harness-owned loop(), graph(), and graphEpic() convenience and alternative sequencing.","current":"Main keeps harness execution narrower and does not expose the branch shape.","store":"Harness/orchestration design note, not code merge.","recommended":"manifest-extract","why":"There is real idea value here, but it conflicts with the current decision to keep loops/policy out of harness ownership.","options":[["manifest-extract","Manifest as harness-orchestration design note","Capture the useful execution concepts without merging branch code."],["reference-only","Reference only","Keep this as branch archaeology only."],["drop","Drop completely","Do not preserve this branch idea."]]},{"id":"pr87-chain","group":"pr87","title":"core/harness/src/middleware/chain.ts","context":"DeerFlow-inspired middleware chain and extensibility wiring.","current":"Main already has a middleware chain plus a spec constraining it.","store":"Current main + spec-harness-middleware.md already preserve it.","recommended":"already-represented","why":"The experiment is already preserved. The only remaining question is deprecation and migration, not preservation.","options":[["already-represented","Keep current main as preserved form","No extra branch preservation needed."],["manifest-ticket","Manifest deprecation/migration task","Capture the path away from policy-heavy middleware."],["drop","Forget branch-specific context","Rely only on current main/specs."]]},{"id":"pr87-harness-config","group":"pr87","title":"core/harness/config.yaml","context":"YAML-declared middleware/control-plane experiment.","current":"Main already has a live harness.middleware declaration.","store":"Current main.","recommended":"already-represented","why":"The idea is already manifested in current config.","options":[["already-represented","Keep current main","No extra work needed."],["manifest-ticket","Manifest config cleanup/deprecation work","Only if we want to slim the chain."],["drop","Drop branch context","Rely on current config only."]]},{"id":"pr87-flow-example","group":"pr87","title":"core/flowmind/examples/runtime-context-extensibility.flow.yaml","context":"FlowMind-first extensibility example.","current":"Main still has the example, but the branch adds a small semantic tweak.","store":"FlowMind example/reference.","recommended":"manifest-extract","why":"This is one of the few branch ideas that actually aligns with the current FlowMind-first direction.","options":[["manifest-extract","Promote as example lineage / refreshed example","Use it to improve the current example deliberately."],["reference-only","Reference only","Keep the branch idea but make no current change."],["drop","Drop completely","Ignore the semantic tweak."]]},{"id":"pr87-deerflow-proposal","group":"pr87","title":"docs/specs/proposal-deerflow-harness-features.md","context":"DeerFlow harness feature extraction proposal.","current":"Already exists in main.","store":"Current main docs.","recommended":"already-represented","why":"The idea is already manifested in docs; no extra preservation work needed.","options":[["already-represented","Keep current main docs","No action needed."],["manifest-ticket","Link into a future deprecation/migration note","Useful if we formalize the retreat from middleware."],["drop","Ignore branch-specific context","Treat main docs as sufficient."]]},{"id":"pr87-middleware-spec","group":"pr87","title":"docs/specs/spec-harness-middleware.md","context":"Formalize middleware as transitional and constrained.","current":"Already exists and is the current canon.","store":"Current main docs.","recommended":"already-represented","why":"This is the current answer; the branch is no longer needed to preserve it.","options":[["already-represented","Keep current main docs","No action needed."],["manifest-ticket","Manifest a cleanup follow-up","Capture the eventual retirement path."],["drop","Ignore branch-specific lineage","Rely only on the current spec."]]},{"id":"pr87-harness-spec","group":"pr87","title":"docs/specs/spec-harness.md","context":"Broader harness ownership framing around runtime decorators and lifecycle bridge.","current":"Main already has the evolved version.","store":"Spec lineage only.","recommended":"reference-only","why":"The useful information here is lineage and reasoning, not branch-tip content to merge.","options":[["reference-only","Keep as lineage reference","Useful for provenance."],["manifest-ticket","Manifest a harness boundary follow-up","Only if a new harness cleanup pass starts."],["drop","Drop completely","Treat current main as enough."]]},{"id":"pr87-deerflow-analysis","group":"pr87","title":"workshop/analysis/deer-flow/analysis.md","context":"Capture DeerFlow as pattern source.","current":"Already exists in workshop analysis.","store":"Current workshop analysis.","recommended":"already-represented","why":"The repo already preserved the idea in Workshop form.","options":[["already-represented","Keep workshop analysis as the artifact","No extra preservation needed."],["manifest-ticket","Manifest follow-up extraction ideas","Only if we want a next-step task."],["drop","Ignore branch provenance","Use workshop analysis only."]]},{"id":"pr87-poly-scheduling","group":"pr87","title":"poly cycle-break and core-scheduling slices","context":"Fix cyclic deps and control-plane glue around harness.","current":"Main has moved on substantially.","store":"Architecture note only.","recommended":"reference-only","why":"There is systems insight here, but the specific code path is stale.","options":[["reference-only","Keep as architecture note","Preserve the lesson, not the branch code."],["manifest-ticket","Manifest as cycle-break audit","Only if this class of bug reappears."],["drop","Drop completely","Do not preserve this slice."]]},{"id":"graph-warm-cache","group":"Future System","title":"Warm cache for branches and worktrees","context":"Need fast prior-art across many branches/worktrees without brute-force grep every time.","current":"No clean product surface exists yet. Harvester emits graph-draft artifacts, but there is no branch/worktree warm cache product yet.","store":"Harvester + graph projection + optional worktree materialization design.","recommended":"hybrid-cache","why":"Metadata/graph-first warm cache with lazy worktree materialization gives the leverage without exploding local state.","options":[["hybrid-cache","Warm-cache metadata and graph projections, lazily materialize worktrees","Best balance of speed and cost."],["full-worktrees","Create worktrees for every branch","Maximum local availability, high filesystem clutter."],["manual-only","Keep manual checkout/grep only","Simplest, but scales poorly."]]},{"id":"graph-markdown","group":"Future System","title":"Markdown in graph vs filesystem","context":"Need prior-art and Harvester to work over markdown, beads, code, and workshop artifacts.","current":"Filesystem is still the backing store; repo already points toward graph-plus-vector hybrid ideas.","store":"Filesystem-backed markdown with graph nodes carrying refs, hashes, summaries, and optional chunk/embedding projections.","recommended":"graph-hybrid","why":"The repo already has evidence leaning toward graph-plus-vector hybrid, not full graph-only or vector-only storage.","options":[["graph-hybrid","Filesystem-backed markdown + graph nodes + optional embeddings","Best match to current repo direction."],["embeddings-only","Embed full markdown and search vectors only","Fast search, weak structure/provenance."],["summary-only","Store summaries only in graph, no embeddings","Cheaper, but weaker semantic retrieval."]]},{"id":"prior-art-worktree-mode","group":"Future System","title":"/prior-art branch/worktree mode","context":"You want /prior-art to enumerate branches/worktrees, materialize fast context, and run on those surfaces.","current":"Current prior-art is repo/session/doc oriented; it does not own worktree materialization yet.","store":"A /prior-art workflow enhancement, likely paired with Harvester warm-cache concepts.","recommended":"optional-materialization","why":"On-demand worktree creation for selected refs is safer and cheaper than automatically materializing every branch.","options":[["optional-materialization","Optional worktree per selected branch/ref","Good UX without runaway local sprawl."],["always-materialize","Always create worktrees automatically","Fast switching, high clutter and maintenance."],["never-materialize","Inspect refs without worktrees only","Cheapest, but harder for branch-specific archaeology."]]},{"id":"ideas-manifest-rule","group":"Future System","title":"All ideas made manifest","context":"Branches can die, but ideas must survive.","current":"This rule is now in the handoff, but not yet automated as a product behavior.","store":"Harvester artifacts, tickets, specs, decisions, or workshop analyses before branch deletion.","recommended":"explicit-destination","why":"This keeps hygiene from destroying provenance and turns deletion into a deliberate capture workflow.","options":[["explicit-destination","Require explicit destination before branch deletion","Best protection against idea loss."],["soft-policy","Encourage but do not enforce","Lower friction, higher risk of loss."],["no-policy","Delete branches freely","Fastest, worst for provenance."]]}]; const root=el.querySelector('#review-groups'); const status=el.querySelector('#review-status'); const counts=el.querySelector('#review-counts'); const stateLoad=()=>{try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}')}catch{return {}}}; let state=stateLoad(); const persist=()=>{localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); const decided=items.filter(item=>state[item.id]?.choice || state[item.id]?.other).length; counts.textContent=decided+' / '+items.length+' items have a decision'; status.textContent='Saved locally at '+new Date().toLocaleTimeString();}; const escapeHtml=(s)=>String(s||'').replace(/[&<>"]/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); const grouped=items.reduce((acc,item)=>{(acc[item.group]||(acc[item.group]=[])).push(item); return acc;},{}); root.innerHTML=''; Object.entries(grouped).forEach(([group,list])=>{ const section=document.createElement('section'); section.className='review-group'; const title=document.createElement('div'); title.className='review-group__title'; title.textContent=group; section.appendChild(title); const grid=document.createElement('div'); grid.className='review-grid'; list.forEach((item)=>{ const saved=state[item.id]||{}; const card=document.createElement('article'); card.className='review-card'; card.innerHTML='<div class="review-card__head"><div class="review-card__meta"><div><div class="review-card__group">'+escapeHtml(item.group)+'</div><div class="review-card__title">'+escapeHtml(item.title)+'</div></div></div><div class="review-card__summary"><strong class="review-mini">Decision context</strong>'+escapeHtml(item.context)+'</div><div class="review-card__current"><strong class="review-mini">Current state</strong>'+escapeHtml(item.current)+'</div><div class="review-callout"><strong>Recommended</strong><p>'+escapeHtml(item.options.find(o=>o[0]===item.recommended)?.[1]||item.recommended)+' — '+escapeHtml(item.why)+'</p></div><div class="review-card__store"><strong class="review-mini">If kept, store it as</strong>'+escapeHtml(item.store)+'</div></div>'; const options=document.createElement('div'); options.className='review-options'; item.options.forEach((opt,idx)=>{ const wrap=document.createElement('label'); wrap.className='review-option'; wrap.dataset.recommended=String(opt[0]===item.recommended); wrap.innerHTML='<input type="radio" name="choice-'+item.id+'" value="'+escapeHtml(opt[0])+'" '+(saved.choice===opt[0]?'checked':'')+'><div><div class="review-option__label">'+String.fromCharCode(97+idx)+'. '+escapeHtml(opt[1])+(opt[0]===item.recommended?' (Recommended)':'')+'</div><div class="review-option__desc">'+escapeHtml(opt[2])+'</div></div>'; options.appendChild(wrap); }); card.appendChild(options); const other=document.createElement('div'); other.className='review-other'; other.innerHTML='<div class="review-mini">Other</div><input type="text" placeholder="Other option or nuance" value="'+escapeHtml(saved.other||'')+'">'; card.appendChild(other); const notes=document.createElement('div'); notes.className='review-notes'; notes.innerHTML='<div class="review-mini">Notes</div><textarea placeholder="Reasoning, caveats, constraints, or rebuttal">'+escapeHtml(saved.notes||'')+'</textarea>'; card.appendChild(notes); card.querySelectorAll('input[type=radio]').forEach(r=>r.addEventListener('change',()=>{state[item.id]={...(state[item.id]||{}),choice:r.value}; persist();})); other.querySelector('input').addEventListener('input',(e)=>{state[item.id]={...(state[item.id]||{}),other:e.target.value}; persist();}); notes.querySelector('textarea').addEventListener('input',(e)=>{state[item.id]={...(state[item.id]||{}),notes:e.target.value}; persist();}); grid.appendChild(card); }); section.appendChild(grid); root.appendChild(section); }); const copyBtn=el.querySelector('#copy-json'); copyBtn.addEventListener('click',async()=>{ const payload={page:'chidev-middleware-review-v3',savedAt:new Date().toISOString(),state}; const text=JSON.stringify(payload,null,2); try{ await navigator.clipboard.writeText(text); status.textContent='Copied review JSON to clipboard'; }catch{ status.textContent='Clipboard copy failed'; } }); const dlBtn=el.querySelector('#download-json'); dlBtn.addEventListener('click',()=>{ const payload={page:'chidev-middleware-review-v3',savedAt:new Date().toISOString(),state}; const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='chidev-middleware-review.json'; a.click(); URL.revokeObjectURL(url); status.textContent='Downloaded review JSON'; }); el.querySelector('#reset-review').addEventListener('click',()=>{ localStorage.removeItem(STORAGE_KEY); state={}; status.textContent='Reset local review state'; counts.textContent='0 / '+items.length+' items have a decision'; root.querySelectorAll('input[type=radio]').forEach(i=>i.checked=false); root.querySelectorAll('.review-other input').forEach(i=>i.value=''); root.querySelectorAll('.review-notes textarea').forEach(i=>i.value=''); }); const decided=items.filter(item=>state[item.id]?.choice || state[item.id]?.other).length; counts.textContent=decided+' / '+items.length+' items have a decision'; status.textContent=decided ? 'Loaded saved local feedback' : 'No saved feedback yet'; })()</script></div>
+</section>
+
+<section class="section source-section" style="margin-top: 4rem; border-top: 2px solid var(--color-accent);">
+  <span class="section-label">SOURCE</span>
+  <h2 class="section-title">How This Page Was Made</h2>
+  <p class="section-subtitle">This page was rendered from a JSON spec by the lev.now deterministic template engine.</p>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+    <div class="kpi-card">
+      <div class="kpi-card__value">28</div>
+      <div class="kpi-card__label">Elements</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card__value">teal-slate</div>
+      <div class="kpi-card__label">Theme Preset</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card__value">717</div>
+      <div class="kpi-card__label">JSON Lines</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card__value">&lt;2ms</div>
+      <div class="kpi-card__label">Render Time</div>
+    </div>
+  </div>
+
+  <h3 style="font-family: var(--font-display); font-size: 1.3rem; margin-bottom: 1rem;">Command</h3>
+  <div class="code-file">
+    <div class="code-file__header">
+      <span class="code-file__dot"></span>
+      <span class="code-file__dot"></span>
+      <span class="code-file__dot"></span>
+      <span class="code-file__name">terminal</span>
+    </div>
+    <div class="code-file__body"><pre><code><span class="code-func">$</span> npx tsx plugins/lev-now/src/cli.ts /Users/jean-patricksmith/.agents/levnow/chidev-middleware-prior-art-review.json --output /Users/jean-patricksmith/.agents/levnow/chidev-middleware-prior-art-review.html --show-source</code></pre></div>
+  </div>
+
+  <details style="margin-top: 2rem;">
+    <summary style="cursor: pointer; font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent); padding: 0.75rem 0; border-bottom: 1px solid var(--color-border);">
+      View RenderSpec JSON (717 lines)
+    </summary>
+    <div class="code-file" style="margin-top: 1rem;">
+      <div class="code-file__header">
+        <span class="code-file__dot"></span>
+        <span class="code-file__dot"></span>
+        <span class="code-file__dot"></span>
+        <span class="code-file__name">spec.json</span>
+      </div>
+      <div class="code-file__body" style="max-height: 600px; overflow-y: auto;"><pre><code>{
+  &quot;meta&quot;: {
+    &quot;title&quot;: &quot;chiDEV Middleware Prior Art and Branch Review&quot;,
+    &quot;description&quot;: &quot;Evidence-first review of middleware prior art, current middleware reality, chiDEV branch file-by-file calls, and graph/prior-art direction.&quot;,
+    &quot;layout&quot;: &quot;sidebar-toc&quot;,
+    &quot;effects&quot;: [
+      &quot;grid-dots&quot;,
+      &quot;title-underline&quot;
+    ]
+  },
+  &quot;theme&quot;: {
+    &quot;preset&quot;: &quot;teal-slate&quot;,
+    &quot;mode&quot;: &quot;dark&quot;
+  },
+  &quot;root&quot;: [
+    &quot;hero&quot;,
+    &quot;status-section&quot;,
+    &quot;provenance-section&quot;,
+    &quot;live-middleware-section&quot;,
+    &quot;pr86-section&quot;,
+    &quot;pr87-section&quot;,
+    &quot;chi-section&quot;,
+    &quot;graph-section&quot;,
+    &quot;feedback-section&quot;
+  ],
+  &quot;elements&quot;: {
+    &quot;hero&quot;: {
+      &quot;type&quot;: &quot;hero&quot;,
+      &quot;variant&quot;: &quot;editorial&quot;,
+      &quot;props&quot;: {
+        &quot;category&quot;: &quot;TECHNICAL REVIEW&quot;,
+        &quot;title&quot;: &quot;chiDEV Middleware Prior Art and Branch Review&quot;,
+        &quot;subtitle&quot;: &quot;What the middleware idea was, what exists now, what pr86 and pr87 still add, and where retained ideas should live.&quot;,
+        &quot;meta&quot;: &quot;Repo: leviathan | Date: 2026-04-10&quot;
+      },
+      &quot;children&quot;: [
+        &quot;hero-lead&quot;
+      ]
+    },
+    &quot;hero-lead&quot;: {
+      &quot;type&quot;: &quot;text&quot;,
+      &quot;variant&quot;: &quot;lead&quot;,
+      &quot;props&quot;: {
+        &quot;content&quot;: &quot;The core answer is: yes, middleware exists in current main, but the repo canon explicitly treats it as a thin transitional runtime wrapper. FlowMind, hooks, LevEvent, and orchestration remain the real ownership surfaces. The right question for the old chiDEV branches is therefore not whether to merge middleware, but which ideas or examples are still worth preserving as references.&quot;
+      }
+    },
+    &quot;status-section&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;kpi-row&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;CURRENT STATUS&quot;,
+        &quot;title&quot;: &quot;Where the repo stands right now&quot;
+      },
+      &quot;children&quot;: [
+        &quot;kpi-worktree&quot;,
+        &quot;kpi-pushed&quot;,
+        &quot;kpi-live-middleware&quot;,
+        &quot;kpi-branches&quot;
+      ]
+    },
+    &quot;kpi-worktree&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;kpi&quot;,
+      &quot;props&quot;: {
+        &quot;value&quot;: &quot;2&quot;,
+        &quot;label&quot;: &quot;active review worktrees&quot;,
+        &quot;trend&quot;: {
+          &quot;direction&quot;: &quot;flat&quot;,
+          &quot;value&quot;: &quot;claude + harvester&quot;
+        }
+      }
+    },
+    &quot;kpi-pushed&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;kpi&quot;,
+      &quot;props&quot;: {
+        &quot;value&quot;: &quot;1&quot;,
+        &quot;label&quot;: &quot;current clean branch pushed&quot;,
+        &quot;trend&quot;: {
+          &quot;direction&quot;: &quot;up&quot;,
+          &quot;value&quot;: &quot;codex/workshop-harvester-cutover&quot;
+        }
+      }
+    },
+    &quot;kpi-live-middleware&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;kpi&quot;,
+      &quot;props&quot;: {
+        &quot;value&quot;: &quot;6&quot;,
+        &quot;label&quot;: &quot;middleware modules in main&quot;,
+        &quot;trend&quot;: {
+          &quot;direction&quot;: &quot;flat&quot;,
+          &quot;value&quot;: &quot;3 disabled policy-ish, 3 enabled runtime-ish&quot;
+        }
+      }
+    },
+    &quot;kpi-branches&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;kpi&quot;,
+      &quot;props&quot;: {
+        &quot;value&quot;: &quot;4&quot;,
+        &quot;label&quot;: &quot;remaining remote refs in lane&quot;,
+        &quot;trend&quot;: {
+          &quot;direction&quot;: &quot;down&quot;,
+          &quot;value&quot;: &quot;pr86, pr87, feature/chitown-setup, lev/browser&quot;
+        }
+      }
+    },
+    &quot;provenance-section&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;full-width&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;PROVENANCE&quot;,
+        &quot;title&quot;: &quot;What the prior art says about middleware vs hooks / FlowMind&quot;
+      },
+      &quot;children&quot;: [
+        &quot;provenance-lead&quot;,
+        &quot;provenance-table&quot;,
+        &quot;provenance-callout&quot;
+      ]
+    },
+    &quot;provenance-lead&quot;: {
+      &quot;type&quot;: &quot;text&quot;,
+      &quot;variant&quot;: &quot;prose&quot;,
+      &quot;props&quot;: {
+        &quot;content&quot;: &quot;The repo contains both the experiment and the correction. The DeerFlow branch work introduced a middleware chain model, but the canonical docs later constrain that surface and explicitly move declarative policy back to FlowMind and orchestration. There is also a later freeze note that says Poly owns the WHAT and FlowMind owns the WHEN.&quot;
+      }
+    },
+    &quot;provenance-table&quot;: {
+      &quot;type&quot;: &quot;data-table&quot;,
+      &quot;props&quot;: {
+        &quot;columns&quot;: [
+          {
+            &quot;key&quot;: &quot;source&quot;,
+            &quot;label&quot;: &quot;Source&quot;,
+            &quot;wide&quot;: true
+          },
+          {
+            &quot;key&quot;: &quot;status&quot;,
+            &quot;label&quot;: &quot;Status&quot;
+          },
+          {
+            &quot;key&quot;: &quot;finding&quot;,
+            &quot;label&quot;: &quot;Finding&quot;,
+            &quot;wide&quot;: true
+          },
+          {
+            &quot;key&quot;: &quot;why&quot;,
+            &quot;label&quot;: &quot;Why It Matters&quot;,
+            &quot;wide&quot;: true
+          }
+        ],
+        &quot;rows&quot;: [
+          {
+            &quot;source&quot;: &quot;docs/specs/spec-harness-middleware.md&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Verified&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;finding&quot;: &quot;Harness middleware is a transitional runtime decorator surface, not the canonical owner of context policy.&quot;,
+            &quot;why&quot;: &quot;This is the clearest current canon statement.&quot;
+          },
+          {
+            &quot;source&quot;: &quot;docs/specs/spec-harness.md&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Verified&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;finding&quot;: &quot;FlowMind owns context composition, lifecycle routing, loop policy, and guard semantics. Harness owns transport/runtime glue.&quot;,
+            &quot;why&quot;: &quot;This is the broader owner map, not just the middleware-specific one.&quot;
+          },
+          {
+            &quot;source&quot;: &quot;.lev/mail/20260405-oracle-freeze-decisions.md&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Verified&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;finding&quot;: &quot;FlowMind owns topology, iteration, gates, and sequencing. Poly owns invoke/task/receipt semantics.&quot;,
+            &quot;why&quot;: &quot;This freezes the architectural split after the branch experiments.&quot;
+          },
+          {
+            &quot;source&quot;: &quot;docs/specs/spec-lifecycle-hooks.md&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Stale&quot;,
+              &quot;status&quot;: &quot;warn&quot;
+            },
+            &quot;finding&quot;: &quot;Hooks are documented mainly through the archived agent-adapter path.&quot;,
+            &quot;why&quot;: &quot;Useful lineage, but not the current runtime owner.&quot;
+          },
+          {
+            &quot;source&quot;: &quot;workshop/analysis/deer-flow/analysis.md&quot;,
+            &quot;status&quot;: {
+              &quot;text&quot;: &quot;Stale&quot;,
+              &quot;status&quot;: &quot;warn&quot;
+            },
+            &quot;finding&quot;: &quot;DeerFlow middleware chain is treated as pattern source, not ownership template.&quot;,
+            &quot;why&quot;: &quot;This is where the experiment entered the repo.&quot;
+          }
+        ]
+      }
+    },
+    &quot;provenance-callout&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;callout&quot;,
+      &quot;props&quot;: {
+        &quot;variant&quot;: &quot;warning&quot;,
+        &quot;title&quot;: &quot;Plain-English answer&quot;,
+        &quot;content&quot;: &quot;You were remembering the **decision** correctly. The repo still has middleware code, but the repo no longer treats middleware as the place where policy truth should live.&quot;
+      }
+    },
+    &quot;live-middleware-section&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;full-width&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;LIVE REALITY&quot;,
+        &quot;title&quot;: &quot;Do we already have middleware?&quot;
+      },
+      &quot;children&quot;: [
+        &quot;live-lead&quot;,
+        &quot;live-table&quot;
+      ]
+    },
+    &quot;live-lead&quot;: {
+      &quot;type&quot;: &quot;text&quot;,
+      &quot;variant&quot;: &quot;prose&quot;,
+      &quot;props&quot;: {
+        &quot;content&quot;: &quot;Yes. Main has a real middleware chain and concrete modules under core/harness. What matters is how we classify them. The repo already classifies some as enabled runtime-only helpers and others as disabled policy-ish experiments.&quot;
+      }
+    },
+    &quot;live-table&quot;: {
+      &quot;type&quot;: &quot;data-table&quot;,
+      &quot;props&quot;: {
+        &quot;columns&quot;: [
+          {
+            &quot;key&quot;: &quot;file&quot;,
+            &quot;label&quot;: &quot;File&quot;,
+            &quot;wide&quot;: true
+          },
+          {
+            &quot;key&quot;: &quot;enabled&quot;,
+            &quot;label&quot;: &quot;Enabled&quot;
+          },
+          {
+            &quot;key&quot;: &quot;role&quot;,
+            &quot;label&quot;: &quot;Role&quot;,
+            &quot;wide&quot;: true
+          },
+          {
+            &quot;key&quot;: &quot;call&quot;,
+            &quot;label&quot;: &quot;Interpretation&quot;,
+            &quot;wide&quot;: true
+          }
+        ],
+        &quot;rows&quot;: [
+          {
+            &quot;file&quot;: &quot;core/harness/src/middleware/context-retrieval.ts&quot;,
+            &quot;enabled&quot;: {
+              &quot;text&quot;: &quot;false&quot;,
+              &quot;status&quot;: &quot;warn&quot;
+            },
+            &quot;role&quot;: &quot;Prompt enrichment via workspace retrieval.&quot;,
+            &quot;call&quot;: &quot;Exists, but the config says FlowMind should own dynamic context composition.&quot;
+          },
+          {
+            &quot;file&quot;: &quot;core/harness/src/middleware/memory.ts&quot;,
+            &quot;enabled&quot;: {
+              &quot;text&quot;: &quot;false&quot;,
+              &quot;status&quot;: &quot;warn&quot;
+            },
+            &quot;role&quot;: &quot;Prompt injection + post-run memory extraction.&quot;,
+            &quot;call&quot;: &quot;Exists, but policy ownership is intentionally not canonical here.&quot;
+          },
+          {
+            &quot;file&quot;: &quot;core/harness/src/middleware/summarization.ts&quot;,
+            &quot;enabled&quot;: {
+              &quot;text&quot;: &quot;false&quot;,
+              &quot;status&quot;: &quot;warn&quot;
+            },
+            &quot;role&quot;: &quot;Between-iteration summarization.&quot;,
+            &quot;call&quot;: &quot;Exists as an opt-in long-session helper, not the final compaction architecture.&quot;
+          },
+          {
+            &quot;file&quot;: &quot;core/harness/src/middleware/subagent-limit.ts&quot;,
+            &quot;enabled&quot;: {
+              &quot;text&quot;: &quot;true&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;role&quot;: &quot;Runtime concurrency / subagent guardrail.&quot;,
+            &quot;call&quot;: &quot;This is the kind of middleware the canon still allows: transport/runtime fence.&quot;
+          },
+          {
+            &quot;file&quot;: &quot;core/harness/src/middleware/artifact-detection.ts&quot;,
+            &quot;enabled&quot;: {
+              &quot;text&quot;: &quot;true&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;role&quot;: &quot;Post-run artifact capture.&quot;,
+            &quot;call&quot;: &quot;Still aligned as runtime-side helper.&quot;
+          },
+          {
+            &quot;file&quot;: &quot;core/harness/src/middleware/lev-event.ts&quot;,
+            &quot;enabled&quot;: {
+              &quot;text&quot;: &quot;true&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;role&quot;: &quot;Lifecycle event bridge.&quot;,
+            &quot;call&quot;: &quot;Still aligned as event-emission helper.&quot;
+          }
+        ]
+      }
+    },
+    &quot;pr86-section&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;full-width&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;PR86&quot;,
+        &quot;title&quot;: &quot;pr86-sentinel-audit — file-by-file calls&quot;
+      },
+      &quot;children&quot;: [
+        &quot;pr86-lead&quot;,
+        &quot;pr86-table&quot;
+      ]
+    },
+    &quot;pr86-lead&quot;: {
+      &quot;type&quot;: &quot;text&quot;,
+      &quot;variant&quot;: &quot;prose&quot;,
+      &quot;props&quot;: {
+        &quot;content&quot;: &quot;This branch is worth keeping around only as a mining/reference branch. The key distinction for each file is: what idea the branch was trying to add, what current main already has, and where we should preserve the idea if we keep it.&quot;
+      }
+    },
+    &quot;pr86-table&quot;: {
+      &quot;type&quot;: &quot;data-table&quot;,
+      &quot;props&quot;: {
+        &quot;columns&quot;: [
+          {
+            &quot;key&quot;: &quot;item&quot;,
+            &quot;label&quot;: &quot;Item&quot;,
+            &quot;wide&quot;: true
+          },
+          {
+            &quot;key&quot;: &quot;branchIdea&quot;,
+            &quot;label&quot;: &quot;Branch Idea&quot;,
+            &quot;wide&quot;: true
+          },
+          {
+            &quot;key&quot;: &quot;currentMain&quot;,
+            &quot;label&quot;: &quot;Current Main&quot;,
+            &quot;wide&quot;: true
+          },
+          {
+            &quot;key&quot;: &quot;decision&quot;,
+            &quot;label&quot;: &quot;Call&quot;
+          },
+          {
+            &quot;key&quot;: &quot;store&quot;,
+            &quot;label&quot;: &quot;If Kept, Store It As&quot;,
+            &quot;wide&quot;: true
+          }
+        ],
+        &quot;rows&quot;: [
+          {
+            &quot;item&quot;: &quot;core/daemon/src/lifecycle.ts&quot;,
+            &quot;branchIdea&quot;: &quot;Introduce a daemon lifecycle facade over adapters and dependency ordering.&quot;,
+            &quot;currentMain&quot;: &quot;Main has daemon runtime pieces but not this exact facade file.&quot;,
+            &quot;decision&quot;: {
+              &quot;text&quot;: &quot;Keep idea&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;store&quot;: &quot;Reference implementation note or fresh extraction branch, not direct cherry-pick.&quot;
+          },
+          {
+            &quot;item&quot;: &quot;core/config/src/schemas/global-config.schema.ts&quot;,
+            &quot;branchIdea&quot;: &quot;Strict root schema plus permissive fallback variant.&quot;,
+            &quot;currentMain&quot;: &quot;Main still has the looser passthrough global schema.&quot;,
+            &quot;decision&quot;: {
+              &quot;text&quot;: &quot;Keep idea&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;store&quot;: &quot;Config-schema design follow-up; compare against current config canon before coding.&quot;
+          },
+          {
+            &quot;item&quot;: &quot;.github/workflows/critical-path-sentinel.yml&quot;,
+            &quot;branchIdea&quot;: &quot;Tighten sentinel structure and lane shape.&quot;,
+            &quot;currentMain&quot;: &quot;Main already has the sentinel workflow and newer action pins.&quot;,
+            &quot;decision&quot;: {
+              &quot;text&quot;: &quot;Reference only&quot;,
+              &quot;status&quot;: &quot;warn&quot;
+            },
+            &quot;store&quot;: &quot;Sentinel tuning notes, not a branch merge.&quot;
+          },
+          {
+            &quot;item&quot;: &quot;.lev/critical-path-expected-failures.yaml&quot;,
+            &quot;branchIdea&quot;: &quot;Alter expected-failure regexes and failure classification.&quot;,
+            &quot;currentMain&quot;: &quot;Main has the active expected-failure list.&quot;,
+            &quot;decision&quot;: {
+              &quot;text&quot;: &quot;Reference only&quot;,
+              &quot;status&quot;: &quot;warn&quot;
+            },
+            &quot;store&quot;: &quot;Sentinel false-positive audit notes.&quot;
+          },
+          {
+            &quot;item&quot;: &quot;tests/e2e/critical-path-sentinel.test.js&quot;,
+            &quot;branchIdea&quot;: &quot;Minor sentinel test behavior shift.&quot;,
+            &quot;currentMain&quot;: &quot;Main already has the real sentinel test.&quot;,
+            &quot;decision&quot;: {
+              &quot;text&quot;: &quot;Drop branch tip&quot;,
+              &quot;status&quot;: &quot;gap&quot;
+            },
+            &quot;store&quot;: &quot;No separate storage needed.&quot;
+          },
+          {
+            &quot;item&quot;: &quot;core/poly/src/surfaces/cli/aliases.ts&quot;,
+            &quot;branchIdea&quot;: &quot;Small CLI alias surface adjustments.&quot;,
+            &quot;currentMain&quot;: &quot;Main has a newer CLI surface.&quot;,
+            &quot;decision&quot;: {
+              &quot;text&quot;: &quot;Drop branch tip&quot;,
+              &quot;status&quot;: &quot;gap&quot;
+            },
+            &quot;store&quot;: &quot;No separate storage needed.&quot;
+          },
+          {
+            &quot;item&quot;: &quot;core/harness/src/exec-types.ts&quot;,
+            &quot;branchIdea&quot;: &quot;Alternative harness execution shape.&quot;,
+            &quot;currentMain&quot;: &quot;Main has a live execution type system that moved further.&quot;,
+            &quot;decision&quot;: {
+              &quot;text&quot;: &quot;Reference only&quot;,
+              &quot;status&quot;: &quot;warn&quot;
+            },
+            &quot;store&quot;: &quot;Execution-shape notes if we reopen harness API cleanup.&quot;
+          },
+          {
+            &quot;item&quot;: &quot;middleware files in core/harness/src/middleware/*&quot;,
+            &quot;branchIdea&quot;: &quot;Policy-like middleware around retrieval/memory/summarization.&quot;,
+            &quot;currentMain&quot;: &quot;Main already has these modules and disables the policy-ish ones.&quot;,
+            &quot;decision&quot;: {
+              &quot;text&quot;: &quot;Already represented&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;store&quot;: &quot;Current main + middleware specs already preserve the idea.&quot;
+          },
+          {
+            &quot;item&quot;: &quot;plugins/core-scheduling/*&quot;,
+            &quot;branchIdea&quot;: &quot;Loop/scheduling glue around cron/executor/loading.&quot;,
+            &quot;currentMain&quot;: &quot;Main has its own scheduling surfaces.&quot;,
+            &quot;decision&quot;: {
+              &quot;text&quot;: &quot;Reference only&quot;,
+              &quot;status&quot;: &quot;warn&quot;
+            },
+            &quot;store&quot;: &quot;Scheduling note, not immediate extraction.&quot;
+          },
+          {
+            &quot;item&quot;: &quot;generated reports / lockfiles&quot;,
+            &quot;branchIdea&quot;: &quot;Checkpoint state from branch time.&quot;,
+            &quot;currentMain&quot;: &quot;Stale now.&quot;,
+            &quot;decision&quot;: {
+              &quot;text&quot;: &quot;Drop&quot;,
+              &quot;status&quot;: &quot;gap&quot;
+            },
+            &quot;store&quot;: &quot;Nowhere.&quot;
+          }
+        ]
+      }
+    },
+    &quot;pr87-section&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;full-width&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;PR87&quot;,
+        &quot;title&quot;: &quot;pr87-main-merge — file-by-file calls&quot;
+      },
+      &quot;children&quot;: [
+        &quot;pr87-lead&quot;,
+        &quot;pr87-table&quot;
+      ]
+    },
+    &quot;pr87-lead&quot;: {
+      &quot;type&quot;: &quot;text&quot;,
+      &quot;variant&quot;: &quot;prose&quot;,
+      &quot;props&quot;: {
+        &quot;content&quot;: &quot;This branch still has unmatched patches, but they should still be treated as reference ideas. The question is whether the branch contains useful examples for future FlowMind-first design, not whether it should shape current runtime ownership.&quot;
+      }
+    },
+    &quot;pr87-table&quot;: {
+      &quot;type&quot;: &quot;data-table&quot;,
+      &quot;props&quot;: {
+        &quot;columns&quot;: [
+          {
+            &quot;key&quot;: &quot;item&quot;,
+            &quot;label&quot;: &quot;Item&quot;,
+            &quot;wide&quot;: true
+          },
+          {
+            &quot;key&quot;: &quot;branchIdea&quot;,
+            &quot;label&quot;: &quot;Branch Idea&quot;,
+            &quot;wide&quot;: true
+          },
+          {
+            &quot;key&quot;: &quot;currentMain&quot;,
+            &quot;label&quot;: &quot;Current Main&quot;,
+            &quot;wide&quot;: true
+          },
+          {
+            &quot;key&quot;: &quot;decision&quot;,
+            &quot;label&quot;: &quot;Call&quot;
+          },
+          {
+            &quot;key&quot;: &quot;store&quot;,
+            &quot;label&quot;: &quot;If Kept, Store It As&quot;,
+            &quot;wide&quot;: true
+          }
+        ],
+        &quot;rows&quot;: [
+          {
+            &quot;item&quot;: &quot;core/harness/src/execution.ts&quot;,
+            &quot;branchIdea&quot;: &quot;Harness-owned loop(), graph(), graphEpic() convenience and alternate execution sequencing.&quot;,
+            &quot;currentMain&quot;: &quot;Main keeps harness execution narrower and does not expose that branch shape.&quot;,
+            &quot;decision&quot;: {
+              &quot;text&quot;: &quot;Keep idea&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;store&quot;: &quot;Harness/orchestration design note, not code merge.&quot;
+          },
+          {
+            &quot;item&quot;: &quot;core/harness/src/middleware/chain.ts&quot;,
+            &quot;branchIdea&quot;: &quot;DeerFlow-inspired middleware chain and extensibility wiring.&quot;,
+            &quot;currentMain&quot;: &quot;Main already has a middleware chain plus a spec that constrains it.&quot;,
+            &quot;decision&quot;: {
+              &quot;text&quot;: &quot;Already represented&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;store&quot;: &quot;Current main + spec-harness-middleware.md preserve the experiment.&quot;
+          },
+          {
+            &quot;item&quot;: &quot;core/harness/config.yaml&quot;,
+            &quot;branchIdea&quot;: &quot;YAML-declared middleware/control-plane experiments.&quot;,
+            &quot;currentMain&quot;: &quot;Main already has a live harness.middleware chain declaration.&quot;,
+            &quot;decision&quot;: {
+              &quot;text&quot;: &quot;Already represented&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;store&quot;: &quot;Current main.&quot;
+          },
+          {
+            &quot;item&quot;: &quot;core/flowmind/examples/runtime-context-extensibility.flow.yaml&quot;,
+            &quot;branchIdea&quot;: &quot;FlowMind-first extensibility example.&quot;,
+            &quot;currentMain&quot;: &quot;Main still has the example, but the branch adds a small semantic tweak.&quot;,
+            &quot;decision&quot;: {
+              &quot;text&quot;: &quot;Keep idea&quot;,
+              &quot;status&quot;: &quot;info&quot;
+            },
+            &quot;store&quot;: &quot;FlowMind example/reference, not runtime merge.&quot;
+          },
+          {
+            &quot;item&quot;: &quot;docs/specs/proposal-deerflow-harness-features.md&quot;,
+            &quot;branchIdea&quot;: &quot;Document the DeerFlow harness feature extraction as pattern intake.&quot;,
+            &quot;currentMain&quot;: &quot;This doc already exists in main.&quot;,
+            &quot;decision&quot;: {
+              &quot;text&quot;: &quot;Already represented&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;store&quot;: &quot;Current main docs.&quot;
+          },
+          {
+            &quot;item&quot;: &quot;docs/specs/spec-harness-middleware.md&quot;,
+            &quot;branchIdea&quot;: &quot;Formalize middleware as transitional and constrained.&quot;,
+            &quot;currentMain&quot;: &quot;Already exists and is the current canon.&quot;,
+            &quot;decision&quot;: {
+              &quot;text&quot;: &quot;Already represented&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;store&quot;: &quot;Current main docs.&quot;
+          },
+          {
+            &quot;item&quot;: &quot;docs/specs/spec-harness.md&quot;,
+            &quot;branchIdea&quot;: &quot;Broader harness ownership framing around runtime decorators and lifecycle bridge.&quot;,
+            &quot;currentMain&quot;: &quot;Current main already has the evolved version.&quot;,
+            &quot;decision&quot;: {
+              &quot;text&quot;: &quot;Reference only&quot;,
+              &quot;status&quot;: &quot;warn&quot;
+            },
+            &quot;store&quot;: &quot;Spec lineage only.&quot;
+          },
+          {
+            &quot;item&quot;: &quot;workshop/analysis/deer-flow/analysis.md&quot;,
+            &quot;branchIdea&quot;: &quot;Capture DeerFlow as pattern source.&quot;,
+            &quot;currentMain&quot;: &quot;Already exists in workshop analysis.&quot;,
+            &quot;decision&quot;: {
+              &quot;text&quot;: &quot;Already represented&quot;,
+              &quot;status&quot;: &quot;match&quot;
+            },
+            &quot;store&quot;: &quot;Current workshop analysis.&quot;
+          },
+          {
+            &quot;item&quot;: &quot;poly cycle-break / scheduling side slices&quot;,
+            &quot;branchIdea&quot;: &quot;Fix cyclic deps and control-plane glue around harness.&quot;,
+            &quot;currentMain&quot;: &quot;Main has moved on substantially.&quot;,
+            &quot;decision&quot;: {
+              &quot;text&quot;: &quot;Reference only&quot;,
+              &quot;status&quot;: &quot;warn&quot;
+            },
+            &quot;store&quot;: &quot;Architecture notes only.&quot;
+          }
+        ]
+      }
+    },
+    &quot;chi-section&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;comparison&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;DISAMBIGUATION&quot;,
+        &quot;title&quot;: &quot;chiDEV vs chiTOWN&quot;
+      },
+      &quot;children&quot;: [
+        &quot;chidev-card&quot;,
+        &quot;chitown-card&quot;
+      ]
+    },
+    &quot;chidev-card&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;elevated&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;chiDEV&quot;,
+        &quot;content&quot;: &quot;This is the branch set we just triaged and cleaned. The meaningful leftovers are now only `pr86` and `pr87`, both as reference-idea branches, not merge candidates.&quot;
+      }
+    },
+    &quot;chitown-card&quot;: {
+      &quot;type&quot;: &quot;card&quot;,
+      &quot;variant&quot;: &quot;elevated&quot;,
+      &quot;props&quot;: {
+        &quot;title&quot;: &quot;chiTOWN&quot;,
+        &quot;content&quot;: &quot;This is your partner contributor’s work. Based on your note, his meaningful direction is in open PRs around product direction and Bayesian graph work. That means the next pass should be PR-first, not branch-first.&quot;
+      }
+    },
+    &quot;graph-section&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;full-width&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;GRAPH DIRECTION&quot;,
+        &quot;title&quot;: &quot;What the branch/worktree warm-cache and graph direction already has&quot;
+      },
+      &quot;children&quot;: [
+        &quot;graph-lead&quot;,
+        &quot;graph-table&quot;
+      ]
+    },
+    &quot;graph-lead&quot;: {
+      &quot;type&quot;: &quot;text&quot;,
+      &quot;variant&quot;: &quot;prose&quot;,
+      &quot;props&quot;: {
+        &quot;content&quot;: &quot;There is real repo prior art for a graph-backed or graph-plus-vector direction. The strongest pattern is not “put all markdown into one giant vector store and stop.” The stronger direction is graph-backed primary structure with vectorized markdown summaries and/or chunks as secondary retrieval aids.&quot;
+      }
+    },
+    &quot;graph-table&quot;: {
+      &quot;type&quot;: &quot;data-table&quot;,
+      &quot;props&quot;: {
+        &quot;columns&quot;: [
+          {
+            &quot;key&quot;: &quot;area&quot;,
+            &quot;label&quot;: &quot;Area&quot;
+          },
+          {
+            &quot;key&quot;: &quot;evidence&quot;,
+            &quot;label&quot;: &quot;Evidence&quot;,
+            &quot;wide&quot;: true
+          },
+          {
+            &quot;key&quot;: &quot;implication&quot;,
+            &quot;label&quot;: &quot;Implication&quot;,
+            &quot;wide&quot;: true
+          }
+        ],
+        &quot;rows&quot;: [
+          {
+            &quot;area&quot;: &quot;Graph + vector hybrid&quot;,
+            &quot;evidence&quot;: &quot;workshop/papers/INTEGRATION-ROADMAP-2026-01-21.md and workshop/pocs/graph-storage-adapters/*&quot;,
+            &quot;implication&quot;: &quot;The repo already leans toward hybrid retrieval, not vector-only.&quot;
+          },
+          {
+            &quot;area&quot;: &quot;Harvester as graph producer&quot;,
+            &quot;evidence&quot;: &quot;graph-draft.jsonl output in Harvester runs&quot;,
+            &quot;implication&quot;: &quot;Harvester already emits graph-facing artifacts that could back prior-art lookup.&quot;
+          },
+          {
+            &quot;area&quot;: &quot;Markdown storage&quot;,
+            &quot;evidence&quot;: &quot;Multiple workshop analyses and graph-storage adapter notes&quot;,
+            &quot;implication&quot;: &quot;Markdown should likely stay filesystem-backed, with graph nodes carrying summaries, refs, hashes, and optionally embeddings/chunk projections.&quot;
+          },
+          {
+            &quot;area&quot;: &quot;Warm branch/worktree cache&quot;,
+            &quot;evidence&quot;: &quot;Current repo has many worktrees and branch-local archaeology pain; no clean branch cache product surface exists yet.&quot;,
+            &quot;implication&quot;: &quot;A warm cache of branch/worktree graph projections would make prior-art queries much cheaper than brute-force grep across every ref.&quot;
+          }
+        ]
+      }
+    },
+    &quot;feedback-section&quot;: {
+      &quot;type&quot;: &quot;section&quot;,
+      &quot;variant&quot;: &quot;stacked&quot;,
+      &quot;props&quot;: {
+        &quot;label&quot;: &quot;FEEDBACK&quot;,
+        &quot;title&quot;: &quot;Decision Review — per item&quot;,
+        &quot;subtitle&quot;: &quot;Each item has 3 concrete choices, a recommended option with rationale, an Other field, and a notes box. Auto-saved locally; copy/export controls included.&quot;
+      },
+      &quot;children&quot;: [
+        &quot;feedback-custom&quot;
+      ]
+    },
+    &quot;feedback-custom&quot;: {
+      &quot;type&quot;: &quot;custom-html&quot;,
+      &quot;props&quot;: {
+        &quot;html&quot;: &quot;&lt;div class=\&quot;review-shell\&quot; data-page-id=\&quot;chidev-middleware-review-v3\&quot;&gt;\n    &lt;div class=\&quot;review-toolbar\&quot;&gt;\n      &lt;div class=\&quot;review-toolbar__left\&quot;&gt;\n        &lt;div class=\&quot;review-status\&quot; id=\&quot;review-status\&quot;&gt;Loading saved decisions…&lt;/div&gt;\n        &lt;div class=\&quot;review-counts\&quot; id=\&quot;review-counts\&quot;&gt;&lt;/div&gt;\n      &lt;/div&gt;\n      &lt;div class=\&quot;review-toolbar__right\&quot;&gt;\n        &lt;button class=\&quot;review-btn\&quot; id=\&quot;copy-json\&quot;&gt;Copy JSON&lt;/button&gt;\n        &lt;button class=\&quot;review-btn\&quot; id=\&quot;download-json\&quot;&gt;Download JSON&lt;/button&gt;\n        &lt;button class=\&quot;review-btn review-btn--ghost\&quot; id=\&quot;reset-review\&quot;&gt;Reset&lt;/button&gt;\n      &lt;/div&gt;\n    &lt;/div&gt;\n    &lt;div class=\&quot;review-groups\&quot; id=\&quot;review-groups\&quot;&gt;&lt;/div&gt;\n  &lt;/div&gt;&quot;,
+        &quot;css&quot;: &quot;display:block; .review-shell{display:grid;gap:18px}.review-toolbar{position:sticky;top:16px;z-index:40;display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:14px 16px;border:1px solid var(--color-border);border-radius:16px;background:color-mix(in srgb, var(--color-surface) 88%, transparent);backdrop-filter:blur(10px)}.review-toolbar__left{display:grid;gap:6px}.review-status{font-family:var(--font-mono);font-size:12px;color:var(--color-text-muted)}.review-counts{font-family:var(--font-mono);font-size:12px;color:var(--color-accent)}.review-toolbar__right{display:flex;gap:10px;flex-wrap:wrap}.review-btn{border:1px solid var(--color-border-strong);background:var(--color-surface-alt);color:var(--color-text);border-radius:10px;padding:10px 14px;font:600 12px var(--font-mono);cursor:pointer}.review-btn--ghost{opacity:.75}.review-groups{display:grid;gap:22px}.review-group{display:grid;gap:14px}.review-group__title{font:700 15px var(--font-body);color:var(--color-text);margin:4px 0 0}.review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.review-card{border:1px solid var(--color-border);border-radius:18px;background:var(--color-surface-alt);padding:18px;display:grid;gap:14px;box-shadow:var(--elevation-1)}.review-card__head{display:grid;gap:8px}.review-card__meta{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.review-card__title{font:600 15px var(--font-body);color:var(--color-text)}.review-card__group{font:600 10px var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--color-accent)}.review-card__summary,.review-card__current,.review-card__store{font-size:13px;line-height:1.65;color:var(--color-text-muted)}.review-callout{border:1px solid var(--color-border);border-left:4px solid var(--color-accent);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.02)}.review-callout strong{display:block;font-size:12px;font-family:var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--color-accent);margin-bottom:6px}.review-callout p{margin:0;font-size:13px;line-height:1.65;color:var(--color-text-muted)}.review-options{display:grid;gap:10px}.review-option{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;border:1px solid var(--color-border);border-radius:12px;padding:12px;background:var(--color-surface)}.review-option[data-recommended=&#39;true&#39;]{border-color:var(--color-accent);box-shadow:0 0 0 1px color-mix(in srgb, var(--color-accent) 25%, transparent)}.review-option input{margin-top:3px}.review-option__label{font-size:13px;color:var(--color-text)}.review-option__desc{font-size:12px;line-height:1.55;color:var(--color-text-muted);margin-top:4px}.review-other,.review-notes{display:grid;gap:8px}.review-other input,.review-notes textarea{width:100%;border-radius:12px;border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text);padding:12px 14px;font:13px/1.6 var(--font-body)}.review-notes textarea{min-height:120px;resize:vertical}.review-mini{font:600 10px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-muted)}@media (max-width: 980px){.review-grid{grid-template-columns:1fr}.review-toolbar{position:static;grid-template-columns:1fr}}&quot;,
+        &quot;js&quot;: &quot;if(!el)return; const STORAGE_KEY=&#39;now:chidev-middleware-review:v3&#39;; const items=[{\&quot;id\&quot;:\&quot;mw-context-retrieval\&quot;,\&quot;group\&quot;:\&quot;Live Middleware\&quot;,\&quot;title\&quot;:\&quot;context-retrieval.ts\&quot;,\&quot;context\&quot;:\&quot;Disabled middleware for prompt enrichment via workspace retrieval.\&quot;,\&quot;current\&quot;:\&quot;Exists in main, but harness config explicitly says FlowMind should own dynamic context composition.\&quot;,\&quot;store\&quot;:\&quot;Keep the code as transitional reference in current main + spec-harness-middleware.md, not as policy owner.\&quot;,\&quot;recommended\&quot;:\&quot;keep-disabled\&quot;,\&quot;why\&quot;:\&quot;The idea is valid, but the repo already decided that retrieval policy belongs in FlowMind, not middleware.\&quot;,\&quot;options\&quot;:[[\&quot;keep-disabled\&quot;,\&quot;Keep disabled as transitional reference\&quot;,\&quot;Preserve implementation, but keep policy ownership in FlowMind.\&quot;],[\&quot;extract-flowmind\&quot;,\&quot;Extract behavior into FlowMind surfaces\&quot;,\&quot;Use the file as migration input and shrink middleware ownership.\&quot;],[\&quot;delete-now\&quot;,\&quot;Delete the module now\&quot;,\&quot;Remove the code and rely only on current FlowMind/context surfaces.\&quot;]]},{\&quot;id\&quot;:\&quot;mw-memory\&quot;,\&quot;group\&quot;:\&quot;Live Middleware\&quot;,\&quot;title\&quot;:\&quot;memory.ts\&quot;,\&quot;context\&quot;:\&quot;Disabled middleware for memory injection and post-run extraction.\&quot;,\&quot;current\&quot;:\&quot;Exists in main, but policy ownership is intentionally not canonical here.\&quot;,\&quot;store\&quot;:\&quot;Preserve as transitional runtime reference; move durable policy decisions into memory + FlowMind docs/artifacts.\&quot;,\&quot;recommended\&quot;:\&quot;keep-disabled\&quot;,\&quot;why\&quot;:\&quot;The branch proves an implementation approach, but memory policy is too important to stay in middleware ownership.\&quot;,\&quot;options\&quot;:[[\&quot;keep-disabled\&quot;,\&quot;Keep disabled as reference\&quot;,\&quot;Retain the runtime example while policy stays elsewhere.\&quot;],[\&quot;extract-policy\&quot;,\&quot;Extract memory policy into FlowMind/memory canon\&quot;,\&quot;Keep only reusable runtime helpers.\&quot;],[\&quot;delete-now\&quot;,\&quot;Delete now\&quot;,\&quot;Drop the transitional module entirely.\&quot;]]},{\&quot;id\&quot;:\&quot;mw-summarization\&quot;,\&quot;group\&quot;:\&quot;Live Middleware\&quot;,\&quot;title\&quot;:\&quot;summarization.ts\&quot;,\&quot;context\&quot;:\&quot;Disabled middleware for between-iteration summarization.\&quot;,\&quot;current\&quot;:\&quot;Opt-in long-session helper only; not the canonical compaction architecture.\&quot;,\&quot;store\&quot;:\&quot;Retain as reference helper; compaction policy should live in runtime/session/FlowMind artifacts.\&quot;,\&quot;recommended\&quot;:\&quot;keep-disabled\&quot;,\&quot;why\&quot;:\&quot;Summarization is still useful, but current canon treats compaction as broader runtime policy than a middleware hook.\&quot;,\&quot;options\&quot;:[[\&quot;keep-disabled\&quot;,\&quot;Keep disabled as helper/reference\&quot;,\&quot;Useful for comparison without making it canonical.\&quot;],[\&quot;reframe-compaction\&quot;,\&quot;Move compaction semantics into FlowMind/session policy\&quot;,\&quot;Use this file only as implementation reference.\&quot;],[\&quot;delete-now\&quot;,\&quot;Delete now\&quot;,\&quot;Remove the old approach entirely.\&quot;]]},{\&quot;id\&quot;:\&quot;mw-subagent-limit\&quot;,\&quot;group\&quot;:\&quot;Live Middleware\&quot;,\&quot;title\&quot;:\&quot;subagent-limit.ts\&quot;,\&quot;context\&quot;:\&quot;Enabled runtime concurrency / subagent guardrail.\&quot;,\&quot;current\&quot;:\&quot;This aligns with the kind of middleware current canon still allows: runtime fence, not policy brain.\&quot;,\&quot;store\&quot;:\&quot;Keep in current main as a runtime helper.\&quot;,\&quot;recommended\&quot;:\&quot;keep-enabled\&quot;,\&quot;why\&quot;:\&quot;This is exactly the kind of narrow runtime concern the middleware layer is still good at.\&quot;,\&quot;options\&quot;:[[\&quot;keep-enabled\&quot;,\&quot;Keep enabled as runtime helper\&quot;,\&quot;Matches current ownership boundaries.\&quot;],[\&quot;move-to-other-runtime-surface\&quot;,\&quot;Move to another runtime surface later\&quot;,\&quot;Keep behavior, but retire the middleware implementation form later.\&quot;],[\&quot;disable-now\&quot;,\&quot;Disable and audit impact\&quot;,\&quot;Conservatively remove it from active path.\&quot;]]},{\&quot;id\&quot;:\&quot;mw-artifact-detection\&quot;,\&quot;group\&quot;:\&quot;Live Middleware\&quot;,\&quot;title\&quot;:\&quot;artifact-detection.ts\&quot;,\&quot;context\&quot;:\&quot;Enabled post-run artifact capture.\&quot;,\&quot;current\&quot;:\&quot;Still aligned as runtime-side helper.\&quot;,\&quot;store\&quot;:\&quot;Keep in current main as a runtime helper, possibly feeding Harvester/graph artifacts later.\&quot;,\&quot;recommended\&quot;:\&quot;keep-enabled\&quot;,\&quot;why\&quot;:\&quot;Artifact capture is an execution-side concern and does not steal policy ownership from FlowMind.\&quot;,\&quot;options\&quot;:[[\&quot;keep-enabled\&quot;,\&quot;Keep enabled as artifact helper\&quot;,\&quot;Good fit for the middleware layer today.\&quot;],[\&quot;wire-to-harvester\&quot;,\&quot;Keep but wire outputs more directly into Harvester/graph\&quot;,\&quot;Strengthen downstream value without changing ownership.\&quot;],[\&quot;disable-now\&quot;,\&quot;Disable and replace elsewhere\&quot;,\&quot;Move capture fully out of middleware.\&quot;]]},{\&quot;id\&quot;:\&quot;mw-lev-event\&quot;,\&quot;group\&quot;:\&quot;Live Middleware\&quot;,\&quot;title\&quot;:\&quot;lev-event.ts\&quot;,\&quot;context\&quot;:\&quot;Enabled lifecycle event bridge.\&quot;,\&quot;current\&quot;:\&quot;Still aligned as event-emission helper.\&quot;,\&quot;store\&quot;:\&quot;Keep in main as runtime/event bridge while event ownership remains LevEvent-first.\&quot;,\&quot;recommended\&quot;:\&quot;keep-enabled\&quot;,\&quot;why\&quot;:\&quot;Event emission is a runtime boundary helper, not the same thing as owning lifecycle policy.\&quot;,\&quot;options\&quot;:[[\&quot;keep-enabled\&quot;,\&quot;Keep enabled as event bridge\&quot;,\&quot;Aligned with current canon.\&quot;],[\&quot;tighten-bridge\&quot;,\&quot;Keep but reduce scope to pure bridge only\&quot;,\&quot;Strip any accidental policy behavior.\&quot;],[\&quot;disable-now\&quot;,\&quot;Disable and move to non-middleware event emitters\&quot;,\&quot;Use other runtime seams only.\&quot;]]},{\&quot;id\&quot;:\&quot;pr86-daemon-lifecycle\&quot;,\&quot;group\&quot;:\&quot;pr86\&quot;,\&quot;title\&quot;:\&quot;core/daemon/src/lifecycle.ts\&quot;,\&quot;context\&quot;:\&quot;Branch introduces a daemon lifecycle facade over adapters and dependency ordering.\&quot;,\&quot;current\&quot;:\&quot;Current main does not have this exact facade file.\&quot;,\&quot;store\&quot;:\&quot;Manifest as a daemon-lifecycle design/extraction candidate, not direct cherry-pick.\&quot;,\&quot;recommended\&quot;:\&quot;manifest-extract\&quot;,\&quot;why\&quot;:\&quot;This is the strongest material idea left in pr86, but it needs to be reconciled against current daemon/runtime boundaries first.\&quot;,\&quot;options\&quot;:[[\&quot;manifest-extract\&quot;,\&quot;Manifest as a fresh extraction candidate\&quot;,\&quot;Capture the idea and re-implement against current main.\&quot;],[\&quot;reference-only\&quot;,\&quot;Keep as reference only\&quot;,\&quot;Preserve for later daemon design work.\&quot;],[\&quot;drop\&quot;,\&quot;Drop as stale\&quot;,\&quot;Do not preserve this idea.\&quot;]]},{\&quot;id\&quot;:\&quot;pr86-config-schema\&quot;,\&quot;group\&quot;:\&quot;pr86\&quot;,\&quot;title\&quot;:\&quot;core/config/src/schemas/global-config.schema.ts\&quot;,\&quot;context\&quot;:\&quot;Branch adds a stricter root schema plus a permissive variant split.\&quot;,\&quot;current\&quot;:\&quot;Main still has the looser passthrough global schema.\&quot;,\&quot;store\&quot;:\&quot;Manifest as config-schema follow-up, not branch merge.\&quot;,\&quot;recommended\&quot;:\&quot;manifest-extract\&quot;,\&quot;why\&quot;:\&quot;There is real value here, but schema strictness has cross-cutting blast radius and should not arrive via stale branch merge.\&quot;,\&quot;options\&quot;:[[\&quot;manifest-extract\&quot;,\&quot;Manifest as config-schema follow-up\&quot;,\&quot;Open a focused design or task around strict/permissive split.\&quot;],[\&quot;reference-only\&quot;,\&quot;Keep as reference only\&quot;,\&quot;Do nothing now but retain the idea.\&quot;],[\&quot;drop\&quot;,\&quot;Drop as stale\&quot;,\&quot;Keep current config shape without revisiting this.\&quot;]]},{\&quot;id\&quot;:\&quot;pr86-sentinel-workflow\&quot;,\&quot;group\&quot;:\&quot;pr86\&quot;,\&quot;title\&quot;:\&quot;.github/workflows/critical-path-sentinel.yml\&quot;,\&quot;context\&quot;:\&quot;Branch tightens sentinel structure and lane shape.\&quot;,\&quot;current\&quot;:\&quot;Main already has sentinel workflow plus newer action pins.\&quot;,\&quot;store\&quot;:\&quot;Sentinel tuning notes only.\&quot;,\&quot;recommended\&quot;:\&quot;reference-only\&quot;,\&quot;why\&quot;:\&quot;The branch downgrades actions and is not safe to copy, but some structure/tuning may still be worth remembering.\&quot;,\&quot;options\&quot;:[[\&quot;reference-only\&quot;,\&quot;Use only as tuning reference\&quot;,\&quot;Keep the shape ideas but not the exact workflow file.\&quot;],[\&quot;manifest-ticket\&quot;,\&quot;Manifest as sentinel tuning ticket\&quot;,\&quot;Capture what to verify in current CI.\&quot;],[\&quot;drop\&quot;,\&quot;Drop completely\&quot;,\&quot;Treat current main as sufficient.\&quot;]]},{\&quot;id\&quot;:\&quot;pr86-expected-failures\&quot;,\&quot;group\&quot;:\&quot;pr86\&quot;,\&quot;title\&quot;:\&quot;.lev/critical-path-expected-failures.yaml\&quot;,\&quot;context\&quot;:\&quot;Branch changes expected-failure regexes and failure classification.\&quot;,\&quot;current\&quot;:\&quot;Main has the active expected-failure list.\&quot;,\&quot;store\&quot;:\&quot;Sentinel false-positive audit notes.\&quot;,\&quot;recommended\&quot;:\&quot;manifest-ticket\&quot;,\&quot;why\&quot;:\&quot;This is only worth keeping if it sharpens current false-positive handling; otherwise it is stale branch noise.\&quot;,\&quot;options\&quot;:[[\&quot;manifest-ticket\&quot;,\&quot;Manifest as sentinel false-positive audit\&quot;,\&quot;Create a small audit task against current failures.\&quot;],[\&quot;reference-only\&quot;,\&quot;Keep as reference only\&quot;,\&quot;No execution work now.\&quot;],[\&quot;drop\&quot;,\&quot;Drop completely\&quot;,\&quot;Do not preserve this diff.\&quot;]]},{\&quot;id\&quot;:\&quot;pr86-sentinel-test\&quot;,\&quot;group\&quot;:\&quot;pr86\&quot;,\&quot;title\&quot;:\&quot;tests/e2e/critical-path-sentinel.test.js\&quot;,\&quot;context\&quot;:\&quot;Minor sentinel test behavior shift.\&quot;,\&quot;current\&quot;:\&quot;Main already has the active sentinel test.\&quot;,\&quot;store\&quot;:\&quot;No separate destination needed.\&quot;,\&quot;recommended\&quot;:\&quot;drop\&quot;,\&quot;why\&quot;:\&quot;The branch-tip delta is too small and too stale to justify preserving separately.\&quot;,\&quot;options\&quot;:[[\&quot;drop\&quot;,\&quot;Drop branch tip\&quot;,\&quot;Do not preserve this difference.\&quot;],[\&quot;reference-only\&quot;,\&quot;Reference only\&quot;,\&quot;Keep a note if a sentinel regression appears later.\&quot;],[\&quot;manifest-ticket\&quot;,\&quot;Manifest as test audit ticket\&quot;,\&quot;Open an audit if current sentinel tests become suspect.\&quot;]]},{\&quot;id\&quot;:\&quot;pr86-cli-aliases\&quot;,\&quot;group\&quot;:\&quot;pr86\&quot;,\&quot;title\&quot;:\&quot;core/poly/src/surfaces/cli/aliases.ts\&quot;,\&quot;context\&quot;:\&quot;Small CLI alias surface adjustments.\&quot;,\&quot;current\&quot;:\&quot;Main has a newer CLI surface.\&quot;,\&quot;store\&quot;:\&quot;No separate destination needed.\&quot;,\&quot;recommended\&quot;:\&quot;drop\&quot;,\&quot;why\&quot;:\&quot;This is stale branch-tip detail, not durable product direction.\&quot;,\&quot;options\&quot;:[[\&quot;drop\&quot;,\&quot;Drop branch tip\&quot;,\&quot;Do not preserve this diff.\&quot;],[\&quot;reference-only\&quot;,\&quot;Reference only\&quot;,\&quot;Keep only if alias confusion resurfaces.\&quot;],[\&quot;manifest-ticket\&quot;,\&quot;Manifest as CLI alias audit\&quot;,\&quot;Open a targeted CLI cleanup later.\&quot;]]},{\&quot;id\&quot;:\&quot;pr86-exec-types\&quot;,\&quot;group\&quot;:\&quot;pr86\&quot;,\&quot;title\&quot;:\&quot;core/harness/src/exec-types.ts\&quot;,\&quot;context\&quot;:\&quot;Alternative harness execution shape.\&quot;,\&quot;current\&quot;:\&quot;Main already has a live execution type system that moved further.\&quot;,\&quot;store\&quot;:\&quot;Execution-shape note if harness API cleanup is reopened.\&quot;,\&quot;recommended\&quot;:\&quot;reference-only\&quot;,\&quot;why\&quot;:\&quot;There may be useful type-shape thinking here, but it is not the right place to reintroduce it directly.\&quot;,\&quot;options\&quot;:[[\&quot;reference-only\&quot;,\&quot;Keep as execution-shape note\&quot;,\&quot;Retain the idea for later API cleanup.\&quot;],[\&quot;manifest-ticket\&quot;,\&quot;Manifest as harness API cleanup ticket\&quot;,\&quot;Capture it as a future design task.\&quot;],[\&quot;drop\&quot;,\&quot;Drop completely\&quot;,\&quot;Treat current type shape as good enough.\&quot;]]},{\&quot;id\&quot;:\&quot;pr86-middleware-set\&quot;,\&quot;group\&quot;:\&quot;pr86\&quot;,\&quot;title\&quot;:\&quot;middleware files under core/harness/src/middleware/*\&quot;,\&quot;context\&quot;:\&quot;Policy-like middleware around retrieval, memory, summarization.\&quot;,\&quot;current\&quot;:\&quot;Main already has these modules and disables the policy-ish ones.\&quot;,\&quot;store\&quot;:\&quot;Current main + middleware specs already preserve this idea.\&quot;,\&quot;recommended\&quot;:\&quot;already-represented\&quot;,\&quot;why\&quot;:\&quot;There is no extra preservation work needed; the experiment is already present in main and documented.\&quot;,\&quot;options\&quot;:[[\&quot;already-represented\&quot;,\&quot;Keep current main as the preserved form\&quot;,\&quot;No extra work needed.\&quot;],[\&quot;manifest-ticket\&quot;,\&quot;Manifest deprecation/migration work\&quot;,\&quot;Capture next cleanup if desired.\&quot;],[\&quot;drop\&quot;,\&quot;Forget the branch context\&quot;,\&quot;Rely only on main and current specs.\&quot;]]},{\&quot;id\&quot;:\&quot;pr86-core-scheduling\&quot;,\&quot;group\&quot;:\&quot;pr86\&quot;,\&quot;title\&quot;:\&quot;plugins/core-scheduling/*\&quot;,\&quot;context\&quot;:\&quot;Loop and scheduling glue around cron/executor/loading.\&quot;,\&quot;current\&quot;:\&quot;Main has its own scheduling surfaces.\&quot;,\&quot;store\&quot;:\&quot;Scheduling note only.\&quot;,\&quot;recommended\&quot;:\&quot;reference-only\&quot;,\&quot;why\&quot;:\&quot;There is some systems-thinking value here, but not a branch-tip merge case.\&quot;,\&quot;options\&quot;:[[\&quot;reference-only\&quot;,\&quot;Keep as scheduling note\&quot;,\&quot;Retain context without implementation work.\&quot;],[\&quot;manifest-ticket\&quot;,\&quot;Manifest as scheduling audit ticket\&quot;,\&quot;Open future scheduler review.\&quot;],[\&quot;drop\&quot;,\&quot;Drop completely\&quot;,\&quot;Ignore this branch slice.\&quot;]]},{\&quot;id\&quot;:\&quot;pr86-generated\&quot;,\&quot;group\&quot;:\&quot;pr86\&quot;,\&quot;title\&quot;:\&quot;generated reports / lockfiles\&quot;,\&quot;context\&quot;:\&quot;Checkpoint state from branch time.\&quot;,\&quot;current\&quot;:\&quot;Stale now.\&quot;,\&quot;store\&quot;:\&quot;Nowhere.\&quot;,\&quot;recommended\&quot;:\&quot;drop\&quot;,\&quot;why\&quot;:\&quot;These are branch artifacts, not ideas.\&quot;,\&quot;options\&quot;:[[\&quot;drop\&quot;,\&quot;Drop\&quot;,\&quot;Do not preserve generated cruft.\&quot;],[\&quot;reference-only\&quot;,\&quot;Reference only\&quot;,\&quot;Keep only if forensic debugging later needs it.\&quot;],[\&quot;manifest-ticket\&quot;,\&quot;Manifest as reproducibility note\&quot;,\&quot;Only if a historical reproduction effort appears.\&quot;]]},{\&quot;id\&quot;:\&quot;pr87-execution\&quot;,\&quot;group\&quot;:\&quot;pr87\&quot;,\&quot;title\&quot;:\&quot;core/harness/src/execution.ts\&quot;,\&quot;context\&quot;:\&quot;Harness-owned loop(), graph(), and graphEpic() convenience and alternative sequencing.\&quot;,\&quot;current\&quot;:\&quot;Main keeps harness execution narrower and does not expose the branch shape.\&quot;,\&quot;store\&quot;:\&quot;Harness/orchestration design note, not code merge.\&quot;,\&quot;recommended\&quot;:\&quot;manifest-extract\&quot;,\&quot;why\&quot;:\&quot;There is real idea value here, but it conflicts with the current decision to keep loops/policy out of harness ownership.\&quot;,\&quot;options\&quot;:[[\&quot;manifest-extract\&quot;,\&quot;Manifest as harness-orchestration design note\&quot;,\&quot;Capture the useful execution concepts without merging branch code.\&quot;],[\&quot;reference-only\&quot;,\&quot;Reference only\&quot;,\&quot;Keep this as branch archaeology only.\&quot;],[\&quot;drop\&quot;,\&quot;Drop completely\&quot;,\&quot;Do not preserve this branch idea.\&quot;]]},{\&quot;id\&quot;:\&quot;pr87-chain\&quot;,\&quot;group\&quot;:\&quot;pr87\&quot;,\&quot;title\&quot;:\&quot;core/harness/src/middleware/chain.ts\&quot;,\&quot;context\&quot;:\&quot;DeerFlow-inspired middleware chain and extensibility wiring.\&quot;,\&quot;current\&quot;:\&quot;Main already has a middleware chain plus a spec constraining it.\&quot;,\&quot;store\&quot;:\&quot;Current main + spec-harness-middleware.md already preserve it.\&quot;,\&quot;recommended\&quot;:\&quot;already-represented\&quot;,\&quot;why\&quot;:\&quot;The experiment is already preserved. The only remaining question is deprecation and migration, not preservation.\&quot;,\&quot;options\&quot;:[[\&quot;already-represented\&quot;,\&quot;Keep current main as preserved form\&quot;,\&quot;No extra branch preservation needed.\&quot;],[\&quot;manifest-ticket\&quot;,\&quot;Manifest deprecation/migration task\&quot;,\&quot;Capture the path away from policy-heavy middleware.\&quot;],[\&quot;drop\&quot;,\&quot;Forget branch-specific context\&quot;,\&quot;Rely only on current main/specs.\&quot;]]},{\&quot;id\&quot;:\&quot;pr87-harness-config\&quot;,\&quot;group\&quot;:\&quot;pr87\&quot;,\&quot;title\&quot;:\&quot;core/harness/config.yaml\&quot;,\&quot;context\&quot;:\&quot;YAML-declared middleware/control-plane experiment.\&quot;,\&quot;current\&quot;:\&quot;Main already has a live harness.middleware declaration.\&quot;,\&quot;store\&quot;:\&quot;Current main.\&quot;,\&quot;recommended\&quot;:\&quot;already-represented\&quot;,\&quot;why\&quot;:\&quot;The idea is already manifested in current config.\&quot;,\&quot;options\&quot;:[[\&quot;already-represented\&quot;,\&quot;Keep current main\&quot;,\&quot;No extra work needed.\&quot;],[\&quot;manifest-ticket\&quot;,\&quot;Manifest config cleanup/deprecation work\&quot;,\&quot;Only if we want to slim the chain.\&quot;],[\&quot;drop\&quot;,\&quot;Drop branch context\&quot;,\&quot;Rely on current config only.\&quot;]]},{\&quot;id\&quot;:\&quot;pr87-flow-example\&quot;,\&quot;group\&quot;:\&quot;pr87\&quot;,\&quot;title\&quot;:\&quot;core/flowmind/examples/runtime-context-extensibility.flow.yaml\&quot;,\&quot;context\&quot;:\&quot;FlowMind-first extensibility example.\&quot;,\&quot;current\&quot;:\&quot;Main still has the example, but the branch adds a small semantic tweak.\&quot;,\&quot;store\&quot;:\&quot;FlowMind example/reference.\&quot;,\&quot;recommended\&quot;:\&quot;manifest-extract\&quot;,\&quot;why\&quot;:\&quot;This is one of the few branch ideas that actually aligns with the current FlowMind-first direction.\&quot;,\&quot;options\&quot;:[[\&quot;manifest-extract\&quot;,\&quot;Promote as example lineage / refreshed example\&quot;,\&quot;Use it to improve the current example deliberately.\&quot;],[\&quot;reference-only\&quot;,\&quot;Reference only\&quot;,\&quot;Keep the branch idea but make no current change.\&quot;],[\&quot;drop\&quot;,\&quot;Drop completely\&quot;,\&quot;Ignore the semantic tweak.\&quot;]]},{\&quot;id\&quot;:\&quot;pr87-deerflow-proposal\&quot;,\&quot;group\&quot;:\&quot;pr87\&quot;,\&quot;title\&quot;:\&quot;docs/specs/proposal-deerflow-harness-features.md\&quot;,\&quot;context\&quot;:\&quot;DeerFlow harness feature extraction proposal.\&quot;,\&quot;current\&quot;:\&quot;Already exists in main.\&quot;,\&quot;store\&quot;:\&quot;Current main docs.\&quot;,\&quot;recommended\&quot;:\&quot;already-represented\&quot;,\&quot;why\&quot;:\&quot;The idea is already manifested in docs; no extra preservation work needed.\&quot;,\&quot;options\&quot;:[[\&quot;already-represented\&quot;,\&quot;Keep current main docs\&quot;,\&quot;No action needed.\&quot;],[\&quot;manifest-ticket\&quot;,\&quot;Link into a future deprecation/migration note\&quot;,\&quot;Useful if we formalize the retreat from middleware.\&quot;],[\&quot;drop\&quot;,\&quot;Ignore branch-specific context\&quot;,\&quot;Treat main docs as sufficient.\&quot;]]},{\&quot;id\&quot;:\&quot;pr87-middleware-spec\&quot;,\&quot;group\&quot;:\&quot;pr87\&quot;,\&quot;title\&quot;:\&quot;docs/specs/spec-harness-middleware.md\&quot;,\&quot;context\&quot;:\&quot;Formalize middleware as transitional and constrained.\&quot;,\&quot;current\&quot;:\&quot;Already exists and is the current canon.\&quot;,\&quot;store\&quot;:\&quot;Current main docs.\&quot;,\&quot;recommended\&quot;:\&quot;already-represented\&quot;,\&quot;why\&quot;:\&quot;This is the current answer; the branch is no longer needed to preserve it.\&quot;,\&quot;options\&quot;:[[\&quot;already-represented\&quot;,\&quot;Keep current main docs\&quot;,\&quot;No action needed.\&quot;],[\&quot;manifest-ticket\&quot;,\&quot;Manifest a cleanup follow-up\&quot;,\&quot;Capture the eventual retirement path.\&quot;],[\&quot;drop\&quot;,\&quot;Ignore branch-specific lineage\&quot;,\&quot;Rely only on the current spec.\&quot;]]},{\&quot;id\&quot;:\&quot;pr87-harness-spec\&quot;,\&quot;group\&quot;:\&quot;pr87\&quot;,\&quot;title\&quot;:\&quot;docs/specs/spec-harness.md\&quot;,\&quot;context\&quot;:\&quot;Broader harness ownership framing around runtime decorators and lifecycle bridge.\&quot;,\&quot;current\&quot;:\&quot;Main already has the evolved version.\&quot;,\&quot;store\&quot;:\&quot;Spec lineage only.\&quot;,\&quot;recommended\&quot;:\&quot;reference-only\&quot;,\&quot;why\&quot;:\&quot;The useful information here is lineage and reasoning, not branch-tip content to merge.\&quot;,\&quot;options\&quot;:[[\&quot;reference-only\&quot;,\&quot;Keep as lineage reference\&quot;,\&quot;Useful for provenance.\&quot;],[\&quot;manifest-ticket\&quot;,\&quot;Manifest a harness boundary follow-up\&quot;,\&quot;Only if a new harness cleanup pass starts.\&quot;],[\&quot;drop\&quot;,\&quot;Drop completely\&quot;,\&quot;Treat current main as enough.\&quot;]]},{\&quot;id\&quot;:\&quot;pr87-deerflow-analysis\&quot;,\&quot;group\&quot;:\&quot;pr87\&quot;,\&quot;title\&quot;:\&quot;workshop/analysis/deer-flow/analysis.md\&quot;,\&quot;context\&quot;:\&quot;Capture DeerFlow as pattern source.\&quot;,\&quot;current\&quot;:\&quot;Already exists in workshop analysis.\&quot;,\&quot;store\&quot;:\&quot;Current workshop analysis.\&quot;,\&quot;recommended\&quot;:\&quot;already-represented\&quot;,\&quot;why\&quot;:\&quot;The repo already preserved the idea in Workshop form.\&quot;,\&quot;options\&quot;:[[\&quot;already-represented\&quot;,\&quot;Keep workshop analysis as the artifact\&quot;,\&quot;No extra preservation needed.\&quot;],[\&quot;manifest-ticket\&quot;,\&quot;Manifest follow-up extraction ideas\&quot;,\&quot;Only if we want a next-step task.\&quot;],[\&quot;drop\&quot;,\&quot;Ignore branch provenance\&quot;,\&quot;Use workshop analysis only.\&quot;]]},{\&quot;id\&quot;:\&quot;pr87-poly-scheduling\&quot;,\&quot;group\&quot;:\&quot;pr87\&quot;,\&quot;title\&quot;:\&quot;poly cycle-break and core-scheduling slices\&quot;,\&quot;context\&quot;:\&quot;Fix cyclic deps and control-plane glue around harness.\&quot;,\&quot;current\&quot;:\&quot;Main has moved on substantially.\&quot;,\&quot;store\&quot;:\&quot;Architecture note only.\&quot;,\&quot;recommended\&quot;:\&quot;reference-only\&quot;,\&quot;why\&quot;:\&quot;There is systems insight here, but the specific code path is stale.\&quot;,\&quot;options\&quot;:[[\&quot;reference-only\&quot;,\&quot;Keep as architecture note\&quot;,\&quot;Preserve the lesson, not the branch code.\&quot;],[\&quot;manifest-ticket\&quot;,\&quot;Manifest as cycle-break audit\&quot;,\&quot;Only if this class of bug reappears.\&quot;],[\&quot;drop\&quot;,\&quot;Drop completely\&quot;,\&quot;Do not preserve this slice.\&quot;]]},{\&quot;id\&quot;:\&quot;graph-warm-cache\&quot;,\&quot;group\&quot;:\&quot;Future System\&quot;,\&quot;title\&quot;:\&quot;Warm cache for branches and worktrees\&quot;,\&quot;context\&quot;:\&quot;Need fast prior-art across many branches/worktrees without brute-force grep every time.\&quot;,\&quot;current\&quot;:\&quot;No clean product surface exists yet. Harvester emits graph-draft artifacts, but there is no branch/worktree warm cache product yet.\&quot;,\&quot;store\&quot;:\&quot;Harvester + graph projection + optional worktree materialization design.\&quot;,\&quot;recommended\&quot;:\&quot;hybrid-cache\&quot;,\&quot;why\&quot;:\&quot;Metadata/graph-first warm cache with lazy worktree materialization gives the leverage without exploding local state.\&quot;,\&quot;options\&quot;:[[\&quot;hybrid-cache\&quot;,\&quot;Warm-cache metadata and graph projections, lazily materialize worktrees\&quot;,\&quot;Best balance of speed and cost.\&quot;],[\&quot;full-worktrees\&quot;,\&quot;Create worktrees for every branch\&quot;,\&quot;Maximum local availability, high filesystem clutter.\&quot;],[\&quot;manual-only\&quot;,\&quot;Keep manual checkout/grep only\&quot;,\&quot;Simplest, but scales poorly.\&quot;]]},{\&quot;id\&quot;:\&quot;graph-markdown\&quot;,\&quot;group\&quot;:\&quot;Future System\&quot;,\&quot;title\&quot;:\&quot;Markdown in graph vs filesystem\&quot;,\&quot;context\&quot;:\&quot;Need prior-art and Harvester to work over markdown, beads, code, and workshop artifacts.\&quot;,\&quot;current\&quot;:\&quot;Filesystem is still the backing store; repo already points toward graph-plus-vector hybrid ideas.\&quot;,\&quot;store\&quot;:\&quot;Filesystem-backed markdown with graph nodes carrying refs, hashes, summaries, and optional chunk/embedding projections.\&quot;,\&quot;recommended\&quot;:\&quot;graph-hybrid\&quot;,\&quot;why\&quot;:\&quot;The repo already has evidence leaning toward graph-plus-vector hybrid, not full graph-only or vector-only storage.\&quot;,\&quot;options\&quot;:[[\&quot;graph-hybrid\&quot;,\&quot;Filesystem-backed markdown + graph nodes + optional embeddings\&quot;,\&quot;Best match to current repo direction.\&quot;],[\&quot;embeddings-only\&quot;,\&quot;Embed full markdown and search vectors only\&quot;,\&quot;Fast search, weak structure/provenance.\&quot;],[\&quot;summary-only\&quot;,\&quot;Store summaries only in graph, no embeddings\&quot;,\&quot;Cheaper, but weaker semantic retrieval.\&quot;]]},{\&quot;id\&quot;:\&quot;prior-art-worktree-mode\&quot;,\&quot;group\&quot;:\&quot;Future System\&quot;,\&quot;title\&quot;:\&quot;/prior-art branch/worktree mode\&quot;,\&quot;context\&quot;:\&quot;You want /prior-art to enumerate branches/worktrees, materialize fast context, and run on those surfaces.\&quot;,\&quot;current\&quot;:\&quot;Current prior-art is repo/session/doc oriented; it does not own worktree materialization yet.\&quot;,\&quot;store\&quot;:\&quot;A /prior-art workflow enhancement, likely paired with Harvester warm-cache concepts.\&quot;,\&quot;recommended\&quot;:\&quot;optional-materialization\&quot;,\&quot;why\&quot;:\&quot;On-demand worktree creation for selected refs is safer and cheaper than automatically materializing every branch.\&quot;,\&quot;options\&quot;:[[\&quot;optional-materialization\&quot;,\&quot;Optional worktree per selected branch/ref\&quot;,\&quot;Good UX without runaway local sprawl.\&quot;],[\&quot;always-materialize\&quot;,\&quot;Always create worktrees automatically\&quot;,\&quot;Fast switching, high clutter and maintenance.\&quot;],[\&quot;never-materialize\&quot;,\&quot;Inspect refs without worktrees only\&quot;,\&quot;Cheapest, but harder for branch-specific archaeology.\&quot;]]},{\&quot;id\&quot;:\&quot;ideas-manifest-rule\&quot;,\&quot;group\&quot;:\&quot;Future System\&quot;,\&quot;title\&quot;:\&quot;All ideas made manifest\&quot;,\&quot;context\&quot;:\&quot;Branches can die, but ideas must survive.\&quot;,\&quot;current\&quot;:\&quot;This rule is now in the handoff, but not yet automated as a product behavior.\&quot;,\&quot;store\&quot;:\&quot;Harvester artifacts, tickets, specs, decisions, or workshop analyses before branch deletion.\&quot;,\&quot;recommended\&quot;:\&quot;explicit-destination\&quot;,\&quot;why\&quot;:\&quot;This keeps hygiene from destroying provenance and turns deletion into a deliberate capture workflow.\&quot;,\&quot;options\&quot;:[[\&quot;explicit-destination\&quot;,\&quot;Require explicit destination before branch deletion\&quot;,\&quot;Best protection against idea loss.\&quot;],[\&quot;soft-policy\&quot;,\&quot;Encourage but do not enforce\&quot;,\&quot;Lower friction, higher risk of loss.\&quot;],[\&quot;no-policy\&quot;,\&quot;Delete branches freely\&quot;,\&quot;Fastest, worst for provenance.\&quot;]]}]; const root=el.querySelector(&#39;#review-groups&#39;); const status=el.querySelector(&#39;#review-status&#39;); const counts=el.querySelector(&#39;#review-counts&#39;); const stateLoad=()=&gt;{try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||&#39;{}&#39;)}catch{return {}}}; let state=stateLoad(); const persist=()=&gt;{localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); const decided=items.filter(item=&gt;state[item.id]?.choice || state[item.id]?.other).length; counts.textContent=decided+&#39; / &#39;+items.length+&#39; items have a decision&#39;; status.textContent=&#39;Saved locally at &#39;+new Date().toLocaleTimeString();}; const escapeHtml=(s)=&gt;String(s||&#39;&#39;).replace(/[&amp;&lt;&gt;\&quot;]/g,(c)=&gt;({&#39;&amp;&#39;:&#39;&amp;amp;&#39;,&#39;&lt;&#39;:&#39;&amp;lt;&#39;,&#39;&gt;&#39;:&#39;&amp;gt;&#39;,&#39;\&quot;&#39;:&#39;&amp;quot;&#39;}[c])); const grouped=items.reduce((acc,item)=&gt;{(acc[item.group]||(acc[item.group]=[])).push(item); return acc;},{}); root.innerHTML=&#39;&#39;; Object.entries(grouped).forEach(([group,list])=&gt;{ const section=document.createElement(&#39;section&#39;); section.className=&#39;review-group&#39;; const title=document.createElement(&#39;div&#39;); title.className=&#39;review-group__title&#39;; title.textContent=group; section.appendChild(title); const grid=document.createElement(&#39;div&#39;); grid.className=&#39;review-grid&#39;; list.forEach((item)=&gt;{ const saved=state[item.id]||{}; const card=document.createElement(&#39;article&#39;); card.className=&#39;review-card&#39;; card.innerHTML=&#39;&lt;div class=\&quot;review-card__head\&quot;&gt;&lt;div class=\&quot;review-card__meta\&quot;&gt;&lt;div&gt;&lt;div class=\&quot;review-card__group\&quot;&gt;&#39;+escapeHtml(item.group)+&#39;&lt;/div&gt;&lt;div class=\&quot;review-card__title\&quot;&gt;&#39;+escapeHtml(item.title)+&#39;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=\&quot;review-card__summary\&quot;&gt;&lt;strong class=\&quot;review-mini\&quot;&gt;Decision context&lt;/strong&gt;&#39;+escapeHtml(item.context)+&#39;&lt;/div&gt;&lt;div class=\&quot;review-card__current\&quot;&gt;&lt;strong class=\&quot;review-mini\&quot;&gt;Current state&lt;/strong&gt;&#39;+escapeHtml(item.current)+&#39;&lt;/div&gt;&lt;div class=\&quot;review-callout\&quot;&gt;&lt;strong&gt;Recommended&lt;/strong&gt;&lt;p&gt;&#39;+escapeHtml(item.options.find(o=&gt;o[0]===item.recommended)?.[1]||item.recommended)+&#39; — &#39;+escapeHtml(item.why)+&#39;&lt;/p&gt;&lt;/div&gt;&lt;div class=\&quot;review-card__store\&quot;&gt;&lt;strong class=\&quot;review-mini\&quot;&gt;If kept, store it as&lt;/strong&gt;&#39;+escapeHtml(item.store)+&#39;&lt;/div&gt;&lt;/div&gt;&#39;; const options=document.createElement(&#39;div&#39;); options.className=&#39;review-options&#39;; item.options.forEach((opt,idx)=&gt;{ const wrap=document.createElement(&#39;label&#39;); wrap.className=&#39;review-option&#39;; wrap.dataset.recommended=String(opt[0]===item.recommended); wrap.innerHTML=&#39;&lt;input type=\&quot;radio\&quot; name=\&quot;choice-&#39;+item.id+&#39;\&quot; value=\&quot;&#39;+escapeHtml(opt[0])+&#39;\&quot; &#39;+(saved.choice===opt[0]?&#39;checked&#39;:&#39;&#39;)+&#39;&gt;&lt;div&gt;&lt;div class=\&quot;review-option__label\&quot;&gt;&#39;+String.fromCharCode(97+idx)+&#39;. &#39;+escapeHtml(opt[1])+(opt[0]===item.recommended?&#39; (Recommended)&#39;:&#39;&#39;)+&#39;&lt;/div&gt;&lt;div class=\&quot;review-option__desc\&quot;&gt;&#39;+escapeHtml(opt[2])+&#39;&lt;/div&gt;&lt;/div&gt;&#39;; options.appendChild(wrap); }); card.appendChild(options); const other=document.createElement(&#39;div&#39;); other.className=&#39;review-other&#39;; other.innerHTML=&#39;&lt;div class=\&quot;review-mini\&quot;&gt;Other&lt;/div&gt;&lt;input type=\&quot;text\&quot; placeholder=\&quot;Other option or nuance\&quot; value=\&quot;&#39;+escapeHtml(saved.other||&#39;&#39;)+&#39;\&quot;&gt;&#39;; card.appendChild(other); const notes=document.createElement(&#39;div&#39;); notes.className=&#39;review-notes&#39;; notes.innerHTML=&#39;&lt;div class=\&quot;review-mini\&quot;&gt;Notes&lt;/div&gt;&lt;textarea placeholder=\&quot;Reasoning, caveats, constraints, or rebuttal\&quot;&gt;&#39;+escapeHtml(saved.notes||&#39;&#39;)+&#39;&lt;/textarea&gt;&#39;; card.appendChild(notes); card.querySelectorAll(&#39;input[type=radio]&#39;).forEach(r=&gt;r.addEventListener(&#39;change&#39;,()=&gt;{state[item.id]={...(state[item.id]||{}),choice:r.value}; persist();})); other.querySelector(&#39;input&#39;).addEventListener(&#39;input&#39;,(e)=&gt;{state[item.id]={...(state[item.id]||{}),other:e.target.value}; persist();}); notes.querySelector(&#39;textarea&#39;).addEventListener(&#39;input&#39;,(e)=&gt;{state[item.id]={...(state[item.id]||{}),notes:e.target.value}; persist();}); grid.appendChild(card); }); section.appendChild(grid); root.appendChild(section); }); const copyBtn=el.querySelector(&#39;#copy-json&#39;); copyBtn.addEventListener(&#39;click&#39;,async()=&gt;{ const payload={page:&#39;chidev-middleware-review-v3&#39;,savedAt:new Date().toISOString(),state}; const text=JSON.stringify(payload,null,2); try{ await navigator.clipboard.writeText(text); status.textContent=&#39;Copied review JSON to clipboard&#39;; }catch{ status.textContent=&#39;Clipboard copy failed&#39;; } }); const dlBtn=el.querySelector(&#39;#download-json&#39;); dlBtn.addEventListener(&#39;click&#39;,()=&gt;{ const payload={page:&#39;chidev-middleware-review-v3&#39;,savedAt:new Date().toISOString(),state}; const blob=new Blob([JSON.stringify(payload,null,2)],{type:&#39;application/json&#39;}); const url=URL.createObjectURL(blob); const a=document.createElement(&#39;a&#39;); a.href=url; a.download=&#39;chidev-middleware-review.json&#39;; a.click(); URL.revokeObjectURL(url); status.textContent=&#39;Downloaded review JSON&#39;; }); el.querySelector(&#39;#reset-review&#39;).addEventListener(&#39;click&#39;,()=&gt;{ localStorage.removeItem(STORAGE_KEY); state={}; status.textContent=&#39;Reset local review state&#39;; counts.textContent=&#39;0 / &#39;+items.length+&#39; items have a decision&#39;; root.querySelectorAll(&#39;input[type=radio]&#39;).forEach(i=&gt;i.checked=false); root.querySelectorAll(&#39;.review-other input&#39;).forEach(i=&gt;i.value=&#39;&#39;); root.querySelectorAll(&#39;.review-notes textarea&#39;).forEach(i=&gt;i.value=&#39;&#39;); }); const decided=items.filter(item=&gt;state[item.id]?.choice || state[item.id]?.other).length; counts.textContent=decided+&#39; / &#39;+items.length+&#39; items have a decision&#39;; status.textContent=decided ? &#39;Loaded saved local feedback&#39; : &#39;No saved feedback yet&#39;;&quot;
+      }
+    }
+  }
+}</code></pre></div>
+    </div>
+  </details>
+</section>
+    </div>
+  </div>
+
+  <button class="theme-toggle" aria-label="Toggle theme">
+    <svg class="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM11 1h2v3h-2V1zm0 19h2v3h-2v-3zM3.515 4.929l1.414-1.414L7.05 5.636 5.636 7.05 3.515 4.93zM16.95 18.364l1.414-1.414 2.121 2.121-1.414 1.414-2.121-2.121zm2.121-14.85 1.414 1.415-2.121 2.121-1.414-1.414 2.121-2.121zM5.636 16.95l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM23 11v2h-3v-2h3zM4 11v2H1v-2h3z"/></svg>
+  </button>
+
+  <script>
+    // Mermaid zoom — clean implementation
+    window.levNowMermaidZoom = function(wrapperId, delta) {
+      var wrap = document.getElementById(wrapperId);
+      if (!wrap) return;
+      var svg = wrap.querySelector('.mermaid svg') || wrap.querySelector('.mermaid');
+      if (!svg) return;
+      var current = parseFloat(svg.dataset.zoom || '1') || 1;
+      var next = delta === 0 ? 1 : Math.max(0.3, Math.min(3, current + delta));
+      svg.dataset.zoom = next;
+      svg.style.transform = 'scale(' + next + ')';
+      svg.style.transformOrigin = 'center center';
+    };
+
+    // Universal fullscreen — toggles .is-fullscreen on the ORIGINAL element (no cloning)
+    (function() {
+      var currentFs = null;
+      var closeBtn = null;
+
+      window.levNowFullscreen = function(el) {
+        if (currentFs) levNowClosePortal();
+        el.classList.add('is-fullscreen');
+        currentFs = el;
+        // Add close button
+        closeBtn = document.createElement('button');
+        closeBtn.className = 'fs-close';
+        closeBtn.textContent = 'ESC';
+        closeBtn.onclick = levNowClosePortal;
+        el.appendChild(closeBtn);
+        document.body.style.overflow = 'hidden';
+      };
+      window.levNowClosePortal = function() {
+        if (currentFs) {
+          currentFs.classList.remove('is-fullscreen');
+          if (closeBtn && closeBtn.parentNode) closeBtn.parentNode.removeChild(closeBtn);
+          currentFs = null;
+          closeBtn = null;
+        }
+        document.body.style.overflow = '';
+      };
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && currentFs) levNowClosePortal();
+      });
+    })();
+
+    // Card detail overlay expand/close
+    window.levNowExpandCard = function(id) {
+      var overlay = document.getElementById('overlay-' + id);
+      if (overlay) { overlay.classList.add('active'); document.body.style.overflow = 'hidden'; }
+    };
+    window.levNowCloseOverlay = function(id) {
+      var overlay = document.getElementById('overlay-' + id);
+      if (overlay) { overlay.classList.remove('active'); document.body.style.overflow = ''; }
+    };
+    // Close overlay on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.card-detail-overlay.active').forEach(function(o) {
+          o.classList.remove('active'); document.body.style.overflow = '';
+        });
+      }
+    });
+
+    // Theme toggle with localStorage persistence
+    (function() {
+      var toggle = document.querySelector('.theme-toggle');
+      var html = document.documentElement;
+      var stored = localStorage.getItem('lev-now-theme');
+      if (stored) html.dataset.theme = stored;
+      toggle.addEventListener('click', function() {
+        var next = html.dataset.theme === 'dark' ? 'light' : 'dark';
+        html.dataset.theme = next;
+        localStorage.setItem('lev-now-theme', next);
+      });
+    })();
+
+    // Progressive animation: enable only when IO is available
+    (function() {
+      var els = document.querySelectorAll('.anim');
+      if (!('IntersectionObserver' in window)) return;
+
+      // Enable animation mode
+      document.documentElement.classList.add('has-anim');
+
+      // Immediately reveal elements already in viewport
+      els.forEach(function(el) {
+        var rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight + 100 && rect.bottom > -100) {
+          el.classList.add('visible');
+        }
+      });
+
+      // Observe remaining for scroll reveal
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.05, rootMargin: '50px 0px -20px 0px' });
+
+      els.forEach(function(el) {
+        if (!el.classList.contains('visible')) observer.observe(el);
+      });
+
+      // Safety: reveal any stragglers after 2s (covers edge cases)
+      setTimeout(function() {
+        document.querySelectorAll('.anim:not(.visible)').forEach(function(el) {
+          el.classList.add('visible');
+        });
+      }, 2000);
+    })();
+
+    // Nav dot rail scrollspy
+    (function() {
+      var sections = document.querySelectorAll('.container > section');
+      var dots = document.querySelectorAll('.nav-dot');
+      if (!dots.length || !sections.length) return;
+
+      window.scrollToSection = function(idx) {
+        if (sections[idx]) sections[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+
+      var scrollObs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            var idx = Array.from(sections).indexOf(entry.target);
+            dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+          }
+        });
+      }, { threshold: 0.3 });
+
+      sections.forEach(function(s) { scrollObs.observe(s); });
+    })();
+
+    // Sidebar TOC scrollspy
+    (function() {
+      var toc = document.getElementById('page-toc');
+      if (!toc) return;
+      var links = toc.querySelectorAll('a[href^="#"]');
+      var targets = Array.from(links).map(function(a) {
+        return document.getElementById(a.getAttribute('href').slice(1));
+      }).filter(Boolean);
+
+      var tocObs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            var id = entry.target.id;
+            links.forEach(function(a) {
+              a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+            });
+          }
+        });
+      }, { threshold: 0.2, rootMargin: '-20% 0px -60% 0px' });
+
+      targets.forEach(function(t) { tocObs.observe(t); });
+    })();
+  </script>
+
+</body>
+</html>

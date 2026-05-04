@@ -1,0 +1,302 @@
+{
+  "meta": {
+    "title": "ORKM-313 Remaining Review Findings",
+    "description": "Detailed technical explainer for the two review findings left after the schedule-submission fix",
+    "layout": "sidebar-toc",
+    "effects": ["grid-lines", "title-underline"],
+    "fonts": ["IBM Plex Sans", "IBM Plex Mono"]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "section-kpis",
+    "section-matrix",
+    "section-fetch-gap",
+    "section-cache-regression",
+    "section-next"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "ORKM-313 · REVIEW FOLLOW-UP",
+        "title": "Two Findings Still Matter",
+        "subtitle": "The schedule-submission bug is fixed. These are the remaining regressions that still need code changes before the broader patch is safe.",
+        "meta": "April 10, 2026 · orkin/orkin-com-website · detailed review explainer"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "Both remaining issues are state-correctness problems, not polish. One can silently degrade real OMA users into the wrong no-appointment branch after a transient failure. The other turns malformed cached session data into an authenticated-flow fallback to anonymous mode."
+      }
+    },
+
+    "section-kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "AT A GLANCE",
+        "title": "Residual Risk Snapshot"
+      },
+      "children": ["kpi-findings", "kpi-user-paths", "kpi-root-cause", "kpi-priority"]
+    },
+    "kpi-findings": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "2",
+        "label": "Remaining Findings",
+        "trend": {
+          "direction": "flat",
+          "value": "after fixing schedule submission"
+        }
+      }
+    },
+    "kpi-user-paths": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "2",
+        "label": "User Flows Affected",
+        "trend": {
+          "direction": "down",
+          "value": "OMA selection + OMA bootstrap"
+        }
+      }
+    },
+    "kpi-root-cause": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "STATE",
+        "label": "Failure Class",
+        "trend": {
+          "direction": "flat",
+          "value": "bad retry + bad fallback"
+        }
+      }
+    },
+    "kpi-priority": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "P2",
+        "label": "Highest Open Severity",
+        "trend": {
+          "direction": "warn",
+          "value": "user-visible branch regression"
+        }
+      }
+    },
+
+    "section-matrix": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "FINDINGS MATRIX",
+        "title": "What Is Still Broken"
+      },
+      "children": ["matrix-table"]
+    },
+    "matrix-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "finding", "label": "Finding" },
+          { "key": "trigger", "label": "Trigger" },
+          { "key": "observed", "label": "Observed Result" },
+          { "key": "why", "label": "Why It Happens" },
+          { "key": "blast", "label": "Blast Radius" },
+          { "key": "status", "label": "Priority" }
+        ],
+        "rows": [
+          {
+            "finding": "Appointment fetch retry gap",
+            "trigger": "One token/API/network failure while loading services for the selected OMA account/site",
+            "observed": "UI settles into the no-upcoming-service branch and does not retry for that same selection",
+            "why": "The request key is cached before the async call and never cleared in the error path",
+            "blast": "Wrong scheduling/confirmation variant until reload or context switch",
+            "status": { "text": "P2", "status": "warn" }
+          },
+          {
+            "finding": "Malformed cache parse regression",
+            "trigger": "Corrupt or partial sessionStorage payload for the OMA cache key",
+            "observed": "Authenticated OMA bootstrap falls through to anonymous quote mode",
+            "why": "New debug logging parses cached JSON before the guarded cache fallback block",
+            "blast": "User loses OMA bootstrap path instead of refetching fresh account data",
+            "status": { "text": "P2", "status": "warn" }
+          }
+        ]
+      }
+    },
+
+    "section-fetch-gap": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "FINDING 1",
+        "title": "Appointment Fetch Retry Gap"
+      },
+      "children": ["fetch-callout", "fetch-timeline", "fetch-evidence"]
+    },
+    "fetch-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Why this is a real regression",
+        "content": "The new appointment state directly controls whether OMA users see a real upcoming-service experience or a fallback 'branch will call' experience. Because the fetch key is marked as already loaded before the request completes, the same account/site pair will not retry automatically after a transient failure."
+      }
+    },
+    "fetch-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          {
+            "date": "Step 1",
+            "title": "Selection resolves",
+            "description": "`useOMAQuoteState` builds `fetchKey = accountId:siteId` and writes it into `appointmentFetchKeyRef.current` before the network call starts.",
+            "status": "completed"
+          },
+          {
+            "date": "Step 2",
+            "title": "Request fails once",
+            "description": "A token miss, backend error, or network blip drops into the catch path.",
+            "status": "completed"
+          },
+          {
+            "date": "Step 3",
+            "title": "State is downgraded",
+            "description": "The code sets `omaNextAppointment = null` and `omaHasExistingAppointment = false`, which selects the fallback branch.",
+            "status": "active"
+          },
+          {
+            "date": "Step 4",
+            "title": "No automatic retry",
+            "description": "Because the same fetch key remains cached, later renders short-circuit instead of retrying the request for that account/site pair.",
+            "status": "active"
+          }
+        ]
+      }
+    },
+    "fetch-evidence": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "location", "label": "Code Ref" },
+          { "key": "detail", "label": "What Happens There" }
+        ],
+        "rows": [
+          {
+            "location": "/Users/jean-patricksmith/digital/kingly/clients/hanson/orkin/orkin-com-website/src/components/e-comm/hooks/useOMAQuoteState.ts:384-386",
+            "detail": "The fetch key is written before the request finishes."
+          },
+          {
+            "location": "/Users/jean-patricksmith/digital/kingly/clients/hanson/orkin/orkin-com-website/src/components/e-comm/hooks/useOMAQuoteState.ts:414-417",
+            "detail": "The error path clears appointment state but does not clear the fetch key."
+          },
+          {
+            "location": "/Users/jean-patricksmith/digital/kingly/clients/hanson/orkin/orkin-com-website/src/components/account/services/services.queries.ts:13-18",
+            "detail": "The query window was also narrowed to one month, which increases the chance of false negatives even when the call succeeds."
+          }
+        ]
+      }
+    },
+
+    "section-cache-regression": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "FINDING 2",
+        "title": "Malformed Cache Parse Regression"
+      },
+      "children": ["cache-callout", "cache-code", "cache-impact"]
+    },
+    "cache-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "The logging changed behavior",
+        "content": "Before this patch, malformed cached OMA data could fall through the guarded parse block and refetch from the accounts API. After the patch, the new debug log parses the cache first. If that parse throws, control jumps to the outer catch and the hook downgrades the user to the anonymous flow."
+      }
+    },
+    "cache-code": {
+      "type": "code-block",
+      "props": {
+        "language": "tsx",
+        "filename": "useAccountInfoOMA.ts",
+        "showLineNumbers": false,
+        "content": "const cached = cacheKey ? sessionStorage.getItem(cacheKey) : null;\nconsole.log('[useAccountInfoOMA] cache check', {\n  cachedAccountCount: cached ? Object.keys(JSON.parse(cached)?.accountsData ?? {}).length : 0,\n});\n\nif (cached) {\n  try {\n    const { accountsData, firstAccountID } = JSON.parse(cached);\n    ...\n  } catch {\n    // fall through to API\n  }\n}\n\ncatch (e) {\n  setAccountData({});\n  setActiveAccountId(null);\n  setError(e);\n}"
+      }
+    },
+    "cache-impact": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "stage", "label": "Stage" },
+          { "key": "before", "label": "Old Behavior" },
+          { "key": "after", "label": "Current Behavior" }
+        ],
+        "rows": [
+          {
+            "stage": "Malformed cached JSON",
+            "before": "Guarded parse failed and the hook could continue toward a fresh API read",
+            "after": "Logging parse can throw before the guarded block even runs"
+          },
+          {
+            "stage": "Outer catch path",
+            "before": "Reserved for real fetch/bootstrap failures",
+            "after": "Now also captures cache-shape problems introduced by the debug parse"
+          },
+          {
+            "stage": "User-facing result",
+            "before": "Potential fresh OMA bootstrap",
+            "after": "Anonymous fallback with lost OMA context"
+          }
+        ]
+      }
+    },
+
+    "section-next": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "NEXT FIXES",
+        "title": "Recommended Change Order"
+      },
+      "children": ["next-fetch", "next-cache", "next-checks"]
+    },
+    "next-fetch": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "1. Repair retry semantics",
+        "content": "Clear `appointmentFetchKeyRef.current` on failure or switch to a separate success marker. That keeps transient errors from freezing the wrong branch."
+      }
+    },
+    "next-cache": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "2. Move debug parsing inside the safe block",
+        "content": "The fix is mechanical: do not `JSON.parse(cached)` until the existing guarded cache block. If the parse fails, refetch instead of degrading to anonymous."
+      }
+    },
+    "next-checks": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "3. Verify with two throwaway harnesses",
+        "content": "Run one transient repro where the appointment-services call fails once for a stable account/site, and one where sessionStorage holds malformed cached JSON. Both should recover without selecting the wrong user branch."
+      }
+    }
+  }
+}

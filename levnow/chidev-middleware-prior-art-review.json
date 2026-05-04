@@ -1,0 +1,717 @@
+{
+  "meta": {
+    "title": "chiDEV Middleware Prior Art and Branch Review",
+    "description": "Evidence-first review of middleware prior art, current middleware reality, chiDEV branch file-by-file calls, and graph/prior-art direction.",
+    "layout": "sidebar-toc",
+    "effects": [
+      "grid-dots",
+      "title-underline"
+    ]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "status-section",
+    "provenance-section",
+    "live-middleware-section",
+    "pr86-section",
+    "pr87-section",
+    "chi-section",
+    "graph-section",
+    "feedback-section"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "TECHNICAL REVIEW",
+        "title": "chiDEV Middleware Prior Art and Branch Review",
+        "subtitle": "What the middleware idea was, what exists now, what pr86 and pr87 still add, and where retained ideas should live.",
+        "meta": "Repo: leviathan | Date: 2026-04-10"
+      },
+      "children": [
+        "hero-lead"
+      ]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "The core answer is: yes, middleware exists in current main, but the repo canon explicitly treats it as a thin transitional runtime wrapper. FlowMind, hooks, LevEvent, and orchestration remain the real ownership surfaces. The right question for the old chiDEV branches is therefore not whether to merge middleware, but which ideas or examples are still worth preserving as references."
+      }
+    },
+    "status-section": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "CURRENT STATUS",
+        "title": "Where the repo stands right now"
+      },
+      "children": [
+        "kpi-worktree",
+        "kpi-pushed",
+        "kpi-live-middleware",
+        "kpi-branches"
+      ]
+    },
+    "kpi-worktree": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "2",
+        "label": "active review worktrees",
+        "trend": {
+          "direction": "flat",
+          "value": "claude + harvester"
+        }
+      }
+    },
+    "kpi-pushed": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "1",
+        "label": "current clean branch pushed",
+        "trend": {
+          "direction": "up",
+          "value": "codex/workshop-harvester-cutover"
+        }
+      }
+    },
+    "kpi-live-middleware": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "6",
+        "label": "middleware modules in main",
+        "trend": {
+          "direction": "flat",
+          "value": "3 disabled policy-ish, 3 enabled runtime-ish"
+        }
+      }
+    },
+    "kpi-branches": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "4",
+        "label": "remaining remote refs in lane",
+        "trend": {
+          "direction": "down",
+          "value": "pr86, pr87, feature/chitown-setup, lev/browser"
+        }
+      }
+    },
+    "provenance-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "PROVENANCE",
+        "title": "What the prior art says about middleware vs hooks / FlowMind"
+      },
+      "children": [
+        "provenance-lead",
+        "provenance-table",
+        "provenance-callout"
+      ]
+    },
+    "provenance-lead": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "The repo contains both the experiment and the correction. The DeerFlow branch work introduced a middleware chain model, but the canonical docs later constrain that surface and explicitly move declarative policy back to FlowMind and orchestration. There is also a later freeze note that says Poly owns the WHAT and FlowMind owns the WHEN."
+      }
+    },
+    "provenance-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "source",
+            "label": "Source",
+            "wide": true
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          },
+          {
+            "key": "finding",
+            "label": "Finding",
+            "wide": true
+          },
+          {
+            "key": "why",
+            "label": "Why It Matters",
+            "wide": true
+          }
+        ],
+        "rows": [
+          {
+            "source": "docs/specs/spec-harness-middleware.md",
+            "status": {
+              "text": "Verified",
+              "status": "match"
+            },
+            "finding": "Harness middleware is a transitional runtime decorator surface, not the canonical owner of context policy.",
+            "why": "This is the clearest current canon statement."
+          },
+          {
+            "source": "docs/specs/spec-harness.md",
+            "status": {
+              "text": "Verified",
+              "status": "match"
+            },
+            "finding": "FlowMind owns context composition, lifecycle routing, loop policy, and guard semantics. Harness owns transport/runtime glue.",
+            "why": "This is the broader owner map, not just the middleware-specific one."
+          },
+          {
+            "source": ".lev/mail/20260405-oracle-freeze-decisions.md",
+            "status": {
+              "text": "Verified",
+              "status": "match"
+            },
+            "finding": "FlowMind owns topology, iteration, gates, and sequencing. Poly owns invoke/task/receipt semantics.",
+            "why": "This freezes the architectural split after the branch experiments."
+          },
+          {
+            "source": "docs/specs/spec-lifecycle-hooks.md",
+            "status": {
+              "text": "Stale",
+              "status": "warn"
+            },
+            "finding": "Hooks are documented mainly through the archived agent-adapter path.",
+            "why": "Useful lineage, but not the current runtime owner."
+          },
+          {
+            "source": "workshop/analysis/deer-flow/analysis.md",
+            "status": {
+              "text": "Stale",
+              "status": "warn"
+            },
+            "finding": "DeerFlow middleware chain is treated as pattern source, not ownership template.",
+            "why": "This is where the experiment entered the repo."
+          }
+        ]
+      }
+    },
+    "provenance-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Plain-English answer",
+        "content": "You were remembering the **decision** correctly. The repo still has middleware code, but the repo no longer treats middleware as the place where policy truth should live."
+      }
+    },
+    "live-middleware-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "LIVE REALITY",
+        "title": "Do we already have middleware?"
+      },
+      "children": [
+        "live-lead",
+        "live-table"
+      ]
+    },
+    "live-lead": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "Yes. Main has a real middleware chain and concrete modules under core/harness. What matters is how we classify them. The repo already classifies some as enabled runtime-only helpers and others as disabled policy-ish experiments."
+      }
+    },
+    "live-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "file",
+            "label": "File",
+            "wide": true
+          },
+          {
+            "key": "enabled",
+            "label": "Enabled"
+          },
+          {
+            "key": "role",
+            "label": "Role",
+            "wide": true
+          },
+          {
+            "key": "call",
+            "label": "Interpretation",
+            "wide": true
+          }
+        ],
+        "rows": [
+          {
+            "file": "core/harness/src/middleware/context-retrieval.ts",
+            "enabled": {
+              "text": "false",
+              "status": "warn"
+            },
+            "role": "Prompt enrichment via workspace retrieval.",
+            "call": "Exists, but the config says FlowMind should own dynamic context composition."
+          },
+          {
+            "file": "core/harness/src/middleware/memory.ts",
+            "enabled": {
+              "text": "false",
+              "status": "warn"
+            },
+            "role": "Prompt injection + post-run memory extraction.",
+            "call": "Exists, but policy ownership is intentionally not canonical here."
+          },
+          {
+            "file": "core/harness/src/middleware/summarization.ts",
+            "enabled": {
+              "text": "false",
+              "status": "warn"
+            },
+            "role": "Between-iteration summarization.",
+            "call": "Exists as an opt-in long-session helper, not the final compaction architecture."
+          },
+          {
+            "file": "core/harness/src/middleware/subagent-limit.ts",
+            "enabled": {
+              "text": "true",
+              "status": "match"
+            },
+            "role": "Runtime concurrency / subagent guardrail.",
+            "call": "This is the kind of middleware the canon still allows: transport/runtime fence."
+          },
+          {
+            "file": "core/harness/src/middleware/artifact-detection.ts",
+            "enabled": {
+              "text": "true",
+              "status": "match"
+            },
+            "role": "Post-run artifact capture.",
+            "call": "Still aligned as runtime-side helper."
+          },
+          {
+            "file": "core/harness/src/middleware/lev-event.ts",
+            "enabled": {
+              "text": "true",
+              "status": "match"
+            },
+            "role": "Lifecycle event bridge.",
+            "call": "Still aligned as event-emission helper."
+          }
+        ]
+      }
+    },
+    "pr86-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "PR86",
+        "title": "pr86-sentinel-audit — file-by-file calls"
+      },
+      "children": [
+        "pr86-lead",
+        "pr86-table"
+      ]
+    },
+    "pr86-lead": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "This branch is worth keeping around only as a mining/reference branch. The key distinction for each file is: what idea the branch was trying to add, what current main already has, and where we should preserve the idea if we keep it."
+      }
+    },
+    "pr86-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "item",
+            "label": "Item",
+            "wide": true
+          },
+          {
+            "key": "branchIdea",
+            "label": "Branch Idea",
+            "wide": true
+          },
+          {
+            "key": "currentMain",
+            "label": "Current Main",
+            "wide": true
+          },
+          {
+            "key": "decision",
+            "label": "Call"
+          },
+          {
+            "key": "store",
+            "label": "If Kept, Store It As",
+            "wide": true
+          }
+        ],
+        "rows": [
+          {
+            "item": "core/daemon/src/lifecycle.ts",
+            "branchIdea": "Introduce a daemon lifecycle facade over adapters and dependency ordering.",
+            "currentMain": "Main has daemon runtime pieces but not this exact facade file.",
+            "decision": {
+              "text": "Keep idea",
+              "status": "info"
+            },
+            "store": "Reference implementation note or fresh extraction branch, not direct cherry-pick."
+          },
+          {
+            "item": "core/config/src/schemas/global-config.schema.ts",
+            "branchIdea": "Strict root schema plus permissive fallback variant.",
+            "currentMain": "Main still has the looser passthrough global schema.",
+            "decision": {
+              "text": "Keep idea",
+              "status": "info"
+            },
+            "store": "Config-schema design follow-up; compare against current config canon before coding."
+          },
+          {
+            "item": ".github/workflows/critical-path-sentinel.yml",
+            "branchIdea": "Tighten sentinel structure and lane shape.",
+            "currentMain": "Main already has the sentinel workflow and newer action pins.",
+            "decision": {
+              "text": "Reference only",
+              "status": "warn"
+            },
+            "store": "Sentinel tuning notes, not a branch merge."
+          },
+          {
+            "item": ".lev/critical-path-expected-failures.yaml",
+            "branchIdea": "Alter expected-failure regexes and failure classification.",
+            "currentMain": "Main has the active expected-failure list.",
+            "decision": {
+              "text": "Reference only",
+              "status": "warn"
+            },
+            "store": "Sentinel false-positive audit notes."
+          },
+          {
+            "item": "tests/e2e/critical-path-sentinel.test.js",
+            "branchIdea": "Minor sentinel test behavior shift.",
+            "currentMain": "Main already has the real sentinel test.",
+            "decision": {
+              "text": "Drop branch tip",
+              "status": "gap"
+            },
+            "store": "No separate storage needed."
+          },
+          {
+            "item": "core/poly/src/surfaces/cli/aliases.ts",
+            "branchIdea": "Small CLI alias surface adjustments.",
+            "currentMain": "Main has a newer CLI surface.",
+            "decision": {
+              "text": "Drop branch tip",
+              "status": "gap"
+            },
+            "store": "No separate storage needed."
+          },
+          {
+            "item": "core/harness/src/exec-types.ts",
+            "branchIdea": "Alternative harness execution shape.",
+            "currentMain": "Main has a live execution type system that moved further.",
+            "decision": {
+              "text": "Reference only",
+              "status": "warn"
+            },
+            "store": "Execution-shape notes if we reopen harness API cleanup."
+          },
+          {
+            "item": "middleware files in core/harness/src/middleware/*",
+            "branchIdea": "Policy-like middleware around retrieval/memory/summarization.",
+            "currentMain": "Main already has these modules and disables the policy-ish ones.",
+            "decision": {
+              "text": "Already represented",
+              "status": "match"
+            },
+            "store": "Current main + middleware specs already preserve the idea."
+          },
+          {
+            "item": "plugins/core-scheduling/*",
+            "branchIdea": "Loop/scheduling glue around cron/executor/loading.",
+            "currentMain": "Main has its own scheduling surfaces.",
+            "decision": {
+              "text": "Reference only",
+              "status": "warn"
+            },
+            "store": "Scheduling note, not immediate extraction."
+          },
+          {
+            "item": "generated reports / lockfiles",
+            "branchIdea": "Checkpoint state from branch time.",
+            "currentMain": "Stale now.",
+            "decision": {
+              "text": "Drop",
+              "status": "gap"
+            },
+            "store": "Nowhere."
+          }
+        ]
+      }
+    },
+    "pr87-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "PR87",
+        "title": "pr87-main-merge — file-by-file calls"
+      },
+      "children": [
+        "pr87-lead",
+        "pr87-table"
+      ]
+    },
+    "pr87-lead": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "This branch still has unmatched patches, but they should still be treated as reference ideas. The question is whether the branch contains useful examples for future FlowMind-first design, not whether it should shape current runtime ownership."
+      }
+    },
+    "pr87-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "item",
+            "label": "Item",
+            "wide": true
+          },
+          {
+            "key": "branchIdea",
+            "label": "Branch Idea",
+            "wide": true
+          },
+          {
+            "key": "currentMain",
+            "label": "Current Main",
+            "wide": true
+          },
+          {
+            "key": "decision",
+            "label": "Call"
+          },
+          {
+            "key": "store",
+            "label": "If Kept, Store It As",
+            "wide": true
+          }
+        ],
+        "rows": [
+          {
+            "item": "core/harness/src/execution.ts",
+            "branchIdea": "Harness-owned loop(), graph(), graphEpic() convenience and alternate execution sequencing.",
+            "currentMain": "Main keeps harness execution narrower and does not expose that branch shape.",
+            "decision": {
+              "text": "Keep idea",
+              "status": "info"
+            },
+            "store": "Harness/orchestration design note, not code merge."
+          },
+          {
+            "item": "core/harness/src/middleware/chain.ts",
+            "branchIdea": "DeerFlow-inspired middleware chain and extensibility wiring.",
+            "currentMain": "Main already has a middleware chain plus a spec that constrains it.",
+            "decision": {
+              "text": "Already represented",
+              "status": "match"
+            },
+            "store": "Current main + spec-harness-middleware.md preserve the experiment."
+          },
+          {
+            "item": "core/harness/config.yaml",
+            "branchIdea": "YAML-declared middleware/control-plane experiments.",
+            "currentMain": "Main already has a live harness.middleware chain declaration.",
+            "decision": {
+              "text": "Already represented",
+              "status": "match"
+            },
+            "store": "Current main."
+          },
+          {
+            "item": "core/flowmind/examples/runtime-context-extensibility.flow.yaml",
+            "branchIdea": "FlowMind-first extensibility example.",
+            "currentMain": "Main still has the example, but the branch adds a small semantic tweak.",
+            "decision": {
+              "text": "Keep idea",
+              "status": "info"
+            },
+            "store": "FlowMind example/reference, not runtime merge."
+          },
+          {
+            "item": "docs/specs/proposal-deerflow-harness-features.md",
+            "branchIdea": "Document the DeerFlow harness feature extraction as pattern intake.",
+            "currentMain": "This doc already exists in main.",
+            "decision": {
+              "text": "Already represented",
+              "status": "match"
+            },
+            "store": "Current main docs."
+          },
+          {
+            "item": "docs/specs/spec-harness-middleware.md",
+            "branchIdea": "Formalize middleware as transitional and constrained.",
+            "currentMain": "Already exists and is the current canon.",
+            "decision": {
+              "text": "Already represented",
+              "status": "match"
+            },
+            "store": "Current main docs."
+          },
+          {
+            "item": "docs/specs/spec-harness.md",
+            "branchIdea": "Broader harness ownership framing around runtime decorators and lifecycle bridge.",
+            "currentMain": "Current main already has the evolved version.",
+            "decision": {
+              "text": "Reference only",
+              "status": "warn"
+            },
+            "store": "Spec lineage only."
+          },
+          {
+            "item": "workshop/analysis/deer-flow/analysis.md",
+            "branchIdea": "Capture DeerFlow as pattern source.",
+            "currentMain": "Already exists in workshop analysis.",
+            "decision": {
+              "text": "Already represented",
+              "status": "match"
+            },
+            "store": "Current workshop analysis."
+          },
+          {
+            "item": "poly cycle-break / scheduling side slices",
+            "branchIdea": "Fix cyclic deps and control-plane glue around harness.",
+            "currentMain": "Main has moved on substantially.",
+            "decision": {
+              "text": "Reference only",
+              "status": "warn"
+            },
+            "store": "Architecture notes only."
+          }
+        ]
+      }
+    },
+    "chi-section": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "DISAMBIGUATION",
+        "title": "chiDEV vs chiTOWN"
+      },
+      "children": [
+        "chidev-card",
+        "chitown-card"
+      ]
+    },
+    "chidev-card": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "chiDEV",
+        "content": "This is the branch set we just triaged and cleaned. The meaningful leftovers are now only `pr86` and `pr87`, both as reference-idea branches, not merge candidates."
+      }
+    },
+    "chitown-card": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "chiTOWN",
+        "content": "This is your partner contributor’s work. Based on your note, his meaningful direction is in open PRs around product direction and Bayesian graph work. That means the next pass should be PR-first, not branch-first."
+      }
+    },
+    "graph-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "GRAPH DIRECTION",
+        "title": "What the branch/worktree warm-cache and graph direction already has"
+      },
+      "children": [
+        "graph-lead",
+        "graph-table"
+      ]
+    },
+    "graph-lead": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "There is real repo prior art for a graph-backed or graph-plus-vector direction. The strongest pattern is not “put all markdown into one giant vector store and stop.” The stronger direction is graph-backed primary structure with vectorized markdown summaries and/or chunks as secondary retrieval aids."
+      }
+    },
+    "graph-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "area",
+            "label": "Area"
+          },
+          {
+            "key": "evidence",
+            "label": "Evidence",
+            "wide": true
+          },
+          {
+            "key": "implication",
+            "label": "Implication",
+            "wide": true
+          }
+        ],
+        "rows": [
+          {
+            "area": "Graph + vector hybrid",
+            "evidence": "workshop/papers/INTEGRATION-ROADMAP-2026-01-21.md and workshop/pocs/graph-storage-adapters/*",
+            "implication": "The repo already leans toward hybrid retrieval, not vector-only."
+          },
+          {
+            "area": "Harvester as graph producer",
+            "evidence": "graph-draft.jsonl output in Harvester runs",
+            "implication": "Harvester already emits graph-facing artifacts that could back prior-art lookup."
+          },
+          {
+            "area": "Markdown storage",
+            "evidence": "Multiple workshop analyses and graph-storage adapter notes",
+            "implication": "Markdown should likely stay filesystem-backed, with graph nodes carrying summaries, refs, hashes, and optionally embeddings/chunk projections."
+          },
+          {
+            "area": "Warm branch/worktree cache",
+            "evidence": "Current repo has many worktrees and branch-local archaeology pain; no clean branch cache product surface exists yet.",
+            "implication": "A warm cache of branch/worktree graph projections would make prior-art queries much cheaper than brute-force grep across every ref."
+          }
+        ]
+      }
+    },
+    "feedback-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "FEEDBACK",
+        "title": "Decision Review — per item",
+        "subtitle": "Each item has 3 concrete choices, a recommended option with rationale, an Other field, and a notes box. Auto-saved locally; copy/export controls included."
+      },
+      "children": [
+        "feedback-custom"
+      ]
+    },
+    "feedback-custom": {
+      "type": "custom-html",
+      "props": {
+        "html": "<div class=\"review-shell\" data-page-id=\"chidev-middleware-review-v3\">\n    <div class=\"review-toolbar\">\n      <div class=\"review-toolbar__left\">\n        <div class=\"review-status\" id=\"review-status\">Loading saved decisions…</div>\n        <div class=\"review-counts\" id=\"review-counts\"></div>\n      </div>\n      <div class=\"review-toolbar__right\">\n        <button class=\"review-btn\" id=\"copy-json\">Copy JSON</button>\n        <button class=\"review-btn\" id=\"download-json\">Download JSON</button>\n        <button class=\"review-btn review-btn--ghost\" id=\"reset-review\">Reset</button>\n      </div>\n    </div>\n    <div class=\"review-groups\" id=\"review-groups\"></div>\n  </div>",
+        "css": "display:block; .review-shell{display:grid;gap:18px}.review-toolbar{position:sticky;top:16px;z-index:40;display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:14px 16px;border:1px solid var(--color-border);border-radius:16px;background:color-mix(in srgb, var(--color-surface) 88%, transparent);backdrop-filter:blur(10px)}.review-toolbar__left{display:grid;gap:6px}.review-status{font-family:var(--font-mono);font-size:12px;color:var(--color-text-muted)}.review-counts{font-family:var(--font-mono);font-size:12px;color:var(--color-accent)}.review-toolbar__right{display:flex;gap:10px;flex-wrap:wrap}.review-btn{border:1px solid var(--color-border-strong);background:var(--color-surface-alt);color:var(--color-text);border-radius:10px;padding:10px 14px;font:600 12px var(--font-mono);cursor:pointer}.review-btn--ghost{opacity:.75}.review-groups{display:grid;gap:22px}.review-group{display:grid;gap:14px}.review-group__title{font:700 15px var(--font-body);color:var(--color-text);margin:4px 0 0}.review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.review-card{border:1px solid var(--color-border);border-radius:18px;background:var(--color-surface-alt);padding:18px;display:grid;gap:14px;box-shadow:var(--elevation-1)}.review-card__head{display:grid;gap:8px}.review-card__meta{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.review-card__title{font:600 15px var(--font-body);color:var(--color-text)}.review-card__group{font:600 10px var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--color-accent)}.review-card__summary,.review-card__current,.review-card__store{font-size:13px;line-height:1.65;color:var(--color-text-muted)}.review-callout{border:1px solid var(--color-border);border-left:4px solid var(--color-accent);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.02)}.review-callout strong{display:block;font-size:12px;font-family:var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--color-accent);margin-bottom:6px}.review-callout p{margin:0;font-size:13px;line-height:1.65;color:var(--color-text-muted)}.review-options{display:grid;gap:10px}.review-option{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;border:1px solid var(--color-border);border-radius:12px;padding:12px;background:var(--color-surface)}.review-option[data-recommended='true']{border-color:var(--color-accent);box-shadow:0 0 0 1px color-mix(in srgb, var(--color-accent) 25%, transparent)}.review-option input{margin-top:3px}.review-option__label{font-size:13px;color:var(--color-text)}.review-option__desc{font-size:12px;line-height:1.55;color:var(--color-text-muted);margin-top:4px}.review-other,.review-notes{display:grid;gap:8px}.review-other input,.review-notes textarea{width:100%;border-radius:12px;border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text);padding:12px 14px;font:13px/1.6 var(--font-body)}.review-notes textarea{min-height:120px;resize:vertical}.review-mini{font:600 10px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-muted)}@media (max-width: 980px){.review-grid{grid-template-columns:1fr}.review-toolbar{position:static;grid-template-columns:1fr}}",
+        "js": "if(!el)return; const STORAGE_KEY='now:chidev-middleware-review:v3'; const items=[{\"id\":\"mw-context-retrieval\",\"group\":\"Live Middleware\",\"title\":\"context-retrieval.ts\",\"context\":\"Disabled middleware for prompt enrichment via workspace retrieval.\",\"current\":\"Exists in main, but harness config explicitly says FlowMind should own dynamic context composition.\",\"store\":\"Keep the code as transitional reference in current main + spec-harness-middleware.md, not as policy owner.\",\"recommended\":\"keep-disabled\",\"why\":\"The idea is valid, but the repo already decided that retrieval policy belongs in FlowMind, not middleware.\",\"options\":[[\"keep-disabled\",\"Keep disabled as transitional reference\",\"Preserve implementation, but keep policy ownership in FlowMind.\"],[\"extract-flowmind\",\"Extract behavior into FlowMind surfaces\",\"Use the file as migration input and shrink middleware ownership.\"],[\"delete-now\",\"Delete the module now\",\"Remove the code and rely only on current FlowMind/context surfaces.\"]]},{\"id\":\"mw-memory\",\"group\":\"Live Middleware\",\"title\":\"memory.ts\",\"context\":\"Disabled middleware for memory injection and post-run extraction.\",\"current\":\"Exists in main, but policy ownership is intentionally not canonical here.\",\"store\":\"Preserve as transitional runtime reference; move durable policy decisions into memory + FlowMind docs/artifacts.\",\"recommended\":\"keep-disabled\",\"why\":\"The branch proves an implementation approach, but memory policy is too important to stay in middleware ownership.\",\"options\":[[\"keep-disabled\",\"Keep disabled as reference\",\"Retain the runtime example while policy stays elsewhere.\"],[\"extract-policy\",\"Extract memory policy into FlowMind/memory canon\",\"Keep only reusable runtime helpers.\"],[\"delete-now\",\"Delete now\",\"Drop the transitional module entirely.\"]]},{\"id\":\"mw-summarization\",\"group\":\"Live Middleware\",\"title\":\"summarization.ts\",\"context\":\"Disabled middleware for between-iteration summarization.\",\"current\":\"Opt-in long-session helper only; not the canonical compaction architecture.\",\"store\":\"Retain as reference helper; compaction policy should live in runtime/session/FlowMind artifacts.\",\"recommended\":\"keep-disabled\",\"why\":\"Summarization is still useful, but current canon treats compaction as broader runtime policy than a middleware hook.\",\"options\":[[\"keep-disabled\",\"Keep disabled as helper/reference\",\"Useful for comparison without making it canonical.\"],[\"reframe-compaction\",\"Move compaction semantics into FlowMind/session policy\",\"Use this file only as implementation reference.\"],[\"delete-now\",\"Delete now\",\"Remove the old approach entirely.\"]]},{\"id\":\"mw-subagent-limit\",\"group\":\"Live Middleware\",\"title\":\"subagent-limit.ts\",\"context\":\"Enabled runtime concurrency / subagent guardrail.\",\"current\":\"This aligns with the kind of middleware current canon still allows: runtime fence, not policy brain.\",\"store\":\"Keep in current main as a runtime helper.\",\"recommended\":\"keep-enabled\",\"why\":\"This is exactly the kind of narrow runtime concern the middleware layer is still good at.\",\"options\":[[\"keep-enabled\",\"Keep enabled as runtime helper\",\"Matches current ownership boundaries.\"],[\"move-to-other-runtime-surface\",\"Move to another runtime surface later\",\"Keep behavior, but retire the middleware implementation form later.\"],[\"disable-now\",\"Disable and audit impact\",\"Conservatively remove it from active path.\"]]},{\"id\":\"mw-artifact-detection\",\"group\":\"Live Middleware\",\"title\":\"artifact-detection.ts\",\"context\":\"Enabled post-run artifact capture.\",\"current\":\"Still aligned as runtime-side helper.\",\"store\":\"Keep in current main as a runtime helper, possibly feeding Harvester/graph artifacts later.\",\"recommended\":\"keep-enabled\",\"why\":\"Artifact capture is an execution-side concern and does not steal policy ownership from FlowMind.\",\"options\":[[\"keep-enabled\",\"Keep enabled as artifact helper\",\"Good fit for the middleware layer today.\"],[\"wire-to-harvester\",\"Keep but wire outputs more directly into Harvester/graph\",\"Strengthen downstream value without changing ownership.\"],[\"disable-now\",\"Disable and replace elsewhere\",\"Move capture fully out of middleware.\"]]},{\"id\":\"mw-lev-event\",\"group\":\"Live Middleware\",\"title\":\"lev-event.ts\",\"context\":\"Enabled lifecycle event bridge.\",\"current\":\"Still aligned as event-emission helper.\",\"store\":\"Keep in main as runtime/event bridge while event ownership remains LevEvent-first.\",\"recommended\":\"keep-enabled\",\"why\":\"Event emission is a runtime boundary helper, not the same thing as owning lifecycle policy.\",\"options\":[[\"keep-enabled\",\"Keep enabled as event bridge\",\"Aligned with current canon.\"],[\"tighten-bridge\",\"Keep but reduce scope to pure bridge only\",\"Strip any accidental policy behavior.\"],[\"disable-now\",\"Disable and move to non-middleware event emitters\",\"Use other runtime seams only.\"]]},{\"id\":\"pr86-daemon-lifecycle\",\"group\":\"pr86\",\"title\":\"core/daemon/src/lifecycle.ts\",\"context\":\"Branch introduces a daemon lifecycle facade over adapters and dependency ordering.\",\"current\":\"Current main does not have this exact facade file.\",\"store\":\"Manifest as a daemon-lifecycle design/extraction candidate, not direct cherry-pick.\",\"recommended\":\"manifest-extract\",\"why\":\"This is the strongest material idea left in pr86, but it needs to be reconciled against current daemon/runtime boundaries first.\",\"options\":[[\"manifest-extract\",\"Manifest as a fresh extraction candidate\",\"Capture the idea and re-implement against current main.\"],[\"reference-only\",\"Keep as reference only\",\"Preserve for later daemon design work.\"],[\"drop\",\"Drop as stale\",\"Do not preserve this idea.\"]]},{\"id\":\"pr86-config-schema\",\"group\":\"pr86\",\"title\":\"core/config/src/schemas/global-config.schema.ts\",\"context\":\"Branch adds a stricter root schema plus a permissive variant split.\",\"current\":\"Main still has the looser passthrough global schema.\",\"store\":\"Manifest as config-schema follow-up, not branch merge.\",\"recommended\":\"manifest-extract\",\"why\":\"There is real value here, but schema strictness has cross-cutting blast radius and should not arrive via stale branch merge.\",\"options\":[[\"manifest-extract\",\"Manifest as config-schema follow-up\",\"Open a focused design or task around strict/permissive split.\"],[\"reference-only\",\"Keep as reference only\",\"Do nothing now but retain the idea.\"],[\"drop\",\"Drop as stale\",\"Keep current config shape without revisiting this.\"]]},{\"id\":\"pr86-sentinel-workflow\",\"group\":\"pr86\",\"title\":\".github/workflows/critical-path-sentinel.yml\",\"context\":\"Branch tightens sentinel structure and lane shape.\",\"current\":\"Main already has sentinel workflow plus newer action pins.\",\"store\":\"Sentinel tuning notes only.\",\"recommended\":\"reference-only\",\"why\":\"The branch downgrades actions and is not safe to copy, but some structure/tuning may still be worth remembering.\",\"options\":[[\"reference-only\",\"Use only as tuning reference\",\"Keep the shape ideas but not the exact workflow file.\"],[\"manifest-ticket\",\"Manifest as sentinel tuning ticket\",\"Capture what to verify in current CI.\"],[\"drop\",\"Drop completely\",\"Treat current main as sufficient.\"]]},{\"id\":\"pr86-expected-failures\",\"group\":\"pr86\",\"title\":\".lev/critical-path-expected-failures.yaml\",\"context\":\"Branch changes expected-failure regexes and failure classification.\",\"current\":\"Main has the active expected-failure list.\",\"store\":\"Sentinel false-positive audit notes.\",\"recommended\":\"manifest-ticket\",\"why\":\"This is only worth keeping if it sharpens current false-positive handling; otherwise it is stale branch noise.\",\"options\":[[\"manifest-ticket\",\"Manifest as sentinel false-positive audit\",\"Create a small audit task against current failures.\"],[\"reference-only\",\"Keep as reference only\",\"No execution work now.\"],[\"drop\",\"Drop completely\",\"Do not preserve this diff.\"]]},{\"id\":\"pr86-sentinel-test\",\"group\":\"pr86\",\"title\":\"tests/e2e/critical-path-sentinel.test.js\",\"context\":\"Minor sentinel test behavior shift.\",\"current\":\"Main already has the active sentinel test.\",\"store\":\"No separate destination needed.\",\"recommended\":\"drop\",\"why\":\"The branch-tip delta is too small and too stale to justify preserving separately.\",\"options\":[[\"drop\",\"Drop branch tip\",\"Do not preserve this difference.\"],[\"reference-only\",\"Reference only\",\"Keep a note if a sentinel regression appears later.\"],[\"manifest-ticket\",\"Manifest as test audit ticket\",\"Open an audit if current sentinel tests become suspect.\"]]},{\"id\":\"pr86-cli-aliases\",\"group\":\"pr86\",\"title\":\"core/poly/src/surfaces/cli/aliases.ts\",\"context\":\"Small CLI alias surface adjustments.\",\"current\":\"Main has a newer CLI surface.\",\"store\":\"No separate destination needed.\",\"recommended\":\"drop\",\"why\":\"This is stale branch-tip detail, not durable product direction.\",\"options\":[[\"drop\",\"Drop branch tip\",\"Do not preserve this diff.\"],[\"reference-only\",\"Reference only\",\"Keep only if alias confusion resurfaces.\"],[\"manifest-ticket\",\"Manifest as CLI alias audit\",\"Open a targeted CLI cleanup later.\"]]},{\"id\":\"pr86-exec-types\",\"group\":\"pr86\",\"title\":\"core/harness/src/exec-types.ts\",\"context\":\"Alternative harness execution shape.\",\"current\":\"Main already has a live execution type system that moved further.\",\"store\":\"Execution-shape note if harness API cleanup is reopened.\",\"recommended\":\"reference-only\",\"why\":\"There may be useful type-shape thinking here, but it is not the right place to reintroduce it directly.\",\"options\":[[\"reference-only\",\"Keep as execution-shape note\",\"Retain the idea for later API cleanup.\"],[\"manifest-ticket\",\"Manifest as harness API cleanup ticket\",\"Capture it as a future design task.\"],[\"drop\",\"Drop completely\",\"Treat current type shape as good enough.\"]]},{\"id\":\"pr86-middleware-set\",\"group\":\"pr86\",\"title\":\"middleware files under core/harness/src/middleware/*\",\"context\":\"Policy-like middleware around retrieval, memory, summarization.\",\"current\":\"Main already has these modules and disables the policy-ish ones.\",\"store\":\"Current main + middleware specs already preserve this idea.\",\"recommended\":\"already-represented\",\"why\":\"There is no extra preservation work needed; the experiment is already present in main and documented.\",\"options\":[[\"already-represented\",\"Keep current main as the preserved form\",\"No extra work needed.\"],[\"manifest-ticket\",\"Manifest deprecation/migration work\",\"Capture next cleanup if desired.\"],[\"drop\",\"Forget the branch context\",\"Rely only on main and current specs.\"]]},{\"id\":\"pr86-core-scheduling\",\"group\":\"pr86\",\"title\":\"plugins/core-scheduling/*\",\"context\":\"Loop and scheduling glue around cron/executor/loading.\",\"current\":\"Main has its own scheduling surfaces.\",\"store\":\"Scheduling note only.\",\"recommended\":\"reference-only\",\"why\":\"There is some systems-thinking value here, but not a branch-tip merge case.\",\"options\":[[\"reference-only\",\"Keep as scheduling note\",\"Retain context without implementation work.\"],[\"manifest-ticket\",\"Manifest as scheduling audit ticket\",\"Open future scheduler review.\"],[\"drop\",\"Drop completely\",\"Ignore this branch slice.\"]]},{\"id\":\"pr86-generated\",\"group\":\"pr86\",\"title\":\"generated reports / lockfiles\",\"context\":\"Checkpoint state from branch time.\",\"current\":\"Stale now.\",\"store\":\"Nowhere.\",\"recommended\":\"drop\",\"why\":\"These are branch artifacts, not ideas.\",\"options\":[[\"drop\",\"Drop\",\"Do not preserve generated cruft.\"],[\"reference-only\",\"Reference only\",\"Keep only if forensic debugging later needs it.\"],[\"manifest-ticket\",\"Manifest as reproducibility note\",\"Only if a historical reproduction effort appears.\"]]},{\"id\":\"pr87-execution\",\"group\":\"pr87\",\"title\":\"core/harness/src/execution.ts\",\"context\":\"Harness-owned loop(), graph(), and graphEpic() convenience and alternative sequencing.\",\"current\":\"Main keeps harness execution narrower and does not expose the branch shape.\",\"store\":\"Harness/orchestration design note, not code merge.\",\"recommended\":\"manifest-extract\",\"why\":\"There is real idea value here, but it conflicts with the current decision to keep loops/policy out of harness ownership.\",\"options\":[[\"manifest-extract\",\"Manifest as harness-orchestration design note\",\"Capture the useful execution concepts without merging branch code.\"],[\"reference-only\",\"Reference only\",\"Keep this as branch archaeology only.\"],[\"drop\",\"Drop completely\",\"Do not preserve this branch idea.\"]]},{\"id\":\"pr87-chain\",\"group\":\"pr87\",\"title\":\"core/harness/src/middleware/chain.ts\",\"context\":\"DeerFlow-inspired middleware chain and extensibility wiring.\",\"current\":\"Main already has a middleware chain plus a spec constraining it.\",\"store\":\"Current main + spec-harness-middleware.md already preserve it.\",\"recommended\":\"already-represented\",\"why\":\"The experiment is already preserved. The only remaining question is deprecation and migration, not preservation.\",\"options\":[[\"already-represented\",\"Keep current main as preserved form\",\"No extra branch preservation needed.\"],[\"manifest-ticket\",\"Manifest deprecation/migration task\",\"Capture the path away from policy-heavy middleware.\"],[\"drop\",\"Forget branch-specific context\",\"Rely only on current main/specs.\"]]},{\"id\":\"pr87-harness-config\",\"group\":\"pr87\",\"title\":\"core/harness/config.yaml\",\"context\":\"YAML-declared middleware/control-plane experiment.\",\"current\":\"Main already has a live harness.middleware declaration.\",\"store\":\"Current main.\",\"recommended\":\"already-represented\",\"why\":\"The idea is already manifested in current config.\",\"options\":[[\"already-represented\",\"Keep current main\",\"No extra work needed.\"],[\"manifest-ticket\",\"Manifest config cleanup/deprecation work\",\"Only if we want to slim the chain.\"],[\"drop\",\"Drop branch context\",\"Rely on current config only.\"]]},{\"id\":\"pr87-flow-example\",\"group\":\"pr87\",\"title\":\"core/flowmind/examples/runtime-context-extensibility.flow.yaml\",\"context\":\"FlowMind-first extensibility example.\",\"current\":\"Main still has the example, but the branch adds a small semantic tweak.\",\"store\":\"FlowMind example/reference.\",\"recommended\":\"manifest-extract\",\"why\":\"This is one of the few branch ideas that actually aligns with the current FlowMind-first direction.\",\"options\":[[\"manifest-extract\",\"Promote as example lineage / refreshed example\",\"Use it to improve the current example deliberately.\"],[\"reference-only\",\"Reference only\",\"Keep the branch idea but make no current change.\"],[\"drop\",\"Drop completely\",\"Ignore the semantic tweak.\"]]},{\"id\":\"pr87-deerflow-proposal\",\"group\":\"pr87\",\"title\":\"docs/specs/proposal-deerflow-harness-features.md\",\"context\":\"DeerFlow harness feature extraction proposal.\",\"current\":\"Already exists in main.\",\"store\":\"Current main docs.\",\"recommended\":\"already-represented\",\"why\":\"The idea is already manifested in docs; no extra preservation work needed.\",\"options\":[[\"already-represented\",\"Keep current main docs\",\"No action needed.\"],[\"manifest-ticket\",\"Link into a future deprecation/migration note\",\"Useful if we formalize the retreat from middleware.\"],[\"drop\",\"Ignore branch-specific context\",\"Treat main docs as sufficient.\"]]},{\"id\":\"pr87-middleware-spec\",\"group\":\"pr87\",\"title\":\"docs/specs/spec-harness-middleware.md\",\"context\":\"Formalize middleware as transitional and constrained.\",\"current\":\"Already exists and is the current canon.\",\"store\":\"Current main docs.\",\"recommended\":\"already-represented\",\"why\":\"This is the current answer; the branch is no longer needed to preserve it.\",\"options\":[[\"already-represented\",\"Keep current main docs\",\"No action needed.\"],[\"manifest-ticket\",\"Manifest a cleanup follow-up\",\"Capture the eventual retirement path.\"],[\"drop\",\"Ignore branch-specific lineage\",\"Rely only on the current spec.\"]]},{\"id\":\"pr87-harness-spec\",\"group\":\"pr87\",\"title\":\"docs/specs/spec-harness.md\",\"context\":\"Broader harness ownership framing around runtime decorators and lifecycle bridge.\",\"current\":\"Main already has the evolved version.\",\"store\":\"Spec lineage only.\",\"recommended\":\"reference-only\",\"why\":\"The useful information here is lineage and reasoning, not branch-tip content to merge.\",\"options\":[[\"reference-only\",\"Keep as lineage reference\",\"Useful for provenance.\"],[\"manifest-ticket\",\"Manifest a harness boundary follow-up\",\"Only if a new harness cleanup pass starts.\"],[\"drop\",\"Drop completely\",\"Treat current main as enough.\"]]},{\"id\":\"pr87-deerflow-analysis\",\"group\":\"pr87\",\"title\":\"workshop/analysis/deer-flow/analysis.md\",\"context\":\"Capture DeerFlow as pattern source.\",\"current\":\"Already exists in workshop analysis.\",\"store\":\"Current workshop analysis.\",\"recommended\":\"already-represented\",\"why\":\"The repo already preserved the idea in Workshop form.\",\"options\":[[\"already-represented\",\"Keep workshop analysis as the artifact\",\"No extra preservation needed.\"],[\"manifest-ticket\",\"Manifest follow-up extraction ideas\",\"Only if we want a next-step task.\"],[\"drop\",\"Ignore branch provenance\",\"Use workshop analysis only.\"]]},{\"id\":\"pr87-poly-scheduling\",\"group\":\"pr87\",\"title\":\"poly cycle-break and core-scheduling slices\",\"context\":\"Fix cyclic deps and control-plane glue around harness.\",\"current\":\"Main has moved on substantially.\",\"store\":\"Architecture note only.\",\"recommended\":\"reference-only\",\"why\":\"There is systems insight here, but the specific code path is stale.\",\"options\":[[\"reference-only\",\"Keep as architecture note\",\"Preserve the lesson, not the branch code.\"],[\"manifest-ticket\",\"Manifest as cycle-break audit\",\"Only if this class of bug reappears.\"],[\"drop\",\"Drop completely\",\"Do not preserve this slice.\"]]},{\"id\":\"graph-warm-cache\",\"group\":\"Future System\",\"title\":\"Warm cache for branches and worktrees\",\"context\":\"Need fast prior-art across many branches/worktrees without brute-force grep every time.\",\"current\":\"No clean product surface exists yet. Harvester emits graph-draft artifacts, but there is no branch/worktree warm cache product yet.\",\"store\":\"Harvester + graph projection + optional worktree materialization design.\",\"recommended\":\"hybrid-cache\",\"why\":\"Metadata/graph-first warm cache with lazy worktree materialization gives the leverage without exploding local state.\",\"options\":[[\"hybrid-cache\",\"Warm-cache metadata and graph projections, lazily materialize worktrees\",\"Best balance of speed and cost.\"],[\"full-worktrees\",\"Create worktrees for every branch\",\"Maximum local availability, high filesystem clutter.\"],[\"manual-only\",\"Keep manual checkout/grep only\",\"Simplest, but scales poorly.\"]]},{\"id\":\"graph-markdown\",\"group\":\"Future System\",\"title\":\"Markdown in graph vs filesystem\",\"context\":\"Need prior-art and Harvester to work over markdown, beads, code, and workshop artifacts.\",\"current\":\"Filesystem is still the backing store; repo already points toward graph-plus-vector hybrid ideas.\",\"store\":\"Filesystem-backed markdown with graph nodes carrying refs, hashes, summaries, and optional chunk/embedding projections.\",\"recommended\":\"graph-hybrid\",\"why\":\"The repo already has evidence leaning toward graph-plus-vector hybrid, not full graph-only or vector-only storage.\",\"options\":[[\"graph-hybrid\",\"Filesystem-backed markdown + graph nodes + optional embeddings\",\"Best match to current repo direction.\"],[\"embeddings-only\",\"Embed full markdown and search vectors only\",\"Fast search, weak structure/provenance.\"],[\"summary-only\",\"Store summaries only in graph, no embeddings\",\"Cheaper, but weaker semantic retrieval.\"]]},{\"id\":\"prior-art-worktree-mode\",\"group\":\"Future System\",\"title\":\"/prior-art branch/worktree mode\",\"context\":\"You want /prior-art to enumerate branches/worktrees, materialize fast context, and run on those surfaces.\",\"current\":\"Current prior-art is repo/session/doc oriented; it does not own worktree materialization yet.\",\"store\":\"A /prior-art workflow enhancement, likely paired with Harvester warm-cache concepts.\",\"recommended\":\"optional-materialization\",\"why\":\"On-demand worktree creation for selected refs is safer and cheaper than automatically materializing every branch.\",\"options\":[[\"optional-materialization\",\"Optional worktree per selected branch/ref\",\"Good UX without runaway local sprawl.\"],[\"always-materialize\",\"Always create worktrees automatically\",\"Fast switching, high clutter and maintenance.\"],[\"never-materialize\",\"Inspect refs without worktrees only\",\"Cheapest, but harder for branch-specific archaeology.\"]]},{\"id\":\"ideas-manifest-rule\",\"group\":\"Future System\",\"title\":\"All ideas made manifest\",\"context\":\"Branches can die, but ideas must survive.\",\"current\":\"This rule is now in the handoff, but not yet automated as a product behavior.\",\"store\":\"Harvester artifacts, tickets, specs, decisions, or workshop analyses before branch deletion.\",\"recommended\":\"explicit-destination\",\"why\":\"This keeps hygiene from destroying provenance and turns deletion into a deliberate capture workflow.\",\"options\":[[\"explicit-destination\",\"Require explicit destination before branch deletion\",\"Best protection against idea loss.\"],[\"soft-policy\",\"Encourage but do not enforce\",\"Lower friction, higher risk of loss.\"],[\"no-policy\",\"Delete branches freely\",\"Fastest, worst for provenance.\"]]}]; const root=el.querySelector('#review-groups'); const status=el.querySelector('#review-status'); const counts=el.querySelector('#review-counts'); const stateLoad=()=>{try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}')}catch{return {}}}; let state=stateLoad(); const persist=()=>{localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); const decided=items.filter(item=>state[item.id]?.choice || state[item.id]?.other).length; counts.textContent=decided+' / '+items.length+' items have a decision'; status.textContent='Saved locally at '+new Date().toLocaleTimeString();}; const escapeHtml=(s)=>String(s||'').replace(/[&<>\"]/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c])); const grouped=items.reduce((acc,item)=>{(acc[item.group]||(acc[item.group]=[])).push(item); return acc;},{}); root.innerHTML=''; Object.entries(grouped).forEach(([group,list])=>{ const section=document.createElement('section'); section.className='review-group'; const title=document.createElement('div'); title.className='review-group__title'; title.textContent=group; section.appendChild(title); const grid=document.createElement('div'); grid.className='review-grid'; list.forEach((item)=>{ const saved=state[item.id]||{}; const card=document.createElement('article'); card.className='review-card'; card.innerHTML='<div class=\"review-card__head\"><div class=\"review-card__meta\"><div><div class=\"review-card__group\">'+escapeHtml(item.group)+'</div><div class=\"review-card__title\">'+escapeHtml(item.title)+'</div></div></div><div class=\"review-card__summary\"><strong class=\"review-mini\">Decision context</strong>'+escapeHtml(item.context)+'</div><div class=\"review-card__current\"><strong class=\"review-mini\">Current state</strong>'+escapeHtml(item.current)+'</div><div class=\"review-callout\"><strong>Recommended</strong><p>'+escapeHtml(item.options.find(o=>o[0]===item.recommended)?.[1]||item.recommended)+' — '+escapeHtml(item.why)+'</p></div><div class=\"review-card__store\"><strong class=\"review-mini\">If kept, store it as</strong>'+escapeHtml(item.store)+'</div></div>'; const options=document.createElement('div'); options.className='review-options'; item.options.forEach((opt,idx)=>{ const wrap=document.createElement('label'); wrap.className='review-option'; wrap.dataset.recommended=String(opt[0]===item.recommended); wrap.innerHTML='<input type=\"radio\" name=\"choice-'+item.id+'\" value=\"'+escapeHtml(opt[0])+'\" '+(saved.choice===opt[0]?'checked':'')+'><div><div class=\"review-option__label\">'+String.fromCharCode(97+idx)+'. '+escapeHtml(opt[1])+(opt[0]===item.recommended?' (Recommended)':'')+'</div><div class=\"review-option__desc\">'+escapeHtml(opt[2])+'</div></div>'; options.appendChild(wrap); }); card.appendChild(options); const other=document.createElement('div'); other.className='review-other'; other.innerHTML='<div class=\"review-mini\">Other</div><input type=\"text\" placeholder=\"Other option or nuance\" value=\"'+escapeHtml(saved.other||'')+'\">'; card.appendChild(other); const notes=document.createElement('div'); notes.className='review-notes'; notes.innerHTML='<div class=\"review-mini\">Notes</div><textarea placeholder=\"Reasoning, caveats, constraints, or rebuttal\">'+escapeHtml(saved.notes||'')+'</textarea>'; card.appendChild(notes); card.querySelectorAll('input[type=radio]').forEach(r=>r.addEventListener('change',()=>{state[item.id]={...(state[item.id]||{}),choice:r.value}; persist();})); other.querySelector('input').addEventListener('input',(e)=>{state[item.id]={...(state[item.id]||{}),other:e.target.value}; persist();}); notes.querySelector('textarea').addEventListener('input',(e)=>{state[item.id]={...(state[item.id]||{}),notes:e.target.value}; persist();}); grid.appendChild(card); }); section.appendChild(grid); root.appendChild(section); }); const copyBtn=el.querySelector('#copy-json'); copyBtn.addEventListener('click',async()=>{ const payload={page:'chidev-middleware-review-v3',savedAt:new Date().toISOString(),state}; const text=JSON.stringify(payload,null,2); try{ await navigator.clipboard.writeText(text); status.textContent='Copied review JSON to clipboard'; }catch{ status.textContent='Clipboard copy failed'; } }); const dlBtn=el.querySelector('#download-json'); dlBtn.addEventListener('click',()=>{ const payload={page:'chidev-middleware-review-v3',savedAt:new Date().toISOString(),state}; const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='chidev-middleware-review.json'; a.click(); URL.revokeObjectURL(url); status.textContent='Downloaded review JSON'; }); el.querySelector('#reset-review').addEventListener('click',()=>{ localStorage.removeItem(STORAGE_KEY); state={}; status.textContent='Reset local review state'; counts.textContent='0 / '+items.length+' items have a decision'; root.querySelectorAll('input[type=radio]').forEach(i=>i.checked=false); root.querySelectorAll('.review-other input').forEach(i=>i.value=''); root.querySelectorAll('.review-notes textarea').forEach(i=>i.value=''); }); const decided=items.filter(item=>state[item.id]?.choice || state[item.id]?.other).length; counts.textContent=decided+' / '+items.length+' items have a decision'; status.textContent=decided ? 'Loaded saved local feedback' : 'No saved feedback yet';"
+      }
+    }
+  }
+}

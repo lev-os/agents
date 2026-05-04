@@ -1,0 +1,583 @@
+import { Component, createSignal, For, Show, onMount, onCleanup } from 'solid-js';
+import * as tauri from '../services/tauri';
+
+/**
+ * Dashboard Component - Technical Minimalist Design
+ * Main interface for Research Hub with quick search, active sessions,
+ * today's summary, and tab navigation footer.
+ *
+ * Uses SolidJS signals for reactive state management.
+ * Styled with Technical Minimalist design system.
+ */
+
+interface ActiveSession {
+  id: string;
+  query: string;
+  turn: number;
+  maxTurns: number;
+  confidence: number;
+  sources: number;
+  cost: number;
+  duration: number; // seconds
+  status: 'running' | 'paused' | 'complete';
+}
+
+interface RecentSession {
+  id: string;
+  query: string;
+  status: 'completed' | 'paused' | 'failed';
+  cost: number;
+  timestamp: string;
+}
+
+interface DaySummary {
+  searches: number;
+  sources: number;
+  cost: number;
+  budget: number;
+}
+
+const Dashboard: Component = () => {
+  // Search form state
+  const [searchQuery, setSearchQuery] = createSignal('');
+  const [searchMode, setSearchMode] = createSignal<'quick' | 'deep'>('quick');
+  const [activeTab, setActiveTab] = createSignal<'dashboard' | 'sessions' | 'library' | 'settings'>('dashboard');
+
+  // Active sessions state
+  const [activeSessions, setActiveSessions] = createSignal<ActiveSession[]>([]);
+
+  // Recent sessions for history
+  const [recentSessions] = createSignal<RecentSession[]>([
+    {
+      id: '20260203-2300',
+      query: 'kubernetes-scaling',
+      status: 'completed',
+      cost: 0.12,
+      timestamp: '2026-02-03 23:00',
+    },
+    {
+      id: '20260203-2215',
+      query: 'react-patterns',
+      status: 'completed',
+      cost: 0.08,
+      timestamp: '2026-02-03 22:15',
+    },
+    {
+      id: '20260203-2100',
+      query: 'auth-best-practices',
+      status: 'paused',
+      cost: 0.04,
+      timestamp: '2026-02-03 21:00',
+    },
+  ]);
+
+  // Day summary state
+  const [daySummary] = createSignal<DaySummary>({
+    searches: 12,
+    sources: 156,
+    cost: 0.48,
+    budget: 5.0,
+  });
+
+  // Helpers for calculations
+  const progressPercent = (session: ActiveSession) =>
+    Math.round((session.turn / session.maxTurns) * 100);
+
+  const budgetPercent = () =>
+    Math.round((daySummary().cost / daySummary().budget) * 100);
+
+  const budgetStatus = () => {
+    const percent = budgetPercent();
+    if (percent > 90) return 'critical';
+    if (percent > 70) return 'warning';
+    return 'healthy';
+  };
+
+  const statusIcon = (status: ActiveSession['status']) => {
+    switch (status) {
+      case 'running':
+        return '●';
+      case 'paused':
+        return '◐';
+      case 'complete':
+        return '○';
+      default:
+        return '○';
+    }
+  };
+
+  const statusColor = (status: ActiveSession['status']) => {
+    switch (status) {
+      case 'running':
+        return 'var(--coral)';
+      case 'paused':
+        return 'var(--gold)';
+      case 'complete':
+        return 'var(--mint)';
+      default:
+        return 'var(--grid)';
+    }
+  };
+
+  const progressBarColor = (status: ActiveSession['status']) => {
+    switch (status) {
+      case 'running':
+        return 'var(--coral)';
+      case 'paused':
+        return 'var(--gold)';
+      case 'complete':
+        return 'var(--mint)';
+      default:
+        return 'var(--grid)';
+    }
+  };
+
+  // Handle pause/resume
+  const handlePauseResume = async (session: ActiveSession) => {
+    try {
+      if (session.status === 'running') {
+        await tauri.searchPause(session.id);
+        setActiveSessions(sessions =>
+          sessions.map(s =>
+            s.id === session.id ? { ...s, status: 'paused' } : s
+          )
+        );
+      } else if (session.status === 'paused') {
+        await tauri.searchResume(session.id);
+        setActiveSessions(sessions =>
+          sessions.map(s =>
+            s.id === session.id ? { ...s, status: 'running' } : s
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Failed to pause/resume:', error);
+    }
+  };
+
+  // Handle search form submission
+  const handleSearch = async (e: Event) => {
+    e.preventDefault();
+    const query = searchQuery();
+    if (!query.trim()) return;
+
+    try {
+      // Start research via Tauri backend
+      const sessionId = await tauri.searchStart(query, searchMode());
+
+      // Create new session UI state
+      const newSession: ActiveSession = {
+        id: sessionId,
+        query,
+        turn: 0,
+        maxTurns: searchMode() === 'deep' ? 5 : 2,
+        confidence: 0,
+        sources: 0,
+        cost: 0,
+        duration: 0,
+        status: 'running',
+      };
+
+      setActiveSessions([newSession, ...activeSessions()]);
+      setSearchQuery('');
+    } catch (error) {
+      console.error('Failed to start search:', error);
+    }
+  };
+
+  // Setup event listeners on mount
+  onMount(async () => {
+    // Listen to progress updates
+    const unlistenProgress = await tauri.listenToProgress((payload) => {
+      setActiveSessions(sessions =>
+        sessions.map(session =>
+          session.id === payload.sessionId
+            ? {
+                ...session,
+                turn: payload.turn,
+                confidence: payload.confidence,
+                sources: payload.sources,
+                cost: payload.cost,
+                duration: payload.duration,
+                status: payload.status as ActiveSession['status'],
+              }
+            : session
+        )
+      );
+    });
+
+    // Listen to source found events
+    const unlistenSource = await tauri.listenToSourceFound((payload) => {
+      setActiveSessions(sessions =>
+        sessions.map(session =>
+          session.id === payload.sessionId
+            ? { ...session, sources: session.sources + 1 }
+            : session
+        )
+      );
+    });
+
+    // Listen to completion events
+    const unlistenComplete = await tauri.listenToComplete((payload) => {
+      setActiveSessions(sessions =>
+        sessions.map(session =>
+          session.id === payload.sessionId
+            ? {
+                ...session,
+                status: 'complete',
+                confidence: payload.session.confidence,
+                sources: payload.session.sources.length,
+                cost: payload.session.cost,
+              }
+            : session
+        )
+      );
+    });
+
+    // Cleanup listeners
+    onCleanup(() => {
+      unlistenProgress();
+      unlistenSource();
+      unlistenComplete();
+    });
+
+    // Load existing sessions
+    try {
+      const sessions = await tauri.sessionList();
+      const mappedSessions: ActiveSession[] = sessions
+        .filter(s => s.status !== 'complete')
+        .map(s => ({
+          id: s.id,
+          query: s.query,
+          turn: s.turns.length,
+          maxTurns: s.mode === 'deep' ? 5 : 2,
+          confidence: s.confidence,
+          sources: s.sources.length,
+          cost: s.cost,
+          duration: s.turns[s.turns.length - 1]?.duration || 0,
+          status: s.status as ActiveSession['status'],
+        }));
+      setActiveSessions(mappedSessions);
+    } catch (error) {
+      console.error('Failed to load sessions:', error);
+    }
+  });
+
+  return (
+    <div style={{
+      'min-height': '100vh',
+      'background-color': 'var(--paper)',
+      'padding-bottom': '120px'
+    }}>
+      {/* Header */}
+      <header style={{
+        'border-bottom': '1px solid rgba(58, 58, 56, 0.2)',
+        'background-color': 'var(--paper)',
+        'position': 'sticky',
+        'top': '0',
+        'z-index': '10'
+      }}>
+        <div style={{
+          'max-width': '1200px',
+          'margin': '0 auto',
+          'padding': '32px 48px',
+          'display': 'flex',
+          'align-items': 'center',
+          'justify-content': 'space-between'
+        }}>
+          <div>
+            <h1 style={{
+              'font-family': 'var(--font-header)',
+              'font-size': 'clamp(32px, 5vw, 48px)',
+              'font-weight': '700',
+              'line-height': '0.9',
+              'letter-spacing': '-0.02em',
+              'color': 'var(--forest)',
+              'margin': '0'
+            }}>
+              RESEARCH HUB
+            </h1>
+            <p class="label" style={{
+              'margin-top': '8px',
+              'color': 'var(--grid)',
+              'opacity': '0.6'
+            }}>
+              AI-POWERED DISCOVERY
+            </p>
+          </div>
+          <div class="label" style={{
+            'color': 'var(--grid)',
+            'opacity': '0.6'
+          }}>
+            V1.0.0
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main class="max-w-6xl mx-auto px-6 py-8 space-y-8">
+        {/* Quick Search Bar */}
+        <section class="space-y-2">
+          <label class="text-sm font-semibold text-slate-300">Start a Search</label>
+          <form onSubmit={handleSearch} class="space-y-3">
+            <div class="flex gap-3">
+              <div class="flex-1 relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-lg">🔎</span>
+                <input
+                  type="text"
+                  value={searchQuery()}
+                  onInput={(e) => setSearchQuery(e.currentTarget.value)}
+                  placeholder="What would you like to research?"
+                  class="w-full bg-slate-700 border border-slate-600 rounded-lg pl-10 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => setSearchMode(m => m === 'quick' ? 'deep' : 'quick')}
+                class={`px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
+                  searchMode() === 'deep'
+                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
+                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                }`}
+                title={searchMode() === 'deep' ? 'Deep: Multi-turn research (5 turns)' : 'Quick: Single search'}
+              >
+                ⚡ {searchMode() === 'deep' ? 'Deep' : 'Quick'}
+              </button>
+              <button
+                type="submit"
+                disabled={!searchQuery().trim()}
+                class="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:cursor-not-allowed rounded-lg font-medium transition-all duration-200 shadow-lg shadow-blue-500/20"
+              >
+                Search
+              </button>
+            </div>
+            <p class="text-xs text-slate-500">
+              {searchMode() === 'deep'
+                ? '💡 Deep search will run multiple recursive turns to build confidence'
+                : '⚡ Quick search runs a single comprehensive search'}
+            </p>
+          </form>
+        </section>
+
+        {/* Active Sessions */}
+        <section class="space-y-4">
+          <h2 class="text-lg font-semibold text-slate-200 flex items-center gap-2">
+            <span class="text-xl">📊</span>
+            Active Sessions
+            <span class="ml-auto text-sm font-normal text-slate-500">{activeSessions().length} running</span>
+          </h2>
+          <div class="space-y-3">
+            <For each={activeSessions()}>
+              {(session) => (
+                <div class="bg-slate-700/40 border border-slate-600 rounded-lg p-5 hover:bg-slate-700/60 transition-colors duration-200 group">
+                  {/* Session header */}
+                  <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-start gap-3 flex-1">
+                      <span class={`text-lg mt-0.5 ${statusColor(session.status)}`}>
+                        {statusIcon(session.status)}
+                      </span>
+                      <div class="flex-1 min-w-0">
+                        <p class="font-medium text-white truncate">"{session.query}"</p>
+                        <p class="text-xs text-slate-400 mt-1">
+                          Turn {Math.ceil(session.turn)}/{session.maxTurns} •
+                          {session.confidence > 0 && ` ${Math.round(session.confidence)}% confident •`}
+                          {(session.duration / 60).toFixed(1)}m elapsed
+                        </p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <button
+                        onClick={() => handlePauseResume(session)}
+                        disabled={session.status === 'complete'}
+                        class={`px-3 py-1 rounded text-xs font-medium transition-all ${
+                          session.status === 'complete'
+                            ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
+                            : session.status === 'paused'
+                            ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                            : 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                        }`}
+                      >
+                        {session.status === 'paused' ? '▶ Resume' : session.status === 'complete' ? '✓ Done' : '⏸ Pause'}
+                      </button>
+                      <div class="text-right text-sm text-slate-400">
+                        <p class="font-medium text-slate-200">{session.sources} sources</p>
+                        <p class="text-xs">${session.cost.toFixed(4)}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div class="space-y-2">
+                    <div class="flex justify-between text-xs text-slate-400 mb-2">
+                      <span>Progress</span>
+                      <span>{progressPercent(session)}%</span>
+                    </div>
+                    <div class="h-2 bg-slate-600 rounded-full overflow-hidden">
+                      <div
+                        class={`h-2 rounded-full transition-all duration-300 ${progressBarColor(session.status)}`}
+                        style={{ width: `${progressPercent(session)}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </For>
+            <Show when={activeSessions().length === 0}>
+              <div class="bg-slate-700/20 border border-dashed border-slate-600 rounded-lg p-12 text-center">
+                <p class="text-lg text-slate-400 mb-2">No active sessions</p>
+                <p class="text-sm text-slate-500">Start a search above to begin your research journey</p>
+              </div>
+            </Show>
+          </div>
+        </section>
+
+        {/* Today's Summary */}
+        <section class="space-y-4">
+          <h2 class="text-lg font-semibold text-slate-200 flex items-center gap-2">
+            <span class="text-xl">📈</span>
+            Today's Summary
+          </h2>
+          <div class="bg-slate-700/40 border border-slate-600 rounded-lg p-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              {/* Searches */}
+              <div class="bg-slate-600/30 rounded-lg p-4 border border-slate-600/50">
+                <p class="text-xs text-slate-400 mb-1">Searches</p>
+                <p class="text-2xl font-bold text-white">{daySummary().searches}</p>
+              </div>
+              {/* Sources */}
+              <div class="bg-slate-600/30 rounded-lg p-4 border border-slate-600/50">
+                <p class="text-xs text-slate-400 mb-1">Sources Found</p>
+                <p class="text-2xl font-bold text-white">{daySummary().sources}</p>
+              </div>
+              {/* Cost */}
+              <div class="bg-slate-600/30 rounded-lg p-4 border border-slate-600/50">
+                <p class="text-xs text-slate-400 mb-1">Today's Cost</p>
+                <p class="text-2xl font-bold text-green-400">${daySummary().cost.toFixed(2)}</p>
+              </div>
+              {/* Budget */}
+              <div class="bg-slate-600/30 rounded-lg p-4 border border-slate-600/50">
+                <p class="text-xs text-slate-400 mb-1">Budget Remaining</p>
+                <p class={`text-2xl font-bold ${
+                  budgetStatus() === 'critical' ? 'text-red-400' :
+                  budgetStatus() === 'warning' ? 'text-yellow-400' :
+                  'text-emerald-400'
+                }`}>
+                  ${(daySummary().budget - daySummary().cost).toFixed(2)}
+                </p>
+              </div>
+            </div>
+
+            {/* Budget Progress Bar */}
+            <div class="space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-slate-300">Budget Usage</span>
+                <span class={`text-sm font-semibold ${
+                  budgetStatus() === 'critical' ? 'text-red-400' :
+                  budgetStatus() === 'warning' ? 'text-yellow-400' :
+                  'text-slate-400'
+                }`}>
+                  {budgetPercent()}%
+                </span>
+              </div>
+              <div class="h-3 bg-slate-600 rounded-full overflow-hidden">
+                <div
+                  class={`h-3 rounded-full transition-all duration-300 ${
+                    budgetStatus() === 'critical' ? 'bg-red-500' :
+                    budgetStatus() === 'warning' ? 'bg-yellow-500' :
+                    'bg-emerald-500'
+                  }`}
+                  style={{ width: `${Math.min(budgetPercent(), 100)}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Recent Sessions */}
+        <section class="space-y-4 pb-8">
+          <h2 class="text-lg font-semibold text-slate-200 flex items-center gap-2">
+            <span class="text-xl">📚</span>
+            Recent Sessions
+          </h2>
+          <div class="space-y-2">
+            <For each={recentSessions()}>
+              {(session, idx) => (
+                <div class="bg-slate-700/40 border border-slate-600 rounded-lg p-4 hover:bg-slate-700/60 transition-colors duration-200">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3 flex-1">
+                      <span class="text-xl">
+                        {session.status === 'completed' && '✓'}
+                        {session.status === 'paused' && '⏸️'}
+                        {session.status === 'failed' && '✕'}
+                      </span>
+                      <div class="flex-1 min-w-0">
+                        <p class="font-medium text-white truncate">{session.query}</p>
+                        <p class="text-xs text-slate-400">{session.timestamp}</p>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-sm font-medium text-slate-200">${session.cost.toFixed(2)}</p>
+                      <p class="text-xs text-slate-500 capitalize">{session.status}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </For>
+          </div>
+        </section>
+      </main>
+
+      {/* Navigation Footer */}
+      <nav class="fixed bottom-0 left-0 right-0 bg-slate-800 border-t border-slate-700 backdrop-blur-sm">
+        <div class="max-w-6xl mx-auto px-6 py-3 flex justify-center gap-12">
+          <button
+            onClick={() => setActiveTab('dashboard')}
+            class={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all duration-200 ${
+              activeTab() === 'dashboard'
+                ? 'text-blue-400 bg-blue-500/10'
+                : 'text-slate-400 hover:text-slate-300'
+            }`}
+          >
+            <span class="text-xl">📊</span>
+            <span class="text-xs font-medium">Dashboard</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('sessions')}
+            class={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all duration-200 ${
+              activeTab() === 'sessions'
+                ? 'text-blue-400 bg-blue-500/10'
+                : 'text-slate-400 hover:text-slate-300'
+            }`}
+          >
+            <span class="text-xl">📚</span>
+            <span class="text-xs font-medium">Sessions</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('library')}
+            class={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all duration-200 ${
+              activeTab() === 'library'
+                ? 'text-blue-400 bg-blue-500/10'
+                : 'text-slate-400 hover:text-slate-300'
+            }`}
+          >
+            <span class="text-xl">📖</span>
+            <span class="text-xs font-medium">Library</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('settings')}
+            class={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all duration-200 ${
+              activeTab() === 'settings'
+                ? 'text-blue-400 bg-blue-500/10'
+                : 'text-slate-400 hover:text-slate-300'
+            }`}
+          >
+            <span class="text-xl">⚙️</span>
+            <span class="text-xs font-medium">Settings</span>
+          </button>
+        </div>
+      </nav>
+    </div>
+  );
+};
+
+export default Dashboard;
