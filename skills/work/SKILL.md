@@ -1,336 +1,155 @@
 ---
 name: work
-description: Use when starting any tracked work session, resuming from a handoff, planning, designing, building, researching, or closing a session
+description: Use when routing tracked work through lifecycle lanes, resolving workstream context, or deciding which lifecycle skill owns the next entity transition.
+skill_type: router
+category: lifecycle
+output_template: hud
+sub_skills:
+  - ws
+  - capture
+  - prior-art
+  - propose
+  - exec
+  - close
+  - handoff
 ---
 
-# Work: Session Lifecycle Router (v6)
+# /work - Lifecycle Router
 
-**Core principle:** Every session has a handoff, every action updates it, every decision is tracked. No freestyle.
+`/work` is the thin lifecycle spine. It does not re-implement capture,
+proposal, execution, close, or handoff protocols. It resolves workstream
+context, identifies the entity movement, and routes to the owning skill.
 
-**Violating the letter of this process is violating the spirit of tracked work.**
+## Work Link
 
-## The Iron Law
+Lifecycle lane: Router
+Entity movement: `unknown -> routed`
+Workstream: resolve active workstream before writes or dispatch
+Upstream: any lifecycle skill or user request
+Downstream: `/ws`, `/capture`, `/prior-art`, `/propose`, `/exec`, `/close`, `/handoff`
+Router: `/work`
+HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count} ✅{done_count} | 🚦{gate}={score} | ⏭️ {next} | 🔁{loop_state}`
 
-```
-NO WORK WITHOUT A HANDOFF. NO DECISION WITHOUT EVIDENCE. NO CLOSE WITHOUT A PUSH.
-```
+## Inline HUD Contract
 
-If you haven't created or loaded a handoff, you cannot proceed to any other step.
+End lifecycle-skill responses with this inline HUD line:
 
-<HARD-GATE>
-YOU MUST follow Steps 1-6 in order. You MUST update the handoff when events happen.
-Skipping steps or "just doing it" is a failure mode, not efficiency.
-</HARD-GATE>
+`🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count} ✅{done_count} | 🚦{gate}={score} | ⏭️ {next} | 🔁{loop_state}`
 
-## The Gate Function
+The shared graph-footer partial is an authoring reference only until the Lev
+skill-builder pipeline can project FlowMind fragments into skill bodies. Do not
+make skills load or include that file at runtime.
 
-```
-BEFORE starting any work:
+## Lifecycle Lanes
 
-1. HANDOFF: Load existing or create new (.lev/pm/handoffs/)
-2. TRACK: Add ≥1 entity with a real file path to the matrix
-3. ALIGN: Objective stated, scope bounded, user confirmed
-4. SEARCH: Prior art checked (grep .lev/pm/, bd search, docs/)
-5. ROUTE: Match work type to the right sub-skill
-6. ONLY THEN: Execute
+| Lane | Entity movement | Owns |
+|---|---|---|
+| Shape | `memory -> captured | blocked` | `/capture`, `/prior-art`, `/interview` |
+| Plan | `captured | aligned -> proposed | execution_ready` | `/propose`, `/capture` |
+| Exec | `execution_ready -> executing -> verified | blocked | needs_propose` | `/exec` |
+| Close | `verified -> closed | monitoring | follow_up` | `/close`, `/handoff` |
+| Router | `unknown -> routed` | `/work`, `/ws` |
 
-Skip any step = untracked work = lost context = wasted session
-```
+## Entity Rules
 
----
+- Resolve the active workstream before writing or dispatching.
+- Every lifecycle skill has exactly one `## Work Link` section.
+- Every non-trivial item is an entity with a path, URI, or task/workstream id.
+- Move entities forward one lifecycle state at a time; do not skip from memory
+  directly to execution unless a captured/proposed artifact already exists.
+- Workstreams are durable identity. Markdown handoffs are projections, not the
+  canonical state.
+- If a command mutates files, records, tasks, or workstream state, route through
+  the lane owner instead of freelancing.
 
-## Step 1: Handoff (MANDATORY — before everything else)
+## Router
 
-```bash
-# New session
-cp ~/.agents/skills/work/templates/handoff.md .lev/pm/handoffs/{YYYYMMDD}-{workstream}-session-{N}.md
+```yaml
+steps:
+  - id: resolve_workstream
+    action: Identify the active workstream or route to /ws.
+    validation: "A workstream id is known, or /ws is the next skill."
+    on_failure: "Do not write. Route to /ws find|resume or create a workstream."
 
-# Resuming
-cat .lev/pm/handoffs/{existing-handoff}.md
-```
+  - id: classify_entity
+    action: Name the entity, current state, target state, and missing gate.
+    validation: "Entity has path/id/uri plus current_state and target_state."
+    on_failure: "Route to /capture if it is only in conversation memory."
 
-Fill immediately:
-- **You Are Here** — one sentence, current state
-- **Next Agent Brief** — goal, done condition, scope, out of scope
-- **Entity Matrix** — real files at real paths (Step 2)
-- **Timeline** — log every action
+  - id: route_lane
+    action: Select the lifecycle lane owner.
+    validation: "Exactly one next skill is chosen from the lane table."
+    on_failure: "Ask one routing question or route to /prior-art for evidence."
 
-Shard at ~500 lines, >15 ticks, >5 modified entities, or >3 pivots.
+  - id: enforce_work_link
+    action: Ensure the next skill declares lane, movement, upstream, downstream, and HUD.
+    validation: "The selected skill has a Work Link or this session is updating it."
+    on_failure: "Use skill-builder semantics to patch the skill before relying on it."
 
-**Update the handoff when ANY of these happen:**
-- Decision made or changed
-- File written, edited, or created
-- User gives feedback or correction
-- BD issue created or closed
-- Research produces a finding
-- About to context-switch or close
-
-Reading files, grepping, scanning → NOT update triggers.
-
----
-
-## Step 2: Track Entities
-
-An entity is a **file or directory at a path**. Not a concept. Not a label.
-
-```markdown
-| # | File | Path | State | Canonical Ref | Decision | Next |
-|---|------|------|-------|---------------|----------|------|
-| 1 | SKILL.md | ~/.agents/skills/work/SKILL.md | modified | — | D1 | update |
-```
-
-States: `loaded` | `captured` | `modified` | `created` | `planned` | `completed`
-
-```
-✅ | 1 | hygiene.flow.yaml | plugins/core-sdlc/flows/hygiene.flow.yaml | captured | — | wire steps |
-❌ | 1 | stack↔flowmind parity | classified |  ← concept, no path = WRONG
+  - id: emit_hud
+    action: Report current workstream, gate, next entity, and loop state.
+    validation: "Response ends with the inline HUD line."
+    on_failure: "Add the HUD before ending."
 ```
 
----
+## Route Table
 
-## Step 3: Align
+| Situation | Route |
+|---|---|
+| User dumps ideas or a thread has unfiled content | `/capture` or `/dump` as `capture --deep` |
+| Need evidence, provenance, lineage, or duplicate detection | `/prior-art` |
+| Idea/design is aligned but not execution-ready | `/propose` |
+| Task has `dna.yaml` and `execution.yaml` with a verifier | `/exec` |
+| Work is verified and needs sealing, learning, commit, or next recommendation | `/close` |
+| Session is ending, compacting, or needs a resume prompt | `/handoff` |
+| Workstream identity is missing, stale, split, or tangled | `/ws` |
 
-Gate. MUST pass before executing.
+## Work Link Template
 
-```
-BEFORE proceeding past this step:
+Each lifecycle skill carries one block in this shape:
 
-1. CHECK: Objective stated in handoff?
-2. CHECK: Scope bounded (Out of Scope filled)?
-3. CHECK: Entity matrix has ≥1 row with a real file path?
-4. CHECK: User signaled alignment?
-5. IF .lev/validation-gates.yaml exists: Load, filter, check enforced gates
-6. ONLY THEN: Proceed to Step 4
+```md
+## <Work Link>
 
-Any check fails = STOP. Fix it. Do not proceed.
-```
-
-**If crystallization signal fires:** STOP. Update entity matrix. Show user the matrix + what you were about to do. Wait for confirmation.
-
----
-
-## Step 4: Prior Art (NEVER skip)
-
-Search before creating. YOU MUST run these searches:
-
-```bash
-ls .lev/pm/plans/ .lev/pm/designs/ .lev/pm/specs/ .lev/pm/decisions/
-grep -rl "{topic}" .lev/pm/ docs/specs/ docs/design/
-grep -l "{topic}" docs/ARCHITECTURE.md
-bd search "{topic}"
+Lifecycle lane: {Shape|Plan|Exec|Close|Router}
+Entity movement: `{from_state} -> {to_state}`
+Workstream: resolve active workstream before writes or dispatch
+Upstream: `{skill_or_none}`
+Downstream: `{skill_or_none}`
+Router: `/work`
+HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count} ✅{done_count} | 🚦{gate}={score} | ⏭️ {next} | 🔁{loop_state}`
 ```
 
-Report findings:
+## Templates
 
-```markdown
-| Found | Path | Relation | Action |
-|-------|------|----------|--------|
-| {name} | {path} | extends / supersedes | update / create new |
-```
+Templates are authoring references. Copy or render them through the owning lane;
+do not make another skill depend on reading them at runtime.
 
-**No prior art found?** State explicitly: "No existing artifacts found for {topic}." Then proceed.
+| Template | Destination | Owner |
+|---|---|---|
+| `templates/report.md` | `.lev/pm/reports/` | `/prior-art`, `/capture` |
+| `templates/plan.md` | `.lev/pm/plans/` | `/propose` |
+| `templates/design.md` | `.lev/pm/designs/` | `/interview`, `/propose` |
+| `templates/proposal.md` | `.lev/pm/proposals/` | `/propose` |
+| `templates/spec.md` | `.lev/pm/specs/` | `/propose` |
+| `templates/decision.md` | `.lev/pm/decisions/` | `/close` |
+| `templates/validation-report.md` | `.lev/pm/validation-reports/` | `/exec`, `/close` |
 
----
+## Red Flags
 
-## Step 5: Route + Execute
+- "I'll just do this without a workstream."
+- "This is small enough to skip entity tracking."
+- "The next skill will figure out the lifecycle state."
+- "I can execute even though this only exists in chat."
+- "I'll add the HUD/footer later."
+- "The shared partial says it, so this skill does not need to."
 
-**4-Lane Operator Model** (from tribunal #20, unanimous):
-
-| Lane | Steps | Verbs | Gate to Next |
-|------|-------|-------|-------------|
-| **Shape** | 1-3 (Handoff, Track, Align) | /research, /prior-art, /interview | ambiguity ≤ 0.2 |
-| **Plan** | 4 (Search + /propose + /capture) | /propose, /capture | frame_complete |
-| **Exec** | 5 (Route + Execute) | /exec, /manifest | convergence ≥ 0.95 |
-| **Close** | 6 (Close) | /qa, /accept, /handoff | drift < 0.3 |
-
-Match work type to the right approach. This is a router, not a freestyle zone.
-
-```
-WHAT IS THE WORK?                          LIFECYCLE NODE
-                                           (lifecycle.flow.yaml)
-→ "I need to figure out WHAT to build"
-    ENTRY: research → prior_art → ambiguity_check
-    SKILL: /lev-research, /prior-art, /interview
-
-→ "I know what to build, need to DESIGN it"
-    ENTRY: propose → frame_check → capture → decision_point
-    SKILL: /capture (inline propose prompt writes dna.yaml + execution.yaml)
-
-→ "I need to RESEARCH something"
-    ENTRY: research (direct --entry=research)
-    SKILL: /lev-research → report artifact in .lev/pm/reports/
-
-→ "I need to encode or update DNA first"
-    ENTRY: capture (direct --entry=capture)
-    SKILL: /capture → DNA artifact + cascade-ready execution path
-
-→ "I have a spec, need to BUILD it"
-    ENTRY: exec → convergence_check
-    SKILL: /exec (resolves topology from execution.yaml)
-
-→ "Something is BROKEN"
-    ENTRY: exec (debug topology)
-    SKILL: /cdo debug (multi-agent) OR /systematic-debugging (single)
-
-→ "I need to DECIDE something"
-    ENTRY: interview → ambiguity_check
-    SKILL: /interview --framework=FirstPrinciples OR /cdo think
-
-→ "I need to write a PROPOSAL or DESIGN doc"
-    ENTRY: propose → frame_check
-    Templates: design.md, proposal.md → .lev/pm/{designs,proposals}/
-```
-
-## Lifecycle FlowMind Router
-
-`/work` is the **entry skill** for `lifecycle.flow.yaml` (18 nodes, 4 lanes, math-backed gates).
-Every verb collapses to a lifecycle entry point. The router node inspects task state and branches.
-
-### Verb Collapse Table
-
-| Invocation | Entry Node | What Happens |
-|------------|------------|-------------|
-| `/work` (bare) | `router` | Scan task state, pick lane, run |
-| `/work --entry=shape` | `research` | Shape lane: research → prior_art → ambiguity_check |
-| `/capture` | `capture` | Plan lane: capture → decision_point |
-| `/exec` | `exec` | Exec lane: exec → convergence_check |
-| `/ok` | `ok` | Close lane: ok → drift_check → handoff → done |
-| `/handoff` | `handoff` | Terminal: emit session continuity artifact |
-
-### Manifest Lookup
-
-`lifecycle-manifest.yaml` (`core/flowmind/system/lifecycle-manifest.yaml`) is the verb-to-skill-to-flow
-source of truth. For any verb, it resolves: `skill` + `skill_dir` + `flow` + `entry_node` + `gate` + `gate_formula`.
-
-### HUD Line
-
-Every `/work` invocation emits a HUD status line:
-
-```
-[lifecycle] node={current} lane={shape|plan|exec|close} gate={name} score={value} → next={node|done}
-```
-
-### Aliases
-
-- **`/ll` IS `/work` at loop pace.** Same router, same gates, tick-scheduled via `tick-loop.flow.yaml`.
-- **`/siterep` IS `/work` status.** Reads lifecycle state without advancing. Dashboard, not action.
-
-### Templates
-
-All at `~/.agents/skills/work/templates/`. Copy to destination, follow instructions inside.
-
-| Template | Destination | When |
-|----------|-------------|------|
-| `handoff.md` | `.lev/pm/handoffs/` | Every session (Step 1) |
-| `report.md` | `.lev/pm/reports/` | Research, audit, scan |
-| `plan.md` | `.lev/pm/plans/` | Implementation slice |
-| `design.md` | `.lev/pm/designs/` | Shaping solution |
-| `proposal.md` | `.lev/pm/proposals/` | Non-trivial proposal |
-| `spec.md` | `.lev/pm/specs/` | Behavioral contract |
-| `decision.md` | `.lev/pm/decisions/` | Promote arch decision |
-| `validation-report.md` | `.lev/pm/validation-reports/` | Validate work |
-
-### Prompt Stacks (deeper process)
-
-```bash
-npx lev stack init --stack plan-to-beads      # Decompose plan → bd issues
-npx lev stack init --stack sdlc-deepen-plan   # Deepen vague plan
-npx lev stack init --stack sdlc-exec-validate # Validate impl against spec
-```
-
-### Subagents
-
-Spawn for multi-file work. Each MUST return:
-```json
-{"edited_files": ["<paths>"], "summary": "<1-2 sentences>", "report_path": "<if >5000 tokens>"}
-```
-
----
-
-## Step 6: Close
-
-```
-BEFORE claiming this session is complete:
-
-1. VERIFY: Goal met? Done condition satisfied? No gaps?
-2. UPDATE: Final handoff — matrix, decisions, ticks, open questions
-3. PROMOTE: Architectural decisions → .lev/pm/decisions/d{N}-{slug}.md
-4. VALIDATE: If code changed → run tests/build, write validation report
-5. COMMIT: git add {files} && git commit -m "{message}"
-6. PUSH: git pull --rebase && git push
-7. SYNC: If bd dolt remote configured → bd dolt pull && bd dolt push
-8. CONFIRM: git status shows "up to date with origin"
-
-Skip any step = incomplete session = stranded work
-```
-
-If closing reveals unresolved or unprocessed handoffs:
-
-1. Keep `work` as the entry surface and update the active handoff first.
-2. If the operator already knows the exact handoff path, route to:
-   `bun plugins/prompt-stack/src/cli.ts init --stack sdlc-handoff-close --project-dir /absolute/project/path`
-3. If the operator needs to scan and choose from multiple handoffs, route to:
-   `bun plugins/prompt-stack/src/cli.ts init --stack sdlc-handoff-rollup --project-dir /absolute/project/path`
-4. Record each step output into `.lev/pm/reports/`.
-5. Return to the active handoff after `record`/`validate` and update continuity there.
-
-`work` owns the closeout decision. `stack` owns the execution-plane rollup loop.
-
-```
-✅ [Run git push] [See: "up to date with origin"] "Session complete"
-❌ "Ready to push when you are" / "Work is done" (without pushing)
-```
-
----
-
-## Red Flags — STOP
-
-If you catch yourself thinking:
-- "I'll just do this one quick thing without a handoff"
-- "Prior art search is overkill for this"
-- "I don't need to track entities for something this small"
-- "I'll update the handoff later"
-- "The user knows what I'm doing, I don't need to write it down"
-- "This is a simple task, I can skip alignment"
-- "I'll push at the end" (then forgetting)
-- "Ready to push when you are" (YOU must push, not the user)
-
-**ALL of these mean: STOP. You're about to lose context.**
-
-## Rationalization Prevention
+## Rationalization Table
 
 | Excuse | Reality |
-|--------|---------|
-| "Too simple for a handoff" | Simple tasks lose context too. Handoff takes 30 seconds. |
-| "Prior art search is slow" | Finding existing work is faster than duplicating it. |
-| "I'll track entities mentally" | You'll forget. Write it down. |
-| "User didn't ask for alignment" | Alignment prevents wasted work. Do it anyway. |
-| "I know which skill to use" | Route explicitly. "I know" = assumption. |
-| "I'll push later" | Later = never. Push NOW. |
-| "Work is done" (no push) | Work is NOT done until `git push` succeeds. |
-| "Just one more thing before closing" | Close first. Open new session for new work. |
-
-## Tracker
-
-Detect: `bd > br > td > none`.
-
-| Op | bd | br | td |
-|----|-----|-----|-----|
-| create | `bd create --title "..." --type task` | `br create ...` | `td add "..."` |
-| list | `bd list --status open` | `br list ...` | `td` |
-| update | `bd update {id} --status {s}` | `br update ...` | `td {id} edit` |
-| close | `bd close {id}` | `br close ...` | `td {id} complete` |
-| search | `bd search "{q}"` | `br search ...` | grep fallback |
-
-## Errors
-
-| Error | Do |
-|-------|----|
-| No handoff | Create one FIRST (Step 1). Do not proceed. |
-| No tracker | Continue, note in handoff |
-| Gate failed | Block, add tick to handoff |
-| 3x gate fail | Escalate to user |
-| Crystallization signal | STOP → update matrix → show user → wait |
-| Event happened, no handoff update | STOP → update handoff → then continue |
-| Sub-skill not found | Degrade: use the template directly instead of routing |
-| Push failed | Resolve and retry. Do NOT close session without pushing. |
+|---|---|
+| "Work owns everything." | Work routes; lane skills own detailed protocols. |
+| "A handoff markdown is enough." | Workstream YAML is durable identity; markdown is projection. |
+| "The user asked to execute." | Execution still needs an execution-ready entity and verifier. |
+| "Footer file will be loaded." | HUD is inline until FlowMind skill projection exists. |
+| "I know the workstream." | Name it in the HUD or route to /ws. |
