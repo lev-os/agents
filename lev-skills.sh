@@ -33,6 +33,7 @@ CACHE_BG_REFRESH_AFTER = int(os.environ.get("LEV_SKILLS_BG_REFRESH_AFTER", "60")
 INVENTORY_CACHE_FILE = CACHE_DIR / "inventory-cache.json"
 SKILLS_STATE_FILE = ROOT / "skills-state.json"
 SKILLS_INVENTORY_FILE = ROOT / "skills-inventory.jsonl"
+SKILL_GRAPH_FILE = ROOT / "skill-graph.json"
 CASS_DB_PATH = Path.home() / "Library" / "Application Support" / "com.coding-agent-search.coding-agent-search" / "agent_search.db"
 
 COMMAND_HOOKED = {
@@ -139,21 +140,24 @@ def usage() -> int:
     print(
         "\n".join(
             [
-                "lev-skills.sh - skills runtime helper",
+                "lev-skills - skills runtime helper",
                 "",
                 "USAGE",
-                '  lev-skills.sh discover|find "query" [--json] [--category=...] [--limit=N] [--all] [--primary-only] [--no-cache]',
-                '  lev-skills.sh pick "query" [--json] [--category=...] [--rotation=eligible,experimental] [--no-cache]',
-                "  lev-skills.sh inventory [--json] [--include-hidden] [--rebuild]",
-                "  lev-skills.sh list",
-                "  lev-skills.sh validate",
-                "  lev-skills.sh refresh [--repo-local]",
-                "  lev-skills.sh help",
+                '  lev-skills "query" [--json] [--category=...] [--limit=N] [--no-cache]',
+                '  lev-skills discover|find "query" [--json] [--category=...] [--limit=N] [--no-cache]',
+                '  lev-skills pick "query" [--json] [--category=...] [--rotation=eligible,experimental] [--no-cache]',
+                "  lev-skills inventory [--json] [--include-hidden] [--rebuild]",
+                "  lev-skills list",
+                "  lev-skills validate",
+                "  lev-skills refresh [--repo-local]",
+                "  lev-skills help",
                 "",
                 "NOTES",
                 "  discover uses the local filesystem inventory as the canonical source of truth",
+                f"  graph metadata is read from {SKILL_GRAPH_FILE} when present",
                 f"  inventory writes a grep-able manifest to {SKILLS_INVENTORY_FILE}",
                 "  hidden catalog buckets (.archive, _todo, _workshop) are excluded from normal ranking",
+                "  qmd is only touched by explicit refresh; discover does not query qmd",
                 "",
                 "OPTIONS",
                 "  --category=NAME   Scope discovery to a specific domain/category",
@@ -353,6 +357,69 @@ def catalog_rows(include_hidden: bool = True) -> list[dict]:
             }
         )
     return rows
+
+
+def load_skill_graph() -> dict[str, dict]:
+    if not SKILL_GRAPH_FILE.exists():
+        return {}
+    try:
+        data = json.loads(SKILL_GRAPH_FILE.read_text())
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+    raw_nodes = data.get("nodes", {})
+    raw_edges = data.get("edges", [])
+    if not isinstance(raw_nodes, dict):
+        return {}
+
+    degree: Counter[str] = Counter()
+    neighbors: defaultdict[str, list[str]] = defaultdict(list)
+    if isinstance(raw_edges, list):
+        for edge in raw_edges:
+            if not isinstance(edge, dict):
+                continue
+            source = str(edge.get("source") or "").strip()
+            target = str(edge.get("target") or "").strip()
+            if not source or not target:
+                continue
+            degree[source] += 1
+            degree[target] += 1
+            neighbors[source].append(target)
+            neighbors[target].append(source)
+
+    graph: dict[str, dict] = {}
+    for node_id, node in raw_nodes.items():
+        if not isinstance(node, dict) or node.get("kind") != "skill":
+            continue
+        node_name = str(node.get("name") or node_id)
+        enriched = {
+            **node,
+            "_degree": degree.get(str(node_id), 0),
+            "_neighbors": sorted(set(neighbors.get(str(node_id), []))),
+        }
+        aliases = {
+            normalize_name(str(node_id)),
+            normalize_name(node_name),
+            normalize_name(str(node.get("id") or "")),
+        }
+        for alias in aliases:
+            if alias:
+                graph[alias] = enriched
+    return graph
+
+
+def graph_entry_for(row: dict, graph_nodes: dict[str, dict]) -> dict | None:
+    keys = [
+        row.get("slug", ""),
+        row.get("name", ""),
+        row.get("folder", ""),
+        row.get("rel_dir", "").split("/")[-1],
+    ]
+    for key in keys:
+        normalized = normalize_name(str(key))
+        if normalized in graph_nodes:
+            return graph_nodes[normalized]
+    return None
 
 
 def build_skill_row(base_label: str, skill_md: Path, rel_parts: tuple[str, ...]) -> dict:
@@ -625,9 +692,18 @@ def build_inventory(force_rebuild: bool = False) -> list[dict]:
 
     usage_counts = extract_usage_counts(rows)
     overrides = state_db.get("skills", {}) if isinstance(state_db, dict) else {}
+    graph_nodes = load_skill_graph()
 
     enriched: list[dict] = []
     for row in rows:
+        graph_entry = graph_entry_for(row, graph_nodes)
+        graph_id = str(graph_entry.get("id") or "") if graph_entry else ""
+        graph_lane = str(graph_entry.get("lane") or "") if graph_entry else ""
+        graph_lifecycle = str(graph_entry.get("lifecycle") or "") if graph_entry else ""
+        graph_source = str(graph_entry.get("source_project") or "") if graph_entry else ""
+        graph_tags = coerce_list(graph_entry.get("tags")) if graph_entry else []
+        graph_neighbors = coerce_list(graph_entry.get("_neighbors")) if graph_entry else []
+        graph_degree = int(graph_entry.get("_degree") or 0) if graph_entry else 0
         lifecycle, rotation_role = default_lifecycle_for(row)
         override = overrides.get(row["path_key"], {}) if isinstance(overrides, dict) else {}
         lifecycle = override.get("lifecycle", lifecycle)
@@ -635,6 +711,9 @@ def build_inventory(force_rebuild: bool = False) -> list[dict]:
         merged_tags = set(row.get("tags", [])) | set(row.get("triggers", [])) | set(row.get("aliases", []))
         merged_tags |= set(token for token in row["path_tokens"] if token)
         merged_tags |= set(token for token in row["category_tokens"] if token)
+        merged_tags |= set(graph_tags)
+        merged_tags |= set(tokenize(graph_lane))
+        merged_tags |= set(tokenize(graph_source))
         merged_tags |= set(override.get("intent_tags", [])) if isinstance(override, dict) else set()
         usage_count = int(override.get("usage_count", usage_counts.get(row["path_key"], 0))) if isinstance(override, dict) else int(usage_counts.get(row["path_key"], 0))
         search_blob = " ".join(
@@ -643,10 +722,15 @@ def build_inventory(force_rebuild: bool = False) -> list[dict]:
                 row["folder"],
                 row["description"],
                 row["category"],
+                graph_lane,
+                graph_source,
+                " ".join(graph_tags),
+                " ".join(graph_neighbors),
                 " ".join(sorted(merged_tags)),
                 row["rel_dir"],
             ]
         )
+        graph_tokens = sorted(set(tokenize(" ".join([graph_id, graph_lane, graph_source, *graph_tags, *graph_neighbors]))))
         enriched.append(
             {
                 **row,
@@ -656,6 +740,15 @@ def build_inventory(force_rebuild: bool = False) -> list[dict]:
                 "usage_tier": usage_tier(usage_count),
                 "intent_tags": sorted(tag for tag in merged_tags if tag),
                 "search_blob": normalize_name(search_blob).replace("-", " "),
+                "skill_uri": f"skill://{graph_id or row['slug']}",
+                "graph_id": graph_id,
+                "lane": graph_lane,
+                "graph_lifecycle": graph_lifecycle,
+                "graph_source_project": graph_source,
+                "graph_tags": graph_tags,
+                "graph_degree": graph_degree,
+                "graph_neighbors": graph_neighbors[:12],
+                "graph_tokens": graph_tokens,
                 "rotation_weight": float(override.get("rotation_weight", 1.0)) if isinstance(override, dict) else 1.0,
                 "notes": override.get("notes", "") if isinstance(override, dict) else "",
                 "anomaly": "nested-under-skill" if row["surface"] == "catalog-nested" and row["parent_skill"] else "",
@@ -698,6 +791,7 @@ def score_row(row: dict, query: str, query_terms: list[str]) -> tuple[float, lis
     desc_tokens = set(row["description_tokens"])
     category_tokens = set(row["category_tokens"])
     path_tokens = set(row["path_tokens"])
+    graph_tokens = set(row.get("graph_tokens", []))
     matched_terms: list[str] = []
     score = 0.0
 
@@ -722,6 +816,10 @@ def score_row(row: dict, query: str, query_terms: list[str]) -> tuple[float, lis
             score += 2
             matched_terms.append(term)
             continue
+        if term in graph_tokens:
+            score += 2.5
+            matched_terms.append(term)
+            continue
 
     if not matched_terms:
         return 0.0, []
@@ -740,6 +838,8 @@ def score_row(row: dict, query: str, query_terms: list[str]) -> tuple[float, lis
         score += 1.5
     if row["lifecycle"] == "core":
         score += 1.0
+    if row.get("graph_id"):
+        score += min(1.5, math.log2(row.get("graph_degree", 0) + 1) * 0.35)
     if row["surface"] == "catalog-nested":
         score -= 1.5
 
@@ -776,6 +876,10 @@ def discover_matches(
                 "rotation_role": row["rotation_role"],
                 "usage_count": row["usage_count"],
                 "usage_tier": row["usage_tier"],
+                "skill_uri": row["skill_uri"],
+                "lane": row["lane"],
+                "graph_id": row["graph_id"],
+                "graph_degree": row["graph_degree"],
                 "intent_tags": row["intent_tags"],
                 "matched_terms": matched_terms,
                 "local_path": row["path"],
@@ -805,7 +909,6 @@ def print_discover_text(payload: dict) -> int:
     matches = payload.get("matches", [])
     if not matches:
         print("No strong local skill matches found.")
-        print("Fallback: try `find-skills` only if you need external skills.")
         return 0
     for item in matches[:8]:
         print(
@@ -1200,8 +1303,11 @@ def main() -> int:
     if command == "refresh":
         return cmd_refresh(args)
 
-    print(f"unknown command: {command}", file=sys.stderr)
-    return 1
+    if command.startswith("-"):
+        print(f"unknown option: {command}", file=sys.stderr)
+        return 1
+
+    return cmd_discover(sys.argv[1:])
 
 
 if __name__ == "__main__":

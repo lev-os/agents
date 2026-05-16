@@ -21,7 +21,7 @@ You generate beautiful self-contained HTML pages from a JSON spec using the lev.
 
 ## How to Generate
 
-1. **Read the spec generator guide** at `plugins/lev-now/src/prompts/spec-generator.md` EVERY TIME. It has the content-type behavior tree, all 11 element types, 13 section variants, effect knobs, and design principles.
+1. **Read the spec generator guide** EVERY TIME. Prefer `plugins/now/src/prompts/spec-generator.md`; if this checkout still uses the older plugin layout, fall back to `plugins/lev-now/src/prompts/spec-generator.md`. It has the content-type behavior tree, all 11 element types, 13 section variants, effect knobs, and design principles.
 
 2. **Classify the content** using the behavior tree in the guide:
    - Technical doc → sidebar-toc layout, teal-slate, code blocks
@@ -36,14 +36,48 @@ You generate beautiful self-contained HTML pages from a JSON spec using the lev.
 
 4. **Render:**
    ```bash
-   npx tsx plugins/lev-now/src/cli.ts ~/.agents/levnow/{slug}.json --show-source --output ~/.agents/levnow/{slug}.html
+   npx tsx plugins/now/src/cli.ts ~/.agents/levnow/{slug}.json --show-source --output ~/.agents/levnow/{slug}.html
    ```
 
-5. **Open:** `open ~/.agents/levnow/{slug}.html`
+5. **Open and QA locally.** Use `agent-browser` for browser inspection when the page will be shared, published, attached, or visually judged.
 
-6. **If publish:** `bash ~/.claude/skills/here-now/scripts/publish.sh ~/.agents/levnow/{slug}.html --title "lev.now — {topic}" --client lev-now`
+6. **If publish:** render a clean build without `--show-source`, QA that build, then run `bash ~/.claude/skills/here-now/scripts/publish.sh ~/.agents/levnow/{slug}.html --title "lev.now — {topic}" --client lev-now`
 
 7. **If attach:** add `--handle-path {path}` to publish command.
+
+## AgentPing Renderer Path
+
+For durable briefs and OpenLang-generated surfaces, treat lev.now as the compiler/spec layer and AgentPing as the component renderer:
+
+1. Author compact brief/OpenLang content or generate a RenderSpec JSON packet.
+2. Compile/render through `plugins/now` for deterministic HTML previews and packet validation.
+3. For live Lev dashboard surfaces, consume `@kingly/ui/renderers/lev-now` and render with `LevNowPacketRenderer`; AgentPing components are GenUI-capable by default.
+4. Use `plugins/dashboard` as the verified Lev meta-dashboard proof: it hosts a Lev dashboard packet rendered by AgentPing and preserves `lev.genui.runtime_intent.v0` as inert metadata for FlowMind/Poly routing.
+
+Do not add Lev DNA semantics to AgentPing core. DNA remains a Lev flavor over the packet/content layer, not an AgentPing component contract.
+
+## Visual QA Gate
+
+When the user asks to publish, showcase, investor-review, QA, or make the page look professional, do not publish from a quick render. Run this gate first:
+
+1. Render with screenshots:
+   ```bash
+   npx tsx plugins/now/src/cli.ts ~/.agents/levnow/{slug}.json --output ~/.agents/levnow/{slug}.html --qa --qa-width 1440
+   npx tsx plugins/now/src/cli.ts ~/.agents/levnow/{slug}.json --output ~/.agents/levnow/{slug}.html --qa --qa-width 390
+   ```
+2. Open the local page with `agent-browser`, inspect the accessibility snapshot, and capture desktop + mobile screenshots.
+3. Visually inspect tight crops, not only full-page screenshots. Check the hero, every section header, at least one card grid, every wide table, every timeline, every diagram, every code block, and the final screen.
+4. Fail the page if any of these are true:
+   - Section content starts flush against a colored panel edge; section panels need visible interior padding on desktop and mobile.
+   - Labels, eyebrows, table headers, nav text, timeline dates, badges, or status chips are too small, too condensed, low-contrast, or rendered in a decorative display font.
+   - Display fonts appear in code, terminal blocks, labels, table headers, dates, badges, or other small utility text. Display fonts are for large hero/title use only.
+   - Code or terminal blocks are not visibly monospace.
+   - Scroll-reveal animation leaves screenshots with dim, half-faded, or invisible text; wait briefly, then fix renderer/spec timing if it still appears.
+   - Headings clip, overflow, collide with nav, or are cut off in screenshots.
+   - Mermaid captions, fullscreen controls, nav rails, sticky headers, or theme toggles float over content unintentionally.
+   - Tables are cramped, cut off without a fullscreen/scroll affordance, or unreadable at mobile width.
+   - Mobile screenshots show cropped text, horizontal scroll on normal prose, or tiny labels.
+5. Fix the spec or renderer and rerun the gate until the page is readable by a human who has no terminal context.
 
 ## Quick Reference (read the guide for full details)
 
