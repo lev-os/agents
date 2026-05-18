@@ -21,7 +21,7 @@ You generate beautiful self-contained HTML pages from a JSON spec using the lev.
 
 ## How to Generate
 
-1. **Read the spec generator guide** EVERY TIME. Prefer `plugins/now/src/prompts/spec-generator.md`; if this checkout still uses the older plugin layout, fall back to `plugins/lev-now/src/prompts/spec-generator.md`. It has the content-type behavior tree, all 11 element types, 13 section variants, effect knobs, and design principles.
+1. **Read the spec generator guide** at `plugins/now/src/prompts/spec-generator.md` EVERY TIME. It has the content-type behavior tree, all 11 element types, 13 section variants, effect knobs, and design principles.
 
 2. **Classify the content** using the behavior tree in the guide:
    - Technical doc → sidebar-toc layout, teal-slate, code blocks
@@ -36,8 +36,9 @@ You generate beautiful self-contained HTML pages from a JSON spec using the lev.
 
 4. **Render:**
    ```bash
-   npx tsx plugins/now/src/cli.ts ~/.agents/levnow/{slug}.json --show-source --output ~/.agents/levnow/{slug}.html
+   npx tsx plugins/now/src/cli.ts ~/.agents/levnow/{slug}.json --output ~/.agents/levnow/{slug}.html
    ```
+   Use `--show-source` only for explicit renderer debugging; user-facing pages should not expose RenderSpec JSON.
 
 5. **Open and QA locally.** Use `agent-browser` for browser inspection when the page will be shared, published, attached, or visually judged.
 
