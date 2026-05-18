@@ -34,6 +34,10 @@ INVENTORY_CACHE_FILE = CACHE_DIR / "inventory-cache.json"
 SKILLS_STATE_FILE = ROOT / "skills-state.json"
 SKILLS_INVENTORY_FILE = ROOT / "skills-inventory.jsonl"
 SKILL_GRAPH_FILE = ROOT / "skill-graph.json"
+LEV_ROOT = Path(os.environ.get("LEV_ROOT", Path.home() / "lev")).expanduser().resolve()
+SKILL_GRAPH_DIR = Path(
+    os.environ.get("LEV_SKILL_GRAPH_DIR", LEV_ROOT / "workshop" / "pocs" / "skill-graph")
+).expanduser().resolve()
 CASS_DB_PATH = Path.home() / "Library" / "Application Support" / "com.coding-agent-search.coding-agent-search" / "agent_search.db"
 
 COMMAND_HOOKED = {
@@ -150,11 +154,13 @@ def usage() -> int:
                 "  lev-skills list",
                 "  lev-skills validate",
                 "  lev-skills refresh [--repo-local]",
+                "  lev-skills graph stats|rebuild|verify|resolve <skill://uri> [--json] [--expand]",
                 "  lev-skills help",
                 "",
                 "NOTES",
                 "  discover uses the local filesystem inventory as the canonical source of truth",
                 f"  graph metadata is read from {SKILL_GRAPH_FILE} when present",
+                f"  graph rebuild uses {SKILL_GRAPH_DIR}",
                 f"  inventory writes a grep-able manifest to {SKILLS_INVENTORY_FILE}",
                 "  hidden catalog buckets (.archive, _todo, _workshop) are excluded from normal ranking",
                 "  qmd is only touched by explicit refresh; discover does not query qmd",
@@ -406,6 +412,15 @@ def load_skill_graph() -> dict[str, dict]:
             if alias:
                 graph[alias] = enriched
     return graph
+
+
+def load_skill_graph_payload() -> dict:
+    try:
+        return json.loads(SKILL_GRAPH_FILE.read_text())
+    except FileNotFoundError:
+        raise RuntimeError(f"skill graph not found: {SKILL_GRAPH_FILE}")
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"skill graph JSON is invalid: {exc}") from exc
 
 
 def graph_entry_for(row: dict, graph_nodes: dict[str, dict]) -> dict | None:
@@ -1108,6 +1123,110 @@ def cmd_refresh(args: list[str]) -> int:
         return 1
 
 
+def run_skill_graph_script(script_name: str, args: list[str] | None = None) -> int:
+    script = SKILL_GRAPH_DIR / script_name
+    if not script.exists():
+        print(f"error: skill graph script missing: {script}", file=sys.stderr)
+        return 1
+    result = subprocess.run(
+        [sys.executable, str(script), *(args or [])],
+        cwd=str(SKILL_GRAPH_DIR),
+        check=False,
+    )
+    return result.returncode
+
+
+def graph_stats_payload() -> dict:
+    data = load_skill_graph_payload()
+    nodes = data.get("nodes", {})
+    edges = data.get("edges", [])
+    if not isinstance(nodes, dict):
+        nodes = {}
+    if not isinstance(edges, list):
+        edges = []
+
+    by_kind = Counter()
+    by_lane = Counter()
+    by_edge_kind = Counter()
+    for node in nodes.values():
+        if not isinstance(node, dict):
+            continue
+        by_kind[str(node.get("kind") or "")] += 1
+        lane = str(node.get("lane") or "")
+        if lane:
+            by_lane[lane] += 1
+    for edge in edges:
+        if isinstance(edge, dict):
+            by_edge_kind[str(edge.get("kind") or "")] += 1
+
+    return {
+        "graph_path": str(SKILL_GRAPH_FILE),
+        "builder_dir": str(SKILL_GRAPH_DIR),
+        "total_nodes": len(nodes),
+        "total_edges": len(edges),
+        "by_kind": dict(sorted(by_kind.items())),
+        "by_lane": dict(sorted(by_lane.items())),
+        "by_edge_kind": dict(sorted(by_edge_kind.items())),
+    }
+
+
+def cmd_graph(args: list[str]) -> int:
+    if not args:
+        args = ["stats"]
+
+    command = args[0]
+    rest = args[1:]
+    json_mode = "--json" in rest
+    rest = [arg for arg in rest if arg != "--json"]
+
+    if command in {"stats", "status"}:
+        try:
+            payload = graph_stats_payload()
+        except RuntimeError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 1
+        if json_mode:
+            print(json.dumps(payload, indent=2))
+            return 0
+        print(f"graph_path: {payload['graph_path']}")
+        print(f"builder_dir: {payload['builder_dir']}")
+        print(f"total_nodes: {payload['total_nodes']}")
+        print(f"total_edges: {payload['total_edges']}")
+        print("by_kind:")
+        for kind, count in payload["by_kind"].items():
+            print(f"- {kind}: {count}")
+        print("by_lane:")
+        for lane, count in payload["by_lane"].items():
+            print(f"- {lane}: {count}")
+        print("by_edge_kind:")
+        for edge_kind, count in payload["by_edge_kind"].items():
+            print(f"- {edge_kind}: {count}")
+        return 0
+
+    if command == "rebuild":
+        verify = "--verify" in rest
+        rc = run_skill_graph_script("seed.py")
+        if rc != 0:
+            return rc
+        rows = build_inventory(force_rebuild=True)
+        print(f"Inventory rebuilt at {SKILLS_INVENTORY_FILE} ({len(rows)} rows)")
+        if verify:
+            return run_skill_graph_script("runtime.py")
+        return 0
+
+    if command == "verify":
+        return run_skill_graph_script("runtime.py", rest)
+
+    if command == "resolve":
+        if not rest:
+            print("error: graph resolve requires a skill:// or lane:// URI", file=sys.stderr)
+            return 1
+        return run_skill_graph_script("cli.py", ["resolve", *rest])
+
+    print(f"unknown graph command: {command}", file=sys.stderr)
+    return 1
+
+
 def cmd_list() -> int:
     active = active_skill_rows()
     cdo_rows = cdo_subskill_rows()
@@ -1302,6 +1421,8 @@ def main() -> int:
         return cmd_validate()
     if command == "refresh":
         return cmd_refresh(args)
+    if command == "graph":
+        return cmd_graph(args)
 
     if command.startswith("-"):
         print(f"unknown option: {command}", file=sys.stderr)

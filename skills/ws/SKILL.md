@@ -1,97 +1,78 @@
 ---
 name: ws
-description: "Workstream operations. Scan, list, resume, find, merge, branch, untangle. Stopgap until workstreams are graph ops."
+description: Use when scanning, finding, resuming, merging, branching, or untangling Lev workstreams.
+skill_type: workflow
+category: lifecycle
+output_template: hud
 ---
 
-# /ws — Workstream Operations
+# /ws - Workstream Operations
 
-Quick workstream management from conversation. Wraps `.lev/pm/workstreams/` YAML state.
+Workstream YAML is the durable identity for lifecycle work until workstreams are
+graph ops. `/ws` is the projection and repair surface around
+`.lev/pm/workstreams/*/state/workstream.yaml`.
+
+## Work Link
+
+Lifecycle lane: Router
+Entity movement: `unknown | stale | split -> routed | active | paused`
+Workstream: this skill resolves or updates workstream identity
+Upstream: `/work`, any lifecycle skill missing workstream context
+Downstream: `/work`, `/capture`, `/propose`, `/exec`, `/handoff`
+Router: `/work`
+HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count} ✅{done_count} | 🚦{gate}={score} | ⏭️ {next} | 🔁{loop_state}`
 
 ## Commands
 
-```
-/ws                    # scan all workstreams (status + phase)
+```text
+/ws                    # scan all workstreams
 /ws list               # same as /ws
-/ws find <query>       # search workstreams + handoffs by keyword
-/ws show <id>          # show full workstream state
-/ws resume <id>        # load handoff, diff repo, continue
-/ws merge <a> <b>      # combine two workstream lineages
+/ws find <query>       # search workstreams and projections
+/ws show <id>          # show one workstream state
+/ws resume <id>        # load state, recent projections, and next verb
+/ws merge <a> <b>      # combine lineages with conflicts called out
 /ws branch <id> <name> # fork a workstream
-/ws untangle           # run detangle protocol (levmail-based)
+/ws untangle           # detangle agents/lane claims
 ```
 
-## How It Works
+## Protocol
 
-### /ws (scan)
+```yaml
+steps:
+  - id: read_state
+    action: Read matching workstream YAML files.
+    validation: "At least one state file was read, or no match is explicit."
+    on_failure: "Do not infer identity from memory only."
 
-Read all `.lev/pm/workstreams/*/state/workstream.yaml` and output:
+  - id: associate_projection
+    action: Link handoffs, plans, captures, decisions, and tasks that mention the workstream.
+    validation: "Output separates durable state from projection files."
+    on_failure: "Show durable state only and mark projections unknown."
 
+  - id: choose_next_verb
+    action: Recommend the lifecycle owner for the next entity movement.
+    validation: "Next verb is one of /capture, /prior-art, /propose, /exec, /close, /handoff."
+    on_failure: "Route back to /work."
 ```
-WORKSTREAMS
-───────────
-dna-cascade-dogfood    exec   active   owner:chidev
-herenow-content        exec   active   owner:chidev
-lev-now-genui          exec   active   owner:chidev
-web-summit-gtm-docs    research active owner:chidev
-```
-
-### /ws find <query>
-
-Search across:
-- `.lev/pm/workstreams/*/state/workstream.yaml` (titles, objectives)
-- `.lev/pm/handoffs/*.md` (frontmatter titles)
-- `.lev/pm/plans/plan-*.md` (frontmatter titles)
-- `.lev/mail/*.md` (subjects)
-
-Return matches with path + workstream association.
-
-### /ws show <id>
-
-Read `.lev/pm/workstreams/<id>/state/workstream.yaml` and format:
-- Title, objective, phase, status, owner
-- Decision refs
-- Latest extension/session block
-- Associated handoffs (search by workstream field)
-- Open beads (if bd available)
-
-### /ws resume <id>
-
-1. Find latest handoff for workstream
-2. Diff repo state since handoff date
-3. Load handoff's "Next Agent Brief"
-4. Report: what changed, what's open, proposed next verb
-
-### /ws untangle
-
-Run the detangle protocol from `.lev/mail/20260410-detangle-protocol-all-agents.md`:
-1. Each agent dumps nuggets via levmail
-2. Read all dumps
-3. Claim lanes
-4. Mail handoffs
-5. Update handoffs with detangle_sync
-
-### /ws merge <a> <b>
-
-Combine two workstream YAML files. Keep the one with more sessions as primary.
-Merge extensions, decision_refs, follow_up_refs. Flag conflicts for human review.
-
-### /ws branch <id> <name>
-
-Copy workstream YAML to new id. Update provenance_ref to point at parent.
-Set phase to current parent phase. Clear extensions (fresh start).
 
 ## Data Sources
 
 - `.lev/pm/workstreams/*/state/workstream.yaml`
-- `.lev/pm/handoffs/*.md`
-- `.lev/pm/plans/plan-*.md`
-- `.lev/mail/*.md`
-- `levmail` CLI at `~/.local/bin/levmail`
+- `.lev/pm/workstreams/*/captures/*`
+- `.lev/pm/tasks/*/{dna.yaml,execution.yaml}`
+- `.lev/pm/handoffs/*.md` as projections
+- `.lev/pm/plans/*.md`, `.lev/pm/designs/*.md`, `.lev/pm/decisions/*`
+- `.lev/mail/*` when detangling
 
-## Graph Footer
+## Rules
 
-After every /ws command, append the shared graph footer from `~/.claude/skills/_shared/graph-footer.md`.
+- Workstream YAML wins over handoff markdown.
+- Merges preserve both lineages and flag conflicting objectives.
+- Branches copy the parent state, set provenance to the parent, and clear session extensions.
+- Resume reports what changed since the last projection before proposing a next verb.
 
-## Future
+## Related
 
-When workstreams become graph ops, /ws becomes a thin projection over graph queries. The YAML files become materialized views, not the source of truth. Until then, YAML is truth.
+- `/work` routes after `/ws` resolves identity.
+- `/handoff` writes end-of-session state.
+- `/capture` writes workstream capture artifacts.
