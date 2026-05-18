@@ -1,49 +1,50 @@
 ---
 name: handoff
-description: Session close ceremony. Writes workstream state + pbcopy resume prompt. Use when closing a session, before /clear, or when the stop hook fires.
+description: Use when closing or pausing a session by updating workstream state and copying a resume prompt.
+skill_type: workflow
+category: lifecycle
+output_template: hud
 ---
 
-# /handoff — Session Close Ceremony
+# /handoff - Session Close Ceremony
 
-Write the active workstream state and copy a resume prompt to clipboard.
+Update the active workstream state and copy a concise resume prompt. Handoff
+markdown is a projection; workstream YAML is the durable identity.
+
+## Work Link
+
+Lifecycle lane: Close
+Entity movement: `verified | paused | blocked -> resumable`
+Workstream: update `.lev/pm/workstreams/<id>/state/workstream.yaml`
+Upstream: `/close`, stop hook, user pause, context compaction
+Downstream: next session via resume prompt
+Router: `/work`
+HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count} ✅{done_count} | 🚦{gate}={score} | ⏭️ {next} | 🔁{loop_state}`
 
 ## Protocol
 
-1. **Identify the active workstream.** Scan `.lev/pm/workstreams/*/state/workstream.yaml` for `status: active`. If multiple, pick the one matching the current session's work. If none, create one from the session's work.
+```yaml
+steps:
+  - id: identify_workstream
+    action: Select the active workstream that matches the session.
+    validation: "A single workstream id is selected or created from clear session context."
+    on_failure: "Ask only if the objective cannot be inferred."
 
-2. **Update the workstream YAML.** Write structured state to `.lev/pm/workstreams/<id>/state/workstream.yaml`. Include:
-   - Current phase and status
-   - What was shipped (files modified, beads closed)
-   - Decisions made
-   - Blockers
-   - Vision for next session
-   - Session metadata in `extensions.session_N`
+  - id: update_state
+    action: Write structured state to the workstream YAML.
+    validation: "State includes phase, status, shipped work, decisions, blockers, and next vision."
+    on_failure: "Do not emit a resume prompt until state is durable."
 
-3. **Commit and push.** Stage the workstream YAML + any uncommitted work. Commit. Push.
+  - id: copy_resume
+    action: Copy a resume prompt with workstream id, last shipped summary, blockers, and next step.
+    validation: "pbcopy succeeds or the prompt is printed as fallback."
+    on_failure: "Report that clipboard copy failed and include the prompt."
 
-4. **Generate resume prompt and pbcopy.** Build a concise prompt that the next session can paste to recover context:
-
-```bash
-RESUME=$(cat <<'PROMPT'
-Resume workstream <ID>. Read .lev/pm/workstreams/<ID>/state/workstream.yaml for full context.
-
-Last session shipped: <1-2 sentence summary>
-Blockers: <list or "none">
-Next: <what to do>
-PROMPT
-)
-echo "$RESUME" | pbcopy
-echo "Resume prompt copied to clipboard."
+  - id: report_hud
+    action: Report updated state path and HUD.
+    validation: "User sees the path and resumable next action."
+    on_failure: "Add the path and HUD."
 ```
-
-5. **Report.** Tell the user what was written and that the resume is in their clipboard.
-
-## Rules
-
-- **Workstreams, not handoffs.** Never write to `.lev/pm/handoffs/`. Workstreams are the durable identity.
-- **Structured YAML, not markdown.** The workstream state is YAML. Markdown is a projection.
-- **pbcopy is the resume.** No separate resume command. Copy-paste IS the bridge.
-- **Git push completes the ceremony.** Work is not done until pushed.
 
 ## Workstream YAML Shape
 
@@ -51,7 +52,7 @@ echo "Resume prompt copied to clipboard."
 workstream_id: <slug>
 title: <human readable>
 objective: <what this workstream achieves>
-phase: plan | exec | eval
+phase: shape | plan | exec | close | eval
 status: active | paused | completed | superseded
 owner: <who>
 provenance_ref: null
@@ -62,17 +63,25 @@ follow_up_refs: []
 extensions:
   session_N:
     date: 'YYYY-MM-DD'
-    ships: [list of what was done]
-    beads_closed: [bead IDs]
-    beads_filed: [bead IDs]
-    blockers: [list]
-    vision_next_session: [list]
+    ships: []
+    blockers: []
+    vision_next_session: []
 ```
 
-## When No Workstream Exists
+## Resume Prompt
 
-Create one:
-1. Ask: "What's the one-sentence objective for this work?"
-2. Generate workstream_id via slugify
-3. Write the YAML
-4. Continue with the ceremony
+```text
+Resume workstream <ID>. Read .lev/pm/workstreams/<ID>/state/workstream.yaml.
+
+Last session shipped: <1-2 sentence summary>
+Blockers: <list or none>
+Next: <next lifecycle verb and entity>
+```
+
+## Rules
+
+- Do not write new `.lev/pm/handoffs/` markdown unless explicitly requested.
+- Do not rebase during close or handoff.
+- Do not claim closure if the workstream state was not updated.
+- Commit/push belongs to `/close` when sealing verified work; `/handoff` can pause
+  without forcing a commit when the user is only preserving context.
