@@ -71,6 +71,11 @@ continuity.
 `--status`, `--verifier`, `--until`, `--concurrency`, `--max-iterations`,
 `--max-turns`, `--budget`, retry flags, and `--knob/--with` overrides.
 
+`lev exec --flow` validates the resolved FlowMind graph before provider or tmux
+dispatch by default. Use `--no-validate` only for deliberate diagnostics; failed
+FlowMind validation must block dispatch and should be reported with receipt or
+trace evidence when available.
+
 ## Dogfood Loop
 
 Use Lev surfaces first when working on Lev, unless the CLI is itself the thing
