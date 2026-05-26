@@ -64,7 +64,7 @@ steps:
 | Item | Route |
 |---|---|
 | Constraint, invariant, gate, policy | DNA-backed task via `/propose` |
-| Design-grade framing | `.lev/pm/designs/` then `/propose` |
+| Brief/document-artifact framing | `/brief` -> `/interview --auto` -> `.lev/pm/designs/` then `/propose` |
 | Execution-ready task with verifier and write scope | `/exec` |
 | Provenance or duplicate check needed | `/prior-art` |
 | Ambiguous intent or boundary | `/interview` |
@@ -151,6 +151,7 @@ Markdown capture reports are projections only when useful.
 
 - `/work` routes lifecycle lanes.
 - `/dump` is a focused alias for `/capture --deep`.
+- `/brief` turns conversation context into a lifecycle artifact via `/interview --auto`.
 - `/prior-art` finds existing homes.
 - `/propose` turns captured/aligned items into task DNA.
 - `/exec` runs shovel-ready items.
