@@ -1,0 +1,296 @@
+{
+  "meta": {
+    "title": "Observability, Eval, Telemetry, and Trace Review",
+    "description": "Parity-backed review packet for the monitor-heartbeat proof spike after local proof verification.",
+    "layout": "sidebar-toc",
+    "effects": ["grid-dots", "title-underline"]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "corpus-kpis",
+    "decision-summary",
+    "architecture-pipeline",
+    "first-slice",
+    "proof-matrix",
+    "promotion-gates",
+    "risk-table",
+    "next-step"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "REVIEW PACKET",
+        "title": "Proof-Carrying Observability Backbone",
+        "subtitle": "A parity-backed consolidation for Lev eval, telemetry, traces, and operational proof.",
+        "meta": "Updated 2026-05-22 from .lev/pm/parity, design, task, receipts, and verifier output"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "The recommended first move is not a broad SRE clone. It is a monitor-heartbeat proof spike that makes one status signal hard to fake: RunEvidence, Trace, Receipt, GateProof, live probe artifacts, and projection must all agree before the UI can say green. The POC proof is green locally; production promotion is paused for review and AgentPing submodule promotion."
+      }
+    },
+    "corpus-kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "CORPUS",
+        "title": "Parity Crawl Signals",
+        "subtitle": "The generated scorecard remains a projection; .lev/pm/parity/*.yaml is the canon."
+      },
+      "children": ["kpi-targets", "kpi-features", "kpi-observability", "kpi-proof", "kpi-runfabric", "kpi-surfaces"]
+    },
+    "kpi-targets": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "64",
+        "label": "Parity targets",
+        "trend": { "direction": "flat", "value": "canon files" }
+      }
+    },
+    "kpi-features": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "1198",
+        "label": "Feature rows",
+        "trend": { "direction": "flat", "value": "0 unclassified" }
+      }
+    },
+    "kpi-observability": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "284",
+        "label": "Observability/SRE rows",
+        "trend": { "direction": "up", "value": "44 targets" }
+      }
+    },
+    "kpi-proof": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "319",
+        "label": "Eval/proof rows",
+        "trend": { "direction": "up", "value": "56 targets" }
+      }
+    },
+    "kpi-runfabric": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "876",
+        "label": "Run Fabric rows",
+        "trend": { "direction": "up", "value": "63 targets" }
+      }
+    },
+    "kpi-surfaces": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "793",
+        "label": "Surface rows",
+        "trend": { "direction": "up", "value": "62 targets" }
+      }
+    },
+    "decision-summary": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "DECISIONS",
+        "title": "Resolved Branches",
+        "subtitle": "Interview questions were answered through architecture review before proposal."
+      },
+      "children": ["decision-table"]
+    },
+    "decision-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "branch", "label": "Branch" },
+          { "key": "decision", "label": "Decision" },
+          { "key": "why", "label": "Why" },
+          { "key": "status", "label": "Status" }
+        ],
+        "rows": [
+          { "branch": "Product boundary", "decision": "Proof-carrying observability backbone first", "why": "Lev differentiates through evidence, not another dashboard clone.", "status": { "text": "Resolved", "status": "match" } },
+          { "branch": "First slice", "decision": "Monitor and heartbeat receipts", "why": "Small vertical path from SRE parity to RunEvidence, Trace, Receipt, GateProof, projection.", "status": { "text": "Resolved", "status": "match" } },
+          { "branch": "Ownership", "decision": "Owner-local primitives", "why": "Avoids a vague core/observability bucket and keeps proof code with behavior owners.", "status": { "text": "Resolved", "status": "match" } },
+          { "branch": "Proof gate", "decision": "Pentagon + UltraQA + test triad", "why": "Repo-wide green tests cannot prove behavior or block false greens.", "status": { "text": "Resolved", "status": "match" } },
+          { "branch": "Review flow", "decision": "lev.now review, then pause before exec", "why": "Human review happens before production implementation starts.", "status": { "text": "Paused", "status": "warn" } }
+        ]
+      }
+    },
+    "architecture-pipeline": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "ARCHITECTURE",
+        "title": "Proof Chain"
+      },
+      "children": ["pipe-intent", "pipe-run", "pipe-evidence", "pipe-proof", "pipe-projection"]
+    },
+    "pipe-intent": {
+      "type": "card",
+      "variant": "default",
+      "props": { "title": "Intent", "content": "MonitorCheck or HeartbeatObservation enters with owner, target, schedule, and freshness." }
+    },
+    "pipe-run": {
+      "type": "card",
+      "variant": "default",
+      "props": { "title": "Run", "content": "A bounded probe emits RunEvidence tied to run identity." }
+    },
+    "pipe-evidence": {
+      "type": "card",
+      "variant": "default",
+      "props": { "title": "Trace", "content": "Trace exposes monitor id, verifier, exit code, and evidence refs." }
+    },
+    "pipe-proof": {
+      "type": "card",
+      "variant": "default",
+      "props": { "title": "GateProof", "content": "Semantic acceptance fails closed for stale, fake, or missing evidence." }
+    },
+    "pipe-projection": {
+      "type": "card",
+      "variant": "default",
+      "props": { "title": "Projection", "content": "Status renders from proof-backed state only." }
+    },
+    "first-slice": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "PROPOSAL",
+        "title": "monitor-heartbeat-proof-spike-v1",
+        "subtitle": "The POC slices are locally verified; production promotion is intentionally paused for review."
+      },
+      "children": ["slice-s1", "slice-s2", "slice-s3", "slice-s4"]
+    },
+    "slice-s1": {
+      "type": "card",
+      "variant": "elevated",
+      "props": { "title": "S1 Contract POC", "content": "Monitor and heartbeat contracts reject missing target, stale timestamp, fake success text, missing evidence refs, and bounded live probe timeouts." }
+    },
+    "slice-s2": {
+      "type": "card",
+      "variant": "elevated",
+      "props": { "title": "S2 Run Evidence", "content": "RunEvidence, trace, structural receipt, telemetry capture identity, and semantic GateProof form one queryable proof chain." }
+    },
+    "slice-s3": {
+      "type": "card",
+      "variant": "elevated",
+      "props": { "title": "S3 Status Projection", "content": "Projection shows healthy only from fresh proof and degrades or blocks stale and missing proof." }
+    },
+    "slice-s4": {
+      "type": "card",
+      "variant": "elevated",
+      "props": { "title": "S4 Review Gate", "content": "Pentagon, UltraQA, test triad, package typechecks, receipt parsing, and worktree isolation now pass locally; submodule promotion remains before merge." }
+    },
+    "proof-matrix": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "PROOF",
+        "title": "Pentagon and Test Triad"
+      },
+      "children": ["proof-table"]
+    },
+    "proof-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "axis", "label": "Axis" },
+          { "key": "canon", "label": "Canon Class" },
+          { "key": "proof", "label": "Proof" },
+          { "key": "gate", "label": "Gate" }
+        ],
+        "rows": [
+          { "axis": "Contract/unit", "canon": "unit", "proof": "MonitorCheck and HeartbeatObservation reject stale, fake, malformed, and evidence-less observations.", "gate": "Owner-local package tests" },
+          { "axis": "Integration", "canon": "integration", "proof": "Probe emits RunEvidence, telemetry bridge data, trace fields, receipt identity, and GateProof refs.", "gate": "core/exec + core/telemetry tests" },
+          { "axis": "Surface E2E", "canon": "e2e_surface / agent_smoke", "proof": "Projection reads proof object and degrades when proof is incomplete.", "gate": "AgentPing or task-local E2E" },
+          { "axis": "Harness ratchet", "canon": "harness_ratchet", "proof": "Task fixtures for stale, fake, missing, and malformed observation fail closed.", "gate": "lev task validate + harness" },
+          { "axis": "Adversarial/eval", "canon": "eval_harness", "proof": "UltraQA attacks prompt injection, stale state, dirty worktree, hung command, flaky rerun, and misleading success.", "gate": "UltraQA dynamic E2E" }
+        ]
+      }
+    },
+    "promotion-gates": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "PROMOTION",
+        "title": "Execution Guardrails"
+      },
+      "children": ["promotion-callout", "commands"]
+    },
+    "promotion-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Pause before exec",
+        "content": "The proof spike is locally verified, but production promotion should not proceed until this review is accepted and the AgentPing submodule changes are promoted intentionally. The parent repository must still avoid main merge until the submodule, final closeout, and review gates are clean."
+      }
+    },
+    "commands": {
+      "type": "code-block",
+      "props": {
+        "filename": "review-gates.sh",
+        "language": "bash",
+        "showLineNumbers": false,
+        "content": "lev task validate .lev/pm/tasks/monitor-heartbeat-proof-spike-v1 --json\npnpm --filter @lev-os/exec typecheck\npnpm --filter @lev-os/exec test -- run-evidence\npnpm --dir core/telemetry typecheck && pnpm --dir core/telemetry exec vitest run\npnpm --dir community/agentping --filter @kingly/ui build\npnpm --dir community/agentping/packages/dashboard-manager-ui exec tsc --noEmit\npnpm --dir community/agentping/packages/dashboard-manager-ui exec vitest run exec-traces StatusBadge\npnpm exec tsx core/testing/src/cli.ts --root . --scope public --gate --json .lev/pm/tasks/monitor-heartbeat-proof-spike-v1/receipts/pentagon-public-audit.json\ngit diff --check -- . ':(exclude)community/agentping' && git -C community/agentping diff --check"
+      }
+    },
+    "risk-table": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "RISKS",
+        "title": "False-Green Failure Modes"
+      },
+      "children": ["risks"]
+    },
+    "risks": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "risk", "label": "Risk" },
+          { "key": "failure", "label": "Failure" },
+          { "key": "gate", "label": "Fail-Closed Gate" }
+        ],
+        "rows": [
+          { "risk": "Success text", "failure": "Probe prints SUCCESS but exits non-zero or lacks EvidenceRef.", "gate": "GateProof and UltraQA misleading-output scenario" },
+          { "risk": "Stale proof", "failure": "Receipt is old but status still renders green.", "gate": "Freshness threshold and stale-state scenario" },
+          { "risk": "Dashboard truth", "failure": "UI status prop bypasses receipt/trace/GateProof.", "gate": "Projection E2E and no local truth rule" },
+          { "risk": "Dirty root promotion", "failure": "Production code mixes with unrelated checkout changes.", "gate": "Dedicated worktree gate" },
+          { "risk": "Pentagon dumping ground", "failure": "Module-specific monitor harness lands in core/testing.", "gate": "Owner-local placement scan" },
+          { "risk": "Submodule drift", "failure": "AgentPing projection code remains local and parent repo points at the old gitlink.", "gate": "Intentional submodule commit or promotion path before parent merge" }
+        ]
+      }
+    },
+    "next-step": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "NEXT",
+        "title": "Review Decision"
+      },
+      "children": ["next-copy"]
+    },
+    "next-copy": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "Approve this packet to continue into `/exec` for the next promotion step: commit or otherwise promote the AgentPing submodule changes, rerun final S4 closeout, and only then consider parent-main merge. If the review rejects the boundary, update the design before execution."
+      }
+    }
+  }
+}

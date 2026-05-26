@@ -1,0 +1,816 @@
+{
+  "meta": {
+    "title": "Lev MVP Build Report",
+    "description": "A launch-candidate build report for Leviathan: daemon, tmux, graph, FlowMind, proofs, exec, and MVP readiness.",
+    "fonts": [
+      "IBM Plex Sans",
+      "IBM Plex Mono"
+    ],
+    "effects": [
+      "grid-lines",
+      "card-glow",
+      "hero-gradient"
+    ]
+  },
+  "theme": {
+    "preset": "deep-blue-gold",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "readiness-kpis",
+    "launch-deck",
+    "proof-spine",
+    "runtime-pipeline",
+    "subsystem-table-section",
+    "events-daemon-section",
+    "exec-test-section",
+    "two-week-timeline-section",
+    "mvp-roadmap-section",
+    "north-star-section",
+    "final-gates-section",
+    "ship-callout"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "centered",
+      "props": {
+        "category": "LEV BUILD REPORT / 2026-05-20",
+        "title": "Leviathan is in launch-candidate territory.",
+        "subtitle": "The runtime proof spine is green, tmux is real, FlowMind is carrying the control plane, and the MVP is down to final hardening gates.",
+        "meta": "North Star: One runtime. Every agent. Every surface."
+      },
+      "children": [
+        "hero-lead"
+      ]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "This is no longer a pile of parts. Over the last two weeks, Lev crossed the line from architecture thesis into a working agent runtime: events can be inspected and projected, exec produces certifying receipts, tmux sessions are controlled as first-class workers, Pentagon gates are green for the proof spine, and Now/AgentPing surfaces are carrying real operator state. The launch posture is simple: proof-spine ready, final gates left."
+      }
+    },
+    "readiness-kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "Launch Pulse",
+        "title": "The build is hot. The proof is real."
+      },
+      "children": [
+        "kpi-proof",
+        "kpi-commits",
+        "kpi-tests",
+        "kpi-receipts"
+      ]
+    },
+    "kpi-proof": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "S5",
+        "label": "Default daemon Run Fabric gate green",
+        "trend": {
+          "direction": "up",
+          "value": "Pentagon pass"
+        },
+        "sparkline": [
+          35,
+          48,
+          61,
+          76,
+          88,
+          96,
+          100
+        ]
+      }
+    },
+    "kpi-commits": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "102",
+        "label": "Scoped progress commits in 14 days",
+        "trend": {
+          "direction": "up",
+          "value": "runtime-heavy"
+        },
+        "sparkline": [
+          1,
+          8,
+          10,
+          5,
+          15,
+          20,
+          41,
+          2,
+          1
+        ]
+      }
+    },
+    "kpi-tests": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "2667",
+        "label": "Observed green package tests in proof state",
+        "trend": {
+          "direction": "up",
+          "value": "multi-package"
+        },
+        "sparkline": [
+          171,
+          192,
+          1154,
+          1731,
+          2285,
+          2667
+        ]
+      }
+    },
+    "kpi-receipts": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "359",
+        "label": "AgentFS receipts indexed in live audit",
+        "trend": {
+          "direction": "flat",
+          "value": "75 non-dry-run"
+        },
+        "sparkline": [
+          112,
+          168,
+          229,
+          301,
+          359
+        ]
+      }
+    },
+    "launch-deck": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "Executive State",
+        "title": "98 percent energy, proof-gated release discipline",
+        "subtitle": "The MVP story is strong because the runtime is now proving itself through the same rails developers will use."
+      },
+      "children": [
+        "launch-card-1",
+        "launch-card-2",
+        "launch-card-3"
+      ]
+    },
+    "launch-card-1": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Proof spine is green",
+        "content": "runtime-lifecycle-exec-proof-spine reports s5_default_daemon_run_fabric_green. S4 real exec is certified by rcpt-8a4f95daa123b2a2 / exec 313c4d38b2e2; default and named Pentagon gates pass with diagnostics empty."
+      }
+    },
+    "launch-card-2": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Manual events mode is closed",
+        "content": "lev events tail, lev triggers project --dry-run, and lev triggers dispatch --exec-dry-run prove the manual inspection rail. Daemon mode is now a successor, not a blind leap."
+      }
+    },
+    "launch-card-3": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Final launch gates are known",
+        "content": "The remaining launch gap is not conceptual: finish security P0 hardening, unify event provenance policy, automate the daemon loop, and validate the remaining MVP-critical tasks."
+      }
+    },
+    "proof-spine": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Proof Spine",
+        "title": "The runtime now has a certifying backbone"
+      },
+      "children": [
+        "proof-table"
+      ]
+    },
+    "proof-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "gate",
+            "label": "Gate"
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          },
+          {
+            "key": "evidence",
+            "label": "Evidence"
+          },
+          {
+            "key": "meaning",
+            "label": "Meaning"
+          }
+        ],
+        "rows": [
+          {
+            "gate": "Real lev exec S4",
+            "status": {
+              "text": "Certified",
+              "status": "match"
+            },
+            "evidence": "rcpt-8a4f95daa123b2a2 / exec 313c4d38b2e2",
+            "meaning": "Provider-backed managed tmux execution completed with receipt and trace proof."
+          },
+          {
+            "gate": "Pentagon SDK/Poly",
+            "status": {
+              "text": "Pass",
+              "status": "match"
+            },
+            "evidence": "lev pentagon run/gate --suite pentagon-sdk-poly-binding --json",
+            "meaning": "Provider discovery and Poly evidence now satisfy the named gate."
+          },
+          {
+            "gate": "Default daemon Run Fabric",
+            "status": {
+              "text": "Pass",
+              "status": "match"
+            },
+            "evidence": "lev pentagon run/gate --project . --json diagnostics=[]",
+            "meaning": "The default daemon-oriented proof path is green enough to begin automation wiring."
+          },
+          {
+            "gate": "Task DNA validate",
+            "status": {
+              "text": "Ready",
+              "status": "match"
+            },
+            "evidence": "lev task validate runtime-lifecycle-exec-proof-spine-v1 --json",
+            "meaning": "The core proof task is structurally ready and receipt-linked."
+          },
+          {
+            "gate": "Package proof set",
+            "status": {
+              "text": "Green",
+              "status": "match"
+            },
+            "evidence": "workstream, lifecycle, FlowMind, orchestration, harness, event-dispatch, graph, poly, exec, testing, daemon-pentagon",
+            "meaning": "The runtime stack has broad package-level regression coverage in the current proof state."
+          }
+        ],
+        "stickyHeader": true
+      }
+    },
+    "runtime-pipeline": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": {
+        "label": "Runtime Path",
+        "title": "The core loop is visible end to end"
+      },
+      "children": [
+        "pipe-events",
+        "pipe-triggers",
+        "pipe-flowmind",
+        "pipe-exec",
+        "pipe-receipts",
+        "pipe-pentagon"
+      ]
+    },
+    "pipe-events": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Events",
+        "content": "Tail events."
+      }
+    },
+    "pipe-triggers": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Trigger Projection",
+        "content": "Match flows."
+      }
+    },
+    "pipe-flowmind": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "FlowMind",
+        "content": "Gate graphs."
+      }
+    },
+    "pipe-exec": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Exec",
+        "content": "Run work."
+      }
+    },
+    "pipe-receipts": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Receipts",
+        "content": "Bind proof."
+      }
+    },
+    "pipe-pentagon": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Pentagon",
+        "content": "Green gates."
+      }
+    },
+    "subsystem-table-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Subsystem Status",
+        "title": "Daemon, tmux, graph, FlowMind, proofs, exec, Now, MVP"
+      },
+      "children": [
+        "subsystem-table"
+      ]
+    },
+    "subsystem-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "system",
+            "label": "System"
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          },
+          {
+            "key": "what_shipped",
+            "label": "What shipped"
+          },
+          {
+            "key": "next",
+            "label": "Next gate"
+          }
+        ],
+        "rows": [
+          {
+            "system": "Daemon",
+            "status": {
+              "text": "Unblocked for automation",
+              "status": "match"
+            },
+            "what_shipped": "Default Run Fabric/Pentagon gate is green; daemon successor workstream filed.",
+            "next": "Implement supervised event loop with replay/idempotency receipts."
+          },
+          {
+            "system": "Events",
+            "status": {
+              "text": "Manual mode complete",
+              "status": "match"
+            },
+            "what_shipped": "tail -> project -> dispatch dry-run works; event-dispatch package typecheck/test pass.",
+            "next": "Define one hot project log policy while preserving exec evidence and daemon state logs."
+          },
+          {
+            "system": "tmux",
+            "status": {
+              "text": "Completed proof lane",
+              "status": "match"
+            },
+            "what_shipped": "AgentSession create/list/connect/message/capture/wait/observe; worker demand and human selection dogfood receipts.",
+            "next": "Keep as managed worker substrate under daemon/exec."
+          },
+          {
+            "system": "Graph",
+            "status": {
+              "text": "Active cutover",
+              "status": "info"
+            },
+            "what_shipped": "graph-debug promoted into lev flowmind debug and lev exec trace split.",
+            "next": "AgentPing debugger consumer and trace contract hardening."
+          },
+          {
+            "system": "FlowMind",
+            "status": {
+              "text": "Control substrate",
+              "status": "match"
+            },
+            "what_shipped": "Graph execution, worker demand gates, manual trigger projection, and validation pressure across runtime.",
+            "next": "Starter SDLC flow and daemon-triggered execution proof."
+          },
+          {
+            "system": "Proofs",
+            "status": {
+              "text": "S5 green core",
+              "status": "match"
+            },
+            "what_shipped": "Pentagon named and default gates pass; receipt/trace lookup repaired for reference provider receipt.",
+            "next": "Run remaining task-validate and security closure gates."
+          },
+          {
+            "system": "Exec",
+            "status": {
+              "text": "Real provider certified",
+              "status": "match"
+            },
+            "what_shipped": "Managed tmux provider receipt proves bounded lev exec on an existing PM task DAG.",
+            "next": "Bind event-triggered flow dispatch to real exec, not only dry-run."
+          },
+          {
+            "system": "Now / AgentPing",
+            "status": {
+              "text": "Product surface active",
+              "status": "match"
+            },
+            "what_shipped": "Runtime intent close, OpenLang/RenderSpec, dashboard brief, entity projection, media projection lanes.",
+            "next": "Make browser QA a universal release gate."
+          },
+          {
+            "system": "MVP",
+            "status": {
+              "text": "Launch candidate",
+              "status": "warn"
+            },
+            "what_shipped": "Proof spine is ready; platform thesis is demonstrable.",
+            "next": "Security P0, daemon loop, install/doctor, public quickstart."
+          }
+        ],
+        "stickyHeader": true
+      }
+    },
+    "events-daemon-section": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "Events Daemon Plan",
+        "title": "Manual first was the right call"
+      },
+      "children": [
+        "events-current",
+        "events-target"
+      ]
+    },
+    "events-current": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Current event truth",
+        "content": ".lev/events.jsonl is a project-local projection used by daemon and exec paths. Other logs exist today: ~/.local/share/lev/events.jsonl, ~/.local/share/lev/daemon/state.jsonl, and .lev/agentfs/exec/events.jsonl. event-dispatch reads a JSONL source; it does not own ingestion."
+      }
+    },
+    "events-target": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Daemon target",
+        "content": "For the MVP hot path, keep one ordered project event stream for replay simplicity, then treat specialized logs as evidence/projection stores. The daemon should automate the manual rail: observe, project, dispatch through SDK/exec, and emit one linked receipt."
+      }
+    },
+    "exec-test-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Exec Testing",
+        "title": "How the exec portion gets proven"
+      },
+      "children": [
+        "exec-test-table",
+        "exec-command"
+      ]
+    },
+    "exec-test-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "layer",
+            "label": "Layer"
+          },
+          {
+            "key": "test",
+            "label": "Test"
+          },
+          {
+            "key": "proof",
+            "label": "Proof"
+          }
+        ],
+        "rows": [
+          {
+            "layer": "Unit/runtime",
+            "test": "@lev-os/event-dispatch runtime tests",
+            "proof": "Trigger registration, projection, and dispatch behavior at core/event-dispatch."
+          },
+          {
+            "layer": "Evidence log",
+            "test": "core/exec run evidence tests",
+            "proof": ".lev/agentfs/exec/events.jsonl records exec evidence and failure paths."
+          },
+          {
+            "layer": "Manual E2E",
+            "test": "lev triggers dispatch <fixture> --exec-dry-run --json",
+            "proof": "3 matched flows produce dry-run exec receipts with daemon=false and event_bus_started=false."
+          },
+          {
+            "layer": "Real E2E",
+            "test": "lev exec against existing PM task DAG",
+            "proof": "rcpt-8a4f95daa123b2a2 certifies provider-backed managed tmux execution."
+          },
+          {
+            "layer": "Promotion",
+            "test": "lev pentagon run/gate --project . --json",
+            "proof": "Default daemon Run Fabric gate passes diagnostics=[]."
+          }
+        ]
+      }
+    },
+    "exec-command": {
+      "type": "code-block",
+      "props": {
+        "language": "bash",
+        "filename": "manual-exec-proof.sh",
+        "content": "PATH=$PWD/node_modules/.bin:$PATH lev events tail --source .lev/pm/tasks/runtime-lifecycle-exec-proof-spine-v1/fixtures/events/manual-projection-event.jsonl --limit 1 --json\nPATH=$PWD/node_modules/.bin:$PATH lev triggers project .lev/pm/tasks/runtime-lifecycle-exec-proof-spine-v1/fixtures/events/manual-projection-event.jsonl --dry-run --json\nPATH=$PWD/node_modules/.bin:$PATH lev triggers dispatch .lev/pm/tasks/runtime-lifecycle-exec-proof-spine-v1/fixtures/events/manual-projection-event.jsonl --exec-dry-run --json\nPATH=$PWD/node_modules/.bin:$PATH lev pentagon gate --project . --json",
+        "showLineNumbers": true,
+        "maxHeight": 320
+      }
+    },
+    "two-week-timeline-section": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "Last Two Weeks",
+        "title": "The build sprint that made the MVP feel real"
+      },
+      "children": [
+        "two-week-timeline"
+      ]
+    },
+    "two-week-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          {
+            "date": "2026-05-07",
+            "title": "Adversarial observability checkpoint",
+            "description": "Proof and trace pressure moved into the runtime hardening loop.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-05-08",
+            "title": "Receipt/trace boundary clarified",
+            "description": "Receipt validation became structural; trace lookup became exact telemetry lookup.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-05-09",
+            "title": "OpenLang, GenUI, dashboard, lifecycle checkpoints",
+            "description": "Runtime intent, dashboard brief surfaces, and Now/OpenLang promotion paths became concrete.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-05-15",
+            "title": "Poly provider cutover and run fabric work",
+            "description": "Provider runtime boundaries, daemon surfaces, and tmux harness work converged.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-05-16",
+            "title": "tmux worker demand and human-selection dogfood",
+            "description": "Managed tmux workers, FlowMind worker demand, and design artifact seals were proven with live receipts.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-05-17",
+            "title": "Proof spine, graph debug, lifecycle, provider catalog",
+            "description": "Runtime proof state, graph-debug promotion, lifecycle proofs, and provider catalog work landed in force.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-05-18",
+            "title": "Default daemon Run Fabric gate green",
+            "description": "S5 proof state moved to default daemon Run Fabric green; manual events mode closed and daemon successor filed.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-05-20",
+            "title": "Checkpointed runtime events and proof spine work",
+            "description": "Current main checkpoint pushed with event-dispatch, exec/harness receipts, PM status, and DNA hardening artifacts.",
+            "status": "in-progress"
+          }
+        ]
+      }
+    },
+    "mvp-roadmap-section": {
+      "type": "section",
+      "variant": "asymmetric",
+      "props": {
+        "label": "MVP / Roadmap / Vision",
+        "title": "The thesis is still the same. The proof is finally catching up."
+      },
+      "children": [
+        "mvp-roadmap-copy",
+        "mvp-chart"
+      ]
+    },
+    "mvp-roadmap-copy": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "**North Star:** One runtime. Every agent. Every surface.\n\n**Vision:** FlowMind is the substrate, Poly is the protocol/runtime boundary, AgentPing is the human-loop surface, and AgentGuard/policy closes the authority loop.\n\n**MVP reality:** Manual event projection, real exec, tmux worker control, receipt/trace lookup, and Pentagon promotion are now credible. The release gate is operational hardening, not product imagination."
+      }
+    },
+    "mvp-chart": {
+      "type": "chart",
+      "props": {
+        "chartType": "bar",
+        "title": "MVP Readiness by Rail",
+        "labels": [
+          "Proof spine",
+          "Manual events",
+          "tmux",
+          "FlowMind",
+          "Now surfaces",
+          "Daemon auto",
+          "Security P0",
+          "Public launch"
+        ],
+        "datasets": [
+          {
+            "label": "Readiness",
+            "data": [
+              100,
+              100,
+              96,
+              92,
+              90,
+              74,
+              78,
+              82
+            ],
+            "backgroundColor": [
+              "#d6b35f",
+              "#31d0aa",
+              "#31d0aa",
+              "#58a6ff",
+              "#a78bfa",
+              "#f59e0b",
+              "#f59e0b",
+              "#f97316"
+            ]
+          }
+        ]
+      }
+    },
+    "north-star-section": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "North Star",
+        "title": "Why this matters"
+      },
+      "children": [
+        "north-star-quote",
+        "architecture-diagram"
+      ]
+    },
+    "north-star-quote": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": {
+        "content": "Agents should not be trapped in chat windows. Lev turns intent into governed graph patches, executable FlowMind programs, provider-backed runs, and receipt-backed evidence across every surface."
+      }
+    },
+    "architecture-diagram": {
+      "type": "diagram",
+      "props": {
+        "content": "flowchart LR\n  A[Human intent] --> B[Stream of consciousness router]\n  B --> C[Graph patch]\n  C --> D[FlowMind gates]\n  D --> E[Poly / SDK dispatch]\n  E --> F[lev exec]\n  F --> G[tmux / provider workers]\n  G --> H[Receipts and traces]\n  H --> I[Pentagon promotion]\n  I --> J[AgentPing surfaces]"
+      }
+    },
+    "final-gates-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Final Gates",
+        "title": "What has to close before public launch"
+      },
+      "children": [
+        "final-gates-table"
+      ]
+    },
+    "final-gates-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "gate",
+            "label": "Gate"
+          },
+          {
+            "key": "state",
+            "label": "State"
+          },
+          {
+            "key": "why",
+            "label": "Why it matters"
+          },
+          {
+            "key": "closure",
+            "label": "Closure proof"
+          }
+        ],
+        "rows": [
+          {
+            "gate": "Security P0",
+            "state": {
+              "text": "Final hardening",
+              "status": "warn"
+            },
+            "why": "OSS launch cannot ship ambient authority or unsafe execution paths.",
+            "closure": "mvp-security-p0-burndown-v1 validates with receipts and current audit/gate output."
+          },
+          {
+            "gate": "Events daemon loop",
+            "state": {
+              "text": "Ready to build",
+              "status": "info"
+            },
+            "why": "Automation should only wrap the proven manual rail.",
+            "closure": "daemon receipt links event_id, flow_id, exec_id, receipt_id, trace_id; replay produces identical projections."
+          },
+          {
+            "gate": "One event-ordering policy",
+            "state": {
+              "text": "Decision needed",
+              "status": "warn"
+            },
+            "why": "MVP should keep one hot project event stream for ordering while specialized logs remain evidence stores.",
+            "closure": "Proven writer matrix and no split-brain dispatch source."
+          },
+          {
+            "gate": "Starter SDLC flow",
+            "state": {
+              "text": "Queued",
+              "status": "info"
+            },
+            "why": "The first install/demo needs a single obvious FlowMind path.",
+            "closure": "context intake -> proposal/design/spec checks -> gates -> receipts, no renderer-local execution."
+          },
+          {
+            "gate": "Now/browser QA as release gate",
+            "state": {
+              "text": "Partial",
+              "status": "warn"
+            },
+            "why": "Product surfaces are real; visual QA needs to be mandatory, not heroic.",
+            "closure": "browser screenshot checks and review readiness receipts on every dashboard/report."
+          },
+          {
+            "gate": "Public quickstart",
+            "state": {
+              "text": "Queued",
+              "status": "info"
+            },
+            "why": "The outside world needs install, doctor, first run, and proof in one path.",
+            "closure": "Fresh clone to first receipt succeeds without private context."
+          }
+        ],
+        "stickyHeader": true
+      }
+    },
+    "ship-callout": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "Bottom Line",
+        "title": "The MVP is not waiting on a miracle anymore."
+      },
+      "children": [
+        "ship-text"
+      ]
+    },
+    "ship-text": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Launch posture",
+        "content": "Leviathan is proof-spine ready and product-surface credible. The next work is launch discipline: finish the P0 security gate, automate events without hiding manual truth, close the starter SDLC flow, and ship a public quickstart that produces a real receipt."
+      }
+    }
+  }
+}
