@@ -62,6 +62,21 @@ make skills load or include that file at runtime.
 - If a command mutates files, records, tasks, or workstream state, route through
   the lane owner instead of freelancing.
 
+## QA / Pentagon Gate State
+
+QA, Pentagon, UltraQA, and ai-slop-cleaner are lifecycle gate overlays, not
+separate lanes. `/work` routes by missing gate state; lane skills own the
+details.
+
+| Gate state | Meaning | Route |
+|---|---|---|
+| `needs_proof_design` | Highest-risk claim, fail-closed acceptance, or owner-local test placement is unclear | `/interview` or `/propose` |
+| `needs_proof_gates` | A non-trivial task lacks `execution.yaml.proof_gates` | `/propose` |
+| `needs_runtime_qa` | Declared baseline, Pentagon, UltraQA, or harness runtime checks still need execution | `/exec` |
+| `needs_quality_review` | Cleanup, refactor, fallback, boundary, or AI-slop risk needs ai-slop-cleaner review | `/exec` |
+| `needs_close_verdict` | Work is implemented but proof-gate verdicts or residual risks are not sealed | `/close` |
+| `proof_blocked` | A proof gate fails or cannot run safely | `/propose` for contract repair or `/capture` for follow-up |
+
 ## Router
 
 ```yaml
@@ -72,8 +87,8 @@ steps:
     on_failure: "Do not write. Route to /ws find|resume or create a workstream."
 
   - id: classify_entity
-    action: Name the entity, current state, target state, and missing gate.
-    validation: "Entity has path/id/uri plus current_state and target_state."
+    action: Name the entity, current state, target state, missing gate, and proof_gate_state.
+    validation: "Entity has path/id/uri plus current_state, target_state, and proof_gate_state when non-trivial."
     on_failure: "Route to /capture if it is only in conversation memory."
 
   - id: route_lane
@@ -100,6 +115,7 @@ steps:
 | Need evidence, provenance, lineage, or duplicate detection | `/prior-art` |
 | Idea/design is aligned but not execution-ready | `/propose` |
 | Task has `dna.yaml` and `execution.yaml` with a verifier | `/exec` |
+| Task needs proof design, proof gates, runtime QA, or quality review | route by `proof_gate_state` |
 | Work is verified and needs sealing, learning, commit, or next recommendation | `/close` |
 | Session is ending, compacting, or needs a resume prompt | `/handoff` |
 | Workstream identity is missing, stale, split, or tangled | `/ws` |

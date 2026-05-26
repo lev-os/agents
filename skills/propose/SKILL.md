@@ -40,6 +40,22 @@ functions, and production trace fields: `receipt_id`, `exec_id`, `flow`,
 `stdout_path`, `stderr_path`, `exit_code`, `files_touched`,
 `claim_verdicts`, and `evidence_ref`.
 
+## Capture Ledger Intake
+
+If the proposal came from `/capture` or `/dump`, load the source ledger row
+before writing task artifacts. Preserve `intent_id`, `topic`,
+`compiled_intent`, `artifact_ref`, `route_state`, `fidelity`, `next_route`, and
+`blocker` in `source_context.capture_ledger`. If no ledger exists, create a
+proposal-local ledger row and mark `current_location: memory` until the task
+folder is written.
+
+## Canon Write Gate
+
+If the user asks what would be proposed, edited, or planned, render
+`<proposal-turn-one>` or `<slice-review>` only. Write task artifacts only after
+explicit apply/edit/emit/patch authorization or an existing approved capture
+row with `next_route: /propose`.
+
 ## Protocol
 
 ```yaml
@@ -48,6 +64,11 @@ steps:
     action: Read source design, capture, workstream, existing task, and repo evidence.
     validation: "Context includes intent, acceptance, constraints, entity_kind, lifecycle_target, refs, and confidence."
     on_failure: "Route missing product/design framing to /interview."
+
+  - id: load_capture_ledger
+    action: Reconcile source capture/dump ledger rows before proposal emission.
+    validation: "Captured sources have a ledger row with compiled_intent, artifact_ref, route_state, fidelity, next_route, and blocker."
+    on_failure: "Route to /capture before writing task artifacts."
 
   - id: score_frame
     action: Score frame completeness, slice readiness, determinism, verification, and DNA awareness.
@@ -60,8 +81,8 @@ steps:
     on_failure: "Render <proposal-turn-one>."
 
   - id: build_contract
-    action: Draft dna.yaml and execution.yaml with claims, slices, verifiers, write scope, and forbidden moves.
-    validation: "A fresh agent can execute using only the task folder."
+    action: Draft dna.yaml and execution.yaml with claims, slices, proof_gates, verifiers, write scope, and forbidden moves.
+    validation: "A fresh agent can execute using only the task folder and source_context.capture_ledger preserves the source row."
     on_failure: "Ask the smallest missing operator-context question."
 
   - id: validate_task
@@ -84,6 +105,7 @@ Only write or mark execution-ready when all are true:
 - `determinism == 1.0`
 - `verification_strength >= 0.9`
 - `cold_start_context_gate == pass`
+- `proof_gate_design == pass | not_applicable_with_rationale`
 - `unresolved == 0`
 - `approval_source != null` or `auto_alignment_evidence != []`
 
@@ -100,11 +122,22 @@ dna_yaml:
     - local_refs
     - local_constraints
     - source_context
+source_context:
+  capture_ledger:
+    - intent_id
+    - topic
+    - compiled_intent
+    - artifact_ref
+    - route_state
+    - fidelity
+    - next_route
+    - blocker
 execution_yaml:
   required:
     - topology
     - runtime_profile
     - validation_chain
+    - proof_gates
     - receipt_policy: append_only
     - checkpoint_policy: forward_only
     - budget
@@ -124,6 +157,36 @@ slice_required:
   - failure_modes
   - review_status
   - approval_source
+proof_gates_required_when:
+  - non_trivial
+  - runtime_or_agentic_behavior
+  - promotion_decision
+  - cleanup_or_refactor
+  - fallback_or_boundary_risk
+proof_gates_shape:
+  pentagon:
+    target: "<task or product surface>"
+    promotion_decision: "<decision this proof gates>"
+    highest_risk_claim: "<claim that costs money, trust, safety, or architecture integrity if false>"
+    axes:
+      contract_unit: { proof: "...", gates: [] }
+      integration: { proof: "...", gates: [] }
+      surface_e2e: { proof: "...", gates: [] }
+      harness_ratchet: { proof: "...", gates: [] }
+      adversarial_eval: { proof: "...", gates: [] }
+    receipts: []
+  ultraqa:
+    mode: dynamic_e2e_inside_pentagon
+    goal: "<hostile runtime QA goal>"
+    required_scenario_classes: [normal_path, malformed_input, prompt_injection, cancel_resume, stale_state, dirty_worktree, hung_command, flaky_or_retried, misleading_success_output]
+    baseline: []
+    scenario_matrix: []
+  quality:
+    ai_slop_cleaner:
+      required: true | false
+      reason: "<cleanup/refactor/fallback/boundary risk>"
+      scope: []
+      review_gate: "<verifier or N/A>"
 ```
 
 ## Gates
@@ -135,6 +198,7 @@ slice_required:
 | feedback_loop_gate | each slice has one verifier or HITL capture path |
 | cold_start_context_gate | fresh agent can execute from task folder |
 | behavior_coverage_gate | every acceptance/source-design claim is covered |
+| proof_gate_design | required proof gates exist, or task explains why QA/Pentagon is not applicable |
 | execution_ready_gate | weighted score >= 0.90 and all hard gates pass |
 
 ## Determinism Repair
@@ -149,6 +213,7 @@ while the fork remains.
 ## Proposal Alignment: {task_id}
 
 Current stage: {stage_name}
+Ledger: {intent_id_or_none}; fidelity {fidelity_pct_or_unknown}; artifact {artifact_ref_or_none}; state {route_state}; blocker {blocker_or_none}
 
 Recommended vertical slice: {recommended_slice}
 
@@ -167,6 +232,7 @@ Next: answer a/b/c, ask d, or say "emit" if this is already aligned.
 ## Slice Review: {task_id}
 
 Plan: frame {xx%}; slices {xx%}; determinism {xx%}; verify {xx%}; unresolved {n}
+Ledger: {intent_id_or_none}; source {artifact_ref_or_none}; fidelity {fidelity_pct_or_unknown}; state {route_state}; blocker {blocker_or_none}
 
 1. {title} -- {AFK|HITL}; blocked_by {ids|None}; covers {target}; verify {check}; cold-start {pass|gap}; {draft|aligned|execution_ready}
 
@@ -186,6 +252,11 @@ Review question: {one_question_needed_to_advance}
 ### Plan Alignment
 Plan: frame {xx%}; slices {xx%}; determinism {xx%}; verify {xx%}; unresolved 0
 
+### Ledger
+- source: {intent_id_or_none} from {artifact_ref_or_none}
+- compiled_intent: {compiled_intent}
+- fidelity: {fidelity_pct_or_unknown}; state: {route_state}; route: {next_route}; blocker: {blocker_or_none}
+
 ### Execution
 - {topology_and_profile}
 - {critical_stage_or_verifier}
@@ -202,6 +273,10 @@ Next: run `/exec {task_id}`, queue via `/capture`, or ask for the full exec menu
 - "These slices are execution_ready."
 - "Rules inline are faster."
 - "Verifier exists, so it is safe to execute."
+- "QA can be figured out after implementation."
+- "Pentagon means put the test in core/testing."
+- "The capture ledger can be dropped once task DNA exists."
+- "What would you propose means write task DNA."
 
 ## Related
 

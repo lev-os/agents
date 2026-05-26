@@ -203,6 +203,19 @@ BAD: "Phase 1: Do the main work. Phase 2: Fix bugs. Phase 3: Polish."
 - **Deliverable:** What's complete after this phase
 - **Validation:** How to verify phase completion
 
+### 3.1.1 QA / Pentagon Contract
+
+Use this section for non-trivial, runtime, agentic, promotion, cleanup,
+fallback, or boundary-risk work. It seeds task `proof_gates`.
+
+- **Promotion decision:** What decision this proof gates
+- **Highest-risk claim:** The claim that would cost money, trust, safety, or architecture integrity if false
+- **Owner-local placement:** Where tests, probes, fixtures, and harness suites live
+- **Shared testing use:** Which `core/testing` helper, audit, runtime wrapper, or gate evaluator is reused
+- **Pentagon axes:** unit, integration, surface_e2e, harness_ratchet, adversarial_eval
+- **UltraQA scenario classes:** normal, malformed, injection, stale state, dirty worktree, hung command, flaky/retry, misleading output
+- **ai-slop-cleaner gate:** required when cleanup/refactor/fallback/boundary risk exists
+
 ---
 
 ### 3.2 Technology Stack

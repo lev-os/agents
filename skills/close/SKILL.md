@@ -36,9 +36,14 @@ steps:
     on_failure: "Route to /capture and stop close."
 
   - id: qa_acceptance
-    action: Check output against task DNA, acceptance criteria, and declared verifier evidence.
-    validation: "Every acceptance item is pass, fail, or explicitly not-tested."
+    action: Check output against task DNA, acceptance criteria, declared verifier evidence, and proof-gate verdicts.
+    validation: "Every acceptance item and applicable proof gate is pass, fail, blocked, or explicitly not-tested with residual risk."
     on_failure: "Route failed criteria back to /exec."
+
+  - id: proof_gate_verdict
+    action: Seal Pentagon, UltraQA, and ai-slop-cleaner outcomes before acceptance.
+    validation: "Feature-local Pentagon verdicts, UltraQA scenario matrix status, generated-artifact cleanup, ai-slop-cleaner review, and residual risks are recorded."
+    on_failure: "Do not accept; route to /exec or /propose depending on whether runtime evidence or proof contract is missing."
 
   - id: accept
     action: Decide whether the work is accepted.
@@ -78,6 +83,10 @@ outputs:
   items: []
   learnings: []
   gates: []
+  proof_gates:
+    pentagon: pass | fail | blocked | not_applicable
+    ultraqa: pass | fail | blocked | not_applicable
+    ai_slop_cleaner: pass | fail | blocked | not_applicable
   artifacts: []
 metrics:
   drift: <number>
@@ -95,6 +104,7 @@ recommend: []
 | drift_score | `< 0.3` |
 | hygiene_pass_rate | `>= 0.95` |
 | learning_extracted | `>= 1` or explicit none |
+| proof_gate_verdicts | all applicable gates pass or have explicit blocked/follow-up routing |
 
 Max rework: 2. Three consecutive gate failures becomes blocked.
 
@@ -103,6 +113,8 @@ Max rework: 2. Three consecutive gate failures becomes blocked.
 - "Ready to push when you are."
 - "Close can skip capture because the task is done."
 - "A passing command means acceptance."
+- "Repo-wide audit passed, so feature-local Pentagon proof is done."
+- "Temporary QA harness cleanup can be handled later."
 - "I'll write handoff later."
 - "Pull with rebase."
 

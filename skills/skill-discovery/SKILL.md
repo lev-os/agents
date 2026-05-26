@@ -15,13 +15,29 @@ This skill takes a task description and searches the local skills runtime. It re
 
 ## Operational Rule
 
-When this skill is selected for a task, run local discovery first:
+When this skill is selected for a task, translate the user's intent into a short, broad search request before running local discovery:
 
 ```bash
-lev-skills "<task description>" --json --limit=5
+lev-skills "<one sentence request with broad keywords>" --json --limit=5
 ```
 
 Use returned `local_path` values to load the relevant `SKILL.md` files. Do not look for a `skill-discovery` binary; `skill-discovery` is the skill name, not the command.
+
+Treat `lev-skills` as a basic lexical search over skill metadata, not semantic retrieval. Prefer clear nouns, verbs, product names, and known tool terms over chat phrasing. For example, turn "the CI is red after merge" into `github actions ci workflow failure fix`.
+
+If the first query is weak, run a small query set instead of overfitting one sentence:
+
+```bash
+lev-skills "github actions ci workflow failure fix" --json --limit=5
+lev-skills "pull request checks pipeline yaml release automation" --json --limit=5
+lev-skills "debug test failure root cause bug fix" --json --limit=5
+```
+
+If discovery still looks wrong, inspect the local corpus directly with `rg`:
+
+```bash
+rg -n "github actions|ci|workflow|pipeline" ~/.agents/skills ~/.agents/skills-db
+```
 
 ## Usage
 
@@ -31,6 +47,9 @@ lev-skills "I need to deploy a react app to AWS"
 
 # JSON output
 lev-skills "Scan my code for bugs" --json
+
+# Broad-keyword lookup
+lev-skills "github actions ci workflow failure fix" --json --limit=5
 
 # Canonical inventory output
 lev-skills inventory --json
@@ -51,5 +70,6 @@ lev-skills graph rebuild --verify
 2. **Graph enrichment**: `lev-skills` reads `~/.agents/skill-graph.json` and joins skill nodes by normalized skill name to add `skill_uri`, `lane`, graph lifecycle, graph degree, and graph-neighbor signals.
 3. **Deterministic ranking**: `lev-skills discover` tokenizes the query, scores exact metadata/tag/path/graph matches, and hides archived/backlog/incubating buckets by default.
 4. **Graph rebuild**: `lev-skills graph rebuild` runs `~/lev/workshop/pocs/skill-graph/seed.py`, writes `~/.agents/skill-graph.json`, exports GraphML from the graph builder, then rebuilds `~/.agents/skills-inventory.jsonl`.
-5. **No fallback policy**: If local discovery is weak or empty, report that directly. Do not recommend external discovery tools from this skill.
-6. **QMD boundary**: `discover` does not query `qmd`. `qmd` is only touched by the explicit `lev-skills refresh` command.
+5. **Query discipline**: Agents should decompose intent into a few broad keyword queries, then load the best returned `local_path` files.
+6. **Direct corpus inspection**: If ranked results are weak, use `rg` against `~/.agents/skills` and `~/.agents/skills-db` to inspect real skill text.
+7. **No fallback policy**: If local discovery and direct corpus inspection are weak or empty, report that directly. Do not recommend external discovery tools from this skill.

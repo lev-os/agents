@@ -1,0 +1,331 @@
+{
+  "meta": {
+    "title": "Poly Robot Machine Mode Contract",
+    "description": "Decision brief for making Robot Mode a shared Poly/SDK operation envelope across CLI, MCP, HTTP, SDK, and generated clients.",
+    "layout": "sidebar-toc",
+    "effects": ["grid-lines", "title-underline"],
+    "fonts": ["IBM Plex Sans", "IBM Plex Mono"]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "section-kpis",
+    "section-decision",
+    "section-envelope",
+    "section-auth-evidence",
+    "section-proof",
+    "section-migration",
+    "section-risks"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "ARCHITECTURE DECISION",
+        "title": "Poly Robot Machine Mode Contract",
+        "subtitle": "Robot Mode should be a shared operation envelope, not a CLI formatting flag.",
+        "meta": "Lev design brief - updated 2026-05-22"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "The selected direction is to define a versioned PolyOperationEnvelope in the shared domain layer, then project it through CLI, MCP, HTTP, SDK, generated clients, FlowMind, and replay. Provider auth stays adapter-owned. Evidence stays owner-local with a shared reference index."
+      }
+    },
+    "section-kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "STATUS",
+        "title": "Decision Snapshot"
+      },
+      "children": ["kpi-confidence", "kpi-surfaces", "kpi-proof", "kpi-scope"]
+    },
+    "kpi-confidence": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "0.88",
+        "label": "Design confidence",
+        "trend": { "direction": "up", "value": "branch loop closed" }
+      }
+    },
+    "kpi-surfaces": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "5+",
+        "label": "Binder surfaces",
+        "trend": { "direction": "flat", "value": "CLI/MCP/HTTP/SDK/client" }
+      }
+    },
+    "kpi-proof": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "2",
+        "label": "Initial plugin proofs",
+        "trend": { "direction": "up", "value": "dna + deploy dry-run" }
+      }
+    },
+    "kpi-scope": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "0",
+        "label": "Deferred branches",
+        "trend": { "direction": "up", "value": "ready for proposal" }
+      }
+    },
+    "section-decision": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "ROOT DECISION",
+        "title": "Take the Contract, Not Another Surface"
+      },
+      "children": ["card-selected", "card-rejected"]
+    },
+    "card-selected": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Selected",
+        "content": "Introduce PolyOperationEnvelope in @lev-os/domain. Poly owns builders, validators, renderers, and projection metadata. CLI, MCP, HTTP, SDK, generated clients, FlowMind, and replay all project the same semantics."
+      }
+    },
+    "card-rejected": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Rejected",
+        "content": "Do not make Robot Mode CLI-first. Do not promote ExecutionRunResponse as the universal root. Do not let CommandRunResult become the machine contract. Those options optimize for local convenience and lose long-term parity."
+      }
+    },
+    "section-envelope": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "CONTRACT",
+        "title": "V1 Envelope Shape",
+        "subtitle": "Keep the runtime path typed until a protocol, receipt, replay, or CLI boundary needs JSON."
+      },
+      "children": ["envelope-code"]
+    },
+    "envelope-code": {
+      "type": "code-block",
+      "props": {
+        "language": "yaml",
+        "filename": "poly-operation-envelope.v1.yaml",
+        "showLineNumbers": true,
+        "maxHeight": 520,
+        "content": "poly_operation_envelope:\n  version: 1\n  operation:\n    id: string\n    service: string\n    method: string\n    surface: cli | sdk | mcp | http | grpc | flowmind | replay\n    request_id: string\n    idempotency_key: string?\n    caller: string?\n  side_effect:\n    class: read | write | execute | auth | bootstrap | diagnostics\n    dry_run: boolean\n    preview: object?\n    confirmation: object?\n  policy:\n    decision: allowed | denied | needs_human\n    redaction_profile: string?\n    approval_ref: string?\n    reason: string?\n  result:\n    status: ok | failed | timeout | cancelled | partial | not_implemented\n    data: object?\n    error:\n      code: string\n      message: string\n      remediation: string?\n    exit_code: number?\n  evidence:\n    run_id: string?\n    correlation_id: string?\n    receipt_refs: string[]\n    event_refs: string[]\n    artifact_refs: string[]\n    proof_refs: string[]"
+      }
+    },
+    "section-auth-evidence": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "BOUNDARIES",
+        "title": "Auth, Evidence, and Policy Stay Explicit"
+      },
+      "children": ["card-auth", "card-evidence", "card-policy"]
+    },
+    "card-auth": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Provider Auth",
+        "content": "Provider auth is a platform/plugin adapter capability family: provider.auth.status, provider.auth.bootstrap, provider.auth.refresh, and provider.accounts.select. Poly core never owns credentials, cookies, browser profiles, or account secrets."
+      }
+    },
+    "card-evidence": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Evidence Graph",
+        "content": "Evidence stays owner-local and immutable. The shared layer owns a small append-only index with refs, hashes, owners, redaction profile, and created time. Envelopes carry refs, not bulky proof payloads."
+      }
+    },
+    "card-policy": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Policy State",
+        "content": "Human fallback is a typed policy state. needs_human is not an exception, process failure, or stderr string. Redaction applies before content-bearing projections."
+      }
+    },
+    "section-proof": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "PROOF",
+        "title": "Fail-Closed Conformance Gates",
+        "subtitle": "Promotion is blocked unless semantic parity holds across every tested binder."
+      },
+      "children": ["proof-gates", "proof-diagram"]
+    },
+    "proof-gates": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "title": "Gate Owners"
+      },
+      "children": ["gate-envelope", "gate-projection", "gate-plugins", "gate-pentagon", "gate-ultraqa"]
+    },
+    "gate-envelope": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Envelope schema",
+        "content": "Owner: core/domain. Blocks promotion if identity, policy, side-effect declaration, typed result/error, or evidence refs are missing."
+      }
+    },
+    "gate-projection": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Projection builders",
+        "content": "Owner: core/poly. Blocks promotion on surface drift, generic wrappers, unstable exit mapping, or inconsistent renderer behavior."
+      }
+    },
+    "gate-plugins": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "First plugin proofs",
+        "content": "Owners: plugins/dna and plugins/deploy. Proves dna validate/compile plus deploy static --dry-run without network or live writes."
+      }
+    },
+    "gate-pentagon": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Pentagon parity",
+        "content": "Owner: core/testing. Blocks promotion when CLI, MCP, HTTP, SDK, or generated clients diverge semantically."
+      }
+    },
+    "gate-ultraqa": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "UltraQA attacks",
+        "content": "Owner: UltraQA suite. Blocks redaction leaks, hostile argument bypasses, dry-run truth failures, and large-output envelope copies."
+      }
+    },
+    "proof-diagram": {
+      "type": "diagram",
+      "props": {
+        "title": "Operation Envelope Projection Path",
+        "content": "flowchart LR\n  Caller[Caller or agent] --> Envelope[PolyOperationEnvelope]\n  Envelope --> CLI[CLI projection]\n  Envelope --> MCP[MCP tool]\n  Envelope --> HTTP[HTTP/OpenAPI]\n  Envelope --> SDK[SDK and generated client]\n  Envelope --> Policy[Policy and redaction]\n  Policy --> Adapter[Execution or adapter capability]\n  Adapter --> Evidence[Owner-local evidence refs]\n  Evidence --> Proof[Pentagon and UltraQA gates]"
+      }
+    },
+    "section-migration": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": {
+        "label": "MIGRATION",
+        "title": "Contract-First Rollout"
+      },
+      "children": ["step-domain", "step-poly", "step-root-cli", "step-plugins", "step-binders", "step-gates"]
+    },
+    "step-domain": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "1. Domain",
+        "content": "Add PolyOperationEnvelope and supporting enums/refs in @lev-os/domain."
+      }
+    },
+    "step-poly": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "2. Poly",
+        "content": "Add builders, validators, renderers, and projection metadata around existing handler results."
+      }
+    },
+    "step-root-cli": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "3. Root CLI",
+        "content": "Build the envelope internally, then render human text, JSON, or plain output at the final boundary."
+      }
+    },
+    "step-plugins": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "4. Plugin Proofs",
+        "content": "Adapt dna validate/compile and deploy static --dry-run as the first semantic proof slices."
+      }
+    },
+    "step-binders": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "5. Binders",
+        "content": "Project the same operation metadata through MCP, HTTP/OpenAPI, SDK helpers, and generated clients."
+      }
+    },
+    "step-gates": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "6. Gates",
+        "content": "Run Pentagon and UltraQA after real success/failure fixtures exist."
+      }
+    },
+    "section-risks": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "RISKS",
+        "title": "Things That Must Not Drift"
+      },
+      "children": ["risk-cli", "risk-auth", "risk-evidence"]
+    },
+    "risk-cli": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "CLI Overfit",
+        "content": "If --json becomes the architecture root, MCP/API/SDK parity will be bolted on later and tested weakly."
+      }
+    },
+    "risk-auth": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Credential Ownership",
+        "content": "Provider auth must expose opaque refs and needs_human state. Poly core must not become a browser profile or credential store."
+      }
+    },
+    "risk-evidence": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Log Index Trap",
+        "content": "The evidence layer is a proof index, not a transcript dump. Large content stays behind refs and redaction gates."
+      }
+    }
+  }
+}
