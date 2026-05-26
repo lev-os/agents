@@ -1,0 +1,560 @@
+{
+  "meta": {
+    "title": "Pulumi x Lev — Prior Art and Direction",
+    "description": "Evidence-grounded distillation of Pulumi Agentic Infrastructure Era for Lev, deploy, infra, devops, plugins/pulumi, and lev deploy posture.",
+    "layout": "sidebar-toc",
+    "effects": [
+      "grid-lines",
+      "title-underline",
+      "hero-gradient"
+    ],
+    "fonts": [
+      "IBM Plex Sans",
+      "IBM Plex Mono"
+    ]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "section-verdict",
+    "section-kpis",
+    "section-article-distillation",
+    "section-lev-meaning",
+    "section-deploy-posture",
+    "section-prior-art",
+    "section-directions",
+    "section-recommendation",
+    "section-lifecycle"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "PRIOR ART + DIRECTION",
+        "title": "Pulumi is a programmable-infra lane, not a deploy proxy",
+        "subtitle": "The useful move is to respect Pulumi project/stack/resource language while letting Lev own policy, receipts, graph projection, and human approval surfaces.",
+        "meta": "Generated 2026-05-22 · Source article: Pulumi “The Agentic Infrastructure Era” · Workspace: leviathan"
+      },
+      "children": [
+        "hero-lead"
+      ]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "The earlier “extract Pulumi” framing was wrong. Prior art already says Pulumi has been discussed as a real IaC/ESC/deploy foundation, later parked for launch simplicity, and deferred in Graph-OS planning until provider contracts exist. The right next decision is not “wrap pulumi commands.” It is choosing how Lev should model Pulumi’s own infrastructure concepts without surrendering Lev’s policy and execution model."
+      }
+    },
+    "section-verdict": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "Verdict",
+        "title": "Answer first"
+      },
+      "children": [
+        "verdict-card",
+        "boundary-diagram"
+      ]
+    },
+    "verdict-card": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Recommended direction",
+        "content": "Build `plugins/pulumi` as a semantic Pulumi adapter: project, stack, resource, preview, policy pack, output, ESC, Automation API. Keep `lev deploy` as the product/app/service deployment umbrella that can call Pulumi for infra-shaped work, but only through typed intent and receipts. Do not make `lev deploy` a raw Pulumi CLI proxy."
+      }
+    },
+    "boundary-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "Pulumi keeps infra semantics; Lev owns lifecycle, policy, receipts, graph, and approval surfaces.",
+        "content": "flowchart LR\n  Intent[Agent or human intent] --> Lev[Lev lifecycle: interview/propose/exec]\n  Lev --> Gate[FlowMind + AgentGuard policy gate]\n  Gate --> Pulumi[plugins/pulumi semantic adapter]\n  Pulumi --> Stack[Pulumi project / stack / resources / outputs]\n  Pulumi --> Preview[Preview diff + policy result]\n  Preview --> Receipt[Lev receipt + graph projection]\n  Receipt --> Ping[AgentPing approval / audit UI]\n  Deploy[plugins/deploy] -. app/service deploy asks .-> Pulumi\n  Deploy -. static publish stays .-> HereNow[here.now / static deploy]"
+      }
+    },
+    "section-kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "Signals",
+        "title": "What the evidence says"
+      },
+      "children": [
+        "kpi-prior-art",
+        "kpi-directions",
+        "kpi-article-features",
+        "kpi-posture"
+      ]
+    },
+    "kpi-prior-art": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "7",
+        "label": "Prior-art anchors",
+        "trend": {
+          "direction": "up",
+          "value": "repo + session + task evidence"
+        }
+      }
+    },
+    "kpi-directions": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "3",
+        "label": "Direction choices",
+        "trend": {
+          "direction": "flat",
+          "value": "semantic / umbrella / separation"
+        }
+      }
+    },
+    "kpi-article-features": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "12",
+        "label": "Pulumi parity features",
+        "trend": {
+          "direction": "up",
+          "value": "0 unclassified"
+        }
+      }
+    },
+    "kpi-posture": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "A",
+        "label": "Recommended path",
+        "trend": {
+          "direction": "up",
+          "value": "semantic Pulumi adapter"
+        }
+      }
+    },
+    "section-article-distillation": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "Article",
+        "title": "Distillation for Lev"
+      },
+      "children": [
+        "article-code",
+        "article-verifiable",
+        "article-progression",
+        "article-neo",
+        "article-bench",
+        "article-governance"
+      ]
+    },
+    "article-code": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "1. Real languages are the substrate",
+        "content": "Pulumi argues agents are stronger when infrastructure is normal Python/TypeScript/Go/C#/Java rather than a narrow DSL. For Lev, that reinforces “use the right substrate,” not “force infra into Graph/FlowMind.”"
+      }
+    },
+    "article-verifiable": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "2. Verifiability is the safety loop",
+        "content": "The article centers preview, diff, policy checks, reviews, and audit trails. That maps directly to Lev receipts, policy gates, `exec.*` events, and AgentPing approvals."
+      }
+    },
+    "article-progression": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "3. Agents need a ramp",
+        "content": "Pulumi’s ramp is agent accounts → `npx pulumi` → `pulumi do` → full IaC → governance/Neo. Lev’s equivalent should be interview → propose → preview receipt → gated exec → graph projection."
+      }
+    },
+    "article-neo": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "4. Neo is product-surface evidence",
+        "content": "Neo CLI, GitHub, Slack, scheduled tasks, read-only sessions, and integrations are useful product precedent. They should inform AgentPing/daemon/scheduler surfaces, not become Lev runtime authority."
+      }
+    },
+    "article-bench": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "5. InfraBench matters",
+        "content": "Pulumi is measuring infrastructure-agent competence. Lev should add an infra benchmark track: deploy review, drift, rollback, policy denial, readonly audits, and credential hygiene."
+      }
+    },
+    "article-governance": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "6. Governance grows in value",
+        "content": "The article’s strongest point is not that agents can deploy. It is that more capable infra agents make guardrails, audit trails, policies, and operator visibility more valuable, not less."
+      }
+    },
+    "section-lev-meaning": {
+      "type": "section",
+      "variant": "asymmetric",
+      "props": {
+        "label": "Lev Meaning",
+        "title": "How it relates to Lev in general"
+      },
+      "children": [
+        "lev-meaning-text",
+        "lev-mapping-table"
+      ]
+    },
+    "lev-meaning-text": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "Lev should treat Pulumi as a domain plugin, not a dependency to swallow. The core Lev role is lifecycle: classify intent, demand a proposal, execute through gates, produce receipts, project to graph, and surface approvals. Pulumi’s role is infrastructure semantics: project, stack, resource graph, preview, policy pack, outputs, ESC, Automation API."
+      }
+    },
+    "lev-mapping-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "article_signal",
+            "label": "Pulumi signal",
+            "wide": true
+          },
+          {
+            "key": "lev_equivalent",
+            "label": "Lev equivalent",
+            "wide": true
+          },
+          {
+            "key": "interpretation",
+            "label": "Interpretation",
+            "wide": true
+          }
+        ],
+        "rows": [
+          {
+            "article_signal": "Preview/diff/policy/review/audit",
+            "lev_equivalent": "FlowMind gates + Exec events + receipts + AgentPing",
+            "interpretation": {
+              "text": "Direct fit",
+              "status": "match"
+            }
+          },
+          {
+            "article_signal": "Pulumi project/stack/resource/output model",
+            "lev_equivalent": "Domain plugin model, not core graph replacement",
+            "interpretation": {
+              "text": "Respect the IR",
+              "status": "match"
+            }
+          },
+          {
+            "article_signal": "`pulumi do` imperative ramp",
+            "lev_equivalent": "Interview/propose/exec lifecycle and do-plan preview",
+            "interpretation": {
+              "text": "Useful ramp",
+              "status": "info"
+            }
+          },
+          {
+            "article_signal": "Pulumi Cloud/Neo authority",
+            "lev_equivalent": "Lev local-first runtime, provider-agnostic policy",
+            "interpretation": {
+              "text": "Do not adopt as authority",
+              "status": "warn"
+            }
+          }
+        ]
+      }
+    },
+    "section-deploy-posture": {
+      "type": "section",
+      "variant": "diff-panels",
+      "props": {
+        "label": "Current Posture",
+        "title": "Pulumi / lev deploy posture right now"
+      },
+      "children": [
+        "deploy-current",
+        "pulumi-current"
+      ]
+    },
+    "deploy-current": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "plugins/deploy",
+        "content": "**Verified posture:** `lev deploy` exists as a static artifact deployment wrapper plus typed deploy adapter/receipt contracts. Prior docs want plan/apply/verify/rollback and provider adapters. It is not yet a mature infra orchestration surface.\n\n**Important prior art:** earlier `clawtok-deploy-adapters-v1` placed Pulumi/ESC under `@lev-os/deploy`, then a later ClawBuddy decision parked that path for launch simplicity."
+      }
+    },
+    "pulumi-current": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "plugins/pulumi",
+        "content": "**Current slice:** first package exists with planning envelopes for detect/preview/up/destroy/refresh/outputs/do-plan.\n\n**Correction needed:** the slice should move from command envelopes toward Pulumi semantic objects and Automation API boundaries. CLI fallback is fine. CLI proxy as the core model is not."
+      }
+    },
+    "section-prior-art": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Prior Art",
+        "title": "Evidence ledger"
+      },
+      "children": [
+        "prior-art-table"
+      ]
+    },
+    "prior-art-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "source",
+            "label": "Source",
+            "wide": true
+          },
+          {
+            "key": "claim",
+            "label": "What it proves",
+            "wide": true
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          },
+          {
+            "key": "takeaway",
+            "label": "Takeaway",
+            "wide": true
+          }
+        ],
+        "rows": [
+          {
+            "source": "cass search: pulumi lev deploy / Automation API / programmable infrastructure",
+            "claim": "Session index has matches, but expanded Feb 8 hits were setup/AGENTS bootstrap, not substantive Pulumi decisions.",
+            "status": {
+              "text": "Weak",
+              "status": "warn"
+            },
+            "takeaway": "Repo artifacts carry the reliable prior art."
+          },
+          {
+            "source": "workshop/intake/the-agentic-infrastructure-era/article.md",
+            "claim": "Pulumi article says real code, preview/diff/policy/audit, `pulumi do`, Neo, skills, and InfraBench are the agentic infra stack.",
+            "status": {
+              "text": "Verified",
+              "status": "match"
+            },
+            "takeaway": "Distill by domain, not vague extraction."
+          },
+          {
+            "source": ".lev/pm/tasks/clawtok-deploy-adapters-v1/dna.yaml",
+            "claim": "There was already a full Pulumi + ESC + @lev-os/deploy plan, including Cloudflare native Pulumi resources and secret boundaries.",
+            "status": {
+              "text": "Verified",
+              "status": "match"
+            },
+            "takeaway": "This was not the first Pulumi/deploy discussion."
+          },
+          {
+            "source": ".lev/pm/decisions/20260509-clawbuddy-rebrand-and-simple-env-strategy.md",
+            "claim": "Pulumi/ESC was deliberately parked for launch simplicity and left for another branch.",
+            "status": {
+              "text": "Verified",
+              "status": "match"
+            },
+            "takeaway": "Current posture is paused, not absent."
+          },
+          {
+            "source": ".lev/pm/plans/plan-impl-graph-os-ai-deploy-and-infra-surface.md",
+            "claim": "Graph-OS plan explicitly defers Pulumi/GCP until provider contracts stabilize.",
+            "status": {
+              "text": "Verified",
+              "status": "match"
+            },
+            "takeaway": "Do contract first; providers second."
+          },
+          {
+            "source": "plugins/deploy/src/shared/deploy-adapter.ts + deploy-receipt.ts",
+            "claim": "Deploy has deterministic adapter and audit receipt primitives.",
+            "status": {
+              "text": "Verified",
+              "status": "match"
+            },
+            "takeaway": "Good receipt contract, thin infra semantics."
+          },
+          {
+            "source": "plugins/pulumi/config.yaml + src/shared/pulumi-command.ts",
+            "claim": "First Pulumi plugin slice exists, but currently focuses on command envelopes.",
+            "status": {
+              "text": "New",
+              "status": "info"
+            },
+            "takeaway": "Use it as scaffold, then shift to Pulumi-native semantics."
+          }
+        ],
+        "stickyHeader": true
+      }
+    },
+    "section-directions": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Direction",
+        "title": "Three directions we could / should go"
+      },
+      "children": [
+        "directions-table"
+      ]
+    },
+    "directions-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "direction",
+            "label": "Direction",
+            "wide": true
+          },
+          {
+            "key": "shape",
+            "label": "Shape",
+            "wide": true
+          },
+          {
+            "key": "pros",
+            "label": "Why yes",
+            "wide": true
+          },
+          {
+            "key": "risks",
+            "label": "Risk",
+            "wide": true
+          },
+          {
+            "key": "verdict",
+            "label": "Verdict"
+          }
+        ],
+        "rows": [
+          {
+            "direction": "A. Pulumi semantic adapter",
+            "shape": "`plugins/pulumi` owns projects, stacks, resources, outputs, ESC, preview, policy packs, Automation API. `lev deploy` calls it by typed intent when infra is involved.",
+            "pros": "Respects Pulumi IR/lingo. Keeps Lev policy/receipt/graph layers. Matches prior art and avoids proxy trap.",
+            "risks": "More contract design before implementation; requires fixture Pulumi projects and mocked Automation API tests.",
+            "verdict": {
+              "text": "Recommended",
+              "status": "match"
+            }
+          },
+          {
+            "direction": "B. Deploy umbrella with Pulumi backend",
+            "shape": "`plugins/deploy` remains the top-level product deploy surface; Pulumi is a provider backend for Cloudflare/R2/DNS/secrets resources.",
+            "pros": "Matches `clawtok-deploy-adapters-v1`; easiest path for app/product deploys; uses existing deploy receipt contract.",
+            "risks": "Can flatten Pulumi into generic deploy verbs and lose stack/resource semantics. Easy to accidentally build a CLI proxy.",
+            "verdict": {
+              "text": "Useful but guarded",
+              "status": "warn"
+            }
+          },
+          {
+            "direction": "C. Hard separation",
+            "shape": "`lev deploy` handles static/app/service deployment. `plugins/pulumi` handles IaC only. They meet only through receipts and AgentPing approvals.",
+            "pros": "Clean boundaries, lowest coupling, avoids premature product abstraction.",
+            "risks": "Fragmented UX; product flows that need both app deploy and infra provision become multi-step until bridge exists.",
+            "verdict": {
+              "text": "Safe fallback",
+              "status": "info"
+            }
+          }
+        ],
+        "stickyHeader": true
+      }
+    },
+    "section-recommendation": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "Recommendation",
+        "title": "What I would do next"
+      },
+      "children": [
+        "recommend-card",
+        "not-card"
+      ]
+    },
+    "recommend-card": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Do this",
+        "content": "Move forward with Direction A, plus a narrow Direction B bridge. `plugins/pulumi` owns Pulumi-native concepts. `plugins/deploy` can request infrastructure outcomes, but cannot erase Pulumi’s project/stack/resource model. The first implementation should replace “command envelope” as the mental model with “preview receipt over Pulumi stack intent.”"
+      }
+    },
+    "not-card": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Do not do this",
+        "content": "Do not build `lev pulumi` as a generic wrapper around `pulumi <anything>`. Do not put Pulumi Cloud/Neo in charge of Lev identity, lifecycle, approval, or runtime authority. Do not route Pulumi through graph as if graph is the infrastructure IR."
+      }
+    },
+    "section-lifecycle": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": {
+        "label": "Lev Lifecycle",
+        "title": "Follow-up route"
+      },
+      "children": [
+        "life-interview",
+        "life-propose",
+        "life-exec"
+      ]
+    },
+    "life-interview": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "label": "INTERVIEW",
+        "title": "Choose the boundary",
+        "content": "Answer: Is `plugins/pulumi` CLI + Automation API, Automation API only, or CLI fallback behind semantic contracts? Also decide whether ESC is in v1 or v2."
+      }
+    },
+    "life-propose": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "label": "PROPOSE",
+        "title": "Write the contract",
+        "content": "Create the Pulumi adapter proposal: ProjectRef, StackRef, ResourceIntent, PreviewReceipt, PolicyResult, OutputSet, CredentialLease, ExecGate."
+      }
+    },
+    "life-exec": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "label": "EXEC",
+        "title": "Build the first real slice",
+        "content": "Replace command proxy posture with semantic preview over a fixture Pulumi project, mocked Automation API tests, and AgentPing approval projection."
+      }
+    }
+  }
+}

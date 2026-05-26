@@ -17,6 +17,7 @@ framing normally expected from a PRD, but inside the design artifact.
 
 ```bash
 /interview                      # --standard --compact by default
+/interview --auto               # synthesize/update artifact from context; ask only on blocking ambiguity
 /interview --quick              # lower rigor, ambiguity gate <= 0.30
 /interview --standard           # default rigor, ambiguity gate <= 0.20
 /interview --deep               # high rigor, ambiguity gate <= 0.15
@@ -32,6 +33,7 @@ framing normally expected from a PRD, but inside the design artifact.
 ```yaml
 rules:
   - "Depth and verbosity are separate controls: quick/standard/deep changes ambiguity threshold; compact/full changes visible text volume only."
+  - "--auto performs lookup and scoring first; if ambiguity is at or below threshold, update the artifact instead of interviewing."
   - "Start in the orientation loop unless ambiguity is already at or below the active depth threshold."
   - "Do not walk design branches until the orientation loop identifies the subject and ambiguity is at or below threshold."
   - "Run codebase/docs/artifact lookup before asking in both loops; do not ask the user what files can answer."
@@ -53,8 +55,10 @@ steps:
     action: Choose depth and output mode
     instruction: |
       Default to --standard --compact.
+      --auto inherits --standard --compact unless quick/standard/deep/full is also supplied.
       User-passed quick/standard/deep overrides complexity inference.
       If not passed, infer depth from complexity: quick for low blast radius and reversible choices, standard for normal product/architecture design, deep for cross-module, high-risk, or irreversible design.
+      In --auto, ask only when lookup cannot reduce ambiguity below the selected threshold.
       Compact/full controls presentation only; it never changes lookup, scoring, or branch coverage.
     validation: "Depth is quick, standard, or deep; output mode is compact or full."
     on_failure: "Default to --standard --compact and state that more detail is available with --full or d. Deep dive."
