@@ -1,0 +1,347 @@
+{
+  "meta": {
+    "title": "AgentLease Unified Access Control",
+    "description": "A unified Lev design for RBAC, scoped permissions, auth-material, data/PII leases, AgentPing approvals, and runtime enforcement.",
+    "layout": "sidebar-toc",
+    "fonts": ["IBM Plex Sans", "IBM Plex Mono"],
+    "effects": ["grid-dots", "glass", "title-underline"]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "section-decision",
+    "section-flow",
+    "section-kpis",
+    "section-resource-policy",
+    "section-ownership",
+    "section-contract",
+    "section-fitness",
+    "section-promotion"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "ARCHITECTURE DESIGN",
+        "title": "AgentLease Unified Access Control",
+        "subtitle": "One runtime grant model for RBAC, scoped permissions, auth-material, data/PII leases, AgentPing approvals, and enforceable receipts.",
+        "meta": "Draft design · 2026-05-22 · confidence 0.82"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "Lev should treat `AgentLeaseGrant` as the active runtime authority. RBAC, ABAC, scoped permissions, and human approvals become admission inputs; Exec, Harness, Vault, browser adapters, worker lifecycles, and mesh projections enforce active grants and emit receipts."
+      }
+    },
+    "section-decision": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "Core Decision",
+        "title": "Lease as the narrow waist",
+        "subtitle": "The important split is between policy inputs and authority-bearing grants."
+      },
+      "children": ["decision-recommendation", "decision-rejections"]
+    },
+    "decision-recommendation": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Recommended: Unified AgentLeaseGrant",
+        "content": "Use one grant lifecycle: `PolicyRequest -> AccessDecision -> AgentPing approval -> AgentLeaseGrant -> EnforcementDescriptor -> AgentLeaseUse -> Receipt`. This gives one audit path for tools, files, secrets, PII, browser control, workers, mutable state, budgets, and mesh delegation."
+      }
+    },
+    "decision-rejections": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Rejected: Parallel authority systems",
+        "content": "Keeping RBAC, scoped permissions, PII, vault, browser, and worker leases separate looks faster, but it fragments policy and makes hidden bypasses likely. RBAC-first is familiar, but ambient role authority does not fit time-bounded agent execution."
+      }
+    },
+    "section-flow": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "Lifecycle",
+        "title": "From intent to enforceable authority"
+      },
+      "children": ["flow-diagram", "flow-callout"]
+    },
+    "flow-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "content": "flowchart TD\n  A[FlowMind / config] -->|required leases + TTL defaults| B[AgentGuard / runtime governance]\n  B -->|deny with reasons| C[Denied]\n  B -->|allow| D[AgentLeaseGrant]\n  B -->|require approval| E[AgentPing approval surface]\n  E -->|structured human response| B\n  D --> F[EnforcementDescriptor]\n  F --> G[Exec / Harness / Vault / Browser / Worker]\n  G --> H[AgentLeaseUse]\n  H --> I[Receipt / GateProof / AuditEvent]\n  I --> J[Mesh projection: assertions, digests, receipts only]",
+        "caption": "Policy stays upstream; runtime sees enforceable descriptors; evidence flows downstream."
+      }
+    },
+    "flow-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "AgentPing is the human-loop surface, not the policy engine",
+        "content": "AgentPing renders requests and captures responses. AgentGuard/runtime governance issues or denies grants. Runtime adapters enforce descriptors. This preserves the existing AgentPing lease UX without letting a browser-specific implementation become the general access model."
+      }
+    },
+    "section-kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "Design Drivers",
+        "title": "What the model must protect"
+      },
+      "children": ["kpi-classes", "kpi-default-ttl", "kpi-raw-access", "kpi-branches"]
+    },
+    "kpi-classes": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "10",
+        "label": "Resource classes",
+        "trend": { "direction": "up", "value": "unified lifecycle" }
+      }
+    },
+    "kpi-default-ttl": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "10m",
+        "label": "Sensitive default TTL",
+        "trend": { "direction": "flat", "value": "policy-defined" }
+      }
+    },
+    "kpi-raw-access": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "0",
+        "label": "Raw secret/PII defaults",
+        "trend": { "direction": "down", "value": "denied" }
+      }
+    },
+    "kpi-branches": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "6",
+        "label": "Resolved design branches",
+        "trend": { "direction": "up", "value": "ready to propose" }
+      }
+    },
+    "section-resource-policy": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Resource Policy",
+        "title": "One lease schema, class-specific enforcement",
+        "subtitle": "Sensitive classes default to brokered use, redacted views, derived answers, or brokered actions."
+      },
+      "children": ["resource-policy-table"]
+    },
+    "resource-policy-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "class", "label": "Class" },
+          { "key": "defaultMode", "label": "Default grant mode" },
+          { "key": "rawAccess", "label": "Raw access default" },
+          { "key": "enforcement", "label": "Enforcement" },
+          { "key": "status", "label": "Status" }
+        ],
+        "rows": [
+          { "class": "tool", "defaultMode": "Invoke named tool/op", "rawAccess": "n/a", "enforcement": "Exec/Harness preflight", "status": { "text": "unified", "status": "match" } },
+          { "class": "file", "defaultMode": "Read/write path scope", "rawAccess": "scoped path only", "enforcement": "filesystem adapter", "status": { "text": "class guard", "status": "info" } },
+          { "class": "secret", "defaultMode": "Brokered use by key name", "rawAccess": "denied", "enforcement": "vault/broker adapter", "status": { "text": "sensitive", "status": "warn" } },
+          { "class": "pii", "defaultMode": "Redacted view or derived answer", "rawAccess": "denied", "enforcement": "data broker/redactor", "status": { "text": "sensitive", "status": "warn" } },
+          { "class": "browser", "defaultMode": "Scoped CDP/tool methods", "rawAccess": "n/a", "enforcement": "AgentPing/browser adapter", "status": { "text": "exists", "status": "match" } },
+          { "class": "worker", "defaultMode": "Claim/dispatch slot", "rawAccess": "n/a", "enforcement": "tmux/harness lifecycle", "status": { "text": "exists", "status": "match" } },
+          { "class": "network", "defaultMode": "Allowlisted host/service", "rawAccess": "n/a", "enforcement": "broker/proxy/harness", "status": { "text": "needed", "status": "info" } },
+          { "class": "mutable_state", "defaultMode": "Guarded mutation", "rawAccess": "n/a", "enforcement": "graph/workstream adapter", "status": { "text": "needed", "status": "info" } },
+          { "class": "mesh_peer", "defaultMode": "Capability route assertion", "rawAccess": "no live authority transfer", "enforcement": "mesh projection", "status": { "text": "assertions only", "status": "warn" } },
+          { "class": "run_budget", "defaultMode": "Cost/token/time budget", "rawAccess": "n/a", "enforcement": "exec/resource governor", "status": { "text": "needed", "status": "info" } }
+        ],
+        "stickyHeader": true,
+        "footer": {
+          "class": "Rule",
+          "defaultMode": "Grant useful authority",
+          "rawAccess": "deny sensitive raw material",
+          "enforcement": "descriptor-driven",
+          "status": "receipt-visible"
+        }
+      }
+    },
+    "section-ownership": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "Ownership",
+        "title": "Who owns what"
+      },
+      "children": ["owner-domain", "owner-governance", "owner-agentping", "owner-runtime", "owner-vault", "owner-mesh"]
+    },
+    "owner-domain": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "core/domain",
+        "content": "Pure `AgentLease` nouns, validators, class policies, and receipt reference types."
+      }
+    },
+    "owner-governance": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "AgentGuard / runtime governance",
+        "content": "RBAC, ABAC, scoped permission, material policy, approval routing, and final grant issuance."
+      }
+    },
+    "owner-agentping": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "AgentPing",
+        "content": "Lease request rendering, structured human response, approval timeouts, and review UX."
+      }
+    },
+    "owner-runtime": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "Exec / Harness",
+        "content": "Consume enforcement descriptors, check active grants, run work, and emit use receipts."
+      }
+    },
+    "owner-vault": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "Vault / broker",
+        "content": "Resolve sensitive material behind key names and broker descriptors; never default to agent-visible plaintext."
+      }
+    },
+    "owner-mesh": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "Mesh",
+        "content": "Exchange assertions, digests, capability advertisements, and receipts. No raw auth-material, raw PII, live handles, or reusable bearer leases."
+      }
+    },
+    "section-contract": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "Contract Shape",
+        "title": "First slice vocabulary"
+      },
+      "children": ["contract-code", "contract-note"]
+    },
+    "contract-code": {
+      "type": "code-block",
+      "props": {
+        "language": "typescript",
+        "filename": "core/domain/src/agent-lease/types.ts",
+        "showLineNumbers": true,
+        "content": "type AgentLeaseStatus = 'requested' | 'granted' | 'denied' | 'revoked' | 'expired';\ntype AgentLeaseMaterialClass = 'tool' | 'file' | 'secret' | 'pii' | 'browser' | 'worker' | 'network' | 'mutable_state' | 'mesh_peer' | 'run_budget';\ntype SensitiveGrantMode = 'metadata_only' | 'redacted_view' | 'derived_answer' | 'brokered_action' | 'raw_read';\n\ninterface AgentLeaseGrant {\n  id: string;\n  status: AgentLeaseStatus;\n  holder: string;\n  issuer: string;\n  materialClass: AgentLeaseMaterialClass;\n  resourceRefs: string[];\n  operationSet: string[];\n  purpose: string;\n  scope: Record<string, unknown>;\n  issuedAt: string;\n  expiresAt: string;\n  brokerRef?: string;\n  proofRefs: string[];\n}"
+      }
+    },
+    "contract-note": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Bridge, don't replace, current evidence",
+        "content": "The first proposal should bridge existing FlowMind required leases, runtime-governance decisions, AgentPing browser approval flows, vault depth metadata, warm-worker leases, and mesh auth-material guards into one domain contract."
+      }
+    },
+    "section-fitness": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Fitness Functions",
+        "title": "Checks that keep the architecture honest"
+      },
+      "children": ["fitness-table"]
+    },
+    "fitness-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "check", "label": "Check" },
+          { "key": "type", "label": "Type" },
+          { "key": "threshold", "label": "Threshold" },
+          { "key": "reason", "label": "Why it matters" }
+        ],
+        "rows": [
+          { "check": "agentlease-no-raw-sensitive-material", "type": "negative invariant", "threshold": "0 leaked raw values", "reason": "Secrets and PII must not appear in pings, receipts, logs, or mesh envelopes." },
+          { "check": "agentlease-expiry-fail-closed", "type": "contract", "threshold": "100% expired-use denial", "reason": "Time-bounded authority is the core promise." },
+          { "check": "agentlease-holder-binding", "type": "contract", "threshold": "100% wrong-holder denial", "reason": "A grant cannot become ambient transferable authority." },
+          { "check": "agentlease-class-validator", "type": "schema", "threshold": "1 validator per class", "reason": "The unified schema must not become a bag of strings." },
+          { "check": "agentping-not-policy-engine", "type": "boundary", "threshold": "0 vault/backend grant issuance imports", "reason": "AgentPing is UX and response capture, not policy authority." },
+          { "check": "mesh-no-auth-material", "type": "boundary", "threshold": "0 raw material or bearer lease fields", "reason": "Mesh route trust must not become secret replication." }
+        ],
+        "stickyHeader": true
+      }
+    },
+    "section-promotion": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": {
+        "label": "Next Move",
+        "title": "Promotion path"
+      },
+      "children": ["step-contract", "step-bridge", "step-agentping", "step-broker", "step-negative-tests"]
+    },
+    "step-contract": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "1. Domain contracts",
+        "content": "Define `AgentLeasePolicy`, `AgentLeaseRequest`, `AccessDecision`, `AgentLeaseGrant`, `AgentLeaseUse`, and `AgentLeaseReceiptRef`."
+      }
+    },
+    "step-bridge": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "2. Policy bridge",
+        "content": "Map current runtime-governance decisions and FlowMind `required_leases` into `AgentLeaseRequest`."
+      }
+    },
+    "step-agentping": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "3. AgentPing request shape",
+        "content": "Render non-browser lease classes without giving AgentPing final grant authority."
+      }
+    },
+    "step-broker": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "4. Broker descriptors",
+        "content": "Add descriptor shape for `secret`, `pii`, `network`, and sensitive brokered action paths."
+      }
+    },
+    "step-negative-tests": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "5. Leakage tests",
+        "content": "Prove no raw secret or PII values can enter Run, Receipt, GateProof, AgentPing payloads, request logs, or mesh envelopes."
+      }
+    }
+  }
+}
