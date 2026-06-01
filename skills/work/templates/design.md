@@ -74,6 +74,14 @@ Describe the proposed solution from the user, operator, or system perspective.
 - External behavior that proves success
 - Modules, flows, or contracts that need tests
 - Prior-art tests, validators, fixtures, or replay checks to reuse
+- QA/Pentagon proof design when applicable:
+  - promotion decision
+  - highest-risk behavioral claim
+  - fail-closed acceptance criterion
+  - owner-local test/probe/fixture placement
+  - Pentagon axes required
+  - UltraQA scenario classes required
+  - ai-slop-cleaner review gate for cleanup/refactor/fallback/boundary risk
 
 ### Out of Scope
 
