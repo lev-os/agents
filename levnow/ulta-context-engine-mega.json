@@ -1,0 +1,732 @@
+{
+  "meta": {
+    "title": "Ulta Context Engine Mega Brief",
+    "description": "Current architecture, schema direction, source readiness, and implementation slices for Ulta Context Engine.",
+    "layout": "sidebar-toc",
+    "effects": [
+      "grid-dots",
+      "title-underline"
+    ],
+    "fonts": [
+      "IBM Plex Sans",
+      "IBM Plex Mono"
+    ]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "kpis",
+    "north-star",
+    "architecture-map",
+    "source-lanes",
+    "schema-spine",
+    "prompt-catalog-flow",
+    "config-contract",
+    "delivery-route",
+    "artifact-context-contract",
+    "local-search-status",
+    "gaps",
+    "slices"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "ULTA CONTEXT ENGINE",
+        "title": "Context Engine Mega Brief",
+        "subtitle": "Repo-owned named context, prompt catalogs, delivery schemas, and local-first search projections.",
+        "meta": "Current as of May 22, 2026"
+      },
+      "children": [
+        "hero-lead"
+      ]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "The durable direction is simple: repos own human docs and named `.ulta/context`; prompt catalogs seed the work that produces that context; the context engine owns schemas, graph admission, and projections; the Ulta AI CLI is the product adapter that installs, initializes, configures, and runs the workflows."
+      }
+    },
+    "kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "Current Proof",
+        "title": "What is real locally right now"
+      },
+      "children": [
+        "kpi-repos",
+        "kpi-files",
+        "kpi-lanes",
+        "kpi-gaps"
+      ]
+    },
+    "kpi-repos": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "5",
+        "label": "Repos mounted for context work",
+        "trend": {
+          "direction": "up",
+          "value": "web, DXL, BE, iOS, Android"
+        }
+      }
+    },
+    "kpi-files": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "62",
+        "label": "Generated legacy corpus files",
+        "trend": {
+          "direction": "flat",
+          "value": "proof manifest exists"
+        }
+      }
+    },
+    "kpi-lanes": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "4",
+        "label": "Proven source lanes",
+        "trend": {
+          "direction": "up",
+          "value": "docs, curated, DXL, BE rules"
+        }
+      }
+    },
+    "kpi-gaps": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "3",
+        "label": "Primary gaps before v1",
+        "trend": {
+          "direction": "down",
+          "value": "schemas, prompts, cross-repo index"
+        }
+      }
+    },
+    "north-star": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "Boundary",
+        "title": "Current versus ideal model",
+        "subtitle": "This keeps the source of truth in repos while allowing QMD and graph to be rebuilt as projections."
+      },
+      "children": [
+        "current-model",
+        "ideal-model"
+      ]
+    },
+    "current-model": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Current",
+        "content": "A working legacy corpus proof combines web-site docs, curated context, DXL model extraction, and orchestration rules. Repo `.ulta` folders have been initialized, but BE, DXL, iOS, and Android named context are not populated yet."
+      }
+    },
+    "ideal-model": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Ideal",
+        "content": "Each repo carries a small global named context set plus repo-type extensions. The context engine validates schemas and builds QMD/search/graph projections. Workflow skills query by role, lifecycle stage, artifact type, and stack intent."
+      }
+    },
+    "architecture-map": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Architecture",
+        "title": "Source to query flow"
+      },
+      "children": [
+        "architecture-diagram"
+      ]
+    },
+    "architecture-diagram": {
+      "type": "diagram",
+      "props": {
+        "title": "Context Engine Flow",
+        "content": "flowchart TD\n  A[\"Repo sources\\ndocs, code, rules, models\"] --> B[\"Prompt catalogs\\nulta-context-* packages\"]\n  B --> C[\"Scaffolded prompts\\n.ulta/prompts\"]\n  C --> D[\"Named context\\n.ulta/context\"]\n  D --> E[\"Context engine\\nvalidators and schemas\"]\n  E --> F[\"QMD / local search\\nfast local projection\"]\n  E --> G[\"Graph entities\\nrelationships and receipts\"]\n  F --> H[\"Ulta AI CLI query\"]\n  G --> H\n  H --> I[\"Role skills\\nestimation, epic, arch, QA, dev tickets\"]\n  H --> J[\"Optional MCP adapter\"]"
+      }
+    },
+    "source-lanes": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Inputs",
+        "title": "Repo and source lane readiness",
+        "subtitle": "Status separates legacy corpus proof from repo-owned named context readiness."
+      },
+      "children": [
+        "source-table",
+        "coverage-chart"
+      ]
+    },
+    "source-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "surface",
+            "label": "Surface"
+          },
+          {
+            "key": "source",
+            "label": "Primary source"
+          },
+          {
+            "key": "proven",
+            "label": "Proven now"
+          },
+          {
+            "key": "gap",
+            "label": "Gap"
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          }
+        ],
+        "rows": [
+          {
+            "surface": "web-site",
+            "source": "docs plus `.ulta/context`",
+            "proven": "75 docs discovered; docs lane indexed in legacy corpus",
+            "gap": "Replace ad hoc context with named global and web catalog outputs",
+            "status": {
+              "text": "Partial",
+              "status": "warn"
+            }
+          },
+          {
+            "surface": "exp-graphql / DXL",
+            "source": "model definitions, CMS/Amplience patterns, GraphQL BFF behavior",
+            "proven": "32 model files extracted into legacy corpus",
+            "gap": "Generate typed DXL named context in repo `.ulta/context`",
+            "status": {
+              "text": "Corpus proof",
+              "status": "info"
+            }
+          },
+          {
+            "surface": "orch-buy / backend",
+            "source": "cartV2 Drools rules and Java service structure",
+            "proven": "9 cart eligibility rule files extracted",
+            "gap": "Summarize promotions, business rules, data sources, integrations, and service boundaries",
+            "status": {
+              "text": "Corpus proof",
+              "status": "info"
+            }
+          },
+          {
+            "surface": "iOS",
+            "source": "native app source and future repo-type prompt catalog",
+            "proven": "Repo mounted and initialized",
+            "gap": "No named context generated yet",
+            "status": {
+              "text": "Bootstrapped",
+              "status": "warn"
+            }
+          },
+          {
+            "surface": "Android",
+            "source": "native app source and future repo-type prompt catalog",
+            "proven": "Repo mounted and initialized",
+            "gap": "No named context generated yet",
+            "status": {
+              "text": "Bootstrapped",
+              "status": "warn"
+            }
+          }
+        ],
+        "stickyHeader": true
+      }
+    },
+    "coverage-chart": {
+      "type": "chart",
+      "props": {
+        "chartType": "bar",
+        "title": "Discovered items in current proof lanes",
+        "labels": [
+          "web docs",
+          "curated",
+          "DXL models",
+          "BE rules",
+          "iOS context",
+          "Android context"
+        ],
+        "datasets": [
+          {
+            "label": "Items",
+            "data": [
+              75,
+              4,
+              32,
+              9,
+              0,
+              0
+            ],
+            "backgroundColor": [
+              "#5eead4",
+              "#38bdf8",
+              "#a78bfa",
+              "#f59e0b",
+              "#64748b",
+              "#64748b"
+            ]
+          }
+        ]
+      }
+    },
+    "schema-spine": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Contracts",
+        "title": "Schema spine to settle"
+      },
+      "children": [
+        "schema-table"
+      ]
+    },
+    "schema-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "schema",
+            "label": "Schema"
+          },
+          {
+            "key": "owner",
+            "label": "Owner"
+          },
+          {
+            "key": "purpose",
+            "label": "Purpose"
+          },
+          {
+            "key": "state",
+            "label": "State"
+          }
+        ],
+        "rows": [
+          {
+            "schema": "DeliveryObject",
+            "owner": "context engine",
+            "purpose": "Lifecycle aggregate from intake through delivery receipts",
+            "state": {
+              "text": "Design captured",
+              "status": "info"
+            }
+          },
+          {
+            "schema": "SDLC.UnitOfWork",
+            "owner": "context engine",
+            "purpose": "Public work wrapper: deliveryObject, id, name, desc, jiraId, meta",
+            "state": {
+              "text": "Shape seeded",
+              "status": "match"
+            }
+          },
+          {
+            "schema": "DeliveryStageRoute",
+            "owner": "context engine",
+            "purpose": "Ordered route from Ingest to Push with repeated QA/proof stages",
+            "state": {
+              "text": "Needs naming polish",
+              "status": "warn"
+            }
+          },
+          {
+            "schema": "ContextItem",
+            "owner": "context engine",
+            "purpose": "Retrieval atom with audience, domain, stage, category, group, repo type, artifact targets",
+            "state": {
+              "text": "Design captured",
+              "status": "info"
+            }
+          },
+          {
+            "schema": "ArtifactRecord",
+            "owner": "context engine",
+            "purpose": "Typed outputs like QA report, dev ticket, user story, C1-C4, wiki ref, receipts",
+            "state": {
+              "text": "Taxonomy seeded",
+              "status": "info"
+            }
+          },
+          {
+            "schema": "PromptCatalogSelection",
+            "owner": "context engine contract; CLI adapter",
+            "purpose": "Ordered catalog selection that scaffolds prompts producing named context",
+            "state": {
+              "text": "Key decision",
+              "status": "match"
+            }
+          }
+        ],
+        "stickyHeader": true
+      }
+    },
+    "prompt-catalog-flow": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "CLI UX",
+        "title": "Prompt catalogs produce named context",
+        "subtitle": "These are product steps, not hidden config surgery."
+      },
+      "children": [
+        "p1",
+        "p2",
+        "p3",
+        "p4",
+        "p5",
+        "p6"
+      ]
+    },
+    "p1": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Install",
+        "content": "`ulta install` prepares the local product surface, skills, and optional adapters."
+      }
+    },
+    "p2": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Init repo",
+        "content": "User enters a repo and asks for `ulta init`."
+      }
+    },
+    "p3": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Detect type",
+        "content": "Agent/CLI scans and proposes a repo type, for example node/react."
+      }
+    },
+    "p4": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Apply config",
+        "content": "`config apply repo-type` and `config apply prompt-catalog` mutate config through product commands."
+      }
+    },
+    "p5": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Scaffold prompts",
+        "content": "Catalog files materialize under `.ulta/prompts` in declared array order."
+      }
+    },
+    "p6": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Generate context",
+        "content": "Prompts produce named `.ulta/context` files that can be indexed or promoted to graph."
+      }
+    },
+    "config-contract": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "Config",
+        "title": "Authored config is prompt catalog selection"
+      },
+      "children": [
+        "config-callout",
+        "config-code"
+      ]
+    },
+    "config-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Do not revive context overlays",
+        "content": "The selected product shape is ordered prompt catalogs. The prompts are what produce named context. Array index is scaffold, execution, and precedence order."
+      }
+    },
+    "config-code": {
+      "type": "code-block",
+      "props": {
+        "language": "yaml",
+        "filename": ".ulta/config.yaml",
+        "content": "context:\n  prompts:\n    directory: prompts\n    catalogs:\n      - id: repo-core\n        version: v1\n        mode: seed\n        enabled: true\n      - id: web-experience\n        version: v1\n        mode: seed\n        enabled: true\n\n# Catalog source files:\n# ulta-context-*/prompts/<prompt-catalog>-<prompt-slug>.md\n# Scaffolded files:\n# .ulta/prompts/<prompt-catalog>-<prompt-slug>.md",
+        "showLineNumbers": true
+      }
+    },
+    "delivery-route": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "Lifecycle",
+        "title": "Delivery route needs explicit stage IDs"
+      },
+      "children": [
+        "delivery-timeline"
+      ]
+    },
+    "delivery-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          {
+            "date": "1",
+            "title": "Ingest",
+            "description": "VP, PO, PM, BA, stakeholder input becomes a DeliveryObject draft.",
+            "status": "completed"
+          },
+          {
+            "date": "2",
+            "title": "Planning",
+            "description": "High-level epic planning, t-shirt estimates, story framing, acceptance criteria, and risks.",
+            "status": "completed"
+          },
+          {
+            "date": "3",
+            "title": "Architecture approval",
+            "description": "C1-C4, ADRs, dependency maps, and boundary decisions mature the work before dev grooming.",
+            "status": "in-progress"
+          },
+          {
+            "date": "4",
+            "title": "Dev and initial Verify/QA/Proof",
+            "description": "Implementation tickets add repo-specific context; QA starts from the business slice and adds test depth.",
+            "status": "upcoming"
+          },
+          {
+            "date": "5",
+            "title": "Cleanup, standards, final proof, receipt, push",
+            "description": "Refactor, standards/perf/ADA, final QA proof, commit receipt, and push receipts close the delivery trail.",
+            "status": "upcoming"
+          }
+        ]
+      }
+    },
+    "artifact-context-contract": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "Routing",
+        "title": "Artifacts and ContextItems are the working units"
+      },
+      "children": [
+        "artifact-card",
+        "contextitem-card"
+      ]
+    },
+    "artifact-card": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "ArtifactRecord",
+        "content": "Typed outputs include user stories, dev tickets, QA test reports, C1-C4 architecture artifacts, wiki references, estimate reports, test plans, acceptance traceability, receipts, release notes, and rollback plans."
+      }
+    },
+    "contextitem-card": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "ContextItem",
+        "content": "Retrieval atoms carry audience, domain, lifecycle stage keys, category, parent, group, repo types, capabilities, artifact targets, and inclusion policy. This is how business, dev, and QA see the right depth."
+      }
+    },
+    "local-search-status": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "Local RAG",
+        "title": "Search projection status"
+      },
+      "children": [
+        "search-callout",
+        "query-policy"
+      ]
+    },
+    "search-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Local-first before graph completeness",
+        "content": "The current proof can generate a markdown corpus with web docs, curated context, DXL models, and backend rules. The next v1 path should query across all repo-owned `.ulta/context` and docs sources, then promote accepted structured entities into the graph."
+      }
+    },
+    "query-policy": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Intent expansion policy",
+        "content": "For a request like adding a payment method or promotion rule, the skill should project the completed solution first, then issue stack-wide discovery queries plus stack-specific queries for client surfaces, DXL/BFF, backend services, business rules, and QA artifacts."
+      }
+    },
+    "gaps": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Gaps",
+        "title": "Current versus ideal gap list"
+      },
+      "children": [
+        "gap-table"
+      ]
+    },
+    "gap-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "area",
+            "label": "Area"
+          },
+          {
+            "key": "current",
+            "label": "Current"
+          },
+          {
+            "key": "ideal",
+            "label": "Ideal"
+          },
+          {
+            "key": "next",
+            "label": "Next move"
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          }
+        ],
+        "rows": [
+          {
+            "area": "Named context",
+            "current": "Repo `.ulta/context` exists but is mostly empty or ad hoc",
+            "ideal": "Every repo has global named context plus repo-type extensions",
+            "next": "Define global prompt catalog and run it in each repo",
+            "status": {
+              "text": "P0",
+              "status": "warn"
+            }
+          },
+          {
+            "area": "Schemas",
+            "current": "Design captured; no canonical package yet",
+            "ideal": "Context engine exports validated contracts imported by CLI",
+            "next": "Implement DeliveryObject, UnitOfWork, ContextItem, ArtifactRecord, catalog schemas",
+            "status": {
+              "text": "P0",
+              "status": "warn"
+            }
+          },
+          {
+            "area": "Prompt catalogs",
+            "current": "Seed prompts exist, but not cataloged with ordered selection",
+            "ideal": "Catalog abstraction shared by skills, repo types, and prompt scaffolding",
+            "next": "Build catalog discovery, plan, apply, receipts",
+            "status": {
+              "text": "P0",
+              "status": "warn"
+            }
+          },
+          {
+            "area": "QMD/search",
+            "current": "Legacy corpus proof exists; repo-owned `.ulta/context` projection is incomplete",
+            "ideal": "Cross-repo query over web, DXL, BE, iOS, Android context and docs",
+            "next": "Build projection from repo sources, then prove stack-wide queries",
+            "status": {
+              "text": "P1",
+              "status": "info"
+            }
+          },
+          {
+            "area": "Graph admission",
+            "current": "Entity design exists; durable graph is not the source yet",
+            "ideal": "Accepted entities and relationships promoted with receipts and versioning",
+            "next": "Create graph admission schema and projection receipts",
+            "status": {
+              "text": "P1",
+              "status": "info"
+            }
+          }
+        ],
+        "stickyHeader": true
+      }
+    },
+    "slices": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "Build Plan",
+        "title": "Implementation slices to get to useful queries"
+      },
+      "children": [
+        "slice-timeline"
+      ]
+    },
+    "slice-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          {
+            "date": "Slice 1",
+            "title": "Contracts package",
+            "description": "Context engine exports schemas, validators, route catalogs, artifact taxonomy, and migration helpers.",
+            "status": "upcoming"
+          },
+          {
+            "date": "Slice 2",
+            "title": "Prompt catalog and CLI adapter",
+            "description": "Ordered prompt catalogs become product config; CLI handles repo detection, config apply, scaffold, dry-run, and receipts.",
+            "status": "upcoming"
+          },
+          {
+            "date": "Slice 3",
+            "title": "Global named context generation",
+            "description": "Business context, system context, architecture overview, and delivery/gotchas generated into each repo.",
+            "status": "upcoming"
+          },
+          {
+            "date": "Slice 4",
+            "title": "Repo-type extensions",
+            "description": "Web, DXL, backend, iOS, and Android prompt catalogs produce stack-specific named context.",
+            "status": "upcoming"
+          },
+          {
+            "date": "Slice 5",
+            "title": "Cross-repo QMD proof",
+            "description": "Queries return relevant web, DXL, and backend results for promotion/payment/content scenarios.",
+            "status": "upcoming"
+          },
+          {
+            "date": "Slice 6",
+            "title": "Graph promotion and workflow skills",
+            "description": "Promote accepted entities and wire estimation, epic creation, architecture, dev ticket, and QA skills to the query policy.",
+            "status": "upcoming"
+          }
+        ]
+      }
+    }
+  }
+}

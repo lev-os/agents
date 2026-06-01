@@ -192,14 +192,14 @@ For `/stack next`, steps 4-8 are one continuous autopilot loop. Do not pause bet
 
 ## Skill Discovery Integration
 
-Before executing the first step of any stack, run `/skill-discovery <domain>` to surface
+Before executing the first step of any stack, run `lev-skills <domain>` to surface
 relevant skills from the skills-db. The domain is inferred from context:
 
-- Stack family `legal-osint` → `/skill-discovery legal`
-- Stack family `sdlc` → `/skill-discovery sdlc`
+- Stack family `legal-osint` → `lev-skills legal`
+- Stack family `sdlc` → `lev-skills sdlc`
 - Stack family `jeff` → skip (jeff prompts are self-contained)
-- Active case folder detected → `/skill-discovery` with case domain keywords
-- Unknown → `/skill-discovery` with the stack's `title` as query
+- Active case folder detected → `lev-skills` with case domain keywords
+- Unknown → `lev-skills` with the stack's `title` as query
 
 Inject discovered skill names + one-line descriptions into the first step's context.
 Workers then know what specialized skills are available during execution.

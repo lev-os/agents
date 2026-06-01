@@ -39,6 +39,15 @@ stdout/stderr paths, exit codes, touched files, and `claim_verdicts` with
 selected candidates. Routing and telemetry claims need machine-readable traces.
 `execution_ready` is never completion.
 
+## Follow-up Ledger
+
+Every exec follow-up must preserve the artifact ledger from `/propose` and add
+runtime evidence: selected slice, command, cwd, verifier, receipt/trace refs,
+touched files, result, fidelity/confidence, and next route. Follow-ups are
+compiled into agent-operational rows, not copied from final-answer prose. If a
+fix, blocker, or follow-up is discovered, write or route it through `/capture`;
+do not leave it only in chat memory.
+
 ## Protocol
 
 ```yaml
@@ -54,9 +63,14 @@ steps:
     on_failure: "Do not dispatch. Route to /propose with diagnostics."
 
   - id: read_execution_yaml
-    action: Extract topology, runtime_profile, verifier_contract, write_scope, dependencies, and forbidden_moves.
+    action: Extract topology, runtime_profile, proof_gates, verifier_contract, write_scope, dependencies, and forbidden_moves.
     validation: "Every slice has verifier, write scope, and dependency status."
     on_failure: "Treat as not execution-ready."
+
+  - id: read_proof_gates
+    action: Classify Pentagon, UltraQA, and ai-slop-cleaner gates for the selected slice.
+    validation: "Each applicable proof gate has commands, scenario classes, expected receipts, owner-local test placement, and cleanup policy."
+    on_failure: "Route to /propose for proof-gate repair before dispatch."
 
   - id: classify_batch
     action: Mark slices parallel_safe or serial_only and lev_exec_first or subagent_required.
@@ -83,11 +97,38 @@ steps:
     validation: "Quality approval and declared verifier both pass."
     on_failure: "Do not mark verified."
 
+  - id: run_runtime_qa
+    action: Execute declared proof gates before final verification.
+    validation: "Baseline verifiers, Pentagon gates, UltraQA runtime scenarios, cleanup, generated-artifact status, and ai-slop-cleaner review pass or produce a blocked verdict."
+    on_failure: "Keep the slice executing or blocked; do not mark verified."
+
   - id: final_verify
     action: Run declared verifiers, inspect changed files, and collect receipt/trace evidence.
     validation: "All verifiers pass and evidence supports the claims."
     on_failure: "Emit diagnostics and continue the failing slice."
+
+  - id: update_followup_ledger
+    action: Record verified, blocked, or follow-up rows with disk/memory state and evidence refs.
+    validation: "Every new follow-up has compiled_intent, current_location, artifact_ref or blocker, fidelity/confidence, route_state, and next_route."
+    on_failure: "Route unresolved rows to /capture before final summary."
 ```
+
+## QA / Pentagon Runtime Rules
+
+- Treat UltraQA scenario generation as proposal/design input, but runtime
+  execution belongs here: commands, exit codes, timeouts, temporary harnesses,
+  cleanup, flaky reruns, misleading-output checks, and residual risks.
+- Run Pentagon gates from `execution.yaml.proof_gates.pentagon` when present.
+  Do not substitute a repo-wide green audit for a feature-local promotion claim.
+- Run ai-slop-cleaner review when `proof_gates.quality.ai_slop_cleaner.required`
+  is true, or when the exec slice performs cleanup/refactor work or touches
+  fallback/boundary-risk code.
+- Module-specific tests, probes, fixtures, and harness suites stay with the
+  owning module. `core/testing` is a shared testing/eval library and generic
+  gate surface, not the destination for module-owned proof code.
+- Record generated harnesses, logs, state files, and cleanup status in the
+  validation evidence. Remove temporary artifacts unless the task deliberately
+  promotes them.
 
 ## Dogfood Rules
 
@@ -112,6 +153,12 @@ steps:
 - receipt_id: `{receipt_id_or_none}`
 - exec_id: `{exec_id_or_none}`
 - trace: `{trace_ref_or_none}`
+- ledger_row: `{capture_or_followup_id}`
+- compiled_intent: `{agent_operational_followup}`
+- current_location: `{disk|memory|both|external|unknown}`
+- artifact_ref: `{path_or_none}`
+- route_state: `{captured|execution_ready|blocked|done|rejected}`
+- next_route: `{retry_exec|propose|capture|work|blocked|close}`
 - suspected_layer: `{plan|surface|adapter|verifier|implementation|environment}`
 - simplest_next_fix: `{one_action}`
 - route: `{retry_exec|propose|work|blocked}`
@@ -157,6 +204,9 @@ docs and carry explicit notes for:
 - "execution_ready means done."
 - "Receipt lookup can wait."
 - "I'll summarize the failure without the command and exit code."
+- "UltraQA is just a scenario list; no runtime cleanup or evidence needed."
+- "A green Pentagon audit proves the feature-local claim."
+- "Exec follow-ups can stay in the final answer without a ledger route."
 
 ## Rationalization Table
 

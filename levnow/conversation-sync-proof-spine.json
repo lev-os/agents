@@ -1,0 +1,553 @@
+{
+  "meta": {
+    "title": "Conversation Sync Proof Spine",
+    "description": "A Lev runtime design brief for replacing DONE strings and pane scraping with session evidence, FlowMind FSM state, gate receipts, and intent-conservation proof.",
+    "layout": "default",
+    "effects": ["grid-dots", "card-glow", "title-underline"],
+    "fonts": ["IBM Plex Sans", "IBM Plex Mono"]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "proof-state",
+    "current-vs-ideal",
+    "runtime-flow",
+    "authority-split",
+    "loop-diagram-section",
+    "branch-ledger-section",
+    "verification-policy",
+    "scope-model",
+    "roadmap",
+    "next-routes"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "LEV RUNTIME DESIGN",
+        "title": "Conversation Sync Proof Spine",
+        "subtitle": "Close is an FSM state. Receipts are evidence. Gates decide.",
+        "meta": "agent-runtime-convergence | 2026-05-22 | branch fidelity 0.99"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "The core move is not to add another lifecycle system. Lev already has loops, gates, receipts, FlowMind, and proof artifacts. This design binds them into one spine: every agent turn produces session evidence, every meaningful step emits scoped receipts, every completion claim is resolved by gates, and close becomes a state transition backed by proof references."
+      }
+    },
+    "proof-state": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "Proof State",
+        "title": "Branch Resolution Snapshot",
+        "subtitle": "The current design branches are resolved enough to move into proposal and dogfood execution."
+      },
+      "children": ["kpi-branches", "kpi-fidelity", "kpi-open-branches", "kpi-receipts"]
+    },
+    "kpi-branches": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "7",
+        "label": "Resolved branches",
+        "trend": { "direction": "up", "value": "close, stack, receipts, verification, scope, classifiers, core envelope" }
+      }
+    },
+    "kpi-fidelity": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "0.99",
+        "label": "Design fidelity",
+        "trend": { "direction": "flat", "value": "capture ledger target reached" }
+      }
+    },
+    "kpi-open-branches": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "0",
+        "label": "Unresolved branches",
+        "trend": { "direction": "flat", "value": "needs prototype proof, not more naming debate" }
+      }
+    },
+    "kpi-receipts": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "0",
+        "label": "New authority classes",
+        "trend": { "direction": "flat", "value": "receipts remain evidence; gates remain authority" }
+      }
+    },
+    "current-vs-ideal": {
+      "type": "section",
+      "variant": "diff-panels",
+      "props": {
+        "label": "Current vs Ideal",
+        "title": "What Changes",
+        "subtitle": "The target is an integration of existing Lev primitives, not a parallel system."
+      },
+      "children": ["current-card", "ideal-card"]
+    },
+    "current-card": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "CURRENT",
+        "title": "String and pane driven lifecycle",
+        "content": "Some flows still infer lifecycle from DONE text, tmux pane scraping, manual nudges, or loose closeout conventions. Prompt-stack proves the value of sequenced prompting, but it needs constant supervision because step completion and proof submission are not first-class enough yet."
+      }
+    },
+    "ideal-card": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "IDEAL",
+        "title": "Evidence and gate driven lifecycle",
+        "content": "FlowMind owns the step/FSM state. Provider JSONL and session stores prove the turn happened. Scoped receipts record observations and step claims. Gate receipts decide whether the claim advances. Close is just the terminal FSM state once proof refs satisfy policy."
+      }
+    },
+    "runtime-flow": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "Runtime",
+        "title": "Truth Flow",
+        "subtitle": "The actual work happens between propose and gate; this flow makes that work observable and replayable.",
+        "columns": 3
+      },
+      "children": ["flow-dispatch", "flow-session", "flow-receipt", "flow-gate", "flow-close"]
+    },
+    "flow-dispatch": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "label": "1",
+        "title": "Durable dispatch",
+        "content": "FlowMind emits the next step request with run envelope, task intent, step id, and active policy."
+      }
+    },
+    "flow-session": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "label": "2",
+        "title": "Session evidence",
+        "content": "tmux controls process isolation and input injection; JSONL/session stores prove response boundaries."
+      }
+    },
+    "flow-receipt": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "label": "3",
+        "title": "Step receipt",
+        "content": "A scoped receipt records observed response, bound classifier variables, and step-local evidence."
+      }
+    },
+    "flow-gate": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "label": "4",
+        "title": "Gate receipt",
+        "content": "The relevant gate evaluates evidence: intent conserved, proof sufficient, next state legal."
+      }
+    },
+    "flow-close": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "label": "5",
+        "title": "Close FSM",
+        "content": "Close consumes refs and transitions to closed, reaper, learning, handoff, or the next FlowMind step."
+      }
+    },
+    "authority-split": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "Authority",
+        "title": "Receipts Do Not Certify Themselves",
+        "subtitle": "This is the key inflation guard: more receipts should mean more evidence, not more authority."
+      },
+      "children": ["receipt-role", "gate-role"]
+    },
+    "receipt-role": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Receipt role",
+        "content": "Receipts record structured observations: response seen, step output captured, classifier values bound, trace ids attached, artifacts linked. A receipt can say what happened; it cannot prove the work is good by itself."
+      }
+    },
+    "gate-role": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Gate role",
+        "content": "Gates consume receipts and external evidence to make state-changing decisions. Intent conservation, proof sufficiency, adversarial review, and close policy all stay gate-owned."
+      }
+    },
+    "loop-diagram-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "Core Loop",
+        "title": "Intent Conservation in the Loop",
+        "subtitle": "The core loop stays plan-act-verify; FlowMind overlays it with step policy and domain classifiers."
+      },
+      "children": ["core-loop-diagram", "loop-note"]
+    },
+    "core-loop-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "FlowMind overlays the loop, but cannot replace the proof boundary.",
+        "content": "flowchart LR\n  A[Seed intent] --> B[Plan]\n  B --> C[Act candidate effect]\n  C --> D[Observe diff and transcript]\n  D --> E[Classify evidence]\n  E --> F{Intent conservation gate}\n  F -->|conserved| G[Keep tick]\n  F -->|unclear| H[Hold and probe]\n  F -->|drifted| I[Mutate next tick]\n  F -->|violated| J[Discard or escalate]\n  G --> K{Close predicate}\n  K -->|refs satisfy policy| L[Closed]\n  K -->|proof missing| H\n  H --> B\n  I --> B"
+      }
+    },
+    "loop-note": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "One Lev loop is not merely the model saying done. Operationally, a loop/tick is the smallest state-changing pass that can produce evidence, be gated, and either advance, hold, mutate, discard, or close. That maps cleanly to the OOO-style tick insight without importing its name into Lev canon."
+      }
+    },
+    "branch-ledger-section": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "Ledger",
+        "title": "Branch Resolution Ledger",
+        "subtitle": "Each branch has a decision, a proof source, and a fitness function that prevents the design from drifting back into pane scraping.",
+        "columns": 2
+      },
+      "children": [
+        "ledger-close",
+        "ledger-stack",
+        "ledger-receipts",
+        "ledger-verification",
+        "ledger-scope",
+        "ledger-classifiers",
+        "ledger-envelope"
+      ]
+    },
+    "ledger-close": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "0.99",
+        "title": "Close authority",
+        "content": "**Decision:** Close is an FSM state, not a receipt family.\n\n**Proof gate:** close rejects pane DONE and requires gate refs."
+      }
+    },
+    "ledger-stack": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "0.99",
+        "title": "Prompt-stack supersession",
+        "content": "**Decision:** Prompt-stack remains POC protocol until FlowMind reaches parity.\n\n**Proof gate:** FlowMind replays prompt-stack fixtures before retirement."
+      }
+    },
+    "ledger-receipts": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "0.99",
+        "title": "Receipt authority",
+        "content": "**Decision:** Receipts are evidence; gates own advancement.\n\n**Proof gate:** no receipt can certify itself."
+      }
+    },
+    "ledger-verification": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "0.99",
+        "title": "Verification mode",
+        "content": "**Decision:** Self-verification is allowed only for low-risk steps; adversarial review is required for high-risk gates.\n\n**Proof gate:** self mode cannot close high-risk flows."
+      }
+    },
+    "ledger-scope": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "0.99",
+        "title": "Scoped events",
+        "content": "**Decision:** Sessions, receipts, and event buses can be scoped and projected without becoming gate authority.\n\n**Proof gate:** scope refs are required; projections cannot advance state."
+      }
+    },
+    "ledger-classifiers": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "0.99",
+        "title": "Classifier variables",
+        "content": "**Decision:** Variables like user.mood are bound from classifier output triples.\n\n**Proof gate:** vars require value, confidence, and evidence_count."
+      }
+    },
+    "ledger-envelope": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "0.99",
+        "title": "Core envelope",
+        "content": "**Decision:** Every mutating flow inherits the core run envelope and intent-conservation gate.\n\n**Proof gate:** SDLC and non-SDLC overlays cannot replace core proof."
+      }
+    },
+    "branch-ledger-table": {
+      "type": "data-table",
+      "props": {
+        "caption": "Design branches captured at fidelity 0.99.",
+        "stickyHeader": true,
+        "stickyFirstColumn": true,
+        "columns": [
+          { "key": "branch", "label": "Branch", "wide": true },
+          { "key": "decision", "label": "Decision", "wide": true },
+          { "key": "proof", "label": "Proof / Fitness Gate", "wide": true },
+          { "key": "fidelity", "label": "Fidelity", "numeric": true }
+        ],
+        "rows": [
+          {
+            "branch": "Close authority",
+            "decision": "Close is an FSM state, not a receipt family.",
+            "proof": "design + capture; close rejects pane DONE and requires gate refs",
+            "fidelity": "0.99"
+          },
+          {
+            "branch": "Prompt-stack supersession",
+            "decision": "Prompt-stack remains POC protocol until FlowMind reaches parity.",
+            "proof": "prompt-stack prior art; FlowMind replays fixtures before retirement",
+            "fidelity": "0.99"
+          },
+          {
+            "branch": "Receipt authority",
+            "decision": "Receipts are evidence; gates own advancement.",
+            "proof": "receipt proof spine; no receipt can certify itself",
+            "fidelity": "0.99"
+          },
+          {
+            "branch": "Verification mode",
+            "decision": "Self-verification is allowed only for low-risk steps; adversarial review is required for high-risk gates.",
+            "proof": "lev-ralph + proof gate patterns; self mode cannot close high-risk flows",
+            "fidelity": "0.99"
+          },
+          {
+            "branch": "Scoped events",
+            "decision": "Sessions, receipts, and event buses can be scoped and projected without becoming gate authority.",
+            "proof": "soft-lineage + session audit; scope refs required and projections cannot advance state",
+            "fidelity": "0.99"
+          },
+          {
+            "branch": "Classifier vars",
+            "decision": "Variables like user.mood are bound from classifier output triples.",
+            "proof": "FlowMind compiler/interpolation; vars require value, confidence, and evidence_count",
+            "fidelity": "0.99"
+          },
+          {
+            "branch": "Core envelope",
+            "decision": "Every mutating flow inherits the core run envelope and intent-conservation gate.",
+            "proof": "core-loop dogfood receipts; overlays cannot replace core proof",
+            "fidelity": "0.99"
+          }
+        ]
+      }
+    },
+    "verification-policy": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "Policy",
+        "title": "Verification Mode Defaults",
+        "subtitle": "Self-scoring is a policy choice, not an accident."
+      },
+      "children": ["verification-policy-code", "verification-policy-callout"]
+    },
+    "verification-policy-code": {
+      "type": "code-block",
+      "props": {
+        "filename": "dna/gates.yaml",
+        "language": "yaml",
+        "showLineNumbers": true,
+        "content": "intent_conservation:\n  category: proof\n  scope: core_loop\n  default_mode: self_low_risk\n  require_review_when:\n    - gate_contracts_change\n    - dna_gates_change\n    - high_risk_close\n    - confidence_lt_0_90\n  decisions:\n    conserved: keep\n    unclear: hold\n    drifted: mutate\n    violated: discard\n  consumes:\n    - turn_receipt\n    - step_receipt\n    - gate_receipt\n    - trace_ref\n    - artifact_ref"
+      }
+    },
+    "verification-policy-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Default stance",
+        "content": "Strong models can self-check low-risk ticks, but Lev should install/recommend reviewer workers for high-risk gates. Model capability becomes a project default, not a hidden runtime assumption."
+      }
+    },
+    "scope-model": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "Scope",
+        "title": "Scoped Sessions, Receipts, and Event Buses",
+        "subtitle": "The same proof model works for core prompts, SDLC flows, research loops, video editing, and multi-agent stacks.",
+        "columns": 3
+      },
+      "children": ["scope-session", "scope-event", "scope-overlay"]
+    },
+    "scope-session": {
+      "type": "card",
+      "variant": "feature",
+      "props": {
+        "label": "Session",
+        "title": "Provider JSONL as source evidence",
+        "content": "Conversation sync should sniff/source provider session stores instead of scraping pane text. tmux stays useful for control, isolation, attach, and injection."
+      }
+    },
+    "scope-event": {
+      "type": "card",
+      "variant": "feature",
+      "props": {
+        "label": "Bus",
+        "title": "Scoped event buses",
+        "content": "Workstream, session, step, and plugin scopes can all emit events. Events are projections until gates consume them as evidence."
+      }
+    },
+    "scope-overlay": {
+      "type": "card",
+      "variant": "feature",
+      "props": {
+        "label": "Overlay",
+        "title": "FlowMind as constraint overlay",
+        "content": "FlowMind can drive linear stacks, semantic FSM branches, nudges, arch interviews, and SDLC lifecycle steps while inheriting the same core proof boundary."
+      }
+    },
+    "roadmap": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "Roadmap",
+        "title": "Dogfood Sequence",
+        "subtitle": "Start with the core non-SDLC loop, then layer SDLC and non-SDLC FlowMinds."
+      },
+      "children": ["roadmap-timeline"]
+    },
+    "roadmap-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          {
+            "date": "Now",
+            "title": "Capture and proposal alignment",
+            "description": "Capture the proof spine, produce proposal slices, and keep design fidelity above 0.99.",
+            "status": "completed"
+          },
+          {
+            "date": "Slice 1",
+            "title": "Core non-SDLC loop dogfood",
+            "description": "Run prompt-only tasks through plan, act, verify, receipt, gate, and close without FlowMind magic.",
+            "status": "in-progress"
+          },
+          {
+            "date": "Slice 2",
+            "title": "Conversation sync proof",
+            "description": "Bind provider JSONL/session evidence to step receipts and close predicates.",
+            "status": "upcoming"
+          },
+          {
+            "date": "Slice 3",
+            "title": "FlowMind step parity",
+            "description": "Replay prompt-stack fixtures through FlowMind with deterministic step advancement and timeout nudges.",
+            "status": "upcoming"
+          },
+          {
+            "date": "Slice 4",
+            "title": "SDLC overlays",
+            "description": "Apply the same core envelope to entity, design, interview, and dev lifecycle FlowMinds.",
+            "status": "upcoming"
+          },
+          {
+            "date": "Slice 5",
+            "title": "Non-SDLC overlays",
+            "description": "Validate research, media, and arch-interview flows to prove the core loop is substrate-independent.",
+            "status": "upcoming"
+          }
+        ]
+      }
+    },
+    "next-routes": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "Next Routes",
+        "title": "Execution Pack",
+        "subtitle": "These are the immediate implementation tracks implied by the design.",
+        "columns": 3
+      },
+      "children": ["route-core-envelope", "route-conversation-sync", "route-flowmind-parity", "route-pentagon", "route-ultraqa", "route-docs"]
+    },
+    "route-core-envelope": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "Proposal",
+        "title": "Core loop proof envelope",
+        "content": "Add intent conservation, gate refs, receipt refs, close state, and verification mode to the core run envelope."
+      }
+    },
+    "route-conversation-sync": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "Proposal",
+        "title": "JSONL conversation sync",
+        "content": "Replace pane scraping and DONE detection with provider session evidence, deterministic idle detection, and scoped step receipts."
+      }
+    },
+    "route-flowmind-parity": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "Proposal",
+        "title": "Prompt-stack to FlowMind parity",
+        "content": "Compile prompt stacks into FlowMind steps/FSM conditions, including fan-out, classifier-bound variables, nudges, and close ceremonies."
+      }
+    },
+    "route-pentagon": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "Pentagon",
+        "title": "Adversarial probes",
+        "content": "Test false DONE strings, missing gate refs, low-confidence classifier vars, orphan receipts, and high-risk self-close attempts."
+      }
+    },
+    "route-ultraqa": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "UltraQA",
+        "title": "Runtime QA gauntlet",
+        "content": "Run hostile lifecycle cases across tmux, JSONL sniffing, FlowMind state, receipt emission, and close FSM transitions."
+      }
+    },
+    "route-docs": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "Docs",
+        "title": "Spec and DNA updates",
+        "content": "Update docs/specs, dna/gates.yaml, and .lev validation-gates references while dna-gates migration is still active."
+      }
+    }
+  }
+}
