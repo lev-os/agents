@@ -127,11 +127,12 @@ steps:
       - First step = most important output, not background theory
       - Operational content lives in SKILL.md, not references/ (agents don't cat them)
       - validation: strings are concrete verifiable checks (commands or binary states)
+      - Artifact-producing skills need a canon write gate plus lifecycle ledger: compiled_intent, disk vs memory state, artifact ref, route, blocker, confidence
       - Natural language in instruction blocks. Never LLM_MUST directives
       - Under 300 lines total. Prose is the enemy.
 
       Run the same pressure scenarios WITH the skill. Agent should now comply.
-    validation: "wc -l SKILL.md under 300. Frontmatter has supported keys. All steps have validation: strings. Reusable templates use live XML sections, not fenced code blocks. Subagent passes scenarios that failed in RED."
+    validation: "wc -l SKILL.md under 300. Frontmatter has supported keys. All steps have validation: strings. Artifact-producing skills include a fidelity/memory/ledger table. Reusable templates use live XML sections, not fenced code blocks. Subagent passes scenarios that failed in RED."
     on_failure: "Scenarios still fail → skill doesn't address the right rationalizations. Back to RED captures."
 
   - id: author_refactor

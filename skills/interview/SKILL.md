@@ -1,6 +1,7 @@
 ---
 name: interview
 description: Use when guiding decision interviews that produce a design artifact in .lev/pm/designs before proposal or implementation planning.
+output_template: footer
 ---
 
 # Interview
@@ -16,14 +17,17 @@ framing normally expected from a PRD, but inside the design artifact.
 <commands>
 
 ```bash
+<<<<<<< HEAD
 /interview                      # --standard --compact by default
 /interview --auto               # synthesize/update artifact from context; ask only on blocking ambiguity
+=======
+/interview                      # --standard by default
+>>>>>>> b8982ad246b55b1f9c1643f387b5f88a6e606123
 /interview --quick              # lower rigor, ambiguity gate <= 0.30
 /interview --standard           # default rigor, ambiguity gate <= 0.20
 /interview --deep               # high rigor, ambiguity gate <= 0.15
-/interview --compact            # concise visible output
-/interview --full               # richer evidence and trade-offs
-/interview --framework=SCAMPER  # use this lens internally; show only the tag unless --full
+/interview --auto               # continue lookup-resolvable turns; stop for human judgment or propose handoff
+/interview --framework=SCAMPER  # use this lens internally; show only the tag unless d. Deep dive is requested
 ```
 
 </commands>
@@ -32,16 +36,25 @@ framing normally expected from a PRD, but inside the design artifact.
 
 ```yaml
 rules:
+<<<<<<< HEAD
   - "Depth and verbosity are separate controls: quick/standard/deep changes ambiguity threshold; compact/full changes visible text volume only."
   - "--auto performs lookup and scoring first; if ambiguity is at or below threshold, update the artifact instead of interviewing."
   - "Start in the orientation loop unless ambiguity is already at or below the active depth threshold."
   - "Do not walk design branches until the orientation loop identifies the subject and ambiguity is at or below threshold."
   - "Run codebase/docs/artifact lookup before asking in both loops; do not ask the user what files can answer."
   - "When ambiguity is above threshold, ask one Socratic question targeting the weakest clarity dimension."
+=======
+  - "Depth controls rigor: quick/standard/deep changes ambiguity threshold. Visible output always uses the guided interview format."
+  - "Start in the orientation phase unless ambiguity is already at or below the active depth threshold."
+  - "Do not walk design branches until the orientation phase identifies the subject and ambiguity is at or below threshold."
+  - "Run codebase/docs/artifact lookup before asking in both phases; do not ask the user what files can answer."
+  - "When ambiguity is above threshold, ask one Socratic question targeting the weakest clarity dimension, with three concrete ways to answer and one recommendation."
+>>>>>>> b8982ad246b55b1f9c1643f387b5f88a6e606123
   - "When ambiguity is at or below threshold, discover the candidate branch map and walk one design branch at a time."
-  - "For design-branch questions, provide the recommended answer and the design consequence of each option."
+  - "For design-branch questions, provide three researched options, one recommendation, and the consequence of each option."
   - "Persist subject, source context, depth, ambiguity, resolved branches, deferred branches, and next branch."
-validation: "Every turn declares loop=orientation|design, active depth threshold, ambiguity score, lookup result or gap, and the next state transition."
+  - "`--auto` may answer lookup-resolvable branches without pausing, but it must stop for human product judgment, irreversible decisions, or when the design is ready for propose."
+validation: "Every turn declares phase, active depth threshold, ambiguity score, lookup result or gap, and the next state transition."
 on_failure: "Do not ask another broad question. Re-score ambiguity, inspect context, or switch to the orientation template."
 ```
 
@@ -52,8 +65,9 @@ on_failure: "Do not ask another broad question. Re-score ambiguity, inspect cont
 ```yaml
 steps:
   - id: select_controls
-    action: Choose depth and output mode
+    action: Choose depth and cadence
     instruction: |
+<<<<<<< HEAD
       Default to --standard --compact.
       --auto inherits --standard --compact unless quick/standard/deep/full is also supplied.
       User-passed quick/standard/deep overrides complexity inference.
@@ -62,6 +76,14 @@ steps:
       Compact/full controls presentation only; it never changes lookup, scoring, or branch coverage.
     validation: "Depth is quick, standard, or deep; output mode is compact or full."
     on_failure: "Default to --standard --compact and state that more detail is available with --full or d. Deep dive."
+=======
+      Default to --standard.
+      User-passed quick/standard/deep overrides complexity inference.
+      If not passed, infer depth from complexity: quick for low blast radius and reversible choices, standard for normal product/architecture design, deep for cross-module, high-risk, or irreversible design.
+      Auto controls cadence only; it never changes lookup, scoring, branch coverage, or artifact quality.
+    validation: "Depth is quick, standard, or deep; auto is true or false."
+    on_failure: "Default to --standard and state that more detail is available with d. Deep dive."
+>>>>>>> b8982ad246b55b1f9c1643f387b5f88a6e606123
 
   - id: load_design_template
     action: Load the canonical design template
@@ -90,7 +112,7 @@ steps:
       Establish the current subject, likely design artifact, source context, and whether this is a design problem at all.
       Score intent, outcome, scope, constraints, and success criteria after lookup.
       If ambiguity is above the active depth threshold, ask one Socratic question against the weakest dimension.
-      Do not invent a full decision tree while the subject is still unclear.
+      Do not invent the whole decision tree while the subject is still unclear.
     validation: "Subject, candidate design target, source context, ambiguity score, weakest dimension, and next orientation question are known."
     on_failure: "Use the orientation template and ask for the missing dimension."
 
@@ -99,7 +121,7 @@ steps:
     instruction: |
       After ambiguity is at or below threshold, derive the candidate branch map from the clarified subject and lookup evidence.
       Name dependencies between branches so the next question resolves the highest-leverage design uncertainty.
-      Keep the branch map compact; store resolved/deferred branches in state rather than dumping all of them.
+      Keep the branch map concise; store resolved/deferred branches in state rather than dumping all of them.
     validation: "Candidate branches exist only after ambiguity is at or below the active depth threshold."
     on_failure: "Return to orient_subject; the decision space is not ready for branch walking."
 
@@ -114,15 +136,47 @@ steps:
       deep-module candidates, and test prior art. Ask only for product or design judgment
       that lookup cannot answer.
     validation: "Design artifact has product framing, stories, implementation decisions, testing decisions, and out-of-scope boundaries when relevant."
-    on_failure: "Ask one compact design question for the missing product/design requirement."
+    on_failure: "Ask one focused design question for the missing product/design requirement."
+
+  - id: shape_proof_design
+    action: Design QA/Pentagon proof before proposal
+    instruction: |
+      For non-trivial, runtime, agentic, promotion, cleanup, fallback, or boundary-risk work,
+      add proof design to the Testing Decisions section before handing off to propose.
+      Name the promotion decision, highest-risk behavioral claim, fail-closed acceptance,
+      required Pentagon axes, UltraQA scenario classes, owner-local test placement, and
+      any ai-slop-cleaner review gate.
+
+      Keep ownership explicit: module-specific tests, probes, fixtures, and harness suites
+      live with the owning module and use shared testing/eval helpers. Do not put
+      module-specific tests into core/testing just because Pentagon is involved.
+      This is internal design hygiene unless the user asks for d. Deep dive.
+    validation: "Testing Decisions include proof design or explicitly mark proof gates N/A with rationale."
+    on_failure: "Ask one focused proof-design question before proposing."
+
+  - id: shape_semantic_controls
+    action: Shape semantic KPIs and ontology boundaries
+    instruction: |
+      During design, name the semantic control signals the later proposal can harden:
+      ambiguity, alignment, convergence, semantic drift, proof readiness, and unresolved branch count.
+      These are design-stage KPIs until propose converts them into concrete proof metrics, gate
+      thresholds, fixtures, receipts, or validation commands.
+
+      When the design depends on vocabulary, ownership categories, graph entities, lifecycle states,
+      or authority boundaries, run an ontological taxonomy exploration before branch closure. Keep it
+      practical: identify the taxonomy axis, the drift risk, the canonical owner, and the proof signal
+      that would catch bad drift.
+      This is internal design hygiene unless the user asks for d. Deep dive.
+    validation: "Non-trivial designs name semantic KPIs, taxonomy/drift risk, and whether each proof signal is design-stage or propose-hardened."
+    on_failure: "Ask one focused semantic-control or taxonomy question before proposing."
 
   - id: synthesize_lenses
     action: Think through perspectives silently
     instruction: |
       Consider systems thinking, first principles, trade-off analysis, Thinking Hats, and other useful lenses internally.
-      Print only one compact lens tag, such as (systems thinking), near the question title or recommendation.
-      Do not print a framework essay unless the user asks for d. Deep dive or uses --full.
-    validation: "Output contains at most one visible lens tag in compact mode."
+      Print only one lens tag, such as (systems thinking), near the question title or recommendation.
+      Do not print a framework essay unless the user asks for d. Deep dive.
+    validation: "Output contains at most one visible lens tag."
     on_failure: "Remove framework prose and leave only the tag."
 
   - id: walk_tree
@@ -134,13 +188,13 @@ steps:
       Provide three researched answers when viable; use two only if a third branch would be fake.
       Recommend one answer and name the design consequence of each option.
       Carry unresolved branches forward instead of dumping all branches at once.
-    validation: "Question has current branch, lookup result or gap, one decision, 2-3 options, one recommendation, and unresolved branch count."
+    validation: "Question has current branch, lookup result or gap, one decision, 2-3 options, one recommendation with rationale, and unresolved branch count."
     on_failure: "Split the question or collapse fake options."
 
   - id: update_design
     action: Update the design artifact
     instruction: |
-      Treat interview as a design loop, not a generic planning loop.
+      Treat interview as a design phase, not a generic planning phase.
       The output target is a design artifact: problem framing, constraints, direction, alternatives, interaction model, PRD-style product sections, risks, and recommendation.
       Write or update the design under .lev/pm/designs/ using the canonical design template.
       When the user says propose, stop interviewing and hand the aligned design to propose.
@@ -166,38 +220,81 @@ steps:
 
 </lifecycle-contract>
 
+<format-contract>
+
+```yaml
+rules:
+  - "There is one visible interview format. Do not branch into alternate display modes."
+  - "Use hard line breaks between sections; do not combine multiple metadata fields into dense status prose."
+  - "Orientation output uses: Question, Recommended, Ways to answer, Progress line, emoji HUD."
+  - "Design output uses: Decision, Recommended, Options, Progress line, emoji HUD."
+  - "Recommended must explain why the option is recommended, not just restate the option."
+  - "Each a/b/c answer gets its own mini-block with a consequence after ->."
+  - "Orientation a/b/c choices are answer frames, not final design-branch alternatives."
+  - "Design a/b/c choices are researched branch options."
+  - "Progress is exactly one line. Do not render progress as bullets."
+  - "Keep the emoji HUD. It is the fast status surface."
+  - "Use d. Deep dive as the only expansion mode for evidence, gates, trade-offs, codebase exploration, or alternate lenses."
+  - "Use plain ASCII arrows like => in templates."
+validation: "Output has a question or decision, one recommendation, three a/b/c choices when viable, d. Deep dive, one Progress line, and one emoji HUD."
+on_failure: "Rewrite using the orientation or design template. Remove progress bullet lists and display-mode wording."
+```
+
+</format-contract>
+
 <orientation-template>
 ## q{n}) Clarify {weakest_dimension} ({lens_tag})
-Design target: `.lev/pm/designs/{design_slug}.md` -> {design_section_or_tbd}
-Current subject: {subject_or_working_guess}
-Ambiguity: {0.xx} / threshold {0.xx} ({depth})
-Why ask: {one_sentence_lookup_gap_or_unclear_dimension}
-Question: {smallest_socratic_question}
-Progress: intent {0.xx}; outcome {0.xx}; scope {0.xx}; constraints {0.xx}; success {0.xx}
-Next: answer directly, ask d for evidence/context, or say "propose" if already aligned.
+
+**Question**
+{smallest_socratic_question}
+
+**Recommended**
+`{a|b|c}` because {why_this_answer_frame_best_reduces_ambiguity}
+
+**Ways to answer**
+`a` {answer_frame_a} -> {what_this_clarifies}
+
+`b` {answer_frame_b} -> {what_this_clarifies}
+
+`c` {answer_frame_c} -> {what_this_clarifies}
+
+`d` Deep dive
+
+Progress: `.lev/pm/designs/{design_slug}.md` | orientation | ambiguity {0.xx}/{threshold} | next: choose `a`, `b`, `c`, `d`, or `propose`
+
+🧭 orientation | 🎯 ambiguity {0.xx}/{threshold} | ✅ alignment {xx}% | 🌿 branches {resolved}/{total} | 🧪 proof {proof_state} | ⏭️ {next_action}
 </orientation-template>
 
-<compact-template>
+<design-template>
 ## q{n}) {decision_title} ({lens_tag})
-Loop: design branch; depth {quick|standard|deep}; output {compact|full}
-Design target: `.lev/pm/designs/{design_slug}.md` -> {design_section}
-Decision: {one_sentence_decision}
-Recommended: {a|b|c} - {short_reason}
-a. {researched_answer_a} -> {design_consequence}
-b. {researched_answer_b} -> {design_consequence}
-c. {researched_answer_c} -> {design_consequence}
-d. Deep dive: evidence, gates, trade-offs, codebase exploration, or alternate lens
-Progress: ambiguity {0.xx}/{threshold}; alignment {xx%}; unresolved branches {n}
-Next: answer a/b/c, ask d, or say "propose" if the design is aligned.
-</compact-template>
 
-<full-template>
+**Decision**
+{one_sentence_decision}
+
+**Recommended**
+`{a|b|c}` because {why_recommended}
+
+**Options**
+`a` {researched_answer_a} -> {design_consequence}
+
+`b` {researched_answer_b} -> {design_consequence}
+
+`c` {researched_answer_c} -> {design_consequence}
+
+`d` Deep dive
+
+Progress: `.lev/pm/designs/{design_slug}.md` | {design|proof-shaping|ready-to-propose} | ambiguity {0.xx}/{threshold} | branches {resolved}/{total} | next: choose `a`, `b`, `c`, `d`, or `propose`
+
+🧭 {phase} | 🎯 ambiguity {0.xx}/{threshold} | ✅ alignment {xx}% | 🌿 branches {resolved}/{total} | 🧪 proof {proof_state} | ⏭️ {next_action}
+</design-template>
+
+<deep-dive-template>
 ## q{n}) {decision_title} ({lens_tag})
 
 <decision-context>
 - Design artifact: `.lev/pm/designs/{design_slug}.md`
 - Design section: {design_section}
-- Loop: {orientation_or_design}
+- Phase: {orientation|design|proof-shaping|ready-to-propose}
 - Depth threshold: {depth} / {ambiguity_threshold}
 - Decision: {design_decision}
 - Needed now: {why_now}
@@ -240,8 +337,10 @@ d. Deep dive / branch expansion
 </options>
 
 Recommended: {a|b|c} ({lens_tag}) - {why}
-Progress: ambiguity {0.xx}/{threshold}; alignment {xx%}; unresolved branches {n}; design target `.lev/pm/designs/{design_slug}.md`
-</full-template>
+Progress: `.lev/pm/designs/{design_slug}.md` | {phase} | ambiguity {0.xx}/{threshold} | branches {resolved}/{total} | next: choose `a`, `b`, `c`, `d`, or `propose`
+
+🧭 {phase} | 🎯 ambiguity {0.xx}/{threshold} | ✅ alignment {xx}% | 🌿 branches {resolved}/{total} | 🧪 proof {proof_state} | ⏭️ {next_action}
+</deep-dive-template>
 
 <ambiguity-contract>
 
@@ -252,7 +351,7 @@ score:
     quick: 0.30
     standard: 0.20
     deep: 0.15
-  loop_gate: "If ambiguity is above the active depth threshold, stay in orientation. If ambiguity is at or below threshold, enter the design loop."
+  phase_gate: "If ambiguity is above the active depth threshold, stay in orientation. If ambiguity is at or below threshold, enter the design phase."
   dimensions:
     intent: 0.30
     outcome: 0.25
@@ -265,7 +364,15 @@ score:
     standard: "0.35 <= complexity < 0.70"
     deep: "complexity >= 0.70"
   design_readiness_gate: "The design is ready to propose when ambiguity is at or below the active threshold, major branches are resolved or explicitly deferred, and the design artifact can name acceptance horizon and constraints."
-  compact_output: "Progress: ambiguity {0.xx}/{threshold}; alignment {xx%}; unresolved branches {n}"
+  progress_fields:
+    design_entity: "The .lev/pm/designs artifact path or slug. It identifies the durable design, not process state."
+    phase: "orientation until ambiguity is below threshold, design while resolving branches, proof-shaping while naming gates/KPIs, ready-to-propose when propose can harden it."
+    ambiguity: "Weighted uncertainty. It should fall as intent, outcome, scope, constraints, and success criteria become clear."
+    alignment: "Operator/design confidence that the selected branch matches the desired direction. It should rise as branches resolve."
+    branches: "Resolved branch count over known branch count. It should move toward all resolved or explicitly deferred."
+    proof: "Proof-design maturity. Keep details internal unless d. Deep dive is requested."
+    next: "The smallest valid transition: answer, deep dive, continue auto, or propose."
+  visible_output: "One recommendation, three a/b/c choices when viable, d. Deep dive, one Progress line, and one emoji HUD."
 ```
 
 </ambiguity-contract>
@@ -279,17 +386,17 @@ rules:
   - "Do not create spec artifacts from interview output."
   - "Do not create a separate PRD artifact; PRD-style product content lives inside the design."
   - "Do not walk design branches until ambiguity is at or below the active depth threshold."
-  - "If the subject or decision space is unclear, use the orientation template instead of the compact branch template."
-  - "Quick/standard/deep controls rigor; compact/full controls display volume."
-  - "Never ask ingredient-only option prompts; every option needs a design consequence."
-  - "Do not print hidden chain-of-thought or full framework analysis in compact mode."
+  - "If the subject or decision space is unclear, use the orientation template with three ways to answer."
+  - "Quick/standard/deep controls rigor. Do not introduce alternate output modes."
+  - "Never ask ingredient-only option prompts; every a/b/c answer must include a consequence after ->."
+  - "Do not print hidden chain-of-thought or framework analysis unless d. Deep dive is requested."
   - "Do not mention stale provenance, deprecated project names, or internal origin stories."
   - "Use YAML for workflow, contracts, scoring, validation, and state."
   - "Use live XML sections for reusable output templates; do not wrap active XML templates in fenced Markdown blocks."
   - "Use d. Deep dive for evidence, gates, trade-offs, codebase exploration, and alternate lenses."
   - "When the user says propose, stop interviewing and route the aligned design to propose."
-validation: "Output is an orientation question while ambiguity is high, then a compact design question by default; full only behind --full or d. Deep dive."
-on_failure: "Rewrite the response using the orientation or compact live XML section template."
+validation: "Output is an orientation question while ambiguity is high, then a design question after branch discovery. Both use recommendation, a/b/c choices, Progress line, and emoji HUD. Deep detail appears only after d. Deep dive."
+on_failure: "Rewrite the response using the orientation or design live XML section template."
 ```
 
 </guardrails>
