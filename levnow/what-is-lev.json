@@ -1,0 +1,523 @@
+{
+  "meta": {
+    "title": "What is Lev — The Operating System for Agent–Human Symbiosis",
+    "description": "Leviathan is the open runtime for agent-human systems. A technical brief and field manifesto for AI leaders and the developers who will build on it.",
+    "layout": "sidebar-toc",
+    "effects": ["card-glow", "hero-gradient", "title-underline"]
+  },
+  "theme": { "preset": "deep-blue-gold", "mode": "dark" },
+  "root": [
+    "hero",
+    "sec-problem",
+    "sec-thesis",
+    "sec-planes",
+    "sec-future",
+    "sec-architecture",
+    "sec-proof",
+    "sec-proof-code",
+    "sec-differentiators",
+    "sec-economics",
+    "sec-constraints",
+    "sec-roadmap",
+    "sec-cta"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "centered",
+      "props": {
+        "category": "THE OPEN RUNTIME FOR AGENT–HUMAN SYSTEMS",
+        "title": "What is Lev?",
+        "subtitle": "The operating system for agent–human symbiosis.",
+        "meta": "A technical brief & field manifesto · Leviathan (Lev)"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "This isn't an agent framework. It's the operating system for agent–human symbiosis — a runtime where agents act through governed surfaces, earn trust through demonstrated competence, and evolve through self-learning. The cost of intelligence is collapsing to zero. When it hits zero, the winners aren't the ones who built the best paywall. They're the ones who built the best flywheel."
+      }
+    },
+
+    "sec-problem": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "THE STATUS QUO IS A CAGE",
+        "title": "Agents are trapped in chat windows",
+        "subtitle": "The interface hasn't changed since IRC."
+      },
+      "children": ["problem-prose", "problem-quote"]
+    },
+    "problem-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "Software agents type text. You type text back. Every breakthrough model of the last three years has been poured into the same 1988-era rectangle. We gave machines the ability to reason and then handed them a teletype.\n\nMeanwhile the real work lives everywhere else — a browser button, a voice command, a Stream Deck key, a CI webhook, a mobile push. The model got smarter. The *system around it* did not. There is no shared substrate for memory, no governed boundary for action, no audit trail, no way for one install to learn from another. Every team rebuilds the same scaffolding, badly, and locks it inside one vendor's cloud.\n\nLev exists to end that. Not by building a better chatbot — by building the runtime the chatbot should have been running on all along."
+      }
+    },
+    "problem-quote": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": {
+        "content": "Agents don't chat — they *act* through any surface: a browser button, a voice command, a VR gesture, a Stream Deck key, a mobile notification."
+      }
+    },
+
+    "sec-thesis": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "THE BIG IDEA",
+        "title": "Conversation is the interface. Policy decides the substrate. Execution is a checked mutation with evidence.",
+        "subtitle": "Lev is a stream-of-consciousness router."
+      },
+      "children": ["thesis-prose", "thesis-quote"]
+    },
+    "thesis-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "There is no \"write a spec, then build it\" ceremony. In Lev, **every conversation has a current level of understanding that *is* the proposal** — not a document you produce at the end, but a living stream. When understanding and intent align, that understanding compiles directly into a **graph patch**: an atomic, multidimensional change to a universal knowledge graph. Then it executes.\n\nUnderstanding is the proposal. Alignment is the gate. Execution follows immediately — as a deterministic mutation, checked against constraints, leaving evidence behind. No silent failures. No vibes. A receipt.\n\nAnd here is the part that matters for the next decade: **this loop is not specific to software.** Video production, research, design, operations — they all follow the same conversation-to-graph-patch shape. Lev's core lifecycle is universal. Domain plugins attach at the proposal level. The runtime stays the same."
+      }
+    },
+    "thesis-quote": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": {
+        "content": "Understanding is the proposal. Alignment is the gate. Execution follows immediately."
+      }
+    },
+
+    "sec-planes": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "THE SHAPE OF THE RUNTIME",
+        "title": "Three planes, one spine",
+        "subtitle": "Everything meaningful in Lev is graph-shaped — context, execution, skill composition, knowledge, and provenance."
+      },
+      "children": ["plane-flowmind", "plane-graph", "plane-eventbus", "plane-orch"]
+    },
+    "plane-flowmind": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "🧬 FlowMind — Control & Policy",
+        "content": "A declarative YAML substrate that compiles intent into executable graph documents. Constraints, policies, agent behaviors, entity lifecycles, even memory decay are *declarations, not code*. FlowMind is the CSS for agents — and the kernel governs itself through the very same engine it gives you."
+      }
+    },
+    "plane-graph": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "🕸️ Graph — State & Knowledge",
+        "content": "Context is a graph. Execution is a graph. Provenance is a graph. But Lev rejects one-storage-rules-them-all: code facts use AST indexes, operational state uses tables and queues, events carry replay and proof. The invariant is gate-checked mutation with receipts — not a universal database."
+      }
+    },
+    "plane-eventbus": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "⚡ Event Bus — Causality",
+        "content": "Every cross-plane boundary emits a canonical LevEvent with correlation IDs — 30+ typed event types across exec, daemon, supervisor, worker, and task domains. Auditable by construction. You can replay the whole system's reasoning, not just read its logs."
+      }
+    },
+    "plane-orch": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "🎛️ Orchestration — Execution",
+        "content": "Hard boundaries, no god-module. FlowMind never dispatches workers. Orchestration never mutates policy. Graph never schedules. This separation is exactly what kills every other agent framework at scale — and exactly what Lev refuses to violate."
+      }
+    },
+
+    "sec-future": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "THE MAGNUS OPUS",
+        "title": "1,000 minds thinking in unison",
+        "subtitle": "Where this is going."
+      },
+      "children": ["future-quote-1", "future-prose-1", "future-quote-2", "future-prose-2", "future-cards"]
+    },
+    "future-quote-1": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": {
+        "content": "FlowMind is the CSS for agents. The poly mesh is the TCP/IP of thinking."
+      }
+    },
+    "future-prose-1": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "Picture every Lev install as a node. Now connect them. **The magnus opus is a mesh network where thousands of Lev installs think in unison on a single task** — graph-based, governed, and rentable. You opt in your compute and your FlowMind telemetry, and the living poly mesh comes alive. Then we, as a human collective, can run *experiments at the scale of a species.*\n\nEvery task gets its own database of FlowMind experiments — append-only, checkpointed, versioned like ML training runs. Because the YAML contract is solid enough to be a reproducible experiment definition, agentic workflows finally become a science instead of a séance. Run the experiment. Read the receipt. Promote what works."
+      }
+    },
+    "future-quote-2": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": {
+        "content": "Opt in your compute + FlowMind telemetry = the living poly mesh. Then we as a human collective can run experiments."
+      }
+    },
+    "future-prose-2": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "Each person's Lev carries an **avatar**. Avatars face the *ugly mirror* — the validation gates that refuse to let comfortable fictions through. The mirror produces experiments. Experiments run across the mesh. Results promote through a DAO governed **50/50 by human votes and machine votes**. Avatars learn from the results. The loop closes, and the whole network gets smarter on every tick.\n\nThis is the future Lev is built backward from. Not a smarter assistant — a substrate for collective intelligence that you own, that no one can switch off, and that compounds with every execution anyone, anywhere, runs."
+      }
+    },
+    "future-cards": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {},
+      "children": ["future-card-mesh", "future-card-memory", "future-card-deploy", "future-card-sim"]
+    },
+    "future-card-mesh": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "🌐 Living Poly Mesh",
+        "content": "Thousands of installs, one task. A 5% tax on mesh compute funds the network's own evolution. Rent the hive mind; own your node."
+      }
+    },
+    "future-card-memory": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "🍷 Memory that ages like wine",
+        "content": "Good patterns strengthen. Rejected approaches decay. Stale knowledge fades. The system remembers what *works* — not just what *happened*."
+      }
+    },
+    "future-card-deploy": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "🚀 Deploy anywhere, one command",
+        "content": "lev deploy --target=slack|discord|api|webhook. Not one vendor's cloud — every surface, your hardware, your models."
+      }
+    },
+    "future-card-sim": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "🧪 Agents as user research",
+        "content": "A deliberation graph of 30 nodes — half human personas, half agent personas. The agentic participants ARE benchmarkable, reproducible users. UX testing becomes a unit test."
+      }
+    },
+
+    "sec-architecture": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "TECHNICAL BRIEF",
+        "title": "The architecture, for the people who'll read the source",
+        "subtitle": "Seven pillars. Each one is a design decision other frameworks bolted on as an afterthought — and Lev made native."
+      },
+      "children": ["arch-flowmind", "arch-dna", "arch-fractal", "arch-poly", "arch-constraint", "arch-workstream", "arch-meta"]
+    },
+    "arch-flowmind": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "FlowMind",
+        "content": "**What:** a YAML control plane that compiles to executable graph documents.\n\n**Why it's exciting:** constraints are declarations, not `if` statements. The kernel evaluates its own policies through the same engine that runs your flows. *\"It's the programmable substrate for a self-governing epistemic operating system.\"*"
+      }
+    },
+    "arch-dna": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "DNA Contracts",
+        "content": "**What:** behavioral contracts (`.dna.yaml`) that compile to executable gates.\n\n**Why it's exciting:** *\"Code is an artifact of DNA, not the other way around.\"* Intent `.md` → contract `.dna.yaml` → execution `.flow.yaml`. Tests are generated from constraints. Proven empirically: 14/15 treatment vs 0/15 control across Claude + Gemini."
+      }
+    },
+    "arch-fractal": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Fractal Filesystem",
+        "content": "**What:** the filesystem *is* the discovery mechanism.\n\n**Why it's exciting:** no central registry, no DI container. Drop a `config.yaml`, the scanner finds it. Deterministic cascade merge: `system < global < routing < project < project-local < profile < env`. Same model for one module and a federated mesh."
+      }
+    },
+    "arch-poly": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Poly — Protocol + Runtime",
+        "content": "**What:** a types-only inter-runtime contract (PolyCard, PolyOp, PolyFrame, PolyReceipt) plus a runtime that compiles + dispatches.\n\n**Why it's exciting:** one SDK compiles to CLI, MCP, HTTP, gRPC, and WebSocket surfaces from a single registry. Zero hand-written adapters."
+      }
+    },
+    "arch-constraint": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "The Constraint Manifold",
+        "content": "**What:** five non-negotiable kernel axioms — Finitude, Non-Commutation, Nominalized Reality, Ratchet, Locality — loaded at boot as immutable System FlowMinds.\n\n**Why it's exciting:** these aren't configuration. They're the kernel's own programs, evaluated through its own substrate. Fail-closed: cannot evaluate → DENY."
+      }
+    },
+    "arch-workstream": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "Workstreams & Graph Patches",
+        "content": "**What:** Conversation → Understanding → Alignment → Graph Patch → Execution.\n\n**Why it's exciting:** a patch is multidimensional — many parts of the graph change at once, so multiple workstreams run without serialization. Ephemeral ideas get promoted to durable entities: `lev://entity/{space}/{type}/{id}`."
+      }
+    },
+    "arch-meta": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "The Meta-Harness",
+        "content": "**What:** Lev defines and runs its own constraint harnesses.\n\n**Why it's exciting:** *\"90% of cases: Lev IS the harness. 10%: custom. But you define the DNA first, and the cascade builds code around the contract. Prompts converge. Harnesses differentiate.\"*"
+      }
+    },
+
+    "sec-proof": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "NOT VAPORWARE",
+        "title": "The launchpad is already built",
+        "subtitle": "Future vision, present foundation. These numbers are today — the destination is bigger."
+      },
+      "children": ["kpi-tests", "kpi-cli", "kpi-adapters", "kpi-plugins"]
+    },
+    "sec-proof-code": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "THE SIGNATURE MOVE",
+        "title": "Intent compiles to contract compiles to execution",
+        "subtitle": "Human language in. Deterministic, gated, receipted execution out."
+      },
+      "children": ["kpi-proof-code", "kpi-tick-code"]
+    },
+    "kpi-tests": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": 3754, "label": "FlowMind compiler tests @ 99% pass", "trend": { "direction": "up", "value": "E2E operational" } }
+    },
+    "kpi-cli": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": 60, "label": "CLI commands across 8 modules", "trend": { "direction": "up", "value": "0 static imports" } }
+    },
+    "kpi-adapters": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": 11, "label": "execution adapters · 10 search backends", "trend": { "direction": "up", "value": "MCP-native" } }
+    },
+    "kpi-plugins": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": 350, "label": "ms CLI cold start", "trend": { "direction": "flat", "value": "frozen exec engine" } }
+    },
+    "kpi-proof-code": {
+      "type": "code-block",
+      "props": {
+        "filename": "dna/thesis.yaml — the representation triangle",
+        "language": "yaml",
+        "content": "pipeline:\n  forward:\n    - step: \"Human speaks intent\"\n      input: natural_language\n      output: \"*.md\"\n      compiler: human\n\n    - step: \"Intent compiler (gated)\"\n      input: \"*.md\"\n      output: \"*.dna.yaml\"\n      compiler: intent_compiler\n      gates: [gate_0_regex, gate_1_llm_disambiguation]\n      note: \"Ambiguous input requires confidence gates\"\n\n    - step: \"DNA compiler (deterministic)\"\n      input: \"*.dna.yaml\"\n      output: \"*.flow.yaml\"\n      compiler: dna_compiler\n      gates: none\n      note: \"DNA is already canonical YAML — pure structural transform\""
+      }
+    },
+    "kpi-tick-code": {
+      "type": "code-block",
+      "props": {
+        "filename": "the Tick — every message is a state transition",
+        "language": "text",
+        "content": "INGEST → OBSERVE → PROPOSE → ADMISSION_GATE → ACT → VERIFY_GATE → DECIDE/APPLY → UPDATE → EMIT\n\n# Admission happens BEFORE work. Drift + intent proof gates run AFTER\n# the candidate effect exists. A text \"DONE\" is never a close-proof by itself.\n# 7 execution primitives compose every loop shape: loop, eval, edge,\n# effect, session, intent, receipt."
+      }
+    },
+
+    "sec-differentiators": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "WHY THIS, NOT THAT",
+        "title": "Everyone else is building a product. Lev is building the standard.",
+        "subtitle": "Kubernetes won by being the open standard, not by being best at any single thing. Lev wins the same way."
+      },
+      "children": ["diff-table", "diff-quote"]
+    },
+    "diff-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Player", "Their moat", "The lock-in", "Lev's counter"],
+        "rows": [
+          ["HyperAgent ($1.4B raised)", "Skill learning, fleet mgmt, LLM-judge", "~$200/mo, closed cloud", { "text": "The open version that runs on your hardware. Every launch is a free recruitment poster for Lev.", "status": "match" }],
+          ["Claude Agent SDK", "Single-vendor depth, native integration", "One model, one vendor", { "text": "11 providers. They optimize depth; we optimize breadth.", "status": "match" }],
+          ["LangChain / LangGraph", "80k+ stars, Fortune 500 refs", "Library sprawl, no runtime", { "text": "Lifecycle state machines + FlowMind as substrate, not glue code.", "status": "match" }],
+          ["Microsoft Agent Framework", "Azure distribution, enterprise default", "Azure, forever", { "text": "They lock you into Azure; we run anywhere.", "status": "match" }],
+          ["CrewAI", "Simple mental model", "Shallow trust model", { "text": "Declarative workflows, earned-trust leasing (AgentGuard), event-driven observability.", "status": "match" }]
+        ]
+      }
+    },
+    "diff-quote": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": {
+        "content": "Nobody else combines polyglot execution, earned-trust leasing, and protocol-native interop in a single open-source runtime. The competitive window is 6–10 months. After that, enterprise defaults calcify."
+      }
+    },
+
+    "sec-economics": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "THE BUSINESS MODEL",
+        "title": "Run agents for free. Govern agents for money.",
+        "subtitle": "Open source IS the flywheel."
+      },
+      "children": ["econ-prose", "econ-split"]
+    },
+    "econ-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "Every closed-source agent feature becomes an open-source primitive. That's not charity — it's strategy. When intelligence is free, the moat isn't the model. It's the *flywheel* of a community building on an open runtime, and the *governance* layer enterprises will pay to put around it.\n\nThis is the Kubernetes / OpenShift split, applied to agents. The core runtime — harness, all providers, plugin system, MCP wrappers, FlowMind compiler, event bus, memory decay, AgentPing surfaces — is free and local-first, no API keys required. The enterprise pillars are where the revenue lives."
+      }
+    },
+    "econ-split": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {},
+      "children": ["econ-oss", "econ-ent"]
+    },
+    "econ-oss": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Open Source — Free, forever",
+        "content": "Core runtime · 11 provider harnesses · plugin system · MCP wrappers · CLI · FlowMind compiler · event bus · memory decay · AgentPing surfaces · basic audit + kill switches. Run on a Raspberry Pi with no network. You own the agent — the agent doesn't own you."
+      }
+    },
+    "econ-ent": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Enterprise — Govern at scale",
+        "content": "Agent identity (JWT/mTLS) · ABAC permissions · immutable hash-chain audit · global emergency stop · cost tracking + budget enforcement that actually kills runaway agents · GDPR/SOC 2 toolkit · multi-tenant isolation · fleet management + LLM-as-judge eval · enterprise HITL approval queues."
+      }
+    },
+
+    "sec-constraints": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "TRUST IS ENGINEERED, NOT PROMISED",
+        "title": "Constraints that never bend",
+        "subtitle": "Fail-closed, not fail-open. If the kernel can't evaluate a policy, the action is denied. The ratchet only tightens."
+      },
+      "children": ["con-leases", "con-failclosed", "con-ratchet", "con-sovereignty", "con-admission", "con-boundary"]
+    },
+    "con-leases": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "🎫 Leases, not permissions",
+        "content": "Everything expires. Trust is earned through demonstrated competence — never hardcoded. An agent proves itself before its scope widens."
+      }
+    },
+    "con-failclosed": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "🔒 Fail-closed kernel",
+        "content": "Cannot evaluate a policy = DENY. No inference, no repair, no silent failures. The safe default is the only default."
+      }
+    },
+    "con-ratchet": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "⚙️ The Ratchet",
+        "content": "State transitions are irreversible. Constraints only tighten, never relax — and tightening requires evidence through admission gates. The audit trail is append-only."
+      }
+    },
+    "con-sovereignty": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "👑 Sovereignty by default",
+        "content": "XDG-compliant paths, scoped AgentGuard permissions, PII containment. Local-first, self-hostable, no vendor lock-in, no API keys required."
+      }
+    },
+    "con-admission": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "🚪 Admission boundary",
+        "content": "The hard cut where probabilistic belief meets deterministic execution. Inference and trust scoring happen at admission only — never inside a compiled execution graph."
+      }
+    },
+    "con-boundary": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "✂️ The translator boundary",
+        "content": "Probabilistic classification above the line, deterministic evaluation below. The kernel never sees confidence scores or raw natural language. No inference crosses."
+      }
+    },
+
+    "sec-roadmap": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "THE ROAD AHEAD",
+        "title": "From working runtime to living mesh",
+        "subtitle": "Where the next 12 months take us — and where the decade does."
+      },
+      "children": ["roadmap-timeline"]
+    },
+    "roadmap-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          { "date": "Now", "title": "Security burn-down & MVP blockers", "status": "in-progress", "description": "Close remaining P0s, certify the dispatch loop. S4 lev exec already certified with a real receipt (rcpt-8a4f95daa123b2a2); manual events mode proven." },
+          { "date": "Next", "title": "The dispatch loop — the moat", "status": "in-progress", "description": "git push → event → trigger → FlowMind → lev exec → bd updated. The full self-managing SDLC demo, live and certifying end to end." },
+          { "date": "Q+1", "title": "Starter flows + DX polish", "status": "upcoming", "description": "Shipped-with-install FlowMind starter promoted through lev exec --flow. README, examples, lev doctor, install/quickstart proof." },
+          { "date": "Q+1", "title": "MCP server layer", "status": "upcoming", "description": "First 3, then all 7 MCP servers — making every Lev capability a protocol-native tool." },
+          { "date": "Q+2", "title": "Enterprise pillars", "status": "upcoming", "description": "Agent identity, ABAC, immutable audit, emergency stop, cost governance, compliance toolkit, fleet management + LLM-as-judge. The revenue layer." },
+          { "date": "Q+2", "title": "Open-source launch", "status": "upcoming", "description": "npm publish, docs, community, external contributors. The recruitment of the flywheel begins." },
+          { "date": "0–6 mo", "title": "Federated marketplace — contract & local exec", "status": "upcoming", "description": "Bundle schema v1.1 with federation fields. 20 curated bundles validated E2E; adapter emission for Claude, Codex, OpenClaw." },
+          { "date": "6–12 mo", "title": "Federation alpha", "status": "upcoming", "description": "Registry service, trust tiers (unverified → verified → trusted), cross-marketplace discovery with source attribution. First external partner marketplace connected." },
+          { "date": "12–20 mo", "title": "Launch beta", "status": "upcoming", "description": "Partner onboarding, revenue-split metadata contract, quality + security policy gates. 3 partner marketplaces, 100+ federated bundles discoverable." },
+          { "date": "The horizon", "title": "The Magnus Opus — distributed poly mesh", "status": "upcoming", "description": "Thousands of Lev installs thinking in unison. 50/50 human + machine DAO governance. A 5% mesh-compute tax funds the network's own evolution. Avatars, the ugly mirror, experiments at species scale." }
+        ]
+      }
+    },
+
+    "sec-cta": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "THE INVITATION",
+        "title": "The runtime every agent platform should have been built on",
+        "subtitle": "Open. Sovereign. Self-evolving. Yours."
+      },
+      "children": ["cta-prose", "cta-final-quote"]
+    },
+    "cta-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "If you lead an AI org, you already feel the calcification coming — the enterprise defaults hardening around whichever closed platform moves fastest in the next two quarters. Lev is the bet that the standard should be open, that sovereignty should be the default, and that the flywheel beats the paywall every time intelligence gets cheaper.\n\nIf you write the code, you already know what bolted-on governance, vendor lock-in, and stringly-typed agent glue feel like. Lev is the runtime that made the right decisions native: declarative constraints, a fractal filesystem, polyglot execution, fail-closed safety, and a graph that remembers what works.\n\nThe foundation is built. The mesh is coming. The window is open."
+      }
+    },
+    "cta-final-quote": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": {
+        "content": "This isn't an agent framework. It's the operating system for agent–human symbiosis. Run agents for free. Govern agents for money. Build on the open standard before the standard builds without you."
+      }
+    }
+  }
+}

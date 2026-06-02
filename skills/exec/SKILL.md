@@ -11,6 +11,45 @@ output_template: hud
 `/exec` runs execution-ready entities. It does not invent plans, weaken
 verifiers, or complete work without review evidence.
 
+## Goal Prompt Discipline
+
+When a user asks to set a goal involving `/exec`, the goal objective must be the
+domain task. Name `/exec`, Lev, Ralph, profiles, or runtime surfaces only as
+bounded tools/surfaces.
+
+Bad goal objective:
+- "Execute all slices through the exec lane, validate readiness, collect
+  receipts, route blockers, and close with verified status."
+
+Good goal objective:
+- "COPI cutover. Tools: `/exec`/Lev Ralph as bounded execution surfaces. Run one
+  slice at a time; stop on reviewer advice, blocker, failed declared gate, or a
+  no-op/advice loop; report diagnostics."
+
+Do not turn the workflow mechanics into the goal. The goal is the product or
+repo outcome; `/exec` is just the controlled way to attempt it.
+
+## Model Selection Discipline
+
+Model choice is execution policy, not skill prose. It varies by adapter,
+project, FlowMind topology, profile, and current local configuration.
+
+Before dispatch:
+
+1. Run `lev exec --help` in the target project before choosing model, profile,
+   flow, binding, budget, or loop flags. Do not guess flags or aliases.
+2. Prefer the selected task `execution.yaml`, FlowMind `--flow=<path>`, or
+   exec `--profile=<id>` over an inline `--model`.
+3. Let exec profiles carry adapter/model policy. Project `.lev/exec-profiles/`
+   overlays plugin profiles; explicit CLI flags override profile values only
+   when the user or execution artifact requires an override.
+4. Use `lev exec "binding smoke" --profile=<id> --dry-run --dry-run-resolve-binding`
+   before a real dispatch when profile/model selection matters. Treat dry-run
+   binding output as resolution evidence, not live provider execution proof.
+5. If no project, FlowMind, or exec-profile policy exists, stop and route to
+   `/propose` or diagnostics for a policy decision instead of inventing a stale
+   model default in the skill.
+
 ## Work Link
 
 Lifecycle lane: Exec
@@ -90,7 +129,7 @@ steps:
   - id: review_spec
     action: Check requested behavior, no extra behavior, write scope, and runtime contracts.
     validation: "Spec approval occurs before quality review."
-    on_failure: "Return to the same execution surface for fixes."
+    on_failure: "Fail closed as needs_propose/blocked. Do not redispatch a worker from reviewer advice unless the user explicitly asks."
 
   - id: review_quality
     action: Review interfaces, maintainability, tests, complexity, and correctness risks.
@@ -100,12 +139,12 @@ steps:
   - id: run_runtime_qa
     action: Execute declared proof gates before final verification.
     validation: "Baseline verifiers, Pentagon gates, UltraQA runtime scenarios, cleanup, generated-artifact status, and ai-slop-cleaner review pass or produce a blocked verdict."
-    on_failure: "Keep the slice executing or blocked; do not mark verified."
+    on_failure: "Stop the current slice as blocked with diagnostics; do not spin."
 
   - id: final_verify
     action: Run declared verifiers, inspect changed files, and collect receipt/trace evidence.
     validation: "All verifiers pass and evidence supports the claims."
-    on_failure: "Emit diagnostics and continue the failing slice."
+    on_failure: "Emit diagnostics and stop the failing slice."
 
   - id: update_followup_ledger
     action: Record verified, blocked, or follow-up rows with disk/memory state and evidence refs.
@@ -139,6 +178,18 @@ steps:
 - Prefer short evidence chains: `--help`, `--dry-run`, verifier, then trace.
 - After failed or interesting `lev exec`, inspect receipt/trace lookup before
   summarizing.
+
+## Fail-Closed Loop Rules
+
+- Multi-slice exec runs are serial by default. Run one slice, review it, then
+  decide whether the next slice is still execution-ready.
+- Reviewer `advice` is a terminal blocker for the current dispatch. Route to
+  diagnostics or `/propose`; do not treat advice as another worker prompt.
+- A no-op worker followed by reviewer advice is an immediate stop condition.
+- A green command plus reviewer advice means the verifier is insufficient or the
+  claim is overbroad. Stop and repair the task/proof, not the code.
+- Same blocker twice means stop. Do not spend a third loop unless the user
+  explicitly asks for another attempt.
 
 ## Diagnostics Report
 
@@ -207,6 +258,8 @@ docs and carry explicit notes for:
 - "UltraQA is just a scenario list; no runtime cleanup or evidence needed."
 - "A green Pentagon audit proves the feature-local claim."
 - "Exec follow-ups can stay in the final answer without a ledger route."
+- "Reviewer advice means try the worker again."
+- "The goal prompt should describe the exec workflow instead of the actual task."
 
 ## Rationalization Table
 
