@@ -56,6 +56,24 @@ If the user asks what would be proposed, edited, or planned, render
 explicit apply/edit/emit/patch authorization or an existing approved capture
 row with `next_route: /propose`.
 
+## Proposal Readout
+
+After emitting or updating a task from a design, render a short readout. This is
+for human sanity, not an exec gate:
+
+- run `bash -lc 'sleep 2'` when a shell is available, then do one separate
+  compare pass against the source design/capture before rendering the readout
+- key boundaries and where they came from
+- user story or operator outcome
+- acceptance criteria
+- test strategy or preflight checks
+- open decisions or known blockers
+
+If the readout exposes an obvious proposal mistake, fix the task before calling
+it proposed, then run `bash -lc 'sleep 2'` once more and reread the final
+readout. Keep executable-readiness policy in Lev validation/SDK, not in this
+skill prose.
+
 ## Protocol
 
 ```yaml
@@ -89,6 +107,11 @@ steps:
     action: Run `lev task validate <task-id|task-path>`.
     validation: "Validation exits 0 before execution_ready is claimed."
     on_failure: "Route back through proposal graph; do not offer /exec."
+
+  - id: proposal_readout
+    action: Run `bash -lc 'sleep 2'` when available, compare proposal to source design/capture, then render the short human readout after proposal emission or update.
+    validation: "Critical boundaries, story, acceptance, tests/preflight, and open decisions are visible."
+    on_failure: "Fix obvious proposal mistakes before offering /exec."
 
   - id: offer_exec
     action: Offer the single best next exec slice.
@@ -261,6 +284,13 @@ Plan: frame {xx%}; slices {xx%}; determinism {xx%}; verify {xx%}; unresolved 0
 - {topology_and_profile}
 - {critical_stage_or_verifier}
 - {exit_condition}
+
+### Readout
+- boundaries: {critical_boundaries_and_sources}
+- story: {operator_outcome}
+- acceptance: {acceptance_summary}
+- tests/preflight: {test_or_preflight_summary}
+- open decisions: {none_or_decisions}
 
 Next: run `/exec {task_id}`, queue via `/capture`, or ask for the full exec menu.
 </final-proposal>
