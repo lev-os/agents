@@ -1,0 +1,660 @@
+{
+  "meta": {
+    "title": "Lev Effect Boundary Audit",
+    "description": "Current tangle versus ideal effect-centered Lev runtime boundaries, with module duplication map and C1-C4 diagrams.",
+    "layout": "sidebar-toc",
+    "effects": ["grid-lines", "title-underline", "card-glow"],
+    "fonts": ["IBM Plex Sans", "IBM Plex Mono"]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "section-read",
+    "section-kpis",
+    "section-web",
+    "section-current-diagrams",
+    "section-ideal-diagrams",
+    "section-module-breakdown",
+    "section-duplication-map",
+    "section-run-fabric",
+    "section-boundary-model",
+    "section-next"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "centered",
+      "props": {
+        "category": "ARCHITECTURE AUDIT",
+        "title": "Lev Effect Boundary Audit",
+        "subtitle": "Current tangle vs. effect-centered runtime boundaries",
+        "meta": "Generated 2026-06-03 from live repo scan + web search"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "The current code already contains the right primitives, but they are split across `domain`, `orchestration`, `exec`, `flowmind`, receipt, proof, eval, and run-fabric surfaces. The clean direction is not a new taxonomy; it is consolidation around `EffectEnvelope -> ACT through exec -> ObservedEffect -> evaluator verdicts -> sealed typed receipt`."
+      }
+    },
+    "section-read": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "Read First",
+        "title": "The Architectural Answer",
+        "subtitle": "The naming problem is real, but the deeper problem is ownership."
+      },
+      "children": ["read-current", "read-ideal"]
+    },
+    "read-current": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Current",
+        "content": "`core/orchestration` is doing graph traversal, queues, topology, proof, receipt, effect declarations, effect-control, eval result projection, CDO handlers, worktree utilities, and direct shell execution. That is too many reasons to change in one package."
+      }
+    },
+    "read-ideal": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Ideal",
+        "content": "Keep agent orchestration for multi-agent coordination. Build Lev runtime from bottom-up primitives: shared domain contracts, FlowMind declarations, exec as the only effectful path, an effect controller/evaluator engine, a run ledger, and projections for eval/proof/receipts."
+      }
+    },
+    "section-kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "Signal",
+        "title": "Boundary Pressure"
+      },
+      "children": ["kpi-owners", "kpi-spawn", "kpi-refs", "kpi-cut"]
+    },
+    "kpi-owners": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "8+",
+        "label": "runtime concerns inside orchestration",
+        "trend": { "direction": "down", "value": "should split" }
+      }
+    },
+    "kpi-spawn": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "13",
+        "label": "orchestration shell/process sites called out by workstream",
+        "trend": { "direction": "down", "value": "route to exec" }
+      }
+    },
+    "kpi-refs": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "3",
+        "label": "competing proof/ref regimes",
+        "trend": { "direction": "flat", "value": "domain/run-fabric/exec" }
+      }
+    },
+    "kpi-cut": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "1",
+        "label": "blessed effectful execution path",
+        "trend": { "direction": "up", "value": "exec/tmux" }
+      }
+    },
+    "section-web": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Web Search",
+        "title": "Why `agent orchestration` is a loaded term now",
+        "subtitle": "Industry usage has converged on multi-agent coordination, not Lev's low-level runtime algebra."
+      },
+      "children": ["web-table", "web-takeaway"]
+    },
+    "web-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "source", "label": "Source" },
+          { "key": "current_usage", "label": "Current usage" },
+          { "key": "architecture_pressure", "label": "Pressure on Lev naming" },
+          { "key": "url", "label": "URL" }
+        ],
+        "rows": [
+          {
+            "source": "IBM Think",
+            "current_usage": "Coordinating multiple specialized AI agents in one system to achieve shared objectives.",
+            "architecture_pressure": "The word implies agent-to-agent coordination, role assignment, dependency management, and shared workflow control.",
+            "url": "https://www.ibm.com/think/topics/ai-agent-orchestration"
+          },
+          {
+            "source": "Microsoft Azure Architecture Center",
+            "current_usage": "Multiagent orchestration patterns: sequential, concurrent, group chat, handoff, magentic; adds overhead, latency, and failure modes.",
+            "architecture_pressure": "Use orchestration only when the system is actually coordinating agents; do not hide primitive runtime concerns there.",
+            "url": "https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns"
+          },
+          {
+            "source": "GitHub Resources",
+            "current_usage": "Governance and execution layer coordinating multiple autonomous agents under constraints, state, policy, HITL, and audit.",
+            "architecture_pressure": "A package named orchestration should read like multi-agent control, not an effect/proof/eval/run dumping ground.",
+            "url": "https://github.com/resources/articles/what-is-ai-agent-orchestration"
+          }
+        ],
+        "stickyHeader": true,
+        "stickyFirstColumn": true
+      }
+    },
+    "web-takeaway": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Naming implication",
+        "content": "If Lev keeps a package called `core/orchestration`, it should own agent coordination patterns: team handoffs, group-chat/tribunal style flows, multi-agent task allocation, shared state, and governance. It should not own primitive effect sealing, proof refs, typed receipts, direct shell execution, or eval scorecards."
+      }
+    },
+    "section-current-diagrams": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "Current C1-C4",
+        "title": "Current architecture: useful pieces, tangled ownership",
+        "subtitle": "The current package graph has multiple ways to say effect, verdict, receipt, run, proof, and execution."
+      },
+      "children": ["diag-current-c1", "diag-current-c2", "diag-current-c3", "diag-current-c4"]
+    },
+    "diag-current-c1": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "C1 current: Lev-facing consumers enter through several surfaces that converge late and inconsistently.",
+        "initialZoom": 0.85,
+        "content": "flowchart LR\n  U[\"User / agent / automation\"] --> Poly[\"core/poly surfaces\"]\n  U --> Flow[\"FlowMind authoring\"]\n  U --> Exec[\"lev exec\"]\n  U --> PM[\".lev/pm workstreams\"]\n  Poly --> Orch[\"core/orchestration\"]\n  Flow --> Orch\n  Exec --> ExecCore[\"core/exec\"]\n  PM --> Proof[\"proof / receipt artifacts\"]\n  Orch --> Proof\n  Orch --> DirectShell[\"direct shell/process sites\"]\n  Orch --> LocalEval[\"local EvalResult + EffectResult\"]\n  ExecCore --> RunTypes[\"exec run/proof refs\"]\n  Proof --> Claim[\"claimed certification\"]\n  DirectShell -. \"bypasses blessed path\" .-> Claim"
+      }
+    },
+    "diag-current-c2": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "C2 current: containers by package show overlap, not clean hex boundaries.",
+        "initialZoom": 0.8,
+        "content": "flowchart TB\n  subgraph Domain[\"core/domain\"]\n    EC[\"effect-control.ts\\nEffectEnvelope / ObservedEffect / EffectReceipt\"]\n    RF[\"run-fabric.ts\\nRunEnvelope / typed refs / canCertifyExecution\"]\n    EP[\"execution-protocol.ts\\nExecutionRunRequest / Response\"]\n  end\n  subgraph Orchestration[\"core/orchestration\"]\n    ECG[\"effect-control/*\\npolicy / evaluators / receipt / shell gateway\"]\n    ETypes[\"effect/types.ts\\nEffectDeclaration / EffectResult\"]\n    EvalTypes[\"eval/types.ts\\nEvalResult / EvalStrategy\"]\n    Receipts[\"receipt/*\\nReceipt embeds eval + effect results\"]\n    OFabric[\"run-fabric/*\\nRunService / JSONL leases\"]\n    Loop[\"loop + execution-contract + topology + queue\"]\n    Shell[\"child_process shell sites\"]\n  end\n  subgraph Exec[\"core/exec\"]\n    ExecRun[\"run/types.ts\\nExecutionRunEnvelope + rich EvidenceRef\"]\n    ExecEval[\"eval/*\\nEvalRegistry / scorecards\"]\n    ExecCmd[\"exec-command + transport\\nblessed execution bridge\"]\n  end\n  subgraph FlowMind[\"core/flowmind\"]\n    FMEC[\"effect-control-runtime.ts\\ncallback shell\"]\n    GateEval[\"gate-evaluator.ts\\nGateEvalResult\"]\n    RunPort[\"run-port + node-run-adapter\\nseparate exec bridge\"]\n  end\n  EC --> ECG\n  ECG --> Receipts\n  ECG --> EvalTypes\n  ECG --> ETypes\n  RF --> OFabric\n  EP --> ExecCmd\n  ExecRun --> ExecEval\n  FMEC -. callbacks .-> ECG\n  Shell -. duplicates .-> ExecCmd\n  RunPort -. duplicates .-> ExecCmd"
+      }
+    },
+    "diag-current-c3": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "C3 current: the orchestration package is a hive of unrelated component owners.",
+        "initialZoom": 0.75,
+        "content": "flowchart LR\n  Orch[\"@lev-os/orchestration\"] --> A2A[\"a2a/dispatcher.ts\\nagent messaging\"]\n  Orch --> EC[\"execution-contract/core.ts + adapter.ts\\ngraph walk + fulfill\"]\n  Orch --> Loop[\"loop/*\\nheartbeat / tick / until / iterative runner\"]\n  Orch --> Topo[\"topology/*\\nDAG + scheduler\"]\n  Orch --> Queue[\"queue/*\\ndurable task queues\"]\n  Orch --> Effect[\"effect/types.ts\\nlocal effect primitive\"]\n  Orch --> EffectControl[\"effect-control/*\\nevaluator/seal engine\"]\n  Orch --> Eval[\"eval/types.ts\\nEvalResult\"]\n  Orch --> Receipt[\"receipt/*\\nReceipt factory/schema\"]\n  Orch --> Fabric[\"run-fabric/*\\nrun/action ledger\"]\n  Orch --> Proof[\"proof/*\\nintent conservation / proof spec generator\"]\n  Orch --> CDO[\"handlers/cdo.ts\\nClaude shell handler\"]\n  Orch --> Git[\"git/worktree.ts\\nworktree utility\"]\n  EffectControl --> ShellGateway[\"shell-gateway.ts + shell-command.ts\\ndirect spawn\"]\n  Proof --> ProofShell[\"proof-spec-generator.ts\\nexecSync checks\"]\n  CDO --> CdoShell[\"execSync claude -p\"]\n  Topo --> BdShell[\"dag.ts execSync bd\"]"
+      }
+    },
+    "diag-current-c4": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "C4 current: duplicated code-level concepts that should converge.",
+        "initialZoom": 0.75,
+        "content": "flowchart TB\n  Verdicts[\"Verdicts\"] --> V1[\"domain/effect-control.ts\\nEffectVerdict: pass/fail/unclear\"]\n  Verdicts --> V2[\"orchestration/eval/types.ts\\nEvalResult.passed boolean\"]\n  Verdicts --> V3[\"flowmind/gate-evaluator.ts\\nGateEvalResult\"]\n  Verdicts --> V4[\"exec/run/types.ts\\nGateProofRef.verdict/status\"]\n  Refs[\"Proof refs\"] --> R1[\"EffectReceipt string[] refs\"]\n  Refs --> R2[\"domain/run-fabric typed refs\"]\n  Refs --> R3[\"exec/run/types EvidenceRef hierarchy\"]\n  Effects[\"Effects\"] --> E1[\"domain EffectEnvelope / ObservedEffect\"]\n  Effects --> E2[\"orchestration EffectDeclaration / EffectResult\"]\n  Effects --> E3[\"receipt.effectResults projection\"]\n  Runs[\"Runs\"] --> Run1[\"domain RunEnvelope\"]\n  Runs --> Run2[\"exec ExecutionRunEnvelope\"]\n  Runs --> Run3[\"orchestration RunService ledger\"]\n  Execution[\"Execution\"] --> X1[\"exec-command / transport\"]\n  Execution --> X2[\"orchestration shell-command.ts\"]\n  Execution --> X3[\"flowmind node-run-adapter.ts\"]\n  Execution --> X4[\"harness process runners\"]"
+      }
+    },
+    "section-ideal-diagrams": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "Ideal C1-C4",
+        "title": "Ideal architecture: effect-centered and hexagonal",
+        "subtitle": "One substrate, multiple lenses: semantic control, effect policy, user evals, and proof gates all normalize onto the same evaluator/effect path."
+      },
+      "children": ["diag-ideal-c1", "diag-ideal-c2", "diag-ideal-c3", "diag-ideal-c4"]
+    },
+    "diag-ideal-c1": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "C1 ideal: users see workflows/evals/proofs; internally Lev runs one effect/evaluator substrate.",
+        "initialZoom": 0.9,
+        "content": "flowchart LR\n  U[\"User / agent / automation\"] --> Author[\"FlowMind / skills / eval suites\"]\n  Author --> Runtime[\"Lev runtime primitives\"]\n  Runtime --> Exec[\"Exec: only effectful bridge\"]\n  Exec --> Evidence[\"traces / receipts / GateProof refs\"]\n  Evidence --> Projection[\"eval reports / semantic-control decisions / dashboards\"]\n  Projection --> U\n  Runtime --> AgentOrch[\"Agent orchestration\\nonly when multi-agent coordination is real\"]"
+      }
+    },
+    "diag-ideal-c2": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "C2 ideal: containers separate contracts, authoring, execution, effect control, run ledger, eval projection, and agent orchestration.",
+        "initialZoom": 0.82,
+        "content": "flowchart TB\n  Domain[\"core/domain\\nshared contracts only\"] --> Flow[\"core/flowmind\\nauthoring + graph declarations\"]\n  Domain --> Effect[\"core/effect or renamed effect-control package\\nadmit / evaluate / seal\"]\n  Domain --> Exec[\"core/exec\\nExecutionRunRequest / Response + proof runner\"]\n  Domain --> Ledger[\"run ledger\\nrun/action leases + replay state\"]\n  Flow --> Traversal[\"graph/loop traversal package\\nnode/edge/gate/loop program runner\"]\n  Traversal --> Effect\n  Effect --> Exec\n  Exec --> Harness[\"harness / tmux-harness\\nprocess/session adapters\"]\n  Effect --> Ledger\n  Exec --> Ledger\n  Effect --> Eval[\"core/eval projection\\nsuites / cases / scorecards\"]\n  Ledger --> Eval\n  AgentOrch[\"agent orchestration package\\nteam / handoff / group chat / multi-agent governance\"] --> Flow\n  AgentOrch --> Traversal"
+      }
+    },
+    "diag-ideal-c3": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "C3 ideal: effect controller owns control semantics; exec owns execution; projections do not become engines.",
+        "initialZoom": 0.78,
+        "content": "flowchart LR\n  subgraph EffectController[\"Effect controller\"]\n    Admit[\"admit envelope\\npolicy + authority\"] --> ActPort[\"call exec port\"]\n    ActPort --> Observe[\"normalize ObservedEffect\"]\n    Observe --> Evaluate[\"run evaluator programs\"]\n    Evaluate --> Seal[\"seal EffectReceipt\"]\n  end\n  subgraph ExecCore[\"Exec\"]\n    Request[\"ExecutionRunRequest\"] --> Blessed[\"tmux / harness / tool transport\"]\n    Blessed --> Response[\"ExecutionRunResponse + typed evidence refs\"]\n  end\n  subgraph Projections[\"Projections\"]\n    EvalProj[\"EvalRun / scorecard\"]\n    SemProj[\"semantic-control decision\"]\n    ReceiptProj[\"user receipt / dashboard\"]\n  end\n  ActPort --> Request\n  Response --> Observe\n  Seal --> EvalProj\n  Seal --> SemProj\n  Seal --> ReceiptProj"
+      }
+    },
+    "diag-ideal-c4": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "C4 ideal: one execution/effect loop; no private evaluator exec type needed.",
+        "initialZoom": 0.82,
+        "content": "sequenceDiagram\n  participant Flow as FlowMind / eval suite / core gate\n  participant Eff as EffectController\n  participant Exec as core/exec\n  participant H as tmux or harness adapter\n  participant Store as run ledger + proof refs\n  Flow->>Eff: EffectEnvelope + evaluator bindings + vars\n  Eff->>Eff: admit(policy, authority, scope)\n  Eff->>Exec: ExecutionRunRequest(parent_effect_id)\n  Exec->>H: execute through blessed adapter\n  H-->>Exec: process/session/tool result\n  Exec-->>Eff: ExecutionRunResponse + typed evidence refs\n  Eff->>Eff: build ObservedEffect\n  Eff->>Eff: run evaluator programs\n  Eff->>Store: EffectReceipt + TraceRef + GateProofRef lineage\n  Store-->>Flow: verdict + reasons + route"
+      }
+    },
+    "section-module-breakdown": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Module Breakdown",
+        "title": "What exists where, and what it duplicates",
+        "subtitle": "File-level inventory from the live tree."
+      },
+      "children": ["module-table"]
+    },
+    "module-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "module", "label": "Module / file" },
+          { "key": "current", "label": "Current responsibility" },
+          { "key": "duplicates", "label": "Duplicates / overlaps" },
+          { "key": "keep", "label": "Keep / steal" },
+          { "key": "target", "label": "Likely target boundary" }
+        ],
+        "rows": [
+          {
+            "module": "core/domain/src/effect-control.ts",
+            "current": "Shared `EffectEnvelope`, `ObservedEffect`, `EffectReceipt`, `EffectPolicy`, verdict and decision enums.",
+            "duplicates": "Receipt refs are string arrays while run-fabric and exec have typed refs.",
+            "keep": "This is the best current effect vocabulary.",
+            "target": "Stay in domain for shared contracts; move typed refs into it or import shared typed refs."
+          },
+          {
+            "module": "core/domain/src/run-fabric.ts",
+            "current": "`RunEnvelope`, `RunRecord`, `ActionRecord`, leases, typed `ReceiptRef` / `TraceRef` / `GateProofRef`, `canCertifyExecution`.",
+            "duplicates": "Overlaps with exec `ExecutionRunEnvelope`; proof refs compete with exec run refs.",
+            "keep": "Typed refs and fail-closed certification rule.",
+            "target": "Split into shared typed refs + operational run ledger contracts."
+          },
+          {
+            "module": "core/domain/src/execution-protocol.ts",
+            "current": "`ExecutionRunRequest`, `ExecutionRunResponse`, `ExecTransport` bridge.",
+            "duplicates": "Underused where orchestration/flowmind shell directly.",
+            "keep": "Canonical port between effect/evaluator work and exec.",
+            "target": "Stay in domain as port contract."
+          },
+          {
+            "module": "core/orchestration/src/effect-control/*",
+            "current": "Actual engine today: policy admission, observed-effect extraction, evaluator verdicts, sealing, receipt projection, shell gateway.",
+            "duplicates": "Owns effect engine but lives beside queues/topology/proof and includes direct shell execution.",
+            "keep": "Admission, evaluator, seal behavior.",
+            "target": "Move/consolidate into effect controller package; remove direct shell gateway or route it through exec."
+          },
+          {
+            "module": "core/orchestration/src/effect/types.ts",
+            "current": "Local `EffectDeclaration`, `EffectResult`, `EffectKind`, append-only ordering story.",
+            "duplicates": "Competes with domain `EffectEnvelope` / `ObservedEffect` / `EffectReceipt`.",
+            "keep": "Declaration-before-result invariant.",
+            "target": "Fold into domain/effect semantics or retire as projection."
+          },
+          {
+            "module": "core/orchestration/src/eval/types.ts",
+            "current": "Local `EvalResult`, `EvalStrategy`, comparison mechanics.",
+            "duplicates": "Competes with effect verdicts and exec eval scorecards.",
+            "keep": "Append-only result concept if projection remains useful.",
+            "target": "Eval projection layer, not effect engine."
+          },
+          {
+            "module": "core/orchestration/src/receipt/*",
+            "current": "Receipt factory/schema embedding `EvalResult[]` and `EffectResult[]`.",
+            "duplicates": "Projects domain `EffectReceipt` into a second receipt shape at seal time.",
+            "keep": "User-facing receipt shape if still valuable.",
+            "target": "Projection over sealed effect receipts, not primary proof source."
+          },
+          {
+            "module": "core/orchestration/src/run-fabric/*",
+            "current": "RunService, JSONL store, idempotent run/action ledger, claim/heartbeat/complete/fail.",
+            "duplicates": "Operational run ledger is mixed with proof/effect semantics.",
+            "keep": "Idempotency, action leases, replayable JSONL run store.",
+            "target": "Run ledger package; no proof ontology ownership."
+          },
+          {
+            "module": "core/exec/src/run/types.ts",
+            "current": "`ExecutionRunEnvelope`, rich `EvidenceRef`, `ReceiptRef`, `TraceRef`, `GateProofRef`, replay/proof bundles.",
+            "duplicates": "Another run/ref model beside domain run-fabric and EffectReceipt strings.",
+            "keep": "Rich typed evidence hierarchy and proof bundle assembly.",
+            "target": "Exec-owned run envelope with shared domain ref primitives."
+          },
+          {
+            "module": "core/exec/src/eval/*",
+            "current": "Eval registry, scorecards, benchmark/AI-SRE/sandbox eval validators.",
+            "duplicates": "Eval suite language exists but not unified with effect-control evaluator engine.",
+            "keep": "Suite/case/scorer/scorecard concepts.",
+            "target": "Eval framework projection over effect/evaluator substrate."
+          },
+          {
+            "module": "core/flowmind/src/effect-control-runtime.ts",
+            "current": "Callback shell for admission, ACT, verify, seal; imports domain types only.",
+            "duplicates": "Looks like engine but delegates all real behavior to injected callbacks.",
+            "keep": "Authoring/runtime node sequence model.",
+            "target": "FlowMind declaration shell that calls the canonical effect controller."
+          },
+          {
+            "module": "core/flowmind/src/gate-evaluator.ts",
+            "current": "FlowMind gate expressions and `GateEvalResult`.",
+            "duplicates": "Gate verdict/result language separate from effect verdicts and eval results.",
+            "keep": "Gate authoring/evaluation rules.",
+            "target": "Evaluator binding over normalized effect/eval verdict payloads."
+          },
+          {
+            "module": "core/orchestration/src/execution-contract/*",
+            "current": "Graph start/next traversal and adapter fulfillment for agent/function/gate/loop kinds.",
+            "duplicates": "Execution adapter shell overlaps with exec and FlowMind run port.",
+            "keep": "Pure traversal state machine if cleaned.",
+            "target": "Rename/split as graph or loop runtime; not agent orchestration."
+          },
+          {
+            "module": "core/orchestration/src/proof/*",
+            "current": "Intent conservation proof, proof spec generation, receipt policy, witness accumulation.",
+            "duplicates": "Proof refs and eval conversion overlap with domain semantic-control and exec proof bundles.",
+            "keep": "Intent conservation evaluator logic.",
+            "target": "Effect/evaluator proof projection; remove shell proof checks from orchestration."
+          },
+          {
+            "module": "core/harness + core/tmux-harness",
+            "current": "Process/session/tmux mechanics and adapter tests.",
+            "duplicates": "Other packages spawn shells directly instead of using this path.",
+            "keep": "Blessed process/session substrate.",
+            "target": "Only execution adapters allowed to touch tmux/process mechanics."
+          }
+        ],
+        "stickyHeader": true,
+        "stickyFirstColumn": true
+      }
+    },
+    "section-duplication-map": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Duplication",
+        "title": "Duplicate concept map",
+        "subtitle": "These are the concrete split-brain seams the roadmap should collapse first."
+      },
+      "children": ["dup-table", "dup-chart"]
+    },
+    "dup-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "concept", "label": "Concept" },
+          { "key": "current_shapes", "label": "Current shapes" },
+          { "key": "problem", "label": "Problem" },
+          { "key": "collapse_rule", "label": "Collapse rule" }
+        ],
+        "rows": [
+          {
+            "concept": "Verdicts",
+            "current_shapes": "EffectVerdict, EvalResult.passed, GateEvalResult, GateProofRef verdict/status.",
+            "problem": "Pass/fail semantics drift by surface.",
+            "collapse_rule": "Evaluator emits normalized verdict + reasons; projections adapt display vocabulary."
+          },
+          {
+            "concept": "Proof refs",
+            "current_shapes": "EffectReceipt string arrays, domain run-fabric typed refs, exec EvidenceRef hierarchy.",
+            "problem": "A receipt can look proof-bearing without typed lineage.",
+            "collapse_rule": "Typed refs become shared primitives; string refs only for legacy projections."
+          },
+          {
+            "concept": "Effects",
+            "current_shapes": "EffectEnvelope/ObservedEffect/EffectReceipt plus EffectDeclaration/EffectResult plus receipt.effectResults.",
+            "problem": "Effect ontology and receipt projection are conflated.",
+            "collapse_rule": "Envelope/observed/receipt is source; declaration/result is invariant/projection if needed."
+          },
+          {
+            "concept": "Runs",
+            "current_shapes": "RunEnvelope, ExecutionRunEnvelope, RunService records.",
+            "problem": "Operational ledger and proof-bearing execution envelope blur.",
+            "collapse_rule": "Ledger tracks attempts/leases; exec envelope tracks execution identity/evidence."
+          },
+          {
+            "concept": "Execution",
+            "current_shapes": "exec transport, orchestration shell gateway, FlowMind node-run-adapter, harness process runners.",
+            "problem": "Multiple mutation paths make effect proof unverifiable.",
+            "collapse_rule": "Only exec/harness/tmux performs effects; every other package calls the port."
+          },
+          {
+            "concept": "Eval",
+            "current_shapes": "Effect evaluator verdicts, orchestration EvalResult, exec EvalRegistry/scorecards, FlowMind gates.",
+            "problem": "Eval framework risks becoming another engine.",
+            "collapse_rule": "Eval suites are bindings/cases/scorers over the effect/evaluator substrate."
+          }
+        ],
+        "stickyHeader": true,
+        "stickyFirstColumn": true
+      }
+    },
+    "dup-chart": {
+      "type": "chart",
+      "props": {
+        "chartType": "bar",
+        "title": "Duplicate shape pressure by concept",
+        "labels": ["Verdicts", "Proof refs", "Effects", "Runs", "Execution paths", "Eval surfaces"],
+        "datasets": [
+          {
+            "label": "distinct shapes",
+            "data": [4, 3, 3, 3, 4, 4],
+            "backgroundColor": ["#14b8a6", "#38bdf8", "#f59e0b", "#84cc16", "#ef4444", "#a78bfa"]
+          }
+        ]
+      }
+    },
+    "section-run-fabric": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Run Fabric",
+        "title": "What to steal from run-fabric without keeping the split brain",
+        "subtitle": "Effect was supposed to supersede run-fabric as proof language; run-fabric still contains useful operational machinery."
+      },
+      "children": ["run-table", "run-callout"]
+    },
+    "run-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "artifact", "label": "Artifact" },
+          { "key": "value", "label": "Value" },
+          { "key": "risk", "label": "Risk if left where it is" },
+          { "key": "move", "label": "Move / preserve" }
+        ],
+        "rows": [
+          {
+            "artifact": "`ReceiptRef` / `TraceRef` / `GateProofRef`",
+            "value": "Typed proof lineage, better than string arrays.",
+            "risk": "EffectReceipt stays weak and receipt theatre remains possible.",
+            "move": "Promote typed refs to shared domain proof/evidence refs."
+          },
+          {
+            "artifact": "`canCertifyExecution`",
+            "value": "Fail-closed: certification requires GateProof + ReceiptRef + TraceRef.",
+            "risk": "Certification policy lives in run-fabric instead of the effect/evaluator seal.",
+            "move": "Keep rule; invoke it during effect receipt sealing/proof projection."
+          },
+          {
+            "artifact": "`RunService` claim/heartbeat/complete/fail",
+            "value": "Useful idempotent run/action ledger.",
+            "risk": "Looks like it owns proof semantics because it builds envelopes.",
+            "move": "Keep as run ledger/application service; strip proof ontology to refs/status only."
+          },
+          {
+            "artifact": "Exec `EvidenceRef` hierarchy",
+            "value": "Richer proof bundle inputs and replay support.",
+            "risk": "Competes with run-fabric typed refs and domain effect evidence refs.",
+            "move": "Unify with shared typed evidence refs; exec can extend with adapter-specific metadata."
+          }
+        ],
+        "stickyHeader": true,
+        "stickyFirstColumn": true
+      }
+    },
+    "run-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Run-fabric decomposition",
+        "content": "The ledger concern is real: idempotent runs, action leases, heartbeats, retry state, replay indexes. The proof concern should move under effect/evaluator receipt sealing. That means run-fabric becomes an operational log, not the semantic proof fabric."
+      }
+    },
+    "section-boundary-model": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "DDD / Hex",
+        "title": "Bottom-up buckets from first principles",
+        "subtitle": "Start with reasons to change, not with existing package names."
+      },
+      "children": ["boundary-table", "boundary-code"]
+    },
+    "boundary-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "bucket", "label": "Bucket" },
+          { "key": "ddd_role", "label": "DDD / hex role" },
+          { "key": "owns", "label": "Owns" },
+          { "key": "must_not_own", "label": "Must not own" },
+          { "key": "candidate_home", "label": "Candidate home" }
+        ],
+        "rows": [
+          {
+            "bucket": "Contracts",
+            "ddd_role": "Domain model",
+            "owns": "Shared value objects and schemas used by more than one core consumer.",
+            "must_not_own": "Execution logic, IO, shelling, scheduling.",
+            "candidate_home": "core/domain"
+          },
+          {
+            "bucket": "Flow declarations",
+            "ddd_role": "Authoring model / DSL",
+            "owns": "FlowMind graph documents, nodes, edges, gates, evaluator bindings, config knobs.",
+            "must_not_own": "Process execution or proof sealing.",
+            "candidate_home": "core/flowmind"
+          },
+          {
+            "bucket": "Traversal loop",
+            "ddd_role": "Application service",
+            "owns": "Given a graph state, choose next node/edge/gate/loop transition.",
+            "must_not_own": "Agent orchestration strategy, direct shell, proof ontology.",
+            "candidate_home": "Rename/split from core/orchestration into graph-loop/runtime traversal"
+          },
+          {
+            "bucket": "Effect control",
+            "ddd_role": "Policy/evaluator application service",
+            "owns": "Admission, ACT port call, observed effect normalization, evaluator invocation, sealing.",
+            "must_not_own": "tmux mechanics or user-facing eval suite discovery.",
+            "candidate_home": "core/effect or equivalent canonical package"
+          },
+          {
+            "bucket": "Execution",
+            "ddd_role": "Primary outbound port + adapters",
+            "owns": "ExecutionRunRequest/Response, exec command, tmux/harness/tool adapters, typed execution evidence.",
+            "must_not_own": "Eval policy, FlowMind authoring, semantic decisions.",
+            "candidate_home": "core/exec + core/harness + core/tmux-harness"
+          },
+          {
+            "bucket": "Run ledger",
+            "ddd_role": "Repository / application state",
+            "owns": "Run/action records, leases, heartbeats, replay indexes, idempotency.",
+            "must_not_own": "Certification vocabulary or effect proof semantics.",
+            "candidate_home": "core/run-ledger or consolidated subpackage"
+          },
+          {
+            "bucket": "Eval framework",
+            "ddd_role": "Projection + test harness language",
+            "owns": "Suites, cases, fixtures, claims, scorers, scorecards, discovery, reports.",
+            "must_not_own": "Runtime effect engine or general test classification.",
+            "candidate_home": "core/eval as projection over effect/evaluator substrate"
+          },
+          {
+            "bucket": "Agent orchestration",
+            "ddd_role": "Coordination bounded context",
+            "owns": "Multi-agent handoff, group-chat, team allocation, shared context governance.",
+            "must_not_own": "Low-level graph traversal or effect receipts.",
+            "candidate_home": "Keep/rename core/orchestration only if this is its true scope"
+          }
+        ],
+        "stickyHeader": true,
+        "stickyFirstColumn": true
+      }
+    },
+    "boundary-code": {
+      "type": "code-block",
+      "props": {
+        "language": "text",
+        "filename": "effect-centered loop",
+        "content": "FlowMind node / eval case / core gate\n  -> binds vars + evaluator policy\n  -> EffectEnvelope\n  -> effect controller admits scope + authority\n  -> core/exec executes the ACT through tmux/harness/tool adapter\n  -> ObservedEffect is normalized from typed evidence\n  -> evaluator programs score pass/fail/unclear + reasons\n  -> EffectReceipt seals decision + typed proof refs\n  -> projections render eval report, semantic-control route, receipt, dashboard",
+        "showLineNumbers": false
+      }
+    },
+    "section-next": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": {
+        "label": "Next",
+        "title": "Recommended consolidation sequence"
+      },
+      "children": ["next-1", "next-2", "next-3", "next-4"]
+    },
+    "next-1": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "1. Freeze the vocabulary",
+        "content": "Write the boundary doc around existing primitives: `EffectEnvelope`, `ObservedEffect`, `EffectReceipt`, typed refs, exec request/response, run ledger. Avoid new type catalogs."
+      }
+    },
+    "next-2": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "2. Ban shadow execution",
+        "content": "Inventory every `child_process`/shell site outside exec/harness/tmux-harness and route effectful work through `ExecutionRunRequest`."
+      }
+    },
+    "next-3": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "3. Split run ledger from proof",
+        "content": "Keep RunService leases/idempotency; move certification semantics into effect receipt sealing with shared typed refs."
+      }
+    },
+    "next-4": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "4. Rename orchestration by scope",
+        "content": "If it is multi-agent coordination, keep orchestration. If it is graph traversal, call it traversal/loop/runtime graph. If it is effect policy, put it under effect."
+      }
+    }
+  }
+}

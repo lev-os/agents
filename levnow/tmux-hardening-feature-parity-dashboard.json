@@ -1,0 +1,789 @@
+{
+  "meta": {
+    "title": "Tmux Hardening Feature Parity Dashboard",
+    "description": "Workstream-owned inventory of tmux-harness feature parity, internal decomposition, gates, and next slices.",
+    "layout": "sidebar-toc",
+    "effects": [
+      "grid-dots",
+      "title-underline"
+    ],
+    "fonts": [
+      "IBM Plex Sans",
+      "IBM Plex Mono"
+    ]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "kpis",
+    "status-callouts",
+    "feature-matrix",
+    "module-shape",
+    "loc-chart-section",
+    "dependency-diagram",
+    "decomposition-timeline",
+    "quality-gates",
+    "next-action"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "TMUX-HARDENING",
+        "title": "Every Feature Stays In This Workstream",
+        "subtitle": "Feature parity, old-bridge behavior, prior-art signals, eval gates, and tmux-harness decomposition are sequenced under tmux-hardening.",
+        "meta": "Captured from 2026-06-02 tmux-hardening plan and capture artifacts"
+      },
+      "children": [
+        "hero-lead"
+      ]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "The top-level exec / harness / tmux seam is clearer now. The active risk moved inward: `core/tmux-harness` can still become a god object unless AgentSession, execution facade, registry, reaper, observation, evidence, and warm-worker lifecycle are decomposed behind stable compatibility APIs."
+      }
+    },
+    "kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "At a Glance",
+        "title": "Current Proof Posture"
+      },
+      "children": [
+        "kpi-features",
+        "kpi-gates",
+        "kpi-old-bridge",
+        "kpi-risk",
+        "kpi-live"
+      ]
+    },
+    "kpi-features": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "40",
+        "label": "Feature Rows Captured",
+        "trend": {
+          "direction": "up",
+          "value": "all in tmux-hardening"
+        },
+        "sparkline": [
+          10,
+          18,
+          25,
+          34,
+          40
+        ]
+      }
+    },
+    "kpi-gates": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "6",
+        "label": "Existing Gates Green",
+        "trend": {
+          "direction": "flat",
+          "value": "package/scenario proof"
+        }
+      }
+    },
+    "kpi-old-bridge": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "29",
+        "label": "Old Bridge Behaviors",
+        "trend": {
+          "direction": "down",
+          "value": "not mapped yet"
+        }
+      }
+    },
+    "kpi-risk": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "1575",
+        "label": "AgentSession LOC",
+        "trend": {
+          "direction": "down",
+          "value": "god-object risk"
+        }
+      }
+    },
+    "kpi-live": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "0",
+        "label": "Live Provider Matrix Runs",
+        "trend": {
+          "direction": "flat",
+          "value": "not certified"
+        }
+      }
+    },
+    "status-callouts": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "Truth Boundary",
+        "title": "Green Narrow Slice, Not Full Certification"
+      },
+      "children": [
+        "status-green",
+        "status-warning"
+      ]
+    },
+    "status-green": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Verified Today",
+        "content": "Default no-flag tmux path, task validation, FlowMind eval-harness validation, boundary audit, core/harness default transport tests, tmux-harness default execution transport tests, and Pentagon-adjacent false-green scenarios are green."
+      }
+    },
+    "status-warning": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Still Not Certified",
+        "content": "Full parity still needs the archived 29 old-bridge behavior matrix, live provider permutations where binaries/auth exist, and an internal tmux-harness decomposition gate. Package-green is not proof-green."
+      }
+    },
+    "feature-matrix": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Feature Inventory",
+        "title": "40 Sequenced Features Inside tmux-hardening",
+        "subtitle": "Each row is owned here. External prior art is input only, not a separate backlog."
+      },
+      "children": [
+        "features-table"
+      ]
+    },
+    "features-table": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          {
+            "date": "01 / Default Exec",
+            "title": "No-flag tmux execution path",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "02 / Default Exec",
+            "title": "ExecutionBinding validation before session creation",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "03 / Default Exec",
+            "title": "Exec identity required before tmux creation",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "04 / Artifacts",
+            "title": "Prompt/stdout/stderr/output artifacts",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "05 / Events",
+            "title": "Durable tmux event refs",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "06 / Registry",
+            "title": "Workstream registry bind/unbind",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "07 / Cleanup",
+            "title": "Cleanup decision with ReaperOutcomeReceipt",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "08 / False Green",
+            "title": "Fake success text remains runtime evidence only",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "09 / False Green",
+            "title": "Prompt echo cannot satisfy completion",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "10 / False Green",
+            "title": "Stale/no-delta timeout is typed failure",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "11 / Readiness",
+            "title": "Provider readiness blockers stop dispatch",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "12 / Ownership",
+            "title": "All parity/eval items sequenced here",
+            "status": "in-progress",
+            "description": "State: Captured"
+          },
+          {
+            "date": "13 / API Stability",
+            "title": "AgentSession public facade compatibility",
+            "status": "upcoming",
+            "description": "State: Required"
+          },
+          {
+            "date": "14 / SDK",
+            "title": "SDK session handle uses AgentSession",
+            "status": "in-progress",
+            "description": "State: Current"
+          },
+          {
+            "date": "15 / Tmux Primitive",
+            "title": "Spawn/new-session",
+            "status": "in-progress",
+            "description": "State: Current"
+          },
+          {
+            "date": "16 / Tmux Primitive",
+            "title": "Attach/connect",
+            "status": "in-progress",
+            "description": "State: Current"
+          },
+          {
+            "date": "17 / Tmux Primitive",
+            "title": "Capture/readback",
+            "status": "in-progress",
+            "description": "State: Current"
+          },
+          {
+            "date": "18 / Tmux Primitive",
+            "title": "Input/send-keys",
+            "status": "in-progress",
+            "description": "State: Current"
+          },
+          {
+            "date": "19 / Tmux Primitive",
+            "title": "Kill/shutdown",
+            "status": "in-progress",
+            "description": "State: Current"
+          },
+          {
+            "date": "20 / Contracts",
+            "title": "tmux:// session URI contract",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "21 / Contracts",
+            "title": "Session profile contract",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "22 / Contracts",
+            "title": "Substrate policy contract",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "23 / Submission",
+            "title": "Dispatch request log",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "24 / Submission",
+            "title": "Submit-plan strategy",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "25 / Observation",
+            "title": "Idle and finish nudges",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "26 / Evidence",
+            "title": "Diagnostics replay bundle",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "27 / Guards",
+            "title": "Timeout/token guard receipts",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "28 / Warm Worker",
+            "title": "Acquire/renew/heartbeat/release/evict/expire",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "29 / Warm Worker",
+            "title": "Context pressure projection",
+            "status": "in-progress",
+            "description": "State: Current"
+          },
+          {
+            "date": "30 / Reaper",
+            "title": "Stale cleanup with identity/protection checks",
+            "status": "completed",
+            "description": "State: Green"
+          },
+          {
+            "date": "31 / Old Bridge",
+            "title": "29 archived bridge behaviors",
+            "status": "upcoming",
+            "description": "State: Gap"
+          },
+          {
+            "date": "32 / OMX",
+            "title": "Machine API, HUD, 4-lane model",
+            "status": "in-progress",
+            "description": "State: Captured"
+          },
+          {
+            "date": "33 / Mngr",
+            "title": "Create/list/watch/attach/message/capture/wait/exec/snapshot ergonomics",
+            "status": "in-progress",
+            "description": "State: Captured"
+          },
+          {
+            "date": "34 / NTM",
+            "title": "Robot JSON and bounded attach/watch/intervene/resume discipline",
+            "status": "upcoming",
+            "description": "State: Reference Only"
+          },
+          {
+            "date": "35 / OMC",
+            "title": "Worker health/restart/unified team view",
+            "status": "in-progress",
+            "description": "State: Captured"
+          },
+          {
+            "date": "36 / OMO",
+            "title": "Category routing and hash-anchored edits",
+            "status": "in-progress",
+            "description": "State: Captured"
+          },
+          {
+            "date": "37 / Hermes",
+            "title": "Delegation semantics, budget, tool inheritance",
+            "status": "in-progress",
+            "description": "State: Captured"
+          },
+          {
+            "date": "38 / AXI",
+            "title": "Token-efficient format, content-first CLI, contextual disclosure",
+            "status": "in-progress",
+            "description": "State: Captured"
+          },
+          {
+            "date": "39 / AppTestr",
+            "title": "SDK/wrappers/driver parity pattern",
+            "status": "in-progress",
+            "description": "State: Captured"
+          },
+          {
+            "date": "40 / DNA/Eval",
+            "title": "First-class dna/core/tmux-harness + tmux-owned eval scenarios",
+            "status": "upcoming",
+            "description": "State: Planned"
+          }
+        ]
+      }
+    },
+    "module-shape": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "Architecture",
+        "title": "Target Internal Shape",
+        "subtitle": "Modular monolith inside one tmux owner. AgentSession remains the public facade."
+      },
+      "children": [
+        "module-contracts",
+        "module-primitives",
+        "module-session",
+        "module-submission",
+        "module-observation",
+        "module-evidence",
+        "module-exec",
+        "module-registry",
+        "module-warm",
+        "module-eval"
+      ]
+    },
+    "module-contracts": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Contracts",
+        "content": "Session URI, profile, substrate policy, and stable public types. No execution behavior or filesystem writes."
+      }
+    },
+    "module-primitives": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Tmux Primitives",
+        "content": "Typed wrappers for spawn, attach, capture, input, and kill. Raw tmux commands stay here."
+      }
+    },
+    "module-session": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Session Facade",
+        "content": "AgentSession compatibility constructor and methods. Delegates all real work to local modules."
+      }
+    },
+    "module-submission": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Submission",
+        "content": "Submit-plan execution, dispatch request state, and dispatch events. No observation logic."
+      }
+    },
+    "module-observation": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Observation",
+        "content": "Readiness, pane-delta, prompt echo stripping, wait patterns, and provider readiness blockers."
+      }
+    },
+    "module-evidence": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Evidence",
+        "content": "Receipts, diagnostics replay, startup phase events. Byproducts only, never certification authority."
+      }
+    },
+    "module-exec": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Execution Facade",
+        "content": "One-shot exec composition and artifact cleanup. Keeps ./execution-transport as compatibility export only."
+      }
+    },
+    "module-registry": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Registry + Reaper",
+        "content": "Identity tags, XDG registry path/schema/store, stale cleanup, and ReaperOutcomeReceipt."
+      }
+    },
+    "module-warm": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Warm Worker",
+        "content": "Append-only lifecycle log, projection, lease validation, heartbeat, and expiration."
+      }
+    },
+    "module-eval": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Pentagon / Eval",
+        "content": "Tmux-owned scenario fixtures, false-green probes, and the old-bridge parity matrix."
+      }
+    },
+    "loc-chart-section": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "Code Shape",
+        "title": "Current LOC Risk"
+      },
+      "children": [
+        "loc-chart",
+        "loc-note"
+      ]
+    },
+    "loc-chart": {
+      "type": "chart",
+      "props": {
+        "chartType": "bar",
+        "title": "Largest tmux-harness sources",
+        "labels": [
+          "AgentSession",
+          "FlowMind proof",
+          "Warm worker",
+          "Registry",
+          "Execution facade"
+        ],
+        "datasets": [
+          {
+            "label": "LOC",
+            "data": [
+              1575,
+              865,
+              480,
+              360,
+              354
+            ],
+            "backgroundColor": [
+              "#f97316",
+              "#f59e0b",
+              "#eab308",
+              "#14b8a6",
+              "#38bdf8"
+            ]
+          }
+        ]
+      }
+    },
+    "loc-note": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Shape Gate",
+        "content": "The recommendation is a touched-file LOC gate: source soft 400 / hard 700, handler or facade soft 250 / hard 400. AgentSession must be decomposed behind a stable public facade."
+      }
+    },
+    "dependency-diagram": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Boundary",
+        "title": "No Split-Brain Runtime"
+      },
+      "children": [
+        "tmux-diagram"
+      ]
+    },
+    "tmux-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "Target dependency direction",
+        "content": "flowchart LR\n  Exec[core/exec\\npublic execution lifecycle] --> Harness[core/harness\\nneutral router + binding]\n  Harness --> Facade[core/tmux-harness\\nexecution facade]\n  Facade --> AgentSession[AgentSession\\ncompatibility facade]\n  AgentSession --> Submission[submission]\n  AgentSession --> Observation[observation]\n  AgentSession --> Evidence[evidence]\n  AgentSession --> Primitives[tmux primitives]\n  Facade --> Registry[registry + reaper]\n  Warm[warm-worker lifecycle] --> Registry\n  Eval[tmux-owned eval scenarios] --> AgentSession\n  Platforms[plugins/platforms\\nprovider declarations] -. provider metadata .-> Harness\n  Platforms -. transcript locators only .-> Warm\n  classDef owner fill:#0f766e,color:#fff,stroke:#5eead4\n  classDef guard fill:#334155,color:#fff,stroke:#94a3b8\n  class Facade,AgentSession,Submission,Observation,Evidence,Primitives,Registry,Warm,Eval owner\n  class Exec,Harness,Platforms guard"
+      }
+    },
+    "decomposition-timeline": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "Sequence",
+        "title": "D0-D8 Decomposition Plan"
+      },
+      "children": [
+        "decomp-timeline"
+      ]
+    },
+    "decomp-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          {
+            "date": "D0",
+            "title": "tmux-harness DNA + shape gate",
+            "description": "Add dna/core/tmux-harness.dna.yaml, report-only LOC/static gates, and compatibility rules before source moves.",
+            "status": "in-progress"
+          },
+          {
+            "date": "D1",
+            "title": "Old bridge parity matrix",
+            "description": "Map all 29 archived behavior cases to current tests/evals or explicit rejection rationale.",
+            "status": "upcoming"
+          },
+          {
+            "date": "D2",
+            "title": "Pure session contracts",
+            "description": "Extract binding validation, command rendering, env args, wait-patterns, and prompt echo helpers.",
+            "status": "upcoming"
+          },
+          {
+            "date": "D3",
+            "title": "Observation pipeline",
+            "description": "Move readiness, pane-delta, provider blocker, and nudge coordination logic.",
+            "status": "upcoming"
+          },
+          {
+            "date": "D4",
+            "title": "Submission + dispatch log",
+            "description": "Move message delivery and dispatch request state transitions.",
+            "status": "upcoming"
+          },
+          {
+            "date": "D5",
+            "title": "Evidence projection",
+            "description": "Move receipts, observations, startup events, and diagnostics replay.",
+            "status": "upcoming"
+          },
+          {
+            "date": "D6",
+            "title": "Execution facade split",
+            "description": "Split one-shot exec facade while preserving ./execution-transport compatibility export.",
+            "status": "upcoming"
+          },
+          {
+            "date": "D7",
+            "title": "Registry/reaper + warm-worker split",
+            "description": "Separate registry identity/path/schema/store, stale cleanup, reaper outcome, and warm-worker store/projection.",
+            "status": "upcoming"
+          },
+          {
+            "date": "D8",
+            "title": "Public export cleanup",
+            "description": "Normalize exports and compatibility aliases after internals move; run SDK consumer tests.",
+            "status": "upcoming"
+          }
+        ]
+      }
+    },
+    "quality-gates": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Gates",
+        "title": "Quality Gates To Keep It Honest"
+      },
+      "children": [
+        "gate-code",
+        "gate-table"
+      ]
+    },
+    "gate-code": {
+      "type": "code-block",
+      "props": {
+        "language": "bash",
+        "filename": "tmux-hardening-gates.sh",
+        "showLineNumbers": true,
+        "content": "ruby -e \"require 'yaml'; YAML.load_file('dna/core/tmux-harness.dna.yaml')\"\nrg -n \"~/(.codex|.claude|.pi)|OpenCode|jsonl|provider transcript|parse.*transcript\" core/tmux-harness/src && exit 1 || exit 0\nrg -n \"proof_state|healthy|green|certified|production_cert\" core/tmux-harness/src/execution-transport core/tmux-harness/src/execution-facade core/tmux-harness/src/evidence && exit 1 || exit 0\npnpm --dir core/tmux-harness test tests/harness/agent-session-execution-binding-smoke.test.ts tests/harness/agent-session-pane-delta.test.ts tests/harness/agent-session-timeout.test.ts\npnpm --dir core/tmux-harness test tests/pentagon/default-execution-transport.scenarios.test.ts\nbun core/harness/tests/boundary-audit.ts --mode=enforce --slice=S1_default_tmux_execution_transport"
+      }
+    },
+    "gate-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "gate",
+            "label": "Gate"
+          },
+          {
+            "key": "purpose",
+            "label": "Purpose"
+          },
+          {
+            "key": "status",
+            "label": "Current Status"
+          }
+        ],
+        "rows": [
+          {
+            "gate": "YAML + DNA",
+            "purpose": "New standards parse cleanly",
+            "status": {
+              "text": "D0 planned",
+              "status": "warn"
+            }
+          },
+          {
+            "gate": "No provider transcript parsing",
+            "purpose": "Keep provider stores out of tmux owner",
+            "status": {
+              "text": "planned",
+              "status": "warn"
+            }
+          },
+          {
+            "gate": "No certification language",
+            "purpose": "Receipts are byproducts, not proof authority",
+            "status": {
+              "text": "planned",
+              "status": "warn"
+            }
+          },
+          {
+            "gate": "LOC shape gate",
+            "purpose": "Stop new god objects",
+            "status": {
+              "text": "debt known",
+              "status": "gap"
+            }
+          },
+          {
+            "gate": "Old bridge parity",
+            "purpose": "Map 29 behaviors before claiming 1:1",
+            "status": {
+              "text": "gap",
+              "status": "gap"
+            }
+          },
+          {
+            "gate": "Pentagon/eval scenarios",
+            "purpose": "Break false-green and cleanup paths",
+            "status": {
+              "text": "partial",
+              "status": "info"
+            }
+          }
+        ],
+        "stickyHeader": true
+      }
+    },
+    "next-action": {
+      "type": "section",
+      "variant": "asymmetric",
+      "props": {
+        "label": "Next Move",
+        "title": "Start With Standards, Then Parity"
+      },
+      "children": [
+        "next-main",
+        "next-side"
+      ]
+    },
+    "next-main": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "The next implementation slice should be **D0**: create `dna/core/tmux-harness.dna.yaml`, add report-only shape gates, and point `dna/core/harness` at the tmux-specific DNA instead of bloating the generic harness contract.\n\nAfter D0, do **D1** before source movement: generate the 29-row old-bridge behavior matrix and bind every behavior to a current owner-local test/eval or a rejection rationale. That prevents the refactor from quietly deleting behavior."
+      }
+    },
+    "next-side": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Core Rule",
+        "content": "Do not create a new generic execution transport hierarchy. Tmux is the implemented runtime path today. Decompose internal tmux responsibilities, keep public compatibility, and use evals to prove behavior."
+      }
+    }
+  }
+}
