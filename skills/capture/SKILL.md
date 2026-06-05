@@ -81,8 +81,12 @@ steps:
 | Item | Route |
 |---|---|
 | Constraint, invariant, gate, policy | DNA-backed task via `/propose` |
+<<<<<<< HEAD
+| Brief/document-artifact framing | `/brief` -> `/interview --auto` -> `.lev/pm/designs/` then `/propose` |
+=======
 | Design-grade framing | `.lev/pm/designs/` then `/propose` |
 | Runtime, agentic, promotion, cleanup, fallback, or boundary-risk item | `/interview` or `/propose` with `qa_seed` |
+>>>>>>> b8982ad246b55b1f9c1643f387b5f88a6e606123
 | Execution-ready task with verifier and write scope | `/exec` |
 | Provenance or duplicate check needed | `/prior-art` |
 | Ambiguous intent or boundary | `/interview` |
@@ -218,6 +222,7 @@ Markdown capture reports are projections only when useful.
 
 - `/work` routes lifecycle lanes.
 - `/dump` is a focused alias for `/capture --deep`.
+- `/brief` turns conversation context into a lifecycle artifact via `/interview --auto`.
 - `/prior-art` finds existing homes.
 - `/propose` turns captured/aligned items into task DNA.
 - `/exec` runs shovel-ready items.
