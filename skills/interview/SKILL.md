@@ -17,7 +17,12 @@ framing normally expected from a PRD, but inside the design artifact.
 <commands>
 
 ```bash
+<<<<<<< HEAD
+/interview                      # --standard --compact by default
+/interview --auto               # synthesize/update artifact from context; ask only on blocking ambiguity
+=======
 /interview                      # --standard by default
+>>>>>>> b8982ad246b55b1f9c1643f387b5f88a6e606123
 /interview --quick              # lower rigor, ambiguity gate <= 0.30
 /interview --standard           # default rigor, ambiguity gate <= 0.20
 /interview --deep               # high rigor, ambiguity gate <= 0.15
@@ -31,11 +36,20 @@ framing normally expected from a PRD, but inside the design artifact.
 
 ```yaml
 rules:
+<<<<<<< HEAD
+  - "Depth and verbosity are separate controls: quick/standard/deep changes ambiguity threshold; compact/full changes visible text volume only."
+  - "--auto performs lookup and scoring first; if ambiguity is at or below threshold, update the artifact instead of interviewing."
+  - "Start in the orientation loop unless ambiguity is already at or below the active depth threshold."
+  - "Do not walk design branches until the orientation loop identifies the subject and ambiguity is at or below threshold."
+  - "Run codebase/docs/artifact lookup before asking in both loops; do not ask the user what files can answer."
+  - "When ambiguity is above threshold, ask one Socratic question targeting the weakest clarity dimension."
+=======
   - "Depth controls rigor: quick/standard/deep changes ambiguity threshold. Visible output always uses the guided interview format."
   - "Start in the orientation phase unless ambiguity is already at or below the active depth threshold."
   - "Do not walk design branches until the orientation phase identifies the subject and ambiguity is at or below threshold."
   - "Run codebase/docs/artifact lookup before asking in both phases; do not ask the user what files can answer."
   - "When ambiguity is above threshold, ask one Socratic question targeting the weakest clarity dimension, with three concrete ways to answer and one recommendation."
+>>>>>>> b8982ad246b55b1f9c1643f387b5f88a6e606123
   - "When ambiguity is at or below threshold, discover the candidate branch map and walk one design branch at a time."
   - "For design-branch questions, provide three researched options, one recommendation, and the consequence of each option."
   - "Persist subject, source context, depth, ambiguity, resolved branches, deferred branches, and next branch."
@@ -53,12 +67,23 @@ steps:
   - id: select_controls
     action: Choose depth and cadence
     instruction: |
+<<<<<<< HEAD
+      Default to --standard --compact.
+      --auto inherits --standard --compact unless quick/standard/deep/full is also supplied.
+      User-passed quick/standard/deep overrides complexity inference.
+      If not passed, infer depth from complexity: quick for low blast radius and reversible choices, standard for normal product/architecture design, deep for cross-module, high-risk, or irreversible design.
+      In --auto, ask only when lookup cannot reduce ambiguity below the selected threshold.
+      Compact/full controls presentation only; it never changes lookup, scoring, or branch coverage.
+    validation: "Depth is quick, standard, or deep; output mode is compact or full."
+    on_failure: "Default to --standard --compact and state that more detail is available with --full or d. Deep dive."
+=======
       Default to --standard.
       User-passed quick/standard/deep overrides complexity inference.
       If not passed, infer depth from complexity: quick for low blast radius and reversible choices, standard for normal product/architecture design, deep for cross-module, high-risk, or irreversible design.
       Auto controls cadence only; it never changes lookup, scoring, branch coverage, or artifact quality.
     validation: "Depth is quick, standard, or deep; auto is true or false."
     on_failure: "Default to --standard and state that more detail is available with d. Deep dive."
+>>>>>>> b8982ad246b55b1f9c1643f387b5f88a6e606123
 
   - id: load_design_template
     action: Load the canonical design template

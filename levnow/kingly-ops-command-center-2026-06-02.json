@@ -1,0 +1,308 @@
+{
+  "meta": {
+    "title": "Kingly Ops Command Center",
+    "description": "A visual triage dashboard for JP's active Kingly, Argo, Lev, Ulta, Drone, finance, and second-brain work.",
+    "layout": "default",
+    "refresh": 300,
+    "effects": ["grid-dots", "card-glow", "title-underline"]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "kpis",
+    "today",
+    "decision",
+    "sequence",
+    "lanes",
+    "architecture",
+    "evidence",
+    "notion"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "OPERATING VIEW",
+        "title": "Kingly Ops Command Center",
+        "subtitle": "One visible board for today's must-do list, the second-brain build, and the work lanes that are eating mental bandwidth.",
+        "meta": "Generated 2026-06-02 from current Codex/CASS/repo capture"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "Use this as the read-side dashboard, not the source of truth. The source packet should become structured data; Notion and HTML are projections."
+      }
+    },
+    "kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "LOAD",
+        "title": "Current Mental Plate"
+      },
+      "children": ["kpi-today", "kpi-domains", "kpi-inbox", "kpi-blockers"]
+    },
+    "kpi-today": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "4",
+        "label": "must-do items today",
+        "trend": { "direction": "flat", "value": "hard priority" },
+        "sparkline": [4, 4, 3, 4]
+      }
+    },
+    "kpi-domains": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "9",
+        "label": "active work lanes",
+        "trend": { "direction": "up", "value": "needs routing" },
+        "sparkline": [5, 6, 7, 9]
+      }
+    },
+    "kpi-inbox": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "50+",
+        "label": "uncaptured email/Discord points",
+        "trend": { "direction": "up", "value": "expected" },
+        "sparkline": [10, 18, 30, 50]
+      }
+    },
+    "kpi-blockers": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "2",
+        "label": "architecture gates",
+        "trend": { "direction": "flat", "value": "SSOT + Notion projection" },
+        "sparkline": [2, 2, 2, 2]
+      }
+    },
+    "today": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "TODAY",
+        "title": "Must-Do, Not Nice-To-Have",
+        "subtitle": "These are the items that should stay above the second-brain build until completed or delegated."
+      },
+      "children": ["today-table"]
+    },
+    "today-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Rank", "Item", "Why Now", "Route", "Status"],
+        "rows": [
+          ["1", "Cancel subscriptions and map card charges", "Stops immediate cash leak and clears recurring anxiety", "M3 Studio email workflow + finance ledger", { "text": "urgent", "status": "warn" }],
+          ["2", "Put up Argo landing page", "Creates public surface for GTM and client conversations", "Argo site deploy lane", { "text": "urgent", "status": "warn" }],
+          ["3", "Finish Argo meeting summary", "Converts live relationship/context into reusable GTM/account memory", "Meeting summary capture lane", { "text": "active", "status": "info" }],
+          ["4", "Finish Hermes/VPS setup", "Makes Hermes the always-on entrypoint into personal, Kingly, and Lev second brains", "Hermes runtime lane", { "text": "active", "status": "info" }]
+        ]
+      }
+    },
+    "decision": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "DECISION",
+        "title": "Chat First vs Dashboard First"
+      },
+      "children": ["chat-first", "dashboard-first"]
+    },
+    "chat-first": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Chat-only capture",
+        "content": "Good for unloading thoughts fast. Bad as the operating layer because it hides priority, owners, dates, and source evidence in prose."
+      }
+    },
+    "dashboard-first": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Structured packet + visual projection",
+        "content": "Best first move. Capture in structured rows, render a visual board, then project selected rows into Notion and daily briefs."
+      }
+    },
+    "sequence": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": {
+        "label": "ORDER",
+        "title": "Highest-Leverage Sequence"
+      },
+      "children": ["seq-1", "seq-2", "seq-3", "seq-4", "seq-5"]
+    },
+    "seq-1": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "1. Stabilize Today's Board",
+        "content": "Keep only four must-do items visible until they move. Everything else is background inventory."
+      }
+    },
+    "seq-2": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "2. Create Canonical Packet",
+        "content": "Save structured work rows: lane, source, next action, status, evidence, owner, due window."
+      }
+    },
+    "seq-3": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "3. Mine Codex/CASS",
+        "content": "Backfill the packet from recent Drone, Lev, Ops, Ulta, and Kingly sessions."
+      }
+    },
+    "seq-4": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "4. Project to Notion",
+        "content": "Use notionctl for direct API operations, then a Worker later for hosted sync/tools."
+      }
+    },
+    "seq-5": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "5. Automate Hygiene",
+        "content": "Daily graph hygiene reads sources, refreshes status, emits brief, and flags stale/blocked lanes."
+      }
+    },
+    "lanes": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "LANES",
+        "title": "Work Inventory"
+      },
+      "children": ["lane-table"]
+    },
+    "lane-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Lane", "Current Need", "Next Action", "Evidence/Source", "State"],
+        "rows": [
+          ["Ulta", "Finish SSOT and AI CLI/context engine", "Recover exact open work from Graphify/QMD sessions", "CASS + Ulta notes", { "text": "active", "status": "info" }],
+          ["Kingly Sync", "GDrive second brain for JP and Steve", "Define source/projection contract and onboarding view", "Kingly root .lev + user dump", { "text": "architecture gate", "status": "warn" }],
+          ["Kingly/Argo GTM", "Marketing docs, content calendar, Argo landing page", "Ship landing page before deep taxonomy", "User must-do", { "text": "today", "status": "warn" }],
+          ["Clients", "Find 1-2 Kingly clients", "Create short candidate/account board", "User dump", { "text": "open", "status": "info" }],
+          ["crop.kinglystudio.ai", "Finish product/site", "Recover repo/status and define ship blocker", "User dump", { "text": "open", "status": "info" }],
+          ["Subscriptions", "Map personal/Kingly card charges to AI coding subscriptions", "Run M3 Studio email workflow and produce cancel list", "User must-do", { "text": "today", "status": "warn" }],
+          ["Leviathan", "Many active workstreams in head", "Use existing workstreams/dashboard, route only top 3 this week", "CASS + Lev PM", { "text": "too broad", "status": "warn" }],
+          ["NAAC/Drone", "Whisper iter 5, grammar upgrades, A1-B2 FMM, ASR repair", "Run live baseline, split ASR vs parser/FMM", "Drone CASS hits", { "text": "active", "status": "info" }],
+          ["Comms", "Email, Discord, Slack, Lewis, Steve daily view", "Create inbox sources and people dashboard", "User dump", { "text": "open", "status": "info" }]
+        ]
+      }
+    },
+    "architecture": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "ARCHITECTURE",
+        "title": "Source of Truth Shape"
+      },
+      "children": ["arch-diagram"]
+    },
+    "arch-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "content": "flowchart LR\n  Raw[Raw sources: chat, CASS, email, calendar, Drive, Discord] --> Packet[Structured packet: work rows, entities, claims, sources]\n  Packet --> Graph[Lev/Kingly graph and autowiki compiler]\n  Graph --> Wiki[Folder/wiki projection]\n  Graph --> Notion[Notion project tracker]\n  Graph --> Dash[lev.now visual dashboard]\n  Graph --> Brief[Daily brief and hygiene automation]\n  NotionWorker[Future Notion Worker] --> Notion\n  NotionWorker --> Graph"
+      }
+    },
+    "evidence": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "EVIDENCE",
+        "title": "Verified Anchors"
+      },
+      "children": ["e-openbrain", "e-graph", "e-notion", "e-kingly"]
+    },
+    "e-openbrain": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "OpenBrain + Autowiki",
+        "content": "Existing Lev intake frames the target as autowiki materialization plus OpenBrain structured data."
+      }
+    },
+    "e-graph": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Graph Stack Definition",
+        "content": "Lev design already says originals are immutable, LLM extracts structure, and projections regenerate from graph state."
+      }
+    },
+    "e-notion": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Notion Boundary",
+        "content": "plugins/notion is a thin direct API/CLI path. Workflow semantics belong above it in FlowMind/skills."
+      }
+    },
+    "e-kingly": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Kingly Root",
+        "content": "Kingly now has a root .lev config, which can act as the portfolio/control plane without collapsing child workspaces."
+      }
+    },
+    "notion": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "NOTION",
+        "title": "Projection Path"
+      },
+      "children": ["notion-timeline"]
+    },
+    "notion-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          {
+            "date": "Now",
+            "title": "Use local notionctl only for direct CRUD/query",
+            "status": "in-progress",
+            "description": "Do not put triage policy or graph authority in notionctl."
+          },
+          {
+            "date": "Next",
+            "title": "Create Notion project tracker projection",
+            "status": "upcoming",
+            "description": "Mirror work rows and status from the structured packet."
+          },
+          {
+            "date": "Later",
+            "title": "Add Notion Worker adapter",
+            "status": "upcoming",
+            "description": "Hosted read-only levSearch first, then captureThought and scheduled syncs."
+          }
+        ]
+      }
+    }
+  }
+}

@@ -22,6 +22,39 @@ explicitly names a current-run override. Model choice varies by day, project,
 adapter, profile, and FlowMind topology. Prefer the project's execution profile
 or FlowMind settings over any skill-level recommendation.
 
+## SDD Variant
+If the user passes `--sdd`, use $subagent-driven-development instead of
+`/exec`. Model selection stays out of the goal prompt unless the user gives an
+explicit current-run override. Use the domain-outcome template, but include the
+SDD batch, review, and verification guardrails because subagent runs need a
+clear controller contract.
+
+For `--sdd`, the goal prompt must define:
+
+- PR-sized batch policy.
+- Controller-run gate-before-review rule.
+- One checkpoint reviewer that covers both spec/drift detection and code
+  quality.
+- Commit/push policy after approval when the user wants the controller to land
+  batches.
+- Timeout/no-result handling for subagents.
+- Scoped staging rule to preserve unrelated dirty work.
+
+Do not split ordinary review into separate spec and code-quality reviewers.
+Do not launch reviewers on partial diffs unless the user explicitly asks for
+diagnosis of a known-failing batch.
+
+## Coding standards
+The goal prompt is the perfect place to put coding standards. Source repo conventions from:
+- dna/* if available
+- docs
+- .lev/validation-gates.yaml
+- if none of that exists, KISS, YAGNI, SRP, and identifying the best programming pattern for the task at hand are good in general
+- do not make variable names conversation shaped. For example if the user said "this is the canonical implementation", it doesn't mean you should name classes, variables, or files "CanonicalThing"
+- always think from first principles, systems thinking, do a premortum + reverse brainstorming exercise
+- always adopt a multi {domain} expert lens, "what would a team of n {domain} experts say"?
+- on naming/patterns: source DDD, hex architecture and clean code primitives, compile user/task intent > ground up design thinking > coding standards / guiding principles that you want to bake in to the guard rails below
+
 ## Template
 
 ```text
@@ -70,6 +103,38 @@ diagnostics instead of retrying.
 Escalation policy: if the same blocker appears twice, tests show ambiguous
 money movement, or implementation requires a schema/backfill decision, stop and
 return the smallest evidence packet needed for human review.
+```
+
+## SDD Prompt Shape
+
+When using `--sdd`, keep the objective domain-shaped and put the subagent
+mechanics in guardrails:
+
+```text
+<domain task> through PR-sized implementation batches.
+Tools: subagent-driven-development as the implementation lane; project task
+validation, package tests/typechecks, and real runtime/e2e gates as bounded
+verification surfaces.
+
+Batch policy: choose the largest safe, coherent batch in dependency order. A
+batch may be one risky slice or several small compatible slices. Review
+immediately if the batch touches public API, lifecycle/session/process
+management, cross-package boundaries, more than the declared changed-line cap,
+a growing or unfocused file, or any failed/changed verifier.
+
+Controller policy: one coding subagent completes one coherent batch. The
+controller then runs declared gates locally. Only after gates pass does one
+checkpoint reviewer review the final batch for spec drift, boundaries, code
+quality, tests, and naming. If declared gates fail, return to implementation or
+fix directly before review.
+
+Landing policy: when the project goal says pass = commit/push, stage only
+scoped files, follow the repo commit protocol, push, and preserve unrelated
+dirty work.
+
+Escalation policy: stop on blocker, same blocker twice, unusable subagent result
+after one retry, reviewer finding that changes architecture/public contract, or
+runtime evidence that cannot support the claimed behavior.
 ```
 
 ## Model Selection
