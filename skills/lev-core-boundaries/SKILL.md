@@ -27,7 +27,7 @@ boundary ontology (tiers, import allowlist, disambiguators) is
 ## THE TEN LOCKED INVARIANTS (user-locked — do NOT relitigate)
 1. `effect != orchestration`. Separate packages.
 2. `core/effect` = the consolidation target for ALL effect semantics (declare/admit/observe/evaluate/seal). It must NOT absorb eval/proof.
-3. `core/eval` = STRICTLY flowmind validation / proofs / evals / scorers / gate-proofs. It must NOT absorb effect sealing.
+3. `core/eval` = STRICTLY flowmind validation / proofs / evals / sensors / gate-proofs. It must NOT absorb effect sealing.
 4. `run-fabric` is DEAD as a public name. Run ledger = `core/runs` (append-only SOURCE record). Observability = a PROJECTION in `core/telemetry`, NEVER the owner.
 5. `core/orchestration` = dispatch + scheduling ONLY. It must NOT own receipts, effects, eval/proof, run ledger, or graph theory.
 6. `core/context-graph` (renamed from `core/graph`) = the context/knowledge graph. Do NOT fold it into orchestration.

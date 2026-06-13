@@ -1,0 +1,184 @@
+{
+  "meta": {
+    "title": "World-Model Substrate — Where We're At",
+    "description": "The predictive half of the Lev kernel: what's built, what's next, and what it actually is.",
+    "layout": "sidebar-toc",
+    "effects": ["title-underline", "grid-dots"]
+  },
+  "theme": { "preset": "teal-slate", "mode": "dark" },
+  "root": ["hero", "pitch", "whereat", "whatis", "reactor", "built", "next", "ladder", "arc", "close"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "centered",
+      "props": {
+        "category": "LEV KERNEL · PREDICTIVE HALF",
+        "title": "The World-Model Substrate",
+        "subtitle": "Your AI only thinks when the world changes in a way that matters — and keeps a receipt for everything.",
+        "meta": "Status — built & green on main · 2026-06-12"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": { "content": "Two packages merged into main. The loop is green, the belief-carrier is green, and every decision it makes — or skips — replays to a byte-identical answer no matter which model is plugged in." }
+    },
+
+    "pitch": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "THE IDEA", "title": "What it is in one breath" },
+      "children": ["pitch-prose", "pitch-quote"]
+    },
+    "pitch-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": { "content": "Most AI agents are *busy* — they re-poll, re-embed, and re-reason on a clock whether or not anything changed. This inverts that. Every change to the world passes three gates, cheapest-first: **is it legal? → did anything that matters actually change? → is it surprising enough to act on?** A skip at any gate is ~free. Pass all three and the agent acts and seals a tamper-evident receipt.\n\nThe \"surprise\" judge is a swappable world-model the loop **never trusts** — feed it garbage and it safely re-renders. Cost tracks *genuine novelty*, not polling frequency." }
+    },
+    "pitch-quote": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": { "content": "Where the Constraint Manifold decides what may run, the World-Model Substrate decides what is worth running — and proves it." }
+    },
+
+    "whereat": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "WHERE WE'RE AT", "title": "On main, green, verified" },
+      "children": ["kpi-rec", "kpi-wm", "kpi-gates", "kpi-deps", "kpi-scalar"]
+    },
+    "kpi-rec": { "type": "card", "variant": "kpi", "props": { "value": "62", "label": "reconciler tests green", "trend": { "direction": "up", "value": "18→62" } } },
+    "kpi-wm": { "type": "card", "variant": "kpi", "props": { "value": "112", "label": "world-model tests (111 + 1 xfail)" } },
+    "kpi-gates": { "type": "card", "variant": "kpi", "props": { "value": "3", "label": "cost-ascending gates" } },
+    "kpi-deps": { "type": "card", "variant": "kpi", "props": { "value": "0", "label": "deps in the loop core" } },
+    "kpi-scalar": { "type": "card", "variant": "kpi", "props": { "value": "1", "label": "number the model speaks (scalar port)" } },
+
+    "whatis": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": { "label": "THE MECHANISM", "title": "Three gates, cheapest first", "subtitle": "A skip short-circuits the rest. Render only when all three pass." },
+      "children": ["g1", "g2", "g3", "g4"]
+    },
+    "g1": { "type": "card", "variant": "default", "props": { "title": "G1 · Admissible?", "content": "May this run at all? Pure structural check. **Free.**" } },
+    "g2": { "type": "card", "variant": "default", "props": { "title": "G2 · Material?", "content": "Canonicalize → SHA-256. Unchanged hash ⇒ skip. **Cheap.**" } },
+    "g3": { "type": "card", "variant": "default", "props": { "title": "G3 · Surprising?", "content": "Predictor returns ONE non-negative scalar. Past threshold ⇒ act. **Expensive.**" } },
+    "g4": { "type": "card", "variant": "elevated", "props": { "title": "→ Render + Receipt", "content": "Patch the belief graph, seal a content-addressed receipt that supersedes its predecessor. Keyless replay forever." } },
+
+    "reactor": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "YOU ASKED", "title": "\"Reactor CLI inspired?\" — honest answer" },
+      "children": ["reactor-prose", "reactor-table"]
+    },
+    "reactor-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": { "content": "Sort of — but not from a product called \"Reactor.\" *\"Reactor\"* was **our own conversational codename** for this early on (the v1 doc was literally `design-world-model-reactor-program.md`). We deliberately **scrubbed it from canon** — naming a thing after a chat metaphor is exactly the conversational-artifact firewall you insisted on — and renamed it for what it actually is: the **Reconciliation Substrate**.\n\nThe *shape* is genuinely reactor-like (observation → gated dispatch), but the real lineage is a synthesis of five deeper sources, not a CLI clone:" }
+    },
+    "reactor-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Source", "What we actually took"],
+        "rows": [
+          ["\"Reactor\" (our codename)", "Scrubbed — it was a metaphor; the firewall renamed it to what it is"],
+          ["Reactor / event-demux pattern", "Observation → gated dispatch is genuinely reactor-shaped"],
+          ["Bazel / Nix early-cutoff", "Skip work whose inputs didn't change → G2 materiality"],
+          ["Git", "Content-addressed, append-only, tamper-evident receipt chain"],
+          ["Friston Free Energy Principle", "Act to reduce surprise — but classical math swapped for quantum info"],
+          ["Quantum-Hopfield attractor memory", "Belief = attractor basin; corrupted input relaxes to nearest truth"]
+        ]
+      }
+    },
+
+    "built": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "SHIPPED", "title": "What we built — all green on main" },
+      "children": ["built-table"]
+    },
+    "built-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Component", "What it does", "Status"],
+        "rows": [
+          ["core/reconciler", "The loop + 3 gates + receipt chain. Zero deps; knows no physics.", { "text": "62 tests ✓", "status": "match" }],
+          ["core/world-model carrier", "Quantum-info belief state — ρ / nested-PEPS-2D / spinor over the basin", { "text": "green", "status": "match" }],
+          ["WM-9 v0 predictor", "Carrier-derived surprise behind the scalar seam (composition root deferred)", { "text": "built · unwired", "status": "warn" }],
+          ["Keyless replay", "Node 25.8.2 == Bun 1.3.13 — byte-identical decision", { "text": "proven", "status": "match" }],
+          ["pt-witness spike", "S8 entanglement gate demoted — probe proved the band empty", { "text": "resolved", "status": "match" }],
+          ["Canon docs", "Product def + NORTH_STAR / MANIFESTO / VISION / ROADMAP", { "text": "merged", "status": "match" }]
+        ]
+      }
+    },
+
+    "next": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "REMAINING", "title": "What needs building" },
+      "children": ["next-table", "next-note"]
+    },
+    "next-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Task", "What it unblocks", "Priority"],
+        "rows": [
+          ["lev-a6mm · composition root", "Bind the predictor into G3 — flips the PM-1 xfail → green. The last mile of the value path.", { "text": "P1", "status": "gap" }],
+          ["lev-ybsa · SN-06 stress", "Carrier finite-runtime stress at 16 / 32 / 64-site", { "text": "P1", "status": "warn" }],
+          ["lev-kql6 · basin spike", "≥2 representations (dense-ρ vs nested-PEPS-2D) proven over one basin semantics", { "text": "P1", "status": "warn" }],
+          ["lev-6dif / of1g / 4aus / vdzw", "Cache-freshness · deno+browser matrix · admit-binding · prior-state store", { "text": "queued", "status": "info" }]
+        ]
+      }
+    },
+    "next-note": {
+      "type": "card",
+      "variant": "callout",
+      "props": { "variant": "info", "title": "The keystone is lev-a6mm", "content": "Everything else is hardening. lev-a6mm is the one task that turns the v0 predictor from \"built but unwired\" into the live G3 judge — that's the move that makes the substrate earn its keep in a real loop." }
+    },
+
+    "ladder": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "THE HORIZON", "title": "The next 4 features — each ~2× the wow", "subtitle": "replay → many minds → modeled minds → self-directing minds. They compound." },
+      "children": ["l1", "l2", "l3", "l4"]
+    },
+    "l1": { "type": "card", "variant": "elevated", "props": { "title": "① Counterfactual Holodeck · 2×", "content": "Fork the receipt chain at any point, inject a what-if observation, replay forward deterministically. *\"What would it have believed if this fact were false?\"* → audit-by-counterfactual, synthetic training data, time-travel debugging." } },
+    "l2": { "type": "card", "variant": "elevated", "props": { "title": "② Shared-Mind Mesh · 4×", "content": "N agents reconcile against **one** content-addressed world-model. Supersede-CAS guarantees a single linear truth, no forks. A team of agents that provably share one mind — consensus by physics, not a database lock." } },
+    "l3": { "type": "card", "variant": "elevated", "props": { "title": "③ Avatars · 8×", "content": "Point the carrier at a person's output stream → a **queryable, falsifiable model of them**. Expresses uncertainty and contested beliefs (basin occupancy), not just plausible text. The only honest way to do an avatar: one you can interrogate." } },
+    "l4": { "type": "card", "variant": "elevated", "props": { "title": "④ Active Inference · 16×", "content": "Close the loop. The agent acts to minimize its *expected future* surprise — choosing what to poll, refresh, and ask, to learn fastest. **Curiosity becomes a control law.** Set-it-and-forget-it, made physical." } },
+
+    "arc": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "THE TRAIL", "title": "How we got here" },
+      "children": ["arc-timeline"]
+    },
+    "arc-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          { "date": "Jun 3", "title": "First-principles re-derivation (46-agent interview↔arch loop)", "status": "completed", "content": "Global max ambiguity 4.3%; \"Reactor\" scrubbed; 5 live defects surfaced with file:line." },
+          { "date": "Jun 3", "title": "6-round adversarial critic → APPROVED", "status": "completed", "content": "0 blockers, 0 majors; critic ran its own 50k-state physics probe." },
+          { "date": "Jun 3", "title": "9-slice hardening build — first-pass green", "status": "completed", "content": "fix_rounds=0, architect-approved." },
+          { "date": "Jun 4", "title": "WM-9 v0 + cross-runtime replay spike", "status": "completed", "content": "Node == Bun byte-identical; pt-witness demotion proven." },
+          { "date": "Jun 4", "title": "Ontology reconciliation", "status": "completed", "content": "Basin = the invariant object; ρ / PEPS / spinor are co-equal representations." },
+          { "date": "Jun 5", "title": "Canon promotion", "status": "completed", "content": "Product def threaded into vision / manifesto / north-star / roadmap." },
+          { "date": "Jun 12", "title": "Merged to main + synced", "status": "completed", "content": "715baf580 on origin/main; nothing stashed for later." },
+          { "date": "Next", "title": "lev-a6mm — wire predictor into G3 (flip PM-1 green)", "status": "upcoming", "content": "The value-path keystone." }
+        ]
+      }
+    },
+
+    "close": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "THE THROUGHLINE", "title": "Intelligence that's accountable to reality" },
+      "children": ["close-prose"]
+    },
+    "close-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": { "content": "Today's agents *generate*. This substrate lets them **believe, prove, share, model, and seek** — each layer a strict superset of the last. The four features aren't a roadmap of chores; they're four doublings of one idea.\n\nCanon: `docs/design/world-model-substrate-product-definition.md` · engineering design `design-world-model-reconciliation-substrate.md` · workstream `world-model`." }
+    }
+  }
+}

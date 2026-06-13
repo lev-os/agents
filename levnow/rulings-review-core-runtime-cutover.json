@@ -1,0 +1,268 @@
+{
+  "meta": {
+    "title": "Controller Rulings Review — Core-Runtime Cutover",
+    "description": "8 controller rulings + 2 housekeeping items awaiting JP decision, with options and reversal costs",
+    "effects": ["title-underline", "card-glow"]
+  },
+  "theme": { "preset": "deep-blue-gold", "mode": "dark" },
+  "root": ["hero", "kpis", "index-section", "feedback-section", "export-section"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "DECISION REVIEW",
+        "title": "Controller Rulings — Core-Runtime Cutover",
+        "subtitle": "Every call made under the \"100% certain + flagged for review\" clause, queued for your verdict",
+        "meta": "goal-core-runtime-cutover-v1 · G0–G4 · 2026-06-12"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": { "content": "The goal contract let the controller proceed on ambiguous calls only when 100% certain they match your intent and Lev idioms — with every such call recorded for review. This page is that review. Each ruling shows what was decided and why, with the live options as radio choices (the controller's lean is marked recommended). Expand Details for the full reasoning. Selections autosave locally; hit Copy JSON at the bottom and paste the result back into chat." }
+    },
+    "kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "QUEUE", "title": "What's on the table" },
+      "children": ["kpi-1", "kpi-2", "kpi-3", "kpi-4"]
+    },
+    "kpi-1": { "type": "card", "variant": "kpi", "props": { "value": 11, "label": "Rulings awaiting verdict" } },
+    "kpi-2": { "type": "card", "variant": "kpi", "props": { "value": 3, "label": "New since page built (N1–N3)" } },
+    "kpi-3": { "type": "card", "variant": "kpi", "props": { "value": 2, "label": "Architecture-critical (R7, R8)" } },
+    "kpi-4": { "type": "card", "variant": "kpi", "props": { "value": 2, "label": "Housekeeping confirms" } },
+
+    "index-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "INDEX", "title": "All rulings at a glance", "subtitle": "Reversal cost = what it takes to undo now that subsequent slices built on the ruling" },
+      "children": ["index-table"]
+    },
+    "index-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["#", "Ruling", "Where it landed", "Controller lean", "Reversal cost"],
+        "rows": [
+          ["R1", "Re-ignore per-package dist/ trees", "repo-wide (publish-shape split)", { "text": "re-ignore", "status": "info" }, { "text": "low", "status": "match" }],
+          ["R2", "generation / node_type stay composites", "execution-algebra ruling f7bc924d3", { "text": "composites", "status": "info" }, { "text": "low", "status": "match" }],
+          ["R3", "Transport-default ratification", "default-tmux-execution-transport-v1", { "text": "ratify + schedule slice", "status": "info" }, { "text": "low", "status": "match" }],
+          ["R4", "Legacy orchestration receipt deferral", "G2 → slices 4/7", { "text": "defer to slice 7", "status": "info" }, { "text": "medium", "status": "warn" }],
+          ["R5", "Gate-recert deferral (3 stale gates)", "G2 close-out → G4 close-out", { "text": "uphold deferral", "status": "info" }, { "text": "low", "status": "match" }],
+          ["R6", "Zero-diff S2 close, no dedicated review", "G3-S2 (receipts/S2-closure.yaml)", { "text": "ratify", "status": "info" }, { "text": "low", "status": "match" }],
+          ["R7", "EvaluatorFlowParser domain port", "G4-S1 s1_arch_ruling", { "text": "uphold port", "status": "match" }, { "text": "high", "status": "gap" }],
+          ["R8", "flowmind→eval runtime consumer edge", "G4-S1 amendment 1d75c25c7", { "text": "edge stands", "status": "match" }, { "text": "high", "status": "gap" }],
+          ["H1", "engines floor bump ≥18.20", "import attributes on routing JSON", { "text": "bump", "status": "info" }, { "text": "trivial", "status": "match" }],
+          ["H2", "execution.yaml :234/:286 amendment", "slice-4 contract names the port", { "text": "amend (slice owner)", "status": "info" }, { "text": "trivial", "status": "match" }],
+          ["N1", "Seal-misclassification (failed run, healthy seal)", "NEW · exec success-detection defect", { "text": "P1, fix after S2", "status": "warn" }, { "text": "n/a", "status": "info" }],
+          ["N2", "Composer 2.5 fast lane build-or-drop", "NEW · codex quota = proven SPOF", { "text": "defer lane", "status": "warn" }, { "text": "n/a", "status": "info" }],
+          ["N3", "Char-test deletion precedent", "NEW · recurs every cutover slice", { "text": "ratify delete+replace", "status": "match" }, { "text": "n/a", "status": "info" }]
+        ]
+      }
+    },
+
+    "feedback-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "YOUR VERDICT", "title": "Rule on each item", "subtitle": "Recommended = the controller's lean. Anything you skip stays as-ruled and keeps shipping." },
+      "children": ["rulings-feedback"]
+    },
+    "rulings-feedback": {
+      "type": "feedback",
+      "props": {
+        "pageId": "rulings-core-runtime-cutover-20260612",
+        "buckets": [
+          { "name": "Architecture" },
+          { "name": "Process" },
+          { "name": "Policy" },
+          { "name": "Housekeeping" },
+          { "name": "New (since page built)" }
+        ],
+        "items": [
+          {
+            "id": "R7",
+            "bucket": 0,
+            "title": "EvaluatorFlowParser is a domain port, not an allowlist widening",
+            "wave": "high reversal cost",
+            "insight": "The S1 worker stopped correctly on a real contract conflict: execution.yaml:234 demands eval parse `flow_ref` through the REAL FlowMind parser, while canon pins eval to `allow:[core/domain]`. Ruled: domain declares an `EvaluatorFlowParser` port; eval's registry admission REQUIRES the injected port and hard-errors at load time; core/flowmind exports the real-parser adapter. Same inversion applied to `cap.embed` (embedding port, provider adapter in flowmind).",
+            "detail": "This made ports 4 and 5 of the cutover's inversion idiom, after RunLedgerWriter, EffectfulPort, verdictRefResolver, and MeasurementStreamWriter. flowmind already legally imports domain, so the adapter adds zero new edges. The 'REAL parser' contract intent is preserved at composition time — admission's load-time hard-error contract is about WHEN parsing must succeed, not WHO imports the parser. Widening eval's allowlist was rejected because flowmind imports orchestration+effect: the brain would depend on the control plane, a tier inversion. Moving the parser into eval was rejected because it drags orchestration/effect parsing concerns into the truth-decider. xhigh round-1 review CONFIRMED the inversion. Reversing now reworks landed slice-4 registry admission, the flowmind adapter, and the integration proof.",
+            "options": [
+              { "label": "Uphold port", "desc": "Keep the injection idiom; contract text amended to name the port (H2)", "recommended": true },
+              { "label": "Widen eval allowlist", "desc": "eval imports flowmind directly — tier inversion, brain depends on control plane" },
+              { "label": "Move parser into eval", "desc": "Brain absorbs FlowMind parsing concerns" }
+            ]
+          },
+          {
+            "id": "R8",
+            "bucket": 0,
+            "title": "flowmind's RUNTIME @lev-os/eval edge stands (re-adjudication)",
+            "wave": "high reversal cost",
+            "insight": "xhigh round-1 rejected S1 on one finding: flowmind carries a runtime `@lev-os/eval` dependency (5 kernel imports) where R7 had stipulated test-only. Re-adjudicated: the edge STANDS — the five imports are pure gate-evaluation consumption (`DefaultGateEvaluator`, `createGateCoverageEvaluator`, types); flowmind executes its graph gates THROUGH the brain and emits nothing of its own.",
+            "detail": "Evidence: no flowmind barrel re-exports any eval symbol; the package graph stays acyclic because the parser/embedding adapters reach eval by injection, never import. This is an outer→inner consumer edge of the same class as the canon-blessed exec→eval (concept.yaml:129). R7's test-only stipulation was scoped to the parser-adapter integration proof, not to gate consumption. The reviewer explicitly offered re-adjudication as the closure route; round-2 xhigh review is validating it now. The alternative — a 6th injection port for gate evaluation — was rejected as slice-8 scope: flowmind's allowlist entry is explicitly 'pending slice-8 re-layering', and a port now is indirection without a boundary to protect. Demoting to devDep would force flowmind to duplicate gate logic at runtime — a second brain, the exact drift invariant 11 kills.",
+            "options": [
+              { "label": "Edge stands", "desc": "@lev-os/eval sits in flowmind dependencies; consumer-edge class documented", "recommended": true },
+              { "label": "Port at slice-8", "desc": "Uphold now, but mandate a gate-evaluation injection port during slice-8 re-layering" },
+              { "label": "Demote to devDep", "desc": "flowmind stubs/duplicates gate logic at runtime — recreates a second brain" }
+            ]
+          },
+          {
+            "id": "R2",
+            "bucket": 0,
+            "title": "generation / node_type parked as composites (micro-ruling owed)",
+            "wave": "low reversal cost",
+            "insight": "The execution-algebra ruling fixed the algebra at six — loop, eval, edge, effect, session, receipt — with intent as L0 ontology and `intent_ref` as mandatory run provenance. Two stragglers were parked: `generation` (already load-bearing in Measurement and discharge freshness enforcement) and `node_type`. The controller treats both as composites declared over the algebra.",
+            "detail": "Slice-4 S0 baked `generation` into the domain Measurement type as a REQUIRED field, and discharge() hard-enforces generation match — so generation is provenance-grade in practice, like intent_ref, without the formal ruling. Promoting it would formalize what S0 already shipped. node_type has no equivalent enforcement; folding it into edge typing is the cheapest vocabulary, but needs a quick grep for live consumers first.",
+            "options": [
+              { "label": "Ratify composites", "desc": "Both stay declared-over-the-algebra; no envelope changes", "recommended": true },
+              { "label": "Promote generation to provenance", "desc": "generation joins intent_ref as a required envelope/seal field — formalizes what S0 shipped" },
+              { "label": "Fold node_type into edge typing", "desc": "node_type disappears as a named concept (grep for consumers first)" }
+            ]
+          },
+          {
+            "id": "R4",
+            "bucket": 1,
+            "title": "Legacy orchestration receipt: de-exported, collapse deferred to slices 4/7",
+            "wave": "medium reversal cost",
+            "insight": "During G2 a worker stopped on the legacy truth-embedding receipt surface in core/orchestration. Ruled: de-export it from the barrel immediately (no new consumers can reach it), defer the actual collapse to the eval one-brain (slice 4) and orchestration shrink (slice 7) where its responsibilities have a destination.",
+            "detail": "With G4-S2's certify-vocabulary sweep dispatching next, there is a live choice about pulling the collapse forward. Keeping the deferral to slice 7 has the smallest blast radius per slice — slice 7's contract already inventories the legacy surface. Folding into G4-S2/S3 has the same delete-energy but widens S2 beyond its grep-able contract. Collapsing now standalone is pure sequencing cost with no consumer pressure, since the barrel is already sealed.",
+            "options": [
+              { "label": "Keep deferral to slice 7", "desc": "Orchestration shrink owns the collapse", "recommended": true },
+              { "label": "Fold into G4-S2/S3", "desc": "Certify sweep deletes it alongside the vocabulary — widens S2's contract" },
+              { "label": "Collapse now, standalone", "desc": "Dedicated mini-slice before S2" }
+            ]
+          },
+          {
+            "id": "R5",
+            "bucket": 1,
+            "title": "Three stale events-daemon-mode gates: recert deferred to G4 close-out",
+            "wave": "low reversal cost",
+            "insight": "G2 close-out found three gates whose acceptance language is written against the certify vocabulary that G4-S2 is about to delete. Mechanical reverify was green (daemon-pentagon 31/31, core/daemon 33/33 after the vitest resolution fix). Ruled: full recertification waits for G4 close-out — recertifying now against a bar that moves next slice is wasted motion.",
+            "detail": "The gates are tracked in the G4 close-out carry list alongside the proof-spine re-runs and the G3-carried shell-effect ledger threading. Recertifying now means doing it twice. Dropping the gates outright is premature — S2 may rewrite rather than delete their acceptance language.",
+            "options": [
+              { "label": "Uphold deferral", "desc": "Recert once, against the post-S2 bar, at G4 close-out", "recommended": true },
+              { "label": "Recert now", "desc": "Certify against today's bar, again after S2 — double work" },
+              { "label": "Drop the gates", "desc": "Treat them as obsolete with the vocabulary — premature" }
+            ]
+          },
+          {
+            "id": "R6",
+            "bucket": 1,
+            "title": "G3-S2 closed zero-diff without a dedicated xhigh review",
+            "wave": "low reversal cost",
+            "insight": "Every deletion S2 demanded had already landed inside S1's reviewed commits. The controller closed S2 by direct verification instead of dispatching a reviewer: 4/4 fitness greps PASS plus an isolated-build proof — core/effect compiles with ONLY @lev-os/domain linked. Receipt at `.lev/pm/tasks/core-boundaries-slice3-effect-substrate-v1/receipts/S2-closure.yaml`.",
+            "detail": "The question is whether zero-diff closes get a standing exemption from the every-node-gets-xhigh-review rule. The case for ratifying: reviews exist to judge diffs, and a zero-diff node has nothing for xhigh to read that the receipt doesn't show. The case for one-off: conservatism — at the cost of a review cycle per duplicate node. Retro-reviewing S2 itself is only worth it if you doubt the isolated-build proof.",
+            "options": [
+              { "label": "Ratify as standing policy", "desc": "Zero-diff + receipt + fitness proof = no reviewer dispatch", "recommended": true },
+              { "label": "One-off only", "desc": "Future zero-diff closes still dispatch a reviewer" },
+              { "label": "Retro-review S2", "desc": "Dispatch xhigh on the closure receipt now" }
+            ]
+          },
+          {
+            "id": "R1",
+            "bucket": 2,
+            "title": "Per-package dist/ trees: re-ignore",
+            "wave": "not yet executed",
+            "insight": "The publish-shape split stopped gitignoring dist/ trees, which turned every directory-level `git add` into a hazard — one add leaked 117k lines of build output (cleaned in 675e27274), and parallel sessions fight over a contested index. Controller lean: re-ignore dist/ everywhere and let the publish pipeline build from source. The lean is recorded but NOT executed — no .gitignore change lands until you rule.",
+            "detail": "Re-ignoring kills the leak class and the index contention at the cost of a one-time noisy untrack commit. Keeping dist/ tracked gives reproducible installs straight from git, but the hazard persists for every future add and every parallel session. The middle path — track only npm-published packages — needs a package inventory to draw the line and keeps a smaller version of the hazard.",
+            "options": [
+              { "label": "Re-ignore dist/", "desc": "Untrack + ignore; publish builds from source", "recommended": true },
+              { "label": "Keep tracked", "desc": "Reproducible installs from git; leak hazard persists" },
+              { "label": "Published packages only", "desc": "Ignore internal, track npm-published — needs an inventory" }
+            ]
+          },
+          {
+            "id": "R3",
+            "bucket": 2,
+            "title": "Transport-default ratification (pause-not-kill, three clocks)",
+            "wave": "substance already ruled",
+            "insight": "You already ruled the substance: 20s default is wrong for agent one-shots; on expiry PAUSE not kill — hold the tmux pane, seal a held/escalated envelope with session ref + reattach hint; kill only by explicit policy (CI). Three clocks separate: readiness (~20s fine), stall/no-output (notify), completion/wall-clock (budget hold). What's owed is ratifying the design home — `default-tmux-execution-transport-v1` plus the reaper slices. LIVE EVIDENCE (2026-06-12): the current kill-on-timeout transport killed a G4-S2 worker at the 40-min mark mid-cutover, destroying the pane and costing the full run — exactly the loss your pause-not-kill ruling prevents. This sharpens the hotfix option below.",
+            "detail": "The interim discipline holding it together: every `lev exec` dispatch passes `--with execution_delta_timeout_ms` explicitly while the hardcoded `?? 20_000` at tmux-harness execution-transport index.ts:303 remains. Options beyond ratifying as queued: a one-line hotfix raising the hardcoded default (safety net for anyone NOT passing the flag, slightly front-runs the slice), or pulling the full three-clock transport slice forward — full fix sooner, but it splits focus during the eval cutover's heaviest slices.",
+            "options": [
+              { "label": "Ratify design + keep interim flag", "desc": "Slice stays queued behind the cutover; controllers pass the timeout explicitly", "recommended": true },
+              { "label": "Hotfix the default now", "desc": "Raise ?? 20_000 to a sane one-shot floor today" },
+              { "label": "Pull the transport slice forward", "desc": "Build the three-clock transport before G5" }
+            ]
+          },
+          {
+            "id": "H1",
+            "bucket": 3,
+            "title": "engines floor bump to ≥18.20",
+            "wave": "confirm",
+            "insight": "The routing JSON is imported with `with { type: 'json' }` import attributes — fine on the repo's Node 25 toolchain but above the stale engines floor of 18.17. On confirm: bump engines in the affected package.json files, one commit.",
+            "options": [
+              { "label": "Confirm", "desc": "Bump engines; one commit", "recommended": true },
+              { "label": "Hold", "desc": "Leave the stale floor — risks confusing 18.17/18.18 users" }
+            ]
+          },
+          {
+            "id": "H2",
+            "bucket": 3,
+            "title": "execution.yaml :234/:286 contract amendment",
+            "wave": "confirm",
+            "insight": "The slice-4 contract still says eval imports the REAL FlowMind parser; R7 made it a port. On confirm: slice owner amends the two lines to name `EvaluatorFlowParser`. No code change — text only.",
+            "options": [
+              { "label": "Confirm", "desc": "Amend the two contract lines to name the port", "recommended": true },
+              { "label": "Hold", "desc": "Leave the contradiction in the contract text" }
+            ]
+          },
+          {
+            "id": "N1",
+            "bucket": 4,
+            "title": "Seal-misclassification: a transport-failed run got a healthy seal",
+            "wave": "new · truth-integrity",
+            "insight": "When the first S2 dispatch died at codex boot (exit 1), the run was sealed `outcome: candidate_effect`, `command_success: true` with an intent_conservation verdict_ref — a failed transport run got a healthy truth record in .lev/runs/runs.jsonl. The exec success-detection path (`success ? runOutcome.class : 'failed'`) computed success=true despite the nonzero exit. P1 bug filed; fix currently HELD.",
+            "detail": "This is one-brain-adjacent: the RunSeal IS the run's truth record, and the caller (exec) is the classifier per the seal doctrine. The defect is in exec's success detection, not the ledger — the ledger faithfully recorded what it was told. Severity hinges on blast radius: the mis-seal landed on a throwaway dispatch with no downstream consumer, and the seal doctrine keeps `outcome` caller-classified (the ledger didn't invent a truth bit). But 'a failed run looks successful in the run ledger' is exactly the false-green class the cutover exists to kill. Timing: the original hold reason was that S2's certify sweep rewrites the exec/run classify files (collision risk); S2 has now landed, so the collision window is closing. The controller lean: treat as P1 (real, not corrupting committed truth) and fix as a dedicated follow-up right after S2 closes — keeping the S2 rework scoped to its four review violations rather than folding an unrelated classify fix into it.",
+            "options": [
+              { "label": "P1, fix right after S2 closes", "desc": "Dedicated follow-up; keeps S2 rework scoped to the 4 review violations", "recommended": true },
+              { "label": "P0, fold into S2 rework now", "desc": "Treat mis-sealed failed run as a corrupting truth breach; fix in the current lane" },
+              { "label": "Defer to a later slice", "desc": "Park behind G5+ — accept the false-green seal in the interim" }
+            ]
+          },
+          {
+            "id": "N2",
+            "bucket": 4,
+            "title": "Composer 2.5 fast lane — build it or drop it from the goal",
+            "wave": "new · lane policy",
+            "insight": "The goal contract named codex 5.5 high OR composer 2.5 fast as the worker lanes. In practice every dispatch has been codex-only: lev exec's VALID_MODELS carries stale `composer-2`/`composer-2-fast` ids, there is no composer exec profile, and the adapter lane is unproven. Today's codex usage-limit block (which cost a redispatch + a timed wait) made codex a proven single-point-of-failure.",
+            "detail": "A second lane is a real hedge against codex quota limits, which just bit us. But standing up a composer binding + profile mid-cutover is the same 'pull a slice forward and split focus' move rejected for R3's transport slice — and the doctrine-heaviest slices are exactly where you don't want to debug a new toolchain. The controller lean: keep the goal codex-only and defer a real composer lane to a post-cutover tooling slice (provider binding + profile + a binding smoke proof), while noting the codex SPOF. If you'd rather hedge the quota risk now, the alternative is a small standalone lane slice before G5. Dropping composer from the contract entirely is also clean if codex quota is acceptable.",
+            "options": [
+              { "label": "Defer composer lane to post-cutover", "desc": "Stay codex-only for the goal; build the binding+profile slice after G8", "recommended": true },
+              { "label": "Build it now as a quota hedge", "desc": "Standalone lane slice (binding + profile + smoke) before G5" },
+              { "label": "Drop composer from the goal", "desc": "Codex-only is the contract; remove the composer clause" }
+            ]
+          },
+          {
+            "id": "N3",
+            "bucket": 4,
+            "title": "Characterization-test deletion precedent for cutover slices",
+            "wave": "new · methodology",
+            "insight": "S2's pre-cut characterization tests asserted that the legacy certify/shadow-brain branch EXISTS — which the cutover then deletes, making them impossible to keep green. The closure reviewer ruled deletion acceptable in principle under invariant 12, BUT that an equivalent post-cut lock is owed in the same package (S2's reject partly turned on the harness side having no replacement lock). This pattern recurs in every hard-cutover slice.",
+            "detail": "The clean rule to ratify: a characterization test that locks a soon-to-be-deleted branch may be deleted in the same commit that removes its subject — provided the same package gains a post-cut lock asserting the NEW behavior (absence of the old vocabulary / presence of the typed replacement). The git-log ancestry still proves the pre-cut behavior existed and passed before the cut. Same decision class as R6 (what proof a node owes at close). Alternative: require char tests to always survive as renames (S1's precedent) — cleaner ancestry but forces awkward 'assert the thing is gone' rewrites. Or leave it case-by-case per reviewer, which is what produced the S2 ambiguity.",
+            "options": [
+              { "label": "Ratify the delete-with-replacement rule", "desc": "Deletion OK if the same package gains a green post-cut lock", "recommended": true },
+              { "label": "Always survive as renames", "desc": "Char tests never deleted; rewritten to assert post-cut behavior (S1 precedent)" },
+              { "label": "Leave it per-reviewer", "desc": "No standing rule — adjudicate each slice (produced the S2 ambiguity)" }
+            ]
+          }
+        ]
+      }
+    },
+
+    "export-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "HAND BACK", "title": "Returning your verdict", "subtitle": "Selections autosave to this browser as you click" },
+      "children": ["export-note"]
+    },
+    "export-note": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Copy JSON → paste into chat",
+        "content": "The Copy JSON button above exports every selection, custom option, and note in one block. Paste it back into the controller session and the verdicts get applied: upheld rulings keep shipping unchanged, amendments get scheduled into their named slice, and overturns trigger rework dispatches before the next node closes."
+      }
+    }
+  }
+}
