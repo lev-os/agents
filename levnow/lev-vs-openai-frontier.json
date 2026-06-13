@@ -1,0 +1,188 @@
+{
+  "meta": {
+    "title": "Leviathan vs OpenAI Frontier — Positioning",
+    "description": "How Leviathan positions against OpenAI's enterprise roadmap. CDO deliberation, convergence 0.80, publish-safe.",
+    "layout": "sidebar-toc",
+    "effects": ["title-underline", "glass"]
+  },
+  "theme": { "preset": "deep-blue-gold", "mode": "dark" },
+  "root": [
+    "hero", "lead", "kpis",
+    "sec-move", "sec-wedge", "sec-primitives", "sec-demo",
+    "sec-frame", "sec-tensions", "sec-minority", "sec-discipline", "sec-plan", "closing"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "POSITIONING BRIEF · 2026-06-05",
+        "title": "Run any model. Prove every action. On your hardware.",
+        "subtitle": "Leviathan vs OpenAI Frontier — we replay what they assert.",
+        "meta": "CDO multi-agent deliberation · 5-lens panel + code validator · convergence 0.80 · publish-safe"
+      },
+      "children": ["lead"]
+    },
+    "lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "OpenAI just shipped the stack Leviathan has been factoring against: a **context layer + agentic runtime + observability** bundle, GA on AWS Bedrock, fronted by a merged ChatGPT/Codex. That is not an endorsement — it is information about *timing*. Lev does not win the whole market. It wins the one slice OpenAI structurally cannot serve from Bedrock: **sovereignty-constrained buyers who need to replay every agent action on their own hardware.**"
+      }
+    },
+    "kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "THE CALL", "title": "Decision at a glance" },
+      "children": ["kpi-conv", "kpi-wedge", "kpi-beach", "kpi-window"]
+    },
+    "kpi-conv": { "type": "card", "variant": "kpi", "props": { "value": "0.80", "label": "Deliberation convergence" } },
+    "kpi-wedge": { "type": "card", "variant": "kpi", "props": { "value": "Replay", "label": "The defensible primitive" } },
+    "kpi-beach": { "type": "card", "variant": "kpi", "props": { "value": "Sovereignty", "label": "Paying beachhead" } },
+    "kpi-window": { "type": "card", "variant": "kpi", "props": { "value": "6–18mo", "label": "Competitive window" } },
+
+    "sec-move": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "WHAT WE POSITION AGAINST", "title": "The OpenAI move", "subtitle": "OpenAI “Intelligence at Work” — primary-source intake (analysis.md)" },
+      "children": ["move-1", "move-2", "move-3", "move-4", "move-5"]
+    },
+    "move-1": { "type": "card", "variant": "default", "props": { "title": "🧱 Frontier = one bundle", "content": "Context layer + agentic runtime + observability, sold as a vertically integrated platform. The exact shape Lev factors into separable planes." } },
+    "move-2": { "type": "card", "variant": "default", "props": { "title": "🔀 ChatGPT + Codex merge", "content": "“You shouldn’t have to think about which app to use.” Single-vendor convenience as the explicit anti-configuration thesis — shipping in “a few weeks.”" } },
+    "move-3": { "type": "card", "variant": "default", "props": { "title": "☁️ Bedrock GA + 100+ connectors", "content": "Salesforce, Databricks, Snowflake, Box, M365. Procurement friction → zero for any F500 already on an AWS EA. A real moat — concede it." } },
+    "move-4": { "type": "card", "variant": "default", "props": { "title": "⚡ Utility-pricing endgame", "content": "Altman: intelligence “like electricity or water.” The model stops being the differentiator — orchestration, governance, and substrate become it. That surface is Lev’s." } },
+    "move-5": { "type": "card", "variant": "callout", "props": { "variant": "warning", "title": "💸 Cost flipped to top-2 pain", "content": "“My company spent my entire 2026 budget in Q1.” Altman’s own answer is “more models” + GPT-5.5 at ⅓ tokens — closing the cost gap vendor-side. Cost opens the room; it is not our headline." } },
+
+    "sec-wedge": {
+      "type": "section",
+      "variant": "diff-panels",
+      "props": { "label": "THE WEDGE", "title": "Frontier asserts governance. Leviathan ships replay.", "subtitle": "The one slice OpenAI cannot honestly serve from Bedrock-as-managed-OpenAI" },
+      "children": ["wedge-them", "wedge-us"]
+    },
+    "wedge-them": { "type": "card", "variant": "default", "props": { "title": "OpenAI Frontier — asserts", "content": "“Are they following your governance, your policies?” is asked as a *question*. Model vendor, policy enforcer, audit log, cloud, and agent fabric are **one company under one EA**. A sovereignty-constrained CISO cannot sign that separation-of-duty collapse." } },
+    "wedge-us": { "type": "card", "variant": "default", "props": { "title": "Leviathan — ships", "content": "The LevEvent JSONL chain the buyer’s compliance team can **replay without the model vendor’s cooperation**, against a different model, with a byte-identical audit hash — on their own hardware. Governance as a shipped primitive, not a gesture." } },
+
+    "sec-primitives": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "EVIDENCE", "title": "Why we can say it", "subtitle": "Every load-bearing claim is code-backed on main as of 2026-06-05 (external-validator ledger)" },
+      "children": ["primitives-table"]
+    },
+    "primitives-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Primitive", "Evidence (file:line)", "What it beats"],
+        "rows": [
+          ["LevEvent typed event spine", "ARCHITECTURE.md:236-246 (30+ types :252-285)", "Frontier’s asserted observability"],
+          ["JSONL deterministic replay", "core/event-bus/src/runtime/queue.ts:133", "“Trust us” audit you cannot re-run"],
+          ["C1+C2 fail-closed WASM kernel", "core/flowmind/src/kernel/constraint-manifold.ts:1-12", "Fail-open agent runtimes"],
+          ["Four-plane separation", "ARCHITECTURE.md:191-208", "Bundled, inseparable platforms"],
+          ["Provider-neutral SDK contract", "core/harness/src/providers/registry.ts:115-120", "Single-vendor lock-in"],
+          ["lev-abac lease primitives (Rust)", "crates/lev-abac/src/lease.rs:29-79", "Ambient, unscoped agent authority"],
+          ["Self-host deploy", "lev deploy --target=on-prem", "Bedrock-only residency"]
+        ]
+      }
+    },
+
+    "sec-demo": {
+      "type": "section",
+      "variant": "stepper",
+      "props": { "label": "60-SECOND DEMO", "title": "What a buyer sees in one minute", "subtitle": "Every beat grounded in a shipping primitive" },
+      "children": ["beat-1", "beat-2", "beat-3"]
+    },
+    "beat-1": { "type": "card", "variant": "default", "props": { "title": "1 · Run any model (~15s)", "content": "Flip the agent model `anthropic/claude` → `openai/gpt-5.5` → `ollama/llama-4` in one config file. Three lines, no code change, identical task.\n\n**Tag:** “Registration, not refactor.”" } },
+    "beat-2": { "type": "card", "variant": "default", "props": { "title": "2 · Prove every action (~25s)", "content": "Agent tries `git push --force main`. The C1+C2 kernel blocks fail-closed. The LevEvent slider rewinds 30s and re-runs against a *different* model — byte-identical audit hash.\n\n**Tag:** “Every action. Cryptographic. Replayable. Off our cloud.”" } },
+    "beat-3": { "type": "card", "variant": "default", "props": { "title": "3 · On your hardware (~20s)", "content": "Split screen: `lev up` local vs `lev deploy --target=on-prem` to the customer VPC. Different providers, identical kernel, identical hash chain.\n\n**Tag:** “Frontier runs on Bedrock. Leviathan runs where you say — and proves it did.”" } },
+
+    "sec-frame": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "COUNTER-NARRATIVE", "title": "Their convenience, our separation of duty" },
+      "children": ["frame-quote"]
+    },
+    "frame-quote": { "type": "text", "variant": "pullquote", "props": { "content": "OpenAI: “You shouldn’t have to think about which app.” — Leviathan: “You shouldn’t. Your auditor should.” Single-vendor convenience and auditable separation of duty are different problems. Frontier collapses them and sells the collapse as a feature. For a sovereignty-constrained buyer, that collapse is the procurement blocker." } },
+
+    "sec-tensions": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "WHAT WAS DEBATED", "title": "Key tensions — what won, and why" },
+      "children": ["tensions-table"]
+    },
+    "tensions-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Tension", "What won", "Why"],
+        "rows": [
+          ["Validation vs threat", { "text": "Threat", "status": "warn" }, "“Validated our thesis” is the Hadoop/OpenStack/Mesos losing read. Ship language: “compressed our window.”"],
+          ["Cost wedge: real or misread", { "text": "Door-opener", "status": "info" }, "Real CFO signal, but unresolved without published Lev pilot telemetry. Anecdote opens the room; sovereignty is the wedge."],
+          ["Multi-provider: moat or vanity", { "text": "Moat as contract", "status": "match" }, "“Provider-neutral SDK, registration not refactor” survives diligence. The number (“11”) dies; the contract ships."],
+          ["Beachhead: broad-OSS vs verticalize", { "text": "Verticalize", "status": "match" }, "Under a 6-month box, dev-first is more expensive and less likely to ship. Red Hat 1999, not Docker 2014."],
+          ["Wedge coherence after cleanup", { "text": "Cleaned is stronger", "status": "match" }, "The shipping-pillar list is more credible than the puffed-up version a buyer catches in diligence."]
+        ]
+      }
+    },
+
+    "sec-minority": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "DISSENT PRESERVED", "title": "Minority reports", "subtitle": "Not buried — these reinstate if the 90-day gates miss" },
+      "children": ["minority-da", "minority-gtm"]
+    },
+    "minority-da": { "type": "card", "variant": "callout", "props": { "variant": "warning", "title": "Devil’s advocate (~75% current positioning loses)", "content": "“The framework-agnostic OSS multi-provider pitch, against Frontier+Bedrock with an 800M-user funnel and cost deepening vendor consolidation, is structurally a losing wedge. ~40% the project loses entirely without verticalization in 60 days.” The verticalize call is the *concession path*, not a bull case." } },
+    "minority-gtm": { "type": "card", "variant": "callout", "props": { "variant": "info", "title": "OSS-GTM dissent (dev-first)", "content": "Every OSS-infra winner (Docker, K8s, Hashicorp, Supabase) took developers first and let enterprise pull. Cede the flywheel and Lev fights certs against IBM/AWS/Microsoft — unfundable. Verticalize sequences this on a 6–18mo lag; it does not abandon it. If the regulated pilot misses Day 90, this dissent is reinstated." } },
+
+    "sec-discipline": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "HONESTY GATE", "title": "Do-not-claim discipline", "subtitle": "A sophisticated buyer reads the source. Every overclaim is a deal-cost. These never ship as fact." },
+      "children": ["discipline-table"]
+    },
+    "discipline-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Never say", "Ship instead"],
+        "rows": [
+          [{ "text": "“5-constraint manifold C1–C5 in the kernel”", "status": "gap" }, "C1+C2 fail-closed in the WASM kernel; C3–C5 are the policy-layer roadmap."],
+          [{ "text": "“AgentGuard runtime ABAC leases”", "status": "gap" }, "Two primitives: agentguard git-hook gates + lev-abac Rust crate (grant/expiry/revoke). Earned-extension lifecycle = roadmap."],
+          [{ "text": "“11 providers”", "status": "gap" }, "Provider-neutral SDK contract; 3 full-fidelity SDK providers + OpenAI-compatible passthrough."],
+          [{ "text": "“Enterprise tier shipping”", "status": "gap" }, "90-day commitment, gated on SOC 2, DPA, indemnity, one named regulated reference."],
+          [{ "text": "“3,754 tests / 99%” as live", "status": "gap" }, "Re-baseline required — figure is 2.5 months stale (commit 63ed1316)."],
+          [{ "text": "“OpenAI validated our thesis”", "status": "gap" }, "“OpenAI compressed our window.” Timing, not endorsement."]
+        ]
+      }
+    },
+
+    "sec-plan": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "EXECUTION", "title": "The 90-day plan", "subtitle": "Make the wedge buyable. Re-deliberate if 3 of 4 Day-90 gates miss." },
+      "children": ["plan-timeline", "plan-gates"]
+    },
+    "plan-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          { "date": "Week 1", "title": "NORTH_STAR hygiene", "status": "upcoming", "description": "Add OpenAI Frontier to the Competitive Landscape (named as threat at :37 but absent from the tracked list). Clean the overclaims per the discipline gate." },
+          { "date": "Month 1", "title": "Ship Scene 3 + Compliance v0", "status": "upcoming", "description": "Enterprise Trial Kit v0.1 (mid-workflow model swap) on AWS+Azure. SOC 2 Type I auditor engaged. Design-partner LOI signed (mid-cap regional bank)." },
+          { "date": "Month 2", "title": "Ship Scene 2 + Pilot signed", "status": "upcoming", "description": "Bind lev-abac → TS invocation gate (deny before provider call) → OCSF SIEM export. SOC 2 Type I issued. Paid pilot agreement signed ($75–150k)." },
+          { "date": "Month 3", "title": "Ship Scene 1 + Named reference + GA", "status": "upcoming", "description": "ETK v1.0 GA, all three scenes. Publicly named regulated reference with C-level quote. SOC 2 Type II audit period started." }
+        ]
+      }
+    },
+    "plan-gates": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Day-90 binary gates",
+        "content": "1) Signed paid-pilot LOI from a named regulated buyer (EU bank / sovereign-health / defense).  2) SOC 2 Type II path engaged with an auditor.  3) AgentGuard runtime-lease lifecycle shipped or publicly demoted.  4) “11 providers” / C3–C5 / unshipped Enterprise-tier claims rewritten across NORTH_STAR + briefs."
+      }
+    },
+
+    "closing": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": { "content": "Govern any agent. Replay every action. On your hardware. — The runtime your auditor can replay. Convergence 0.80. Publish." }
+    }
+  }
+}
