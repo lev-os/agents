@@ -1,0 +1,516 @@
+{
+ "meta": {
+  "title": "Ulta AI CLI \u2014 Skill Call Graph & Workflows",
+  "description": "Who calls whom, the canonical workflows, and when each skill fires",
+  "layout": "sidebar-toc",
+  "effects": [
+   "grid-dots",
+   "title-underline"
+  ]
+ },
+ "theme": {
+  "preset": "teal-slate",
+  "mode": "dark"
+ },
+ "root": [
+  "hero",
+  "how-routing-works",
+  "graph-core",
+  "graph-debug",
+  "graph-review",
+  "graph-onboard",
+  "workflows",
+  "when-table-section"
+ ],
+ "elements": {
+  "hero": {
+   "type": "hero",
+   "variant": "editorial",
+   "props": {
+    "category": "ARCHITECTURE \u00b7 SKILL SYSTEM",
+    "title": "Skill Call Graph & Workflows",
+    "subtitle": "33 skills, 4 lanes, 6 canonical workflows \u2014 extracted live from src/skills/ after the Tier 0 fixes",
+    "meta": "ulta-ai-cli \u00b7 June 2026"
+   },
+   "children": [
+    "hero-lead"
+   ]
+  },
+  "hero-lead": {
+   "type": "text",
+   "variant": "lead",
+   "props": {
+    "content": "Arrows mean a SKILL.md explicitly routes to or requires another skill. Skills with no inbound arrows are not dead \u2014 agents self-route by scanning frontmatter descriptions per task, so a precise trigger phrase IS the wiring."
+   }
+  },
+  "how-routing-works": {
+   "type": "section",
+   "variant": "card-grid",
+   "props": {
+    "label": "ROUTING MODEL",
+    "title": "How a skill gets invoked",
+    "subtitle": "Three mechanisms, in priority order"
+   },
+   "children": [
+    "route-1",
+    "route-2",
+    "route-3"
+   ]
+  },
+  "route-1": {
+   "type": "card",
+   "variant": "elevated",
+   "props": {
+    "title": "1. Hardcoded pipeline",
+    "content": "Only review-checklist and review-gates are wired into code: src/lib/review/bundle.js injects them into every PR review. Everything else is soft-routed."
+   }
+  },
+  "route-2": {
+   "type": "card",
+   "variant": "elevated",
+   "props": {
+    "title": "2. Cross-skill chaining",
+    "content": "A skill's body names the next skill (REQUIRED SUB-SKILL or 'then use'). This forms the workflows below \u2014 e.g. brainstorming requires writing-plans; systematic-debugging routes to root-cause-tracing."
+   }
+  },
+  "route-3": {
+   "type": "card",
+   "variant": "elevated",
+   "props": {
+    "title": "3. Description self-routing",
+    "content": "using-ulta mandates scanning all skill descriptions each task. On-demand skills (dep-audit, weekly-status, promoting-skills) are reached purely by trigger-phrase match \u2014 by design."
+   }
+  },
+  "graph-core": {
+   "type": "section",
+   "variant": "full-width",
+   "props": {
+    "label": "LANE 1",
+    "title": "Core delivery flow",
+    "subtitle": "The spine: every feature follows this chain; dotted edges are cross-cutting helpers"
+   },
+   "children": [
+    "diag-core"
+   ]
+  },
+  "diag-core": {
+   "type": "diagram",
+   "props": {
+    "engine": "mermaid",
+    "content": "graph LR\n  UU[using-ulta<br/>session start] --> BR[brainstorming]\n  BR <--> RC[research-conductor]\n  BR --> WP[writing-plans]\n  WP --> EP[executing-plans]\n  WP --> SDD[subagent-driven-development]\n  GW[using-git-worktrees] -.isolation.-> EP\n  GW -.isolation.-> SDD\n  TDD[test-driven-development] -.per task.-> EP\n  TDD -.per task.-> SDD\n  EP --> RG[review-gates]\n  SDD --> RG\n  RG --> FB[finishing-a-development-branch]\n  FB -.cleanup.-> GW"
+   }
+  },
+  "graph-debug": {
+   "type": "section",
+   "variant": "full-width",
+   "props": {
+    "label": "LANE 2",
+    "title": "Debugging lane",
+    "subtitle": "Entered from ANY stage the moment a bug or failing test appears; exits back into the delivery flow"
+   },
+   "children": [
+    "diag-debug"
+   ]
+  },
+  "diag-debug": {
+   "type": "diagram",
+   "props": {
+    "engine": "mermaid",
+    "content": "graph LR\n  SD[systematic-debugging<br/>any bug or test failure] --> RCT[root-cause-tracing]\n  RCT --> DD[defense-in-depth]\n  SD --> CBW[condition-based-waiting<br/>flaky timing tests]\n  SD --> TDD[test-driven-development<br/>regression test first]\n  SD --> VBC[verification-before-completion]\n  TAP[testing-anti-patterns] -.guards mocks.-> TDD"
+   }
+  },
+  "graph-review": {
+   "type": "section",
+   "variant": "full-width",
+   "props": {
+    "label": "LANE 3",
+    "title": "Review & standards web",
+    "subtitle": "review-checklist is the hub \u2014 the most-referenced skill in the system; thick edges are the hardcoded PR pipeline"
+   },
+   "children": [
+    "diag-review"
+   ]
+  },
+  "diag-review": {
+   "type": "diagram",
+   "props": {
+    "engine": "mermaid",
+    "content": "graph TD\n  PR[PR pipeline<br/>bundle.js hardcodes these] ==> RC2[review-checklist]\n  PR ==> RG2[review-gates]\n  RA[review-audit<br/>batch audits] --> RC2\n  RA --> RG2\n  SC[standards-code] --> RC2\n  ST[standards-testing] --> RC2\n  SCM[standards-commit] --> RC2\n  SDOC[standards-documentation] --> RC2\n  RAU[repo-automation<br/>hooks + CI setup] --> SC\n  RAU --> ST\n  RAU --> SCM\n  REQ[requesting-code-review] --> RC2\n  REC[receiving-code-review] --> RC2\n  RG2 --> VBC2[verification-before-completion]"
+   }
+  },
+  "graph-onboard": {
+   "type": "section",
+   "variant": "full-width",
+   "props": {
+    "label": "LANES 4 + 5",
+    "title": "Onboarding & skill governance",
+    "subtitle": "Run once per repo (onboarding) and whenever a repo-local skill graduates (governance)"
+   },
+   "children": [
+    "diag-onboard"
+   ]
+  },
+  "diag-onboard": {
+   "type": "diagram",
+   "props": {
+    "engine": "mermaid",
+    "content": "graph LR\n  RO[repo-onboarding<br/>ulta init / doctor / repair] --> RCX[repo-context<br/>01-business 02-architecture 03-delivery]\n  RO --> RR[repo-rules<br/>.ulta/rules: style testing review gotchas]\n  RCX <--> RR\n  WS[writing-skills<br/>author + test skills] --> PS[promoting-skills<br/>ulta skill promote -> catalog PR]"
+   }
+  },
+  "workflows": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "CANONICAL WORKFLOWS",
+    "title": "The six actual workflows",
+    "subtitle": "When you'd run each chain, end to end"
+   },
+   "children": [
+    "wf-1",
+    "wf-2",
+    "wf-3",
+    "wf-4",
+    "wf-5",
+    "wf-6"
+   ]
+  },
+  "wf-1": {
+   "type": "card",
+   "variant": "default",
+   "props": {
+    "title": "\ud83d\ude80 W1 \u2014 Feature delivery (the default)",
+    "content": "**Trigger:** any new feature or multi-step change. **Chain:** using-ulta \u2192 brainstorming (\u2194 research-conductor for pattern/LOE scans) \u2192 writing-plans \u2192 executing-plans (batch + human checkpoints) OR subagent-driven-development (fresh subagent per task, two-stage review) \u2192 review-gates \u2192 finishing-a-development-branch. using-git-worktrees isolates the work; test-driven-development governs every task inside implementation."
+   }
+  },
+  "wf-2": {
+   "type": "card",
+   "variant": "default",
+   "props": {
+    "title": "\ud83d\udc1b W2 \u2014 Bug fix / debugging",
+    "content": "**Trigger:** any bug, failing test, or unexpected behavior \u2014 BEFORE proposing a fix. **Chain:** systematic-debugging (4-phase root-cause framework) \u2192 root-cause-tracing (trace back through the stack) \u2192 defense-in-depth (validate at every layer) \u2192 test-driven-development (regression test first) \u2192 verification-before-completion. condition-based-waiting if the failure is flaky/timing; testing-anti-patterns when touching mocks."
+   }
+  },
+  "wf-3": {
+   "type": "card",
+   "variant": "default",
+   "props": {
+    "title": "\ud83d\udd0d W3 \u2014 PR review (pipeline-hardcoded)",
+    "content": "**Trigger:** every pull request \u2014 automatic. **Chain:** bundle.js injects review-checklist + review-gates into the PR prompt \u2192 standards-code/testing/commit/documentation overlay repo-specific rules from .ulta/rules \u2192 verification-before-completion before any approval claim. Humans use requesting-code-review (sender) and receiving-code-review (recipient rigor)."
+   }
+  },
+  "wf-4": {
+   "type": "card",
+   "variant": "default",
+   "props": {
+    "title": "\ud83d\udce6 W4 \u2014 Repo onboarding",
+    "content": "**Trigger:** installing, updating, or repairing an Ulta-enabled repo. **Chain:** repo-onboarding (ulta init \u2192 doctor \u2192 additive repair) \u2192 repo-context (generates 01-business-context, 02-architecture, 03-delivery-context) \u2192 repo-rules (extracts code-style/testing/review/gotchas into .ulta/rules from real repo evidence). This is what makes every other skill repo-aware \u2014 context first, grep later."
+   }
+  },
+  "wf-5": {
+   "type": "card",
+   "variant": "default",
+   "props": {
+    "title": "\ud83e\uddec W5 \u2014 Skill governance",
+    "content": "**Trigger:** creating or refining a skill. **Chain:** writing-skills (TDD for process docs \u2014 test with subagents before writing) \u2192 iterate repo-locally in .agents/skills/ \u2192 promoting-skills (ulta skill promote \u2192 structured ULTA_PROMOTE_* errors \u2192 Bitbucket PR to the shared catalog)."
+   }
+  },
+  "wf-6": {
+   "type": "card",
+   "variant": "default",
+   "props": {
+    "title": "\u23f1 W6 \u2014 On-demand & reporting",
+    "content": "**Trigger:** explicit ask or schedule; no inbound arrows by design. dep-audit (audit project dependencies), weekly-status (end-of-week report from commits/handoffs \u2014 currently needs a real invoker), repo-automation (set up hooks + CI, routes into the standards skills), gemini-agentic-cli (headless CLI automation in CI/CD)."
+   }
+  },
+  "when-table-section": {
+   "type": "section",
+   "variant": "full-width",
+   "props": {
+    "label": "REFERENCE",
+    "title": "Every skill: when it fires, what it references, who references it",
+    "subtitle": "'When' is the live frontmatter trigger agents match against. 'None (self-routed)' = reached by description match only."
+   },
+   "children": [
+    "when-table"
+   ]
+  },
+  "when-table": {
+   "type": "data-table",
+   "props": {
+    "columns": [
+     {
+      "key": "skill",
+      "label": "Skill"
+     },
+     {
+      "key": "stage",
+      "label": "Stage"
+     },
+     {
+      "key": "when",
+      "label": "When to use (trigger)"
+     },
+     {
+      "key": "references",
+      "label": "References \u2192"
+     },
+     {
+      "key": "referenced_by",
+      "label": "\u2190 Referenced by"
+     }
+    ],
+    "rows": [
+     {
+      "skill": "using-ulta",
+      "stage": "Session start",
+      "when": "Use when starting any conversation - establishes mandatory workflows for finding and using skills, introduces ulta CLI commands, and defines the skill-driven development workflow",
+      "references": "brainstorming, executing-plans, finishing-a-development-branch, review-gates, subagent-driven-development, test-driven-development, writing-plans",
+      "referenced_by": {
+       "text": "none (self-routed)",
+       "status": "warn"
+      }
+     },
+     {
+      "skill": "repo-context",
+      "stage": "Onboarding",
+      "when": "Use when generating or refreshing the named context files in .ulta/context - walks the repo-local context prompts one job at a time to produce 01-business-context.md, 02-architecture.md, and 03-del...",
+      "references": "repo-onboarding, repo-rules",
+      "referenced_by": "repo-onboarding, repo-rules"
+     },
+     {
+      "skill": "repo-onboarding",
+      "stage": "Onboarding",
+      "when": "Use when installing, updating, or repairing an Ulta-enabled repository - runs `ulta init` additive repair, verifies health with `ulta doctor`, reports `.ulta` source-domain status, and routes conte...",
+      "references": "repo-context, repo-rules",
+      "referenced_by": "repo-context"
+     },
+     {
+      "skill": "repo-rules",
+      "stage": "Onboarding",
+      "when": "Use when generating or refreshing repo-local SDLC rules in .ulta/rules - extracts code style, testing conventions, review gates, gotchas, and validation tactics from real repo evidence, and reads l...",
+      "references": "repo-context",
+      "referenced_by": "repo-context, repo-onboarding"
+     },
+     {
+      "skill": "brainstorming",
+      "stage": "Planning",
+      "when": "Use before writing code or implementation plans - transforms rough ideas into validated designs through structured questioning, scope decomposition, alternative exploration, and incremental validation",
+      "references": "research-conductor, using-git-worktrees, writing-plans",
+      "referenced_by": "research-conductor, using-git-worktrees, using-ulta, writing-plans"
+     },
+     {
+      "skill": "research-conductor",
+      "stage": "Planning",
+      "when": "Use when starting task creation or assessing implementation complexity - performs systematic codebase research with confidence scoring, scanning patterns and calculating LOE scores",
+      "references": "brainstorming",
+      "referenced_by": "brainstorming, writing-plans"
+     },
+     {
+      "skill": "writing-plans",
+      "stage": "Planning",
+      "when": "Use when you have a spec or requirements for a multi-step task, before touching code - creates comprehensive implementation plans with file structure mapping, bite-sized tasks, and multi-mode execu...",
+      "references": "brainstorming, executing-plans, research-conductor, subagent-driven-development",
+      "referenced_by": "brainstorming, executing-plans, standards-commit, subagent-driven-development, using-ulta"
+     },
+     {
+      "skill": "executing-plans",
+      "stage": "Implementation",
+      "when": "Use when you have a written implementation plan to execute in batches with review checkpoints - loads plan, reviews critically, executes tasks in controlled batches, reports between batches",
+      "references": "finishing-a-development-branch, subagent-driven-development, using-git-worktrees, writing-plans",
+      "referenced_by": "finishing-a-development-branch, subagent-driven-development, using-git-worktrees, using-ulta, writing-plans"
+     },
+     {
+      "skill": "repo-automation",
+      "stage": "Implementation",
+      "when": "Use when setting up repository automation - guides through pre-commit hooks, pre-push validation, and CI pipelines with user deciding what to automate",
+      "references": "review-checklist, standards-code, standards-commit, standards-testing",
+      "referenced_by": "standards-commit, standards-documentation, standards-testing"
+     },
+     {
+      "skill": "subagent-driven-development",
+      "stage": "Implementation",
+      "when": "Use when executing implementation plans with independent tasks - dispatches fresh subagent per task with two-stage review (spec compliance then code quality) for high-quality fast iteration",
+      "references": "executing-plans, finishing-a-development-branch, requesting-code-review, test-driven-development, using-git-worktrees, writing-plans",
+      "referenced_by": "executing-plans, finishing-a-development-branch, using-git-worktrees, using-ulta, writing-plans"
+     },
+     {
+      "skill": "test-driven-development",
+      "stage": "Implementation",
+      "when": "Use when implementing any feature or bugfix, before writing implementation code - write the test first, watch it fail, write minimal code to pass; ensures tests actually verify behavior by requirin...",
+      "references": "\u2014",
+      "referenced_by": "gemini-agentic-cli, standards-testing, subagent-driven-development, systematic-debugging, using-ulta, writing-skills"
+     },
+     {
+      "skill": "using-git-worktrees",
+      "stage": "Implementation",
+      "when": "Use when starting feature work that needs isolation from current workspace or before executing implementation plans - creates isolated git worktrees with smart directory selection and safety verifi...",
+      "references": "brainstorming, executing-plans, finishing-a-development-branch, subagent-driven-development",
+      "referenced_by": "brainstorming, executing-plans, finishing-a-development-branch, subagent-driven-development"
+     },
+     {
+      "skill": "gemini-agentic-cli",
+      "stage": "Implementation (CI)",
+      "when": "Use when automating code quality workflows in shell scripts - teaches headless Gemini CLI execution with file inputs, structured JSON output parsing, timeout handling, and automatic fix application...",
+      "references": "systematic-debugging, test-driven-development, verification-before-completion",
+      "referenced_by": {
+       "text": "none (self-routed)",
+       "status": "warn"
+      }
+     },
+     {
+      "skill": "defense-in-depth",
+      "stage": "Debugging",
+      "when": "Use when invalid data causes failures deep in execution, requiring validation at multiple system layers - validates at every layer data passes through to make bugs structurally impossible",
+      "references": "\u2014",
+      "referenced_by": "root-cause-tracing, systematic-debugging, writing-skills"
+     },
+     {
+      "skill": "root-cause-tracing",
+      "stage": "Debugging",
+      "when": "Use when errors occur deep in execution and you need to trace back to find the original trigger - systematically traces bugs backward through call stack, adding instrumentation when needed, to iden...",
+      "references": "defense-in-depth",
+      "referenced_by": "systematic-debugging, writing-skills"
+     },
+     {
+      "skill": "systematic-debugging",
+      "stage": "Debugging",
+      "when": "Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes - four-phase framework (root cause investigation, pattern analysis, hypothesis testing, implementation) t...",
+      "references": "condition-based-waiting, defense-in-depth, root-cause-tracing, test-driven-development, verification-before-completion",
+      "referenced_by": "gemini-agentic-cli, standards-testing, writing-skills"
+     },
+     {
+      "skill": "condition-based-waiting",
+      "stage": "Testing",
+      "when": "Use when tests have race conditions, timing dependencies, or inconsistent pass/fail behavior - replaces arbitrary timeouts with condition polling to wait for actual state changes, eliminating flaky...",
+      "references": "\u2014",
+      "referenced_by": "systematic-debugging, writing-skills"
+     },
+     {
+      "skill": "testing-anti-patterns",
+      "stage": "Testing",
+      "when": "Use when writing or changing tests, adding mocks, or tempted to add test-only methods to production code - prevents testing mock behavior, production pollution with test-only methods, and mocking w...",
+      "references": "\u2014",
+      "referenced_by": "standards-testing"
+     },
+     {
+      "skill": "receiving-code-review",
+      "stage": "Review",
+      "when": "Use when receiving code review feedback, before implementing suggestions, especially if feedback seems unclear or technically questionable - requires technical rigor and verification, not performat...",
+      "references": "\u2014",
+      "referenced_by": "review-checklist"
+     },
+     {
+      "skill": "requesting-code-review",
+      "stage": "Review",
+      "when": "Use when completing tasks, implementing major features, or before merging to verify work meets requirements - prepares code for human review with context and checklist",
+      "references": "\u2014",
+      "referenced_by": "review-checklist, standards-code, subagent-driven-development"
+     },
+     {
+      "skill": "review-audit",
+      "stage": "Review",
+      "when": "Use when running batch code audits, tracking codebase health over time, generating review manifests, or auditing files changed since last review - orchestrates file-by-file review using exec with p...",
+      "references": "review-checklist, review-gates",
+      "referenced_by": "review-checklist, review-gates"
+     },
+     {
+      "skill": "review-checklist",
+      "stage": "Review",
+      "when": "Use when reviewing pull requests or preparing automated PR review prompts - provides a generic standards checklist; ground in repo context and stack-specific extension skills for concrete rules",
+      "references": "receiving-code-review, requesting-code-review, review-audit, review-gates",
+      "referenced_by": "repo-automation, review-audit, review-gates, standards-code, standards-commit, standards-documentation, standards-testing"
+     },
+     {
+      "skill": "review-gates",
+      "stage": "Review",
+      "when": "Use when reviewing code changes, before approving PRs, or during batch audits to pressure-test runtime behavior under hostile conditions - adversarial validation, agent code smell detection, gap cl...",
+      "references": "review-audit, review-checklist, verification-before-completion",
+      "referenced_by": "review-audit, review-checklist, using-ulta"
+     },
+     {
+      "skill": "verification-before-completion",
+      "stage": "Review",
+      "when": "Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evide...",
+      "references": "\u2014",
+      "referenced_by": "gemini-agentic-cli, review-gates, standards-code, systematic-debugging, writing-skills"
+     },
+     {
+      "skill": "standards-code",
+      "stage": "Review (standards)",
+      "when": "Use when validating source files against repository standards - checks conventions, patterns, and architecture beyond what linters can check, with validation and auto-fix modes",
+      "references": "requesting-code-review, review-checklist, standards-testing, verification-before-completion",
+      "referenced_by": "repo-automation"
+     },
+     {
+      "skill": "standards-commit",
+      "stage": "Review (standards)",
+      "when": "Use when reviewing or writing commit messages - validates against repo-specific commit standards, suggests improvements based on conventional commits and semantic meaning",
+      "references": "finishing-a-development-branch, repo-automation, review-checklist, writing-plans",
+      "referenced_by": "repo-automation, writing-skills"
+     },
+     {
+      "skill": "standards-documentation",
+      "stage": "Review (standards)",
+      "when": "Use when validating or improving documentation - reads .ulta/context/standards/02-documentation.md to enforce completeness, clarity, and consistency across READMEs, docs, and code comments",
+      "references": "repo-automation, review-checklist, writing-skills",
+      "referenced_by": {
+       "text": "none (self-routed)",
+       "status": "warn"
+      }
+     },
+     {
+      "skill": "standards-testing",
+      "stage": "Review (standards)",
+      "when": "Use when validating test files - checks against repo-specific testing standards in .ulta/context/standards/01-testing.md, provides actionable suggestions by default, auto-fixes with --fix flag",
+      "references": "repo-automation, review-checklist, systematic-debugging, test-driven-development, testing-anti-patterns",
+      "referenced_by": "repo-automation, standards-code"
+     },
+     {
+      "skill": "finishing-a-development-branch",
+      "stage": "Finish",
+      "when": "Use when implementation is complete, all tests pass, and you need to decide how to integrate the work - guides completion of development work by presenting structured options for merge, PR, or cleanup",
+      "references": "executing-plans, subagent-driven-development, using-git-worktrees",
+      "referenced_by": "executing-plans, standards-commit, subagent-driven-development, using-git-worktrees, using-ulta"
+     },
+     {
+      "skill": "weekly-status",
+      "stage": "Reporting",
+      "when": "Use at end of week to generate status report - aggregates git commits, beads issues, handoffs, and documentation changes into a structured weekly summary with tickets, blockers, insights, and skill...",
+      "references": "\u2014",
+      "referenced_by": {
+       "text": "none (self-routed)",
+       "status": "warn"
+      }
+     },
+     {
+      "skill": "dep-audit",
+      "stage": "Reporting",
+      "when": "Use when asked to audit, check, or review project dependencies. Scans production dependencies for deprecated versions and available updates, then produces a status report.",
+      "references": "\u2014",
+      "referenced_by": {
+       "text": "none (self-routed)",
+       "status": "warn"
+      }
+     },
+     {
+      "skill": "promoting-skills",
+      "stage": "Meta",
+      "when": "Use when pushing a refined skill from a consumer repo back to a shared catalog \u2014 runs ulta skill promote, interprets structured errors, and opens the Bitbucket PR from the printed URL",
+      "references": "\u2014",
+      "referenced_by": {
+       "text": "none (self-routed)",
+       "status": "warn"
+      }
+     },
+     {
+      "skill": "writing-skills",
+      "stage": "Meta",
+      "when": "Use when creating new skills, editing existing skills, or verifying skills work before deployment - applies TDD to process documentation by testing with subagents before writing, iterating until bu...",
+      "references": "condition-based-waiting, defense-in-depth, root-cause-tracing, standards-commit, systematic-debugging, test-driven-development, verification-before-completion",
+      "referenced_by": "standards-documentation"
+     }
+    ]
+   }
+  }
+ }
+}

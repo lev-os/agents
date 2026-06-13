@@ -1,0 +1,592 @@
+{
+  "meta": {
+    "title": "Earley Grammar \u2014 Where We're At",
+    "description": "Catch-up dashboard: baseline position, plan hardening, S0-S5 implementation plan, promotion ladder, Qwen recovery position",
+    "effects": [
+      "grid-dots",
+      "title-underline",
+      "card-glow"
+    ]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "kpi-section",
+    "status-timeline-section",
+    "arch-section",
+    "holes-section",
+    "slices-section",
+    "ladder-section",
+    "gate-section",
+    "qwen-section",
+    "next-section"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "NAAC \u00b7 CANDIDATE PIPELINE UNIFICATION",
+        "title": "Template-Compiled Earley Grammar",
+        "subtitle": "Shovel-ready. Plan stress-tested against the live repo, every verified hole patched, prerequisite landed.",
+        "meta": "2026-06-12 \u00b7 branch Sunny-PC \u00b7 commits 26dbf3908 \u2192 f0bcb7a3e \u2192 a685fc9d5"
+      },
+      "children": [
+        "hero-lead"
+      ]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "The grammar engine is the next milestone (M5) of the candidate pipeline. It compiles existing authority template rows into Earley productions and emits shadow Candidate evidence through the same PolicyChain seam everything else uses \u2014 no new parser system, no new authority path. The plan survived an adversarial audit today; what follows is exactly where things stand and what gets built next."
+      }
+    },
+    "kpi-section": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "SCORECARD OF RECORD",
+        "title": "Baseline position (just baseline, 2026-06-12)"
+      },
+      "children": [
+        "kpi-total",
+        "kpi-a1",
+        "kpi-a2",
+        "kpi-b1",
+        "kpi-b2",
+        "kpi-fails"
+      ]
+    },
+    "kpi-total": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "93.7%",
+        "label": "All corpora \u00b7 1146/1223 scored turns"
+      }
+    },
+    "kpi-a1": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "84.2%",
+        "label": "A1 grounded \u00b7 187/222"
+      }
+    },
+    "kpi-a2": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "89.4%",
+        "label": "A2 PlaneEnglish \u00b7 76/85"
+      }
+    },
+    "kpi-b1": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "92.8%",
+        "label": "B1 real ASR \u00b7 425/458"
+      }
+    },
+    "kpi-b2": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "100%",
+        "label": "B2 perfect ASR \u00b7 458/458"
+      }
+    },
+    "kpi-fails": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": 77,
+        "label": "failing rows \u2014 only 8 in the 4 pilot grammar families"
+      }
+    },
+    "status-timeline-section": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "WHERE WE'RE AT",
+        "title": "What landed, in order"
+      },
+      "children": [
+        "status-timeline"
+      ]
+    },
+    "status-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          {
+            "date": "2026-06-01",
+            "title": "Shadow grammar lane proven (M0\u2013M4 + S5\u2013S7)",
+            "status": "completed",
+            "description": "Typed Candidate evidence model, trace projection, deterministic validation, and a Phase-0 hand-parser GrammarCandidateProvider running shadow in production for heading / altitude / frequency / squawk. PolicyChain keeps it trace-only."
+          },
+          {
+            "date": "2026-06-02",
+            "title": "Plan + design + task docs approved",
+            "status": "completed",
+            "description": "Arch loop ended APPROVED: one pipeline (SegmentCandidateProvider \u2192 Candidate \u2192 PolicyChain \u2192 candidate_trace/metrics), Earley under modules/intent/grammar/, Qwen fenced to recovery."
+          },
+          {
+            "date": "2026-06-12",
+            "title": "Typed-evidence cutover landed (26dbf3908)",
+            "status": "completed",
+            "description": "Metadata fallback/hydration deleted; typed Candidate evidence is sole authority; provider seam moved to provider_ingress_validation.py; protected-key validators guard FMM/readback payloads. Verified: 222 focused tests, infra panel 42 pass, baseline-self-parity green."
+          },
+          {
+            "date": "2026-06-12",
+            "title": "Plan hardened against measured reality (f0bcb7a3e)",
+            "status": "completed",
+            "description": "Adversarial audit found 10 holes (stale gates, an unsatisfiable S5 verifier, missing receipt step, scanner tolerance gap). All patched in plan + execution.yaml; lev task validate PASS; Qwen recovery audit recorded in UPGRADES.md Epic 8."
+          },
+          {
+            "date": "next",
+            "title": "Execute S0 \u2192 S5",
+            "status": "upcoming",
+            "description": "Capture the pre-baseline receipt from the now-clean tree, then build compiler \u2192 parser \u2192 semantics \u2192 CYK retirement \u2192 shadow evaluation. TDD inside each slice; every slice has its own verifier contract."
+          }
+        ]
+      }
+    },
+    "arch-section": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "ARCHITECTURE",
+        "title": "One spine, grammar is just another provider",
+        "subtitle": "Grammar emits evidence. PolicyChain selects. Nothing else gets authority."
+      },
+      "children": [
+        "arch-diagram"
+      ]
+    },
+    "arch-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "content": "flowchart LR\n  T[\"authority templates\\ntemplates/intents/*.json\"] --> C[\"template_compiler.py\\nrows to productions + provenance\"]\n  C --> IR[\"grammar_ir.py\\nimmutable productions / slot bindings\"]\n  L[\"scanner.py / lexemes.py\\nslot-family lexeme registry\"] --> E\n  IR --> E[\"earley.py\\npredict / scan / complete\"]\n  E --> S[\"semantics.py\\nParseResult to Candidate evidence\\nvalidation.contract_row_id = row id\"]\n  S --> G[\"engine.py\\nfail-closed factory\"]\n  G --> A[\"GrammarCandidateProvider\\nthin adapter, existing seam\"]\n  A --> PC[\"PolicyChain\\nmode: shadow, trust_tier 55\"]\n  PC --> TR[\"candidate_trace + candidate_metrics\\npromotion evidence\"]",
+        "caption": "Target landing zone: modules/intent/grammar/ \u2014 grammar emits evidence, PolicyChain selects"
+      }
+    },
+    "holes-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "TODAY'S AUDIT",
+        "title": "Holes found, all patched",
+        "subtitle": "Each one verified against live code or live baseline trace data before patching."
+      },
+      "children": [
+        "holes-table"
+      ]
+    },
+    "holes-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "hole",
+            "label": "Hole"
+          },
+          {
+            "key": "evidence",
+            "label": "Evidence"
+          },
+          {
+            "key": "patch",
+            "label": "Patch"
+          },
+          {
+            "key": "status",
+            "label": "Status"
+          }
+        ],
+        "rows": [
+          {
+            "hole": "S5 promotion gate was unsatisfiable",
+            "evidence": "Trace projector never surfaces matched_patterns/data_refs; Phase-0 grammar rows carry empty contract_row_id",
+            "patch": "Slice 3 now requires validation.contract_row_id = template row id (the field the projector already projects)",
+            "status": {
+              "text": "Patched",
+              "status": "match"
+            }
+          },
+          {
+            "hole": "Stale LOC gates (512 vs 500)",
+            "evidence": "Real gate is MAX_POST_SPLIT_LOC=500; arbitration file is 357 LOC post-cutover",
+            "patch": "Plan + 3 execution.yaml verifier gates corrected",
+            "status": {
+              "text": "Patched",
+              "status": "match"
+            }
+          },
+          {
+            "hole": "Plan S0 omitted pre-baseline.meta.json",
+            "evidence": "S5 verifier hard-fails without sha256/git-head/row-count metadata",
+            "patch": "Plan now points at the execution.yaml S0 fitness command",
+            "status": {
+              "text": "Patched",
+              "status": "match"
+            }
+          },
+          {
+            "hole": "Scanner tolerance gap",
+            "evidence": "B1 ASR: 'chain to MY frequency 124.5' \u2014 exact-literal scan re-misses what regex misses",
+            "patch": "Slice 2 requires bounded substitution on non-slot literals only; slot values never fuzzy-match",
+            "status": {
+              "text": "Patched",
+              "status": "match"
+            }
+          },
+          {
+            "hole": "Missing prerequisite ordering",
+            "evidence": "Pre-baseline receipt from a dirty tree proves nothing",
+            "patch": "Typed cutover committed first (26dbf3908); plan states the ordering",
+            "status": {
+              "text": "Landed",
+              "status": "match"
+            }
+          },
+          {
+            "hole": "Wrong provider-seam reference",
+            "evidence": "SegmentCandidateProvider lives in provider_ingress_validation.py, not policy_chain/protocol.py",
+            "patch": "code_refs corrected",
+            "status": {
+              "text": "Patched",
+              "status": "match"
+            }
+          },
+          {
+            "hole": "No coverage-reality check",
+            "evidence": "Pilot families = only 8 of 77 failing rows (~10% of failure mass)",
+            "patch": "Measured Position + promotion ladder sections added to plan",
+            "status": {
+              "text": "Patched",
+              "status": "match"
+            }
+          },
+          {
+            "hole": "Frequency false-positive risk was theoretical",
+            "evidence": "Live shadow emitted 171.219 (out of band) on adiz phase_06",
+            "patch": "Confirmed load-bearing; dynamic lexicon stays a promotion blocker for frequency_change",
+            "status": {
+              "text": "Confirmed",
+              "status": "warn"
+            }
+          },
+          {
+            "hole": "Qwen eval harness clobbered evidence",
+            "evidence": "run_eval silently overwrote gitignored trace files",
+            "patch": "Now refuses without --overwrite; 18 POC tests green",
+            "status": {
+              "text": "Fixed",
+              "status": "match"
+            }
+          }
+        ]
+      }
+    },
+    "slices-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "THE PLAN",
+        "title": "Implementation slices S0 \u2192 S5",
+        "subtitle": "TDD inside each slice: red tests first, verifier contract per slice (pytest + static proof scans). Grammar stays mode: shadow throughout \u2014 zero selected-winner drift is the exit criterion."
+      },
+      "children": [
+        "slices-pipeline",
+        "slices-table"
+      ]
+    },
+    "slices-pipeline": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": {},
+      "children": [
+        "p-s0",
+        "p-s1",
+        "p-s2",
+        "p-s3",
+        "p-s4",
+        "p-s5"
+      ]
+    },
+    "p-s0": {
+      "type": "card",
+      "props": {
+        "title": "S0",
+        "content": "Docs aligned + pre-baseline receipt & meta from clean tree"
+      }
+    },
+    "p-s1": {
+      "type": "card",
+      "props": {
+        "title": "S1",
+        "content": "Template compiler + grammar IR"
+      }
+    },
+    "p-s2": {
+      "type": "card",
+      "props": {
+        "title": "S2",
+        "content": "Earley parser + scanner registry"
+      }
+    },
+    "p-s3": {
+      "type": "card",
+      "props": {
+        "title": "S3",
+        "content": "Semantics \u2192 Candidate + thin adapter"
+      }
+    },
+    "p-s4": {
+      "type": "card",
+      "props": {
+        "title": "S4",
+        "content": "CYK retirement"
+      }
+    },
+    "p-s5": {
+      "type": "card",
+      "props": {
+        "title": "S5",
+        "content": "Shadow baseline eval + no-drift proof"
+      }
+    },
+    "slices-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {
+            "key": "slice",
+            "label": "Slice"
+          },
+          {
+            "key": "builds",
+            "label": "Builds"
+          },
+          {
+            "key": "contract",
+            "label": "Key contract"
+          },
+          {
+            "key": "proof",
+            "label": "Proof gate"
+          }
+        ],
+        "rows": [
+          {
+            "slice": "S0",
+            "builds": "Doc alignment + receipts/pre-baseline.json + .meta.json",
+            "contract": "Captured BEFORE any runtime code edit, from the clean post-cutover tree",
+            "proof": "Receipt exists; sha256 + git head + row count recorded"
+          },
+          {
+            "slice": "S1",
+            "builds": "grammar_ir.py + template_compiler.py",
+            "contract": "Compile heading/altitude/frequency/squawk authority rows via IntentTemplateAuthority; preserve row_id + source provenance; immutable cached grammar",
+            "proof": "test_template_compiler.py + provenance scan"
+          },
+          {
+            "slice": "S2",
+            "builds": "earley.py + scanner.py + lexemes.py",
+            "contract": "predict/scan/complete, top-k deterministic parses; lexeme resolvers by slot family; bounded substitution for non-slot literals ONLY \u2014 no silent repair of slot values",
+            "proof": "test_earley_parser.py + lexeme-registry scan"
+          },
+          {
+            "slice": "S3",
+            "builds": "semantics.py + engine.py + adapter refactor",
+            "contract": "ParseResult to typed Candidate evidence; validation.contract_row_id = template row id (makes S5 gate satisfiable); fail-closed engine; no PolicyChain._ access; arbitration file <= 500 LOC",
+            "proof": "4 test files + 5 static proof scans"
+          },
+          {
+            "slice": "S4",
+            "builds": "Delete cyk_parser.py / atc_grammar.py / rules.json refs",
+            "contract": "CYK is test-only stub today (3 rules); migrate useful behavior cases into Earley tests first",
+            "proof": "negative rg scan + Earley suites green"
+          },
+          {
+            "slice": "S5",
+            "builds": "Shadow evaluation receipts",
+            "contract": "post vs pre baseline: selected behavior + winner source/id identical after dropping trace/metric/timing; grammar in trace for all 4 families with row/rule provenance; NO grammar candidate selected while shadow",
+            "proof": "baseline-self-parity + no-drift diff + provenance gate"
+          }
+        ]
+      }
+    },
+    "ladder-section": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "AFTER S5",
+        "title": "Promotion ladder \u2014 driven by measured failures, not convenience",
+        "subtitle": "The pilot proves safety; the yield lives further up the ladder."
+      },
+      "children": [
+        "ladder-cards",
+        "ladder-chart"
+      ]
+    },
+    "ladder-cards": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {},
+      "children": [
+        "ladder-1",
+        "ladder-2",
+        "ladder-3"
+      ]
+    },
+    "ladder-1": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\ud83c\udfaf Rung 1 \u2014 Pilot families (8 failing rows)",
+        "content": "heading / altitude / frequency / squawk. Shadow grammar is ALREADY exactly-correct on 4 of 5 failing A1 rows \u2014 e.g. raw misparsed 'contact ground 121.9' as taxi_instruction while grammar shadow held frequency_change {ground, 121.9}. These are the first per-family promotion reviews. frequency_change stays blocked on dynamic lexicon (live 171.219 false positive)."
+      }
+    },
+    "ladder-2": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\ud83e\udde9 Rung 2 \u2014 Compound (15 failing rows)",
+        "content": "The single biggest failure cluster: whole-turn utterances misread as one intent ('expected compound, got sequencing'). This is exactly where a chart parser over clause sequences beats per-segment regex \u2014 the Earley chart can parse an utterance as a sequence of command clauses. Highest-yield expansion, hardest grammar."
+      }
+    },
+    "ladder-3": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\ud83d\udce1 Rung 3 \u2014 Long tail",
+        "content": "informational (6), traffic_advisory (3), verification_request (3), comm_request / route_amendment / position_report / direct_to (2 each). Each expansion is its own shadow-then-promote slice through the same Candidate/PolicyChain seam. Template compilation means new families are mostly data, not code."
+      }
+    },
+    "ladder-chart": {
+      "type": "chart",
+      "props": {
+        "chartType": "bar",
+        "title": "Failing rows by cluster (77 total)",
+        "labels": [
+          "compound",
+          "pilot families (4)",
+          "informational",
+          "traffic_advisory",
+          "verification_request",
+          "comm_request",
+          "route_amendment",
+          "other"
+        ],
+        "datasets": [
+          {
+            "label": "failing rows",
+            "data": [
+              15,
+              8,
+              6,
+              3,
+              3,
+              2,
+              2,
+              38
+            ],
+            "backgroundColor": [
+              "#2dd4bf",
+              "#fbbf24",
+              "#94a3b8",
+              "#94a3b8",
+              "#94a3b8",
+              "#94a3b8",
+              "#94a3b8",
+              "#475569"
+            ]
+          }
+        ]
+      }
+    },
+    "gate-section": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "SAFETY",
+        "title": "Promotion gate \u2014 per family, reversible"
+      },
+      "children": [
+        "gate-card",
+        "boundary-card"
+      ]
+    },
+    "gate-card": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "A family flips shadow \u2192 active only when",
+        "content": "Passing rows preserved \u00b7 failing rows fixed BY the grammar candidate (trace-attributed) \u00b7 required slots + bounds validation pass \u00b7 candidate trace names the winning row/rule \u00b7 baseline-self-parity green \u00b7 just baseline --json --no-write proves candidate-attributed improvement \u00b7 policy change is per-family and reversible in one overlay edit."
+      }
+    },
+    "boundary-card": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Hard boundaries that do not move",
+        "content": "Candidate is the only evidence object crossing the provider seam \u00b7 PolicyChain is the only global selector \u00b7 grammar stays mode: shadow through this entire plan \u00b7 no parser evidence leaks into ParsedATCCommand / SegmentAuthorityRecord \u00b7 no new dependencies \u00b7 DeBERTa stays disabled \u00b7 Qwen parser promotion is out of scope."
+      }
+    },
+    "qwen-section": {
+      "type": "section",
+      "variant": "diff-panels",
+      "props": {
+        "label": "RECOVERY LANE",
+        "title": "Qwen recovery \u2014 more built than expected, four real gaps",
+        "subtitle": "Audited today; verified position recorded in UPGRADES.md Epic 8. Qwen is gateway-owned recovery AFTER grammar + dynamic lexicon are exhausted \u2014 never parser authority."
+      },
+      "children": [
+        "qwen-built",
+        "qwen-gaps"
+      ]
+    },
+    "qwen-built": {
+      "type": "card",
+      "props": {
+        "title": "\u2705 Already built and working",
+        "content": "Recovery decision contract (modules/recovery/) with strict JSON schema + abstention. Gateway QwenRecoveryClient + suspicion triggers (no_intent, low_confidence, fmm_rejected, readback_unrenderable, suspect_signal, advisory_backfill). Model server with mock/mlx/cuda backends and warmup-gated /ready. Full NAAC_QWEN_RECOVERY_* flag surface. POC eval harness verified (dry-run + 18 unit tests)."
+      }
+    },
+    "qwen-gaps": {
+      "type": "card",
+      "props": {
+        "title": "\u26a0\ufe0f Gaps before any promotion talk",
+        "content": "1) Apply mode is HARDCODED off \u2014 prod router forces advisory_only and ignores gate.qwen_recovery_mode; moving past telemetry is a code change + its own gate. 2) The a1_a2_readback_repair eval (25 baseline-failing rows) has never run against a real model. 3) parser_disagreement / critical_slot_failure triggers don't exist \u2014 yet baseline already counts both (771 / 469 rows). 4) Thor deploy disabled; quantize script still references Qwen2.5 while configs want Qwen3-4B."
+      }
+    },
+    "next-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "NEXT",
+        "title": "Execution order"
+      },
+      "children": [
+        "next-prose"
+      ]
+    },
+    "next-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "**Grammar lane:** run the S0 fitness command from execution.yaml to capture the pre-baseline receipt from the clean tree, then S1 template compiler with red tests first. Each slice lands with its verifier green before the next starts; `just baseline-self-parity` is the per-tick determinism gate.\n\n**Qwen lane (parallel, independent):** run a1_a2_readback_repair against mlx locally and version the traces \u2192 add the two missing triggers behind shadow telemetry \u2192 wire recovery scoring into a periodic `just baseline_recovery` lane \u2192 only then write the apply_readback promotion gate.\n\nEverything is committed and pushed: typed cutover 26dbf3908, plan hardening f0bcb7a3e, workstream record a685fc9d5. The plan docs are the single source of truth: `.lev/pm/plans/plan-impl-template-compiled-earley-grammar.md` and `.lev/pm/tasks/template-compiled-earley-grammar/execution.yaml`."
+      }
+    }
+  }
+}

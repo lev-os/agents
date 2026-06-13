@@ -50,6 +50,32 @@ Before dispatch:
    `/propose` or diagnostics for a policy decision instead of inventing a stale
    model default in the skill.
 
+## Worker / Reviewer Profile Pattern
+
+Exec profiles are the ONLY profile system. Adapter-native profile/config layers
+(e.g. `codex -p <overlay>`) are never read by Lev — the provider card passes
+explicit model flags. Do not duplicate adapter/model policy into adapter-native
+config; that is a split-brain.
+
+Canonical bounded-loop dispatch (ralph shape):
+
+```
+lev exec "<bounded slice>" --profile=<worker-profile-id> \
+  --until="<completion condition>" --verifier="<shell command>"
+```
+
+- Worker and reviewer are separate profiles (separate lanes, separate
+  system prompts). Review dispatch reuses the same shape with the reviewer
+  profile and a verifier that greps machine-checkable `VERDICT <claim>:` lines.
+- Agent iterations outlive the default transport delta timeout; pass
+  `--with execution_delta_timeout_ms=180000` (or higher) for loop dispatches
+  unless the loop path already defaults it.
+- Per-iteration gate proofs land at
+  `.lev/agentfs/exec/artifacts/<execId>/loop-verifier/iteration-N/gate-proof.json`;
+  cite them as receipt evidence, never the worker's prose claim.
+- Discover profile ids with `ls .lev/exec-profiles/` plus plugin-shipped
+  profiles; never hardcode model names in prompts or skills.
+
 ## Work Link
 
 Lifecycle lane: Exec

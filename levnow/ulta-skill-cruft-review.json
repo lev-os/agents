@@ -1,0 +1,146 @@
+{
+  "meta": {
+    "title": "Ulta AI CLI — Cruft Removal Review",
+    "description": "Skill lifecycle audit: items pending approval before deletion",
+    "layout": "default",
+    "effects": ["title-underline", "card-glow"]
+  },
+  "theme": { "preset": "amber-emerald", "mode": "light" },
+  "root": ["hero", "kpis", "decision-callout-section", "removal-table-section", "keep-verdicts-section", "doc-actions-section", "tier0-section"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "AUDIT · APPROVAL GATE",
+        "title": "Cruft Removal Review",
+        "subtitle": "ulta-ai-cli skill lifecycle audit — nothing is deleted until you approve it",
+        "meta": "39-agent workflow audit · June 2026"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": { "content": "The audit found zero skills worth deleting — all 5 suspects survived adversarial verification. What remains is file-level cruft and stale docs. Each item below carries its evidence and a confidence level. Approve, defer, or veto per row." }
+    },
+    "kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "SCOREBOARD", "title": "Audit at a glance" },
+      "children": ["kpi-1", "kpi-2", "kpi-3", "kpi-4", "kpi-5"]
+    },
+    "kpi-1": { "type": "card", "variant": "kpi", "props": { "value": 31, "label": "Skills audited" } },
+    "kpi-2": { "type": "card", "variant": "kpi", "props": { "value": 0, "label": "Skills to delete" } },
+    "kpi-3": { "type": "card", "variant": "kpi", "props": { "value": 5, "label": "Suspects cleared (keep)" } },
+    "kpi-4": { "type": "card", "variant": "kpi", "props": { "value": 7, "label": "Cruft items pending approval" } },
+    "kpi-5": { "type": "card", "variant": "kpi", "props": { "value": 6, "label": "Tier 0 fixes in flight" } },
+    "decision-callout-section": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "BLOCKER", "title": "One decision only you can make" },
+      "children": ["decision-callout"]
+    },
+    "decision-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": ".agents/skills/ mirror is staged for deletion",
+        "content": "The entire committed dogfood mirror (.agents/skills/**) sits as staged deletions in the working tree. The CI parity guard (src/lib/__tests__/dogfood-skills-guard.test.js) requires this mirror to match src/skills/ — committing the deletion breaks the guard; restoring it re-syncs ~35 files. Was this deletion deliberate (dropping committed dogfood copies) or accidental? Team agents were instructed not to touch it."
+      }
+    },
+    "removal-table-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "PENDING APPROVAL", "title": "File-level cruft — skill directories", "subtitle": "Author-time artifacts and orphans shipping inside the distributed skill bundle" },
+      "children": ["removal-table"]
+    },
+    "removal-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "item", "label": "Item" },
+          { "key": "action", "label": "Action" },
+          { "key": "confidence", "label": "Confidence" },
+          { "key": "evidence", "label": "Evidence" },
+          { "key": "status", "label": "Status" }
+        ],
+        "rows": [
+          { "item": "systematic-debugging/test-academic.md + 3 more test-*.md", "action": { "text": "Relocate to tests/", "status": "warn" }, "confidence": "Medium", "evidence": "Author-time validation artifacts bundled into every install; inflate the synced skill payload", "status": { "text": "Awaiting approval", "status": "info" } },
+          { "item": "systematic-debugging/CREATION-LOG.md", "action": { "text": "Remove", "status": "gap" }, "confidence": "Medium", "evidence": "Authoring provenance log, not agent instruction; also leaks /Users/jesse paths", "status": { "text": "Awaiting approval", "status": "info" } },
+          { "item": "writing-skills/anthropic-best-practices.md", "action": { "text": "Replace with summary", "status": "warn" }, "confidence": "Medium", "evidence": "1,150-line raw Mintlify scrape with broken img/CardGroup markup and CDN URLs that render as noise", "status": { "text": "Awaiting approval", "status": "info" } },
+          { "item": "requesting-code-review/code-reviewer.md", "action": { "text": "Remove or wire", "status": "gap" }, "confidence": "Medium", "evidence": "Orphan placeholder template; not under src/templates/agents/; referenced by nothing in the build", "status": { "text": "Awaiting approval", "status": "info" } },
+          { "item": "requesting-code-review inline checklist (L63-89)", "action": { "text": "Merge into review-checklist", "status": "warn" }, "confidence": "Medium", "evidence": "Duplicates the dedicated review-checklist skill; two sources of truth for the same checklist", "status": { "text": "Awaiting approval", "status": "info" } }
+        ]
+      }
+    },
+    "keep-verdicts-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "VERIFIED — NO DELETION", "title": "All five cruft suspects survived adversarial review", "subtitle": "Each verdict is backed by git history, loader-code wiring, and doc citations" },
+      "children": ["keep-table"]
+    },
+    "keep-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "skill", "label": "Skill" },
+          { "key": "verdict", "label": "Verdict" },
+          { "key": "why", "label": "Why it stays" },
+          { "key": "followup", "label": "Follow-up" }
+        ],
+        "rows": [
+          { "skill": "writing-plans", "verdict": { "text": "Restored", "status": "match" }, "why": "Core planning node; 5 skills + init.js route to it. Body was accidentally wiped to 0 bytes in WIP commit 32e389c", "followup": { "text": "Done — restored from 50ec245", "status": "match" } },
+          { "skill": "weekly-status", "verdict": { "text": "Keep and wire", "status": "warn" }, "why": "Documented cap of the sprint flow (dx-flows UC8) but no runtime invoker exists", "followup": "Wire into --epic completion or a schedule; fix GNU-only date -d and .beads/ hard deps" },
+          { "skill": "gemini-agentic-cli", "verdict": { "text": "Keep", "status": "match" }, "why": "Shipped in v1.2.0; survived a deliberate keep/cut in commit bd26719. Docs still use pre-rename alias agentic-cli", "followup": "Reconcile naming in dx-flows.md and skill-testing-matrix.md" },
+          { "skill": "dep-audit", "verdict": { "text": "Keep", "status": "match" }, "why": "Jira-ticketed feature (CFBOLT-1952); on-demand trigger is its wiring by design", "followup": "Polish: npm-only manifests, Gemini-specific google_web_search" },
+          { "skill": "promoting-skills", "verdict": { "text": "Keep", "status": "match" }, "why": "Agent-facing playbook for shipped ulta skill promote; error table mirrors real ULTA_PROMOTE_* codes", "followup": "Fix one broken docs link" }
+        ]
+      }
+    },
+    "doc-actions-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "PENDING APPROVAL", "title": "Stale documentation", "subtitle": "Doc-vs-reality drift was the audit's dominant enterprise risk" },
+      "children": ["doc-table"]
+    },
+    "doc-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "doc", "label": "Doc" },
+          { "key": "action", "label": "Action" },
+          { "key": "confidence", "label": "Confidence" },
+          { "key": "evidence", "label": "Evidence" },
+          { "key": "status", "label": "Status" }
+        ],
+        "rows": [
+          { "doc": "AGENTS.md / CLAUDE.md body", "action": { "text": "Rewrite", "status": "gap" }, "confidence": "High", "evidence": "Describes the retired Gemini-extension era (build.js, gemini-cli-context/, load-context.py, .ulta/.system/) — contradicts README.md and docs/guides/cli-architecture.md", "status": { "text": "Awaiting approval", "status": "info" } },
+          { "doc": "prompt.md (repo root)", "action": { "text": "Archive", "status": "warn" }, "confidence": "High", "evidence": "Raw v2.0 session-handoff artifact; references plans moved to docs/_archive and unshipped features (beads first-class, MCP server, LLM-TLDR)", "status": { "text": "Awaiting approval", "status": "info" } },
+          { "doc": "docs/guides/dx-flows.md UC7 load-context.py step", "action": { "text": "Remove step", "status": "gap" }, "confidence": "High", "evidence": "Extension-era machinery; cli-architecture.md confirms no such runtime surface exists", "status": { "text": "Awaiting approval", "status": "info" } },
+          { "doc": "Context naming split across 4 governance docs", "action": { "text": "Reconcile", "status": "warn" }, "confidence": "High", "evidence": "skills.md / skill-governance.md / dx-flows.md / skill-testing-matrix.md still say 00-overview.md + 01-code-style.md; repo-context skill mandates business/architecture/delivery + .ulta/rules/ — actively breaks standards-code", "status": { "text": "Awaiting approval", "status": "info" } }
+        ]
+      }
+    },
+    "tier0-section": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "IN FLIGHT", "title": "Tier 0 fixes — team status", "subtitle": "Release-blocking repairs running now; none touch the items awaiting your approval" },
+      "children": ["tier0-timeline"]
+    },
+    "tier0-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          { "date": "Done", "title": "Restore writing-plans SKILL.md", "status": "completed", "description": "209 lines recovered verbatim from commit 50ec245; frontmatter verified; all four cross-skill references valid." },
+          { "date": "Done", "title": "Create 3 missing SDD dispatch templates", "status": "completed", "description": "implementer / spec-reviewer / code-quality-reviewer prompts copied from the canonical superpowers pack; already agent-neutral." },
+          { "date": "Running", "title": "Fix malformed frontmatter in 5 skills", "status": "in-progress", "description": "research-conductor, executing-plans, defense-in-depth, repo-automation, standards-testing — plus de-referencing 6 phantom skills." },
+          { "date": "Running", "title": "Repair finishing-a-development-branch", "status": "in-progress", "description": "Resolving 3 contradictory worktree-cleanup statements, the L111 placeholder bug, and branch-detection logic." },
+          { "date": "Running", "title": "Wire skill validation into CI", "status": "in-progress", "description": "Gate against 0-byte SKILL.md and malformed frontmatter so this class of rot cannot ship again." },
+          { "date": "Running", "title": "Draft docs/lifecycle.md", "status": "in-progress", "description": "One-page enterprise SDLC doc: distribution model, ownership layers, repo-context-first order, stage-to-skill map, governance loop." }
+        ]
+      }
+    }
+  }
+}

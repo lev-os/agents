@@ -1,0 +1,175 @@
+{
+  "meta": {
+    "title": "Grammar Lane Expansion — Strategy Roadmap",
+    "description": "Six parser strategies, each pinned to a real failing baseline row, each TDD'd failing-first.",
+    "fonts": ["Instrument Serif", "DM Sans", "JetBrains Mono"]
+  },
+  "theme": { "preset": "teal-slate", "mode": "dark" },
+  "root": [
+    "hero",
+    "kpis",
+    "foundation",
+    "roadmap-table",
+    "sequence",
+    "tdd-discipline",
+    "tooling-verdict"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "SUNNY-PC · task grammar-lane-expansion · lev validate PASS",
+        "title": "Grammar Lane Expansion",
+        "subtitle": "Turn the shadow Earley pilot into recovery + promotion",
+        "meta": "Pilot S0–S5 complete | 93.6% corpus | 99 grammar candidates shadow | 0 selected"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "Six strategies, sequenced W1 → W2 → W4 → W5 → W3 → W6. Each pins a named failing baseline row as its functioning use case, is built failing-test-first, and ships with guard fixtures so recall never erodes precision. Corpus claims go through `just baseline` only."
+      }
+    },
+    "kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "Status", "title": "Where we start" },
+      "children": ["kpi-s5", "kpi-start", "kpi-seq", "kpi-rule"]
+    },
+    "kpi-s5": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": "DONE", "label": "S5 closeout", "trend": { "direction": "up", "value": "committed 692c8b5e1" } }
+    },
+    "kpi-start": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": "W1", "label": "Start here", "trend": { "direction": "flat", "value": "coverage dimension" } }
+    },
+    "kpi-seq": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": "6", "label": "Strategies", "trend": { "direction": "flat", "value": "W1·W2·W4·W5·W3·W6" } }
+    },
+    "kpi-rule": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": "1 row", "label": "Per strategy", "trend": { "direction": "flat", "value": "+ guard fixtures" } }
+    },
+    "foundation": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "Cross-cutting", "title": "Coverage is a core baseline dimension, not a variant" },
+      "children": ["foundation-text"]
+    },
+    "foundation-text": {
+      "type": "text",
+      "props": {
+        "content": "Every baseline run gets it. The per-row metrics **already exist** — `runner.py` attaches `candidate_metrics_from_trace()` to each row today (source coverage, parser disagreement, shadow-lift opportunity, critical-slot risk). W1 is a corpus-level **roll-up** of those plus one display line. No re-parsing, no new measurement seam, no edits to live trace producers. That is why W1 is cheap and goes first: it is the scoreboard every later strategy is judged on."
+      }
+    },
+    "roadmap-table": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "Sequence", "title": "Strategy × pinned row × TDD" },
+      "children": ["table"]
+    },
+    "table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "seq", "label": "#" },
+          { "key": "ws", "label": "Strategy" },
+          { "key": "fixes", "label": "Pinned row it fixes" },
+          { "key": "tdd", "label": "TDD (failing-first)" },
+          { "key": "gate", "label": "Gate" }
+        ],
+        "rows": [
+          {
+            "seq": { "text": "W1", "status": "match" },
+            "ws": "Coverage dimension (roll-up)",
+            "fixes": "None — measures all 4 families every run",
+            "tdd": "Fixed candidate_trace fixtures → pinned roll-up numbers; multi-segment row; zero-grammar row (denominator)",
+            "gate": "Parity green; no parser imports in tooling"
+          },
+          {
+            "seq": { "text": "W2", "status": "warn" },
+            "ws": "Island parsing (affix pricing)",
+            "fixes": "a1 adiz p02t02 'SQUAWK 4231' in ADIZ verbiage · a1 adiz p06t02 'CONTACT GROUND … FOR PARKING'",
+            "tdd": "2 failing-first island fixtures (exact receipt text); 3 guard rows stay out-of-band; slot-anchor invariant",
+            "gate": "Islands parse w/ slots; agreement ≥ W1 snapshot"
+          },
+          {
+            "seq": { "text": "W4", "status": "warn" },
+            "ws": "Partial-evidence ranking",
+            "fixes": "'chain the freq to to my frew' → must name FREQUENCY (today: names longest row)",
+            "tdd": "1 diagnosis fixture per family; regression: crossed_final_approach NOT top partial",
+            "gate": "Top partial names true failing slot"
+          },
+          {
+            "seq": { "text": "W5", "status": "gap" },
+            "ws": "Row promotion register (HITL)",
+            "fixes": "ads_b turn_direction_heading · ads_b maintain_heading · b1 monitor_facility_frequency — all clean 0.0, pipeline fails today",
+            "tdd": "Flip selection by editing register DATA only; scan: no row-ids in code; same-session pre/post receipts; clean-band check",
+            "gate": "Only 3 rows flip; no drift elsewhere; guards enforced"
+          },
+          {
+            "seq": { "text": "W3", "status": "warn" },
+            "ws": "Repair pricing as governed data",
+            "fixes": "b1 heading 'Turn 30 D-E-G-R-E-S right' — dehyphenate → DEGRES → priced sub → DEGREES",
+            "tdd": "Override-one-cost fixture moves score; fail-closed loader tests; D-E-G-R-E-S fixture; guards hold",
+            "gate": "Table-driven (no scanner constants); fail-closed"
+          },
+          {
+            "seq": { "text": "W6", "status": "gap" },
+            "ws": "Segmentation proposals (shadow)",
+            "fixes": "The 15 compound failing rows — largest cluster; keyword splitter is shape-blind",
+            "tdd": "Splitter-equality fixtures (byte-identical); full-denominator telemetry (tiling_failed counted)",
+            "gate": "Splitter unchanged; agreement on all 15; parity"
+          }
+        ]
+      }
+    },
+    "sequence": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "Order", "title": "Dependency sequence — why this order" },
+      "children": ["seq-diagram"]
+    },
+    "seq-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "content": "graph LR\n  W1[\"W1 Coverage\\nscoreboard\"] --> W2[\"W2 Island parsing\\nadiz + parking\"]\n  W1 --> W4[\"W4 Partial ranking\\nfrew to FREQUENCY\"]\n  W2 --> W5[\"W5 Promotion\\n3 clean rows\"]\n  W4 --> W5\n  W5 --> W3[\"W3 Pricing data\\nD-E-G-R-E-S\"]\n  W2 --> W3\n  W2 --> W6[\"W6 Segmentation\\n15 compound\"]\n  W1 --> W6\n  W5 --> DONE([First banked score bump])",
+        "caption": "Measurement first; islands are the biggest recall lever and unlock compound; bank one narrow promotion before widening the repair surface."
+      }
+    },
+    "tdd-discipline": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "Discipline", "title": "Same TDD shape every strategy" },
+      "children": ["tdd1", "tdd2", "tdd3", "tdd4", "tdd5", "tdd6"]
+    },
+    "tdd1": { "type": "card", "variant": "elevated", "props": { "label": "STEP 1", "title": "Pin the row", "content": "Pull the exact failing utterance from the post-baseline receipt. The strategy exists to fix **that** row." } },
+    "tdd2": { "type": "card", "variant": "elevated", "props": { "label": "STEP 2", "title": "Fixture fails first", "content": "Unit fixture in `tests/unit/intent/grammar/` asserting the target parse/slot — red before any implementation." } },
+    "tdd3": { "type": "card", "variant": "elevated", "props": { "label": "STEP 3", "title": "Guard fixtures", "content": "The 3 never-promote rows get a fixture asserting they **stay** broken in-band. Recall must not erode precision." } },
+    "tdd4": { "type": "card", "variant": "elevated", "props": { "label": "STEP 4", "title": "Corpus roll-up", "content": "W1's coverage dimension shows the move at scale — agreement ratio must not drop. `just baseline` is the only truth." } },
+    "tdd5": { "type": "card", "variant": "elevated", "props": { "label": "STEP 5", "title": "Parity", "content": "`baseline-self-parity` green proves the change is deterministic and, where shadow, selection-neutral." } },
+    "tdd6": { "type": "card", "variant": "elevated", "props": { "label": "STEP 6", "title": "Receipt", "content": "Each slice commits a coverage-delta receipt so the win is auditable, not a prose claim." } },
+    "tooling-verdict": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "Decision", "title": "Baseline tooling: refactor verdict" },
+      "children": ["tooling-text"]
+    },
+    "tooling-text": {
+      "type": "text",
+      "props": {
+        "content": "**No rewrite.** The tooling is already factored sanely (runner 321 / display 613 / cli 487 / compare 282 LOC) and the per-row metric source of truth correctly lives in `pipeline_results.py`. The minimal right move: add one `tooling/baseline/coverage.py` that rolls up existing per-row `candidate_metrics` into a run-level `grammar_coverage` block, wire one call into runner's RunReport assembly, render one line in `display.py`. W5 also extends `compare.py` with a per-segment selected-winner mode (the multi-segment bug caught this session). That is the whole tooling footprint — additive, not a refactor of what works."
+      }
+    }
+  }
+}
