@@ -1,6 +1,6 @@
 ---
 name: ux
-description: "Routes wireframes, flows, product design, pencil visuals, and agentic CLI UX. Use for design systems, IA, or coding-agent export handoffs."
+description: "Routes UX/product design runs, user research/persona synthesis, wireframes, flows, IA, pencil visuals, and agentic CLI UX. Infers full run vs research vs CDO-backed persona mode from context, asking one question only when ambiguous."
 skill_type: hub
 category: design-ux
 related_skills:
@@ -9,6 +9,8 @@ related_skills:
   - lev-research
 hub_routes:
   ux-pipeline: "wireframe, flow, IA, journey, interaction, JTBD, task graph"
+  ux-research: "user research, synthetic research, personas, study design, persona matrix"
+  cdo-persona-insights: "cdo insights, deliberation artifacts, persona base, synthesis-informed research"
   design-os: "product design, vision, roadmap, data model, design system, export"
   pencil-mcp: "visual design, .pen file, mockup, design sweep"
   agentic-ux: "CLI design, progressive disclosure, prompt steering, CLI-as-prompt"
@@ -35,15 +37,30 @@ Request arrives
 +-- CLI / agentic UX patterns?
 |   -> Load Phase 0.5 lev-ref patterns (below)
 |
++-- User research / personas / study design?
+|   -> Run UX research mode:
+|      Step 1 persona detection + Step 2 persona fanout + domain exploration + problem framing + synthetic user research
+|      Optional: use CDO persona agents if CDO artifacts or "$cdo insights" are present
+|
 +-- UX pipeline (wireframes, flows, IA, JTBD)?
 |   -> Run 7-step pipeline (this skill body)
+|
++-- CDO insights / persona base / deliberation synthesis?
+|   -> Run persona detection, compose one CDO agent per situation-specific persona,
+|      then use those findings as persona seed material
+|      Continue into research mode or full pipeline depending on context
 |
 +-- "What design skills exist?" / browse?
 |   -> Query: ls ~/.agents/skills-db/design-ux/
 |      Deep:  ~/.agents/lev-skills.sh discover "{query}" --json --category=design
 |
 +-- Ambiguous?
-    -> Ask one clarifying question, then route
+    -> Infer from local/contextual signals first. If confidence < 0.75, ask one
+       clarifying question with these options:
+       1. Full UX run
+       2. User research/personas only
+       3. Persona base from CDO insights
+       4. Spike/wireframes only
 ```
 
 ## Skills-DB Design Catalog (skillsdb://design-ux/*)
@@ -74,7 +91,10 @@ Load from ~/.agents/skills-db/thinking/patterns/{name}/SKILL.md when reasoning d
 | Key | Action | Route |
 |-----|--------|-------|
 | (p) | Product design wizard | skill://lev-design-os |
-| (w) | Run UX pipeline | Steps 1-7 below |
+| (w) | Run UX pipeline | Persona-first steps + downstream UX phases below |
+| (f) | Full UX run | Step 1 persona detection + Step 2 persona fanout + full downstream pipeline |
+| (r) | User research/personas | Step 1 persona detection + Step 2 persona fanout + research synthesis |
+| (d) | CDO-backed persona base | Step 1 persona detection + Step 2 CDO persona fanout + research synthesis |
 | (v) | Visual design / .pen | Pencil MCP tools |
 | (c) | CLI/agentic UX patterns | Phase 0.5 lev-ref |
 | (b) | Browse design skills | lev-skill resolve |
@@ -87,15 +107,249 @@ Load from ~/.agents/skills-db/thinking/patterns/{name}/SKILL.md when reasoning d
 
 Treat the user's message (including any `/ux ...` text) as the input.
 
+- First run the **Intent Resolver** below. Do not default to AUTO until context
+  has been inspected.
+
+- If the input or nearby context contains `cdo`, `$cdo`, `CDO insights`,
+  `persona base`, `deliberation`, `synthesis`, `multi-agent`, or paths under
+  `tmp/cdo-*`, set mode to `cdo-research` unless the user explicitly asks for
+  only wireframes or only full pipeline.
+
+- If the input or nearby context contains `user research`, `synthetic research`,
+  `persona`, `study`, `interview`, `JTBD research`, or `research matrix`, set
+  mode to `research` unless the user explicitly requests full pipeline.
+
 - If it contains `full` or `interactive`: ask a small set of clarifying questions first, then run step-by-step.
 
-- If it contains `step N` (N=1..7): run only that step and update artifacts.
+- If it contains `step N`: in persona-first modes, `step 1` means Persona
+  Detection and `step 2` means Persona Fanout. Otherwise, match the named
+  downstream phase if provided.
 
 - If it contains `continue`: resume the most recent run folder under `.lev/ux/`.
 
-- If it contains `spike`: Skip directly to Step 7 (Wireframes). Sketch the interface based on the request alone — no analysis, no artifacts, just wireframes. After wireframes, optionally back-fill Steps 1-6 from what was drawn. This is prototype-first design.
+- If it contains `spike`: skip directly to the Wireframes phase. Sketch the interface based on the request alone — no analysis, no artifacts, just wireframes. After wireframes, optionally back-fill analysis from what was drawn. This is prototype-first design.
 
-- Otherwise: AUTO mode. Run all 7 steps end-to-end and produce wireframes.
+- If no mode is explicit:
+  - Infer `continue` if the user is referring to an existing `.lev/ux/` run.
+  - Infer `cdo-research` if CDO artifacts are attached, cited, or present as the
+    declared source of persona insight.
+  - Infer `research` if the request asks who the users are, what personas need,
+    what interviews/research should happen, or how to validate a UX/product
+    premise.
+  - Infer `full` if the request asks for an end-to-end product/UX package,
+    flows, IA, research, and wireframes together.
+  - Infer `spike` if the request asks to sketch, mock, wireframe, or make screens
+    quickly with little analysis.
+
+- If inference confidence is below `0.75`, ask exactly one clarifying question:
+  `Should I run the full UX pipeline, user research/personas only, persona base from CDO insights, or spike/wireframes only?`
+
+- In any non-auto mode except `spike`, `continue`, or explicit `step N`, use
+  the persona-first sequence:
+  - Step 1: Persona Detection.
+  - Step 2: Persona Fanout.
+  - Step 3: Synthesis into problem framing, research, JTBD, or full UX pipeline.
+  Do not skip straight to problem framing unless the user explicitly says to.
+
+- Otherwise: AUTO mode. Run the downstream UX pipeline end-to-end and produce wireframes.
+
+## Intent Resolver
+
+Before Phase -1, compile a small routing record:
+
+```yaml
+ux_intent:
+  inferred_mode: full | auto | interactive | research | cdo-research | spike | continue | step
+  confidence: 0.0
+  evidence:
+    - "explicit token, nearby context, artifact path, user correction, or prior run"
+  ask_if_below_confidence: 0.75
+  clarification_question: "Should I run the full UX pipeline, user research/personas only, persona base from CDO insights, or spike/wireframes only?"
+```
+
+Context signals to inspect:
+
+- Current user message and the last few user corrections.
+- Files or attachments named by the user.
+- Existing `.lev/ux/` runs.
+- CDO outputs under `tmp/cdo-*`, `.lev/pm/`, or paths named by the user.
+- Product/domain artifacts already on disk.
+- Whether the user is asking to design the product, validate the users, create
+  personas, or draw screens.
+
+Routing rules:
+
+- `research`: run Step 1 Persona Detection, Step 2 Persona Fanout, Problem
+  Framing, Synthetic User Research, then write `summary.md` and
+  `constraint_bundle.yaml` if the signal is strong enough. Do not continue into
+  wireframes unless the user asked for full pipeline or the gate decision is
+  `proceed` and AUTO mode is active.
+- `cdo-research`: run Step 1 Persona Detection, Step 2 CDO Persona Fanout, then
+  Synthetic User Research using CDO findings as persona seed material. Continue
+  into full UX only if requested or inferred with high confidence.
+- `full`: run Step 1 Persona Detection, Step 2 Persona Fanout, Step 0b, then
+  continue through the full downstream UX pipeline.
+- `auto`: run Step 0b through the full downstream UX pipeline unless self-invalidation aborts.
+- `spike`: run Wireframes only.
+- `continue`: resume latest or explicitly named run.
+
+Do not ask the clarifying question if the user already selected a mode in plain
+English. "Let's do research first" means `research`; "base personas on CDO" means
+`cdo-research`; "full run" means `full`.
+
+## Persona Detection Gate
+
+In `full`, `interactive`, `research`, and `cdo-research` modes, persona
+detection is the first step unless the user explicitly bypasses it.
+
+Naming rule: in non-auto mode this is Step 1. Step 2 is Persona Fanout. Problem
+framing happens after fanout synthesis. In AUTO mode, keep the existing pipeline
+numbering but still run this gate when research/persona context is relevant.
+
+Write `persona_detection.yaml`:
+
+```yaml
+persona_detection:
+  source_context:
+    - "user request, attachments, prior artifacts, CDO outputs, repo/product docs"
+  situation: "{what situation these personas are reacting to}"
+  domain: "{domain or market}"
+  likely_persona_axes:
+    - axis: "{role, authority, risk tolerance, domain expertise, buyer/user, technical literacy, urgency, trust posture}"
+      why_it_matters: "{why this axis changes UX/research response}"
+  candidate_personas:
+    - id: "{persona-id}"
+      role: "{domain-specific role}"
+      personality_type: "{behavioral archetype specific to the situation, not MBTI by default}"
+      context: "{what they know, need, fear, control, and misunderstand}"
+      primary_question: "{what this persona needs answered}"
+      likely_objection: "{what would make them reject the product/design}"
+      source: named_person | role | investor | consumer | buyer | operator | gatekeeper | synthetic
+      named_person: "{name if persona is based on a specific stakeholder, else null}"
+  confidence: 0.0
+  ask_user_if_below: 0.75
+```
+
+Persona source rule:
+
+- If local context names people, each named person plus their role becomes a
+  candidate persona unless the user excludes them. Example: founder, COO,
+  CEO-track, marketing lead, UX researcher.
+- Always consider outside-market personas when relevant: investors, consumers,
+  buyers/customers, operators, compliance/risk gatekeepers, and strategic
+  partners.
+- Do not flatten named people into generic roles. "Steve as Argo/Kingly COO" and
+  "Lewis as Argo CEO-track" are different personas because their incentives,
+  authority, risk, and objections differ.
+- For Argo/Kingly-style venture work, default persona pool is:
+  - each named team member + role;
+  - sponsor founders;
+  - investors;
+  - customers/buyers;
+  - consumers/end users;
+  - strategic partners;
+  - risk/legal/compliance gatekeepers.
+
+If confidence is below `0.75`, ask one question:
+
+```text
+Which persona base should I use: real users/buyers, internal operators, CDO-derived personality agents, or all of the above?
+```
+
+If confidence is high, continue without asking and explain the inferred persona
+base in `summary.md`.
+
+## Step 2: Persona Fanout
+
+Persona Fanout turns `persona_detection.yaml` into parallel persona responses.
+Use it in `research`, `cdo-research`, `full`, and `interactive` modes after
+Step 1.
+
+Write `persona_fanout.md`:
+
+```md
+# Persona Fanout
+
+## Fanout Matrix
+
+| Persona | Source | Role | Question Asked | Output Artifact |
+|---|---|---|---|---|
+
+## Cross-Persona Synthesis
+
+- Convergent needs:
+- Divergent needs:
+- Objections:
+- Trust signals:
+- Language that resonates:
+- UX/research implications:
+- Cap table/package/product implications, if relevant:
+```
+
+Fanout prompt for each persona:
+
+```text
+You are {persona_id}, a {role} in this situation: {situation}.
+Respond from your own incentives, authority, fears, and practical constraints.
+Do not optimize for what the product team wants to hear.
+
+Return:
+1. What you need.
+2. What you distrust.
+3. What would make you engage.
+4. What would make you reject this.
+5. What language sounds credible to you.
+6. What evidence or milestone would change your mind.
+7. UX/product/research implications.
+```
+
+If CDO is not requested, fanout may be run as synthetic persona responses. If
+CDO is requested or inferred, use CDO Persona Agent Mode below.
+
+## CDO Persona Agent Mode
+
+When mode is `cdo-research`, each CDO agent should be a
+situation-specific personality/persona, not a generic expert role.
+
+The agent set should be derived from `persona_detection.yaml`. Each agent brief
+must include:
+
+- Persona role and authority.
+- Situation they are responding to.
+- Personality/archetype in practical UX terms, not default MBTI labels.
+- What they want.
+- What they distrust.
+- What evidence would change their mind.
+- What they would do if confused.
+- Output format: needs, objections, trust signals, language that resonates,
+  failure modes, and design/research implications.
+
+Examples:
+
+- Skeptical enterprise buyer.
+- Time-starved operator.
+- Status-sensitive executive sponsor.
+- Domain expert who distrusts generic AI.
+- Novice user with high anxiety.
+- Compliance/risk gatekeeper.
+- Growth/marketing opportunist.
+
+CDO composition rule:
+
+```yaml
+cdo_persona_agents:
+  source: persona_detection.yaml
+  composition: "one agent per candidate persona/personality type; include each named person + role, investors, and consumers/customers when relevant"
+  synthesis_goal: "convert persona reactions into research constraints, JTBD inputs, anti-patterns, and UX risks"
+  output_artifacts:
+    - persona_fanout.md
+    - cdo_insights.md
+    - persona_source_map.yaml
+```
+
+If actual CDO/agent dispatch is unavailable, create the proposed CDO persona
+matrix and ask before substituting single-model synthetic responses. Do not
+pretend a multi-agent run occurred.
 
 ## Output Location
 
@@ -114,6 +368,16 @@ Artifacts (expected):
 - `study_design.yaml`
 
 - `user_and_agent_research.md`
+
+- `cdo_insights.md` (only in `cdo-research` or when CDO artifacts are used)
+
+- `persona_detection.yaml` (required for non-auto `full`, `interactive`,
+  `research`, and `cdo-research`)
+
+- `persona_fanout.md` (required after `persona_detection.yaml` in non-auto
+  research/full/cdo-research)
+
+- `persona_source_map.yaml` (only in `research` or `cdo-research`)
 
 - `routed_skills.json`
 
@@ -197,7 +461,7 @@ sed -n '1,220p' docs/_inbox/lev-ref/SKILL.md
 Route to specialized skills using the Hub Decision Tree above.
 
 1. Check hub_routes (frontmatter) for trigger match against request keywords.
-   - If match -> load that skill, optionally resume pipeline at Step 3+.
+   - If match -> load that skill, optionally resume after persona fanout or at the named downstream phase.
 
 2. If no hub_route match, query skills-db dynamically:
 
@@ -251,7 +515,7 @@ Ask each persona (via tribunal or Agent dispatch):
 
 ### 0b.3: Compare with Intended Problem
 
-After collecting responses, compare their unprompted concerns with the problem you planned to frame in Step 1.
+After collecting responses, compare their unprompted concerns with the problem you planned to frame in the Problem Framing phase.
 
 - **Strong overlap**: Your problem framing is grounded. Proceed.
 - **Partial overlap**: Adjust problem_spec to incorporate concerns you missed.
@@ -259,9 +523,9 @@ After collecting responses, compare their unprompted concerns with the problem y
 
 Write `domain_exploration.md` with personas, responses, and comparison.
 
-**Why this exists**: Step 1b (synthetic user research) constructs personas FROM the problem_spec, which means they can't say "you're solving the wrong problem." Step 0b breaks that circular validation by exploring the domain before committing to a problem frame.
+**Why this exists**: Synthetic User Research constructs personas FROM the problem_spec, which means they can't say "you're solving the wrong problem." Step 0b breaks that circular validation by exploring the domain before committing to a problem frame.
 
-## Step 1: Problem Framing
+## Problem Framing
 
 Write `problem_spec.yaml`:
 
@@ -284,9 +548,9 @@ Rules:
 
 - Keep scope boundaries crisp.
 
-## Step 1b: Synthetic User Research
+## Synthetic User Research
 
-**Depends on**: Step 1 (`problem_spec.yaml` must exist)
+**Depends on**: `problem_spec.yaml` must exist.
 **Reference**: Load `references/study-construction.md` for methodology.
 
 ### 1b.1: Design the Study
@@ -353,7 +617,7 @@ Write `user_and_agent_research.md`:
 
 - **Edge cases**: Unexpected reactions at low/high reasoning strength. Insights that only one persona × model combination surfaced.
 
-Feed into Step 2 (JTBD):
+Feed into JTBD:
 
 - Convergent concerns → constraints for job statements
 
@@ -367,8 +631,8 @@ Feed into Step 2 (JTBD):
 
 After collecting results, evaluate whether the pipeline should continue:
 
-- **gate_decision: proceed** — Clear signal. Personas differentiated. Convergence/divergence is actionable. Continue to Step 2.
-- **gate_decision: reframe** — Step 0b concerns diverge significantly from Step 1 problem_spec, OR personas surfaced a better problem. Go back to Step 1 and revise problem_spec.
+- **gate_decision: proceed** — Clear signal. Personas differentiated. Convergence/divergence is actionable. Continue to JTBD.
+- **gate_decision: reframe** — Step 0b concerns diverge significantly from `problem_spec.yaml`, OR personas surfaced a better problem. Go back to Problem Framing and revise `problem_spec.yaml`.
 - **gate_decision: abort** — ALL personas across ALL models say "just build and iterate" or equivalent. OR convergence is below useful threshold (too much noise, no clear signal). Recommend a different approach: rapid prototyping, traditional user interviews, design sprint, or just-build-it.
 
 A pipeline that can't recommend against itself isn't honest. If the research says this tool is wrong for this problem, say so and stop.
@@ -383,7 +647,7 @@ Append `gate_decision` to `user_and_agent_research.md`. If `abort`, write `summa
 
 - `domain_exploration.md` (Step 0b output, if run)
 
-## Step 2: Jobs To Be Done (JTBD)
+## JTBD: Jobs To Be Done
 
 Write `jobs.graph.json`:
 
@@ -407,7 +671,7 @@ Rules:
 
 - Include at least one emotional or social job if relevant.
 
-## Step 3: Task Decomposition
+## Task Decomposition
 
 Write `task_graph.json`:
 
@@ -433,7 +697,7 @@ Rules:
 
 - Keep tasks at a UI-actionable granularity.
 
-## Step 4: Information Architecture (IA)
+## Information Architecture (IA)
 
 Write `ia_schema.json`:
 
@@ -456,7 +720,7 @@ Rules:
 
 - Avoid navigation that doesn't map to an entity or job.
 
-## Step 5: Interaction Models
+## Interaction Models
 
 Write `interaction_fsm.json`:
 
@@ -482,7 +746,7 @@ Rules:
 
 - Call out accessibility considerations if there's complex interaction.
 
-## Step 6: Components
+## Components
 
 Write `components.md`:
 
@@ -496,7 +760,7 @@ Rules:
 
 - Name components after user intent (not implementation).
 
-## Step 7: Wireframes
+## Wireframes
 
 Write `wireframes.md`:
 
@@ -514,7 +778,7 @@ Write `wireframes.md`:
 
 If the user asks for a design-file deliverable, propose using the `pencil` tool to generate a `.pen` wireframe and confirm the target path under `.lev/ux/`.
 
-## Step 8: Constraint Bundle
+## Constraint Bundle
 
 Write `constraint_bundle.yaml` — a compressed, agent-optimized summary of the entire run. This is what an agent consumes as context before implementing UI.
 
