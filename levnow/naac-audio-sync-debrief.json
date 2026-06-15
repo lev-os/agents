@@ -1,0 +1,358 @@
+{
+  "meta": {
+    "title": "NAAC Audio Sync Debrief",
+    "description": "A compact debrief comparing the local drone checkout, the M3 naac checkout, Google Drive audio visibility, DVC materialization, and the repeatable setup decision.",
+    "layout": "sidebar-toc",
+    "fonts": ["IBM Plex Sans", "IBM Plex Mono"],
+    "effects": ["grid-dots", "title-underline"]
+  },
+  "theme": {
+    "preset": "amber-emerald",
+    "mode": "light"
+  },
+  "root": [
+    "hero",
+    "kpis",
+    "verdict",
+    "machine-comparison",
+    "inventory",
+    "flow",
+    "decision-table",
+    "commands",
+    "next-actions"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "NAAC AUDIO DATASET SETUP",
+        "title": "Audio Sync Debrief",
+        "subtitle": "The M3 audit did not find the same world as this drone checkout. Treat that as signal: repo-local audio, DVC materialization, and Google Drive sync are currently three different surfaces.",
+        "meta": "Generated 2026-06-13 from M3 audit attachment plus live /production/drone refresh"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "The immediate decision is not model training. It is to standardize the audio root contract: keep DVC-managed repo materialization separate from Google Drive dataset sync, and pass explicit `--audio-root` values until a canonical Drive root is selected and verified."
+      }
+    },
+    "kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "Snapshot",
+        "title": "What changed after reading the M3 audit"
+      },
+      "children": ["kpi-m3-mp3", "kpi-drone-mp3", "kpi-drive", "kpi-action"]
+    },
+    "kpi-m3-mp3": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "50,999",
+        "label": "M3 repo MP3s across LiveATC classes",
+        "trend": { "direction": "up", "value": "repo-local / DVC materialized" }
+      }
+    },
+    "kpi-drone-mp3": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "2,062",
+        "label": "current drone repo MP3s",
+        "trend": { "direction": "flat", "value": "class-g-ctaf only" }
+      }
+    },
+    "kpi-drive": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "2",
+        "label": "Drive surfaces on this machine",
+        "trend": { "direction": "flat", "value": "Shared Drive + shortcut target" }
+      }
+    },
+    "kpi-action": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "0",
+        "label": "canonical audio roots chosen",
+        "trend": { "direction": "down", "value": "must choose before symlink" }
+      }
+    },
+    "verdict": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "Verdict",
+        "title": "Do not treat these machines as synced yet"
+      },
+      "children": ["verdict-left", "verdict-right"]
+    },
+    "verdict-left": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "M3 audit result",
+        "content": "M3 audited `/production/naac`, not `/production/drone`. It did not find a usable NAAC Google Drive audio root. Its `data/audio` is a normal directory with large local/DVC materialization."
+      }
+    },
+    "verdict-right": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "This machine result",
+        "content": "The current `/production/drone` checkout also has normal repo-local `data/audio`, but Google Drive Desktop does expose `Clients/NAAC/Data/audio` and a shortcut-target LiveATC archive path."
+      }
+    },
+    "machine-comparison": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Machine Matrix",
+        "title": "M3 vs this drone checkout"
+      },
+      "children": ["machine-table"]
+    },
+    "machine-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "axis", "label": "Axis" },
+          { "key": "m3", "label": "M3 audit" },
+          { "key": "drone", "label": "Current drone refresh" },
+          { "key": "meaning", "label": "What it means" },
+          { "key": "status", "label": "Status" }
+        ],
+        "rows": [
+          {
+            "axis": "Repo path",
+            "m3": "/Users/.../production/naac",
+            "drone": "/Users/.../production/drone",
+            "meaning": "The M3 agent did not audit the requested path because it was missing there.",
+            "status": { "text": "mismatch", "status": "warn" }
+          },
+          {
+            "axis": "Branch",
+            "m3": "Sunny-PC, parent behind 23, data behind 7",
+            "drone": "Sunny-PC, current checkout present",
+            "meaning": "M3 may be stale relative to current drone work.",
+            "status": { "text": "check before sync", "status": "warn" }
+          },
+          {
+            "axis": "data/audio type",
+            "m3": "Normal directory, not symlink",
+            "drone": "Normal directory, not symlink",
+            "meaning": "Neither repo is wired to Drive through `data/audio`.",
+            "status": { "text": "confirmed", "status": "match" }
+          },
+          {
+            "axis": "Tracked audio metadata",
+            "m3": "class-d-towered.dvc, class-g-ctaf.dvc, jobs.dvc",
+            "drone": "same three .dvc pointers",
+            "meaning": "Git tracks DVC metadata, not raw audio payloads.",
+            "status": { "text": "aligned", "status": "match" }
+          },
+          {
+            "axis": "Materialized repo audio",
+            "m3": "class-b, class-c, class-d, class-d-towered, class-g-ctaf, jobs, logs",
+            "drone": "class-g-ctaf, jobs",
+            "meaning": "M3 has much more local audio than this checkout.",
+            "status": { "text": "drift", "status": "gap" }
+          },
+          {
+            "axis": "Google Drive audio root",
+            "m3": "No usable NAAC audio root found; argomarine Drive provider stalled",
+            "drone": "Shared Drive path exists; shortcut-target LiveATC archives exist",
+            "meaning": "Drive account/root setup differs by machine.",
+            "status": { "text": "blocked on standard", "status": "warn" }
+          }
+        ]
+      }
+    },
+    "inventory": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Inventory",
+        "title": "Audio counts and roots worth keeping straight"
+      },
+      "children": ["inventory-table"]
+    },
+    "inventory-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "surface", "label": "Surface" },
+          { "key": "path", "label": "Path" },
+          { "key": "contents", "label": "Observed contents" },
+          { "key": "authority", "label": "Authority role" },
+          { "key": "action", "label": "Action" }
+        ],
+        "rows": [
+          {
+            "surface": "M3 repo audio",
+            "path": "/production/naac/data/audio",
+            "contents": "All top-level datasets plus LiveATC archive classes; 50,999 MP3s reported",
+            "authority": "Local DVC/materialized payload only",
+            "action": "Use explicit repo-local `--audio-root` on M3 until Drive root is fixed"
+          },
+          {
+            "surface": "Drone repo audio",
+            "path": "/production/drone/data/audio",
+            "contents": "Only `liveatc`; class-g-ctaf=2062 MP3s; jobs=0 MP3; 4.6G",
+            "authority": "Partial local materialization",
+            "action": "Do not infer this is a full training corpus"
+          },
+          {
+            "surface": "Drone Shared Drive",
+            "path": "~/Library/CloudStorage/GoogleDrive-jp@kinglystudio.ai/Shared drives/Clients/NAAC/Data/audio",
+            "contents": "ATCO2, atc_asr_dataset, atcosim, liveatc, uwb_atcc; about 13G locally visible",
+            "authority": "Candidate canonical Drive dataset root",
+            "action": "Prefer this as the human-readable canonical root if archives are moved or exposed here"
+          },
+          {
+            "surface": "Drone shortcut target",
+            "path": "~/Library/CloudStorage/GoogleDrive-jp@kinglystudio.ai/.shortcut-targets-by-id/.../audio/liveatc/archives",
+            "contents": "class-b, class-c, class-d, class-d-towered, class-g-ctaf, jobs, logs",
+            "authority": "Currently exposes useful archive tree, but path is opaque",
+            "action": "Do not make this the long-term documented root unless folder ID is captured"
+          }
+        ]
+      }
+    },
+    "flow": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": {
+        "label": "Setup Model",
+        "title": "Repeatable audio setup should separate four concerns"
+      },
+      "children": ["flow-1", "flow-2", "flow-3", "flow-4"]
+    },
+    "flow-1": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "1. Source of files",
+        "content": "Google Drive Shared Drive or local DVC materialization. This is where bytes live."
+      }
+    },
+    "flow-2": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "2. Local resolver",
+        "content": "`NAAC_AUDIO_ROOT` or explicit `--audio-root`. This is what tools read."
+      }
+    },
+    "flow-3": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "3. Optional symlink",
+        "content": "`data/audio` can become an uncommitted symlink only after the canonical Drive root is chosen."
+      }
+    },
+    "flow-4": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "4. Verifier",
+        "content": "A small audit command should prove root exists, classes exist, counts are plausible, and stale absolute paths are flagged."
+      }
+    },
+    "decision-table": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Decision",
+        "title": "What to do now"
+      },
+      "children": ["decision-data"]
+    },
+    "decision-data": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Decision", "Answer", "Why", "Owner"],
+        "rows": [
+          ["Should we symlink `data/audio` now?", { "text": "No", "status": "warn" }, "M3 has existing DVC/materialized audio and this machine has two competing Drive roots. A symlink now would hide the mismatch.", "JP / repo onboarding"],
+          ["What should tools use today?", { "text": "Explicit root", "status": "match" }, "Pass `--audio-root` or set `NAAC_AUDIO_ROOT` per machine. This keeps setup reversible.", "All agents"],
+          ["Which Drive root is preferred?", { "text": "Shared Drive", "status": "info" }, "The human-readable `Clients/NAAC/Data/audio` path is easier to document than `.shortcut-targets-by-id`.", "JP / Sunny"],
+          ["What needs M3 follow-up?", { "text": "Drive account/root fix", "status": "gap" }, "M3 found no usable NAAC Drive root and appears to be on `argomarine.ai` Drive provider.", "M3 agent"],
+          ["What needs Sunny follow-up?", { "text": "Dataset provenance", "status": "warn" }, "Need the exact iter4 data source, training method, audio treatment, and where Sunny's audio is synced.", "Sunny / agent"]
+        ]
+      }
+    },
+    "commands": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "Commands",
+        "title": "Useful command shapes"
+      },
+      "children": ["cmd-block"]
+    },
+    "cmd-block": {
+      "type": "code-block",
+      "props": {
+        "language": "bash",
+        "filename": "audio-root-audit.sh",
+        "showLineNumbers": true,
+        "content": "repo=/Users/jean-patricksmith/digital/kingly/apps/production/drone\ncd \"$repo\"\n\n# repo-local materialization\ngit -C data ls-files 'audio/liveatc/archives/*.dvc'\nstat -f '%N | type=%HT | link-target=%Y' data/audio data/audio/liveatc data/audio/liveatc/archives\nfind data/audio/liveatc/archives -mindepth 1 -maxdepth 1 -type d -exec basename {} \\; | sort\n\n# Drive candidates\nfind \"$HOME/Library/CloudStorage\" -maxdepth 5 -type d -iname '*audio*' 2>/dev/null | sort\n\n# Current explicit source-root style\nuv run --extra liveatc liveatc-train \\\n  --audio-root /ABSOLUTE/PATH/TO/audio/liveatc \\\n  --out-root data/training/liveatc \\\n  --profile fast-local"
+      }
+    },
+    "next-actions": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "Next",
+        "title": "Immediate follow-ups"
+      },
+      "children": ["next-1", "next-2", "next-3", "next-4"]
+    },
+    "next-1": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "JP machine",
+        "title": "Choose canonical Drive root",
+        "content": "Decide whether `Clients/NAAC/Data/audio` becomes canonical and move/expose LiveATC archives there, or document the shortcut-target folder ID explicitly."
+      }
+    },
+    "next-2": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "M3",
+        "title": "Repair Drive visibility",
+        "content": "M3 should install/sign into the correct Google Drive account, verify Shared Drive access, and rerun the same audit against `/production/drone` if that checkout exists."
+      }
+    },
+    "next-3": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "Repo",
+        "title": "Add onboarding verifier",
+        "content": "Document `NAAC_AUDIO_ROOT`, explicit `--audio-root`, DVC materialization, and a no-destructive audit command. Do not create a symlink until root choice is final."
+      }
+    },
+    "next-4": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "Iter5",
+        "title": "Keep training gated",
+        "content": "The iter5 exporter plan should consume explicit audio roots and provenance. It should not infer corpus authority from whichever local folder happens to be hydrated."
+      }
+    }
+  }
+}
