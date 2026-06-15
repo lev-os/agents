@@ -1,0 +1,187 @@
+{
+  "meta": {
+    "title": "Grammar System — Architecture, Compounds, Roadmap, Status",
+    "description": "How the hand-rolled Earley grammar fits together, how compounds are handled, where we are, and the recovered open questions.",
+    "fonts": ["Instrument Serif", "DM Sans", "JetBrains Mono"]
+  },
+  "theme": { "preset": "teal-slate", "mode": "dark" },
+  "root": [
+    "hero",
+    "status-kpis",
+    "arch-section",
+    "arch-diagram-section",
+    "recognizer-section",
+    "compound-section",
+    "compound-diagram-section",
+    "roadmap-section",
+    "questions-section"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "GRAMMAR SYSTEM · ARCHITECTURE + STATUS",
+        "title": "How it all fits together",
+        "subtitle": "Our own Earley engine (~1329 LOC, zero parser deps). Reverse-Earley repair is intrinsic, not a mode. Compounds = chart islands + weighted-interval tiling.",
+        "meta": "S0–S5 complete · W1 landed · W2 running · 4 of ~38 families"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "You didn't roll a regex sliding window — the Earley chart already IS the windowed span search (a well-formed substring table built by dynamic programming). This page shows the architecture, how compounds work on that chart, the live roadmap, and the questions that were getting lost."
+      }
+    },
+
+    "status-kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "Live status", "title": "Where we are" },
+      "children": ["k1", "k2", "k3", "k4"]
+    },
+    "k1": { "type": "card", "variant": "kpi", "props": { "value": "S0–S5", "label": "Pilot", "trend": { "direction": "up", "value": "complete + committed" } } },
+    "k2": { "type": "card", "variant": "kpi", "props": { "value": "W1", "label": "Coverage dim", "trend": { "direction": "up", "value": "landed 9c0923d4f" } } },
+    "k3": { "type": "card", "variant": "kpi", "props": { "value": "W2", "label": "Island parsing", "trend": { "direction": "flat", "value": "running now" } } },
+    "k4": { "type": "card", "variant": "kpi", "props": { "value": "4 / 38", "label": "Families", "trend": { "direction": "down", "value": "expansion = next phase" } } },
+
+    "arch-section": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "Architecture", "title": "Did we roll our own? Yes — and it's layered, not spaghetti" },
+      "children": ["arch-text"]
+    },
+    "arch-text": {
+      "type": "text",
+      "props": {
+        "content": "`modules/intent/grammar/` is a hand-built Earley engine — **no lark, no nltk, no spacy**. Deliberate: the no-new-deps rule plus full control over the priced repair model that off-the-shelf parsers don't give you. It's already split by responsibility:\n\n- **grammar_ir** — immutable domain types (Production, Symbol), pure, no IO\n- **scanner** — tokenize + zero-cost normalization + match costs\n- **lexemes** — `LexemeResolver` Protocol + registry (strategy pattern: one resolver per slot family)\n- **template_compiler** — authority rows → productions (fail-closed)\n- **earley** — the chart parser (predict/scan/complete) + priced repair + partials\n- **engine** — `GrammarEngine` factory (fail-closed) + `candidates_for`\n- **semantics** — ParseResult → typed Candidate projection\n- **provider** — `GrammarCandidateProvider`, the pipeline adapter\n\n**Reverse-Earley is intrinsic, not a setting.** Every parse already emits a repair ledger — that ledger *is* the corrected-transcript diff. Affix pricing (W2) and governed pricing (W3) extend the cost model; they are not separate modes."
+      }
+    },
+    "arch-diagram-section": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "Layers", "title": "Ports, adapters, and where recognizers plug in" },
+      "children": ["arch-diagram"]
+    },
+    "arch-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "Domain is pure; the provider is the only thing that crosses into the pipeline. Config is a value object, so strict + loose profiles are just instances.",
+        "content": "flowchart TD\n  TPL[\"authority templates\"] --> COMP[\"template_compiler\\n(fail-closed)\"]\n  COMP --> IR[\"grammar_ir\\nProduction/Symbol\"]\n  IR --> CHART[\"earley chart\\npredict/scan/complete\\n+ priced repair\"]\n  SCAN[\"scanner\\nnormalize + costs\"] --> CHART\n  LEX[\"lexemes\\nresolver registry\\n(strategy per slot)\"] --> CHART\n  CFG[\"ParserConfig\\n(strict | loose split-detection)\"] --> CHART\n  CHART --> SEM[\"semantics\\nParseResult to Candidate\"]\n  SEM --> ENG[\"GrammarEngine\\nfactory\"]\n  ENG --> PROV[\"GrammarCandidateProvider\\n(adapter)\"]\n  PROV --> PIPE[\"PolicyChain pipeline\\n(only selector)\"]"
+      }
+    },
+
+    "recognizer-section": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "Build for multiple", "title": "The one abstraction to add (and the one to skip)" },
+      "children": ["recognizer-text"]
+    },
+    "recognizer-text": {
+      "type": "text",
+      "props": {
+        "content": "**Multiple configs already work.** `ParserConfig` is a value object, so the strict candidate parser and the loose split-detection parser (your compound idea) are just two instances — no new abstraction.\n\n**Multiple recognizer *types* need one thin port.** Today `GrammarEngine` is concrete. To hold grammar *and* a future regex spotter without spaghetti, define a small `Recognizer` Protocol — `(text, config) → span hypotheses` — and make Earley the first implementer. Decision: **add the port when W6 lands** (the splitter is the first place that holds more than one recognizer); build only the port + Earley adapter, **not** the regex implementer (deferred). The seam exists, clean, and the regex spotter drops in later with zero refactor."
+      }
+    },
+
+    "compound-section": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "Compounds", "title": "How compounds are handled — no 'first n', no separate WFST" },
+      "children": ["compound-text"]
+    },
+    "compound-text": {
+      "type": "text",
+      "props": {
+        "content": "Two steps, both on the same chart:\n\n1. **W2 island parsing** lets the chart accept a **sub-span** — a command embedded in verbiage — each with intent + slots. The Earley chart already enumerates every `(start, end)` span as dynamic programming, so **the chart IS the well-formed substring table**. There's no separate WFST and no manual 'take the first n words' loop — that sliding window is the brute-force form of what the chart computes in one pass.\n2. **W6 tiling** selects the best **non-overlapping** set of islands via **weighted interval scheduling** (max-weight independent set on an interval graph), pricing the connector tokens between islands. The tiling runs under a **looser split-detection config** that is structurally unable to emit a selectable candidate — it only proposes boundaries, in shadow.\n\nSo it's **Earley (fills the chart) + weighted-interval tiling on top**, not 'WFST + Earley' as two components."
+      }
+    },
+    "compound-diagram-section": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "Compound flow", "title": "One utterance → islands → tiled proposal" },
+      "children": ["compound-diagram"]
+    },
+    "compound-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "The chart finds every command island; weighted-interval scheduling picks the non-overlapping cover; it runs in shadow next to the keyword splitter.",
+        "content": "flowchart TD\n  U[\"turn left 270 descend and maintain 3000 contact tower 119.3\"]\n  U --> CH[\"Earley chart (the WFST)\\nall spans, DP — W2 islands\"]\n  CH --> I1[\"island: turn_direction_heading\\nspan 1-3\"]\n  CH --> I2[\"island: descend_and_maintain\\nspan 4-7\"]\n  CH --> I3[\"island: contact_facility_frequency\\nspan 8-11\"]\n  I1 --> WIS[\"weighted interval scheduling\\nmax-weight non-overlapping cover\\n(W6, loose split profile)\"]\n  I2 --> WIS\n  I3 --> WIS\n  WIS --> PROP[\"segmentation proposal\\n+ per-island intents\"]\n  PROP --> SHADOW[\"SHADOW: measured vs keyword splitter\\nno split decision changed\"]"
+      }
+    },
+
+    "roadmap-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "Roadmap", "title": "The six workstreams + what's done" },
+      "children": ["roadmap-table"]
+    },
+    "roadmap-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "id", "label": "#" },
+          { "key": "name", "label": "Workstream" },
+          { "key": "state", "label": "State" },
+          { "key": "note", "label": "What it does / found" }
+        ],
+        "rows": [
+          { "id": { "text": "S0–S5", "status": "match" }, "name": "Pilot (build + shadow + CYK retire)", "state": { "text": "DONE", "status": "match" }, "note": "73 productions, 4 families, parses intent+slots, 0 selected, parity green" },
+          { "id": { "text": "W1", "status": "match" }, "name": "Coverage dimension", "state": { "text": "DONE", "status": "match" }, "note": "Live: 28 rows fired, 99 cand, clean 14 / repaired 85, agree 17-5, would-fix 1" },
+          { "id": { "text": "W2", "status": "warn" }, "name": "Island parsing (affix)", "state": { "text": "RUNNING", "status": "warn" }, "note": "Sub-span parses; pins the ADIZ-squawk + parking rows; guard fixtures" },
+          { "id": { "text": "W4", "status": "gap" }, "name": "Partial-evidence ranking", "state": { "text": "QUEUED", "status": "gap" }, "note": "Serializes after W2 (shares earley.py); real ASR heading+altitude fixtures" },
+          { "id": { "text": "W5", "status": "gap" }, "name": "Row promotion register", "state": { "text": "QUEUED", "status": "gap" }, "note": "Targets RE-DERIVED from live would-fix — offline pins were falsified" },
+          { "id": { "text": "W3", "status": "gap" }, "name": "Repair pricing as data", "state": { "text": "QUEUED", "status": "gap" }, "note": "Tunable cost table; D-E-G-R-E-S fixture; after W5" },
+          { "id": { "text": "W6", "status": "gap" }, "name": "Segmentation proposals", "state": { "text": "QUEUED", "status": "gap" }, "note": "Island tiling + loose split profile + recognizer port; the 15 compounds" }
+        ]
+      }
+    },
+
+    "questions-section": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "Recovered", "title": "Your questions that were getting lost — now tracked" },
+      "children": ["q1", "q2", "q3", "q4"]
+    },
+    "q1": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "BIGGEST GAP",
+        "title": "Expand beyond 4 families",
+        "content": "~38 families exist; we cover 4 (~11%). NOT a workstream yet. It's the **next phase after W1–W6** — each new family then inherits a working repair/promotion/measurement stack. Sequence by failure-cluster size. Do not mass-compile before the machinery + guards exist."
+      }
+    },
+    "q2": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "PARTIAL",
+        "title": "Richer candidate evidence",
+        "content": "More than row_id + intent. ParseResult already has slots, score, repair ledger, span; trace now has repair_op_count. Slot-level provenance + bands enrich incrementally inside W3/W4 — not one big rewrite."
+      }
+    },
+    "q3": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "FOLLOW-UP",
+        "title": "Confirmation loop",
+        "content": "Repaired commands escalate to needs-confirmation; parse ATC's reply as the next turn. Separate E2E plan (session FSM + pending-command state). Blocks repaired-band promotion."
+      }
+    },
+    "q4": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "DEFERRED",
+        "title": "Recognizer ensemble",
+        "content": "Grammar + regex spotters. Port defined at W6 (Earley first implementer); regex impl deferred by you. Seam built clean so it drops in later with zero refactor."
+      }
+    }
+  }
+}
