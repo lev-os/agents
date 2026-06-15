@@ -23,6 +23,9 @@ boundary ontology (tiers, import allowlist, disambiguators) is
 - Moving code between `core/*` packages.
 - Adding a type whose name ends in `Receipt | Ref | Verdict | Result | Envelope | Graph | Run* | Effect* | Eval* | Proof*`.
 - Adding ANY `child_process | spawn | spawnSync | exec | execSync | execFile | tmux` call.
+- **Introducing a declarative ASSET** the runtime loads — an exec profile, flow, `config.yaml` block, provider card, dna/gates file, or any `*.yaml` that drives behavior. (→ GATE 2)
+- **Introducing a proof GATE / evaluator / verifier-contract**, or any asset a `*Verdict`/`*Proof` producer reads. (→ GATE 2; this is a one-brain integrity checkpoint.)
+- **Promoting or demoting an asset across scopes** — module default ↔ project `.lev/` ↔ user `~/.config/lev/` (e.g. moving a profile from `plugins/*/profiles` to `.lev/exec-profiles`). (→ GATE 2)
 
 ## THE TEN LOCKED INVARIANTS (user-locked — do NOT relitigate)
 1. `effect != orchestration`. Separate packages.
@@ -114,6 +117,44 @@ substrate {harness, tmux-harness, daemon, daemon-*} = a driven-adapter ring impo
 - **VERIFIED FACT (corrected):** `exec → harness → {orchestration, flowmind, telemetry}`; `orchestration` does **NOT** import `exec`. The run-ledger service is pure persistence — `run-service.ts` imports `node:crypto` + `@lev-os/domain/run-fabric`; its companion `jsonl-run-store.ts` adds `@lev-os/config` xdg + `node:path/fs`. Both carry zero orchestration logic and move to `core/runs` together. Therefore the ledger lives in `core/runs` at the inner tier (read by exec/orchestration/telemetry and by projection adapters), **not** in `core/exec`. `core/event-bus` receives projected run/action events but must not import the run ledger.
 - **LEDGER-WRITE RULE (invariant 9):** ONLY `core/exec` writes to `core/runs`. `core/effect` and `core/eval` emit **domain-typed** receipts/refs and **never import `core/runs`** — the `RunLedgerWriter` port lives in `core/domain`, `core/runs` implements it, `core/exec` invokes it. So `core/effect`/`core/eval` allowlist = `[core/domain]` only.
 - **PREDICATE:** if placing X here forces package P to import a package that is *not* in P's allowlist, the placement is **WRONG**. Invert it with a port interface in the inner package and an adapter in the outer one.
+
+## GATE 2 — RESOLVER / ASSET ARBITRATION (fires when you introduce or move a loaded asset or a proof gate)
+> **Iron Law extension:** ONE asset, ONE owner, ONE declared collision policy.
+> An asset whose winner-on-collision is implicit is a boundary you haven't drawn yet.
+
+**The primitive.** Asset loading and the proof system are the SAME L0 substrate primitive —
+**scoped arbitration**: `resolve(candidates, precedence, collisionPolicy) → winner + provenance`.
+The loader arbitrates *assets* over filesystem scopes; `core/eval` arbitrates *verdicts* over
+evaluator candidates. The resolver is **substrate** (it feeds declarations to the algebra) — it is
+NOT a member of the execution algebra (loop/eval/edge/effect/session/receipt), the way intent is
+L0 ontology expressed *through* the algebra. `core/eval` is special only in that it is itself an
+instance of the resolver, pointed at verdicts. Keep the two as DISTINCT policy instances over one
+machine — **never merge them**: folding proof into the generic loader creates a second truth-path,
+which violates the one-brain doctrine (invariant 3 / `core/eval` is the sole truth-decider).
+
+**The dangerous seam (this is the BLOCK predicate).** The loader resolves `core/eval`'s OWN gate
+assets (`dna/gates.yaml`, `proof_gates`, validation-gates). So **the loader's collision policy is a
+proof-integrity control.** If a proof/identity asset resolves by silent shallow-merge-last-wins, a
+project overlay can quietly shadow a truth-deciding gate → the loader becomes a backdoor truth-path.
+
+**Collision policy is a DECLARED property of the asset type, never implicit:**
+
+| Policy | Asset types | Rule |
+|---|---|---|
+| `merge` | `config.yaml` | deep-merge scopes |
+| `select` / `extends` | exec profiles, flows | higher scope replaces, or `extends:` a parent by id (kills silent field-shadow) |
+| `reject` / `extends-only` | **proof gates, verifier contracts, provider cards, any `*Verdict`/`*Proof`-bearing asset** | duplicate id is an ERROR; a project may ONLY `extends:`, never silently shadow |
+
+**PREDICATE:** introducing or moving an asset/gate without a declared `(owner, scope, collision-policy)`
+triple is a BLOCK. A proof- or identity-bearing asset with a `merge`/last-wins policy is a BLOCK
+(backdoor truth-path). Resolution must tag **provenance** (which owner+scope won) or it is a BLOCK.
+
+**Where this fires in the lev-build lifecycle** (highlight these moments — they recur every build):
+1. **Asset introduction** — new profile/flow/config/card. Declare its triple before writing it.
+2. **Gate introduction** — new proof gate/evaluator. Answer "can a project silently shadow this?" If yes, you opened a truth backdoor → `reject`/`extends-only`.
+3. **Scope promote/demote** — moving an asset between module/project/user scope re-resolves ownership; a default flipped to an overlay must keep its collision policy.
+
+Prior art + the unification target: `.lev/scratch/fractal-asset-loader-prior-art-20260613.md` (5 loaders, 5 collision rules today; bd `lev-xpqy` extracts the one resolver).
 
 ## BLOCK — what "BLOCK" means (the consequence is real, not advisory)
 1. **Refuse the placement.** Do not create the file/package at the proposed location.

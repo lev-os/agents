@@ -95,7 +95,10 @@ by Lev SDK, not prose:
 2. Run `lev task validate <task-id|task-path>` before dispatch.
 3. Prefer `plugins/sdlc/flows/exec-adversarial-readiness.flow.yaml` for claim-backed tasks.
 4. Review order: source-design claim coverage -> verifier adequacy -> declared gate output -> write scope -> code quality.
-5. If readiness fails, stop before worker dispatch and route to `/propose`.
+5. If `proof_gates.pentagon.lfd.required` is true, verify the LFD target,
+   constraints, instruments, dev/holdout policy, cheap paths, and preflight
+   calibration before dispatch.
+6. If readiness fails, stop before worker dispatch and route to `/propose`.
 
 Hard rule: a green command is not enough. Completion needs queryable
 receipt/trace evidence: node artifacts, branch decisions, verifier commands,
@@ -103,6 +106,11 @@ stdout/stderr paths, exit codes, touched files, and `claim_verdicts` with
 `evidence_ref`. Score-lift needs row-level before/after deltas attributed to
 selected candidates. Routing and telemetry claims need machine-readable traces.
 `execution_ready` is never completion.
+
+For LFD-shaped work, a worker must not see or mutate holdout answers, scorer
+internals, private lint details, or calibration fixtures. If the execution
+surface cannot enforce that read/write split, run only dev/preflight checks and
+route the holdout or harness design back to `/propose`.
 
 ## Follow-up Ledger
 
@@ -136,6 +144,11 @@ steps:
     action: Classify Pentagon, UltraQA, and ai-slop-cleaner gates for the selected slice.
     validation: "Each applicable proof gate has commands, scenario classes, expected receipts, owner-local test placement, and cleanup policy."
     on_failure: "Route to /propose for proof-gate repair before dispatch."
+
+  - id: verify_lfd_preflight
+    action: Verify Pentagon-LFD target and cheap-path hardening when present.
+    validation: "Score/lint/probe/status/proof instruments exist, known-good passes, known-bad fails, lint VOID is non-oracular, holdout is aggregate-only or unavailable to worker, and cheap-path probes fail closed."
+    on_failure: "Do not dispatch. Route to /propose with the failed cheap path and missing instrument."
 
   - id: classify_batch
     action: Mark slices parallel_safe or serial_only and lev_exec_first or subagent_required.
@@ -185,6 +198,10 @@ steps:
   cleanup, flaky reruns, misleading-output checks, and residual risks.
 - Run Pentagon gates from `execution.yaml.proof_gates.pentagon` when present.
   Do not substitute a repo-wide green audit for a feature-local promotion claim.
+- When `proof_gates.pentagon.lfd` is present, run the declared score, lint,
+  probe, status, and proof instruments in the declared order. Score must run
+  lint first; holdout must be aggregate-only and rate-limited; known-bad
+  calibration must fail before worker output can be trusted.
 - Run ai-slop-cleaner review when `proof_gates.quality.ai_slop_cleaner.required`
   is true, or when the exec slice performs cleanup/refactor work or touches
   fallback/boundary-risk code.
@@ -283,6 +300,9 @@ docs and carry explicit notes for:
 - "I'll summarize the failure without the command and exit code."
 - "UltraQA is just a scenario list; no runtime cleanup or evidence needed."
 - "A green Pentagon audit proves the feature-local claim."
+- "The loss-function harness is gameable, but the worker probably will not notice."
+- "Known-good passed; no need to run known-bad."
+- "Holdout is only a file path; prompt instructions are enough to keep it hidden."
 - "Exec follow-ups can stay in the final answer without a ledger route."
 - "Reviewer advice means try the worker again."
 - "The goal prompt should describe the exec workflow instead of the actual task."
@@ -296,6 +316,7 @@ docs and carry explicit notes for:
 | "The CLI probably supports that flag." | Run `--help`; never guess. |
 | "Trace is optional." | Routing, telemetry, and receipt claims need machine-readable evidence. |
 | "The executor can fix the plan." | Weak plans route to `/propose`, not execution. |
+| "The scorer is just a helper." | For LFD-shaped work, the scorer is the target; if it is weak, patch the loss function before dispatch. |
 
 ## Related
 

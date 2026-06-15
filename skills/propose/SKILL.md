@@ -29,8 +29,12 @@ FlowMind plus deterministic Lev SDK validation is the authority:
 1. Run or emulate `plugins/sdlc/flows/propose-adversarial-contract.flow.yaml`.
 2. Author claim ledger, reverse brainstorm, failure hypotheses, falsifying
    fitness functions, verifier adequacy critique, and artifact rewrite.
-3. Run `lev task validate <task-id|task-path>` before marking execution-ready.
-4. Never treat `execution_ready`, unit tests, no-regression, or verifier
+3. For non-trivial, runtime, agentic, promotion, cleanup, fallback, or boundary-risk
+   work, run the Pentagon-LFD design pass: target, constraints, instruments,
+   forced entropy, dev/holdout policy, cheap-path cheats, and preflight
+   calibration.
+4. Run `lev task validate <task-id|task-path>` before marking execution-ready.
+5. Never treat `execution_ready`, unit tests, no-regression, or verifier
    existence as proof of behavior without claim evidence.
 
 Hard rule: important source-design claims must map to `claim_coverage`,
@@ -39,6 +43,14 @@ functions, and production trace fields: `receipt_id`, `exec_id`, `flow`,
 `task`, `slice`, `node_id`, `branch_taken`, `verifier_command`,
 `stdout_path`, `stderr_path`, `exit_code`, `files_touched`,
 `claim_verdicts`, and `evidence_ref`.
+
+If the work is LFD-shaped, the proposal must also include a scoreable
+loss-function contract. A valid contract names the target metric, both failure
+directions, budget/surface/methodology/capacity constraints, score/lint/probe/
+status/proof instruments, dev/holdout visibility, forced entropy, known-good and
+known-bad calibration, and at least ten cheap paths with fences. If those fields
+cannot be designed from current evidence, emit alignment questions instead of
+task artifacts.
 
 ## Capture Ledger Intake
 
@@ -93,6 +105,11 @@ steps:
     validation: "Metrics rollup is visible before asking or emitting."
     on_failure: "Do not write task artifacts."
 
+  - id: design_pentagon_lfd
+    action: Generate the Pentagon-LFD proof target when proof risk requires it.
+    validation: "Target, constraints, instruments, forced entropy, eval cases, cheap paths, and preflight calibration are present or explicitly not applicable."
+    on_failure: "Render <proposal-turn-one>; do not emit execution-ready artifacts."
+
   - id: align_slice
     action: Propose one recommended vertical slice with alternatives unless auto-emit gates pass.
     validation: "One slice-shape decision is resolved or auto_emit evidence is present."
@@ -129,6 +146,7 @@ Only write or mark execution-ready when all are true:
 - `verification_strength >= 0.9`
 - `cold_start_context_gate == pass`
 - `proof_gate_design == pass | not_applicable_with_rationale`
+- `pentagon_lfd_preflight == pass | not_applicable_with_rationale`
 - `unresolved == 0`
 - `approval_source != null` or `auto_alignment_evidence != []`
 
@@ -191,6 +209,40 @@ proof_gates_shape:
     target: "<task or product surface>"
     promotion_decision: "<decision this proof gates>"
     highest_risk_claim: "<claim that costs money, trust, safety, or architecture integrity if false>"
+    lfd:
+      required: true | false
+      target:
+        metric: "<mechanically computed score or verdict>"
+        bar: "<holdout/promotion threshold>"
+        failure_directions: [precision, recall]
+      constraints:
+        budget: "<wall-clock / spend / token / provider ceilings>"
+        surface: ["<allowed files/APIs/providers/models/concurrency>"]
+        methodology: "<deterministic only | llm_observer | hybrid | hitl>"
+        capacity_caps: { keyword_list: 20, regex_set: 15, seed_data: "<N>", special_case_branches: "<N>" }
+      instruments:
+        score: "<command or scorer binding>"
+        lint: "<constraint/eval-leak command>"
+        probe: "<perturbation or memorization gauge>"
+        status: "<time/budget/spend/score-history command>"
+        proof: "<receipt/trace/GateProof/ProofBundle verifier>"
+      eval_corpus:
+        dev: { source: "...", size: 0, feedback: "capped" }
+        holdout: { source: "...", size: 0, feedback: "aggregate_only", rate_limit: "..." }
+        small_eval_warning: true | false
+      cheap_paths:
+        - { cheat: "<lazy optimizer path>", fence: "<constraint>", detection: "<instrument>" }
+      preflight:
+        known_good: "<fixture/artifact or pending>"
+        known_bad: "<fixture/artifact or pending>"
+        lint_trip: "<expected VOID case>"
+        probe_gap_threshold: "<N>"
+        holdout_blinding_check: "<command/result or pending>"
+        status: pass | pending | blocked
+      forced_entropy:
+        stall_rule: "<same-knob-harder ban>"
+        exploration_quota: "<cadence>"
+        iteration_log: "<required fields>"
     axes:
       contract_unit: { proof: "...", gates: [] }
       integration: { proof: "...", gates: [] }
@@ -222,6 +274,7 @@ proof_gates_shape:
 | cold_start_context_gate | fresh agent can execute from task folder |
 | behavior_coverage_gate | every acceptance/source-design claim is covered |
 | proof_gate_design | required proof gates exist, or task explains why QA/Pentagon is not applicable |
+| pentagon_lfd_preflight | loss-function target and cheap-path preflight exist for proof-risk work, or N/A is justified |
 | execution_ready_gate | weighted score >= 0.90 and all hard gates pass |
 
 ## Determinism Repair
@@ -305,6 +358,8 @@ Next: run `/exec {task_id}`, queue via `/capture`, or ask for the full exec menu
 - "Verifier exists, so it is safe to execute."
 - "QA can be figured out after implementation."
 - "Pentagon means put the test in core/testing."
+- "Pentagon means scenario list only; no target, instruments, or cheap-path preflight."
+- "A generated eval design is enough without known-good/known-bad calibration."
 - "The capture ledger can be dropped once task DNA exists."
 - "What would you propose means write task DNA."
 

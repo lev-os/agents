@@ -1,0 +1,229 @@
+{
+  "meta": {
+    "title": "Semantic Control — Vision vs. Reality",
+    "description": "Fidelity audit: JP's semantic-control vision (V1-V5) across PM corpus, canon/spec, and actual code",
+    "layout": "sidebar-toc",
+    "effects": ["title-underline", "grid-dots"]
+  },
+  "theme": { "preset": "teal-slate", "mode": "dark" },
+  "root": ["hero", "kpis", "thesis", "matrix-section", "gaps-section", "findings-section", "pm-section", "contradictions-section", "path-section"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "ARCHITECTURE FIDELITY AUDIT",
+        "title": "Semantic Control — Vision vs. Reality",
+        "subtitle": "Five vision elements, measured across the PM corpus, the canon/spec, and the code that actually runs",
+        "meta": "Grounded by a 4-instance codex-runner sweep · 2026-06-13"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": { "content": "The question wasn't \"is intent-conservation wired\" — it was whether the whole semantic-control idea exists anywhere: FlowMind-defined evals, auto-loading module evals, a default core-loop evaluator, overlay attachment, and LLM-as-judge with core/eval owning the score. The answer: it's *planned across dozens of artifacts and four workstreams*, *partially canonized*, *barely built*, and the live runtime *actively violates the core principle* by letting the agent grade itself." }
+    },
+    "kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "AT A GLANCE", "title": "Where the five elements stand in the running code" },
+      "children": ["kpi-1", "kpi-2", "kpi-3", "kpi-4"]
+    },
+    "kpi-1": { "type": "card", "variant": "kpi", "props": { "value": 0, "label": "Fully built in the live path" } },
+    "kpi-2": { "type": "card", "variant": "kpi", "props": { "value": 2, "label": "Partial (foundation, not wired)" } },
+    "kpi-3": { "type": "card", "variant": "kpi", "props": { "value": 3, "label": "Stub / absent / orphaned" } },
+    "kpi-4": { "type": "card", "variant": "kpi", "props": { "value": 1, "label": "Live-path violation (self-grading)" } },
+
+    "thesis": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "THE THESIS", "title": "Planned everywhere, built nowhere, violated live" },
+      "children": ["thesis-card"]
+    },
+    "thesis-card": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "The gap is implementation + fragmentation, not design",
+        "content": "Semantic control is one of the most heavily-represented ideas in the project — a dedicated `semantic-control-engine` workstream with ~10 captures, `eval-framework-1-0`, `intent-governance`, ~30 eval/intent/proof tasks, a dozen designs, six docs, three DNA files. The canon even nails the hardest principle: **core/eval is the only scorer; the LLM owns no math and no lifecycle decision.** But two problems: the vision is **fragmented** across four workstreams (mostly captures and drafts, rarely crisp acceptance criteria), and the **code lags far behind** — the intent-conservation evaluator is **orphaned** (zero production callers), overlay-merge **does not exist** in the executor, module auto-load is **absent**, there is **no** core/eval LLM-judge capability — and the live `lev.evaluate.semantic_control` gate **JSON-parses the agent's own `passed` boolean and trusts it.** The agent grades itself, the exact failure the one-brain doctrine exists to kill." }
+    },
+
+    "matrix-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "THE MATRIX", "title": "V1–V5 across all three surfaces", "subtitle": "Green = real / Amber = partial / Red = stub, absent, orphaned, or violated. The pattern: PM & canon ahead, code behind." },
+      "children": ["matrix-table"]
+    },
+    "matrix-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Vision element", "PM plan", "Canon / spec", "Code", "Live verdict"],
+        "rows": [
+          ["V1 · Evals are FlowMind-defined, ~95% no code", { "text": "Partial", "status": "warn" }, { "text": "Partial", "status": "warn" }, { "text": "Partial", "status": "warn" }, "Foundation real (contract+registry+parser); semantic-novelty is the template but only in TESTS. No production no-code authoring surface; \"hundreds/95%\" is not a measurable criterion anywhere."],
+          ["V2 · <module>/flows + /evals auto-load", { "text": "Partial", "status": "warn" }, { "text": "Partial", "status": "warn" }, { "text": "Absent", "status": "gap" }, "Eval roots spec'd (eval.dna + eval-framework); paired flows+evals is NOT one contract, and discovery conventions contradict across 3 docs. Code: only plugin config-discovery; no fractal module loader."],
+          ["V3 · intent-conservation = default core-loop eval", { "text": "Partial", "status": "warn" }, { "text": "Fully specified", "status": "match" }, { "text": "Orphaned", "status": "gap" }, "Canon emphatic (\"first stock evaluator, never hardcoded\"). PM: planned as first bundled eval but still fixture/warn-only in places. Code: evaluateIntentConservation has ZERO production callers; live path uses a command-string JSON hook."],
+          ["V4 · Evals attach as always-on overlay", { "text": "Partial", "status": "warn" }, { "text": "Partial", "status": "warn" }, { "text": "Stub", "status": "gap" }, "PM: FlowMind overlays the core loop & inherits evidence; no explicit \"always-on, never re-declared\" contract. Canon has overlay vocab. Code: overlay-merge \"does not exist\" — metadata + a CLI flag only."],
+          ["V5 · No self-grading; LLM judges, core/eval scores", { "text": "In active plan*", "status": "warn" }, { "text": "Strong*", "status": "warn" }, { "text": "Violated live", "status": "gap" }, "PM & canon strong: core/eval sole scorer, LLM owns no math/lifecycle (*the exact \"LLM doesn't do the math\" boundary isn't crisply stated). Code: NO core/eval LLM-judge (type label + plugin-local ERC only); dup_judge is a sensor stub; the self-grading JSON hook is the AUTHORITATIVE path."]
+        ]
+      }
+    },
+
+    "gaps-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "HOW WELL REPRESENTED?", "title": "The five representation gaps", "subtitle": "Where the vision has no crisp home, even though it's discussed widely" },
+      "children": ["gaps-table"]
+    },
+    "gaps-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["#", "Gap", "Why it matters"],
+        "rows": [
+          ["1", "V1's \"hundreds of evals / 95% no code\" is not a measurable acceptance criterion anywhere", "The scale ambition that justifies FlowMind-defined evals is aspirational prose, not a gate"],
+          ["2", "V2 has no single fractal auto-discovery contract for paired <module>/flows + /evals", "Eval roots are spec'd, FlowMind roots are scattered across 3 conflicting conventions — can't build the loader until one is chosen"],
+          ["3", "V3/V4 are split across 4 workstreams (semantic-control-engine, eval-framework, core-module-audit, proof-spine)", "Intent-conservation's ownership is fragmented; PM still describes warn-only/fixture states in several places"],
+          ["4", "semantic-novelty has no standalone PM home saying \"defines its own eval while IC stays cross-cutting\"", "The canonical example of the overlay+node split isn't pinned as a reference"],
+          ["5", "V5's LLM-as-judge boundary isn't named exactly", "PM/canon are directionally right but never say crisply: judge gets rubric+vars, core/eval computes the score, self-report never grades"]
+        ]
+      }
+    },
+
+    "findings-section": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "WHAT'S ACTUALLY HAPPENING IN CODE", "title": "Five findings, with citations" },
+      "children": ["f1", "f2", "f3", "f4", "f5"]
+    },
+    "f1": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "🚨 The live gate self-grades",
+        "content": "`exec-local.ts:272` fires only when `command === 'lev.evaluate.semantic_control'`; `:304` `parseSemanticControlEvaluation` JSON-parses the adapter's output and trusts `proof.passed`. No evaluator runs — the agent reports its own verdict, then it's relabeled `gate_id: semantic_control, driver: intent-conservation`. This is the false-green the cutover exists to eliminate, sitting in the live path."
+      }
+    },
+    "f2": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "The real evaluator is orphaned",
+        "content": "`evaluateIntentConservation` (`intent-conservation.ts:47`) computes drift + thresholds — and is called **only from tests and exports**. G4's generic comparator `discharge()` has exactly one caller (`legacy-redischarger.ts`). The machinery you designed exists and passes its tests; the runtime quietly bypasses it."
+      }
+    },
+    "f3": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Overlay-merge does not exist",
+        "content": "`sdlc-tick-overlay.flow.yaml:40` says it outright: the executor mechanism is unbuilt. There's overlay vocabulary, an index pass, and a `--flowmind-overlay` CLI flag — but no graph injection. So \"intent-conservation always-on, never re-declared per loop\" is not achievable today; the executor only runs explicit nodes."
+      }
+    },
+    "f4": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Module auto-load is absent",
+        "content": "No `<module>/flows + <module>/evals` fractal loader. The closest is `discoverPluginFlowConfigs` (`plugin-config-discovery.ts:40`) which scans `plugins/*/config.yaml` for hand-registered `flowmind.programs`. Evals run via explicit `lev eval run <suite-path>`. The eval-side roots are *spec'd* in DNA but not implemented as drop-in auto-discovery."
+      }
+    },
+    "f5": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "No core/eval LLM-as-judge",
+        "content": "`'llm-as-judge'` is a type label in `scorecard-registry.ts:4` — no runtime path prompts an LLM with a methodology and lets core/eval own the score. The real LLM-judge lives plugin-local in ERC (`prompt-testing.ts:74`) and autoresearch (heuristic default). `dup_judge` in the novelty fixture is a `sensor.categorical` fed from fixture data, not a judge. The pattern you want — \"judge using these vars + methodology, core/eval scores\" — exists only as scattered ingredients."
+      }
+    },
+
+    "pm-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "THE PM / CANON CORPUS", "title": "It's vast — and that's the paradox", "subtitle": "Documented and planned far more thoroughly than it is built" },
+      "children": ["pm-workstreams", "pm-tasks", "pm-docs"]
+    },
+    "pm-workstreams": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Workstream / capture home", "Bearing on the vision"],
+        "rows": [
+          ["semantic-control-engine (+ ~10 captures)", "Canonical PM home: FlowMind-authored evaluator substrate, IC as first bundled evaluator, operation-plane permutations, lineage/authority"],
+          ["eval-framework-1-0 (+ captures)", "FlowMind-first eval suites, discovery, scorer substrate lock, industry LLM-as-judge vocabulary"],
+          ["intent-governance", "Intent capture & conservation governance"],
+          ["runtime-lifecycle-exec-proof-spine", "Receipt/trace/GateProof proof spine + evidence authority"],
+          ["effect-control-fractal-roots", "Effect/eval/proof/FlowMind ownership separation"],
+          ["core-module-audit", "Core boundary cutover: core/eval sole truth-decider, Sensor/Measurement vocab"],
+          ["agent-runtime-convergence #master_roadmap", "Master roadmap holder; schedules the core/eval cutover"]
+        ]
+      }
+    },
+    "pm-tasks": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Representative task", "What it covers", "Status"],
+        "rows": [
+          ["core-boundaries-slice4-eval-one-brain-v1", "one-brain core/eval, registry, Sensor/Measurement, zero-TS admission", { "text": "close-out pending", "status": "warn" }],
+          ["intent-conservation-gate-v1", "IC into DNA gates, proof refs, receipts, exec, Pentagon", { "text": "fixture-proven, prod-constrained", "status": "warn" }],
+          ["semantic-control-real-agent-pentagon-v1", "Real-agent promotion gate for semantic-control", { "text": "planned", "status": "info" }],
+          ["flowmind-programmable-core-loop-v1", "FlowMind loop, overlay inheritance, evaluator lookup", { "text": "active", "status": "info" }],
+          ["semantic-evaluator-extension-spikes-v1", "10 break-model cases for evaluator install/proof/authority", { "text": "spike complete", "status": "match" }],
+          ["intent-proof-spine-convergence-v1", "Converges IC with the runtime proof spine", { "text": "active", "status": "info" }],
+          ["enterprise-eval-bench-registry-v1", "Eval registry / scorecard capability", { "text": "supporting", "status": "info" }],
+          ["… ~30 eval/intent/proof tasks total", "The vision is sliced extensively in PM", { "text": "fragmented", "status": "warn" }]
+        ]
+      }
+    },
+    "pm-docs": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Canon / spec / design artifact", "Role"],
+        "rows": [
+          ["dna/architecture/semantic-control/concept.yaml", "Invariants: IC = first shipped evaluator; LLM owns no math/lifecycle"],
+          ["dna/core/eval.dna.yaml", "core/eval = sole scorer; eval suite globs; zero-TS evaluators"],
+          ["dna/core/flowmind.dna.yaml", "FlowMind owns evaluator declaration, discovery, overlay boundaries"],
+          ["dna/gates.yaml", "intent_conservation gate grammar (+ a disable key)"],
+          ["docs/specs/spec-semantic-control.md", "Parent framework spec (VERIFY_GATE → ADAPT → DECIDE)"],
+          ["docs/design/design-semantic-control.md", "Authority split; tick-loop default post-ACT hook"],
+          [".lev/pm/designs/semantic-ontological-looping.md", "Evaluators-as-FlowMind, IC-as-row, semantic-novelty model (in review)"],
+          [".lev/pm/designs/design-diff-borne-intent-conservation.md", "Default IC evaluator + diff-borne drift mechanism (draft)"],
+          [".lev/pm/designs/design-semantic-control-operation-plane.md", "Parent design: placement, authority, topology, traversal (draft)"]
+        ]
+      }
+    },
+
+    "contradictions-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "CONTRADICTIONS TO RESOLVE", "title": "Where the canon disagrees with itself", "subtitle": "These are decisions, not bugs — they block a clean implementation" },
+      "children": ["contradictions-table"]
+    },
+    "contradictions-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Tension", "Side A", "Side B", "The decision it forces"],
+        "rows": [
+          ["Flow discovery convention", "flowmind.dna: entity-local → .lev/flows → plugins/*/flows", "ARCHITECTURE: src/flowmind/*.flow.yaml; eval.dna: */evals/**/*.eval.yaml", "Pick ONE discovery contract before V2 auto-load can be built"],
+          ["Does the LLM score?", "graph.yaml:267 — LLM produces variable scores + confidence", "spec:763 — LLM returns observations ONLY; code scores", "This IS V5: judge emits typed observations, core/eval computes the score"],
+          ["Is intent-conservation always-on?", "gates: every admitted iteration MUST prove conservation", "gates expose intent_conservation.enabled:false; design says default needs config-policy resolution", "Decide the always-on overlay semantics + the disable contract"]
+        ]
+      }
+    },
+
+    "path-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "WHAT THE WORK ACTUALLY IS", "title": "Wire the canon into code; kill the shortcut" },
+      "children": ["path-card"]
+    },
+    "path-card": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "The shape of the fix",
+        "content": "Because the canon is rich and the foundation (EvaluatorContract, registry, discharge, the novelty fixture) is real, the work is *connection*, not *design*:\n\n**1.** Route the core loop's intent-conservation through the same `measure → discharge` registry path the novelty fixture already uses, fed by real evidence — and **delete the self-grading JSON hook**. (Resolves V3 + V5-live + the naming split in one move.)\n**2.** Add an LLM-as-judge **capability** in core/eval: judge gets vars + methodology, returns typed observations, core/eval thresholds. (Lands V5 as designed; unifies the scattered ERC/autoresearch judges.)\n**3.** Build the `<module>/flows + /evals` auto-loader against ONE resolved discovery convention. (Lands V2; resolves contradiction #1.)\n**4.** Build executor overlay-merge so intent-conservation is always-on without per-loop redeclaration. (Lands V4.)\n**5.** Promote semantic-novelty from test fixture to the canonical no-code eval template + a production eval registry. (Lands V1.)\n**6.** Consolidate the four fragmented workstreams' semantic-control scope into one owned plan with the V1 scale criterion and the V5 judge-boundary stated crisply. (Closes the representation gaps.)\n\nNone of this is \"figure out semantic control\" — that's done, on paper. It's \"make the running code do what the canon already says.\""
+      }
+    }
+  }
+}

@@ -1,0 +1,248 @@
+{
+  "meta": {
+    "title": "How the Grammar Strategies Work",
+    "description": "Mechanism-by-mechanism explainer for the six grammar-lane strategies, each with a worked example from real ASR.",
+    "fonts": ["Instrument Serif", "DM Sans", "JetBrains Mono"]
+  },
+  "theme": { "preset": "midnight-ink", "mode": "dark" },
+  "root": [
+    "hero",
+    "model-section",
+    "w1-section",
+    "w2-section",
+    "w4-section",
+    "w5-section",
+    "w3-section",
+    "w6-section"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "GRAMMAR LANE · MECHANISM EXPLAINER",
+        "title": "How the Strategies Work",
+        "subtitle": "Six mechanisms, one shared idea: the grammar knows every legal command, so it can ask which legal command a garbled transcript is cheapest to explain as.",
+        "meta": "Each section: plain mechanism · diagram · worked example from real ASR"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "The pilot already parses intent + slots from authority templates under measured noise. These six strategies extend it from a shadow observer into a recovery-and-promotion system. They all build on one core: the **priced repair model** below."
+      }
+    },
+
+    "model-section": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "Foundation", "title": "The priced repair model (a noisy-channel decoder over your own templates)" },
+      "children": ["model-text", "model-diagram", "model-example"]
+    },
+    "model-text": {
+      "type": "text",
+      "props": {
+        "content": "ASR garbles a phrase the controller really said. The grammar holds every phrase that *can* be said (the authority rows). Repair search asks: **which legal phrase is this garble cheapest to explain as?** Cost is the evidence. Slot values are exact anchors — never invented; if a value won't resolve, the parse dies and we say so."
+      }
+    },
+    "model-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "Zero-cost normalizations first, then priced edits; slots are exact anchors; score-band decides the action.",
+        "content": "flowchart LR\n  A[\"ASR text\"] --> N[\"zero-cost normalize\\ndehyphenate · homophones · numbers\"]\n  N --> C[\"Earley chart over 73 productions\"]\n  C --> E{\"priced edits per token\"}\n  E -->|\"match 0.0\"| S[\"score = sum of edit costs\"]\n  E -->|\"substitute ~0.35\\nliterals only\"| S\n  E -->|\"insert 0.6\"| S\n  E -->|\"dup-collapse 0.2\"| S\n  E -->|\"SLOT exact anchor\\nresolve or die\"| S\n  S --> B{\"score band\"}\n  B -->|\"= 0\"| H[\"normal candidate\"]\n  B -->|\"0 to budget, slots bound\"| R[\"candidate + repair evidence\\nconfirmation readback\"]\n  B -->|\"over budget\"| SH[\"shadow only\"]\n  B -->|\"slot unbound\"| K[\"NO candidate\\npartial names the slot\"]"
+      }
+    },
+    "model-example": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "WORKED EXAMPLE",
+        "title": "chain to MY frequency 124.5",
+        "content": "One substitution `chain` to `change` (similarity-gated, cost 0.35), FREQUENCY binds exactly to 124.5. Lands in the **repaired band** -> candidate carries the repair in its ledger -> readback phrased for confirmation. The ledger *is* the corrected transcript, for free."
+      }
+    },
+
+    "w1-section": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "W1", "title": "Coverage dimension — the scoreboard every strategy is judged on" },
+      "children": ["w1-text", "w1-diagram", "w1-example"]
+    },
+    "w1-text": {
+      "type": "text",
+      "props": {
+        "content": "Not a new measurement — a **roll-up** of metrics that already exist. Every baseline row already carries `candidate_metrics` (which sources fired, agreement, critical-slot risk). W1 aggregates those into one run-level `grammar_coverage` block on every baseline, plus a display line. It reads row evidence; it never re-parses text. This is why it goes first: it is how we *see* whether the next five strategies actually moved anything."
+      }
+    },
+    "w1-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "Per-row metrics already exist; W1 is the corpus-level sum.",
+        "content": "flowchart LR\n  R1[\"row 1\\ncandidate_metrics\"] --> AGG[\"coverage.py\\nroll-up\"]\n  R2[\"row 2\\ncandidate_metrics\"] --> AGG\n  R3[\"row N\\ncandidate_metrics\"] --> AGG\n  AGG --> OUT[\"grammar_coverage\\nfired · clean/repaired · agreement\\nscore-band · would-have-fixed\"]\n  OUT --> RR[\"RunReport\\n(every baseline)\"]"
+      }
+    },
+    "w1-example": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "TODAY'S NUMBERS",
+        "title": "From the committed S5 receipt",
+        "content": "28 rows fired · 99 grammar candidates · 0 selected (shadow holds) · 93.6% corpus pass. W1 makes these a standing line on every run instead of a one-off replay."
+      }
+    },
+
+    "w2-section": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "W2", "title": "Island parsing — find the command, charge rent for the chatter around it" },
+      "children": ["w2-text", "w2-diagram", "w2-example"]
+    },
+    "w2-text": {
+      "type": "text",
+      "props": {
+        "content": "Today a production must match the **whole** segment (global alignment). The repair budget scales with row length, so a short command buried in verbiage can never afford to skip the surroundings. Island parsing prices leading/trailing out-of-span tokens on a **separate affix budget** (local alignment, Smith-Waterman style): find the command island, charge a small per-token rent for the neighborhood. Slots inside the island stay exact anchors."
+      }
+    },
+    "w2-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "Global parse fails on the trailing clause; island parse pins the command and prices the affix.",
+        "content": "flowchart TD\n  U[\"CONTACT GROUND ON 121.9 FOR PARKING INSTRUCTIONS\"]\n  U --> G[\"global parse\\nwhole segment must match\"]\n  G --> GF[\"FAIL — budget exhausted\\nby FOR PARKING INSTRUCTIONS\"]\n  U --> I[\"island parse\"]\n  I --> ISL[\"island: CONTACT GROUND ON 121.9\\nFACILITY=ground FREQUENCY=121.9\"]\n  I --> AFF[\"trailing affix: FOR PARKING INSTRUCTIONS\\npriced cheaply, separate budget\"]\n  ISL --> OK[\"accepted candidate\\nslots bound\"]"
+      }
+    },
+    "w2-example": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "PINNED ROWS",
+        "title": "Two real failing rows",
+        "content": "`SQUAWK 4231` buried in ADIZ verbiage (leading affix) and `CONTACT GROUND … FOR PARKING INSTRUCTIONS` (trailing affix). Both fail today; both become accepted candidates after W2. Guard: the 3 never-promote rows must STILL stay out-of-band — recall must not buy false positives."
+      }
+    },
+
+    "w4-section": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "W4", "title": "Partial-evidence ranking — say which slot failed, not which row is longest" },
+      "children": ["w4-text", "w4-diagram", "w4-example"]
+    },
+    "w4-text": {
+      "type": "text",
+      "props": {
+        "content": "When no full parse exists, the parser still has partial parses. Today it ranks them by **furthest dot** — which just picks the longest production and reports an irrelevant terminal. The fix ranks by **slots bound + family plausibility**, so the top partial is the one a say-again consumer would act on: name the slot that's missing, or acknowledge the slot that's there."
+      }
+    },
+    "w4-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "Same failed utterance, two rankings. Furthest-dot lies; slots-bound diagnoses.",
+        "content": "flowchart TD\n  U[\"turn right heading 310 vector 4 visual approach\"]\n  U --> OLD[\"rank by furthest dot\"]\n  OLD --> OLDR[\"picks longest row\\nsays expects: final\"]\n  OLDR --> BAD[\"useless say-again\"]\n  U --> NEW[\"rank by slots-bound + plausibility\"]\n  NEW --> NEWR[\"turn_direction_heading\\nTURN_DIRECTION=right HEADING=310\\nstalls on extra 'vector'\"]\n  NEWR --> GOOD[\"actionable: heading understood,\\nconfirm the rest\"]"
+      }
+    },
+    "w4-example": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "REAL ASR FIXTURES",
+        "title": "Mined from the transcript corpus",
+        "content": "`turn right heading 310 vector 4 visual approach` -> today says **final**. `depart BAYVU heading 180` -> says **TURN_DIRECTION**. `maintain 3,000 until established on the SUNOL` -> says **the**. All garbage. Honest note: squawk has *no* real no-parse case (it's robust), so the synthetic `frew` string is the grounding fixture for the value-unresolvable case."
+      }
+    },
+
+    "w5-section": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "W5", "title": "Row promotion — turn one provably-correct row from shadow into selection authority" },
+      "children": ["w5-text", "w5-diagram", "w5-example"]
+    },
+    "w5-text": {
+      "type": "text",
+      "props": {
+        "content": "Today every grammar candidate is **shadow**: it appears in the trace but can never win selection. Promotion is one line of **policy data** — a `candidate_ids` allowlist entry — that flips a single template row from shadow to active. No code change, no selector change. Promotion unit is a row, not a family. Clean-band (score 0) only until the confirmation loop exists; the 3 mismatch rows are a permanent never-promote guard list."
+      }
+    },
+    "w5-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "PolicyChain stays the only selector; the register is data it reads.",
+        "content": "flowchart TD\n  GC[\"grammar candidates\\n(all shadow today)\"] --> PC{\"PolicyChain\\nthe only selector\"}\n  REG[\"60_grammar_promotion_register.yaml\\ncandidate_ids allowlist\"] --> PC\n  GUARD[\"never_promote_guards.yaml\\n3 mismatch rows\"] --> PC\n  PC -->|\"row in register\\n+ clean band\"| SEL[\"SELECTED\\n(real score bump)\"]\n  PC -->|\"not registered\"| SH[\"stays shadow\"]\n  PC -->|\"guard-listed\"| NV[\"never selected\"]"
+      }
+    },
+    "w5-example": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "FIRST THREE ROWS",
+        "title": "Provably right where the pipeline is wrong",
+        "content": "`turn_direction_heading` (0.0), `maintain_heading` (0.0), `monitor_facility_frequency` (0.0) — all parse clean while the pipeline fails them today. Proof gate: a same-session pre/post receipt pair shows ONLY these three flip; every other selected winner is byte-identical."
+      }
+    },
+
+    "w3-section": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "W3", "title": "Repair pricing as data — costs you can tune, not constants you must recompile" },
+      "children": ["w3-text", "w3-diagram", "w3-example"]
+    },
+    "w3-text": {
+      "type": "text",
+      "props": {
+        "content": "The repair op costs live as constants in scanner code today. W3 moves them to an authority data table with provenance per rule (rule_id, gate, cost, examples, source_report) — mirroring the existing `template_asr_cleanup` mined-rule lifecycle — plus per-family overrides and a new **containment** matcher (a short token inside a longer expected one, bounded char-diff and token-window). Loaded fail-closed. Now tuning is a loop: filter rules, replay the corpus, read the W1 coverage delta."
+      }
+    },
+    "w3-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "Costs become governed, minable data; tuning is a measured loop.",
+        "content": "flowchart LR\n  OLD[\"constants in scanner.py\"] -.replaced by.-> TBL[\"grammar_repair_pricing.yaml\\nrule_id · gate · cost · provenance\"]\n  TBL --> PORT[\"fail-closed loader port\"]\n  PORT --> SCAN[\"scanner prices edits\"]\n  SCAN --> RUN[\"just baseline\"]\n  RUN --> W1M[\"W1 coverage delta\"]\n  W1M -->|\"tune rule\"| TBL"
+      }
+    },
+    "w3-example": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "PINNED ROW",
+        "title": "Turn 30 D-E-G-R-E-S right",
+        "content": "Dehyphenation yields `DEGRES`, which today no edit matches. W3 chains normalization INTO a priced substitution (`DEGRES` -> `DEGREES`), so the row parses. Fail-closed: a missing or invalid pricing table disables priced ops and reports a reason — never a silent fallback."
+      }
+    },
+
+    "w6-section": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "W6", "title": "Segmentation proposals — split by command shape, not keyword guesses" },
+      "children": ["w6-text", "w6-diagram", "w6-example"]
+    },
+    "w6-text": {
+      "type": "text",
+      "props": {
+        "content": "Today the compound splitter cuts on boundary **keywords** (contact, maintain, squawk…) gated by hand-curated rules — it is shape-blind. W6 runs island search per production and **tiles** the non-overlapping islands: each island arrives already parsed (intent + slots), so the split proposal and the candidates are the same object. It runs in **shadow** next to the keyword splitter — measured, never deciding splits — until the numbers earn it a promotion plan of its own."
+      }
+    },
+    "w6-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "Keyword splitter asks where a command might end; island tiling asks what legal commands are present.",
+        "content": "flowchart TD\n  U[\"turn left 270 descend and maintain 3000 contact tower 119.3\"]\n  U --> KW[\"keyword splitter\\ncuts on contact/maintain\\n(shape-blind)\"]\n  U --> IT[\"island tiling\\nrun every production as local search\"]\n  IT --> I1[\"turn_direction_heading\\nspan 1-3\"]\n  IT --> I2[\"descend_and_maintain\\nspan 4-7\"]\n  IT --> I3[\"contact_facility_frequency\\nspan 8-11\"]\n  I1 --> TILE[\"non-overlapping tiling\\n= segmentation proposal\\nwith intents attached\"]\n  I2 --> TILE\n  I3 --> TILE\n  TILE --> SH[\"SHADOW: measured vs keyword splitter\\nno split decision changed\"]"
+      }
+    },
+    "w6-example": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "TARGET CLUSTER",
+        "title": "The 15 compound failures",
+        "content": "Compound is the single largest failing cluster. W6 measures island-tiling agreement vs the keyword splitter on all 15 — with `tiling_failed` counted in the denominator so the readiness number can't be inflated by survivor bias. Promotion of proposals into real splits is a separate, later plan."
+      }
+    }
+  }
+}
