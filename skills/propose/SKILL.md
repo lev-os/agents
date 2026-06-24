@@ -1,30 +1,55 @@
 ---
 name: propose
-description: Use when turning an aligned design or captured idea into task DNA and execution YAML through the Plan lane.
+description: Use when compiling an aligned design, capture, or chat intent into execution-ready task DNA and execution YAML.
 skill_type: workflow
 category: lifecycle
 output_template: hud
 ---
 
-# /propose - Plan Lane
+# /propose - Execution Packet Lane
 
-`/propose` compiles aligned context into
-`.lev/pm/tasks/<task-id>/{dna.yaml,execution.yaml}`. It does not execute. It
-prepares a cold-startable entity for `/exec`.
+`/propose` first freezes aligned context into a compact execution transition
+packet, then compiles one vertical slice into
+`.lev/pm/tasks/<task-id>/{dna.yaml,execution.yaml}`. It does not plan broadly
+and it does not execute. It prepares a cold-startable entity for `/exec`.
+
+Use either `/plan` or `/propose` for a given turn. `/plan` creates or reviews a
+human runbook. `/propose` emits executable task artifacts from already-aligned
+intent. If alignment is missing, route to `/interview`, not `/plan`.
 
 ## Work Link
-
-Lifecycle lane: Plan
+Lifecycle lane: Execution preparation
 Entity movement: `captured | aligned -> proposed | execution_ready | needs_interview`
 Workstream: resolve active workstream before writing task artifacts
-Upstream: `/capture`, `/interview`, `.lev/pm/designs/*`
+Upstream: `/capture`, `/interview`, `.lev/pm/designs/*`, aligned chat intent
 Downstream: `/exec`, `/capture`
+Adjacent: `/plan` is a standalone planning lane, not a prerequisite
 Router: `/work`
 HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count} ✅{done_count} | 🚦{gate}={score} | ⏭️ {next} | 🔁{loop_state}`
 
 ## Adversarial Contract
 
-FlowMind plus deterministic Lev SDK validation is the authority:
+Do not run a broad evidence sweep before the transition packet exists. The
+first turn preserves the current alignment so compaction or handoff cannot turn
+proposal work into generic planning. If the packet cannot name one executable
+slice, one verifier path, and write boundaries, route to `/interview`.
+
+<transition-packet>
+## Proposal Transition: {task_id}
+
+Intent: {one_sentence_intent}
+Source: {chat|capture|design|task}; refs {known_refs_or_none}
+Acceptance: {known_acceptance_or_gap}
+Constraints: {write_scope_boundaries_forbidden_moves}
+Open forks: {none_or_smallest_unresolved_decisions}
+Recommended first slice: {one_vertical_slice_or_gap}
+Execution proof: {known_verifier_or_gap}
+Next: answer one question, say `emit`, route to `/interview`, or use `/plan` only if the user asked for a runbook/review.
+</transition-packet>
+
+## Execution-Readiness Contract
+
+FlowMind plus deterministic Lev SDK validation is the authority after `emit`:
 
 1. Run or emulate `plugins/sdlc/flows/propose-adversarial-contract.flow.yaml`.
 2. Author claim ledger, reverse brainstorm, failure hypotheses, falsifying
@@ -37,20 +62,17 @@ FlowMind plus deterministic Lev SDK validation is the authority:
 5. Never treat `execution_ready`, unit tests, no-regression, or verifier
    existence as proof of behavior without claim evidence.
 
-Hard rule: important source-design claims must map to `claim_coverage`,
-`verifier_contract`, reverse false-green hypotheses, falsifying fitness
-functions, and production trace fields: `receipt_id`, `exec_id`, `flow`,
-`task`, `slice`, `node_id`, `branch_taken`, `verifier_command`,
-`stdout_path`, `stderr_path`, `exit_code`, `files_touched`,
-`claim_verdicts`, and `evidence_ref`.
+Hard rule: important source-design claims map to `claim_coverage`,
+`verifier_contract`, false-green hypotheses, falsifying fitness functions, and
+receipt fields for command, exit code, files touched, verdicts, and evidence.
+If LFD-shaped proof is required, include a scoreable loss-function target,
+constraints, instruments, eval split, cheap-path fences, and preflight
+calibration. If that cannot be designed from current evidence, ask one
+alignment question instead of emitting task artifacts.
 
-If the work is LFD-shaped, the proposal must also include a scoreable
-loss-function contract. A valid contract names the target metric, both failure
-directions, budget/surface/methodology/capacity constraints, score/lint/probe/
-status/proof instruments, dev/holdout visibility, forced entropy, known-good and
-known-bad calibration, and at least ten cheap paths with fences. If those fields
-cannot be designed from current evidence, emit alignment questions instead of
-task artifacts.
+Execution focus rule: proposal output must be the smallest executable slice that
+proves a behavior or receipt. Do not output a multi-option work plan when the
+design, capture, or chat already chooses a direction.
 
 ## Capture Ledger Intake
 
@@ -64,35 +86,35 @@ folder is written.
 ## Canon Write Gate
 
 If the user asks what would be proposed, edited, or planned, render
-`<proposal-turn-one>` or `<slice-review>` only. Write task artifacts only after
-explicit apply/edit/emit/patch authorization or an existing approved capture
-row with `next_route: /propose`.
+`<transition-packet>`, `<proposal-turn-one>`, or `<slice-review>` only. Write
+task artifacts only after explicit apply/edit/emit/patch authorization or an
+existing approved capture row with `next_route: /propose`. Never interpret a
+proposal artifact as permission to implement.
 
 ## Proposal Readout
 
 After emitting or updating a task from a design, render a short readout. This is
 for human sanity, not an exec gate:
 
-- run `bash -lc 'sleep 2'` when a shell is available, then do one separate
-  compare pass against the source design/capture before rendering the readout
-- key boundaries and where they came from
-- user story or operator outcome
-- acceptance criteria
-- test strategy or preflight checks
-- open decisions or known blockers
+Do one separate compare pass against the source design/capture before readout.
+Cover boundaries, operator outcome, acceptance, verifier/preflight, and open decisions.
 
 If the readout exposes an obvious proposal mistake, fix the task before calling
-it proposed, then run `bash -lc 'sleep 2'` once more and reread the final
-readout. Keep executable-readiness policy in Lev validation/SDK, not in this
+it proposed. Keep executable-readiness policy in Lev validation/SDK, not in this
 skill prose.
 
 ## Protocol
 
 ```yaml
 steps:
+  - id: transition_freeze
+    action: Render the compact transition packet before broad lookup or task writes.
+    validation: "Intent, source, known refs, acceptance or gap, constraints, open forks, first slice, and next action are visible."
+    on_failure: "Stop and render <transition-packet>; do not gather more context yet."
+
   - id: load_context
-    action: Read source design, capture, workstream, existing task, and repo evidence.
-    validation: "Context includes intent, acceptance, constraints, entity_kind, lifecycle_target, refs, and confidence."
+    action: After transition_freeze, read only source design, capture, workstream, existing task, and repo evidence needed for unresolved fields.
+    validation: "Context includes intent, acceptance, constraints, entity_kind, lifecycle_target, refs, confidence, and any design-to-propose handoff."
     on_failure: "Route missing product/design framing to /interview."
 
   - id: load_capture_ledger
@@ -111,12 +133,12 @@ steps:
     on_failure: "Render <proposal-turn-one>; do not emit execution-ready artifacts."
 
   - id: align_slice
-    action: Propose one recommended vertical slice with alternatives unless auto-emit gates pass.
-    validation: "One slice-shape decision is resolved or auto_emit evidence is present."
+    action: Select exactly one recommended vertical execution slice unless auto-emit gates pass.
+    validation: "One executable slice-shape decision is resolved or auto_emit evidence is present."
     on_failure: "Render <proposal-turn-one>."
 
   - id: build_contract
-    action: Draft dna.yaml and execution.yaml with claims, slices, proof_gates, verifiers, write scope, and forbidden moves.
+    action: Draft dna.yaml and execution.yaml with topology, runtime profile, claims, proof_gates, receipts, write scope, and forbidden moves.
     validation: "A fresh agent can execute using only the task folder and source_context.capture_ledger preserves the source row."
     on_failure: "Ask the smallest missing operator-context question."
 
@@ -126,7 +148,7 @@ steps:
     on_failure: "Route back through proposal graph; do not offer /exec."
 
   - id: proposal_readout
-    action: Run `bash -lc 'sleep 2'` when available, compare proposal to source design/capture, then render the short human readout after proposal emission or update.
+    action: Compare proposal to source design/capture, then render the short human readout after proposal emission or update.
     validation: "Critical boundaries, story, acceptance, tests/preflight, and open decisions are visible."
     on_failure: "Fix obvious proposal mistakes before offering /exec."
 
@@ -153,115 +175,23 @@ Only write or mark execution-ready when all are true:
 ## Required Task Shape
 
 ```yaml
-dna_yaml:
-  required:
-    - ontology
-    - intent
-    - entity_kind
-    - lifecycle_target
-    - acceptance
-    - local_refs
-    - local_constraints
-    - source_context
-source_context:
-  capture_ledger:
-    - intent_id
-    - topic
-    - compiled_intent
-    - artifact_ref
-    - route_state
-    - fidelity
-    - next_route
-    - blocker
-execution_yaml:
-  required:
-    - topology
-    - runtime_profile
-    - validation_chain
-    - proof_gates
-    - receipt_policy: append_only
-    - checkpoint_policy: forward_only
-    - budget
-    - exit_conditions
-    - slices
-slice_required:
-  - id
-  - title
-  - behavior_coverage
-  - what_to_build
-  - why_this_slice
-  - acceptance_criteria
-  - operator_context
-  - verifier_contract
-  - write_scope
-  - constraints
-  - failure_modes
-  - review_status
-  - approval_source
-proof_gates_required_when:
-  - non_trivial
-  - runtime_or_agentic_behavior
-  - promotion_decision
-  - cleanup_or_refactor
-  - fallback_or_boundary_risk
-proof_gates_shape:
-  pentagon:
-    target: "<task or product surface>"
-    promotion_decision: "<decision this proof gates>"
-    highest_risk_claim: "<claim that costs money, trust, safety, or architecture integrity if false>"
-    lfd:
-      required: true | false
-      target:
-        metric: "<mechanically computed score or verdict>"
-        bar: "<holdout/promotion threshold>"
-        failure_directions: [precision, recall]
-      constraints:
-        budget: "<wall-clock / spend / token / provider ceilings>"
-        surface: ["<allowed files/APIs/providers/models/concurrency>"]
-        methodology: "<deterministic only | llm_observer | hybrid | hitl>"
-        capacity_caps: { keyword_list: 20, regex_set: 15, seed_data: "<N>", special_case_branches: "<N>" }
-      instruments:
-        score: "<command or scorer binding>"
-        lint: "<constraint/eval-leak command>"
-        probe: "<perturbation or memorization gauge>"
-        status: "<time/budget/spend/score-history command>"
-        proof: "<receipt/trace/GateProof/ProofBundle verifier>"
-      eval_corpus:
-        dev: { source: "...", size: 0, feedback: "capped" }
-        holdout: { source: "...", size: 0, feedback: "aggregate_only", rate_limit: "..." }
-        small_eval_warning: true | false
-      cheap_paths:
-        - { cheat: "<lazy optimizer path>", fence: "<constraint>", detection: "<instrument>" }
-      preflight:
-        known_good: "<fixture/artifact or pending>"
-        known_bad: "<fixture/artifact or pending>"
-        lint_trip: "<expected VOID case>"
-        probe_gap_threshold: "<N>"
-        holdout_blinding_check: "<command/result or pending>"
-        status: pass | pending | blocked
-      forced_entropy:
-        stall_rule: "<same-knob-harder ban>"
-        exploration_quota: "<cadence>"
-        iteration_log: "<required fields>"
-    axes:
-      contract_unit: { proof: "...", gates: [] }
-      integration: { proof: "...", gates: [] }
-      surface_e2e: { proof: "...", gates: [] }
-      harness_ratchet: { proof: "...", gates: [] }
-      adversarial_eval: { proof: "...", gates: [] }
-    receipts: []
-  ultraqa:
-    mode: dynamic_e2e_inside_pentagon
-    goal: "<hostile runtime QA goal>"
-    required_scenario_classes: [normal_path, malformed_input, prompt_injection, cancel_resume, stale_state, dirty_worktree, hung_command, flaky_or_retried, misleading_success_output]
-    baseline: []
-    scenario_matrix: []
-  quality:
-    ai_slop_cleaner:
-      required: true | false
-      reason: "<cleanup/refactor/fallback/boundary risk>"
-      scope: []
-      review_gate: "<verifier or N/A>"
+dna_yaml.required:
+  [ontology, intent, entity_kind, lifecycle_target, acceptance, local_refs, local_constraints, source_context]
+source_context.capture_ledger:
+  [intent_id, topic, compiled_intent, artifact_ref, route_state, fidelity, next_route, blocker]
+source_context.design_handoff_required_when_from_design:
+  [recommendation, first_slice, acceptance_horizon, proof_design, forbidden_moves, unresolved_forks]
+execution_yaml.required:
+  [topology, runtime_profile, validation_chain, proof_gates, receipt_policy, checkpoint_policy, budget, exit_conditions, slices]
+slice.required:
+  [id, title, behavior_coverage, what_to_build, why_this_slice, acceptance_criteria, operator_context, verifier_contract, write_scope, constraints, failure_modes, review_status, approval_source]
+proof_gates.required_when:
+  [non_trivial, runtime_or_agentic_behavior, promotion_decision, cleanup_or_refactor, fallback_or_boundary_risk]
+proof_gates.shape:
+  pentagon: { target, promotion_decision, highest_risk_claim, axes, receipts, lfd? }
+  lfd: { target, constraints, instruments, eval_split, cheap_path_fences, preflight }
+  ultraqa: { mode: dynamic_e2e_inside_pentagon, goal, required_scenario_classes, baseline, scenario_matrix }
+  quality: { ai_slop_cleaner: { required, reason, scope, review_gate } }
 ```
 
 ## Gates
@@ -286,7 +216,7 @@ while the fork remains.
 ## Output Templates
 
 <proposal-turn-one>
-## Proposal Alignment: {task_id}
+## Execution Alignment: {task_id}
 
 Current stage: {stage_name}
 Ledger: {intent_id_or_none}; fidelity {fidelity_pct_or_unknown}; artifact {artifact_ref_or_none}; state {route_state}; blocker {blocker_or_none}
@@ -307,7 +237,7 @@ Next: answer a/b/c, ask d, or say "emit" if this is already aligned.
 <slice-review>
 ## Slice Review: {task_id}
 
-Plan: frame {xx%}; slices {xx%}; determinism {xx%}; verify {xx%}; unresolved {n}
+Readiness: frame {xx%}; slices {xx%}; determinism {xx%}; verify {xx%}; unresolved {n}
 Ledger: {intent_id_or_none}; source {artifact_ref_or_none}; fidelity {fidelity_pct_or_unknown}; state {route_state}; blocker {blocker_or_none}
 
 1. {title} -- {AFK|HITL}; blocked_by {ids|None}; covers {target}; verify {check}; cold-start {pass|gap}; {draft|aligned|execution_ready}
@@ -325,8 +255,8 @@ Review question: {one_question_needed_to_advance}
 - {acceptance_highlight}
 - {constraint_or_boundary}
 
-### Plan Alignment
-Plan: frame {xx%}; slices {xx%}; determinism {xx%}; verify {xx%}; unresolved 0
+### Execution Packet
+Readiness: frame {xx%}; slices {xx%}; determinism {xx%}; verify {xx%}; unresolved 0
 
 ### Ledger
 - source: {intent_id_or_none} from {artifact_ref_or_none}
@@ -350,7 +280,11 @@ Next: run `/exec {task_id}`, queue via `/capture`, or ask for the full exec menu
 
 ## Red Flags
 
+- "I'll gather the repo first, then summarize the proposal."
+- "Compaction can recover the plan from chat."
+- "The proposal task exists, so implementation can start."
 - "The executor can pick."
+- "I'll run plan first."
 - "Both options are valid."
 - "I'll show all slices now."
 - "These slices are execution_ready."
@@ -362,9 +296,4 @@ Next: run `/exec {task_id}`, queue via `/capture`, or ask for the full exec menu
 - "A generated eval design is enough without known-good/known-bad calibration."
 - "The capture ledger can be dropped once task DNA exists."
 - "What would you propose means write task DNA."
-
-## Related
-
-- `/work` routes lifecycle lanes.
-- `/capture` provides captured entities and fidelity.
-- `/exec` runs execution-ready slices.
+- "The plan exists, so propose is automatic."

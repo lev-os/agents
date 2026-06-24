@@ -1,6 +1,6 @@
 ---
-name: pentagon
-description: Legacy Pentagon entrypoint. Use as eval-builder: design Lev eval suites, runtime scenarios, acceptance criteria, adversarial probes, or proof gates for agentic features before implementation or promotion.
+name: eval-builder
+description: "lev eval, core/eval, design eval suites, runtime scenarios, acceptance criteria, adversarial probes, or proof gates for agentic features before implementation or promotion."
 ---
 
 # Eval Builder (legacy Pentagon entrypoint)
