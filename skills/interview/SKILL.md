@@ -109,19 +109,19 @@ steps:
     instruction: |
       The design artifact should include the PRD-derived content needed for later slicing:
       problem statement, solution direction, user/operator stories, implementation decisions,
-      testing decisions, and out-of-scope boundaries.
+      proof design, design-to-propose handoff, and out-of-scope boundaries.
 
       Before asking the user, inspect repo/docs for domain vocabulary, ADRs, major modules,
       deep-module candidates, and test prior art. Ask only for product or design judgment
       that lookup cannot answer.
-    validation: "Design artifact has product framing, stories, implementation decisions, testing decisions, and out-of-scope boundaries when relevant."
+    validation: "Design artifact has product framing, stories, implementation decisions, proof design, propose handoff, and out-of-scope boundaries when relevant."
     on_failure: "Ask one focused design question for the missing product/design requirement."
 
   - id: shape_proof_design
     action: Design QA/Pentagon proof before proposal
     instruction: |
       For non-trivial, runtime, agentic, promotion, cleanup, fallback, or boundary-risk work,
-      add proof design to the Testing Decisions section before handing off to propose.
+      add proof design to the Proof Design section before handing off to propose.
       Name the promotion decision, highest-risk behavioral claim, fail-closed acceptance,
       required Pentagon axes, UltraQA scenario classes, owner-local test placement, and
       any ai-slop-cleaner review gate.
@@ -130,7 +130,9 @@ steps:
       live with the owning module and use shared testing/eval helpers. Do not put
       module-specific tests into core/testing just because Pentagon is involved.
       This is internal design hygiene unless the user asks for d. Deep dive.
-    validation: "Testing Decisions include proof design or explicitly mark proof gates N/A with rationale."
+      Also update Design-to-Propose Handoff with first executable slice, acceptance
+      horizon, expected receipts, forbidden moves, and unresolved forks.
+    validation: "Proof Design and Design-to-Propose Handoff include proof fields or explicitly mark proof gates N/A with rationale."
     on_failure: "Ask one focused proof-design question before proposing."
 
   - id: shape_semantic_controls
@@ -175,6 +177,7 @@ steps:
     instruction: |
       Treat interview as a design phase, not a generic planning phase.
       The output target is a design artifact: problem framing, constraints, direction, alternatives, interaction model, PRD-style product sections, risks, and recommendation.
+      It should also carry proof design and a design-to-propose handoff when the next step is execution packet creation.
       Write or update the design under .lev/pm/designs/ using the canonical design template.
       When the user says propose, stop interviewing and hand the aligned design to propose.
     validation: "A design artifact path under .lev/pm/designs/ is named or updated."
@@ -342,7 +345,7 @@ score:
     quick: "complexity < 0.35"
     standard: "0.35 <= complexity < 0.70"
     deep: "complexity >= 0.70"
-  design_readiness_gate: "The design is ready to propose when ambiguity is at or below the active threshold, major branches are resolved or explicitly deferred, and the design artifact can name acceptance horizon and constraints."
+  design_readiness_gate: "The design is ready to propose when ambiguity is at or below the active threshold, major branches are resolved or explicitly deferred, and the design artifact can name acceptance horizon, constraints, first slice, proof signals, and forbidden moves."
   progress_fields:
     design_entity: "The .lev/pm/designs artifact path or slug. It identifies the durable design, not process state."
     phase: "orientation until ambiguity is below threshold, design while resolving branches, proof-shaping while naming gates/KPIs, ready-to-propose when propose can harden it."
@@ -374,6 +377,7 @@ rules:
   - "Use live XML sections for reusable output templates; do not wrap active XML templates in fenced Markdown blocks."
   - "Use d. Deep dive for evidence, gates, trade-offs, codebase exploration, and alternate lenses."
   - "When the user says propose, stop interviewing and route the aligned design to propose."
+  - "When the user says plan, route to the standalone planning lane instead of treating plan as a propose prerequisite."
 validation: "Output is an orientation question while ambiguity is high, then a design question after branch discovery. Both use recommendation, a/b/c choices, Progress line, and emoji HUD. Deep detail appears only after d. Deep dive."
 on_failure: "Rewrite the response using the orientation or design live XML section template."
 ```

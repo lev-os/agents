@@ -69,19 +69,19 @@ Describe the proposed solution from the user, operator, or system perspective.
 - Domain vocabulary and ADRs that must shape the design
 - Deep-module candidates with simple, testable interfaces
 
-### Testing Decisions
+### Proof Design
 
 - External behavior that proves success
 - Modules, flows, or contracts that need tests
 - Prior-art tests, validators, fixtures, or replay checks to reuse
-- QA/Pentagon proof design when applicable:
-  - promotion decision
-  - highest-risk behavioral claim
-  - fail-closed acceptance criterion
-  - owner-local test/probe/fixture placement
-  - Pentagon axes required
-  - UltraQA scenario classes required
-  - ai-slop-cleaner review gate for cleanup/refactor/fallback/boundary risk
+- Promotion decision
+- Highest-risk behavioral claim
+- Fail-closed acceptance criterion
+- Owner-local test/probe/fixture placement
+- Required receipt fields
+- Pentagon axes required, or N/A with rationale
+- UltraQA scenario classes required, or N/A with rationale
+- ai-slop-cleaner review gate for cleanup/refactor/fallback/boundary risk
 
 ### Out of Scope
 
@@ -146,8 +146,24 @@ List the specs this design informs or depends on.
 
 State the preferred design direction and why.
 
+## Design-to-Propose Handoff
+
+Use this section only when the next step is `/propose`. It should let propose
+compile one executable task packet without re-running a planning lane.
+
+- First executable slice:
+- Acceptance horizon:
+- Expected receipts:
+- Write scope:
+- Forbidden moves:
+- Open forks:
+- Suggested runtime profile:
+- Validation chain:
+
 ## Promotion Readiness
 
-- [ ] Ready to promote to `docs/_inbox`
+- [ ] Ready for `/propose`
+- [ ] Needs more interview
+- [ ] Needs prototype or runtime receipt
 - [ ] Needs spec follow-up
-- [ ] Needs prototype or examples
+- [ ] Blocked

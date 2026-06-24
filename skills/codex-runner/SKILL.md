@@ -44,7 +44,7 @@ reviewer approves.
 
    ```bash
    CODEX_HOME="${LAZYCODEX_HOME:-$HOME/.codex-lazycodex-trial}" codex exec \
-     -c sandbox_mode="workspace-write" \
+     -s workspace-write \
      --output-last-message /tmp/<task-id>-last.txt \
      "$(cat /tmp/<task-id>-prompt.md)" < /dev/null
    ```
@@ -52,9 +52,17 @@ reviewer approves.
    - `< /dev/null` is MANDATORY for background runs. A backgrounded codex
      inherits a non-TTY stdin with no EOF and blocks forever on
      "Reading additional input from stdin..." — looks launched, does nothing.
-   - The `-c sandbox_mode` override stays even though the OmO home's config
-     already sets workspace-write — belt and suspenders against config drift
-     (OmO hooks rewrite their own config on session start).
+   - Use `-s workspace-write` for ordinary code-mutating workers. For trusted
+     local macOS workers that must run canonical `uv` verifiers, use
+     `-s danger-full-access`: Codex `workspace-write` can make `uv` fail before
+     Python starts with `~/.cache/uv` permission errors or a
+     `system-configuration` panic. Keep the prompt write scope bounded and the
+     controller replay mandatory.
+   - If a worker was already launched under `workspace-write` and `uv` fails
+     before invoking Python, the worker may run the equivalent
+     `.venv/bin/python -m ...` verifier as a local fallback. Report both the
+     failed `uv` command and the fallback command. The controller still reruns
+     the canonical `uv` gate where its shell permits it.
    - Auth lives in `<CODEX_HOME>/auth.json`. A managed/trial home holds its OWN
      copy, so a token rotation in `~/.codex` staleds it → `401 token
      invalidated`. Refresh: `cp ~/.codex/auth.json <CODEX_HOME>/auth.json`.
@@ -86,7 +94,8 @@ Every dispatch prompt must declare, like a subagent brief:
 | Flag | Role |
 |---|---|
 | `--output-last-message <file>` | the return value — always set it |
-| `-c key=value` | config override (`sandbox_mode`, `model_reasoning_effort`) |
+| `-c key=value` | config override (`model_reasoning_effort`, feature toggles) |
+| `-s <mode>` | sandbox mode; use `danger-full-access` only for trusted local workers that must run `uv` |
 | `--json` | JSONL event stream for machine harvesting |
 | `--cd <dir>` | working directory |
 | `-m <model>` | ONLY on an explicit current-run user override |
@@ -98,9 +107,12 @@ adapter/model/effort policy.
 
 ## Sandbox Rules
 
-- Default `-c sandbox_mode="workspace-write"`. Never `danger-full-access` for
-  code-mutating work, even if the active `CODEX_HOME` config sets it — override
-  it down on the command line.
+- Default `-s workspace-write`.
+- Trusted local macOS exception: if the worker must run `uv`, use
+  `-s danger-full-access` at launch. Do not use this exception for untrusted
+  repositories, remote checkouts, or broad exploratory workers. It only changes
+  the OS sandbox needed for `uv`; it does not relax the prompt's write scope,
+  proof duties, or controller verification.
 - Known gotcha: if the repo is reached via a symlink, the git index can resolve
   outside the writable root and the worker's `git add` fails silently-late.
   The controller stages files after harvest — always.
@@ -121,7 +133,7 @@ adapter/model/effort policy.
 
 - "The worker said DONE, so it's done."
 - "I'll pass the prompt inline; quoting is probably fine."
-- "danger-full-access is okay for one run."
+- "danger-full-access is okay without a trusted local `uv` verifier need."
 - "The worker already staged/committed its files."
 - "I'll hardcode the model so it's reproducible."
 
