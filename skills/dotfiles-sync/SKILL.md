@@ -38,7 +38,7 @@ Run this workflow when you need to:
 1. Run `dotfiles status` and `dotfiles sync` in parallel.
 2. Run `dotfiles inspect chezmoi-diff` to get full diff content for every entry.
 3. **Auto-classify every diff** into exactly one of these buckets. There is NO "manual review" bucket — every diff MUST be classified:
-   - **remote-only** — exists in remote, not reflected locally (DA where source newer)
+   - **remote-only** — exists in remote, not reflected locally. This does not automatically mean local intentionally removed it; it can also mean this machine never installed or does not use an optional file.
    - **local-drift** — local changed intentionally, remote is stale (MM where target newer)
    - **conflict** — both changed in the same area (MM where both recent, content diverges structurally)
    - **volatile** — runtime noise: `.tmp`, `installation_id`, cache files, lockfiles, IDE state (auto NO-GO, silent skip)
@@ -49,17 +49,19 @@ Run this workflow when you need to:
    - If the path is in `.chezmoiignore`, skip entirely — it should not appear in the report.
    - If the path matches known volatile patterns (`.tmp`, `installation_id`, `plugins/`, `cache/`, `*.log`, `*.lock`), classify as **volatile** automatically.
    - If the diff shows only whitespace, line-ending, or timestamp changes, classify as **volatile**.
-   - If DA and source is newer, classify as **remote-only**.
+   - If DA and source is newer, inspect intent before recommending apply. Local absence can mean "not installed on this machine", not "removed globally". Example: `.config/opencode/oh-my-opencode.json` existed only in remote while local `opencode.json` was newer; the correct action was to forget the remote-only optional file, not apply it locally.
    - If MM and target is newer, classify as **local-drift**.
    - If R (rename), read both old and new source files to determine if content is equivalent or changed.
+   - If any parent source path starts with `exact_`, audit the parent ownership before classifying child diffs. Exact directories make local runtime files appear as delete/re-add drift. Example: `exact_dot_codex` caused Codex sqlite/native-host/runtime files to recur every sync; the correct action was to convert to non-exact `dot_codex/AGENTS.md`, not classify every runtime file independently.
+   - Treat `run_onchange_*` scripts as executable side effects, not normal file updates. Inspect the script before GO. Example: the QMD installer was narrow; `install-deps` triggered broad Homebrew upgrades and was not safe as a QMD-scoped action.
    - Check `.lev/pm/handoffs/` and memory for prior decisions about specific paths before classifying ambiguous items.
 
 4. For each classified diff, determine GO/NO-GO:
-   - **remote-only** → GO (apply from remote to local)
+   - **remote-only** → GO only when the remote file is clearly desired on this machine; otherwise ESCALATE or intentional-removal/forget
    - **local-drift** → GO (re-add from local to remote)
    - **conflict** → ESCALATE (present both sides, require explicit user decision)
    - **volatile** → NO-GO (skip silently, recommend adding to `.chezmoiignore` if not already there)
-   - **script-rename** → GO (apply the renamed script)
+   - **script-rename** → GO only after side-effect review confirms the script is safe for this sync scope
    - **intentional-removal** → GO (remove from remote via `chezmoi forget`)
 
 ### Phase 2: Enriched Report (first response to user)
@@ -83,7 +85,7 @@ ACTIONS (GO)
 | ... | | | | |
 
 ESCALATIONS (need decision)
-| # | Path | Local says | Remote says | My recommendation |
+| # | Path | Local intent | Remote intent | My recommendation |
 |---|------|-----------|-------------|-------------------|
 | (none if clean) | | | | |
 
@@ -97,6 +99,8 @@ CHEZMOIIGNORE CANDIDATES
 |------|-----|
 | (paths that keep showing up as volatile but aren't in .chezmoiignore yet) |
 ```
+
+For escalations, explain intent, not just timestamps. Timestamp is evidence only. Example: local OpenCode config newer than remote means local may win, but a single remote package-name correction can still be merged intentionally.
 
 End the report with a single go/no-go prompt:
 - If zero escalations: "All N actions are auto-classified GO. Execute? [y/n]"
