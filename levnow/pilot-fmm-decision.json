@@ -1,0 +1,138 @@
+{
+ "meta": {
+  "title": "Pilot Speech vs the FMM — two decisions",
+  "description": "How pilot transmissions leak to the FMM as commands, the 2A/2B fork, and the ownship-state decision for report_request",
+  "layout": "default",
+  "effects": ["title-underline"]
+ },
+ "theme": { "preset": "teal-slate", "mode": "dark" },
+ "root": ["hero", "lead", "three-things", "leak-section", "leak-diagram", "leak-table", "fork-section", "ownship-section", "ownship-cards", "today-section"],
+ "elements": {
+  "hero": {
+   "type": "hero",
+   "variant": "editorial",
+   "props": {
+    "category": "DECISION BRIEF — NAAC VOICE",
+    "title": "Pilot speech and the FMM: the leak, the fork, and the missing state",
+    "subtitle": "Why 'origin=pilot reaches the FMM' is one over-broad line of code, and the two choices only JP can make",
+    "meta": "2026-07-05 · Sunny-PC · audit-verified with file:line"
+   }
+  },
+  "lead": {
+   "type": "text",
+   "variant": "lead",
+   "props": {
+    "content": "You asked two things: how the hell pilot transmissions get to the FMM at all, and (separately) why report_request isn't finished. Both come down to the same underlying fact: **the system has no way to say \"this is ownship's own voice / ownship's own state\" as a first-class concept.** Pilot requests get mislabeled as command authority (the leak), and ownship facts like souls-on-board have no typed home (the gap). This page explains each, then puts the two decisions in front of you."
+   }
+  },
+  "three-things": {
+   "type": "section",
+   "variant": "card-grid",
+   "props": { "label": "FIRST", "title": "Three different 'pilot' things — never conflate them", "subtitle": "Your instinct is right; these are separate lanes with separate rules" },
+   "children": ["thing-1", "thing-2", "thing-3"]
+  },
+  "thing-1": { "type": "card", "props": { "title": "🖥 COPI GUI pilot buttons (demo)", "content": "The Windows console's canned pilot phrases — exist only because you can't fly MSFS and press buttons at once. Demo lane, gateway boundary, NEVER prod authority. Today's regression test now asserts this path carries no origin label at all." } },
+  "thing-2": { "type": "card", "props": { "title": "📜 Scenario pilot rows (eval data)", "content": "Scripted turns in the corpora where ownship's pilot transmits ('N17XX, request flight following'). They exist so scenarios are realistic two-sided radio. P7 made them authority-inert. They are test DATA, not a prod speech-handling feature." } },
+  "thing-3": { "type": "card", "props": { "title": "⚠️ Pilot policy that snuck in (the leak)", "content": "The real problem: dispatch code maps pilot REQUESTS to the authority kind 'reporting_obligation' — the one kind policy allows through the pilot gate. That's how a request reaches the fake FMM as a command proposal. This is the thing to fix, and it's one branch of code." } },
+  "leak-section": {
+   "type": "section",
+   "variant": "default",
+   "props": { "label": "THE LEAK", "title": "How a pilot request reaches the FMM", "subtitle": "Audit-verified chain — the bug is step 4" },
+   "children": ["leak-prose"]
+  },
+  "leak-prose": {
+   "type": "text",
+   "variant": "prose",
+   "props": {
+    "content": "Why do we parse pilot speech at all? Two legitimate reasons: **party line** (other aircraft's calls build the traffic picture — never FMM, dropped as non-ownship) and **ownship's own scripted calls** (the FMM should *know* we asked for flight following — that's ownship state). Neither is command authority.\n\nThe defect: `_proposed_authority_kind` in `modules/intent/pipeline_dispatch.py:703-710` collapses **three different contract families** — pilot_request, pilot_report, emergency_declaration — into ONE authority kind: `reporting_obligation`. And `reporting_obligation` is the single kind the policy allows through the pilot-origin gate (it exists for genuinely solicited reports like answering 'say souls on board'). So every pilot request and report rides the report lane straight past the gate and arrives at the FMM dressed as a command proposal. Six intents leak this way: comm_request, report_request, unable_response, verification_request, ctaf_broadcast, position_report.\n\nThere is no 'pilot_request' or 'ownship state' authority kind in the enum at all — `reporting_obligation` is doing triple duty as a catch-all. The P7 work landed the gate and the origin plumbing correctly; this mislabeling is what remains."
+   }
+  },
+  "leak-diagram": {
+   "type": "diagram",
+   "props": {
+    "engine": "mermaid",
+    "content": "flowchart LR\n  A[\"Pilot keys mic:\\n'request flight following'\"] --> B[\"Parser\\nintent=comm_request\\norigin=pilot\"]\n  B --> C[\"Contract family\\npilot_request\"]\n  C --> D[\"BUG pipeline_dispatch.py:703\\nfamily collapsed to kind\\n'reporting_obligation'\"]\n  D --> E{\"Pilot-origin gate\\naddressing_policy.yaml:32\"}\n  E -- \"reporting_obligation\\nis allowed through\" --> F[\"CommandProposal\\nbuilt — WRONG capacity\"]\n  F --> G[\"Fake FMM\\nreturns no_match\\n(accidental save, not design)\"]\n  E -. \"any other kind\\nwould be dropped here\" .-> H[\"observed, authority-inert\\n(what SHOULD happen)\"]"
+   }
+  },
+  "leak-table": {
+   "type": "data-table",
+   "props": {
+    "columns": [
+     {"key": "intent", "label": "Leaking intent"},
+     {"key": "family", "label": "Contract family"},
+     {"key": "example", "label": "In-air example"},
+     {"key": "truth", "label": "What it really is"}
+    ],
+    "rows": [
+     {"intent": "comm_request", "family": "pilot_request", "example": "request flight following", "truth": {"text": "a request — commands nothing", "status": "gap"}},
+     {"intent": "report_request", "family": "pilot_request", "example": "(pilot side of) say souls on board", "truth": {"text": "answer to solicitation — the one honest reporting_obligation", "status": "match"}},
+     {"intent": "unable_response", "family": "pilot_request", "example": "unable direct JEVEY", "truth": {"text": "a refusal — commands nothing", "status": "gap"}},
+     {"intent": "verification_request", "family": "pilot_request", "example": "confirm cleared to land?", "truth": {"text": "a question — commands nothing", "status": "gap"}},
+     {"intent": "position_report", "family": "pilot_report", "example": "one two miles northwest of Lafayette", "truth": {"text": "volunteered state info", "status": "warn"}},
+     {"intent": "ctaf_broadcast", "family": "pilot_report", "example": "Strawn traffic, N17XX downwind…", "truth": {"text": "self-announce — never authority", "status": "gap"}}
+    ]
+   }
+  },
+  "fork-section": {
+   "type": "section",
+   "variant": "default",
+   "props": { "label": "DECISION A", "title": "The fork: what should pilot requests do at the FMM boundary?", "subtitle": "Both options fix the mislabeling (a request stops being 'reporting_obligation'). They differ on whether the FMM stays AWARE." },
+   "children": ["fork-prose", "fork-table-inner"]
+  },
+  "fork-prose": {
+   "type": "text",
+   "variant": "prose",
+   "props": {
+    "content": "Your ruling was 'origin=pilot shouldn't even reach the FMM at all.' There's one wrinkle the codebase's own contract adds: `data/CLAUDE.md` says pilot_request and pilot_report **still require FMM authority before any spoken output** — the FMM is supposed to know ownship asked for flight following, because that's ownship state (in Phase 3, the real FMM tracks 'we requested FF, awaiting approval'). So 'reach the FMM' is overloaded: reach it **as a command** (never — both options kill this) vs reach it **as state awareness** (the contract says yes)."
+   }
+  },
+  "fork-table-inner": {
+   "type": "data-table",
+   "props": {
+    "columns": [
+     {"key": "q", "label": ""},
+     {"key": "a2a", "label": "2A — hard drop at the gate"},
+     {"key": "a2b", "label": "2B — new non-command state kind"}
+    ],
+    "rows": [
+     {"q": "Pilot request as CommandProposal", "a2a": {"text": "never — dropped pre-FMM", "status": "match"}, "a2b": {"text": "never — typed as state annotation, not a proposal", "status": "match"}},
+     {"q": "FMM aware ownship asked for something", "a2a": {"text": "NO — awareness lost (or needs a separate side-channel later)", "status": "warn"}, "a2b": {"text": "YES — routed as ownship_state_annotation, FMM never tries to authorize it", "status": "match"}},
+     {"q": "data/CLAUDE.md 'FMM authority before spoken output' contract", "a2a": {"text": "technically violated unless readback release is re-gated elsewhere", "status": "gap"}, "a2b": {"text": "satisfied cleanly", "status": "match"}},
+     {"q": "Diff size", "a2a": {"text": "smallest — new enum kind, leave it out of the allowed set", "status": "match"}, "a2b": {"text": "moderate — new enum kind + new fmm_route + fake-FMM state handling", "status": "info"}},
+     {"q": "Phase 3 fit (real FMM)", "a2a": {"text": "real FMM would need the awareness lane added back", "status": "warn"}, "a2b": {"text": "the awareness lane IS the Phase 3 shape, built early", "status": "match"}},
+     {"q": "Matches your ruling literally", "a2a": {"text": "yes", "status": "match"}, "a2b": {"text": "yes in command terms; FMM still SEES ownship state", "status": "info"}}
+    ]
+   }
+  },
+  "ownship-section": {
+   "type": "section",
+   "variant": "default",
+   "props": { "label": "DECISION B", "title": "Ownship state — why report_request isn't finished", "subtitle": "The 7 red rows are ATC asking US to report. Answering requires knowing the answer." },
+   "children": ["ownship-prose"]
+  },
+  "ownship-prose": {
+   "type": "text",
+   "variant": "prose",
+   "props": {
+    "content": "In the air: Center says **'November One Seven X-ray X-ray, say souls on board.'** The pilot answers 'Two souls, four hours fuel, November One Seven X-ray X-ray.' For our AI pilot to render that response, the pipeline must KNOW souls=2 and fuel=4h. Where does that knowledge live?\n\nToday: nowhere. `IntentPipelineInput` — the typed object every lane hands the parser (transcript, callsign, position context…) — has **no ownship-state field**. The 7 report_request template rows fail honestly at the readback stage because the renderer has nothing to fill `{souls}` or `{fuel_remaining}` with. I stopped rather than hack values into a test helper, because where ownship truth lives is an architecture decision:\n\n**Option 1 — extend the typed input now.** Add an optional `ownship_state` block (souls, fuel, ATIS code, position…) to IntentPipelineInput. Scenario fixtures populate it in eval; in prod it stays None until the real FMM feeds it in Phase 3. Small, additive, and it's the same shape Phase 3 needs — the fake FMM just gets a typed slot to be fake IN, instead of nothing.\n\n**Option 2 — defer to Phase 3.** The real FMM owns flight state; don't build a container it will replace. The 7 rows stay red with followup ids for months, and report_request ships without a per-phrase gate.\n\nNote the connection to Decision A: if you pick **2B** there (FMM state annotations), ownship_state and the annotation lane are two ends of the same pipe — ownship facts flow IN via IntentPipelineInput, ownship declarations flow OUT as state annotations. Picking 2B + Option 1 builds one coherent Phase-3-shaped state axis."
+   }
+  },
+  "ownship-cards": {
+   "type": "section",
+   "variant": "card-grid",
+   "props": { "label": "", "title": "What each choice costs" },
+   "children": ["oc-1", "oc-2"]
+  },
+  "oc-1": { "type": "card", "variant": "callout", "props": { "variant": "info", "title": "Extend now", "content": "One optional typed field + fixtures. report_request closes, the 26/26 panel gate becomes fully green, and Phase 3 inherits a ready-made socket. Risk: we guess the field shape slightly wrong and Phase 3 adjusts it — cheap, it's optional and additive." } },
+  "oc-2": { "type": "card", "variant": "callout", "props": { "variant": "warning", "title": "Defer", "content": "Zero modules churn today. Cost: 7 rows red indefinitely, report_request unverified end-to-end, panel gate carries a permanent exclusion, and the demo can't answer 'say souls on board' at all." } },
+  "today-section": {
+   "type": "section",
+   "variant": "card-grid",
+   "props": { "label": "ALREADY DONE TODAY", "title": "Landed while you read", "subtitle": "No decisions were needed for these" },
+   "children": ["td-1", "td-2", "td-3"]
+  },
+  "td-1": { "type": "card", "props": { "title": "✅ Console origin label", "content": "The Windows console's radio-capture path (BATC audio off CABLE-B) now posts transmission_origin='atc'. The demo pilot-button path deliberately stays unlabeled — asserted by a new regression test so the demo lane can never gain authority semantics." } },
+  "td-2": { "type": "card", "props": { "title": "✅ SUNNY_SIDECAR retired", "content": "SUNNY_SIDECAR.md and .yaml removed; the Gateway Authority Boundary rule itself stands in AGENTS.md (exceptions = discuss with JP + feature flag). Historical analyses keep their references as archives." } },
+  "td-3": { "type": "card", "props": { "title": "⏳ B-corpus readback diagnostics", "content": "Worker in flight: readback match/mismatch column for all 476 template rows, diagnostic-only (zero pass/fail change), per your 'diagnostic first, then flip' ruling. First honest numbers when it lands." } }
+ }
+}

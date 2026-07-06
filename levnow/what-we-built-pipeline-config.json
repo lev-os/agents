@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "title": "What We Built: The Config-Instantiated Parser Pipeline",
+    "description": "How the NAAC intent pipeline went from hardcoded sequence to policy-driven instrument — and why that was the real answer to the say-again problem",
+    "effects": ["hero-gradient", "title-underline", "card-glow"]
+  },
+  "theme": { "preset": "deep-blue-gold", "mode": "dark" },
+  "root": ["hero", "story", "before-after", "architecture", "how-built", "unlocks", "guardrails", "companions"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "NAAC ENGINEERING RECAP",
+        "title": "From Hardcoded Sequence to Policy Instrument",
+        "subtitle": "What we actually built when we set out to build a say-again escalation ladder",
+        "meta": "July 2–3, 2026 · shipped in commits 545138d8a + b8c7e9dc9"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": { "content": "The request was a failure/remediation pipeline: say again once, escalate to a model on the second miss, everything configurable per environment and flight. The investigation found something better than a new system to build — the repair framework already existed inside the candidate arbitration layer, gated by policy, with budgets and telemetry. It was just welded shut: the order of repair strategies was a fixed code sequence, providers were constructed from a hardcoded tuple, and turning anything on, off, or around meant editing Python. So the foundation work became: make the existing pipeline instantiable from config, byte-for-byte identical, so every future remediation experiment is a YAML edit instead of a refactor." }
+    },
+
+    "story": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "THE FINDING", "title": "The pipeline was already the framework" },
+      "children": ["story-prose", "story-quote"]
+    },
+    "story-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": { "content": "Every utterance segment gets a **raw parse** from the regex cascade — the most-trusted candidate, trust tier zero. Then repair sources compete to displace it: template ASR cleanup, generated strict templates, fuzzy row hints, a fine-tuned qwen structured parser, the grammar/Earley shadow lane, slot repair. A **PolicyChain** picks the winner by trust tier among policy-eligible candidates, and a YAML overlay (`CandidateSourcePolicy`) already controlled each source's mode — off, shadow (runs but can never win), or active — plus trust tiers, row scoping, and score thresholds.\n\nWhat it could *not* do: change **which sources run, in what order**, or add a second pipeline with a different recipe. Three welds held it shut — the candidate build sequence hardcoded inside `arbitrate_segment_candidates`, the provider tuple hardcoded in `pipeline_factory`, and DeBERTa's disabled state expressed as a constructor branch instead of a config fact." }
+    },
+    "story-quote": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": { "content": "Isn't this kinda just the same pipeline we have with candidates? — the hunch that redirected the whole effort. It was 80% right; the missing 20% was config, not code." }
+    },
+
+    "before-after": {
+      "type": "section",
+      "variant": "diff-panels",
+      "props": { "label": "THE CHANGE", "title": "One list in YAML replaced three welds in Python" },
+      "children": ["before-card", "after-card"]
+    },
+    "before-card": {
+      "type": "card",
+      "variant": "default",
+      "props": { "title": "Before", "content": "Candidate sources ran in a fixed inline sequence inside a 500-line function. Adding, removing, or reordering a repair strategy meant editing arbitration code and re-proving the whole surface. Providers came from a literal tuple in the factory. A second pipeline (a repair recipe, an experiment lane) required forking code paths." }
+    },
+    "after-card": {
+      "type": "card",
+      "variant": "default",
+      "props": { "title": "After", "content": "The overlay's `candidate_source_order` list is the single dispatch truth. Arbitration walks it; the factory instantiates providers from a registry by walking the same list; validation fails closed at overlay load and daemon startup — unknown source, missing raw, duplicates, or an empty order can never reach a live turn. A second pipeline is now one more overlay document through the same loader." }
+    },
+
+    "architecture": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "SHAPE", "title": "The pipeline as it runs today", "subtitle": "Solid boxes execute per segment; the order box is the part that moved from code to data." },
+      "children": ["arch-diagram"]
+    },
+    "arch-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "content": "flowchart LR\n  A[ATC utterance] --> B[ASR transcript]\n  B --> C[Compound splitter]\n  C --> D[Raw regex parse per segment]\n  D --> E{{candidate_source_order\\nYAML overlay}}\n  E --> F1[template ASR cleanup]\n  E --> F2[generated strict template]\n  E --> F3[fuzzy row hint]\n  E --> F4[qwen structured parse]\n  E --> F5[grammar / Earley shadow]\n  E --> F6[slot repair]\n  F1 & F2 & F3 & F4 & F5 & F6 --> G[PolicyChain\\ntrust-tier arbitration]\n  D --> G\n  G --> H[Winner candidate]\n  H --> I[FMM proposal + decision]\n  I --> J[Readback render + TTS]\n  style E fill:#8a6d1a,stroke:#c9a227,color:#fff\n  style F5 stroke-dasharray: 5 5\n  style F4 stroke-dasharray: 5 5"
+      }
+    },
+
+    "how-built": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": { "label": "METHOD", "title": "Five slices, each provably inert", "subtitle": "Every slice was gated on determinism (baseline-self-parity, 1539 rows run twice) and a row-for-row baseline diff. Workers' claims were replayed independently; two 'pre-existing failure' claims were verified by control experiments before acceptance." },
+      "children": ["s1", "s2", "s3", "s4", "s5"]
+    },
+    "s1": { "type": "card", "variant": "default", "props": { "title": "1 · Lock", "content": "Regression tests froze today's behavior first — the exact candidate order, the per-source candidate_index (build-order-assigned and load-bearing in evidence), and trace emission order." } },
+    "s2": { "type": "card", "variant": "default", "props": { "title": "2 · Declare", "content": "The order list shipped in YAML with fail-closed loader validation — parsed by everything, consumed by nothing. Pure inert config." } },
+    "s3": { "type": "card", "variant": "default", "props": { "title": "3 · Extract", "content": "The inline blocks became step functions over a shared state object — same literal call sequence, zero semantic change. The riskiest diff, covered by slice 1's locks." } },
+    "s4": { "type": "card", "variant": "default", "props": { "title": "4 · Consume", "content": "Dispatch loops over the YAML order; providers build from a registry; startup validation fails the daemon at boot, never mid-turn. A permuted-order test proves config actually drives behavior." } },
+    "s5": { "type": "card", "variant": "default", "props": { "title": "5 · Freeze", "content": "DeBERTa's absence became a locked config fact: no adapter under the config path, and an architecture-fitness test that fails on any new construction call site." } },
+
+    "unlocks": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "PAYOFF", "title": "What this unlocks", "subtitle": "The original three-step plan is now mostly configuration." },
+      "children": ["u1", "u2", "u3", "u4"]
+    },
+    "u1": { "type": "card", "variant": "elevated", "props": { "title": "🧪 The repair pipeline is one YAML file", "content": "The staged qwen repair design (deterministic evidence retrieval for 4 failure classes, model-planned retrieval for no-intent, all shadow) plugs in as a second overlay document through the same loader — no arbitration changes. That lane was notified it's unblocked." } },
+    "u2": { "type": "card", "variant": "elevated", "props": { "title": "🎚️ Stages become experiments", "content": "Add, remove, reorder, or A/B a remediation strategy by editing a list — with shadow mode, per-source budgets, and would-have-won telemetry already in place to score it." } },
+    "u3": { "type": "card", "variant": "elevated", "props": { "title": "🚫 Disable-don't-delete, enforced", "content": "DeBERTa (or any source) exists in a pipeline only if its config says so. Reviving it as a validator someday is a config discussion, not an archaeology project — and new call sites fail CI today." } },
+    "u4": { "type": "card", "variant": "elevated", "props": { "title": "🗺️ Per-recipe pipelines", "content": "Different overlay documents can define different recipes — the seam for the phase-2/phase-3 clarification behaviors and for named environment profiles, without a config-matrix explosion." } },
+
+    "guardrails": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "TRUST", "title": "Why we believe it changed nothing", "subtitle": "The claim 'byte-identical, just relocated wiring' is load-bearing — here is its evidence." },
+      "children": ["guardrails-prose"]
+    },
+    "guardrails-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": { "content": "**Determinism gate**: `baseline-self-parity` ran green after every slice — two full 1539-row scorecard runs, deep-diffed, zero non-timing differences.\n\n**Row-for-row diffs**: full baseline captured before and after the risky slices; the one non-zero diff (496 rows) was forensically decomposed — 473 rows from a degraded capture (B-runner timeout under load) and 23 rows whose only changes were grammar shadow telemetry with zero pass/fail movement, the exact fingerprint of a *parallel session* promoting grammar candidate_ids mid-window. Verified by inspecting their overlay edit directly.\n\n**Control experiments**: both times a worker claimed 'those failures are pre-existing,' the claim was tested by stashing the changes and re-running — identical failure counts without our code both times.\n\n**Full-pipeline gate**: final-boss ran end-to-end on live audio — 23 of 25 gates green, 356 turns, zero timeouts, p50 322ms. The two red gates diff back to FMM-lane and radio-lane drift accumulated over ten days of parallel work, already routed to their owning lanes with the evidence attached." }
+    },
+
+    "companions": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "AROUND IT", "title": "The decisions that shaped the same two days", "subtitle": "The pipeline work was the build lane; these settled what gets built on top." },
+      "children": ["c1", "c2", "c3"]
+    },
+    "c1": { "type": "card", "variant": "glass", "props": { "title": "📊 Failure modes, measured", "content": "103 failing rows classified into six classes. The decisive finding: regex confidence is hardcoded 1.0, and the worst failures — 31 confident-but-wrong parses — are invisible to any retry ladder. Detected failures get the ladder; undetected ones need a disagreement/validator lane. The 31 rows are now a labeled eval set." } },
+    "c2": { "type": "card", "variant": "glass", "props": { "title": "📦 Turn state as blackbox events", "content": "Decision: no FSM hosted in a daemon. Cross-turn clarification state is data beside flight tracker state — append-only events per flight, counters as folds, FMM payloads captured, transitions validated by the FSM's table as a library. Ratification requested from the blackbox lane." } },
+    "c3": { "type": "card", "variant": "glass", "props": { "title": "🎛️ Phase-2 confidence, honestly", "content": "The demo's 'readback given a confidence level' gets a composite deterministic band (disagreement + slot completeness + coverage), per segment — the seam for phase-3 partial-compound clarification. Pre-declared eval against the 31-row set is running; if it can't beat chance, the demo ships plain readback with no decoration." } }
+  }
+}

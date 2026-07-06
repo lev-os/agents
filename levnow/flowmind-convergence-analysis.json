@@ -1,0 +1,233 @@
+{
+  "meta": {
+    "title": "Can We Execute a FlowMind? — Deep Analysis",
+    "description": "Live execution probe + full prior-art census: flowmind execution, pentagon retirement, intent conservation, tmux lifecycle, and the honest dogfood triage",
+    "layout": "sidebar-toc",
+    "effects": ["grid-dots", "title-underline"]
+  },
+  "theme": { "preset": "teal-slate", "mode": "dark" },
+  "root": ["hero", "tldr-section", "flowmind-section", "pentagon-section", "intent-section", "tmux-section", "triage-section", "lanes-section"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "DEEP ANALYSIS · LEVIATHAN CORE",
+        "title": "Can We Execute a FlowMind?",
+        "subtitle": "Yes — as of this afternoon. Plus the full prior-art record on pentagon retirement, intent conservation, and the tmux lifecycle.",
+        "meta": "2026-07-02 · live execution probe + 5-lane research sweep"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": { "content": "This analysis answers five operator questions with evidence, not summaries: a flow.yaml was executed live through the real runtime during the analysis itself, every pentagon reference in the tree was counted, and each claimed failure was re-verified against the current code and classified honestly." }
+    },
+
+    "tldr-section": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "TL;DR", "title": "The four headline facts" },
+      "children": ["kpi-flow", "kpi-pentagon", "kpi-intent", "kpi-tmux"]
+    },
+    "kpi-flow": { "type": "card", "variant": "kpi", "props": { "value": "2 lines", "label": "of code stood between the CLI and real flow execution — both fixed and verified live today" } },
+    "kpi-pentagon": { "type": "card", "variant": "kpi", "props": { "value": "2,152", "label": "pentagon references across 346 files — and NO existing ruling says it moves to core/eval" } },
+    "kpi-intent": { "type": "card", "variant": "kpi", "props": { "value": "built", "label": "intent conservation already exists as a tested evaluator pack in core/eval — it just isn't enforcing" } },
+    "kpi-tmux": { "type": "card", "variant": "kpi", "props": { "value": 0, "label": "lev tmux CLI commands, despite a full lifecycle SDK (nudges, reaper, warm sessions) sitting underneath" } },
+
+    "flowmind-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "QUESTION 1", "title": "FlowMind execution: proven live, one lane still unconverged", "subtitle": "Not a paper answer — a 24-line community flow was executed through the real runtime during this analysis" },
+      "children": ["flowmind-prose", "flowmind-timeline", "flowmind-callout", "flowmind-entry-table"]
+    },
+    "flowmind-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": { "content": "The `flowmind` CLI is a **compiler by design** — list, show, compile, validate, debug. It never executes. Real execution belongs to `lev exec --flow=<path>`, and that lane turned out to be advertised but unreachable: two independent argument gates each forgot that `--flow` counts as a task. Invoking the CLI's own documented example printed the help screen and **reported success**.\n\nBoth gates were fixed during this analysis (one line each), and the demo flow then executed for real: the graph compiled its four nodes, the plan node ran a **live haiku agent through the managed tmux transport to completion**, the execute node ran, and receipts sealed to the canonical per-user data directory. `lev exec --status` showed the run live while it happened.\n\nThe run still exits red at the final gate node, and the error is the finding: *\"tmux execution must resolve Poly providers through ExecutionBinding, not registry.run.\"* The gate-evaluator lane is the last piece of the execution path still calling the retired provider-resolution mechanism. That one lane is what stands between today and a fully green flow demo — and it's the same family as the provider-card gap that breaks the flowmind scenario in the dogfood suite." }
+    },
+    "flowmind-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          { "date": "Probe 1", "title": "Documented invocation prints help, exits 0", "status": "completed", "description": "lev exec --flow=<demo> --knob task=... returned the help screen with a success exit code — the first arg gate never counts --flow as work. A script calling this would believe it ran." },
+          { "date": "Fix 1 + Probe 2", "title": "Second gate rejects the same invocation", "status": "completed", "description": "Past the help gate, a deeper validation layer threw 'Task description required' — it also forgot --flow. Fixed with the matching one-liner; the error message now names --flow as a valid entry." },
+          { "date": "Probe 3", "title": "Flow executes: real agent, real receipts", "status": "completed", "description": "Graph compiled (4 nodes), plan node ran a live haiku agent via tmux to completion, execute node completed, receipts sealed under the XDG data route with full provenance." },
+          { "date": "Remaining", "title": "Gate node fails on the retired resolution path", "status": "in-progress", "description": "The verify gate's evaluator lane still resolves providers through registry.run, which tmux execution forbids. Converging this lane onto ExecutionBinding is the last step to a green end-to-end flow." }
+        ]
+      }
+    },
+    "flowmind-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": { "variant": "info", "title": "Bonus catch from the live receipts", "content": "The sealed receipt carries execId, runId, and correlationId as three names for the same value — the camelCase identity drift, observed live on the wire. The snake_case rename finished in the last session; the camelCase layer is a queued follow-up lane and this receipt is its concrete exhibit." }
+    },
+    "flowmind-entry-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Surface", "What it does", "State"],
+        "rows": [
+          ["lev exec --flow=<path> --knob k=v", "Executes a flow.yaml through the execution-contract state machine", { "text": "Works (fixed today)", "status": "match" }],
+          ["flowmind CLI (list/compile/validate)", "Compiles flows to 9 targets; inventories 328 flow files (276 parse clean, 52 fail)", { "text": "Works, compile-only", "status": "match" }],
+          ["Gate/eval nodes inside a flow", "Verify gates with evaluator slots", { "text": "Unconverged lane", "status": "gap" }],
+          ["lev eval run <dogfood suite> --execute", "12 real community scenarios through live execution", { "text": "12 run / 2 fail", "status": "warn" }],
+          ["Community example flows (memory-recall, sdlc, irl)", "Agent-node flows needing an LLM provider (local Ollama default, any OpenAI-compatible via config)", { "text": "Blocked on gate lane", "status": "warn" }]
+        ]
+      }
+    },
+
+    "pentagon-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "QUESTION 2", "title": "Pentagon: the record disagrees with the memory", "subtitle": "Full census: 2,152 references across 346 files — and what 'hard cutover to core/eval' would actually mean" },
+      "children": ["pentagon-prose", "pentagon-table", "pentagon-callout"]
+    },
+    "pentagon-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": { "content": "Pentagon is two things wearing one name: the **6-class test taxonomy** (unit, integration, e2e-surface, harness-ratchet, agent-smoke, eval-harness — originally five, hence the shape) and the **per-project proof runner** (`lev pentagon propose/init/run/gate/doctor`) that generates suites, runs them across every surface, and checks proof-log receipts.\n\nThe important census finding: **no ruling in the record orders pentagon into core/eval.** The one-brain invariant — core/eval is the only verdict/score/proof *emitter* — was completed and verified in the convergence queue. Pentagon is a verdict *consumer*: a runner and taxonomy, deliberately owned by core/testing, with satellite packages for daemon-surface parity and tmux proof contracts. The closest prior art is a tmux-harness constraint saying proof helpers belong \"in core/eval **or core/testing** during migration,\" and a FlowMind note naming core/eval the consolidation target for sensors, eval suites, and proof projection.\n\nSo the operator ruling being made now — *the word pentagon dies* — is new canon, not the completion of an old order. It needs one decision ratified: **where the runner lands.** The recommendation is to absorb it into core/eval (one proof brain: suites, runner, verdict projection under one roof, with the daemon-parity package folding in as daemon-surface suites), accepting the larger rename over preserving a runner-vs-emitter split that mostly exists to justify the extra package." }
+    },
+    "pentagon-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Where", "Refs", "What lives there"],
+        "rows": [
+          ["core/testing", "502", "The primary home: 20+ exported Pentagon types/functions, plan/gate/proof runner, suites"],
+          ["community/examples", "271", "15+ examples ship pentagon/ proof directories"],
+          ["core/daemon-pentagon", "219", "An entire package named after it (daemon surface parity suites)"],
+          ["plugins/graph-adapters", "217", "Pentagon runner + 9 per-adapter pentagon test files"],
+          ["workshop + docs + dna", "~400", "16 plugin DNA files carry a pentagon_classes field on every handler; 3 gates named for it"],
+          ["core/tmux-harness, poly, build, domain, exec", "~190", "Proof contracts, provider cutover checks, install handler references"]
+        ]
+      }
+    },
+    "pentagon-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": { "variant": "warning", "title": "Needs your ratification before execution", "content": "Recommended: absorb the proof-runner into core/eval and kill the word everywhere (core first, community/workshop sweep as a follow-up lane). Alternative preserved in the research file: rename in place under core/testing, keeping the runner/emitter separation. Either way the vocabulary dies — the decision is the landing zone." }
+    },
+
+    "intent-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "QUESTION 3", "title": "Intent conservation: already built, not enforcing", "subtitle": "The DNA literally names it 'the first stock core-loop evaluator' — the work is promotion, not design" },
+      "children": ["intent-prose", "intent-quote", "intent-table"]
+    },
+    "intent-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": { "content": "A complete, tested evaluator pack sits at `core/eval/evaluators/intent_conservation/` — manifest, a measurement flow, a sensor companion, and gate/routing policies — proven loadable by core/eval's own tests. The semantic-control spec locked the rulings in June: semantic control **is the loop mechanism**; the LLM never scores (typed observation goes up, code computes, policy decides); every run seal carries an `intent_ref` with a content hash so mid-loop drift of the intent source itself is detectable; and the verify gate is a slotted template where evaluators attach as lists.\n\nThe capture-ledger pattern the project already runs on — compiled intent plus a fidelity score gated at 0.8 — is the human-checkpoint ancestor of the same idea: a preservation score gating a lifecycle edge.\n\nWhat's missing is enforcement. The pack is wired `warn_only` in exactly one bridge, and the live-runtime failure analysis independently flagged its gate-proof projection as a gap. The recommended landing (pending your confirmation, since the question went unanswered): wire it as the verify gate on the same shell-proof flow this analysis executed, run real executions until conserved/drifted verdicts seal into receipts, then flip the blocking default — an eval-first rollout that also makes the flow demo the first working proof of semantic control." }
+    },
+    "intent-quote": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": { "content": "Intent is L0 ontology; its core-loop manifestation is intent-conservation, the first stock core-loop evaluator. Every run carries intent_ref (+ content hash) as mandatory provenance. — dna/primitives.yaml" }
+    },
+    "intent-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Signal the pack measures", "Threshold", "Lifecycle route"],
+        "rows": [
+          ["intent_similarity — candidate effect vs seed goal", "floor 0.95", "below → drifted → mutate"],
+          ["semantic_drift — 0.5·goal + 0.3·constraint + 0.2·ontology", "ceiling 0.2", "above → drifted / violated"],
+          ["constraint findings — preserved / weakened / violated", "no violations", "violated → discard"],
+          ["ambiguity", "ceiling 0.2", "above → unclear → hold (ask)"],
+          ["evidence sufficiency", "min 1 ref, fail-closed", "missing → violated"],
+          ["intent_ref content hash", "exact match", "mismatch = mid-loop intent swap detected"]
+        ]
+      }
+    },
+
+    "tmux-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "QUESTION 4", "title": "Tmux lifecycle: the SDK exists, the operator surface doesn't", "subtitle": "Nudges, reaper, warm sessions, repair algebra — all built. Reachable by an operator: none of it." },
+      "children": ["tmux-prose", "tmux-table", "tmux-callout"]
+    },
+    "tmux-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": { "content": "The tmux-harness package is a genuinely rich lifecycle SDK. A session object with create/connect/message/capture/wait/observe/shutdown and evidence receipts. An **idle-nudge policy** (threshold, cooldown, max nudges, configurable nudge text) that emits idle-detected/nudge-sent/nudge-exhausted events. A **reaper** with a real outcome algebra — killed, skipped, rebound, resumed, lost, held, escalated — protected-pane guards, and PID-liveness checks. A warm-session registry with stale-session cleanup, session repair (rebind/resume with identity checks), and worker leases with heartbeats.\n\nTwo gaps keep all of that invisible. First, **there is no `lev tmux` command group at all** — the CLI even ships a help hint telling users to run `lev tmux kill`, a command that does not exist anywhere. The reaper is reachable only as a package-local script. Second, **nothing schedules the reaper**: the runtime-layers constitution records five independent timer worlds and names the gaps a scheduling substrate must fill — reaper/pollers/health as registered interval providers, unified clock ownership, and the three-clocks policy (readiness, stall, wall-clock budget) for tmux, which is specced but unimplemented.\n\nThe team-runtime plan (spawn a tmux-backed worker team, neutral status, clean shutdown, canonical events) stays deferred by your own ruling — it's greenfield, and correctly parked until the lifecycle API underneath it is done." }
+    },
+    "tmux-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Capability", "SDK today", "Operator surface today"],
+        "rows": [
+          ["List / inspect sessions", { "text": "Built", "status": "match" }, { "text": "None", "status": "gap" }],
+          ["Kill a session (with protected-target guard)", { "text": "Built", "status": "match" }, { "text": "Hint points to nonexistent command", "status": "gap" }],
+          ["Reap dead sessions (outcome algebra, escalation)", { "text": "Built", "status": "match" }, { "text": "Package-local script only", "status": "gap" }],
+          ["Nudge an idle session", { "text": "Built (policy + events)", "status": "match" }, { "text": "None; disabled by default", "status": "gap" }],
+          ["Scheduled reaping / health ticks", { "text": "Not built", "status": "gap" }, { "text": "Blocked on scheduling-substrate ruling", "status": "warn" }],
+          ["Team runtime (spawn/status/shutdown)", { "text": "Greenfield plan, paths current", "status": "info" }, { "text": "Deferred by operator ruling", "status": "info" }]
+        ]
+      }
+    },
+    "tmux-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": { "variant": "success", "title": "Cheapest high-leverage lane in this whole analysis", "content": "lev tmux list / status / kill / reap / nudge as thin handlers over the existing SDK. No new logic — the poly registry auto-discovers handlers, and every one of these operations already has a tested implementation and event vocabulary underneath it." }
+    },
+
+    "triage-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "QUESTION 5", "title": "Dogfood reds vs. true debt — every claim re-verified at HEAD", "subtitle": "Four items, four different kinds of broken. Two are the product's fault, one is a lying package shape, one is a stale harness. No issue codes — what's actually wrong, in words." },
+      "children": ["triage-table", "triage-fixes", "triage-callout"]
+    },
+    "triage-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["What's actually wrong", "Verified state", "Class"],
+        "rows": [
+          ["A run whose agent dies on boot (exit 1) can be recorded as a healthy sealed run — the tmux transport defaults an unobservable exit code to 0 (fail-open)", { "text": "Broken; fix on hold", "status": "gap" }, "PRODUCT BUG"],
+          ["The exec package promised compiled files its build can never produce; imports broke for every non-Bun consumer", { "text": "Runtime fixed today; publish shape still lies", "status": "warn" }, "PACKAGING DEBT"],
+          ["One community proof harness still reads run events from the retired in-repo path; writers and core readers moved to the per-user data dir weeks ago", { "text": "Broken, harness-side only", "status": "warn" }, "STALE TEST"],
+          ["The CLI command that validated a task folder's readiness was deleted with no successor — proof scripts calling it get 'unknown command', and this validator is the designated enforcement successor after the vocabulary classifier retirement", { "text": "Missing", "status": "gap" }, "MISSING SURFACE"]
+        ]
+      }
+    },
+    "triage-fixes": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "FIX SHAPES", "title": "What each one takes" },
+      "children": ["fix-1", "fix-2", "fix-3", "fix-4"]
+    },
+    "fix-1": { "type": "card", "variant": "default", "props": { "title": "🔴 Product bug — fail-closed exit", "content": "One-line semantics change (unobservable exit ≠ success) plus a regression test replaying the real boot-failure capture. Currently held pending an in-flight sweep that rewrites the same files — that hold is worth revisiting." } },
+    "fix-2": { "type": "card", "variant": "default", "props": { "title": "🟠 Packaging debt — finish source-first", "content": "Exports are source-first now and consumers resolve. Remaining: main/types still point at a nonexistent compiled file and a stale compiled tree sits on disk — only matters if the package is ever published." } },
+    "fix-3": { "type": "card", "variant": "default", "props": { "title": "🟡 Stale test — repoint the harness", "content": "Point the community proof harness at the canonical route resolver; core's own reader already does route-first with a labeled historical fallback. The product is emitting evidence correctly." } },
+    "fix-4": { "type": "card", "variant": "default", "props": { "title": "🔴 Missing surface — restore the command", "content": "Thin auto-discovered handler wrapping the existing (healthy, green) readiness-validation library with --json output. The validation logic itself needs zero changes." } },
+    "triage-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": { "variant": "warning", "title": "The one that should jump the queue", "content": "The fail-open exit code is a truth-integrity defect in the run ledger — the exact machinery every receipt, eval, and future intent-conservation verdict depends on. Its fix is deliberately on hold behind an in-flight classification sweep; that hold is a judgment call worth revisiting now that the convergence queue is done." }
+    },
+
+    "lanes-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "SYNTHESIS", "title": "The proposed order of work", "subtitle": "Each lane sized honestly; the first three make 'execute a flowmind' fully, provably green" },
+      "children": ["lanes-table", "lanes-prose"]
+    },
+    "lanes-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["#", "Lane", "Why this order", "Size"],
+        "rows": [
+          ["1", "Fail-closed exit observation", "Run-ledger truth underpins everything else on this list", "Small (held fix + test)"],
+          ["2", "Converge the gate-evaluator lane onto ExecutionBinding + give the deterministic local provider its card + repoint the stale harness", "Makes the live flow demo AND the dogfood suite fully green (12/12)", "Medium"],
+          ["3", "Intent conservation as the verify gate on that green flow, then flip the blocking default", "First working proof of semantic control, on real receipts", "Medium (promotion + wiring)"],
+          ["4", "Restore the task-readiness CLI command", "Unblocks proof scripts; required for post-classifier enforcement", "Small (thin handler)"],
+          ["5", "lev tmux list/status/kill/reap/nudge", "Whole lifecycle SDK becomes operator-reachable; zero new logic", "Small-medium"],
+          ["6", "Pentagon vocabulary cutover", "Big rename (346 files); needs the landing-zone ratification above", "Large, mechanical after ruling"]
+        ]
+      }
+    },
+    "lanes-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": { "content": "Fixed during this analysis and already verified: the two argument gates that made flow execution unreachable (regression suite green), plus the earlier fixture-vocabulary and test-ratchet repairs. Lanes 1–5 are ordinary bounded work under the existing worker/replay protocol. Lane 6 executes whenever the landing-zone ruling lands — the census and both options are preserved in the research files for that decision." }
+    }
+  }
+}

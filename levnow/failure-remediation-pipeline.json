@@ -1,0 +1,207 @@
+{
+  "meta": {
+    "title": "Failure/Remediation Pipeline — Session Dashboard",
+    "description": "Say-again escalation ladder, qwen repair lane, and config-instantiated parser pipelines: what was measured, decided, and shipped",
+    "effects": ["grid-dots", "card-glow", "title-underline"]
+  },
+  "theme": { "preset": "teal-slate", "mode": "dark" },
+  "root": ["hero", "kpis", "headline-findings", "taxonomy", "panel", "arch-decision", "execution", "artifacts", "decisions"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "centered",
+      "props": {
+        "category": "NAAC · FAILURE-REMEDIATION-PIPELINE",
+        "title": "Say-Again Ladder, Qwen Repair & Pipeline Config",
+        "subtitle": "One session: failure modes measured, escalation design decided, refactor executing",
+        "meta": "2026-07-02 → 07-03 · branch Sunny-PC · nothing committed yet"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": { "content": "The ask: fail once → say again, fail twice → hand the turn to a qwen repair loop, all configurable. The finding: the candidate pipeline already IS the remediation framework — what's missing is turn-level state, and the worst failures (confident wrong parses) are invisible to any retry ladder." }
+    },
+
+    "kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "BASELINE TRUTH", "title": "Where the corpus stands" },
+      "children": ["kpi-baseline", "kpi-failing", "kpi-invisible", "kpi-slices", "kpi-conf"]
+    },
+    "kpi-baseline": { "type": "card", "variant": "kpi", "props": { "value": "95.7%", "label": "Scored baseline (1201/1255)", "trend": { "direction": "up", "value": "94.1 → 95.7" } } },
+    "kpi-failing": { "type": "card", "variant": "kpi", "props": { "value": 103, "label": "Failing ownship rows (A1+A2+B1)" } },
+    "kpi-invisible": { "type": "card", "variant": "kpi", "props": { "value": 31, "label": "Rows invisible to any retry ladder", "trend": { "direction": "down", "value": "false positives" } } },
+    "kpi-slices": { "type": "card", "variant": "kpi", "props": { "value": "2/5", "label": "Refactor slices landed (slice 3 in flight)" } },
+    "kpi-conf": { "type": "card", "variant": "kpi", "props": { "value": "1.0", "label": "Regex confidence — hardcoded, on every match" } },
+
+    "headline-findings": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "MEASURED", "title": "Three findings that reshape the design", "subtitle": "Each one was verified in code or measured against the fresh baseline — not assumed." },
+      "children": ["finding-conf", "finding-ladder", "finding-fsm"]
+    },
+    "finding-conf": {
+      "type": "card",
+      "variant": "callout",
+      "props": { "variant": "warning", "title": "Confidence is a dead signal", "content": "The regex parser returns confidence 1.0 for any match. All 18 failing rows with readable confidence show exactly 1.0; the A1/A2 lane didn't serialize confidence at all (now fixed). A confidence-gated ladder catches zero of the 15 wrong-intent false positives." }
+    },
+    "finding-ladder": {
+      "type": "card",
+      "variant": "callout",
+      "props": { "variant": "warning", "title": "The ladder only sees detected failures", "content": "Say-again escalation addresses at most 18 of 103 failing rows (no-parse + missing-slots). The ~31 confident-but-wrong rows never trigger it — they need a separate disagreement/validator lane that can veto or force-confirm, never bless." }
+    },
+    "finding-fsm": {
+      "type": "card",
+      "variant": "callout",
+      "props": { "variant": "info", "title": "Live say-again loops are unbounded", "content": "ConversationFSM (3-strike counter, spec'd and test-locked) is constructed only in tests. The live path is ad-hoc strings in the coordinator. Wiring the FSM is the prerequisite for any 'second failure' behavior — confirmed independently by two research passes." }
+    },
+
+    "taxonomy": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "FAILURE MODES", "title": "Where the 103 failing rows actually break", "subtitle": "Classified from the 2026-07-02 baseline. The class determines the remediation route — count alone is the wrong trigger." },
+      "children": ["taxonomy-chart", "taxonomy-table"]
+    },
+    "taxonomy-chart": {
+      "type": "chart",
+      "props": {
+        "chartType": "doughnut",
+        "title": "Failing rows by class",
+        "labels": ["FMM / downstream (45)", "Wrong slot value (16)", "Wrong intent — false positive (15)", "Missing slots (12)", "Compound split (9)", "No parse (6)"],
+        "datasets": [{ "data": [45, 16, 15, 12, 9, 6], "backgroundColor": ["#2dd4bf", "#f59e0b", "#ef4444", "#38bdf8", "#a78bfa", "#64748b"] }]
+      }
+    },
+    "taxonomy-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "cls", "label": "Class" },
+          { "key": "count", "label": "Count", "numeric": true },
+          { "key": "visible", "label": "Ladder sees it?" },
+          { "key": "trigger", "label": "Repair trigger today" },
+          { "key": "route", "label": "Correct remediation route" }
+        ],
+        "rows": [
+          { "cls": "FMM / downstream", "count": 45, "visible": { "text": "N/A — parse was fine", "status": "info" }, "trigger": "out of scope", "route": "FMM authority lane (handoff written)" },
+          { "cls": "Wrong slot value", "count": 16, "visible": { "text": "Mostly invisible", "status": "gap" }, "trigger": "plausible values pass bounds", "route": "validator / disagreement lane" },
+          { "cls": "Wrong intent", "count": 15, "visible": { "text": "Invisible", "status": "gap" }, "trigger": "skips — parse looks valid", "route": "validator / disagreement lane" },
+          { "cls": "Missing slots", "count": 12, "visible": { "text": "Yes", "status": "match" }, "trigger": "missing_required_slots fires", "route": "best qwen-repair target (rich evidence)" },
+          { "cls": "Compound split", "count": 9, "visible": { "text": "Out of scope", "status": "warn" }, "trigger": "upstream of per-segment repair", "route": "full-utterance re-parse strategy" },
+          { "cls": "No parse", "count": 6, "visible": { "text": "Yes", "status": "match" }, "trigger": "no_intent fires", "route": "say-again is the correct tier 1" }
+        ]
+      }
+    },
+
+    "panel": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "EXPERT PANEL", "title": "Three critics, three verdicts", "subtitle": "Independent reviews grounded in the code maps, run before any design was fixed." },
+      "children": ["panel-arch", "panel-safety", "panel-premortem"]
+    },
+    "panel-arch": {
+      "type": "card",
+      "variant": "elevated",
+      "props": { "title": "🏗️ Architect", "content": "Your unification instinct is 80% right: repair output is just another Candidate through PolicyChain — never fork a second engine. What's genuinely new is the turn-level ladder. Single-shot rich-context qwen beats an agentic tool-loop: the 4B V27a is a structured parser, not a tool-caller, and injecting all evidence costs hundreds of tokens vs seconds per tool round-trip." }
+    },
+    "panel-safety": {
+      "type": "card",
+      "variant": "elevated",
+      "props": { "title": "🛡️ Safety / Authority", "content": "\"Please standby\" is controller→pilot phraseology — a pilot-side system saying it to ATC inverts the authority gradient. The #1 gap is stale-clearance turn-invalidation: a readback 15s late may confirm a re-issued clearance. Gate by intent criticality, not failure count; runway/takeoff/altitude never enter the LLM loop. Qwen tops out at advisory/confirm-only." }
+    },
+    "panel-premortem": {
+      "type": "card",
+      "variant": "elevated",
+      "props": { "title": "⏳ Pre-mortem", "content": "The 3-strike ceiling is a hardcoded safety invariant — policy configures what happens within it, never the count. No free-form env × flight × aircraft config matrix: ship 3–4 named profiles, each with its own baseline row. Declare the numeric promotion metric before coding, or this repeats the grammar lane's months in shadow purgatory." }
+    },
+
+    "arch-decision": {
+      "type": "section",
+      "variant": "comparison",
+      "props": { "label": "DECISION", "title": "FSM hosting: intent daemon, two phases", "subtitle": "/arch trade-off analysis across three candidates. Response daemon stays a stateless renderer; the coordinator string-path shrinks instead of growing." },
+      "children": ["arch-phase1", "arch-phase2"]
+    },
+    "arch-phase1": {
+      "type": "card",
+      "variant": "default",
+      "props": { "title": "Phase 1 — no new topics", "content": "Host ConversationFSM in the intent daemon, keyed per callsign beside the already-wired FlightStateTracker. Parse-side failures (no-parse, missing slots — exactly the ladder-visible classes) are all visible there today. Reconcile spec drift: max_clarification_attempts becomes a real constructor param, validated 1 ≤ n ≤ 3 — config can tighten the ceiling, never loosen it." }
+    },
+    "arch-phase2": {
+      "type": "card",
+      "variant": "default",
+      "props": { "title": "Phase 2 — close the loop", "content": "Add a response → intent turn-outcome feedback event so decision-gate and render failures also increment the counter. Ships only when the ladder needs those classes; the pending NATS-in-process config flag makes this hop nearly free later. Fitness functions lock the boundary: response may never import the FSM; attempts > 3 raises." }
+    },
+
+    "execution": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "EXECUTION", "title": "What actually shipped this session", "subtitle": "Every slice is parity-gated: baseline-self-parity green plus row-for-row diff before acceptance. Workers' claims were replayed independently before being marked done." },
+      "children": ["exec-timeline"]
+    },
+    "exec-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          { "date": "Jul 2 · research", "title": "Three code maps + three-critic panel", "status": "completed", "description": "Say-again flow, candidate arbitration, qwen/config surfaces mapped with file:line evidence; architect, safety, and pre-mortem critiques synthesized into the options menu." },
+          { "date": "Jul 2 · measurement", "title": "Failure taxonomy + confidence analysis", "status": "completed", "description": "103 failing rows classified into six classes; confidence proven a dead signal; the 31-row false-positive set is now a labeled eval asset (receipt in the workstream)." },
+          { "date": "Jul 2 · handoffs", "title": "Two handoffs routed to other lanes", "status": "completed", "description": "Qwen repair prototype (single-shot, shadow, advisory-only) for a parallel chat; 45 FMM-downstream rows routed to the FMM authority lane, merged with the existing regression-batch proposal." },
+          { "date": "Jul 3 · telemetry", "title": "Confidence serialized into A1/A2 baseline rows", "status": "completed", "description": "observed_command_confidences on the FMM comparison, diagnostic-only. Parity green, display rows byte-identical, infra panel replayed by the controller." },
+          { "date": "Jul 3 · slice 1", "title": "Regression locks (codex worker)", "status": "completed", "description": "Candidate-order and factory locks freeze today's behavior. Control experiment proved the 180 red tests in the full intent dir are pre-existing shared-tree drift." },
+          { "date": "Jul 3 · slice 2", "title": "candidate_source_order config key (codex worker)", "status": "completed", "description": "Overlay YAML + fail-closed loader validation (raw-first, no duplicates, known names). Parsed but consumed by nothing; parity green." },
+          { "date": "Jul 3 · slice 3", "title": "Mechanical step extraction", "status": "in-progress", "description": "The byte-identity risk slice: arbitration blocks become step functions, literal call order preserved. Gates: unmodified slice-1 lock, zero-row baseline diff, parity green." },
+          { "date": "next", "title": "Slice 4–5: config goes live, DeBERTa absence locked", "status": "upcoming", "description": "Provider registry consumes the order list with startup fail-closed validation; DeBERTa's absence becomes a locked config fact. Then the repair pipeline is just a second overlay document." }
+        ]
+      }
+    },
+
+    "artifacts": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "PAPER TRAIL", "title": "Durable artifacts", "subtitle": "Everything below survives this session; nothing important lives only in the terminal." },
+      "children": ["artifacts-table"]
+    },
+    "artifacts-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "artifact", "label": "Artifact" },
+          { "key": "path", "label": "Path" },
+          { "key": "state", "label": "State" }
+        ],
+        "rows": [
+          { "artifact": "Workstream (full session state)", "path": ".lev/pm/workstreams/failure-remediation-pipeline/state/workstream.yaml", "state": { "text": "current", "status": "match" } },
+          { "artifact": "Failure taxonomy receipt (per-row)", "path": ".lev/pm/workstreams/failure-remediation-pipeline/receipts/20260702-failing-rows-confidence-taxonomy.json", "state": { "text": "durable", "status": "match" } },
+          { "artifact": "Qwen repair prototype handoff", "path": ".lev/pm/handoffs/20260702-failure-remediation-qwen-repair-prototype-session-1.md", "state": { "text": "ready for /exec", "status": "info" } },
+          { "artifact": "FMM downstream routing handoff", "path": ".lev/pm/handoffs/20260702-fmm-downstream-failing-rows-session-1.md", "state": { "text": "routed out", "status": "info" } },
+          { "artifact": "Confidence telemetry", "path": "harness/engine/scoring/turn_score.py (+28 lines)", "state": { "text": "verified, uncommitted", "status": "warn" } },
+          { "artifact": "Slice 1 locks", "path": "tests/unit/intent/test_candidate_source_order_lock.py + factory lock", "state": { "text": "verified, uncommitted", "status": "warn" } },
+          { "artifact": "Slice 2 config key", "path": "modules/authority/policy_chain.py + data overlay + digest bump", "state": { "text": "verified, uncommitted", "status": "warn" } },
+          { "artifact": "Option-A 5-slice plan", "path": "workstream option_a_plan_2026_07_02", "state": { "text": "executing", "status": "info" } }
+        ]
+      }
+    },
+
+    "decisions": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "YOUR CALLS", "title": "Decisions still open", "subtitle": "Everything else proceeds without input. These three change scope, so they wait for you." },
+      "children": ["dec-fsm", "dec-fp", "dec-class"]
+    },
+    "dec-fsm": {
+      "type": "card",
+      "variant": "glass",
+      "props": { "title": "1 · Approve phase-1 FSM wiring", "content": "Intent daemon hosts the FSM, parse-side failures only, ceiling clamped at 3. Approval unlocks drafting the RemediationPolicy authority contract — the typed YAML that maps (count, criticality, failure class) → action." }
+    },
+    "dec-fp": {
+      "type": "card",
+      "variant": "glass",
+      "props": { "title": "2 · Green-light the false-positive lane", "content": "Slice 1 is pure offline measurement: grammar-shadow disagreement + round-trip readback consistency scored against the 31-row labeled set, with the promotion bar pre-declared (recall at ≤1% false alarms on 1,152 passing rows)." }
+    },
+    "dec-class": {
+      "type": "card",
+      "variant": "glass",
+      "props": { "title": "3 · failure_class as a baseline column", "content": "One deterministic function in the scorer emits the class per failing row — every future ratchet and the qwen prototype's repair-hit-rate become reportable per class. Cheapest when folded into the next scoring-script touch." }
+    }
+  }
+}
