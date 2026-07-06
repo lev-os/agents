@@ -23,14 +23,12 @@ You generate beautiful self-contained HTML pages from a JSON spec using the lev.
 
 1. **Read the spec generator guide** at `plugins/now/src/prompts/spec-generator.md` EVERY TIME. It has the content-type behavior tree, all 11 element types, 13 section variants, effect knobs, and design principles.
 
-2. **Classify the content** using the behavior tree in the guide:
-   - Technical doc → sidebar-toc layout, teal-slate, code blocks
-   - Dashboard → kpi-row, charts, teal-slate or deep-blue-gold
-   - Sales/marketing → centered hero, CTA, card-glow, warm theme
-   - Comparison → full-width tables, status badges, amber-emerald
-   - Presentation → deck variant (scroll-snap slides)
-   - Walkthrough → stepper variant (prev/next steps)
-   - Live monitor → set `meta.refresh: 300` for auto-reload
+2. **Run the template-selection gate** from the guide before generating JSON:
+   - Classify the content, then choose a page strategy such as reader brief, command dashboard, decision memo, architecture map, field guide, showcase story, or deck.
+   - Do not default to the same `hero -> KPI row -> table -> timeline` skeleton. If the last page used the same layout/theme/first three section variants, vary at least one unless the user asked for consistency.
+   - Use `sidebar-toc` only for long reader/reference work where navigation matters more than first-screen impact; technical content alone is not enough.
+   - Pick hero density deliberately: compact for documents and dashboards, immersive for landing/showcase pages, slide-scale only for decks.
+   - Keep a short internal rejected-alternative note while designing so the chosen template is intentional.
 
 3. **Generate the RenderSpec JSON** and save to `~/.agents/levnow/{topic-slug}.json`
 
@@ -69,6 +67,8 @@ When the user asks to publish, showcase, investor-review, QA, or make the page l
 2. Open the local page with `agent-browser`, inspect the accessibility snapshot, and capture desktop + mobile screenshots.
 3. Visually inspect tight crops, not only full-page screenshots. Check the hero, every section header, at least one card grid, every wide table, every timeline, every diagram, every code block, and the final screen.
 4. Fail the page if any of these are true:
+   - The first viewport is mostly hero on a document/dashboard page and gives no useful hint of the next section.
+   - Hero text is centered or presentation-scale on a sidebar/reference document when a reader-aligned compact header would scan better.
    - Section content starts flush against a colored panel edge; section panels need visible interior padding on desktop and mobile.
    - Labels, eyebrows, table headers, nav text, timeline dates, badges, or status chips are too small, too condensed, low-contrast, or rendered in a decorative display font.
    - Display fonts appear in code, terminal blocks, labels, table headers, dates, badges, or other small utility text. Display fonts are for large hero/title use only.
@@ -78,7 +78,7 @@ When the user asks to publish, showcase, investor-review, QA, or make the page l
    - Mermaid captions, fullscreen controls, nav rails, sticky headers, or theme toggles float over content unintentionally.
    - Tables are cramped, cut off without a fullscreen/scroll affordance, or unreadable at mobile width.
    - Mobile screenshots show cropped text, horizontal scroll on normal prose, or tiny labels.
-5. Fix the spec or renderer and rerun the gate until the page is readable by a human who has no terminal context.
+5. Fix the spec or renderer and rerun the gate until the page is readable by a human who has no terminal context. For spacing/alignment work, test at minimum 1440, 1024, 900, 768, and 390px widths.
 
 ## Quick Reference (read the guide for full details)
 
@@ -93,7 +93,7 @@ When the user asks to publish, showcase, investor-review, QA, or make the page l
 **6 Themes:** deep-blue-gold (dark editorial), teal-slate (dark technical), midnight-ink (dark blueprint), terracotta-sage (light warm), rose-cranberry (light refined), amber-emerald (light data)
 
 **Special Features:**
-- Tables with 5+ cols get fullscreen portal toggle (zoom, pan, save)
+- Tables with 4+ cols get fullscreen portal toggle (zoom, pan, save)
 - Diagrams get fullscreen portal with Ctrl+scroll zoom + drag pan + SVG save
 - Cards with children get click-to-expand detail overlays
 - `meta.refresh: N` adds auto-reload for live dashboards

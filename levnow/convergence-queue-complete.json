@@ -1,0 +1,183 @@
+{
+  "meta": {
+    "title": "Core Runtime Convergence — Queue Complete",
+    "description": "All 16 lanes of core-runtime-convergence-master-v2 closed or moved; evidence, follow-ups, and testing methodology",
+    "effects": ["glass", "title-underline", "card-glow"]
+  },
+  "theme": { "preset": "deep-blue-gold", "mode": "dark" },
+  "root": ["hero", "kpi-section", "timeline-section", "closed-today-section", "split-brain-section", "realexec-section", "followups-section", "plugins-lanes-section", "method-section", "footer-section"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "SESSION RECAP · LEVIATHAN",
+        "title": "The Convergence Queue Is Burned Down",
+        "subtitle": "All 16 lanes of core-runtime-convergence-master-v2 are closed or moved — pushed to main through 2276f521f",
+        "meta": "2026-07-02 · session aa50d6de · milestone 6"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": { "content": "Six milestones, sixteen lanes, one operating rule: a worker's prose is a claim, not evidence. Every verifier was replayed by the controller before anything was called done. This page is the full accounting — what closed, what it left behind, and how it was proven." }
+    },
+
+    "kpi-section": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "SCOREBOARD", "title": "Where the queue landed" },
+      "children": ["kpi-lanes", "kpi-milestones", "kpi-tests", "kpi-followups"]
+    },
+    "kpi-lanes": { "type": "card", "variant": "kpi", "props": { "value": "16/16", "label": "roadmap lanes closed or moved" } },
+    "kpi-milestones": { "type": "card", "variant": "kpi", "props": { "value": 6, "label": "milestones synced + pushed to main" } },
+    "kpi-tests": { "type": "card", "variant": "kpi", "props": { "value": "2.8k+", "label": "suite results replayed green in the controller shell" } },
+    "kpi-followups": { "type": "card", "variant": "kpi", "props": { "value": 7, "label": "follow-up issues filed (1 closed: lev-a1p5)" } },
+
+    "timeline-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "MILESTONES", "title": "Six checkpoints from first lint gate to queue complete", "subtitle": "Lanes ran strictly sequentially with a Lore commit between each; read-only audits overlapped where the roadmap marked them parallel-safe" },
+      "children": ["milestone-timeline"]
+    },
+    "milestone-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          { "date": "M1 · 6349b5e94", "title": "Boundary lint fails closed + graph cleanup lands", "status": "completed", "description": "L11 regenerated the dependency-cruiser gate from canon and proved it with seeded violations. L9 deleted all 28 verified-dead symbols; L10 gave 12 unconsumed exports explicit verdicts (8 deleted, 1 kept with a found consumer). L16's read-only plugins audit ran alongside." },
+          { "date": "M2 · cf2872afa", "title": "Eval cutover + one-brain verified with real execution", "status": "completed", "description": "L3 cut core/eval over and ran the full dogfood suite through real lev exec — 12 scenarios executed, 4 genuine runtime failures caught that unit tests had missed. L4 replayed all five one-brain verifiers: core/eval is the only truth-decider, zero effect deps across 377 manifests." },
+          { "date": "M3–M4 · fb6d1912a", "title": "Decompositions, event taxonomy, autodev persistence", "status": "completed", "description": "L12 decomposed the four cognitive hotspots behind a real complexity ratchet (graphEpic 185 → 39). L17 renamed run.sealed → execution.sealed at all 8 production sites; L19 deleted core/poly/src/events; L20 closed autodev event convergence." },
+          { "date": "M5 · 677ca4fc6", "title": "Identity vocabulary hard cutover", "status": "completed", "description": "L18 renamed run_id → execution_id and exec_id → invocation_id across 147 core files (402 renames), pruned the classification ledger to 14 ruled survivors, retired the residue classifier, and armed full rejection. Root cause of every stale-dist bite found: tsconfig.base paths shadow source with dist." },
+          { "date": "M6 · c70bfc776", "title": "Utils lift finished for real, hygiene cleared — queue complete", "status": "completed", "description": "L13 deduped output bounding and re-baselined the graph (−2,963 edges). L15 completed slice-0: asRecord single-sourced, core/utils a zero-dependency leaf, every gate controller-replayed. L7 cleared branches, stashes, stale dists, and one dead daemon test. L16 was already done." }
+        ]
+      }
+    },
+
+    "closed-today-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "FINAL STRETCH", "title": "What the last two lanes actually fixed", "subtitle": "L15 and L7 looked like bookkeeping. The verification pass turned up two real pre-existing breaks and closed them in passing." },
+      "children": ["closed-prose", "iron-law-quote"]
+    },
+    "closed-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": { "content": "The slice-0 completion worker refused to flip its own packet because its sandbox showed red suites — an honest stop. Controller replay proved every one of those reds was environmental: the codex sandbox blocks IPC pipes, localhost binds, and tmux sockets, and the stale-dist mechanism had starved orchestration of a working @lev-os/eval module. With dists rebuilt, the battery came back green.\n\nTwo failures survived replay and were real — neither caused by the lift. The task-readiness test fixtures still declared `exec_id` while the validator had been renamed to require `execution_id` (L18 residue; fixing five fixture files also fixed a third failing site in plugins/sdlc, closing bd issue lev-a1p5). And the daemon-pentagon MCP ratchet demanded 21 scenarios when only 16 exist — commit ee96f4f51 had deliberately rewritten five community examples as deterministic non-MCP runnables, so the ratchet was re-anchored to the honest floor of 16." }
+    },
+    "iron-law-quote": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": { "content": "A worker's prose is a claim, not evidence. Replay the declared verifier yourself before reporting any result as done." }
+    },
+
+    "split-brain-section": {
+      "type": "section",
+      "variant": "comparison",
+      "props": { "label": "SPLIT-BRAIN STATUS", "title": "Verified invariants vs. tracked residue", "subtitle": "No undocumented split-brain found across core modules. Every remaining fork of truth has a named owner." },
+      "children": ["verified-card", "residue-card"]
+    },
+    "verified-card": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "✅ Verified by replay",
+        "content": "**One brain** — core/eval is the only truth-decider; core/effect decides nothing; zero effect deps across 377 manifests (L4, all 5 verifiers replayed).\n\n**One vocabulary** — identity rename executed, classifier retired, rejection armed, 14-entry ruled survivor ledger (L18).\n\n**One event taxonomy** — run.sealed → execution.sealed at all 8 production sites (L17); quad-brain event residue deleted (L19).\n\n**Boundaries fail closed** — seeded eval and telemetry probes both rejected by the regenerated lint gate (L11)."
+      }
+    },
+    "residue-card": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "⚠️ Known residue, tracked",
+        "content": "**lev-8fz9** — tsconfig.base paths let stale dists shadow source. Dists were rebuilt, but the mechanism is still live.\n\n**lev-a1z8** — ~60 camelCase `executionId` sites semantically mean per-call invocation, colliding with canon; plus an ~830-hit legacy sweep.\n\n**InvokeEnvelope** — poly-compiler import ruled adopt-or-delete under F1; deletion not yet executed (operator-blocked).\n\n**MCP SDK location** — relocates poly → transport-mcp pending the client-handshake spike (F1, operator-blocked)."
+      }
+    },
+
+    "realexec-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "REAL EXECUTION", "title": "Unit tests were not the bar", "subtitle": "The L3 close ran the dogfood suite through real lev exec — and it caught what the unit suites could not" },
+      "children": ["realexec-prose", "realexec-callout"]
+    },
+    "realexec-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": { "content": "Twelve scenarios executed for real. Four failed — every failure a genuine runtime truth invisible to unit tests: a vitest config-resolution bug in our own conversion (fixed, 28 tests green on rerun), the exec package's exports promising a dist layout tsc doesn't emit (lev-suhc), a missing provider card failing the execution-binding preflight (lev-odm8), and a pentagon asserting a file deleted in the harness removal (lev-jhfs). Both lev exec binding probes — codex and opencode adapters — were spot-executed end-to-end and passed.\n\nAfter remediation the rerun scored 12 executed / 3 failed, with all three remaining reds pre-existing and owned by P1 issues. The standing rule going forward: any *new* dogfood failure is a regression." }
+    },
+    "realexec-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": { "variant": "warning", "title": "One gate left unproven", "content": "The goal named pi/glm 5.2 as a real-exec target. The evidence trail shows codex and opencode bindings executed for real — but no glm 5.2 profile run. Closing that is a single explicit probe." }
+    },
+
+    "followups-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "FOLLOW-UPS", "title": "Everything the queue left behind, with owners", "subtitle": "Seven bd issues stay open as future lanes; three crystallized workstreams are operator-blocked by explicit ruling — queue completion is not a start trigger" },
+      "children": ["followups-table"]
+    },
+    "followups-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["ID", "What", "Why it matters", "Status"],
+        "rows": [
+          ["lev-8fz9", "Kill the tsconfig.base paths mapping", "Removes the entire stale-dist failure class", { "text": "Open P2", "status": "warn" }],
+          ["lev-a1z8", "camelCase executionId semantic remap (~60 sites + 830-hit sweep)", "Last identity split-brain in core", { "text": "Open P2", "status": "warn" }],
+          ["lev-2dxc", "Rebuild daemon-surface run-evidence coverage", "Real coverage gap after the dead test deletion", { "text": "Open P2", "status": "warn" }],
+          ["lev-jhfs", "CLI successor for lev task validate", "Successor-enforcement mechanism unreachable from CLI", { "text": "Open P1", "status": "gap" }],
+          ["lev-suhc", "exec dist exports lie (paths→src emit shape)", "Breaks every @lev-os/exec subpath consumer", { "text": "Open P1", "status": "gap" }],
+          ["lev-odm8", "Pentagon reads legacy .lev/agentfs event path", "Lags the XDG reader cutover", { "text": "Open P1", "status": "gap" }],
+          ["lev-l50c", "sdlc ultraqa test reads absent SKILL.md", "Only remaining sdlc suite red", { "text": "Open P2", "status": "warn" }],
+          ["F1", "Runtime layers: MCP/poly/transport/daemon specs + handshake spike", "Constitution ratified 4/5; consequence specs unwritten", { "text": "Operator-blocked", "status": "info" }],
+          ["F2", "Steering / response-message framework", "Rulings locked; four scope questions open", { "text": "Operator-blocked", "status": "info" }],
+          ["F3", "Scheduling substrate (heartbeat/reaper/pollers)", "Five independent setInterval worlds; DaemonCore ruling open", { "text": "Operator-blocked", "status": "info" }]
+        ]
+      }
+    },
+
+    "plugins-lanes-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "PLUGINS GRAPH", "title": "L16 audit: proposed lanes, deliberately not executed", "subtitle": "The audit was scoped read-only. Its headline: plugin isolation is STRONG — all 24 violation-shaped graph claims were retracted on grep replay. These lanes await tasking, one by one." },
+      "children": ["plugins-table"]
+    },
+    "plugins-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Proposed lane", "Scope", "Estimate"],
+        "rows": [
+          ["plugins-cleanup-dead-code", "Delete controller-replayed dead symbols (CompactionEngine, ContextAssembler, MCPRegistrar) + replay-then-delete 7 more", "~2,300 LOC"],
+          ["plugins-archive-unused-plugins", "Verify token-compress + reasoning-enhance wholly unconsumed; archive if so — lifecycle decision, not deletion", "decision"],
+          ["plugins-decompose-hotspots", "Behavior-locked decomposition of 13 real hotspots, auth-sniffer cli.ts first (fan_out=36)", "char-tests first"],
+          ["plugins-coupling", "None needed — isolation verified strong", { "text": "No lane", "status": "match" }]
+        ]
+      }
+    },
+
+    "method-section": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "METHODOLOGY", "title": "How every claim was tested", "subtitle": "Six techniques, each forced by a failure mode the session actually hit" },
+      "children": ["m-replay", "m-stash", "m-isolated", "m-emit", "m-seeded", "m-dogfood"]
+    },
+    "m-replay": { "type": "card", "variant": "default", "props": { "title": "🔁 Controller replay", "content": "Every worker-declared verifier re-run in the controller shell. Necessary: the codex sandbox produced false reds three separate ways — blocked network, blocked spawns, blocked IPC/tmux sockets." } },
+    "m-stash": { "type": "card", "variant": "default", "props": { "title": "🧪 Stash-roundtrip attribution", "content": "Re-run the failing test at HEAD with the working-tree changes stashed out. This is how the task-readiness reds were proven pre-existing L18 residue rather than a slice-0 regression." } },
+    "m-isolated": { "type": "card", "variant": "default", "props": { "title": "🎯 Isolated flake re-runs", "content": "The exec load-flake trio failed 2, then 1, then 3 across full-suite runs — and passed 45/45 isolated. Flakes get named, documented, and re-proven, never waved off." } },
+    "m-emit": { "type": "card", "variant": "default", "props": { "title": "📦 Emit counts, not greps", "content": "tsc exits 0 but emits nothing when dist is deleted and *.tsbuildinfo survives — and a grep over an empty dist is vacuously green. Rebuilds are verified by counting emitted files." } },
+    "m-seeded": { "type": "card", "variant": "default", "props": { "title": "🚫 Seeded fail-closed probes", "content": "The regenerated boundary lint gate was proven by planting deliberate violations (eval and telemetry imports) and watching both rule layers reject them — then cleaning the probes." } },
+    "m-dogfood": { "type": "card", "variant": "default", "props": { "title": "🐕 Real-exec dogfood", "content": "The eval suite executed through real lev exec with live adapter bindings. It found four runtime failures the unit suites could not see. Unit tests are contractor-grade; this is the bar." } },
+
+    "footer-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "STATE", "title": "Nothing in flight" },
+      "children": ["footer-prose"]
+    },
+    "footer-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": { "content": "Tree clean, main pushed through `2276f521f`, bd sweep recorded, handoff finalized at `.lev/pm/handoffs/20260702-roadmap-burn-down-session-6.md`. The follow-ups table above is the entire live surface: seven bd lanes ready for tasking, three workstreams awaiting operator review." }
+    }
+  }
+}
