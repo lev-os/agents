@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>NAAC Audio Sync Debrief</title>
-  <meta name="description" content="A compact debrief comparing the local drone checkout, the M3 naac checkout, Google Drive audio visibility, DVC materialization, and the repeatable setup decision." />
-  <meta property="og:title" content="NAAC Audio Sync Debrief" />
-  <meta property="og:description" content="A compact debrief comparing the local drone checkout, the M3 naac checkout, Google Drive audio visibility, DVC materialization, and the repeatable setup decision." />
+  <title>Vernacular Exercise — Sweeps &amp; Road Ahead</title>
+  <meta name="description" content="Three reality sweeps (wiki glossary, DNA census, core-loop audit), the unified finding, the sequencing plan, and the 5-wire backlog." />
+  <meta property="og:title" content="Vernacular Exercise — Sweeps &amp; Road Ahead" />
+  <meta property="og:description" content="Three reality sweeps (wiki glossary, DNA census, core-loop audit), the unified finding, the sequencing plan, and the 5-wire backlog." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage%20Grotesque:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM%20Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fragment%20Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM%20Plex%20Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM%20Plex%20Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage%20Grotesque:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM%20Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fragment%20Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
   <style>
 /* === Reset === */
 *, *::before, *::after { box-sizing: border-box; }
@@ -28,8 +28,8 @@ body, h1, h2, h3, h4, p, ul, ol, blockquote, figure { margin: 0; padding: 0; }
   --color-success: #059669;
   --color-warning: #d97706;
   --color-error: #dc2626;
-  --font-display: 'IBM Plex Sans', Georgia, serif;
-  --font-body: 'IBM Plex Mono', system-ui, sans-serif;
+  --font-display: 'Bricolage Grotesque', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
   --font-mono: 'Fragment Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
   --color-accent-dim: color-mix(in srgb, var(--color-accent) 15%, transparent);
   --color-accent-bright: color-mix(in srgb, var(--color-accent) 80%, white);
@@ -1940,291 +1940,243 @@ code:not(pre code) {
 </head>
 <body>
   <nav class="site-nav">
-    <a class="site-nav__logo" href="#">NAAC</a>
+    <a class="site-nav__logo" href="#">Vernacular</a>
     <div class="site-nav__links">
-      <a href="#kpis">Snapshot</a>
-      <a href="#verdict">Verdict</a>
-      <a href="#machine-comparison">Machine Matrix</a>
-      <a href="#inventory">Inventory</a>
-      <a href="#flow">Setup Model</a>
-      <a href="#decision-table">Decision</a>
-      <a href="#missing-checklist">Plan Gaps Closed</a>
-      <a href="#commands">Commands</a>
+      <a href="#kpis">SCOREBOARD</a>
+      <a href="#sweeps">FINDINGS</a>
+      <a href="#census">EVIDENCE</a>
+      <a href="#unified">THE PATTERN</a>
+      <a href="#glossary">VOCABULARY</a>
+      <a href="#plan">SEQUENCING</a>
+      <a href="#backlog">BACKLOG</a>
+      <a href="#followups">QUEUED</a>
     </div>
   </nav>
+  <nav class="nav-rail" aria-label="Page sections">
+    <button class="nav-dot active" data-label="SCOREBOARD" onclick="scrollToSection(0)"></button>
+    <button class="nav-dot" data-label="FINDINGS" onclick="scrollToSection(1)"></button>
+    <button class="nav-dot" data-label="EVIDENCE" onclick="scrollToSection(2)"></button>
+    <button class="nav-dot" data-label="THE PATTERN" onclick="scrollToSection(3)"></button>
+    <button class="nav-dot" data-label="VOCABULARY" onclick="scrollToSection(4)"></button>
+    <button class="nav-dot" data-label="SEQUENCING" onclick="scrollToSection(5)"></button>
+    <button class="nav-dot" data-label="BACKLOG" onclick="scrollToSection(6)"></button>
+    <button class="nav-dot" data-label="QUEUED" onclick="scrollToSection(7)"></button>
+  </nav>
+  <div class="container">
 <section data-lev-id="hero" class="anim hero hero--editorial" style="--i:0">
   <div class="hero__inner">
-    <span class="hero__category">NAAC AUDIO DATASET SETUP</span>
-    <h1 class="hero__title">Audio Sync Debrief</h1>
-    <p class="hero__subtitle">The M3 audit did not find the same world as this drone checkout. Treat that as signal: repo-local audio, DVC materialization, and Google Drive sync are currently three different surfaces.</p>
-    <p class="hero__meta">Updated 2026-07-06 from M3 audit attachment plus live /production/drone refresh</p>
+    <span class="hero__category">LEV · VERNACULAR EXERCISE</span>
+    <h1 class="hero__title">Three Sweeps, One Missing Layer</h1>
+    <p class="hero__subtitle">Sweep findings, the sequencing call, and the five-wire backlog</p>
+    <p class="hero__meta">2026-07-06 · canon: .lev/pm/designs/vernacular-exercise.md · nothing ratified</p>
     <div data-lev-id="hero-lead" class="anim lead" style="--i:1;">
-  <p>The immediate decision is not model training. It is to standardize the audio root contract: keep DVC-managed repo materialization separate from Google Drive dataset sync, and pass explicit <code>--audio-root</code> values until a canonical Drive root is selected and verified.</p>
+  <p>We mapped Josh&apos;s vocabulary against lev&apos;s, then audited both sides against reality. Verdict: the engines are real, the compiler is real — but the layer that wires declared control into those engines was never started. Same disease on both sides of the coin: his runtime is prose, ours is stubs. Below: the evidence, the plan, and the backlog that starts fixing it.</p>
 </div>
   </div>
 </section>
-  <div class="page-wrap--toc">
-    <input type="checkbox" id="toc-toggle" class="toc-toggle" aria-label="Toggle table of contents">
-    <label for="toc-toggle" class="toc-hamburger" role="button" aria-label="Toggle table of contents"><span></span><span></span><span></span></label>
-    <label for="toc-toggle" class="toc-backdrop" aria-hidden="true"></label>
-    <nav class="page-toc" id="page-toc">
-      <div class="page-toc__title">NAAC</div>
-      <a href="#kpis">Snapshot</a>
-      <a href="#verdict">Verdict</a>
-      <a href="#machine-comparison">Machine Matrix</a>
-      <a href="#inventory">Inventory</a>
-      <a href="#flow">Setup Model</a>
-      <a href="#decision-table">Decision</a>
-      <a href="#missing-checklist">Plan Gaps Closed</a>
-      <a href="#commands">Commands</a>
-      <a href="#next-actions">Next</a>
-    </nav>
-    <div class="page-main">
-
 
 <section data-lev-id="kpis" class="anim section section--kpi-row" style="--i:2" id="kpis">
-  <span class="section-label">Snapshot</span>
-  <h2 class="section-title">What changed after reading the M3 audit</h2>
+  <span class="section-label">SCOREBOARD</span>
+  <h2 class="section-title">What the sweeps measured</h2>
   
-  <div class="section__kpi-row"><div data-lev-id="kpi-m3-mp3" class="anim kpi-card" style="--i:3">
-  <div class="kpi-card__value">50,999</div>
-  <div class="kpi-card__label">M3 repo MP3s across LiveATC classes</div>
-  <span class="kpi-card__trend kpi-card__trend--up">repo-local / DVC materialized</span>
+  <div class="section__kpi-row"><div data-lev-id="kpi-1" class="anim kpi-card" style="--i:3">
+  <div class="kpi-card__value">3</div>
+  <div class="kpi-card__label">reality sweeps landed — glossary, DNA census, loop audit</div>
   
-</div>
-<div data-lev-id="kpi-drone-mp3" class="anim kpi-card" style="--i:4">
-  <div class="kpi-card__value">2,062</div>
-  <div class="kpi-card__label">current drone repo MP3s</div>
-  <span class="kpi-card__trend kpi-card__trend--flat">class-g-ctaf only</span>
   
 </div>
-<div data-lev-id="kpi-drive" class="anim kpi-card" style="--i:5">
-  <div class="kpi-card__value">2</div>
-  <div class="kpi-card__label">Drive surfaces on this machine</div>
-  <span class="kpi-card__trend kpi-card__trend--flat">Shared Drive + shortcut target</span>
+<div data-lev-id="kpi-2" class="anim kpi-card" style="--i:4">
+  <div class="kpi-card__value">25–30%</div>
+  <div class="kpi-card__label">of lev&apos;s declared machinery actually fires (compiler layer ≈ 75%, runtime wiring ≈ 0%)</div>
+  
   
 </div>
-<div data-lev-id="kpi-action" class="anim kpi-card" style="--i:6">
-  <div class="kpi-card__value">0</div>
-  <div class="kpi-card__label">canonical audio roots chosen</div>
-  <span class="kpi-card__trend kpi-card__trend--down">must choose before symlink</span>
+<div data-lev-id="kpi-3" class="anim kpi-card" style="--i:5">
+  <div class="kpi-card__value">44 / 44</div>
+  <div class="kpi-card__label">gates.yaml gates are ceremony — prose checklist, zero check-execution</div>
+  
+  
+</div>
+<div data-lev-id="kpi-4" class="anim kpi-card" style="--i:6">
+  <div class="kpi-card__value">5</div>
+  <div class="kpi-card__label">wires to make &quot;loop 3× until done&quot; real — now a bd backlog</div>
+  
   
 </div></div>
 </section>
 
-<section data-lev-id="verdict" class="anim section section--card-grid" style="--i:7" id="verdict">
-  <span class="section-label">Verdict</span>
-  <h2 class="section-title">Do not treat these machines as synced yet</h2>
+<section data-lev-id="sweeps" class="anim section section--card-grid" style="--i:7" id="sweeps">
+  <span class="section-label">FINDINGS</span>
+  <h2 class="section-title">The three sweeps</h2>
+  <p class="section-subtitle">Each ran as an independent agent; full evidence files in the session scratchpad.</p>
+  <div class="section__grid"><div data-lev-id="sweep-glossary" class="anim ve-card ve-card--elevated" style="--i:8">
+  <span class="ve-card__icon">📖</span>
   
-  <div class="section__grid"><div data-lev-id="verdict-left" class="anim callout callout--warning" style="--i:8">
-  <div class="callout__title">M3 audit result</div>
-  <div class="callout__content"><p>M3 audited <code>/production/naac</code>, not <code>/production/drone</code>. It did not find a usable NAAC Google Drive audio root. Its <code>data/audio</code> is a normal directory with large local/DVC materialization.</p></div>
+  <h3 class="ve-card__title">Wiki glossary sweep</h3>
+  <div class="ve-card__content"><p>Josh&apos;s 456-page wiki, his own words with citations. <strong>PARK: zero occurrences</strong> — purgatory, mesh, and SCC absent too; all iMessage-only vocabulary he never committed to doctrine. What IS concrete: the <strong>graveyard</strong> — 46 deliberate kill-tests (&quot;failed branches define the obstruction boundary&quot;). He <strong>explicitly forbids loose &apos;surprise&apos;</strong> (formal FEP only). New HIGH collision found: <strong>canonical</strong>. And his dictionary supports admissibility-not-truth verbatim.</p></div>
 </div>
-<div data-lev-id="verdict-right" class="anim callout callout--info" style="--i:9">
-  <div class="callout__title">This machine result</div>
-  <div class="callout__content"><p>The current <code>/production/drone</code> checkout also has normal repo-local <code>data/audio</code>, but Google Drive Desktop does expose <code>Clients/NAAC/Data/audio</code> and a shortcut-target LiveATC archive path.</p></div>
+<div data-lev-id="sweep-dna" class="anim ve-card ve-card--elevated" style="--i:9">
+  <span class="ve-card__icon">🧬</span>
+  
+  <h3 class="ve-card__title">DNA reality census</h3>
+  <div class="ve-card__content"><p>JP&apos;s &quot;75% done&quot; holds for the <strong>compiler layer</strong>; the whole declared surface is <strong>25–30% fires</strong>. All 44 gates.yaml gates: prose checklist injected into hooks, no code executes their check fields. ~200 flow files compile but the executor is literally <code>flow-executor-stub.ts</code>. The scheduling runtime (loader + cron ticker + init) is complete — and no daemon boots it. C4/C5 constraint enforcer: &quot;declared vaporware&quot; by graph.yaml&apos;s own admission.</p></div>
+</div>
+<div data-lev-id="sweep-loop" class="anim ve-card ve-card--elevated" style="--i:10">
+  <span class="ve-card__icon">🔁</span>
+  
+  <h3 class="ve-card__title">Core-loop audit</h3>
+  <div class="ve-card__content"><p><code>lev exec --until</code> runs today — but it <strong>trusts the agent</strong>: the until-condition is pasted into the prompt and the loop exits when the agent says DONE (a text scan of the last 20 lines). <code>confidence_threshold</code> exists in the types and is never read. The iterative runner imports <strong>zero</strong> eval code — VERIFY_GATE is a separate system. The SDLC overlay YAML says about itself: &quot;this mechanism does not exist in the executor yet.&quot; Tmux: solid SDK, no <code>lev tmux</code> CLI. No daemon anywhere.</p></div>
 </div></div>
 </section>
 
-<section data-lev-id="machine-comparison" class="anim section section--full-width" style="--i:10" id="machine-comparison">
-  <span class="section-label">Machine Matrix</span>
-  <h2 class="section-title">M3 vs this drone checkout</h2>
-  
-  <div class="section__full-width"><div data-lev-id="machine-table" class="anim table-wrap" style="--i:10">
+<section data-lev-id="census" class="anim section section--full-width" style="--i:10" id="census">
+  <span class="section-label">EVIDENCE</span>
+  <h2 class="section-title">Declared vs. fires — the census table</h2>
+  <p class="section-subtitle">FIRES = production code path runs it · TESTS-ONLY = only vitest exercises it · CEREMONY = consumer exists, fired ~once or as prose · NEVER = no consumer at all</p>
+  <div class="section__full-width"><div data-lev-id="census-table" class="anim table-wrap" style="--i:10">
   
   <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
   <table class="data-table">
-    <thead><tr><th>Axis</th><th>M3 audit</th><th>Current drone refresh</th><th>What it means</th><th>Status</th></tr></thead>
+    <thead><tr><th>Declared thing</th><th>What it claims</th><th>Grade</th><th>Reality</th></tr></thead>
     <tbody>
-      <tr><td>Repo path</td><td>/Users/.../production/naac</td><td>/Users/.../production/drone</td><td>The M3 agent did not audit the requested path because it was missing there.</td><td><span class="status status--warn">mismatch</span></td></tr>
-      <tr><td>Branch</td><td>Sunny-PC, parent behind 23, data behind 7</td><td>Sunny-PC, current checkout present</td><td>M3 may be stale relative to current drone work.</td><td><span class="status status--warn">check before sync</span></td></tr>
-      <tr><td>data/audio type</td><td>Normal directory, not symlink</td><td>Normal directory, not symlink</td><td>Neither repo is wired to Drive through <code>data/audio</code>.</td><td><span class="status status--match">confirmed</span></td></tr>
-      <tr><td>Tracked audio metadata</td><td>class-d-towered.dvc, class-g-ctaf.dvc, jobs.dvc</td><td>same three .dvc pointers</td><td>Git tracks DVC metadata, not raw audio payloads.</td><td><span class="status status--match">aligned</span></td></tr>
-      <tr><td>Materialized repo audio</td><td>class-b, class-c, class-d, class-d-towered, class-g-ctaf, jobs, logs</td><td>class-g-ctaf, jobs</td><td>M3 has much more local audio than this checkout.</td><td><span class="status status--gap">drift</span></td></tr>
-      <tr><td>Google Drive audio root</td><td>No usable NAAC audio root found; argomarine Drive provider stalled</td><td>Shared Drive path exists; shortcut-target LiveATC archives exist</td><td>Drive account/root setup differs by machine.</td><td><span class="status status--warn">blocked on standard</span></td></tr>
+      <tr><td>FlowMind compiler + 5/9 targets</td><td>Compile flows to smartdown, hooks, system-prompt, skill, schedule</td><td><span class="status status--match">FIRES</span></td><td>Real outputs; .claude/hooks/*.sh generated and running daily</td></tr>
+      <tr><td>DNA contracts (~60 dna.yaml)</td><td>Behavioral contracts loaded by validator</td><td><span class="status status--match">FIRES</span></td><td>lev validate consumes them via plugins/dna loader</td></tr>
+      <tr><td>C1 finitude + C2 non-commutation</td><td>Kernel-boot constraint checks</td><td><span class="status status--match">FIRES</span></td><td>constraint-manifold.ts runs at poly CLI boot</td></tr>
+      <tr><td>--until loop (max-iterations)</td><td>Loop N times with exit condition</td><td><span class="status status--warn">FIRES*</span></td><td>Runs, but exit = agent self-reports DONE; only external check is optional --verifier shell command</td></tr>
+      <tr><td>confidence_threshold</td><td>Gate loop exit on confidence score</td><td><span class="status status--gap">NEVER</span></td><td>Declared in LoopCondition types; nothing reads it</td></tr>
+      <tr><td>Evaluator between iterations</td><td>The grader decides done, not the agent</td><td><span class="status status--gap">NEVER</span></td><td>Zero @lev-os/eval imports in orchestration/loop/</td></tr>
+      <tr><td>SDLC overlays</td><td>Domain stages splice into the core loop</td><td><span class="status status--gap">NEVER</span></td><td>Overlay YAML self-declares: mechanism does not exist in the executor yet</td></tr>
+      <tr><td>gates.yaml (44 gates)</td><td>Automated checks block violations</td><td><span class="status status--warn">CEREMONY</span></td><td>Injected as prose checklist via hooks; no gate runner executes check fields</td></tr>
+      <tr><td>Flow files (~200)</td><td>Executable workflow definitions</td><td><span class="status status--gap">NEVER</span></td><td>Executor is flow-executor-stub.ts; ~94% never run</td></tr>
+      <tr><td>Scheduling runtime</td><td>Daemon runs compiled .schedule.yaml cron jobs</td><td><span class="status status--info">TESTS-ONLY</span></td><td>plugins/scheduling complete; no daemon boot path starts it</td></tr>
+      <tr><td>Tmux lifecycle</td><td>User manages sessions via CLI</td><td><span class="status status--warn">SDK-ONLY</span></td><td>spawn/attach/capture/nudge/reap all exist; no lev tmux command</td></tr>
+      <tr><td>Heartbeat / tick daemon</td><td>Background process ticks loops</td><td><span class="status status--gap">NEVER</span></td><td>LoopTickProvider built for a daemon that doesn&apos;t exist; only foreground lev loop autodev</td></tr>
+      <tr><td>Reconciler (world-model)</td><td>Reconcile observations via 3 gates</td><td><span class="status status--info">TESTS-ONLY</span></td><td>Scenario tests only; zero production callers; predictor unbound</td></tr>
+      <tr><td>C4/C5 constraints</td><td>Ratchet convergence + locality enforcement</td><td><span class="status status--gap">NEVER</span></td><td>graph.yaml itself: enforcing engine was declared vaporware</td></tr>
     </tbody>
     
   </table>
 </div></div>
 </section>
 
-<section data-lev-id="inventory" class="anim section section--full-width" style="--i:10" id="inventory">
-  <span class="section-label">Inventory</span>
-  <h2 class="section-title">Audio counts and roots worth keeping straight</h2>
+<section data-lev-id="unified" class="anim section section--stacked" style="--i:10" id="unified">
+  <span class="section-label">THE PATTERN</span>
+  <h2 class="section-title">One missing layer, seven instances</h2>
   
-  <div class="section__full-width"><div data-lev-id="inventory-table" class="anim table-wrap" style="--i:10">
+  <div class="section__stacked"><blockquote data-lev-id="unified-quote" class="anim pullquote" style="--i:10;">
+  <p><p>Nothing wires declared control into the engines that exist. That&apos;s &quot;I can&apos;t get a loop to work,&quot; explained structurally: the pieces are done — the wiring layer was never started.</p></p>
+</blockquote>
+<div data-lev-id="unified-prose" class="anim prose" style="--i:10;">
+  <p>The seven instances, each found independently: <strong>pack policies</strong> are never parsed into the grader · <strong>the loop</strong> never calls the grader · <strong>flows</strong> compile but never execute · <strong>schedules</strong> load but never tick · <strong>gates</strong> declare checks nothing runs · <strong>overlays</strong> are specced but never spliced · <strong>the predictor</strong> is built but never bound to the reconciler.</p>
+<p>Same verdict for Josh&apos;s side, different material: his math-verification program is disciplined and real (73/73 deterministic harness, 4 engines cross-validated, visible withdrawals) — and his runtime architecture is prose. His repo is requirements + evidence; lev is the runtime. The world model is where they meet, and neither side has one yet.</p>
+<p>Sources: <code>lev-dna-reality-census.md</code> · <code>core-loop-gap-audit.md</code> · <code>josh-wiki-glossary.md</code> (session scratchpad) · canon doc <code>.lev/pm/designs/vernacular-exercise.md</code> §8.</p>
+</div></div>
+</section>
+
+<section data-lev-id="glossary" class="anim section section--card-grid" style="--i:10" id="glossary">
+  <span class="section-label">VOCABULARY</span>
+  <h2 class="section-title">Glossary reveals</h2>
+  <p class="section-subtitle">From Josh&apos;s own wiki, in his own words — the corrections that change how we talk.</p>
+  <div class="section__grid"><div data-lev-id="gloss-park" class="anim ve-card ve-card--default" style="--i:10">
+  <span class="ve-card__icon">🅿️</span>
+  
+  <h3 class="ve-card__title">PARK isn&apos;t doctrine</h3>
+  <div class="ve-card__content"><p>Zero occurrences in his wiki. Purgatory too. Mesh: only inside an external pytorch reference. SCC: absent — our <code>cr_scc_quotient_parity</code> pack name came from his code bundle, not his doctrine. The (M, W, L, PARK) world-state tuple is conversation vocabulary, never committed. JP&apos;s &quot;park WHAT?&quot; was the right question.</p></div>
+</div>
+<div data-lev-id="gloss-surprise" class="anim ve-card ve-card--default" style="--i:10">
+  <span class="ve-card__icon">⚡</span>
+  
+  <h3 class="ve-card__title">Surprise: ours is the loose one</h3>
+  <div class="ve-card__content"><p>His dictionary: FEP is &quot;NOT a metaphor for &apos;the system tries to minimize surprisal&apos;&quot; — formal quantity only. Lev&apos;s reconciler surprise (bootstrap = a hash-changed bit) is exactly the loose usage he forbids. If both stay, <strong>ours</strong> takes the qualifier or rename: <em>change gate</em>, <em>delta trigger</em>. Still owed: where JP&apos;s reactor idea came from (F4).</p></div>
+</div>
+<div data-lev-id="gloss-canonical" class="anim ve-card ve-card--default" style="--i:10">
+  <span class="ve-card__icon">📛</span>
+  
+  <h3 class="ve-card__title">Canonical: new HIGH collision</h3>
+  <div class="ve-card__content"><p>Lev says &quot;canonical spec / canon / dna&quot; loosely everywhere. His <em>canonical-by-process</em> is the strictest status in his system — earned only when <strong>all five</strong> process criteria pass simultaneously, &quot;never assigned from one criterion alone.&quot; Same word, completely different weight. Needs a ruling before shared docs use it.</p></div>
+</div>
+<div data-lev-id="gloss-admissibility" class="anim ve-card ve-card--default" style="--i:10">
+  <span class="ve-card__icon">✅</span>
+  
+  <h3 class="ve-card__title">Admissibility: already convergent</h3>
+  <div class="ve-card__content"><p>His own dictionary: &quot;Admitted = not yet excluded under C… these are not binary final states.&quot; Admission means <em>survived so far</em>, never <em>proven correct</em> — which is JP&apos;s truth→admissibility directive, citable from Josh&apos;s side. The wording swap in our docs is now just mechanical.</p></div>
+</div></div>
+</section>
+
+<section data-lev-id="plan" class="anim section section--pipeline" style="--i:10" id="plan">
+  <span class="section-label">SEQUENCING</span>
+  <h2 class="section-title">The road ahead</h2>
+  <p class="section-subtitle">JP&apos;s frame: platform first — &quot;there&apos;s a lot of work on the core platform before we bike-shed kill vs stutter.&quot;</p>
+  <div class="section__pipeline"><div data-lev-id="plan-1" class="anim ve-card ve-card--default" style="--i:10">
+  
+  
+  <h3 class="ve-card__title">1 · Vernacular exercise</h3>
+  <div class="ve-card__content"><p>Closing. Glossary merged with citations, both censuses folded, ratification queue at 9 items. Remaining: JP walks the doc; rulings ratify into dna/vernacular.yaml.</p></div>
+</div>
+<div data-lev-id="plan-2" class="anim ve-card ve-card--elevated" style="--i:10">
+  
+  
+  <h3 class="ve-card__title">2 · Core-loop platform</h3>
+  <div class="ve-card__content"><p>THE priority. The 5 wires below turn &quot;agent says done&quot; into &quot;grader says done,&quot; splice overlays, expose lev tmux, and give ticks a daemon. Backlog is live in bd.</p></div>
+</div>
+<div data-lev-id="plan-3" class="anim ve-card ve-card--default" style="--i:10">
+  
+  
+  <h3 class="ve-card__title">3 · F1 effect shaping</h3>
+  <div class="ve-card__content"><p>lev effect --type=agent,sim,qit,math. Exec is really <em>effect</em>; ticks are effects; de-agent-shape the core. Shaping questions staged in canon doc §8.</p></div>
+</div>
+<div data-lev-id="plan-4" class="anim ve-card ve-card--default" style="--i:10">
+  
+  
+  <h3 class="ve-card__title">4 · World-model meet</h3>
+  <div class="ve-card__content"><p>The meeting point: combination of graphs — code graph + outside-world sim, vision later (robotics-style). Explicitly moot until the loop works.</p></div>
+</div></div>
+</section>
+
+<section data-lev-id="backlog" class="anim section section--full-width" style="--i:10" id="backlog">
+  <span class="section-label">BACKLOG</span>
+  <h2 class="section-title">The five wires — live in bd</h2>
+  <p class="section-subtitle">Ordered: wires 1+2 are small and flip the meta-harness promise on; 3–5 unlock overlays, tmux surface, and scheduled loops.</p>
+  <div class="section__full-width"><div data-lev-id="backlog-table" class="anim table-wrap" style="--i:10">
   
   <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
   <table class="data-table">
-    <thead><tr><th>Surface</th><th>Path</th><th>Observed contents</th><th>Authority role</th><th>Action</th></tr></thead>
+    <thead><tr><th>bd task</th><th>Wire</th><th>What it does</th><th>Where</th></tr></thead>
     <tbody>
-      <tr><td>M3 repo audio</td><td>/production/naac/data/audio</td><td>All top-level datasets plus LiveATC archive classes; 50,999 MP3s reported</td><td>Local DVC/materialized payload only</td><td>Use explicit repo-local <code>--audio-root</code> on M3 until Drive root is fixed</td></tr>
-      <tr><td>Drone repo audio</td><td>/production/drone/data/audio</td><td>Only <code>liveatc</code>; class-g-ctaf=2062 MP3s; jobs=0 MP3; 4.6G</td><td>Partial local materialization</td><td>Do not infer this is a full training corpus</td></tr>
-      <tr><td>Drone Shared Drive</td><td>~/Library/CloudStorage/GoogleDrive-jp@kinglystudio.ai/Shared drives/Clients/NAAC/Data/audio</td><td>ATCO2, atc_asr_dataset, atcosim, liveatc, uwb_atcc; about 13G locally visible</td><td>Candidate canonical Drive dataset root</td><td>Prefer this as the human-readable canonical root if archives are moved or exposed here</td></tr>
-      <tr><td>Drone shortcut target</td><td>~/Library/CloudStorage/GoogleDrive-jp@kinglystudio.ai/.shortcut-targets-by-id/.../audio/liveatc/archives</td><td>class-b, class-c, class-d, class-d-towered, class-g-ctaf, jobs, logs</td><td>Currently exposes useful archive tree, but path is opaque</td><td>Do not make this the long-term documented root unless folder ID is captured</td></tr>
+      <tr><td><span class="status status--info">lev-ve4q</span></td><td>1 · Evaluator callback in the loop</td><td>Adds evaluator hook to executeIterativeLoop; makes confidence_threshold functional; runs BEFORE the DONE/CONTINUE text scan</td><td>core/orchestration/src/loop/iterative-runner.ts + types.ts</td></tr>
+      <tr><td><span class="status status--info">lev-cxg3</span></td><td>2 · Eval bridge</td><td>createLoopConditionEvaluator() so the callback IS the existing grader — &quot;the grader says done&quot; replaces &quot;the agent says done&quot;</td><td>core/exec/src/loop/until.ts</td></tr>
+      <tr><td><span class="status status--info">lev-7sj4</span></td><td>3 · Overlay splice</td><td>resolveFlowOverlays() reads inject_after/inject_before and splices overlay nodes into the base graph at compile time</td><td>core/flowmind/src/</td></tr>
+      <tr><td><span class="status status--info">lev-jo9t</span></td><td>4 · lev tmux CLI</td><td>lev tmux {list|start|status|kill|attach} wrapping the handlers that already exist</td><td>core/tmux-harness via poly surface</td></tr>
+      <tr><td><span class="status status--info">lev-fz6r</span></td><td>5 · Tick daemon</td><td>Long-running process driving LoopTickProvider.tick(); also the missing consumer for compiled .schedule.yaml jobs</td><td>core/orchestration topology scheduler + plugins/scheduling</td></tr>
     </tbody>
     
   </table>
 </div></div>
 </section>
 
-<section data-lev-id="flow" class="anim section section--pipeline" style="--i:10" id="flow">
-  <span class="section-label">Setup Model</span>
-  <h2 class="section-title">Repeatable audio setup should separate four concerns</h2>
+<section data-lev-id="followups" class="anim section section--card-grid" style="--i:10" id="followups">
+  <span class="section-label">QUEUED</span>
+  <h2 class="section-title">Follow-ups on deck</h2>
+  <p class="section-subtitle">Staged, not started — each waits on a JP go.</p>
+  <div class="section__grid"><div data-lev-id="fu-effect" class="anim ve-card ve-card--default" style="--i:10">
+  <span class="ve-card__icon">🧪</span>
   
-  <div class="section__pipeline"><div data-lev-id="flow-1" class="anim ve-card ve-card--default" style="--i:10">
-  
-  
-  <h3 class="ve-card__title">1. Source of files</h3>
-  <div class="ve-card__content"><p>Google Drive Shared Drive or local DVC materialization. This is where bytes live.</p></div>
+  <h3 class="ve-card__title">F1 · Effect-type shaping</h3>
+  <div class="ve-card__content"><p>JP: &quot;I wanted to explore that direction… we can get into shaping next.&quot; Questions staged: what&apos;s the minimal effect-type registry? Is a type a lane, a transport, or a contract? Where do sim/qit/math effects seal receipts? First pass of lev is deliberately all agentic — this generalizes it.</p></div>
 </div>
-<div data-lev-id="flow-2" class="anim ve-card ve-card--default" style="--i:10">
+<div data-lev-id="fu-josh" class="anim ve-card ve-card--default" style="--i:10">
+  <span class="ve-card__icon">💬</span>
   
-  
-  <h3 class="ve-card__title">2. Local resolver</h3>
-  <div class="ve-card__content"><p><code>NAAC_AUDIO_ROOT</code> or explicit <code>--audio-root</code>. This is what tools read.</p></div>
+  <h3 class="ve-card__title">Josh reply, in his vocabulary</h3>
+  <div class="ve-card__content"><p>Now possible accurately. Speak: graveyard, admissibility, claim ceiling, scratch_diagnostic, earned. Don&apos;t hand back: PARK, mesh (he never committed them). Ask: the reactor/surprise origin story. Status: draft pending JP&apos;s go — nothing sends without approval.</p></div>
 </div>
-<div data-lev-id="flow-3" class="anim ve-card ve-card--default" style="--i:10">
+<div data-lev-id="fu-gates" class="anim ve-card ve-card--default" style="--i:10">
+  <span class="ve-card__icon">🏷️</span>
   
-  
-  <h3 class="ve-card__title">3. Optional symlink</h3>
-  <div class="ve-card__content"><p><code>data/audio</code> can become an uncommitted symlink only after the canonical Drive root is chosen.</p></div>
-</div>
-<div data-lev-id="flow-4" class="anim ve-card ve-card--default" style="--i:10">
-  
-  
-  <h3 class="ve-card__title">4. Verifier</h3>
-  <div class="ve-card__content"><p>A small audit command should prove root exists, classes exist, counts are plausible, and stale absolute paths are flagged.</p></div>
+  <h3 class="ve-card__title">gates.yaml honesty relabel</h3>
+  <div class="ve-card__content"><p>Smallest census fix: every gate says <code>status: enforced</code> and zero are. Swap to the aspirational → declared → enforced → auto-enforced ladder that already exists in core/eval/src/proof — the package that was news to JP earns its keep by labeling the ceremony honestly.</p></div>
 </div></div>
 </section>
-
-<section data-lev-id="decision-table" class="anim section section--full-width" style="--i:10" id="decision-table">
-  <span class="section-label">Decision</span>
-  <h2 class="section-title">What to do now</h2>
-  
-  <div class="section__full-width"><div data-lev-id="decision-data" class="anim table-wrap" style="--i:10">
-  
-  <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
-  <table class="data-table">
-    <thead><tr><th>Decision</th><th>Answer</th><th>Why</th><th>Owner</th></tr></thead>
-    <tbody>
-      <tr><td>Should we symlink <code>data/audio</code> now?</td><td><span class="status status--warn">No</span></td><td>M3 has existing DVC/materialized audio and this machine has two competing Drive roots. A symlink now would hide the mismatch.</td><td>JP / repo onboarding</td></tr>
-      <tr><td>What should tools use today?</td><td><span class="status status--match">Explicit root</span></td><td>Pass <code>--audio-root</code> or set <code>NAAC_AUDIO_ROOT</code> per machine. This keeps setup reversible.</td><td>All agents</td></tr>
-      <tr><td>Which Drive root is preferred?</td><td><span class="status status--info">Shared Drive</span></td><td>The human-readable <code>Clients/NAAC/Data/audio</code> path is easier to document than <code>.shortcut-targets-by-id</code>.</td><td>JP / Sunny</td></tr>
-      <tr><td>What needs M3 follow-up?</td><td><span class="status status--gap">Drive account/root fix</span></td><td>M3 found no usable NAAC Drive root and appears to be on <code>argomarine.ai</code> Drive provider.</td><td>M3 agent</td></tr>
-      <tr><td>What needs Sunny follow-up?</td><td><span class="status status--warn">Dataset provenance</span></td><td>Need the exact iter4 data source, training method, audio treatment, and where Sunny&apos;s audio is synced.</td><td>Sunny / agent</td></tr>
-    </tbody>
-    
-  </table>
-</div></div>
-</section>
-
-<section data-lev-id="missing-checklist" class="anim section section--full-width" style="--i:10" id="missing-checklist">
-  <span class="section-label">Plan Gaps Closed</span>
-  <h2 class="section-title">Items that had to be explicit before Stage 08</h2>
-  
-  <div class="section__full-width"><div data-lev-id="missing-table" class="anim table-wrap" style="--i:10">
-  
-  <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
-  <table class="data-table">
-    <thead><tr><th>Item</th><th>Evidence</th><th>Required coverage</th><th>Plan status</th></tr></thead>
-    <tbody>
-      <tr><td>Audio-root resolver</td><td><code>liveatc-train</code> defaults to <code>data/audio/liveatc</code>, while current examples pass <code>data/audio/liveatc/archives</code>; that changes relative output paths.</td><td>Stage 08 must accept both legacy root shapes deliberately, canonicalize to one archive-relative layout, and preserve the original path.</td><td><span class="status status--match">added</span></td></tr>
-      <tr><td>Hydration and Drive identity</td><td>M3 did not find a usable NAAC Drive root; this machine sees a readable Shared Drive path plus an opaque shortcut-target archive path.</td><td>Preflight must record root kind, folder id when applicable, classes seen, MP3 counts, and hydration status before export.</td><td><span class="status status--match">added</span></td></tr>
-      <tr><td>DVC vs ignored payload drift</td><td>Git tracks only <code>.dvc</code> metadata; M3 has extra ignored class-b/class-c/class-d audio that visible DVC pointers do not enumerate.</td><td>Rows from ignored extras require explicit custody/provenance; DVC outs and local byte hydration are recorded separately.</td><td><span class="status status--match">added</span></td></tr>
-      <tr><td>Stale absolute paths</td><td>M3 found generated LiveATC files referring to old <code>/production/naac</code> and <code>/production/drone</code> paths.</td><td>Exporter records <code>source_path_original</code> and <code>source_path_normalized</code>, then fails closed when a path cannot be related to the chosen root.</td><td><span class="status status--match">added</span></td></tr>
-      <tr><td>Sunny iter4 handoff</td><td>We still need the exact iter4 dataset, audio treatment, split recipe, training command/config, and eval artifacts.</td><td>Manifest schema records recipe/provenance fields when present and marks missing lineage as <code>partial</code> or <code>missing</code> instead of accepting rows as gold.</td><td><span class="status status--match">added</span></td></tr>
-      <tr><td>Finder/provider artifacts</td><td>Repo audio roots contain <code>.DS_Store</code>, <code>Icon\r</code>, and may contain transcript/cleanup JSON or trimmed MP3s inside DVC-counted directories.</td><td>Preflight reports non-audio payload and filters it from training-unit emission.</td><td><span class="status status--match">added</span></td></tr>
-    </tbody>
-    
-  </table>
-</div></div>
-</section>
-
-<section data-lev-id="commands" class="anim section section--default" style="--i:10" id="commands">
-  <span class="section-label">Commands</span>
-  <h2 class="section-title">Useful command shapes</h2>
-  
-  <div class="section__body"><div data-lev-id="cmd-block" class="anim code-file" style="--i:10">
-  <div class="code-file__header"><span class="code-file__dot"></span><span class="code-file__dot"></span><span class="code-file__dot"></span><span class="code-file__name">audio-root-audit.sh</span></div>
-  <div class="code-file__body"><div class="line-numbers"><span>1</span>
-<span>2</span>
-<span>3</span>
-<span>4</span>
-<span>5</span>
-<span>6</span>
-<span>7</span>
-<span>8</span>
-<span>9</span>
-<span>10</span>
-<span>11</span>
-<span>12</span>
-<span>13</span>
-<span>14</span>
-<span>15</span>
-<span>16</span>
-<span>17</span>
-<span>18</span>
-<span>19</span>
-<span>20</span>
-<span>21</span>
-<span>22</span>
-<span>23</span></div><pre><code class="language-bash">repo=/Users/jean-patricksmith/digital/kingly/apps/production/drone
-cd <span class="code-string">&quot;$repo&quot;</span>
-
-<span class="code-comment"># repo-local materialization</span>
-git -C data ls-files <span class="code-string">&apos;audio/liveatc/archives/*.dvc&apos;</span>
-stat -f <span class="code-string">&apos;%N | type=%HT | link-target=%Y&apos;</span> data/audio data/audio/liveatc data/audio/liveatc/archives
-find data/audio/liveatc/archives -mindepth <span class="code-number">1</span> -maxdepth <span class="code-number">1</span> -<span class="code-keyword">type</span> d -<span class="code-keyword">exec</span> basename {} \; | sort
-
-<span class="code-comment"># Drive candidates</span>
-find <span class="code-string">&quot;$HOME/Library/CloudStorage&quot;</span> -maxdepth <span class="code-number">5</span> -<span class="code-keyword">type</span> d -iname <span class="code-string">&apos;*audio*&apos;</span> <span class="code-number">2</span>&gt;/dev/<span class="code-keyword">null</span> | sort
-
-<span class="code-comment"># Current explicit source-root style</span>
-uv run --extra liveatc liveatc-train \
-  --audio-root /ABSOLUTE/PATH/TO/audio/liveatc \
-  --out-root data/training/liveatc \
-  --profile fast-local
-
-<span class="code-comment"># Planned Stage <span class="code-number">08</span> preflight gate</span>
-uv run --extra liveatc liveatc-<span class="code-keyword">export</span>-training-units \
-  --training-root data/training/liveatc \
-  --audio-root /ABSOLUTE/PATH/TO/audio/liveatc \
-  --audit-inputs \
-  --dry-run</code></pre></div>
-</div></div>
-</section>
-
-<section data-lev-id="next-actions" class="anim section section--card-grid" style="--i:10" id="next-actions">
-  <span class="section-label">Next</span>
-  <h2 class="section-title">Immediate follow-ups</h2>
-  
-  <div class="section__grid"><div data-lev-id="next-1" class="anim ve-card ve-card--elevated" style="--i:10">
-  
-  <span class="ve-card__label">JP machine</span>
-  <h3 class="ve-card__title">Choose canonical Drive root</h3>
-  <div class="ve-card__content"><p>Decide whether <code>Clients/NAAC/Data/audio</code> becomes canonical and move/expose LiveATC archives there, or document the shortcut-target folder ID explicitly.</p></div>
-</div>
-<div data-lev-id="next-2" class="anim ve-card ve-card--elevated" style="--i:10">
-  
-  <span class="ve-card__label">M3</span>
-  <h3 class="ve-card__title">Repair Drive visibility</h3>
-  <div class="ve-card__content"><p>M3 should install/sign into the correct Google Drive account, verify Shared Drive access, and rerun the same audit against <code>/production/drone</code> if that checkout exists.</p></div>
-</div>
-<div data-lev-id="next-3" class="anim ve-card ve-card--elevated" style="--i:10">
-  
-  <span class="ve-card__label">Repo</span>
-  <h3 class="ve-card__title">Add onboarding verifier</h3>
-  <div class="ve-card__content"><p>Document <code>NAAC_AUDIO_ROOT</code>, explicit <code>--audio-root</code>, DVC materialization, and a no-destructive audit command. Do not create a symlink until root choice is final.</p></div>
-</div>
-<div data-lev-id="next-4" class="anim ve-card ve-card--elevated" style="--i:10">
-  
-  <span class="ve-card__label">Iter5</span>
-  <h3 class="ve-card__title">Keep training gated</h3>
-  <div class="ve-card__content"><p>The iter5 exporter plan now requires explicit audio-root audit, root normalization, DVC/Drive custody, stale-path handling, and Sunny/M3 lineage fields before rows can become accepted training units.</p></div>
-</div></div>
-</section>
-    </div>
   </div>
 
   <button class="theme-toggle" aria-label="Toggle theme">

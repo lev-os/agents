@@ -5,6 +5,82 @@ description: "Routes adaptive multi-agent deliberation with fractal context cycl
 
 # CDO — Adaptive Multi-Agent Deliberation
 
+## Deterministic runtime preference inside `digital/leviathan`
+
+Inside the Leviathan repo, prefer the plugin-backed CDO runtime defined in
+`plugins/cdo/config.yaml`.
+
+### Runtime contract (deterministic)
+
+1. `cdo run` resolves to `exec --flow plugins/cdo/flows/cdo-adaptive-deliberation.flow.yaml`.
+2. The flow loads the selected `cdo` profile (`plugins/cdo/profiles/*.yaml`) and
+   validates bounds + schema invariants.
+3. The profile loads the selected method recipe (`plugins/cdo/recipes/*.yaml`).
+4. The recipe binds
+   - thinking routines: `plugins/cdo/catalogs/thinking-routines.yaml`
+   - strategy states: `plugins/cdo/catalogs/igt-strategy-states.yaml`
+5. `runtime_mode=manual` exits through `manual_fallback_receipt` and the
+   configured fallback lane instead of bypassing CDO receipts.
+6. Turn synthesis writes `claim_verdicts`, `provenance_refs`, and `level_tags` gates
+   before `synthesize_final`.
+
+### Runtime ownership split: where to change what
+
+- `deterministic-code` — `plugins/cdo/*.yaml`, `plugins/cdo/flows/*.flow.yaml`,
+  `plugins/cdo/recipes/*.yaml`, `plugins/cdo/catalogs/*.yaml`, `plugins/cdo/schemas/*.yaml`,
+  and `.lev/pm` decision/runtime artifacts that declare contract boundaries.
+- `dna/flowmind/recipe contracts` — `plugins/cdo/config.yaml`, `flowmind_graph`
+  nodes, and profile/recipe binding fields that are loaded by `plugins/cdo/config.yaml`
+  and the flow graph.
+- `cdo SKILL protocol` — `/Users/jean-patricksmith/.agents/skills/cdo/SKILL.md` itself:
+  seat roles, loop discipline, fallback rules, and update sequence.
+
+### When to run plugin-backed CDO
+
+- Default for `/cdo` use in this repo, including bounded think/deep/full/debug flows.
+- Any run that requires `method_recipe` stage output or scheduler replay.
+- Any run where receipts, traceability, and external validation are part of success.
+
+Inside Leviathan, plugin-backed CDO is the preferred path because it is bound by
+`flow` contracts and receipts in one deterministic chain (`plugins/cdo/config.yaml`
+→ `plugins/cdo/profiles/*.yaml` → `plugins/cdo/recipes/*.yaml` → flow nodes).
+Use manual fallback only when the plugin surface cannot be resolved in this repo or
+the user explicitly requests the legacy multi-agent path.
+
+### Manual fallback behavior (preserved)
+
+- Keep manual multi-agent fallback in this SKILL and this protocol as the backup path.
+- Use fallback when the plugin surface cannot be resolved in the active runtime or
+  when a user explicitly requests the old multi-agent mode.
+- In Leviathan, select it as `runtime_mode=manual`; the flow records
+  `manual_fallback` through `plugins/cdo/config.yaml#cdo.fallback_policy.manual_mode`
+  and `.lev/runtime/cdo/manual-fallback`.
+- Preserve existing seat naming when fallback is used.
+
+### Safe skill update pattern
+
+When updating this SKILL:
+
+1. Edit only the skill-level protocol text and cross-reference updates first.
+2. Keep deterministic semantics in YAML/flow/plugin files (`.flow.yaml`, profiles,
+   recipes, schemas).
+3. If seat contracts change (seat names, outputs, validator fields), update:
+   - this SKILL (clarity of role/sequence)
+   - `plugins/cdo/recipes/*.yaml` that declares those seats
+   - matching profile/schema docs.
+
+### Code-vs-LLM responsibility boundary (explicit)
+
+- **Code must enforce:** command resolution, profile/recipe loading, schema
+  validation, scheduler directives, artifact fanout naming, claims gates,
+  receipt append, proof binding, cross-branch closure, and `done` gates in
+  `plugins/cdo/flows/cdo-adaptive-deliberation.flow.yaml`.
+- **LLM must own:** seat reasoning, claim interpretation, tension construction,
+  dissent generation, synthesis narrative, and recommendation confidence language.
+- **Boundary rule:** no seat or router code changes should be implied in SKILL
+  text without a matching deterministic contract edit and a verification check
+  that the gate outputs are still producible.
+
 You are a ROUTER. You dispatch agents, collect artifacts, and route to synthesis.
 You never think, analyze, or synthesize yourself. All reasoning happens in agents.
 

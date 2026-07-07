@@ -1,16 +1,17 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light" class="fx-title-underline fx-grid-dots">
+<html lang="en" data-theme="dark" class="fx-card-glow fx-title-underline fx-grid-dots">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>NAAC Audio Sync Debrief</title>
-  <meta name="description" content="A compact debrief comparing the local drone checkout, the M3 naac checkout, Google Drive audio visibility, DVC materialization, and the repeatable setup decision." />
-  <meta property="og:title" content="NAAC Audio Sync Debrief" />
-  <meta property="og:description" content="A compact debrief comparing the local drone checkout, the M3 naac checkout, Google Drive audio visibility, DVC materialization, and the repeatable setup decision." />
+  <title>wtf pilot — Session Command Dashboard</title>
+  <meta name="description" content="Baseline, Thor deploy, adjudication resolution, four pilot lanes, audit verdicts, capture ledger, pending decisions" />
+  <meta property="og:title" content="wtf pilot — Session Command Dashboard" />
+  <meta property="og:description" content="Baseline, Thor deploy, adjudication resolution, four pilot lanes, audit verdicts, capture ledger, pending decisions" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage%20Grotesque:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM%20Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fragment%20Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM%20Plex%20Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM%20Plex%20Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM%20Plex%20Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM%20Plex%20Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <style>
 /* === Reset === */
 *, *::before, *::after { box-sizing: border-box; }
@@ -18,19 +19,19 @@ body, h1, h2, h3, h4, p, ul, ol, blockquote, figure { margin: 0; padding: 0; }
 
 /* === Theme Variables === */
 :root, [data-theme="dark"] {
-  --color-primary: #d97706;
-  --color-accent: #059669;
-  --color-surface: #fffbeb;
-  --color-surface-alt: #fef3c7;
-  --color-text: #1c1a0e;
-  --color-text-muted: #6b6130;
-  --color-border: rgba(217,119,6,0.15);
-  --color-success: #059669;
-  --color-warning: #d97706;
-  --color-error: #dc2626;
+  --color-primary: #0891b2;
+  --color-accent: #0369a1;
+  --color-surface: #0f172a;
+  --color-surface-alt: #1e293b;
+  --color-text: #f1f5f9;
+  --color-text-muted: #94a3b8;
+  --color-border: rgba(8,145,178,0.18);
+  --color-success: #2dd4bf;
+  --color-warning: #fbbf24;
+  --color-error: #fb7185;
   --font-display: 'IBM Plex Sans', Georgia, serif;
-  --font-body: 'IBM Plex Mono', system-ui, sans-serif;
-  --font-mono: 'Fragment Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
   --color-accent-dim: color-mix(in srgb, var(--color-accent) 15%, transparent);
   --color-accent-bright: color-mix(in srgb, var(--color-accent) 80%, white);
   --color-border-strong: color-mix(in srgb, var(--color-accent) 30%, transparent);
@@ -44,11 +45,11 @@ body, h1, h2, h3, h4, p, ul, ol, blockquote, figure { margin: 0; padding: 0; }
   --transition: 0.35s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
-[data-theme="dark"] {
-  --color-primary: #1a1508; --color-accent: #d97706; --color-accent-dim: rgba(217,119,6,0.15);
-  --color-accent-bright: #f59e0b; --color-surface: #1a1508; --color-surface-alt: #262010;
-  --color-text: #fef9e7; --color-text-muted: #c4b060; --color-border: rgba(217,119,6,0.2);
-  --color-border-strong: rgba(217,119,6,0.35); --color-success: #059669; --color-warning: #d97706; --color-error: #dc2626;
+[data-theme="light"] {
+  --color-primary: #f8fafc; --color-accent: #0891b2; --color-accent-dim: rgba(8,145,178,0.1);
+  --color-accent-bright: #06b6d4; --color-surface: #f8fafc; --color-surface-alt: #f1f5f9;
+  --color-text: #0f172a; --color-text-muted: #64748b; --color-border: rgba(8,145,178,0.15);
+  --color-border-strong: rgba(8,145,178,0.3); --color-success: #059669; --color-warning: #d97706; --color-error: #dc2626;
 }
 
 /* === Base === */
@@ -63,9 +64,10 @@ body {
   overflow-x: hidden;
 }
 body { background-image:
-  radial-gradient(circle at 15% 10%, rgba(217,119,6,0.06) 0%, transparent 25%),
-  radial-gradient(circle at 85% 15%, rgba(5,150,105,0.05) 0%, transparent 25%),
-  radial-gradient(circle at 50% 85%, rgba(217,119,6,0.03) 0%, transparent 30%);
+  radial-gradient(ellipse at 20% 0%, rgba(8,145,178,0.08) 0%, transparent 50%),
+  radial-gradient(ellipse at 80% 80%, rgba(3,105,161,0.05) 0%, transparent 40%),
+  repeating-linear-gradient(0deg, rgba(8,145,178,0.02) 0px, rgba(8,145,178,0.02) 1px, transparent 1px, transparent 40px),
+  repeating-linear-gradient(90deg, rgba(8,145,178,0.02) 0px, rgba(8,145,178,0.02) 1px, transparent 1px, transparent 40px);
 }
 
 /* === Selection + Focus + Scrollbar (AESTHETIC-DNA Premium Test) === */
@@ -1940,291 +1942,291 @@ code:not(pre code) {
 </head>
 <body>
   <nav class="site-nav">
-    <a class="site-nav__logo" href="#">NAAC</a>
+    <a class="site-nav__logo" href="#">wtf</a>
     <div class="site-nav__links">
-      <a href="#kpis">Snapshot</a>
-      <a href="#verdict">Verdict</a>
-      <a href="#machine-comparison">Machine Matrix</a>
-      <a href="#inventory">Inventory</a>
-      <a href="#flow">Setup Model</a>
-      <a href="#decision-table">Decision</a>
-      <a href="#missing-checklist">Plan Gaps Closed</a>
-      <a href="#commands">Commands</a>
+      <a href="#kpis">STATE</a>
+      <a href="#lanes">AGENTS.MD · COMMIT 5666ca4a0</a>
+      <a href="#audit">RECEIPT 20260706-pilot-lane-audit.json · COMMIT 2186b09f8</a>
+      <a href="#pending">BLOCKED ON JP</a>
+      <a href="#adjudication">HANDOFF 20260705 · RESOLVED</a>
+      <a href="#ledger">CAPTURE · 20260706-capture-sweep.yaml</a>
+      <a href="#sequence">CROSS-CHAT ORCHESTRATION</a>
     </div>
   </nav>
+  <nav class="nav-rail" aria-label="Page sections">
+    <button class="nav-dot active" data-label="STATE" onclick="scrollToSection(0)"></button>
+    <button class="nav-dot" data-label="AGENTS.MD · COMMIT 5666ca4a0" onclick="scrollToSection(1)"></button>
+    <button class="nav-dot" data-label="RECEIPT 20260706-pilot-lane-audit.json · COMMIT 2186b09f8" onclick="scrollToSection(2)"></button>
+    <button class="nav-dot" data-label="BLOCKED ON JP" onclick="scrollToSection(3)"></button>
+    <button class="nav-dot" data-label="HANDOFF 20260705 · RESOLVED" onclick="scrollToSection(4)"></button>
+    <button class="nav-dot" data-label="CAPTURE · 20260706-capture-sweep.yaml" onclick="scrollToSection(5)"></button>
+    <button class="nav-dot" data-label="CROSS-CHAT ORCHESTRATION" onclick="scrollToSection(6)"></button>
+  </nav>
+  <div class="container">
 <section data-lev-id="hero" class="anim hero hero--editorial" style="--i:0">
   <div class="hero__inner">
-    <span class="hero__category">NAAC AUDIO DATASET SETUP</span>
-    <h1 class="hero__title">Audio Sync Debrief</h1>
-    <p class="hero__subtitle">The M3 audit did not find the same world as this drone checkout. Treat that as signal: repo-local audio, DVC materialization, and Google Drive sync are currently three different surfaces.</p>
-    <p class="hero__meta">Updated 2026-07-06 from M3 audit attachment plus live /production/drone refresh</p>
+    <span class="hero__category">NAAC · SUNNY-PC · FAILURE-REMEDIATION-PIPELINE</span>
+    <h1 class="hero__title">wtf pilot</h1>
+    <p class="hero__subtitle">Pilot speech is not a VM lane. ATC → VM → FMM, and that is it.</p>
+    <p class="hero__meta">2026-07-05 → 07-06 · sessions 0–2</p>
     <div data-lev-id="hero-lead" class="anim lead" style="--i:1;">
-  <p>The immediate decision is not model training. It is to standardize the audio root contract: keep DVC-managed repo materialization separate from Google Drive dataset sync, and pass explicit <code>--audio-root</code> values until a canonical Drive root is selected and verified.</p>
+  <p>One conversation untangled three conflated pilots, killed the 2A/2B question with an ingress-drop ruling, audited every own-emission row and pilot-shaped rule in the corpus, and left two decisions on JP&apos;s desk. Everything below is receipted on disk.</p>
 </div>
   </div>
 </section>
-  <div class="page-wrap--toc">
-    <input type="checkbox" id="toc-toggle" class="toc-toggle" aria-label="Toggle table of contents">
-    <label for="toc-toggle" class="toc-hamburger" role="button" aria-label="Toggle table of contents"><span></span><span></span><span></span></label>
-    <label for="toc-toggle" class="toc-backdrop" aria-hidden="true"></label>
-    <nav class="page-toc" id="page-toc">
-      <div class="page-toc__title">NAAC</div>
-      <a href="#kpis">Snapshot</a>
-      <a href="#verdict">Verdict</a>
-      <a href="#machine-comparison">Machine Matrix</a>
-      <a href="#inventory">Inventory</a>
-      <a href="#flow">Setup Model</a>
-      <a href="#decision-table">Decision</a>
-      <a href="#missing-checklist">Plan Gaps Closed</a>
-      <a href="#commands">Commands</a>
-      <a href="#next-actions">Next</a>
-    </nav>
-    <div class="page-main">
-
 
 <section data-lev-id="kpis" class="anim section section--kpi-row" style="--i:2" id="kpis">
-  <span class="section-label">Snapshot</span>
-  <h2 class="section-title">What changed after reading the M3 audit</h2>
+  <span class="section-label">STATE</span>
+  <h2 class="section-title">Where things stand</h2>
   
-  <div class="section__kpi-row"><div data-lev-id="kpi-m3-mp3" class="anim kpi-card" style="--i:3">
-  <div class="kpi-card__value">50,999</div>
-  <div class="kpi-card__label">M3 repo MP3s across LiveATC classes</div>
-  <span class="kpi-card__trend kpi-card__trend--up">repo-local / DVC materialized</span>
-  
-</div>
-<div data-lev-id="kpi-drone-mp3" class="anim kpi-card" style="--i:4">
-  <div class="kpi-card__value">2,062</div>
-  <div class="kpi-card__label">current drone repo MP3s</div>
-  <span class="kpi-card__trend kpi-card__trend--flat">class-g-ctaf only</span>
+  <div class="section__kpi-row"><div data-lev-id="kpi-baseline" class="anim kpi-card" style="--i:3">
+  <div class="kpi-card__value">98.2%</div>
+  <div class="kpi-card__label">Baseline pass (1239/1262 scored)</div>
+  <span class="kpi-card__trend kpi-card__trend--flat">run 108332b</span>
   
 </div>
-<div data-lev-id="kpi-drive" class="anim kpi-card" style="--i:5">
-  <div class="kpi-card__value">2</div>
-  <div class="kpi-card__label">Drive surfaces on this machine</div>
-  <span class="kpi-card__trend kpi-card__trend--flat">Shared Drive + shortcut target</span>
+<div data-lev-id="kpi-a1" class="anim kpi-card" style="--i:4">
+  <div class="kpi-card__value">93.3%</div>
+  <div class="kpi-card__label">A1 partner_grounded — the weak corpus</div>
+  <span class="kpi-card__trend kpi-card__trend--down">15 fails</span>
   
 </div>
-<div data-lev-id="kpi-action" class="anim kpi-card" style="--i:6">
-  <div class="kpi-card__value">0</div>
-  <div class="kpi-card__label">canonical audio roots chosen</div>
-  <span class="kpi-card__trend kpi-card__trend--down">must choose before symlink</span>
+<div data-lev-id="kpi-thor" class="anim kpi-card" style="--i:5">
+  <div class="kpi-card__value">219s</div>
+  <div class="kpi-card__label">Thor deploy d7d58871e · smoke green</div>
+  <span class="kpi-card__trend kpi-card__trend--up">13 daemons SERVING</span>
+  
+</div>
+<div data-lev-id="kpi-rows" class="anim kpi-card" style="--i:6">
+  <div class="kpi-card__value kpi-card__value--animated" style="--target:116"></div>
+  <div class="kpi-card__label">Own-emission rows dispositioned</div>
+  
+  
+</div>
+<div data-lev-id="kpi-rules" class="anim kpi-card" style="--i:7">
+  <div class="kpi-card__value kpi-card__value--animated" style="--target:41"></div>
+  <div class="kpi-card__label">Pilot-shaped rules verdicted (not ~70)</div>
+  
+  
+</div>
+<div data-lev-id="kpi-verify" class="anim kpi-card" style="--i:8">
+  <div class="kpi-card__value">8/8</div>
+  <div class="kpi-card__label">Adversarial verify — verdicts upheld</div>
+  
   
 </div></div>
 </section>
 
-<section data-lev-id="verdict" class="anim section section--card-grid" style="--i:7" id="verdict">
-  <span class="section-label">Verdict</span>
-  <h2 class="section-title">Do not treat these machines as synced yet</h2>
+<section data-lev-id="lanes" class="anim section section--card-grid" style="--i:9" id="lanes">
+  <span class="section-label">AGENTS.MD · COMMIT 5666ca4a0</span>
+  <h2 class="section-title">The four pilot lanes</h2>
+  <p class="section-subtitle">Locked into AGENTS.md so no worker re-conflates them. Vernacular: &apos;target&apos; is a lane tag, not an addressee; our own transmissions are own-emissions.</p>
+  <div class="section__grid"><div data-lev-id="lane-1" class="anim ve-card ve-card--elevated" style="--i:10">
   
-  <div class="section__grid"><div data-lev-id="verdict-left" class="anim callout callout--warning" style="--i:8">
-  <div class="callout__title">M3 audit result</div>
-  <div class="callout__content"><p>M3 audited <code>/production/naac</code>, not <code>/production/drone</code>. It did not find a usable NAAC Google Drive audio root. Its <code>data/audio</code> is a normal directory with large local/DVC materialization.</p></div>
+  
+  <h3 class="ve-card__title">1 · COPI GUI buttons</h3>
+  <div class="ve-card__content"><p>Demo-lane canned pilot phrases on the Windows console. Never prod authority. Target state: become fmm/siri typed FMM initiation requests instead of manual patches.</p></div>
 </div>
-<div data-lev-id="verdict-right" class="anim callout callout--info" style="--i:9">
-  <div class="callout__title">This machine result</div>
-  <div class="callout__content"><p>The current <code>/production/drone</code> checkout also has normal repo-local <code>data/audio</code>, but Google Drive Desktop does expose <code>Clients/NAAC/Data/audio</code> and a shortcut-target LiveATC archive path.</p></div>
+<div data-lev-id="lane-2" class="anim ve-card ve-card--elevated" style="--i:10">
+  
+  
+  <h3 class="ve-card__title">2 · Scenario pilot rows</h3>
+  <div class="ve-card__content"><p>Own-emission eval turns for two-sided radio realism. Authority-inert (P7), readback never scored against them, content duplicates pilot_responses / ai_initiated_call. Target: environment turns, not parse-scored VM input.</p></div>
+</div>
+<div data-lev-id="lane-3" class="anim ve-card ve-card--elevated" style="--i:10">
+  
+  
+  <h3 class="ve-card__title">3 · The leak (RESOLVED BY RULING)</h3>
+  <div class="ve-card__content"><p>pipeline_dispatch.py:703-710 maps pilot speech to reporting_obligation — the one kind the pilot-origin gate lets through to the fake FMM. Ruling: ingress-drop. The leak and pilot_origin_authoritative_kinds are teardown targets in chat 1.</p></div>
+</div>
+<div data-lev-id="lane-4" class="anim ve-card ve-card--elevated" style="--i:10">
+  
+  
+  <h3 class="ve-card__title">4 · PIC command system (future)</h3>
+  <div class="ve-card__content"><p>Client-requested: pilot speaks → NEW APP → FMM → VM. A separate authority origin with its own gates. Does not exist yet; never routed through lanes 1–3.</p></div>
 </div></div>
 </section>
 
-<section data-lev-id="machine-comparison" class="anim section section--full-width" style="--i:10" id="machine-comparison">
-  <span class="section-label">Machine Matrix</span>
-  <h2 class="section-title">M3 vs this drone checkout</h2>
-  
-  <div class="section__full-width"><div data-lev-id="machine-table" class="anim table-wrap" style="--i:10">
+<section data-lev-id="audit" class="anim section section--comparison" style="--i:10" id="audit">
+  <span class="section-label">RECEIPT 20260706-pilot-lane-audit.json · COMMIT 2186b09f8</span>
+  <h2 class="section-title">Audit verdicts</h2>
+  <p class="section-subtitle">13-agent workflow over corpus rows, parser rules, fixture surfaces, and observation consumers. Sampled verdicts survived adversarial refutation 8/8.</p>
+  <div class="section__comparison"><div data-lev-id="chart-rows" class="anim chart-wrap" style="--i:10">
+  <div class="chart-wrap__title">116 own-emission rows → disposition</div>
+  <canvas id="chart-chart-rows" height="200"></canvas>
+  <script>
+    (function() {
+      var cs = getComputedStyle(document.documentElement);
+      var gc = function(v) { return cs.getPropertyValue(v).trim(); };
+      var cfg = {"type":"doughnut","data":{"labels":["fmm/siri fixtures (62)","redundant drops (43)","unclear — JP (7)","COPI GUI fixtures (4)"],"datasets":[{"data":[62,43,7,4],"backgroundColor":["#2dd4bf","#475569","#f59e0b","#38bdf8"],"borderWidth":0}]},"options":{"responsive":true,"plugins":{"legend":{"display":true,"position":"bottom"}}}};
+      // Theme-aware: replace CSS var references in colors
+      cfg.options.scales && Object.values(cfg.options.scales).forEach(function(s) {
+        s.ticks = { color: gc('--color-text-muted'), font: { family: gc('--font-mono'), size: 10 } };
+        s.grid = s.grid || {};
+        s.grid.color = gc('--color-border');
+      });
+      cfg.options.plugins.legend && (cfg.options.plugins.legend.labels = {
+        color: gc('--color-text-muted'),
+        font: { family: gc('--font-mono'), size: 10 },
+        padding: 12
+      });
+      new Chart(document.getElementById('chart-chart-rows'), cfg);
+    })();
+  </script>
+</div>
+<div data-lev-id="chart-rules" class="anim chart-wrap" style="--i:10">
+  <div class="chart-wrap__title">41 pilot-shaped rules → verdict</div>
+  <canvas id="chart-chart-rules" height="200"></canvas>
+  <script>
+    (function() {
+      var cs = getComputedStyle(document.documentElement);
+      var gc = function(v) { return cs.getPropertyValue(v).trim(); };
+      var cfg = {"type":"bar","data":{"labels":["die → fixture","unclear (double-duty)","stay (CTAF observation)"],"datasets":[{"data":[25,9,7],"backgroundColor":["#2dd4bf","#f59e0b","#38bdf8"],"borderRadius":4,"borderSkipped":false}]},"options":{"responsive":true,"plugins":{"legend":{"display":false,"position":"bottom"}},"scales":{"y":{"beginAtZero":true},"x":{"grid":{"display":false}}}}};
+      // Theme-aware: replace CSS var references in colors
+      cfg.options.scales && Object.values(cfg.options.scales).forEach(function(s) {
+        s.ticks = { color: gc('--color-text-muted'), font: { family: gc('--font-mono'), size: 10 } };
+        s.grid = s.grid || {};
+        s.grid.color = gc('--color-border');
+      });
+      cfg.options.plugins.legend && (cfg.options.plugins.legend.labels = {
+        color: gc('--color-text-muted'),
+        font: { family: gc('--font-mono'), size: 10 },
+        padding: 12
+      });
+      new Chart(document.getElementById('chart-chart-rules'), cfg);
+    })();
+  </script>
+</div></div>
+</section>
+
+<section data-lev-id="pending" class="anim section section--card-grid" style="--i:10" id="pending">
+  <span class="section-label">BLOCKED ON JP</span>
+  <h2 class="section-title">Decisions on your desk</h2>
+  <p class="section-subtitle">Nothing below advances without a ruling. Everything else in the session is done or executing.</p>
+  <div class="section__grid"><div data-lev-id="dec-unclear" class="anim callout callout--warning" style="--i:10">
+  <div class="callout__title">7 unclear rows</div>
+  <div class="callout__content"><p>2 misfiled ambient (Cessna 34P CTAF — fix speaker, keep in VM) · 2 state-query responses (pe_0007/0008 — hand to say-souls lane) · 3 defective PE sources (pe_0033 truncated, pe_0152 embedded ATC reply, pe_0070 speaker-inverted — repair or quarantine).</p></div>
+</div>
+<div data-lev-id="dec-memos" class="anim callout callout--info" style="--i:10">
+  <div class="callout__title">2 convention memos await sign-off</div>
+  <div class="callout__content"><p>Controller approval taxonomy (B3: grant/approval phrasing → informational with slots; pleasantries → acknowledgment) and slot value-form (gold is canonical; 2 mechanical gold edits; garble row splits to stage-6 recovery lane). Both in .lev/pm/designs/, DRAFT status.</p></div>
+</div>
+<div data-lev-id="dec-doubleduty" class="anim callout callout--warning" style="--i:10">
+  <div class="callout__title">9 double-duty rules need per-row split</div>
+  <div class="callout__content"><p>position_report ×4 and emergency_declaration ×5: ownship MAYDAY is a canonical fmm/siri initiation, but hearing ANOTHER aircraft&apos;s MAYDAY is observation input we must not delete. Split rides with chat 1&apos;s row-scoped teardown.</p></div>
+</div></div>
+</section>
+
+<section data-lev-id="adjudication" class="anim section section--full-width" style="--i:10" id="adjudication">
+  <span class="section-label">HANDOFF 20260705 · RESOLVED</span>
+  <h2 class="section-title">The 7 wrong-intent rows — final disposition</h2>
+  <p class="section-subtitle">No gold edits anywhere. The golds were never wrong: the oracle prompt was blind to speaker direction, and the runtime failures were the lane-3 leak.</p>
+  <div class="section__full-width"><div data-lev-id="adj-table" class="anim table-wrap" style="--i:10">
   
   <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
   <table class="data-table">
-    <thead><tr><th>Axis</th><th>M3 audit</th><th>Current drone refresh</th><th>What it means</th><th>Status</th></tr></thead>
+    <thead><tr><th>Row</th><th>Transcript gist</th><th>Was blamed on</th><th>Actually</th><th>Disposition</th></tr></thead>
     <tbody>
-      <tr><td>Repo path</td><td>/Users/.../production/naac</td><td>/Users/.../production/drone</td><td>The M3 agent did not audit the requested path because it was missing there.</td><td><span class="status status--warn">mismatch</span></td></tr>
-      <tr><td>Branch</td><td>Sunny-PC, parent behind 23, data behind 7</td><td>Sunny-PC, current checkout present</td><td>M3 may be stale relative to current drone work.</td><td><span class="status status--warn">check before sync</span></td></tr>
-      <tr><td>data/audio type</td><td>Normal directory, not symlink</td><td>Normal directory, not symlink</td><td>Neither repo is wired to Drive through <code>data/audio</code>.</td><td><span class="status status--match">confirmed</span></td></tr>
-      <tr><td>Tracked audio metadata</td><td>class-d-towered.dvc, class-g-ctaf.dvc, jobs.dvc</td><td>same three .dvc pointers</td><td>Git tracks DVC metadata, not raw audio payloads.</td><td><span class="status status--match">aligned</span></td></tr>
-      <tr><td>Materialized repo audio</td><td>class-b, class-c, class-d, class-d-towered, class-g-ctaf, jobs, logs</td><td>class-g-ctaf, jobs</td><td>M3 has much more local audio than this checkout.</td><td><span class="status status--gap">drift</span></td></tr>
-      <tr><td>Google Drive audio root</td><td>No usable NAAC audio root found; argomarine Drive provider stalled</td><td>Shared Drive path exists; shortcut-target LiveATC archives exist</td><td>Drive account/root setup differs by machine.</td><td><span class="status status--warn">blocked on standard</span></td></tr>
+      <tr><td>A1</td><td>&quot;engine running rough&quot; self-report</td><td>gold (emergency?)</td><td><span class="status status--match">own-emission + FMM leak; no MAYDAY spoken, AIM 5-3-2 grounded</span></td><td>dissolves into teardown</td></tr>
+      <tr><td>A2</td><td>&quot;proceeding direct San Carlos&quot;</td><td>gold (direct_to?)</td><td><span class="status status--match">own-emission position report; intent already passes</span></td><td>dissolves into teardown</td></tr>
+      <tr><td>A3</td><td>pilot final call &quot;cleared to land&quot;</td><td>gold (landing_clearance?)</td><td><span class="status status--match">own readback echo — self-clearing failure fenced by gold</span></td><td>dissolves into teardown</td></tr>
+      <tr><td>A4</td><td>&quot;inbound for landing, with information&quot;</td><td>gold (comm_request?)</td><td><span class="status status--match">own-emission initial contact</span></td><td>dissolves into teardown</td></tr>
+      <tr><td>B2</td><td>&quot;ready for taxi, confirm ADS-B&quot;</td><td>gold (verification?)</td><td><span class="status status--match">PILOT speech, not ground — dispute dissolved by source speaker field</span></td><td>dissolves into teardown</td></tr>
+      <tr><td>B1</td><td>&quot;you have room to land behind the Skylane&quot;</td><td>parser upgrade to clearance</td><td><span class="status status--warn">7110.65 3-8-1 spacing advisory ≠ 3-10-5 CLEARED TO LAND</span></td><td>LIVE → clearance-critical guard</td></tr>
+      <tr><td>B3</td><td>&quot;left closed traffic approved…&quot;</td><td>acknowledgment vs informational</td><td><span class="status status--warn">approval carries direction slot; gold stands</span></td><td>LIVE → taxonomy memo</td></tr>
     </tbody>
     
   </table>
 </div></div>
 </section>
 
-<section data-lev-id="inventory" class="anim section section--full-width" style="--i:10" id="inventory">
-  <span class="section-label">Inventory</span>
-  <h2 class="section-title">Audio counts and roots worth keeping straight</h2>
-  
-  <div class="section__full-width"><div data-lev-id="inventory-table" class="anim table-wrap" style="--i:10">
+<section data-lev-id="ledger" class="anim section section--full-width" style="--i:10" id="ledger">
+  <span class="section-label">CAPTURE · 20260706-capture-sweep.yaml</span>
+  <h2 class="section-title">Lifecycle ledger</h2>
+  <p class="section-subtitle">Everything this session produced, where it lives, and what owns it next.</p>
+  <div class="section__full-width"><div data-lev-id="ledger-table" class="anim table-wrap" style="--i:10">
   
   <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
   <table class="data-table">
-    <thead><tr><th>Surface</th><th>Path</th><th>Observed contents</th><th>Authority role</th><th>Action</th></tr></thead>
+    <thead><tr><th>ID</th><th>Topic</th><th>State</th><th>Next route</th></tr></thead>
     <tbody>
-      <tr><td>M3 repo audio</td><td>/production/naac/data/audio</td><td>All top-level datasets plus LiveATC archive classes; 50,999 MP3s reported</td><td>Local DVC/materialized payload only</td><td>Use explicit repo-local <code>--audio-root</code> on M3 until Drive root is fixed</td></tr>
-      <tr><td>Drone repo audio</td><td>/production/drone/data/audio</td><td>Only <code>liveatc</code>; class-g-ctaf=2062 MP3s; jobs=0 MP3; 4.6G</td><td>Partial local materialization</td><td>Do not infer this is a full training corpus</td></tr>
-      <tr><td>Drone Shared Drive</td><td>~/Library/CloudStorage/GoogleDrive-jp@kinglystudio.ai/Shared drives/Clients/NAAC/Data/audio</td><td>ATCO2, atc_asr_dataset, atcosim, liveatc, uwb_atcc; about 13G locally visible</td><td>Candidate canonical Drive dataset root</td><td>Prefer this as the human-readable canonical root if archives are moved or exposed here</td></tr>
-      <tr><td>Drone shortcut target</td><td>~/Library/CloudStorage/GoogleDrive-jp@kinglystudio.ai/.shortcut-targets-by-id/.../audio/liveatc/archives</td><td>class-b, class-c, class-d, class-d-towered, class-g-ctaf, jobs, logs</td><td>Currently exposes useful archive tree, but path is opaque</td><td>Do not make this the long-term documented root unless folder ID is captured</td></tr>
+      <tr><td>wtf-01</td><td>Baseline tick 98.2% (report 108332b)</td><td><span class="status status--match">done</span></td><td>—</td></tr>
+      <tr><td>wtf-02</td><td>Thor deploy d7d58871e, smoke green</td><td><span class="status status--match">done</span></td><td>—</td></tr>
+      <tr><td>wtf-03</td><td>7-row adjudication: no gold edits</td><td><span class="status status--match">done</span></td><td>—</td></tr>
+      <tr><td>wtf-04</td><td>AGENTS.md four lanes + vernacular lock</td><td><span class="status status--match">done</span></td><td>—</td></tr>
+      <tr><td>wtf-05</td><td>Pilot-lane audit receipt (116/41, 8/8)</td><td><span class="status status--match">done</span></td><td>—</td></tr>
+      <tr><td>wtf-06</td><td>Row-scoped teardown directive</td><td><span class="status status--info">captured</span></td><td>chat 1 consumes before rip-out</td></tr>
+      <tr><td>wtf-07</td><td>7 unclear rows</td><td><span class="status status--warn">blocked</span></td><td>JP ruling → /exec</td></tr>
+      <tr><td>wtf-08</td><td>B1 clearance-critical guard</td><td><span class="status status--info">executing</span></td><td>/ratchet-trace → /ratchet-audit → /propose</td></tr>
+      <tr><td>wtf-09</td><td>B3 approval taxonomy memo</td><td><span class="status status--info">captured</span></td><td>JP sign-off → /propose</td></tr>
+      <tr><td>wtf-10</td><td>Slot value-form memo</td><td><span class="status status--info">captured</span></td><td>JP sign-off → /propose</td></tr>
+      <tr><td>wtf-11</td><td>COPI GUI 4-row fixture promotion</td><td><span class="status status--info">captured</span></td><td>/exec (small, demo-lane)</td></tr>
+      <tr><td>wtf-12</td><td>Speaker-metadata → structural invariant</td><td><span class="status status--info">captured</span></td><td>chat 1 design absorption</td></tr>
+      <tr><td>wtf-13</td><td>pe_0007/0008 → FMM state-query lane</td><td><span class="status status--info">captured</span></td><td>say-souls chat pickup</td></tr>
     </tbody>
     
   </table>
 </div></div>
 </section>
 
-<section data-lev-id="flow" class="anim section section--pipeline" style="--i:10" id="flow">
-  <span class="section-label">Setup Model</span>
-  <h2 class="section-title">Repeatable audio setup should separate four concerns</h2>
-  
-  <div class="section__pipeline"><div data-lev-id="flow-1" class="anim ve-card ve-card--default" style="--i:10">
-  
-  
-  <h3 class="ve-card__title">1. Source of files</h3>
-  <div class="ve-card__content"><p>Google Drive Shared Drive or local DVC materialization. This is where bytes live.</p></div>
-</div>
-<div data-lev-id="flow-2" class="anim ve-card ve-card--default" style="--i:10">
-  
-  
-  <h3 class="ve-card__title">2. Local resolver</h3>
-  <div class="ve-card__content"><p><code>NAAC_AUDIO_ROOT</code> or explicit <code>--audio-root</code>. This is what tools read.</p></div>
-</div>
-<div data-lev-id="flow-3" class="anim ve-card ve-card--default" style="--i:10">
-  
-  
-  <h3 class="ve-card__title">3. Optional symlink</h3>
-  <div class="ve-card__content"><p><code>data/audio</code> can become an uncommitted symlink only after the canonical Drive root is chosen.</p></div>
-</div>
-<div data-lev-id="flow-4" class="anim ve-card ve-card--default" style="--i:10">
-  
-  
-  <h3 class="ve-card__title">4. Verifier</h3>
-  <div class="ve-card__content"><p>A small audit command should prove root exists, classes exist, counts are plausible, and stale absolute paths are flagged.</p></div>
-</div></div>
-</section>
-
-<section data-lev-id="decision-table" class="anim section section--full-width" style="--i:10" id="decision-table">
-  <span class="section-label">Decision</span>
-  <h2 class="section-title">What to do now</h2>
-  
-  <div class="section__full-width"><div data-lev-id="decision-data" class="anim table-wrap" style="--i:10">
-  
-  <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
-  <table class="data-table">
-    <thead><tr><th>Decision</th><th>Answer</th><th>Why</th><th>Owner</th></tr></thead>
-    <tbody>
-      <tr><td>Should we symlink <code>data/audio</code> now?</td><td><span class="status status--warn">No</span></td><td>M3 has existing DVC/materialized audio and this machine has two competing Drive roots. A symlink now would hide the mismatch.</td><td>JP / repo onboarding</td></tr>
-      <tr><td>What should tools use today?</td><td><span class="status status--match">Explicit root</span></td><td>Pass <code>--audio-root</code> or set <code>NAAC_AUDIO_ROOT</code> per machine. This keeps setup reversible.</td><td>All agents</td></tr>
-      <tr><td>Which Drive root is preferred?</td><td><span class="status status--info">Shared Drive</span></td><td>The human-readable <code>Clients/NAAC/Data/audio</code> path is easier to document than <code>.shortcut-targets-by-id</code>.</td><td>JP / Sunny</td></tr>
-      <tr><td>What needs M3 follow-up?</td><td><span class="status status--gap">Drive account/root fix</span></td><td>M3 found no usable NAAC Drive root and appears to be on <code>argomarine.ai</code> Drive provider.</td><td>M3 agent</td></tr>
-      <tr><td>What needs Sunny follow-up?</td><td><span class="status status--warn">Dataset provenance</span></td><td>Need the exact iter4 data source, training method, audio treatment, and where Sunny&apos;s audio is synced.</td><td>Sunny / agent</td></tr>
-    </tbody>
-    
-  </table>
-</div></div>
-</section>
-
-<section data-lev-id="missing-checklist" class="anim section section--full-width" style="--i:10" id="missing-checklist">
-  <span class="section-label">Plan Gaps Closed</span>
-  <h2 class="section-title">Items that had to be explicit before Stage 08</h2>
-  
-  <div class="section__full-width"><div data-lev-id="missing-table" class="anim table-wrap" style="--i:10">
-  
-  <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
-  <table class="data-table">
-    <thead><tr><th>Item</th><th>Evidence</th><th>Required coverage</th><th>Plan status</th></tr></thead>
-    <tbody>
-      <tr><td>Audio-root resolver</td><td><code>liveatc-train</code> defaults to <code>data/audio/liveatc</code>, while current examples pass <code>data/audio/liveatc/archives</code>; that changes relative output paths.</td><td>Stage 08 must accept both legacy root shapes deliberately, canonicalize to one archive-relative layout, and preserve the original path.</td><td><span class="status status--match">added</span></td></tr>
-      <tr><td>Hydration and Drive identity</td><td>M3 did not find a usable NAAC Drive root; this machine sees a readable Shared Drive path plus an opaque shortcut-target archive path.</td><td>Preflight must record root kind, folder id when applicable, classes seen, MP3 counts, and hydration status before export.</td><td><span class="status status--match">added</span></td></tr>
-      <tr><td>DVC vs ignored payload drift</td><td>Git tracks only <code>.dvc</code> metadata; M3 has extra ignored class-b/class-c/class-d audio that visible DVC pointers do not enumerate.</td><td>Rows from ignored extras require explicit custody/provenance; DVC outs and local byte hydration are recorded separately.</td><td><span class="status status--match">added</span></td></tr>
-      <tr><td>Stale absolute paths</td><td>M3 found generated LiveATC files referring to old <code>/production/naac</code> and <code>/production/drone</code> paths.</td><td>Exporter records <code>source_path_original</code> and <code>source_path_normalized</code>, then fails closed when a path cannot be related to the chosen root.</td><td><span class="status status--match">added</span></td></tr>
-      <tr><td>Sunny iter4 handoff</td><td>We still need the exact iter4 dataset, audio treatment, split recipe, training command/config, and eval artifacts.</td><td>Manifest schema records recipe/provenance fields when present and marks missing lineage as <code>partial</code> or <code>missing</code> instead of accepting rows as gold.</td><td><span class="status status--match">added</span></td></tr>
-      <tr><td>Finder/provider artifacts</td><td>Repo audio roots contain <code>.DS_Store</code>, <code>Icon\r</code>, and may contain transcript/cleanup JSON or trimmed MP3s inside DVC-counted directories.</td><td>Preflight reports non-audio payload and filters it from training-unit emission.</td><td><span class="status status--match">added</span></td></tr>
-    </tbody>
-    
-  </table>
-</div></div>
-</section>
-
-<section data-lev-id="commands" class="anim section section--default" style="--i:10" id="commands">
-  <span class="section-label">Commands</span>
-  <h2 class="section-title">Useful command shapes</h2>
-  
-  <div class="section__body"><div data-lev-id="cmd-block" class="anim code-file" style="--i:10">
-  <div class="code-file__header"><span class="code-file__dot"></span><span class="code-file__dot"></span><span class="code-file__dot"></span><span class="code-file__name">audio-root-audit.sh</span></div>
-  <div class="code-file__body"><div class="line-numbers"><span>1</span>
-<span>2</span>
-<span>3</span>
-<span>4</span>
-<span>5</span>
-<span>6</span>
-<span>7</span>
-<span>8</span>
-<span>9</span>
-<span>10</span>
-<span>11</span>
-<span>12</span>
-<span>13</span>
-<span>14</span>
-<span>15</span>
-<span>16</span>
-<span>17</span>
-<span>18</span>
-<span>19</span>
-<span>20</span>
-<span>21</span>
-<span>22</span>
-<span>23</span></div><pre><code class="language-bash">repo=/Users/jean-patricksmith/digital/kingly/apps/production/drone
-cd <span class="code-string">&quot;$repo&quot;</span>
-
-<span class="code-comment"># repo-local materialization</span>
-git -C data ls-files <span class="code-string">&apos;audio/liveatc/archives/*.dvc&apos;</span>
-stat -f <span class="code-string">&apos;%N | type=%HT | link-target=%Y&apos;</span> data/audio data/audio/liveatc data/audio/liveatc/archives
-find data/audio/liveatc/archives -mindepth <span class="code-number">1</span> -maxdepth <span class="code-number">1</span> -<span class="code-keyword">type</span> d -<span class="code-keyword">exec</span> basename {} \; | sort
-
-<span class="code-comment"># Drive candidates</span>
-find <span class="code-string">&quot;$HOME/Library/CloudStorage&quot;</span> -maxdepth <span class="code-number">5</span> -<span class="code-keyword">type</span> d -iname <span class="code-string">&apos;*audio*&apos;</span> <span class="code-number">2</span>&gt;/dev/<span class="code-keyword">null</span> | sort
-
-<span class="code-comment"># Current explicit source-root style</span>
-uv run --extra liveatc liveatc-train \
-  --audio-root /ABSOLUTE/PATH/TO/audio/liveatc \
-  --out-root data/training/liveatc \
-  --profile fast-local
-
-<span class="code-comment"># Planned Stage <span class="code-number">08</span> preflight gate</span>
-uv run --extra liveatc liveatc-<span class="code-keyword">export</span>-training-units \
-  --training-root data/training/liveatc \
-  --audio-root /ABSOLUTE/PATH/TO/audio/liveatc \
-  --audit-inputs \
-  --dry-run</code></pre></div>
-</div></div>
-</section>
-
-<section data-lev-id="next-actions" class="anim section section--card-grid" style="--i:10" id="next-actions">
-  <span class="section-label">Next</span>
-  <h2 class="section-title">Immediate follow-ups</h2>
-  
-  <div class="section__grid"><div data-lev-id="next-1" class="anim ve-card ve-card--elevated" style="--i:10">
-  
-  <span class="ve-card__label">JP machine</span>
-  <h3 class="ve-card__title">Choose canonical Drive root</h3>
-  <div class="ve-card__content"><p>Decide whether <code>Clients/NAAC/Data/audio</code> becomes canonical and move/expose LiveATC archives there, or document the shortcut-target folder ID explicitly.</p></div>
-</div>
-<div data-lev-id="next-2" class="anim ve-card ve-card--elevated" style="--i:10">
-  
-  <span class="ve-card__label">M3</span>
-  <h3 class="ve-card__title">Repair Drive visibility</h3>
-  <div class="ve-card__content"><p>M3 should install/sign into the correct Google Drive account, verify Shared Drive access, and rerun the same audit against <code>/production/drone</code> if that checkout exists.</p></div>
-</div>
-<div data-lev-id="next-3" class="anim ve-card ve-card--elevated" style="--i:10">
-  
-  <span class="ve-card__label">Repo</span>
-  <h3 class="ve-card__title">Add onboarding verifier</h3>
-  <div class="ve-card__content"><p>Document <code>NAAC_AUDIO_ROOT</code>, explicit <code>--audio-root</code>, DVC materialization, and a no-destructive audit command. Do not create a symlink until root choice is final.</p></div>
-</div>
-<div data-lev-id="next-4" class="anim ve-card ve-card--elevated" style="--i:10">
-  
-  <span class="ve-card__label">Iter5</span>
-  <h3 class="ve-card__title">Keep training gated</h3>
-  <div class="ve-card__content"><p>The iter5 exporter plan now requires explicit audio-root audit, root normalization, DVC/Drive custody, stale-path handling, and Sunny/M3 lineage fields before rows can become accepted training units.</p></div>
-</div></div>
-</section>
+<section data-lev-id="sequence" class="anim section section--stacked" style="--i:10" id="sequence">
+  <span class="section-label">CROSS-CHAT ORCHESTRATION</span>
+  <h2 class="section-title">Who owns what</h2>
+  <p class="section-subtitle">Three chats, disjoint file surfaces, one shared contract (AGENTS.md).</p>
+  <div class="section__stacked"><div data-lev-id="seq-timeline" class="anim timeline" style="--i:10">
+    <div class="timeline-item timeline-item--completed" style="--i:26">
+      <div class="timeline-item__marker"></div>
+      <div class="timeline-item__content">
+        <span class="timeline-item__date">done</span>
+        <h4 class="timeline-item__title">AGENTS.md four-lane lock (this chat)</h4>
+        <p class="timeline-item__desc">The shared contract both other chats inherit. Commit 5666ca4a0.</p>
+      </div>
     </div>
+    <div class="timeline-item timeline-item--completed" style="--i:27">
+      <div class="timeline-item__marker"></div>
+      <div class="timeline-item__content">
+        <span class="timeline-item__date">done</span>
+        <h4 class="timeline-item__title">Pilot-lane audit + capture (this chat)</h4>
+        <p class="timeline-item__desc">Receipt 2186b09f8; ledger + memos c4235808c. Directive: teardown row-scoped, not intent-scoped.</p>
+      </div>
+    </div>
+    <div class="timeline-item timeline-item--in-progress" style="--i:28">
+      <div class="timeline-item__marker"></div>
+      <div class="timeline-item__content">
+        <span class="timeline-item__date">now</span>
+        <h4 class="timeline-item__title">B1 clearance guard (this chat)</h4>
+        <p class="timeline-item__desc">/ratchet-trace → /ratchet-audit → /propose. Template-phrase evidence from template authority; clearance-critical intents abstain without it.</p>
+      </div>
+    </div>
+    <div class="timeline-item timeline-item--in-progress" style="--i:29">
+      <div class="timeline-item__marker"></div>
+      <div class="timeline-item__content">
+        <span class="timeline-item__date">chat 1</span>
+        <h4 class="timeline-item__title">fmm/siri build + pilot-ingress teardown</h4>
+        <p class="timeline-item__desc">FMMInitiationRequest, POST /initiation, fake_siri_phrasebook.yaml (design-locked, unimplemented). Consumes audit receipt; retires scored B-lane twins in the same tick.</p>
+      </div>
+    </div>
+    <div class="timeline-item timeline-item--upcoming" style="--i:30">
+      <div class="timeline-item__marker"></div>
+      <div class="timeline-item__content">
+        <span class="timeline-item__date">say-souls chat</span>
+        <h4 class="timeline-item__title">FMM state lane wiring</h4>
+        <p class="timeline-item__desc">Decision→render hop, souls/fuel value pools, one grounded scenario, per-row gates through the FMM-inclusive path. Inherits pe_0007/0008 as fixture candidates.</p>
+      </div>
+    </div>
+    <div class="timeline-item timeline-item--upcoming" style="--i:31">
+      <div class="timeline-item__marker"></div>
+      <div class="timeline-item__content">
+        <span class="timeline-item__date">flip day</span>
+        <h4 class="timeline-item__title">Reclassification receipts</h4>
+        <p class="timeline-item__desc">just baseline before/after with movement accounting — the ~5-row denominator step-change is receipted, never silent.</p>
+      </div>
+    </div>
+</div>
+<blockquote data-lev-id="seq-note" class="anim pullquote" style="--i:10;">
+  <p><p>The teardown must be row-scoped, not intent-scoped: ctaf_broadcast, position_report, comm_request, and emergency_declaration are shared with the scored B lanes. Delete by intent and the baseline lies.</p></p>
+</blockquote></div>
+</section>
   </div>
 
   <button class="theme-toggle" aria-label="Toggle theme">

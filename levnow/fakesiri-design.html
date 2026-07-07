@@ -1,16 +1,17 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light" class="fx-title-underline fx-grid-dots">
+<html lang="en" data-theme="dark" class="fx-card-glow fx-title-underline fx-grid-dots">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>NAAC Audio Sync Debrief</title>
-  <meta name="description" content="A compact debrief comparing the local drone checkout, the M3 naac checkout, Google Drive audio visibility, DVC materialization, and the repeatable setup decision." />
-  <meta property="og:title" content="NAAC Audio Sync Debrief" />
-  <meta property="og:description" content="A compact debrief comparing the local drone checkout, the M3 naac checkout, Google Drive audio visibility, DVC materialization, and the repeatable setup decision." />
+  <title>Fake-Siri — Resolved Design</title>
+  <meta name="description" content="Pilot speech at the gateway/GUI boundary: v4 final design, 3 interview rounds + independent review + eval harness. All 26 questions inside." />
+  <meta property="og:title" content="Fake-Siri — Resolved Design" />
+  <meta property="og:description" content="Pilot speech at the gateway/GUI boundary: v4 final design, 3 interview rounds + independent review + eval harness. All 26 questions inside." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage%20Grotesque:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM%20Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fragment%20Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM%20Plex%20Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM%20Plex%20Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM%20Plex%20Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM%20Plex%20Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
   <style>
 /* === Reset === */
 *, *::before, *::after { box-sizing: border-box; }
@@ -18,19 +19,19 @@ body, h1, h2, h3, h4, p, ul, ol, blockquote, figure { margin: 0; padding: 0; }
 
 /* === Theme Variables === */
 :root, [data-theme="dark"] {
-  --color-primary: #d97706;
-  --color-accent: #059669;
-  --color-surface: #fffbeb;
-  --color-surface-alt: #fef3c7;
-  --color-text: #1c1a0e;
-  --color-text-muted: #6b6130;
-  --color-border: rgba(217,119,6,0.15);
-  --color-success: #059669;
-  --color-warning: #d97706;
-  --color-error: #dc2626;
+  --color-primary: #0891b2;
+  --color-accent: #0369a1;
+  --color-surface: #0f172a;
+  --color-surface-alt: #1e293b;
+  --color-text: #f1f5f9;
+  --color-text-muted: #94a3b8;
+  --color-border: rgba(8,145,178,0.18);
+  --color-success: #2dd4bf;
+  --color-warning: #fbbf24;
+  --color-error: #fb7185;
   --font-display: 'IBM Plex Sans', Georgia, serif;
-  --font-body: 'IBM Plex Mono', system-ui, sans-serif;
-  --font-mono: 'Fragment Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
   --color-accent-dim: color-mix(in srgb, var(--color-accent) 15%, transparent);
   --color-accent-bright: color-mix(in srgb, var(--color-accent) 80%, white);
   --color-border-strong: color-mix(in srgb, var(--color-accent) 30%, transparent);
@@ -44,11 +45,11 @@ body, h1, h2, h3, h4, p, ul, ol, blockquote, figure { margin: 0; padding: 0; }
   --transition: 0.35s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
-[data-theme="dark"] {
-  --color-primary: #1a1508; --color-accent: #d97706; --color-accent-dim: rgba(217,119,6,0.15);
-  --color-accent-bright: #f59e0b; --color-surface: #1a1508; --color-surface-alt: #262010;
-  --color-text: #fef9e7; --color-text-muted: #c4b060; --color-border: rgba(217,119,6,0.2);
-  --color-border-strong: rgba(217,119,6,0.35); --color-success: #059669; --color-warning: #d97706; --color-error: #dc2626;
+[data-theme="light"] {
+  --color-primary: #f8fafc; --color-accent: #0891b2; --color-accent-dim: rgba(8,145,178,0.1);
+  --color-accent-bright: #06b6d4; --color-surface: #f8fafc; --color-surface-alt: #f1f5f9;
+  --color-text: #0f172a; --color-text-muted: #64748b; --color-border: rgba(8,145,178,0.15);
+  --color-border-strong: rgba(8,145,178,0.3); --color-success: #059669; --color-warning: #d97706; --color-error: #dc2626;
 }
 
 /* === Base === */
@@ -63,9 +64,10 @@ body {
   overflow-x: hidden;
 }
 body { background-image:
-  radial-gradient(circle at 15% 10%, rgba(217,119,6,0.06) 0%, transparent 25%),
-  radial-gradient(circle at 85% 15%, rgba(5,150,105,0.05) 0%, transparent 25%),
-  radial-gradient(circle at 50% 85%, rgba(217,119,6,0.03) 0%, transparent 30%);
+  radial-gradient(ellipse at 20% 0%, rgba(8,145,178,0.08) 0%, transparent 50%),
+  radial-gradient(ellipse at 80% 80%, rgba(3,105,161,0.05) 0%, transparent 40%),
+  repeating-linear-gradient(0deg, rgba(8,145,178,0.02) 0px, rgba(8,145,178,0.02) 1px, transparent 1px, transparent 40px),
+  repeating-linear-gradient(90deg, rgba(8,145,178,0.02) 0px, rgba(8,145,178,0.02) 1px, transparent 1px, transparent 40px);
 }
 
 /* === Selection + Focus + Scrollbar (AESTHETIC-DNA Premium Test) === */
@@ -1940,27 +1942,25 @@ code:not(pre code) {
 </head>
 <body>
   <nav class="site-nav">
-    <a class="site-nav__logo" href="#">NAAC</a>
+    <a class="site-nav__logo" href="#">Fake</a>
     <div class="site-nav__links">
-      <a href="#kpis">Snapshot</a>
-      <a href="#verdict">Verdict</a>
-      <a href="#machine-comparison">Machine Matrix</a>
-      <a href="#inventory">Inventory</a>
-      <a href="#flow">Setup Model</a>
-      <a href="#decision-table">Decision</a>
-      <a href="#missing-checklist">Plan Gaps Closed</a>
-      <a href="#commands">Commands</a>
+      <a href="#sec-flow">ARCHITECTURE</a>
+      <a href="#sec-kpis">STATE</a>
+      <a href="#sec-arch">SECTIONS 1 · 2 · 4 · 5</a>
+      <a href="#sec-vocab">SECTION 3</a>
+      <a href="#sec-shedding">SECTION 6</a>
+      <a href="#sec-console">SECTION 7</a>
+      <a href="#sec-testing">SECTION 8</a>
+      <a href="#sec-eval">SECTION 14</a>
     </div>
   </nav>
 <section data-lev-id="hero" class="anim hero hero--editorial" style="--i:0">
   <div class="hero__inner">
-    <span class="hero__category">NAAC AUDIO DATASET SETUP</span>
-    <h1 class="hero__title">Audio Sync Debrief</h1>
-    <p class="hero__subtitle">The M3 audit did not find the same world as this drone checkout. Treat that as signal: repo-local audio, DVC materialization, and Google Drive sync are currently three different surfaces.</p>
-    <p class="hero__meta">Updated 2026-07-06 from M3 audit attachment plus live /production/drone refresh</p>
-    <div data-lev-id="hero-lead" class="anim lead" style="--i:1;">
-  <p>The immediate decision is not model training. It is to standardize the audio root contract: keep DVC-managed repo materialization separate from Google Drive dataset sync, and pass explicit <code>--audio-root</code> values until a canonical Drive root is selected and verified.</p>
-</div>
+    <span class="hero__category">DESIGN · v5 FINAL</span>
+    <h1 class="hero__title">Fake-Siri</h1>
+    <p class="hero__subtitle">Pilot speech moves to the gateway/GUI boundary — typed FMM initiation requests, never VM parsing</p>
+    <p class="hero__meta">3 interview rounds · codex review · eval harness · JP act-as-FMM ruling · ~3% residual ambiguity</p>
+    
   </div>
 </section>
   <div class="page-wrap--toc">
@@ -1968,260 +1968,453 @@ code:not(pre code) {
     <label for="toc-toggle" class="toc-hamburger" role="button" aria-label="Toggle table of contents"><span></span><span></span><span></span></label>
     <label for="toc-toggle" class="toc-backdrop" aria-hidden="true"></label>
     <nav class="page-toc" id="page-toc">
-      <div class="page-toc__title">NAAC</div>
-      <a href="#kpis">Snapshot</a>
-      <a href="#verdict">Verdict</a>
-      <a href="#machine-comparison">Machine Matrix</a>
-      <a href="#inventory">Inventory</a>
-      <a href="#flow">Setup Model</a>
-      <a href="#decision-table">Decision</a>
-      <a href="#missing-checklist">Plan Gaps Closed</a>
-      <a href="#commands">Commands</a>
-      <a href="#next-actions">Next</a>
+      <div class="page-toc__title">Fake</div>
+      <a href="#sec-flow">ARCHITECTURE</a>
+      <a href="#sec-kpis">STATE</a>
+      <a href="#sec-arch">SECTIONS 1 · 2 · 4 · 5</a>
+      <a href="#sec-vocab">SECTION 3</a>
+      <a href="#sec-shedding">SECTION 6</a>
+      <a href="#sec-console">SECTION 7</a>
+      <a href="#sec-testing">SECTION 8</a>
+      <a href="#sec-eval">SECTION 14</a>
+      <a href="#sec-migration">SECTIONS 9 · 10</a>
+      <a href="#sec-ops">SECTIONS 11 · 12</a>
+      <a href="#sec-phase3">SECTION 13</a>
+      <a href="#sec-review">INDEPENDENT REVIEW</a>
+      <a href="#sec-questions">THE INTERVIEW</a>
+      <a href="#sec-turns">PROCESS</a>
+      <a href="#sec-next">EXECUTION</a>
     </nav>
     <div class="page-main">
 
 
-<section data-lev-id="kpis" class="anim section section--kpi-row" style="--i:2" id="kpis">
-  <span class="section-label">Snapshot</span>
-  <h2 class="section-title">What changed after reading the M3 audit</h2>
+<div data-lev-id="lead-goal" class="anim lead" style="--i:1;">
+  <p>GOAL: the VM never processes pilot speech, and the demo never round-trips an FMM decision — we ARE the fake FMM. The flow: pilot (joystick button or PTT voice) → gateway transcribe → parse all the rules at the gateway boundary → emit the existing FMM-initiated transmission request → the VM speaks the ownship pilot call on the radio. Zero new ICD types; the seam the real Phase-3 app inherits (ATCTransmissionRequest into the VM) already exists. Scripted pilot rows leave VM scoring and become the fake-siri test corpus.</p>
+</div>
+
+<section data-lev-id="sec-flow" class="anim section section--full-width" style="--i:2" id="sec-flow">
+  <span class="section-label">ARCHITECTURE</span>
+  <h2 class="section-title">Target flow</h2>
   
-  <div class="section__kpi-row"><div data-lev-id="kpi-m3-mp3" class="anim kpi-card" style="--i:3">
-  <div class="kpi-card__value">50,999</div>
-  <div class="kpi-card__label">M3 repo MP3s across LiveATC classes</div>
-  <span class="kpi-card__trend kpi-card__trend--up">repo-local / DVC materialized</span>
+  <div class="section__full-width"><div data-lev-id="diag-flow" class="anim mermaid-wrap" style="--i:3" id="mermaid-diag-flow">
+  <div class="mermaid-controls">
+    <button class="mermaid-zoom" type="button" aria-label="Zoom out" onclick="levNowMermaidZoom('mermaid-diag-flow', -0.2)">-</button>
+    <button class="mermaid-zoom" type="button" aria-label="Reset zoom" onclick="levNowMermaidZoom('mermaid-diag-flow', 0)">1:1</button>
+    <button class="mermaid-zoom" type="button" aria-label="Zoom in" onclick="levNowMermaidZoom('mermaid-diag-flow', 0.2)">+</button>
+    <button class="mermaid-zoom mermaid-fullscreen" type="button" aria-label="Fullscreen" onclick="levNowFullscreen(document.getElementById('mermaid-diag-flow'))" title="Fullscreen">⛶</button>
+  </div>
+  <pre class="mermaid">flowchart LR
+  subgraph PILOT[Pilot seat - demo, gateway ACTS AS FMM]
+    B[Joystick button] --&gt; G[gateway fake-siri: phrasebook match + slot fill]
+    V[PTT voice] --&gt; T[gateway /copi/v1/transcribe] --&gt; G
+    G --&gt;|sync: row_id + dispatched| B
+  end
+  subgraph SPEECH[Existing FMM-initiated speech lane]
+    G --&gt;|ATCTransmissionRequest| C[fmm_client_daemon] --&gt; N[NATS fmm.transmission_request] --&gt; R[response daemon] --&gt; S[VM speaks ownship call]
+  end
+  subgraph VM[Voice module - ATC only]
+    A[ATC radio] --&gt; K[origin x scope gate - ownship pilot DROPPED pre-parse] --&gt; P[parser] --&gt; F[fake FMM proposal cycle - UNTOUCHED]
+  end</pre>
+  <p class="mermaid-caption">One speech author, no decision hop — fake-siri emits what a real FMM would emit</p>
+</div></div>
+</section>
+
+<section data-lev-id="sec-kpis" class="anim section section--kpi-row" style="--i:4" id="sec-kpis">
+  <span class="section-label">STATE</span>
+  <h2 class="section-title">Design readiness</h2>
+  
+  <div class="section__kpi-row"><div data-lev-id="k1" class="anim kpi-card" style="--i:5">
+  <div class="kpi-card__value">3-4%</div>
+  <div class="kpi-card__label">residual ambiguity (target &lt;10%)</div>
+  
   
 </div>
-<div data-lev-id="kpi-drone-mp3" class="anim kpi-card" style="--i:4">
-  <div class="kpi-card__value">2,062</div>
-  <div class="kpi-card__label">current drone repo MP3s</div>
-  <span class="kpi-card__trend kpi-card__trend--flat">class-g-ctaf only</span>
+<div data-lev-id="k2" class="anim kpi-card" style="--i:6">
+  <div class="kpi-card__value kpi-card__value--animated" style="--target:26"></div>
+  <div class="kpi-card__label">interview questions, all resolved</div>
+  
   
 </div>
-<div data-lev-id="kpi-drive" class="anim kpi-card" style="--i:5">
-  <div class="kpi-card__value">2</div>
-  <div class="kpi-card__label">Drive surfaces on this machine</div>
-  <span class="kpi-card__trend kpi-card__trend--flat">Shared Drive + shortcut target</span>
+<div data-lev-id="k3" class="anim kpi-card" style="--i:7">
+  <div class="kpi-card__value kpi-card__value--animated" style="--target:10"></div>
+  <div class="kpi-card__label">review findings, all integrated</div>
+  
   
 </div>
-<div data-lev-id="kpi-action" class="anim kpi-card" style="--i:6">
+<div data-lev-id="k4" class="anim kpi-card" style="--i:8">
   <div class="kpi-card__value">0</div>
-  <div class="kpi-card__label">canonical audio roots chosen</div>
-  <span class="kpi-card__trend kpi-card__trend--down">must choose before symlink</span>
+  <div class="kpi-card__label">open design forks</div>
   
-</div></div>
-</section>
-
-<section data-lev-id="verdict" class="anim section section--card-grid" style="--i:7" id="verdict">
-  <span class="section-label">Verdict</span>
-  <h2 class="section-title">Do not treat these machines as synced yet</h2>
   
-  <div class="section__grid"><div data-lev-id="verdict-left" class="anim callout callout--warning" style="--i:8">
-  <div class="callout__title">M3 audit result</div>
-  <div class="callout__content"><p>M3 audited <code>/production/naac</code>, not <code>/production/drone</code>. It did not find a usable NAAC Google Drive audio root. Its <code>data/audio</code> is a normal directory with large local/DVC materialization.</p></div>
 </div>
-<div data-lev-id="verdict-right" class="anim callout callout--info" style="--i:9">
-  <div class="callout__title">This machine result</div>
-  <div class="callout__content"><p>The current <code>/production/drone</code> checkout also has normal repo-local <code>data/audio</code>, but Google Drive Desktop does expose <code>Clients/NAAC/Data/audio</code> and a shortcut-target LiveATC archive path.</p></div>
+<div data-lev-id="k5" class="anim kpi-card" style="--i:9">
+  <div class="kpi-card__value kpi-card__value--animated" style="--target:2"></div>
+  <div class="kpi-card__label">JP-review assumptions left (defaults set)</div>
+  
+  
 </div></div>
 </section>
 
-<section data-lev-id="machine-comparison" class="anim section section--full-width" style="--i:10" id="machine-comparison">
-  <span class="section-label">Machine Matrix</span>
-  <h2 class="section-title">M3 vs this drone checkout</h2>
+<section data-lev-id="sec-arch" class="anim section section--card-grid" style="--i:10" id="sec-arch">
+  <span class="section-label">SECTIONS 1 · 2 · 4 · 5</span>
+  <h2 class="section-title">Contracts &amp; placement</h2>
+  <p class="section-subtitle">Every item scored; scores are residual ambiguity</p>
+  <div class="section__grid"><div data-lev-id="c-goal" class="anim ve-card ve-card--default" style="--i:10">
   
-  <div class="section__full-width"><div data-lev-id="machine-table" class="anim table-wrap" style="--i:10">
   
-  <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
+  <h3 class="ve-card__title">§1 Goal &amp; scope [2-3%]</h3>
+  <div class="ve-card__content"><p>Demo stand-in for the future NEW APP seat. Formalizes the shipping Tk PilotIntentMatcher path (pilot_actions.json + pilot_voice_aliases.json), radio subset only. <strong>Executable route ledger</strong>: all 63 console actions get <code>route: initiation | operator_trigger</code> — a test asserts sim/checklist triggers (engine_start) can never reach /initiation. Web pilot_console untouched (non-authority).</p></div>
+</div>
+<div data-lev-id="c-contract" class="anim ve-card ve-card--default" style="--i:10">
+  
+  
+  <h3 class="ve-card__title">§2 Contracts [2-4%] — ZERO new ICD types</h3>
+  <div class="ve-card__content"><p>The wire into the VM is the <strong>existing</strong> <code>ATCTransmissionRequest(transmission=ATCTransmission(template_id, variables))</code> — fake-siri authors it directly, acting as the FMM. FMMInitiationRequest/FMMInitiationDecision are <strong>deleted</strong> (v4 artifacts of a decision hop JP ruled out). Console↔gateway = gateway-owned /copi/v1 shapes; the sync response {row_id, digest, dispatched | diagnostic} drives console UX — never the transmission lane&apos;s queued-only {status: accepted}. The only &apos;no&apos; is <code>unmatched_pilot_utterance</code>.</p></div>
+</div>
+<div data-lev-id="c-placement" class="anim ve-card ve-card--default" style="--i:10">
+  
+  
+  <h3 class="ve-card__title">§4 Placement &amp; authority [2-3%]</h3>
+  <div class="ve-card__content"><p>Fake-siri is <strong>gateway-side</strong> (JP flow: gateway transcribes, parses all the rules — supersedes the round-3 console-side seat; PilotIntentMatcher&apos;s local matching retires in cleanup). Console = thin input device: button id or PTT audio. Authority line unchanged: SELECT a pre-authored row + FILL slots — never synthesize, never free NLU; unmatched fails closed. The Windows import handshake (review F9) is moot — loader, matcher, and gateway share one process.</p></div>
+</div>
+<div data-lev-id="c-endpoint" class="anim ve-card ve-card--default" style="--i:10">
+  
+  
+  <h3 class="ve-card__title">§5 Acting as the FMM [2-4%]</h3>
+  <div class="ve-card__content"><p>No /initiation endpoint, no matcher in the fake FMM daemon — it is <strong>untouched</strong>. Fake-siri POSTs the authored request to fmm_client_daemon /transmission-request → NATS → response daemon → radio speech (the proven FMM-initiated lane; the VM&apos;s output voice IS ownship). Pilot-call templates are data rows beside existing response templates. Lane failure → typed <code>speech_dispatch_failed</code>, matched-but-unspoken is never silent.</p></div>
+</div></div>
+</section>
+
+<section data-lev-id="sec-vocab" class="anim section section--default" style="--i:10" id="sec-vocab">
+  <span class="section-label">SECTION 3</span>
+  <h2 class="section-title">Policy bundle — the phrasebook</h2>
+  
+  <div class="section__body"><div data-lev-id="p-vocab" class="anim prose" style="--i:10;">
+  <p>One YAML bundle <code>data/atc/policy/pilot/fake_siri_phrasebook.yaml</code> behind a typed authority singleton (FlightStateTransitionAuthority precedent). Entry: {id, phrases[] | button_preset_id, phase_scope[], initiation_kind, slots, source, grounding_ref, route}. <code>initiation_kind</code> + slot-roles live in the bundle header (the transmission_origin precedent) — plain strings on the wire, policy-owned value set, no Python enum copy. Whole-bundle compiled_sha256 registered in the schema-load digest test (two files become three). [3-4%]</p>
+</div>
+<div data-lev-id="t-sources" class="anim table-wrap" style="--i:10">
+  
+  
   <table class="data-table">
-    <thead><tr><th>Axis</th><th>M3 audit</th><th>Current drone refresh</th><th>What it means</th><th>Status</th></tr></thead>
+    <thead><tr><th>Source</th><th>What it contributes</th><th>Wins on collision</th></tr></thead>
     <tbody>
-      <tr><td>Repo path</td><td>/Users/.../production/naac</td><td>/Users/.../production/drone</td><td>The M3 agent did not audit the requested path because it was missing there.</td><td><span class="status status--warn">mismatch</span></td></tr>
-      <tr><td>Branch</td><td>Sunny-PC, parent behind 23, data behind 7</td><td>Sunny-PC, current checkout present</td><td>M3 may be stale relative to current drone work.</td><td><span class="status status--warn">check before sync</span></td></tr>
-      <tr><td>data/audio type</td><td>Normal directory, not symlink</td><td>Normal directory, not symlink</td><td>Neither repo is wired to Drive through <code>data/audio</code>.</td><td><span class="status status--match">confirmed</span></td></tr>
-      <tr><td>Tracked audio metadata</td><td>class-d-towered.dvc, class-g-ctaf.dvc, jobs.dvc</td><td>same three .dvc pointers</td><td>Git tracks DVC metadata, not raw audio payloads.</td><td><span class="status status--match">aligned</span></td></tr>
-      <tr><td>Materialized repo audio</td><td>class-b, class-c, class-d, class-d-towered, class-g-ctaf, jobs, logs</td><td>class-g-ctaf, jobs</td><td>M3 has much more local audio than this checkout.</td><td><span class="status status--gap">drift</span></td></tr>
-      <tr><td>Google Drive audio root</td><td>No usable NAAC audio root found; argomarine Drive provider stalled</td><td>Shared Drive path exists; shortcut-target LiveATC archives exist</td><td>Drive account/root setup differs by machine.</td><td><span class="status status--warn">blocked on standard</span></td></tr>
+      <tr><td>Tk pilot_actions.json + voice aliases (radio subset)</td><td>Shipping button presets + spoken aliases</td><td><span class="status status--info">Button label / preset identity</span></td></tr>
+      <tr><td>~70 VM pilot parser + classifier rules</td><td>Regex bodies + FAA-grounded intent/slot semantics</td><td><span class="status status--match">Intent &amp; slot semantics</span></td></tr>
+      <tr><td>Gateway regex inventory</td><td>Nothing new — delegates to the same RegexParser</td><td><span class="status status--gap">Collapses into VM rows</span></td></tr>
+      <tr><td>Web templates_data.py</td><td>DROPPED — non-authority surface</td><td><span class="status status--warn">Excluded</span></td></tr>
     </tbody>
     
   </table>
 </div></div>
 </section>
 
-<section data-lev-id="inventory" class="anim section section--full-width" style="--i:10" id="inventory">
-  <span class="section-label">Inventory</span>
-  <h2 class="section-title">Audio counts and roots worth keeping straight</h2>
+<section data-lev-id="sec-shedding" class="anim section section--default" style="--i:10" id="sec-shedding">
+  <span class="section-label">SECTION 6</span>
+  <h2 class="section-title">VM shedding — how pilot speech leaves the voice module</h2>
   
-  <div class="section__full-width"><div data-lev-id="inventory-table" class="anim table-wrap" style="--i:10">
+  <div class="section__body"><div data-lev-id="p-shed" class="anim prose" style="--i:10;">
+  <p><strong>The one buildable gate artifact (redefined pi-5):</strong> thread <code>transmission_origin</code> into <code>run_callsign_stage</code> (today origin is consulted only post-parse) and add a typed <code>ownship_pilot</code> disposition to <code>observation_reasons</code>. Discriminant = origin × address_scope at the addressing gate: pilot × ownship → <strong>pre-parse drop</strong> with typed diagnostic. [4%]</p>
+<p>Other-aircraft pilot speech: unchanged — no new party-line scorer (pre_fmm_observation is broadcast-only; pi-6 deleted). [3%]</p>
+<p><strong>P7 carve-out intentionally dropped</strong>: the reporting_obligation promotion + pilot_origin_authoritative_kinds allowlist + the fake-FMM consumer <code>_pilot_origin_metadata_fallback_allowed</code> (review F7) all retire after pi-5 lands — semantics relocate to fake-siri as initiation kind=report. Zero A2 pass-rate impact: all affected rows are already unscored. [3%]</p>
+<p>The 70 rules: the speaker-axis plan owns them, <strong>zero deletions</strong> — shedding = reachability via the gate; regex bodies migrate to the phrasebook as content copies. Invariant: rule-count ledger. [3%]</p>
+</div></div>
+</section>
+
+<section data-lev-id="sec-console" class="anim section section--default" style="--i:10" id="sec-console">
+  <span class="section-label">SECTION 7</span>
+  <h2 class="section-title">Console integration (Tk pilot_console_windows)</h2>
+  
+  <div class="section__body"><div data-lev-id="p-console" class="anim prose" style="--i:10;">
+  <p>Buttons: radio preset → console-side select+fill → typed request → /initiation; the <strong>sync decision body drives console UX</strong>. Sim triggers keep /copi/v1/mission/event untouched. Voice: PTT → existing gateway /copi/v1/transcribe → transcript matched console-side. Context ownership: the console (operator seat) owns flight-plan/phase/telemetry and supplies slot values — fake-siri never invents flight context; only the typed request crosses. [3%]</p>
+</div></div>
+</section>
+
+<section data-lev-id="sec-testing" class="anim section section--default" style="--i:10" id="sec-testing">
+  <span class="section-label">SECTION 8</span>
+  <h2 class="section-title">Test strategy — corpus, gold, parity</h2>
+  
+  <div class="section__body"><div data-lev-id="p-test" class="anim prose" style="--i:10;">
+  <p><strong>Measured facts:</strong> 97/218 A2 turns are pilot-speaker and ZERO are scored (scored_turn requires speaker==atc) — repartition is an inventory change; A2 pass-rate is invariant; a removed-rows table is mandatory. [3%]</p>
+<p><strong>Gold provenance (non-circular):</strong> row_id from a deterministic expected_intent→row index (not the runtime matcher); the 46 existing expected_parameters reused verbatim; expected EMISSION (template_id + variables) derived from the gold row + slots — the v4 decision column is deleted with the decision hop. Coverage gaps are flagged, never silently passed. [4%]</p>
+<p><strong>Floor = 100%</strong> — deterministic select+fill gets no soft floor; separate harness, never inside the 1546. Advisory-first, then CI-blocking (JP assumption #4). [4%]</p>
+<p><strong>Signal-neutrality gate (NB6):</strong> for each of the 46 parameter-bearing turns, select+fill must yield a slot SUPERSET of today&apos;s expected_parameters — any row the phrasebook cannot reproduce fails loudly. [4%]</p>
+</div></div>
+</section>
+
+<section data-lev-id="sec-eval" class="anim section section--full-width" style="--i:10" id="sec-eval">
+  <span class="section-label">SECTION 14</span>
+  <h2 class="section-title">Eval harness — LFD contract &amp; adversarial matrix</h2>
+  <p class="section-subtitle">Pentagon frame: every future worker is a tireless optimizer; the harness makes genuine capability cheaper than cheating. Tables: adversarial matrix, then the 10 fenced cheap paths.</p>
+  <div class="section__full-width"><div data-lev-id="p-lfd" class="anim prose" style="--i:10;">
+  <p><strong>Target (all mechanical):</strong> corpus row accuracy (row_id + slots + decision per gold, floor 100%) AND zero movement on all 1546 scored rows AND 46/46 explicit superset-parity outcomes. Failure directions: precision (wrong row, wrong slots, greedy regex) AND recall (missing presets, hidden coverage gaps). <strong>Capacity caps:</strong> phrasebook rows ≤ migrated rules + Tk presets, every row carries provenance — a row justified only by making one fixture pass is a cheat exhibit. <strong>Gold before matcher:</strong> the gold-authoring commit must precede the first harness run (receipt). <strong>Probe:</strong> paraphrase + ASR-noise perturbations must fail closed as unmatched — a silent wrong-row match means the matcher is too greedy. <strong>Holdout:</strong> live Tk console smoke over real HTTP, aggregate pass/fail only. <strong>Named inventory gate:</strong> attempted/matched/scored counts reported separately from just-baseline pass rate. [4%]</p>
+</div>
+<div data-lev-id="t-adversarial" class="anim table-wrap" style="--i:10">
   
   <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
   <table class="data-table">
-    <thead><tr><th>Surface</th><th>Path</th><th>Observed contents</th><th>Authority role</th><th>Action</th></tr></thead>
+    <thead><tr><th>Probe</th><th>Expected fail-closed result</th></tr></thead>
     <tbody>
-      <tr><td>M3 repo audio</td><td>/production/naac/data/audio</td><td>All top-level datasets plus LiveATC archive classes; 50,999 MP3s reported</td><td>Local DVC/materialized payload only</td><td>Use explicit repo-local <code>--audio-root</code> on M3 until Drive root is fixed</td></tr>
-      <tr><td>Drone repo audio</td><td>/production/drone/data/audio</td><td>Only <code>liveatc</code>; class-g-ctaf=2062 MP3s; jobs=0 MP3; 4.6G</td><td>Partial local materialization</td><td>Do not infer this is a full training corpus</td></tr>
-      <tr><td>Drone Shared Drive</td><td>~/Library/CloudStorage/GoogleDrive-jp@kinglystudio.ai/Shared drives/Clients/NAAC/Data/audio</td><td>ATCO2, atc_asr_dataset, atcosim, liveatc, uwb_atcc; about 13G locally visible</td><td>Candidate canonical Drive dataset root</td><td>Prefer this as the human-readable canonical root if archives are moved or exposed here</td></tr>
-      <tr><td>Drone shortcut target</td><td>~/Library/CloudStorage/GoogleDrive-jp@kinglystudio.ai/.shortcut-targets-by-id/.../audio/liveatc/archives</td><td>class-b, class-c, class-d, class-d-towered, class-g-ctaf, jobs, logs</td><td>Currently exposes useful archive tree, but path is opaque</td><td>Do not make this the long-term documented root unless folder ID is captured</td></tr>
+      <tr><td>Happy path (button preset)</td><td><span class="status status--match">Gateway {row_id, dispatched} + ATCTransmissionRequest receipt; speech rendered by VM only</span></td></tr>
+      <tr><td>Malformed console input (unknown preset / empty transcript)</td><td><span class="status status--match">Typed diagnostic at the gateway route; no emission, no speech</span></td></tr>
+      <tr><td>ATC-imperative injection via pilot voice lane</td><td><span class="status status--match">Pilot-row match or unmatched — NEVER a VM readback or CommandProposal</span></td></tr>
+      <tr><td>Wrong-phase preset</td><td><span class="status status--match">Unmatched fail-closed with phase diagnostic</span></td></tr>
+      <tr><td>Speech lane down (fmm_client_daemon)</td><td><span class="status status--match">speech_lane_unreachable typed; console surfaces; VM silent</span></td></tr>
+      <tr><td>Duplicate submit / console restart</td><td><span class="status status--warn">Debounce TESTED not asserted; dup behavior documented as Phase-2 risk</span></td></tr>
+      <tr><td>Console killed post-accept</td><td><span class="status status--match">Speech completes (FMM authored it); no orphan retry</span></td></tr>
+      <tr><td>Misleading success</td><td><span class="status status--match">{status: accepted} = queued-for-speech only; console UX binds to the gateway match+dispatch response</span></td></tr>
+      <tr><td>Flag-off leakage</td><td><span class="status status--match">Gateway fake-siri routes 404, presets ride legacy path, self-parity green — additive tier provably inert</span></td></tr>
+      <tr><td>Eval leak / dirty surface</td><td><span class="status status--match">Matcher imports audited: no gold, no corpus paths</span></td></tr>
+    </tbody>
+    
+  </table>
+</div>
+<div data-lev-id="t-cheats" class="anim table-wrap" style="--i:10">
+  
+  <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
+  <table class="data-table">
+    <thead><tr><th>Cheap path</th><th>Fence</th></tr></thead>
+    <tbody>
+      <tr><td>Per-fixture phrasebook rows</td><td>Capacity cap + provenance per row</td></tr>
+      <tr><td>Gold derived by running the matcher</td><td>Gold-authoring commit precedes first run; index keyed on expected_intent</td></tr>
+      <tr><td>Superset parity gamed by emitting every slot</td><td>Filled slots must schema-validate against declared roles; extras fail</td></tr>
+      <tr><td>Expected emissions captured from matcher output</td><td>Gold template_id/variables authored from row + expected_parameters BEFORE first harness run (receipt)</td></tr>
+      <tr><td>Widening migrated regexes</td><td>Migration diff gate: bodies byte-identical to source rules</td></tr>
+      <tr><td>Catch-all row swallowing probes</td><td>Probe suite asserts unmatched STAYS unmatched; new rows name their turns</td></tr>
+      <tr><td>Softening the scorer floor</td><td>Controller-replayed scorer changes; floor 100% by construction</td></tr>
+      <tr><td>Flag flipped on in scored lanes</td><td>Zero-movement + self-parity gates run flag-off</td></tr>
+      <tr><td>Skipping the real HTTP hop</td><td>agent_smoke requires it per endpoint-touching tick</td></tr>
+      <tr><td>Hiding coverage gaps by skipping turns</td><td>97 explicit outcome enums (pass | gap_flagged | scoped_out); counts must sum</td></tr>
     </tbody>
     
   </table>
 </div></div>
 </section>
 
-<section data-lev-id="flow" class="anim section section--pipeline" style="--i:10" id="flow">
-  <span class="section-label">Setup Model</span>
-  <h2 class="section-title">Repeatable audio setup should separate four concerns</h2>
+<section data-lev-id="sec-migration" class="anim section section--default" style="--i:10" id="sec-migration">
+  <span class="section-label">SECTIONS 9 · 10</span>
+  <h2 class="section-title">Migration &amp; flags</h2>
   
-  <div class="section__pipeline"><div data-lev-id="flow-1" class="anim ve-card ve-card--default" style="--i:10">
-  
-  
-  <h3 class="ve-card__title">1. Source of files</h3>
-  <div class="ve-card__content"><p>Google Drive Shared Drive or local DVC materialization. This is where bytes live.</p></div>
+  <div class="section__body"><div data-lev-id="p-migration" class="anim prose" style="--i:10;">
+  <p><strong>Reversible additive tier (lands flag-OFF everywhere, zero behavior change):</strong> the two ICD types, phrasebook loader/YAML + digest registration + route ledger, POST /initiation + _match_initiation_rule. The <strong>console switch is its own gated demo-lane step</strong> — that is where local/thor flip on (review F5 killed the on-by-default landing). <strong>One-way tier (gated on pi-5):</strong> pre-parse ingress drop, P7 retirement, A2 repartition + harness cutover with superset parity green. Per-step gates: self-parity, baseline non-regression, infra panel, schema-load, bucket 7, and the named inventory gate. A2 scored pass-rate invariant across every step. [3-4%]</p>
 </div>
-<div data-lev-id="flow-2" class="anim ve-card ve-card--default" style="--i:10">
-  
-  
-  <h3 class="ve-card__title">2. Local resolver</h3>
-  <div class="ve-card__content"><p><code>NAAC_AUDIO_ROOT</code> or explicit <code>--audio-root</code>. This is what tools read.</p></div>
-</div>
-<div data-lev-id="flow-3" class="anim ve-card ve-card--default" style="--i:10">
-  
-  
-  <h3 class="ve-card__title">3. Optional symlink</h3>
-  <div class="ve-card__content"><p><code>data/audio</code> can become an uncommitted symlink only after the canonical Drive root is chosen.</p></div>
-</div>
-<div data-lev-id="flow-4" class="anim ve-card ve-card--default" style="--i:10">
-  
-  
-  <h3 class="ve-card__title">4. Verifier</h3>
-  <div class="ve-card__content"><p>A small audit command should prove root exists, classes exist, counts are plausible, and stale absolute paths are flagged.</p></div>
-</div></div>
-</section>
-
-<section data-lev-id="decision-table" class="anim section section--full-width" style="--i:10" id="decision-table">
-  <span class="section-label">Decision</span>
-  <h2 class="section-title">What to do now</h2>
-  
-  <div class="section__full-width"><div data-lev-id="decision-data" class="anim table-wrap" style="--i:10">
+<div data-lev-id="t-flags" class="anim table-wrap" style="--i:10">
   
   <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
   <table class="data-table">
-    <thead><tr><th>Decision</th><th>Answer</th><th>Why</th><th>Owner</th></tr></thead>
+    <thead><tr><th>Environment</th><th>At landing</th><th>After console-switch step</th><th>Disabled semantics</th></tr></thead>
     <tbody>
-      <tr><td>Should we symlink <code>data/audio</code> now?</td><td><span class="status status--warn">No</span></td><td>M3 has existing DVC/materialized audio and this machine has two competing Drive roots. A symlink now would hide the mismatch.</td><td>JP / repo onboarding</td></tr>
-      <tr><td>What should tools use today?</td><td><span class="status status--match">Explicit root</span></td><td>Pass <code>--audio-root</code> or set <code>NAAC_AUDIO_ROOT</code> per machine. This keeps setup reversible.</td><td>All agents</td></tr>
-      <tr><td>Which Drive root is preferred?</td><td><span class="status status--info">Shared Drive</span></td><td>The human-readable <code>Clients/NAAC/Data/audio</code> path is easier to document than <code>.shortcut-targets-by-id</code>.</td><td>JP / Sunny</td></tr>
-      <tr><td>What needs M3 follow-up?</td><td><span class="status status--gap">Drive account/root fix</span></td><td>M3 found no usable NAAC Drive root and appears to be on <code>argomarine.ai</code> Drive provider.</td><td>M3 agent</td></tr>
-      <tr><td>What needs Sunny follow-up?</td><td><span class="status status--warn">Dataset provenance</span></td><td>Need the exact iter4 data source, training method, audio treatment, and where Sunny&apos;s audio is synced.</td><td>Sunny / agent</td></tr>
+      <tr><td>local-mac</td><td><span class="status status--info">OFF</span></td><td><span class="status status--match">ON</span></td><td>Presets ride legacy operator_trigger; fake-siri routes not registered (404)</td></tr>
+      <tr><td>thor demo</td><td><span class="status status--info">OFF</span></td><td><span class="status status--match">ON</span></td><td>Same — console never bricks (legacy fallback)</td></tr>
+      <tr><td>prod</td><td><span class="status status--warn">OFF</span></td><td><span class="status status--warn">OFF (JP assumption #2)</span></td><td>Fail-closed: routes absent</td></tr>
     </tbody>
     
   </table>
 </div></div>
 </section>
 
-<section data-lev-id="missing-checklist" class="anim section section--full-width" style="--i:10" id="missing-checklist">
-  <span class="section-label">Plan Gaps Closed</span>
-  <h2 class="section-title">Items that had to be explicit before Stage 08</h2>
+<section data-lev-id="sec-ops" class="anim section section--comparison" style="--i:10" id="sec-ops">
+  <span class="section-label">SECTIONS 11 · 12</span>
+  <h2 class="section-title">Observability &amp; failure modes</h2>
   
-  <div class="section__full-width"><div data-lev-id="missing-table" class="anim table-wrap" style="--i:10">
+  <div class="section__comparison"><div data-lev-id="c-obs" class="anim ve-card ve-card--default" style="--i:10">
+  
+  
+  <h3 class="ve-card__title">§11 Observability [3%]</h3>
+  <div class="ve-card__content"><p>Typed diagnostics declared in the phrasebook bundle (peer of observation_reasons) — the gateway&apos;s ad-hoc error strings are rejected. Provenance {row_id, digest} rides the request; the unmatched case logs {row_id: null, digest, code} console/gateway-side.</p></div>
+</div>
+<div data-lev-id="c-fail" class="anim ve-card ve-card--default" style="--i:10">
+  
+  
+  <h3 class="ve-card__title">§12 Failure modes [2-3%]</h3>
+  <div class="ve-card__content"><p>Two survivors, both fail-closed: <code>fmm_unreachable</code> and <code>unmatched_pilot_utterance</code>. Three round-2 guards DELETED with cause: stale-context (no Phase-2 server-side truth), idempotency store (the dedup precedent was false; console debounces), per-flight lock (subsumed by sync decide-then-respond + ordered speech lane).</p></div>
+</div></div>
+</section>
+
+<section data-lev-id="sec-phase3" class="anim section section--default" style="--i:10" id="sec-phase3">
+  <span class="section-label">SECTION 13</span>
+  <h2 class="section-title">Phase-3 replacement path</h2>
+  
+  <div class="section__body"><div data-lev-id="p-phase3" class="anim prose" style="--i:10;">
+  <p>NEW APP inherits three frozen seams: (1) FMMInitiationRequest + FMMInitiationDecision + sync /initiation semantics; (2) the ATCTransmissionRequest→VM speech lane via fmm_client_daemon — untouched by the swap; (3) the policy-owned initiation vocabulary. Deletable with fake-siri: phrasebook rows, Tk presets, regex bodies, fake-FMM manifest rules. NEW APP may add real NLU iff it resolves to the same vocabulary. [3%]</p>
+</div></div>
+</section>
+
+<section data-lev-id="sec-review" class="anim section section--full-width" style="--i:10" id="sec-review">
+  <span class="section-label">INDEPENDENT REVIEW</span>
+  <h2 class="section-title">Codex architecture review — approve-with-changes, 10/10 integrated</h2>
+  
+  <div class="section__full-width"><div data-lev-id="t-review" class="anim table-wrap" style="--i:10">
   
   <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
   <table class="data-table">
-    <thead><tr><th>Item</th><th>Evidence</th><th>Required coverage</th><th>Plan status</th></tr></thead>
+    <thead><tr><th>Severity</th><th>Finding</th><th>Integrated fix</th></tr></thead>
     <tbody>
-      <tr><td>Audio-root resolver</td><td><code>liveatc-train</code> defaults to <code>data/audio/liveatc</code>, while current examples pass <code>data/audio/liveatc/archives</code>; that changes relative output paths.</td><td>Stage 08 must accept both legacy root shapes deliberately, canonicalize to one archive-relative layout, and preserve the original path.</td><td><span class="status status--match">added</span></td></tr>
-      <tr><td>Hydration and Drive identity</td><td>M3 did not find a usable NAAC Drive root; this machine sees a readable Shared Drive path plus an opaque shortcut-target archive path.</td><td>Preflight must record root kind, folder id when applicable, classes seen, MP3 counts, and hydration status before export.</td><td><span class="status status--match">added</span></td></tr>
-      <tr><td>DVC vs ignored payload drift</td><td>Git tracks only <code>.dvc</code> metadata; M3 has extra ignored class-b/class-c/class-d audio that visible DVC pointers do not enumerate.</td><td>Rows from ignored extras require explicit custody/provenance; DVC outs and local byte hydration are recorded separately.</td><td><span class="status status--match">added</span></td></tr>
-      <tr><td>Stale absolute paths</td><td>M3 found generated LiveATC files referring to old <code>/production/naac</code> and <code>/production/drone</code> paths.</td><td>Exporter records <code>source_path_original</code> and <code>source_path_normalized</code>, then fails closed when a path cannot be related to the chosen root.</td><td><span class="status status--match">added</span></td></tr>
-      <tr><td>Sunny iter4 handoff</td><td>We still need the exact iter4 dataset, audio treatment, split recipe, training command/config, and eval artifacts.</td><td>Manifest schema records recipe/provenance fields when present and marks missing lineage as <code>partial</code> or <code>missing</code> instead of accepting rows as gold.</td><td><span class="status status--match">added</span></td></tr>
-      <tr><td>Finder/provider artifacts</td><td>Repo audio roots contain <code>.DS_Store</code>, <code>Icon\r</code>, and may contain transcript/cleanup JSON or trimmed MP3s inside DVC-counted directories.</td><td>Preflight reports non-audio payload and filters it from training-unit emission.</td><td><span class="status status--match">added</span></td></tr>
+      <tr><td><span class="status status--gap">CRITICAL</span></td><td>Response reused FlightManagementDecision — but it is extra=forbid with no provenance field</td><td>New FMMInitiationDecision peer type → DISSOLVED in v5 (no decision hop at all)</td></tr>
+      <tr><td><span class="status status--warn">MAJOR</span></td><td>Speech ingress cited the wrong daemon (modules/flight vs fmm_client_daemon)</td><td>Citation corrected to modules/fmm_client_daemon/daemon.py:196-222</td></tr>
+      <tr><td><span class="status status--info">MINOR</span></td><td>template_id/variables belong to ATCTransmission; the request wraps it</td><td>ATCTransmissionRequest(transmission=ATCTransmission(...))</td></tr>
+      <tr><td><span class="status status--warn">MAJOR</span></td><td>No transport specified from /initiation accept into the speech lane</td><td>Configured fmm-client URL + bounded timeout + speech_dispatch_failed diagnostic</td></tr>
+      <tr><td><span class="status status--warn">MAJOR</span></td><td>Flag defaults (local/thor ON) contradicted zero-behavior-change landing</td><td>OFF everywhere at landing; console switch is its own gated step</td></tr>
+      <tr><td><span class="status status--warn">MAJOR</span></td><td>Disabled semantics conflated console behavior with endpoint fail-closed</td><td>Per-route: presets legacy-fallback; endpoint 404</td></tr>
+      <tr><td><span class="status status--warn">MAJOR</span></td><td>P7 teardown missed the fake-FMM allowlist consumer</td><td>_pilot_origin_metadata_fallback_allowed (fmm_daemon.py:567-576) added to retirement scope</td></tr>
+      <tr><td><span class="status status--warn">MAJOR</span></td><td>Radio subset was not executable (group/fsm_wired do not encode radio-vs-sim)</td><td>route: initiation|operator_trigger ledger for all 63 actions + guard test</td></tr>
+      <tr><td><span class="status status--warn">MAJOR</span></td><td>Windows Tk import boundary for the shared loader unspecified</td><td>Same-checkout import + digest handshake → MOOT in v5 (gateway-side matching, one process)</td></tr>
+      <tr><td><span class="status status--info">MINOR</span></td><td>New corpus gate unnamed beside baseline non-regression</td><td>Named inventory gate: attempted/matched/scored counts, separate from pass rate</td></tr>
     </tbody>
     
   </table>
 </div></div>
 </section>
 
-<section data-lev-id="commands" class="anim section section--default" style="--i:10" id="commands">
-  <span class="section-label">Commands</span>
-  <h2 class="section-title">Useful command shapes</h2>
+<section data-lev-id="sec-questions" class="anim section section--collapsible" style="--i:10" id="sec-questions">
+  <details open>
+    <summary>
+      <span class="section-label">THE INTERVIEW</span>
+      <h2 class="section-title">All 26 questions</h2>
+    </summary>
+    <p class="section-subtitle">Non-leading, repo-verified before asking; answered decisively with file:line grounding</p>
+    <div class="section__body"><div data-lev-id="card-r1" class="anim ve-card ve-card--default" style="--i:10">
   
-  <div class="section__body"><div data-lev-id="cmd-block" class="anim code-file" style="--i:10">
-  <div class="code-file__header"><span class="code-file__dot"></span><span class="code-file__dot"></span><span class="code-file__dot"></span><span class="code-file__name">audio-root-audit.sh</span></div>
-  <div class="code-file__body"><div class="line-numbers"><span>1</span>
-<span>2</span>
-<span>3</span>
-<span>4</span>
-<span>5</span>
-<span>6</span>
-<span>7</span>
-<span>8</span>
-<span>9</span>
-<span>10</span>
-<span>11</span>
-<span>12</span>
-<span>13</span>
-<span>14</span>
-<span>15</span>
-<span>16</span>
-<span>17</span>
-<span>18</span>
-<span>19</span>
-<span>20</span>
-<span>21</span>
-<span>22</span>
-<span>23</span></div><pre><code class="language-bash">repo=/Users/jean-patricksmith/digital/kingly/apps/production/drone
-cd <span class="code-string">&quot;$repo&quot;</span>
+  
+  <h3 class="ve-card__title">Round 1 — 10 questions (contracts &amp; lanes)</h3>
+  <div class="ve-card__content"><p><strong>Q1</strong> What distinguishes a pilot-origin FMM initiation from the existing CommandProposal (Voice→FMM) and ATCTransmissionRequest (FMM→Voice) lanes on the wire?</p>
+<p><strong>Q2</strong> What set of responses must the fake FMM be able to return to a pilot initiation, and what does each mean for the pilot and for VM speech?</p>
+<p><strong>Q3</strong> When the fake FMM accepts a pilot initiation, by what mechanism does that reach the VM to produce spoken output?</p>
+<p><strong>Q4</strong> Into what single schema do the three existing pilot-phrase sources merge, and how are disagreements reconciled?</p>
+<p><strong>Q5</strong> Where does the authority line fall between fake-siri &apos;translating&apos; pilot input and &apos;creating intent&apos;, given the gateway boundary forbids independent intent authority?</p>
+<p><strong>Q6</strong> After shedding, what does the VM do with an ownship pilot transmission vs an ambient/other-aircraft (party-line) pilot transmission?</p>
+<p><strong>Q7</strong> What is the ordering and ownership between this design&apos;s 70-rule shedding and the speaker-axis plan that tags-and-keeps the same rules under &apos;no rule deletions&apos;?</p>
+<p><strong>Q8</strong> What crosses the console↔fake-siri boundary on a button press and a voice utterance, and who owns the flight-plan/phase context that fills slots?</p>
+<p><strong>Q9</strong> What defines pass vs fail for repurposed pilot rows, and what happens to A1/A2/B1/B2 numbers when those rows leave VM scoring?</p>
+<p><strong>Q10</strong> What parts of the fake-siri contract must stay stable so the Phase-3 NEW APP replaces fake-siri without changes reaching FMM or VM?</p></div>
+</div>
+<div data-lev-id="card-r2" class="anim ve-card ve-card--default" style="--i:10">
+  
+  
+  <h3 class="ve-card__title">Round 2 — 10 questions (thin sections &amp; contradictions)</h3>
+  <div class="ve-card__content"><p><strong>Q1</strong> What advances migration between steps (per-step gates), which are reversible vs one-way, and where do A2 numbers change?</p>
+<p><strong>Q2</strong> Which configuration layer owns the enable flag, and what does it default to per environment?</p>
+<p><strong>Q3</strong> Through which diagnostic surface do fake-siri diagnostics emit, and where is {row_id, digest} provenance stored?</p>
+<p><strong>Q4</strong> For FMM-unreachable, duplicate submit, stale context, concurrent requests — blanket fail-closed or distinct dispositions?</p>
+<p><strong>Q5</strong> Does the initiation_kind + slot-role vocabulary live in icd.py or as authority-loaded YAML?</p>
+<p><strong>Q6</strong> On FMM reject, is VM speech ever emitted (safety-critical), or is rejection purely pilot-app surface?</p>
+<p><strong>Q7</strong> What authors the accept/reject decision for the new type, and does that logic run in-process for scoring while the live console drives HTTP?</p>
+<p><strong>Q8</strong> How is the fake-siri corpus stood up and scored — carrier format, floor, CI-blocking vs advisory? (scored_turn already excludes every pilot row — reconcile.)</p>
+<p><strong>Q9</strong> The ownship-pilot drop moves pre-parse but the P7 carve-out depends on a post-parse discriminant — preserved how, or intentionally dropped?</p>
+<p><strong>Q10</strong> Whole-bundle digest or per-entry, and does the bundle get registered in the hardcoded schema-load test?</p></div>
+</div>
+<div data-lev-id="card-r3" class="anim ve-card ve-card--default" style="--i:10">
+  
+  
+  <h3 class="ve-card__title">Round 3 — 6 blockers (exhaustion sweep)</h3>
+  <div class="ve-card__content"><p><strong>Q1</strong> How is gold {row_id, expected_slots, expected decision} established without per-turn hand-authoring or running the matcher-under-test to make its own gold?</p>
+<p><strong>Q2</strong> Which console is fake-siri replacing, and does it subsume the local PilotIntentMatcher/pilot_actions.json path? (The active Tk console resolves voice locally and never touches the gateway intent surface.)</p>
+<p><strong>Q3</strong> What is the synchronous response contract of POST /initiation, and how does a reject reason reach the pilot-app?</p>
+<p><strong>Q4</strong> What is &apos;stale&apos; measured against, where does idempotency/serialization state live, and does the stale branch go unexercised by the in-process scorer?</p>
+<p><strong>Q5</strong> What emits and consumes pre_fmm_observation, what signal separates ownship-pilot (drop) from other-aircraft (observe), and where is the pi-5/pi-6 contract specified?</p>
+<p><strong>Q6</strong> What happens to the comprehension signal the 97 unscored pilot turns exercise today, and what acceptance test proves the migration is signal-neutral?</p></div>
+</div></div>
+  </details>
+</section>
 
-<span class="code-comment"># repo-local materialization</span>
-git -C data ls-files <span class="code-string">&apos;audio/liveatc/archives/*.dvc&apos;</span>
-stat -f <span class="code-string">&apos;%N | type=%HT | link-target=%Y&apos;</span> data/audio data/audio/liveatc data/audio/liveatc/archives
-find data/audio/liveatc/archives -mindepth <span class="code-number">1</span> -maxdepth <span class="code-number">1</span> -<span class="code-keyword">type</span> d -<span class="code-keyword">exec</span> basename {} \; | sort
-
-<span class="code-comment"># Drive candidates</span>
-find <span class="code-string">&quot;$HOME/Library/CloudStorage&quot;</span> -maxdepth <span class="code-number">5</span> -<span class="code-keyword">type</span> d -iname <span class="code-string">&apos;*audio*&apos;</span> <span class="code-number">2</span>&gt;/dev/<span class="code-keyword">null</span> | sort
-
-<span class="code-comment"># Current explicit source-root style</span>
-uv run --extra liveatc liveatc-train \
-  --audio-root /ABSOLUTE/PATH/TO/audio/liveatc \
-  --out-root data/training/liveatc \
-  --profile fast-local
-
-<span class="code-comment"># Planned Stage <span class="code-number">08</span> preflight gate</span>
-uv run --extra liveatc liveatc-<span class="code-keyword">export</span>-training-units \
-  --training-root data/training/liveatc \
-  --audio-root /ABSOLUTE/PATH/TO/audio/liveatc \
-  --audit-inputs \
-  --dry-run</code></pre></div>
+<section data-lev-id="sec-turns" class="anim section section--default" style="--i:10" id="sec-turns">
+  <span class="section-label">PROCESS</span>
+  <h2 class="section-title">How the design converged</h2>
+  
+  <div class="section__body"><div data-lev-id="tl-turns" class="anim timeline" style="--i:10">
+    <div class="timeline-item timeline-item--completed" style="--i:43">
+      <div class="timeline-item__marker"></div>
+      <div class="timeline-item__content">
+        <span class="timeline-item__date">R1</span>
+        <h4 class="timeline-item__title">Interviewer: 10 questions</h4>
+        <p class="timeline-item__desc">Found the ICD naming trap (&apos;initiated&apos; = FMM→Voice), the dormant response lane, and the speaker-axis plan collision on the 70 rules.</p>
+      </div>
+    </div>
+    <div class="timeline-item timeline-item--completed" style="--i:44">
+      <div class="timeline-item__marker"></div>
+      <div class="timeline-item__content">
+        <span class="timeline-item__date">R1</span>
+        <h4 class="timeline-item__title">Architect: 10 decisions</h4>
+        <p class="timeline-item__desc">New typed request + /initiation; speech rides the live FMM-initiated lane; select+fill authority line; speaker-axis owns the rules. Opened 5 branches.</p>
+      </div>
+    </div>
+    <div class="timeline-item timeline-item--completed" style="--i:45">
+      <div class="timeline-item__marker"></div>
+      <div class="timeline-item__content">
+        <span class="timeline-item__date">R2</span>
+        <h4 class="timeline-item__title">Interviewer: 10 questions</h4>
+        <p class="timeline-item__desc">Proved scored_turn already excludes every pilot row (killing the v1 denominator claim) and the pre-parse vs post-parse carve-out contradiction.</p>
+      </div>
+    </div>
+    <div class="timeline-item timeline-item--completed" style="--i:46">
+      <div class="timeline-item__marker"></div>
+      <div class="timeline-item__content">
+        <span class="timeline-item__date">R2</span>
+        <h4 class="timeline-item__title">Architect: 10 decisions</h4>
+        <p class="timeline-item__desc">Measured 97/218 pilot turns, 0 scored — pass-rate invariant. Vocabulary → authority YAML. P7 carve-out intentionally dropped. Closed 5 branches, opened NB6.</p>
+      </div>
+    </div>
+    <div class="timeline-item timeline-item--completed" style="--i:47">
+      <div class="timeline-item__marker"></div>
+      <div class="timeline-item__content">
+        <span class="timeline-item__date">R3</span>
+        <h4 class="timeline-item__title">Interviewer: exhaustion sweep, 6 blockers</h4>
+        <p class="timeline-item__desc">Caught the wrong-console anchor (web vs active Tk), the missing response contract, guards with no state, the broadcast-only observation route, and the dead gold projection.</p>
+      </div>
+    </div>
+    <div class="timeline-item timeline-item--completed" style="--i:48">
+      <div class="timeline-item__marker"></div>
+      <div class="timeline-item__content">
+        <span class="timeline-item__date">R3</span>
+        <h4 class="timeline-item__title">Architect: all six closed, zero new branches</h4>
+        <p class="timeline-item__desc">Console-side formalization of the existing matcher; sync decision body; three guards deleted with the false precedent owned; pi-6 deleted; superset parity test closes NB6.</p>
+      </div>
+    </div>
+    <div class="timeline-item timeline-item--completed" style="--i:49">
+      <div class="timeline-item__marker"></div>
+      <div class="timeline-item__content">
+        <span class="timeline-item__date">R4</span>
+        <h4 class="timeline-item__title">Independent codex architecture review</h4>
+        <p class="timeline-item__desc">Approve-with-changes: 10 findings (1 critical, 7 major, 2 minor) — all integrated into v4.</p>
+      </div>
+    </div>
+    <div class="timeline-item timeline-item--completed" style="--i:50">
+      <div class="timeline-item__marker"></div>
+      <div class="timeline-item__content">
+        <span class="timeline-item__date">R5</span>
+        <h4 class="timeline-item__title">Pentagon/ultraqa eval harness folded in (§14)</h4>
+        <p class="timeline-item__desc">LFD contract, 10-probe adversarial matrix, 10 fenced cheap paths, preflight calibration.</p>
+      </div>
+    </div>
+    <div class="timeline-item timeline-item--completed" style="--i:51">
+      <div class="timeline-item__marker"></div>
+      <div class="timeline-item__content">
+        <span class="timeline-item__date">R6</span>
+        <h4 class="timeline-item__title">JP act-as-FMM ruling</h4>
+        <p class="timeline-item__desc">We ARE the fake FMM — no decision round-trip. Gateway parses all rules and emits the existing transmission request directly. Two ICD types, one endpoint, one matcher, the decision column, and two assumptions all deleted. Placement flips to gateway-side.</p>
+      </div>
+    </div>
+    <div class="timeline-item timeline-item--upcoming" style="--i:52">
+      <div class="timeline-item__marker"></div>
+      <div class="timeline-item__content">
+        <span class="timeline-item__date">NEXT</span>
+        <h4 class="timeline-item__title">Slice 0: radio-check tracer bullet</h4>
+        <p class="timeline-item__desc">One button + one voice phrase end-to-end behind the flag: console → gateway match → transmission lane → VM speaks in the sim. Seed bundle 3-5 rows. Proves every seam without touching the VM.</p>
+      </div>
+    </div>
 </div></div>
 </section>
 
-<section data-lev-id="next-actions" class="anim section section--card-grid" style="--i:10" id="next-actions">
-  <span class="section-label">Next</span>
-  <h2 class="section-title">Immediate follow-ups</h2>
+<section data-lev-id="sec-next" class="anim section section--default section--showcase" style="--i:10" id="sec-next">
+  <span class="section-label">EXECUTION</span>
+  <h2 class="section-title">Sequencing — first vertical slice &amp; the migrate/cleanup order</h2>
   
-  <div class="section__grid"><div data-lev-id="next-1" class="anim ve-card ve-card--elevated" style="--i:10">
-  
-  <span class="ve-card__label">JP machine</span>
-  <h3 class="ve-card__title">Choose canonical Drive root</h3>
-  <div class="ve-card__content"><p>Decide whether <code>Clients/NAAC/Data/audio</code> becomes canonical and move/expose LiveATC archives there, or document the shortcut-target folder ID explicitly.</p></div>
+  <div class="section__showcase"><div data-lev-id="p-next" class="anim prose" style="--i:10;">
+  <p><strong>Slice 0 (tracer bullet): radio check.</strong> One slot-free radio call end-to-end behind the flag: joystick button AND the PTT phrase (&apos;radio check&apos;) → gateway transcribe → seed phrasebook (3-5 rows) → ATCTransmissionRequest → fmm_client_daemon → VM speaks in the sim. Plus request_taxi as the first slotted call. Touches every seam — console input, gateway matcher, bundle loader + digest, speech lane, flag gating — while touching ZERO VM code. Gates: §14.5 preflight calibration first, then self-parity + zero movement on the 1546 + the guard test that no sim action reaches the fake-siri route.</p>
+<p><strong>Then the order is: slice-first → migrate-parallel → cleanup-last.</strong> Bulk phrasebook migration (63-action route ledger, the ~70 VM rules as content copies, corpus repurpose harness) is additive data work — it runs parallel to slice hardening and more slices (voice variants, slotted calls). All one-way cleanup (VM ingress drop, P7 + fake-FMM allowlist retirement, PilotIntentMatcher retirement, contract-families rebuild, A2 repartition) comes strictly LAST, gated on the slice + corpus proving the replacement lane. Cleanup-first was rejected: it deletes the only working pilot path before its replacement exists — demo risk with zero coverage.</p>
 </div>
-<div data-lev-id="next-2" class="anim ve-card ve-card--elevated" style="--i:10">
-  
-  <span class="ve-card__label">M3</span>
-  <h3 class="ve-card__title">Repair Drive visibility</h3>
-  <div class="ve-card__content"><p>M3 should install/sign into the correct Google Drive account, verify Shared Drive access, and rerun the same audit against <code>/production/drone</code> if that checkout exists.</p></div>
-</div>
-<div data-lev-id="next-3" class="anim ve-card ve-card--elevated" style="--i:10">
-  
-  <span class="ve-card__label">Repo</span>
-  <h3 class="ve-card__title">Add onboarding verifier</h3>
-  <div class="ve-card__content"><p>Document <code>NAAC_AUDIO_ROOT</code>, explicit <code>--audio-root</code>, DVC materialization, and a no-destructive audit command. Do not create a symlink until root choice is final.</p></div>
-</div>
-<div data-lev-id="next-4" class="anim ve-card ve-card--elevated" style="--i:10">
-  
-  <span class="ve-card__label">Iter5</span>
-  <h3 class="ve-card__title">Keep training gated</h3>
-  <div class="ve-card__content"><p>The iter5 exporter plan now requires explicit audio-root audit, root normalization, DVC/Drive custody, stale-path handling, and Sunny/M3 lineage fields before rows can become accepted training units.</p></div>
+<div data-lev-id="co-assumptions" class="anim callout callout--warning" style="--i:10">
+  <div class="callout__title">4 JP-review assumptions (defaults set — flip any, bounded blast radius)</div>
+  <div class="callout__content"><p>1) Prod flag default [off]. 2) Fake-siri corpus gate CI-blocking timing [advisory-first]. (v5 dissolved the other two: no ICD growth needed, no reject concept.)</p></div>
 </div></div>
 </section>
     </div>
@@ -2621,6 +2814,20 @@ uv run --extra liveatc liveatc-<span class="code-keyword">export</span>-training
       targets.forEach(function(t) { tocObs.observe(t); });
     })();
   </script>
+    <script>
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default',
+        themeVariables: {
+          primaryColor: '#1e293b',
+          primaryTextColor: '#f1f5f9',
+          primaryBorderColor: 'rgba(8,145,178,0.18)',
+          lineColor: '#0369a1',
+          secondaryColor: '#0f172a',
+          tertiaryColor: '#1e293b'
+        }
+      });
+    </script>
 
 </body>
 </html>
