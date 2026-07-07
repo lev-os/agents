@@ -24,12 +24,22 @@ If the repo itself is unfamiliar, pair this with `codebase-archaeology` first so
 **Principle:** Agent-native tools (Grep, Glob, Read, SemanticSearch) are instant. CLI tools (`lev find`, `cass`) have startup and backend costs. **Always prefer agent tools over CLI for prior-art searches unless the question is genuinely cross-domain and local fused retrieval would add signal.**
 
 **Tool priority order:**
+0. **codebase-memory MCP** (if available) — for CODE prior art, use
+   `search_graph`/`search_code`/`trace_path`/`get_architecture` first; the
+   graph knows symbols, callers, and structure Grep can't rank. Skip silently
+   if the MCP server is not connected this session.
 1. **Grep** — exact keyword/pattern search across the repo (instant)
 2. **Glob** — find files by name pattern (instant)
 3. **SemanticSearch** — meaning-based code/doc search (fast)
 4. **Read** — open files directly when you know the path (instant)
 5. **cass** — session history search (5-10s, reasonable)
 6. **`lev find`** — multi-backend fusion search (bd + qmd + ck; ~20s including cold start — **use only if agent tools found nothing**)
+
+**Gitignored intake caveat:** Grep/rg respect `.gitignore`, so
+`workshop/intake/` and other intake sandboxes are silently skipped. When the
+hunt should cover intake clones, pass explicit paths (e.g.
+`rg <q> workshop/intake/<repo>`) or `--no-ignore` — do not conclude "no prior
+art" from a default sweep alone.
 
 **NEVER use `lev get` or `lev gather` for prior-art.** They are removed. `lev find` is the only local fused retrieval surface.
 

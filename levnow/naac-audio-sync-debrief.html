@@ -1525,30 +1525,38 @@ body:has(.page-wrap--toc) .site-nav { display: none; }
 body:has(.page-wrap--toc) .hero {
   min-height: auto;
   justify-content: flex-start;
-  padding: clamp(72px, 10vw, 132px) clamp(24px, 6vw, 96px) clamp(48px, 7vw, 84px) max(400px, calc((100vw - 1280px) / 2 + 400px));
+  padding: clamp(56px, 7vw, 92px) clamp(24px, 4vw, 48px) clamp(28px, 4vw, 52px) max(302px, calc((100vw - 1280px) / 2 + 328px));
+}
+body:has(.page-wrap--toc) .hero--editorial {
+  text-align: left;
 }
 body:has(.page-wrap--toc) .hero__inner {
   max-width: min(900px, 100%);
   margin: 0;
 }
+body:has(.page-wrap--toc) .hero__category {
+  margin-bottom: 14px;
+}
 body:has(.page-wrap--toc) .hero__title {
-  max-width: 20ch;
+  max-width: 17ch;
   margin-left: 0;
   margin-right: 0;
-  font-size: clamp(2.75rem, 6vw, 5.8rem);
-  line-height: 0.98;
+  margin-bottom: 14px;
+  font-size: clamp(2.5rem, 4.8vw, 4.75rem);
+  line-height: 1.04;
   text-wrap: balance;
   overflow-wrap: normal;
   word-break: normal;
 }
 body:has(.page-wrap--toc) .hero__subtitle {
-  max-width: 56ch;
+  max-width: 62ch;
   margin-left: 0;
   margin-right: 0;
+  margin-bottom: 12px;
   font-family: var(--font-body);
   font-style: normal;
-  font-size: clamp(1rem, 1.5vw, 1.2rem);
-  line-height: 1.65;
+  font-size: clamp(0.98rem, 1.2vw, 1.12rem);
+  line-height: 1.55;
   color: var(--color-text-muted);
   overflow-wrap: normal;
   word-break: normal;
@@ -1556,6 +1564,18 @@ body:has(.page-wrap--toc) .hero__subtitle {
 body:has(.page-wrap--toc) .hero__meta {
   margin-left: 0;
   margin-right: 0;
+  margin-bottom: 14px;
+  max-width: 72ch;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+body:has(.page-wrap--toc) .hero .lead {
+  max-width: 68ch;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+body:has(.page-wrap--toc) .hero .lead p {
+  margin: 0;
 }
 body:has(.page-wrap--toc) .hero::before {
   width: 680px;
@@ -1656,37 +1676,55 @@ code:not(pre code) {
 
 @media (max-width: 900px) {
   body:has(.page-wrap--toc) .hero {
-    padding: 84px clamp(24px, 6vw, 48px) 44px;
+    padding: 72px clamp(28px, 7vw, 56px) 30px;
+  }
+  body:has(.page-wrap--toc) .hero__inner {
+    max-width: 72ch;
+    margin: 0 auto;
   }
   body:has(.page-wrap--toc) .hero__title {
-    max-width: 16ch;
-    font-size: clamp(2.6rem, 8vw, 4rem);
-    line-height: 1.02;
+    max-width: 14ch;
+    font-size: clamp(2.25rem, 6.5vw, 3.6rem);
+    line-height: 1.06;
   }
   body:has(.page-wrap--toc) .hero__subtitle {
-    max-width: 48ch;
-    font-size: 1rem;
+    max-width: 60ch;
+    font-size: 0.98rem;
+  }
+  body:has(.page-wrap--toc) .hero .lead {
+    max-width: 62ch;
+    font-size: 0.98rem;
+    line-height: 1.6;
   }
 }
 
 @media (max-width: 560px) {
   body:has(.page-wrap--toc) .hero {
-    padding: 76px 24px 36px;
+    padding: 68px 20px 24px;
   }
   body:has(.page-wrap--toc) .hero__category {
-    margin-bottom: 16px;
+    margin-bottom: 12px;
   }
   body:has(.page-wrap--toc) .hero__title {
-    max-width: 14ch;
-    font-size: clamp(2.05rem, 10vw, 2.7rem);
+    max-width: 13ch;
+    margin-bottom: 12px;
+    font-size: clamp(1.95rem, 9vw, 2.45rem);
+    line-height: 1.07;
   }
   body:has(.page-wrap--toc) .hero__subtitle {
     max-width: 100%;
-    font-size: 0.98rem;
-    line-height: 1.55;
+    margin-bottom: 10px;
+    font-size: 0.94rem;
+    line-height: 1.48;
   }
   body:has(.page-wrap--toc) .hero__meta {
-    font-size: 0.86rem;
+    margin-bottom: 12px;
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+  body:has(.page-wrap--toc) .hero .lead {
+    font-size: 0.94rem;
+    line-height: 1.5;
   }
   .page-main { padding: 0; }
 }
@@ -1910,8 +1948,8 @@ code:not(pre code) {
       <a href="#inventory">Inventory</a>
       <a href="#flow">Setup Model</a>
       <a href="#decision-table">Decision</a>
+      <a href="#missing-checklist">Plan Gaps Closed</a>
       <a href="#commands">Commands</a>
-      <a href="#next-actions">Next</a>
     </div>
   </nav>
 <section data-lev-id="hero" class="anim hero hero--editorial" style="--i:0">
@@ -1919,7 +1957,7 @@ code:not(pre code) {
     <span class="hero__category">NAAC AUDIO DATASET SETUP</span>
     <h1 class="hero__title">Audio Sync Debrief</h1>
     <p class="hero__subtitle">The M3 audit did not find the same world as this drone checkout. Treat that as signal: repo-local audio, DVC materialization, and Google Drive sync are currently three different surfaces.</p>
-    <p class="hero__meta">Generated 2026-06-13 from M3 audit attachment plus live /production/drone refresh</p>
+    <p class="hero__meta">Updated 2026-07-06 from M3 audit attachment plus live /production/drone refresh</p>
     <div data-lev-id="hero-lead" class="anim lead" style="--i:1;">
   <p>The immediate decision is not model training. It is to standardize the audio root contract: keep DVC-managed repo materialization separate from Google Drive dataset sync, and pass explicit <code>--audio-root</code> values until a canonical Drive root is selected and verified.</p>
 </div>
@@ -1937,6 +1975,7 @@ code:not(pre code) {
       <a href="#inventory">Inventory</a>
       <a href="#flow">Setup Model</a>
       <a href="#decision-table">Decision</a>
+      <a href="#missing-checklist">Plan Gaps Closed</a>
       <a href="#commands">Commands</a>
       <a href="#next-actions">Next</a>
     </nav>
@@ -2065,7 +2104,7 @@ code:not(pre code) {
   
   <div class="section__full-width"><div data-lev-id="decision-data" class="anim table-wrap" style="--i:10">
   
-  
+  <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
   <table class="data-table">
     <thead><tr><th>Decision</th><th>Answer</th><th>Why</th><th>Owner</th></tr></thead>
     <tbody>
@@ -2074,6 +2113,28 @@ code:not(pre code) {
       <tr><td>Which Drive root is preferred?</td><td><span class="status status--info">Shared Drive</span></td><td>The human-readable <code>Clients/NAAC/Data/audio</code> path is easier to document than <code>.shortcut-targets-by-id</code>.</td><td>JP / Sunny</td></tr>
       <tr><td>What needs M3 follow-up?</td><td><span class="status status--gap">Drive account/root fix</span></td><td>M3 found no usable NAAC Drive root and appears to be on <code>argomarine.ai</code> Drive provider.</td><td>M3 agent</td></tr>
       <tr><td>What needs Sunny follow-up?</td><td><span class="status status--warn">Dataset provenance</span></td><td>Need the exact iter4 data source, training method, audio treatment, and where Sunny&apos;s audio is synced.</td><td>Sunny / agent</td></tr>
+    </tbody>
+    
+  </table>
+</div></div>
+</section>
+
+<section data-lev-id="missing-checklist" class="anim section section--full-width" style="--i:10" id="missing-checklist">
+  <span class="section-label">Plan Gaps Closed</span>
+  <h2 class="section-title">Items that had to be explicit before Stage 08</h2>
+  
+  <div class="section__full-width"><div data-lev-id="missing-table" class="anim table-wrap" style="--i:10">
+  
+  <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
+  <table class="data-table">
+    <thead><tr><th>Item</th><th>Evidence</th><th>Required coverage</th><th>Plan status</th></tr></thead>
+    <tbody>
+      <tr><td>Audio-root resolver</td><td><code>liveatc-train</code> defaults to <code>data/audio/liveatc</code>, while current examples pass <code>data/audio/liveatc/archives</code>; that changes relative output paths.</td><td>Stage 08 must accept both legacy root shapes deliberately, canonicalize to one archive-relative layout, and preserve the original path.</td><td><span class="status status--match">added</span></td></tr>
+      <tr><td>Hydration and Drive identity</td><td>M3 did not find a usable NAAC Drive root; this machine sees a readable Shared Drive path plus an opaque shortcut-target archive path.</td><td>Preflight must record root kind, folder id when applicable, classes seen, MP3 counts, and hydration status before export.</td><td><span class="status status--match">added</span></td></tr>
+      <tr><td>DVC vs ignored payload drift</td><td>Git tracks only <code>.dvc</code> metadata; M3 has extra ignored class-b/class-c/class-d audio that visible DVC pointers do not enumerate.</td><td>Rows from ignored extras require explicit custody/provenance; DVC outs and local byte hydration are recorded separately.</td><td><span class="status status--match">added</span></td></tr>
+      <tr><td>Stale absolute paths</td><td>M3 found generated LiveATC files referring to old <code>/production/naac</code> and <code>/production/drone</code> paths.</td><td>Exporter records <code>source_path_original</code> and <code>source_path_normalized</code>, then fails closed when a path cannot be related to the chosen root.</td><td><span class="status status--match">added</span></td></tr>
+      <tr><td>Sunny iter4 handoff</td><td>We still need the exact iter4 dataset, audio treatment, split recipe, training command/config, and eval artifacts.</td><td>Manifest schema records recipe/provenance fields when present and marks missing lineage as <code>partial</code> or <code>missing</code> instead of accepting rows as gold.</td><td><span class="status status--match">added</span></td></tr>
+      <tr><td>Finder/provider artifacts</td><td>Repo audio roots contain <code>.DS_Store</code>, <code>Icon\r</code>, and may contain transcript/cleanup JSON or trimmed MP3s inside DVC-counted directories.</td><td>Preflight reports non-audio payload and filters it from training-unit emission.</td><td><span class="status status--match">added</span></td></tr>
     </tbody>
     
   </table>
@@ -2101,7 +2162,14 @@ code:not(pre code) {
 <span>13</span>
 <span>14</span>
 <span>15</span>
-<span>16</span></div><pre><code class="language-bash">repo=/Users/jean-patricksmith/digital/kingly/apps/production/drone
+<span>16</span>
+<span>17</span>
+<span>18</span>
+<span>19</span>
+<span>20</span>
+<span>21</span>
+<span>22</span>
+<span>23</span></div><pre><code class="language-bash">repo=/Users/jean-patricksmith/digital/kingly/apps/production/drone
 cd <span class="code-string">&quot;$repo&quot;</span>
 
 <span class="code-comment"># repo-local materialization</span>
@@ -2116,7 +2184,14 @@ find <span class="code-string">&quot;$HOME/Library/CloudStorage&quot;</span> -ma
 uv run --extra liveatc liveatc-train \
   --audio-root /ABSOLUTE/PATH/TO/audio/liveatc \
   --out-root data/training/liveatc \
-  --profile fast-local</code></pre></div>
+  --profile fast-local
+
+<span class="code-comment"># Planned Stage <span class="code-number">08</span> preflight gate</span>
+uv run --extra liveatc liveatc-<span class="code-keyword">export</span>-training-units \
+  --training-root data/training/liveatc \
+  --audio-root /ABSOLUTE/PATH/TO/audio/liveatc \
+  --audit-inputs \
+  --dry-run</code></pre></div>
 </div></div>
 </section>
 
@@ -2146,7 +2221,7 @@ uv run --extra liveatc liveatc-train \
   
   <span class="ve-card__label">Iter5</span>
   <h3 class="ve-card__title">Keep training gated</h3>
-  <div class="ve-card__content"><p>The iter5 exporter plan should consume explicit audio roots and provenance. It should not infer corpus authority from whichever local folder happens to be hydrated.</p></div>
+  <div class="ve-card__content"><p>The iter5 exporter plan now requires explicit audio-root audit, root normalization, DVC/Drive custody, stale-path handling, and Sunny/M3 lineage fields before rows can become accepted training units.</p></div>
 </div></div>
 </section>
     </div>

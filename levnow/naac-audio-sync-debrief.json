@@ -17,9 +17,10 @@
     "machine-comparison",
     "inventory",
     "flow",
-    "decision-table",
-    "commands",
-    "next-actions"
+        "decision-table",
+        "missing-checklist",
+        "commands",
+        "next-actions"
   ],
   "elements": {
     "hero": {
@@ -29,7 +30,7 @@
         "category": "NAAC AUDIO DATASET SETUP",
         "title": "Audio Sync Debrief",
         "subtitle": "The M3 audit did not find the same world as this drone checkout. Treat that as signal: repo-local audio, DVC materialization, and Google Drive sync are currently three different surfaces.",
-        "meta": "Generated 2026-06-13 from M3 audit attachment plus live /production/drone refresh"
+                "meta": "Updated 2026-07-06 from M3 audit attachment plus live /production/drone refresh"
       },
       "children": ["hero-lead"]
     },
@@ -278,9 +279,9 @@
       },
       "children": ["decision-data"]
     },
-    "decision-data": {
-      "type": "data-table",
-      "props": {
+        "decision-data": {
+            "type": "data-table",
+            "props": {
         "columns": ["Decision", "Answer", "Why", "Owner"],
         "rows": [
           ["Should we symlink `data/audio` now?", { "text": "No", "status": "warn" }, "M3 has existing DVC/materialized audio and this machine has two competing Drive roots. A symlink now would hide the mismatch.", "JP / repo onboarding"],
@@ -288,12 +289,102 @@
           ["Which Drive root is preferred?", { "text": "Shared Drive", "status": "info" }, "The human-readable `Clients/NAAC/Data/audio` path is easier to document than `.shortcut-targets-by-id`.", "JP / Sunny"],
           ["What needs M3 follow-up?", { "text": "Drive account/root fix", "status": "gap" }, "M3 found no usable NAAC Drive root and appears to be on `argomarine.ai` Drive provider.", "M3 agent"],
           ["What needs Sunny follow-up?", { "text": "Dataset provenance", "status": "warn" }, "Need the exact iter4 data source, training method, audio treatment, and where Sunny's audio is synced.", "Sunny / agent"]
-        ]
-      }
-    },
-    "commands": {
-      "type": "section",
-      "variant": "default",
+                ]
+            }
+        },
+        "missing-checklist": {
+            "type": "section",
+            "variant": "full-width",
+            "props": {
+                "label": "Plan Gaps Closed",
+                "title": "Items that had to be explicit before Stage 08"
+            },
+            "children": [
+                "missing-table"
+            ]
+        },
+        "missing-table": {
+            "type": "data-table",
+            "props": {
+                "columns": [
+                    {
+                        "key": "item",
+                        "label": "Item"
+                    },
+                    {
+                        "key": "evidence",
+                        "label": "Evidence"
+                    },
+                    {
+                        "key": "plan_requirement",
+                        "label": "Required coverage"
+                    },
+                    {
+                        "key": "status",
+                        "label": "Plan status"
+                    }
+                ],
+                "rows": [
+                    {
+                        "item": "Audio-root resolver",
+                        "evidence": "`liveatc-train` defaults to `data/audio/liveatc`, while current examples pass `data/audio/liveatc/archives`; that changes relative output paths.",
+                        "plan_requirement": "Stage 08 must accept both legacy root shapes deliberately, canonicalize to one archive-relative layout, and preserve the original path.",
+                        "status": {
+                            "text": "added",
+                            "status": "match"
+                        }
+                    },
+                    {
+                        "item": "Hydration and Drive identity",
+                        "evidence": "M3 did not find a usable NAAC Drive root; this machine sees a readable Shared Drive path plus an opaque shortcut-target archive path.",
+                        "plan_requirement": "Preflight must record root kind, folder id when applicable, classes seen, MP3 counts, and hydration status before export.",
+                        "status": {
+                            "text": "added",
+                            "status": "match"
+                        }
+                    },
+                    {
+                        "item": "DVC vs ignored payload drift",
+                        "evidence": "Git tracks only `.dvc` metadata; M3 has extra ignored class-b/class-c/class-d audio that visible DVC pointers do not enumerate.",
+                        "plan_requirement": "Rows from ignored extras require explicit custody/provenance; DVC outs and local byte hydration are recorded separately.",
+                        "status": {
+                            "text": "added",
+                            "status": "match"
+                        }
+                    },
+                    {
+                        "item": "Stale absolute paths",
+                        "evidence": "M3 found generated LiveATC files referring to old `/production/naac` and `/production/drone` paths.",
+                        "plan_requirement": "Exporter records `source_path_original` and `source_path_normalized`, then fails closed when a path cannot be related to the chosen root.",
+                        "status": {
+                            "text": "added",
+                            "status": "match"
+                        }
+                    },
+                    {
+                        "item": "Sunny iter4 handoff",
+                        "evidence": "We still need the exact iter4 dataset, audio treatment, split recipe, training command/config, and eval artifacts.",
+                        "plan_requirement": "Manifest schema records recipe/provenance fields when present and marks missing lineage as `partial` or `missing` instead of accepting rows as gold.",
+                        "status": {
+                            "text": "added",
+                            "status": "match"
+                        }
+                    },
+                    {
+                        "item": "Finder/provider artifacts",
+                        "evidence": "Repo audio roots contain `.DS_Store`, `Icon\\r`, and may contain transcript/cleanup JSON or trimmed MP3s inside DVC-counted directories.",
+                        "plan_requirement": "Preflight reports non-audio payload and filters it from training-unit emission.",
+                        "status": {
+                            "text": "added",
+                            "status": "match"
+                        }
+                    }
+                ]
+            }
+        },
+        "commands": {
+            "type": "section",
+            "variant": "default",
       "props": {
         "label": "Commands",
         "title": "Useful command shapes"
@@ -306,9 +397,9 @@
         "language": "bash",
         "filename": "audio-root-audit.sh",
         "showLineNumbers": true,
-        "content": "repo=/Users/jean-patricksmith/digital/kingly/apps/production/drone\ncd \"$repo\"\n\n# repo-local materialization\ngit -C data ls-files 'audio/liveatc/archives/*.dvc'\nstat -f '%N | type=%HT | link-target=%Y' data/audio data/audio/liveatc data/audio/liveatc/archives\nfind data/audio/liveatc/archives -mindepth 1 -maxdepth 1 -type d -exec basename {} \\; | sort\n\n# Drive candidates\nfind \"$HOME/Library/CloudStorage\" -maxdepth 5 -type d -iname '*audio*' 2>/dev/null | sort\n\n# Current explicit source-root style\nuv run --extra liveatc liveatc-train \\\n  --audio-root /ABSOLUTE/PATH/TO/audio/liveatc \\\n  --out-root data/training/liveatc \\\n  --profile fast-local"
-      }
-    },
+                "content": "repo=/Users/jean-patricksmith/digital/kingly/apps/production/drone\ncd \"$repo\"\n\n# repo-local materialization\ngit -C data ls-files 'audio/liveatc/archives/*.dvc'\nstat -f '%N | type=%HT | link-target=%Y' data/audio data/audio/liveatc data/audio/liveatc/archives\nfind data/audio/liveatc/archives -mindepth 1 -maxdepth 1 -type d -exec basename {} \\; | sort\n\n# Drive candidates\nfind \"$HOME/Library/CloudStorage\" -maxdepth 5 -type d -iname '*audio*' 2>/dev/null | sort\n\n# Current explicit source-root style\nuv run --extra liveatc liveatc-train \\\n  --audio-root /ABSOLUTE/PATH/TO/audio/liveatc \\\n  --out-root data/training/liveatc \\\n  --profile fast-local\n\n# Planned Stage 08 preflight gate\nuv run --extra liveatc liveatc-export-training-units \\\n  --training-root data/training/liveatc \\\n  --audio-root /ABSOLUTE/PATH/TO/audio/liveatc \\\n  --audit-inputs \\\n  --dry-run"
+            }
+        },
     "next-actions": {
       "type": "section",
       "variant": "card-grid",
@@ -351,8 +442,8 @@
       "props": {
         "label": "Iter5",
         "title": "Keep training gated",
-        "content": "The iter5 exporter plan should consume explicit audio roots and provenance. It should not infer corpus authority from whichever local folder happens to be hydrated."
-      }
-    }
+                "content": "The iter5 exporter plan now requires explicit audio-root audit, root normalization, DVC/Drive custody, stale-path handling, and Sunny/M3 lineage fields before rows can become accepted training units."
+            }
+        }
   }
 }
