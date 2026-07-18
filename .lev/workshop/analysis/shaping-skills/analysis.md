@@ -93,4 +93,68 @@
 
 - Runtime workshop folders (`intake/`, `cache/`) are gitignored via `.lev/workshop/.gitignore`. Only the `analysis/` output for shaping-skills is checked in.
 - To refresh the intake source: `git -C .lev/workshop/intake/shaping-skills pull` (currently on main, latest commit as of intake). No submodule pin.
-- Original submodule attempt (PR #8 first commit) has been reverted from local history; the branch will force-push to replace the submodule commit with this intake.
+- Original submodule attempt (PR #8 first commit) has been reverted from local history; the branch was force-pushed to replace the submodule commit with this intake.
+
+## Session Learnings (2026-07-18, PR #8 session)
+
+Context from the working session that isn't captured elsewhere. Read this before starting the P0 spike.
+
+### Path convention for adapted ports (binding)
+
+Decision recorded as ADR `.lev/pm/decisions/d01-agents-home-convention.md`:
+
+- Canonical home pattern is `${AGENTS_HOME:-$HOME/.agents}`. **Every adapted skill declares this pattern once at the top** (first section, before any path reference), then refers to `$AGENTS_HOME/...`.
+- Rationale: multi-runtime (not Claude-only, so `~/.claude/` is wrong as a base), and multi-*instance* — a per-project or per-container agents home sets `AGENTS_HOME` in its environment and every skill inherits it; the global default (`~/.agents`) needs no setup.
+- Upstream shaping-skills hardcodes `~/.claude/skills/...` install paths and its README installs via symlink into `~/.claude/skills/`. Adapted ports must not carry those references; the ripple hook port likewise resolves via the pattern, not a literal path.
+- Prose aimed at humans may say `~/.agents/...`; scripts use the full `${AGENTS_HOME:-$HOME/.agents}` form.
+
+### Per-skill adaptation design (agreed direction)
+
+Integration mode: **adapt to lifecycle conventions** (not verbatim import, not thin wrapper). Each port keeps the upstream methodology body near-verbatim where it is methodology-not-plumbing, and adds:
+
+| Port | Lane | Entity movement | Upstream feeds | Downstream | Output artifact |
+|---|---|---|---|---|---|
+| `skills/frame/` | Shape | `memory\|transcript -> framed` | raw transcripts, `/capture` output | `/shape`, `/interview` | `.lev/pm/frames/<id>.md` |
+| `skills/shape/` | Shape | `framed\|aligned -> shaped` | `/frame`, `/interview` | `/breadboard`, `/propose` | `.lev/pm/shapes/<id>.md` |
+| `skills/breadboard/` | Shape | `shaped -> breadboarded` | `/shape` (parts), or existing code (mapping mode) | `/propose` (slice source), `/breadboard-reflect` | `.lev/pm/breadboards/<id>.md` |
+| `skills/breadboard-reflect/` | Shape | `breadboarded -> breadboarded(synced)` | `/breadboard` + implementation code | `/propose` | updates breadboard in place |
+| `skills/kickoff/` (deferred) | Close-adjacent | `proposed -> kicked-off` | `/propose`, kickoff transcript | builder session | `.lev/pm/kickoffs/<id>.md` |
+
+Each carries one `## Work Link` block (lane, movement, upstream, downstream, `Router: /work`, HUD line) per the `/work` router contract, and `/work`'s lane table + route table + templates table need rows for the new artifact types. The `templates/design.md` reference in `/interview` stays authoritative for design artifacts; shapes/breadboards are *new* artifact types, not replacements for designs.
+
+Key composition facts established by comparison:
+
+- `/interview` vs `/shaping`: interview owns ambiguity reduction (scored orientation loop, one-question-at-a-time branch walking); shaping owns R/S iteration (numbered requirements, lettered shapes, binary ✅/❌ fit-check matrix, 🟡 change marks, multi-level doc consistency shaping→slices→slice-plans). Complementary — interview clarifies the subject, shape iterates the solution space. Do not merge them.
+- `/breadboarding` slicing (V1–V9, every slice ends in demo-able UI) is the same discipline as `/propose`'s `slice_verticality_gate`. The breadboard is the *what* (affordance tables + wiring); propose compiles the *executable* (dna.yaml + execution.yaml with verifier contracts). P0 spike verifies propose can consume a breadboard artifact as slice evidence.
+- Upstream "documents hierarchy" (shaping doc → slices doc → slice plans, changes ripple both directions) maps onto shape artifact → breadboard artifact → propose task folder. The ripple hook is the mechanical reminder for that consistency contract.
+- `shaping: true` frontmatter is the hook trigger and is worth keeping as-is in adapted artifacts (cheap, greppable, upstream-compatible).
+
+### Ripple hook port notes
+
+- Upstream hook: PostToolUse on `Write|Edit`, exits 2 with a checklist on any `.md` whose first 5 lines contain `shaping: true`; requires `jq`.
+- Port as a **project-local copy** (not symlink) at `.claude/hooks/shaping-ripple.sh`, registered in `.claude/settings.json` with a guarded command — `test -x ... && ... || true` — so a fresh clone or missing `jq` never errors on unrelated writes. (CodeRabbit flagged the unguarded form on the reverted submodule commit; the guard was validated in-session.)
+- Note `.claude/settings.json` is Claude-specific; other runtimes wanting the ripple check need their own hook registration. The script itself is runtime-agnostic (stdin JSON with `tool_input.file_path`).
+
+### CI state (as of this session)
+
+Both failing checks in `.github/workflows/security.yml` are **pre-existing on main** (10+ consecutive red runs verified via Actions history) and are not caused by this branch:
+
+1. **Hardcoded path check** — offenders (all on main): `skills/interview/SKILL.md`, `skills/cdo/SKILL.md`, `skills/cass-coverage/SKILL.md`, `skills/cass-coverage/scripts/merge.py`, `skills/codex-autoresearch/tests/test_check_skill_invariants.py`, `convex/AGENTS.md`, and five `levnow/*.json` reports. Fix = the d01 sweep (separate PR). One in-branch hit (literal project root in this analysis) was already fixed in commit `e70ab2e2`.
+2. **Secret scan (gitleaks)** — 22 findings, **all confirmed placeholders, no real leaks**: valyu docs with `YOUR_VALYU_API_KEY_HERE`-style example headers (`skills-db/.archive/consolidated-2026-02-03/search-valyu/SKILL.md` and `skills/lev-research/backends/valyu-recursive-confidence/BACKEND.md`, lines ~449/459/468, `curl-auth-header` rule) and Fireworks docs placeholder `Key Id: <key id shown by CLI>` (`skills-db/sdk/fireworks-ai/references/llms-full.md:21003`, `generic-api-key` rule), each flagged at historical commits `3bde184b…` and `ef5ff88a…` among others. Fix = add a `.gitleaksignore` with the finding fingerprints (regenerate the full 22-line list by running `gitleaks detect --source . --report-format json` locally; the CI log tail only shows part).
+3. Unrelated cleanup signal seen in CI post-job: `No url found for submodule path 'skills-db/real-time-backend-skill' in .gitmodules` — a stale gitlink in the index with no `.gitmodules` entry; also breaks `git submodule status` locally. Worth fixing in the hygiene PR (`git rm --cached skills-db/real-time-backend-skill` or add the entry).
+
+### Distribution (open, not yet decided)
+
+Raised but not resolved in-session — decide before P3:
+
+- **Scope**: just the five shaping ports vs the full lifecycle bundle (`work/interview/propose/capture/close/handoff` + ports) vs whole catalog vs installable plugin package.
+- **Audience**: personal multi-machine, team, or public. Public implies license/versioning/README work.
+- **Hook delivery**: ship with the package (project-local, guarded — current lean), one-time global user install (upstream's model), or skip the hook and rely on skill-body reminders.
+- The `AGENTS_HOME` instance model (d01) is the substrate any of these sit on: an install = materializing skills into some `$AGENTS_HOME` and exporting the var.
+
+### Next steps (refreshed)
+
+1. **P0 spike `skills/breadboard/`** — first adapted port; validates Work Link + artifact path + propose-consumption. Declare the `AGENTS_HOME` pattern at top per d01.
+2. P1 `skills/shape/` next to `/interview`; P2 ripple hook (guarded, project-local); then P3 `frame`, P4 `breadboard-reflect`; P5 kickoff stays `monitor` pending `/handoff` overlap check.
+3. Separate hygiene PR(s) off main: `.gitleaksignore` fingerprints, d01 hardcoded-path sweep, stale `skills-db/real-time-backend-skill` gitlink. Together these turn the security workflow green.
+4. Decide distribution scope/audience before investing in P3+ packaging.
