@@ -2,7 +2,7 @@
 
 - URL: https://github.com/rjs/shaping-skills
 - Type: repo (Claude Code skills package)
-- Project Root: /home/user/agents (lev-os/agents)
+- Project Root: `$(git rev-parse --show-toplevel)` (lev-os/agents)
 - Workshop Root: `.lev/workshop/`
 - Workshop Manifest: missing (defaulted folder names)
 - Repo Playbook: null (workshop.playbooks.repo_intake not configured)
