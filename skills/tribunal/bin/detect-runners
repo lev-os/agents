@@ -1,176 +1,315 @@
-#!/usr/bin/env bash
-# tribunal/bin/detect-runners — detect installed coding agent CLIs, query capabilities, cache results
-# Usage: detect-runners [--refresh] [--json] [--models <cli>]
-set -euo pipefail
+#!/usr/bin/env python3
+"""Detect standalone CLI agents and cache their current model rosters."""
 
-CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/tribunal"
-CACHE_FILE="$CACHE_DIR/runners.json"
-CACHE_TTL=86400  # 24 hours
+from __future__ import annotations
 
-mkdir -p "$CACHE_DIR"
+import argparse
+import json
+import os
+from pathlib import Path
+import shutil
+import signal
+import socket
+import subprocess
+import sys
+import time
+from concurrent.futures import ThreadPoolExecutor
+from typing import Any, Callable
 
-# --- Args ---
-REFRESH=false
-JSON_OUT=false
-MODELS_FOR=""
-while [[ $# -gt 0 ]]; do
-  case "$1" in
-    --refresh) REFRESH=true; shift ;;
-    --json) JSON_OUT=true; shift ;;
-    --models) MODELS_FOR="$2"; shift 2 ;;
-    *) echo "Usage: detect-runners [--refresh] [--json] [--models <cli>]"; exit 1 ;;
-  esac
-done
 
-# --- Cache check ---
-if [[ "$REFRESH" == "false" && -f "$CACHE_FILE" && "$MODELS_FOR" == "" ]]; then
-  age=$(( $(date +%s) - $(stat -f %m "$CACHE_FILE" 2>/dev/null || stat -c %Y "$CACHE_FILE" 2>/dev/null) ))
-  if (( age < CACHE_TTL )); then
-    if [[ "$JSON_OUT" == "true" ]]; then
-      cat "$CACHE_FILE"
-    else
-      # Pretty print from cache
-      python3 -c "
-import json, sys
-data = json.load(open('$CACHE_FILE'))
-for r in data.get('runners', []):
-    status = '●' if r['installed'] else '○'
-    tier = r.get('tier', '?')
-    models = r.get('model_count', '?')
-    print(f\"  {status} {r['name']:<16} T{tier}  {r['cmd']:<20} {models} models  {r.get('json_output', False) and 'JSON' or 'text'}\")
-print(f\"\n  {len([r for r in data['runners'] if r['installed']])} runners detected  |  cached {age}s ago  |  --refresh to update\")
-"
-    fi
-    exit 0
-  fi
-fi
+CACHE_TTL_SECONDS = 24 * 60 * 60
+CACHE_PATH = Path(os.environ.get("XDG_CACHE_HOME", str(Path.home() / ".cache"))) / "tribunal" / "runners.json"
+COMMAND_TIMEOUT_SECONDS = 12
 
-# --- Model list for a specific CLI ---
-if [[ -n "$MODELS_FOR" ]]; then
-  case "$MODELS_FOR" in
-    claude)
-      echo "Claude Code models (use aliases or full IDs):"
-      echo "  haiku, sonnet, opus"
-      echo "  claude-haiku-4-5-20251001, claude-sonnet-4-6, claude-opus-4-6"
-      ;;
-    codex)
-      echo "Codex CLI models:"
-      codex --help 2>&1 | grep -i "model" | head -5
-      echo "  Common: o3, o4-mini, gpt-4.1"
-      ;;
-    gemini)
-      gemini --help 2>&1 | grep -i "model" | head -3
-      echo "  Use: gemini -m gemini-2.5-flash, gemini-2.5-pro, gemini-3-pro, etc."
-      ;;
-    cursor|cursor-agent)
-      cursor-agent --list-models 2>&1 | grep -v "Loading\|Available" | head -30
-      ;;
-    opencode)
-      echo "OpenCode providers (use -m provider/model):"
-      opencode auth list 2>&1 | grep "●" | sed 's/[^●]*● /  /'
-      ;;
-    pi)
-      pi --list-models 2>&1 | head -50
-      ;;
-    aider)
-      echo "Aider supports any litellm-compatible model:"
-      echo "  --model gpt-4o, --model claude-3-5-sonnet, --model deepseek-coder-v2"
-      echo "  --opus, --sonnet, --haiku, --4o, --mini (shortcuts)"
-      ;;
-    *)
-      echo "Unknown CLI: $MODELS_FOR"
-      echo "Known: claude, codex, gemini, cursor, opencode, pi, aider"
-      exit 1
-      ;;
-  esac
-  exit 0
-fi
 
-# --- Detect all runners ---
-detect_runner() {
-  local name="$1" cmd="$2" prompt_flag="$3" model_flag="$4" json_flag="$5" approve_flag="$6" tier="$7" config_path="$8"
-  local installed=false path=""
+def parse_codex(text: str) -> list[str]:
+    payload = json.loads(text)
+    return [
+        str(model["slug"])
+        for model in payload.get("models", [])
+        if model.get("slug") and model.get("visibility", "list") == "list"
+    ]
 
-  if path=$(which "$cmd" 2>/dev/null); then
-    installed=true
-  fi
 
-  # Get version if installed
-  local version=""
-  if [[ "$installed" == "true" ]]; then
-    version=$("$cmd" --version 2>&1 | head -1 | grep -oE '[0-9]+\.[0-9]+[.0-9]*' | head -1 || echo "unknown")
-  fi
+def parse_cursor(text: str) -> list[str]:
+    models = []
+    for line in text.splitlines():
+        model_id, separator, _ = line.partition(" - ")
+        if separator and model_id.strip() != "auto":
+            models.append(model_id.strip())
+    return models
 
-  # Count models (rough — from help/list output)
-  local model_count=0
-  if [[ "$installed" == "true" ]]; then
-    case "$cmd" in
-      cursor-agent) model_count=$(cursor-agent --list-models 2>&1 | grep -c " - " || echo 0) ;;
-      pi) model_count=$(pi --list-models 2>&1 | grep -cE "^[a-z]" || echo 0) ;;
-      *) model_count=-1 ;;  # unknown, needs --list-models or similar
-    esac
-  fi
 
-  cat <<RUNNER_JSON
+def parse_lines(text: str) -> list[str]:
+    return [line.strip() for line in text.splitlines() if line.strip()]
+
+
+def parse_opencode(text: str) -> list[str]:
+    return [line.strip() for line in text.splitlines() if "/" in line and " " not in line.strip()]
+
+
+def parse_pi(text: str) -> list[str]:
+    models = []
+    for line in text.splitlines()[1:]:
+        columns = line.split()
+        if len(columns) >= 2:
+            models.append(f"{columns[0]}/{columns[1]}")
+    return models
+
+
+RUNNERS: list[dict[str, Any]] = [
     {
-      "name": "$name",
-      "cmd": "$cmd",
-      "installed": $installed,
-      "path": "$path",
-      "version": "$version",
-      "prompt_flag": "$prompt_flag",
-      "model_flag": "$model_flag",
-      "json_flag": "$json_flag",
-      "json_output": $([ -n "$json_flag" ] && echo true || echo false),
-      "approve_flag": "$approve_flag",
-      "tier": $tier,
-      "config_path": "$config_path",
-      "model_count": $model_count
+        "id": "claude",
+        "name": "Claude Code",
+        "command": "claude",
+        "declared_models": ["haiku", "sonnet", "opus", "fable"],
+        "model_source": "declared-aliases",
+        "exhaustive": False,
+    },
+    {
+        "id": "codex",
+        "name": "Codex CLI",
+        "command": "codex",
+        "model_command": ["codex", "debug", "models"],
+        "model_parser": parse_codex,
+        "model_source": "provider-command",
+        "exhaustive": True,
+    },
+    {
+        "id": "gemini",
+        "name": "Gemini CLI",
+        "command": "gemini",
+        "model_source": "explicit-required",
+        "exhaustive": False,
+    },
+    {
+        "id": "agy",
+        "name": "Antigravity CLI",
+        "command": "agy",
+        "model_command": ["agy", "models"],
+        "model_parser": parse_lines,
+        "model_source": "provider-command",
+        "exhaustive": True,
+    },
+    {
+        "id": "cursor-agent",
+        "name": "Cursor Agent",
+        "command": "cursor-agent",
+        "model_command": ["cursor-agent", "models"],
+        "model_parser": parse_cursor,
+        "model_source": "provider-command",
+        "exhaustive": True,
+    },
+    {
+        "id": "opencode",
+        "name": "OpenCode",
+        "command": "opencode",
+        "model_command": ["opencode", "models"],
+        "model_parser": parse_opencode,
+        "model_source": "provider-command",
+        "exhaustive": True,
+    },
+    {
+        "id": "pi",
+        "name": "Pi Agent",
+        "command": "pi",
+        "model_command": ["pi", "--list-models"],
+        "model_parser": parse_pi,
+        "model_source": "provider-command",
+        "exhaustive": True,
+    },
+    {
+        "id": "aider",
+        "name": "Aider",
+        "command": "aider",
+        "model_source": "explicit-required",
+        "exhaustive": False,
+    },
+]
+
+RUNNER_ALIASES = {"cursor": "cursor-agent", "agent": "cursor-agent", "antigravity": "agy"}
+
+
+def run_command(argv: list[str], timeout: int = COMMAND_TIMEOUT_SECONDS) -> tuple[int, str, str]:
+    process = subprocess.Popen(
+        argv,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        start_new_session=True,
+    )
+    try:
+        stdout, stderr = process.communicate(timeout=timeout)
+        return process.returncode, stdout, stderr
+    except subprocess.TimeoutExpired:
+        os.killpg(process.pid, signal.SIGTERM)
+        try:
+            stdout, stderr = process.communicate(timeout=2)
+        except subprocess.TimeoutExpired:
+            os.killpg(process.pid, signal.SIGKILL)
+            stdout, stderr = process.communicate()
+        raise TimeoutError(f"command timed out after {timeout}s: {' '.join(argv)}")
+
+
+def unique(values: list[str]) -> list[str]:
+    return list(dict.fromkeys(value for value in values if value))
+
+
+def detect_runner(spec: dict[str, Any]) -> dict[str, Any]:
+    path = shutil.which(spec["command"])
+    result: dict[str, Any] = {
+        "id": spec["id"],
+        "name": spec["name"],
+        "command": spec["command"],
+        "installed": path is not None,
+        "path": path or "",
+        "version": "",
+        "models": [],
+        "model_count": 0,
+        "model_discovery": {
+            "source": spec["model_source"],
+            "exhaustive": spec["exhaustive"],
+            "status": "binary-missing" if path is None else "pending",
+        },
     }
-RUNNER_JSON
-}
+    if path is None:
+        return result
 
-# Build JSON array
-runners_json=$(cat <<EOF
-{
-  "detected_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-  "hostname": "$(hostname -s)",
-  "runners": [
-$(detect_runner "Claude Code" "claude" "-p" "--model" "--output-format json" "--dangerously-skip-permissions" 1 "~/.claude/settings.json"),
-$(detect_runner "Codex CLI" "codex" "-q" "-m" "--json" "-a never" 1 "~/.codex/config.toml"),
-$(detect_runner "Gemini CLI" "gemini" "-p" "-m" "--output-format json" "--yolo" 1 "~/.gemini/settings.json"),
-$(detect_runner "Cursor Agent" "cursor-agent" "-p" "--model" "--output-format json" "--yolo --trust" 1 "~/.cursor-agent/"),
-$(detect_runner "OpenCode" "opencode" "run" "-m" "--format json" "" 2 "~/.local/share/opencode/auth.json"),
-$(detect_runner "Pi Agent" "pi" "" "--model" "" "" 2 "~/.config/pi/"),
-$(detect_runner "Aider" "aider" "--message" "--model" "" "--yes-always" 2 "~/.aider.conf.yml")
-  ]
-}
-EOF
-)
+    try:
+        _, stdout, stderr = run_command([spec["command"], "--version"], timeout=5)
+        result["version"] = (stdout or stderr).splitlines()[0].strip()
+    except (IndexError, TimeoutError, OSError):
+        result["version"] = "unknown"
 
-# Write cache
-echo "$runners_json" > "$CACHE_FILE"
+    declared = spec.get("declared_models")
+    if declared:
+        result["models"] = declared
+        result["model_count"] = len(declared)
+        result["model_discovery"]["status"] = "declared-partial"
+        return result
 
-# Output
-if [[ "$JSON_OUT" == "true" ]]; then
-  cat "$CACHE_FILE"
-else
-  echo "  Tribunal Runner Detection"
-  echo "  ========================="
-  echo ""
-  python3 -c "
-import json, sys
-data = json.loads('''$runners_json''')
-for r in data.get('runners', []):
-    status = '●' if r['installed'] else '○'
-    tier = r.get('tier', '?')
-    v = r.get('version', '?')[:12]
-    json_ok = 'JSON' if r.get('json_output') else 'text'
-    print(f\"  {status} {r['name']:<16} T{tier}  v{v:<14} {json_ok:<6} {r['cmd']}\")
-installed = [r for r in data['runners'] if r['installed']]
-print(f\"\n  {len(installed)}/{len(data['runners'])} runners installed\")
-print(f\"  Cached to {sys.argv[1]}\")
-print(f\"  Run with --models <cli> to list available models\")
-print(f\"  Run with --refresh to force re-detection\")
-" "$CACHE_FILE"
-fi
+    command = spec.get("model_command")
+    parser: Callable[[str], list[str]] | None = spec.get("model_parser")
+    if command is None or parser is None:
+        result["model_discovery"]["status"] = "explicit-required"
+        return result
+
+    result["model_discovery"]["command"] = command
+    try:
+        returncode, stdout, stderr = run_command(command)
+        if returncode != 0:
+            result["model_discovery"]["status"] = "command-failed"
+            result["model_discovery"]["error"] = (stderr or stdout).strip()[:500]
+            return result
+        models = unique(parser(stdout))
+        result["models"] = models
+        result["model_count"] = len(models)
+        result["model_discovery"]["status"] = "available" if models else "no-models"
+    except TimeoutError as error:
+        result["model_discovery"]["status"] = "timeout"
+        result["model_discovery"]["error"] = str(error)
+    except (json.JSONDecodeError, OSError, ValueError) as error:
+        result["model_discovery"]["status"] = "parse-failed"
+        result["model_discovery"]["error"] = str(error)
+    return result
+
+
+def fresh_cache() -> dict[str, Any] | None:
+    try:
+        if time.time() - CACHE_PATH.stat().st_mtime >= CACHE_TTL_SECONDS:
+            return None
+        cached = json.loads(CACHE_PATH.read_text())
+        if cached.get("schema_version") != "tribunal-runner-catalog.v2":
+            return None
+        return cached
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
+        return None
+
+
+def refresh_cache() -> dict[str, Any]:
+    with ThreadPoolExecutor(max_workers=len(RUNNERS)) as pool:
+        runners = list(pool.map(detect_runner, RUNNERS))
+    payload = {
+        "schema_version": "tribunal-runner-catalog.v2",
+        "detected_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "hostname": socket.gethostname().split(".")[0],
+        "cache": {"path": str(CACHE_PATH), "ttl_seconds": CACHE_TTL_SECONDS, "status": "refresh"},
+        "runners": runners,
+    }
+    CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    temporary = CACHE_PATH.with_suffix(".tmp")
+    temporary.write_text(json.dumps(payload, indent=2) + "\n")
+    temporary.replace(CACHE_PATH)
+    return payload
+
+
+def load_catalog(refresh: bool) -> dict[str, Any]:
+    if not refresh:
+        cached = fresh_cache()
+        if cached is not None:
+            cached["cache"]["status"] = "fresh-cache"
+            cached["cache"]["age_seconds"] = int(time.time() - CACHE_PATH.stat().st_mtime)
+            return cached
+    return refresh_cache()
+
+
+def select_runner(catalog: dict[str, Any], requested: str) -> dict[str, Any] | None:
+    runner_id = RUNNER_ALIASES.get(requested, requested)
+    return next((runner for runner in catalog["runners"] if runner["id"] == runner_id), None)
+
+
+def self_test() -> None:
+    assert parse_codex('{"models":[{"slug":"small","visibility":"list"},{"slug":"hidden","visibility":"hide"}]}') == ["small"]
+    assert parse_cursor("auto - Auto\nsmall - Small\nlarge - Large\n") == ["small", "large"]
+    assert parse_opencode("openai/small\nanthropic/large\n") == ["openai/small", "anthropic/large"]
+    assert parse_pi("provider model context\nopenai small 1M\ngoogle flash 1M\n") == ["openai/small", "google/flash"]
+    assert unique(["a", "a", "b", ""]) == ["a", "b"]
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--refresh", action="store_true", help="bypass the 24-hour cache")
+    parser.add_argument("--json", action="store_true", help="emit JSON")
+    parser.add_argument("--models", metavar="RUNNER", help="show one runner's discovered models")
+    parser.add_argument("--self-test", action="store_true", help="run parser checks and exit")
+    args = parser.parse_args()
+
+    if args.self_test:
+        self_test()
+        print("detect-runners self-test: ok")
+        return 0
+
+    catalog = load_catalog(args.refresh)
+    if args.models:
+        runner = select_runner(catalog, args.models)
+        if runner is None:
+            parser.error(f"unknown runner: {args.models}")
+        if args.json:
+            print(json.dumps(runner, indent=2))
+        else:
+            for model in runner["models"]:
+                print(model)
+            if not runner["models"]:
+                status = runner["model_discovery"]["status"]
+                print(f"{runner['id']}: no discovered models ({status})", file=sys.stderr)
+        return 0 if runner["models"] else 2
+
+    if args.json:
+        print(json.dumps(catalog, indent=2))
+        return 0
+
+    for runner in catalog["runners"]:
+        marker = "*" if runner["installed"] else "-"
+        discovery = runner["model_discovery"]
+        completeness = "all" if discovery["exhaustive"] else "partial"
+        print(
+            f"{marker} {runner['id']:<14} {runner['model_count']:>4} models  "
+            f"{discovery['status']:<16} {completeness}"
+        )
+    print(f"cache: {catalog['cache']['status']}  {catalog['cache']['path']}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

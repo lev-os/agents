@@ -1,0 +1,431 @@
+{
+  "meta": {
+    "title": "Context Engine Aggregate Graph — Discovery and POC Decision",
+    "description": "A source-backed architecture decision explaining why the current aggregate is not queryable, where CBM cross-repo matching fails, and what the hybrid POC must prove.",
+    "layout": "default",
+    "fonts": ["Bricolage Grotesque", "DM Sans", "Fragment Mono"]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "ruling",
+    "current",
+    "case-study",
+    "target-architecture",
+    "options",
+    "poc",
+    "prior-art",
+    "evidence"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "Architecture discovery",
+        "title": "Build the semantic audit layer, not another graph concatenator.",
+        "subtitle": "Native cross-repo edges remain structural evidence; Context Engine owns the business-semantic read model.",
+        "meta": "Current checkout · 18 August 2026 · read-only discovery"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "The existing aggregate is a scale projection with no materialized nodes, the live query path fans out across repos instead of traversing a merged graph, and current CBM indexes contain no cross-project edges. The shortest credible POC is a query-time semantic joiner that treats inferred links as candidates until evidence and audit gates admit them."
+      }
+    },
+    "ruling": {
+      "type": "decision",
+      "props": {
+        "title": "Recommended: hybrid semantic read model",
+        "status": "conditional",
+        "content": "Rebuild each leaf structural graph when its declared baseline branch changes. Let native CBM transport matching contribute raw evidence where extraction is complete. Let an agent-driven POC resolve scope and assemble candidate chains from raw graph results plus `.ulta/entities`. Context Engine must normalize, audit, rank, and expose every chain with evidence state and explicit gaps.",
+        "next": "Run a zero-write three-repo semantic POC and an isolated native cross-edge benchmark before drafting the implementation proposal."
+      }
+    },
+    "current": {
+      "type": "section",
+      "variant": "asymmetric",
+      "props": {
+        "label": "01 · Current state",
+        "title": "The aggregate exists as a plan, not as a traversal surface",
+        "subtitle": "Four observed facts separate the live implementation from the intended company graph."
+      },
+      "children": ["current-ledger", "aggregate-proof"]
+    },
+    "current-ledger": {
+      "type": "evidence",
+      "props": {
+        "title": "Observed implementation ledger",
+        "summary": "Current checkout and live MCP queries only.",
+        "items": [
+          {
+            "claim": "The June aggregate candidate is not materialized and contains zero graph nodes and links.",
+            "status": "observed",
+            "source": "context-engine/.context-engine/aggregate/receipts/aggregate-candidates.json:1-84",
+            "detail": "Five source repos are repeated to simulate sixty; both candidate graphs report materialized false."
+          },
+          {
+            "claim": "The aggregation implementation namespaces and copies repo-local nodes and links without synthesizing cross-repo edges.",
+            "status": "observed",
+            "source": "context-engine/src/benchmarks/aggregate-candidates.js:148-236",
+            "detail": "Every copied node and link receives a virtual repo id; no cross-repository join phase exists."
+          },
+          {
+            "claim": "The Context Engine query command returns one result block per repository rather than traversing an aggregate graph.",
+            "status": "observed",
+            "source": "context-engine/src/providers/codegraph.js:139-179",
+            "detail": "The function loops over selected repositories and invokes the provider independently."
+          },
+          {
+            "claim": "Context Engine's codegraph provider and Codebase Memory MCP are separate graph systems today.",
+            "status": "observed",
+            "source": "context-engine/package.json:50-52",
+            "detail": "The package depends on `@colbymchenry/codegraph`; no CBM provider adapter exists under context-engine/src."
+          },
+          {
+            "claim": "A merge-triggered leaf rebuild and central delta refresh are running in production.",
+            "status": "missing",
+            "detail": "The repo docs describe this target flow, but no CI configuration or current execution receipt was found in the checked-out source repos."
+          }
+        ]
+      }
+    },
+    "aggregate-proof": {
+      "type": "proof",
+      "props": {
+        "title": "The aggregate receipt proves scale, not usefulness",
+        "claim": "A large projected graph count is not evidence of a queryable company graph.",
+        "evidence": "The codegraph candidate projects 2,005,032 nodes and 4,766,316 links by repeating five inputs across sixty virtual repos, while the persisted graph is only 3,543 bytes and is marked `projection_plan_only`.",
+        "source": "context-engine/.context-engine/aggregate/receipts/aggregate-candidates.json:59-82; context-engine/src/benchmarks/aggregate-candidates.js:135-145",
+        "limitation": "This receipt is dated 12 June 2026 and does not prove current source-index freshness."
+      }
+    },
+    "case-study": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "02 · Edge failure",
+        "title": "Add to Bag exposes the exact boundary failure",
+        "subtitle": "The business path is recoverable only when raw structure and generated semantic evidence are combined."
+      },
+      "children": ["case-diagram", "case-table"]
+    },
+    "case-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "initialZoom": 1.15,
+        "content": "flowchart TD\n  Q[\"Business question<br/>Where does Add to Bag go?\"] --> W[\"web-site<br/>web:action:add-to-bag\"]\n  W -->|\"admitted semantic relation\"| D[\"DXL operation<br/>dxl:operation:AddToBag\"]\n  D --> M[\"Datasource methods<br/>ATG and Ulta buy branches\"]\n  M --> U[\"Dynamic request path<br/>version + /orch/buy/cart/additem\"]\n  U -. \"native exact route match fails\" .-> R[\"CBM route node<br/>extracted as /\"]\n  U --> E[\"Generated orch-buy entity<br/>POST /orch/buy/cart/additem\"]\n  E --> J[\"Java controller<br/>addItemToBag\"]\n  R --> G[\"Gap: no CROSS_HTTP_CALLS edge\"]\n  E --> C[\"Candidate semantic join\"]\n  C --> A{\"Evidence audit\"}\n  A -->|\"complete\"| P[\"Admitted chain\"]\n  A -->|\"incomplete\"| X[\"Candidate plus explicit gap\"]",
+        "caption": "The raw graph sees useful symbols but loses the endpoint identity. `.ulta/entities` restores the route as evidence; the audit determines whether the join may be admitted."
+      }
+    },
+    "case-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "layer", "label": "Layer", "wide": true },
+          { "key": "observed", "label": "Observed evidence" },
+          { "key": "state", "label": "Join state" },
+          { "key": "source", "label": "Source" }
+        ],
+        "rows": [
+          {
+            "layer": "Web action to DXL operation",
+            "observed": "`web:action:add-to-bag` maps to `dxl:operation:AddToBag`.",
+            "state": { "text": "Admitted", "status": "match" },
+            "source": "web-site/.ulta/entities/entities.json:995-1006"
+          },
+          {
+            "layer": "DXL to request path",
+            "observed": "`addItemToBagOrch()` calls a dynamically versioned `/orch/buy/cart/additem` path.",
+            "state": { "text": "Observed", "status": "match" },
+            "source": "exp-graphql/src/dataSources/ulta/buy/buy.js:124-163"
+          },
+          {
+            "layer": "Native CBM route identity",
+            "observed": "Spring constants and class-level routing collapse the indexed target route to `/`.",
+            "state": { "text": "Gap", "status": "gap" },
+            "source": "Live CBM get_code_snippet, 18 August 2026"
+          },
+          {
+            "layer": "Generated Java route entity",
+            "observed": "The semantic projection records `POST /orch/buy/cart/additem`, controller, and downstream integrations.",
+            "state": { "text": "Observed", "status": "match" },
+            "source": "orch-buy/.ulta/entities/entities.json:22-35"
+          },
+          {
+            "layer": "DXL to Java route",
+            "observed": "The available evidence suggests a path but does not yet provide deterministic join proof for every branch.",
+            "state": { "text": "Candidate", "status": "warn" },
+            "source": "context-engine/.lev/pm/designs/20260706-semantic-entity-join-planner.md:35-62"
+          }
+        ],
+        "stickyHeader": true
+      }
+    },
+    "target-architecture": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "03 · Target architecture",
+        "title": "Leaf freshness flows into one audited semantic boundary",
+        "subtitle": "Branch triggers, provider graphs, semantic cards, and business queries keep separate owners."
+      },
+      "children": ["target-diagram", "target-boundary"]
+    },
+    "target-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "initialZoom": 1.05,
+        "content": "flowchart TD\n  Merge[\"Merge to manifest baseline branch\"] --> Leaf[\"Leaf graph rebuild\"]\n  Leaf --> Receipt[\"Graph generation and commit receipt\"]\n  Receipt --> Ingest[\"Context Engine delta ingest\"]\n  Entities[\"Repo-generated .ulta/entities\"] --> Normalize[\"Canonical normalizer\"]\n  Ingest --> Normalize\n  Cross[\"Native CBM CROSS_* evidence\"] --> Normalize\n  Normalize --> Audit[\"Semantic audit<br/>identity, evidence, freshness, conflicts\"]\n  Audit --> Candidate[\"Candidate evidence boundary\"]\n  Candidate --> Promote{\"Validation passes?\"}\n  Promote -->|\"yes\"| Active[\"Active semantic read model\"]\n  Promote -->|\"no\"| Gaps[\"Explicit gaps and stale claims\"]\n  Query[\"Business query\"] --> Scope[\"Scope resolver\"]\n  Scope --> Retrieve[\"Evidence retriever\"]\n  Retrieve --> Active\n  Active --> Response[\"Typed chains, raw refs, confidence, gaps\"]\n  Gaps --> Response",
+        "caption": "The baseline branch comes from the repo manifest, so iPhone and Android can remain on master while most repositories use develop."
+      }
+    },
+    "target-boundary": {
+      "type": "document",
+      "props": {
+        "title": "Ownership boundary",
+        "content": "## Four responsibilities, one query contract\n\nSource repository CI owns one leaf rebuild for the branch declared in `repo-manifest.yaml`. It publishes a generation and evidence receipt; it does not build a company graph.\n\nCodebase Memory and other providers own structural extraction. Their cross-project edges are raw evidence, never canonical business truth.\n\nContext Engine owns normalization, semantic identity, evidence admission, freshness, conflicts, candidate boundaries, promotion, and the shared `graph.query` / `graph.explain` response contract.\n\nThe agent or skill owns query decomposition during the POC: `ScopeResolver → EvidenceRetriever → SemanticJoiner → ChainAuditor`. Those routines consume manifest and ontology data; they do not memorize the org chart in prompt prose."
+      }
+    },
+    "options": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "04 · Options",
+        "title": "Three routes, one that survives production scrutiny",
+        "subtitle": "The comparison separates POC speed from long-term authority."
+      },
+      "children": ["options-table", "options-decision"]
+    },
+    "options-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "dimension", "label": "Dimension", "wide": true },
+          { "key": "native", "label": "Native CBM only" },
+          { "key": "agent", "label": "Agent / skill only" },
+          { "key": "hybrid", "label": "Hybrid semantic model" }
+        ],
+        "rows": [
+          {
+            "dimension": "Structural freshness",
+            "native": { "text": "Strong", "status": "match" },
+            "agent": { "text": "Depends on retrieval", "status": "warn" },
+            "hybrid": { "text": "Strong with receipts", "status": "match" }
+          },
+          {
+            "dimension": "Business vocabulary",
+            "native": { "text": "Weak", "status": "gap" },
+            "agent": { "text": "Strong for POC", "status": "match" },
+            "hybrid": { "text": "Strong and durable", "status": "match" }
+          },
+          {
+            "dimension": "Deterministic joins",
+            "native": { "text": "Only extracted transports", "status": "warn" },
+            "agent": { "text": "Candidate only", "status": "warn" },
+            "hybrid": { "text": "Typed and audited", "status": "match" }
+          },
+          {
+            "dimension": "Wrong-edge containment",
+            "native": { "text": "Extractor confidence", "status": "warn" },
+            "agent": { "text": "Prompt discipline", "status": "gap" },
+            "hybrid": { "text": "Claim states and gates", "status": "match" }
+          },
+          {
+            "dimension": "Time to first proof",
+            "native": { "text": "Fast if extraction aligns", "status": "warn" },
+            "agent": { "text": "Fastest", "status": "match" },
+            "hybrid": { "text": "Moderate", "status": "warn" }
+          },
+          {
+            "dimension": "Long-term maintenance",
+            "native": { "text": "Low custom code", "status": "match" },
+            "agent": { "text": "High reasoning drift", "status": "gap" },
+            "hybrid": { "text": "Delta refresh, explicit policy", "status": "match" }
+          },
+          {
+            "dimension": "Recommendation",
+            "native": { "text": "Evidence provider", "status": "info" },
+            "agent": { "text": "Candidate POC", "status": "warn" },
+            "hybrid": { "text": "Adopt", "status": "match" }
+          }
+        ],
+        "stickyHeader": true
+      }
+    },
+    "options-decision": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Why the hybrid wins",
+        "content": "It preserves the cheapest useful behavior from both alternatives. Native provider edges stay available when the source extractor can prove them. Agent reasoning accelerates discovery, but every inferred hop remains candidate evidence. Context Engine supplies the missing durable contract: typed identity, audit, freshness, conflicts, confidence, and a business-facing query response."
+      }
+    },
+    "poc": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": {
+        "label": "05 · Proof plan",
+        "title": "Prove the joins before building the service",
+        "subtitle": "The POC is intentionally bounded to three repos and one business path."
+      },
+      "children": ["poc-baseline", "poc-native", "poc-compare"]
+    },
+    "poc-baseline": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "01",
+        "title": "Semantic baseline",
+        "content": "Run the agent/skill against `web-site`, `exp-graphql`, and `orch-buy` without graph mutation. Resolve scope from the manifest, retrieve raw graph hits, join typed `.ulta/entities`, and return admitted paths, candidates, and gaps."
+      }
+    },
+    "poc-native": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "label": "02",
+        "title": "Native matcher",
+        "content": "Run CBM cross-repo intelligence in isolated graph stores. Capture the number and shape of `CROSS_*` edges, plus every miss caused by unresolved constants, dynamic paths, or missing handler identity."
+      }
+    },
+    "poc-compare": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Decision receipt",
+        "content": "Compare business-question accuracy, evidence-ref coverage, wrong admitted edge rate, regeneration time, and manual edge count. Promote to proposal only if the hybrid materially improves answer quality without hiding candidate joins."
+      }
+    },
+    "poc-proof": {
+      "type": "proof",
+      "props": {
+        "title": "Discovery score",
+        "claim": "The hybrid is ready for a bounded POC, not implementation promotion.",
+        "evidence": "Direct source inspection, live CBM schema/search/trace queries, existing entity projections, and prior design lineage produce a weighted proof score of 0.83.",
+        "source": "Read-only discovery session, 18 August 2026",
+        "limitation": "No merge-triggered rebuild, isolated native cross-edge pass, or end-to-end business query service was exercised."
+      }
+    },
+    "prior-art": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "06 · Prior art",
+        "title": "The current request continues an existing architecture line",
+        "subtitle": "The semantic join planner and remote-business capture are the newest decision surfaces."
+      },
+      "children": ["prior-table", "poc-proof"]
+    },
+    "prior-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "artifact", "label": "Artifact", "wide": true },
+          { "key": "decision", "label": "What it established" },
+          { "key": "state", "label": "State" },
+          { "key": "use", "label": "Use now" }
+        ],
+        "rows": [
+          {
+            "artifact": "20260520 · Repo context prompts and indexing",
+            "decision": "Context usefulness and query proof precede graph promotion.",
+            "state": { "text": "Historical", "status": "info" },
+            "use": "Preserve source-first ordering."
+          },
+          {
+            "artifact": "20260525 · Provider orchestration capture",
+            "decision": "One Context Engine CLI dispatches provider build, query, benchmark, and status.",
+            "state": { "text": "Partial", "status": "warn" },
+            "use": "Reuse provider boundaries, not old projections."
+          },
+          {
+            "artifact": "20260525 · Business-intent field tests",
+            "decision": "Interview-driven query plans and negative controls support estimates.",
+            "state": { "text": "Reusable", "status": "match" },
+            "use": "Use as POC question gold set."
+          },
+          {
+            "artifact": "20260623 · Graph workspaces",
+            "decision": "Context Engine owns evidence boundaries, graph semantics, and CLI/API/MCP parity.",
+            "state": { "text": "Foundation", "status": "match" },
+            "use": "Keep explicit scope and receipts."
+          },
+          {
+            "artifact": "20260706 · Semantic entity join planner",
+            "decision": "Typed semantic projections sit over raw provider graphs; inference cannot admit truth alone.",
+            "state": { "text": "Direct", "status": "match" },
+            "use": "Primary implementation design."
+          },
+          {
+            "artifact": "20260706 · Remote business ontology capture",
+            "decision": "Business users do not choose repos; benchmark hybrid delta refresh against commerce questions.",
+            "state": { "text": "Latest", "status": "match" },
+            "use": "Primary POC contract."
+          },
+          {
+            "artifact": "Context Engine aggregation domain",
+            "decision": "Repo CI rebuilds leaf evidence; Context Engine aggregates and serves it.",
+            "state": { "text": "Draft", "status": "warn" },
+            "use": "Target flow, not current proof."
+          },
+          {
+            "artifact": "Ulta Context Engine API workstream",
+            "decision": "Semantic planner is the decision reference; workstream remains paused before execution.",
+            "state": { "text": "Paused", "status": "warn" },
+            "use": "Resume through POC, then proposal."
+          }
+        ],
+        "stickyHeader": true
+      }
+    },
+    "evidence": {
+      "type": "source-list",
+      "props": {
+        "title": "Primary source surfaces",
+        "items": [
+          {
+            "label": "Semantic entity join planner",
+            "href": "../../digital/kingly/clients/ulta/context-engine/.lev/pm/designs/20260706-semantic-entity-join-planner.md",
+            "detail": "Current typed join, audit, planner, regeneration-safety, and implementation-sequencing design."
+          },
+          {
+            "label": "Remote business ontology capture",
+            "href": "../../digital/kingly/clients/ulta/context-engine/.lev/pm/workstreams/ulta-context-engine-api/captures/20260706-remote-business-ontology-semantic-graph-capture.yaml",
+            "detail": "Business audience, mixed ontology, benchmark candidates, and hybrid delta-refresh proof requirements."
+          },
+          {
+            "label": "Graph workspace architecture",
+            "href": "../../digital/kingly/clients/ulta/context-engine/.lev/pm/designs/20260623-context-engine-graph-workspaces.md",
+            "detail": "Evidence boundaries, explicit query scope, CE ownership, and shared CLI/API/MCP application contract."
+          },
+          {
+            "label": "Aggregate candidate implementation",
+            "href": "../../digital/kingly/clients/ulta/context-engine/src/benchmarks/aggregate-candidates.js",
+            "detail": "Current scale projection, virtual repo copying, namespacing behavior, and deferred common graph contract."
+          },
+          {
+            "label": "Aggregate candidate receipt",
+            "href": "../../digital/kingly/clients/ulta/context-engine/.context-engine/aggregate/receipts/aggregate-candidates.json",
+            "detail": "Historical five-repo to sixty-repo projection counts and materialization status."
+          },
+          {
+            "label": "Repository manifest",
+            "href": "../../digital/kingly/clients/ulta/context-engine/config/repo-manifest.yaml",
+            "detail": "Declared baseline branches, owners, tags, domains, stacks, and provider selections."
+          }
+        ]
+      }
+    }
+  }
+}

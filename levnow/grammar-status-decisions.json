@@ -1,0 +1,216 @@
+{
+  "meta": {
+    "title": "Grammar vs Regex — Where We Stand & What's Waiting on You",
+    "description": "Why the regex lane passes rows the grammar fails, the two data decisions staged for approval, and the six ATIS decoder design questions.",
+    "effects": ["title-underline", "card-glow"]
+  },
+  "theme": { "preset": "teal-slate", "mode": "dark" },
+  "root": ["hero", "kpis", "regex-why", "regex-examples", "regex-verdict", "decisions", "atis-questions", "losses"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "GRAMMAR LANE — DECISION MEMO",
+        "title": "Why Regex Passes, and the Four Decisions Waiting on You",
+        "subtitle": "Everything an agent could close is closed. What remains is judgment calls: two data approvals, one design review, one wiring decision.",
+        "meta": "Wave-2 close · re-rendered 2026-07-15"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "Short version: the regex lane's high score is part genuine robustness and part memorized answer key — it was hand-written against this exact eval corpus, and in places it injects answers that aren't in the spoken words. The grammar's lower score is honest. Closing the gap is now a data-authoring job, not an engine job: every one of the 289 remaining losses has a named owner."
+      }
+    },
+
+    "kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "SCOREBOARD", "title": "Head-to-head, same 1,257 rows" },
+      "children": ["kpi-grammar", "kpi-regex", "kpi-losses", "kpi-floor"]
+    },
+    "kpi-grammar": { "type": "card", "variant": "kpi", "props": { "value": "919 / 1,257", "label": "Grammar correct (73.1%)", "trend": { "direction": "up", "value": "+75 rows this wave" } } },
+    "kpi-regex": { "type": "card", "variant": "kpi", "props": { "value": "1,205 / 1,257", "label": "Regex correct (95.9%)" } },
+    "kpi-losses": { "type": "card", "variant": "kpi", "props": { "value": "289", "label": "Grammar losses, all owner-named" } },
+    "kpi-floor": { "type": "card", "variant": "kpi", "props": { "value": "0 / 1,733", "label": "Scored-baseline rows moved (proof the shadow lock held)" } },
+
+    "regex-why": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "THE QUESTION YOU ASKED",
+        "title": "Why does regex “pass” all these rows?",
+        "subtitle": "Three reasons, in decreasing order of legitimacy."
+      },
+      "children": ["why-1", "why-2", "why-3"]
+    },
+    "why-1": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "1. It only has to find a phrase, not explain the sentence",
+        "content": "The regex lane is 550 hand-written patterns across 10 policy files. A pattern matches if its phrase appears **anywhere** in the words — leading facility names, trailing chatter, and garbled halves are simply ignored. The grammar has to account for the whole utterance, so the same noise that regex skips over becomes a grammar failure. That's a real robustness advantage, and it's legitimate."
+      }
+    },
+    "why-2": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "2. It co-evolved with this exact eval corpus",
+        "content": "Many patterns were written while looking at these very rows. Some inject answers that are **not in the spoken words** — the pattern file comments literally cite “the corpus claims…” as justification. That's not parsing; that's fitting the answer key. It scores now and breaks on live radio."
+      }
+    },
+    "why-3": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "3. It covers our own transmissions; the grammar deliberately doesn't",
+        "content": "The corpus includes turns where **our own pilot** is the one talking. Regex has patterns for those fragments; the grammar has no rows for them — on purpose, because your ruling says ownship pilot speech never enters the voice module. Those rows need a lane decision, not grammar rows."
+      }
+    },
+
+    "regex-examples": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "EVIDENCE",
+        "title": "Concrete examples of answer-key fitting",
+        "subtitle": "Rows where the regex lane scores by producing information that was never spoken."
+      },
+      "children": ["examples-table"]
+    },
+    "examples-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["What was actually said", "What regex outputs", "What's wrong with that"],
+        "rows": [
+          ["“three thousand” (bare altitude, nothing else)", "Altitude 3,000 **plus** facility “tower”", { "text": "“Tower” is not in the words — the pattern hardcodes it because the corpus row expects it", "status": "gap" }],
+          ["Any utterance containing the word “TRAFFIC” near certain phrasing", "An emergency declaration (Pan-Pan)", { "text": "A single trigger word fires an emergency intent — on live radio this is a dangerous false alarm", "status": "gap" }],
+          ["Garbled or half-cut transmissions", "Often still “correct”", { "text": "Substring luck: the surviving fragment happens to contain the pattern's phrase", "status": "warn" }],
+          ["Our own pilot's transmissions (“request flight following…”)", "Parsed as if they were controller instructions", { "text": "By your ruling these shouldn't be parsed by this module at all", "status": "warn" }]
+        ]
+      }
+    },
+
+    "regex-verdict": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "VERDICT", "title": "What the 95.9% actually means" },
+      "children": ["verdict-callout", "verdict-prose"]
+    },
+    "verdict-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "The regex score is a ceiling on this corpus, not a promise about live radio",
+        "content": "This is exactly why live BATC audio breaks the regex lane while the eval stays green. The grammar's 73.1% is measured the hard, honest way — whole-utterance, no injected answers — which is why closing its gap with real template rows is worth more than the 22-point difference suggests."
+      }
+    },
+    "verdict-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "The engine work is done and honestly measured: three consecutive engine hypotheses (re-ranking candidates, stripping facility prefixes, requiring a minimum anchor floor) were each kill-tested against pinned thresholds and each came back NO-GO. The decisive finding: in 41 of 43 cases where the grammar picks the wrong intent, the **correct** intent had no template row competing at all — the wrong answer won by forfeit. No ranking formula can fix an empty bracket. That converts the remaining work from engine tuning into data authoring, which is the first decision below."
+      }
+    },
+
+    "decisions": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "WAITING ON YOU",
+        "title": "The four open decisions",
+        "subtitle": "Everything below is staged and receipted; nothing moves until you call it."
+      },
+      "children": ["decision-1", "decision-2", "decision-3", "decision-4"]
+    },
+    "decision-1": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "📝 Green-light the data-authoring wave (111 template rows)",
+        "content": "44 brand-new rows for the intents that currently lose by forfeit, plus 67 short-form/fragment variants of rows that already exist. Each batch runs kill-test-first with a wrong-accept probe, per the gate law. This is the single biggest recoverable block of the 289 losses.\n\nOwner list: `.lev/pm/research/20260707-grammar-remaining-losses-owners.json`"
+      }
+    },
+    "decision-2": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "⚖️ Approve the 11 corrected answer-key rows",
+        "content": "The audit of the air-defense-zone / defense-VFR scenario cluster found the current expected answers are wrong — the prose doesn't match FAA phraseology. 11 FAA-grounded replacement drafts are staged, each flagged do-not-promote-without-human-review. Approving them changes corpus truth: sources get promoted, audio and transcripts regenerate, and the scored baseline is expected to move. That's why it's your call, not mine.\n\nDrafts: `data/src/partner_graph/review/grammar_gold_audit_w2/adiz_dvfr_prose_review.json`"
+      }
+    },
+    "decision-3": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "📡 Review the ATIS decoder design (6 questions below)",
+        "content": "Per your ruling, ATIS is a looping recording on a known frequency — so it gets a structured field decoder conditioned on the channel, never the instruction grammar. The full design is written with 14 FAA citations; six judgment calls are listed in the next section with my recommendation on each. No implementation starts until you rule.\n\nDesign: `.lev/pm/designs/20260707-atis-channel-conditioned-decoder.md`"
+      }
+    },
+    "decision-4": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "🧠 Decide the ML-repair wiring shape",
+        "content": "The diagnostic you asked for is done: the local intent model recovers 9 of 46 rows where both grammar and regex fail — but it is also confidently wrong in places (it read a blocked “say again” as a route clearance at 98% confidence). Verdict: useful as a hypothesis source inside the say-again repair lane only, never as command authority. How it gets wired — or whether it does — is your call."
+      }
+    },
+
+    "atis-questions": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "DESIGN REVIEW",
+        "title": "The six ATIS decoder questions",
+        "subtitle": "Each has a recommendation in the design doc; “proposed” marks my pick."
+      },
+      "children": ["atis-table"]
+    },
+    "atis-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["#", "Question", "The call to make", "Proposed answer"],
+        "rows": [
+          ["1", "The two “BAY WEATHER UPDATE” rows", "They're controller-issued weather on the control frequency, not a recording. Keep them on the instruction side (decoder honestly claims 3 turns, not 7)?", { "text": "Yes — keep control-side", "status": "info" }],
+          ["2", "The flight-service briefing block", "Extend the decoder with a briefing channel class now, or defer and leave that row in the informational lane?", { "text": "Defer to follow-on", "status": "info" }],
+          ["3", "How fine-grained is channel typing?", "Two classes for v1 (weather-broadcast vs control) — or carry tower/ground/clearance/approach distinctions from day one?", { "text": "Two classes for v1", "status": "info" }],
+          ["4", "Three legacy ATIS template rows", "Retire them from the template universe when the decoder lands (a receipted shrink), or leave them dormant?", { "text": "Retire, with receipt", "status": "info" }],
+          ["5", "Where does channel truth live?", "Explicit channel field on each scenario phase, derive it from the tuned frequency via the governed catalog, or both?", { "text": "Both — explicit field wins, lookup as cross-check", "status": "info" }],
+          ["6", "Dependency sequencing", "Hard-block the decoder on the governed frequency-catalog exposure landing first, or let early slices read the raw datasets directly?", { "text": "Hard-block — direct reads violate the governed-chain rule", "status": "info" }]
+        ]
+      }
+    },
+
+    "losses": {
+      "type": "section",
+      "variant": "asymmetric",
+      "props": {
+        "label": "THE REMAINING 289",
+        "title": "Where every remaining loss lives",
+        "subtitle": "No unowned rows. 100% is reached by parse or by lane-routing — never by shrinking the denominator."
+      },
+      "children": ["losses-chart", "losses-prose"]
+    },
+    "losses-chart": {
+      "type": "chart",
+      "props": {
+        "chartType": "bar",
+        "title": "289 losses by owner",
+        "labels": ["Fragment row forms", "Missing template rows (forfeits)", "Channel & advisory lanes", "Garble lane", "Stale diagnosis labels", "New diagnosis", "Slot-family packet", "Named blocker pins", "Param truncation", "Multi-word surfaces", "Convention", "Gold context"],
+        "datasets": [{ "data": [67, 44, 40, 32, 25, 17, 17, 16, 12, 11, 7, 1], "backgroundColor": ["#2dd4bf", "#2dd4bf", "#60a5fa", "#94a3b8", "#94a3b8", "#94a3b8", "#f59e0b", "#f59e0b", "#f59e0b", "#f59e0b", "#f59e0b", "#f87171"] }]
+      }
+    },
+    "losses-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "**Teal** (111 rows) is the data-authoring wave — decision one above.\n\n**Blue** (40 rows) routes to the ATIS decoder and the advisory-acknowledgment lane — decision three.\n\n**Grey** (74 rows) is diagnosis and garble work already queued as ordinary packets.\n\n**Amber** (63 rows) is slot and parameter work with existing owners and pinned blockers.\n\n**Red** (1 row) is a gold-context question folded into the audit."
+      }
+    }
+  }
+}

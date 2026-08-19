@@ -1,0 +1,330 @@
+{
+  "meta": {
+    "title": "Context Engine Semantic Overlay",
+    "description": "A source-backed technical explainer for scheduled graph refresh, runtime configuration boundaries, and cross-repository cart capability joins.",
+    "layout": "default"
+  },
+  "theme": {
+    "preset": "terracotta-sage",
+    "mode": "light"
+  },
+  "root": [
+    "mobile-layout-fix",
+    "hero",
+    "verdict",
+    "scheduler",
+    "runtime-config",
+    "branch-reality",
+    "overlay",
+    "evidence",
+    "next-move",
+    "sources"
+  ],
+  "elements": {
+    "mobile-layout-fix": {
+      "type": "custom-html",
+      "props": {
+        "html": "<span aria-hidden=\"true\"></span>",
+        "css": "display: none;",
+        "js": "const style = document.createElement('style'); style.textContent = '@media (max-width: 480px) { .section { grid-template-columns: [full-start wide-start text-start] minmax(0, 1fr) [text-end wide-end full-end]; } }'; document.head.appendChild(style);",
+        "export": {
+          "title": "Mobile section-grid correction",
+          "markdown": "The rendered page collapses named section tracks at phone width so the component graph stays within the viewport."
+        }
+      }
+    },
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "Context engine · technical explainer",
+        "title": "Join evidence, not names",
+        "subtitle": "Keep refresh scheduling mechanical, runtime values unresolved, and cross-repository joins explicit.",
+        "meta": "Current checkout · 18 August 2026 · codebase-memory-mcp v0.10.6"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "The aggregate graph POC does not need a new database or an agent that guesses the organization. It needs one external timer, one overlap boundary, and a query-time semantic view that composes Codebase Memory facts with admitted `.ulta/entities` relationships while preserving unresolved runtime configuration."
+      }
+    },
+    "verdict": {
+      "type": "decision",
+      "props": {
+        "title": "Build the overlay at query time",
+        "status": "accepted",
+        "content": "Use Codebase Memory as the structural source, `.ulta/entities` as the organization-aware semantic source, and a deterministic join routine as the arbiter. The agent may expand searches and explain gaps; it must not fabricate cross-repository edges from matching business names.",
+        "next": "Prove the model with the two real cart-add branches: customer AddToBag routes to ATG, while HandleCart's add branch routes through ultaBuyAPI to orch-buy."
+      }
+    },
+    "scheduler": {
+      "type": "section",
+      "variant": "asymmetric",
+      "props": {
+        "label": "01 · Scheduling boundary",
+        "title": "The timer schedules; the run only runs",
+        "subtitle": "A failed refresh cannot prevent the next tick because cadence lives outside the refresh process."
+      },
+      "children": ["scheduler-diagram", "scheduler-notes"]
+    },
+    "scheduler-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "initialZoom": 1.15,
+        "content": "flowchart TD\n  Timer[\"External timer\ncron, platform scheduler, or Compose profile\"] -->|\"every tick\"| Lock{\"flock acquired?\"}\n  Lock -->|\"yes\"| Refresh[\"One-shot sync and delta index\"]\n  Lock -->|\"busy\"| Skip[\"Skip this tick\"]\n  Refresh --> State[\"Persist successful repository hashes\"]\n  Refresh -->|\"success or crash\"| Release[\"Process exits; kernel releases lock\"]\n  Release --> Next[\"Next timer tick remains scheduled\"]\n  Skip --> Next\n  Next --> Timer",
+        "caption": "The lock prevents overlap within one Linux container. It is not a distributed lock across replicas."
+      }
+    },
+    "scheduler-notes": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "Operating rule",
+        "title": "One replica, one short-lived lock",
+        "content": "Production invokes `flock -n /tmp/context-engine-refresh.lock npm run codebase-memory:sync` on every timer tick. If the prior run still owns the lock, the tick skips. If the run crashes, the operating system closes its lock descriptor.\n\nNative development stays manual with `npm run codebase-memory:refresh` or `npm run codebase-memory:sync`. Docker development can opt into the same scheduled profile because `flock` runs inside Linux, regardless of the host OS."
+      }
+    },
+    "runtime-config": {
+      "type": "section",
+      "variant": "asymmetric",
+      "props": {
+        "label": "02 · Runtime configuration",
+        "title": "The graph knows the key, not the deployed value",
+        "subtitle": "DXL constructs the request from one environment variable, one request-context version, and a source-controlled route suffix."
+      },
+      "children": ["runtime-template", "runtime-boundary"]
+    },
+    "runtime-template": {
+      "type": "code-block",
+      "props": {
+        "filename": "Resolved DXL request template",
+        "language": "text",
+        "showLineNumbers": false,
+        "content": "${ULTA_SERVICE_DOMAIN}\n  + /ecom/\n  + ${ctx.buyServiceVersion}\n  + /orch/buy/cart/additem\n\nCBM node: EnvVar(ULTA_SERVICE_DOMAIN)\nCBM edge: code -[:CONFIGURES {strategy: env_access}]-> EnvVar\nStored env value: absent\nResolved request version: absent"
+      }
+    },
+    "runtime-boundary": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Do not promote `.env` text to runtime truth",
+        "content": "The current repository tracks `.env` and `.env.local.qa`, but the live CBM `EnvVar` node stores only identity—not a literal value. Even a checked-in value can be overridden at deployment. The semantic view should retain `envKey`, `pathTemplate`, and unresolved placeholders. Add a sanitized deployment inventory later only when environment-specific topology is required."
+      }
+    },
+    "branch-reality": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "03 · Cart capability",
+        "title": "One business phrase, two real dispatch paths",
+        "subtitle": "A name-only join would incorrectly connect the customer AddToBag mutation to orch-buy."
+      },
+      "children": ["branch-table", "branch-proof"]
+    },
+    "branch-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "entry", "label": "Entry" },
+          { "key": "dispatch", "label": "Observed dispatch" },
+          { "key": "target", "label": "Downstream" },
+          { "key": "state", "label": "Join state" },
+          { "key": "meaning", "label": "Architectural meaning" }
+        ],
+        "rows": [
+          {
+            "entry": "web:action:add-to-bag → dxl:operation:AddToBag",
+            "dispatch": "atgAPI.addItemToBag",
+            "target": "ATG cart add item endpoint",
+            "state": { "text": "Admitted", "status": "match" },
+            "meaning": "Customer AddToBag is not an orch-buy edge in the current checkout."
+          },
+          {
+            "entry": "dxl:operation:HandleCart · add branch",
+            "dispatch": "ultaBuyAPI.addItemToBagOrchAgent",
+            "target": "POST /orch/buy/cart/additem",
+            "state": { "text": "Derived", "status": "warn" },
+            "meaning": "The DXL-to-orch route is supported by entities and source, with host, version, and gateway transformation unresolved."
+          }
+        ],
+        "stickyHeader": true
+      }
+    },
+    "branch-proof": {
+      "type": "proof",
+      "props": {
+        "title": "Why this is the right POC slice",
+        "claim": "A trustworthy semantic layer must preserve both cart-add paths instead of merging them by name.",
+        "evidence": "The admitted web entity maps AddToBag to the DXL AddToBag operation; its resolver invokes ATG. Separately, HandleCart conditionally invokes ultaBuyAPI.addItemToBagOrchAgent, which builds the orch-buy route template.",
+        "source": "web-site/.ulta/entities/entities.json:254-273, 995-1006; exp-graphql/src/schemas/mutations/AddToBag/AddToBag.js:26-30; exp-graphql/src/schemas/mutations/HandleCart/HandleCart.js:47-76",
+        "limitation": "The checked-in web entity catalog does not currently identify a web entry for HandleCart, so that chain begins at the DXL operation until a source-backed caller is admitted."
+      }
+    },
+    "overlay": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "04 · Semantic overlay",
+        "title": "Retrieve, enrich, join, then audit",
+        "subtitle": "The overlay is an ephemeral typed view over two evidence systems; it does not mutate Codebase Memory's database."
+      },
+      "children": ["overlay-diagram", "overlay-rules"]
+    },
+    "overlay-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "initialZoom": 1.25,
+        "content": "flowchart TD\n  Query[\"Business query\nadd to cart\"] --> Alias[\"Capability alias\ncommerce.cart.add_item\"]\n  Alias --> CBM[\"CBM retrieval per repository\nsymbols, calls, EnvVar usage, route fragments\"]\n  CBM --> Entities[\"Entity refinement\noperations, datasource methods, backend joins, routes\"]\n  Entities --> Join[\"Deterministic semantic join\nmethod + verb + path suffix + backend identity\"]\n  Join --> Legacy[\"Chain A · admitted\nAddToBag → atgAPI\"]\n  Legacy --> ATG[\"ATG cart\"]\n  Join --> Agent[\"Chain B · admitted + derived\nHandleCart add → ultaBuyAPI\"]\n  Agent --> Template[\"Request template\nenv host + version + orch route\"]\n  Template --> Orch[\"orch-buy\nPOST /orch/buy/cart/additem\"]\n  Join --> Audit[\"Audit output\nnative · admitted · derived · candidate · unresolved\"]",
+        "caption": "The agent controls query expansion and explanation. Deterministic rules own join construction and provenance labels."
+      }
+    },
+    "overlay-rules": {
+      "type": "document",
+      "props": {
+        "title": "Join contract",
+        "content": "## Native facts stay authoritative\n\nCodebase Memory supplies structural nodes and edges. A native `CROSS_*` edge outranks every overlay inference. Reindexing may replace a derived join with a native one, but an overlay never overwrites source facts.\n\n## Entities add organization meaning\n\nChecked-in `.ulta/entities` relations contribute admitted operation, datasource, backend, route, and integration identities. They are used after graph retrieval, not as an excuse to skip code discovery.\n\n## The joiner is deterministic\n\nThe smallest useful routine normalizes capability aliases, follows typed entity IDs, compares HTTP verb and route suffix, retains gateway prefixes and runtime placeholders, and emits evidence references. The agent may ask for another graph query when a join remains ambiguous.\n\n## Gaps remain visible\n\nMissing native `CROSS_HTTP_CALLS`, an unresolved environment value, an unknown `buyServiceVersion`, or competing branch candidates appear in `gaps`. They do not silently become high-confidence edges."
+      }
+    },
+    "evidence": {
+      "type": "evidence",
+      "props": {
+        "title": "Claim ledger",
+        "summary": "Live graph queries and current checked-in source inspected on 18 August 2026.",
+        "items": [
+          {
+            "claim": "CBM represents ULTA_SERVICE_DOMAIN as an EnvVar and connects readers with CONFIGURES edges.",
+            "status": "observed",
+            "source": "query_graph on exp-graphql · 18 August 2026",
+            "detail": "The live query returned getURLDomain and willSendRequest among thirteen code-to-env relationships."
+          },
+          {
+            "claim": "The live EnvVar node does not contain the environment value.",
+            "status": "observed",
+            "source": "query_graph properties(EnvVar) on exp-graphql · 18 August 2026",
+            "detail": "Returned properties were identity fields only; no literal or resolved value was present."
+          },
+          {
+            "claim": "The repository tracks `.env` and `.env.local.qa`.",
+            "status": "observed",
+            "source": "git ls-files in exp-graphql · 18 August 2026",
+            "detail": "Values were deliberately redacted during inspection."
+          },
+          {
+            "claim": "The customer AddToBag resolver dispatches to atgAPI.addItemToBag.",
+            "status": "observed",
+            "source": "exp-graphql/src/schemas/mutations/AddToBag/AddToBag.js:26-30",
+            "detail": "The source passes `atgAPI` and `addItemToBag` into invokeMutation."
+          },
+          {
+            "claim": "HandleCart's add branch dispatches to ultaBuyAPI.addItemToBagOrchAgent.",
+            "status": "observed",
+            "source": "exp-graphql/src/schemas/mutations/HandleCart/HandleCart.js:47-76",
+            "detail": "The conditional handler selects add, update, or remove datasource methods and defaults to the add method."
+          },
+          {
+            "claim": "The DXL orchestration datasource and orch-buy route form a supported cross-repository candidate.",
+            "status": "derived",
+            "source": "exp-graphql/src/dataSources/ulta/buy/buy.js:179-197; orch-buy/.ulta/entities/entities.json:23-35",
+            "detail": "The source route template and admitted POST route agree on `/orch/buy/cart/additem`; runtime host, version, and gateway behavior remain separate."
+          },
+          {
+            "claim": "A native CROSS_HTTP_CALLS edge currently connects the DXL method to the orch-buy controller.",
+            "status": "missing",
+            "detail": "The fresh v0.10.6 cross-repository rebuild produced zero edges for the exp-graphql and orch-buy pair. Java route extraction currently emits root paths for these interface-defined annotations."
+          }
+        ]
+      }
+    },
+    "next-move": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": {
+        "label": "05 · POC sequence",
+        "title": "Prove one honest capability view",
+        "subtitle": "No persistent aggregate database is required for the first proof."
+      },
+      "children": ["next-query", "next-check", "next-serve"]
+    },
+    "next-query": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "01",
+        "title": "Compose one query result",
+        "content": "Add a CLI query path for `commerce.cart.add_item` that runs CBM discovery, loads relevant entity records, and returns typed chains plus gaps. Keep the result ephemeral."
+      }
+    },
+    "next-check": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "label": "02",
+        "title": "Reject the false join",
+        "content": "The acceptance check requires both real branches and fails if customer AddToBag is connected to orch-buy merely because names and route intent resemble one another."
+      }
+    },
+    "next-serve": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Wrap the proven routine with MCP",
+        "content": "Once the CLI result is stable, expose the same query routine through MCP for business estimation and architecture exercises. The transport changes; the evidence and join contract do not."
+      }
+    },
+    "sources": {
+      "type": "source-list",
+      "props": {
+        "title": "Primary sources",
+        "items": [
+          {
+            "label": "Web cart action entities",
+            "href": "../../digital/kingly/clients/ulta/context-engine/repos/web-site/.ulta/entities/entities.json",
+            "detail": "Admitted web AddToBag action and mapping to the DXL AddToBag operation."
+          },
+          {
+            "label": "DXL AddToBag resolver",
+            "href": "../../digital/kingly/clients/ulta/context-engine/repos/exp-graphql/src/schemas/mutations/AddToBag/AddToBag.js",
+            "detail": "Direct ATG datasource dispatch for the customer AddToBag mutation."
+          },
+          {
+            "label": "DXL HandleCart resolver",
+            "href": "../../digital/kingly/clients/ulta/context-engine/repos/exp-graphql/src/schemas/mutations/HandleCart/HandleCart.js",
+            "detail": "Conditional cart add, update, and remove dispatch through ultaBuyAPI."
+          },
+          {
+            "label": "DXL buy datasource",
+            "href": "../../digital/kingly/clients/ulta/context-engine/repos/exp-graphql/src/dataSources/ulta/buy/buy.js",
+            "detail": "addItemToBagOrchAgent and the orchestration path template."
+          },
+          {
+            "label": "DXL URL-domain helper",
+            "href": "../../digital/kingly/clients/ulta/context-engine/repos/exp-graphql/src/utils/geturldomain/geturldomain.js",
+            "detail": "Runtime composition from ULTA_SERVICE_DOMAIN and the `/ecom/` gateway prefix."
+          },
+          {
+            "label": "Orch-buy route entities",
+            "href": "../../digital/kingly/clients/ulta/context-engine/repos/orch-buy/.ulta/entities/entities.json",
+            "detail": "Admitted v1 and v2 POST `/orch/buy/cart/additem` routes, controller methods, and downstream integrations."
+          },
+          {
+            "label": "Upstream Java route extraction issue",
+            "href": "https://github.com/DeusData/codebase-memory-mcp/issues/734",
+            "detail": "Class-level Spring RequestMapping prefixes are dropped from Route nodes, preventing native cross-repository matching."
+          },
+          {
+            "label": "flock command semantics",
+            "href": "https://man7.org/linux/man-pages/man1/flock.1.html",
+            "detail": "Non-blocking advisory locking for one Linux host or container."
+          }
+        ]
+      }
+    }
+  }
+}

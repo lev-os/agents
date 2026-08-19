@@ -29,7 +29,11 @@ brew install dicklesworthstone/tap/cass
 ## Fast Path
 
 ```bash
-cass health --json || cass index --full --json
+cass status --json
+# When `.index.status` is "stale":
+/Users/jean-patricksmith/.local/bin/cass-maintain
+tail -n 1 /Users/jean-patricksmith/.local/state/cass/auto-index-telemetry.jsonl
+cass status --json
 cass search "authentication timeout" --robot --limit 5 --fields minimal
 ```
 
@@ -70,17 +74,29 @@ cass robot-docs schemas
 
 ## Recommended Workflow
 
-### 1. Check health
+### 1. Check index freshness
 
 ```bash
-cass health --json
+cass status --json
 ```
 
-If unhealthy:
+If `.index.status` is `stale`, run the bounded incremental wrapper and wait for
+it to exit before searching:
 
 ```bash
-cass index --full --json
+/Users/jean-patricksmith/.local/bin/cass-maintain
+tail -n 1 /Users/jean-patricksmith/.local/state/cass/auto-index-telemetry.jsonl
+cass status --json
 ```
+
+Treat `success`, `idle`, and `overlap_skipped` as handled outcomes. For
+`hard_timeout` or `failed`, stop and report the last telemetry row and log tail;
+do not widen the operation. After a handled refresh, rerun the user's original
+search exactly—the status check alone is not freshness proof.
+
+Never use bare `cass index`, `--full`, `--force`, or `--force-rebuild` to make a
+search fresh. If the index is `missing`, stop and request an explicit bootstrap
+decision; routine search freshness is owned only by `cass-maintain`.
 
 ### 2. Search narrowly
 

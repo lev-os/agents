@@ -1,0 +1,248 @@
+{
+  "meta": {
+    "title": "Ulta AI CLI — Docs Audit",
+    "description": "Full documentation audit: freshness, drift, conversation leakage, consolidation plan. 12 Opus agents, read-only.",
+    "effects": ["grid-dots", "title-underline"]
+  },
+  "theme": { "preset": "teal-slate", "mode": "dark" },
+  "root": ["hero", "kpis", "tldr", "tree-root", "tree-docs", "readme-plan", "skills-xref", "freshness", "source-bugs", "leakage", "exec-plan", "verify"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "DOCUMENTATION AUDIT",
+        "title": "Ulta AI CLI — Docs Audit & Consolidation Plan",
+        "subtitle": "Every claim verified against source. Every file gets exactly one disposition.",
+        "meta": "2026-07-28 · branch main @ 956643a · 12 Opus agents · read-only, no edits made"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": { "content": "36 doc files collapse to 9. The quickstart becomes the root README, rebuilt around a copy-paste-into-your-agent snippet. The skill tree is already clean of links into docs/. Four clusters of live source bugs surfaced while verifying — they ship as separate tickets." }
+    },
+    "kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "SCOREBOARD", "title": "Audit at a glance" },
+      "children": ["kpi-1", "kpi-2", "kpi-3", "kpi-4", "kpi-5"]
+    },
+    "kpi-1": { "type": "card", "variant": "kpi", "props": { "value": "36 → 9", "label": "doc files after consolidation" } },
+    "kpi-2": { "type": "card", "variant": "kpi", "props": { "value": "22", "label": "files deletable with zero runtime impact" } },
+    "kpi-3": { "type": "card", "variant": "kpi", "props": { "value": "0", "label": "skill → docs link violations" } },
+    "kpi-4": { "type": "card", "variant": "kpi", "props": { "value": "25+", "label": "factually wrong claims, cited file:line" } },
+    "kpi-5": { "type": "card", "variant": "kpi", "props": { "value": "7", "label": "live source bugs found while verifying" } },
+    "tldr": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "TLDR", "title": "Five things that matter" },
+      "children": ["tldr-1", "tldr-2", "tldr-3", "tldr-4", "tldr-5"]
+    },
+    "tldr-1": { "type": "card", "variant": "callout", "props": { "variant": "warning", "title": "README is the most dangerous file", "content": "README.md:171,172,184 promise PII sanitization, GCloud ADC self-healing, and 429 rate-limit deferral. Grepping src/lib for 429 / rate-limit / gcloud / Application Default matches zero files. Security and reliability promises with no implementing code." } },
+    "tldr-2": { "type": "card", "variant": "callout", "props": { "variant": "success", "title": "The quickstart is already the README you want", "content": "Its install block is verified correct against install.sh:19-27. Promote it to root, cut ~170 lines of pitch copy, and the entry-point loop (README → quickstart → installation → quickstart) collapses." } },
+    "tldr-3": { "type": "card", "variant": "callout", "props": { "variant": "info", "title": "22 files delete cleanly", "content": "grep for each doc path across src/lib returns zero hits for every one of them. Five more files merge into survivors. Four directories disappear entirely: development/, designs/, plans/, confluence/." } },
+    "tldr-4": { "type": "card", "variant": "callout", "props": { "variant": "success", "title": "Skills never link into docs — already true", "content": "Both sweeps of src/skills/ and .agents/skills/ found only false positives: search globs over the target repo's docs, illustrative paths, and vendored Anthropic URLs. Nothing to fix." } },
+    "tldr-5": { "type": "card", "variant": "callout", "props": { "variant": "warning", "title": "Runtime error messages point at dead docs", "content": "72 error envelopes reference three spec files that do not exist, 10 reference docs/skills.md anchors that do not exist, and several remediation strings advertise a curl|bash install path that has never existed. Source fixes, not doc fixes." } },
+    "tree-root": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "DISPOSITIONS", "title": "Root files (5 → 4)" },
+      "children": ["tree-root-table"]
+    },
+    "tree-root-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["File", "Disposition", "Reason"],
+        "rows": [
+          ["README.md", { "text": "UPDATE", "status": "warn" }, "Becomes the snippet-first quickstart. Cut mermaid diagram, rollout model, Context Engine relationship, hand-maintained command reference, capability/limitation decks, audience routing."],
+          ["AGENTS.md", { "text": "UPDATE", "status": "warn" }, "Only accurate root doc — all seven links resolve. Absorb CONTRIBUTING's commit convention; drop lines 9-10 pointing at the purged docs/_archive."],
+          ["CLAUDE.md", { "text": "KEEP", "status": "match" }, "Ten bytes: @AGENTS.md. Zero drift surface."],
+          ["CHANGELOG.md", { "text": "UPDATE", "status": "warn" }, "Four lines, no entries, at v2.1.0. Release-management skill writes to it, so keep — strip the POC-transition preamble and backfill 2.1.0."],
+          ["CONTRIBUTING.md", { "text": "MERGE → AGENTS.md", "status": "info" }, "Tells contributors to fork repos (ulta-skills-global, ulta-skills-node) that appear nowhere in the repo. Its useful tables already exist in AGENTS.md."]
+        ]
+      }
+    },
+    "tree-docs": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "DISPOSITIONS", "title": "docs/ (31 md + 2 drawio → 5)", "subtitle": "Directories docs/development/, docs/designs/, docs/plans/, docs/confluence/ all disappear. Also delete the three empty skill shells (tdd, dead-code, repo-onboarding) that four docs route users to." },
+      "children": ["tree-docs-table"]
+    },
+    "tree-docs-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["File", "Disposition", "Reason"],
+        "rows": [
+          ["docs/installation.md", { "text": "UPDATE", "status": "warn" }, "112 runtime docs_ref emissions with live anchors — undeletable. Cut duplicated install block, package-manager policy table, manual-install transcript; fix eight stale claims."],
+          ["docs/skills.md", { "text": "UPDATE", "status": "warn" }, "208 runtime emissions — highest in the repo. Absorb the governance flowchart, add the missing #list and #sync anchors, fix the review-rules path."],
+          ["docs/getting-started-dev.md", { "text": "UPDATE", "status": "warn" }, "48 runtime emissions plus two tests asserting it resolves on disk. Becomes the single contributor page, absorbing all of docs/development/."],
+          ["docs/guides/cli-architecture.md", { "text": "UPDATE", "status": "warn" }, "Accurate, and AGENTS.md routes contributors here. Fix module-ownership line; add the four registry/adapter modules the CLI guard actually enforces."],
+          ["docs/specs/spec-config-system.md", { "text": "UPDATE", "status": "warn" }, "50 runtime emissions. Absorb the layering precedence table; fix the default-context block that reproduces exactly what migrations now delete."],
+          ["docs/quickstart.md", { "text": "MERGE → README.md", "status": "info" }, "Best doc in the tree, one level too deep. Three source refs need repointing first (steering.sh:1518-1519, index.js:128)."],
+          ["docs/skill-governance.md", { "text": "MERGE → docs/skills.md", "status": "info" }, "58 runtime emissions must be repointed. Unique content is one flowchart; the rest restates skills.md with a wrong submodule path."],
+          ["docs/skill-migration-guide.md", { "text": "MERGE → writing-skills skill", "status": "info" }, "Mirrors a skill that ships to user machines. Keep only the troubleshooting table. Its worked example teaches a tdd skill that does not exist."],
+          ["docs/development/setup.md · testing.md · local-dev-cadence.md", { "text": "MERGE → getting-started-dev.md", "status": "info" }, "Only the tool table, nvm bootstrap, corrected test-command table, and four smoke commands are unique. One bootstrap block survives, not four."],
+          ["docs/specs/config-layering-standard.md", { "text": "MERGE → spec-config-system.md", "status": "info" }, "Precedence table only. Its worked example is invalid config — ulta config validate rejects the testing: key it writes."],
+          ["docs/README.md", { "text": "DELETE", "status": "gap" }, "Hand-maintained index of a tree being halved; zero runtime refs; already points at the purged _archive."],
+          ["docs/lifecycle.md", { "text": "DELETE", "status": "gap" }, "270 lines, zero runtime refs. Routes to three skills with no SKILL.md; the using-ulta skill is the real router and ships to user machines."],
+          ["docs/use-cases.md", { "text": "DELETE", "status": "gap" }, "Fourth prose restatement of ulta --help. Every architectural bullet contradicts source."],
+          ["docs/testing-config.md", { "text": "DELETE", "status": "gap" }, "348 lines documenting three modules that do not exist and a config block the schema rejects."],
+          ["docs/guides/dx-flows.md", { "text": "DELETE", "status": "gap" }, "All 10 quick-reference skill chains name skills absent from every catalog. Last docs surface advertising curl|bash."],
+          ["docs/guides/agentic-primitives.md", { "text": "DELETE", "status": "gap" }, "Generic AI-training material. Blocker: repoint index.js:624 / steering.sh:552 first."],
+          ["docs/guides/skill-testing-matrix.md", { "text": "DELETE", "status": "gap" }, "58-row QA spreadsheet; ~30 rows test skills that do not exist."],
+          ["docs/guides/ulta-alignment-questions.md + ulta-developer-alignment.md", { "text": "DELETE", "status": "gap" }, "A meeting agenda (with assignee initials) and its answer sheet, filed as documentation."],
+          ["docs/guides/service-agents-workflow.md", { "text": "DELETE", "status": "gap" }, "Retrospective of a completed refactor; directory diagram predates the catalog restructure."],
+          ["docs/guides/*.drawio (2)", { "text": "DELETE", "status": "gap" }, "Contain Phase-2 roadmap and governance content — planning artifacts, not docs."],
+          ["docs/development/README.md · release-cadence.md", { "text": "DELETE", "status": "gap" }, "A 12-line index duplicated by three other indexes, and a release doc shipping an install one-liner that has never existed."],
+          ["docs/designs/design-testing-strategy.md", { "text": "DELETE", "status": "gap" }, "Strict subset of the testing doc it would merge into. Empties docs/designs/."],
+          ["docs/specs/spec-compliance-matrix.md", { "text": "DELETE", "status": "gap" }, "Hand copy of the machine-enforced surface registry, which already carries owner and test coverage. Already missing two commands."],
+          ["docs/plans/*.md (3)", { "text": "DELETE", "status": "gap" }, "Dated design memos and an unchecked TDD checklist for work that shipped. The planning skill itself says plans belong in .ulta/user/plans/, uncommitted."],
+          ["docs/confluence/ (2)", { "text": "DELETE", "status": "gap" }, "One-sentence readme plus a checked-in build artifact two rewrites stale. Keep the generator script; drop the output."]
+        ]
+      }
+    },
+    "readme-plan": {
+      "type": "section",
+      "variant": "asymmetric",
+      "props": { "label": "NEW README", "title": "Snippet-first root README", "subtitle": "Six sections, ~60 lines. The paste block is the product; everything else frames it." },
+      "children": ["readme-doc", "readme-aside"]
+    },
+    "readme-doc": {
+      "type": "document",
+      "props": {
+        "title": "README outline",
+        "content": "**1. Title + one line.** \"Agent-agnostic CLI for AI-assisted development. It installs a shared set of SDLC skills onto your machine so your coding agent runs the same plan → execute → review workflow everyone else does.\" No mission statement.\n\n**2. Set up — the copy-paste block** (below), introduced by a single line: *Paste this into Claude Code, Codex, Cursor, or whatever agent you use.* Followed by three requirement lines (git, Node 20+, npm on PATH; Bitbucket SSH; `ULTA_HOME=<path>` to install elsewhere) and one pointer: *if either command fails, the error names a section in docs/installation.md.*\n\n**3. Daily use** — literal prompts, since that is what the user types: *\"Use jira-ingest on ULTA-1234\"*, *\"Use planning to turn that into an implementation plan\"*, *\"Use execute\"*, *\"Use review\"*. Plus `ulta skill list --global` for the full set — a real command (surface-registry.js:486-502) that replaces the dead lifecycle cross-reference.\n\n**4. Where things land** — four rows, no prose: `.ulta/user/` (git-ignored), `~/.config/ulta/config.yaml`, `~/.agents/skills/`, `~/.local/share/ulta-ai-cli`.\n\n**5. Update** — corrected, not copied forward: `ulta update` is the path. Re-running install.sh from inside the clone does **not** pull new commits (verified: install.sh:19-23 sets the in-place flag and :126-136 returns before any fetch). `ulta update --bulletin` shows what changed; `--verify` checks it applied.\n\n**6. More** — five one-line links: `ulta --help`, installation, skills, config spec, AGENTS.md.\n\n**Dropped:** the 54-line mermaid diagram, rollout model, Context Engine relationship, the hand-maintained command reference (`ulta --help` is generated and cannot go stale), capability and limitation decks, audience routing."
+      }
+    },
+    "readme-aside": {
+      "type": "code-block",
+      "props": {
+        "filename": "paste-into-your-agent",
+        "language": "text",
+        "content": "Install the Ulta AI CLI on this machine and onboard me.\n\n1. Run these two commands:\n   git clone git@bitbucket.org:ulta-beauty/ulta-ai-cli.git \\\n     ~/.local/share/ulta-ai-cli\n   ~/.local/share/ulta-ai-cli/install.sh\n\n2. The installer's last line is a path to an\n   onboarding/SKILL.md. Read that file and\n   follow it end to end.\n\n3. Tell me what it recorded as complete and\n   what it reported as skipped."
+      }
+    },
+    "skills-xref": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "SKILLS × DOCS", "title": "Skill → docs links: clean", "subtitle": "Every hit from sweeping both skill trees for docs/ references is a false positive. Where skills and docs genuinely conflict, the skill is right every time — the doc is what drifted." },
+      "children": ["xref-table", "xref-callout"]
+    },
+    "xref-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Hit", "Why it is not a violation"],
+        "rows": [
+          ["planning/SKILL.md:55 — docs/** glob", "Search glob over the target repo's docs, not this repo's."],
+          ["planning/references/loe-risk.md:26", "Same — a search glob."],
+          ["planning/references/plan-authoring.md:102", "Illustrative destination in the user's repo. (Ironically warns against exactly the docs/plans/ anti-pattern this repo has.)"],
+          ["execute/references/testing.md:171", "Generic advice, no path into this repo."],
+          ["writing-skills/assets/anthropic-best-practices.md (12 hits)", "Upstream docs.anthropic.com URLs, vendored verbatim."]
+        ]
+      }
+    },
+    "xref-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": { "variant": "warning", "title": "Three shipped-skill defects to fix anyway", "content": "graph-ontology/SKILL.md:10 ships in-flight roadmap prose (\"being reworked on a separate thread\") to every developer's laptop. repo-rules/SKILL.md:56,75 cites a backlog item the reader cannot see. promoting-skills/SKILL.md:16 gives a catalog submodule path (ulta-context-*) that does not exist — the real checkouts are src/repo-types/{android,iphone,java,node,react}; an agent following it runs git status in a directory that is not there." }
+    },
+    "freshness": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "FRESHNESS", "title": "Factually wrong today", "subtitle": "Every row verified against source, not just asserted by an auditor." },
+      "children": ["freshness-table"]
+    },
+    "freshness-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Where", "Wrong claim", "Evidence"],
+        "rows": [
+          ["README.md:171", "Automatically sanitizes prompt outputs, logs, and commits of credentials and PII", "Only redaction in src/lib masks env values in config show and one git diagnostic regex. Nothing touches prompt output, logs, or commits."],
+          ["README.md:172", "Verifies active GCloud Application Default Credentials", "Zero matches in src/lib; only reference is a disabled .bak file."],
+          ["README.md:184", "Defers runs on 429 rate limits", "Zero matches for 429 / rate-limit anywhere in src/lib."],
+          ["README.md:25-27", "Re-running the installer fetches latest main", "install.sh sets the in-place flag and returns before any fetch — comment says \"never fetch/reset the user's clone\". Only submodules re-init."],
+          ["README.md:121-123", "Submodules at java-microservice / app-ios / app-android", ".gitmodules and ls both say java, iphone, android."],
+          ["README.md:152,154", "skill remove --catalog/--all; skill promote without --to", "Surface registry has no such flags; promote requires both --skill and --to. Copy-pasting fails."],
+          ["docs/installation.md:45-52", "Seven ULTA_* error codes to grep for", "All seven appear zero times in src/lib — the registry entries they map to have no code field at all."],
+          ["docs/installation.md:58,66+", "ULTA_INSTALL_URL override; five references to an install one-liner", "No match in install.sh; no curl|bash path exists in the repo. List also omits ULTA_AGENTS_HOME, which install.sh:263 does read."],
+          ["docs/installation.md:201", "ulta init --force", "Deprecated alias; the repair path is --repair."],
+          ["docs/testing-config.md (whole file)", "Documents testing-config.js, validation-gates.js, tdd-guard.js and a testing: config key", "None of the three files exist; the schema has no testing property; the copy command at :148 fails on every machine."],
+          ["docs/lifecycle.md:45,61,81", "Ships 15 skills; routes to tdd and dead-code", "Count is 14; dead-code/ is empty; tdd/ and repo-onboarding/ hold only an empty references/."],
+          ["docs/skills.md (anchors)", "steering.sh emits #list 8× and #sync 2×", "Neither anchor exists among the file's 13 anchors — users land at the top of the page."],
+          ["docs/skills.md:15,88", "Review guidance lives in .ulta/context/", "The review skill explicitly does not load .ulta/context/** — it loads .ulta/rules/**. Source settles a three-way doc disagreement."],
+          ["docs/specs/spec-config-system.md:8-48", "Repo config owns testing/features/skills; v2 skips migrations; default context includes prompt jobs", "Those keys are on the removed list and deleted on every reconcile; normalizations always run; the documented job block is legacy content the migration strips."],
+          ["docs/development/testing.md:18", "pnpm test is the broad pre-review regression", "package.json aliases test → test:fast, which excludes itests and install tests. The broad target test:all is absent from the table."],
+          ["CONTRIBUTING.md:68", "Fork ulta-skills-global / ulta-skills-node", "Those repo names appear nowhere; the real path is ulta skill promote --skill <id> --to <catalog>."],
+          ["dx-flows / skill-testing-matrix / developer-alignment / service-agents-workflow", "~30 skill names, two service-agent names, service-entities.json", "None exist in any catalog; all four docs predate the catalog restructure."]
+        ]
+      }
+    },
+    "source-bugs": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "NOT DOC BUGS", "title": "Live source bugs found while verifying", "subtitle": "Separate tickets — these are runtime defects, not documentation edits." },
+      "children": ["bug-1", "bug-2", "bug-3", "bug-4"]
+    },
+    "bug-1": { "type": "card", "variant": "elevated", "props": { "title": "🔴 72 error envelopes → nonexistent specs", "content": "steering.sh emits docs_ref for spec-cli-core.md (45×), spec-context-system.md (18×), spec-skill-management.md (9×). docs/specs/ contains none of them." } },
+    "bug-2": { "type": "card", "variant": "elevated", "props": { "title": "🟠 Dead anchors + mis-wired remediation", "content": "10 emissions point at docs/skills.md anchors that do not exist. The missing-context-files error routes to the generic AI-primer doc, which says nothing about .ulta/context/. And steering.sh:556 repairs with `ulta exec --agent onboarding` — the flag is --skill." } },
+    "bug-3": { "type": "card", "variant": "elevated", "props": { "title": "🟠 Phantom install one-liner in messages", "content": "Five message-registry strings still tell users to curl|bash an install script. That path does not exist, and the repo is private so an unauthenticated raw fetch cannot work either." } },
+    "bug-4": { "type": "card", "variant": "elevated", "props": { "title": "🟡 Legacy path + deprecated command", "content": "messages/index.js:1040 names the legacy 02-review-rules.md path the repo-rules skill disowns; scripts/dev-watch.js:19 shells out to the deprecated ulta sync." } },
+    "leakage": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "CONVERSATION LEAKAGE", "title": "Worst offenders", "subtitle": "Prose that explains decisions, narrates history, or parks meeting state — invisible to a fresh reader, corrosive to trust." },
+      "children": ["leak-1", "leak-2", "leak-3", "leak-doc"]
+    },
+    "leak-1": { "type": "text", "variant": "pullquote", "props": { "content": "\"6) Immediate next steps (JP)\" — docs/guides/ulta-alignment-questions.md. The entire file is a nine-line meeting agenda with an assignee's initials, filed as documentation. Its answer sheet is a second file." } },
+    "leak-2": { "type": "text", "variant": "pullquote", "props": { "content": "\"Known Gaps and Roadmap — direct fetch is gated on tracker MCP availability (official DSP OAuth client pending)… DAG parallelism is unit-tested but unproven in production\" — docs/lifecycle.md:262-271. Internal procurement state and backlog inside a doc labeled an enterprise contract." } },
+    "leak-3": { "type": "text", "variant": "pullquote", "props": { "content": "\"graph building is being reworked on a separate thread. Until that lands, this skill still emits the legacy artifacts.\" — graph-ontology/SKILL.md:10. The only leakage that ships to user machines." } },
+    "leak-doc": {
+      "type": "document",
+      "props": {
+        "title": "The pattern, by tier",
+        "content": "**Tier 1 — files that are entirely conversation:** the alignment agenda and its answer sheet; the three dated business-context plan memos (executive-briefing headers, unchecked task boxes, a hard-coded \"all 36 tests pass\"); the service-agents retrospective (\"The Five Refactoring Corrections Applied\" — a PR ledger with no referent for a fresh reader).\n\n**Tier 2 — roadmap ledgers inside reference docs:** the lifecycle doc's known-gaps section; the config spec's \"Board Review Topics\" — three unresolved decisions parked in a spec, awaiting a meeting.\n\n**Tier 3 — rationale and history where behavior belongs:** installation.md narrating a pending npm-link decision and carrying a TODO addressed to a future maintainer; before/after blocks written for a reviewer of a past commit; skills.md announcing that rsync is \"no longer required\" — a changelog entry about a dependency the current reader never had; the lifecycle doc's unsourced 3× speedup benchmark crediting Netty in a Node child-process spawn; the README's \"System Limitations\" evaluation-deck framing whose specific claims describe code that does not exist."
+      }
+    },
+    "exec-plan": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "EXECUTION", "title": "Ordered execution plan", "subtitle": "Phase 0 makes the deletes safe; everything after is mechanical." },
+      "children": ["exec-timeline"]
+    },
+    "exec-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          { "date": "Phase 0", "title": "Source fixes that unblock deletions", "status": "upcoming", "content": "Repoint runtime doc refs before any file moves: the generic-primer ref → skills.md (and fix --agent → --skill in the repair string); 58 governance refs → skills.md; 3 quickstart refs → README.md; layering-standard links → the config spec. Add the missing #list/#sync anchors. File — separately — the phantom-spec refs and stale curl|bash strings." },
+          { "date": "Phase 1", "title": "Content merges (before deleting sources)", "status": "upcoming", "content": "quickstart → new README per the outline. Governance flowchart → skills.md (and fix the rules path). Migration-guide troubleshooting table → the writing-skills skill. The three development docs' unique parts → getting-started-dev.md. Layering precedence table → the config spec. Commit convention → AGENTS.md." },
+          { "date": "Phase 2", "title": "Deletions", "status": "upcoming", "content": "22 doc files, four whole directories (development, designs, plans, confluence), CONTRIBUTING.md, both drawio files, and the three empty skill shells (tdd, dead-code, repo-onboarding)." },
+          { "date": "Phase 3", "title": "Fix the survivors", "status": "upcoming", "content": "installation.md (cut 3 blocks, fix 8 claims), skills.md (fix flags, thin promote to CLI mechanics, drop leakage), getting-started-dev.md (drop the invented error code, complete the command table), cli-architecture.md (module ownership + registry modules), config spec (defaults block), AGENTS.md (archive pointer, deploy block), CHANGELOG (backfill 2.1.0)." },
+          { "date": "Phase 4", "title": "Verify + guard", "status": "upcoming", "content": "pnpm test:all — two suites assert getting-started-dev.md resolves on disk, catching a wrong delete. Then add the guard test that greps every runtime docs_ref and confirms each target file and anchor exists — the one check that would have caught all four phantom specs and both dead anchors, and the only thing preventing this class of rot from returning." }
+        ]
+      }
+    },
+    "verify": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "PROVENANCE", "title": "How this was verified" },
+      "children": ["verify-evidence"]
+    },
+    "verify-evidence": {
+      "type": "evidence",
+      "props": {
+        "title": "Verification ledger",
+        "summary": "12 agents, 270 tool calls, ~870k tokens. The synthesizer independently re-verified every load-bearing claim before adopting it; where auditors disagreed, the one citing file:line won.",
+        "items": [
+          { "claim": "Every delete candidate has zero runtime references.", "status": "observed", "source": "grep per docs path across src/lib", "detail": "Zero hits for each of the 22 delete-outright files." },
+          { "claim": "The three fabricated README capabilities have no implementing code.", "status": "observed", "source": "grep src/lib for 429/rate-limit/gcloud/ADC", "detail": "Zero files match; only hit is a disabled .bak." },
+          { "claim": "Re-running install.sh does not update an existing install.", "status": "observed", "source": "install.sh:19-23, 126-136", "detail": "In-place flag short-circuits before any fetch; comment says never fetch/reset the user's clone." },
+          { "claim": "The quickstart install block works as written.", "status": "observed", "source": "install.sh:19-27", "detail": "Verified by the README specialist and re-checked by the synthesizer." },
+          { "claim": "No skill links into this repo's docs/.", "status": "observed", "source": "two independent sweeps of src/skills/ and .agents/skills/", "detail": "All hits are globs, illustrative paths, or vendored upstream URLs." },
+          { "claim": "The proposed README snippet onboards successfully end-to-end.", "status": "missing", "detail": "Not executed — read-only audit. Run it once on a clean machine before shipping the README." }
+        ]
+      }
+    }
+  }
+}
