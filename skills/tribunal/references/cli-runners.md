@@ -1,68 +1,75 @@
----
-name: cli-runners
-description: Dynamic CLI runner detection for tribunal cross-model dispatch
----
-
 # CLI Runner Reference
 
-Tribunal detects installed coding agent CLIs dynamically. No hardcoded model lists — models change constantly.
+Use the bundled detector as the source of current executable and model-roster
+state. It is standalone and does not require Lev.
 
-## Quick Commands
+## Detection
 
 ```bash
-# Detect all installed runners
-~/.claude/skills/tribunal/bin/detect-runners
+# Cached runner and model roster
+~/.agents/skills/tribunal/bin/detect-runners --json
 
-# Force refresh (bypass 24h cache)
-~/.claude/skills/tribunal/bin/detect-runners --refresh
+# Force live executable, version, and model discovery
+~/.agents/skills/tribunal/bin/detect-runners --refresh --json
 
-# JSON output (for programmatic use)
-~/.claude/skills/tribunal/bin/detect-runners --json
-
-# List models for a specific CLI
-~/.claude/skills/tribunal/bin/detect-runners --models cursor
-~/.claude/skills/tribunal/bin/detect-runners --models pi
-~/.claude/skills/tribunal/bin/detect-runners --models opencode
+# One runner's models; add --json for provenance
+~/.agents/skills/tribunal/bin/detect-runners --models codex
+~/.agents/skills/tribunal/bin/detect-runners --models cursor-agent --json
 ```
 
-## Invocation Patterns
+The detector writes `~/.cache/tribunal/runners.json` or the equivalent
+`$XDG_CACHE_HOME` path. The cache TTL is 24 hours. Each runner reports its
+executable path, version, model list, discovery source, whether the list is
+exhaustive, and any timeout or discovery error.
 
-Each runner has a headless invocation pattern. The detect-runners script caches these in `~/.cache/tribunal/runners.json`. The agent reads the cache to construct dispatch commands.
+Exhaustive means exhaustive for that CLI's discovery command, not proof that
+every row is authenticated or runnable. OpenCode and Pi expose aggregate
+multi-provider catalogs; expect per-cell auth failures unless the caller has
+configured those providers.
 
-| CLI | Prompt Flag | Model Flag | JSON Flag | Auto-Approve |
-|-----|-------------|-----------|-----------|-------------|
-| claude | `-p` | `--model` | `--output-format json` | `--dangerously-skip-permissions` |
-| codex | `-q` | `-m` | `--json` | `-a never` |
-| gemini | `-p` | `-m` | `--output-format json` | `--yolo` |
-| cursor-agent | `-p` | `--model` | `--output-format json` | `--yolo --trust` |
-| opencode | `run` | `-m provider/model` | `--format json` | N/A |
-| pi | N/A | `--model provider/id` | N/A | N/A |
-| aider | `--message` | `--model` | N/A | `--yes-always` |
+`Claude Code`, direct `Gemini CLI`, and `Aider` do not expose a reliable
+exhaustive model-list command in this contract. Claude contributes its declared
+aliases; Gemini and Aider require caller-supplied model IDs when discovery is
+unavailable. The detector labels these cases instead of pretending the roster is
+complete.
 
-## Config Paths
+## Read-Only Opinion Invocations
 
-Where each CLI stores its config (for troubleshooting auth/model issues):
+Use a separate prompt, output, and log file for every model. Substitute the
+literal paths and model IDs; do not interpolate untrusted shell fragments.
 
-| CLI | Config Location |
-|-----|----------------|
-| claude | `~/.claude/settings.json` |
-| codex | `~/.codex/config.toml` |
-| gemini | `~/.gemini/settings.json` |
-| cursor-agent | `~/.cursor-agent/` |
-| opencode | `~/.local/share/opencode/auth.json` |
-| pi | `~/.config/pi/` |
-| aider | `~/.aider.conf.yml` |
+| Runner | Invocation |
+|---|---|
+| Codex | `codex exec -s read-only -m MODEL -o OUTPUT - < PROMPT > LOG 2>&1` |
+| Claude Code | `claude -p --permission-mode plan --model MODEL --output-format text < PROMPT > OUTPUT 2> LOG` |
+| Gemini CLI | `gemini -p "PROMPT_TEXT" -m MODEL --output-format json > OUTPUT 2> LOG` |
+| Antigravity (`agy`) | `agy --sandbox --model MODEL --print "PROMPT_TEXT" > OUTPUT 2> LOG` |
+| Cursor Agent | `cursor-agent -p --mode ask --model MODEL --output-format text "PROMPT_TEXT" > OUTPUT 2> LOG` |
+| OpenCode | `opencode run -m MODEL "PROMPT_TEXT" > OUTPUT 2> LOG` |
+| Pi | `pi -p --no-tools --model MODEL "PROMPT_TEXT" > OUTPUT 2> LOG` |
+| Aider | `aider --dry-run --no-auto-commits --message "PROMPT_TEXT" --model MODEL > OUTPUT 2> LOG` |
 
-## Tiers
+Prefer stdin-capable forms. For positional-only forms, read `PROMPT_TEXT` from a
+trusted temporary file as one quoted argument. Do not add auto-approve flags:
+Tribunal asks questions and must not need mutation permissions.
 
-Tiers are set in detect-runners based on headless maturity:
+## Live Model Commands
 
-- **T1** (production headless): Claude, Codex, Gemini, Cursor — all have `-p`/`-q`, `--model`, JSON output
-- **T2** (usable with caveats): OpenCode (subcommand pattern), Pi (no JSON output), Aider (no JSON, `--yes-always` security risk)
+| Runner | Discovery |
+|---|---|
+| Codex | `codex debug models` (JSON catalog) |
+| Claude Code | Declared aliases: `haiku`, `sonnet`, `opus`, `fable`; non-exhaustive |
+| Gemini CLI | No portable exhaustive command; explicit models required |
+| Antigravity (`agy`) | `agy models` |
+| Cursor Agent | `cursor-agent models` |
+| OpenCode | `opencode models` |
+| Pi | `pi --list-models` |
+| Aider | No exhaustive command; explicit models required |
 
-## Architecture
+## Collection Rules
 
-- **No hardcoded models** — models change constantly. Use `--models <cli>` to query at runtime.
-- **24h cache** at `~/.cache/tribunal/runners.json` — refreshed with `--refresh`
-- **Script is the source of truth** — `~/.claude/skills/tribunal/bin/detect-runners`
-- **JSON output** for programmatic consumption by the tribunal adapter
+- Preserve one result row per `(runner, model)` even when the process fails.
+- Parse structured output when available; otherwise retain text and mark parse
+  status explicitly.
+- Report both raw model counts and provider-balanced convergence.
+- Never let process completion order choose the verdict.

@@ -1,0 +1,370 @@
+{
+  "meta": {
+    "title": "Suntiq brand consolidation",
+    "description": "One authority, one generator, one place to look — and a guard that fails closed.",
+    "fonts": ["Instrument Sans", "Geist Mono"]
+  },
+  "theme": {
+    "preset": "midnight-ink",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "lead",
+    "ruling",
+    "sec-map",
+    "sec-conflicts",
+    "sec-flow",
+    "sec-moves",
+    "sec-guard",
+    "sec-payoff",
+    "sec-evidence"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "DESIGN SYSTEM · BRAND",
+        "title": "Brand consolidation",
+        "subtitle": "You already have an authority and a generator. Almost nothing is wired to them.",
+        "meta": "2026-07-27 · design-system, website, fleet-dashboard"
+      }
+    },
+
+    "lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "The brand isn't scattered because nobody picked a source of truth. `brand/manifest.yaml` declares itself authority, sha256-locks seven approved masters, and there's already a generator that fans them out. The problem is that three surfaces bypass it, one hex contradicts the tokens, and the package inlines 2.4 MB of logos into its own JavaScript."
+      }
+    },
+
+    "ruling": {
+      "type": "decision",
+      "props": {
+        "title": "Don't build a brand system — finish wiring the one that exists",
+        "status": "accepted",
+        "content": "`brand/` stays authority. `export-brand-assets.mjs` stays the only thing that produces derivatives. Everything else becomes a consumer of `brand-kit/`, and Storybook becomes the single place you look at the result. No new abstraction, no new config format.",
+        "next": "Resolve the accent conflict first — it's the only move that needs a human decision."
+      }
+    },
+
+    "sec-map": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "CURRENT STATE",
+        "title": "Where every brand fact actually lives",
+        "subtitle": "Eight authorities for what should be one."
+      },
+      "children": ["map-table", "map-note"]
+    },
+    "map-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Brand fact", "Defined in", "How it got there", "Status"],
+        "rows": [
+          [
+            "Approved logo masters",
+            "brand/ — 7 PNGs",
+            "Hand-approved, sha256-locked in brand/manifest.yaml",
+            { "text": "Authority", "status": "match" }
+          ],
+          [
+            "Package logo copies",
+            "design-system/src/assets/brand/ — 6 PNGs, 2.4 MB",
+            "Generated. The script wipes and rewrites this directory every run",
+            { "text": "Delete", "status": "gap" }
+          ],
+          [
+            "Derived logos, social, web-app icons",
+            "design-system/brand-kit/ — ~70 files",
+            "Generated from brand/ masters by export-brand-assets.mjs",
+            { "text": "Keep — this is the product", "status": "match" }
+          ],
+          [
+            "Website logos",
+            "website/public/brand/ — 2 PNGs",
+            "Hand-copied; paths hardcoded in website/src/config/brand.ts",
+            { "text": "Make downstream", "status": "warn" }
+          ],
+          [
+            "Fleet logos",
+            "fleet-dashboard/public/brand/ — 1 PNG + 2 WEBP",
+            "Hand-copied, independent, includes formats nothing else has",
+            { "text": "Make downstream", "status": "warn" }
+          ],
+          [
+            "Brand accent hex",
+            "website/src/config/brand.ts AND src/styles/tokens/colors.css",
+            "Two values, independently authored, neither aware of the other",
+            { "text": "Conflict", "status": "gap" }
+          ],
+          [
+            "Font pairings",
+            "src/fontRegistry.ts AND src/themeRecipe.ts",
+            "Two registries inside one package, each with its own CDN loader",
+            { "text": "Conflict", "status": "gap" }
+          ],
+          [
+            "Colour + type tokens",
+            "src/styles/tokens/*.css",
+            "Authored. direction.yaml points at tokens/suntiq.css, now a 3-line shim",
+            { "text": "Stale pointer", "status": "warn" }
+          ]
+        ]
+      }
+    },
+    "map-note": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "The one that changes the plan",
+        "content": "`design-system/src/assets/brand/` is **not** a hand-maintained copy — it's generated output. `export-brand-assets.mjs` calls `rmSync` on it and repopulates it every run, and its files are byte-identical to the `brand/` masters. It exists for exactly one reason: to give `Wordmark.tsx` something a bundler can resolve. Remove that need and the directory, the 2.4 MB, and a whole projection disappear together."
+      }
+    },
+
+    "sec-conflicts": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "WHAT'S ACTUALLY BROKEN",
+        "title": "Three real conflicts, not just duplication",
+        "subtitle": "Copies are annoying. These change what renders."
+      },
+      "children": ["conflict-accent", "conflict-fonts", "conflict-bundle"]
+    },
+    "conflict-accent": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Two brand accents ship simultaneously",
+        "content": "The website declares `accent: \"#27C6E6\"`. The token treaty declares `--ice: #00E5FF`. Both are live. This is the same cyan-vs-cyan conflict the design-language work flagged back in July and never resolved — it just got hardcoded into a second place while nobody was looking.\n\n**Needs your call.** Everything else on this page is mechanical."
+      }
+    },
+    "conflict-fonts": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Two font registries in one package",
+        "content": "`fontRegistry.ts` holds 36 typed pairings and is the public API — `FONT_PAIRINGS`, `getPairing`, `loadPairing`, `resolvePairingFonts`. `themeRecipe.ts` holds 26 more, plus its own Google Fonts and Fontshare URL builders and its own fallback stacks.\n\nThe theme panel and the exported API can disagree about what fonts the brand has."
+      }
+    },
+    "conflict-bundle": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "2.4 MB of logos compiled into JavaScript",
+        "content": "`Wordmark.tsx` resolves six PNGs through `new URL(..., import.meta.url)`. Under Vite library mode that inlines them as base64 rather than emitting files — 2.4 MB of PNG becomes ~3.3 MB of string.\n\nThat is the entire explanation for a 3.4 MB `dist/index.js`. Every consumer parses it on every load."
+      }
+    },
+
+    "sec-flow": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "TARGET",
+        "title": "One flow, four consumers",
+        "subtitle": "The generator already does the hard part. It just needs to be the only path."
+      },
+      "children": ["flow-diagram"]
+    },
+    "flow-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "brand/ is authority; everything downstream is generated or resolved.",
+        "content": "flowchart LR\n  M[\"brand/<br/>7 approved masters<br/>sha256-locked\"]:::auth --> G[\"export-brand-assets.mjs<br/>the only generator\"]:::gen\n  G --> K[\"design-system/brand-kit/<br/>logos · social · web-app\"]:::kit\n  K --> SB[\"Storybook<br/>Foundations/Brand\"]:::use\n  K --> W[\"website/public/brand/\"]:::use\n  K --> F[\"fleet-dashboard/public/brand/\"]:::use\n  K --> WM[\"Wordmark<br/>resolves a URL, bundles nothing\"]:::use\n  T[\"src/styles/tokens/<br/>colours · type · spacing\"]:::auth --> SB\n  T --> WEBCFG[\"website brand config<br/>reads the token\"]:::use\n  classDef auth fill:#0B1320,stroke:#00E5FF,stroke-width:2px,color:#EAEAEA\n  classDef gen fill:#142136,stroke:#2564C7,stroke-width:2px,color:#EAEAEA\n  classDef kit fill:#101B2C,stroke:#7FA8E8,color:#EAEAEA\n  classDef use fill:#0E1826,stroke:#3E4C5E,color:#9BA3AD"
+      }
+    },
+
+    "sec-moves": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "THE WORK",
+        "title": "Four moves, in this order",
+        "subtitle": "Only the first needs a decision from you."
+      },
+      "children": ["move-1", "move-2", "move-3", "move-4"]
+    },
+    "move-1": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "1 · Settle the accent, then make it unrepeatable",
+        "content": "Pick `#00E5FF` or `#27C6E6`. Delete the loser everywhere. Then `website/src/config/brand.ts` stops holding a hex at all — it reads the CSS custom property, the same way every other surface does.\n\nThis is first because it's the only step that can't be done mechanically, and because the guard in step 4 can't be written until there's one right answer to guard."
+      }
+    },
+    "move-2": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "2 · Cut the bundled logos — Wordmark resolves, doesn't import",
+        "content": "`Wordmark` takes its artwork from a resolved path rather than a bundler import. Consumers already serve `brand-kit/` statically: Storybook maps it to `/brand-kit`, the website has `public/`, fleet has `public/`.\n\nWhen the `new URL(import.meta.url)` calls go, `src/assets/brand/` has no remaining reason to exist — so the generator stops writing it, and `dist/index.js` drops from 3.4 MB to roughly 40 KB.\n\n**Watch for:** `Wordmark` has a `text` appearance path that needs no artwork at all, and the website renders its own lockup through `next/image`. Neither should regress — both need a Storybook story before the change lands."
+      }
+    },
+    "move-3": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "3 · One font registry, one loader",
+        "content": "`fontRegistry.ts` wins — it's typed, tested by the exported API, and already public. `themeRecipe.ts` imports `FONT_PAIRINGS` from it and deletes its own 26 entries, its `gfUrl`/`fsUrl` builders, and its duplicate fallback constants.\n\nThe theme panel keeps working; it just stops having its own opinion about what fonts the brand owns."
+      }
+    },
+    "move-4": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "4 · Make Storybook the brand console — and guard it",
+        "content": "`Foundations/Brand/Assets` already renders the logo, social, and web-app matrices straight out of `brand-kit/`. Three things are missing:\n\n**A token page** that reads the live CSS custom properties rather than restating them, so it cannot drift from the code.\n\n**An authority page** rendering `brand/manifest.yaml` — approval status, version, and the sha256 of each master — so approval state is something you look at, not something you trust.\n\n**A staleness check**, which is the part that makes the rest hold."
+      }
+    },
+
+    "sec-guard": {
+      "type": "section",
+      "variant": "asymmetric",
+      "props": {
+        "label": "THE GUARD",
+        "title": "Same trick that worked on vendor",
+        "subtitle": "You liked that the build fails closed. Brand has two equivalents."
+      },
+      "children": ["guard-code", "guard-note"]
+    },
+    "guard-code": {
+      "type": "code-block",
+      "props": {
+        "filename": "design-system/scripts/check-brand-drift.mjs",
+        "language": "javascript",
+        "content": "/* Two failures, both fatal, both cheap:\n *\n * 1. brand-kit/ is stale — a master in brand/ no longer matches the\n *    sha256 that manifest.yaml approved, or a derivative is missing.\n *    Someone dropped a new logo in and didn't re-run the generator.\n *\n * 2. a brand value is hardcoded outside the token layer — a hex, a\n *    font family, a logo path written by hand in an app instead of\n *    read from tokens or brand-kit.\n */\n\nconst approved = readManifest(\"brand/manifest.yaml\");\n\nfor (const [file, sha] of Object.entries(approved.release.sha256)) {\n  if (sha256(file) !== sha) fail(`${file} drifted from its approved hash`);\n}\n\nfor (const asset of readKitManifest().assets.flatMap((a) => a.files)) {\n  if (!exists(asset.path)) fail(`brand-kit missing ${asset.path} — re-run brand:export`);\n}\n\n// hex literals are the ones that actually bite; tokens are the only\n// place a brand colour may be spelled out.\nfor (const hit of grepOutsideTokens(/#(?:00E5FF|27C6E6|0B1320)/i)) {\n  fail(`${hit.file}:${hit.line} hardcodes a brand colour — read the token`);\n}"
+      }
+    },
+    "guard-note": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Why this is the whole point",
+        "content": "The vendor guard worked because it made the wrong thing impossible rather than merely discouraged.\n\nBrand drift has the same shape. Nobody consolidates a brand once — it re-scatters the next time someone needs a logo in a hurry. A check wired into `prebuild` means the next hardcoded hex fails a build instead of quietly becoming the ninth authority.\n\nIt hooks in exactly where the vendor check already does."
+      }
+    },
+
+    "sec-payoff": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "AFTER",
+        "title": "What the four moves buy"
+      },
+      "children": ["kpi-bundle", "kpi-authorities", "kpi-registries", "kpi-guard"]
+    },
+    "kpi-bundle": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "~40 KB",
+        "label": "dist/index.js, down from 3.4 MB",
+        "trend": { "direction": "down", "value": "−98%" }
+      }
+    },
+    "kpi-authorities": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "1",
+        "label": "Brand authorities, down from 8",
+        "trend": { "direction": "down", "value": "−7" }
+      }
+    },
+    "kpi-registries": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "1",
+        "label": "Font registry, down from 2",
+        "trend": { "direction": "down", "value": "−26 dup entries" }
+      }
+    },
+    "kpi-guard": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "Fails closed",
+        "label": "Drift + hardcoded-value check on prebuild",
+        "trend": { "direction": "up", "value": "new" }
+      }
+    },
+
+    "sec-evidence": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "PROVENANCE",
+        "title": "Where each claim came from",
+        "subtitle": "Read from the current checkout, not from memory."
+      },
+      "children": ["evidence-ledger"]
+    },
+    "evidence-ledger": {
+      "type": "evidence",
+      "props": {
+        "title": "Claim ledger",
+        "summary": "Current working tree, 2026-07-27, after the vendor cutover landed.",
+        "items": [
+          {
+            "claim": "src/assets/brand/ is generated output, not a maintained copy.",
+            "status": "observed",
+            "source": "design-system/scripts/export-brand-assets.mjs:133",
+            "detail": "rmSync(sourceDir, { recursive: true, force: true }) then mkdirSync, then copyPng into it per layout."
+          },
+          {
+            "claim": "Those copies are byte-identical to the brand/ masters.",
+            "status": "observed",
+            "source": "shasum -a 256 across four horizontal/stacked pairs",
+            "detail": "All four matched the brand/ master hash."
+          },
+          {
+            "claim": "Wordmark inlines the logos rather than emitting them.",
+            "status": "observed",
+            "source": "design-system/src/components/Wordmark.tsx:7-16",
+            "detail": "Six new URL(..., import.meta.url) calls; Vite lib mode has no asset emission configured."
+          },
+          {
+            "claim": "The inlined artwork accounts for the 3.4 MB bundle.",
+            "status": "derived",
+            "source": "ls -la design-system/src/assets/brand + dist/index-*.js",
+            "detail": "2,491,497 bytes of PNG; base64 adds ~33%, giving ~3.3 MB against an observed 3,407,627-byte chunk."
+          },
+          {
+            "claim": "Two different brand accents are live at once.",
+            "status": "observed",
+            "source": "website/src/config/brand.ts vs design-system/src/styles/tokens/colors.css",
+            "detail": "accent: \"#27C6E6\" against --ice:#00E5FF."
+          },
+          {
+            "claim": "The package carries two font registries.",
+            "status": "observed",
+            "source": "src/fontRegistry.ts and src/themeRecipe.ts",
+            "detail": "36 typed pairings with a public API; 26 more with private gfUrl/fsUrl builders."
+          },
+          {
+            "claim": "direction.yaml's token_source pointer is stale.",
+            "status": "observed",
+            "source": "brand/direction.yaml + design-system/tokens/suntiq.css",
+            "detail": "Points at tokens/suntiq.css, which the vendor cutover reduced to a 3-line re-import of src/styles/index.css."
+          },
+          {
+            "claim": "Which accent is correct.",
+            "status": "missing",
+            "detail": "No recorded ruling. The design-language session flagged the conflict and left it open; it is the one decision this plan cannot make for you."
+          }
+        ]
+      }
+    }
+  }
+}

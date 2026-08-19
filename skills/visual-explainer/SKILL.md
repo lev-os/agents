@@ -1,8 +1,7 @@
 ---
 name: visual-explainer
-description: "Builds self-contained HTML visuals for diagrams, diffs, plans, and tables. Use when explaining systems visually or a markdown table would be 4+ rows or 3+ columns."
+description: "Specialist visual-authoring guide for diagrams, dense comparisons, plans, and tables. Decomposes visual requirements into primitives that can render standalone or compose inside lev.now RenderSpec pages."
 license: MIT
-compatibility: Requires a browser to view generated HTML files. Optional surf-cli for AI image generation.
 metadata:
   author: nicobailon
   version: "0.8.0"
@@ -10,7 +9,19 @@ metadata:
 
 # Visual Explainer
 
-Generate self-contained HTML files for technical diagrams, visualizations, and data tables. Always open the result in the browser. Never fall back to ASCII art when this skill is loaded.
+Design technical diagrams, visualizations, and data tables. Always open the result in the browser. Never fall back to ASCII art when this skill is loaded.
+
+## Relationship to Now
+
+Read [`../now/SKILL.md`](../now/SKILL.md) when the request mixes readable content with visuals, teaching, sales copy, feedback, document navigation, publishing, or capability-backed actions. Now owns the canonical RenderSpec component graph; this skill is its specialist visual-authoring path.
+
+- Decompose every request into audience requirements, claims/evidence, reading sequence, visual relationships, and interactions before selecting primitives.
+- Treat the command lenses below as research and QA recipes, not page schemas or fixed experiences.
+- Prefer ordinary RenderSpec components: diagram, chart, data-table, section, card, code-block, document, navigation, action, and feedback. For educational or persuasive visuals, compose the same graph with `objective`, `source-list`, `exercise`, `evidence`, `decision`, `proof`, or `testimonial` where those semantics are required.
+- Use `custom-html` only when the graph cannot express a load-bearing visual or interaction. Include typed export metadata so the artifact is not an opaque HTML island.
+- A lesson, technical brief, sales letter, reader, and feedback surface can all include the same visual components. Do not force prose out of a visual composition or force a whole request through one visual template.
+
+For educational visuals, apply Teach-quality authoring: ground the explanation in the learner's mission and current knowledge, target one tangible win, source load-bearing claims, reduce acquisition difficulty, and add retrieval/practice/feedback when skill retention matters. Mission/resource/learning-record/glossary files remain content inputs; they never select a lesson route or replace RenderSpec.
 
 **Proactive table rendering.** When you're about to present tabular data as an ASCII box-drawing table in the terminal (comparisons, audits, feature matrices, status reports, any structured rows/columns), generate an HTML page instead. The threshold: if the table has 4+ rows or 3+ columns, it belongs in the browser. Don't wait for the user to ask — render it as HTML automatically and tell them the file path. You can still include a brief text summary in the chat, but the table itself should be the HTML page.
 
@@ -18,9 +29,9 @@ Generate self-contained HTML files for technical diagrams, visualizations, and d
 
 Single entry point: `/visual-explainer <type> [args...] [all|publish]`
 
-Everything after `/visual-explainer` is an arg. The first arg is the **type** — what kind of visual to generate. Remaining args are type-specific context. The last arg can be a **quality mode**.
+Everything after `/visual-explainer` is an arg. The first arg may select a **lens** for investigation and QA. It does not select a schema or mandatory layout. Remaining args provide context. The last arg can be a **quality mode**.
 
-### Types
+### Lenses
 
 | Type | What it does | Example |
 |------|-------------|---------|
@@ -34,7 +45,7 @@ Everything after `/visual-explainer` is an arg. The first arg is the **type** �
 | `visual-plan` | Implementation spec with state machines | `visual-plan add caching layer` |
 | `decision` | Interactive decision capture with persistence | `decision cdo-s8 architecture decisions` |
 
-If no type matches, treat the entire arg string as a `diagram` topic.
+If no lens matches, treat the entire arg string as a visual topic and select primitives after decomposition.
 
 ### Quality Modes
 
@@ -62,7 +73,7 @@ Appended as the final arg:
 ### Arg Parsing
 
 1. Split `$@` into tokens
-2. Match first token against the type table (case-insensitive, supports aliases: `compare`→`comparison`, `diff`→`diff-review`, `recap`→`project-recap`, `plan`→`plan-review`, `check`→`fact-check`, `feedback`→`decision`, `decide`→`decision`, `poll`→`decision`)
+2. Match the first token against the lens table (case-insensitive, supports aliases: `compare`→`comparison`, `diff`→`diff-review`, `recap`→`project-recap`, `plan`→`plan-review`, `check`→`fact-check`, `feedback`→`decision`, `decide`→`decision`, `poll`→`decision`)
 3. Pop the last token — if it's `publish` or `all`, set quality mode accordingly
 4. Everything between type and quality mode is the context/topic args
 
@@ -80,7 +91,7 @@ For prose accents, see "Prose Page Elements" in `./references/css-patterns.md`. 
 
 **Who is looking?** A developer understanding a system? A PM seeing the big picture? A team reviewing a proposal? This shapes information density and visual complexity.
 
-**What type of content?** Architecture, flowchart, sequence, data flow, schema/ER, state machine, mind map, data table, timeline, dashboard, or prose-first page. Each has distinct layout needs and rendering approaches (see Diagram Types below).
+**What relationships must become visible?** Architecture, sequence, causality, data flow, schema/ER, state, hierarchy, comparison, chronology, or metrics each need different primitives. Select per relationship instead of declaring the whole request one content type.
 
 **What aesthetic?** Pick one and commit. The constrained aesthetics (Blueprint, Editorial, Paper/ink) are safer — they have specific requirements that prevent generic output. The flexible ones (IDE-inspired) require more discipline.
 
@@ -228,7 +239,9 @@ Keep animations purposeful: entrance reveals, hover feedback, and user-initiated
 
 ### 4. Deliver
 
-**Output location:** Write to `~/.agents/diagrams/`. Use a descriptive filename based on content: `modem-architecture.html`, `pipeline-flow.html`, `schema-overview.html`. The directory persists across sessions.
+**Output location:** When invoked inside a Now composition, author/update the RenderSpec under `~/.agents/levnow/` and render through `plugins/now/src/cli.ts`. For a standalone visual-only request, write self-contained HTML to `~/.agents/diagrams/`. Use descriptive filenames in either location.
+
+Before delivery, verify requirement coverage: every requested claim, relationship, and interaction must map to a rendered component or an explicitly justified `custom-html` block.
 
 **Quality gate** — run the checks for the active quality mode:
 
@@ -456,9 +469,9 @@ An alternative output format for presenting content as a magazine-quality slide 
 
 **`--slides` flag on existing prompts:** When a user passes `--slides` to `/diff-review`, `/plan-review`, `/project-recap`, or other prompts, the agent gathers data using the prompt's normal data-gathering instructions, then presents the content as a slide deck instead of a scrollable page. The slide version tells the same story with different structure and pacing — but the same breadth of coverage. Don't use the slide format as an excuse to summarize or skip sections that the scrollable version would have included.
 
-## File Structure
+## Standalone File Structure
 
-Every diagram is a single self-contained `.html` file. No external assets except CDN links (fonts, optional libraries). Structure:
+Standalone diagrams are single self-contained `.html` files. A visual inside Now is represented by normal RenderSpec components; do not wrap the entire page in one `custom-html` element merely to reuse this skeleton. Standalone structure:
 
 ```html
 <!DOCTYPE html>

@@ -1,0 +1,240 @@
+{
+  "meta": {
+    "title": "Tick 23 Worker A — FMM Payload Report",
+    "description": "Controller-ready diagnosis, row dispositions, gold suspects, and verification receipts for the no_rule payload batch.",
+    "layout": "sidebar-toc",
+    "effects": ["grid-lines", "title-underline"]
+  },
+  "theme": {
+    "preset": "amber-emerald",
+    "mode": "light"
+  },
+  "root": [
+    "hero",
+    "outcome",
+    "preflight",
+    "dispositions",
+    "suspects",
+    "changes",
+    "verification",
+    "remaining"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "CORPUS BURNDOWN · TICK 23",
+        "title": "FMM no_rule payload batch",
+        "subtitle": "Five FMM payload failures repaired through generic contract and match-boundary mechanisms; content disputes and out-of-scope parser/splitter defects were left fail-closed.",
+        "meta": "Worker A · Sunny-PC-burndown · no commit"
+      }
+    },
+    "outcome": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "Outcome",
+        "title": "Scoped movement"
+      },
+      "children": ["kpi-fmm", "kpi-pass", "kpi-advance", "kpi-regression"]
+    },
+    "kpi-fmm": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {"value": "5", "label": "FMM payloads corrected", "trend": {"direction": "up", "value": "all safe targets"}}
+    },
+    "kpi-pass": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {"value": "4", "label": "Rows now fully pass", "trend": {"direction": "up", "value": "40 → 44"}}
+    },
+    "kpi-advance": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {"value": "1", "label": "Row advanced", "trend": {"direction": "up", "value": "FMM → readback"}}
+    },
+    "kpi-regression": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {"value": "0", "label": "Attributed regressions", "trend": {"direction": "flat", "value": "isolated diff"}}
+    },
+    "preflight": {
+      "type": "section",
+      "variant": "asymmetric",
+      "props": {
+        "label": "Root Cause",
+        "title": "Both preflight mechanisms"
+      },
+      "children": ["preflight-detail", "preflight-safety"]
+    },
+    "preflight-detail": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "**Empty-parameter report request.** Scenario compilation is correct: the source turn compiles to `report_request {}`. Dispatch then selects `report_request.say_intentions` and rewrites the proposal before matching to `pilot_intentions_report_obligation {report_event: intentions, condition: immediate}`. The matcher therefore never sees a `report_request` command, so its documented intent-only empty-rule behavior is never exercised. This is a source-gold versus contract-content dispute, not phase filtering, scenario canonicalization, or an empty-rule matcher bug.\n\n**IFR route clearance.** Gold and runtime carry the same route content but differ in case, punctuation, and `vectors` versus `vector`. One shared normalizer now canonicalizes both compiled rules and runtime proposals, with the singular/plural token alias owned by the dispatch contract. Direct-to fix casing uses the same boundary."
+      }
+    },
+    "preflight-safety": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Fail-closed preserved",
+        "content": "The matcher itself was not weakened. Regression tests prove different route content remains unequal and an altitude rule still rejects a proposal that omits altitude."
+      }
+    },
+    "dispositions": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Row Audit",
+        "title": "Before and after dispositions",
+        "subtitle": "After-state comes from a detached worktree containing only Worker A’s diff; concurrent splitter changes were excluded."
+      },
+      "children": ["disposition-table"]
+    },
+    "disposition-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {"key": "turn", "label": "Turn · disposition"},
+          {"key": "movement", "label": "Movement"},
+          {"key": "reason", "label": "Reason"}
+        ],
+        "rows": [
+          {"turn": {"text": "360_for_spacing · phase 01 · turn 00 — Gold suspect", "status": "warn"}, "movement": "FMM no_rule → FMM no_rule", "reason": "Gold omits left-pattern content present in the runtime proposal."},
+          {"turn": {"text": "360_for_spacing · phase 04 · turn 01 — Repaired", "status": "match"}, "movement": "FMM no_rule → Pass", "reason": "Contract derives executable degrees=360 from three-sixty phraseology."},
+          {"turn": {"text": "360_for_spacing · phase 06 · turn 01 — Repaired", "status": "match"}, "movement": "FMM no_rule → Pass", "reason": "Weather details route to context; proposal carries advisory_type."},
+          {"turn": {"text": "360_for_spacing · phase 07 · turn 00 — Blocked", "status": "info"}, "movement": "Wrong command list → Unchanged", "reason": "Closed-traffic parser row provenance is missing, so the row-level pattern-entry mapping cannot fire."},
+          {"turn": {"text": "closed_traffic_request · phase 03 · turn 05 — Gold suspect", "status": "warn"}, "movement": "FMM no_rule → FMM no_rule", "reason": "Dispatch rewrites report_request to a typed pilot-intentions obligation before matching."},
+          {"turn": {"text": "closed_traffic_request · phase 06 · turn 04 — Blocked", "status": "info"}, "movement": "FMM no_rule → FMM no_rule", "reason": "Same missing closed-traffic row provenance; safe repair is outside allowed surfaces."},
+          {"turn": {"text": "emergency_diversion · phase 03 · turn 01 — Repaired", "status": "match"}, "movement": "Wrong params → Pass", "reason": "Weather advisory now emits typed advisory metadata and keeps wind in context."},
+          {"turn": {"text": "holding_pattern_clearance · phase 02 · turn 00 — Gold suspect", "status": "warn"}, "movement": "Extra command → Unchanged", "reason": "Runtime forwards addressed RADAR CONTACT status; gold omits it."},
+          {"turn": {"text": "holding_pattern_clearance · phase 06 · turn 02 — Blocked", "status": "info"}, "movement": "Missing altitude → Unchanged", "reason": "Splitter emits only heading; Worker B owns the missing altitude boundary."},
+          {"turn": {"text": "ifr_cross_country_hold_approach · phase 00 · turn 01 — Advanced", "status": "match"}, "movement": "FMM no_rule → FMM accept", "reason": "Shared normalizer resolves case, punctuation, whitespace, and vector/vectors form drift."},
+          {"turn": {"text": "ifr_cross_country_hold_approach · phase 03 · turn 00 — Repaired", "status": "match"}, "movement": "FMM no_rule → Pass", "reason": "Both expected and proposed JEVEY fix values use the shared match normalizer."}
+        ],
+        "stickyHeader": true
+      }
+    },
+    "suspects": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Adjudication",
+        "title": "Gold-suspect candidates and excluded markers"
+      },
+      "children": ["suspect-table", "excluded-note"]
+    },
+    "suspect-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {"key": "turn", "label": "Turn"},
+          {"key": "status", "label": "Status"},
+          {"key": "reason", "label": "Adjudication reason"}
+        ],
+        "rows": [
+          {"turn": "closed_traffic_request · phase 03 · turn 05", "status": {"text": "New candidate", "status": "warn"}, "reason": "Gold expects thin report_request; typed contract models the real reporting obligation."},
+          {"turn": "360_for_spacing · phase 01 · turn 00", "status": {"text": "New candidate", "status": "warn"}, "reason": "Gold downwind payload and runtime left-downwind payload disagree on operational content, not form."},
+          {"turn": "holding_pattern_clearance · phase 02 · turn 00", "status": {"text": "New candidate", "status": "warn"}, "reason": "Gold omits the addressed radar-contact information command that runtime proposes."},
+          {"turn": "closed_traffic_request · phase 04 · turn 05", "status": {"text": "Already marked", "status": "info"}, "reason": "Expected typed traffic payload and runtime raw clock-position payload disagree on content; excluded by queue marker."},
+          {"turn": "straight_in_towered · phase 03 · turn 04", "status": {"text": "Required candidate", "status": "warn"}, "reason": "Gold says no_match while runtime accepts the addressed informational proposal; explicitly excluded from repair."}
+        ]
+      }
+    },
+    "excluded-note": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Other queue exclusions",
+        "content": "closed_traffic_request phase 05 turn 04 and phase 08 turn 04 already carry stage-advanced markers and were not changed."
+      }
+    },
+    "changes": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "Implementation",
+        "title": "Small generic mechanisms"
+      },
+      "children": ["change-card", "files-card"]
+    },
+    "change-card": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Mechanisms",
+        "content": "Contract-owned `vector ← vectors` token alias; shared FMM match normalizer on rule and proposal sides; `degrees=360` derivation; weather-advisory executable/context roles. No scenario literals, matcher relaxation, readback edits, splitter edits, or generated output."
+      }
+    },
+    "files-card": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Worker A files",
+        "content": "`data/atc/policy/dispatch/command_parameter_contract.yaml`\n`harness/engine/scenarios/fmm_rules.py`\n`modules/intent/pipeline_dispatch.py`\n`tests/unit/intent/test_pipeline_dispatch_stage.py`\n`tests/unit/intent/test_fmm_match_value_canonicalization.py`\n`tests/integration/intent/test_partner_fmm_payload_contract.py`"
+      }
+    },
+    "verification": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Receipts",
+        "title": "Verification commands and exit codes"
+      },
+      "children": ["verification-table"]
+    },
+    "verification-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {"key": "command", "label": "Command / suite"},
+          {"key": "exit", "label": "Exit"},
+          {"key": "result", "label": "Result"}
+        ],
+        "rows": [
+          {"command": "Scoped baseline before", "exit": "1", "result": "40 passed / 88 failed across 128 scored turns"},
+          {"command": "Scoped baseline after, Worker A isolated", "exit": "1", "result": "44 passed / 84 failed; only five target rows moved"},
+          {"command": "New regression tests, red", "exit": "1", "result": "7 failed, 1 passed"},
+          {"command": "New regression tests + spacing lock, final", "exit": "0", "result": "9 passed"},
+          {"command": "verification_request", "exit": "0", "result": "34 passed, 1 expected xfail"},
+          {"command": "authority boundary", "exit": "0", "result": "10 passed"},
+          {"command": "policy schema load", "exit": "0", "result": "27 passed"},
+          {"command": "Required suites combined", "exit": "0", "result": "71 passed, 1 expected xfail"},
+          {"command": "Ruff check", "exit": "0", "result": "All checks passed"},
+          {"command": "Mypy, five source/test files", "exit": "0", "result": "No issues found"}
+        ]
+      }
+    },
+    "remaining": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "Handoff",
+        "title": "DONE — remaining rows are routed"
+      },
+      "children": ["done-callout", "risk-callout"]
+    },
+    "done-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Worker A complete",
+        "content": "All safe in-scope payload and canonicalization repairs are implemented and verified. Three rows require gold adjudication; three require parser-row provenance or splitter work outside this lane."
+      }
+    },
+    "risk-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Transparent extra probe",
+        "content": "A non-required full `test_pipeline_dispatch_stage.py` probe still has one altitude expectation failure: runtime derives `direction=climb` while that old test expects no direction. The batch did not change altitude policy. The repaired spacing test and command-value-domain tests pass 26/26. Concurrent Worker B files (`splitter_policy_overlay.yaml` and `test_tick23_compound_boundaries.py`) remain untouched."
+      }
+    }
+  }
+}

@@ -41,7 +41,8 @@ rules:
   - "For design-branch questions, provide three researched options, one recommendation, and the consequence of each option."
   - "Persist subject, source context, depth, ambiguity, resolved branches, deferred branches, and next branch."
   - "`--auto` may answer lookup-resolvable branches without pausing, but it must stop for human product judgment, irreversible decisions, or when the design is ready for propose."
-validation: "Every turn declares phase, active depth threshold, ambiguity score, lookup result or gap, and the next state transition."
+  - "When the design is ready, stop asking branch questions and render the compact design result with proposal and alternate next actions."
+validation: "Every active interview turn declares phase, ambiguity, evidence or gap, and next transition; a completed interview renders the design result."
 on_failure: "Do not ask another broad question. Re-score ambiguity, inspect context, or switch to the orientation template."
 ```
 
@@ -99,6 +100,11 @@ steps:
     action: Discover candidate branches after orientation
     instruction: |
       After ambiguity is at or below threshold, derive the candidate branch map from the clarified subject and lookup evidence.
+      The branch map is a LIVING map, not a checklist: it has no fixed total, and it is expected to GROW.
+      Scan every user answer for the new branches it spawns (a correction, a sketch, a rejected premise, or a
+      "what about X" all open branches) and add them to the map before asking the next question.
+      Never treat the interview as counting down a fixed set of questions; the interview ends when the design
+      is ready, not when an initial list is exhausted.
       Name dependencies between branches so the next question resolves the highest-leverage design uncertainty.
       Keep the branch map concise; store resolved/deferred branches in state rather than dumping all of them.
     validation: "Candidate branches exist only after ambiguity is at or below the active depth threshold."
@@ -169,6 +175,9 @@ steps:
       Provide three researched answers when viable; use two only if a third branch would be fake.
       Recommend one answer and name the design consequence of each option.
       Carry unresolved branches forward instead of dumping all branches at once.
+      Before moving to the next branch, re-scan the user's last answer: if it spawned new branches
+      (new constraint, rejected premise, deeper pattern, adjacent decision), add them to the map and
+      re-rank; the freshly spawned branch is often the highest-leverage next question.
     validation: "Question has current branch, lookup result or gap, one decision, 2-3 options, one recommendation with rationale, and unresolved branch count."
     on_failure: "Split the question or collapse fake options."
 
@@ -210,6 +219,7 @@ rules:
   - "Use hard line breaks between sections; do not combine multiple metadata fields into dense status prose."
   - "Orientation output uses: Question, Recommended, Ways to answer, Progress line, emoji HUD."
   - "Design output uses: Decision, Recommended, Options, Progress line, emoji HUD."
+  - "Completed design output uses: Direction, Breakdown, Open decisions, and next actions. It does not ask another a/b/c question."
   - "Recommended must explain why the option is recommended, not just restate the option."
   - "Each a/b/c answer gets its own mini-block with a consequence after ->."
   - "Orientation a/b/c choices are answer frames, not final design-branch alternatives."
@@ -218,8 +228,9 @@ rules:
   - "Keep the emoji HUD. It is the fast status surface."
   - "Use d. Deep dive as the only expansion mode for evidence, gates, trade-offs, codebase exploration, or alternate lenses."
   - "Use plain ASCII arrows like => in templates."
-validation: "Output has a question or decision, one recommendation, three a/b/c choices when viable, d. Deep dive, one Progress line, and one emoji HUD."
-on_failure: "Rewrite using the orientation or design template. Remove progress bullet lists and display-mode wording."
+  - "Deep-dive output uses markdown headings and bold labels only; XML tags must never appear in visible output."
+validation: "Active output has one question or decision plus compact choices; completed output uses the design-result template. Visible output has zero XML tags."
+on_failure: "Rewrite using the orientation or design template. Remove progress bullet lists, XML tags, and display-mode wording."
 ```
 
 </format-contract>
@@ -244,7 +255,7 @@ on_failure: "Rewrite using the orientation or design template. Remove progress b
 
 Progress: `.lev/pm/designs/{design_slug}.md` | orientation | ambiguity {0.xx}/{threshold} | next: choose `a`, `b`, `c`, `d`, or `propose`
 
-🧭 orientation | 🎯 ambiguity {0.xx}/{threshold} | ✅ alignment {xx}% | 🌿 branches {resolved}/{total} | 🧪 proof {proof_state} | ⏭️ {next_action}
+🧭 orientation | 🎯 ambiguity {0.xx}/{threshold} | ✅ alignment {xx}% | 🌿 open {open_branch_count} (map grows) | 🧪 proof {proof_state} | ⏭️ {next_action}
 </orientation-template>
 
 <design-template>
@@ -265,63 +276,62 @@ Progress: `.lev/pm/designs/{design_slug}.md` | orientation | ambiguity {0.xx}/{t
 
 `d` Deep dive
 
-Progress: `.lev/pm/designs/{design_slug}.md` | {design|proof-shaping|ready-to-propose} | ambiguity {0.xx}/{threshold} | branches {resolved}/{total} | next: choose `a`, `b`, `c`, `d`, or `propose`
+Progress: `.lev/pm/designs/{design_slug}.md` | {design|proof-shaping|ready-to-propose} | ambiguity {0.xx}/{threshold} | open {open_branch_count} | next: choose `a`, `b`, `c`, `d`, or `propose`
 
-🧭 {phase} | 🎯 ambiguity {0.xx}/{threshold} | ✅ alignment {xx}% | 🌿 branches {resolved}/{total} | 🧪 proof {proof_state} | ⏭️ {next_action}
+🧭 {phase} | 🎯 ambiguity {0.xx}/{threshold} | ✅ alignment {xx}% | 🌿 open {open_branch_count} (map grows) | 🧪 proof {proof_state} | ⏭️ {next_action}
 </design-template>
 
+<design-result>
+## Design ready: {design_title}
+
+Direction: {one_sentence_direction}
+Experience: {operator_visible_behavior}
+System: {code_areas_and_critical_path}
+Proof: {highest_risk_claim_and_field_signal}
+Open decisions: {none_or_decisions}
+Saved: `.lev/pm/designs/{design_slug}.md`
+Next: Propose | Auto-enrich | Prototype | Continue interview
+</design-result>
+
 <deep-dive-template>
-## q{n}) {decision_title} ({lens_tag})
+## q{n}) {decision_title} ({lens_tag}) — deep dive
 
-<decision-context>
-- Design artifact: `.lev/pm/designs/{design_slug}.md`
-- Design section: {design_section}
-- Phase: {orientation|design|proof-shaping|ready-to-propose}
-- Depth threshold: {depth} / {ambiguity_threshold}
-- Decision: {design_decision}
-- Needed now: {why_now}
-- Unblocks: {what_unblocks}
-- Risk if wrong: {failure_mode}
-</decision-context>
+**Why this decision, why now**
+One short paragraph: what is being decided, why it is needed now, what it
+unblocks, and the failure mode if wrong. Plain prose, no field labels.
 
-<analysis lens="{framework}">
-{framework_read_of_pressure_points}
-</analysis>
+**Analysis ({framework})**
+{framework_read_of_pressure_points — short readable prose paragraphs}
 
-<decision-tree>
-- Current branch: {branch_under_test}
-- Resolved branches: {resolved}
-- Deferred branches: {deferred}
-</decision-tree>
-
-<evidence>
+**Evidence**
 - {artifact_fact_with_path}
 - {code_or_doc_fact_with_path}
 - {constraint_or_gate}
 - {assumption_check}
-</evidence>
 
-<tradeoffs>
+**Trade-offs**
 
-| Option | Benefits | Costs/Risks | Gate Impact | Side Effects |
-|---|---|---|---|---|
-| a | ... | ... | ... | ... |
-| b | ... | ... | ... | ... |
-| c | ... | ... | ... | ... |
+| Option | Benefits | Costs/Risks | Side Effects |
+|---|---|---|---|
+| a | ... | ... | ... |
+| b | ... | ... | ... |
+| c | ... | ... | ... |
 
-</tradeoffs>
+**Options**
+`a` {researched_option_a} -> {design_consequence}
 
-<options>
-a. {researched_option_a} -> {design_consequence}
-b. {researched_option_b} -> {design_consequence}
-c. {researched_option_c} -> {design_consequence}
-d. Deep dive / branch expansion
-</options>
+`b` {researched_option_b} -> {design_consequence}
 
-Recommended: {a|b|c} ({lens_tag}) - {why}
-Progress: `.lev/pm/designs/{design_slug}.md` | {phase} | ambiguity {0.xx}/{threshold} | branches {resolved}/{total} | next: choose `a`, `b`, `c`, `d`, or `propose`
+`c` {researched_option_c} -> {design_consequence}
 
-🧭 {phase} | 🎯 ambiguity {0.xx}/{threshold} | ✅ alignment {xx}% | 🌿 branches {resolved}/{total} | 🧪 proof {proof_state} | ⏭️ {next_action}
+`d` Deep dive / branch expansion
+
+**Recommended**
+`{a|b|c}` because {why}
+
+Progress: `.lev/pm/designs/{design_slug}.md` | {phase} | ambiguity {0.xx}/{threshold} | open {open_branch_count} | next: choose `a`, `b`, `c`, `d`, or `propose`
+
+🧭 {phase} | 🎯 ambiguity {0.xx}/{threshold} | ✅ alignment {xx}% | 🌿 open {open_branch_count} (map grows) | 🧪 proof {proof_state} | ⏭️ {next_action}
 </deep-dive-template>
 
 <ambiguity-contract>
@@ -374,12 +384,12 @@ rules:
   - "Do not print hidden chain-of-thought or framework analysis unless d. Deep dive is requested."
   - "Do not mention stale provenance, deprecated project names, or internal origin stories."
   - "Use YAML for workflow, contracts, scoring, validation, and state."
-  - "Use live XML sections for reusable output templates; do not wrap active XML templates in fenced Markdown blocks."
+  - "Template wrappers in this file are XML, but visible interview output is plain markdown only — never emit XML tags (decision-context, analysis, evidence, options, etc.) into the transcript."
   - "Use d. Deep dive for evidence, gates, trade-offs, codebase exploration, and alternate lenses."
   - "When the user says propose, stop interviewing and route the aligned design to propose."
   - "When the user says plan, route to the standalone planning lane instead of treating plan as a propose prerequisite."
-validation: "Output is an orientation question while ambiguity is high, then a design question after branch discovery. Both use recommendation, a/b/c choices, Progress line, and emoji HUD. Deep detail appears only after d. Deep dive."
-on_failure: "Rewrite the response using the orientation or design live XML section template."
+validation: "Output is an orientation question while ambiguity is high, a design question while branches remain, or the compact design result when ready. Deep detail appears only after d. Deep dive."
+on_failure: "Rewrite the response using the orientation, design, or design-result live XML template."
 ```
 
 </guardrails>

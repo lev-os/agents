@@ -1,0 +1,244 @@
+{
+  "meta": {
+    "title": "Tick-27 Worker B — No-Parse Recovery",
+    "description": "Evidence-backed disposition and verification report for 15 conversational and informational corpus rows.",
+    "layout": "sidebar-toc",
+    "effects": ["grid-lines", "title-underline"]
+  },
+  "theme": {
+    "preset": "amber-emerald",
+    "mode": "light"
+  },
+  "root": [
+    "hero",
+    "section-kpis",
+    "section-outcome",
+    "section-dispositions",
+    "section-provenance",
+    "section-routing",
+    "section-verification",
+    "section-files"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "CORPUS BURNDOWN · SUNNY-PC-BURNDOWN",
+        "title": "Tick-27 Worker B",
+        "subtitle": "Conversational and informational no-parse recovery",
+        "meta": "2026-07-17 · No commit · Regex profile only"
+      }
+    },
+    "section-kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "Outcome",
+        "title": "All 15 rows dispositioned"
+      },
+      "children": ["kpi-total", "kpi-recovered", "kpi-addressing", "kpi-gold"]
+    },
+    "kpi-total": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {"value": "15", "label": "Rows audited", "trend": {"direction": "flat", "value": "complete"}}
+    },
+    "kpi-recovered": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {"value": "7", "label": "No-parse recoveries", "trend": {"direction": "up", "value": "6 A1 + 1 B1"}}
+    },
+    "kpi-addressing": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {"value": "4", "label": "Addressing routes", "trend": {"direction": "flat", "value": "parser not reached"}}
+    },
+    "kpi-gold": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {"value": "4", "label": "Gold suspects", "trend": {"direction": "flat", "value": "unsupported wording"}}
+    },
+    "section-outcome": {
+      "type": "section",
+      "variant": "asymmetric",
+      "props": {
+        "label": "Recommendation",
+        "title": "Done for the no-parse lane"
+      },
+      "children": ["outcome-lead", "outcome-callout"]
+    },
+    "outcome-lead": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "Seven grounded rows now classify under the regex profile. The five-scenario baseline shows exactly six requested A1 rows moving beyond `intent_classification`, with no other scenario row movement. The B1 frequency-change row is now a full pass.\n\nThe A1 aggregate remains 40/156 because each recovered A1 row now reaches a later readback or FMM gate. Those downstream failures are outside this worker's no-parse scope and were not hidden."
+      }
+    },
+    "outcome-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Boundary held",
+        "content": "No runtime modules, scenario gold, worker-A intent files, splitter policy, dispatch contract, generated output, or the three deselected informational catchalls were changed."
+      }
+    },
+    "section-dispositions": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Row Audit",
+        "title": "Per-row disposition",
+        "subtitle": "Before and after refer to the first broken stage in baseline evidence."
+      },
+      "children": ["table-dispositions"]
+    },
+    "table-dispositions": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {"key": "row", "label": "Row"},
+          {"key": "utterance", "label": "Projected utterance"},
+          {"key": "before", "label": "Before"},
+          {"key": "after", "label": "After / evidence"},
+          {"key": "status", "label": "Disposition"}
+        ],
+        "rows": [
+          {"row": "B1 informational.straight_in_approaches_mda", "utterance": "4 straight in approaches, minimum descent altitude 2,500", "before": "intent classification", "after": "ambiguous_callsign; parser arbitration not reached", "status": {"text": "Addressing", "status": "warn"}},
+          {"row": "B1 frequency_change.change_to_my_frequency", "utterance": "chain to my frequency 124 5", "before": "intent classification", "after": "frequency_change; frequency=124.5; full B1 pass", "status": {"text": "Recovered", "status": "match"}},
+          {"row": "atlas ph00 t02", "utterance": "clearance already given, proceed", "before": "intent classification", "after": "No exact/adjacent source; prior-clearance state is required", "status": {"text": "Gold suspect", "status": "gap"}},
+          {"row": "atlas ph14 t05", "utterance": "that is correct", "before": "intent classification", "after": "acknowledgment; next gate FMM decision", "status": {"text": "Recovered", "status": "match"}},
+          {"row": "atlas ph15 t04", "utterance": "are you with me?", "before": "intent classification", "after": "FAA canonical surface is HOW DO YOU HEAR ME; informal wording unsupported", "status": {"text": "Gold suspect", "status": "gap"}},
+          {"row": "atlas ph15 t05", "utterance": "Can you hear us?", "before": "intent classification", "after": "AMBIGUOUS / no_callsign_match", "status": {"text": "Addressing", "status": "warn"}},
+          {"row": "atlas ph15 t06", "utterance": "are you still with me?", "before": "intent classification", "after": "FAA canonical surface is HOW DO YOU HEAR ME; informal wording unsupported", "status": {"text": "Gold suspect", "status": "gap"}},
+          {"row": "atlas ph02 t01", "utterance": "monitor ground point seven", "before": "intent classification", "after": "frequency_change; facility=ground; frequency=121.7; next gate readback", "status": {"text": "Recovered", "status": "match"}},
+          {"row": "ifr_cross_country ph03 t04", "utterance": "contact Oakland Ground point seven when clear", "before": "intent classification", "after": "OTHER / other_aircraft_callsign_match", "status": {"text": "Addressing", "status": "warn"}},
+          {"row": "atlas ph10 t02", "utterance": "I already cleared you to land; runway 22 cleared to land", "before": "intent classification", "after": "AMBIGUOUS / ambiguous_callsign_prefix", "status": {"text": "Addressing", "status": "warn"}},
+          {"row": "holding ph00 t02", "utterance": "San Jose arrival delays 10 minutes", "before": "intent classification", "after": "informational; facility=san jose; time=10 minutes; next gate readback", "status": {"text": "Recovered", "status": "match"}},
+          {"row": "holding ph08 t04", "utterance": "San Jose Ground, roger", "before": "intent classification", "after": "informational on exact post-addressing ROGER; next gate FMM decision", "status": {"text": "Recovered", "status": "match"}},
+          {"row": "request_direct ph05 t05", "utterance": "KSBP is at your 12 o'clock, about 40 miles", "before": "intent classification", "after": "informational; position=KSBP twelve o clock about 40 miles; next gate readback", "status": {"text": "Recovered", "status": "match"}},
+          {"row": "request_direct ph06 t03", "utterance": "CREPE is about 15 miles", "before": "intent classification", "after": "informational; position=CREPE about 15 miles; next gate readback", "status": {"text": "Recovered", "status": "match"}},
+          {"row": "straight_in ph06 t03", "utterance": "Signature is on your right", "before": "intent classification", "after": "Only generic advisory definition found; no exact/adjacent phraseology support", "status": {"text": "Gold suspect", "status": "gap"}}
+        ],
+        "stickyHeader": true
+      }
+    },
+    "section-provenance": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Authority",
+        "title": "Recovery rules and provenance"
+      },
+      "children": ["table-provenance"]
+    },
+    "table-provenance": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {"key": "surface", "label": "Recovered surface"},
+          {"key": "authority", "label": "Grounding"},
+          {"key": "template", "label": "Template treatment"},
+          {"key": "test", "label": "Regression proof"}
+        ],
+        "rows": [
+          {"surface": "CHAIN TO MY FREQUENCY", "authority": "FAA 7110.65BB 2-1-17(f), page 48 + frozen B1 ASR receipt", "template": "Existing change_to_my_frequency row; added required frequency parser contract; fixture already present", "test": "frequency edge + B1 full pass"},
+          {"surface": "MONITOR GROUND POINT SEVEN", "authority": "FAA 7110.65BB 2-1-17(e), page 48 exact example", "template": "Existing monitor_facility_frequency row; added facility/frequency parser contract; fixture already present", "test": "frequency edge + A1 stage advance"},
+          {"surface": "THAT IS CORRECT", "authority": "FAA Pilot/Controller Glossary (T), page 879", "template": "Parser policy recovery only; no new row because readback selector policy is out of scope", "test": "acknowledgment edge + A1 stage advance"},
+          {"surface": "ARRIVAL DELAYS 10 MINUTES", "authority": "FAA 7110.65BB 4-6-3, page 255", "template": "Uses existing contextual arrival-delays authority; no selector-debt change", "test": "informational edge + A1 slot extraction"},
+          {"surface": "ROGER", "authority": "FAA AIM Pilot/Controller Glossary ROGER, page 858", "template": "Uses existing contextual ROGER authority; exact full-string rule avoids compound collateral", "test": "informational edge + zero non-target scenario movement"},
+          {"surface": "KSBP clock/distance", "authority": "FAA AM97-09 Appendix A controller transcript; cross-reference FAA 7110.65BB 5-1-8", "template": "Parser policy recovery with consolidated scenario position slot", "test": "informational edge + A1 slot extraction"},
+          {"surface": "CREPE distance", "authority": "FAA 7110.65BB 5-1-8, page 282 + existing grounded scenario receipt", "template": "Parser policy recovery with consolidated scenario position slot", "test": "informational edge + A1 slot extraction"}
+        ],
+        "stickyHeader": true
+      }
+    },
+    "section-routing": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "Unchanged Rows",
+        "title": "Why eight rows were not forced through parsing"
+      },
+      "children": ["routing-addressing", "routing-gold"]
+    },
+    "routing-addressing": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Addressing lane",
+        "content": "Four rows never legitimately reach parser recovery: the B1 straight-in row is marked ambiguous_callsign; the Oakland Ground handoff is OTHER; the landing reminder has an ambiguous callsign prefix; and the no-callsign radio query is AMBIGUOUS."
+      }
+    },
+    "routing-gold": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Gold-suspect lane",
+        "content": "The prior-clearance/proceed turn needs FMM state and lacks exact support. Both ARE YOU WITH ME variants lack local and FAA web support beyond the canonical HOW DO YOU HEAR ME phrase. The Signature parking-direction line is supported only by a generic advisory definition. Gold was not edited."
+      }
+    },
+    "section-verification": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Evidence",
+        "title": "Commands and exit codes"
+      },
+      "children": ["table-verification"]
+    },
+    "table-verification": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {"key": "command", "label": "Command"},
+          {"key": "result", "label": "Result"},
+          {"key": "exit", "label": "Exit"},
+          {"key": "note", "label": "Evidence note"}
+        ],
+        "rows": [
+          {"command": "just baseline --scenarios <five scenarios> --json --no-write", "result": "40/156 scored pass; six requested rows advanced", "exit": {"text": "1", "status": "warn"}, "note": "Expected nonzero because 116 scoped corpus failures remain; no other scenario row moved"},
+          {"command": "just baseline --corpus b1 --json --no-write", "result": "491/506 pass; change_to_my_frequency now passes", "exit": {"text": "1", "status": "warn"}, "note": "15 unrelated B1 failures remain; straight_in row still addressing-suppressed"},
+          {"command": "informational/test_template_rows.py with three mandated deselects", "result": "35 passed, 3 deselected", "exit": {"text": "0", "status": "match"}, "note": "No catchall or selector-debt changes"},
+          {"command": "acknowledgment/test_template_rows.py", "result": "17 passed", "exit": {"text": "0", "status": "match"}, "note": "Owned template suite"},
+          {"command": "frequency_change/test_template_rows.py", "result": "20 passed", "exit": {"text": "0", "status": "match"}, "note": "Both changed rows retain governed fixtures"},
+          {"command": "landing_clearance/test_template_rows.py", "result": "7 passed", "exit": {"text": "0", "status": "match"}, "note": "No landing template edit"},
+          {"command": "verification_request/test_template_rows.py", "result": "8 passed, 1 xfailed", "exit": {"text": "0", "status": "match"}, "note": "Existing stateful SAY AIRSPEED deferral"},
+          {"command": "verification_request/", "result": "34 passed, 1 xfailed", "exit": {"text": "0", "status": "match"}, "note": "Required directory invariant held"},
+          {"command": "test_policy_schema_load.py", "result": "27 passed", "exit": {"text": "0", "status": "match"}, "note": "Compiled SHA matches merged bundle"},
+          {"command": "owned edge-test files", "result": "26 passed", "exit": {"text": "0", "status": "match"}, "note": "Includes broad-rule collateral guard"},
+          {"command": "Ruff + jq JSON parse + git diff --check", "result": "all clean", "exit": {"text": "0", "status": "match"}, "note": "LSP packages were not installed; repository-native checks used"}
+        ],
+        "stickyHeader": true
+      }
+    },
+    "section-files": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "Handoff",
+        "title": "Files changed by Worker B"
+      },
+      "children": ["files-code", "files-note"]
+    },
+    "files-code": {
+      "type": "code-block",
+      "props": {
+        "language": "text",
+        "filename": "worker-b-write-set",
+        "showLineNumbers": false,
+        "content": "data/atc/policy/intent/intent_policy_overlay.yaml\ndata/atc/phraseology/templates/intents/frequency_change.json\ntests/integration/intent/acknowledgment/test_edge_cases.py\ntests/integration/intent/frequency_change/test_edge_cases.py\ntests/integration/intent/informational/test_edge_cases.py"
+      }
+    },
+    "files-note": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "No commit was created. Concurrent Worker A changes were present in the shared tree and were not edited or reverted. The B1 comparison also showed Worker A movement for extend-upwind, released-for-departure, and via-last-routing-cleared; those are outside this report's Worker B ownership."
+      }
+    }
+  }
+}

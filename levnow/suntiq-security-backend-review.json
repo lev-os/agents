@@ -1,0 +1,718 @@
+{
+  "meta": {
+    "title": "Suntiq security and backend review",
+    "description": "Production verdict, corrected security findings, trust-boundary map, merge proof, plan alignment, and the shortest safe remediation path.",
+    "layout": "sidebar-toc",
+    "fonts": ["IBM Plex Sans", "IBM Plex Mono"]
+  },
+  "theme": {
+    "preset": "fleet-deck",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "verdicts",
+    "scoreboard",
+    "trust-planes",
+    "findings",
+    "severity-review",
+    "merge-proof",
+    "b627-review",
+    "plan-alignment",
+    "positive-controls",
+    "fitness-functions",
+    "remediation",
+    "evidence"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "Security review · final reconciliation",
+        "title": "Keep the merge. Do not promote it yet.",
+        "subtitle": "The branch is strictly better than both parents, but one life-safety flaw and two identity/deployment gates still block production.",
+        "meta": "ArgoEdge feature/infra-cutover · b6276eec · 2026-07-30"
+      }
+    },
+    "verdicts": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "id": "verdicts",
+        "label": "Current ruling",
+        "title": "Three decisions, no ambiguity",
+        "subtitle": "Merge quality, production safety, and architecture are separate claims."
+      },
+      "children": ["decision-merge", "decision-production", "decision-architecture"]
+    },
+    "decision-merge": {
+      "type": "decision",
+      "props": {
+        "title": "Keep b627 and the upstream merge",
+        "status": "accepted",
+        "content": "The merge preserves the incoming backend/security work, closes two timestamp and engine-alert defects, and replaces starvation with a bounded latency trade. Reverting any part would reintroduce a verified safety defect.",
+        "next": "Land the blocker fixes on top of this state."
+      }
+    },
+    "decision-production": {
+      "type": "decision",
+      "props": {
+        "title": "Production promotion",
+        "status": "blocked",
+        "content": "A future caller-supplied man-overboard timestamp can silently suppress a genuine alert. Device attribution and production credential configuration also need proof before the relevant ingest lane is trusted.",
+        "next": "Close C-1, prove device containment or identity, and verify required production envs."
+      }
+    },
+    "decision-architecture": {
+      "type": "decision",
+      "props": {
+        "title": "Keep the modular monolith",
+        "status": "accepted",
+        "content": "One Convex deployment with explicit trust choke points is the correct shape. The failures are missing guards inside existing boundaries, not evidence for microservices or per-tenant infrastructure.",
+        "next": "Harden the four trust planes locally; introduce cells only when a contract forces them."
+      }
+    },
+    "scoreboard": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "id": "scoreboard",
+        "label": "Observed state",
+        "title": "What the review actually proved"
+      },
+      "children": ["kpi-critical", "kpi-high", "kpi-medium", "kpi-tests", "kpi-merge"]
+    },
+    "kpi-critical": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "1",
+        "label": "Critical blocker",
+        "trend": { "direction": "flat", "value": "C-1" }
+      }
+    },
+    "kpi-high": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "3",
+        "label": "High findings after adjudication",
+        "trend": { "direction": "down", "value": "from 7" }
+      }
+    },
+    "kpi-medium": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "9",
+        "label": "Medium findings",
+        "trend": { "direction": "flat", "value": "bounded" }
+      }
+    },
+    "kpi-tests": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "5,372",
+        "label": "Full-suite tests passing",
+        "trend": { "direction": "up", "value": "330 files" }
+      }
+    },
+    "kpi-merge": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "0",
+        "label": "Unmerged or dirty paths",
+        "trend": { "direction": "flat", "value": "clean" }
+      }
+    },
+    "trust-planes": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "id": "trust-planes",
+        "label": "Security architecture",
+        "title": "Four trust planes, three promotion gates",
+        "subtitle": "Every blocker sits at an existing choke point. The topology does not need to change."
+      },
+      "children": ["trust-diagram", "trust-note"]
+    },
+    "trust-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "initialZoom": 1.15,
+        "caption": "Red paths are current promotion gates. Amber paths are conditional exposure gates or maturity work.",
+        "content": "flowchart LR\n  DTU[\"Device identity<br/>DTU or edge box\"] -->|\"IP or CIDR mapping\"| DROP[\"Droplet ingress<br/>credential attachment\"]\n  DROP -->|\"signed ingest\"| CVX[\"Convex ingest<br/>device auth ladder\"]\n  CVX -->|\"org-scoped data\"| TEN[\"Tenant authorization<br/>requireOrg choke point\"]\n  TEN -->|\"alerts and guidance\"| OPS[\"Operator control<br/>Sofia and safety surfaces\"]\n  CVX --> CUST[\"Data custody<br/>live and history tiers\"]\n  C1[\"Critical C-1<br/>future MOB timestamp<br/>org-blind dedup\"] -. blocks .-> OPS\n  H5[\"High H-5<br/>network identity<br/>not device identity\"] -. blocks .-> DROP\n  ENV[\"Deploy gate<br/>token and peppers<br/>must be present\"] -. blocks .-> CVX\n  ADR[\"Medium M-3 and M-5<br/>source, ingestId,<br/>receipt-gated prune\"] -. matures .-> CUST"
+      }
+    },
+    "trust-note": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "The silent-failure multiplier",
+        "content": "C-1 is the decisive blocker because it suppresses the safety event and all downstream routing while remaining invisible to the victim organization. H-5 and the environment gate determine whether telemetry can be attributed to a real device rather than merely a reachable network source."
+      }
+    },
+    "findings": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "id": "findings",
+        "label": "Finding ledger",
+        "title": "All findings, with final severity and disposition",
+        "subtitle": "This table reconciles the Opus review with the independent architecture pass. Severity follows exploitability, exposure, and silent-failure cost."
+      },
+      "children": ["findings-table"]
+    },
+    "findings-table": {
+      "type": "data-table",
+      "props": {
+        "caption": "Final adjudicated finding ledger",
+        "stickyHeader": true,
+        "stickyFirstColumn": true,
+        "columns": [
+          { "key": "id", "label": "Finding" },
+          { "key": "severity", "label": "Final severity" },
+          { "key": "plane", "label": "Trust plane" },
+          { "key": "finding", "label": "Observed defect", "wide": true },
+          { "key": "exposure", "label": "When it matters", "wide": true },
+          { "key": "source", "label": "Primary source", "wide": true },
+          { "key": "fix", "label": "Smallest safe correction", "wide": true }
+        ],
+        "rows": [
+          {
+            "id": "C-1",
+            "severity": { "text": "Critical", "status": "gap" },
+            "plane": "Operator control",
+            "finding": "Caller-controlled future `at` plus org-blind dedup can suppress a real MOB alert and every delivery channel.",
+            "exposure": "Reachable by a self-service org against an unstamped boat code; silent for the victim org.",
+            "source": "convex/safetyAlerts.ts:59,78,84,100; convex/lib/alerting.ts:116-125",
+            "fix": "Clamp to server time, require `createdAt <= at`, and scope dedup to the owning org."
+          },
+          {
+            "id": "H-1",
+            "severity": { "text": "High", "status": "gap" },
+            "plane": "Device identity",
+            "finding": "The legacy boat server injects its ingest token into every rendered HTML page.",
+            "exposure": "Blocks public or untrusted exposure of the legacy boat server; deferred if that lane is not deployed.",
+            "source": "fleet-dashboard/boat/server.ts:343-350,417",
+            "fix": "Remove the token from `htmlInject()` and prove `GET /` contains no secret."
+          },
+          {
+            "id": "H-2",
+            "severity": { "text": "High", "status": "gap" },
+            "plane": "Operator control",
+            "finding": "`POST /api/ai` is an unauthenticated provider-backed LLM proxy.",
+            "exposure": "High when the legacy boat server is network-reachable and provider credentials are enabled.",
+            "source": "fleet-dashboard/boat/server.ts:282,398",
+            "fix": "Apply the existing `authorized(req)` guard before provider work."
+          },
+          {
+            "id": "H-3",
+            "severity": { "text": "Medium", "status": "warn" },
+            "plane": "Operator control",
+            "finding": "`X-Forwarded-For` is trusted unconditionally, so a caller can evade IP rate buckets.",
+            "exposure": "Medium alone; a high-impact amplifier for H-2.",
+            "source": "fleet-dashboard/boat/server.ts:126",
+            "fix": "Honor forwarded addresses only when an explicit trusted-proxy mode is enabled."
+          },
+          {
+            "id": "H-4",
+            "severity": { "text": "Medium", "status": "warn" },
+            "plane": "Operator control",
+            "finding": "`ai.narrate` accepts unbounded prompt/system input and its fallback request is not separately charged.",
+            "exposure": "Authenticated and metered through `requireOrgMember`; this is bounded cost/control weakness, not anonymous access.",
+            "source": "fleet-dashboard/convex/ai.ts:527,771-790",
+            "fix": "Reuse `truncateTail` limits and charge the fallback provider round."
+          },
+          {
+            "id": "H-5",
+            "severity": { "text": "High", "status": "gap" },
+            "plane": "Device identity",
+            "finding": "Droplet attribution maps source IP, port, or CIDR to a boat, then signs frames with that boat credential.",
+            "exposure": "Production-blocking unless private APN or VPN containment is proven; shared carrier CIDRs are not device identity.",
+            "source": "fleet-dashboard/droplet/deviceMap.ts:143-147; droplet/server.ts:97-130",
+            "fix": "Prefer a frame-level device secret. At minimum prove the listener is unreachable outside the contained network."
+          },
+          {
+            "id": "H-6",
+            "severity": { "text": "Medium", "status": "warn" },
+            "plane": "Operator control",
+            "finding": "`push.removeToken` deletes matching push rows without an authenticated principal.",
+            "exposure": "Requires learning a high-entropy Expo token; push remains one additive channel.",
+            "source": "fleet-dashboard/convex/push.ts:58",
+            "fix": "Require the user and scope deletion to that user's token rows."
+          },
+          {
+            "id": "H-7",
+            "severity": { "text": "Medium", "status": "warn" },
+            "plane": "Tenant authorization",
+            "finding": "`setArmState` omits `codeVisibleToOrg`, allowing cross-org state on unresolved same-code boats.",
+            "exposure": "Tenant-integrity problem on unstamped telemetry; stamped foreign telemetry is filtered.",
+            "source": "fleet-dashboard/convex/security.ts:451; tracking.ts:1586",
+            "fix": "Apply the same ownership helper already used by the safety-alert sibling."
+          },
+          {
+            "id": "M-1",
+            "severity": { "text": "Medium", "status": "warn" },
+            "plane": "Operator control",
+            "finding": "The rotating link watchdog caps rows examined, including healthy rows, so stale detection latency scales with fleet size.",
+            "exposure": "Operability and delayed relay-silent detection; b627 still improves the prior starvation failure.",
+            "source": "fleet-dashboard/convex/tracking.ts:1665-1669",
+            "fix": "Rotate through the ring but stop after the cap of stale rows processed, not rows examined."
+          },
+          {
+            "id": "M-2",
+            "severity": { "text": "Medium", "status": "warn" },
+            "plane": "Operator control",
+            "finding": "Webhook delivery validates the registered host but follows redirects without validating each hop.",
+            "exposure": "Admin-gated blind SSRF toward internal or metadata destinations.",
+            "source": "fleet-dashboard/convex/webhooks.ts:151; convex/lib/alerting.ts:478",
+            "fix": "Use `redirect: manual` and re-run the existing sink-host check per hop."
+          },
+          {
+            "id": "M-3",
+            "severity": { "text": "Medium", "status": "warn" },
+            "plane": "Data custody",
+            "finding": "Telemetry history has no server-owned `source`, no `ingestId`, no receipt table, and time-only pruning.",
+            "exposure": "Permanent provenance and custody gap against ADR-008; not directly attacker-reachable.",
+            "source": "fleet-dashboard/convex/schema.ts:442,478,622,670; telemetryHistory.ts:206-213",
+            "fix": "Stamp `source` and `ingestId` at ingest first; add decoded receipts before prune second."
+          },
+          {
+            "id": "M-4",
+            "severity": { "text": "Medium", "status": "warn" },
+            "plane": "Tenant authorization",
+            "finding": "Public REST endpoints have no rate limit, while every valid call patches one `lastUsedAt` document.",
+            "exposure": "Leaked-key abuse and write contention under load.",
+            "source": "fleet-dashboard/convex/publicApi.ts:98; apiKeys.ts:268",
+            "fix": "Rate by key ID and coarsen `lastUsedAt` updates."
+          },
+          {
+            "id": "M-5",
+            "severity": { "text": "Medium", "status": "warn" },
+            "plane": "Data custody",
+            "finding": "At-least-once ingest unconditionally inserts duplicate position breadcrumbs.",
+            "exposure": "Replays inflate distance and any breadcrumb-derived aggregate.",
+            "source": "fleet-dashboard/convex/tracking.ts:830-836",
+            "fix": "Use the ADR-008 `ingestId` as the idempotency key."
+          },
+          {
+            "id": "L-1",
+            "severity": { "text": "Low", "status": "info" },
+            "plane": "Tenant authorization",
+            "finding": "The AI tools security comment claims verified org injection, but the caller supplies the org ID.",
+            "exposure": "No current cross-tenant hole: all six downstream queries call `requireOrg` first.",
+            "source": "fleet-dashboard/convex/lib/aiTools.ts:11-15,333; convex/ai.ts:714",
+            "fix": "Correct the comment and mechanically guard the six-executor invariant."
+          },
+          {
+            "id": "L-2",
+            "severity": { "text": "Low", "status": "info" },
+            "plane": "Device identity",
+            "finding": "`reportDtuLink` skips the auto-registration cap.",
+            "exposure": "Unbounded `dtuLinks` storage growth; cost rather than compromise.",
+            "source": "fleet-dashboard/convex/tracking.ts:598",
+            "fix": "Apply the existing registration cap."
+          },
+          {
+            "id": "L-3",
+            "severity": { "text": "Low", "status": "info" },
+            "plane": "Operator control",
+            "finding": "Responses do not set CSP, HSTS, or frame-ancestors.",
+            "exposure": "Defense in depth; no matching XSS sink was found.",
+            "source": "Legacy boat server and web response headers",
+            "fix": "Add headers when the deployment surface and embed contract are settled."
+          }
+        ],
+        "footer": {
+          "id": "16 findings",
+          "severity": "1 critical · 3 high · 9 medium · 3 low",
+          "plane": "4 trust planes",
+          "finding": "Severity is reconciled, not copied from the first reviewer."
+        }
+      }
+    },
+    "severity-review": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "id": "severity-review",
+        "label": "Reviewer reconciliation",
+        "title": "What changed after architecture review",
+        "subtitle": "The second pass kept the defects but corrected four severities and narrowed the deployment claims."
+      },
+      "children": ["severity-table", "deploy-gate"]
+    },
+    "severity-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "finding", "label": "Finding" },
+          { "key": "opus", "label": "Opus" },
+          { "key": "final", "label": "Final" },
+          { "key": "why", "label": "Reason", "wide": true }
+        ],
+        "rows": [
+          { "finding": "H-3 proxy trust", "opus": "High", "final": { "text": "Medium", "status": "warn" }, "why": "Rate-limit bypass is an amplifier; the unauthenticated AI route carries the high impact." },
+          { "finding": "H-4 ai.narrate", "opus": "High", "final": { "text": "Medium", "status": "warn" }, "why": "The route is authenticated and metered through `requireOrgMember`; the real defect is uncapped inputs plus fallback accounting." },
+          { "finding": "H-6 remove push token", "opus": "High", "final": { "text": "Medium", "status": "warn" }, "why": "Destructive and unauthenticated, but exploitation needs a high-entropy token and push is additive." },
+          { "finding": "H-7 arm state", "opus": "High", "final": { "text": "Medium", "status": "warn" }, "why": "A real tenant-integrity issue concentrated in unresolved same-code telemetry, not a universal cross-tenant path." }
+        ]
+      }
+    },
+    "deploy-gate": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Deployment evidence still missing",
+        "content": "`SUNTIQ_FLEET_DEVICE_TOKEN`, `DEVICE_CREDENTIAL_PEPPER`, and `API_KEY_PEPPER` must be proven present in production without displaying their values. The code intentionally accepts never-credentialed boats when the fleet token is unset, so a green source review cannot substitute for environment proof."
+      }
+    },
+    "merge-proof": {
+      "type": "section",
+      "variant": "asymmetric",
+      "props": {
+        "id": "merge-proof",
+        "label": "Merge integrity",
+        "title": "Incoming backend behavior survived the merge",
+        "subtitle": "The branch is clean, the remote feature hash matches, and the meaningful incoming refactors remain intact."
+      },
+      "children": ["merge-proof-card", "merge-table"]
+    },
+    "merge-proof-card": {
+      "type": "proof",
+      "props": {
+        "title": "Merge preservation receipt",
+        "claim": "No incoming security/backend behavior was lost between the upstream parent and b627.",
+        "evidence": "Of 226 incoming-side files, only 26 differ at HEAD. Critical backend files are byte-identical or differ only by the b627 safety hunks and the accepted Sofia/Suntiq naming corrections.",
+        "source": "git diff and parent reconstruction for merge 7afa9299; feature HEAD b6276eec",
+        "limitation": "This proves source preservation, not production environment configuration."
+      }
+    },
+    "merge-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "file", "label": "File", "wide": true },
+          { "key": "delta", "label": "Remote parent to HEAD" },
+          { "key": "reading", "label": "Reading", "wide": true }
+        ],
+        "rows": [
+          { "file": "convex/fleetHealth.ts", "delta": "0 lines", "reading": "Incoming 63+/840− refactor preserved byte-for-byte." },
+          { "file": "convex/lib/debriefCompose.ts", "delta": "0 lines", "reading": "Byte-identical." },
+          { "file": "convex/optimizer.ts", "delta": "0 lines", "reading": "Byte-identical." },
+          { "file": "convex/ai.ts", "delta": "2+/2−", "reading": "Incoming work preserved; only compatibility header casing differs." },
+          { "file": "convex/tracking.ts", "delta": "24+/16−", "reading": "Exactly the b627 timestamp, safety, and watchdog hunks." },
+          { "file": "src/lib/brandVocab.ts", "delta": "20+/14−", "reading": "Both sides reconciled; `Suntiq` and `Sofia` are canonical." }
+        ]
+      }
+    },
+    "b627-review": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "id": "b627-review",
+        "label": "Safety correction",
+        "title": "The three b627 changes",
+        "subtitle": "Two are correct fixes. One is a sound starvation fix with a measurable latency trade."
+      },
+      "children": ["b627-time", "b627-engine", "b627-watchdog"]
+    },
+    "b627-time": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "Correct",
+        "title": "Future telemetry timestamps clamp at the choke point",
+        "content": "Every high-water writer now derives from server-bounded time. A year-2200 telemetry report can no longer advance prune cutoffs and erase retained history."
+      }
+    },
+    "b627-engine": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "Correct",
+        "title": "Overheat hysteresis now fires and re-fires correctly",
+        "content": "The hard-threshold previous-state check and acknowledged-open duplicate behavior are coupled. Removing either hunk reintroduces a failure."
+      }
+    },
+    "b627-watchdog": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "Keep, then tune",
+        "title": "Rotation removes starvation but delays sparse stale detection",
+        "content": "The ring rotation is mathematically sound. The window now counts healthy rows examined, so detection latency grows with fleet size. Fix the accounting, not the rotation."
+      }
+    },
+    "plan-alignment": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "id": "plan-alignment",
+        "label": "Architecture plan",
+        "title": "What is implemented, partial, missing, or outside this review",
+        "subtitle": "The largest remaining gap is data provenance and custody, not service decomposition."
+      },
+      "children": ["plan-table"]
+    },
+    "plan-table": {
+      "type": "data-table",
+      "props": {
+        "stickyHeader": true,
+        "columns": [
+          { "key": "control", "label": "Control", "wide": true },
+          { "key": "status", "label": "Status" },
+          { "key": "evidence", "label": "Current evidence", "wide": true },
+          { "key": "next", "label": "Next condition", "wide": true }
+        ],
+        "rows": [
+          { "control": "Row-level tenancy through `requireOrg`", "status": { "text": "Implemented", "status": "match" }, "evidence": "One choke point; all six AI tool queries enforce it first.", "next": "Add structural accessor and CI guard so future code cannot bypass it." },
+          { "control": "Admin as build flavor", "status": { "text": "Implemented", "status": "match" }, "evidence": "Single deployment with server-side platform-admin checks.", "next": "Keep one deployment until a contract forces dedicated cells." },
+          { "control": "RAW capture to GCS", "status": { "text": "Unverified", "status": "info" }, "evidence": "Implemented in `dtu-ingest`, outside the reviewed ArgoEdge tree.", "next": "Verify bucket, IAM, capture, and receipt behavior in the owning repo." },
+          { "control": "Append-only history and live/history split", "status": { "text": "Partial", "status": "warn" }, "evidence": "Insert-only history path and monotonic guards exist.", "next": "Add server-owned provenance, idempotency, and custody receipts." },
+          { "control": "Server-owned telemetry source", "status": { "text": "Missing", "status": "gap" }, "evidence": "No `source` field on telemetry, positions, samples, or fault events.", "next": "Stamp at the two ingest choke points." },
+          { "control": "Ingest idempotency", "status": { "text": "Missing", "status": "gap" }, "evidence": "No `ingestId`; replay duplicates breadcrumbs.", "next": "Add one server-owned ID and enforce uniqueness where history is inserted." },
+          { "control": "Receipt-gated prune", "status": { "text": "Missing", "status": "gap" }, "evidence": "Prune remains unconditional and time-based.", "next": "Require a decoded archive receipt naming the exact rows to delete." },
+          { "control": "Unverified-source quarantine", "status": { "text": "Missing", "status": "gap" }, "evidence": "No provenance field exists to quarantine or filter.", "next": "Add the source contract before evidence readers depend on it." },
+          { "control": "Device authentication ladder", "status": { "text": "Implemented", "status": "match" }, "evidence": "Minted or revoked credentials fail closed.", "next": "Close the never-credentialed deployment window and prove physical identity." },
+          { "control": "AI destructive-action confirmation", "status": { "text": "Implemented", "status": "match" }, "evidence": "Confirm cards and re-resolution are present.", "next": "Keep model output subordinate to deterministic authorization." },
+          { "control": "Pipeline self-monitoring", "status": { "text": "Implemented", "status": "match" }, "evidence": "Link watchdog and distinct relay-silent alerts exist.", "next": "Repair the M-1 processing budget." },
+          { "control": "Security audit documentation", "status": { "text": "Stale", "status": "warn" }, "evidence": "The audit still lists b627-fixed criticals as open; ADR numbering also collides.", "next": "Refresh only after source fixes and receipts are current." }
+        ]
+      }
+    },
+    "positive-controls": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "id": "positive-controls",
+        "label": "Controls that held",
+        "title": "The review also tried to break the controls that matter",
+        "subtitle": "These are not assumptions; each survived a targeted source or counterexample check."
+      },
+      "children": ["control-org", "control-device", "control-history", "control-rest", "control-stripe", "control-naming"]
+    },
+    "control-org": {
+      "type": "card",
+      "props": {
+        "title": "Tenant authorization",
+        "content": "`requireOrg` verifies membership on the passed org ID. All six AI tool queries call it before reading data."
+      }
+    },
+    "control-device": {
+      "type": "card",
+      "props": {
+        "title": "Credential revocation",
+        "content": "Once a boat has minted credentials, a fully revoked credential does not fall back to anonymous access."
+      }
+    },
+    "control-history": {
+      "type": "card",
+      "props": {
+        "title": "History mass-deletion vector",
+        "content": "The future telemetry timestamp counterexample fails because prune derives from the clamped server-bounded time."
+      }
+    },
+    "control-rest": {
+      "type": "card",
+      "props": {
+        "title": "REST tenant scope",
+        "content": "The API key determines the organization. Public endpoints do not accept a caller-supplied org ID."
+      }
+    },
+    "control-stripe": {
+      "type": "card",
+      "props": {
+        "title": "Stripe verification",
+        "content": "Raw body, constant-time HMAC, replay window, and no side effects before verification all hold."
+      }
+    },
+    "control-naming": {
+      "type": "card",
+      "props": {
+        "title": "Naming and compatibility",
+        "content": "User-facing identity is `Suntiq`; the AI persona is `Sofia`. Technical compatibility identifiers remain intentionally stable."
+      }
+    },
+    "fitness-functions": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "id": "fitness-functions",
+        "label": "Regression contract",
+        "title": "Five checks that keep this fixed",
+        "subtitle": "Each is the smallest executable claim that would fail if the boundary regresses."
+      },
+      "children": ["fitness-table"]
+    },
+    "fitness-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "id", "label": "Check" },
+          { "key": "invariant", "label": "Invariant", "wide": true },
+          { "key": "current", "label": "Current" },
+          { "key": "proves", "label": "What it catches", "wide": true }
+        ],
+        "rows": [
+          { "id": "FF-1", "invariant": "No alert row stores `createdAt` later than server now.", "current": { "text": "Fails", "status": "gap" }, "proves": "C-1 timestamp ownership." },
+          { "id": "FF-2", "invariant": "A future unacked row cannot suppress a genuine same-type alert.", "current": { "text": "Fails", "status": "gap" }, "proves": "C-1 dedup lower and upper bounds." },
+          { "id": "FF-3", "invariant": "Every exported mutation reaches a user, org, or device principal.", "current": { "text": "Fails", "status": "gap" }, "proves": "H-6 and future anonymous writes." },
+          { "id": "FF-4", "invariant": "No boat-server HTTP response contains an ingest secret.", "current": { "text": "Fails", "status": "gap" }, "proves": "H-1 rendering-boundary exposure." },
+          { "id": "FF-5", "invariant": "One stale link alerts within two sweeps; every AI tool query starts with `requireOrg`.", "current": { "text": "Partial", "status": "warn" }, "proves": "M-1 liveness and the L-1 tenant invariant." }
+        ]
+      }
+    },
+    "remediation": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "id": "remediation",
+        "label": "Next move",
+        "title": "The shortest safe sequence",
+        "subtitle": "Do not mix enterprise maturity work into the promotion blockers."
+      },
+      "children": ["remediation-timeline", "scope-callout"]
+    },
+    "remediation-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          {
+            "date": "Gate 1",
+            "title": "Close C-1 at the shared alert boundary",
+            "status": "in-progress",
+            "description": "Clamp caller time, bound dedup, scope it to the owning org, and add the unstamped same-code counterexample."
+          },
+          {
+            "date": "Gate 2",
+            "title": "Prove device identity and production secrets",
+            "status": "upcoming",
+            "description": "Verify token and pepper presence without revealing values. Prove private network containment or ship frame-level device identity."
+          },
+          {
+            "date": "Gate 3",
+            "title": "Harden any exposed legacy boat server",
+            "status": "upcoming",
+            "description": "Only if deployed: remove the HTML secret, authenticate the AI route, and trust forwarded addresses only behind an explicit proxy contract."
+          },
+          {
+            "date": "Follow-up",
+            "title": "Land bounded medium corrections",
+            "status": "upcoming",
+            "description": "H-4, H-6, H-7, M-1, M-2, and M-4 are local changes with focused checks."
+          },
+          {
+            "date": "Maturity",
+            "title": "Implement ADR-008 provenance and custody",
+            "status": "upcoming",
+            "description": "Source and ingestId first; receipt-gated pruning and evidence-reader policy second."
+          }
+        ]
+      }
+    },
+    "scope-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Avoid the architecture detour",
+        "content": "Do not split services, add per-tenant deployments, or introduce a second authorization framework. The first four gates are existing-helper changes at existing choke points. Dedicated cells remain a contract-triggered future option."
+      }
+    },
+    "evidence": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "id": "evidence",
+        "label": "Receipts and limits",
+        "title": "What was observed, and what remains outside the proof",
+        "subtitle": "The report distinguishes current-source evidence from deployment and cross-repo gaps."
+      },
+      "children": ["evidence-ledger", "source-list"]
+    },
+    "evidence-ledger": {
+      "type": "evidence",
+      "props": {
+        "title": "Review evidence",
+        "summary": "Current checkout, branch, git ancestry, source reads, targeted counterexamples, focused tests, and full-suite verification.",
+        "items": [
+          {
+            "claim": "The feature branch is clean and matches its remote feature ref.",
+            "status": "observed",
+            "source": "git status, rev-parse, and remote ref checks",
+            "detail": "ArgoEdge HEAD b6276eeca448504a345bbd61c595a9a5c5fa3d75."
+          },
+          {
+            "claim": "Incoming backend behavior survived the merge.",
+            "status": "observed",
+            "source": "merge-parent reconstruction and file-by-file diffs",
+            "detail": "226 incoming files inspected by diff boundary; decisive backend refactors preserved."
+          },
+          {
+            "claim": "Focused safety and ingest tests pass.",
+            "status": "observed",
+            "source": "Vitest focused run",
+            "detail": "5 files, 54 tests."
+          },
+          {
+            "claim": "The full fleet suite passes.",
+            "status": "observed",
+            "source": "npm test",
+            "detail": "330 files, 5,372 tests."
+          },
+          {
+            "claim": "The production token and pepper variables are set.",
+            "status": "missing",
+            "detail": "No live environment values were inspected. Presence must be verified without disclosing secrets."
+          },
+          {
+            "claim": "The droplet listener is contained by private APN or VPN.",
+            "status": "missing",
+            "detail": "Network reachability and carrier containment were outside this source review."
+          },
+          {
+            "claim": "ADR-007 raw capture, GCS IAM, and receipts work live.",
+            "status": "missing",
+            "detail": "That evidence lives in the separate dtu-ingest repository and deployment."
+          }
+        ]
+      }
+    },
+    "source-list": {
+      "type": "source-list",
+      "props": {
+        "title": "Primary review artifacts",
+        "items": [
+          {
+            "label": "Full Opus 5 report",
+            "href": "/tmp/argo-opus5-security-review.output",
+            "detail": "Complete adversarial report, source references, attempted counterexamples, and command ledger."
+          },
+          {
+            "label": "ArgoEdge reviewed checkout",
+            "href": "/Users/jean-patricksmith/digital/kingly/apps/production/Argo/prototype/ArgoEdge",
+            "detail": "feature/infra-cutover at b6276eec."
+          },
+          {
+            "label": "Incoming security audit",
+            "href": "/Users/jean-patricksmith/digital/kingly/apps/production/Argo/prototype/ArgoEdge/fleet-dashboard/docs/SECURITY_AUDIT_2026-07-29.md",
+            "detail": "Useful inventory, but remediation status is stale after b627."
+          },
+          {
+            "label": "Architecture reconciliation",
+            "href": "/Users/jean-patricksmith/digital/kingly/apps/production/Argo",
+            "detail": "Independent final review in the current Codex task; corrected severities and deployment scope."
+          }
+        ]
+      }
+    }
+  }
+}

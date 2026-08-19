@@ -1,0 +1,219 @@
+{
+  "meta": {
+    "title": "The Loop Done-Determination Packet",
+    "description": "What the loop slice is, why it exists, what changed under it, and the four decisions that gate dispatch",
+    "effects": ["hero-gradient", "title-underline"]
+  },
+  "theme": { "preset": "deep-blue-gold", "mode": "dark" },
+  "root": ["hero", "sec-story", "sec-gap", "sec-arms", "sec-builds", "sec-acceptance", "sec-shifted", "sec-decisions", "sec-fences", "sec-status"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "EXECUTION PLANE · PROPOSED SLICE",
+        "title": "Loops End on Evidence, Not Claims",
+        "subtitle": "The loop done-determination packet — proposed July 12, validated, re-baselined July 16, awaiting dispatch ruling",
+        "meta": "bead lev-95yo · task loop-done-determination-v1"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": { "content": "Today an agent can claim it finished and the loop believes it. This slice makes the evaluator verdict at a flow's verify gate route the loop instead: pass completes it, fail takes the already-declared retry edge up to the already-declared iteration cap, and a verdict that cannot be trusted stops everything honestly." }
+    },
+
+    "sec-story": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "PROVENANCE", "title": "One operator ruling, made executable" },
+      "children": ["story-quote", "story-prose"]
+    },
+    "story-quote": {
+      "type": "text",
+      "variant": "pullquote",
+      "props": { "content": "If you want to use a loop, this is how it works: define max_iterations, and the evals at the validate node determine if things are done or not. — operator ruling, July 4" }
+    },
+    "story-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": { "content": "The packet is the surviving scope of a killed earlier proposal (the eval-override island, rejected with prejudice). What survived is deliberately small: no new machinery, no new YAML vocabulary. The discovery that shaped it is that **the demo flow already declares everything the loop needs** — the runtime just ignores all of it.\n\nThis is never named *blocking*. It is done-determination: the loop's way of knowing, from evidence, that it is finished." }
+    },
+
+    "sec-gap": {
+      "type": "section",
+      "variant": "diff-panels",
+      "props": { "label": "THE GAP", "title": "Declared but unconsumed", "subtitle": "Everything below is parsed today. None of it routes anything." },
+      "children": ["gap-declared", "gap-consumed"]
+    },
+    "gap-declared": {
+      "type": "code-block",
+      "props": {
+        "filename": "plan-execute-verify.flow.yaml — the verify gate, as written today",
+        "language": "yaml",
+        "content": "verify_gate:\n  eval: \"exec_result != ''\"\n  evaluators:\n    required: [intent_conservation]\n  branches:\n    pass: done\n    fail: plan        # retry edge — declared\n  max_iterations: 3   # cap — declared\n  on_timeout: done"
+      }
+    },
+    "gap-consumed": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "What the runtime actually does",
+        "content": "The gate routes on the data expression alone — one line of code picks the branch from a boolean (pass if the expression held, fail otherwise). The semantic evaluator verdict is computed and recorded on the receipt, but it never steers. The iteration cap is consumed by nothing. The retry edge has never once been taken. core/exec/src/execution/dispatch/gate.ts line 47."
+      }
+    },
+
+    "sec-arms": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "THE CORE MOVE", "title": "Three verdict arms, three routes", "subtitle": "Branching composes from the discharged decision — never from the two-state boolean, because a boolean cannot represent the third state. That fence is called verdict theater, and it is the highest-risk claim in the proof design." },
+      "children": ["arm-pass", "arm-fail", "arm-error"]
+    },
+    "arm-pass": {
+      "type": "card",
+      "variant": "elevated",
+      "props": { "title": "✅ Decided: pass", "content": "The evaluator observed the work and it holds. Take the declared done branch. The run seals as a candidate effect — byte-identical to today's clean run." }
+    },
+    "arm-fail": {
+      "type": "card",
+      "variant": "elevated",
+      "props": { "title": "🔁 Decided: fail", "content": "The evaluator observed the work and it drifts. Take the declared fail branch — retry back to plan with the original inputs. Each iteration burns one attempt against the declared cap of three." }
+    },
+    "arm-error": {
+      "type": "card",
+      "variant": "elevated",
+      "props": { "title": "🛑 Evaluation error", "content": "The evaluator could not observe (no samples, missing channel, companions down). No verdict is minted. Escalate immediately, seal failed with the error reason — and the attempt budget is NOT burned. An unobservable check must never masquerade as a pass or quietly eat a retry." }
+    },
+
+    "sec-builds": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "SCOPE", "title": "What the slice makes function" },
+      "children": ["build-route", "build-cap", "build-seal", "build-optin"]
+    },
+    "build-route": {
+      "type": "card",
+      "props": { "title": "🧭 Verdict-routed branching", "content": "The gate consumes the decision arms above instead of the raw boolean. The decision payload already rides every receipt and seal since the evidence cutover — this slice just makes it steer." }
+    },
+    "build-cap": {
+      "type": "card",
+      "props": { "title": "🔢 Runner-enforced cap", "content": "max_iterations counted by gate-node revisits, enforced by the runner. A fail-always harness run terminates in exactly three gate visits — the declaration stops being a parsed no-op." }
+    },
+    "build-seal": {
+      "type": "card",
+      "props": { "title": "🧾 Honest terminal states", "content": "Attempts exhausted → seal failed with an attempts-exhausted reason, carrying ALL iteration decision refs, and the CLI exits nonzero. Nothing that ran out of retries can look done." }
+    },
+    "build-optin": {
+      "type": "card",
+      "props": { "title": "🎛️ Opt-in by existing declaration", "content": "Presence of required evaluators on the gate IS the opt-in. Zero new keys. Flows without them keep byte-identical branch behavior — pinned by replaying the recorded baseline." }
+    },
+
+    "sec-acceptance": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "ACCEPTANCE", "title": "Six things that must be true" },
+      "children": ["acceptance-table"]
+    },
+    "acceptance-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "claim", "label": "Claim" },
+          { "key": "proof", "label": "How it is proven" },
+          { "key": "state", "label": "Status after re-baseline" }
+        ],
+        "rows": [
+          { "claim": "Clean run unchanged", "proof": "Live demo run: gate visited once, branch done, seal candidate-effect — branch sequence byte-identical to the recorded baseline", "state": { "text": "Unchanged", "status": "info" } },
+          { "claim": "Drift retries, then honestly fails", "proof": "Drift-injected run retries exactly three times, then seals failed with attempts-exhausted, all iteration decision refs attached, nonzero exit", "state": { "text": "Fence coordination needed", "status": "warn" } },
+          { "claim": "Unobservable evaluator escalates", "proof": "Seeded evaluation error stops the run without burning an attempt", "state": { "text": "Mostly landed via seal-truth", "status": "match" } },
+          { "claim": "Opt-in boundary is airtight", "proof": "A gate without required evaluators routes from the data expression alone — byte-identical to pre-slice behavior", "state": { "text": "Unchanged", "status": "info" } },
+          { "claim": "The cap is actually consumed", "proof": "Fail-always run terminates in exactly the declared number of gate visits, proven from live events", "state": { "text": "Unchanged", "status": "info" } },
+          { "claim": "Instrumentation is additive only", "proof": "The pinned trace-output contract test passes byte-untouched; no existing event field renamed or removed", "state": { "text": "Unchanged", "status": "info" } }
+        ]
+      }
+    },
+
+    "sec-shifted": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "RE-BASELINE · JULY 16", "title": "What moved under the packet", "subtitle": "A parallel lane landed seal-truth work for the intent-conservation gate the day before the closer look. Four findings, none fatal." },
+      "children": ["shift-landed", "shift-fence", "shift-word", "shift-gap"]
+    },
+    "shift-landed": {
+      "type": "card",
+      "variant": "callout",
+      "props": { "variant": "success", "title": "Part of the escalation story already landed", "content": "The seal-truth lane made evaluation errors typed and fail-closed: no verdict minted, seal fails, exit nonzero — live-proven. The packet's escalation acceptance shrinks to one fence: the retry budget must not be consumed." }
+    },
+    "shift-fence": {
+      "type": "card",
+      "variant": "callout",
+      "props": { "variant": "warning", "title": "The drift demo is now a standing CI fence", "content": "Drift currently seals failed immediately, and that exact behavior is pinned by a standing end-to-end fence. The retry slice changes what the fence pins — so the fence file must join the slice's write scope with a coordinated amendment: drift still ends failed with nonzero exit, but after three visible retries. tests/e2e/exec-drift-demo-fence.mjs" }
+    },
+    "shift-word": {
+      "type": "card",
+      "variant": "callout",
+      "props": { "variant": "warning", "title": "The forbidden word now exists next door", "content": "The word *blocking* appears in the eval enforcement lane — a different concept (does a failing evaluator block the receipt), landed by the parallel session. The packet's fence forbids the word for loop identifiers. Needs a scoping ruling: fence new loop names only (recommended), or schedule a rename of the enforcement word." }
+    },
+    "shift-gap": {
+      "type": "card",
+      "variant": "callout",
+      "props": { "variant": "info", "title": "The core gap is untouched", "content": "The gate still routes on the boolean; the verdict still never steers; the cap is still ignored. The slice's reason to exist is fully intact, and the packet's code references are still accurate." }
+    },
+
+    "sec-decisions": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "GATE", "title": "Four decisions before dispatch" },
+      "children": ["decisions-table"]
+    },
+    "decisions-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "q", "label": "Decision" },
+          { "key": "rec", "label": "Recommendation" },
+          { "key": "why", "label": "Why" }
+        ],
+        "rows": [
+          { "q": "Gate opts in but omits max_iterations", "rec": { "text": "Flow-load validation error", "status": "info" }, "why": "A loop without a declared cap is an unbounded loop by omission; failing at load makes the author declare intent" },
+          { "q": "Terminal seal reason spellings", "rec": { "text": "Adopt landed vocabulary", "status": "info" }, "why": "Per-iteration failures already spell case_failed; attempts-exhausted becomes the terminal loop reason alongside it" },
+          { "q": "Escalation shape in v1", "rec": { "text": "Seal + exit + event", "status": "info" }, "why": "No pause or human-hold lane yet — an honest failed seal now beats a half-built approval flow" },
+          { "q": "Naming fence scope", "rec": { "text": "New loop identifiers only", "status": "info" }, "why": "The enforcement lane's blocking word is another team's landed concept; renaming it is their call, on their clock" }
+        ]
+      }
+    },
+
+    "sec-fences": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": { "label": "FENCES", "title": "Deliberately out of scope" },
+      "children": ["fence-feedback", "fence-keys", "fence-until"]
+    },
+    "fence-feedback": {
+      "type": "card",
+      "props": { "title": "Feedback into retries", "content": "V1 retries with the original node inputs. Telling the next iteration what is left and how far off it was is a later refinement, per the July 4 ruling." }
+    },
+    "fence-keys": {
+      "type": "card",
+      "props": { "title": "The eval key collapse", "content": "Collapsing the evaluators vocabulary into the single fractal eval key belongs to the eval-authoring follow-up, which this slice unblocks. Not touched here." }
+    },
+    "fence-until": {
+      "type": "card",
+      "props": { "title": "The until loop lane", "content": "Orchestration's until primitive is a different loop topology with its own iteration input. This slice only touches graph-gate loops." }
+    },
+
+    "sec-status": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "STATUS", "title": "Where it stands" },
+      "children": ["status-prose"]
+    },
+    "status-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": { "content": "The packet is written and validates clean — one vertical slice, seven failure hypotheses, six falsifying fitness functions, with the drift demo itself as the live proof. The execution lane under it went fully green yesterday (exec, orchestration, daemon all passing).\n\nDispatch is gated on the four decisions above plus the packet amendments from the re-baseline: shrink the escalation acceptance to the budget fence, add the drift fence to the write scope, and pin the reason vocabulary. Approve those and the slice is a single bounded worker dispatch.\n\nPacket: .lev/pm/tasks/loop-done-determination-v1/ · Routing gap: core/exec/src/execution/dispatch/gate.ts" }
+    }
+  }
+}

@@ -1,0 +1,347 @@
+{
+  "meta": {
+    "title": "One Rule, Three Referees \u2014 the validation cleanup decision",
+    "description": "Plain-English explainer: what the validation split-brain is, what the advisors said, and the one decision on the table.",
+    "effects": [
+      "title-underline",
+      "card-glow"
+    ]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "problem-section",
+    "glossary-section",
+    "example-section",
+    "meaning-section",
+    "advisors-section",
+    "landmines-section",
+    "plan-section",
+    "decision-section"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "DECISION BRIEF",
+        "title": "One Rule, Three Referees",
+        "subtitle": "The repo enforces the same rules in three different places. Here is what that means, what four AI advisors said about fixing it, and the single decision you're being asked to make.",
+        "meta": "Leviathan \u00b7 July 2026"
+      },
+      "children": [
+        "hero-lead"
+      ]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "No jargon past this point without a definition. Read the first two sections and you'll understand everything the terminal conversation was about."
+      }
+    },
+    "problem-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "THE PROBLEM",
+        "title": "The same rule is written down \u2014 and checked \u2014 in three places",
+        "subtitle": "And the three copies don't stay in sync."
+      },
+      "children": [
+        "problem-prose",
+        "problem-diagram",
+        "problem-callout"
+      ]
+    },
+    "problem-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "Leviathan has house rules like *\"no code may scan folders directly \u2014 it must go through the one approved door\"* or *\"every module must declare its name in the registry.\"*\n\nRight now, a rule like that can be enforced by **three separate pieces of machinery at once**: a schema that checks config files, a test suite that scans the source code, and a rulebook entry that carries its own little hidden check-command inside it. Three referees, one rule.\n\nWhy is that bad? Because when the code changes, someone updates **one** referee and forgets the other two. The forgotten ones keep waving green flags for a rule they're no longer actually checking. You believe the rule is enforced. It isn't. That silent wrong-green is the failure we're designing against."
+      }
+    },
+    "problem-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "caption": "Today: three referees per rule \u2014 and one of them may be checking nothing.",
+        "content": "flowchart LR\n  R[\"House rule:\\n'no raw folder scanning'\"] --> A[\"Referee 1\\nSchema check\\n(config files)\"]\n  R --> B[\"Referee 2\\nTest suite\\n(scans the code)\"]\n  R --> C[\"Referee 3\\nRulebook entry with a\\nhidden check-command inside\"]\n  A --> V1[\"green\"]\n  B --> V2[\"green\"]\n  C --> V3[\"green... but is it\\nstill checking anything?\"]\n  style C stroke:#e05252,stroke-width:2px\n  style V3 stroke:#e05252,stroke-width:2px"
+      }
+    },
+    "problem-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "The failure mode has a name: false-green",
+        "content": "A check that passes not because the rule is followed, but because the check quietly stopped working. It's worse than a failing check \u2014 a failing check gets fixed; a false-green gets trusted."
+      }
+    },
+    "glossary-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "TRANSLATION TABLE",
+        "title": "The five words the terminal kept using",
+        "subtitle": "Every term from the conversation, in normal English."
+      },
+      "children": [
+        "glossary-table"
+      ]
+    },
+    "glossary-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          "Term",
+          "What it actually means"
+        ],
+        "rows": [
+          [
+            "DNA",
+            "The repo's rulebook \u2014 a folder of YAML files that write down the architecture rules (\"only the eval package may decide pass/fail\", \"no raw folder scanning\"). Think: the constitution."
+          ],
+          [
+            "Instrument",
+            "Any piece of machinery that actually enforces a rule: a test, a schema check, a lint. Think: the referee with the whistle."
+          ],
+          [
+            "Lint",
+            "A test that reads the source code looking for rule violations, like a spell-checker for architecture. The repo has 9 of them."
+          ],
+          [
+            "Declaration-only",
+            "The proposal: the rulebook states each rule and points at the one referee that enforces it \u2014 but never contains its own hidden check-commands anymore."
+          ],
+          [
+            "Meta-lint",
+            "One new referee whose only job is checking the rulebook itself: every rule must point at a referee that really exists and really runs."
+          ]
+        ]
+      }
+    },
+    "example-section": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "A REAL EXAMPLE",
+        "title": "One rule, three places it lives today",
+        "subtitle": "The 'no raw folder scanning' rule \u2014 the one that caught two real violations this month."
+      },
+      "children": [
+        "example-card-1",
+        "example-card-2",
+        "example-card-3"
+      ]
+    },
+    "example-card-1": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\ud83d\udcd6 In the rulebook",
+        "content": "A DNA file states the rule \u2014 and embeds a shell command (a text-search) that a runner executes to check it. If the code moves, the text-search finds nothing and reports green forever. Nobody is alerted."
+      }
+    },
+    "example-card-2": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\ud83e\uddea In the test suite",
+        "content": "A dedicated lint (the 'scanner census') scans all source for raw folder-reads and fails loudly with instructions when it finds one. This copy works \u2014 it caught two violations from parallel sessions within days. This is what a good referee looks like."
+      }
+    },
+    "example-card-3": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "\ud83d\udccb In the validators",
+        "content": "Separate structural validators re-check overlapping facts about module shape \u2014 and one of them accepts module types the official schema rejects. The referees don't even agree on the rules."
+      }
+    },
+    "meaning-section": {
+      "type": "section",
+      "variant": "diff-panels",
+      "props": {
+        "label": "THE PROPOSAL",
+        "title": "What 'declaration-only' changes",
+        "subtitle": "Same rulebook, but it points instead of pretending to enforce."
+      },
+      "children": [
+        "before-panel",
+        "after-panel"
+      ]
+    },
+    "before-panel": {
+      "type": "code-block",
+      "props": {
+        "filename": "BEFORE \u2014 rule with a hidden program inside",
+        "language": "yaml",
+        "content": "rule: \"No raw folder scanning outside core/config\"\ncheck: |\n  grep -rn \"readdirSync\" core plugins \\\n    && exit 1 || exit 0\n# ^ a mini-program buried in the rulebook.\n#   When code moves, it silently stops\n#   finding anything \u2014 and stays green."
+      }
+    },
+    "after-panel": {
+      "type": "code-block",
+      "props": {
+        "filename": "AFTER \u2014 rule that points at its referee",
+        "language": "yaml",
+        "content": "rule: \"No raw folder scanning outside core/config\"\nenforced_by:\n  instrument: tests/lint/scanner-census.test.ts\n  kind: lint\n# ^ no hidden program. One real test enforces\n#   this rule. A new meta-lint verifies this\n#   pointer names a test that exists AND runs."
+      }
+    },
+    "advisors-section": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "SECOND OPINIONS",
+        "title": "What the four advisors said",
+        "subtitle": "Three Claude models answered from first principles. Then codex (gpt-5.6-sol, max reasoning) read the actual code."
+      },
+      "children": [
+        "tribunal-card",
+        "sol-card"
+      ]
+    },
+    "tribunal-card": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "\u2696\ufe0f The tribunal \u2014 unanimous YES",
+        "content": "Three Claude models (haiku, sonnet, opus) got the identical neutral question independently. All three said **go declaration-only**, for the same reason: two copies of the same check always drift apart, and the hidden-command style rots *silently* while the pointer style breaks *loudly* \u2014 and loud is fixable.\n\nAll three volunteered the same warning unprompted: the pointer-checker (the meta-lint) must ship **at the same time**, or the pointers themselves rot."
+      }
+    },
+    "sol-card": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "\ud83d\udd2c Codex sol \u2014 yes, BUT read the code first",
+        "content": "Sol agreed with the destination but rejected doing it in one sweep \u2014 because it found four landmines in the actual code that the theory-only tribunal couldn't see. Every one of its claims was independently re-verified against the code before making it onto this page."
+      }
+    },
+    "landmines-section": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "VERIFIED FINDINGS",
+        "title": "Sol's four landmines",
+        "subtitle": "Why the migration must be careful, not big-bang."
+      },
+      "children": [
+        "landmine-1",
+        "landmine-2",
+        "landmine-3",
+        "landmine-4"
+      ]
+    },
+    "landmine-1": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "1 \u00b7 Some rulebook entries are shipped product",
+        "content": "The DNA compiler turns rule entries into live runtime gates that ship to users. Stripping their executable parts wouldn't just clean the repo \u2014 it would change how the product behaves. So: remove hidden shell commands, keep typed runtime policy."
+      }
+    },
+    "landmine-2": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "2 \u00b7 A pointer put in the old field gets EXECUTED",
+        "content": "Both existing rule-runners treat the check field as a shell command and run it. Write a file path there and the system tries to execute the path as a command. A new, separate field must exist before any rule migrates."
+      }
+    },
+    "landmine-3": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "3 \u00b7 The surface is ~460 hidden commands, not a handful",
+        "content": "Counted directly: 461 embedded check/eval strings across the rulebook, plus 24 module files carrying a *second duplicate copy* of their checks in a script block. Migrating only the obvious field leaves a live twin behind."
+      }
+    },
+    "landmine-4": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "4 \u00b7 'The file exists' is not 'the test runs'",
+        "content": "One current validator already demonstrates the trap: it parses the rulebook, counts entries, and always reports green \u2014 it never runs anything. So the meta-lint must verify each pointer's referee actually *executes* in an enabled pipeline, not merely that a file with that name exists."
+      }
+    },
+    "plan-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "THE ROUTE",
+        "title": "The migration order both advisors converge on",
+        "subtitle": "Each step makes the next one safe."
+      },
+      "children": [
+        "plan-timeline"
+      ]
+    },
+    "plan-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          {
+            "date": "Step 1",
+            "title": "Add the new pointer field",
+            "status": "upcoming",
+            "description": "Teach the rulebook format and both rule-runners about a typed 'enforced_by' field \u2014 so a pointer is never mistaken for a command (landmine 2)."
+          },
+          {
+            "date": "Step 2",
+            "title": "Ship the meta-lint",
+            "status": "upcoming",
+            "description": "The pointer-checker: every rule's referee must exist AND be reachable in a pipeline that actually runs (landmine 4). This ships before any rule migrates \u2014 the caveat all three tribunal models insisted on."
+          },
+          {
+            "date": "Step 3",
+            "title": "Migrate rule by rule, with proof",
+            "status": "upcoming",
+            "description": "For each rule: confirm the real referee exists, deliberately break the rule once to watch the referee catch it, flip the rule to a pointer, delete the hidden command AND its duplicate twin (landmine 3). Shipped-runtime entries keep their typed policy (landmine 1)."
+          },
+          {
+            "date": "Step 4",
+            "title": "Delete the shell runner",
+            "status": "upcoming",
+            "description": "Only when a census counts zero hidden commands left in the rulebook does the machinery that executed them get removed. No compatibility layer stays behind."
+          }
+        ]
+      }
+    },
+    "decision-section": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "YOUR CALL",
+        "title": "The one decision on the table",
+        "subtitle": "Everything above collapses into a single yes/no."
+      },
+      "children": [
+        "decision-card",
+        "decision-prose"
+      ]
+    },
+    "decision-card": {
+      "type": "decision",
+      "props": {
+        "title": "Make the rulebook declaration-only, via the 4-step route",
+        "status": "hold",
+        "content": "The rulebook (DNA) states rules and points at referees; all enforcement lives in real tests, schemas, and validators; a meta-lint polices the pointers. Four advisors agree on the destination; the route above is sol's code-verified amendment. Status: waiting on your ratification.",
+        "next": "On your 'yes': draft the design artifact for this migration, with Step 1 + Step 2 (pointer field + meta-lint) as the first executable slice."
+      }
+    },
+    "decision-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "**What you're NOT deciding yet:** which of the ~460 rules migrate first, what happens to the three overlapping module validators (they get their own smaller decision later), or anything about the runtime gates that ship in the product \u2014 those keep working unchanged through the whole migration.\n\n**What a 'no' looks like:** the three referees stay; the drift and false-greens documented above continue to accumulate; every new rule keeps getting written in up to three places."
+      }
+    }
+  }
+}

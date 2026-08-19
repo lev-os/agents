@@ -1,0 +1,223 @@
+{
+  "meta": {
+    "title": "Recertification decision board",
+    "description": "Scenario-source recertification: current state, the decisions waiting on JP, and what each approval triggers."
+  },
+  "theme": { "preset": "fleet-deck", "mode": "dark" },
+  "root": ["hero", "kpis", "decisions", "phonetics-evidence", "wave4-now", "program-timeline"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "centered",
+      "props": {
+        "category": "Scenario-source recertification",
+        "title": "Decision board",
+        "subtitle": "Wave 4 review: PASS. The wave is done working - every remaining item on this page waits on you.",
+        "meta": "2026-08-14 - Sunny-PC - synced"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "All 20 Wave-4 packets were replayed, gated, review-audited, and repaired through two bounded rounds; the integrated reviewer's final verdict is PASS and the milestone is synced. Nothing promotes, retires, or joins the accepted manifest without your word. Here is the full desk."
+      }
+    },
+    "kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "Where we stand", "title": "Program state" },
+      "children": ["kpi-accepted", "kpi-sweep", "kpi-wave4", "kpi-baseline"]
+    },
+    "kpi-accepted": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": "90 / 152", "label": "Scenarios independently accepted", "trend": { "direction": "up", "value": "+30 in Wave 3" } }
+    },
+    "kpi-sweep": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": "20 / 20", "label": "Sweep repairs imported and synced", "trend": { "direction": "flat", "value": "complete" } }
+    },
+    "kpi-wave4": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": "20 / 20", "label": "Wave 4 replayed, repaired, review PASS", "trend": { "direction": "up", "value": "2 repair rounds, 0 blockers" } }
+    },
+    "kpi-baseline": {
+      "type": "card",
+      "variant": "kpi",
+      "props": { "value": "85 / 90", "label": "A2 scenarios passing baseline", "trend": { "direction": "flat", "value": "5 known debts" } }
+    },
+    "decisions": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "Your desk",
+        "title": "Decisions waiting on you",
+        "subtitle": "Each card is one call. Say the number or the name; nothing here proceeds without you."
+      },
+      "children": ["decision-accept-wave4", "decision-retire", "decision-callsign-reopen", "decision-0073", "decision-0103", "decision-promote-20"]
+    },
+    "decision-accept-wave4": {
+      "type": "decision",
+      "props": {
+        "title": "1. Accept Wave 4",
+        "status": "hold",
+        "content": "All 20 recovered packets passed the integrated review after two bounded repair rounds. The wave's biggest fix: six scenarios (including the supposed clean no-op) had the trainee aircraft's own radio calls mis-modeled under the bulk-default callsign; all now carry the real aircraft N31862, grounded in the AIM callsign rule and the FAA registry. Both fabrication pre-flags were confirmed and those packets rebuilt on verified evidence.",
+        "next": "On accept: the manifest grows by 18 scenarios (the two retirements below do not join), moving the program from 90 to 108 of 152. Promotion stays a separate call."
+      }
+    },
+    "decision-retire": {
+      "type": "decision",
+      "props": {
+        "title": "2. Retire scenarios 0129 and 0153",
+        "status": "hold",
+        "content": "Both proved to be PlaneEnglish manual prose, not radio: 0129 is instructional text, and 0153's entire seed is the word Voice - an app settings label. Both authors ran the wrong-accept test (could this ever be real phraseology? no), left the reviews byte-identical to source, and passed the retirement gate on the canonical ledger.",
+        "next": "On approve: the retire command runs with your name on it and both scenarios leave the denominator. On reject: say what you want them to be instead."
+      }
+    },
+    "decision-callsign-reopen": {
+      "type": "decision",
+      "props": {
+        "title": "3. Reopen five accepted reviews for the callsign ruling",
+        "status": "hold",
+        "content": "The wave locked the ruling that the machine callsign is the registration N31862 while the radio speaks Warrior Three One Eight Six Two. An exact scan found five already-accepted reviews (0015, 0099, 0101, 0102, 0103 - seven fields total) still carrying the hybrid form Warrior 31862 in machine fields. They were deliberately not touched: reopening accepted scenarios is your call.",
+        "next": "On approve: bounded authors fix the seven fields through the standard gate chain. On wait: recorded as known debt with the exact file list."
+      }
+    },
+    "decision-0073": {
+      "type": "decision",
+      "props": {
+        "title": "4. Reclassify scenario 0073 as an FSS Radio turn",
+        "status": "hold",
+        "content": "The PlaneEnglish source page labels this line \"FSS Radio\", not a control-facility transmission. The stage-2 review wants the scenario reclassified to match its source. Recommendation: approve. The scenario text itself does not change; only its classification metadata moves to match what the source actually says.",
+        "next": "On approve: 0073 runs the full promotion chain in one pass (promote, re-project, regenerate TTS audio, re-transcribe on Thor, rescore in the baseline)."
+      }
+    },
+    "decision-0103": {
+      "type": "decision",
+      "props": {
+        "title": "5. Fix the module label on accepted scenario 0103",
+        "status": "hold",
+        "content": "Scenario 0103's source metadata says its PlaneEnglish module is \"Airspace Entry\", which does not match the lesson it was drawn from. The sweep author saw it, flagged it, and deliberately left it byte-identical because it is outside the Tree/Fife repair scope. It is a one-field metadata fix, no radio text involved.",
+        "next": "On approve: a bounded author corrects the one field with source-page evidence, same gate chain as every other repair. On reject: the flag is closed as working-as-intended."
+      }
+    },
+    "decision-promote-20": {
+      "type": "decision",
+      "props": {
+        "title": "6. Promote the 20 sweep repairs now, or let them wait",
+        "status": "hold",
+        "content": "The Three/Five repairs are accepted at the review layer but not promoted, so the live corpus audio still speaks the old text for those 20 scenarios. Promoting now means regenerating TTS and transcripts for the scenarios whose spoken text changed, then a baseline rescore. Waiting costs nothing today because nothing downstream reads the repaired text until promotion.",
+        "next": "On approve: promote all 20 through the same chain used for Wave 3 (promote, project, TTS, Thor transcribe, baseline). On wait: they promote naturally with their next wave pass."
+      }
+    },
+    "phonetics-evidence": {
+      "type": "section",
+      "variant": "asymmetric",
+      "props": {
+        "label": "Already answered",
+        "title": "Your tree / fife question",
+        "subtitle": "You asked which transcripts are split and how BATC's spoken tree and fife come out of the transcriber. The data answered most of it."
+      },
+      "children": ["phonetics-ledger", "phonetics-verdict"]
+    },
+    "phonetics-ledger": {
+      "type": "evidence",
+      "props": {
+        "title": "Transcript split report",
+        "summary": "All 1,616 fixture transcripts scanned, plus the corrections lane",
+        "items": [
+          {
+            "claim": "The transcriber never writes tree or fife. In 1,616 transcripts there are zero phonic digit spellings; spoken digits come out as numerals, like wind 320 at 8.",
+            "status": "observed",
+            "source": "template, pilot, and PlaneEnglish fixture transcription stores",
+            "detail": "Whisper on Thor normalizes phonic pronunciation to written form before the parser ever sees it."
+          },
+          {
+            "claim": "Niner is the one phonic form that survives transcription. It appears 42 times.",
+            "status": "observed",
+            "source": "same scan",
+            "detail": "Matches the FAA's own asymmetry: the AIM writes Niner but never Tree or Fife."
+          },
+          {
+            "claim": "No fixture audio was ever generated from Tree-spelled text. The bad spellings lived only at the review layer and never reached the audio lane.",
+            "status": "observed",
+            "source": "clean-text scan of all fixture stores",
+            "detail": "The sweep caught the convention before it contaminated any audio."
+          },
+          {
+            "claim": "A corrections lane already treats wun, too, tree, fower, fife as fixable hearing variants.",
+            "status": "observed",
+            "source": "corrections eval set, 15 rows",
+            "detail": "The support-them-on-hearing behavior you asked for already has a designed home."
+          },
+          {
+            "claim": "BATC's actual voice behaves the same way through the transcriber.",
+            "status": "missing",
+            "detail": "All scanned audio is TTS-voiced. Proving the BATC case needs one live capture transcribed on Thor, still on the deferred list with the literature review and the TTS A/B probe."
+          }
+        ]
+      }
+    },
+    "phonetics-verdict": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "What this means for your hypothesis",
+        "content": "Hear tree and fife, speak three and five: the hearing half is already handled upstream, because the transcriber converts phonic speech to written form before parsing. The speaking half is now enforced by the Three/Five convention in the gold text. The only open question is whether real BATC audio transcribes as cleanly as TTS audio, and that is one capture away from an answer. No decision needed unless you want the remaining probes run now."
+      }
+    },
+    "wave4-now": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": {
+        "label": "How the wave went",
+        "title": "Wave 4, start to PASS in one day",
+        "subtitle": "Every stage below is complete. The only remaining stage is yours."
+      },
+      "children": ["w4-authors", "w4-gates", "w4-review", "w4-repairs", "w4-accept"]
+    },
+    "w4-authors": {
+      "type": "card",
+      "props": { "title": "20 authors replayed packets", "content": "Every recorded quote and citation re-verified. Both fabrication pre-flags confirmed and rebuilt; two scenarios proved to be manual prose and moved to the retirement track; two authors were bounced for fabricated timestamps and restamped from real clocks." }
+    },
+    "w4-gates": {
+      "type": "card",
+      "props": { "title": "Controller gated every return", "content": "Hash verification, mechanical inspection, schema validation, and the ledger gates ran serially on all 20 arrivals plus all 10 repair re-imports. Final global ledger check: pass." }
+    },
+    "w4-review": {
+      "type": "card",
+      "props": { "title": "Integrated review found what solo authors missed", "content": "13 passed round one. The cross-scenario view caught six scenarios sharing one identity defect - the trainee's own radio calls filed under the bulk-default callsign - plus a false lesson-table claim and evidence-tier debts." }
+    },
+    "w4-repairs": {
+      "type": "card",
+      "props": { "title": "Two repair rounds, same authors", "content": "All findings returned to the original author sessions with bounded instructions. Round two also caught the reviewer's own citation error - and re-verifying it exposed the last hidden defect in the supposed clean no-op." }
+    },
+    "w4-accept": {
+      "type": "card",
+      "props": { "title": "Final verdict: PASS", "content": "The reviewer confirmed every repair with hash-level scope proof and zero out-of-scope movement. Acceptance - the decision above - is the one stage left." }
+    },
+    "program-timeline": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "The arc", "title": "Where the program has been and where it goes" },
+      "children": ["timeline"]
+    },
+    "timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          { "date": "Waves 1-2", "title": "60 scenarios recertified", "status": "completed", "description": "First 60 scenarios re-grounded as independent gold and accepted." },
+          { "date": "2026-08-13", "title": "Wave 3 accepted and promoted", "status": "completed", "description": "30 recovered packets recertified, promoted with your approval, re-voiced, re-transcribed on Thor, and rescored. Accepted manifest reached 90." },
+          { "date": "2026-08-13", "title": "Three/Five convention ratified and swept", "status": "completed", "description": "Your ruling applied across 20 accepted scenarios; all repairs imported and synced. Best find: the whole defect traced to one gloss-column lift in Wave 2." },
+          { "date": "2026-08-14", "title": "Wave 4 review PASS", "status": "completed", "description": "All 20 recovered packets replayed, repaired through two review rounds, and confirmed. Two retirements identified. Synced; awaiting your acceptance." },
+          { "date": "Next", "title": "Acceptance, then the 10 smallest untouched", "status": "upcoming", "description": "On your acceptance the manifest reaches 108 of 152. The 10 smallest untouched scenarios launch next, then waves close the remaining set." }
+        ]
+      }
+    }
+  }
+}

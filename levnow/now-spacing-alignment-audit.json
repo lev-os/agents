@@ -1,0 +1,295 @@
+{
+  "meta": {
+    "title": "Now Spacing and Alignment Audit",
+    "description": "Corpus-wide visual seam audit for the Now RenderSpec component system.",
+    "effects": ["grid-lines", "title-underline"]
+  },
+  "theme": { "preset": "obsidian-monolith", "mode": "dark" },
+  "root": ["audit-shell"],
+  "elements": {
+    "audit-shell": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {},
+      "children": [
+        "hero",
+        "verdict",
+        "failure-map",
+        "metrics",
+        "family-section",
+        "pages-section",
+        "transition-section",
+        "component-section",
+        "coverage-section",
+        "qa-section",
+        "bounded-proof"
+      ]
+    },
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "RenderSpec visual failure analysis",
+        "title": "The renderer has no root layout contract",
+        "subtitle": "Agents are composing valid graphs into a container that supplies neither flow spacing nor alignment mediation.",
+        "meta": "40 pages × 3 widths · 384 measured root components · 2026-07-22"
+      }
+    },
+    "verdict": {
+      "type": "decision",
+      "props": {
+        "status": "blocked",
+        "title": "Retract the prior visually-good verdict",
+        "content": "Functional acceptance remains green, but visual acceptance was false-green. The corpus contains 184 bad component adjacencies: 128 touching, 31 overlapping, 8 too tight, and 48 unmediated rail changes.",
+        "next": "Define one parent-owned flow and rail contract, then make the acceptance harness measure every seam on full-page captures."
+      }
+    },
+    "failure-map": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "content": "flowchart LR\n  A[Agent decomposes request] --> B[Flat root list]\n  B --> C[Schema accepts every element type]\n  C --> D[Renderer joins HTML fragments]\n  D --> E[Plain block container\\nrow-gap: normal]\n  E --> F[Component-local widths and margins]\n  F --> G[Touching blocks\\nand rail jumps]\n  H[First-viewport screenshots] --> I[Lower seams never inspected]\n  I --> J[False green verdict]",
+        "caption": "The failure is architectural: composition is first-class, but component flow is not."
+      }
+    },
+    "metrics": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "Measured", "title": "Corpus-wide result" },
+      "children": ["kpi-pages", "kpi-adj", "kpi-touch", "kpi-rail", "kpi-classes"]
+    },
+    "kpi-pages": { "type": "card", "variant": "kpi", "props": { "value": "19 / 40", "label": "Pages with seam failures" } },
+    "kpi-adj": { "type": "card", "variant": "kpi", "props": { "value": 184, "label": "Bad adjacencies" } },
+    "kpi-touch": { "type": "card", "variant": "kpi", "props": { "value": 159, "label": "Touching or overlapping" } },
+    "kpi-rail": { "type": "card", "variant": "kpi", "props": { "value": 48, "label": "Rail changes" } },
+    "kpi-classes": { "type": "card", "variant": "kpi", "props": { "value": 1, "label": "Shared root class: anim" } },
+    "family-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "Where it breaks", "title": "Every free-composition family is affected", "subtitle": "The four families that place heterogeneous components directly in root all fail at every tested width." },
+      "children": ["family-table"]
+    },
+    "family-table": {
+      "type": "data-table",
+      "props": {
+        "caption": "Findings by composition family",
+        "columns": [
+          { "key": "family", "label": "Family" },
+          { "key": "pages", "label": "Affected pages", "numeric": true },
+          { "key": "findings", "label": "Findings", "numeric": true },
+          { "key": "touch", "label": "Touch", "numeric": true },
+          { "key": "overlap", "label": "Overlap", "numeric": true },
+          { "key": "tight", "label": "Tight", "numeric": true },
+          { "key": "rail", "label": "Rail", "numeric": true }
+        ],
+        "rows": [
+          { "family": "Mixed", "pages": 4, "findings": 81, "touch": 51, "overlap": 7, "tight": 6, "rail": 17 },
+          { "family": "Sales", "pages": 5, "findings": 52, "touch": 31, "overlap": 6, "tight": 0, "rail": 15 },
+          { "family": "Teaching", "pages": 5, "findings": 37, "touch": 15, "overlap": 18, "tight": 0, "rail": 4 },
+          { "family": "Technical", "pages": 5, "findings": 45, "touch": 31, "overlap": 0, "tight": 2, "rail": 12 }
+        ],
+        "footer": { "family": "Total", "pages": 19, "findings": 215, "touch": 128, "overlap": 31, "tight": 8, "rail": 48 }
+      }
+    },
+    "pages-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "All affected examples", "title": "19 pages fail at 390, 768, and 1440 px", "subtitle": "Findings count issue kinds; adjacency count is the number of distinct bad neighboring pairs across widths." },
+      "children": ["pages-table"]
+    },
+    "pages-table": {
+      "type": "data-table",
+      "props": {
+        "caption": "Every acceptance page with a spacing or alignment failure",
+        "stickyHeader": true,
+        "columns": [
+          { "key": "page", "label": "Page", "wide": true },
+          { "key": "family", "label": "Family" },
+          { "key": "adj", "label": "Adj.", "numeric": true },
+          { "key": "findings", "label": "Findings", "numeric": true },
+          { "key": "touch", "label": "Touch", "numeric": true },
+          { "key": "overlap", "label": "Overlap", "numeric": true },
+          { "key": "tight", "label": "Tight", "numeric": true },
+          { "key": "rail", "label": "Rail", "numeric": true }
+        ],
+        "rows": [
+          { "page": { "text": "MIX-01", "href": "/Users/jean-patricksmith/digital/leviathan/plugins/now/examples/acceptance/mixed/MIX-01.html" }, "family": "mixed", "adj": 5, "findings": 5, "touch": 3, "overlap": 0, "tight": 2, "rail": 0 },
+          { "page": { "text": "MIX-02", "href": "/Users/jean-patricksmith/digital/leviathan/plugins/now/examples/acceptance/mixed/MIX-02.html" }, "family": "mixed", "adj": 10, "findings": 14, "touch": 6, "overlap": 0, "tight": 2, "rail": 6 },
+          { "page": { "text": "MIX-04", "href": "/Users/jean-patricksmith/digital/leviathan/plugins/now/examples/acceptance/mixed/MIX-04.html" }, "family": "mixed", "adj": 7, "findings": 9, "touch": 5, "overlap": 0, "tight": 2, "rail": 2 },
+          { "page": { "text": "MIX-05", "href": "/Users/jean-patricksmith/digital/leviathan/plugins/now/examples/acceptance/mixed/MIX-05.html" }, "family": "mixed", "adj": 49, "findings": 53, "touch": 37, "overlap": 7, "tight": 0, "rail": 9 },
+          { "page": { "text": "SAL-01", "href": "/Users/jean-patricksmith/digital/leviathan/plugins/now/examples/acceptance/sales/SAL-01.html" }, "family": "sales", "adj": 8, "findings": 10, "touch": 6, "overlap": 1, "tight": 0, "rail": 3 },
+          { "page": { "text": "SAL-02", "href": "/Users/jean-patricksmith/digital/leviathan/plugins/now/examples/acceptance/sales/SAL-02.html" }, "family": "sales", "adj": 9, "findings": 12, "touch": 6, "overlap": 3, "tight": 0, "rail": 3 },
+          { "page": { "text": "SAL-03", "href": "/Users/jean-patricksmith/digital/leviathan/plugins/now/examples/acceptance/sales/SAL-03.html" }, "family": "sales", "adj": 6, "findings": 8, "touch": 4, "overlap": 2, "tight": 0, "rail": 2 },
+          { "page": { "text": "SAL-04", "href": "/Users/jean-patricksmith/digital/leviathan/plugins/now/examples/acceptance/sales/SAL-04.html" }, "family": "sales", "adj": 10, "findings": 14, "touch": 9, "overlap": 0, "tight": 0, "rail": 5 },
+          { "page": { "text": "SAL-05", "href": "/Users/jean-patricksmith/digital/leviathan/plugins/now/examples/acceptance/sales/SAL-05.html" }, "family": "sales", "adj": 7, "findings": 8, "touch": 6, "overlap": 0, "tight": 0, "rail": 2 },
+          { "page": { "text": "TEA-01", "href": "/Users/jean-patricksmith/digital/leviathan/plugins/now/examples/acceptance/teaching/TEA-01.html" }, "family": "teaching", "adj": 6, "findings": 6, "touch": 3, "overlap": 3, "tight": 0, "rail": 0 },
+          { "page": { "text": "TEA-02", "href": "/Users/jean-patricksmith/digital/leviathan/plugins/now/examples/acceptance/teaching/TEA-02.html" }, "family": "teaching", "adj": 6, "findings": 6, "touch": 3, "overlap": 3, "tight": 0, "rail": 0 },
+          { "page": { "text": "TEA-03", "href": "/Users/jean-patricksmith/digital/leviathan/plugins/now/examples/acceptance/teaching/TEA-03.html" }, "family": "teaching", "adj": 6, "findings": 6, "touch": 3, "overlap": 3, "tight": 0, "rail": 0 },
+          { "page": { "text": "TEA-04", "href": "/Users/jean-patricksmith/digital/leviathan/plugins/now/examples/acceptance/teaching/TEA-04.html" }, "family": "teaching", "adj": 11, "findings": 13, "touch": 3, "overlap": 6, "tight": 0, "rail": 4 },
+          { "page": { "text": "TEA-05", "href": "/Users/jean-patricksmith/digital/leviathan/plugins/now/examples/acceptance/teaching/TEA-05.html" }, "family": "teaching", "adj": 6, "findings": 6, "touch": 3, "overlap": 3, "tight": 0, "rail": 0 },
+          { "page": { "text": "TEC-01", "href": "/Users/jean-patricksmith/digital/leviathan/plugins/now/examples/acceptance/technical/TEC-01.html" }, "family": "technical", "adj": 7, "findings": 8, "touch": 6, "overlap": 0, "tight": 0, "rail": 2 },
+          { "page": { "text": "TEC-02", "href": "/Users/jean-patricksmith/digital/leviathan/plugins/now/examples/acceptance/technical/TEC-02.html" }, "family": "technical", "adj": 10, "findings": 12, "touch": 8, "overlap": 0, "tight": 1, "rail": 3 },
+          { "page": { "text": "TEC-03", "href": "/Users/jean-patricksmith/digital/leviathan/plugins/now/examples/acceptance/technical/TEC-03.html" }, "family": "technical", "adj": 7, "findings": 8, "touch": 6, "overlap": 0, "tight": 0, "rail": 2 },
+          { "page": { "text": "TEC-04", "href": "/Users/jean-patricksmith/digital/leviathan/plugins/now/examples/acceptance/technical/TEC-04.html" }, "family": "technical", "adj": 7, "findings": 8, "touch": 6, "overlap": 0, "tight": 0, "rail": 2 },
+          { "page": { "text": "TEC-05", "href": "/Users/jean-patricksmith/digital/leviathan/plugins/now/examples/acceptance/technical/TEC-05.html" }, "family": "technical", "adj": 7, "findings": 9, "touch": 5, "overlap": 0, "tight": 1, "rail": 3 }
+        ]
+      }
+    },
+    "transition-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "All bad seams", "title": "The repeated component transitions", "subtitle": "These are every transition class flagged in the 40-page corpus, grouped across pages and widths." },
+      "children": ["transition-table"]
+    },
+    "transition-table": {
+      "type": "data-table",
+      "props": {
+        "caption": "Bad root-sibling transitions",
+        "stickyHeader": true,
+        "columns": [
+          { "key": "from", "label": "From" },
+          { "key": "to", "label": "To" },
+          { "key": "count", "label": "Bad adj.", "numeric": true },
+          { "key": "problem", "label": "Failure modes", "wide": true },
+          { "key": "scope", "label": "Pages", "wide": true }
+        ],
+        "rows": [
+          { "from": "decision", "to": "document", "count": 21, "problem": "21 touching; 1 rail jump", "scope": "MIX-01, MIX-04, TEC-01…05" },
+          { "from": "hero", "to": "proof", "count": 18, "problem": "18 touching; 6 rail jumps", "scope": "MIX-02, SAL-01…05" },
+          { "from": "source-list", "to": "exercise", "count": 18, "problem": "18 overlaps", "scope": "MIX-05, TEA-01…05" },
+          { "from": "testimonial", "to": "action", "count": 16, "problem": "9 touching; 5 overlaps; 11 rail jumps", "scope": "MIX-05, SAL-01…05" },
+          { "from": "diagram", "to": "evidence", "count": 15, "problem": "15 touching; 6 rail jumps", "scope": "MIX-04, TEC-01…05" },
+          { "from": "objective", "to": "document", "count": 15, "problem": "15 touching", "scope": "TEA-01…05" },
+          { "from": "document", "to": "diagram", "count": 9, "problem": "4 tight; 6 rail jumps", "scope": "MIX-04, TEC-01…05" },
+          { "from": "proof", "to": "testimonial", "count": 8, "problem": "8 touching", "scope": "MIX-05, SAL-01, 03, 05" },
+          { "from": "action", "to": "feedback", "count": 5, "problem": "5 rail jumps", "scope": "MIX-05, TEA-04" },
+          { "from": "proof", "to": "diagram", "count": 5, "problem": "4 touching; 2 rail jumps", "scope": "MIX-02, SAL-04" },
+          { "from": "code-block", "to": "timeline", "count": 3, "problem": "3 touching", "scope": "MIX-05" },
+          { "from": "data-table", "to": "code-block", "count": 3, "problem": "3 touching", "scope": "MIX-05" },
+          { "from": "decision", "to": "proof", "count": 3, "problem": "3 touching", "scope": "MIX-05" },
+          { "from": "diagram", "to": "chart", "count": 3, "problem": "3 touching", "scope": "MIX-05" },
+          { "from": "document", "to": "action", "count": 3, "problem": "2 tight; 3 rail jumps", "scope": "MIX-02" },
+          { "from": "evidence", "to": "data-table", "count": 3, "problem": "3 touching; 1 rail jump", "scope": "TEC-02" },
+          { "from": "evidence", "to": "decision", "count": 3, "problem": "3 touching", "scope": "MIX-05" },
+          { "from": "exercise", "to": "action", "count": 3, "problem": "3 overlaps; 2 rail jumps", "scope": "TEA-04" },
+          { "from": "exercise", "to": "evidence", "count": 3, "problem": "3 touching", "scope": "MIX-05" },
+          { "from": "hero", "to": "section", "count": 3, "problem": "3 touching", "scope": "MIX-05" },
+          { "from": "navigation", "to": "document", "count": 3, "problem": "3 touching; 1 rail jump", "scope": "MIX-05" },
+          { "from": "navigation", "to": "objective", "count": 3, "problem": "2 overlaps; 1 touching", "scope": "MIX-05" },
+          { "from": "section", "to": "navigation", "count": 3, "problem": "3 touching", "scope": "MIX-05" },
+          { "from": "timeline", "to": "diagram", "count": 3, "problem": "3 touching", "scope": "MIX-05" },
+          { "from": "diagram", "to": "testimonial", "count": 2, "problem": "2 touching; 1 rail jump", "scope": "SAL-04" },
+          { "from": "document", "to": "evidence", "count": 2, "problem": "2 tight", "scope": "MIX-01" },
+          { "from": "objective", "to": "source-list", "count": 2, "problem": "2 overlaps", "scope": "MIX-05" },
+          { "from": "proof", "to": "evidence", "count": 2, "problem": "2 touching", "scope": "SAL-02" },
+          { "from": "diagram", "to": "document", "count": 1, "problem": "1 rail jump", "scope": "MIX-02" },
+          { "from": "document", "to": "navigation", "count": 1, "problem": "1 rail jump", "scope": "MIX-05" },
+          { "from": "evidence", "to": "testimonial", "count": 1, "problem": "1 overlap", "scope": "SAL-02" },
+          { "from": "feedback", "to": "data-table", "count": 1, "problem": "1 rail jump", "scope": "MIX-05" }
+        ]
+      }
+    },
+    "component-section": {
+      "type": "section",
+      "variant": "full-width",
+      "props": { "label": "Every type", "title": "Root behavior is neither shared nor fully tested", "subtitle": "Every element type is schema-valid at root. Only anim is universal; layout behavior is scattered across component-specific selectors." },
+      "children": ["component-table"]
+    },
+    "component-table": {
+      "type": "data-table",
+      "props": {
+        "caption": "Layout and acceptance status for all 22 element types",
+        "stickyHeader": true,
+        "columns": [
+          { "key": "type", "label": "Type" },
+          { "key": "root", "label": "Root corpus" },
+          { "key": "rail", "label": "Observed rail", "wide": true },
+          { "key": "spacing", "label": "Root spacing behavior", "wide": true },
+          { "key": "coverage", "label": "Variant coverage" }
+        ],
+        "rows": [
+          { "type": "hero", "root": "yes", "rail": "full container", "spacing": "0 top / 0 bottom", "coverage": "2 / 2" },
+          { "type": "section", "root": "yes", "rail": "full container", "spacing": "0 top / 0 bottom; children get variant rules", "coverage": "2 / 13" },
+          { "type": "card", "root": "no", "rail": "unmeasured at root", "spacing": "root behavior untested", "coverage": "1 / 11" },
+          { "type": "text", "root": "no", "rail": "unmeasured at root", "spacing": "root behavior untested", "coverage": "1 / 6" },
+          { "type": "data-table", "root": "yes", "rail": "full container", "spacing": "0 top / 0 bottom", "coverage": "base only" },
+          { "type": "code-block", "root": "yes", "rail": "full container", "spacing": "0 top / 0 bottom", "coverage": "base only" },
+          { "type": "timeline", "root": "yes", "rail": "full container", "spacing": "0 top / 0 bottom", "coverage": "base only" },
+          { "type": "diagram", "root": "yes", "rail": "full container", "spacing": "0 top / 0 bottom", "coverage": "base only" },
+          { "type": "inline", "root": "yes", "rail": "full container", "spacing": "divider owns 32px margins", "coverage": "1 / 2" },
+          { "type": "custom-html", "root": "no", "rail": "unmeasured", "spacing": "absent from corpus", "coverage": "0 / 1" },
+          { "type": "chart", "root": "yes", "rail": "full container", "spacing": "0 top / 0 bottom", "coverage": "1 / 4 chart types" },
+          { "type": "feedback", "root": "yes", "rail": "centered 51rem", "spacing": "owns 32px top / bottom", "coverage": "2 / 2" },
+          { "type": "document", "root": "yes", "rail": "centered reading measure", "spacing": "0 bottom; top only when page-first", "coverage": "base only" },
+          { "type": "navigation", "root": "yes", "rail": "list full; pager centered 51rem", "spacing": "variant-specific; pager owns 24px top", "coverage": "2 / 2" },
+          { "type": "action", "root": "yes", "rail": "content-sized, left pinned", "spacing": "0 top / 0 bottom", "coverage": "1 / 3" },
+          { "type": "objective", "root": "yes", "rail": "centered 51rem", "spacing": "0 bottom; top only when page-first", "coverage": "base only" },
+          { "type": "source-list", "root": "yes", "rail": "centered 51rem", "spacing": "0 top / 0 bottom", "coverage": "base only" },
+          { "type": "exercise", "root": "yes", "rail": "centered 51rem", "spacing": "0 top / 0 bottom", "coverage": "base only" },
+          { "type": "evidence", "root": "yes", "rail": "centered 51rem", "spacing": "0 top / 0 bottom", "coverage": "base only" },
+          { "type": "decision", "root": "yes", "rail": "centered 51rem", "spacing": "0 bottom; top only when page-first", "coverage": "base only" },
+          { "type": "proof", "root": "yes", "rail": "centered 51rem", "spacing": "0 top / 0 bottom", "coverage": "base only" },
+          { "type": "testimonial", "root": "yes", "rail": "centered 51rem", "spacing": "explicit margin: 0", "coverage": "base only" }
+        ]
+      }
+    },
+    "coverage-section": {
+      "type": "section",
+      "variant": "comparison",
+      "props": { "label": "Coverage failure", "title": "The suite is broad by page count, shallow by component state" },
+      "children": ["covered", "missing"]
+    },
+    "covered": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "What the 40 pages do cover",
+        "content": "21 of 22 element types appear somewhere. Both hero, feedback, and navigation variants are present. All eight page families render without horizontal overflow or console errors."
+      }
+    },
+    "missing": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "What they do not cover",
+        "content": "11 of 13 section variants; 10 of 11 card variants; 5 of 6 text variants; 2 of 3 action variants; status-badge; custom-html; and 3 of 4 chart types. Card and text are never exercised as direct root siblings."
+      }
+    },
+    "qa-section": {
+      "type": "section",
+      "variant": "comparison",
+      "props": { "label": "Why QA missed it", "title": "The checks proved function, not composition quality" },
+      "children": ["qa-green", "qa-missing"]
+    },
+    "qa-green": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "The green checks",
+        "content": "Schema admission, rendering, responsive overflow, console safety, interaction behavior, and one screenshot per page/width all passed. Those are still valid functional results."
+      }
+    },
+    "qa-missing": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "The missing checks",
+        "content": "The saved screenshot was only the first viewport. No assertion measured sibling gap, overlap, alignment rail changes, common layout classes, or full-page chunk coverage. MIX-02's lower seams were never judged."
+      }
+    },
+    "bounded-proof": {
+      "type": "proof",
+      "props": {
+        "title": "Bounded conclusion",
+        "claim": "This is not primarily an agent choosing left alignment.",
+        "evidence": "Every rendered page uses a block container with row-gap normal; root HTML fragments are concatenated; all root elements share only the animation class; section children alone receive parent-owned gap rules; and the acceptance corpus records failures in every family that freely mixes root peers.",
+        "source": "src/engine/render.ts; src/engine/shell.ts; src/engine/utils.ts; src/engine/theme.ts; /tmp/lev-now-spacing-audit-20260722/audit.json",
+        "limitation": "The audit defines bad seams as overlap, less than 8px touching, less than 24px desktop or 16px mobile tightness, and large unsignaled width changes. Final token values still need a design decision before implementation."
+      }
+    }
+  }
+}

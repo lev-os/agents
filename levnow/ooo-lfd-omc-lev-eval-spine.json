@@ -1,0 +1,596 @@
+{
+  "meta": {
+    "title": "From Temporary Harnesses to Admitted Evidence",
+    "description": "A source-backed architecture brief connecting Ouroboros loop evolution, Loss Function Design, OMC UltraQA temporary harnesses, and Lev's typed eval spine.",
+    "layout": "sidebar-toc",
+    "effects": ["grid-dots", "title-underline", "card-glow"]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "ruling",
+    "roles",
+    "ooo",
+    "lfd",
+    "omc",
+    "compare",
+    "lev-current",
+    "trace",
+    "target",
+    "implementation",
+    "sources"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "EVAL ARCHITECTURE · PRIOR ART · JULY 2026",
+        "title": "From Temporary Harnesses to Admitted Evidence",
+        "subtitle": "OOO loop semantics × LFD loss engineering × OMC hostile harnesses × Lev's one-brain eval path",
+        "meta": "Verified against OMC 5319c3d · LFD design 4f362cb · OOO local evidence snapshot 3e382a3 (upstream has advanced) · Lev working tree 2026-07-16"
+      },
+      "children": ["hero-lead", "hero-callout"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "**The answer:** eval is the shared spine, but the three prior-art systems solve different layers. OOO decides how a loop learns from failure. LFD designs the objective and its anti-cheat instruments. OMC teaches an agent to invent hostile, task-local probes. Lev should support all three without creating a second harness framework: generated probes become an untrusted `Task Eval Instance`, deterministically admitted and frozen, measured by code, decided by `core/eval`, and retained as replayable XDG evidence."
+      }
+    },
+    "hero-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Current truth",
+        "content": "The architecture is now documented, but the generic generated-harness runtime is not wired end to end. The declared FlowMind validates; it does not yet provide typed admission, immutable artifact binding, generic observer launch, companion measurement, or EvalDecision-required completion. Required evals are therefore not universally blocking today."
+      }
+    },
+
+    "ruling": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "EXECUTIVE RULING",
+        "title": "Four layers, one authority spine"
+      },
+      "children": ["kpi-ooo", "kpi-lfd", "kpi-omc", "kpi-lev"]
+    },
+    "kpi-ooo": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "EVOLVE",
+        "label": "OOO",
+        "trend": {"direction": "flat", "value": "Wonder → Reflect → new Seed"}
+      }
+    },
+    "kpi-lfd": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "DESIGN",
+        "label": "LFD",
+        "trend": {"direction": "flat", "value": "target + constraints + instruments + entropy"}
+      }
+    },
+    "kpi-omc": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "PROBE",
+        "label": "OMC UltraQA",
+        "trend": {"direction": "flat", "value": "hostile task-local E2E"}
+      }
+    },
+    "kpi-lev": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "ADMIT",
+        "label": "Lev core/eval",
+        "trend": {"direction": "up", "value": "freeze → measure → decide → replay"}
+      }
+    },
+
+    "roles": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "THE SYSTEM MODEL",
+        "title": "Do not collapse authoring, execution, and authority"
+      },
+      "children": ["roles-diagram", "roles-note"]
+    },
+    "roles-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "content": "flowchart LR\n  O[\"OOO: choose the next semantic move\"] --> A[\"LLM authors scenarios / fixtures / probes\"]\n  L[\"LFD: define target, constraints, anti-cheat, holdout\"] --> P[\"Pack + inline FlowMind policy\"]\n  M[\"OMC pattern: generate hostile temporary harness\"] --> A\n  A --> D[\"Draft Task Eval Instance\"]\n  P --> C[\"Deterministic admission\"]\n  D --> C\n  C --> X[\"Frozen manifest + bytes + digests in XDG artifacts\"]\n  X --> R[\"Exact setup / execute / observe / cleanup\"]\n  R --> Q[\"Code companion measurements\"]\n  Q --> E[\"core/eval EvalDecision\"]\n  E --> G{\"Lifecycle route\"}\n  G -->|pass| S[\"succeed / advance\"]\n  G -->|fail| F[\"repair / reject\"]\n  G -->|error| H[\"hold / block\"]\n  E --> O",
+        "caption": "The LLM may propose evidence-producing instruments. Deterministic code decides whether they are admissible and what the resulting evidence means."
+      }
+    },
+    "roles-note": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "The clean abstraction",
+        "content": "A generated harness is not a new domain object. It is an authoring mode for the existing `Task Eval Instance`: pack references and inline FlowMind compile the policy; the task supplies current claims and optional generated instruments; `core/eval` remains the only promotion-facing verdict emitter."
+      }
+    },
+
+    "ooo": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "PRIOR ART 01 · OOO / OUROBOROS",
+        "title": "The missing mechanism is not another score — it is feeding evaluation back into intent",
+        "subtitle": "Local source snapshot 3e382a3; upstream HEAD was 456a134 when checked, so exact source claims below are pinned to the inspected snapshot."
+      },
+      "children": ["ooo-prose", "ooo-diagram", "ooo-table", "ooo-falsegreen"]
+    },
+    "ooo-prose": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "Ouroboros is a spec-first agent loop: Interview produces an immutable Seed, execution produces an artifact, evaluation scores it, and the evolutionary loop changes the next Seed. The important part is **causal use of the evaluation**. From generation two onward, Wonder sees the ontology, prior evaluation summary, output, lineage, and Seed. Reflect turns that critique into a revised intent. A new Seed is generated, its ontology delta is recorded, and only then does execution resume.\n\nThat is stronger than merely storing a drift score. Lev's semantic-control design already borrows OOO's weighted drift model — goal, constraint, and ontology preservation — but the durable lesson is the feedback mechanism: an `EvalDecision` must route a typed next action whose input includes the exact failed measurements and prior lineage."
+      }
+    },
+    "ooo-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "content": "flowchart LR\n  S[\"Immutable Seed\"] --> E[\"Execute\"]\n  E --> V[\"Mechanical → Semantic → Consensus eval\"]\n  V --> W[\"Wonder: interrogate result + ontology + lineage\"]\n  W --> R[\"Reflect: synthesize a new direction\"]\n  R --> N[\"Generate new Seed + ontology delta\"]\n  N --> E\n  V --> C{\"Converged?\"}\n  C -->|yes| Z[\"Terminal result\"]\n  C -->|no| W",
+        "caption": "OOO's non-deterministic seams are Wonder and Reflect; lineage, budgets, ontology deltas, convergence gates, and phase transitions are deterministic scaffolding."
+      }
+    },
+    "ooo-table": {
+      "type": "data-table",
+      "props": {
+        "caption": "What OOO contributes beyond a pass/fail eval runner.",
+        "columns": [
+          {"key": "mechanism", "label": "Mechanism"},
+          {"key": "owner", "label": "Owner"},
+          {"key": "signal", "label": "Signal / rule", "wide": true},
+          {"key": "lev", "label": "Lev disposition", "wide": true}
+        ],
+        "rows": [
+          {"mechanism": "Wonder", "owner": "LLM", "signal": "Questions the artifact, evaluation, ontology, and lineage; unanswered questions can force continuation.", "lev": "Typed refinement proposal after a failed or ambiguous EvalDecision."},
+          {"mechanism": "Reflect", "owner": "LLM", "signal": "Synthesizes critique into revised intent; retries are bounded.", "lev": "Mutation authoring only; cannot self-certify the mutation."},
+          {"mechanism": "Ontology delta", "owner": "Code", "signal": "Records semantic change between Seeds.", "lev": "Persist as generation-bound measurement and lineage evidence."},
+          {"mechanism": "Convergence", "owner": "Code", "signal": "Ontology stability, stagnation window, max generations, repetitive questions, oscillation, AC/regression/validation gates.", "lev": "Compile into FlowMind route policy and deterministic loop budgets."},
+          {"mechanism": "No-evolution guard", "owner": "Code", "signal": "Similarity alone cannot claim convergence when the ontology never evolved.", "lev": "Anti-false-green invariant for loops that only repeat or paraphrase."}
+        ]
+      }
+    },
+    "ooo-falsegreen": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "OOO's best failure fixture",
+        "content": "One captured OOO run reported 12 local tests green while terminal acceptance passed only 2 of 4 criteria. That is the exact class Lev must block: local harness success is an observation, not lifecycle authority. Acceptance policy must still discharge through the current generation's EvalDecision."
+      }
+    },
+
+    "lfd": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "PRIOR ART 02 · LOSS FUNCTION DESIGN",
+        "title": "LFD is eval design plus optimizer containment",
+        "subtitle": "The design is richer than a test harness: it builds the target, anti-cheat surface, holdout, instruments, and bounded optimization loop."
+      },
+      "children": ["lfd-anatomy", "lfd-cycle", "lfd-tree", "lfd-contract", "lfd-gap"]
+    },
+    "lfd-anatomy": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "LOSS FUNCTION ANATOMY",
+        "title": "Four pieces must exist before the loop"
+      },
+      "children": ["lfd-target", "lfd-constraints", "lfd-instruments", "lfd-entropy"]
+    },
+    "lfd-target": {
+      "type": "card",
+      "variant": "default",
+      "props": {"title": "1 · Target", "content": "A mechanically measurable desired outcome. The spec is the inner loop; the eval distribution is the outer loop."}
+    },
+    "lfd-constraints": {
+      "type": "card",
+      "variant": "default",
+      "props": {"title": "2 · Constraints", "content": "Budgets, capacity caps, allowed surfaces, safety boundaries, and dual-sided metrics that prevent winning by deletion or inflation."}
+    },
+    "lfd-instruments": {
+      "type": "card",
+      "variant": "default",
+      "props": {"title": "3 · Instruments", "content": "Scorers, linters, probes, status checks, dev examples, hidden holdouts, known-good/bad calibration, and artifact capture."}
+    },
+    "lfd-entropy": {
+      "type": "card",
+      "variant": "default",
+      "props": {"title": "4 · Forced entropy", "content": "Holdouts, perturbations, rare cases, adversarial cases, and repeated samples that keep the optimizer from memorizing the visible score surface."}
+    },
+    "lfd-cycle": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          {"date": "Observe", "title": "Inventory existing tests, CI, tools, and surfaces", "status": "completed", "description": "Reuse project-native scorers and identify where truth already lives."},
+          {"date": "Specify", "title": "Lock outcome, budgets, acceptance, and allowed surface", "status": "completed", "description": "Define what can change and what evidence counts before exposing a score."},
+          {"date": "Design", "title": "Build target, constraints, instruments, entropy", "status": "completed", "description": "Enumerate at least ten cheap paths and add fences."},
+          {"date": "Calibrate", "title": "Run known-good, known-bad, leak, and deliberate-failure probes", "status": "completed", "description": "A scorer that cannot distinguish these is not safe to optimize."},
+          {"date": "Optimize", "title": "Propose → verify → threshold/budget → refine", "status": "in-progress", "description": "Patch the loss function when the loop cheats; do not teach the agent a one-off workaround."},
+          {"date": "Promote", "title": "Operator-owned hidden holdout and reviewed source promotion", "status": "upcoming", "description": "A best visible score never promotes itself."}
+        ]
+      }
+    },
+    "lfd-tree": {
+      "type": "code-block",
+      "props": {
+        "language": "text",
+        "content": "harness/\n  score.sh        # numeric score; exit code says whether scorer ran\n  lint.sh         # hard constraints and cheap-path fences\n  probe.sh        # known-good / known-bad / adversarial calibration\n  status.sh       # bounded operator-readable state\neval/\n  dev/            # visible inputs; blinded answers\n  holdout/        # controller-owned; aggregate results only\nLOG.md             # cycles, scores, changes, failures, artifacts"
+      }
+    },
+    "lfd-contract": {
+      "type": "data-table",
+      "props": {
+        "caption": "The approved LFD contract is already close to Lev's desired evaluator component model.",
+        "columns": [
+          {"key": "dimension", "label": "Dimension"},
+          {"key": "lfd", "label": "LFD design", "wide": true},
+          {"key": "lev", "label": "Lev normalization", "wide": true},
+          {"key": "authority", "label": "Authority"}
+        ],
+        "rows": [
+          {"dimension": "Inputs", "lfd": "candidate + evidence", "lev": "subject binding + current evidence refs", "authority": "Data"},
+          {"dimension": "Outputs", "lfd": "score + details + artifacts", "lev": "TypedObservation + Measurement + artifact refs", "authority": "Evidence"},
+          {"dimension": "Exit code", "lfd": "0 = scorer ran; nonzero = verifier failure, not score zero", "lev": "evaluation_error blocks decision", "authority": "Fail-closed"},
+          {"dimension": "Nondeterminism", "lfd": "declare it; pin model/prompt/temp; multi-sample mean/median", "lev": "retain every raw sample and aggregate in code", "authority": "Measured"},
+          {"dimension": "Budget", "lfd": "explicit run/time/token limits", "lev": "compiled capability and resource envelope", "authority": "Admission"}
+        ]
+      }
+    },
+    "lfd-gap": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Design contract vs shipped reference",
+        "content": "The LFD design is the right prior art; its shipped reference is not final authority. The reference still permits an 0.8 pass-rate threshold, has partial flake/determinism checks, leaves scaffold stubs to fill, relies on an operator for hidden holdout promotion, and does not guarantee restoring the best candidate. Lev should absorb the contract and pressure-test it, not import its runtime authority."
+      }
+    },
+
+    "omc": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "PRIOR ART 03 · OMC ULTRAQA",
+        "title": "How OMC actually tells agents to build temporary harnesses",
+        "subtitle": "OMC uses a strong prompt protocol for dynamic QA authoring and a much thinner runtime verdict contract."
+      },
+      "children": ["omc-instruction", "omc-pipeline", "omc-matrix", "omc-guardrails", "omc-promotion"]
+    },
+    "omc-instruction": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "The UltraQA skill instructs the agent to generate temporary tests, scripts, fixtures, or harnesses **only when they materially improve behavioral confidence and no existing E2E covers the behavior**. It says to prefer project-native tools; keep throwaway artifacts in a temp directory or clearly named fixture area; bound every command with timeouts; inspect both exit codes and output semantics; record every artifact and whether it was committed or removed; preserve unrelated user work; and compare dirty-tree state before and after.\n\nThe agent must plan a scenario matrix before declaring success. Hostile cases include malformed input, repeated interruption, prompt injection, cancel/resume, stale state, dirty worktrees, hung commands, flaky tests, and misleading success output. It cycles at most five times: baseline, adversarial E2E, diagnose, fix, retest, clean up, report."
+      }
+    },
+    "omc-pipeline": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "content": "flowchart LR\n  T[\"Task\"] --> I[\"$ultraqa task instruction\"]\n  I --> P[\"Plan scenario matrix\"]\n  P --> B[\"Run baseline\"]\n  B --> H[\"Generate hostile temp harness if needed\"]\n  H --> R[\"Run with timeout + semantic checks\"]\n  R --> Q{\"All scenarios pass?\"}\n  Q -->|no| D[\"Diagnose → fix → retest; max 5\"]\n  D --> H\n  Q -->|yes| C[\"Cleanup + structured report\"]\n  C --> V[\"qa_verdict: clean + summary + evidence locator\"]\n  V --> G[\"Autopilot completion gate\"]",
+        "caption": "OMC's authoring protocol is detailed. Its machine-facing stage boundary is intentionally shallow."
+      }
+    },
+    "omc-matrix": {
+      "type": "data-table",
+      "props": {
+        "caption": "UltraQA requires these fields per scenario before it can say YES.",
+        "columns": [
+          {"key": "field", "label": "Scenario field"},
+          {"key": "purpose", "label": "Why it exists", "wide": true},
+          {"key": "lev", "label": "Typed Lev destination", "wide": true},
+          {"key": "blocking", "label": "Blocking?"}
+        ],
+        "rows": [
+          {"field": "id + intent", "purpose": "Stable scenario identity and claimed behavior", "lev": "EvalCase id + claim ref", "blocking": "Admission"},
+          {"field": "user / attacker", "purpose": "Threat persona and interaction mode", "lev": "case tags + threat model refs", "blocking": "Policy-defined"},
+          {"field": "setup", "purpose": "Preconditions and fixtures", "lev": "bounded setup projection + artifact digests", "blocking": "Setup errors block"},
+          {"field": "command / harness", "purpose": "Exact evidence-producing instrument", "lev": "Executable Check Projection", "blocking": "Capability + path checks"},
+          {"field": "expected / actual", "purpose": "Observable contract and raw result", "lev": "expected observation schema + TypedObservation", "blocking": "Schema + measurement"},
+          {"field": "fixes + evidence", "purpose": "Iteration lineage and proof refs", "lev": "generation lineage + immutable evidence refs", "blocking": "Current generation only"},
+          {"field": "cleanup", "purpose": "Prove no task-local debris or side effects remain", "lev": "cleanup receipt + dirty-tree delta", "blocking": "Yes when declared"}
+        ]
+      }
+    },
+    "omc-guardrails": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "TEMP HARNESS GUARDRAILS",
+        "title": "The prompt-level details worth preserving"
+      },
+      "children": ["omc-import", "omc-writer", "omc-env", "omc-setup"]
+    },
+    "omc-import": {"type": "card", "variant": "default", "props": {"title": "Absolute imports", "content": "A harness under `/tmp` must import the repository through an absolute path; working-directory luck is not evidence."}},
+    "omc-writer": {"type": "card", "variant": "default", "props": {"title": "Safe file generation", "content": "Use non-interpolating writers for JS/TS bodies. If a heredoc is unavoidable, quote it and verify the generated file before executing."}},
+    "omc-env": {"type": "card", "variant": "default", "props": {"title": "State isolation", "content": "Unset `OMX_ROOT` and `OMX_STATE_ROOT` for isolated probes so ambient operator state cannot create a false pass."}},
+    "omc-setup": {"type": "card", "variant": "default", "props": {"title": "Setup ≠ product failure", "content": "Classify setup and harness defects separately. Repair the probe and rerun before accusing the product."}},
+    "omc-promotion": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "What OMC promotes — and what it does not",
+        "content": "OMC's stage adapter writes a shallow `qa_verdict` (`clean`, `skipped`, summary, evidence locator) into Autopilot state. The completion gate checks that `clean:true` came from the UltraQA stage and has a locator. It does **not** reopen the matrix, validate typed scenario payloads, recompute scores, freeze harness bytes, or promote the harness source. A throwaway harness is deleted unless a human intentionally commits it. The promoted object is the verdict pointer, not a reusable harness."
+      }
+    },
+
+    "compare": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "COMPARISON",
+        "title": "Same neighborhood, different jobs"
+      },
+      "children": ["compare-table"]
+    },
+    "compare-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {"key": "system", "label": "System"},
+          {"key": "optimizes", "label": "Primary job", "wide": true},
+          {"key": "llm", "label": "LLM handles", "wide": true},
+          {"key": "code", "label": "Code handles", "wide": true},
+          {"key": "promotion", "label": "Promotion boundary", "wide": true}
+        ],
+        "rows": [
+          {"system": "OOO", "optimizes": "Semantic evolution of intent across generations", "llm": "Wonder, Reflect, new Seed content", "code": "Lineage, ontology delta, budgets, convergence gates", "promotion": "Converged terminal result after multi-stage eval"},
+          {"system": "LFD", "optimizes": "Reliable loss surface and anti-gaming loop", "llm": "Candidate changes; optional judge samples", "code": "Scoring, lint, probes, holdout isolation, thresholds", "promotion": "Operator-controlled holdout and acceptance"},
+          {"system": "OMC", "optimizes": "Task-specific adversarial behavioral confidence", "llm": "Scenario matrix, temp harness, diagnosis, fixes", "code": "Stage invocation and shallow completion check", "promotion": "QA verdict + evidence locator; not harness source"},
+          {"system": "Lev target", "optimizes": "Unified, replayable lifecycle truth", "llm": "Author typed drafts and observations inside policy", "code": "Compile, admit, freeze, execute, measure, decide, route", "promotion": "EvalDecision for run; reviewed Owner Eval Suite for reuse"}
+        ]
+      }
+    },
+
+    "lev-current": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "LEV · CURRENT STATE",
+        "title": "The canon has converged; the runtime seam is still open",
+        "subtitle": "Current docs define both durable eval packs and generated task-local harnesses on one authority path."
+      },
+      "children": ["lev-current-table", "lev-warning", "lev-storage"]
+    },
+    "lev-current-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {"key": "surface", "label": "Surface"},
+          {"key": "state", "label": "Current state"},
+          {"key": "evidence", "label": "What exists", "wide": true},
+          {"key": "gap", "label": "What remains", "wide": true}
+        ],
+        "rows": [
+          {"surface": "Eval ontology", "state": {"text": "Defined", "status": "match"}, "evidence": "Owner Eval Suite, Task Eval Instance, Generated Harness authoring mode, EvalRun, Measurement, EvalDecision", "gap": "Legacy suite/proof exports still need hard cutover"},
+          {"surface": "Policy composition", "state": {"text": "Designed", "status": "match"}, "evidence": "Core/eval pack reference + inline FlowMind policy combine into one compiled policy", "gap": "Runtime compiler/admission API not complete"},
+          {"surface": "Generated flow", "state": {"text": "Declared", "status": "warn"}, "evidence": "`eval-harness.flow.yaml`: resolve → author → admit → execute → measure → decide → route", "gap": "Validation proves graph shape, not implementation of the typed nodes"},
+          {"surface": "Blocking completion", "state": {"text": "Not universal", "status": "gap"}, "evidence": "Lifecycle design requires current decided/pass EvalDecision for each requirement", "gap": "Live completion paths still rely on output/verifier behavior in places"},
+          {"surface": "Trace persistence", "state": {"text": "Designed", "status": "warn"}, "evidence": "Authored policy and refs in project `.lev`; runtime artifacts/receipts/decisions through typed XDG routes", "gap": "Generic immutable generated-harness bundle and replay surface are missing"}
+        ]
+      }
+    },
+    "lev-warning": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Why the loop can still fail open",
+        "content": "The proposal and designs say completion requires EvalDecision, but that is not equivalent to a wired runtime gate. Until every declared evaluation requirement resolves to one admitted subject binding and one current `decided/pass` decision — with missing evidence producing `evaluation_error` — a successful agent exit or local test result can still be mistaken for completion."
+      }
+    },
+    "lev-storage": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "content": "flowchart TB\n  P[\"Project .lev\"] -->|authored| A[\"pack refs · inline FlowMind · task claims · lifecycle refs\"]\n  A --> C[\"compiled policy + admitted manifest\"]\n  C --> X[\"XDG data/state/cache/runtime\"]\n  X --> R[\"frozen bytes · samples · stdout/stderr · observations · measurements · receipts · EvalDecision\"]\n  R --> L[\"execution ledger seal\"]\n  L -. refs only .-> P\n  R --> U[\"rebuildable trace / dashboard / replay projection\"]",
+        "caption": "No split brain: `.lev` is authored state and references; XDG-backed execution-ledger routes hold runtime truth; pages and dashboards are projections."
+      }
+    },
+
+    "trace": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "TRACEABILITY CONTRACT",
+        "title": "Every step must expose its exact input, output, and blocking failure"
+      },
+      "children": ["trace-table"]
+    },
+    "trace-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {"key": "step", "label": "Step"},
+          {"key": "input", "label": "Input", "wide": true},
+          {"key": "output", "label": "Output", "wide": true},
+          {"key": "failure", "label": "Blocking failure", "wide": true}
+        ],
+        "rows": [
+          {"step": "Resolve", "input": "pack refs + inline FlowMind + claims + subject", "output": "compiled source policy, capability envelope, required observations, budgets", "failure": "conflict, missing pack, ambiguous ownership, unsupported capability"},
+          {"step": "Synthesize", "input": "compiled policy + subject + current generation", "output": "draft Task Eval Instance, files, expected schemas, generator/model/prompt refs", "failure": "prose-only output, out-of-scope path, topology mutation, undeclared dependency"},
+          {"step": "Admit", "input": "draft manifest + every file byte + capability/path/budget declarations", "output": "immutable bundle digest, attempt binding, XDG artifact refs", "failure": "schema error, escape, mutable input, secret exposure, missing cleanup, nondeterminism undeclared"},
+          {"step": "Execute / observe", "input": "frozen bundle + isolated workspace + exact environment", "output": "process outcomes, raw samples, stdout/stderr, TypedObservations, cleanup receipt", "failure": "timeout, setup error, payload error, dirty-tree delta, missing sample"},
+          {"step": "Measure", "input": "typed observations + evidence refs + deterministic companion version", "output": "Measurements with methodology and input digests", "failure": "companion crash, nonnumeric output, missing variable, sample aggregation error"},
+          {"step": "Decide / route", "input": "current attempt + exact source policy + measurements + evidence refs", "output": "one EvalDecision + lifecycle action + sealed ledger refs", "failure": "evaluation_error blocks; fail repairs/rejects; only current decided/pass can advance"}
+        ]
+      }
+    },
+
+    "target": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "TARGET ARCHITECTURE",
+        "title": "Support both durable packs and ad hoc harnesses without two systems"
+      },
+      "children": ["target-diagram", "promotion-table", "nondeterminism"]
+    },
+    "target-diagram": {
+      "type": "diagram",
+      "props": {
+        "engine": "mermaid",
+        "content": "flowchart LR\n  K[\"Durable Owner Eval Suite / pack\"] --> P[\"Compiled policy\"]\n  I[\"Inline FlowMind definition\"] --> P\n  T[\"Task claims + subject binding\"] --> P\n  P --> G{\"Generated harness allowed?\"}\n  G -->|no| D[\"Bind existing cases / observers / companions\"]\n  G -->|yes| A[\"LLM authors task-local cases and probes\"]\n  A --> M[\"Task Eval Instance draft\"]\n  D --> Z[\"Deterministic admission + freeze\"]\n  M --> Z\n  Z --> E[\"One eval runtime\"]\n  E --> V[\"EvalDecision\"]\n  V --> R[\"Run admission outcome\"]\n  V -. recurrence + calibration + review .-> S[\"Optional source promotion into Owner Eval Suite\"]",
+        "caption": "Generated files fill declared data slots. They never rewrite the FlowMind topology that will judge them."
+      }
+    },
+    "promotion-table": {
+      "type": "data-table",
+      "props": {
+        "caption": "There are two promotions, and conflating them creates false authority.",
+        "columns": [
+          {"key": "promotion", "label": "Promotion"},
+          {"key": "scope", "label": "Scope"},
+          {"key": "requires", "label": "Requires", "wide": true},
+          {"key": "result", "label": "Result", "wide": true}
+        ],
+        "rows": [
+          {"promotion": "Run admission", "scope": "One subject × generation × attempt", "requires": "Typed manifest, declared capability, frozen bytes, budgets, cleanup, methodology, digests", "result": "The instrument may execute once and produce evidence for EvalDecision"},
+          {"promotion": "Source promotion", "scope": "Reusable owner methodology", "requires": "Recurrence, review, known-good/bad calibration, hidden holdout, leak audit, reward-hack probes, stable ownership", "result": "Cases/checks/companions become part of the Owner Eval Suite"}
+        ]
+      }
+    },
+    "nondeterminism": {
+      "type": "data-table",
+      "props": {
+        "caption": "Nondeterminism is permitted as observed evidence, never as hidden authority.",
+        "columns": [
+          {"key": "surface", "label": "Surface"},
+          {"key": "allowed", "label": "Allowed behavior", "wide": true},
+          {"key": "control", "label": "Deterministic control", "wide": true},
+          {"key": "decision", "label": "Can decide?"}
+        ],
+        "rows": [
+          {"surface": "OOO Wonder / Reflect", "allowed": "Semantic critique and revised intent", "control": "Pinned lineage, bounded retries/generations, ontology delta, convergence rules", "decision": "No"},
+          {"surface": "Generated harness author", "allowed": "Scenarios, fixtures, executable probes inside declared slots", "control": "Schema, capability, path, dependency, budget, digest, isolation, cleanup admission", "decision": "No"},
+          {"surface": "LLM evaluator / judge", "allowed": "Typed sample-level observations", "control": "Pinned model/prompt/temp, N samples retained, deterministic aggregation, hard gates", "decision": "No"},
+          {"surface": "Code companion", "allowed": "Transform admitted observations into measurements", "control": "Versioned implementation + input/output digests + exact rerun", "decision": "No"},
+          {"surface": "core/eval", "allowed": "Apply compiled source policy to current measurements", "control": "Two-arm decision, fail-closed missing evidence, exact attempt identity", "decision": "Yes"}
+        ]
+      }
+    },
+
+    "implementation": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "LEV GAPS · EXECUTION SLICES",
+        "title": "What has to change to make the design real"
+      },
+      "children": ["implementation-table", "responsibility-table", "final-ruling"]
+    },
+    "implementation-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {"key": "slice", "label": "Slice"},
+          {"key": "deterministic", "label": "Deterministic code", "wide": true},
+          {"key": "declarative", "label": "DNA / FlowMind / YAML / .lev", "wide": true},
+          {"key": "proof", "label": "Blocking proof", "wide": true}
+        ],
+        "rows": [
+          {"slice": "1 · Compile", "deterministic": "Resolve pack + inline policy conflicts into one canonical policy and requirement-key hash", "declarative": "Pack refs, inline overrides, authoring allowance, capability and resource envelope", "proof": "Same inputs produce same policy digest; conflict fails closed"},
+          {"slice": "2 · Admit", "deterministic": "Typed Task Eval manifest parser; file/path/capability/secret/dependency checks; freeze and digest bundle", "declarative": "Allowed generated slots, schemas, budgets, cleanup contract, nondeterminism declaration", "proof": "Mutation after admission invalidates attempt; escape fixtures rejected"},
+          {"slice": "3 · Execute", "deterministic": "Generic isolated setup/observer/check/cleanup runner with timeouts, exact environment, raw sample retention", "declarative": "Ordered checks, expected observation schemas, sampling profile", "proof": "Setup/harness/product failures remain distinct; dirty-tree and cleanup receipts enforced"},
+          {"slice": "4 · Measure / decide", "deterministic": "Code companion resolution, aggregation, source-policy discharge, one EvalDecision per attempt", "declarative": "Thresholds, comparator rules, required evidence, pass/fail/error routes", "proof": "Missing sample or companion error can never become pass"},
+          {"slice": "5 · Block / replay", "deterministic": "Completion assessment requires current decided/pass refs; execution ledger seal; replay and trace projection", "declarative": "Lifecycle action map and authored refs only in `.lev`", "proof": "Delete one required decision and success becomes impossible; replay reproduces measurements"},
+          {"slice": "6 · Learn", "deterministic": "Recurrence clustering and candidate extraction without auto-promotion", "declarative": "Owner nomination, review policy, calibration/holdout requirements", "proof": "Generated source cannot enter a durable pack without explicit reviewed promotion"}
+        ]
+      }
+    },
+    "responsibility-table": {
+      "type": "data-table",
+      "props": {
+        "caption": "The final responsibility split.",
+        "columns": [
+          {"key": "actor", "label": "Actor"},
+          {"key": "does", "label": "What it handles", "wide": true},
+          {"key": "never", "label": "What it must never handle", "wide": true}
+        ],
+        "rows": [
+          {"actor": "LLM author", "does": "Propose cases, fixtures, probes, expected typed observations, critique, and repairs", "never": "Choose its own authority, widen capabilities, mutate judging topology, hide samples, or mark lifecycle done"},
+          {"actor": "Deterministic runtime", "does": "Compile, validate, freeze, execute, isolate, collect, aggregate, persist, replay, and enforce budgets", "never": "Invent semantic acceptance criteria that were absent from policy"},
+          {"actor": "FlowMind / DNA / YAML", "does": "Declare topology, pack composition, capabilities, schemas, thresholds, budgets, routes, and owner boundaries", "never": "Store mutable runtime truth or become a second verdict database"},
+          {"actor": "core/eval", "does": "Normalize observations, invoke companions, emit current EvalDecision, expose refs to lifecycle", "never": "Own domain-specific methodology or let a local harness self-promote"},
+          {"actor": "Operator / owner", "does": "Approve high-risk first runs, own hidden holdouts, review reusable source promotion", "never": "Manually reconstruct evidence that the runtime failed to retain"}
+        ]
+      }
+    },
+    "final-ruling": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "The best-agent-framework answer",
+        "content": "Build a system where agents can invent new scientific instruments at task time, but cannot define physics after seeing the result. Let OOO drive semantic evolution, LFD harden the objective, and OMC-style UltraQA generate hostile probes. Admit every instrument under a precompiled policy; freeze its exact bytes and environment; retain every raw sample; let deterministic companions compute measurements; let only `core/eval` decide; make completion impossible without the current decision; and promote recurring instruments into durable packs only through reviewed calibration. That gives Lev adaptive intelligence without sacrificing civilizational-grade replay, provenance, and authority integrity."
+      }
+    },
+
+    "sources": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "SOURCES & PROVENANCE",
+        "title": "Pinned evidence, with staleness called out"
+      },
+      "children": ["sources-table", "source-links", "sources-note"]
+    },
+    "sources-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {"key": "source", "label": "Source"},
+          {"key": "scope", "label": "Used for", "wide": true},
+          {"key": "state", "label": "Evidence state"}
+        ],
+        "rows": [
+          {"source": "OMC UltraQA skill", "scope": "Scenario matrix, dynamic harness rules, hostile cases, guardrails, five-cycle workflow, structured report", "state": "Pinned current source"},
+          {"source": "OMC UltraQA stage", "scope": "Task-to-skill invocation and shallow stage result", "state": "Pinned current source"},
+          {"source": "OMC completion gate", "scope": "What qa_verdict and evidence locator are checked", "state": "Pinned current source"},
+          {"source": "Ouroboros", "scope": "Seed-first lifecycle and three-stage evaluation", "state": "Official repo; local source snapshot stale vs upstream"},
+          {"source": "Original LFD design", "scope": "Loss-function anatomy, meta-session harness construction, anti-cheat and holdout method", "state": "Pinned intake source"},
+          {"source": "Approved LFD loop bundle", "scope": "Evaluator component contract, nondeterminism, budgets, reference harness", "state": "Pinned approved source"},
+          {"source": "`docs/specs/spec-eval.md` + `docs/design/design-eval-framework-1-0.md`", "scope": "Lev ontology, run admission vs source promotion, trace contract, implementation gaps", "state": "Current working-tree canon"},
+          {"source": "`plugins/sdlc/flows/eval-harness.flow.yaml`", "scope": "Declared resolve → author → admit → execute → measure → decide → route topology", "state": "Valid declaration; runtime nodes not complete"},
+          {"source": "`.lev/pm/designs/design-execution-lifecycle.yaml` + fractal route design", "scope": "Completion blocking, attempt identity, generated-harness policy, XDG runtime truth", "state": "Current design, not end-to-end proof"}
+        ]
+      }
+    },
+    "source-links": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "**Upstream links:** [OMC UltraQA skill](https://github.com/Yeachan-Heo/oh-my-codex/blob/5319c3d0388b09ad7036e6e3858afd959cfe0eea/skills/ultraqa/SKILL.md) · [OMC UltraQA stage](https://github.com/Yeachan-Heo/oh-my-codex/blob/5319c3d0388b09ad7036e6e3858afd959cfe0eea/src/pipeline/stages/ultraqa.ts) · [OMC completion gate](https://github.com/Yeachan-Heo/oh-my-codex/blob/5319c3d0388b09ad7036e6e3858afd959cfe0eea/src/autopilot/completion-gate.ts) · [Ouroboros](https://github.com/Q00/ouroboros) · [Original LFD design](https://github.com/elvisun/loss-function-development/tree/abf26618edd9e70e97a361ce54f62e292db93bbf) · [Approved LFD bundle](https://github.com/antifragileer/loss-function-driven-agentic-loops/tree/4f362cb5883aa290af0c73c8f37ff3769cac6260)."
+      }
+    },
+    "sources-note": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "**Confidence grading.** OMC behavior and Lev document state were read from pinned/current source in this analysis. OOO loop internals were read from a local pinned snapshot whose upstream repository has advanced; they are valid claims about that snapshot, not a claim that upstream HEAD is unchanged. Qualitative coverage statements are architectural judgments, not benchmark percentages. The page deliberately separates declared design from proven runtime wiring."
+      }
+    }
+  }
+}

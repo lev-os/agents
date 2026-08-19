@@ -1,0 +1,349 @@
+{
+  "meta": {
+    "title": "Herdr Power Keys — Keyboard Field Guide",
+    "description": "A verified, glanceable keyboard field guide for moving through Herdr tabs, panes, workspaces, and power-user controls.",
+    "layout": "default",
+    "effects": ["grid-dots", "card-glow", "title-underline"]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "tab-now",
+    "mental-model",
+    "core-map",
+    "pane-layout",
+    "navigation",
+    "practice",
+    "recovery",
+    "cli-fallback"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "HERDR 0.7.4 · DEFAULT KEYS ACTIVE",
+        "title": "Drive Herdr without touching the mouse",
+        "subtitle": "One prefix. One follow-up key. Tabs, panes, workspaces, and agent terminals at full speed.",
+        "meta": "Verified against the locally installed Herdr default configuration · July 17, 2026"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "Your immediate answer: **next tab is `Ctrl+B`, release, then `N`**. Previous is `Ctrl+B`, then `P`. Jump directly with `Ctrl+B`, then `1` through `9`."
+      }
+    },
+
+    "tab-now": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "USE THIS NOW",
+        "title": "Change tabs",
+        "subtitle": "Herdr uses a tmux-style prefix sequence, not one giant chord."
+      },
+      "children": ["tab-strip", "prefix-callout"]
+    },
+    "tab-strip": {
+      "type": "custom-html",
+      "props": {
+        "html": "<div class=\"hk-grid\"><div class=\"hk-move hk-primary\"><span class=\"hk-label\">Next tab</span><div class=\"hk-keys\"><kbd>Ctrl</kbd><span>+</span><kbd>B</kbd><em>then</em><kbd>N</kbd></div><small>Move right through tabs</small></div><div class=\"hk-move\"><span class=\"hk-label\">Previous tab</span><div class=\"hk-keys\"><kbd>Ctrl</kbd><span>+</span><kbd>B</kbd><em>then</em><kbd>P</kbd></div><small>Move left through tabs</small></div><div class=\"hk-move\"><span class=\"hk-label\">Jump directly</span><div class=\"hk-keys\"><kbd>Ctrl</kbd><span>+</span><kbd>B</kbd><em>then</em><kbd>1…9</kbd></div><small>Select a visible tab number</small></div><div class=\"hk-move\"><span class=\"hk-label\">New tab</span><div class=\"hk-keys\"><kbd>Ctrl</kbd><span>+</span><kbd>B</kbd><em>then</em><kbd>C</kbd></div><small>Create in the current workspace</small></div></div>",
+        "css": ".hk-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.hk-move{padding:18px;border:1px solid rgba(94,234,212,.22);border-radius:14px;background:rgba(15,23,42,.7)}.hk-primary{border-color:rgba(45,212,191,.7);box-shadow:0 0 28px rgba(45,212,191,.12)}.hk-label{display:block;color:#99f6e4;font-size:.76rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;margin-bottom:12px}.hk-keys{display:flex;align-items:center;gap:7px;flex-wrap:wrap;color:#94a3b8}.hk-keys kbd{font-family:'IBM Plex Mono',monospace;font-size:.95rem;font-weight:700;color:#f8fafc;background:#0f172a;border:1px solid #475569;border-bottom-width:3px;border-radius:7px;padding:6px 9px}.hk-keys em{font-style:normal;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5eead4;margin:0 4px}.hk-move small{display:block;margin-top:11px;color:#94a3b8;font-size:.78rem}@media(max-width:700px){.hk-grid{grid-template-columns:1fr}.hk-move{padding:15px}}",
+        "export": {
+          "title": "Herdr tab switching",
+          "markdown": "### Change tabs\n- Next: Ctrl+B, then N\n- Previous: Ctrl+B, then P\n- Direct: Ctrl+B, then 1 through 9\n- New: Ctrl+B, then C"
+        }
+      }
+    },
+    "prefix-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Release the prefix",
+        "content": "Press **Ctrl+B**, release both keys, then press the action key. You are not meant to hold `Ctrl+B` while pressing `N`, `P`, or a number. If you get lost, press `Esc` and start again."
+      }
+    },
+
+    "mental-model": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": {
+        "label": "THE WHOLE MENTAL MODEL",
+        "title": "Prefix → action → back to work",
+        "subtitle": "This is sequencing, not advanced Vim."
+      },
+      "children": ["model-prefix", "model-action", "model-return"]
+    },
+    "model-prefix": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "1 · Arm Herdr",
+        "content": "Press `Ctrl+B`. Herdr now waits for one command key instead of sending that key to the terminal pane."
+      }
+    },
+    "model-action": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "2 · Choose the action",
+        "content": "Press `N`, `P`, `1…9`, `H/J/K/L`, or another mapped key. Uppercase actions mean hold `Shift` for the second key."
+      }
+    },
+    "model-return": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "3 · Keep typing",
+        "content": "Herdr executes once and immediately returns keyboard control to the focused terminal. No persistent Vim mode to remember."
+      }
+    },
+
+    "core-map": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "CORE MAP",
+        "title": "Tabs and workspaces",
+        "subtitle": "Learn the six tab keys first. Workspace controls can wait until tab movement is automatic."
+      },
+      "children": ["core-table"]
+    },
+    "core-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "scope", "label": "Scope" },
+          { "key": "action", "label": "Action" },
+          { "key": "keys", "label": "Sequence" },
+          { "key": "note", "label": "When to use it" }
+        ],
+        "rows": [
+          { "scope": { "text": "Tab", "status": "match" }, "action": "Next tab", "keys": "Ctrl+B → N", "note": "Your default forward movement" },
+          { "scope": { "text": "Tab", "status": "match" }, "action": "Previous tab", "keys": "Ctrl+B → P", "note": "Step backward one tab" },
+          { "scope": { "text": "Tab", "status": "match" }, "action": "Jump to tab", "keys": "Ctrl+B → 1…9", "note": "Fastest move when you know the number" },
+          { "scope": { "text": "Tab", "status": "match" }, "action": "New tab", "keys": "Ctrl+B → C", "note": "Creates a tab in the current workspace" },
+          { "scope": { "text": "Tab", "status": "match" }, "action": "Rename tab", "keys": "Ctrl+B → Shift+T", "note": "Give long-running work a useful label" },
+          { "scope": { "text": "Tab", "status": "warn" }, "action": "Close tab", "keys": "Ctrl+B → Shift+X", "note": "Destructive: closes the active tab" },
+          { "scope": { "text": "Workspace", "status": "info" }, "action": "Workspace picker", "keys": "Ctrl+B → W", "note": "Choose from all workspaces" },
+          { "scope": { "text": "Workspace", "status": "info" }, "action": "Go To navigator", "keys": "Ctrl+B → G", "note": "Navigate visually; arrow keys work here" },
+          { "scope": { "text": "Workspace", "status": "info" }, "action": "New workspace", "keys": "Ctrl+B → Shift+N", "note": "Start another project space" },
+          { "scope": { "text": "Worktree", "status": "info" }, "action": "New worktree", "keys": "Ctrl+B → Shift+G", "note": "Create isolated Git work from Herdr" },
+          { "scope": { "text": "Workspace", "status": "info" }, "action": "Rename workspace", "keys": "Ctrl+B → Shift+W", "note": "Keep the sidebar legible" },
+          { "scope": { "text": "Workspace", "status": "warn" }, "action": "Close workspace", "keys": "Ctrl+B → Shift+D", "note": "Prompts before closing by default" }
+        ],
+        "stickyHeader": true
+      }
+    },
+
+    "pane-layout": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "PANE CONTROL",
+        "title": "Move and reshape the terminal",
+        "subtitle": "The H/J/K/L keys are positional: left, down, up, right."
+      },
+      "children": [
+        "pane-focus",
+        "pane-cycle",
+        "pane-split-v",
+        "pane-split-h",
+        "pane-zoom",
+        "pane-resize",
+        "pane-close",
+        "pane-sidebar"
+      ]
+    },
+    "pane-focus": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "Focus by direction",
+        "content": "`Ctrl+B → H/J/K/L`\n\nLeft · down · up · right. Think of `J` as falling down and `K` as climbing up."
+      }
+    },
+    "pane-cycle": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "Cycle panes",
+        "content": "`Ctrl+B → Tab`\n\nReverse with `Ctrl+B → Shift+Tab`. Useful when the visual direction is ambiguous."
+      }
+    },
+    "pane-split-v": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "Vertical split",
+        "content": "`Ctrl+B → V`\n\nCreates a side-by-side pane split."
+      }
+    },
+    "pane-split-h": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "Horizontal split",
+        "content": "`Ctrl+B → -`\n\nCreates a pane above/below the current pane."
+      }
+    },
+    "pane-zoom": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "Zoom focused pane",
+        "content": "`Ctrl+B → Z`\n\nToggle the active pane between normal layout and fullscreen."
+      }
+    },
+    "pane-resize": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "Resize mode",
+        "content": "`Ctrl+B → R`\n\nEnter resize controls when the split proportions are wrong."
+      }
+    },
+    "pane-close": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "Close pane",
+        "content": "`Ctrl+B → X`\n\nCloses only the focused pane—not the whole tab."
+      }
+    },
+    "pane-sidebar": {
+      "type": "card",
+      "variant": "glass",
+      "props": {
+        "title": "Toggle sidebar",
+        "content": "`Ctrl+B → B`\n\nRecover screen space, then toggle it back when you need the agent queue."
+      }
+    },
+
+    "navigation": {
+      "type": "section",
+      "variant": "asymmetric",
+      "props": {
+        "label": "POWER MOVES",
+        "title": "Use visual navigation while Vim muscle memory catches up",
+        "subtitle": "You can be fast before H/J/K/L feels natural."
+      },
+      "children": ["goto-card", "power-card"]
+    },
+    "goto-card": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Go To navigator",
+        "content": "Press `Ctrl+B → G`, then use the **arrow keys** to move through the navigation surface. Herdr also accepts `H/J/K/L` there, so you can introduce Vim motion gradually instead of memorizing it under pressure."
+      }
+    },
+    "power-card": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Leave unbound features unbound",
+        "content": "Previous/next workspace, previous/next agent, direct agent focus, and open/remove worktree have no default shortcut. That is deliberate. Bind them only after a repeated workflow proves you need them."
+      }
+    },
+
+    "practice": {
+      "type": "section",
+      "variant": "stepper",
+      "props": {
+        "label": "10-MINUTE MUSCLE-MEMORY DRILL",
+        "title": "Learn in layers",
+        "subtitle": "Do not memorize the whole sheet at once."
+      },
+      "children": ["drill-tabs", "drill-panes", "drill-workspaces"]
+    },
+    "drill-tabs": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Stage 1 · Tabs",
+        "content": "Create three tabs with `Ctrl+B → C`. Cycle five times with `N`, reverse with `P`, then jump directly using `1`, `2`, and `3`. Stop here until this feels boring."
+      }
+    },
+    "drill-panes": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Stage 2 · Panes",
+        "content": "Make one vertical split with `V` and one horizontal split with `-`. Move using `H/J/K/L`, toggle zoom with `Z`, then cycle with `Tab`."
+      }
+    },
+    "drill-workspaces": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Stage 3 · Workspaces",
+        "content": "Open the workspace picker with `W`, then open Go To with `G`. Use arrows first. Add Vim movement only after the navigation model is obvious."
+      }
+    },
+
+    "recovery": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "RECOVERY KEYS",
+        "title": "When you forget",
+        "subtitle": "The best power-user shortcut is the one that teaches you the others."
+      },
+      "children": ["help-card", "control-card"]
+    },
+    "help-card": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Open the shortcut help",
+        "content": "`Ctrl+B → ?`\n\nUse Herdr's own help overlay as the authoritative live map. It reflects the running version and any custom bindings."
+      }
+    },
+    "control-card": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Session controls",
+        "content": "`Ctrl+B → S` settings\n\n`Ctrl+B → Shift+R` reload config\n\n`Ctrl+B → Q` detach from the persistent session\n\n`Ctrl+B → O` open notification target"
+      }
+    },
+
+    "cli-fallback": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "AUTOMATION ESCAPE HATCH",
+        "title": "Tabs are also scriptable",
+        "subtitle": "Useful when you want shell aliases or agent-driven workspace control."
+      },
+      "children": ["cli-code", "source-note"]
+    },
+    "cli-code": {
+      "type": "code-block",
+      "props": {
+        "language": "bash",
+        "filename": "Herdr tab commands",
+        "content": "herdr tab list\nherdr tab create --cwd \"$PWD\" --label \"build\" --focus\nherdr tab focus <tab_id>\nherdr tab rename <tab_id> \"review\"\nherdr tab close <tab_id>",
+        "showLineNumbers": false
+      }
+    },
+    "source-note": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Verified for this machine",
+        "content": "Herdr `0.7.4` is installed at `/opt/homebrew/bin/herdr`. Your effective config contains no `[keys]` section, so this guide matches the current default bindings."
+      }
+    }
+  }
+}

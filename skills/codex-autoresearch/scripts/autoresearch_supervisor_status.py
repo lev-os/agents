@@ -266,6 +266,26 @@ def goal_reached_reason(
     return None
 
 
+def consecutive_discard_stop_reason(payload: dict[str, Any]) -> str | None:
+    config = payload.get("config", {})
+    state = payload.get("state", {})
+    stop_condition = config.get("stop_condition")
+    if not stop_condition:
+        return None
+    text = replace_word_numbers(normalized_text(str(stop_condition)))
+    match = re.search(r"(\d+)\s+consecutive\s+(?:discards?|failures?)", text)
+    if not match:
+        return None
+    limit = int(match.group(1))
+    observed = as_int(state.get("consecutive_discards"))
+    if limit > 0 and observed >= limit:
+        return (
+            f"Consecutive-discard stop condition is satisfied "
+            f"({observed} consecutive discards >= configured limit {limit})."
+        )
+    return None
+
+
 def determine_base_decision(
     payload: dict[str, Any], current_metric: object, retained_labels: list[str]
 ) -> tuple[str, str, str, list[str]]:
@@ -286,6 +306,11 @@ def determine_base_decision(
     if goal_reason is not None:
         reasons.append(goal_reason)
         return STOP, "goal_reached", "terminal", reasons
+
+    discard_reason = consecutive_discard_stop_reason(payload)
+    if discard_reason is not None:
+        reasons.append(discard_reason)
+        return STOP, "consecutive_discards_reached", "terminal", reasons
     gate_gap_reason = stop_condition_gate_gap_reason(payload, current_metric, retained_labels)
     if gate_gap_reason is not None:
         reasons.append(gate_gap_reason)

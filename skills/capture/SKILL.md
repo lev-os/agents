@@ -71,9 +71,9 @@ steps:
     on_failure: "Do not advance routes. Show unresolved ledger rows under In Memory or Blocked."
 
   - id: show_delta
-    action: Show the full ledger table plus in-memory, blocked, and crystallizing buckets.
-    validation: "The user can see what is truly on disk, what remains only in memory, and what changed this turn."
-    on_failure: "Rewrite output as the shared <capture-results> ledger."
+    action: Show the compact saved, in-memory, decision, and next-action delta; keep the full ledger in the durable artifact.
+    validation: "The user can tell what is on disk, what remains only in memory, what needs a decision, and what happens next without reading the full ledger."
+    on_failure: "Rewrite output as <capture-results>; show the ledger table only for --full, audit, or debug."
 ```
 
 ## Routes
@@ -121,8 +121,9 @@ capture, prior-art, or interview.
 ## Lifecycle Ledger Contract
 
 The lifecycle ledger is the core visibility primitive at lifecycle trigger
-points. `/capture`, `/capture --deep`, and `/dump` all render the same table
-before claiming route advancement.
+points. `/capture`, `/capture --deep`, and `/dump` all build the same ledger
+before claiming route advancement. The default human response renders its
+delta; `--full`, audit, and debug may render the complete table.
 
 | Field | Meaning |
 |---|---|
@@ -179,29 +180,18 @@ Markdown capture reports are projections only when useful.
 
 ## Output
 
+Render the Markdown inside this template; do not print the XML wrapper tags.
+
 <capture-results>
 ## /capture results
 
-### Ledger
-| ID | Topic | Compiled Intent | Current Location | Artifact | Route State | Fidelity | Next Route | Blocker |
-|---|---|---|---|---|---|---:|---|---|
-| {intent_id} | {topic} | {compiled_intent} | {current_location} | {artifact_ref} | {route_state} | {fidelity_pct} | {next_route} | {blocker} |
+Saved: {count_and_artifact_refs_or_none}
+Still in memory: {count_and_topics_or_none}
+Decision needed: {one_highest_leverage_decision_or_none}
+Ready next: {count_and_route_or_none}
+Next: {one_primary_action}
 
-### In Memory
-{items_that_could_not_be_written}
-
-### Blocked
-{blocked_items}
-
-### Crystallizing
-{transitioning_items}
-
-### Stats
-- Total inventoried: {n}
-- In memory captured: {n}
-- Transitioning: {n}
-- Blocked: {n}
-- Ledger rows: {n}
+Details: {ledger_artifact_ref_or_use_--full}
 </capture-results>
 
 ## Red Flags

@@ -1,0 +1,195 @@
+{
+  "meta": {
+    "title": "SPM Checkpoint — Pause Before the Converter Wave",
+    "description": "Probe results, FAA receipt verdicts, vocab-register fix, sync state, and the sample sheet awaiting verdict"
+  },
+  "theme": { "preset": "fleet-deck", "mode": "dark" },
+  "root": ["hero", "sec-queue", "sec-probe", "sec-receipts", "sec-vocab", "sec-samples", "sec-next"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "centered",
+      "props": {
+        "category": "Semantic candidate system",
+        "title": "Checkpoint: the pause",
+        "subtitle": "Probe done, receipts done, scale-up in flight — verdicts wanted before the converter wave",
+        "meta": "2026-08-15 · queue: probe / receipts / scale-up → pause → converter / verdict / smoke"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "Three things happened since the last report. The synthetic-trained splitter met real ATC transmissions for the first time — it holds up better than the raw number suggests, and its one true weakness is now a named data fix. The FAA grounding pass receipted two patterns and honestly refused two more, correcting our templates against the actual book. And the vocab-register defect you flagged is fixed at the tables, consumed everywhere, regenerated, tested, and synced. The full-size v3 generation is running now; the train_v8 converter, your sample verdict, and the DeBERTa smoke are queued behind this pause."
+      }
+    },
+
+    "sec-queue": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": { "label": "Queue state", "title": "Where the ordered queue stands" },
+      "children": ["q1", "q2", "q3", "q4", "q5"]
+    },
+    "q1": { "type": "card", "variant": "kpi", "props": { "value": "Done", "label": "real-ATC splitter probe (1,567 rows)" } },
+    "q2": { "type": "card", "variant": "kpi", "props": { "value": "Done", "label": "FAA receipts: 2 landed, 2 honest refusals" } },
+    "q3": { "type": "card", "variant": "kpi", "props": { "value": "Running", "label": "v3 scale-up 8000/2000/1000/1000" } },
+    "q4": { "type": "card", "variant": "kpi", "props": { "value": "Fixed", "label": "vocab registers + altitude tags, synced" } },
+    "q5": { "type": "card", "variant": "kpi", "props": { "value": "Queued", "label": "converter · verdict · DeBERTa smoke" } },
+
+    "sec-probe": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Probe",
+        "title": "Synthetic-trained splitter vs real exam transmissions",
+        "subtitle": "Read-only; no training, no gold touched. Cardinality proxy: predicted command count vs gold frame count."
+      },
+      "children": ["probe-kpis", "probe-table", "probe-callout", "probe-cuts"]
+    },
+    "probe-kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {},
+      "children": ["pk1", "pk2", "pk3", "pk4"]
+    },
+    "pk1": { "type": "card", "variant": "kpi", "props": { "value": "42.5%", "label": "compound rows: exact count match (186/438)" } },
+    "pk2": { "type": "card", "variant": "kpi", "props": { "value": "+1", "label": "dominant error: over-split by one (156 rows)" } },
+    "pk3": { "type": "card", "variant": "kpi", "props": { "value": "63", "label": "under-splits — the real capability gap" } },
+    "pk4": { "type": "card", "variant": "kpi", "props": { "value": "73.7%", "label": "template singles left uncut (control)" } },
+    "probe-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Phenomenon", "What the samples show", "Verdict"],
+        "rows": [
+          ["Granularity disagreement", "The splitter cuts surface units the command gold folds away: wind reports inside takeoff clearances, \"you're number five\" status tails, traffic call-outs. Most of the +1 over-splits are this.", { "text": "Labeling-domain difference", "status": "info" }],
+          ["Comma dependence", "Run-on transmissions with no punctuation under-split — \"make a left three sixty on downwind for spacing traffic piper on extended base...\" comes back as ONE segment (gold: 3). The synthetic corpus over-relies on comma connectors.", { "text": "Real gap — data fix ordered", "status": "warn" }],
+          ["Clean structured turns", "Comma-joined instruction sequences split perfectly, including 4-command transmissions: radar contact ‖ maintain 3,500 ‖ direct Modesto ‖ report traffic.", { "text": "Works", "status": "match" }]
+        ]
+      }
+    },
+    "probe-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "How to read 42.5%",
+        "content": "The proxy compares surface segmentation against command-modeled gold, which are different domains — advisory tails are real radio content the gold intentionally folds. The honest signal: structured instruction sequences split essentially perfectly; punctuation-free speech is the one named weakness, and the v3 commission raises comma-free joins and advisory-tail compounds specifically to close it. Real cut-position gold does not exist for exam rows (boundary-seed law), so count agreement is the strongest legal probe."
+      }
+    },
+    "probe-cuts": {
+      "type": "code-block",
+      "props": {
+        "language": "text",
+        "filename": "probe cut renderings (‖ = predicted command start)",
+        "content": "EXACT gold=4 pred=4\n  november one seven x-ray x-ray , norcal departure , ‖radar contact , ads-b identified ,\n  ‖maintain three thousand five hundred , ‖direct modesto , ‖report any traffic conflicts\n\nOVER by granularity gold=3 pred=6\n  november one seven x-ray x-ray , torrance tower , ‖runway two niner , ‖wind two six zero\n  at one two , ‖cleared for takeoff , ‖maintain vfr , ‖contact socal approach one two four\n  point four after departure , ‖adiz penetration procedures\n\nUNDER on comma-free run-on gold=3 pred=1\n  november one seven x-ray x-ray , ‖make a left three sixty on downwind for spacing\n  traffic piper on extended base you'll follow after your 360"
+      }
+    },
+
+    "sec-receipts": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "Grounding", "title": "FAA receipt verdicts — the book won twice" },
+      "children": ["receipts-table", "receipts-decision"]
+    },
+    "receipts-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Pattern", "Verdict", "FAA evidence"],
+        "rows": [
+          ["report {pattern_leg}", { "text": "Receipted", "status": "match" }, "7110.65BB 3-10-11 'REPORT (position if required)' + 3-10-1g sanctions pattern legs as reporting points"],
+          ["enter {leg} runway {rwy}", { "text": "Receipted", "status": "match" }, "AIM 4-3-2 'PROCEED SOUTHWESTBOUND, ENTER A RIGHT DOWNWIND RUNWAY THREE ZERO' — slot-for-slot"],
+          ["information {code} is current", { "text": "Refused", "status": "warn" }, "FAA surface has no copula: 'Information CHARLIE current' (2-9-2c1). v3 drops the 'is' and receipts the canonical form"],
+          ["maintain vfr at or below {alt}", { "text": "Refused", "status": "warn" }, "'AT OR BELOW' exists only for Special VFR (7-5-4). Plain VFR is 'MAINTAIN VFR CONDITIONS ABOVE/BELOW (altitude)' (7-1-2). v3 re-surfaces accordingly"]
+        ]
+      }
+    },
+    "receipts-decision": {
+      "type": "decision",
+      "props": {
+        "title": "Reality-first held",
+        "status": "accepted",
+        "content": "Both refusals kept needs_receipt with the canonical alternatives documented in the pattern file rather than forcing a receipt onto a surface the book does not prescribe. The template fixes are ordered in the v3 commission.",
+        "next": "v3 emits only receipted surfaces for these two families."
+      }
+    },
+
+    "sec-vocab": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "Data defect", "title": "Vocab registers: fixed at the tables, live bug caught" },
+      "children": ["vocab-table", "vocab-callout"]
+    },
+    "vocab-table": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Change", "Detail", "Verification"],
+        "rows": [
+          ["Two explicit digit registers", "phonetic_digits.json keeps the TTS register (fife/tree, all radio and readback consumers untouched) and adds spoken_corpus_digits (five/three/niner) with a typed accessor on the authority catalog", { "text": "305 tests", "status": "match" }],
+          ["Altitude form tags", "8 bare flight-level triples tagged bare_flight_level (not standalone clearance surfaces); explicit FLIGHT LEVEL twins added for FL110 and FL240", { "text": "No production consumers", "status": "match" }],
+          ["Generator hand-maps deleted", "DIGIT_REGISTER, the substring altitude filter, and the register rewriter all replaced by the managed tables; both ponytail debts paid", { "text": "19 tests + ruff", "status": "match" }],
+          ["Live corpus bug fixed", "v2 had leaked 60 'tree'/'fife' sequence ordinals ('number tree') into training text; corpus regenerated clean, flight-level surfaces now sampled", { "text": "0 hits post-regen", "status": "match" }],
+          ["Retrain on corrected corpus", "Splitter still perfect: 1.0 test sub-sentence and cardinality, 100% alignment, 0.947 transfer; stage-2 intent 0.92, slot F1 0.91", { "text": "53s receipt", "status": "match" }],
+          ["Baseline + sync", "Scorecard run complete — template corpora nominal (B1 4%, B2 2% fail), A-corpus red is the standing burndown state, change surface proven inert to scoring paths. Full-boundary sync pushed (data + parent), interleaved with the concurrent gold session's checkpoints", { "text": "Pushed", "status": "match" }]
+        ]
+      }
+    },
+    "vocab-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "One honest limitation",
+        "content": "Baseline reports are untracked, so there is no exact prior-scorecard diff to cite. The pre-existing claim rests on the proven-inert change surface (TTS register byte-identical, new key consumed only by the POC generator, altitude entries loaded by nothing in production) plus nominal template-corpora numbers."
+      }
+    },
+
+    "sec-samples": {
+      "type": "section",
+      "variant": "default",
+      "props": {
+        "label": "Verdict wanted",
+        "title": "Sample sheet — your eyeball call",
+        "subtitle": "Representative v2 compounds. Two carry honest realism flags; say kill or keep and v3 inherits the ruling."
+      },
+      "children": ["samples-code", "samples-flags"]
+    },
+    "samples-code": {
+      "type": "code-block",
+      "props": {
+        "language": "text",
+        "filename": "v2 sample blocks (intents after each)",
+        "content": "AMENDMENT family (say-again restatement, verbatim echo)\n  november niner five zero charlie romeo say request and i say again say request\n  and descend and maintain two thousand five hundred\n  -> comm_request # comm_request # altitude_instruction\n\nGROUND compound (then-joined)\n  november one seven six hotel hotel verify assigned altitude six thousand , then hold\n  short of taxiway charlie one , then monitor longview tower one one niner point two ,\n  then i say again monitor longview tower one one niner point two , then say intentions\n  -> verification_request # hold_short # frequency_change # frequency_change # comm_request\n\nPATTERN + SEQUENCE compound\n  november three one eight romeo sierra enter left downwind runway zero six , roger ,\n  report downwind , i say again report downwind , resume own navigation\n  -> pattern_entry # acknowledgment # report_request # report_request # route_amendment\n\nATIS + SPEED compound (comma-joined)\n  november two six zero alpha kilo reduce speed to two six zero knots , i say again\n  reduce speed to two six zero knots , verify assigned altitude flight level four five\n  zero , information sierra is current\n  -> speed_assignment # speed_assignment # verification_request # informational"
+      }
+    },
+    "samples-flags": {
+      "type": "data-table",
+      "props": {
+        "columns": ["Flag", "Sample", "The realism question"],
+        "rows": [
+          [{ "text": "Flagged", "status": "warn" }, "\"roger\" mid-compound", "ATC rarely sandwiches a bare acknowledgment between its own instructions — 'roger' composed as a non-lead segment reads synthetic. Kill acknowledgment from non-lead draw, or keep for splitter robustness?"],
+          [{ "text": "Flagged", "status": "warn" }, "verify-altitude + ground taxi mix", "'Verify assigned altitude' composed into a taxi/hold-short transmission is phase-legal (any-phase pattern) but reads odd mid-taxi. Tighten the phase bucket, or accept as plausible pre-departure chatter?"],
+          [{ "text": "Note", "status": "info" }, "'is current' surface", "Already ruled: the book says 'information sierra current' without 'is' — v3 fixes the template, so this sample's surface dies on its own."]
+        ]
+      }
+    },
+
+    "sec-next": {
+      "type": "section",
+      "variant": "default",
+      "props": { "label": "After the pause", "title": "Pre-authorized next wave" },
+      "children": ["next-timeline"]
+    },
+    "next-timeline": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          { "date": "Now", "title": "v3 full-size generation", "status": "in-progress", "description": "8000/2000/1000/1000 with template fixes, comma-free joins, advisory-tail compounds, honest saturation reporting. Its completion ends the pause." },
+          { "date": "Next", "title": "train_v8 converter", "status": "upcoming", "description": "The DeBERTa training set through the admission screen into AtomicATC breadth plus the constituent pool — plan Part B." },
+          { "date": "Next", "title": "Sample verdict fold-in", "status": "upcoming", "description": "Your kill/keep rulings from the sheet above get applied to the corpus rules." },
+          { "date": "Next", "title": "DeBERTa 50-row smoke", "status": "upcoming", "description": "The pinned model through its existing adapter on 50 generated atomics — proves the comparison path before the full head-to-head. POC-local, no production call sites." }
+        ]
+      }
+    }
+  }
+}

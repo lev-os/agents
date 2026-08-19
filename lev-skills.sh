@@ -25,6 +25,7 @@ except Exception:  # pragma: no cover - optional dependency fallback
 ROOT = Path(__file__).resolve().parent
 SKILLS_DIR = ROOT / "skills"
 SKILLS_DB_DIR = ROOT / "skills-db"
+SKILL_REPOS_DIR = ROOT / "_repos"
 WORKFLOW_FLOWS_DIR = SKILLS_DIR / "workflow" / "flows"
 CDO_DIR = SKILLS_DIR / "cdo"
 CACHE_DIR = Path(os.environ.get("LEV_CACHE_DIR", Path.home() / ".cache" / "lev-skills"))
@@ -136,6 +137,7 @@ LIFECYCLE_ORDER = {
 HOME_PREFIX = re.escape(str(Path.home()))
 ACTIVE_SKILL_PATH_RE = re.compile(rf"(?:{HOME_PREFIX}|~)/\.agents/skills/((?:[^\s/]+/)*[^\s/]+)/SKILL\.md")
 CATALOG_SKILL_PATH_RE = re.compile(rf"(?:{HOME_PREFIX}|~)/\.agents/skills-db/((?:[^\s/]+/)*[^\s/]+)/SKILL\.md")
+REPO_SKILL_PATH_RE = re.compile(rf"(?:{HOME_PREFIX}|~)/\.agents/_repos/((?:[^\s/]+/)*[^\s/]+)/SKILL\.md")
 LOADED_SKILL_RE = re.compile(r"Loaded `([^`]+)`")
 SKILL_URI_RE = re.compile(r"skill://([A-Za-z0-9_.:/-]+)")
 
@@ -162,6 +164,7 @@ def usage() -> int:
                 f"  graph metadata is read from {SKILL_GRAPH_FILE} when present",
                 f"  graph rebuild uses {SKILL_GRAPH_DIR}",
                 f"  inventory writes a grep-able manifest to {SKILLS_INVENTORY_FILE}",
+                "  catalog skills are read from skills-db/<category>/ and _repos/<category>/<repo>/",
                 "  hidden catalog buckets (.archive, _todo, _workshop) are excluded from normal ranking",
                 "  qmd is only touched by explicit refresh; discover does not query qmd",
                 "",
@@ -344,19 +347,31 @@ def workflow_flow_rows() -> list[dict]:
     return rows
 
 
+def catalog_skill_files():
+    for base_label, root, minimum_parts in (
+        ("skills-db", SKILLS_DB_DIR, 2),
+        ("_repos", SKILL_REPOS_DIR, 3),
+    ):
+        if not root.exists():
+            continue
+        for skill_md in sorted(root.rglob("SKILL.md")):
+            rel = skill_md.relative_to(root)
+            if len(rel.parts) >= minimum_parts:
+                yield base_label, root, skill_md, rel.parts
+
+
 def catalog_rows(include_hidden: bool = True) -> list[dict]:
     rows = []
-    for skill_md in sorted(SKILLS_DB_DIR.rglob("SKILL.md")):
-        rel = skill_md.relative_to(SKILLS_DB_DIR)
-        if len(rel.parts) < 2:
-            continue
-        category = rel.parts[0]
+    for base_label, _, skill_md, rel_parts in catalog_skill_files():
+        category = rel_parts[0]
         if not include_hidden and category in HARD_HIDDEN_CATEGORIES:
             continue
         meta = parse_meta(skill_md)
         rows.append(
             {
+                "base": base_label,
                 "category": category,
+                "source_repo": rel_parts[1] if base_label == "_repos" else None,
                 "name": meta["name"],
                 "description": meta["description"],
                 "path": str(skill_md),
@@ -442,7 +457,8 @@ def build_skill_row(base_label: str, skill_md: Path, rel_parts: tuple[str, ...])
     dir_parts = rel_parts[:-1]
     folder = dir_parts[-1]
     path_key = f"{base_label}/{'/'.join(dir_parts)}"
-    category = dir_parts[0] if base_label == "skills-db" else "skills"
+    category = dir_parts[0] if base_label in {"skills-db", "_repos"} else "skills"
+    source_repo = dir_parts[1] if base_label == "_repos" else None
     surface = "active"
     group = None
     if base_label == "skills":
@@ -455,6 +471,8 @@ def build_skill_row(base_label: str, skill_md: Path, rel_parts: tuple[str, ...])
     else:
         if category in HARD_HIDDEN_CATEGORIES:
             surface = "hidden"
+        elif base_label == "_repos":
+            surface = "catalog-repo"
         elif len(dir_parts) > 2:
             surface = "catalog-nested"
         else:
@@ -478,6 +496,7 @@ def build_skill_row(base_label: str, skill_md: Path, rel_parts: tuple[str, ...])
         "surface": surface,
         "group": group,
         "category": category,
+        "source_repo": source_repo,
         "folder": folder,
         "name": meta["name"],
         "slug": normalize_name(meta["name"] or folder),
@@ -619,6 +638,8 @@ def parse_usage_markers(text: str) -> Counter[str]:
         counts[normalize_name(f"skills/{rel}" if not rel.startswith("skills/") else rel)] += 1
     for rel in CATALOG_SKILL_PATH_RE.findall(text):
         counts[normalize_name(f"skills-db/{rel}" if not rel.startswith("skills-db/") else rel)] += 1
+    for rel in REPO_SKILL_PATH_RE.findall(text):
+        counts[normalize_name(f"_repos/{rel}" if not rel.startswith("_repos/") else rel)] += 1
     for line in text.splitlines():
         if "Using skills:" not in line:
             continue
@@ -699,11 +720,8 @@ def build_inventory(force_rebuild: bool = False) -> list[dict]:
             continue
         rows.append(build_skill_row("skills", skill_md, rel.parts))
 
-    for skill_md in sorted(SKILLS_DB_DIR.rglob("SKILL.md")):
-        rel = skill_md.relative_to(SKILLS_DB_DIR)
-        if len(rel.parts) < 2:
-            continue
-        rows.append(build_skill_row("skills-db", skill_md, rel.parts))
+    for base_label, _, skill_md, rel_parts in catalog_skill_files():
+        rows.append(build_skill_row(base_label, skill_md, rel_parts))
 
     usage_counts = extract_usage_counts(rows)
     overrides = state_db.get("skills", {}) if isinstance(state_db, dict) else {}
@@ -1251,7 +1269,7 @@ def cmd_list() -> int:
     for item in sorted(workflow_rows, key=lambda row: row["folder"]):
         print(f"- {item['name']} [workflow/flows/{item['folder']}] :: {item['description']}")
 
-    print("\nTier 2: visible skills-db catalog")
+    print("\nTier 2: visible catalog")
     for item in sorted(catalog.values(), key=lambda row: (row["category"], row["name"])):
         print(f"- {item['name']} [{item['category']}] :: {item['description']}")
     return 0

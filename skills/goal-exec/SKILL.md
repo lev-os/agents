@@ -29,6 +29,25 @@ explicit current-run override. Use the domain-outcome template, but include the
 SDD batch, review, and verification guardrails because subagent runs need a
 clear controller contract.
 
+## REQUIRED PRE-CREATE GOAL GATE
+
+Before calling `create_goal`, the agent MUST construct and display the complete
+goal prompt.
+
+The goal prompt MUST contain:
+
+1. `Hard refs:` exact absolute paths to every governing plan/spec.
+2. `Plan:` the complete ordered 1-N execution sequence.
+3. `Acceptance:` explicit hard-cut completion criteria.
+4. `Batch gates:` tests/checks required after each SDD batch.
+5. `Stop rules:` blocker, reviewer, timeout, and dirty-work protections.
+
+The agent MUST NOT call `create_goal`, dispatch a subagent, or modify code when
+any required section is absent.
+
+A summary of the plan is not sufficient. Referring to “the hard cutover,”
+“the existing plan,” conversation history, or an unnamed plan is invalid.
+
 For `--sdd`, the goal prompt must define:
 
 - PR-sized batch policy.

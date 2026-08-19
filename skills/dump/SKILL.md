@@ -32,9 +32,9 @@ steps:
     on_failure: "Return to /capture with the unresolved bucket."
 
   - id: render_capture_ledger
-    action: Render the same <capture-results> lifecycle ledger used by /capture.
-    validation: "The table shows compiled_intent, current_location, artifact_ref, route_state, fidelity, next_route, and blocker for every item."
-    on_failure: "Do not route. Show the missing ledger fields."
+    action: Render the same compact <capture-results> delta used by /capture; retain the complete ledger in the durable artifact.
+    validation: "The response names what was saved, what remains in memory, the highest-leverage decision, and the next route."
+    on_failure: "Do not route. Show the full ledger only for --full, audit, or debug."
 
   - id: probe_prior_art
     action: Search existing work per topic before creating new artifacts.
@@ -49,36 +49,21 @@ steps:
 
 ## Output
 
-First render the exact `/capture --deep` ledger block:
+Render the `/capture --deep` delta:
+
+Render the Markdown inside this template; do not print the XML wrapper tags.
 
 <capture-results>
 ## /dump results
 
-### Ledger
-| ID | Topic | Compiled Intent | Current Location | Artifact | Route State | Fidelity | Next Route | Blocker |
-|---|---|---|---|---|---|---:|---|---|
-| {intent_id} | {topic} | {compiled_intent} | {current_location} | {artifact_ref} | {route_state} | {fidelity_pct} | {next_route} | {blocker} |
+Saved: {count_and_artifact_refs_or_none}
+Still in memory: {count_and_topics_or_none}
+Decision needed: {one_highest_leverage_decision_or_none}
+Ready next: {count_and_route_or_none}
+Next: {one_primary_action}
 
-### In Memory
-{items_that_could_not_be_written}
-
-### Blocked
-{blocked_items}
-
-### Crystallizing
-{transitioning_items}
+Details: {ledger_artifact_ref_or_use_--full}
 </capture-results>
-
-Then show action stats:
-
-| Metric | Count |
-|---|---|
-| Total inventoried | N |
-| Routed to existing files | N |
-| New proposals created | N |
-| Ready for /exec | N |
-| Needs /interview | N |
-| Blocked | N |
 
 ## Red Flags
 
