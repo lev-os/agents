@@ -1,0 +1,267 @@
+{
+  "meta": {
+    "title": "Gold normalization pass — execution receipt",
+    "description": "Six dispatch-contract fixes, fifteen partner-gold edits, and complete gate evidence from the Sunny-PC checkout.",
+    "layout": "sidebar-toc",
+    "effects": ["grid-dots", "title-underline"]
+  },
+  "theme": {
+    "preset": "moat",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "summary",
+    "phase-a-files",
+    "phase-a-commands",
+    "phase-b-files",
+    "phase-b-protocol",
+    "phase-b-receipts",
+    "phase-b-projections",
+    "phase-c",
+    "remaining"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "EXECUTION RECEIPT",
+        "title": "Gold normalization pass",
+        "subtitle": "The exact six rulebook fixes and fifteen gold-row edits are applied. The FMM sweep is clean; unrelated repository drift keeps the full gate set red.",
+        "meta": "Sunny-PC · 2026-07-17 · no commit issued"
+      }
+    },
+    "summary": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "Outcome",
+        "title": "Requested slice at a glance"
+      },
+      "children": ["kpi-rules", "kpi-gold", "kpi-sweep", "kpi-baseline"]
+    },
+    "kpi-rules": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {"value": "6", "label": "Rulebook fixes", "trend": {"direction": "flat", "value": "exact scope"}}
+    },
+    "kpi-gold": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {"value": "15", "label": "Gold-row edits", "trend": {"direction": "flat", "value": "6 scenarios"}}
+    },
+    "kpi-sweep": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {"value": "0", "label": "Sweep violations", "trend": {"direction": "flat", "value": "528 checked"}}
+    },
+    "kpi-baseline": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {"value": "1303", "label": "Baseline passed", "trend": {"direction": "down", "value": "234 failed / 1537 scored"}}
+    },
+    "phase-a-files": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {"label": "Phase A", "title": "Rulebook and contract tests"},
+      "children": ["phase-a-text", "phase-a-callout"]
+    },
+    "phase-a-text": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "Changed `data/atc/policy/dispatch/command_parameter_contract.yaml`: radar identification, hold for release, cleared option, and frequency change now allow intent-only payloads; hold `time` moved to context; sequencing `pattern_leg` and taxi `facility` moved to executable parameters.\n\nChanged `tests/unit/dispatch/test_dispatch_engine.py`: assertions now encode the new modes and roles. `tests/unit/test_contract_governance.py` required no edit."
+      }
+    },
+    "phase-a-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Concurrent checkpoint note",
+        "content": "No commit command was issued. While the slice was running, an external checkpoint absorbed the test-file edits into parent commit 7002b099c. The policy file remains dirty in the data submodule."
+      }
+    },
+    "phase-a-commands": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {"label": "Phase A evidence", "title": "Commands and exit codes"},
+      "children": ["phase-a-table"]
+    },
+    "phase-a-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {"key": "purpose", "label": "Purpose"},
+          {"key": "command", "label": "Command"},
+          {"key": "exit", "label": "Exit"},
+          {"key": "result", "label": "Result"}
+        ],
+        "rows": [
+          {"purpose": "Regression red", "command": "uv run pytest tests/unit/dispatch/test_dispatch_engine.py::TestManagedDispatchAuthorityLoading::test_checked_in_slot_roles_cover_fmm_executable_surfaces tests/unit/dispatch/test_dispatch_engine.py::TestManagedDispatchAuthorityLoading::test_checked_in_payload_requirement_modes_match_live_radio_truth -q --no-cov ; echo exit:$?", "exit": {"text": "1", "status": "warn"}, "result": "2 failed, establishing old truth"},
+          {"purpose": "Unit gate, first pass", "command": "uv run pytest tests/unit/dispatch/test_dispatch_engine.py tests/unit/test_contract_governance.py -q --no-cov ; echo exit:$?", "exit": {"text": "1", "status": "warn"}, "result": "41 passed, 2 failed: stale hold reason assertion plus DNA schema preflight"},
+          {"purpose": "Unit gate, final pass", "command": "uv run pytest tests/unit/dispatch/test_dispatch_engine.py tests/unit/test_contract_governance.py -q --no-cov ; echo exit:$?", "exit": {"text": "1", "status": "warn"}, "result": "41 passed, 2 failed: pre-existing sequencing override tuple plus DNA schema preflight"},
+          {"purpose": "Six intent suites", "command": "uv run pytest tests/integration/intent/radar_identification tests/integration/intent/hold_for_release tests/integration/intent/sequencing tests/integration/intent/taxi_instruction tests/integration/intent/cleared_option tests/integration/intent/frequency_change -q --no-cov ; echo exit:$?", "exit": {"text": "1", "status": "warn"}, "result": "98 passed, 3 failed, 1 xfailed; failures are concurrent readback wording/template drift"},
+          {"purpose": "Authority boundary", "command": "uv run pytest tests/test_authority_boundary.py -q --no-cov ; echo exit:$?", "exit": {"text": "0", "status": "match"}, "result": "10 passed"}
+        ],
+        "stickyHeader": true
+      }
+    },
+    "phase-b-files": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {"label": "Phase B", "title": "Six scenarios and generated projections"},
+      "children": ["phase-b-text", "phase-b-scope"]
+    },
+    "phase-b-text": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "Changed source and review JSON for `360_for_spacing`, `ads_b_traffic_conflict`, `busy_class_d_traffic_saturation`, `closed_traffic_request`, `request_direct_routing`, and `vfr_departure_class_c`. The authority sources live in the `prototype` submodule behind `data/src/partner_graph/sources/partner`; every source byte-matches its review copy.\n\nThe receipt CLI refreshed `checked_at` timestamps on the four existing review sidecars and created empty sidecars for `360_for_spacing` and `ads_b_traffic_conflict`. No receipt YAML was hand-edited, and no addendum was recorded because none of the changed payload rows invalidated an existing receipt.\n\nRe-generated only the six matching files under `data/src/partner_graph/output/scenarios/`. No transcript, audio, TTS, or transcription operation ran."
+      }
+    },
+    "phase-b-scope": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Exact payload scope preserved",
+        "content": "All fifteen approved payload edits are present, including the pattern-entry reclassification and removal of the expectation-only altitude command. No extra scenario payload edits were introduced."
+      }
+    },
+    "phase-b-protocol": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {"label": "Phase B protocol", "title": "Copy, parse, and promotion commands"},
+      "children": ["phase-b-protocol-table"]
+    },
+    "phase-b-protocol-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {"key": "step", "label": "Step"},
+          {"key": "command", "label": "Command"},
+          {"key": "exit", "label": "Exit"},
+          {"key": "result", "label": "Result"}
+        ],
+        "rows": [
+          {"step": "Copy to review", "command": "cp data/src/partner_graph/sources/partner/<id>.json data/src/partner_graph/review/<id>.json", "exit": {"text": "0 × 6", "status": "match"}, "result": "All six copied before edits"},
+          {"step": "JSON parse", "command": "jq empty data/src/partner_graph/review/<id>.json", "exit": {"text": "0 × 6", "status": "match"}, "result": "All edited review JSON valid"},
+          {"step": "Promote", "command": "cp data/src/partner_graph/review/<id>.json data/src/partner_graph/sources/partner/<id>.json", "exit": {"text": "0 × 6", "status": "match"}, "result": "All six promoted"},
+          {"step": "Source/review parity", "command": "cmp -s data/src/partner_graph/sources/partner/<id>.json data/src/partner_graph/review/<id>.json", "exit": {"text": "0 × 6", "status": "match"}, "result": "All six byte-identical"},
+          {"step": "Receipt help", "command": "uv run python data/src/partner_graph/tools/grounding_lookup.py receipt record --help", "exit": {"text": "0", "status": "match"}, "result": "Diagnostic only"},
+          {"step": "Receipt next", "command": "uv run python data/src/partner_graph/tools/grounding_lookup.py receipt next data/src/partner_graph/review/<id>.json", "exit": {"text": "0 × 3", "status": "match"}, "result": "Run for 360, ADS-B, and direct-routing diagnostics; no record command invoked"}
+        ],
+        "stickyHeader": true
+      }
+    },
+    "phase-b-receipts": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {"label": "Phase B gates", "title": "Scenario validation and receipt verification"},
+      "children": ["phase-b-receipts-table"]
+    },
+    "phase-b-receipts-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {"key": "scenario", "label": "Scenario"},
+          {"key": "validate", "label": "Validate --require-receipts"},
+          {"key": "verify", "label": "Receipt verify"},
+          {"key": "note", "label": "Evidence"}
+        ],
+        "rows": [
+          {"scenario": "360_for_spacing", "validate": {"text": "exit 1", "status": "warn"}, "verify": {"text": "exit 0", "status": "match"}, "note": "No pre-existing receipts; 0 verified"},
+          {"scenario": "ads_b_traffic_conflict", "validate": {"text": "exit 1", "status": "warn"}, "verify": {"text": "exit 0", "status": "match"}, "note": "No pre-existing receipts; 0 verified"},
+          {"scenario": "busy_class_d_traffic_saturation", "validate": {"text": "exit 0", "status": "match"}, "verify": {"text": "exit 0", "status": "match"}, "note": "Verified"},
+          {"scenario": "closed_traffic_request", "validate": {"text": "exit 0", "status": "match"}, "verify": {"text": "exit 0", "status": "match"}, "note": "Verified"},
+          {"scenario": "request_direct_routing", "validate": {"text": "exit 1", "status": "warn"}, "verify": {"text": "exit 0", "status": "match"}, "note": "Three unrelated rows lack required receipts"},
+          {"scenario": "vfr_departure_class_c", "validate": {"text": "exit 0", "status": "match"}, "verify": {"text": "exit 0", "status": "match"}, "note": "Verified"}
+        ],
+        "stickyHeader": true,
+        "footer": {"scenario": "Command forms", "validate": "uv run python … grounding_lookup.py validate …/review/<id>.json --require-receipts ; echo exit:$?", "verify": "uv run python … grounding_lookup.py receipt verify …/review/<id>.json ; echo exit:$?", "note": "Each scenario run separately; exit codes unpiped"}
+      }
+    },
+    "phase-b-projections": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {"label": "Phase B projection", "title": "Per-scenario projection results"},
+      "children": ["phase-b-projections-table"]
+    },
+    "phase-b-projections-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {"key": "scenario", "label": "Scenario"},
+          {"key": "command", "label": "Command"},
+          {"key": "exit", "label": "Exit"},
+          {"key": "result", "label": "Result"}
+        ],
+        "rows": [
+          {"scenario": "360_for_spacing", "command": "cd data && just graph-eval-projection 360_for_spacing ; echo exit:$?", "exit": {"text": "0", "status": "match"}, "result": "Projected"},
+          {"scenario": "ads_b_traffic_conflict", "command": "cd data && just graph-eval-projection ads_b_traffic_conflict ; echo exit:$?", "exit": {"text": "0", "status": "match"}, "result": "Projected"},
+          {"scenario": "busy_class_d_traffic_saturation", "command": "cd data && just graph-eval-projection busy_class_d_traffic_saturation ; echo exit:$?", "exit": {"text": "0", "status": "match"}, "result": "Projected"},
+          {"scenario": "closed_traffic_request", "command": "cd data && just graph-eval-projection closed_traffic_request ; echo exit:$?", "exit": {"text": "0", "status": "match"}, "result": "Projected"},
+          {"scenario": "request_direct_routing", "command": "cd data && just graph-eval-projection request_direct_routing ; echo exit:$?", "exit": {"text": "0", "status": "match"}, "result": "Projected"},
+          {"scenario": "vfr_departure_class_c", "command": "cd data && just graph-eval-projection vfr_departure_class_c ; echo exit:$?", "exit": {"text": "0", "status": "match"}, "result": "Projected"}
+        ],
+        "stickyHeader": true
+      }
+    },
+    "phase-c": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {"label": "Phase C", "title": "Final gates"},
+      "children": ["phase-c-table", "baseline-callout"]
+    },
+    "phase-c-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {"key": "gate", "label": "Gate"},
+          {"key": "command", "label": "Command"},
+          {"key": "exit", "label": "Exit"},
+          {"key": "result", "label": "Result"}
+        ],
+        "rows": [
+          {"gate": "FMM sweep", "command": "uv run python /private/tmp/claude-501/-Users-jean-patricksmith-digital-kingly-apps-production-drone/e1aa2c9b-67ea-4b34-aa0b-fd65315c74d9/scratchpad/fmm_sweep_head.py ; echo exit:$?", "exit": {"text": "0", "status": "match"}, "result": "528 checked, 0 violations, 47 contractless"},
+          {"gate": "Projection check", "command": "PYTHONPATH=.:data/src uv run python -m partner_graph.tools.project_eval --check ; echo exit:$?", "exit": {"text": "1", "status": "warn"}, "result": "All six slice scenarios current; unrelated vfr_pattern_intensive remains stale"},
+          {"gate": "Baseline", "command": "just baseline --json --no-write > /tmp/normalization-baseline.json ; echo exit:$?", "exit": {"text": "1", "status": "info"}, "result": "Valid JSON; 1537 scored, 1303 passed, 234 failed"}
+        ],
+        "stickyHeader": true
+      }
+    },
+    "baseline-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Baseline red is allowed by this slice",
+        "content": "The requested baseline command produced valid JSON. The proposal explicitly allowed exit 1 when red rows remain."
+      }
+    },
+    "remaining": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {"label": "Final disposition", "title": "CONTINUE — exact remaining gate debt"},
+      "children": ["remaining-warning", "remaining-text"]
+    },
+    "remaining-warning": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "The approved slice is implemented, but the full requested gate set is not green",
+        "content": "No out-of-scope repair was made. Clearing these failures would require edits beyond the user's exact write scope."
+      }
+    },
+    "remaining-text": {
+      "type": "text",
+      "variant": "prose",
+      "props": {
+        "content": "- Repair the pre-existing dispatch unit expectations for `sequencing.number_follow_traffic` and add the missing `name` required by the DNA receipt schema preflight.\n- Reconcile the concurrent readback drift: the hold-for-release callsign wording and two frequency-change template IDs.\n- Add missing grounding receipts for the full `360_for_spacing` and `ads_b_traffic_conflict` scenarios, plus the three unrelated missing rows in `request_direct_routing`.\n- Re-project the unrelated stale `vfr_pattern_intensive` scenario so the repository-wide projection check passes."
+      }
+    }
+  }
+}

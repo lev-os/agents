@@ -1,0 +1,545 @@
+{
+  "meta": {
+    "title": "SuntiQ Parallel Migration",
+    "description": "Live operator tracker for the Argo Marine to SuntiQ infrastructure cutover.",
+    "refresh": 300,
+    "fonts": ["IBM Plex Sans", "IBM Plex Mono"],
+    "effects": ["grid-dots", "card-glow"]
+  },
+  "theme": {
+    "preset": "teal-slate",
+    "mode": "dark"
+  },
+  "root": ["hero", "infra-hud", "cutover-checklist", "kpis", "environment-map", "auth-map", "workstream", "blockers", "evidence", "timeline"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "SUNTIQ / OPERATOR STATUS",
+        "title": "Parallel infrastructure migration",
+        "subtitle": "Build SuntiQ beside the live pilot. Promote code deliberately; never promote pilot data or credentials by accident.",
+        "meta": "Last verified 2026-07-22 · auto-refreshes every 5 minutes"
+      }
+    },
+    "infra-hud": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "Operator HUD",
+        "title": "Immediate infrastructure state"
+      },
+      "children": ["hud-status", "hud-current", "hud-remaining"]
+    },
+    "hud-status": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "OAUTH STAGING LIVE",
+        "label": "Status",
+        "trend": { "direction": "up", "value": "Google E2E verified; LinkedIn provider accepted" }
+      }
+    },
+    "hud-current": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "1 CLICK",
+        "label": "Current step",
+        "trend": { "direction": "up", "value": "Finish LinkedIn login in the handed-off Chrome tab" }
+      }
+    },
+    "hud-remaining": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "2",
+        "label": "Steps after current",
+        "trend": { "direction": "down", "value": "NDA/CRM smoke → apex production cutover" }
+      }
+    },
+    "cutover-checklist": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Cutover Tracker",
+        "title": "Only the next five infrastructure steps",
+        "subtitle": "Full setup values and evidence live in the linked infrastructure plan."
+      },
+      "children": ["cutover-table"]
+    },
+    "cutover-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "step", "label": "Step" },
+          { "key": "owner", "label": "Owner" },
+          { "key": "action", "label": "Action" },
+          { "key": "status", "label": "Status" }
+        ],
+        "rows": [
+          {
+            "step": "1",
+            "owner": "JP",
+            "action": "Create and verify the internal SuntiQ Google OAuth client for Cloudflare Access.",
+            "status": { "text": "Done", "status": "match" }
+          },
+          {
+            "step": "2",
+            "owner": "JP",
+            "action": "Google credentials are encrypted. Create the destination-account Cloudflare API token; Codex will store it as provider secret config.",
+            "status": { "text": "Done", "status": "match" }
+          },
+          {
+            "step": "3",
+            "owner": "Codex / Pulumi",
+            "action": "Import the SuntiQ zone/tunnel; manage explicit DNS, Workspace IdP, CRM Access, and service token.",
+            "status": { "text": "Done", "status": "match" }
+          },
+          {
+            "step": "4",
+            "owner": "JP",
+            "action": "Complete Google Workspace administrator authorization and pass the Cloudflare IdP test.",
+            "status": { "text": "Done", "status": "match" }
+          },
+          {
+            "step": "5",
+            "owner": "JP + Codex",
+            "action": "Delegation is already live. After Pulumi reconciles the tunnel, repair any origin failure and smoke-test Workspace mail, Resend, CRM, and signing.",
+            "status": { "text": "Done", "status": "match" }
+          }
+        ],
+        "stickyHeader": true
+      }
+    },
+    "kpis": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "Current State",
+        "title": "What is real now"
+      },
+      "children": ["kpi-staging", "kpi-preview", "kpi-pilot", "kpi-blockers"]
+    },
+    "kpi-staging": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "2",
+        "label": "SuntiQ staging Convex targets",
+        "trend": { "direction": "up", "value": "Both schemas deployed" }
+      }
+    },
+    "kpi-preview": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "2",
+        "label": "Isolated Preview deploy paths",
+        "trend": { "direction": "up", "value": "Website + Fleet" }
+      }
+    },
+    "kpi-pilot": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "0",
+        "label": "Pilot changes",
+        "trend": { "direction": "flat", "value": "fleet.argomarine.ai protected" }
+      }
+    },
+    "kpi-blockers": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {
+        "value": "0",
+        "label": "Open infrastructure steps",
+        "trend": { "direction": "down", "value": "Cloudflare edge converged" }
+      }
+    },
+    "environment-map": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Environment Contract",
+        "title": "Code moves forward; state stays isolated",
+        "subtitle": "The same reviewed commit crosses lanes. Data, users, secrets, and boat credentials do not."
+      },
+      "children": ["environment-table"]
+    },
+    "environment-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "lane", "label": "Lane" },
+          { "key": "branch", "label": "Git source" },
+          { "key": "convex", "label": "Convex target" },
+          { "key": "identity", "label": "Identity / data" },
+          { "key": "status", "label": "Status" }
+        ],
+        "rows": [
+          {
+            "lane": "Local + PR preview",
+            "branch": "feature/*",
+            "convex": "SuntiQ dev deployment",
+            "identity": "test users + fixture data only",
+            "status": { "text": "Website preview key isolated", "status": "match" }
+          },
+          {
+            "lane": "Persistent staging",
+            "branch": "develop",
+            "convex": "Website striped-malamute-687; Fleet successful-fennec-587",
+            "identity": "separate staging identities + synthetic fleet data",
+            "status": { "text": "Both Convex targets deployed; Fleet web live", "status": "match" }
+          },
+          {
+            "lane": "Production",
+            "branch": "main after staging approval",
+            "convex": "Website giant-eagle-527; Fleet insightful-kookabura-350",
+            "identity": "real SuntiQ users + production data only",
+            "status": { "text": "Configured but intentionally not deployed", "status": "info" }
+          },
+          {
+            "lane": "Legacy pilot",
+            "branch": "not a SuntiQ deploy target",
+            "convex": "Sunny-owned legacy stack",
+            "identity": "live pilot + live devices",
+            "status": { "text": "Protected / rollback reference", "status": "warn" }
+          }
+        ],
+        "stickyHeader": true
+      }
+    },
+    "auth-map": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Authentication Boundaries",
+        "title": "Three control planes; no shared OAuth secrets",
+        "subtitle": "Provider clients are isolated by audience, application runtime, and nonprod/production publishing state."
+      },
+      "children": ["auth-table"]
+    },
+    "auth-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "surface", "label": "Surface" },
+          { "key": "broker", "label": "Auth owner" },
+          { "key": "provider", "label": "Provider projects/apps" },
+          { "key": "secrets", "label": "Secret destination" },
+          { "key": "status", "label": "Status" }
+        ],
+        "rows": [
+          {
+            "surface": "Internal CRM edge",
+            "broker": "Cloudflare Access + SuntiQ Workspace",
+            "provider": "suntiq-infrastructure / internal Google client",
+            "secrets": "Encrypted suntiq-platform Pulumi config",
+            "status": { "text": "Pulumi-owned; SSO + service auth verified", "status": "match" }
+          },
+          {
+            "surface": "Website data room",
+            "broker": "Better Auth on matching Convex deployment",
+            "provider": "Separate nonprod/prod Google projects + LinkedIn apps",
+            "secrets": "Matching Convex deployment env",
+            "status": { "text": "Clients installed; Google E2E passed; LinkedIn login pending", "status": "warn" }
+          },
+          {
+            "surface": "Fleet SaaS",
+            "broker": "Clerk; Convex trusts Clerk JWT issuer",
+            "provider": "Clerk shared dev OAuth; custom staging/prod Google clients",
+            "secrets": "Clerk; Vercel only gets publishable key",
+            "status": { "text": "Environment matrix ready; custom Google pending", "status": "info" }
+          }
+        ],
+        "stickyHeader": true
+      }
+    },
+    "workstream": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": {
+        "label": "Promotion Path",
+        "title": "The safe release flow"
+      },
+      "children": ["step-dev", "step-preview", "step-staging", "step-production"]
+    },
+    "step-dev": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "1. Develop",
+        "content": "Run locally against a personal Convex dev deployment. No pilot data, devices, or production secrets."
+      }
+    },
+    "step-preview": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "2. Preview",
+        "content": "PR gets a disposable Vercel URL with non-production configuration and fixtures."
+      }
+    },
+    "step-staging": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "3. Staging",
+        "content": "Deploy the reviewed develop commit to the isolated staging Convex targets and run real integration smoke tests."
+      }
+    },
+    "step-production": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "title": "4. Production",
+        "content": "Promote the accepted commit only after backup/restore proof and an explicit cutover approval."
+      }
+    },
+    "blockers": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "Provider Gates",
+        "title": "Core fleet identity is isolated; SuntiQ access routing is staged"
+      },
+      "children": ["clerk-blocker", "cloudflare-blocker", "integration-blocker", "legacy-blocker"]
+    },
+    "clerk-blocker": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Fleet: staging lane is live",
+        "content": "SuntiQ Fleet Nonprod serves local, Preview, and persistent staging identities. The separate SuntiQ Fleet production app and certificate are ready but contain no pilot users."
+      }
+    },
+    "cloudflare-blocker": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Cloudflare: SuntiQ internal edge converged",
+        "content": "Pulumi owns the healthy suntiq-control-01 tunnel, explicit crm/sign ingress, both DNS records, the SuntiQ Workspace IdP, CRM Access policies, and the Convex service token. crm requires SuntiQ Google SSO; sign remains public for external NDA recipients."
+      }
+    },
+    "integration-blocker": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "CRM automation credentials are live",
+        "content": "The Cloudflare service token and a fresh Twenty API key are stored only in the SuntiQ website production Convex environment. A production Convex action reached Twenty through Access and created exactly one jp@suntiq.ai person record."
+      }
+    },
+    "legacy-blocker": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Legacy migration still needs Sunny",
+        "content": "Production fleet data, identities, and device credentials remain blocked on legacy Convex/Clerk access or complete exports. Sunny also needs SuntiQ Vercel team access and a linked Git identity for deployments."
+      }
+    },
+    "evidence": {
+      "type": "section",
+      "variant": "card-grid",
+      "props": {
+        "label": "Latest CLI Evidence",
+        "title": "What the downloaded files prove"
+      },
+      "children": ["dns-evidence", "dmarc-evidence", "suntiq-oauth-evidence", "website-oauth-evidence", "product-auth-project-evidence", "kingly-oauth-evidence"]
+    },
+    "dns-evidence": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Destination DNS is publicly authoritative",
+        "content": "After source-zone deletion, public DNS serves the destination Google MX/SPF, Vercel staging, and explicit CRM/sign tunnel records through eva/frank.cloudflare.com. No registrar or nameserver action remains; the destination wildcard stays absent."
+      }
+    },
+    "dmarc-evidence": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Google and Resend authentication passed",
+        "content": "DMARC report 310233935211785613 contains four messages: one aligned Google pass, one aligned Resend pass, and two ARC-preserved Google relays with DigitalOcean alignment failure. Keep p=none while the sample grows."
+      }
+    },
+    "suntiq-oauth-evidence": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "SuntiQ Cloudflare Access credential is ready",
+        "content": "The SuntiQ Google Workspace IdP redirects through https://suntiq.cloudflareaccess.com/cdn-cgi/access/callback and completes login as jp@suntiq.ai. Pulumi stores the OAuth secret encrypted and owns the CRM Access application and service policy."
+      }
+    },
+    "website-oauth-evidence": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Website OAuth reaches real providers",
+        "content": "Nonprod and production Google/LinkedIn credentials are installed only in their matching Convex deployments. Staging Google completed provider consent, callback, session creation, and the protected welcome route. LinkedIn accepted the client, scopes, and staging callback and is waiting only for the operator to submit the existing LinkedIn login form. Vercel SSO protection was removed because it blocked public OAuth callbacks; Git-fork and skew protection remain enabled."
+      }
+    },
+    "product-auth-project-evidence": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Nonprod and production auth projects are Pulumi-owned",
+        "content": "Created protected projects suntiq-product-auth-nonprod (269615862755) and suntiq-product-auth-prod (539363790980). The post-apply preview reports sixteen unchanged resources across GCP and Cloudflare."
+      }
+    },
+    "kingly-oauth-evidence": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "info",
+        "title": "Yes, Kingly already used Google with Cloudflare Access",
+        "content": "The downloaded client belongs to GCP project kingly-zero-trust and authorizes https://kingly-studio.cloudflareaccess.com. It confirms the pattern, but the credential must not be reused for SuntiQ."
+      }
+    },
+    "timeline": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "Verified Work",
+        "title": "Migration activity"
+      },
+      "children": ["activity"]
+    },
+    "activity": {
+      "type": "timeline",
+      "props": {
+        "items": [
+          {
+            "date": "2026-07-18",
+            "title": "Staging Convex boundaries created",
+            "description": "Created SuntiQ website and fleet staging projects with dedicated production-class deployments.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-07-18",
+            "title": "Website staging deployed cleanly",
+            "description": "Website functions, Better Auth component, schema, and indexes are deployed with zero migrated records.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-07-18",
+            "title": "Preview isolation corrected",
+            "description": "The website Preview deploy key no longer points to Kingly production Convex.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-07-18",
+            "title": "Live operator tracker established",
+            "description": "The single local /now tracker is the ongoing progress surface and is configured to refresh every five minutes.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-07-18",
+            "title": "Clerk environment matrix completed",
+            "description": "Provisioned separate local/Preview, persistent staging, and production Clerk instances. Production is fleet-scoped at fleet.suntiq.ai with clerk.fleet.suntiq.ai, verified DNS/certificates, matching Vercel/Convex bindings, and no stale root Clerk CNAMEs.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-07-18",
+            "title": "Fleet staging deployed",
+            "description": "Deployed the Fleet schema/functions to successful-fennec-587 and the Vercel staging application to fleet-staging.suntiq.ai.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-07-18",
+            "title": "Mail records and tunnel migration staged",
+            "description": "Workspace and Resend records were exported/imported. The imported wildcard still targets the legacy tunnel and must be replaced with explicit SuntiQ tunnel records without touching the live pilot.",
+            "status": "in-progress"
+          },
+          {
+            "date": "2026-07-18",
+            "title": "DocuSeal routed and rebranded",
+            "description": "sign.suntiq.ai is live alongside the old URL and a secret-protected staging webhook runs in parallel. Resend SMTP authentication works; hello@suntiq.ai and internal@suntiq.ai are both real vendor-facing Workspace recipients.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-07-18",
+            "title": "Website staging and restore proof completed",
+            "description": "staging.suntiq.ai is live on the custom Vercel staging lane. The encrypted off-host backup restored DocuSeal with SQLite integrity OK and Twenty with 83 user tables.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-07-18",
+            "title": "Convex production baselines backed up",
+            "description": "Completed manual tables-only backups for giant-eagle-527 and insightful-kookabura-350. They expire in seven days; automatic recurring backups require a higher Convex plan.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-07-18",
+            "title": "Fresh SuntiQ CRM isolated",
+            "description": "The independent Twenty stack is live behind SuntiQ Workspace Access. A fresh API key plus Cloudflare service token are installed in production suntiq-www Convex, and the Convex-to-Twenty upsert path is verified.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-07-18",
+            "title": "Website NDA allowlist rebranded locally",
+            "description": "Replaced the Kingly/Argo NDA auto-activation literals and local mail defaults with SuntiQ values. ESLint and TypeScript pass; the change is not deployed until it follows the reviewed promotion path.",
+            "status": "in-progress"
+          },
+          {
+            "date": "2026-07-19",
+            "title": "SuntiQ Google consent and infrastructure source prepared",
+            "description": "The internal Google Auth Platform consent flow completed. The isolated Suntiq-Inc/suntiq-infra repository contains the reviewed keyless GitHub OIDC and guarded Cloudflare control-plane source.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-07-19",
+            "title": "SuntiQ-owned Pulumi identity stack applied",
+            "description": "Suntiq/suntiq-platform owns the keyless GitHub Actions deploy identity. The post-apply preview reports seven unchanged resources.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-07-19",
+            "title": "DNS, Kingly OAuth, and DMARC downloads audited",
+            "description": "Confirmed the DNS import source, found the legacy wildcard tunnel target, proved the downloaded OAuth client belongs to Kingly, and verified aligned Google/Resend traffic in the first DMARC report.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-07-19",
+            "title": "SuntiQ Access client created and destination wildcard removed",
+            "description": "Verified the new Google client belongs to suntiq-infrastructure with the exact Cloudflare Access origin/callback. Jean-Patrick manually removed *.suntiq.ai from the destination tenant.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-07-19",
+            "title": "OAuth secret encrypted and product-auth projects applied",
+            "description": "Pulumi securely stored the internal Google credential, moved ADC quota off Kingly, and created protected nonprod/production product-auth projects. Post-apply preview is nine unchanged.",
+            "status": "completed"
+          },
+          {
+            "date": "2026-07-20",
+            "title": "SuntiQ destination DNS is now public",
+            "description": "Pulumi imported suntiq-control-01 and sign.suntiq.ai, created crm.suntiq.ai, and moved both explicit records to the SuntiQ tunnel. CRM returns the Access challenge and sign returns HTTP 200.",
+            "status": "completed"
+          },
+        {
+          "date": "2026-07-22",
+          "title": "Website OAuth clients installed and Google E2E verified",
+          "description": "Installed nonprod Google in local/dev and staging, both nonprod providers in staging, and both production providers in production without exposing their values. Rebuilt staging against striped-malamute-687, removed conflicting Vercel SSO protection, and completed Google consent, callback, session, and protected-route proof as jp@suntiq.ai.",
+          "status": "completed"
+        },
+        {
+          "date": "Next action",
+          "title": "Complete LinkedIn callback, then run NDA/CRM smoke",
+          "description": "Submit the handed-off LinkedIn login form, verify the callback creates a valid staging session, then exercise NDA signing, email delivery, and the Convex-to-Twenty contact path before preparing the apex production deployment.",
+          "status": "in-progress"
+        }
+        ]
+      }
+    }
+  }
+}

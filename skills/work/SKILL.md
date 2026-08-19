@@ -40,6 +40,44 @@ The shared graph-footer partial is an authoring reference only until the Lev
 skill-builder pipeline can project FlowMind fragments into skill bodies. Do not
 make skills load or include that file at runtime.
 
+## Human Response Contract
+
+Keep full ledgers, scores, traces, and gate state in durable artifacts. Default
+interactive output is a compact content-first projection; render the full table
+only for `--full`, explicit audit/debug requests, or when one row cannot be
+understood without it.
+
+Score the default response on these ten checks. A check may be `not_applicable`
+only with a concrete reason; every applicable check must pass.
+
+| # | Check |
+|---:|---|
+| 1 | Lead with the outcome or current state. |
+| 2 | Name the operator-visible result. |
+| 3 | Name the exact asset, code area, task, or durable entity affected. |
+| 4 | Name relevant code owners and rules/index refs when implementation is discussed. |
+| 5 | Show the real-world critical path when behavior crosses boundaries. |
+| 6 | Name the first executable or testable next slice. |
+| 7 | State what done means as an observable effect. |
+| 8 | State the smallest local, integration, or field proof that matters. |
+| 9 | Separate deterministic code, declarative policy, LLM work, and human decisions when relevant. |
+| 10 | End with one primary next action and any real blocker. |
+
+Default target: at most 12 non-blank lines before the optional HUD. Do not print
+an empty section, a full readiness matrix, or a ledger that already exists on
+disk.
+
+Render the Markdown inside live XML templates; never print the XML wrapper tags.
+
+<lifecycle-response>
+## {outcome_or_state}
+
+Changed or saved: {durable_delta_or_none}
+Proof or state: {load_bearing_evidence_or_gap}
+Decision needed: {none_or_one_decision}
+Next: {one_primary_action}
+</lifecycle-response>
+
 ## Lifecycle Lanes
 
 | Lane | Entity movement | Owns |

@@ -1,0 +1,217 @@
+{
+ "meta": {
+  "title": "Scenario Recertification — Open Decisions"
+ },
+ "theme": { "preset": "amber-emerald", "mode": "light" },
+ "root": ["hero", "kpis", "config-design", "flagged", "formation", "oracle", "validation", "tail"],
+ "elements": {
+  "hero": {
+   "type": "hero",
+   "variant": "editorial",
+   "props": {
+    "category": "DECISION SURFACE · v2",
+    "title": "Callsign Config — Four Rulings, Explained Properly",
+    "subtitle": "Reworked per your feedback: the config-key design replaces derivation, and every decision now explains itself from zero.",
+    "meta": "2026-08-15 · scenario-source-recertification · Sunny-PC"
+   },
+   "children": ["lead"]
+  },
+  "lead": {
+   "type": "text",
+   "variant": "lead",
+   "props": {
+    "content": "Boundary status first: Thor re-transcription 95/95 clean, baseline compared and explained, everything committed and pushed. What remains is design and judgment — the four items below."
+   }
+  },
+  "kpis": {
+   "type": "section",
+   "variant": "kpi-row",
+   "props": { "label": "LANDED", "title": "This Boundary Is Closed" },
+   "children": ["kpi-thor", "kpi-baseline", "kpi-sync", "kpi-census"]
+  },
+  "kpi-thor": { "type": "card", "variant": "kpi", "props": { "value": "95/95", "label": "Thor re-transcription, 0 failures, ledger churn verified" } },
+  "kpi-baseline": { "type": "card", "variant": "kpi", "props": { "value": "A +4", "label": "Baseline: A1 154/416, A2 29/93 (both up); B-lane −1 attributed to units-lane row rename" } },
+  "kpi-sync": { "type": "card", "variant": "kpi", "props": { "value": "pushed", "label": "data bc1acf0cf · parent 1ab92e364 · all trees clean" } },
+  "kpi-census": { "type": "card", "variant": "kpi", "props": { "value": "1158/1158", "label": "Gold census green, exit 0" } },
+
+  "config-design": {
+   "type": "section",
+   "variant": "full-width",
+   "props": {
+    "label": "DECISION 1",
+    "title": "Callsign Config: Every Permutation Declared, Nothing Derived",
+    "subtitle": "Your call was right — derivation was a workaround. Here is what the config-key design looks like concretely."
+   },
+   "children": ["config-today", "config-block", "config-how", "config-checker", "decision-config"]
+  },
+  "config-today": {
+   "type": "text",
+   "variant": "prose",
+   "props": {
+    "content": "**How it works today.** Sources store exactly two placeholders: `{{CALLSIGN}}` and `{{CALLSIGN_SPOKEN}}`. At projection time the resolver reads the tail from the scenario's `/callsign` field (or `/flight_plan/registration`, falling back to N17XX) — and then **computes** the spoken form in Python (`expand_callsign()`). So one of the two forms is already code-derived, and any new form (abbreviated, type-prefixed) would have piled more phraseology rules into code.\n\n**Why that's wrong here.** The repo's own hoisting law says phraseology vocabulary lives in typed data contracts, never Python rules. And the corpus already proves the rules break: the Canadian scenario's abbreviation is *Golf X-ray X-ray X-ray* — no N-prefix rule produces that. It even already declares `abbreviated_callsign` as a config field. The config surface half-exists; the fix is to finish it, not to bypass it with code.\n\n**The design you asked about:** one required config block holding every spoken permutation a scenario's radio traffic can use. Placeholders map one-to-one onto keys. The projector substitutes only declared keys and fails closed on anything missing — same fail-closed check that exists today."
+   }
+  },
+  "config-block": {
+   "type": "code-block",
+   "props": {
+    "language": "json",
+    "filename": "callsign block (per-scenario, with a corpus-wide N17XX default)",
+    "content": "\"callsign_config\": {\n  \"registration\":       \"N17XX\",\n  \"spoken\":             \"November One Seven X-ray X-ray\",\n  \"abbreviated\":        \"17XX\",\n  \"abbreviated_spoken\": \"One Seven X-ray X-ray\",\n  \"short_spoken\":       \"Seven X-ray X-ray\",\n  \"type_spoken\":        \"Skyhawk One Seven X-ray X-ray\"\n}\n\n// placeholder -> key, one to one:\n//   {{CALLSIGN}}              -> registration\n//   {{CALLSIGN_SPOKEN}}       -> spoken\n//   {{CALLSIGN_ABBR}}         -> abbreviated\n//   {{CALLSIGN_ABBR_SPOKEN}}  -> abbreviated_spoken\n//   {{CALLSIGN_SHORT_SPOKEN}} -> short_spoken\n//   {{CALLSIGN_TYPE_SPOKEN}}  -> type_spoken\n\n// Canadian scenario declares its own complete block:\n\"callsign_config\": {\n  \"registration\":       \"C-GXXX\",\n  \"spoken\":             \"Charlie Golf X-ray X-ray X-ray\",\n  \"abbreviated\":        \"GXXX\",\n  \"abbreviated_spoken\": \"Golf X-ray X-ray X-ray\",\n  ...\n}"
+   }
+  },
+  "config-how": {
+   "type": "text",
+   "variant": "prose",
+   "props": {
+    "content": "**Where the block lives.** A corpus-wide default block (the N17XX permutations) goes in one typed authority file under `data/atc/`, loaded through the same schema machinery as other policy vocabulary. A scenario only writes its own block when its callsign differs — the Canadian file, the formation files, the BATC scenarios that already carry per-scenario tails like N172SB. Requiring ALL keys whenever a block is present is enforced by the schema, so a scenario can never declare half a callsign.\n\n**What 'require all permutations' buys you.** Every spoken form that appears in radio text is human-authored and review-gated, exactly like every other piece of gold. When a reviewer certifies a scenario, the callsign forms are part of what they certify — grounded against AIM 4-2-4 (initial contact uses the full callsign; ATC may initiate abbreviation; type or model name may replace 'November'). No code rule ever has to encode that AIM section."
+   }
+  },
+  "config-checker": {
+   "type": "card",
+   "variant": "callout",
+   "props": {
+    "variant": "info",
+    "title": "Where the old derivation idea still earns its keep",
+    "content": "Demoted from authority to lint: expand_callsign() stays as a consistency CHECKER that warns when a declared spoken form doesn't match the registration's phonetic expansion (catching typos like 'November One Seven X-ray Yankee' under N17XX). A warning blocks nothing by itself — a human resolves it. Derivation checks; config decides."
+   }
+  },
+  "decision-config": {
+   "type": "decision",
+   "props": {
+    "title": "Ruling requested: adopt the required-permutations callsign_config block",
+    "status": "hold",
+    "content": "Schema + default N17XX block + projector reads keys instead of computing; fail closed on missing keys; expand_callsign demoted to consistency lint. This unlocks the 4,450 standard residual rows plus the vocab-metadata (904) and machine-field (378) sweeps.",
+    "next": "On approval: schema + default block + resolver change land first with tests, then the sweep runs as dry-run diff for review before any write."
+   }
+  },
+
+  "flagged": {
+   "type": "section",
+   "variant": "card-grid",
+   "props": {
+    "label": "DECISION 2",
+    "title": "The 78 Flagged Rows — What Each Class Actually Is",
+    "subtitle": "The review fleet read 4,528 callsign mentions in radio text. 4,450 were the ordinary ownship callsign (they wait on Decision 1). These 78 were flagged as NOT ordinary. Four kinds, each explained with a real row."
+   },
+   "children": ["flag-nonstandard", "flag-casing", "flag-unclear", "flag-other", "decision-flagged"]
+  },
+  "flag-nonstandard": {
+   "type": "card",
+   "variant": "elevated",
+   "props": {
+    "title": "🎭 Deliberately weird on purpose — 36 rows, leave alone",
+    "content": "Two scenarios USE the callsign as their subject matter. phonetic_spelling_request (25 rows) stages a controller confusing 17XX with 17XY, forcing the pilot to spell the tail out — if a sweep replaced '17XX' with a placeholder, the scripted confusion pair and the spelling exercise stop matching and the scenario is destroyed. oshkosh_airventure_arrival (11 rows) models AirVenture arrivals, where controllers deliberately address aircraft by color and type ('red and white high-wing, rock your wings') INSTEAD of callsign — the scenario tests callsign ABSENCE. Recommendation: mark these rows leave-verbatim in the inventory so no future sweep ever touches them."
+   }
+  },
+  "flag-casing": {
+   "type": "card",
+   "variant": "elevated",
+   "props": {
+    "title": "🔠 Right callsign, shouty spelling — 23 rows, template with casing kept",
+    "content": "Example: a go-around phase written entirely in caps for urgency — 'NOVEMBER ONE SEVEN X-RAY X-RAY, GO AROUND'. That IS the standard ownship callsign; the sweep missed it only because it matched the exact mixed-case string. Recommendation: these fold into the Decision-1 sweep with a case-insensitive match that re-emits in the row's own casing (caps stay caps). Purely mechanical once Decision 1 lands."
+   }
+  },
+  "flag-unclear": {
+   "type": "card",
+   "variant": "elevated",
+   "props": {
+    "title": "🍁 Partial matches on foreign callsigns — 17 rows, per-scenario config",
+    "content": "Example: the Yellowknife training flight. Ownship there is Canadian C-GXXX, abbreviated on the radio as 'Golf X-ray X-ray X-ray'. The residual scanner saw 'X-ray X-ray' inside that phrase and flagged it — but it's the TAIL of the Canadian abbreviation, not an N17XX form. A blind N17XX-based replacement would produce 'Golf {{placeholder}} X-ray' — garbage. Recommendation: these 17 rows substitute from their own scenario's callsign_config block (which is exactly what Decision 1 makes possible), never from the corpus default. Any row whose scenario lacks the needed key fails closed and gets hand-reviewed."
+   }
+  },
+  "flag-other": {
+   "type": "card",
+   "variant": "elevated",
+   "props": {
+    "title": "✈️ Somebody else's airplane — 2 rows, no action",
+    "content": "Example: 'traffic Warrior crossing' — the tower telling us another aircraft (a Piper Warrior) is crossing the runway. 'Warrior' is that other plane, not us. The sweep correctly left both rows alone; they're in the flagged list only because the scanner can't tell whose airplane a word refers to. Nothing to do."
+   }
+  },
+  "decision-flagged": {
+   "type": "decision",
+   "props": {
+    "title": "Ruling requested: adopt the four dispositions",
+    "status": "hold",
+    "content": "36 leave-verbatim (scenario subject matter) · 23 case-preserving template (mechanical) · 17 per-scenario-config substitution (needs Decision 1) · 2 no action (other aircraft).",
+    "next": "Approvals merge into the Decision-1 sweep spec — one pass, one review diff."
+   }
+  },
+
+  "formation": {
+   "type": "section",
+   "variant": "default",
+   "props": {
+    "label": "DECISION 3",
+    "title": "Formation Flight: Which Airplane Is 'Us'?",
+    "subtitle": "Two scenario files, one question the templating machinery cannot answer by itself."
+   },
+   "children": ["formation-prose"]
+  },
+  "formation-prose": {
+   "type": "text",
+   "variant": "prose",
+   "props": {
+    "content": "**The situation.** Two scenarios stage a two-ship formation flight: N17XX flies lead, N17XY flies wing. Every other scenario in the corpus has exactly one ownship — the aircraft whose radio we are, whose readbacks get scored, whose instructions reach the flight manager. The templating sweep needs to know which tail becomes `{{CALLSIGN}}`; it cannot template a file with two candidate ownships.\n\n**Why it matters downstream.** Whoever is ownship: their readbacks are scored gold, ATC calls addressed to them must produce flight-manager proposals, and the OTHER aircraft's transmissions become ambient party-line audio (heard, never answered). Pick wrong and the scenario scores the wrong airplane's obligations.\n\n**How formation radio actually works.** In a formation, the flight talks as ONE station — lead transmits for the flight, ATC addresses the flight through lead, wing stays off the radio. So the aviation answer and the modeling answer point the same way.\n\n**Recommendation: ownship = N17XX (lead).** It matches the corpus default tail, matches how formation communication really works, and makes the wing's rows ordinary ambient audio — a shape the corpus already models everywhere else. N17XY then stays a literal string in the text, exactly like any other aircraft's callsign.\n\n**The alternative** — modeling 'the flight' as a collective station — would need a new station concept the system doesn't have, for two files. Not worth inventing."
+   }
+  },
+
+  "oracle": {
+   "type": "section",
+   "variant": "default",
+   "props": {
+    "label": "DECISION 4",
+    "title": "The Stale Tripwire Test",
+    "subtitle": "A test has been red for five weeks for a boring reason. Fixing it needs your sign-off because of what the test protects."
+   },
+   "children": ["oracle-prose"]
+  },
+  "oracle-prose": {
+   "type": "text",
+   "variant": "prose",
+   "props": {
+    "content": "**What the test is.** `test_grounded_sources.py` keeps a hardcoded list of every scenario allowed to claim 'grounded' status. It's a tripwire: if anyone — human or agent — flips a scenario's `grounding_status` field without going through review, the list doesn't match and the test screams. The list being hardcoded is the point.\n\n**Why it's red.** On July 7 (and in waves since), twelve scenarios were legitimately promoted to grounded — each with review receipts and your approval at the time. Nobody updated the tripwire list. So for five weeks the test has been failing on promotions that were completely proper.\n\n**What the fix is.** Add the twelve IDs to the list. That's the whole change.\n\n**Why I'm asking instead of just doing it.** Updating a tripwire's expected list is exactly the move a sloppy agent makes to silence a failing test — the repo's gate law says test-oracle changes get explicit approval and a receipt, precisely so 'update the list' can't become a habit that kills the tripwire's value. Each of the twelve has an approval trail, so this roll is legitimate — but it's yours to authorize.\n\n**The risk of leaving it red.** A permanently red tripwire protects nothing: the NEXT unauthorized grounding flip would hide inside the known failure. Rolling the list re-arms it."
+   }
+  },
+
+  "validation": {
+   "type": "section",
+   "variant": "full-width",
+   "props": { "label": "RECEIPTS", "title": "Verification Ledger", "subtitle": "Everything claimed above, checked live this session." },
+   "children": ["validation-evidence"]
+  },
+  "validation-evidence": {
+   "type": "evidence",
+   "props": {
+    "title": "Checked 2026-08-15",
+    "summary": "Live re-verification, not carried claims",
+    "items": [
+     { "claim": "Templating sweep holds: 0 operative Warrior in sources; 0 unresolved placeholders in projections.", "status": "observed", "source": "git grep, field-classified per file", "detail": "Remaining Warrior matches are prose notes, aircraft-type fields, and verbatim PE-manual evidence — correctly untouched." },
+     { "claim": "Thor re-transcription complete and honest: 95/95 exit 0; the 6 scenarios with unchanged audio produced byte-identical transcript text.", "status": "observed", "source": "run log + transcript ledger diff", "detail": "Churn attributes to exactly the 95 changed scenarios, none outside." },
+     { "claim": "Baseline after the sweep: A1 154/416 and A2 29/93 both improved; B1 486/506, B2 494/506.", "status": "observed", "source": "just baseline, report-baseline_90c9ab03dfb7", "detail": "The single new B-lane fail is hold_for_release_expect_delay in both B1 and B2 — the row the units workstream's time→delay split renamed. Their lane's movement, disclosed in the data commit." },
+     { "claim": "Gold census fully green: 1112 present + 46 certified-none = 1158 owed, exit 0.", "status": "observed", "source": "uv run python -m tooling.corpus_audit.gold_census" },
+     { "claim": "Full boundary synced and clean: data bc1acf0cf, parent 1ab92e364, prototype unchanged.", "status": "observed", "source": "git status across all three trees" },
+     { "claim": "Final-boss harness accepts --input text and --input audio; canonical periodic gate stays audio.", "status": "observed", "source": "uv run python -m harness final-boss --help" }
+    ]
+   }
+  },
+
+  "tail": {
+   "type": "section",
+   "variant": "default",
+   "props": { "label": "SEQUENCE", "title": "What Happens After You Rule" },
+   "children": ["tail-timeline"]
+  },
+  "tail-timeline": {
+   "type": "timeline",
+   "props": {
+    "items": [
+     { "date": "done", "title": "Boundary closed", "status": "completed", "description": "Transcription, ledger check, baseline, full sync — all landed and pushed." },
+     { "date": "on ruling 1", "title": "callsign_config lands", "status": "upcoming", "description": "Schema + N17XX default block + projector key-substitution + consistency lint, with tests. Then the combined sweep runs as a dry-run diff for your review before any write." },
+     { "date": "on rulings 2-3", "title": "Flagged rows + formation files join the sweep", "status": "upcoming", "description": "Leave-verbatim marks, case-preserving matches, per-scenario config substitution, and both formation files templated as ownship-lead." },
+     { "date": "on ruling 4", "title": "Tripwire re-armed", "status": "upcoming", "description": "The 12 approved promotions roll into the expected list as a receipted commit; the test goes green and protects again." },
+     { "date": "after sweep", "title": "One TTS + Thor + baseline pass", "status": "upcoming", "description": "All spoken-text changes from the sweep regenerate audio and transcripts once, then the canonical scorecard and a full sync close that boundary." }
+    ]
+   }
+  }
+ }
+}

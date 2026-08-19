@@ -1,0 +1,232 @@
+{
+  "meta": {
+    "title": "Tick 16 Worker B Intent Report",
+    "description": "Trace, fixes, verification receipts, and remaining constraint for the closed-traffic and straight-in-towered batch.",
+    "effects": ["grid-lines", "title-underline"]
+  },
+  "theme": {
+    "preset": "amber-emerald",
+    "mode": "light"
+  },
+  "root": [
+    "hero",
+    "section-status",
+    "section-trace",
+    "section-disposition",
+    "section-changes",
+    "section-flips",
+    "section-verification"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "NAAC INTENT RATCHET",
+        "title": "Five classifications repaired; one remains fail-closed",
+        "subtitle": "Tick 16 / Worker B — closed_traffic_request + straight_in_towered",
+        "meta": "Sunny-PC-burndown · no commit · 2026-07-17"
+      }
+    },
+    "section-status": {
+      "type": "section",
+      "variant": "kpi-row",
+      "props": {
+        "label": "Outcome",
+        "title": "Current batch state"
+      },
+      "children": ["kpi-fixed", "kpi-remaining", "kpi-regressions", "kpi-authority"]
+    },
+    "kpi-fixed": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {"value": "5 / 6", "label": "Classification fixes", "trend": {"direction": "up", "value": "+5"}}
+    },
+    "kpi-remaining": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {"value": "1", "label": "Unchanged row", "trend": {"direction": "flat", "value": "runway context"}}
+    },
+    "kpi-regressions": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {"value": "0", "label": "Unrelated regressions", "trend": {"direction": "flat", "value": "full baseline"}}
+    },
+    "kpi-authority": {
+      "type": "card",
+      "variant": "kpi",
+      "props": {"value": "10 / 10", "label": "Authority tests", "trend": {"direction": "up", "value": "green"}}
+    },
+    "section-trace": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Mandatory preflight",
+        "title": "Trace classification before edits",
+        "subtitle": "Projected transcript and in-process regex parse were read for every queue row. No gold was edited and no row was marked gold-suspect."
+      },
+      "children": ["trace-table"]
+    },
+    "trace-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {"key": "turn", "label": "Turn"},
+          {"key": "transcript", "label": "Projected transcript"},
+          {"key": "expected", "label": "Expected"},
+          {"key": "observed", "label": "Observed"},
+          {"key": "diagnosis", "label": "Trace diagnosis"}
+        ],
+        "rows": [
+          {"turn": "closed_traffic phase 01 turn 05", "transcript": "CONTINUE LEFT CROSSWIND", "expected": "pattern_entry", "observed": "vfr_instruction", "diagnosis": "Routing/priority loss"},
+          {"turn": "closed_traffic phase 05 turn 04", "transcript": "TURN BASE WHEN READY YOU HAVE SPACING", "expected": "sequencing", "observed": "informational", "diagnosis": "Missing pattern"},
+          {"turn": "closed_traffic phase 08 turn 04", "transcript": "TAXI TO TRADEWINDS GOOD DAY", "expected": "taxi_instruction", "observed": "informational", "diagnosis": "Missing pattern"},
+          {"turn": "straight_in phase 01 turn 04", "transcript": "CURRENT ALTIMETER 3002", "expected": "altimeter_setting", "observed": "informational", "diagnosis": "Over-broad competitor"},
+          {"turn": "straight_in phase 05 turn 01", "transcript": "SHORT FINAL CLEARED TO LAND NICE APPROACH", "expected": "landing_clearance", "observed": "position_report", "diagnosis": "Over-broad competitor plus runway gate"},
+          {"turn": "straight_in phase 06 turn 00", "transcript": "TAXI SIGNATURE VIA ALPHA", "expected": "taxi_instruction", "observed": "informational", "diagnosis": "Over-broad competitor"}
+        ],
+        "stickyHeader": true
+      }
+    },
+    "section-disposition": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Scoped after receipt",
+        "title": "Six-row disposition",
+        "subtitle": "Fixed means the requested intent classification now matches. Downstream first-break stages are shown honestly; this batch did not alter readback or FMM policy."
+      },
+      "children": ["disposition-table", "landing-blocker"]
+    },
+    "disposition-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {"key": "turn", "label": "Turn"},
+          {"key": "status", "label": "Disposition"},
+          {"key": "observed", "label": "Observed after"},
+          {"key": "next", "label": "First broken stage after"}
+        ],
+        "rows": [
+          {"turn": "closed_traffic phase 01 turn 05", "status": {"text": "Fixed", "status": "match"}, "observed": "pattern_entry", "next": "readback_text"},
+          {"turn": "closed_traffic phase 05 turn 04", "status": {"text": "Fixed", "status": "match"}, "observed": "sequencing", "next": "fmm_decision"},
+          {"turn": "closed_traffic phase 08 turn 04", "status": {"text": "Fixed", "status": "match"}, "observed": "taxi_instruction", "next": "fmm_decision"},
+          {"turn": "straight_in phase 01 turn 04", "status": {"text": "Fixed", "status": "match"}, "observed": "altimeter_setting", "next": "readback_text"},
+          {"turn": "straight_in phase 05 turn 01", "status": {"text": "Unchanged", "status": "warn"}, "observed": "position_report", "next": "intent_classification"},
+          {"turn": "straight_in phase 06 turn 00", "status": {"text": "Fixed", "status": "match"}, "observed": "taxi_instruction", "next": "readback_text"}
+        ]
+      }
+    },
+    "landing-blocker": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Why the landing row remains",
+        "content": "The parser rejects every landing_clearance candidate without a runway unless a same-transmission compound supplies runway context. The permitted intent-pattern and priority surfaces cannot safely bypass that hard gate. Assigning runway 31 from this scenario inside a global regex would fabricate executable authority, so the row was restored to its pre-edit position_report result. Fixing it requires an authorized contextual-runway routing change outside this batch's allowed surface."
+      }
+    },
+    "section-changes": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "Implementation",
+        "title": "Files changed and why"
+      },
+      "children": ["policy-files", "test-files"]
+    },
+    "policy-files": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Intent policy shards",
+        "content": "20_parser_patterns/050_099.yaml — narrow named-destination and named-parking taxi captures, current-altimeter precedence, and advisory guards.\n\n20_parser_patterns/100_149.yaml — exact CONTINUE + direction + pattern-leg capture linked to the governed pattern-entry contract.\n\n20_parser_patterns/300_349.yaml — TURN + pattern-leg + WHEN READY sequencing capture.\n\n31_phrase_classifier_rules/040_079.yaml — narrow the generic vfr_instruction CONTINUE claim away from pattern legs."
+      }
+    },
+    "test-files": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "title": "Integration locking tests",
+        "content": "Updated edge/template tests for pattern_entry, sequencing, taxi_instruction, altimeter_setting, vfr_instruction, and informational. Coverage includes plain, trailing continuation, extra-number, and absent-value boundaries for each new capture, plus inverse controls for genuine VFR, informational, comm-request, and incomplete taxi forms."
+      }
+    },
+    "section-flips": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Full baseline receipt",
+        "title": "Seven tuple changes",
+        "subtitle": "Deep diff key: corpus + scenario + turn. Compared fields: passed, observed_intent, first_broken_stage. Five are target repairs; two are the anticipated template-row companion improvements."
+      },
+      "children": ["flip-table", "flip-callout"]
+    },
+    "flip-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {"key": "corpus", "label": "Corpus"},
+          {"key": "row", "label": "Row"},
+          {"key": "before", "label": "Before"},
+          {"key": "after", "label": "After"},
+          {"key": "scope", "label": "Receipt class"}
+        ],
+        "rows": [
+          {"corpus": "A1", "row": "closed_traffic phase 01 turn 05", "before": "vfr_instruction · classification", "after": "pattern_entry · readback", "scope": {"text": "Target", "status": "match"}},
+          {"corpus": "A1", "row": "closed_traffic phase 05 turn 04", "before": "informational · classification", "after": "sequencing · FMM", "scope": {"text": "Target", "status": "match"}},
+          {"corpus": "A1", "row": "closed_traffic phase 08 turn 04", "before": "informational · classification", "after": "taxi_instruction · FMM", "scope": {"text": "Target", "status": "match"}},
+          {"corpus": "A1", "row": "straight_in phase 01 turn 04", "before": "informational · classification", "after": "altimeter_setting · readback", "scope": {"text": "Target", "status": "match"}},
+          {"corpus": "A1", "row": "straight_in phase 06 turn 00", "before": "informational · classification", "after": "taxi_instruction · readback", "scope": {"text": "Target", "status": "match"}},
+          {"corpus": "B1", "row": "pattern_entry.continue_direction_pattern_leg", "before": "vfr_instruction · classification", "after": "pass", "scope": {"text": "Designed companion", "status": "info"}},
+          {"corpus": "B2", "row": "pattern_entry.continue_direction_pattern_leg", "before": "vfr_instruction · classification", "after": "pass", "scope": {"text": "Designed companion", "status": "info"}}
+        ]
+      }
+    },
+    "flip-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Target-only receipt is not clean",
+        "content": "There are no unrelated regressions. However, the full receipt is not limited to the six queue rows because the known pattern-entry B1 and B2 template rows also improve. The task explicitly anticipated this family flip, but the standing zero-flip rule says to name it and stop."
+      }
+    },
+    "section-verification": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Evidence",
+        "title": "Commands and exit codes"
+      },
+      "children": ["verification-table", "final-callout"]
+    },
+    "verification-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          {"key": "command", "label": "Command"},
+          {"key": "exit", "label": "Exit"},
+          {"key": "result", "label": "Result"},
+          {"key": "interpretation", "label": "Interpretation"}
+        ],
+        "rows": [
+          {"command": "Scoped before baseline", "exit": 1, "result": "Receipt captured", "interpretation": "Expected corpus failures"},
+          {"command": "Scoped after baseline", "exit": 1, "result": "5 fixed, 1 unchanged", "interpretation": "Expected remaining/downstream failures"},
+          {"command": "Seven intent suites", "exit": 1, "result": "170 passed, 5 xfailed, 3 failed", "interpretation": "Only the three documented informational catch-all failures"},
+          {"command": "Authority boundary pytest", "exit": 0, "result": "10 passed", "interpretation": "Green"},
+          {"command": "Ruff on touched Python", "exit": 0, "result": "All checks passed", "interpretation": "Green"},
+          {"command": "Full after baseline", "exit": 1, "result": "Deep diff completed", "interpretation": "7 named tuple changes; no unrelated regression"}
+        ]
+      }
+    },
+    "final-callout": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "CONTINUE",
+        "content": "Remaining work: authorize a contextual runway source for the runwayless landing clearance without weakening fail-closed FMM authority, then rerun the same scoped and full receipts. No commit was created. Parent and data remain on Sunny-PC-burndown."
+      }
+    }
+  }
+}

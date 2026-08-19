@@ -1,0 +1,73 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Compound Kill-Test + Holdout Audits</title>
+<style>
+body{font:15px/1.5 -apple-system,Segoe UI,sans-serif;max-width:960px;margin:2rem auto;padding:0 1rem;color:#1a1a2e;background:#fafafa}
+h1{font-size:1.5rem}h2{font-size:1.15rem;margin-top:2rem;border-bottom:2px solid #ddd;padding-bottom:.3rem}
+table{border-collapse:collapse;width:100%;margin:.8rem 0}th,td{border:1px solid #ccc;padding:.35rem .6rem;text-align:left;font-size:.92rem}
+th{background:#eee}.n{font-weight:700;color:#0b6}.bad{color:#c0392b;font-weight:700}.warn{color:#b8860b;font-weight:600}
+.card{background:#fff;border:1px solid #ddd;border-radius:8px;padding:.9rem 1.1rem;margin:.9rem 0;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+code{background:#eef;padding:.05rem .3rem;border-radius:3px;font-size:.88em}
+.verdict{font-size:1.05rem;padding:.6rem 1rem;border-radius:6px;margin:.6rem 0}
+.go{background:#e6f7ee;border:1px solid #0b6}.mut{color:#666;font-size:.9rem}
+blockquote{border-left:3px solid #bbb;margin:.4rem 0;padding:.1rem .8rem;color:#444;font-size:.92rem}
+</style></head><body>
+
+<h1>Compound-segmentation kill-test + holdout audits</h1>
+<p class="mut">Report-only packet (no implementation) — JP directive 2026-08-18. All numbers from <code>report-baseline_c5363fc2f43a.json</code> (holdout, post-callsign-fix) and <code>report-baseline_2d5a2ab4905c.json</code> (A-lanes, post-promotion). Denominator = all rows, never just firing rows.</p>
+
+<h2>1 &middot; Kill-test: compound segmentation (wrong-accept baseline)</h2>
+<div class="card">
+<p><b>Wrong-accept (over-split) = 0 across every corpus.</b> The parser never claims <code>compound</code> where gold is a single intent — not once in 1,542 rows carrying intent comparisons (975 A-lane rows + 567 holdout rows). B-lane template rows are single-intent by construction and additionally guarded by the compound-composition invariants bucket.</p>
+<table>
+<tr><th>Corpus</th><th>rows</th><th>gold-compound</th><th>handled correctly</th><th>under-split</th><th>over-split (wrong-accept)</th></tr>
+<tr><td>A-lanes (A1+A2)</td><td>975</td><td>164</td><td class="n">112 (68%)</td><td class="warn">52</td><td class="n">0</td></tr>
+<tr><td>BATC holdout</td><td>567</td><td>281</td><td class="bad">22 (8%)</td><td class="bad">259</td><td class="n">0</td></tr>
+</table>
+<p>The 68%-vs-8% delta is the finding: the splitter works on FAA-textbook compounds and collapses on live radio. Failure shape: 4-6 stacked instructions, parser emits 1-2 commands and frequently mislabels the head ("join right downwind&hellip;" &rarr; <code>position_report</code>; a wind lead-in swallows "cleared for takeoff" as <code>weather_advisory</code>). Expected-vs-observed command counts cluster at (3&rarr;2), (4&rarr;2), (5&rarr;2).</p>
+<div class="verdict go"><b>Kill-test verdict: GO</b> for a segmentation slice, with these tripwires locked before any code: (1) over-split must remain <b>0</b> on all five corpora at every tick — any new compound claim on a gold-single row is a wrong-accept and kills the slice; (2) zero-lexical-evidence law applies per segment — no segment may claim an intent without surviving literal anchors; (3) measurement only via <code>just baseline</code> + the bucket-7 template-rows gate. NO_GO closure remains packet success if tripwires can't hold.</div>
+</div>
+
+<h2>2 &middot; Conversational parse-to-nothing audit (118 holdout rows)</h2>
+<div class="card">
+<p>Live-radio test applied per bucket. <b>No new intents are needed anywhere</b> — every bucket resolves into the existing intent set once reality is modeled (JP universal ruling): what happens in the air, does the FMM need to know, is there a readback, what are the slots.</p>
+<table>
+<tr><th>Bucket</th><th>~rows</th><th>Reality model &rarr; existing intent</th></tr>
+<tr><td class="bad">Safety-critical urgent ("IMMEDIATELY STOP your takeoff roll!")</td><td>1</td><td>Highest priority despite n=1: cancellation of takeoff clearance under urgency. FMM must know; readback + immediate compliance. Grammar has zero coverage of AIM urgency phrasing.</td></tr>
+<tr><td>Closure / phatic acks ("roger&hellip;", "you're welcome", "my pleasure", "fine thanks")</td><td>~31</td><td><code>acknowledgment</code>/<code>informational</code>; FMM needs nothing; no readback. Pure grammar coverage of conversational closers.</td></tr>
+<tr><td>UK/ICAO phraseology ("squawk conspicuity", "cleared to leave the Heathrow control zone", "pass your message", "vacate when able")</td><td>~15</td><td>BATC includes UK-style rows. Real intents (<code>squawk_code_set</code>, <code>frequency_change</code>, <code>report_request</code>, <code>taxi_instruction</code>) in a phrasebook the FAA-seeded grammar has never seen. <b>Scope ruling needed from JP</b>: is UK phraseology in scope, or is this a corpus-labeling question (docling grounding: FAA vs CAA sources)?</td></tr>
+<tr><td>Say-again / read-failure prompts ("say intensity", "say type", "did not copy", "go ahead", "advise ready to copy")</td><td>~17</td><td><code>report_request</code>/<code>verification_request</code>; the pilot answers with content, no readback of the prompt itself.</td></tr>
+<tr><td>Request refusal with reason ("runway niner doesn't exist at Kennedy, unable runway change")</td><td>12</td><td><code>unable_response</code> with a reason clause; grammar knows "unable" heads but not reason-first word order.</td></tr>
+<tr><td>No-callsign hail resolution ("Aircraft calling, say callsign")</td><td>9</td><td><code>verification_request</code> addressed to an unidentified station; interacts with the addressing filter — needs the clarification lane, not a parse-to-intent shortcut.</td></tr>
+<tr><td>State-redundancy replies ("you are already at six thousand&hellip; stay there", "I show you going direct CAMRN")</td><td>~8</td><td><code>informational</code> (ownship-state observation); FMM read-only interest; "roger" readback at most.</td></tr>
+<tr><td>Channel discipline ("clear the radio", "please don't swear at the ATC")</td><td>~5</td><td><code>informational</code>/directive with no flight-state content; no FMM payload.</td></tr>
+<tr><td>Misc literal gaps ("lineup and wait" spelling, "exit at Bravo", "continue approach, runway two two left")</td><td>~5</td><td>Existing intents; token-level grammar gaps (e.g. "lineup" unspaced).</td></tr>
+</table>
+<p class="mut">Gold-side flags for a follow-up audit pass: a few gold labels look over-stated against the live-radio test (e.g. "roger, new cruise altitude six thousand" gold-labeled <code>altitude_instruction</code> — arguably a confirmation of a pilot report, not a new instruction). These are gold defects to audit, not parser work.</p>
+</div>
+
+<h2>3 &middot; FMM divergence audit — reframed</h2>
+<div class="card">
+<p><b>"No FMM rule for intent X" is not a missing rule table.</b> The fake-FMM rules are compiled per-scenario from each turn's own gold <code>expected_fmm_command</code> (<code>compile_rules_from_scenarios</code>, mirroring <code>fmm_daemon._compile_rules</code>). A no-rule outcome means the parser's proposal diverged from gold's expected payload.</p>
+<p>Of the 41 holdout turns that fail <i>first</i> at FMM (intent and slots both green), the cause is a <b>parameter-vocabulary gap</b>: gold expects semantic decision parameters the dispatch layer never emits:</p>
+<table>
+<tr><th>Missing param key</th><th>occurrences</th><th>Gold example</th></tr>
+<tr><td><code>advisory_type</code></td><td>15</td><td>traffic/weather advisory classification</td></tr>
+<tr><td><code>denied_operation</code> + <code>unable_kind</code></td><td>11 each</td><td>unable_response: <i>what</i> was refused ("requested_altitude_change") and <i>why-kind</i></td></tr>
+<tr><td><code>request_event</code> / <code>report_event</code></td><td>11 / 10</td><td>report_request event typing</td></tr>
+<tr><td><code>requested_states</code></td><td>7</td><td>verification_request state list</td></tr>
+</table>
+<p>Owner surface: <code>command_parameter_contract.yaml</code> routing + dispatch policy (parser extracts slots; <b>data policy</b> decides FMM executable-vs-context routing — never parser templates). The remaining 91 FMM-mismatch turns are cascades from upstream intent/slot failures and need no FMM-lane work. No wrong-accept risk in this lane: rules are gold-matched and fail closed, so no kill-test is required — the baseline gate suffices.</p>
+</div>
+
+<h2>Recommended sequencing (all pending your go)</h2>
+<div class="card">
+<ol>
+<li><b>FMM param-contract slice</b> — smallest, fail-closed, no wrong-accept risk; unlocks ~41 holdout turns + A-lane siblings.</li>
+<li><b>Compound segmentation slice</b> — biggest lever (259 holdout + the four zero-pass A1 scenarios share the failure family); tripwires above.</li>
+<li><b>Conversational grammar coverage</b> — bucket-by-bucket, closure-acks first (~31 rows, lowest risk); UK-phraseology bucket blocked on your scope ruling.</li>
+<li><b>Gold-defect micro-audit</b> — the over-labeled acknowledgment rows (audit lane, not parser).</li>
+</ol>
+<p class="mut">Anti-cheat: no scorer/profile/baseline-script changes anywhere above; DeBERTa stays disabled; all movement claims via <code>just baseline</code>.</p>
+</div>
+
+</body></html>
