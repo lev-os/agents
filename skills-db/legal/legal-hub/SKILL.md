@@ -2,9 +2,9 @@
 name: legal-hub
 description: |
   [WHAT] Unified legal skill router — routes to the right legal sub-skill based on intent
-  [HOW] Decision tree routes to: case research, OSINT/investigation, maritime law, contract review, legal risk assessment, red-team verification, document drafting (700+ templates)
-  [WHEN] Use when user mentions legal, lawsuit, case law, maritime, notice, discovery, deposition, complaint, motion, evidence, OSINT, investigation, crew, witness
-  [WHY] Prevents loading 700 separate legal skills; routes to the right one based on context
+  [HOW] Decision tree routes to source-backed document drafting, case research, investigation, maritime law, contract review, risk assessment, and verification
+  [WHEN] Use when the user needs legal drafting, research, review, litigation support, compliance, investigation, or risk analysis
+  [WHY] Keeps the large local legal catalog behind one intent router
 
   Triggers: "legal", "lawsuit", "case", "maritime", "notice", "discovery", "deposition", "complaint", "motion", "evidence", "OSINT", "investigation", "witness", "settlement", "damages", "precedent"
 skill_type: router
@@ -25,18 +25,19 @@ subsumes:
   - legal-risk-assessment
   - review-contract
   - triage-nda
+  - legal-document-library
 ---
 
 # Legal Hub — Unified Legal Router
 
-> **700+ legal skills** from lawvable/awesome-legal-skills + anthropics/knowledge-work-plugins + marketplace picks.
-> This router gets you to the right one without loading everything.
+Route to one legal capability without loading the full catalog.
 
 ## Quick Reference
 
 | Intent | Route To | Path |
 |--------|----------|------|
-| Case law research | `lawyer-analyst` | General legal analysis, 273 installs |
+| Startup or technology document drafting | `legal-document-library` | Pinned attorney-authored source templates |
+| Case law research | `lawyer-analyst` | General legal analysis |
 | Maritime PI / admiralty | `maritime-expert` | Maritime domain expertise |
 | Case analysis | `case-analyzer` | Structured case breakdown |
 | Cited legal memo | `legal-verified-research-memo` | Produces verified, cited memos |
@@ -50,9 +51,11 @@ subsumes:
 | Contract review | `review-contract` | Anthropics — clause-by-clause analysis |
 | NDA triage | `triage-nda` | Anthropics — GREEN/YELLOW/RED classification |
 
-## Document Drafting (700+ templates)
+## Document drafting
 
-The lawvable collection includes templates for virtually every legal document type. Key categories for the Sun v. Virgin case:
+Use `legal-document-library` for advisor agreements, BAAs, cookie notices, U.S. or global DPAs, California exempt offer letters, technology MSAs, mutual or one-way NDAs, U.S. or GDPR-enhanced privacy policies, and website terms. Its source assets are pinned and separate from current-law verification.
+
+For other document types, search the catalog by document name. Common routes include:
 
 ### Litigation
 - `complaint-for-negligence` — negligence complaint drafting
@@ -102,7 +105,8 @@ USER INTENT → ROUTE
 "assess risk" → legal-risk-assessment-zacharie-laik
 "simulate scenario" → legal-simulation-patrick-munro
 "find people/OSINT" → osint + investigation
-"draft [document]" → search 700+ templates by name
+"draft startup/technology document" → legal-document-library
+"draft other document" → search the legal catalog by name
 "review contract" → review-contract
 "compliance check" → compliance-check
 ```
@@ -111,4 +115,4 @@ USER INTENT → ROUTE
 
 To load any sub-skill: `cat ~/.agents/skills-db/legal/<skill-name>/SKILL.md`
 
-For the 700+ document templates, each has its own dir with a SKILL.md containing the template prompt.
+For generic document prompts, search the legal catalog rather than loading it wholesale.
