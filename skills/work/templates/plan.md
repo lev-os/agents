@@ -1,106 +1,119 @@
 ---
-type: plan
-plan_kind: impl | bugfix | chore | research
-created: YYYY-MM-DDTHH:MM:SS
-updated: YYYY-MM-DDTHH:MM:SS
-status: draft | ready | in_progress | blocked | complete
-domain: core | product | ux | plugin | platform | research
-confidence: 0.0-1.0
-author: agent-name
-related_tasks: [task-id-1, task-id-2]
-related_docs: [path/to/doc1.md, path/to/doc2.md]
-related_specs: [path/to/spec1.md]
+type: plan-impl
+status: draft
+priority: 2
+slug: stable-domain-name
+created_at: YYYY-MM-DD
+updated_at: YYYY-MM-DD
+owner: domain-owner
+plan_depth: light | standard | deep
+source_refs: []
+fidelity_score: 0.0
+review_state: unreviewed | needs_review | approved | implementation_handoff
+first_slice: null
+open_decisions: []
+done_condition: "Observable completion condition"
+steps:
+  - description: "Claim-shaped step"
+    validation: "Check that proves the claim"
+acceptance_criteria: []
+gates: []
 ---
 
 # Plan: Title
 
 ## How To Fill This Out
 
-Use this template for the current execution slice. A plan is not the long-term roadmap; it is the concrete execution artifact for the slice that is active now. The long-term roadmap stays in the handoff.
+Use `light`, `standard`, or `deep` from `/lev-plan`. Preserve capture intent IDs
+and source refs; delete unused placeholder rows rather than leaving template text.
 
-Plan file naming should follow the family:
-- `plan-impl-{slug}.md`
-- `plan-bugfix-{slug}.md`
-- `plan-chore-{slug}.md`
-- `plan-research-{slug}.md`
+This is a human runbook and broad execution source. `/propose` derives a compact
+slice map or one task packet from it; task packets never replace this plan.
 
-Use uncertainty markers when needed:
-- `[tbd]`
-- `[unknown]`
-- `[theory]`
-- `[maybe: ..., confidence: ##%]`
+Adapt detail to `plan_depth`. Light plans may collapse sections. Deep plans must
+retain every material section and the source-fidelity table.
 
-Good:
-- "This plan covers the current implementation slice only."
-- "This plan links back to the spec and validation gates."
+## Source Context and Fidelity
 
-Bad:
-- "This is the full multi-session roadmap."
-- "This is a dumping ground for ideas."
+Sources: capture, design, prior art, current code/docs, external authority.
 
-## Executive Summary
+| Intent ID | Source requirement | Plan destination | Preservation | Fidelity | Note / approval |
+|---|---|---|---|---:|---|
+| `INT-*` | Goal, constraint, non-goal, decision, acceptance, or relationship | Section/slice/decision/deferment | preserved | 1.00 | — |
 
-Briefly describe the current slice, why it exists now, and what success looks like.
+No material row may be lost. Narrowing requires explicit approval.
 
-## Goal
+## Outcome
 
-One-sentence goal for this execution slice.
+Operator-visible result and why it matters.
 
 ## Done Condition
 
-Deterministic completion test for this slice.
+Deterministic or observable completion condition.
 
-## Why This Slice Now
+## Current
 
-Explain why this is the right slice to execute next.
+Evidence-backed current state, authority, freshness, and known uncertainty.
 
-## Inputs and Preconditions
+## Ideal
 
-- Input artifact 1
-- Input artifact 2
-- Precondition 1
+Target state and the minimal transition required.
 
-## Execution Steps
+## Scope, Non-Goals, and Authority
 
-1. Step 1
-2. Step 2
-3. Step 3
+- In scope
+- Out of scope
+- Human decisions
+- Forbidden moves
+- Source and consumer ownership boundaries
 
-## Validation
+## Decision Drivers and Options
 
-### Gates
+| Option | Benefits | Costs / risks | Invalidated by | Ruling |
+|---|---|---|---|---|
+| A | | | | |
+| B | | | | |
 
-- Gate 1
-- Gate 2
+Chosen approach and explicit tradeoffs.
 
-### Checks
+## Current-to-Target Map
 
-- [ ] Check 1
-- [ ] Check 2
-- [ ] Check 3
+| Current | Target | Action | Owner / gate |
+|---|---|---|---|
+| | | keep / change / migrate / retire | |
 
-## Validation Gates (.lev/validation-gates.yaml)
-<!--
-PURPOSE: Cross-reference plan against project validation gates.
-PROCESS: Load .lev/validation-gates.yaml, list applicable gates, confirm plan doesn't violate any enforced gates.
--->
+## Dependency and Slice DAG
 
-| Gate | Status | Applicable | Plan Impact |
-|------|--------|-----------|-------------|
-| {{GATE_NAME}} | enforced/declared/aspirational | yes/no | {{IMPACT}} |
+```text
+S1 -> S2 -> S3
+```
 
-## Dependencies
+| Slice | Covered intent IDs | Outcome | Owner | Depends on | Proof | Status | Open decisions |
+|---|---|---|---|---|---|---|---|
+| S1 | | | | | | ready | |
 
-| Dependency | Type | Notes |
-|------------|------|-------|
-| path/to/spec.md | spec | Why |
+## Acceptance and Verification
 
-## Risks and Unknowns
+| Claim / acceptance | Failure mode | Local proof | Integration/field/external proof |
+|---|---|---|---|
+| | | | |
 
-- `[tbd]`
-- `[maybe: ..., confidence: ##%]`
+## Risks and Pre-Mortem
 
-## Next Promotion or Closeout Step
+| Failure | Mechanism | Prevention | Detection | Residual risk |
+|---|---|---|---|---|
+| | | | | |
 
-What happens when this plan completes?
+Deep/high-risk plans include three credible pre-mortem scenarios and the relevant
+unit, integration, e2e, and observability test shape.
 
+## Rollback and Review Triggers
+
+- Rollback action and evidence required.
+- Architecture review threshold.
+- External or human approval boundary.
+
+## First Executable Slice
+
+Name one vertical, reversible slice and its proof. Route it to `/propose map` or
+`/propose emit <slice-id>` only after plan readiness passes.
