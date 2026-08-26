@@ -8,6 +8,8 @@ sub_skills:
   - ws
   - capture
   - prior-art
+  - interview
+  - lev-plan
   - propose
   - exec
   - close
@@ -17,7 +19,7 @@ sub_skills:
 # /work - Lifecycle Router
 
 `/work` is the thin lifecycle spine. It does not re-implement capture,
-proposal, execution, close, or handoff protocols. It resolves workstream
+plan compilation, proposal, execution, close, or handoff protocols. It resolves workstream
 context, identifies the entity movement, and routes to the owning skill.
 
 ## Work Link
@@ -26,7 +28,7 @@ Lifecycle lane: Router
 Entity movement: `unknown -> routed`
 Workstream: resolve active workstream before writes or dispatch
 Upstream: any lifecycle skill or user request
-Downstream: `/ws`, `/capture`, `/prior-art`, `/propose`, `/exec`, `/close`, `/handoff`
+Downstream: `/ws`, `/capture`, `/prior-art`, `/interview`, `/lev-plan`, `/propose`, `/exec`, `/close`, `/handoff`
 Router: `/work`
 HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count} ✅{done_count} | 🚦{gate}={score} | ⏭️ {next} | 🔁{loop_state}`
 
@@ -64,8 +66,9 @@ only with a concrete reason; every applicable check must pass.
 | 10 | End with one primary next action and any real blocker. |
 
 Default target: at most 12 non-blank lines before the optional HUD. Do not print
-an empty section, a full readiness matrix, or a ledger that already exists on
-disk.
+an empty section or unrelated readiness matrix. `/capture` is the explicit
+exception: its source-fidelity table is always operator-visible because it proves
+that conversation intent reached disk.
 
 Render the Markdown inside live XML templates; never print the XML wrapper tags.
 
@@ -83,7 +86,7 @@ Next: {one_primary_action}
 | Lane | Entity movement | Owns |
 |---|---|---|
 | Shape | `memory -> captured | blocked` | `/capture`, `/prior-art`, `/interview` |
-| Plan | `captured | aligned -> proposed | execution_ready` | `/propose`, `/capture` |
+| Plan | `captured | designed -> planned | proposed | execution_ready` | `/lev-plan`, `/propose`, `/capture` |
 | Exec | `execution_ready -> executing -> verified | blocked | needs_propose` | `/exec` |
 | Close | `verified -> closed | monitoring | follow_up` | `/close`, `/handoff` |
 | Router | `unknown -> routed` | `/work`, `/ws` |
@@ -95,6 +98,9 @@ Next: {one_primary_action}
 - Every non-trivial item is an entity with a path, URI, or task/workstream id.
 - Move entities forward one lifecycle state at a time; do not skip from memory
   directly to execution unless a captured/proposed artifact already exists.
+- Broad, multi-slice, migration, architecture, security, or cross-authority work
+  moves through `/lev-plan` before `/propose`. One bounded vertical slice may
+  record that a plan is not required.
 - Workstreams are durable identity. Markdown handoffs are projections, not the
   canonical state.
 - If a command mutates files, records, tasks, or workstream state, route through
@@ -108,7 +114,7 @@ details.
 
 | Gate state | Meaning | Route |
 |---|---|---|
-| `needs_proof_design` | Highest-risk claim, fail-closed acceptance, or owner-local test placement is unclear | `/interview` or `/propose` |
+| `needs_proof_design` | Highest-risk claim, fail-closed acceptance, or owner-local test placement is unclear | `/interview`, `/lev-plan`, or `/propose` according to scope |
 | `needs_proof_gates` | A non-trivial task lacks `execution.yaml.proof_gates` | `/propose` |
 | `needs_runtime_qa` | Declared baseline, Pentagon, UltraQA, or harness runtime checks still need execution | `/exec` |
 | `needs_quality_review` | Cleanup, refactor, fallback, boundary, or AI-slop risk needs ai-slop-cleaner review | `/exec` |
@@ -151,7 +157,10 @@ steps:
 |---|---|
 | User dumps ideas or a thread has unfiled content | `/capture` or `/dump` as `capture --deep` |
 | Need evidence, provenance, lineage, or duplicate detection | `/prior-art` |
-| Idea/design is aligned but not execution-ready | `/propose` |
+| Broad/multi-slice idea or design is aligned but lacks a runbook/DAG | `/lev-plan` |
+| Existing plan is shallow, stale, or needs source-fidelity review | `/lev-plan deepen|review` |
+| Plan is faithful and needs a slice map or one execution packet | `/propose` |
+| One bounded vertical intent is aligned and plan-not-required | `/propose` |
 | Task has `dna.yaml` and `execution.yaml` with a verifier | `/exec` |
 | Task needs proof design, proof gates, runtime QA, or quality review | route by `proof_gate_state` |
 | Work is verified and needs sealing, learning, commit, or next recommendation | `/close` |
@@ -182,18 +191,29 @@ do not make another skill depend on reading them at runtime.
 | Template | Destination | Owner |
 |---|---|---|
 | `templates/report.md` | `.lev/pm/reports/` | `/prior-art`, `/capture` |
-| `templates/plan.md` | `.lev/pm/plans/` | `/propose` |
+| `templates/plan.md` | `.lev/pm/plans/` | `/lev-plan` |
 | `templates/design.md` | `.lev/pm/designs/` | `/interview`, `/propose` |
 | `templates/proposal.md` | `.lev/pm/proposals/` | `/propose` |
 | `templates/spec.md` | `.lev/pm/specs/` | `/propose` |
 | `templates/decision.md` | `.lev/pm/decisions/` | `/close` |
 | `templates/validation-report.md` | `.lev/pm/validation-reports/` | `/exec`, `/close` |
 
+## Canonical Artifact Paths and Naming
+
+Use `.lev/pm/reports/`, `.lev/pm/proposals/`, `.lev/pm/designs/`,
+`.lev/pm/specs/`, `.lev/pm/plans/`, `.lev/pm/handoffs/`,
+`.lev/pm/decisions/`, `.lev/pm/validation-reports/`, and `.lev/scratch/`
+according to the owning lane above.
+
+Session handoff naming contract:
+`{YYYYMMDD}-{workstream}-{component}-{slug}-session-{N}`.
+
 ## Red Flags
 
 - "I'll just do this without a workstream."
 - "This is small enough to skip entity tracking."
 - "The next skill will figure out the lifecycle state."
+- "Capture can jump to propose; the slice map will preserve the broader roadmap."
 - "I can execute even though this only exists in chat."
 - "I'll add the HUD/footer later."
 - "The shared partial says it, so this skill does not need to."

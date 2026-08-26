@@ -1,6 +1,6 @@
 ---
 name: capture
-description: Use when inventorying conversation state into durable artifacts, routing shovel-ready items toward exec, or deep-processing a brain dump.
+description: Use when inventorying conversation state into durable artifacts with an operator-visible source-fidelity table, routing faithful items toward interview, planning, proposal, or execution, or deep-processing a brain dump.
 skill_type: workflow
 category: lifecycle
 output_template: hud
@@ -20,7 +20,7 @@ Lifecycle lane: Shape -> Plan
 Entity movement: `memory -> captured | proposed | blocked`
 Workstream: resolve active workstream before writing capture artifacts
 Upstream: conversation, `/dump`, `/work`
-Downstream: `/prior-art`, `/propose`, `/exec`
+Downstream: `/prior-art`, `/interview`, `/lev-plan`, `/propose`, `/exec`
 Router: `/work`
 HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count} ✅{done_count} | 🚦{gate}={score} | ⏭️ {next} | 🔁{loop_state}`
 
@@ -61,19 +61,19 @@ steps:
     on_failure: "List only the unwritten items under In Memory with blocker."
 
   - id: score_fidelity
-    action: Score captured fidelity before advancement.
-    validation: "fidelity >= 0.8 for /propose or /exec routing."
+    action: Score each captured row against its source before advancement, retaining the five component scores and every known omission or narrowing.
+    validation: "Every material row has fidelity_components, fidelity_note, and fidelity >= 0.8; no material constraint, non-goal, decision boundary, relationship, or acceptance condition is silently lost."
     on_failure: "Re-capture at higher zoom or route to /interview."
 
   - id: reconcile_capture_ledger
     action: Build the lifecycle ledger before routing or final output.
-    validation: "Every item has intent_id, compiled_intent, current_location, artifact_ref, route_state, fidelity, next_route, and blocker."
+    validation: "Every item has intent_id, source_refs, source_intent, compiled_intent, relationships, current_location, artifact_ref, destination_ref, route_state, fidelity, fidelity_components, fidelity_note, plan_required, next_route, and blocker."
     on_failure: "Do not advance routes. Show unresolved ledger rows under In Memory or Blocked."
 
   - id: show_delta
-    action: Show the compact saved, in-memory, decision, and next-action delta; keep the full ledger in the durable artifact.
-    validation: "The user can tell what is on disk, what remains only in memory, what needs a decision, and what happens next without reading the full ledger."
-    on_failure: "Rewrite output as <capture-results>; show the ledger table only for --full, audit, or debug."
+    action: Always show the source-fidelity table plus the compact lifecycle delta. The table is the operator proof that conversation intent reached disk; it is not optional response detail.
+    validation: "The user can see every material intent row, destination, fidelity score, loss/narrowing note, route state, and next owner without opening the durable artifact."
+    on_failure: "Rewrite output as <capture-results> with the fidelity table present."
 ```
 
 ## Routes
@@ -81,8 +81,9 @@ steps:
 | Item | Route |
 |---|---|
 | Constraint, invariant, gate, policy | DNA-backed task via `/propose` |
-| Brief/document-artifact framing | `/brief` -> `/interview --auto` -> `.lev/pm/designs/` then `/propose` |
-| Design-grade framing | `/interview --auto` -> `.lev/pm/designs/` then `/propose` |
+| Brief/document-artifact framing | `/brief` -> `/interview --auto` -> `.lev/pm/designs/`; use `/lev-plan` before `/propose` when the work spans multiple slices or authorities |
+| Design-grade framing | `/interview --auto` -> `.lev/pm/designs/` -> `/lev-plan` -> `/propose` |
+| Broad, multi-slice, migration, architecture, or roadmap work | `/lev-plan`; never jump directly from capture to task slicing |
 | Runtime, agentic, promotion, cleanup, fallback, or boundary-risk item | `/interview` or `/propose` with `qa_seed` |
 | Execution-ready task with verifier and write scope | `/exec` |
 | Provenance or duplicate check needed | `/prior-art` |
@@ -95,7 +96,7 @@ steps:
 
 ```yaml
 deep_capture:
-  repeat_until: "all writable items have stored fidelity >= in-memory fidelity"
+  repeat_until: "all writable items have stored fidelity >= in-memory fidelity and every material source row has a visible destination"
   loop:
     - inventory by topic
     - prior-art per topic
@@ -115,8 +116,33 @@ fidelity = 0.30*detail_preservation
          + 0.10*actionability
 ```
 
-`fidelity >= 0.8` can advance to `/propose` or `/exec`; lower scores stay in
-capture, prior-art, or interview.
+`fidelity >= 0.8` clears the capture preservation floor; `plan_required` still
+controls the next route. Broad work advances to `/lev-plan`, not directly to
+proposal or execution. Lower scores stay in capture, prior-art, or interview.
+
+Fidelity is a weak-link gate, not permission to average away a missing material
+constraint. A row with a silent loss in scope, non-goals, decision boundaries,
+acceptance, relationships, or authority stays captured even if its weighted
+number is above 0.8.
+
+## Source Fidelity Table
+
+Render this table in every non-trivial capture response. One row may summarize
+several sentences only when they share one destination and lifecycle route.
+
+| Field | Meaning |
+|---|---|
+| `intent_id` | Stable identity carried into plans, proposals, and tasks |
+| `source_refs` | Conversation turn, file, URL, or prior durable artifact supporting the row |
+| `source_intent` | Concise statement of the user's goal, constraint, non-goal, decision, or acceptance requirement |
+| `destination_ref` | Exact durable destination, or `memory` with a blocker |
+| `preservation` | `preserved`, `narrowed-approved`, `deferred-explicit`, `conflict`, or `lost` |
+| `fidelity_components` | Detail, relationships, attribution, neighbor context, and actionability scores |
+| `fidelity` | Weighted score from the formula above |
+| `fidelity_note` | What changed, narrowed, remains absent, or needs human confirmation |
+
+No row marked `lost` advances. `narrowed-approved` requires an explicit user or
+source decision; agent simplification alone is not approval.
 
 ## Lifecycle Ledger Contract
 
@@ -129,12 +155,19 @@ delta; `--full`, audit, and debug may render the complete table.
 |---|---|
 | `intent_id` | Stable row id for this lifecycle turn |
 | `topic` | Short label for the source material |
+| `source_refs` | Conversation/file/artifact anchors used to re-derive the row |
+| `source_intent` | Concise source-faithful goal, constraint, non-goal, decision, acceptance, or relationship |
 | `compiled_intent` | Agent-operational interpretation, not raw user prose |
+| `relationships` | Dependencies, conflicts, supersession, grouping, and ordering that must survive routing |
 | `current_location` | `disk`, `memory`, `both`, `external`, or `unknown` |
 | `artifact_ref` | Path or durable id; `none` if only in memory |
-| `route_state` | `in_memory`, `captured`, `proposed`, `execution_ready`, `blocked`, `done`, or `rejected` |
+| `destination_ref` | Next durable design, plan, proposal, task, or existing authority |
+| `route_state` | `in_memory`, `captured`, `planned`, `proposed`, `execution_ready`, `blocked`, `done`, or `rejected` |
 | `fidelity` | Preservation score plus reason if below 0.8 |
-| `next_route` | `/interview`, `/prior-art`, `/propose`, `/exec`, `/close`, or `none` |
+| `fidelity_components` | Five component scores used to derive fidelity |
+| `fidelity_note` | Explicit preservation, narrowing, conflict, deferment, or loss note |
+| `plan_required` | True for broad/multi-slice/migration/architecture/roadmap work |
+| `next_route` | `/interview`, `/prior-art`, `/lev-plan`, `/propose`, `/exec`, `/close`, or `none` |
 | `blocker` | `null` or the reason this row cannot advance |
 
 No route can advance if a row has `current_location: memory` without a blocker
@@ -153,16 +186,28 @@ schema:
   ledger:
     - intent_id: "<stable row id>"
       topic: "<summary>"
+      source_refs: []
+      source_intent: "<source-faithful requirement>"
       compiled_intent: "<agent-operational interpretation>"
+      relationships: []
       current_location: disk | memory | both | external | unknown
       artifact_ref: "<path, durable id, or none>"
-      route_state: in_memory | captured | proposed | execution_ready | blocked | done | rejected
+      destination_ref: "<path, durable id, memory, or none>"
+      route_state: in_memory | captured | planned | proposed | execution_ready | blocked | done | rejected
       fidelity: 0.0
+      fidelity_components:
+        detail_preservation: 0.0
+        relationship_preservation: 0.0
+        source_attribution: 0.0
+        neighbor_context: 0.0
+        actionability: 0.0
+      fidelity_note: "<preserved, narrowed, deferred, conflict, or loss note>"
+      plan_required: true | false
       next_route: "<skill/path/none>"
       blocker: "<reason or null>"
   items:
     - topic: "<summary>"
-      stage: captured | proposed | blocked | executing | rejected
+      stage: captured | planned | proposed | blocked | executing | rejected
       fidelity: 0.0
       route: "<path or skill>"
       priority: P0 | P1 | P2 | P3
@@ -185,13 +230,21 @@ Render the Markdown inside this template; do not print the XML wrapper tags.
 <capture-results>
 ## /capture results
 
+### Source Fidelity
+
+| ID | Source intent | Durable destination | Preservation | Detail | Relations | Attribution | Context | Action | Fidelity | Gap / decision |
+|---|---|---|---|---:|---:|---:|---:|---:|---:|---|
+| {intent_id} | {source_intent} | {destination_ref} | {preservation} | {detail} | {relationships} | {attribution} | {context} | {actionability} | {fidelity_pct} | {fidelity_note} |
+
+### Lifecycle Delta
+
 Saved: {count_and_artifact_refs_or_none}
 Still in memory: {count_and_topics_or_none}
-Decision needed: {one_highest_leverage_decision_or_none}
+Blocked or decision needed: {count_and_highest_leverage_decision_or_none}
 Ready next: {count_and_route_or_none}
 Next: {one_primary_action}
 
-Details: {ledger_artifact_ref_or_use_--full}
+Ledger: {ledger_artifact_ref}
 </capture-results>
 
 ## Red Flags
@@ -201,6 +254,8 @@ Details: {ledger_artifact_ref_or_use_--full}
 - "Done items should be listed again."
 - "Prior art can wait until proposal."
 - "The table is optional because I wrote the artifact."
+- "The fidelity score is enough; the user does not need to see the row mapping."
+- "I can route broad work directly to propose; the task slices will preserve the roadmap."
 - "A routed item can stay only in chat memory."
 - "Copying user prose is the same as compiling intent."
 - "What would you edit means patch it now."
@@ -211,5 +266,6 @@ Details: {ledger_artifact_ref_or_use_--full}
 - `/dump` is a focused alias for `/capture --deep`.
 - `/brief` turns conversation context into a lifecycle artifact via `/interview --auto`.
 - `/prior-art` finds existing homes.
+- `/lev-plan` compiles captured/design intent into a fidelity-checked human runbook and slice DAG.
 - `/propose` turns captured/aligned items into task DNA.
 - `/exec` runs shovel-ready items.

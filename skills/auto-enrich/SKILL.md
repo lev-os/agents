@@ -1,6 +1,6 @@
 ---
 name: auto-enrich
-description: Use when an existing idea, design, plan, or proposal should be automatically interviewed with the opposite CLI companion, adversarially hardened, and routed into Lev proposal review before execution.
+description: Use when a source-faithful captured idea, design, plan, or proposal should be automatically interviewed with the opposite CLI companion, compiled into a Lev plan when broad, adversarially hardened, and routed into proposal review before execution. It cannot recover intent that capture omitted.
 ---
 
 # Auto Enrich
@@ -16,9 +16,10 @@ Host: {claude|codex}
 Companion: {codex|claude}; {cli_version}; model {effective_config_or_cli_default}
 Workstream: {workstream_id_or_blocker}
 Artifacts: {named_refs}
+Source fidelity: {capture_or_plan_score}; lost rows {count}; plan {ref_or_not_required}
 Write scope: {planning_paths_or_none}
 Controls: interview turns {current}/{max}; review cycles {current}/{default}/{hard_max}
-Next: {orient|interview|harden|propose|human_decision|stop}
+Next: {orient|interview|lev-plan|harden|propose|human_decision|stop}
 </enrichment-status>
 
 ## Commands
@@ -35,7 +36,7 @@ Defaults: 12 interview turns, 2 review cycles, hard maximum 5. Never sleep; surf
 
 | Owner | Responsibility |
 |---|---|
-| Host | Compile intent, inspect evidence, patch allowed planning artifacts, judge companion findings, call `/propose`. |
+| Host | Load captured fidelity, compile or deepen the plan when required, inspect evidence, patch allowed planning artifacts, judge companion findings, call `/propose`. |
 | Companion | Ask neutral architecture questions and review read-only in one persistent session. |
 | Deterministic checks | Digests, parse/ref/DAG/write-scope/identifier facts; never semantic approval. |
 | Human | Product judgment, irreversible choices, authority escalation, task emission. |
@@ -48,6 +49,9 @@ steps:
     action: Bind the run to Lev state before dispatch
     instruction: |
       Resolve the repository root, named planning artifacts, compiled intent, operator outcomes, active workstream, and allowed planning write scope.
+      Resolve source capture/design refs and their source-fidelity table before
+      enrichment. Auto-enrich may improve a faithful artifact; it may not invent
+      the fidelity baseline that capture omitted.
       When `.lev/pm/` exists, use `/ws` and current workstream/design/plan/proposal
       refs. For raw intent, load the interview design template and target one new
       design. For an existing design, plan, or proposal, enrich that named artifact
@@ -57,7 +61,7 @@ steps:
       `PLAN.md`, `PLAN-REVIEW-LOG.md`, or a parallel tracker.
       Canonicalize the repo and each allowed write path, reject symlink targets or
       paths outside the repo, and require the frozen digest immediately before edit.
-    validation: "Repo, compiled intent, artifact refs, workstream or explicit no-Lev mode, and write scope are known."
+    validation: "Repo, compiled intent, source refs, source fidelity or explicit preview-only gap, artifact refs, workstream or explicit no-Lev mode, and write scope are known."
     on_failure: "Return one blocker; do not dispatch or write."
 
   - id: select_companion
@@ -115,14 +119,29 @@ steps:
     validation: "Design ref, overall ambiguity, per-branch ambiguity, resolved/deferred/open branches, and next transition are explicit."
     on_failure: "Ask one open human question or stop with the unresolved branch ledger."
 
+  - id: ensure_plan
+    action: Compile or deepen the human runbook before proposal slicing when the work is broad
+    instruction: |
+      If the named artifact is already a plan, keep it as the candidate and patch
+      it in place. If the artifact is a design/capture and the work is multi-slice,
+      migration, architecture, security, destructive, or cross-authority, invoke
+      `/lev-plan` against the current refs before hardening and use that plan as the
+      review candidate. A single bounded vertical outcome may record
+      `plan_not_required` and proceed without one. Never route broad design intent
+      directly to `/propose` and expect task slicing to preserve the roadmap.
+    validation: "One named plan exists for broad work, or plan_not_required has a bounded rationale for one simple slice."
+    on_failure: "Stop with needs_plan_compilation; do not harden or propose a substitute summary."
+
   - id: freeze_candidate
     action: Freeze the planning candidate for review
     instruction: |
       Hash every named artifact, record the manifest and allowed write scope, and
       run available current-artifact checks for parse validity, refs, identifiers,
       DAG integrity, write-scope conflicts, lifecycle state, and source freshness.
+      Freeze source-fidelity rows and baseline score alongside the artifact digest.
+      Any later narrowing, deferment, conflict, or loss must remain visible.
       Keep deterministic results separate from semantic readiness.
-    validation: "Artifact manifest, digests, deterministic observations, and cycle 1 are fixed."
+    validation: "Artifact manifest, source-fidelity baseline, digests, deterministic observations, and cycle 1 are fixed."
     on_failure: "A failed current-artifact precondition blocks review handoff; a missing future implementation does not."
 
   - id: harden
@@ -141,14 +160,18 @@ steps:
       lane, repeated blocker, non-decreasing blocker count, default cycle budget,
       or hard maximum. Only exceed the default cycle count when blockers are
       decreasing and the user-requested maximum allows it.
-    validation: "Verdict, semantic scores, deterministic preconditions, blocker delta, artifact-size direction, and cycles used are recorded."
+      After each patch, recompute plan/source coverage. Architecture quality cannot
+      be purchased by dropping a material user requirement, non-goal, relationship,
+      decision boundary, or acceptance condition.
+    validation: "Verdict, semantic scores, deterministic preconditions, blocker delta, fidelity baseline/final/lost rows, artifact-size direction, and cycles used are recorded."
     on_failure: "Stop with NEEDS_IMPLEMENTATION_LANE or remaining blockers; never fake approval."
 
   - id: propose
     action: Route the enriched design through Lev proposal review
     instruction: |
       On APPROVED_PLAN or NEEDS_IMPLEMENTATION_LANE, invoke `/propose` in review
-      mode against the enriched artifact and current workstream. Preserve its
+      mode against the enriched plan for broad work, or the explicitly bounded
+      direct source for a plan-not-required slice. Preserve its
       ready|needs_review|blocked verdict. Do not create a proposal document or task
       backlog. Task materialization requires an explicit later `/propose emit
       <slice-id>` or equivalent apply authorization. On NEEDS_PLAN_REVISION, do not
@@ -259,6 +282,7 @@ Verdict: {APPROVED_PLAN|NEEDS_PLAN_REVISION|NEEDS_IMPLEMENTATION_LANE}
 Proposal: {ready|needs_review|blocked|not_run}
 Cycles: interview {used}/{max}; review {used}/{hard_max}
 Score: {start_or_na} -> {final}; weakest {dimension_and_reason}
+Source fidelity: {baseline} -> {final}; lost {count}; narrowed {count}
 Deterministic preconditions: {pass|fail|unknown}; {summary}
 Files changed: {allowed_planning_files_or_none}
 Task-count delta: 0
@@ -269,7 +293,7 @@ Lifecycle:
 - Memory state: {companion_session_id_and_open_branch_or_none}
 - Disk state: {workstream_and_design_refs_or_memory_only}
 - Artifact: {enriched_ref_and_digest}
-- Route: {interview|propose|poc|implementation_handoff|human_decision}
+- Route: {interview|lev-plan|propose|poc|implementation_handoff|human_decision}
 - Blocker: {none_or_exact_blocker}
 - Confidence: {0_to_1_with_basis}
 </enrichment-result>
@@ -283,6 +307,9 @@ Lifecycle:
 - No conversational, chronological, migration-state, reviewer-sentiment, `canonical*`, or `current*` domain names.
 - No three-option prompts in the companion loop. Ask one neutral question; give one evidence-backed stance.
 - No task-count growth inside interview or review. Splits remain compact proposals until separately authorized.
+- No enrichment without a source-fidelity baseline for durable work; a companion cannot reconstruct missing conversation intent.
+- No broad design-to-propose shortcut; compile or deepen the plan first.
+- No approval when a material source row is lost, even if semantic review scores improve.
 
 ## Rationalization Table
 
