@@ -1,6 +1,6 @@
 ---
 name: propose
-description: Use when compiling aligned intent into a reviewable slice map or one execution-ready Lev task.
+description: Use when compiling aligned simple intent or a source-faithful Lev plan into a reviewable slice map or one execution-ready Lev task. It does not create or repair broad plans.
 ---
 
 # /propose - Execution Packet Lane
@@ -19,17 +19,17 @@ backlog of task folders.
 - Materialize a task just before it enters the ready set. Regenerate from the
   current source when a design, dependency, or boundary has changed.
 
-Use `/plan` for a human runbook and `/interview` for unresolved product or
+Use `/lev-plan` for a human runbook and `/interview` for unresolved product or
 architecture decisions. A map does not dispatch by itself, but every approved
 map must identify at least one executable slice.
 
 ## Work Link
 
 Lifecycle lane: Execution preparation
-Entity movement: `captured | aligned -> proposed | execution_ready | needs_interview`
+Entity movement: `captured | designed | planned | aligned -> proposed | execution_ready | needs_interview | needs_plan`
 Workstream: resolve the active workstream before writing task artifacts
-Upstream: `/capture`, `/interview`, `.lev/pm/designs/*`, aligned chat intent
-Downstream: `/exec`, `/capture`
+Upstream: `/capture`, `/interview`, `/lev-plan`, `.lev/pm/designs/*`, `.lev/pm/plans/*`, aligned simple-slice intent
+Downstream: `/exec`, `/capture`, `/lev-plan`, `/interview`
 Router: `/work`
 
 ## Transition Packet
@@ -44,6 +44,7 @@ verifier cannot be named, route to `/interview`.
 
 Intent: {one_sentence_intent}
 Source: {chat|capture|design|task}; refs {known_refs_or_none}
+Plan: {plan_ref_or_not_required}; source fidelity {score_or_unknown}; lost rows {count_or_unknown}
 Acceptance: {known_acceptance_or_gap}
 Constraints: {write_scope_boundaries_forbidden_moves}
 Open decisions: {none_or_blocking_decisions}
@@ -60,6 +61,11 @@ local/integration/field proof. Identify code areas first, then use the nearest
 project rules index to load only the standards that govern those areas. If an
 item is unknown, expose the gap; if it is irrelevant, say why.
 
+For broad, multi-slice, migration, architecture, security, or cross-authority work,
+require a `/lev-plan` source before slicing. A capture or design may go directly
+to proposal only when one bounded vertical outcome is already clear. `propose`
+must not silently become the broad-plan author.
+
 ## Semantic Readiness
 
 The LLM judges semantic readiness from current intent, source artifacts, code,
@@ -68,7 +74,7 @@ preconditions; it does not determine proposal quality.
 
 Score each dimension `insufficient`, `sufficient`, or `strong`:
 
-1. intent fidelity
+1. intent fidelity, including source-fidelity coverage from capture through plan to slices
 2. operator outcome and demonstrability
 3. scope and boundary clarity
 4. verticality
@@ -99,6 +105,10 @@ separately from implementation readiness.
 Do not average weak dimensions into a passing score. Rejudge after every task
 rewrite. A green schema check, `lev task validate`, or existing verifier is not
 semantic approval.
+
+Intent fidelity is sufficient only when every material source intent ID is
+covered by a slice, preserved as a plan-level constraint/non-goal, or explicitly
+deferred with owner approval. A high average cannot hide one lost material row.
 
 ## Code, LLM, And Human Authority
 
@@ -140,7 +150,22 @@ fields, test taxonomies, or review checklists into every task.
 When the proposal comes from `/capture` or `/dump`, preserve the source ledger
 identity and artifact reference. Do not duplicate session notes or the full
 capture row into task canon. If the source lacks compiled intent, return it to
-`/capture`.
+`/capture`. If non-trivial source rows lack the visible/durable fidelity
+components and loss notes, return them to `/capture` before judging readiness.
+
+## Plan Intake
+
+When a source plan exists:
+
+- Load its source-fidelity table, current/target boundary, decisions, dependency
+  DAG, first slice, open decisions, and freshness state.
+- Preserve the plan ref and covered `intent_id` values in every slice record.
+- Treat the plan as the broad runbook; maps and task packets select execution
+  units without rewriting or shrinking it.
+- If broad work lacks fidelity coverage, current/target evidence, or a coherent
+  slice DAG, return it to `/lev-plan` rather than reconstructing it here.
+- If auto-enrich revised the plan, require its final digest/fidelity state rather
+  than an older snapshot.
 
 ## Write Gate
 
@@ -158,8 +183,13 @@ steps:
     failure: Route missing product or architecture framing to /interview.
 
   - id: load_context
-    action: Identify the owning code areas, then read only current source designs, capture, workstream, existing task, verifier evidence, and the applicable entries from the project's rules index.
+    action: Identify the owning code areas, then read only current source capture/design/plan, workstream, existing task, verifier evidence, and the applicable entries from the project's rules index.
     failure: Mark stale or missing authority as an open decision.
+
+  - id: verify_source_fidelity
+    action: For plan-backed work, map every material intent_id to a plan-level constraint or proposed slice and reject lost rows. For direct simple-slice work, record why a plan is not required.
+    validation: Source fidelity is current, no material row is lost, and every slice names covered intent IDs.
+    failure: Route missing capture fidelity to /capture and shallow broad plans to /lev-plan.
 
   - id: select_mode
     action: Select review, map, or single-slice emit from the command.
@@ -197,6 +227,7 @@ slices:
     operator_outcome: <observable result>
     owner: <package or plugin>
     depends_on: []
+    covers_intent_ids: []
     proof: <verifier or proof profile>
     status: <ready|needs_review|blocked>
     open_decisions: []
@@ -210,6 +241,9 @@ proof boilerplate, or claims that all slices are execution-ready.
 ```yaml
 dna_yaml.required:
   [ontology, intent, entity_kind, lifecycle_target, acceptance, local_refs, local_constraints, source_context]
+
+source_context.required:
+  [capture_refs, plan_ref_or_not_required, plan_digest_or_na, covered_intent_ids, source_fidelity]
 
 execution_yaml.required:
   [topology, runtime_profile_ref, dependencies, structural_preconditions, slices]
@@ -235,6 +269,7 @@ Emit only when all are true:
 - deterministic structural preconditions pass
 - write authorization exists
 - source and dependency references are current
+- every material intent ID is covered or explicitly deferred without loss
 
 ## Output Templates
 
@@ -246,6 +281,7 @@ Render the Markdown inside live templates; do not print the XML wrapper tags.
 Verdict: {ready|needs_review|blocked}
 Outcome: {operator_visible_result}
 When done: {observable_effect}
+Source: {plan_or_capture_ref}; fidelity {score}; covered intent {count}/{total}
 Code and rules: {owner_paths}; {rules_index_refs}
 First testable slice: {slice_id} - {behavior}
 Proof: local {check}; integration {check_or_na}; field {check_or_na}
@@ -258,6 +294,7 @@ Next: {emit_slice|repair_question|interview}
 ## Slice Map: {proposal_id}
 
 Source state: {current|stale|in_flux}
+Source plan: {plan_ref_or_not_required}; fidelity {score}; coverage {covered}/{total}
 Critical path: {slice_ids}
 Slices: {compact_slice_records}
 Promotion gates: {slice_ids_and_reason}
@@ -271,6 +308,7 @@ Next slice: {one_slice_id_or_design_decision}
 Verdict: {ready|needs_review|blocked}
 Outcome: {operator_visible_result}
 When done: {observable_effect}
+Source: {plan_ref_or_capture_ref}; fidelity {score}; slice covers {intent_ids}
 Code and rules: {owner_paths}; {rules_index_refs}
 First slice: {slice_id}; write scope {paths}
 Proof: local {check}; integration {check_or_na}; field {check_or_na}
@@ -289,5 +327,8 @@ Next: {run_exec|repair|interview}
 - "Verifier exists, so the behavior is proven."
 - "Session notes belong in task canon."
 - "The proposal exists, so implementation can start."
+- "The broad plan is optional; the slice map can recover it from chat."
+- "A 95% fidelity average is fine even though one material constraint disappeared."
+- "Propose can deepen a shallow migration plan while emitting the first task."
 - "The harness or receipt is missing, so implementation is blocked."
 - "Every slice is held, but the map is still approved."
