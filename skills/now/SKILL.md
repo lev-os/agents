@@ -33,16 +33,16 @@ Build one canonical RenderSpec component graph and render it to single-file HTML
    - Prefer high-trust primary sources and cite load-bearing claims.
    - Build storage strength, not recognition: add retrieval practice, a real task, or feedback when learning is the goal.
    - Keep reference material compressed and scannable; use full documents for durable reading and cards/callouts for orientation.
-4. Select components per requirement, then create the RenderSpec at `~/.agents/levnow/{topic-slug}.json`. Do not create `{ mode: "reader" }`; that shape is compatibility intake only.
+4. Select components per requirement, then create the RenderSpec at `.lev/now/{topic-slug}.json` under the target project root, with rendered HTML beside it. Honor explicit output paths; use the task workspace for projectless work. Do not create `{ mode: "reader" }`; that shape is compatibility intake only.
 5. Render:
    ```bash
-   npx tsx plugins/now/src/cli.ts ~/.agents/levnow/{slug}.json --output ~/.agents/levnow/{slug}.html
+   npx tsx plugins/now/src/cli.ts .lev/now/{slug}.json --output .lev/now/{slug}.html
    ```
    Use `--show-source` only for explicit renderer debugging.
 6. Open and QA locally. For shared, published, attached, or visually judged pages, use browser inspection at desktop and mobile sizes.
 7. For publish, QA a clean build and run:
    ```bash
-   bash ~/.claude/skills/here-now/scripts/publish.sh ~/.agents/levnow/{slug}.html --title "lev.now — {topic}" --client lev-now
+   bash ~/.claude/skills/here-now/scripts/publish.sh .lev/now/{slug}.html --title "lev.now — {topic}" --client lev-now
    ```
    Add `--handle-path {path}` for attach.
 
@@ -77,9 +77,12 @@ When visual encoding is load-bearing—architecture maps, dense comparisons, cau
 
 For professional or shared output, render and inspect at 1440px and 390px; for layout changes also check 1024, 900, and 768px.
 
+Authored graphs, RenderSpec JSON, and rendered HTML stay with the project in `.lev/now/`. Run commands from the target project root (resolve the renderer executable separately when it belongs to another checkout). QA screenshots and manifests go to a fresh system-temp directory via `LEV_NOW_QA_DIR`, including watch/refresh and other browser screenshot tools. Never place QA screenshots in `.lev/tmp/now`. Retain QA evidence only when needed, through the existing XDG artifact route with a project/task reference.
+
 ```bash
-npx tsx plugins/now/src/cli.ts ~/.agents/levnow/{slug}.json --output ~/.agents/levnow/{slug}.html --qa --qa-width 1440
-npx tsx plugins/now/src/cli.ts ~/.agents/levnow/{slug}.json --output ~/.agents/levnow/{slug}.html --qa --qa-width 390
+now_qa_dir="$(mktemp -d "${TMPDIR:-/tmp}/lev-now-qa.XXXXXX")"
+LEV_NOW_QA_DIR="$now_qa_dir" npx tsx plugins/now/src/cli.ts .lev/now/{slug}.json --output .lev/now/{slug}.html --qa --qa-width 1440
+LEV_NOW_QA_DIR="$now_qa_dir" npx tsx plugins/now/src/cli.ts .lev/now/{slug}.json --output .lev/now/{slug}.html --qa --qa-width 390
 ```
 
 Fail and revise when:
