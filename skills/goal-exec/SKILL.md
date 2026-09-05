@@ -22,6 +22,75 @@ explicitly names a current-run override. Model choice varies by day, project,
 adapter, profile, and FlowMind topology. Prefer the project's execution profile
 or FlowMind settings over any skill-level recommendation.
 
+## Long-Horizon Goal Navigation
+
+When the user explicitly creates a long-horizon or multi-session goal, read
+[recursive wayfinding](../lev/references/recursive.md) and arrange exactly one
+navigation heartbeat bound to that goal. Ordinary discussion, planning, or a
+bounded goal does not create one. The default cadence is 30 minutes unless
+resolved project configuration supplies another interval.
+
+Before creating the goal or heartbeat, resolve and freeze the navigation packet:
+
+```yaml
+goal_ref: <stable goal identity; finalize after create_goal>
+outcome_ref: <stable outcome>
+outcome_map_ref: <durable outcome map>
+workstream_ref: <durable workstream>
+tracker_binding: <one configured backend and identity>
+policy_provenance: <source refs and digest or revision>
+tick_policy: outcome_navigation
+heartbeat_idempotency_key: <derive from goal_ref + tick_policy>
+rolling_horizon_ref: <current projection>
+allowed_effects: []
+stop_conditions:
+  - goal_paused
+  - goal_cancelled
+  - outcome_confirmed_complete
+  - budget_exhausted
+  - blocker_requires_human_or_external_change
+```
+
+If the tracker is unconfigured, ask once among the mechanically supported
+Markdown, Beads, and GitHub choices, then persist the selection. Resume reuses
+that binding. An unavailable backend blocks tracker effects; it never causes a
+write to another backend. Do not create the goal until this required choice is
+resolved.
+
+Before creating the goal, confirm the host exposes a callable thread-heartbeat
+automation surface. After goal creation succeeds, finalize `goal_ref`, derive a
+stable automation idempotency key from `goal_ref + tick_policy`, then inspect
+existing automations by that key. Update the matching heartbeat when present or
+create one when absent. Never use a display name alone as identity. If the host
+cannot create or update a heartbeat, report that capability gap; never invent
+an automation ID or claim scheduling succeeded.
+
+Deduplicate timer and worker-return wakes so only one tick can advance a given
+navigation revision. Pause, cancellation, and confirmed completion disable the
+heartbeat through the same host surface. Repeated unchanged blocked or
+live-worker states stay quiet; surface only a changed failure, a required
+decision, or a meaningful route update.
+
+Use this heartbeat meta-prompt with the resolved packet injected by the host.
+The heartbeat must consume the packet; it does not look up project config:
+
+```text
+Reconcile current evidence against the bound outcome. Retrieve relevant prior
+learning. If the selected step is vague or its assumptions failed, run the
+recursive wayfinding procedure. Refresh the rolling horizon after material
+changes, keeping steps 1-3 actionable and steps 4-10 appropriately coarse.
+Select one eligible tick and resume at most one coherent unit within the
+supplied authority. Do not duplicate a live worker or infer release, publishing,
+or marketing permission. If waiting remains correct, stay quiet. Stop when the
+goal is paused, cancelled, or confirmed complete.
+```
+
+The heartbeat is a navigation wake, not a second worker. It reconciles evidence
+before choosing one deterministic tick: required review, wayfind/research,
+authorized execution, due hygiene, or separately authorized release/publish.
+It must not rediscover arbitrary config, rewrite an unchanged plan, or treat no
+eligible work as completion.
+
 ## SDD Variant
 If the user passes `--sdd`, use $subagent-driven-development instead of
 `/exec`. Model selection stays out of the goal prompt unless the user gives an
@@ -32,21 +101,25 @@ clear controller contract.
 ## REQUIRED PRE-CREATE GOAL GATE
 
 Before calling `create_goal`, the agent MUST construct and display the complete
-goal prompt.
+goal prompt and, for a long-horizon goal, its resolved navigation packet.
 
-The goal prompt MUST contain:
+Together they MUST contain:
 
 1. `Hard refs:` exact absolute paths to every governing plan/spec.
-2. `Plan:` the complete ordered 1-N execution sequence.
-3. `Acceptance:` explicit hard-cut completion criteria.
-4. `Batch gates:` tests/checks required after each SDD batch.
-5. `Stop rules:` blocker, reviewer, timeout, and dirty-work protections.
+2. `Outcome:` the stable observable domain result.
+3. `Plan:` the known outcome-map reference plus an ordered rolling horizon of
+   at most ten stable-ID steps; unresolved future work remains explicit fog.
+4. `Acceptance:` explicit hard-cut completion criteria.
+5. `Batch gates:` tests/checks required after each SDD batch.
+6. `Stop rules:` blocker, reviewer, timeout, and dirty-work protections.
 
 The agent MUST NOT call `create_goal`, dispatch a subagent, or modify code when
 any required section is absent.
 
 A summary of the plan is not sufficient. Referring to “the hard cutover,”
-“the existing plan,” conversation history, or an unnamed plan is invalid.
+“the existing plan,” conversation history, or an unnamed plan is invalid. The
+stable goal prompt may point to the resolved packet instead of copying its
+evolving horizon, but the packet must be displayed and durably referenced.
 
 For `--sdd`, the goal prompt must define:
 
@@ -70,9 +143,17 @@ The goal prompt is the perfect place to put coding standards. Source repo conven
 - .lev/validation-gates.yaml
 - if none of that exists, KISS, YAGNI, SRP, and identifying the best programming pattern for the task at hand are good in general
 - do not make variable names conversation shaped. For example if the user said "this is the canonical implementation", it doesn't mean you should name classes, variables, or files "CanonicalThing"
-- always think from first principles, systems thinking, do a premortum + reverse brainstorming exercise
-- always adopt a multi {domain} expert lens, "what would a team of n {domain} experts say"?
-- on naming/patterns: source DDD, hex architecture and clean code primitives, compile user/task intent > ground up design thinking > coding standards / guiding principles that you want to bake in to the guard rails below
+- Use first-principles analysis, systems thinking, pre-mortem, reverse
+  brainstorming, or a multi-expert lens only when an unresolved design decision
+  or material risk benefits from it. Do not repeat these exercises for settled,
+  bounded implementation.
+- Source DDD, hex architecture, or clean-code patterns only when the task or
+  repository already requires them. Do not add architecture ceremony to a goal
+  prompt.
+
+Keep the goal packet compact: outcome, owned scope, exclusions, accepted source
+refs, acceptance checks, and stop conditions. Point to accepted artifacts instead
+of restating them. Name work owned by another task so the goal cannot absorb it.
 
 ## Template
 
@@ -83,9 +164,10 @@ Guardrails: one slice at a time; stop on reviewer advice, blocker, failed
 declared gate, or no-op/advice loop; report diagnostics instead of retrying.
 ```
 
-The goal objective should carry only the source refs and stop rules. It should
-not restate the whole design, invent acceptance criteria, or summarize workflow
-mechanics as the objective.
+The goal objective carries the domain outcome and hard references. Put the
+ordered rolling horizon, acceptance, and workflow guardrails in the resolved
+navigation packet so they can evolve without rewriting the stable objective.
+Do not invent acceptance criteria or hide workflow mechanics inside the outcome.
 
 ## Good
 

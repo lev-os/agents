@@ -14,6 +14,19 @@ triggers:
 Inventory conversation state, write durable artifacts, and route each entity to
 its next lifecycle owner. `/dump` is `capture --deep`.
 
+## Entity Reconciliation
+
+After authorized material progress, reconcile touched and causally affected
+artifacts before routing, handoff, or final response. Track entity ref,
+island/provider locator (a path for file storage), basis/evidence, and the
+reason/action due. Update through the verified owning CLI/adapter; use a
+write-authorized skill fallback only when that operation is unavailable.
+Record updated, no_change(reason), or blocked(reason), preserving unresolved
+refs. Reading or mentioning a path alone creates no update obligation.
+Read-only work reports pending changes only. Reminders grant no write authority;
+task status stays with the bound tracker. Update only artifacts whose content
+or evidence changed; do not rewrite every referenced document.
+
 ## Work Link
 
 Lifecycle lane: Shape -> Plan
@@ -61,13 +74,13 @@ steps:
     on_failure: "List only the unwritten items under In Memory with blocker."
 
   - id: score_fidelity
-    action: Score each captured row against its source before advancement, retaining the five component scores and every known omission or narrowing.
+    action: Score each new or materially changed captured row against its source before advancement. Reuse an accepted score and source mapping when neither the source nor compiled intent changed.
     validation: "Every material row has fidelity_components, fidelity_note, and fidelity >= 0.8; no material constraint, non-goal, decision boundary, relationship, or acceptance condition is silently lost."
     on_failure: "Re-capture at higher zoom or route to /interview."
 
   - id: reconcile_capture_ledger
-    action: Build the lifecycle ledger before routing or final output.
-    validation: "Every item has intent_id, source_refs, source_intent, compiled_intent, relationships, current_location, artifact_ref, destination_ref, route_state, fidelity, fidelity_components, fidelity_note, plan_required, next_route, and blocker."
+    action: Build or update only changed lifecycle ledger rows before routing or final output; preserve accepted unchanged rows by reference.
+    validation: "Every changed item has the full ledger fields; unchanged accepted items retain a valid referenced row."
     on_failure: "Do not advance routes. Show unresolved ledger rows under In Memory or Blocked."
 
   - id: show_delta
@@ -78,17 +91,22 @@ steps:
 
 ## Routes
 
+Select routes using the active domain overlay. These are next-owner suggestions,
+not permission to execute. Show only applicable rows as a numbered table when a
+choice is needed; otherwise name the single next route using `skill://<name>`.
+
 | Item | Route |
 |---|---|
-| Constraint, invariant, gate, policy | DNA-backed task via `/propose` |
-| Brief/document-artifact framing | `/brief` -> `/interview --auto` -> `.lev/pm/designs/`; use `/lev-plan` before `/propose` when the work spans multiple slices or authorities |
-| Design-grade framing | `/interview --auto` -> `.lev/pm/designs/` -> `/lev-plan` -> `/propose` |
-| Broad, multi-slice, migration, architecture, or roadmap work | `/lev-plan`; never jump directly from capture to task slicing |
-| Runtime, agentic, promotion, cleanup, fallback, or boundary-risk item | `/interview` or `/propose` with `qa_seed` |
-| Execution-ready task with verifier and write scope | `/exec` |
-| Provenance or duplicate check needed | `/prior-art` |
-| Ambiguous intent or boundary | `/interview` |
-| Workstream identity missing | `/ws` |
+| Constraint, invariant, gate, policy | `skill://lev-plan` for broad changes; `skill://propose` for a bounded SDLC change |
+| Brief or design framing | `skill://interview`; preserve the resulting design before choosing the next owner |
+| Broad, multi-slice, migration, architecture, or roadmap work | `skill://lev-plan`; preserve the whole effort before task slicing |
+| Runtime, agentic, promotion, cleanup, fallback, or boundary-risk item | `skill://interview` or SDLC `skill://propose` with `qa_seed` |
+| Coding slice ready for contract review | `skill://propose` |
+| Authorized execution with sufficient scope, claims, and checks | `skill://exec`; non-coding may use a sufficient plan without `propose` |
+| Provenance or duplicate check needed | `skill://prior-art` |
+| Ambiguous intent or boundary | `skill://interview` |
+| Workstream identity missing | `skill://ws` |
+| Different domain or no matching owner | `skill://lev` |
 
 ## Deep Mode
 

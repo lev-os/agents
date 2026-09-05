@@ -16,6 +16,19 @@ triggers:
 Close the active entity: capture leftovers, verify acceptance, checkpoint, learn,
 recommend, and hand off.
 
+## Entity Reconciliation
+
+After authorized material progress, reconcile touched and causally affected
+artifacts before routing, handoff, or final response. Track entity ref,
+island/provider locator (a path for file storage), basis/evidence, and the
+reason/action due. Update through the verified owning CLI/adapter; use a
+write-authorized skill fallback only when that operation is unavailable.
+Record updated, no_change(reason), or blocked(reason), preserving unresolved
+refs. Reading or mentioning a path alone creates no update obligation.
+Read-only work reports pending changes only. Reminders grant no write authority;
+task status stays with the bound tracker. Update only artifacts whose content
+or evidence changed; do not rewrite every referenced document.
+
 ## Work Link
 
 Lifecycle lane: Close
@@ -25,6 +38,27 @@ Upstream: `/exec`
 Downstream: `/handoff`, `/work`
 Router: `/work`
 HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count} ✅{done_count} | 🚦{gate}={score} | ⏭️ {next} | 🔁{loop_state}`
+
+Apply acceptance against the active domain's plan or execution contract; task
+DNA and software-specific proof gates apply to the SDLC overlay. Mark genuinely
+inapplicable software gates N/A for non-coding work. Checkpoint Git only when
+the deliverable is Git-backed and commit/push are within the authorized scope.
+
+## Next Routes
+
+Use the result to select the next owner. Show applicable alternatives in a
+numbered `skill://<name>` table only when a decision remains; suggestions never
+grant new execution, publishing, or checkpoint authority.
+
+| Result | Next owner |
+|---|---|
+| Uncaptured intent or leftovers | `skill://capture` |
+| Acceptance failed within the existing authorized contract | `skill://exec` using the same domain method |
+| Coding contract must change | `skill://propose`; `skill://lev-plan` if the broader plan changes |
+| Non-coding scope or plan must change | `skill://lev-plan` or `skill://interview`; proposal optional |
+| Accepted or paused, context needs preservation | `skill://handoff` |
+| Several completed efforts warrant synthesis | `skill://lev-learn` |
+| Another effort or uncertain next owner | `skill://lev` |
 
 ## Protocol
 
@@ -36,13 +70,13 @@ steps:
     on_failure: "Route to /capture and stop close."
 
   - id: qa_acceptance
-    action: Check output against task DNA, acceptance criteria, declared verifier evidence, and proof-gate verdicts.
+    action: Check output against the active domain plan or execution contract, acceptance criteria, declared verifier evidence, and applicable proof-gate verdicts.
     validation: "Every acceptance item and applicable proof gate is pass, fail, blocked, or explicitly not-tested with residual risk."
     on_failure: "Route failed criteria back to /exec."
 
   - id: proof_gate_verdict
-    action: Seal Pentagon, UltraQA, and ai-slop-cleaner outcomes before acceptance.
-    validation: "Feature-local Pentagon verdicts, UltraQA scenario matrix status, generated-artifact cleanup, ai-slop-cleaner review, and residual risks are recorded."
+    action: Seal the proof gates required by the active domain contract before acceptance.
+    validation: "Applicable SDLC Pentagon, UltraQA, cleanup, and ai-slop-cleaner results or domain-specific equivalents are recorded; inapplicable gates have an N/A rationale, and residual risks are explicit."
     on_failure: "Do not accept; route to /exec or /propose depending on whether runtime evidence or proof contract is missing."
 
   - id: accept
@@ -51,8 +85,8 @@ steps:
     on_failure: "Do not commit or handoff as closed."
 
   - id: checkpoint
-    action: Stage, commit, pull without rebase, and push when sealing verified work.
-    validation: "Commit and push succeed, or blocker is recorded."
+    action: For authorized Git-backed checkpoints, stage, commit, pull without rebase, and push when sealing verified work; otherwise record not_applicable or the authority boundary.
+    validation: "Authorized checkpoint succeeds, is not_applicable, or its blocker/authority boundary is recorded."
     on_failure: "Keep entity blocked and do not claim closed."
 
   - id: learn
