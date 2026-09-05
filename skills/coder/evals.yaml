@@ -1,0 +1,65 @@
+version: 2
+owner: coder
+gate: promotion
+subject:
+  skill: skills/coder/SKILL.md
+  digest_command: shasum -a 256 skills/coder/SKILL.md
+claim: >-
+  Invoking coder with a supported flag topology produces the requested verified
+  repository outcome, preserves project and identity boundaries, records a
+  resumable session, and escalates instead of silently substituting unavailable
+  accounts, runtimes, or reviewers.
+runner:
+  command: python3 scripts/run_outcome_eval.py
+  results_root: ~/.local/state/lev/evals/coder
+  verdict_owner: core/eval
+cases:
+  - id: direct_slug
+    topology: direct
+    flags: []
+    obligation: Implement the requested behavior and preserve unrelated files.
+    oracle: python unittest plus sentinel digest and scoped-diff checks
+  - id: project_rules
+    topology: lev
+    flags: [--lev]
+    obligation: Apply the nearest project instructions and .lev validation rule.
+    oracle: project unittest plus forbidden-dependency scan
+  - id: sdd_checkpoint
+    topology: sdd_checkpoint
+    flags: [--sdd=checkpoint]
+    obligation: Produce a correct PR-sized batch and run independent review only after controller gates pass.
+    oracle: boundary-focused unittest plus typed coder/reviewer session evidence in final output
+  - id: sdd_pair
+    topology: sdd_pair
+    flags: [--sdd=pair]
+    obligation: Preserve one coder and one reviewer identity across completed slice boundaries.
+    oracle: integration unittest plus typed coder/reviewer session evidence in final output
+  - id: dead_account
+    topology: blocked_identity
+    flags: [--lazycodex]
+    obligation: Emit attention without modifying the repository or launching a substitute worker.
+    oracle: clean repository digest plus typed attention fields
+  - id: fable_unavailable
+    topology: blocked_reviewer
+    flags: [--sdd=checkpoint, --fable]
+    obligation: Keep the coder role unchanged and refuse silent reviewer substitution.
+    oracle: clean repository digest plus typed unavailable-profile attention
+matrix:
+  implementation:
+    samples_per_case: 1
+    providers: [codex]
+  field:
+    samples_per_case: 2
+    providers: [codex, claude, gemini, pi, opencode]
+    requirements:
+      - run every supported topology on at least one real provider
+      - run blocked identity and reviewer lanes before any external effect
+      - preserve raw prompt, events, stderr, final output, session bindings, diff, and oracle results
+      - compile measurements into a real core/eval EvalDecision
+      - bind a runtime launch ledger before certifying zero unintended child launches or stable paired sessions
+promotion_gate:
+  blocked_until:
+    - every required case has a current subject digest and deterministic oracle result
+    - real provider runs prove prompt delivery and session capture, not only adapter construction
+    - plugins/caam provides typed leases before atomic reservation or automatic failover is claimed
+    - blocked and admitted lanes settle through FlowMind, Exec, and core/eval
