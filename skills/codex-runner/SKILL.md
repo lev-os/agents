@@ -36,6 +36,9 @@ Before launch:
    codes; `DONE` or `CONTINUE` with exactly what remains.
 4. Record the pre-run diff/status so controller verification can distinguish
    worker changes from existing user work.
+5. Tell the worker it must never `git stash` or `git stash pop`: the checkout
+   is shared with other sessions and lanes, and a stash reverts their files
+   mid-run. Compare against HEAD with `git diff` or `git show HEAD:path`.
 
 ## Launch
 
