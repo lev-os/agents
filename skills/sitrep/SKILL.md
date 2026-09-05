@@ -16,6 +16,19 @@ Source of truth: `.lev/pm/workstreams/*/trace/*.yaml` (lifecycle_trigger.v1)
 
 Schema ref: `.lev/pm/proposals/20260415-lifecycle-trigger-envelope.yaml`
 
+## Entity Reconciliation
+
+After authorized material progress, reconcile touched and causally affected
+artifacts before routing, handoff, or final response. Track entity ref,
+island/provider locator (a path for file storage), basis/evidence, and the
+reason/action due. Update through the verified owning CLI/adapter; use a
+write-authorized skill fallback only when that operation is unavailable.
+Record updated, no_change(reason), or blocked(reason), preserving unresolved
+refs. Reading or mentioning a path alone creates no update obligation.
+Read-only work reports pending changes only. Reminders grant no write authority;
+task status stays with the bound tracker. Update only artifacts whose content
+or evidence changed; do not rewrite every referenced document.
+
 ## When to Use
 
 - Mid-flow: "what's happening across my queue right now?"

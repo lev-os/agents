@@ -1,9 +1,14 @@
 ---
 name: domain-modeling
-description: Build and sharpen a project's domain model. Use when the user wants to pin down domain terminology or a ubiquitous language, record an architectural decision, or when another skill needs to maintain the domain model.
+description: Reference snapshot of the absorbed domain-modeling workflow; current work routes through skill://interview.
+disable-model-invocation: true
 ---
 
 # Domain Modeling
+
+Reference-only source. `skill://interview` owns current domain-language and ADR
+work; do not activate this duplicate unless the user explicitly requests the
+historical Pocock workflow.
 
 Actively build and sharpen the project's domain model as you design. This is the *active* discipline — challenging terms, inventing edge-case scenarios, and writing the glossary and decisions down the moment they crystallise. (Merely *reading* `CONTEXT.md` for vocabulary is not this skill — that's a one-line habit any skill can do. This skill is for when you're changing the model, not just consuming it.)
 
