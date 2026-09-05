@@ -1,19 +1,6 @@
 ---
 name: work
 description: Use when routing tracked work through lifecycle lanes, resolving workstream context, or deciding which lifecycle skill owns the next entity transition.
-skill_type: router
-category: lifecycle
-output_template: hud
-sub_skills:
-  - ws
-  - capture
-  - prior-art
-  - interview
-  - lev-plan
-  - propose
-  - exec
-  - close
-  - handoff
 ---
 
 # /work - Lifecycle Router
@@ -95,7 +82,10 @@ Next: {one_primary_action}
 
 - Resolve the active workstream before writing or dispatching.
 - Every lifecycle skill has exactly one `## Work Link` section.
-- Every non-trivial item is an entity with a path, URI, or task/workstream id.
+- Every non-trivial item is an entity with a path or canonical URI. Use
+  `lev://entity/work/workstream/<id>` for workstreams and
+  `lev://entity/work/task/<id>` for tasks; load lane guidance through
+  `skill://<lane>`.
 - Move entities forward one lifecycle state at a time; do not skip from memory
   directly to execution unless a captured/proposed artifact already exists.
 - Broad, multi-slice, migration, architecture, security, or cross-authority work

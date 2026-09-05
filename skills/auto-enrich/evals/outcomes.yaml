@@ -1,0 +1,30 @@
+version: 1
+owner: auto-enrich
+subject: skills/auto-enrich/SKILL.md
+gate: promotion
+claim: >-
+  Simple mode completes without a companion invocation, while standard and deep
+  use exactly one explicit opposite-provider companion session across every
+  interview and hardening turn.
+deterministic:
+  policy: python3 scripts/depth_policy.py --mode=<simple|standard|deep>
+  test: python3 scripts/test_depth_policy.py
+cases:
+  - id: simple_no_companion
+    mode: simple
+    outcome: zero companion_invocation events and one host-only semantic pass
+  - id: standard_one_session
+    mode: standard
+    outcome: one explicit session id reused for optional interview and one hardening cycle
+  - id: deep_one_session
+    mode: deep
+    outcome: one explicit session id reused across every bounded turn and cycle
+  - id: session_replacement_rejected
+    mode: deep
+    outcome: a trace containing two companion session ids fails validation
+field_gate:
+  requirements:
+    - run simple with a real planning artifact and prove no second CLI process or companion event
+    - run standard and deep through skill://coder with real opposite-provider sessions
+    - retain prompt, role packet, events, stderr, exit status, CAAM alias, and explicit session id
+    - settle observations through core/eval; companion and host prose cannot certify the result

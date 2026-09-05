@@ -1,15 +1,22 @@
 ---
 name: exec
 description: Use when running execution-ready task slices, dispatching verified `lev exec` flows, or reviewing implementation work in the Exec lane.
-skill_type: workflow
-category: lifecycle
-output_template: hud
 ---
 
 # /exec - Exec Lane
 
 `/exec` runs execution-ready entities. It does not invent plans, weaken
 verifiers, or complete work without review evidence.
+
+## Addresses
+
+`skill://exec` loads this guidance. Address the selected task as
+`lev://entity/work/task/<task-id>`, its workstream as
+`lev://entity/work/workstream/<workstream-id>`, and its executable FlowMind or
+capability as `lev://exec/<flow>`. Use
+`lev://subagent/<workstream>/<role>?session_id=<id>` when a worker or reviewer
+session has a stable binding. Load `skill://coder` for provider, CAAM, session,
+and SDD mechanics and `skill://lev` before authoring unfamiliar URI families.
 
 ## Goal Prompt Discipline
 

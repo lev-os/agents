@@ -1,13 +1,6 @@
 ---
 name: lev
 description: Use when invoking, debugging, or dogfooding the Lev CLI; choosing between work, exec, stack, FlowMind, validation, traces, receipts, or runtime health commands.
-skill_type: how-to
-category: cli
-sub_skills:
-  - work
-  - exec
-  - stack
-  - autodev-lev
 ---
 
 # lev - Agent Runtime CLI
@@ -26,6 +19,17 @@ not a remembered API.
    report before guessing a fallback.
 5. For lifecycle work, resolve the workstream through `/work` or `lev work`
    before dispatching `lev exec`.
+
+## URI And Skill Pointers
+
+Read [references/uri-syntax.md](references/uri-syntax.md) when authoring or
+interpreting `skill://` or `lev://` references. `skill://<name>` is a prompt-level
+request to load guidance. Lev runtime actions use `lev://exec/<target>` and
+durable objects use `lev://entity/<space>/<type>/<id>`.
+
+Do not conflate the prompt pointer `skill://exec` with the runtime address
+`lev://exec/<flow>`, and do not copy Poly's internal dynamic-import
+`lev://<module-path>` form into prompts or entity records.
 
 Help-first is mandatory. Do not invent flags, aliases, flow names, or receipt
 commands from memory.

@@ -13,6 +13,11 @@ and records human-readable execution and rollback. It also manages the plan FSM.
 It is not merely a frontmatter generator. A schema-valid shallow plan is still a
 failed plan.
 
+`skill://lev-plan` loads this contract. Plans and their workstreams use durable
+`lev://entity/work/plan/<plan-id>` and
+`lev://entity/work/workstream/<workstream-id>` identities; later execution is
+addressed separately as `lev://exec/<flow>`.
+
 ## Work Link
 
 Lifecycle lane: Plan

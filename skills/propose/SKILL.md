@@ -9,6 +9,10 @@ description: Use when compiling aligned simple intent or a source-faithful Lev p
 execution slice. It does not implement, create a broad plan, or pre-create a
 backlog of task folders.
 
+`skill://propose` loads this contract. Emitted tasks have durable identity
+`lev://entity/work/task/<task-id>`; their eventual runtime target is
+`lev://exec/<flow>`. Load `skill://lev` before introducing another URI family.
+
 ## Command Modes
 
 - `/propose` reviews alignment and recommends one vertical slice.

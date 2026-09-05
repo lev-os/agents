@@ -279,7 +279,8 @@ BAD: "add_nodes:\n  - id: new-stuff\n    path: somewhere\n    type: unknown"
 
 **Current State (Lookup):**
 ```yaml
-# skill://lev-find?query={module-name}&scope=codebase  # legacy skill name (backend for lev get)
+# Load skill://codebase-memory, then resolve the durable code entity.
+entity_ref: lev://entity/code/module/{module-name}
 dependencies:
   reads_from:
     - path/to/module-a.ts
@@ -290,7 +291,7 @@ dependencies:
 
   imports:
     - skill://skill-name  # Skill dependency
-    - flowmind://protocol-name  # FlowMind protocol
+    - lev://exec/protocol-name  # FlowMind/runtime capability
 ```
 
 **Proposed Updates (Patch):**
@@ -324,21 +325,21 @@ remove_nodes:
 ```yaml
 # skill:// protocol references
 required_skills:
-  - skill://lev-find      # Legacy skill name (context backend for lev get)
-  - skill://lev-align     # Architecture validation
+  - skill://codebase-memory # Structural graph lookup
+  - skill://arch            # Architecture validation
 
 optional_skills:
-  - skill://lev-research  # Additional research
+  - skill://research      # Additional research
   - skill://workflow      # Workflow scaffolding where relevant
 ```
 
 **FlowMind Protocols:**
 ```yaml
-# flowmind:// or lev:// protocol handlers
+# Canonical Lev runtime and entity addresses
 protocols:
-  - lev://get?query=auth&scope=code
-  - flowmind://entity-lifecycle?state=crystallizing
-  - workshop://intake/github
+  - lev://entity/code/module/auth
+  - lev://exec/entity-lifecycle?state=crystallizing
+  - lev://entity/research/intake/github
 ```
 
 ---

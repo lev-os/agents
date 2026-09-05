@@ -1,14 +1,6 @@
 ---
 name: close
 description: Use when verified work is ready for QA, acceptance, checkpointing, learning, recommendation, and handoff.
-skill_type: workflow
-category: lifecycle
-output_template: hud
-triggers:
-  - close
-  - ok
-  - done
-  - accept
 ---
 
 # /close - Close Lane
@@ -78,7 +70,7 @@ When the workstream has a trigger stream, write:
 ```yaml
 schema: lifecycle_trigger.v1
 verb: close
-entity_ref: ws://<ws-id> | task://<task-id>
+entity_ref: lev://entity/work/workstream/<ws-id> | lev://entity/work/task/<task-id>
 outputs:
   items: []
   learnings: []
