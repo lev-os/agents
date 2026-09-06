@@ -27,6 +27,19 @@ Use `/lev-plan` for a human runbook and `/interview` for unresolved product or
 architecture decisions. A map does not dispatch by itself, but every approved
 map must identify at least one executable slice.
 
+## Entity Reconciliation
+
+After authorized material progress, reconcile touched and causally affected
+artifacts before routing, handoff, or final response. Track entity ref,
+island/provider locator (a path for file storage), basis/evidence, and the
+reason/action due. Update through the verified owning CLI/adapter; use a
+write-authorized skill fallback only when that operation is unavailable.
+Record updated, no_change(reason), or blocked(reason), preserving unresolved
+refs. Reading or mentioning a path alone creates no update obligation.
+Read-only work reports pending changes only. Reminders grant no write authority;
+task status stays with the bound tracker. Update only artifacts whose content
+or evidence changed; do not rewrite every referenced document.
+
 ## Work Link
 
 Lifecycle lane: Execution preparation
@@ -69,6 +82,112 @@ For broad, multi-slice, migration, architecture, security, or cross-authority wo
 require a `/lev-plan` source before slicing. A capture or design may go directly
 to proposal only when one bounded vertical outcome is already clear. `propose`
 must not silently become the broad-plan author.
+
+## Shared Planning and TDD Contract
+
+### Overlay and iteration planning
+
+This packet lane simulates the SDLC overlay, not a mandatory gate for all Lev
+work. Non-coding work with a sufficient plan, scope, acceptance and authority
+can route to its domain skill or `skill://exec` without emitting this packet.
+Coding with unresolved architecture goes to `skill://arch`; broad planning gaps
+return to `skill://lev-plan`.
+
+Prepare each selected unit for the future loop prompt: "Do the next bit of work
+on this effort. Select ONE ready coherent unit, finish that single thing, record
+the result and remaining frontier, then stop." A unit may be a substantial
+vertical chunk, not the full effort. Preserve plan claim references and map them
+to checks in `claim_verifier_map`; keep dependencies, scope and stop conditions
+explicit. The outer Ralph loop reloads state between units; `lev-ralph` adds the
+worker/reviewer-fixer cycle inside one unit. Runtime adoption and dedicated
+`claim.yaml` are deferred; preparing a packet does not dispatch or prove Ralph.
+
+### Shared substance and conditional TDD
+
+Resolve or fetch every explicitly supplied local path, issue number, tracker URL,
+or external URL through its owning source, then read the full artifact/body and
+all accessible comments. Report inaccessible material instead of reconstructing
+it. Preserve settled decisions about changed modules/interfaces, developer
+clarifications, architecture, schemas, API contracts and interactions when
+applicable. Additional notes belong only when they change execution or explain
+a constraint; do not fill irrelevant headings.
+
+TDD tests describe one logical behavior through the agreed public seam, using
+domain vocabulary and independently derived expected values (spec examples,
+known literals or a separate oracle). Avoid mirroring the implementation in the
+assertion, private-method tests and side-channel checks that bypass the interface.
+Prefer real internal collaborators; isolate external APIs, time/randomness and
+necessary filesystem/database boundaries with existing adapters or test resources.
+Use operation-specific boundary interfaces and injected dependencies where they
+already fit; this is not permission to add abstractions solely for mocking.
+Prefer an isolated test database when database behavior is the claim; otherwise
+state what a boundary fake cannot establish. Each operation fake should expose
+its expected response shape and exercised endpoint without conditional catch-all
+setup, retaining the interface's type checks. Flag call-count/order assertions
+and HOW-named tests when they merely couple to internals; observable protocol
+ordering may itself be a legitimate contract. Check that behavior-preserving
+internal refactoring would leave the test meaningful and green.
+Treat every rule in this TDD subsection as active in every cycle: check it before
+the first RED and again before selecting each next behavior. Work one behavior
+through RED then GREEN before selecting another; GREEN adds only the current
+cycle's production code needed to pass its test, with no anticipated tests or
+features. A coherent Ralph unit may contain several sequential cycles. Keep
+unrelated refactoring for review and an authorized follow-up; preserve the existing
+frozen-test and isolation contract below.
+
+Before forming a TDD packet, read the relevant `CONTEXT.md` when present and
+applicable ADRs; record their refs and require test names plus public-interface
+vocabulary to match them. Synthesize settled conversation decisions without
+restarting an interview; expose only unresolved
+choices that change scope or acceptance. Describe the user problem, intended
+behavior, actors, exclusions and testing decisions without padding story counts.
+Prefer the highest existing public test seam that actually observes the claim.
+If none exists, propose a new seam at the highest viable public boundary; ask
+only when that seam's tradeoff needs a user decision.
+
+Reference current owner paths for executable handoff, with freshness context;
+source advice to omit all paths is superseded by Lev's evidence-backed ownership.
+When a prototype's state machine, reducer, schema or type shape expresses a
+decision more precisely than prose, retain only that decision-rich snippet and
+its prototype provenance, not the whole demo.
+
+When uncertainty needs a prototype, route the question to `skill://poc`. Preserve
+only its explicit question, selected logic/UI branch, stated assumptions, validated
+answer, and provenance in the proposal; prototype construction details remain
+owned by `skill://poc`.
+
+For wide mechanical changes that cannot land as independent vertical slices,
+expand alongside the old form, migrate bounded caller batches while preserving
+compatibility, then contract only after every migration dependency is satisfied
+and no old caller remains. If batches cannot stay green independently, explicitly
+plan a shared integration boundary and final integrate-and-verify gate; do not
+promise per-batch green. Branch creation still requires the task's authority.
+Prefactoring is justified only by a concrete dependency, with its own scope/check.
+
+Present slice name, genuine blockers and delivered behavior when reviewing the
+breakdown. Ask about granularity or merging/splitting only when unresolved; prior
+approval need not be repeated. A source parent remains unchanged unless that
+mutation is authorized. A map is not task emission or tracker publication.
+
+Plan and proposal share problem/behavior, domain vocabulary, decisions, constraints,
+acceptance examples, test seams, delivery slices, dependencies, evidence and
+authority. The plan projects the broad runbook; proposal projects a selected
+slice for review or execution. Preserve source IDs and decisions across both.
+Use tracer bullets for independently demonstrable end-to-end behavior and
+expand–migrate–contract for wide compatibility changes. Reuse existing public
+test seams; prefactoring needs a concrete scoped reason.
+
+When this lane needs an SDLC spec projection, load and render the canonical
+`../work/templates/spec.md`, which `skill://propose` owns. Do not fork the source
+skill's inline template or invent another spec format.
+
+For ordinary TDD, emit one coherent worker batch containing the behavioral
+RED-to-GREEN cycle, its write scope, and its verifier. The controller reruns the
+check, then one checkpoint reviewer may cover spec drift and code quality on the
+completed batch. Do not create separate RED, GREEN, spec-review, and quality-review
+agents by default. Use that isolated topology only when the user explicitly asks
+for it or a high-assurance contract requires hidden holdouts or enforced role
+separation.
 
 ## Semantic Readiness
 
@@ -320,7 +439,20 @@ Open decisions: {none_or_decisions}
 Next: {run_exec|repair|interview}
 </final-proposal>
 
-## Red Flags
+## Next-Step Mini-Router
+
+When a choice is useful, render only eligible items as a numbered table with
+`#`, `Route`, `Expected result`. Clear authorized transitions proceed directly.
+
+| Result | Route | Expected result |
+|---|---|---|
+| Ready authorized SDLC packet | `skill://exec` | Execute the selected unit |
+| Broad plan stale / incomplete | `skill://lev-plan` | Repair the source plan |
+| Human or architecture decision missing | `skill://interview` or `skill://arch` | Resolve the decision before emission |
+| Non-coding packet unnecessary | `skill://exec` or domain skill | Use the sufficient source plan directly |
+| Deferred / paused | `skill://handoff` | Preserve packet state and resumption condition |
+
+## Proposal Red Flags
 
 - "All slices means emit all tasks."
 - "A generated backlog is a roadmap."

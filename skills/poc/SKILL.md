@@ -13,6 +13,19 @@ specific claim, not a whole project. It can produce a disposable artifact, a
 production-path trace, or a decision matrix, then routes the result back into the
 Leviathan lifecycle.
 
+## Entity Reconciliation
+
+After authorized material progress, reconcile touched and causally affected
+artifacts before routing, handoff, or final response. Track entity ref,
+island/provider locator (a path for file storage), basis/evidence, and the
+reason/action due. Update through the verified owning CLI/adapter; use a
+write-authorized skill fallback only when that operation is unavailable.
+Record updated, no_change(reason), or blocked(reason), preserving unresolved
+refs. Reading or mentioning a path alone creates no update obligation.
+Read-only work reports pending changes only. Reminders grant no write authority;
+task status stays with the bound tracker. Update only artifacts whose content
+or evidence changed; do not rewrite every referenced document.
+
 ## Work Link
 
 Lifecycle lane: Shape -> Plan
@@ -57,7 +70,81 @@ must touch the real commands, contracts, files, APIs, or gates.
 Use `--matrix` when there are multiple landing zones, libraries, routes, or
 approaches. Score against the claim, not against general preference.
 
-## Protocol
+## Prototype Branches
+
+Select the artifact from the question, not the available tool. Derive the
+question from the user's prompt and surrounding code (ask when the user is
+reachable), and name the state model when the question is about logic. Put a
+visible, one-paragraph `Question` / `State model` / `Prototype status`
+introduction at the top of the artifact, not only in a comment, so a reviewer
+can re-check the intended question later or AFK. Logic/state questions use a
+portable interactive model; appearance/layout questions use UI variants. If
+the choice remains ambiguous and the user is unavailable, a backend module
+defaults to logic and a page or component defaults to UI; state that assumption
+at the top. Keep it near its owner, follow existing route conventions, and
+provide one-command or one-file usage. Use in-memory state or an explicitly
+authorized disposable persistence target, not production mutations. If the
+question explicitly involves a database, use a scratch DB or local file whose
+name visibly says `PROTOTYPE — wipe me`.
+
+**Logic:** prefer one self-contained HTML file with a small pure reducer, state
+machine or function module separated from the DOM shell. Use a state-owning
+module with a clear method surface if pure transforms
+do not model the question honestly. The page may call the logic module, but the
+module must not call the page, DOM, or button handlers; keep that dependency
+one-way so the logic can be lifted later. Arrange the demo as a title and
+one-line explanation of the question, current state, free-play controls, then
+guided walkthroughs. Write it for a non-developer: use domain-language labels
+and explain in plain words what is happening. Render the full relevant state
+after every action and call out what just changed where that helps. Provide one
+always-available free-play button per action so anyone can try actions in any
+order. Each guided scenario tab starts from a known reset state, includes a
+short plain-language description of the situation and what to watch for, and
+supplies ordered real buttons; clicking a step performs its named action and
+advances to the next step. Include a normal path, a difficult edge and an
+illegal transition attempt. Hand over the actual file or preview; invite
+concrete counterexamples, and add requested actions or scenarios within scope
+when they sharpen the same question. Surprising behavior is evidence about the
+model, not automatic approval. Keep presentation restrained so state changes
+remain visible; the portable logic is the candidate decision, not the HTML shell.
+For a one-file or double-clickable handoff, inline every required script and
+style so the file runs directly under `file://`; external modules instead require
+an explicit local server and an actual preview URL. Open the delivered surface in
+a browser and exercise a state-changing action—syntax or module-unit checks do
+not prove that the page initialized. Render the primary state with domain labels
+for a non-developer; raw JSON may be secondary evidence, not the only state view.
+
+**UI:** prefer variants inside the existing host page so actual context and
+density inform the choice. Preserve auth, data fetching, and existing route
+parameters; vary only the rendered subtree. Use an obviously disposable route
+only when no host fits. Start with three structurally different layouts (at most
+five unless explicitly requested), using the project's components. Select via a
+reload-stable URL parameter; provide a clearly prototype-only floating bottom-bar
+switcher with the current label and wrapping previous/next controls. `←` and
+`→` keyboard arrows also cycle variants, but must not steal input, textarea, or
+contenteditable navigation. Gate prototype controls and exposure from production;
+mutations use stubs. On every variant switch, render the full relevant prototype
+state in a readable form, excluding secrets and unrelated personal data.
+Give each variant a distinct component identity and share the switcher rather
+than coupling the layouts. Return the actual preview URL and variant keys so
+the user can revisit a choice. Capture combinations the user prefers across
+variants, not only a forced single winner.
+
+Capture the question, observed answer, limitations, variant choice/reason and
+artifact pointer in the existing workstream/design. Preserve the prototype as
+primary evidence; do not automatically create branches, commit or promote it.
+Those source defaults are superseded by explicit scope and Git authorization.
+On authorized implementation, carry the decision-rich logic or winning design
+forward with production-quality checks and remove prototype controls/losing
+variants from the shipping path while retaining the evidence pointer.
+
+A prototype optimizes for learning quickly and needs the smallest relevant
+runnable check, not a production test suite by default. Source advice to skip
+all testing is superseded by Lev's claim-specific verifier requirement. A
+clickable demo can resolve a design question; it cannot by itself certify a
+production path or user acceptance.
+
+## Proof Protocol
 
 ```yaml
 steps:
@@ -72,7 +159,7 @@ steps:
     on_failure: "Do not recommend a route or write a matrix."
 
   - id: choose_verifier
-    action: Pick the cheapest credible proof: command, trace, test, demo, doc evidence, or operator review.
+    action: "Pick the cheapest credible proof: command, trace, test, demo, doc evidence, or operator review."
     validation: "Verifier can falsify the claim or clearly explains why it cannot."
     on_failure: "Mark proof as partial instead of proven."
 
@@ -140,6 +227,23 @@ poc_result:
   route: propose|capture|exec|monitor|archive|reject|revise_poc
   next: ""
 ```
+
+## Next Routes
+
+Route the result, not the existence of a prototype. Show only applicable next
+owners as a numbered `skill://<name>` table when there is a real choice; otherwise
+name one route. Proof completion does not authorize implementation.
+
+| Result | Next owner |
+|---|---|
+| Supported direction spans multiple outcomes | `skill://lev-plan` |
+| Supported bounded coding slice | `skill://propose` |
+| Supported non-coding action with sufficient plan, scope, and checks | `skill://exec` with the domain method; proposal optional |
+| Claim or decision needs reframing | `skill://interview` |
+| New insight or rejected hypothesis needs preservation | `skill://capture` |
+| Monitor, defer, or stop | `skill://handoff` with the revisit condition; no automatic scheduling |
+| Proof itself is the completed requested outcome | `skill://close` |
+| Domain route unknown | `skill://lev` |
 
 ## Stopgap Loop Note
 

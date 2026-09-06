@@ -5,9 +5,30 @@ description: Use when routing tracked work through lifecycle lanes, resolving wo
 
 # /work - Lifecycle Router
 
+`lev` is the public semantic router; `/work` is its compatibility lifecycle entry
+point. Both use the procedure below and the same workstream state, not two
+routers calling each other. When route-changing uncertainty remains after
+lookup, ask one to three focused questions and show viable owners/results as a
+numbered 1–n menu with one recommendation and free-text correction. A clear
+authorized request proceeds directly. "Take over" is metaphorical, not a command
+or a permission change.
+
 `/work` is the thin lifecycle spine. It does not re-implement capture,
 plan compilation, proposal, execution, close, or handoff protocols. It resolves workstream
 context, identifies the entity movement, and routes to the owning skill.
+
+## Entity Reconciliation
+
+After authorized material progress, reconcile touched and causally affected
+artifacts before routing, handoff, or final response. Track entity ref,
+island/provider locator (a path for file storage), basis/evidence, and the
+reason/action due. Update through the verified owning CLI/adapter; use a
+write-authorized skill fallback only when that operation is unavailable.
+Record updated, no_change(reason), or blocked(reason), preserving unresolved
+refs. Reading or mentioning a path alone creates no update obligation.
+Read-only work reports pending changes only. Reminders grant no write authority;
+task status stays with the bound tracker. Update only artifacts whose content
+or evidence changed; do not rewrite every referenced document.
 
 ## Work Link
 
@@ -70,6 +91,23 @@ Next: {one_primary_action}
 
 ## Lifecycle Lanes
 
+The software lanes and task packet rules below simulate the `plugins/sdlc`
+overlay. For non-coding work, retain workstream identity and acceptance but use
+the selected domain's artifacts; a sufficient plan can route directly to its
+domain skill or `skill://exec` without `skill://propose`.
+
+## Next-Step Mini-Router
+
+Project only eligible next transitions as a table with `#`, `Route`, and
+`Expected result`, using `skill://<name>` destinations and contiguous numbering.
+Choose from current state, active domain, missing decision and authorization;
+do not invent options to fill a menu or make all skills call each other.
+Proceed directly for a clear authorized route. Suggestions do not grant new
+authority. Unknown destinations return to `skill://lev`; paused work routes to
+`skill://handoff`. These inline runbooks are dogfood, not runtime enforcement.
+
+## SDLC Lane Map
+
 | Lane | Entity movement | Owns |
 |---|---|---|
 | Shape | `memory -> captured | blocked` | `/capture`, `/prior-art`, `/interview` |
@@ -87,9 +125,9 @@ Next: {one_primary_action}
   `lev://entity/work/task/<id>` for tasks; load lane guidance through
   `skill://<lane>`.
 - Move entities forward one lifecycle state at a time; do not skip from memory
-  directly to execution unless a captured/proposed artifact already exists.
-- Broad, multi-slice, migration, architecture, security, or cross-authority work
-  moves through `/lev-plan` before `/propose`. One bounded vertical slice may
+  directly to execution unless sufficient captured, planned or proposed context already exists.
+- Broad work uses `/lev-plan`; for SDLC delivery it precedes `/propose`.
+  One bounded software slice may
   record that a plan is not required.
 - Workstreams are durable identity. Markdown handoffs are projections, not the
   canonical state.
@@ -97,6 +135,10 @@ Next: {one_primary_action}
   the lane owner instead of freelancing.
 
 ## QA / Pentagon Gate State
+
+This table applies only when the selected overlay/task declares these gates.
+Non-coding work without an SDLC packet uses its domain acceptance criteria;
+absence of `execution.yaml` alone is not a missing gate or proposal requirement.
 
 QA, Pentagon, UltraQA, and ai-slop-cleaner are lifecycle gate overlays, not
 separate lanes. `/work` routes by missing gate state; lane skills own the
@@ -121,12 +163,12 @@ steps:
     on_failure: "Do not write. Route to /ws find|resume or create a workstream."
 
   - id: classify_entity
-    action: Name the entity, current state, target state, missing gate, and proof_gate_state.
-    validation: "Entity has path/id/uri plus current_state, target_state, and proof_gate_state when non-trivial."
+    action: Name the entity, active domain, current state, target state and any applicable missing gate.
+    validation: "Entity has path/id/uri plus current_state and target_state; proof_gate_state is required only for declared gate overlays."
     on_failure: "Route to /capture if it is only in conversation memory."
 
   - id: route_lane
-    action: Select the lifecycle lane owner.
+    action: Select the domain-appropriate lifecycle owner; use SDLC lanes only for the software overlay.
     validation: "Exactly one next skill is chosen from the lane table."
     on_failure: "Ask one routing question or route to /prior-art for evidence."
 
@@ -149,8 +191,9 @@ steps:
 | Need evidence, provenance, lineage, or duplicate detection | `/prior-art` |
 | Broad/multi-slice idea or design is aligned but lacks a runbook/DAG | `/lev-plan` |
 | Existing plan is shallow, stale, or needs source-fidelity review | `/lev-plan deepen|review` |
-| Plan is faithful and needs a slice map or one execution packet | `/propose` |
-| One bounded vertical intent is aligned and plan-not-required | `/propose` |
+| SDLC plan is faithful and needs a slice map or one execution packet | `skill://propose` |
+| One bounded software intent is aligned and plan-not-required | `skill://propose` |
+| Non-coding plan is sufficient for authorized execution | Domain skill or `skill://exec`; no mandatory SDLC packet |
 | Task has `dna.yaml` and `execution.yaml` with a verifier | `/exec` |
 | Task needs proof design, proof gates, runtime QA, or quality review | route by `proof_gate_state` |
 | Work is verified and needs sealing, learning, commit, or next recommendation | `/close` |
