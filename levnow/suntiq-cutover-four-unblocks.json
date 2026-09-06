@@ -1,0 +1,263 @@
+{
+  "meta": {
+    "title": "Suntiq cutover — four unblocks",
+    "description": "A concise operator brief explaining the telemetry decision, production rehearsal approval, Clerk credential boundary, and unresolved product-root merge.",
+    "layout": "default"
+  },
+  "theme": {
+    "preset": "amber-emerald",
+    "mode": "light"
+  },
+  "root": [
+    "hero",
+    "verdict",
+    "priority",
+    "telemetry",
+    "rehearsal",
+    "clerk",
+    "merge",
+    "order",
+    "evidence"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "Suntiq cutover",
+        "title": "Four unblocks, in the order they actually matter",
+        "subtitle": "Two decisions unblock repository integration; two controlled inputs unlock the disconnected production rehearsal.",
+        "meta": "Current checkout · 25 August 2026"
+      },
+      "children": ["hero-lead"]
+    },
+    "hero-lead": {
+      "type": "text",
+      "variant": "lead",
+      "props": {
+        "content": "No live device traffic, pilot DNS, or existing Argo infrastructure needs to move yet. First settle the telemetry control mechanism and the open Git merge. Then supply narrowly scoped production permission and the App Production Clerk secret so the new Suntiq stack can be rehearsed while disconnected."
+      }
+    },
+    "verdict": {
+      "type": "decision",
+      "props": {
+        "title": "Use the small transactional operator",
+        "status": "conditional",
+        "content": "Keep the simple named-target configuration, but apply it with atomic file replacement, require both ingest services to acknowledge the same configuration hash, and automatically restore the previous configuration when acknowledgement fails. This preserves the requested all-or-rollback behavior without maintaining a large phase ceremony.",
+        "next": "Accept this hybrid, then integrate it only after the root merge is clean."
+      }
+    },
+    "priority": {
+      "type": "section",
+      "variant": "full-width",
+      "props": {
+        "label": "Current priority",
+        "title": "The four items are not equal blockers"
+      },
+      "children": ["priority-table"]
+    },
+    "priority-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "item", "label": "Item" },
+          { "key": "purpose", "label": "What it controls" },
+          { "key": "needed", "label": "When needed" },
+          { "key": "status", "label": "Current status" }
+        ],
+        "rows": [
+          { "item": "1 · Telemetry design", "purpose": "How two ingest services adopt and roll back destination configuration", "needed": "Before repository integration", "status": { "text": "Decision", "status": "warn" } },
+          { "item": "2 · Production approval", "purpose": "Permission to mutate the disconnected new production stack", "needed": "Before rehearsal execution", "status": { "text": "Pending", "status": "warn" } },
+          { "item": "3 · Clerk credential", "purpose": "Administrative access to the separate App Production identity tenant", "needed": "Before identity reconciliation", "status": { "text": "Missing", "status": "gap" } },
+          { "item": "4 · Root merge", "purpose": "A trustworthy base for projections and submodule pointers", "needed": "Before any root integration", "status": { "text": "Blocked", "status": "gap" } }
+        ]
+      }
+    },
+    "telemetry": {
+      "type": "section",
+      "variant": "comparison",
+      "props": {
+        "label": "01 · Telemetry",
+        "title": "One safe data plane; two possible control planes",
+        "subtitle": "The existing backend stays authoritative while the new Suntiq backend receives a mirror. The choice is how operators apply that configuration."
+      },
+      "children": ["telemetry-heavy", "telemetry-hybrid"]
+    },
+    "telemetry-heavy": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "label": "Implemented branch",
+        "title": "Full manifest state machine",
+        "content": "Named phases track prepared, mirroring, committed, observing, rollback, and finalization. Both services acknowledge a shared manifest and the operator records receipts. It is safe, but exposes more states and recovery paths than this cutover currently needs."
+      }
+    },
+    "telemetry-hybrid": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "success",
+        "title": "Recommended: small transactional operator",
+        "content": "Use one named-target configuration. Write it to a temporary file, atomically replace the active file, reload both services, and require matching acknowledgements. If either service fails, restore the prior file. The operator succeeds completely or returns the system to the last known configuration."
+      }
+    },
+    "rehearsal": {
+      "type": "section",
+      "variant": "asymmetric",
+      "props": {
+        "label": "02 · Production rehearsal",
+        "title": "Approval is scoped to the new disconnected stack",
+        "subtitle": "Production-labelled resources still require explicit permission even before live traffic reaches them."
+      },
+      "children": ["rehearsal-doc", "rehearsal-limit"]
+    },
+    "rehearsal-doc": {
+      "type": "document",
+      "props": {
+        "title": "What the approval permits",
+        "content": "### The bounded rehearsal\n\n1. Export a recoverable pilot Convex snapshot.\n2. Deploy the staging-accepted schema and functions to the new production Convex deployment.\n3. Import the full-fidelity pilot snapshot.\n4. Reconcile users in App Production Clerk against an exact identity manifest.\n5. Validate `app.suntiq.ai` login, tenant membership, boats, trips, and telemetry.\n\nThe approval can cover this bundle in one sentence. It is required because deploying backend code, importing production data, and changing production identities are real mutations even while the stack remains disconnected."
+      }
+    },
+    "rehearsal-limit": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "What remains untouched",
+        "content": "No live DTU routing, device configuration, pilot DNS, `fleet.argomarine.ai`, billing, webhooks, or outbound provider effects. The rehearsal copy is replaceable; the final cutover can refresh it from a newer snapshot."
+      }
+    },
+    "clerk": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "03 · Clerk",
+        "title": "A publishable browser key cannot reconcile production identities",
+        "subtitle": "App Production is a separate Clerk authority from Development and App Staging."
+      },
+      "children": ["clerk-table", "clerk-code"]
+    },
+    "clerk-table": {
+      "type": "data-table",
+      "props": {
+        "columns": [
+          { "key": "authority", "label": "Clerk authority" },
+          { "key": "purpose", "label": "Purpose" },
+          { "key": "state", "label": "Operator access" }
+        ],
+        "rows": [
+          { "authority": "Development", "purpose": "Existing source and test environment", "state": { "text": "Available", "status": "match" } },
+          { "authority": "App Staging", "purpose": "Shared staging users and test personas", "state": { "text": "Available", "status": "match" } },
+          { "authority": "App Production", "purpose": "Final `app.suntiq.ai` users and sessions", "state": { "text": "Missing", "status": "gap" } }
+        ]
+      }
+    },
+    "clerk-code": {
+      "type": "code-block",
+      "props": {
+        "language": "dotenv",
+        "filename": "suntiq-infra/.env.local",
+        "content": "SUNTIQ_APP_PRODUCTION_CLERK_SECRET_KEY=sk_live_...\nSUNTIQ_APP_PRODUCTION_CLERK_INSTANCE_ID=ins_...",
+        "showLineNumbers": false
+      }
+    },
+    "merge": {
+      "type": "section",
+      "variant": "asymmetric",
+      "props": {
+        "label": "04 · Product root",
+        "title": "The open merge blocks trustworthy integration",
+        "subtitle": "This is a repository-integrity gate, not a deployment ceremony."
+      },
+      "children": ["merge-state", "merge-why"]
+    },
+    "merge-state": {
+      "type": "card",
+      "variant": "callout",
+      "props": {
+        "variant": "warning",
+        "title": "Observed checkout state",
+        "content": "The root is on `feature/infra-cutover`, six commits behind its remote, with an active merge and one unresolved file: `.lev/pm/workstreams/fleet-platform-architecture/state/workstream.yaml`. The index also contains staged work owned by the concurrent task."
+      }
+    },
+    "merge-why": {
+      "type": "document",
+      "props": {
+        "title": "Why work pauses here",
+        "content": "The root owns the projected Fleet apps and the ArgoEdge and telemetry-ingest gitlinks. Updating projections or committing gitlinks while this merge remains open could absorb unrelated staged changes into the wrong merge commit.\n\nOnce the owner settles the merge, re-read status, merge `origin/develop` into `feature/infra-cutover` if needed, project the accepted ArgoEdge commit, advance the telemetry gitlink, run Fleet guards and targeted checks, then commit one clean integration checkpoint. Never rebase."
+      }
+    },
+    "order": {
+      "type": "section",
+      "variant": "pipeline",
+      "props": {
+        "label": "Execution order",
+        "title": "Settle, integrate, then rehearse",
+        "subtitle": "This order prevents repository drift from contaminating production-readiness evidence."
+      },
+      "children": ["order-one", "order-two", "order-three", "order-four"]
+    },
+    "order-one": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "01",
+        "title": "Accept telemetry hybrid",
+        "content": "Choose the small transactional operator as the control-plane contract."
+      }
+    },
+    "order-two": {
+      "type": "card",
+      "variant": "elevated",
+      "props": {
+        "label": "02",
+        "title": "Settle root merge",
+        "content": "Resolve the current merge before touching projections or submodule pointers."
+      }
+    },
+    "order-three": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "label": "03",
+        "title": "Integrate and verify",
+        "content": "Project Fleet, advance telemetry, run guards, and create one clean checkpoint."
+      }
+    },
+    "order-four": {
+      "type": "card",
+      "variant": "default",
+      "props": {
+        "label": "04",
+        "title": "Run rehearsal",
+        "content": "Use the scoped approval and production Clerk secret to validate the disconnected stack."
+      }
+    },
+    "evidence": {
+      "type": "evidence",
+      "props": {
+        "title": "Evidence boundary",
+        "summary": "Current repository state is observed; production execution remains deliberately unperformed.",
+        "items": [
+          {
+            "claim": "The product root has an active unresolved merge on feature/infra-cutover.",
+            "status": "observed",
+            "source": "git status and MERGE_HEAD, 25 August 2026",
+            "detail": "One unmerged workstream state file remains and unrelated staged changes are present."
+          },
+          {
+            "claim": "The telemetry and watermark work exists only on feature branches and has not been deployed to the live VPS.",
+            "status": "reported",
+            "source": "current cutover execution record",
+            "detail": "The page does not claim live telemetry acceptance."
+          },
+          {
+            "claim": "The disconnected production rehearsal is authorized.",
+            "status": "missing",
+            "detail": "A fresh target-specific approval is still required before production mutations."
+          }
+        ]
+      }
+    }
+  }
+}

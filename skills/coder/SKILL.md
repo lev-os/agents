@@ -68,6 +68,9 @@ Before every launch:
    report shape. Do not depend on parent conversation history.
 4. Record the pre-run status/diff so worker changes remain distinguishable from
    existing work.
+5. Tell every worker never to run `git stash` or `git stash pop`: shared
+   checkouts contain other sessions' work. Compare with `git diff` or
+   `git show HEAD:path` instead of reverting their files mid-run.
 
 With `--lev`, run `lev exec --help` in the target project before constructing
 flags. Use the project-declared FlowMind or exec profile. If Lev cannot carry the

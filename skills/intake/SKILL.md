@@ -33,6 +33,8 @@ You:
 - compare it to the active project's actual needs
 - preserve workshop compatibility through config overlays
 - recommend the smallest useful route: `poc`, `spike`, `plugin`, `core-upgrade`, `monitor`, or `pass`
+- decide the integration mode before recommending rebuilds: `reference`, `plugin-wrapper`, `vendor-adapter`, `runtime-shim`, `default-provider`, or `core-primitive`
+- preserve Lev as the orchestration/meta-framework: Lev owns contracts, policy, config, lifecycle, receipts, and proof while external systems may own engines, runtimes, storage, indexes, or provider behavior
 - turn the analysis into a brief, recommendation, validation plan, and action dashboard the user can act on immediately
 
 ## Phase 0: Resolve Project + Workshop Context
@@ -218,7 +220,8 @@ Answer with evidence:
 2. Which part of the active project does it map to?
 3. Is it product, infrastructure, integration, or tooling?
 4. Does it conflict with current architecture or constraints?
-5. Is the value in a `poc`, `spike`, `plugin`, `core-upgrade`, `monitor`, or `pass` route?
+5. Can Lev orchestrate it as a provider, plugin, shim, or vendored adapter instead of rebuilding it?
+6. Is the value in a `poc`, `spike`, `plugin`, `core-upgrade`, `monitor`, or `pass` route?
 
 ### Recommended Multi-Agent Split
 
@@ -232,6 +235,56 @@ Each sub-agent must return:
 - manifest of files touched
 - saved report path only if detail would exceed 5000 tokens
 
+## Phase 2.5: Integration Mode
+
+Before recommending `extract`, `plugin`, or `core-upgrade`, decide how Lev should relate to the target. Do not collapse every useful external system into "learn from it" or "replace Lev with it". Lev is a meta-framework: it should orchestrate strong external engines behind Lev-owned contracts when that is cheaper and safer than rebuilding.
+
+Choose exactly one primary integration mode, with secondary modes only when they are materially useful:
+
+- `reference`
+  - Learn concepts, tests, UX, contracts, or warnings only. No runtime dependency.
+
+- `plugin-wrapper`
+  - Build a Lev plugin or adapter that calls the external system through its public API, CLI, MCP, gRPC, HTTP, SDK, or files. Lev owns config, policy, receipts, and proof.
+
+- `vendor-adapter`
+  - Vendor or fork code behind a Lev-owned boundary because the license allows it and runtime coupling is worth the maintenance cost. Keep upstream provenance and an exit path.
+
+- `runtime-shim`
+  - Run the external runtime as a subprocess/service/container/backend selected by config. Lev owns lifecycle supervision, leases, traces, receipts, and conformance checks.
+
+- `default-provider`
+  - Make the target the default implementation of a Lev capability while keeping the provider contract open for alternates. Example: codebase-memory-mcp can be the default code graph provider while Graphify remains selectable.
+
+- `core-primitive`
+  - Build or keep the abstraction in Lev core because it is part of Lev's identity, cross-surface contract, or proof model. Prefer this for contracts, not engines.
+
+For every non-`reference` mode, include:
+
+```yaml
+integration_mode: reference | plugin-wrapper | vendor-adapter | runtime-shim | default-provider | core-primitive
+lev_owns: []          # contracts, config, policy, lifecycle, receipts, eval/proof
+external_owns: []     # engine, runtime, storage, index, provider behavior, UI shell
+provider_contract:
+  capability: <capability-name>
+  required_methods: []
+  required_proofs: []
+default_provider_candidate: true | false
+alternate_providers: []
+license_admission:
+  status: allowed | restricted | unknown
+  evidence: []
+  constraint: <short reason>
+exit_path: <how Lev can swap/remove the provider>
+```
+
+Admission checks:
+
+1. Do not rebuild until `plugin-wrapper`, `runtime-shim`, `vendor-adapter`, and `default-provider` have been considered.
+2. Do not vendor until license, hosted/product-use rights, update burden, and security boundary are explicit.
+3. Do not make a provider default unless an alternate provider can satisfy the same contract or the lock-in is deliberately accepted.
+4. Do not let an external runtime own Lev truth: Run identity, policy, receipts, EvalDecision, and cross-surface semantics remain Lev-owned.
+
 ## Phase 3: Initial Route
 
 Choose the smallest route that can produce evidence or stop the idea cleanly:
@@ -243,10 +296,10 @@ Choose the smallest route that can produce evidence or stop the idea cleanly:
   - answer bounded technical uncertainty with a small experiment or test
 
 - `plugin`
-  - useful capability that belongs outside core as an extension, adapter, workflow, or playbook surface
+  - useful capability that belongs outside core as an extension, adapter, provider wrapper, workflow, or playbook surface
 
 - `core-upgrade`
-  - strong evidence that shared contracts, runtime, domain, receipts, or lifecycle behavior must change
+  - strong evidence that shared contracts, provider interfaces, runtime, domain, receipts, or lifecycle behavior must change
 
 - `monitor`
   - interesting, but not aligned enough or urgent enough right now
@@ -376,6 +429,16 @@ The report must include:
 - Relevant overlaps:
 - Conflicts:
 
+## Integration Mode
+- Mode: <reference | plugin-wrapper | vendor-adapter | runtime-shim | default-provider | core-primitive>
+- Lev owns:
+- External owns:
+- Provider contract:
+- Default provider candidate:
+- Alternate providers:
+- License admission:
+- Exit path:
+
 ## Brief / Analysis
 - What it is:
 - Why it matters:
@@ -389,6 +452,7 @@ The report must include:
 
 ## Proposal / Recommendation
 - Route: <poc | spike | plugin | core-upgrade | monitor | pass>
+- Integration mode: <reference | plugin-wrapper | vendor-adapter | runtime-shim | default-provider | core-primitive>
 - Why this route:
 - Validation needed:
 - Final solution if validated:
@@ -417,7 +481,7 @@ Use this shape:
 ```markdown
 🧠 **Brief / Analysis** — What it is: <1 sentence> · Why it matters: <1 sentence> · Fit: <1 sentence> · Risk: <1 sentence>
 
-🧭 **Proposal / Recommendation** — Route: `<poc|spike|plugin|core-upgrade|monitor|pass>` · Why: <1 sentence> · Validation: `<need N spikes to validate X before Y | watch criteria | none>` · Stop: <condition>
+🧭 **Proposal / Recommendation** — Route: `<poc|spike|plugin|core-upgrade|monitor|pass>` · Mode: `<reference|plugin-wrapper|vendor-adapter|runtime-shim|default-provider|core-primitive>` · Why: <1 sentence> · Validation: `<need N spikes to validate X before Y | watch criteria | none>` · Stop: <condition>
 
 🪄 **Action Dashboard**
 1. **P0 — <best next action>** → Owner: `<owner/surface>` · Artifact: `<path or URL>` · Proof: `<verification>` · Status: `<ready/blocked/done>`
@@ -457,6 +521,8 @@ Source: `.lev/pm/parity/clawhip.yaml`
 ## Success Criteria
 
 - Workshop paths come from merged config, not hardcoded defaults
+- Intakes explicitly consider plugin-wrapper, vendor-adapter, runtime-shim, and default-provider before recommending rebuild or extract-only
+- Lev-owned vs external-owned responsibilities are recorded for every non-reference integration mode
 - Manifest-driven folder resolution works when present
 - Legacy Lev workflow remains possible through global config
 - Project-local workshop defaults work when no global override exists
