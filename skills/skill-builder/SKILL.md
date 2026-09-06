@@ -5,8 +5,9 @@ description: Use when creating skills, converting docs/repos/PDFs to skills, ins
 
 # Skill Builder
 
-No skill ships without testing. RED baseline first, GREEN write second, REFACTOR plug holes third.
-If you wrote a skill before watching an agent fail without it, delete it and start over.
+Skill edits are candidates until relevant behavioral checks pass. Preserve existing
+work; missing baseline evidence is evaluation work, not authority to delete it.
+An explicit skills-first update may precede trials, but must remain unqualified.
 
 ## Routing
 
@@ -27,7 +28,47 @@ steps:
     on_failure: "Ask a clarifying question. Do not guess."
 ```
 
-## Technique: XML Sections
+## Pointer Repair and Invocation
+
+Every context pointer names both its material and the branch or condition that
+triggers loading it. When a required reference is missed, sharpen that pointer
+first; inline its operative content only if sharpening fails, except for
+explicitly requested baked-in rules. When a step ends prematurely, sharpen its
+completion bound before splitting the sequence. Replace repeated explanatory
+phrases with a defined, established domain term when that improves retrieval; do
+not coin opaque slogans. Delete a demonstrated no-op sentence as a whole rather
+than cosmetically trimming it. A stronger leading word is useful only if
+observed behavior changes.
+
+Treat always-loaded descriptions as the most expensive context surface: prune
+their words aggressively and retain only words that change routing or invocation.
+Separate that context cost from the human cost of remembering explicit entry
+points. Treat cognitive load as the price of human agency: spend it where human judgment
+matters and remove it where deterministic routing or existing conventions can carry
+the decision. Add an independently discoverable skill only
+when its own trigger or a real caller warrants that cost. Otherwise keep a
+conditional branch or shared reference under the existing owner. A router
+reduces the human index burden by naming destinations and when to use them, not
+by bypassing invocation or authorization policy.
+
+Use the least costly sufficient information tier: keep ordered actions inline,
+use an in-file reference for on-demand material when that is enough, and disclose
+external material behind a pointer only when a branch needs it. An in-file reference
+is a valid hierarchy tier, not an automatic reason to split a skill.
+
+Inspect the target host's supported invocation metadata before setting flags.
+Preserve existing invocation choice unless the user requests a change. Portable
+skills keep a meaningful description; do not assume description presence grants
+automatic dispatch, or that a foreign disable-model-invocation flag hides content
+on every host. Where the host enforces explicit-only invocation, routers suggest
+the skill rather than dispatch it. Shared material needed by such skills belongs
+in an accessible reference, not behind an unreachable invocation. Test explicit
+reachability, automatic-trigger positives/negatives and caller routing on the
+actual host before claiming these properties. Host-specific metadata is not a
+universal Lev contract. These operative rules are inline; loading the source
+SKILL-MECHANICS document is not a runtime prerequisite.
+
+## Output Sections
 
 Use XML sections directly in the skill body for reusable output templates and semantic response blocks. Do not wrap active XML sections in fenced Markdown or XML code blocks. Fenced blocks are for literal examples only; active templates live as real sections.
 
@@ -103,13 +144,16 @@ steps:
   - id: author_red
     action: "RED — Establish baseline failure"
     instruction: |
-      Before writing anything, run pressure scenarios WITHOUT the skill:
-      1. Define 3+ scenarios testing what the skill should enforce
-      2. Run each with a subagent (no skill loaded)
+      Establish source obligations and baseline evidence for behavioral qualification:
+      1. Map each required behavior and failure mode to an observable scenario
+      2. Freeze fixture, skill/source digests, allowed effects and finite trial budget
+      3. Run fresh-context subagents without the target skill; keep source/reference and absorbed arms separate
       3. Capture verbatim: what choices, what rationalizations (exact words), which pressures triggered violations
-      This is the failing test. You must see what agents do wrong before writing a skill that fixes it.
-    validation: "3+ baseline scenarios run. Rationalizations captured verbatim."
-    on_failure: "You skipped baseline testing. Stop. Run the scenarios. No exceptions."
+      Distinguish observed failure, already-satisfied behavior, inconclusive result
+      and infrastructure error. Never manufacture RED. Fresh prompts are not OS
+      isolation; label shared-workspace trials representative_nonhermetic.
+    validation: "Obligations have cases or explicit observability gaps; observed outcomes and trial limits are recorded."
+    on_failure: "Keep behavioral qualification pending; preserve authorized candidate edits."
 
   - id: author_green
     action: "GREEN — Write minimal skill addressing observed failures"
@@ -125,13 +169,26 @@ steps:
       - Reusable output templates are live XML sections with Markdown prose inside, e.g. `<report>...</report>` or `<decision>...</decision>`
       - Do not put active XML templates inside fenced markdown or fenced XML code blocks
       - First step = most important output, not background theory
-      - Operational content lives in SKILL.md, not references/ (agents don't cat them)
+      - Bake the operative writing rules into this skill; writing-for-agents remains a separate top-level reference, not a runtime prerequisite.
+      - Make every context pointer name its material and triggering branch; front-load only the distinguishing trigger words, collapse synonyms, and prune always-loaded words aggressively.
+      - Keep mandatory steps inline. Disclose branch-only material with an explicit condition and load validation.
+      - Use an in-file reference for on-demand material when it is the least costly sufficient hierarchy tier; disclose it externally only when a branch needs a separate context load.
+      - Co-locate a concept's definition, constraints, and caveats; maintain one operative statement per rule.
+      - Completion criteria must be observable and cover every required result; a heading or self-report is not completion.
+      - Split a sequence only when later steps cause observed premature completion; a fresh context boundary must enforce the split.
+      - Use established domain terms and positive action instructions. Keep a prohibition only for a hard guardrail that cannot be phrased positively, and pair it immediately with the positive target.
+      - Treat code, config, schemas, directory layout and live help as the environment's source of truth; keep documentation as a cache only when lookup is costly, and preserve rationale and non-obvious constraints rather than stale copies.
+      - Check every line for relevance to what the skill does; prune duplicate, stale and no-op prose, and measure context load separately from the operator's discovery burden.
+      - Choose automatic versus explicit invocation deliberately; test trigger negatives and competing routes as well as happy paths.
       - validation: strings are concrete verifiable checks (commands or binary states)
       - Artifact-producing skills need a canon write gate plus lifecycle ledger: compiled_intent, disk vs memory state, artifact ref, route, blocker, confidence
       - Natural language in instruction blocks. Never LLM_MUST directives
       - Under 300 lines total. Prose is the enemy.
 
-      Run the same pressure scenarios WITH the skill. Agent should now comply.
+      Run the frozen scenarios WITH the candidate skill using fresh contexts.
+      Retain raw outputs and artifact deltas; independent review assesses semantic
+      outcomes, not repeated instruction wording. A changed fixture/rubric starts
+      a new evaluator generation; do not repair subject and grader in one attempt.
     validation: "wc -l SKILL.md under 300. Frontmatter has supported keys. All steps have validation: strings. Artifact-producing skills include a fidelity/memory/ledger table. Reusable templates use live XML sections, not fenced code blocks. Subagent passes scenarios that failed in RED."
     on_failure: "Scenarios still fail → skill doesn't address the right rationalizations. Back to RED captures."
 
@@ -143,16 +200,16 @@ steps:
       3. Build rationalization table (prolepsis — pre-refute evasions):
          | Excuse | Reality |
          | "{exact phrase from baseline}" | {short refutation} |
-         Minimum 5 entries. Use agent's exact words, not paraphrases.
+         Include only observed entries. Use agent's exact words, not invented quotas.
       4. Add red flags list quoting the THOUGHT not the behavior
-      5. Re-test until zero new rationalizations emerge
+      5. Re-test within the declared finite budget; unresolved failures remain open
 
       Three enforcement primitives (see references/techniques.yaml):
       - Prolepsis: rationalization table pre-refutes evasions
       - Positioned commands: validation strings become executable
       - Procedural chains: step IDs create presuppositional sequences
-    validation: "Rationalization table has 5+ real entries. Re-test produces zero new evasions."
-    on_failure: "New rationalization found. Add to table. Re-test. Repeat until clean."
+    validation: "Required cases pass within budget or pending failures and evidence gaps are explicit."
+    on_failure: "Record the remaining obligation and stop the trial series at its budget."
 ```
 
 ## Workflow 3: Extraction Pipeline
@@ -215,6 +272,16 @@ steps:
 ```
 
 ## Workflow 5: Merge
+
+For absorption into existing lifecycle owners, use a source-step ledger before
+combining text. Each adopted instruction, result, insight and context technique
+names its source, destination and represented/superseded/rejected disposition
+with rationale; unresolved mappings remain gaps. Include referenced source
+resources. Retaining an unchanged specialist is not proof its behavior reached
+the lifecycle owner. Preserve source snapshots and keep duplicate activation
+until source-disabled parity supports demotion. Prefer existing owner protocols
+over a new router or parallel tracker. Domain-neutral versus SDLC-overlay rules
+must remain explicit; eligible follow-ups use `skill://<name>` tables.
 
 ```yaml
 steps:
@@ -285,9 +352,9 @@ steps:
 
 | Excuse | Reality |
 |--------|---------|
-| "I'll test the skill later" | Later = never. RED baseline BEFORE writing. Iron law. |
+| "The prose edit is complete, so absorption is proven" | Qualification still needs source-obligation coverage and observed behavioral outcomes. |
 | "This skill is obviously clear" | Clear to you ≠ clear to agents. Baseline proves it or it doesn't ship. |
-| "I'll just route to skill-creator" | There is no skill-creator. This IS the skill creator. Author workflow, step author_red. |
+| "Another authoring tool proves this skill works" | Authoring tools produce candidates; evaluate the actual installed instructions. |
 | "Too complex for 300 lines" | Cut prose. Lead with format. Move API docs to references/. 300 is the ceiling. |
 | "validation: strings are busywork" | Validation strings are the highest-leverage technique. Agents literally execute them. |
 | "Operational instructions go in references/" | Agents don't cat references/. If it matters for execution, it lives in SKILL.md. |

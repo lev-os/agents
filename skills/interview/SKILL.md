@@ -11,8 +11,23 @@ Run a design-acquisition interview. First reduce ambiguity until the subject, in
 
 The interview output is a design, not a spec. It should carry the product
 framing normally expected from a PRD, but inside the design artifact.
-`propose` is the next lifecycle step after design alignment.
+After design alignment, route by scope and domain: broad work needs
+`skill://lev-plan`; a bounded coding slice uses `skill://propose`; non-coding
+work can use a sufficient plan directly with its domain execution owner.
 </goal>
+
+## Entity Reconciliation
+
+After authorized material progress, reconcile touched and causally affected
+artifacts before routing, handoff, or final response. Track entity ref,
+island/provider locator (a path for file storage), basis/evidence, and the
+reason/action due. Update through the verified owning CLI/adapter; use a
+write-authorized skill fallback only when that operation is unavailable.
+Record updated, no_change(reason), or blocked(reason), preserving unresolved
+refs. Reading or mentioning a path alone creates no update obligation.
+Read-only work reports pending changes only. Reminders grant no write authority;
+task status stays with the bound tracker. Update only artifacts whose content
+or evidence changed; do not rewrite every referenced document.
 
 <commands>
 
@@ -23,6 +38,7 @@ framing normally expected from a PRD, but inside the design artifact.
 /interview --deep               # high rigor, ambiguity gate <= 0.15
 /interview --auto               # synthesize/update from context; stop for human judgment or propose handoff
 /interview --framework=SCAMPER  # use this lens internally; show only the tag unless d. Deep dive is requested
+/interview --rounds             # grilling: ask independent ready decisions together, then wait
 ```
 
 </commands>
@@ -123,6 +139,54 @@ steps:
     validation: "Design artifact has product framing, stories, implementation decisions, proof design, propose handoff, and out-of-scope boundaries when relevant."
     on_failure: "Ask one focused design question for the missing product/design requirement."
 
+  - id: reconcile_domain_language
+    action: Sharpen the domain model as decisions crystallize
+    instruction: |
+      Read the project's canonical vocabulary and decision records. If CONTEXT-MAP.md exists,
+      follow it to the relevant bounded context; otherwise inspect root CONTEXT.md. Prefer
+      an existing project vocabulary owner over creating a competing glossary. Ask when
+      the topic's context cannot be inferred from evidence.
+      Challenge conflicts between the user's words, glossary definitions, and observed behavior;
+      cite the conflicting meanings and ask which is intended rather than silently renaming.
+      For overloaded terms, recommend a canonical term and probe a concrete boundary/edge case.
+      Compare implementation claims with code when available; distinguish actual behavior from
+      desired behavior. In non-coding domains use the authoritative domain evidence instead.
+      Before adding a candidate term, explicitly ask whether it is specific to this bounded
+      context or a generic programming/implementation concept. Add only the former; keep an
+      uncertain classification pending and ask the smallest boundary question.
+      Once a term or domain decision crystallizes, record it immediately in the authorized
+      destination rather than batching it: for a term, include context name and short purpose,
+      canonical term, one or two sentences defining what it IS, and
+      avoided synonyms. Group natural clusters; include project-domain concepts only, not
+      generic programming terms, implementation details, decisions, or scratch notes.
+      Create a vocabulary file lazily on the first resolved term only when artifact writes are
+      authorized; use CONTEXT.md as the fallback, not a new standard imposed on an existing owner.
+      For multiple contexts preserve their locations and relationships in the existing map.
+      In read-only mode show the proposed vocabulary delta in the response without writing.
+    validation: "Each changed term has a context, confirmed meaning, evidence/decision source, and canonical destination or an explicit pending delta."
+    on_failure: "Keep conflicting terms unresolved and ask the smallest boundary question."
+
+  - id: record_significant_decision
+    action: Preserve ADR-worthy rationale without multiplying artifacts
+    instruction: |
+      Offer an ADR only when the decision is hard to reverse, surprising without context,
+      and the outcome of a real trade-off. Otherwise keep it in the design's decision record.
+      Record each decision in that destination as soon as it crystallizes; do not batch decision
+      capture until the interview ends. In read-only mode show the pending decision inline
+      without claiming that it was persisted.
+      Follow the project's existing ADR owner/template; when none exists and creation is
+      authorized, lazily use docs/adr/NNNN-slug.md with the next unused sequential number.
+      Use the context-specific ADR directory for local decisions and the system-wide owner
+      for cross-context decisions. A title and one to three sentences of context, decision,
+      and rationale suffice unless the project's template requires more.
+      Add rejected alternatives, consequences, or proposed/accepted/deprecated/superseded
+      status only when useful. Preserve non-obvious exclusions, external constraints, and
+      supersession links rather than erasing why an earlier decision was made.
+      A recommendation is not an accepted decision: preserve the user's unresolved choice.
+      Read-only requests receive an inline candidate, never a file mutation.
+    validation: "An ADR candidate meets all three criteria, has the correct scope/owner, and distinguishes proposed from accepted."
+    on_failure: "Retain a pending design decision instead of inventing acceptance or an ADR."
+
   - id: shape_proof_design
     action: Design QA/Pentagon proof before proposal
     instruction: |
@@ -170,7 +234,20 @@ steps:
     action: Resolve one decision branch
     instruction: |
       Only run this step after ambiguity is at or below the active depth threshold.
-      Ask one question that resolves the next meaningful branch in the design tree.
+      Default to one branch per turn. For explicit grilling, grill-me, or --rounds, use the
+      ready frontier: all decisions whose prerequisites are already settled. Number each
+      independent question with its recommendation and consequences, then wait for the user.
+      A question depending on another unanswered question belongs to a later round.
+      Environment facts belong to lookup, not the human: when delegation is available and
+      authorized, dispatch independent fact discovery while asking the unaffected frontier.
+      Pending discovery is an unsettled prerequisite; re-read its result before unblocking
+      dependent questions. Recompute the tree after every round, including newly spawned branches.
+      Recommendations and --auto never stand in for human product decisions. Grilling ends
+      only when every branch is visited, choices are resolved or explicitly deferred with
+      consequences, and the user confirms shared understanding; that confirmation alone
+      does not authorize implementation. An empty ready frontier with blocked branches is
+      a wait/blocker, not completion.
+      In single-branch cadence ask one question; in rounds apply the following format to each ready branch.
       Name the current branch and the dependency it unblocks.
       Provide three researched answers when viable; use two only if a third branch would be fake.
       Recommend one answer and name the design consequence of each option.
@@ -178,7 +255,7 @@ steps:
       Before moving to the next branch, re-scan the user's last answer: if it spawned new branches
       (new constraint, rejected premise, deeper pattern, adjacent decision), add them to the map and
       re-rank; the freshly spawned branch is often the highest-leverage next question.
-    validation: "Question has current branch, lookup result or gap, one decision, 2-3 options, one recommendation with rationale, and unresolved branch count."
+    validation: "Each question has its branch, prerequisites, lookup result or gap, one decision, viable options, and a recommendation; rounds contain only independent ready questions."
     on_failure: "Split the question or collapse fake options."
 
   - id: update_design
@@ -204,6 +281,11 @@ steps:
     instruction: |
       If .lev/pm/ exists, treat interview as part of the work lifecycle.
       Prefer updating active workstream state, handoff, and .lev/pm/designs/ artifacts.
+      Preserve branch IDs, dependency edges, user answers versus recommendations, resolved
+      vocabulary/ADR links, explicit deferrals and consequences, pending lookup handles/results,
+      and the next eligible frontier. On resume revalidate prerequisites against current
+      artifacts; reopen contradicted decisions rather than treating stale state as acceptance.
+      Read-only interviews keep these updates inline and label them unsaved.
       Update proposals only when the user enters proposition mode or asks to run propose.
     validation: "Relevant lifecycle artifact is updated or explicitly not needed for read-only/trivial work."
     on_failure: "Pause and create or resume lifecycle continuity before continuing substantial work."
@@ -215,7 +297,7 @@ steps:
 
 ```yaml
 rules:
-  - "There is one visible interview format. Do not branch into alternate display modes."
+  - "Use the same question format in single-branch and rounds cadence; rounds repeat it for independent ready questions."
   - "Use hard line breaks between sections; do not combine multiple metadata fields into dense status prose."
   - "Orientation output uses: Question, Recommended, Ways to answer, Progress line, emoji HUD."
   - "Design output uses: Decision, Recommended, Options, Progress line, emoji HUD."
@@ -229,7 +311,7 @@ rules:
   - "Use d. Deep dive as the only expansion mode for evidence, gates, trade-offs, codebase exploration, or alternate lenses."
   - "Use plain ASCII arrows like => in templates."
   - "Deep-dive output uses markdown headings and bold labels only; XML tags must never appear in visible output."
-validation: "Active output has one question or decision plus compact choices; completed output uses the design-result template. Visible output has zero XML tags."
+validation: "Active output has one question or an explicit round of independent questions plus compact choices; completed output uses the design-result template. Visible output has zero XML tags."
 on_failure: "Rewrite using the orientation or design template. Remove progress bullet lists, XML tags, and display-mode wording."
 ```
 
@@ -290,8 +372,25 @@ System: {code_areas_and_critical_path}
 Proof: {highest_risk_claim_and_field_signal}
 Open decisions: {none_or_decisions}
 Saved: `.lev/pm/designs/{design_slug}.md`
-Next: Propose | Auto-enrich | Prototype | Continue interview
+Next: {applicable_skill_route_and_reason_from_the_next_routes_table}
 </design-result>
+
+## Next Routes
+
+At design completion, show only applicable choices as a numbered table using
+`skill://<name>`; a single clear next step needs only its route and reason.
+These suggestions preserve the current authorization boundary. References to
+proposal readiness below describe the SDLC overlay, not a mandatory non-coding gate.
+
+| Result | Next owner |
+|---|---|
+| Broad aligned design | `skill://lev-plan` |
+| Bounded coding slice ready to specify | `skill://propose` |
+| Sufficient non-coding plan and authorized next action | `skill://exec` with the domain method; proposal optional |
+| Planning artifact needs adversarial enrichment | `skill://auto-enrich` |
+| Feasibility remains unresolved | `skill://poc` |
+| Material decision remains | `skill://interview` |
+| Pause or domain route unknown | `skill://handoff` to pause; `skill://lev` to resolve the route |
 
 <deep-dive-template>
 ## q{n}) {decision_title} ({lens_tag}) — deep dive
@@ -373,7 +472,7 @@ score:
 
 ```yaml
 rules:
-  - "Interview output is always a design artifact under .lev/pm/designs/."
+  - "The primary interview output is a design under .lev/pm/designs/; authorized glossary/ADR updates are linked supporting artifacts. Read-only output remains inline and unsaved."
   - "Load /Users/jean-patricksmith/.agents/skills/work/templates/design.md before creating or updating the design."
   - "Do not create spec artifacts from interview output."
   - "Do not create a separate PRD artifact; PRD-style product content lives inside the design."

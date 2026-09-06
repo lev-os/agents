@@ -1,11 +1,24 @@
 ---
 name: auto-enrich
-description: Enrich a source-faithful capture, design, plan, or proposal in simple host-only, standard companion, or deep cross-model mode before execution. Uses $coder for read-only companion transport and cannot recover intent that capture omitted.
+description: Use when source-faithful planning artifacts need simple host-only, standard, or deep enrichment before SDLC proposal review or a non-coding domain handoff.
 ---
 
 # Auto Enrich
 
-Enrich one planning artifact set without implementing it. The host owns intent, evidence checks, and planning edits; the opposite CLI is one persistent read-only companion; Lev artifacts remain canonical.
+Enrich one planning artifact set without implementing it. The host owns intent, evidence checks, and planning edits; standard/deep use one persistent read-only opposite-CLI companion; Lev artifacts remain canonical.
+
+## Entity Reconciliation
+
+After authorized material progress, reconcile touched and causally affected
+artifacts before routing, handoff, or final response. Track entity ref,
+island/provider locator (a path for file storage), basis/evidence, and the
+reason/action due. Update through the verified owning CLI/adapter; use a
+write-authorized skill fallback only when that operation is unavailable.
+Record updated, no_change(reason), or blocked(reason), preserving unresolved
+refs. Reading or mentioning a path alone creates no update obligation.
+Read-only work reports pending changes only. Reminders grant no write authority;
+task status stays with the bound tracker. Update only artifacts whose content
+or evidence changed; do not rewrite every referenced document.
 
 ## First Response
 
@@ -42,7 +55,7 @@ Never sleep; surface each completed turn immediately.
 
 | Mode | Companion | Interview | Hardening |
 |---|---|---|---|
-| `--simple` | none | none | one host-only pass, then proposal review |
+| `--simple` | none | none | one host-only pass, then domain-appropriate routing |
 | `--standard` | one persistent opposite-provider session | at most one turn when material ambiguity exists | one companion cycle |
 | `--deep` | one persistent opposite-provider session | up to 12 turns | two cycles by default, hard maximum five |
 
@@ -61,7 +74,7 @@ deep's hard maximum. Reject contradictory depth flags.
 
 | Owner | Responsibility |
 |---|---|
-| Host | Load captured fidelity, compile or deepen the plan when required, inspect evidence, patch allowed planning artifacts, judge companion findings, call `/propose`. |
+| Host | Load captured fidelity, compile or deepen the plan when required, inspect evidence, patch allowed planning artifacts, judge companion findings, select the domain-appropriate next owner. |
 | Companion | Ask neutral architecture questions and review read-only in one persistent session. |
 | `skill://coder` | Select the required opposite provider, validate CAAM identity, launch/resume the read-only session, retain artifacts, and escalate transport/account failure. |
 | Deterministic checks | Digests, parse/ref/DAG/write-scope/identifier facts; never semantic approval. |
@@ -206,17 +219,22 @@ steps:
     validation: "Verdict, semantic scores, deterministic preconditions, blocker delta, fidelity baseline/final/lost rows, artifact-size direction, and cycles used are recorded."
     on_failure: "Stop with NEEDS_IMPLEMENTATION_LANE or remaining blockers; never fake approval."
 
-  - id: propose
-    action: Route the enriched design through Lev proposal review
+  - id: route_next
+    action: Route the enriched planning artifact by domain
     instruction: |
-      On APPROVED_PLAN or NEEDS_IMPLEMENTATION_LANE, invoke `/propose` in review
+      For coding work on APPROVED_PLAN or NEEDS_IMPLEMENTATION_LANE, invoke `/propose` in review
       mode against the enriched plan for broad work, or the explicitly bounded
       direct source for a plan-not-required slice. Preserve its
       ready|needs_review|blocked verdict. Do not create a proposal document or task
       backlog. Task materialization requires an explicit later `/propose emit
       <slice-id>` or equivalent apply authorization. On NEEDS_PLAN_REVISION, do not
       propose.
-    validation: "Proposal review verdict, recommended first slice or handoff, proof, and open decisions are explicit; zero task folders were emitted."
+      For non-coding work, a sufficient plan may hand off directly to its domain
+      execution owner via `skill://exec`; proposal review is optional unless the
+      active overlay or user requires it. Record Proposal: not_run with rationale.
+      Enrichment itself stays planning-only; this step recommends the handoff,
+      not execution or new authority.
+    validation: "Domain route, proposal verdict or justified not_run, recommended next outcome, evidence, and open decisions are explicit; zero task folders were emitted."
     on_failure: "Return to interview for a human decision or stop with the blocker."
 
   - id: sync_lifecycle
@@ -233,6 +251,22 @@ steps:
     validation: "Design and workstream refs are current, session notes are absent from canon, and the lifecycle ledger below is complete."
     on_failure: "Do not emit or execute; repair continuity first."
 ```
+
+## Next Routes
+
+Show only eligible next owners as a numbered `skill://<name>` table when a choice
+is needed; otherwise name one route. Readiness never grants execution authority.
+
+| Result | Next owner |
+|---|---|
+| Source fidelity absent or material intent lost | `skill://capture` |
+| Human decision unresolved | `skill://interview` |
+| Broad plan needs repair | `skill://lev-plan` |
+| Coding plan ready for slice review | `skill://propose` |
+| Non-coding plan sufficient | `skill://exec` domain handoff; no mandatory proposal |
+| Feasibility needs a bounded experiment | `skill://poc` |
+| Paused or blocked | `skill://handoff` |
+| Domain route uncertain | `skill://lev` |
 
 ## Review Contract
 
