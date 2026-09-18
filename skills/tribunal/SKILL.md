@@ -52,7 +52,7 @@ own output and log file. Launch independent cells concurrently when the host can
 track them safely.
 
 Tribunal does not edit files, execute implementation tasks, or verify code. Route
-that work to a coding-agent workflow instead.
+that work to `$coder` instead.
 
 ## 4. Collect Every Outcome
 

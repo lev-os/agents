@@ -1,0 +1,269 @@
+---
+name: orch
+description: Use when coordinating a multi-step goal across agents, skills, Lev lifecycle routes, FlowMind or LL scheduling, research, implementation, review, evaluation, or human decisions.
+---
+
+# Orch — Agent-Agnostic Goal Orchestration
+
+`orch` is the controller for a goal that crosses skills, agents, tools, or
+time. It composes existing owners; it does not replace them. The domain goal
+stays separate from the orchestration mechanics.
+
+Qualification: the bundled CLI has deterministic regression tests. Agent-use,
+provider dispatch, scheduler behavior, and cleanup require recorded live trials;
+the legacy `flow eval` listing and an exit-zero stub are not those trials.
+
+## Route the request
+
+1. Resolve the explicit project root and current workstream. Preserve the
+   primary checkout and unrelated dirty work.
+2. Read only the governing instructions and the named skill contracts. Use
+   `skill://goal-exec` for goal construction, `skill://coder` for workers,
+   `skill://lev` for lifecycle and Lev execution, and `skill://eval-builder`
+   for proof. Add `skill://ultraqa`, `skill://cdo`, `skill://ll`, or
+   `skill://research` only when the request needs that surface.
+3. Classify the desired effect before dispatching:
+
+| Need | Owner | Result |
+|---|---|---|
+| Shape or clarify a goal | `goal-exec`, `interview`, or `lev-plan` | outcome and first route |
+| Research or prior art | `research`, `prior-art`, or a read-only worker | cited findings |
+| Implement one bounded slice | `coder` or `exec` | changed artifact plus verifier |
+| Run lifecycle routing | `lev` | one typed next route |
+| Deliberate across independent views | `cdo` | tensions, synthesis, decisions |
+| Run a long improve/verify loop | `codex-autoresearch` | bounded state and iteration evidence |
+| Tick or schedule work | `ll` or the environment scheduler | deduplicated wake |
+| Prove behavior | `eval-builder` and, when justified, `ultraqa` | deterministic evidence and decision |
+
+Do not invent a provider, model, CLI flag, scheduler, or lifecycle state. Ask
+the environment for help first. If a required capability is unavailable at
+startup, offer a system-level workaround, a web research route when useful,
+or one human choice. Once execution starts, collect blockers and exhaust the
+eligible branch frontier instead of repeatedly restarting.
+
+## Startup gate
+
+Block only before dispatch when the requested effect cannot be represented or
+the required authority is absent. Check:
+
+- project root, branch, workstream, and write boundary;
+- the named skill and its callable route;
+- the selected agent/provider surface and its current help output;
+- the verifier or evaluator needed for the first slice;
+- scheduler availability when recurring work was requested.
+
+Record a startup failure as `startup_blocker` with the failed check and the
+smallest recovery. Do not turn a missing later artifact, test, receipt, or
+review into a startup blocker when the first executable slice can still run.
+
+## Build the chain
+
+Create a domain-shaped chain with stable branch identifiers. Each branch has
+an owner, prerequisite set, permitted effects, verifier, stop condition, and
+status. Keep the chain in the POC state file when the CLI is useful; keep
+canonical project state in the existing Lev/workstream owner.
+
+```yaml
+goal: <observable outcome>
+mode: plan | auto | execute | monitor
+root: <absolute project root>
+branches:
+  - id: <stable-id>
+    outcome: <one bounded result>
+    owner: skill://<owner>
+    needs: []
+    effects: [read]
+    verifier: <command or typed evaluator>
+    stop: <failed gate, decision, or completion>
+    status: pending | running | blocked | complete | deferred
+scheduler:
+  northstar_interval: 30m
+  orchestrator_interval: <environment-selected or null>
+  dedupe_key: <goal-ref + revision>
+blockers: []
+decisions: []
+evidence: []
+```
+
+The chain is a living graph. Re-scan each result for newly spawned branches,
+changed constraints, or rejected premises. Do not manufacture a fixed roster
+to satisfy a count.
+
+## Execute and verify
+
+For each eligible branch:
+
+1. Read the branch's full result and constraints before selecting its next
+   action. A status list is an inventory, not the branch's work order. Freeze
+   the branch prompt, scope, exclusions, and verifier.
+2. Dispatch one agent through the owning skill. Model and adapter selection
+   come from the environment, project profile, or an explicit user override.
+3. Collect the complete result and inspect its cited files, commands, and
+   artifacts in the primary checkout.
+4. Run the declared verifier through the available execution surface and retain
+   its exit status or typed result before accepting the branch. Reading an
+   output file or seeing a successful job run does not replace the declared
+   regression check. A worker's claim is not evidence.
+5. Record `progress`, `no_change`, `blocked`, `decision_needed`, or `complete`.
+6. Recompute the eligible branches. Continue every authorized independent route;
+   collect human questions until no eligible work or live result remains.
+
+The worker that changes an artifact does not certify it. Use a separate
+reviewer or deterministic evaluator when the claim warrants one. Keep product
+repair, evaluator repair, and promotion decisions in separate attempts.
+
+## Auto mode
+
+`auto` keeps working until every reachable branch is complete, explicitly
+deferred, or waiting on a named human/external decision. It:
+
+- explores independent branches in parallel only when their write scopes do
+  not overlap;
+- follows dependencies sequentially and never duplicates a live worker;
+- preserves minority findings and failed routes;
+- records product, authority, architecture, data-custody, or promotion choices
+  against their affected branches; present the collected questions after the
+  eligible frontier is exhausted, without deciding for the human;
+- re-enters execution after the decision without resetting consumed budgets;
+- stops after the branch frontier is exhausted, not after one successful route.
+
+An idle worker is not a blocker. Read its full latest result, including omitted
+pages, then follow its `NEXT ROUTE` when authorized and no actual blocker exists.
+Collect a result for every managed lane; one first-wake result is insufficient.
+Keep per-lane cursors. A timeout is not termination: inspect the same handle.
+An unanswered decision is not a completed or user-approved deferred branch.
+Missing reports, checks, or assignment bookkeeping are usually executable work.
+Only verified dependencies and new authority can hold the affected branch.
+If a branch needs a product choice or release permission, record that exact
+question and continue the independent branches. Auto mode does not answer it
+or grant that permission. A runnable command alone is not authorization to run it.
+
+## Blockers and escalation
+
+Use these classes:
+
+| Class | Meaning | Action |
+|---|---|---|
+| `startup_blocker` | first dispatch cannot be made | offer workaround or ask one choice |
+| `code_blocker` | required API/schema/executable is absent | route a bounded repair slice |
+| `decision_blocker` | human/authority choice changes behavior | present evidence and options |
+| `promotion_gate` | evidence needed for merge/cutover/release | keep implementation moving; hold promotion |
+| `administrative_hold` | queue, assignment, or schedule state | repair lifecycle state; do not call complete |
+| `external_blocker` | provider, credential, service, or environment unavailable | verify live, then offer fallback/escalation |
+
+Escalate the affected branch when the same blocker repeats twice, a verifier changes scope, a
+worker returns no usable result after one focused retry, or a branch would
+need to weaken a rule, edit a protected holdout, or invent authority. Preserve
+the failed evidence and route the next move; continue other eligible branches.
+
+## Scheduling
+
+Use scheduling tools available in the environment. The default conceptual
+layers are:
+
+- a 30-minute northstar heartbeat that reconciles the goal and branch graph;
+- an orchestrator heartbeat that selects one eligible next quantum;
+- LL or FlowMind heartbeats only when an existing flow or loop owns that
+  schedule.
+
+Use one dedupe key per goal and revision. A heartbeat is a wake, not a worker.
+Pause it on user pause, cancellation, confirmed completion, or an exhausted
+frontier. Keep unchanged healthy, pending, and blocked states quiet; notify on
+changed evidence, a new decision, a failed gate, completion, or a capability
+failure. Never claim scheduling succeeded without a returned scheduler handle.
+
+On cancellation, stop dispatch first, enumerate the owned agent tree and job
+handles, stop all requested descendants, and verify terminal state for each.
+Use the same host surface and the recorded owned handles. Never translate a
+scoped cancellation into a process-name-wide kill, or stop the controller and
+unrelated provider sessions. In a simulated project, fixture handles remain
+fixture handles; they are not host operating-system processes.
+Stopping a parent alone is not proof its children stopped. Before archiving,
+save full findings and cited artifacts to the authorized checkout, inspect dirty
+and untracked files, and verify the receiving owner has the handoff. Archiving a
+chat is not workstream completion. Remove only explicitly authorized worktrees
+after preserving their unique work; keep unrelated changes and branches intact.
+
+## Learning and memory
+
+After material progress, reconcile the touched entity through its owning
+workstream, capture, handoff, or close route. Store evidence, rejected routes,
+and the reason for the next move. Treat repeated failures as a proposal for a
+skill or rule improvement; do not let an agent silently rewrite its own skill,
+DNA, evaluator, or authority contract.
+
+Useful learning signals are: skill selected correctly, required steps followed,
+skills composed without route drift, and reflection grounded in verifier
+feedback. Score those process signals separately from the external outcome.
+
+## Evaluation contract
+
+For a new or changed orchestration behavior, use the cheapest proof that can
+falsify the claim:
+
+1. CLI state validation and a fresh-context routing check;
+2. one deterministic branch/blocked/decision test;
+3. an integration check for the scheduler or provider boundary;
+4. adversarial evaluation only for promotion, high-risk automation, or a
+   recurring skill-quality claim.
+
+The deterministic evaluator owns measurements, thresholds, and final verdicts.
+Agents may propose observations, routes, and candidate evaluators; they do not
+self-certify. Protect holdouts, freeze candidates before calibration, and keep
+skill-use quality distinct from accidental task success.
+
+## Output
+
+Return:
+
+When the project supplies a report schema or output file, honor its exact fields,
+types and status vocabulary. Check the written report against that schema before
+ending. Use the generic format below only when no project format is supplied.
+
+```text
+Outcome: <current domain result>
+Mode: <plan|auto|execute|monitor>
+Next: skill://<owner> or cli://<registered-operation>
+Branches: <complete>/<known>; <new branches>
+Blockers: <class, owner, evidence, recovery> or none
+Evidence: <verifier and artifact refs>
+Scheduler: <handle/status or not requested>
+```
+
+The first executable slice must be named. If there is no runnable slice, use
+`interview` or `lev-plan` to resolve the missing decision rather than emitting
+an empty execution plan.
+
+## Research anchors
+
+The learning loop follows evidence-backed patterns: reflective episodic memory
+from [Reflexion](https://arxiv.org/abs/2303.11366), process rubrics that score
+skill selection/following/composition/reflection from
+[SkillCoach](https://arxiv.org/abs/2607.01874), and repository-native continuous
+skill evaluation from [ACES](https://arxiv.org/abs/2608.20614). Keep those
+process signals separate from deterministic external outcomes.
+
+## POC CLI
+
+The bundled stdlib-only CLI maintains a small, inspectable chain state. It is
+not a replacement for Lev or the host scheduler:
+
+```bash
+python3 /Users/jean-patricksmith/.agents/skills/orch/scripts/orch.py plan \
+  --goal "<outcome>" --root ~/lev --mode auto --state /tmp/orch-state.json
+# Add a dependency with --need branch=dependency[,dependency].
+python3 /Users/jean-patricksmith/.agents/skills/orch/scripts/orch.py validate \
+  --state /tmp/orch-state.json
+python3 /Users/jean-patricksmith/.agents/skills/orch/scripts/orch.py tick \
+  --state /tmp/orch-state.json --branch root --outcome progress \
+  --note "<evidence>"
+python3 /Users/jean-patricksmith/.agents/skills/orch/scripts/orch.py status \
+  --state /tmp/orch-state.json
+```
+
+The CLI writes only the explicitly supplied state path. It does not dispatch
+agents, alter a repository, create worktrees, or schedule external jobs.
+`status` reports ready branches; `tick --event-id <id>` deduplicates one observed
+result. It is not a scheduler dispatch lock. `resolve --branch <id> --note <answer>`
+records an actual decision or changed prerequisite and reopens that branch;
+it never grants authority itself. Existing state is resumed, not overwritten.

@@ -1,0 +1,181 @@
+---
+name: orch
+description: Use when coordinating a multi-step goal across agents, skills, Lev lifecycle routes, scheduling, research, implementation, review, or human decisions.
+---
+
+# Orch
+
+Use one control plan and one verified loop. Preserve the requested features
+through failure → diagnosis → forward revision → retest. Never revert to a
+smaller feature set or declare a failed evaluation complete.
+
+## Pick the mode
+
+For a literal orch invocation, read project capabilities and call the bundled
+read-only resolver before choosing actions. Use a host-exposed resolve_invocation
+tool when available; otherwise run scripts/mode.py with the invocation and the
+capabilities JSON path. Put its returned fields into the control plan unchanged.
+If no helper execution surface is available, apply the rules below explicitly
+and report that the mode was manually resolved. A false mode_allows_execution
+means no dispatch/acceptance; report its blocked_reasons or discovery result.
+True means the MODE permits execution, not that any BRANCH is authorized.
+The resolver grants ZERO branch permissions. After list, your next host calls
+must READ the listed tasks before goal/job operations. For each branch, quote
+the returned instruction that permits work or requires a human decision; without
+that source instruction the branch remains unread and cannot execute.
+The resolver has not read branch instructions. Before any dispatch, call the
+host's read operation for every listed branch, following all continuation pages.
+Never infer branch approval from its ID, idle status, dependency list or goal.
+Only its full instructions establish allowed effects and human decision gates.
+In ONCE, unit_limit=1 counts a full execute→verify→accept sequence, not one API
+call. If more graph work remains afterward, the graph result is partial.
+
+- Bare $orch = DISCOVER: read context, save the branch/dependency graph and recommend
+  preparation/scheduling. No job execution, persistent goal or timer.
+- $orch auto or --until=human = AUTO: reuse/create a scoped goal, then run all
+  authorized ready work until human decisions or verified live waits remain.
+- --once = ONCE: exactly one execute→verify→accept unit; no implicit goal or timer.
+- --watch=20m = recovery timer modifier at that supported positive interval.
+- Explicit stop, status, closeout and read-only requests override execution.
+  Natural-language all-ready-work requests mean AUTO; one-unit requests mean ONCE.
+- ONCE combined with AUTO/--until=human is invalid. Return a blocked report before effects.
+
+## Establish the control plan BEFORE any job effects
+
+Read the project instructions and required report schema. Read the capability
+information. List every managed branch and read its full instructions/results,
+including continuation pages. An inventory is not the instructions. A failed
+read conveys no permission: retry once with the documented default/cursor;
+otherwise hold that unread branch. Do not execute it.
+
+Build the control plan from tool results: mode/unit limit, actual capabilities,
+returned goal and watch handles, and each branch's full instructions, allowed
+effect, dependencies, human decisions and verifier. Unknown facts require lookup
+or a hold. Unapproved release and product choices remain held even when their
+commands can execute. Keep commentary brief; a plan in chat never replaces the
+required report file or its decision queue.
+
+For AUTO, invoke the host goal-list/status operation. Reuse the matching goal or
+create one if absent, then put its actual returned ID into the control plan.
+The prose goal is not a persisted goal. If there is no goal tool, use an authorized
+durable workstream fallback and state the limitation; don't invent a native ID.
+
+For an explicit watch, confirm availability before any goal/timer/job effect.
+If unavailable, immediately WRITE the project report file with blocked status
+and a startup decision asking whether to repair the scheduler or drop the watch
+requirement. READ the file back, THEN ask the user and stop startup. Do not ask
+the user first: that ends the turn before the required report exists. Never
+proceed anyway or change a capability flag to simulate availability.
+If available, inspect timers, update the matching timer or create one, and verify
+its handle/interval. Timers recover unattended work; they never delay ready jobs.
+AUTO may choose a timer when unattended continuation needs it. A long-horizon
+northstar wake defaults to 30 minutes. Keep goal/worker wakes deduplicated.
+
+DISCOVER ends after saving the graph and the required recommendation/report.
+Do not enter the execution loop in discovery mode.
+
+## Execute the verified loop
+
+For each dependency-ready, fully read, authorized branch, perform THREE distinct
+operations and record the observed result of each:
+1. Execute work or collect the existing completed worker.
+2. Invoke the DECLARED VERIFIER. Observe its exit status/typed verdict.
+3. After verifier success, invoke owner acceptance/completion.
+
+A successful dispatch or an output file does not satisfy step 2. A worker saying
+DONE does not satisfy step 2. Never report verified=true without the actual verifier
+result. On failed verification, diagnose and repair within scope, then verify again.
+
+For a host API exposing dispatch/verify/complete, the required tool sequence is
+dispatch(id) → verify(id) → complete(id). Do not collapse it to dispatch→complete,
+even when dispatch returns exit_code=0 or status=completed. Those fields describe
+execution only. Likewise, AUTO requires goals() BEFORE goal-create; never create
+first and call the resulting goal inspection. Check these actual calls before
+writing a completion report; perform any missing verification before acceptance.
+
+After acceptance:
+- ONCE stops after that one unit. Save the remaining work and next recommendation.
+- AUTO immediately recomputes readiness and runs newly unblocked dependencies.
+  Continue in the same turn; don't wait for a timer or ask whether to continue.
+- Human choices hold only their branches. Collect them while completing independent
+  work. Stop only when no eligible work remains; report live waits separately.
+- A running worker is not ready to dispatch again. Observe the same handle.
+  An observation timeout is not termination; don't duplicate it.
+
+Use only the supplied, authorized execution surfaces. Preserve primary checkout
+and dirty work. Parallelize only non-overlapping, dependency-independent scopes.
+Do not substitute pinned providers/accounts or create new worktrees without authority.
+
+For code repair, derive requirements from the work order and existing callers/tests.
+Preserving an unrelated dirty note means leaving its bytes alone, not implementing
+its contents. Fix only the demonstrated defect; preserve other function behavior.
+After editing, execute the job AND call its verifier; inspecting the generated
+output is not that verifier. If the verifier fails, repair and invoke it again.
+Do not accept a repair until the verifier tool returned success for the edited code.
+
+## Report on EVERY exit path
+
+The final response comes AFTER a successful report write and read-back tool call.
+Report status describes the WHOLE graph: after ONCE, any pending dependency makes
+status partial (or waiting/blocked when appropriate). A successful unit does not
+make status complete. Re-list or inspect known remaining branches before writing.
+JSON printed in chat is not a file. Waiting for a running worker is an exit path
+too: write the project's report with status=waiting before yielding. Never ask
+whether to continue already-authorized supervision or use a timer to delay ready work.
+
+Discovery, success, partial, blocked, waiting, cancelled and closeout outcomes ALL
+require the project's output artifact. Re-read its schema, write the exact required
+keys/types/status vocabulary (empty lists where required), and read it back.
+Do not rename schema keys or replace the file with a final chat response.
+If startup needs the user to choose a mode or resolve a required capability,
+put that question in the report's declared decisions field, with the branch and
+question fields required by its schema. A diagnosis/recommendation elsewhere
+does not populate the decision queue. Never recommend changing a capability
+flag as the repair: restore and prove the actual adapter first.
+
+Closeout has its own required tool sequence: list → read each closing task →
+follow every continuation page → save full findings and unresolved actions with
+unique dirty/untracked work → read back the capture → archive. A completed
+status in the inventory says nothing about the findings; you must read the task.
+Do not manufacture a summary from status or unrelated local notes. The saved
+capture must contain the actual findings and next actions you received. If any
+result page or unique artifact is missing, hold archive and report that gap.
+Verify receiver access in the authorized checkout. Session closure does not
+mean the product/workstream is complete.
+
+On cancellation, stop new dispatch, enumerate owned descendants, stop every requested
+handle through the same host surface, and verify terminal state. Never kill by
+process name or touch unrelated sessions. Fixture handles remain fixtures, not
+host processes. Stop/pause the corresponding owned timer as requested.
+
+## Route, recover and learn
+
+Load owner guidance when needed: goal-exec for explicit goals; lev/ws for lifecycle
+and workstreams; interview for human design; lev-plan/propose for planning and
+execution preparation; coder/exec for model/session execution; prior-art/research
+for evidence; cdo for deliberation; eval-builder/ultraqa for proof; ll/flowmind-author
+for loops/flows; capture/handoff/close for durable continuity. Resolve skill://
+pointers from the installed catalog and inspect live CLI help; never invent flags.
+A fully specified local work order can execute without building unrelated infrastructure.
+
+Work orders carry outcome, owned scope, exclusions, refs, deliverable, verifier
+and stop condition. Actual missing execution capabilities block the affected work.
+Missing reports/tests/bookkeeping are usually work; promotion evidence holds
+release, not unrelated implementation. Offer supported system-level fallbacks
+without granting authority, provisioning, changing identities or weakening gates.
+
+Use scheduling tools available in the environment. Preserve returned handles and
+goal/revision guards. Quiet unchanged monitoring still writes required local
+reports. Notify on meaningful changes or human action. Honor host goal rules.
+
+Retain actual evidence, failed routes, decisions and next actions at their owner.
+The worker that changes an artifact does not certify it. Keep subject and evaluator
+repair in separate attempts, frozen generations and all failed samples. Don't
+silently rewrite authority, protected tests/holdouts or shared memory. Never
+rebase/reset/stash/discard, commit/push or provision without authority.
+
+scripts/orch.py is a state POC, not a provider dispatcher or scheduler. Inspect
+its plan/status/tick/validate/resolve help. Use explicit state paths, preserve
+dependencies and deduplicate observations without claiming dispatch locking.
+The legacy flow eval listing is a stub. Qualification needs real model/tool
+traces and effects for the tested scope, not static keywords or a lucky retry.
