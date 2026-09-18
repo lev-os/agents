@@ -76,26 +76,53 @@ With `--lev`, run `lev exec --help` in the target project before constructing
 flags. Use the project-declared FlowMind or exec profile. If Lev cannot carry the
 task, stop; `--lev` does not permit a transparent raw-CLI fallback.
 
-## CAAM Identity
+## Identity And Rotation
 
-Before launching a CAAM-supported provider, inspect `caam list --json`,
-`caam status --json`, and passive validation for the selected profile. Record
-only the provider and profile alias.
+Default to CAAM-assisted selection and bounded same-provider rotation when
+authenticated profiles are available. CAAM is optional; explicit account,
+provider, model, isolation, and data-access requirements remain binding.
 
-Prefer an existing isolated or shallow CAAM profile for parallel work. Global
-`caam activate` is an exclusive resource and is allowed only when no other
-worker or daemon can share that provider's auth files. Until `plugins/caam`
-implements leases, selection is advisory: never claim atomic reservation or
-automatic failover.
+Inspect installed help before choosing commands. Distinguish the two stores:
+`caam ls <provider>` and `caam verify <provider> --json` inspect vault entries;
+`caam profile ls <provider>` and `caam validate <provider> <alias> --json`
+inspect isolated profiles. A vault alias missing from isolated validation is
+not an authentication failure. A created profile is not proof of login.
 
-If credentials expire, quota/rate limits exhaust the pool, or no healthy
-profile exists, stop and escalate. Do not create accounts, initiate login, or
-reuse another person's identity without explicit authorization.
+For concurrent workers, prefer authenticated isolated profiles with
+`caam exec <provider> <alias> -- <provider-args>`. It does not rotate by itself.
+The controller selects another eligible profile after a confirmed auth or
+rate-limit failure, excluding failed/cooling-down profiles for this dispatch.
+Use only authorized accounts with equivalent access to the supplied data;
+profile existence alone does not establish equivalent authority.
 
-Passive CAAM validation is preflight evidence, not provider proof. A live 401,
-token rejection, or provider auth failure overrides a passive `valid` result;
-quarantine that profile for the current dispatch and return both observations in
-the attention packet.
+Allow at most one account switch and one recovery launch per dispatch. An
+explicitly pinned account disables account rotation. Record provider, profile
+kind/alias or direct mode, failure class, attempt, and exact session ID without
+credentials. A live auth failure overrides passive health; unknown expiry
+alone does not prove rejection. Stop on exhausted eligible profiles or the
+same failure after recovery; never relogin or reset cooldowns automatically.
+
+Before recovery, confirm the old process is terminal and inspect partial work.
+Resume only the exact provider session when the selected profile can access it
+through a supported mechanism. Do not copy auth or session stores ad hoc.
+If session continuity cannot be preserved, return an attention packet rather
+than relaunching the original task. Read-only companions follow this rule too.
+Blind command replay is not recovery for a mutation-capable worker.
+
+The installed `caam run` path rotates vault profiles through shared auth and
+re-executes commands; it is not isolated-profile rotation or guaranteed session
+resume. Use its bounded retry only when shared-auth exclusivity is established
+and replay is safe. Otherwise use controller-managed isolated selection.
+Never globally activate an account while another worker may share its auth.
+
+When CAAM is missing, broken, has no applicable authenticated profile, or the
+user requests no CAAM, use the same provider CLI directly if its existing auth
+and required identity/isolation can be verified. Record direct mode and the
+CAAM diagnostic; check live CLI help/auth status without exposing secrets.
+Preserve all prompt, permission, timeout, session, and verification controls.
+Do not fall back to an unknown identity, bypass an account pin, evade a known
+limit on the same account, or replace a required provider. If direct auth also
+fails, return the attention packet. No global auth change is needed for this path.
 
 ## Inline Coding-Agent Protocol
 
@@ -146,6 +173,9 @@ timeout, and persistence requirement. Then:
    result and durable evidence outside the run directory, remove temporary
    packet copies without deleting durable provider-session evidence.
 
+The Identity And Rotation policy applies to companions, including direct CLI
+mode. Account recovery and transport retry share one recovery-launch budget;
+they do not multiply retries or create a new companion session.
 Allow one focused transport retry in the same explicit session. Then return the
 attention packet on unavailable identity, timeout, failed resume, evidence
 mismatch, or the same blocker twice. Never substitute a forbidden provider or
@@ -178,8 +208,9 @@ the bypass flag only for a bounded task in an externally trusted checkout:
 runner_pid=$!
 ```
 
-The current `resume` surface has no `-C`. Change to the repository first, reuse
-the same CAAM identity, and pass the exact thread ID:
+The current `resume` surface has no `-C`. Change to the repository first, retain
+the selected identity unless Identity And Rotation admits recovery, and pass
+the exact thread ID:
 
 ```bash
 cd "$runner_repo"

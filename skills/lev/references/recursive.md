@@ -23,9 +23,12 @@ failure. This is skill syntax, not a `lev` CLI flag.
   constraints and verifiers. SDLC contributes specs and execution packets when
   software delivery applies; it is not the universal proposal schema.
 
-The outcome map is durable; the rolling horizon is a projection. Preserve
-stable entity IDs when order or wording changes. A child result updates its
-parent's evidence and readiness; it does not complete the parent automatically.
+The outcome map is durable; the rolling horizon is a projection. Copy existing
+entity IDs exactly when selecting or reordering nodes; change display wording
+independently. Keep unresolved dependencies as open or blocked nodes in the map,
+and reserve exclusions for explicitly out-of-scope work. A new ID requires an
+actual proposed new entity. A child result updates its parent's evidence and
+readiness; it does not complete the parent automatically.
 
 ## Propose the Graph
 

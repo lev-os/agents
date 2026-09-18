@@ -39,7 +39,7 @@ Build one canonical RenderSpec component graph and render it to single-file HTML
    npx tsx plugins/now/src/cli.ts .lev/now/{slug}.json --output .lev/now/{slug}.html
    ```
    Use `--show-source` only for explicit renderer debugging.
-6. Open and QA locally. For shared, published, attached, or visually judged pages, use browser inspection at desktop and mobile sizes.
+6. Open locally. Run QA only when the user passes `publish` or explicitly asks for QA; published pages still require desktop and mobile inspection.
 7. For publish, QA a clean build and run:
    ```bash
    bash ~/.claude/skills/here-now/scripts/publish.sh .lev/now/{slug}.html --title "lev.now — {topic}" --client lev-now
@@ -74,6 +74,10 @@ When visual encoding is load-bearing—architecture maps, dense comparisons, cau
 - AgentPing may render live packet surfaces. Do not move Lev DNA semantics or execution policy into AgentPing components.
 
 ## Visual QA Gate
+
+QA is opt-in. Do not run the QA command or browser inspection for an ordinary
+`/now` render. Run this gate for `/now publish`, or when the user explicitly
+requests QA, review, or responsive inspection.
 
 For professional or shared output, render and inspect at 1440px and 390px; for layout changes also check 1024, 900, and 768px.
 

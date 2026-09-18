@@ -1,0 +1,174 @@
+---
+name: orch
+description: Use when coordinating a multi-step goal across agents, skills, Lev lifecycle routes, scheduling, research, implementation, review, or human decisions.
+---
+
+# Orch
+
+Move the user's intended outcome forward. Failure triggers diagnosis, a scoped
+forward revision and retesting. Keep requested features in place; never revert
+to a smaller feature set to get green tests or call a failed evaluation complete.
+
+## Resolve the invocation
+
+These are skill controls, not new Lev CLI commands:
+- Bare $orch: discover and scaffold the graph; recommend preparation and scheduling.
+- $orch auto or $orch --until=human: execute all authorized ready branches.
+- $orch --once: execute one complete, verified work unit, then return.
+- --watch=20m: require a recovery timer at that interval, attached to the selected mode.
+- Explicit stop/cancel, status, closeout and read-only requests take precedence.
+- Natural language requesting all eligible work selects auto; one-unit requests select once.
+- Conflicting modes, such as --once with auto or --until=human, are invalid.
+  Report the conflict before creating goals, timers or dispatching work.
+- Bare orch never silently becomes auto. Existing open jobs are context, not permission.
+
+## Run this sequence
+
+### 1. Read and establish the startup contract
+
+Read project instructions, the requested output-file schema, current workstream,
+and available capability information. State the selected mode, permitted effects,
+unit limit (one or all), requested watch interval, and observable done condition
+in a compact plan before any effect. Preserve the authorized checkout and dirty
+work. Do not create worktrees or substitute providers without permission.
+
+An explicit watch is a required startup capability: check scheduling availability
+before goals, timers or jobs. If unavailable, write the required blocked report
+with a concrete fallback/repair recommendation. Do not execute anyway, change a
+capability flag to pretend it exists, or fabricate a scheduler handle. Apply the
+same rule to other required unavailable providers or permissions.
+
+For auto/until-human, finish the goal handshake NOW, before branch execution:
+invoke the host's goal-list/status operation, reuse the matching goal or invoke
+goal-create if absent, and put the returned goal ID in the startup plan. A goal
+written in prose is not a persisted goal. When that tool is available, moving
+on without its actual return value is an incomplete startup. Bare and once
+record that no persistent goal was requested instead.
+
+Use the fully specified local tools when they meet the work order. Missing future
+reports, assignment bookkeeping or larger integrations do not block a ready
+local slice. Load additional owner skills only when that route is actually needed.
+
+### 2. Collect and scaffold the whole branch graph
+
+List managed branches, then read the full work order/latest result of EVERY branch,
+including continuation pages, before deciding readiness. A status list only
+provides handles. A failed read delivered no constraints: retry once using the
+documented default/cursor; otherwise mark that branch unread and hold it.
+
+Produce an intake table: branch | full result read | allowed effect | dependency |
+human choice | verifier. Unknown permission or instructions means not ready.
+Keep product choices and unapproved releases untouched while advancing independent
+authorized work. Do not interpret a runnable command or idle status as approval.
+
+For bare orch, save the requested graph with branches and dependency edges, and
+write the recommendation using the project schema. Then STOP: no goal, timer,
+dispatch or acceptance. Discovery is the requested result.
+
+### 3. Bind goal and watch, if the mode requires them
+
+Use the goal ID obtained during startup. Auto is the user's request for scoped
+goal-backed execution. If no goal tool exists, use a permitted durable workstream
+fallback and state that limitation instead of claiming a native goal exists.
+
+Once does not create a persistent goal or timer implicitly. If watch is explicitly
+requested and available, inspect existing timers, update the matching timer's
+interval or create one if absent, and retain/verify its returned handle.
+Do not create duplicate timers. A 30-minute northstar wake is the default for
+explicit long-horizon navigation; watch can specify the recovery cadence.
+Without explicit watch, choose scheduling only when unattended continuation needs it.
+
+### 4. Execute one unit with three separate observed results
+
+For each ready unit, perform this exact sequence through its owning tools:
+1. Execute the work, or collect the existing worker's completed result.
+2. INVOKE THE DECLARED VERIFIER and observe its result.
+3. Only after verifier success, invoke the owner's acceptance/completion operation.
+
+Execution exit zero is not verifier success. Reading an output is not running a
+declared regression check. Never skip step 2, including in auto and once. A report
+may say verified only when it cites the actual verifier result. Worker DONE is a
+claim; failed verification means diagnose and repair within scope before acceptance.
+
+Keep live workers live: a timeout is not termination. Observe the same handle and
+do not dispatch a duplicate. Resume the same provider session for focused recovery.
+Only independent, non-overlapping write scopes may run concurrently.
+
+### 5. Continue or stop according to the selected mode
+
+Once: after ONE execute→verify→accept unit, stop even if another job just became
+ready. Report remaining work and the next unit.
+
+Auto/until-human: recompute dependencies immediately after acceptance and continue
+all newly ready authorized branches in the same turn. Worker returns drive progress;
+do not wait for a timer or ask whether to continue while ready work remains.
+
+Hold only the branch whose actual dependency, authority or external service is
+unavailable. Collect all human questions and continue independent work. Stop when
+there is no eligible work; distinguish waiting on live handles from human decisions.
+Unanswered choices are not completion. Honor user pause/cancel and host goal rules.
+
+### 6. Write and validate the final artifact in EVERY exit path
+
+This step applies to discovery, once, auto, startup failure, live wait, no change,
+cancellation and closeout. Re-read the required report schema. Write the specified
+file with its exact keys, types and status vocabulary; use empty lists where
+required and do not rename fields to synonyms. Read the saved result back and
+repair missing fields before ending. A final chat message is not the artifact.
+
+For closeout, first read complete findings and preserve unique dirty/untracked
+work and full research in the authorized checkout. Save the handoff and confirm
+the receiving owner has it before archiving. Session closure is not product or
+workstream completion. Never delete unique work to make cleanup easier.
+
+For cancellation, stop new dispatch, list the owned tree, stop every requested
+descendant through the same host surface, and verify each terminal state. Use
+exact handles, never process-name-wide kills. Fixture handles remain fixtures;
+do not stop host processes or unrelated sessions. Stop/pause the owned schedule.
+
+## Owner routing and authority
+
+| Need | Load when needed |
+|---|---|
+| Explicit goal construction | skill://goal-exec |
+| Lifecycle, next route, existing workstream | skill://lev or skill://ws |
+| Human design choice | skill://interview |
+| Broad plan / settled execution preparation | skill://lev-plan / skill://propose |
+| Provider/model/session execution mechanics | skill://coder or skill://exec |
+| Prior evidence / research | skill://prior-art / skill://research |
+| Deliberation | skill://cdo |
+| Proof design / adversarial QA | skill://eval-builder / skill://ultraqa |
+| Typed loops / flow authoring | skill://ll / skill://flowmind-author |
+| Bounded optimization | skill://codex-autoresearch |
+| Capture / transfer / verified acceptance | skill://capture / skill://handoff / skill://close |
+
+Resolve these pointers through installed skill discovery. Inspect live CLI help;
+never invent model names, flags or provider availability. A work order gives the
+outcome, owned scope, exclusions, accepted refs, deliverable, verifier and stop.
+Keep full source artifacts accessible to receivers; do not replace them with summaries.
+
+Use scheduling tools available in the environment. Guard dispatch by goal identity
+and revision so timer and worker-return wakes cannot duplicate a unit. Timers are
+recovery wakes, not workers. Keep unchanged monitoring quiet, but still write required
+local reports. Notify on meaningful changes and human action.
+
+Classify failures as startup/code/decision/external blockers, promotion gates or
+administrative holds. Missing tests/reports are often work; missing release evidence
+holds promotion, not implementation. Offer supported fallbacks without weakening
+scope, changing identities or gaining new authority. Never rebase, reset, stash,
+commit/push or provision without the corresponding authority.
+
+Keep evidence at the owning workstream/tracker: actual results, rejected routes,
+decisions and next action. The worker that changes an artifact does not certify it.
+Use deterministic checks and independent review when warranted. Keep subject repair
+and evaluator repair in separate attempts and preserve every failed trial.
+Learning proposes rule improvements; it does not silently rewrite authority,
+protected tests, holdouts or memory.
+
+The bundled scripts/orch.py is a state POC, not a provider dispatcher or scheduler.
+Its plan/status/tick/validate/resolve operations use explicit state paths; --need
+records dependencies and --event-id deduplicates observations. Resolve records a real
+answer or changed prerequisite without granting authority. Inspect help before use.
+The whole graph determines readiness; a single held branch does not stop ready peers.
+The legacy flow eval listing is a stub. Qualification requires actual model/tool
+traces and effects for the tested scope, never keyword checks or a lucky retry.

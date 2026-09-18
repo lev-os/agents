@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sherlock — Investigation Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   SHERLOCK RESEARCH DASHBOARD — DESIGN TOKENS
+   ============================================================ */
+:root, [data-theme="dark"] {
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --text-xs:   clamp(0.6875rem, 0.65rem + 0.2vw, 0.75rem);
+  --text-sm:   clamp(0.8125rem, 0.75rem + 0.3vw, 0.875rem);
+  --text-base: clamp(0.875rem, 0.82rem + 0.3vw, 1rem);
+  --text-lg:   clamp(1rem, 0.9rem + 0.5vw, 1.25rem);
+  --text-xl:   clamp(1.25rem, 1rem + 0.8vw, 1.75rem);
+  /* Surfaces — Deep charcoal/navy */
+  --color-bg:           #0d1117;
+  --color-surface:      #161b22;
+  --color-surface-2:    #1c2128;
+  --color-surface-3:    #21262d;
+  --color-surface-hover:#2d333b;
+  --color-border:       #30363d;
+  --color-border-light: #21262d;
+  /* Text */
+  --color-text:         #e6edf3;
+  --color-text-muted:   #8b949e;
+  --color-text-faint:   #484f58;
+  /* Accent — Teal (confirmed/primary) */
+  --color-primary:      #3fb9bf;
+  --color-primary-dim:  #1a6e72;
+  --color-primary-bg:   rgba(63,185,191,0.08);
+  /* Confidence palette */
+  --color-confirmed:    #3fb9bf;
+  --color-probable:     #56d364;
+  --color-possible:     #d29922;
+  --color-doubtful:     #db6d28;
+  --color-improbable:   #f85149;
+  /* Domain colors */
+  --color-people:       #bc8cff;
+  --color-orgs:         #79c0ff;
+  --color-financial:    #56d364;
+  --color-tech:         #3fb9bf;
+  --color-legal:        #f0883e;
+  --color-market:       #d2a8ff;
+  --color-social:       #f778ba;
+  --color-geographic:   #a5d6ff;
+  --color-temporal:     #d29922;
+  --color-network:      #8b949e;
+  /* Spacing */
+  --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem;
+  --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem;
+  --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem;
+  /* Radius */
+  --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px; --radius-xl: 12px;
+  /* Transitions */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition: 180ms var(--ease);
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+/* ============================================================
+   BASE RESET
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.5;
+}
+button { cursor: pointer; background: none; border: none; font: inherit; color: inherit; }
+input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+::selection { background: rgba(63,185,191,0.25); }
+
+/* ============================================================
+   LAYOUT — Full viewport dashboard grid
+   ============================================================ */
+.dashboard {
+  display: grid;
+  grid-template-columns: 260px 1fr 340px;
+  grid-template-rows: auto auto 1fr;
+  height: 100dvh;
+  gap: 0;
+}
+
+/* Header */
+.header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  z-index: 20;
+}
+.header-left { display: flex; align-items: center; gap: var(--space-3); }
+.logo {
+  display: flex; align-items: center; gap: var(--space-2);
+  font-weight: 700; font-size: var(--text-base); letter-spacing: -0.02em;
+}
+.logo svg { flex-shrink: 0; }
+.investigation-title {
+  font-size: var(--text-sm); color: var(--color-text-muted);
+  padding-left: var(--space-3);
+  border-left: 1px solid var(--color-border);
+}
+.header-right { display: flex; align-items: center; gap: var(--space-3); }
+.round-badge {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-primary-bg);
+  border: 1px solid var(--color-primary-dim);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono); font-size: var(--text-xs);
+  color: var(--color-primary);
+}
+.timestamp {
+  font-size: var(--text-xs); color: var(--color-text-faint);
+  font-family: var(--font-mono);
+}
+
+/* KPI Strip */
+.kpi-strip {
+  grid-column: 1 / -1;
+  display: flex; gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  overflow-x: auto;
+}
+.kpi-card {
+  flex: 1; min-width: 140px;
+  padding: var(--space-3);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+}
+.kpi-label {
+  font-size: var(--text-xs); color: var(--color-text-muted);
+  text-transform: uppercase; letter-spacing: 0.05em;
+  margin-bottom: var(--space-1);
+}
+.kpi-value {
+  font-family: var(--font-mono); font-size: var(--text-lg);
+  font-weight: 600; font-variant-numeric: tabular-nums lining-nums;
+}
+.kpi-delta {
+  font-size: var(--text-xs); font-family: var(--font-mono);
+  margin-top: 2px;
+}
+.kpi-delta.up { color: var(--color-probable); }
+.kpi-delta.down { color: var(--color-improbable); }
+
+/* Sidebar — Domains + Controls */
+.sidebar {
+  grid-row: 3;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-4);
+  padding-bottom: var(--space-10);
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  display: flex; flex-direction: column; gap: var(--space-5);
+}
+.sidebar-section { }
+.sidebar-heading {
+  font-size: var(--text-xs); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-3);
+}
+
+/* Domain toggles */
+.domain-list { display: flex; flex-direction: column; gap: var(--space-1); }
+.domain-toggle {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-2) var(--space-2);
+  border-radius: var(--radius-md);
+  transition: background var(--transition);
+  cursor: pointer;
+}
+.domain-toggle:hover { background: var(--color-surface-hover); }
+.domain-toggle.active { background: var(--color-surface-3); }
+.domain-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.domain-name { flex: 1; font-size: var(--text-xs); font-weight: 500; }
+.domain-count {
+  font-family: var(--font-mono); font-size: var(--text-xs);
+  color: var(--color-text-faint);
+}
+
+/* Depth selector */
+.depth-selector { display: flex; flex-direction: column; gap: var(--space-2); }
+.depth-option {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition);
+  font-size: var(--text-xs);
+}
+.depth-option:hover { border-color: var(--color-primary-dim); }
+.depth-option.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-bg);
+}
+.depth-label { font-weight: 500; }
+.depth-rounds { font-family: var(--font-mono); color: var(--color-text-muted); margin-left: auto; }
+
+/* Round history */
+.round-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.round-item {
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.round-item:hover { border-color: var(--color-primary-dim); }
+.round-item.active { border-color: var(--color-primary); }
+.round-header {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.round-number { font-weight: 600; font-size: var(--text-xs); }
+.round-stats { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-muted); }
+.round-summary {
+  margin-top: var(--space-1);
+  font-size: var(--text-xs); color: var(--color-text-muted);
+  display: none;
+}
+.round-item.active .round-summary { display: block; }
+
+/* Main Content — Graph */
+.main-content {
+  grid-row: 3;
+  overflow: hidden;
+  position: relative;
+  background: var(--color-bg);
+}
+.graph-container {
+  width: 100%; height: 100%;
+  position: relative;
+}
+.graph-container svg { width: 100%; height: 100%; }
+
+/* Graph controls */
+.graph-controls {
+  position: absolute; top: var(--space-3); left: var(--space-3);
+  display: flex; gap: var(--space-2); z-index: 10;
+}
+.graph-btn {
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs); font-weight: 500;
+  transition: all var(--transition);
+}
+.graph-btn:hover { background: var(--color-surface-hover); }
+.graph-btn.active {
+  background: var(--color-primary-bg);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* Graph legend */
+.graph-legend {
+  position: absolute; bottom: var(--space-3); left: var(--space-3);
+  display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(22,27,34,0.9);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(8px);
+  z-index: 10;
+}
+.legend-item {
+  display: flex; align-items: center; gap: var(--space-1);
+  font-size: var(--text-xs); color: var(--color-text-muted);
+}
+.legend-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+/* Node tooltip */
+.node-tooltip {
+  position: absolute;
+  pointer-events: none;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  font-size: var(--text-xs);
+  max-width: 280px;
+  opacity: 0;
+  transition: opacity 120ms ease;
+  z-index: 100;
+}
+.node-tooltip.visible { opacity: 1; }
+.tooltip-label { font-weight: 600; margin-bottom: 2px; }
+.tooltip-type { color: var(--color-text-muted); font-family: var(--font-mono); }
+.tooltip-confidence { margin-top: var(--space-1); }
+.confidence-bar {
+  height: 3px; border-radius: 2px; background: var(--color-surface-3);
+  margin-top: 3px; overflow: hidden;
+}
+.confidence-fill { height: 100%; border-radius: 2px; transition: width 400ms var(--ease); }
+
+/* Right Panel — Deductions & Evidence */
+.right-panel {
+  grid-row: 3;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  display: flex; flex-direction: column;
+}
+.panel-content { padding-bottom: var(--space-10); }
+.panel-tabs {
+  display: flex; border-bottom: 1px solid var(--color-border);
+  position: sticky; top: 0; background: var(--color-surface); z-index: 10;
+}
+.panel-tab {
+  flex: 1; padding: var(--space-3);
+  font-size: var(--text-xs); font-weight: 500;
+  text-align: center;
+  color: var(--color-text-muted);
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition);
+}
+.panel-tab:hover { color: var(--color-text); }
+.panel-tab.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+.panel-content { flex: 1; padding: var(--space-4); }
+.panel-section { display: none; }
+.panel-section.active { display: block; }
+
+/* Deduction cards */
+.deduction-card {
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  border-left: 3px solid var(--color-primary);
+}
+.deduction-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+.deduction-observation { font-weight: 500; font-size: var(--text-xs); line-height: 1.4; }
+.confidence-badge {
+  flex-shrink: 0;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+  white-space: nowrap;
+}
+.conf-confirmed { background: rgba(63,185,191,0.15); color: var(--color-confirmed); }
+.conf-probable { background: rgba(86,211,100,0.15); color: var(--color-probable); }
+.conf-possible { background: rgba(210,153,34,0.15); color: var(--color-possible); }
+.conf-doubtful { background: rgba(219,109,40,0.15); color: var(--color-doubtful); }
+.conf-improbable { background: rgba(248,81,73,0.15); color: var(--color-improbable); }
+
+.deduction-inference {
+  font-size: var(--text-xs); color: var(--color-text-muted);
+  margin-bottom: var(--space-2); line-height: 1.5;
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--color-border);
+}
+.evidence-group {
+  margin-bottom: var(--space-2);
+}
+.evidence-label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.05em; margin-bottom: var(--space-1);
+}
+.evidence-label.supporting { color: var(--color-probable); }
+.evidence-label.contradicting { color: var(--color-improbable); }
+.evidence-item {
+  display: flex; align-items: flex-start; gap: var(--space-1);
+  font-size: var(--text-xs); color: var(--color-text-muted);
+  padding: 2px 0;
+}
+.evidence-item::before {
+  content: '•'; color: var(--color-text-faint); flex-shrink: 0;
+}
+.evidence-item a {
+  color: var(--color-primary); text-decoration: none;
+}
+.evidence-item a:hover { text-decoration: underline; }
+.deduction-synthesis {
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(63,185,191,0.05);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs); color: var(--color-text);
+  line-height: 1.5;
+}
+
+/* Evidence feed */
+.evidence-feed { display: flex; flex-direction: column; gap: var(--space-2); }
+.feed-item {
+  padding: var(--space-3);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+}
+.feed-header {
+  display: flex; align-items: center; gap: var(--space-2);
+  margin-bottom: var(--space-1);
+}
+.feed-domain {
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.feed-round {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--color-text-faint);
+}
+.feed-text { font-size: var(--text-xs); line-height: 1.5; }
+.feed-source {
+  margin-top: var(--space-1);
+  font-size: 11px;
+}
+.feed-source a { color: var(--color-primary); text-decoration: none; }
+.feed-source a:hover { text-decoration: underline; }
+
+/* Gap analysis */
+.gap-card {
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-possible);
+}
+.gap-domain {
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  color: var(--color-possible); margin-bottom: var(--space-1);
+}
+.gap-description { font-size: var(--text-xs); margin-bottom: var(--space-2); }
+.gap-queries {
+  display: flex; flex-wrap: wrap; gap: var(--space-1);
+}
+.gap-query {
+  padding: 2px var(--space-2);
+  background: var(--color-surface-3);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--color-text-muted);
+}
+.gap-priority {
+  display: inline-flex; padding: 1px var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+}
+.priority-high { background: rgba(248,81,73,0.15); color: var(--color-improbable); }
+.priority-medium { background: rgba(210,153,34,0.15); color: var(--color-possible); }
+.priority-low { background: rgba(139,148,158,0.15); color: var(--color-text-muted); }
+
+/* Empty state */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; height: 100%;
+  color: var(--color-text-faint); text-align: center;
+  padding: var(--space-8);
+}
+.empty-state svg { margin-bottom: var(--space-4); opacity: 0.3; }
+.empty-state p { font-size: var(--text-xs); max-width: 240px; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-3); border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-surface-hover); }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .dashboard { grid-template-columns: 200px 1fr 280px; }
+}
+@media (max-width: 768px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr;
+  }
+  .sidebar, .right-panel { display: none; }
+  .header { padding: var(--space-2) var(--space-3); }
+  .kpi-strip { padding: var(--space-2) var(--space-3); }
+  .kpi-card { min-width: 120px; }
+}
+
+/* Animations */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.animate-in { animation: slideUp 400ms var(--ease) both; }
+.stagger-1 { animation-delay: 40ms; }
+.stagger-2 { animation-delay: 80ms; }
+.stagger-3 { animation-delay: 120ms; }
+.stagger-4 { animation-delay: 160ms; }
+.stagger-5 { animation-delay: 200ms; }
+</style>
+</head>
+<body>
+<!-- Load investigation data -->
+<script src="./data.js"></script>
+
+<div class="dashboard">
+  <!-- ========== HEADER ========== -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <circle cx="13" cy="13" r="10" stroke="currentColor" stroke-width="2.5"/>
+          <line x1="20.5" y1="20.5" x2="29" y2="29" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="13" cy="13" r="4" stroke="var(--color-primary)" stroke-width="1.5" stroke-dasharray="3 2"/>
+          <circle cx="13" cy="13" r="1.5" fill="var(--color-primary)"/>
+        </svg>
+        <span>SHERLOCK</span>
+      </div>
+      <span class="investigation-title" id="investigationTitle">Loading investigation...</span>
+    </div>
+    <div class="header-right">
+      <div class="round-badge" id="roundBadge">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v6l4 2"/><circle cx="8" cy="8" r="6.5"/></svg>
+        <span id="roundDisplay">R0/0</span>
+      </div>
+      <span class="timestamp" id="timestamp"></span>
+    </div>
+  </header>
+
+  <!-- ========== KPI STRIP ========== -->
+  <div class="kpi-strip" id="kpiStrip"></div>
+
+  <!-- ========== LEFT SIDEBAR ========== -->
+  <aside class="sidebar">
+    <!-- Domains -->
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Research Domains</div>
+      <div class="domain-list" id="domainList"></div>
+    </div>
+
+    <!-- Depth -->
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Investigation Depth</div>
+      <div class="depth-selector" id="depthSelector"></div>
+    </div>
+
+    <!-- Round History -->
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Round History</div>
+      <div class="round-list" id="roundList"></div>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN — Graph ========== -->
+  <main class="main-content">
+    <div class="graph-controls">
+      <button class="graph-btn active" data-view="force" onclick="switchGraphView('force')">Force Graph</button>
+      <button class="graph-btn" data-view="tree" onclick="switchGraphView('tree')">Tree View</button>
+    </div>
+    <div class="graph-container" id="graphContainer"></div>
+    <div class="graph-legend" id="graphLegend"></div>
+    <div class="node-tooltip" id="nodeTooltip">
+      <div class="tooltip-label" id="tooltipLabel"></div>
+      <div class="tooltip-type" id="tooltipType"></div>
+      <div class="tooltip-confidence" id="tooltipConfidence">
+        <div class="confidence-bar"><div class="confidence-fill" id="tooltipConfFill"></div></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ========== RIGHT PANEL ========== -->
+  <aside class="right-panel">
+    <div class="panel-tabs">
+      <button class="panel-tab active" data-panel="deductions" onclick="switchPanel('deductions')">Deductions</button>
+      <button class="panel-tab" data-panel="evidence" onclick="switchPanel('evidence')">Evidence</button>
+      <button class="panel-tab" data-panel="gaps" onclick="switchPanel('gaps')">Gaps</button>
+    </div>
+    <div class="panel-content">
+      <div class="panel-section active" id="panelDeductions"></div>
+      <div class="panel-section" id="panelEvidence"></div>
+      <div class="panel-section" id="panelGaps"></div>
+    </div>
+  </aside>
+</div>
+
+<script>
+/* ============================================================
+   SHERLOCK DASHBOARD — APPLICATION LOGIC
+   ============================================================ */
+
+// Data is loaded from data.js as INVESTIGATION_DATA
+const data = typeof INVESTIGATION_DATA !== 'undefined' ? INVESTIGATION_DATA : null;
+
+// Domain color map
+const DOMAIN_COLORS = {
+  people: 'var(--color-people)',
+  organizations: 'var(--color-orgs)',
+  financial: 'var(--color-financial)',
+  technology: 'var(--color-tech)',
+  'legal': 'var(--color-legal)',
+  market: 'var(--color-market)',
+  social: 'var(--color-social)',
+  geographic: 'var(--color-geographic)',
+  temporal: 'var(--color-temporal)',
+  network: 'var(--color-network)'
+};
+
+const DOMAIN_LABELS = {
+  people: '👤 People',
+  organizations: '🏢 Organizations',
+  financial: '💰 Financial',
+  technology: '⚙️ Technology',
+  legal: '⚖️ Legal',
+  market: '📊 Market',
+  social: '💬 Social',
+  geographic: '🌍 Geographic',
+  temporal: '⏳ Temporal',
+  network: '🔗 Network'
+};
+
+let currentView = 'force';
+let simulation = null;
+
+// ============================================================
+// INITIALIZE
+// ============================================================
+function init() {
+  if (!data) {
+    showEmptyState();
+    return;
+  }
+  renderHeader();
+  renderKPIs();
+  renderDomains();
+  renderDepth();
+  renderRoundHistory();
+  renderGraph();
+  renderDeductions();
+  renderEvidence();
+  renderGaps();
+  renderLegend();
+}
+
+// ============================================================
+// HEADER
+// ============================================================
+function renderHeader() {
+  document.getElementById('investigationTitle').textContent = data.title || 'Untitled Investigation';
+  const completed = data.config?.completedRounds || 0;
+  const max = data.config?.maxRounds || 0;
+  document.getElementById('roundDisplay').textContent = `R${completed}/${max}`;
+  if (data.updated) {
+    const d = new Date(data.updated);
+    const mon = d.toLocaleString('en-US', { month: 'short' });
+    const day = d.getDate();
+    const hr = d.getHours() % 12 || 12;
+    const min = String(d.getMinutes()).padStart(2, '0');
+    const ampm = d.getHours() >= 12 ? 'PM' : 'AM';
+    document.getElementById('timestamp').textContent = `${mon} ${day}, ${hr}:${min} ${ampm}`;
+  }
+}
+
+// ============================================================
+// KPIs
+// ============================================================
+function renderKPIs() {
+  const nodes = data.graph?.nodes || [];
+  const edges = data.graph?.edges || [];
+  const deductions = data.deductions || [];
+  const activeDomains = data.config?.activeDomains || [];
+  const avgConf = nodes.length > 0
+    ? Math.round(nodes.reduce((s, n) => s + (n.confidence || 0), 0) / nodes.length)
+    : 0;
+
+  const kpis = [
+    { label: 'Entities', value: nodes.length, delta: null },
+    { label: 'Connections', value: edges.length, delta: null },
+    { label: 'Avg Confidence', value: avgConf + '%', delta: null },
+    { label: 'Domains Active', value: activeDomains.length, delta: null },
+    { label: 'Deductions', value: deductions.length, delta: null },
+    { label: 'Gaps', value: (data.gaps || []).length, delta: null },
+  ];
+
+  const strip = document.getElementById('kpiStrip');
+  strip.innerHTML = kpis.map((k, i) => `
+    <div class="kpi-card animate-in stagger-${i + 1}">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.value}</div>
+      ${k.delta ? `<div class="kpi-delta ${k.delta > 0 ? 'up' : 'down'}">${k.delta > 0 ? '↑' : '↓'} ${Math.abs(k.delta)}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// DOMAINS
+// ============================================================
+function renderDomains() {
+  const activeDomains = data.config?.activeDomains || [];
+  const nodes = data.graph?.nodes || [];
+
+  const domainCounts = {};
+  nodes.forEach(n => {
+    domainCounts[n.domain] = (domainCounts[n.domain] || 0) + 1;
+  });
+
+  const allDomains = Object.keys(DOMAIN_LABELS);
+  const list = document.getElementById('domainList');
+  list.innerHTML = allDomains.map(d => {
+    const isActive = activeDomains.includes(d);
+    const color = DOMAIN_COLORS[d] || 'var(--color-text-faint)';
+    return `
+      <div class="domain-toggle ${isActive ? 'active' : ''}" data-domain="${d}">
+        <span class="domain-dot" style="background:${color};${isActive ? '' : 'opacity:0.3'}"></span>
+        <span class="domain-name">${DOMAIN_LABELS[d]}</span>
+        <span class="domain-count">${domainCounts[d] || 0}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================================
+// DEPTH SELECTOR
+// ============================================================
+function renderDepth() {
+  const maxRounds = data.config?.maxRounds || 5;
+  const depths = [
+    { label: 'Quick Scan', rounds: 1 },
+    { label: 'Standard', rounds: 5 },
+    { label: 'Deep Investigation', rounds: 20 },
+  ];
+
+  const selector = document.getElementById('depthSelector');
+  selector.innerHTML = depths.map(d => `
+    <div class="depth-option ${d.rounds === maxRounds ? 'active' : ''}">
+      <span class="depth-label">${d.label}</span>
+      <span class="depth-rounds">${d.rounds}R</span>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// ROUND HISTORY
+// ============================================================
+function renderRoundHistory() {
+  const rounds = data.roundHistory || [];
+  const list = document.getElementById('roundList');
+
+  if (rounds.length === 0) {
+    list.innerHTML = '<div style="font-size:var(--text-xs);color:var(--color-text-faint)">No rounds completed yet</div>';
+    return;
+  }
+
+  list.innerHTML = rounds.map((r, i) => `
+    <div class="round-item ${i === rounds.length - 1 ? 'active' : ''}" onclick="this.classList.toggle('active')">
+      <div class="round-header">
+        <span class="round-number">Round ${r.round}</span>
+        <span class="round-stats">+${r.newNodes}n +${r.newEdges}e</span>
+      </div>
+      <div class="round-summary">${r.summary || 'No summary available'}</div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// GRAPH VISUALIZATION
+// ============================================================
+function renderGraph() {
+  const container = document.getElementById('graphContainer');
+  container.innerHTML = '';
+
+  const nodes = data.graph?.nodes || [];
+  const edges = data.graph?.edges || [];
+
+  if (nodes.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/>
+        </svg>
+        <p>No data yet. Start an investigation to see the knowledge graph.</p>
+      </div>`;
+    return;
+  }
+
+  if (currentView === 'force') {
+    renderForceGraph(container, nodes, edges);
+  } else {
+    renderTreeView(container, nodes, edges);
+  }
+}
+
+function renderForceGraph(container, nodes, edges) {
+  const width = container.clientWidth;
+  const height = container.clientHeight;
+
+  const svg = d3.select(container).append('svg')
+    .attr('width', width)
+    .attr('height', height);
+
+  const g = svg.append('g');
+
+  // Zoom
+  const zoom = d3.zoom()
+    .scaleExtent([0.2, 5])
+    .on('zoom', (event) => g.attr('transform', event.transform));
+  svg.call(zoom);
+
+  // Build simulation data (clone to avoid mutation)
+  const simNodes = nodes.map(n => ({ ...n }));
+  const simEdges = edges.map(e => ({
+    ...e,
+    source: e.source,
+    target: e.target
+  }));
+
+  // Simulation
+  simulation = d3.forceSimulation(simNodes)
+    .force('link', d3.forceLink(simEdges).id(d => d.id).distance(100))
+    .force('charge', d3.forceManyBody().strength(-300))
+    .force('center', d3.forceCenter(width / 2, height / 2))
+    .force('collision', d3.forceCollide().radius(30));
+
+  // Edges
+  const link = g.append('g')
+    .selectAll('line')
+    .data(simEdges)
+    .join('line')
+    .attr('stroke', 'var(--color-border)')
+    .attr('stroke-opacity', d => Math.max(0.2, (d.confidence || 50) / 100))
+    .attr('stroke-width', d => Math.max(1, (d.confidence || 50) / 30));
+
+  // Nodes
+  const node = g.append('g')
+    .selectAll('g')
+    .data(simNodes)
+    .join('g')
+    .call(d3.drag()
+      .on('start', dragstarted)
+      .on('drag', dragged)
+      .on('end', dragended));
+
+  node.append('circle')
+    .attr('r', d => Math.max(6, Math.min(18, (d.confidence || 50) / 5)))
+    .attr('fill', d => {
+      const c = DOMAIN_COLORS[d.domain];
+      return c ? c.replace('var(', '').replace(')', '') : '#8b949e';
+    })
+    .attr('fill', d => getDomainColor(d.domain))
+    .attr('stroke', 'var(--color-bg)')
+    .attr('stroke-width', 2)
+    .attr('opacity', 0.85);
+
+  node.append('text')
+    .text(d => d.label?.length > 22 ? d.label.substring(0, 20) + '…' : d.label)
+    .attr('dx', d => Math.max(6, Math.min(18, (d.confidence || 50) / 5)) + 4)
+    .attr('dy', 4)
+    .attr('font-size', '11px')
+    .attr('fill', 'var(--color-text-muted)')
+    .attr('font-family', 'var(--font-body)');
+
+  // Tooltip
+  const tooltip = document.getElementById('nodeTooltip');
+  node.on('mouseenter', (event, d) => {
+    document.getElementById('tooltipLabel').textContent = d.label;
+    document.getElementById('tooltipType').textContent = `${d.type} • ${d.domain}`;
+    const fill = document.getElementById('tooltipConfFill');
+    fill.style.width = (d.confidence || 0) + '%';
+    fill.style.background = getConfidenceColor(d.confidence || 0);
+    tooltip.classList.add('visible');
+  })
+  .on('mousemove', (event) => {
+    tooltip.style.left = (event.pageX + 12) + 'px';
+    tooltip.style.top = (event.pageY - 8) + 'px';
+  })
+  .on('mouseleave', () => {
+    tooltip.classList.remove('visible');
+  });
+
+  simulation.on('tick', () => {
+    link
+      .attr('x1', d => d.source.x)
+      .attr('y1', d => d.source.y)
+      .attr('x2', d => d.target.x)
+      .attr('y2', d => d.target.y);
+    node.attr('transform', d => `translate(${d.x},${d.y})`);
+  });
+
+  function dragstarted(event) {
+    if (!event.active) simulation.alphaTarget(0.3).restart();
+    event.subject.fx = event.subject.x;
+    event.subject.fy = event.subject.y;
+  }
+  function dragged(event) {
+    event.subject.fx = event.x;
+    event.subject.fy = event.y;
+  }
+  function dragended(event) {
+    if (!event.active) simulation.alphaTarget(0);
+    event.subject.fx = null;
+    event.subject.fy = null;
+  }
+}
+
+function renderTreeView(container, nodes, edges) {
+  const width = container.clientWidth;
+  const height = container.clientHeight;
+
+  // Build tree from round data
+  const rounds = data.roundHistory || [];
+  const rootLabel = data.target || data.title || 'Root';
+
+  // Build hierarchy: root -> rounds -> entities discovered in each round
+  const treeData = {
+    name: rootLabel,
+    children: rounds.map(r => ({
+      name: `Round ${r.round}`,
+      children: nodes
+        .filter(n => n.round_discovered === r.round)
+        .map(n => ({
+          name: n.label,
+          domain: n.domain,
+          confidence: n.confidence
+        }))
+    }))
+  };
+
+  // Also include round-0 / ungrouped nodes
+  const assignedRounds = rounds.map(r => r.round);
+  const unassigned = nodes.filter(n => !assignedRounds.includes(n.round_discovered));
+  if (unassigned.length > 0) {
+    treeData.children.unshift({
+      name: 'Initial',
+      children: unassigned.map(n => ({
+        name: n.label,
+        domain: n.domain,
+        confidence: n.confidence
+      }))
+    });
+  }
+
+  const svg = d3.select(container).append('svg')
+    .attr('width', width)
+    .attr('height', height);
+
+  const g = svg.append('g')
+    .attr('transform', `translate(80, 40)`);
+
+  const zoom = d3.zoom()
+    .scaleExtent([0.3, 4])
+    .on('zoom', (event) => g.attr('transform', event.transform));
+  svg.call(zoom);
+  svg.call(zoom.transform, d3.zoomIdentity.translate(80, 40));
+
+  const root = d3.hierarchy(treeData);
+  const treeLayout = d3.tree().size([height - 80, width - 200]);
+  treeLayout(root);
+
+  // Links
+  g.selectAll('.tree-link')
+    .data(root.links())
+    .join('path')
+    .attr('class', 'tree-link')
+    .attr('d', d3.linkHorizontal().x(d => d.y).y(d => d.x))
+    .attr('fill', 'none')
+    .attr('stroke', 'var(--color-border)')
+    .attr('stroke-width', 1.5)
+    .attr('stroke-opacity', 0.6);
+
+  // Nodes
+  const treeNode = g.selectAll('.tree-node')
+    .data(root.descendants())
+    .join('g')
+    .attr('class', 'tree-node')
+    .attr('transform', d => `translate(${d.y},${d.x})`);
+
+  treeNode.append('circle')
+    .attr('r', d => d.depth === 0 ? 8 : d.children ? 5 : 4)
+    .attr('fill', d => d.data.domain ? getDomainColor(d.data.domain) : 'var(--color-primary)')
+    .attr('stroke', 'var(--color-bg)')
+    .attr('stroke-width', 2);
+
+  treeNode.append('text')
+    .attr('dx', d => d.children ? -10 : 10)
+    .attr('dy', 4)
+    .attr('text-anchor', d => d.children ? 'end' : 'start')
+    .attr('font-size', '11px')
+    .attr('fill', 'var(--color-text-muted)')
+    .attr('font-family', 'var(--font-body)')
+    .text(d => {
+      const name = d.data.name || '';
+      return name.length > 24 ? name.substring(0, 22) + '…' : name;
+    });
+}
+
+function switchGraphView(view) {
+  currentView = view;
+  document.querySelectorAll('.graph-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.view === view);
+  });
+  if (simulation) { simulation.stop(); simulation = null; }
+  renderGraph();
+}
+
+// ============================================================
+// RIGHT PANEL
+// ============================================================
+function renderDeductions() {
+  const deductions = data.deductions || [];
+  const panel = document.getElementById('panelDeductions');
+
+  if (deductions.length === 0) {
+    panel.innerHTML = '<div style="padding:var(--space-8);text-align:center;color:var(--color-text-faint);font-size:var(--text-xs)">No deductions yet</div>';
+    return;
+  }
+
+  panel.innerHTML = deductions.map(d => {
+    const confClass = getConfidenceClass(d.confidence);
+    const confLabel = getConfidenceLabel(d.confidence);
+    const borderColor = getConfidenceColor(d.confidence);
+
+    return `
+      <div class="deduction-card" style="border-left-color:${borderColor}">
+        <div class="deduction-header">
+          <div class="deduction-observation">${d.observation}</div>
+          <span class="confidence-badge ${confClass}">${confLabel} ${d.confidence}%</span>
+        </div>
+        <div class="deduction-inference">${d.inference}</div>
+        ${d.supporting?.length ? `
+          <div class="evidence-group">
+            <div class="evidence-label supporting">Supporting</div>
+            ${d.supporting.map(s => `
+              <div class="evidence-item"><span>${s.claim}${s.source ? ` <a href="${s.source}" target="_blank" rel="noopener noreferrer">[src]</a>` : ''}</span></div>
+            `).join('')}
+          </div>
+        ` : ''}
+        ${d.contradicting?.length ? `
+          <div class="evidence-group">
+            <div class="evidence-label contradicting">Contradicting</div>
+            ${d.contradicting.map(c => `
+              <div class="evidence-item"><span>${c.claim}${c.source ? ` <a href="${c.source}" target="_blank" rel="noopener noreferrer">[src]</a>` : ''}</span></div>
+            `).join('')}
+          </div>
+        ` : ''}
+        ${d.synthesis ? `<div class="deduction-synthesis">${d.synthesis}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderEvidence() {
+  const nodes = data.graph?.nodes || [];
+  const panel = document.getElementById('panelEvidence');
+
+  // Flatten nodes as evidence items, sorted by round
+  const items = nodes
+    .filter(n => n.sources?.length > 0)
+    .sort((a, b) => (b.round_discovered || 0) - (a.round_discovered || 0));
+
+  if (items.length === 0) {
+    panel.innerHTML = '<div style="padding:var(--space-8);text-align:center;color:var(--color-text-faint);font-size:var(--text-xs)">No evidence collected yet</div>';
+    return;
+  }
+
+  panel.innerHTML = '<div class="evidence-feed">' + items.map(n => {
+    const domainColor = getDomainColor(n.domain);
+    return `
+      <div class="feed-item">
+        <div class="feed-header">
+          <span class="feed-domain" style="background:${domainColor}20;color:${domainColor}">${n.domain}</span>
+          <span class="confidence-badge ${getConfidenceClass(n.confidence)}">${n.confidence}%</span>
+          <span class="feed-round">R${n.round_discovered || '?'}</span>
+        </div>
+        <div class="feed-text"><strong>${n.label}</strong> — ${n.type}</div>
+        ${n.sources?.length ? `
+          <div class="feed-source">
+            ${n.sources.map(s => `<a href="${s}" target="_blank" rel="noopener noreferrer">${new URL(s).hostname}</a>`).join(' · ')}
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }).join('') + '</div>';
+}
+
+function renderGaps() {
+  const gaps = data.gaps || [];
+  const panel = document.getElementById('panelGaps');
+
+  if (gaps.length === 0) {
+    panel.innerHTML = '<div style="padding:var(--space-8);text-align:center;color:var(--color-text-faint);font-size:var(--text-xs)">No gaps identified</div>';
+    return;
+  }
+
+  panel.innerHTML = gaps.map(g => `
+    <div class="gap-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-2)">
+        <span class="gap-domain">${g.domain}</span>
+        <span class="gap-priority priority-${g.priority || 'medium'}">${g.priority || 'medium'}</span>
+      </div>
+      <div class="gap-description">${g.description}</div>
+      ${g.suggestedQueries?.length ? `
+        <div class="gap-queries">
+          ${g.suggestedQueries.map(q => `<span class="gap-query">${q}</span>`).join('')}
+        </div>
+      ` : ''}
+    </div>
+  `).join('');
+}
+
+function switchPanel(panel) {
+  document.querySelectorAll('.panel-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.panel === panel);
+  });
+  document.querySelectorAll('.panel-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('panel' + panel.charAt(0).toUpperCase() + panel.slice(1)).classList.add('active');
+}
+
+// ============================================================
+// LEGEND
+// ============================================================
+function renderLegend() {
+  const activeDomains = data.config?.activeDomains || [];
+  const legend = document.getElementById('graphLegend');
+  legend.innerHTML = activeDomains.map(d => `
+    <div class="legend-item">
+      <span class="legend-dot" style="background:${getDomainColor(d)}"></span>
+      <span>${d}</span>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function getDomainColor(domain) {
+  const colorMap = {
+    people: '#bc8cff', organizations: '#79c0ff', financial: '#56d364',
+    technology: '#3fb9bf', legal: '#f0883e', market: '#d2a8ff',
+    social: '#f778ba', geographic: '#a5d6ff', temporal: '#d29922',
+    network: '#8b949e'
+  };
+  return colorMap[domain] || '#8b949e';
+}
+
+function getConfidenceColor(conf) {
+  if (conf >= 90) return '#3fb9bf';
+  if (conf >= 70) return '#56d364';
+  if (conf >= 50) return '#d29922';
+  if (conf >= 25) return '#db6d28';
+  return '#f85149';
+}
+
+function getConfidenceClass(conf) {
+  if (conf >= 90) return 'conf-confirmed';
+  if (conf >= 70) return 'conf-probable';
+  if (conf >= 50) return 'conf-possible';
+  if (conf >= 25) return 'conf-doubtful';
+  return 'conf-improbable';
+}
+
+function getConfidenceLabel(conf) {
+  if (conf >= 90) return '✅';
+  if (conf >= 70) return '🟢';
+  if (conf >= 50) return '🟡';
+  if (conf >= 25) return '🟠';
+  return '🔴';
+}
+
+function showEmptyState() {
+  document.getElementById('investigationTitle').textContent = 'No investigation loaded';
+  document.getElementById('kpiStrip').innerHTML = '';
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

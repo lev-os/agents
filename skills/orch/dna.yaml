@@ -1,0 +1,90 @@
+name: orch
+version: 0.1.0
+description: "Agent-agnostic goal chaining, lifecycle routing, blocker collection, and scheduling"
+entry: route
+
+nodes:
+  route:
+    description: "Resolve the outcome, root, owners, capabilities, and mode"
+    content: SKILL.md
+    routes:
+      plan: "user wants a chain or first executable slice"
+      auto: "user wants every reachable branch exercised until decisions or completion"
+      execute: "user has an aligned bounded slice to run"
+      monitor: "user wants recurring progress or scheduler supervision"
+    validation:
+      rule: "exactly one mode selected and project/write boundary resolved"
+    on_failure: "Ask one focused question or report the missing startup capability"
+
+  plan:
+    description: "Build a domain-shaped branch graph"
+    content: SKILL.md
+    requires: [route]
+    next: execute
+    validation:
+      rule: "every branch has an owner, prerequisite set, permitted effects, verifier, and stop condition"
+
+  auto:
+    description: "Exhaust eligible branches and collect decisions"
+    content: SKILL.md
+    requires: [route]
+    next: execute
+    validation:
+      rule: "every reachable branch is complete, deferred, or waiting on a named decision"
+
+  monitor:
+    description: "Reconcile a scheduled wake without duplicating work"
+    content: SKILL.md
+    requires: [route]
+    next: close
+    validation:
+      rule: "scheduler handle and goal revision are checked before any follow-up"
+
+  execute:
+    description: "Dispatch one bounded unit through its owning skill"
+    content: SKILL.md
+    requires: [plan, auto]
+    next: verify
+    validation:
+      rule: "one worker or route ran within frozen scope and returned a result"
+    on_failure: "Classify the failure and preserve the branch for retry or escalation"
+
+  verify:
+    description: "Run an independent deterministic check"
+    content: SKILL.md
+    requires: [execute]
+    next: close
+    validation:
+      rule: "controller evidence distinguishes progress, no-change, blocker, decision, or completion"
+    on_failure: "Hold promotion and route the smallest repair or decision"
+
+  close:
+    description: "Reconcile lifecycle state and emit the next route"
+    content: SKILL.md
+    requires: [verify]
+    terminal: true
+    validation:
+      rule: "evidence, blockers, decisions, scheduler status, and next route are recorded"
+    on_failure: "Preserve the state and report the missing reconciliation"
+
+anti_patterns:
+  - excuse: "The worker said done, so the goal is done"
+    reality: "The controller reruns the declared verifier and checks the external effect"
+    priority: safety
+    triggers: ["worker said done", "agent says complete", "trust the subagent"]
+  - excuse: "An idle chat is blocked"
+    reality: "Read the live handle and latest route before classifying it"
+    priority: discipline
+    triggers: ["idle means blocked", "the chat is idle", "no response means stop"]
+  - excuse: "A missing later dependency blocks startup"
+    reality: "Start any executable slice; classify later evidence as a gate"
+    priority: discipline
+    triggers: ["need the final receipt first", "blocked until review", "harness first"]
+  - excuse: "Run every branch in parallel"
+    reality: "Parallelize only independent scopes; dependencies and overlapping writes stay ordered"
+    priority: safety
+    triggers: ["parallelize everything", "launch all workers", "all branches at once"]
+  - excuse: "Every heartbeat should start a worker"
+    reality: "A heartbeat only wakes the controller; the goal and revision dedupe worker dispatch"
+    priority: safety
+    triggers: ["heartbeat means worker", "start another worker on wake", "duplicate the tick"]
