@@ -1,0 +1,381 @@
+{
+  "meta": {
+    "title": "N1 — one namespace for lev",
+    "description": "Tribunal result on lev <noun> <verb>, lev status and the root-word lint (2026-09-26).",
+    "provenance": {
+      "sessionId": "74d1fed5-3d75-4cc3-98b2-1e3f0e81abf5",
+      "agent": "Claude Code · Opus 5.5 · audit burn-down session 3",
+      "workstream": "first-party-audit-20260922-backlog-burn-down",
+      "source": "~/.agents/levnow/decision-n1-command-namespace-20260926.json",
+      "createdAt": "2026-09-26",
+      "resume": "claude --resume 74d1fed5-3d75-4cc3-98b2-1e3f0e81abf5"
+    }
+  },
+  "theme": {
+    "preset": "midnight-ink",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "context",
+    "example",
+    "decisions"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "FIRST-PARTY AUDIT · N1",
+        "title": "lev <noun> <verb>, one owner per word",
+        "subtitle": "4 informed reviewers + 4 clean-blind guesses. 3-1 to extend the rule we already have. 14 choices left for you.",
+        "meta": "2026-09-26 · workstream first-party-audit-20260922-backlog-burn-down"
+      }
+    },
+    "context": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "WHAT THE TRIBUNAL FOUND",
+        "title": "Real problem, existing rule"
+      },
+      "children": [
+        "context-text"
+      ]
+    },
+    "context-text": {
+      "type": "text",
+      "props": {
+        "maxWidth": "72ch",
+        "content": "- **Panel:** 3 Opus lenses (ontology, operator/agent UX, canon fit) + Fable 5.1, all on the identical prompt, deep-scanning the repo. Plus 4 clean-blind guesses from a one-paragraph description. The first 3 blind runs leaked repo knowledge and are excluded.\n- **Census:** 181 root words from 209 claims; 19 words have several claimants (`status` has 7); the winner is picked by load order.\n- **Verdict:** RECLASSIFY 3 · SHIP 1 (Fable). Everyone agrees on the grammar; they differ on where the word list lives.\n- **Checked by me:** `lev workstream list --json` returns `operation.id: \"workstream.workstream\"` — the verb is dropped today (two reviewers claimed otherwise).\n- **Found on the way (no decision needed):** unknown root words hang instead of failing fast; `lev --output=toon projects list` is read as an unknown command.\n- **Raw record:** `~/.local/state/lev/tribunal/n1-namespace-ontology-20260926/`."
+      }
+    },
+    "example": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "ONE REVIEWER'S LEV STATUS",
+        "title": "Fable's deep-scan answer, today's real data"
+      },
+      "children": [
+        "example-text"
+      ]
+    },
+    "example-text": {
+      "type": "text",
+      "props": {
+        "maxWidth": "100%",
+        "content": "```\nlev status — leviathan · main @ 59650fdf0 · 93 dirty · session 15a7cd89 · 2026-09-26 21:20Z\nprojection only · no verdicts · 13 sources read · 5 degraded · 1 empty\n\nWORK       27 active workstreams (15 exec · 10 plan · 2 eval) · 21 paused · 6 done · 9 superseded · 148 open follow-ups\n  lev-ui-kit                        exec   goal-v3-post-merge                 24m ago   supports jarvis-content-first…\n  lifecycle-engine                  exec   13 open questions (F2…F12)         13h ago\n  first-party-audit-20260922…       exec   s2-burn-down · forks K2 K3 K7 · handoff s3     3d ago\n  ⚠ agent-runtime-convergence       exec   inventory invalid: next_10 expected array, got object\n  + 23 more → lev workstream list --status=active\n\nTASKS      285 packets · 1 in_progress · 7 execution_ready · 12 completed · 9 verified\n  claim-schema-discovery-v1         in_progress  P1   lifecycle-engine\n  ⚠ 253 packets carry no top-level status · dna/entities.yaml:250 says .lev/tasks/, live root is .lev/pm/tasks/\n\nEXEC       last seal 1h ago (471952ba19e5, reservation.terminal) · today 74 candidate_effect · 3 dry-run · 1 failed\n           13 reservations never sealed (oldest 4d) · runs.jsonl last written 2026-07-07 (81d — degraded)\n           all-time 731 seals: 309 dry-run · 238 failed · 184 candidate_effect · 8336 execution events\n\nDAEMON     down · pid 92135 not running (.lev/supervisord.pid — project-local pid, should resolve via ipc.pid route)\n           socket 2025-12-09 · no heartbeat · queue empty (2026-09-14) · state log last 2026-03-28 · 0 workers\n\nSESSIONS   session 15a7cd89 · workstream: none bound · 4 workstream session maps · 722 tmux captures\nEVENTS     372 runtime events · last git:post-commit 20:54Z · 4 nudges pending, all stale (2026-03)\nDECISIONS  60 recorded · open forks: R5b namespace ontology → N1 · R5d → N1 · M1 (/now page + session deep link)\n\nHEALTH     doctor WARNING 12/35 pass · 23 warn · 0 fail → lev doctor\n\nNEXT       1  lev workstream show lev-ui-kit                       most recent active exec slice\n           2  lev daemon start --all                               daemon down, 0 workers\n           3  lev workstream update agent-runtime-convergence      inventory invalid\n           4  lev exec --status                                    13 unsealed reservations\n\nsources    pm.workstream_state · pm.task_state · execution.ledger · daemon.{state_log,queue,heartbeat} · ipc.pid · tmux.capture · runtime.event_log · build.doctor · git\nempty      lifecycle_trigger.v1 trace stream (2/63 workstreams have trace/, last 2026-04-15) — sitrep's declared source is not live\ncached     status.read_model → ~/.cache/lev/read-models/status/latest.json\n```"
+      }
+    },
+    "decisions": {
+      "type": "feedback",
+      "props": {
+        "pageId": "n1-command-namespace-20260926",
+        "title": "Decisions",
+        "buckets": [
+          {
+            "name": "Verdict"
+          },
+          {
+            "name": "Root words + lint"
+          },
+          {
+            "name": "lev status"
+          },
+          {
+            "name": "Nouns + CRUD"
+          }
+        ],
+        "items": [
+          {
+            "id": "N1-frame",
+            "bucket": 0,
+            "wave": "verdict",
+            "title": "Extend the rule we have, or author a list of root words?",
+            "insight": "**3 of 4 informed reviewers: RECLASSIFY.** The ontology already exists (`dna/fractal.yaml:127-148`, \"Domain = module\"); only the CLI flattens it by load order. **Fable 5.1: SHIP**, but with an authored word registry.",
+            "detail": "- Evidence all 4 share: 19 words with more than one claimant, 44 unrunnable roots, first-writer-wins at `core/poly/src/registry/commands.ts:200,231`.\n- Majority: poly **derives** the registry from folders + `dna/entities.yaml`, and fails the build on a collision. An authored list would be \"split-brain against poly.dna.yaml:74 registry_is_derived\" (ontology reviewer).\n- Fable: author word→owner in `dna/standards/source-namespaces.yaml#roots` and amend fractal.yaml:138 to \"Domain = registered root\". That file already gives `status` to `@lev-os/config` (a storage route), which collides with a poly-owned `lev status`.\n- Caveat from the comparison: the split follows model family exactly (all Opus RECLASSIFY, Fable SHIP), so the majority is less independent than 3 votes suggest.",
+            "options": [
+              {
+                "label": "Extend the existing rule",
+                "desc": "Enforce fractal domain addressing in poly, add dna/entities.yaml as the second noun class, a closed poly verb list, and `lev status` as a follow-on slice",
+                "recommended": true
+              },
+              {
+                "label": "Authored root-word registry",
+                "desc": "Fable's version: source-namespaces.yaml#roots lists every root word and its owner; fractal.yaml:138 is amended"
+              }
+            ]
+          },
+          {
+            "id": "N1-owner-verb",
+            "bucket": 1,
+            "wave": "root words",
+            "title": "May a module's own name act as a root verb? (lev exec, lev now)",
+            "insight": "You said \"root word is my verb needs to be allowed\" and \"i also dont want lev exec exec\". **All 4 clean-blind reviewers expected no module-named verbs** at the root.",
+            "detail": "- Against: \"Executing belongs to `lev flow run`\" (ontology, blind); host verbs are \"the only commands without a noun\" (canon-fit, blind); \"A module can never own a root verb\" (canon-fit, informed).\n- For: operator-ux (informed) keeps `lev exec \"<task>\"` as the default capability of the exec noun; ontology (informed) likewise.\n- The lint rule this confirms: an owner-verb must equal the module name, and `lev exec exec` is an error.",
+            "options": [
+              {
+                "label": "Yes — only the module's own name",
+                "desc": "`lev exec`, `lev now` run the module's default capability; nothing else may act as a bare verb",
+                "recommended": true
+              },
+              {
+                "label": "No — always lev <noun> <verb>",
+                "desc": "Match the blind expectation: `lev exec run`, `lev now render`"
+              }
+            ]
+          },
+          {
+            "id": "N1-meta-list",
+            "bucket": 1,
+            "wave": "root words",
+            "title": "Which root verbs take no noun and belong to poly?",
+            "insight": "All 8 seats want a **small closed set** that includes status, doctor, help and version. They differ on the rest.",
+            "detail": "- ontology adds init, install, find, up/down/ps.\n- operator-ux adds init, install, upgrade (at most 8).\n- canon-fit adds search and validate as fan-in across nouns.\n- Fable adds exec, find, search, work, up, down, ps, routing.",
+            "options": [
+              {
+                "label": "status, doctor, help, version",
+                "desc": "The four every seat agrees on; everything else nests under a noun",
+                "recommended": true
+              },
+              {
+                "label": "+ init, install, upgrade",
+                "desc": "Add the setup words (from core/build)"
+              },
+              {
+                "label": "+ search, validate, find",
+                "desc": "Add fan-in verbs that gather from every noun"
+              },
+              {
+                "label": "Fable's wide list",
+                "desc": "+ exec, find, search, work, up, down, ps, routing"
+              }
+            ]
+          },
+          {
+            "id": "N1-meta-alias",
+            "bucket": 1,
+            "wave": "root words",
+            "title": "May a root verb simply forward to one module? (find → index find, work → sdlc work)",
+            "insight": "If yes, a module gets a root verb that is not its own name — the lint's owner-verb rule is bypassed. If no, `find`, `search` and `work` lose their roots.",
+            "detail": "- Forwarding examples proposed: find→index.find, search→research.search, work→sdlc.work, up→daemon.start, upgrade→build.upgrade.\n- Under the no-shims canon (migrations are delete-and-replace), forwards would be permanent parts of the grammar, not migration aliases.",
+            "options": [
+              {
+                "label": "No — root verbs are fan-outs or poly's own",
+                "desc": "Module verbs stay nested: `lev index find`, `lev sdlc work`",
+                "recommended": true
+              },
+              {
+                "label": "Yes — a poly-owned forward list",
+                "desc": "Each forward declared once in dna/core/poly.dna.yaml"
+              }
+            ]
+          },
+          {
+            "id": "N1-noun-source",
+            "bucket": 1,
+            "wave": "root words",
+            "title": "Can a module claim a noun that is not its folder name?",
+            "insight": "This decides `lev graph` vs `lev context-graph`, and whether `lev task` belongs to orchestration.",
+            "detail": "- No: ontology, operator-ux (informed); canon-fit (blind): \"config.yaml declares verbs ... never the noun\".\n- Yes: canon-fit (informed) `poly.nouns: [graph]` on context-graph, `[task, cdo]` on orchestration — its own risk list calls this a \"noun land-grab\".\n- Entity nouns (task, session, decision…) still come from dna/entities.yaml either way.",
+            "options": [
+              {
+                "label": "No — noun = folder name",
+                "desc": "Entity nouns come only from dna/entities.yaml, each with one owner",
+                "recommended": true
+              },
+              {
+                "label": "Yes — declared in config.yaml",
+                "desc": "Modules list extra nouns under poly.nouns; the compiler rejects duplicates"
+              }
+            ]
+          },
+          {
+            "id": "N1-stutter",
+            "bucket": 1,
+            "wave": "lint",
+            "title": "What counts as a stutter?",
+            "insight": "Canon: \"a segment never restates an ancestor's word\" (`dna/fractal.yaml:139`).",
+            "detail": "- Literal repeat: `lev exec exec`.\n- Same stem: `lev validator validate` — operator-ux proposed it; Fable calls it \"the validator/validate stutter that fractal.yaml:139 forbids\".",
+            "options": [
+              {
+                "label": "Repeat or same stem",
+                "desc": "Both `lev exec exec` and `lev validator validate` fail the lint",
+                "recommended": true
+              },
+              {
+                "label": "Literal repeat only",
+                "desc": "Only an identical word is an error"
+              }
+            ]
+          },
+          {
+            "id": "N1-baseline",
+            "bucket": 1,
+            "wave": "lint",
+            "title": "Turning the lint on",
+            "insight": "Failing closed today breaks the build: 19 words already have two or more claimants.",
+            "detail": "- Ratchet: record today's collisions; new ones fail; the list can only shrink.\n- Fable warns a date-expiring quarantine list \"is itself a thing that can be forgotten\".\n- operator-ux wants \"FAILS CLOSED on any overlap\" with no list.",
+            "options": [
+              {
+                "label": "Shrinking baseline",
+                "desc": "Record today's 19; any new collision fails; entries are removed as nouns move",
+                "recommended": true
+              },
+              {
+                "label": "Baseline with expiry dates",
+                "desc": "Each entry must be resolved by a date"
+              },
+              {
+                "label": "Fail closed now",
+                "desc": "Fix all 19 before the lint lands"
+              }
+            ]
+          },
+          {
+            "id": "N1-status-source",
+            "bucket": 2,
+            "wave": "lev status",
+            "title": "What should lev status read?",
+            "insight": "**All 8 seats:** status ≠ doctor, one versioned JSON on every surface, a sessions block, a needs-you block, and a deterministic `next` list. They differ on speed vs freshness.",
+            "detail": "- Clean-blind reviewers expect a fast local read with no daemon.\n- The ontology reviewer's live task scan took over 120 s; Fable found 5 of 13 sources degraded.\n- `core/config` already declares a `status.read_model` route that nothing uses (Fable).",
+            "options": [
+              {
+                "label": "Snapshot + --deep",
+                "desc": "Read a precomputed snapshot; `--deep` rescans live with per-source time limits",
+                "recommended": true
+              },
+              {
+                "label": "Always live",
+                "desc": "Fan out to every noun each time, each under a time limit"
+              }
+            ]
+          },
+          {
+            "id": "N1-status-exit",
+            "bucket": 2,
+            "wave": "lev status",
+            "title": "Should lev status ever exit non-zero?",
+            "insight": "Blind reviewers expect a `--check` flag that fails on bad health. Informed reviewers forbid any verdict outside core/eval.",
+            "detail": "- \"status reports and never fails on findings\" (ontology, blind).\n- \"next[] must stay a deterministic rule projection; the moment an LLM ranks it, lev status becomes a verdict surface outside core/eval\" (Fable).",
+            "options": [
+              {
+                "label": "Never — doctor fails, status observes",
+                "desc": "`lev status` always exits 0 on findings; `lev doctor` owns failure",
+                "recommended": true
+              },
+              {
+                "label": "Allow --check",
+                "desc": "A threshold on observations, not a verdict"
+              }
+            ]
+          },
+          {
+            "id": "N1-search",
+            "bucket": 3,
+            "wave": "nouns",
+            "title": "Who owns lev search? (you earlier picked research, then said \"see above\")",
+            "insight": "The 4 informed reviewers hold 4 positions. **All clean-blind reviewers expect one root search across everything.**",
+            "detail": "- Today root `lev search` resolves to knowledge-registry, which returns not_implemented.\n- ontology: no root. operator-ux: alias to research if your pick stands. canon-fit: root fan-in, local index by default. Fable: alias to research.search.",
+            "options": [
+              {
+                "label": "Root search across all nouns",
+                "desc": "Poly fans out; the local index answers by default; `--web` routes to research",
+                "recommended": true
+              },
+              {
+                "label": "Research owns it",
+                "desc": "`lev search` = `lev research search` (your earlier pick)"
+              },
+              {
+                "label": "No root search",
+                "desc": "Only `lev index find`, `lev research search`"
+              }
+            ]
+          },
+          {
+            "id": "N1-state-verb",
+            "bucket": 3,
+            "wave": "entity CRUD",
+            "title": "How do entities change state?",
+            "insight": "You asked for CRUD that feels \"rote/mechanical\". One verb for every entity is the most rote.",
+            "detail": "- ontology, operator-ux (informed): `lev <type> move <id> <state>`, checked against the type's lifecycle.\n- All clean-blind: named transitions (`task start`, `task done`), and `update --state` refused.\n- canon-fit: close / link / supersede.",
+            "options": [
+              {
+                "label": "One verb: move <id> <state>",
+                "desc": "Same for every entity type; the type's lifecycle rejects illegal moves",
+                "recommended": true
+              },
+              {
+                "label": "Named transitions per type",
+                "desc": "`lev task start`, `lev decision rule` — declared per type"
+              },
+              {
+                "label": "close / link / supersede",
+                "desc": "canon-fit's set"
+              }
+            ]
+          },
+          {
+            "id": "N1-delete-verb",
+            "bucket": 3,
+            "wave": "entity CRUD",
+            "title": "What does delete mean for an entity?",
+            "insight": "All 8 seats agree: **never an rm by default**, and execution records stay append-only. Only the verb name differs.",
+            "detail": "- archive (ontology, operator-ux); close/supersede (canon-fit); delete as a move to archived (Fable); delete + restore (all clean-blind).",
+            "options": [
+              {
+                "label": "delete = soft, plus restore",
+                "desc": "CRUD word; moves to archived; `restore` brings it back; `--purge` is explicit",
+                "recommended": true
+              },
+              {
+                "label": "archive",
+                "desc": "No delete verb at all"
+              }
+            ]
+          },
+          {
+            "id": "N1-claim-word",
+            "bucket": 3,
+            "wave": "nouns",
+            "title": "Who gets the word \"claim\"?",
+            "insight": "Every clean-blind reviewer means a **lock with a time limit** on a task. In the repo, a Claim is a **proof submission** (`.lev/claims`, `core/exec` done handler).",
+            "detail": "- Three informed reviewers propose `lev exec claim` for proof submission.\n- The lock already has vocabulary: `work assign / start / release` (`dna/vernacular.yaml:1006`).",
+            "options": [
+              {
+                "label": "Claim stays proof submission",
+                "desc": "The time-limited lock is `lev work assign/release`",
+                "recommended": true
+              },
+              {
+                "label": "Claim becomes the lock",
+                "desc": "Rename proof submission to something else"
+              }
+            ]
+          },
+          {
+            "id": "N1-entity-owners",
+            "bucket": 3,
+            "wave": "nouns",
+            "title": "Five nouns without a clear owner: session, task, work, vault, graph",
+            "insight": "The reviewers name candidates but agree these need **your ruling**, one by one.",
+            "detail": "- session: core/workstream (operator-ux) or core/substrate (Fable).\n- task: workstream CRUD (Fable), orchestration (canon-fit), sdlc packet (operator-ux).\n- work: sdlc (runtime today) or core/workstream (vernacular).\n- vault: plugins/vault (see the M1 page).\n- graph: context-graph owns data ops; exec keeps proof submission.",
+            "options": [
+              {
+                "label": "Separate page, one card each",
+                "desc": "I build a follow-up page after these rulings",
+                "recommended": true
+              },
+              {
+                "label": "Take the reviewers' leading picks",
+                "desc": "session→workstream, task→workstream, work→sdlc, vault→plugins/vault, graph→context-graph"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,271 @@
+{
+ "meta": {
+  "title": "Lev IR in 60 seconds",
+  "description": "One page: what Leviathan's internal representation is, how a change moves through it, and why the system can build itself.",
+  "provenance": {
+   "agent": "Claude Code · Opus 5.5 · recovery orchestrator",
+   "workstream": "agent-runtime-convergence",
+   "source": ".lev/now/ontology-whiteboard-20260929.json",
+   "createdAt": "2026-09-29"
+  }
+ },
+ "theme": {
+  "preset": "midnight-ink",
+  "mode": "light"
+ },
+ "root": [
+  "hero",
+  "s-nums",
+  "s-layers",
+  "s-loop",
+  "s-status",
+  "s-sample",
+  "s-words",
+  "s-rules"
+ ],
+ "elements": {
+  "hero": {
+   "type": "hero",
+   "variant": "editorial",
+   "props": {
+    "category": "LEV IR · 60 SECONDS · 2026-09-29",
+    "title": "One graph, patched toward its ideal state",
+    "subtitle": "Leviathan keeps a structured description of everything it manages. Every request becomes a patch to that description. The system compiles the description into the artifact: code, docs, a video, a plugin. That is the whole idea.",
+    "meta": "Read time about a minute · Projection of the 2026-09-29 rulings"
+   }
+  },
+  "s-nums": {
+   "type": "section",
+   "variant": "default",
+   "props": {
+    "label": "The shape",
+    "title": "Three layers, six facets, seven stages, one unit of change"
+   },
+   "children": [
+    "k-nums"
+   ]
+  },
+  "k-nums": {
+   "type": "text",
+   "props": {
+    "content": "**3 layers** · ontology (what can exist) · instances (what does exist) · projections (generated views)\n\n**6 facets** · structure · work · policy · execution · knowledge · vocabulary (the last two are provisional)\n\n**7 lifecycle stages** · ephemeral → captured → classified → crystallizing → crystallized → manifesting → completed\n\n**1 unit of change** · the graph patch: current state → target state"
+   }
+  },
+  "s-layers": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "Layers × facets",
+    "title": "Where a thing lives"
+   },
+   "children": [
+    "d-layers",
+    "t-layers"
+   ]
+  },
+  "d-layers": {
+   "type": "diagram",
+   "props": {
+    "engine": "mermaid",
+    "initialZoom": 0.8,
+    "caption": "Rows are layers, columns are facets. A video landing page, a coding rule, a task and a word all have a cell.",
+    "content": "flowchart TB\n  subgraph ONT[\"ONTOLOGY - kinds, relations, lifecycle stages  (small, versioned, core + plugin extensions)\"]\n    direction LR\n    O1[\"structure<br/>module, fractal root,<br/>ownership, boundary, seam\"]\n    O2[\"work<br/>workstream, task, spec,<br/>plan, decision\"]\n    O3[\"policy<br/>check, guidance,<br/>gate, standard\"]\n    O4[\"execution<br/>flow, run, trigger,<br/>hook, event\"]\n    O5[\"knowledge<br/>claim, evidence,<br/>memory, source\"]\n    O6[\"vocabulary<br/>term, alias,<br/>retired\"]\n  end\n  subgraph INST[\"INSTANCES - the material graph  (authored in fractal roots, read model in context-graph)\"]\n    direction LR\n    I1[\"core/memory<br/>owns: memory\"]\n    I2[\"tasks/login-flow/<br/>task.yaml exec.yaml\"]\n    I3[\"memory boundary check<br/>+ should-fail case\"]\n    I4[\"plan-execute-verify<br/>.flow.yaml\"]\n    I5[\"claim: 'parity 19 rows'<br/>evidence: receipt\"]\n    I6[\"fractal root<br/>aliases: island, app root\"]\n  end\n  subgraph PROJ[\"PROJECTIONS - generated, never edited\"]\n    direction LR\n    P1[\"command registry\"]\n    P2[\"rulebook prose<br/>(what DNA text was)\"]\n    P3[\"entities catalog, gate view\"]\n    P4[\"AGENTS.md reducer, SKILL.md\"]\n    P5[\"now pages, spec tables\"]\n  end\n  ONT --> INST --> PROJ\n  classDef ont fill:#dbeafe,stroke:#1d4ed8,color:#111\n  classDef inst fill:#dcfce7,stroke:#15803d,color:#111\n  classDef proj fill:#fef3c7,stroke:#b45309,color:#111\n  class O1,O2,O3,O4,O5,O6 ont\n  class I1,I2,I3,I4,I5,I6 inst\n  class P1,P2,P3,P4,P5 proj"
+   }
+  },
+  "t-layers": {
+   "type": "text",
+   "props": {
+    "content": "**Ontology** is the small schema: kinds, their relations, their lifecycle stages. **Instances** are the material graph: this task, this module, this check, this flow. **Projections** are anything generated from instances and never edited by hand.\n\n**Lev IR** is ontology plus instances. A file is IR when it is an instance of a declared kind, whether or not code reads every field. A field no kind declares is cruft, which makes hygiene a diff, not a review."
+   }
+  },
+  "s-loop": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "The loop",
+    "title": "How a request becomes a change"
+   },
+   "children": [
+    "d-loop",
+    "t-loop"
+   ]
+  },
+  "d-loop": {
+   "type": "diagram",
+   "props": {
+    "engine": "mermaid",
+    "initialZoom": 0.9,
+    "caption": "Shaping happens in the early stages; canonizing only after crystallization. Ambiguity goes to the human. Compilation is deterministic.",
+    "content": "flowchart LR\n  A[\"fresh prompt<br/>(ephemeral)\"] --> B{\"maps to existing<br/>Lev IR?\"}\n  B -- \"existing idea\" --> C[\"attach to its workstream\"]\n  B -- \"new content\" --> D[\"graph patch:<br/>new or changed instances\"]\n  B -- \"new structure\" --> E[\"graph patch:<br/>new kind or module\"]\n  B -- \"ambiguous\" --> H[\"ask the human<br/>(interview, grill, gen UI)\"]\n  H --> B\n  C --> D\n  D --> F[\"admission ratchet<br/>(deterministic checks)\"]\n  E --> F\n  F -- \"admitted\" --> G[\"exec compiles<br/>code · docs · video · plugin\"]\n  G --> I[\"observed state<br/>(receipts, ledger)\"]\n  I -. \"proposes, never rewrites intent\" .-> B\n  classDef h fill:#fef3c7,stroke:#b45309,color:#111\n  classDef m fill:#dbeafe,stroke:#1d4ed8,color:#111\n  classDef x fill:#dcfce7,stroke:#15803d,color:#111\n  class H h\n  class B,D,E,F m\n  class G,I x"
+   }
+  },
+  "t-loop": {
+   "type": "text",
+   "props": {
+    "content": "**Example.** Three properties: a SaaS app, a marketing site, a video campaign. A request arrives: host a video on a landing page and link to it from the app. That is new content in two existing kinds (page, link) and one new instance produced by the video domain module. The patch adds a video node, a page field and a link relation. Admission checks the kinds and owners. Exec compiles: a landing page build, an app link, a rendered video. No new plugin was needed.\n\nIf the request had been \"we need to manage podcasts,\" there is no podcast kind. That is new structure: the patch proposes a kind and a module. Admission asks the human, because minting a kind is a ruling. Once ruled, the system builds the module. That is how Leviathan grows its own plugins."
+   }
+  },
+  "s-words": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "Ten words",
+    "title": "The vocabulary, one line each"
+   },
+   "children": [
+    "t-words"
+   ]
+  },
+  "t-words": {
+   "type": "data-table",
+   "props": {
+    "columns": [
+     {
+      "key": "w",
+      "label": "Word"
+     },
+     {
+      "key": "m",
+      "label": "Means"
+     }
+    ],
+    "rows": [
+     {
+      "w": "Lev IR",
+      "m": "the internal representation: ontology plus instances, in stages candidate → admitted → resolved. Bare 'IR' means this."
+     },
+     {
+      "w": "Lev ontology",
+      "m": "the schema layer: kinds, relations, lifecycle stages. Base kinds in core; modules add namespaced kinds."
+     },
+     {
+      "w": "fractal root",
+      "m": "a folder Lev looks inside: a project, a module, a task."
+     },
+     {
+      "w": "module",
+      "m": "a fractal root that owns folder names (`owns:`) or declares kinds."
+     },
+     {
+      "w": "fractal ownership",
+      "m": "a module's declaration of which folders it owns in every fractal root and what each file means."
+     },
+     {
+      "w": "fractal resolver",
+      "m": "the one pipeline that finds roots, collects ownership, rejects conflicts and hands each owner its files."
+     },
+     {
+      "w": "flow graph",
+      "m": "the compiled form of one flow; a run is one execution of it; a trigger starts it; a hook is where it attaches."
+     },
+     {
+      "w": "graph patch",
+      "m": "the diff from the material graph's current state to its target state, as add/modify operations."
+     },
+     {
+      "w": "task spec",
+      "m": "`task.yaml` inside a task's fractal root; `exec.yaml` says how it runs."
+     },
+     {
+      "w": "lifecycle stage",
+      "m": "where an idea or work item sits: ephemeral → captured → classified → crystallizing → crystallized → manifesting → completed. The ideal state is the target plus this stage."
+     }
+    ]
+   }
+  },
+  "s-rules": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "Two rules",
+    "title": "What keeps it honest"
+   },
+   "children": [
+    "t-rules"
+   ]
+  },
+  "t-rules": {
+   "type": "text",
+   "props": {
+    "content": "**Do not canonize input.** A person's words are intent, not vocabulary. Every message is mapped to an existing term and owner, or marked unmapped and asked about. Names are minted only after an idea has crystallized, and only by ruling.\n\n**Only the deterministic engine decides.** Models propose observations and patches. Admission, checks and verdicts run in code with a test that proves they can fail. That is why the ratchet only moves forward, and why the system can be trusted to build itself."
+   }
+  },
+  "s-status": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "Where it is",
+    "title": "What exists today, what is ruled, what is next"
+   },
+   "children": [
+    "t-status"
+   ]
+  },
+  "t-status": {
+   "type": "data-table",
+   "props": {
+    "columns": [
+     {
+      "key": "t",
+      "label": "Thing"
+     },
+     {
+      "key": "s",
+      "label": "State on 2026-09-29"
+     }
+    ],
+    "rows": [
+     {
+      "t": "graph patch, admission ratchet",
+      "s": "exists: `graph.patch` event and handler in core/context-graph; admission checks run in code"
+     },
+     {
+      "t": "fractal resolver, source catalog",
+      "s": "exists in core/config; ownership is still hard-coded there. `owns:` declarations are designed, not built"
+     },
+     {
+      "t": "flow graph compile and exec",
+      "s": "exists: FlowMind compiles flows, core/exec runs them, the ledger records runs. Code targets only; video and other generative targets are the target state"
+     },
+     {
+      "t": "lifecycle stages",
+      "s": "declared in the ontology and carried in FlowMind's router; most instances do not record a stage yet"
+     },
+     {
+      "t": "idea kind, stage and target-state fields, checks schema",
+      "s": "ruled 2026-09-29 (tribunal 3-0, operator readback); first implementation slice"
+     },
+     {
+      "t": "the word DNA",
+      "s": "retired 2026-09-29; files keep their names until the cutover slice"
+     }
+    ]
+   }
+  },
+  "s-sample": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "On disk",
+    "title": "What a patch and an ownership claim look like"
+   },
+   "children": [
+    "c-sample",
+    "t-sample"
+   ]
+  },
+  "c-sample": {
+   "type": "code-block",
+   "props": {
+    "language": "yaml",
+    "content": "# a module declaring what it owns in every fractal root (target shape)\nowns:\n  video:\n    code: [src/video/**]\n    means: operation\n  media/:\n    means: media record\n\n# a graph patch, the unit of change (shape of the existing graph.patch event)\ntype: graph.patch\nsource: operator-node\ndata:\n  operations:\n    - op: add_node\n      kind: video\n      id: lev://video/launch-teaser\n      produced_by: plugins/video\n    - op: set_field\n      target: lev://page/landing\n      field: hero_media\n      value: lev://video/launch-teaser\n    - op: add_relation\n      from: lev://app/main\n      to: lev://page/landing\n      relation: links_to"
+   }
+  },
+  "t-sample": {
+   "type": "text",
+   "props": {
+    "content": "**Words used above, one line each.** The **material graph** is the set of instances and their relations, what actually exists right now. The **ideal state** is the target value of each instance plus its lifecycle stage. **Admission** is the deterministic check that lets a patch into the graph or rejects it; it only moves forward, which is why it is called a ratchet. The two stage lists are different axes: candidate → admitted → resolved is what happens to one patch; ephemeral → completed is where an idea or work item sits in its life."
+   }
+  }
+ }
+}

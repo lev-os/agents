@@ -8,6 +8,7 @@ related_skills:
   - lev-cdo
   - lev-research
 hub_routes:
+  craft: "product quality audit, onboarding audit, activation metrics, ux --craft"
   ux-pipeline: "wireframe, flow, IA, journey, interaction, JTBD, task graph"
   ux-research: "user research, synthetic research, personas, study design, persona matrix"
   cdo-persona-insights: "cdo insights, deliberation artifacts, persona base, synthesis-informed research"
@@ -20,6 +21,12 @@ hub_routes:
 # UX Design Hub
 
 Routes to specialist sub-skills or runs the built-in 8-step UX pipeline.
+
+## Product quality route
+
+`/ux --craft` or a product-quality/onboarding/activation audit selects `craft` before persona/research keyword inference. Load [references/product-craft.md](references/product-craft.md). Inspect supplied evidence, cover all 12 obligations, report unknowns separately from failures, and prioritize three actions. Return inline unless the user requests a saved artifact. This is skill syntax, not a CLI flag. Research-only and wireframe-only requests retain their existing modes; generic coding work does not select craft.
+
+Full design runs load the same reference at Problem Framing for principles/brand, Task Decomposition for onboarding/activation, and Interaction Models/Components for states, performance, feedback and tokens. Reuse current artifacts and components. Completion requires evidence or an explicit gap for each relevant obligation; synthetic agreement is a hypothesis, not observed user proof.
 
 ## Hub Decision Tree
 
@@ -527,6 +534,8 @@ Write `domain_exploration.md` with personas, responses, and comparison.
 
 ## Problem Framing
 
+Declare UX principles and the first-value journey; use the craft reference for brand/voice.
+
 Write `problem_spec.yaml`:
 
 ```yaml
@@ -673,6 +682,8 @@ Rules:
 
 ## Task Decomposition
 
+Include minimum first-session data, justified prerequisites, skip/demo paths and a measurable activation hypothesis; distinguish observed retention from proposed return triggers.
+
 Write `task_graph.json`:
 
 ```json
@@ -699,6 +710,8 @@ Rules:
 
 ## Information Architecture (IA)
 
+Group tasks by user intent and validate critical-feature findability with an appropriate study; sample sizes and timing thresholds are contextual targets.
+
 Write `ia_schema.json`:
 
 ```json
@@ -721,6 +734,8 @@ Rules:
 - Avoid navigation that doesn't map to an entity or job.
 
 ## Interaction Models
+
+Load the craft state checklist: consider edit, zero-data and partial-data in addition to existing states. Specify recovery, accessible feedback, reduced motion and measured performance budgets.
 
 Write `interaction_fsm.json`:
 
@@ -747,6 +762,8 @@ Rules:
 - Call out accessibility considerations if there's complex interaction.
 
 ## Components
+
+Reuse current tokens and shared behavior across roles; document justified permission/layout differences. Cover semantic colors, theme contrast, brand voice and relevant component states using the craft reference.
 
 Write `components.md`:
 

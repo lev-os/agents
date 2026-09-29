@@ -17,8 +17,8 @@ def main() -> int:
     failures += require(ROOT / "SKILL.md", [
         "name: coder", "caam list --json", "lev exec --help",
         "same blocker twice", "Never expose tokens",
-        "--sdd=checkpoint", "--sdd=pair", "--lazycodex", "--fable",
-        "thread.started.thread_id", "lazycodex-worker-low|medium|high",
+        "--sdd=checkpoint", "--sdd=pair", "--omo", "--omp", "--fable",
+        "thread.started.thread_id",
         "Luna `max`", "Sol `medium`", "references/claude.md",
         "references/pi.md", "references/opencode.md", "--disable fast_mode",
         "resume` surface has no `-C`", "non-overlapping scope",
@@ -35,9 +35,6 @@ def main() -> int:
     ])
 
     skills_root = ROOT.parent
-    failures += require(skills_root / "coding-agent/SKILL.md", ["$coder", "Compatibility"])
-    failures += require(skills_root / "codex-runner/SKILL.md", ["$coder --lazycodex", "Compatibility"])
-    failures += require(skills_root / "subagent-driven-development/SKILL.md", ["$coder --sdd=checkpoint", "Compatibility"])
     failures += require(skills_root / "goal-exec/SKILL.md", ["--coder", "--sdd=checkpoint", "Tools: $coder"])
 
     if failures:

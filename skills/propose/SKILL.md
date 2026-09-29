@@ -9,6 +9,8 @@ description: Use when compiling aligned simple intent or a source-faithful Lev p
 execution slice. It does not implement, create a broad plan, or pre-create a
 backlog of task folders.
 
+For any non-trivial direct or routed invocation, load [Project Context](../lev/references/project-context.md) before project-specific lookup. It resolves the active project and its declared breadcrumbs.
+
 `skill://propose` loads this contract. Emitted tasks have durable identity
 `lev://entity/work/task/<task-id>`; their eventual runtime target is
 `lev://exec/<flow>`. Load `skill://lev` before introducing another URI family.

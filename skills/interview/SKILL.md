@@ -299,15 +299,14 @@ steps:
 rules:
   - "Use the same question format in single-branch and rounds cadence; rounds repeat it for independent ready questions."
   - "Use hard line breaks between sections; do not combine multiple metadata fields into dense status prose."
-  - "Orientation output uses: Question, Recommended, Ways to answer, Progress line, emoji HUD."
-  - "Design output uses: Decision, Recommended, Options, Progress line, emoji HUD."
+  - "Every question uses exactly this order: description, options, recommendation. Description states the context and question in plain prose; options each give their consequence; recommendation comes last with its reason."
+  - "The three parts are content placeholders, not literal XML tags. Omit question titles, Question/Decision labels, progress lines and HUDs from ordinary question turns; retain interview metadata in durable state."
   - "Completed design output uses: Direction, Breakdown, Open decisions, and next actions. It does not ask another a/b/c question."
   - "Recommended must explain why the option is recommended, not just restate the option."
   - "Each a/b/c answer gets its own mini-block with a consequence after ->."
   - "Orientation a/b/c choices are answer frames, not final design-branch alternatives."
   - "Design a/b/c choices are researched branch options."
-  - "Progress is exactly one line. Do not render progress as bullets."
-  - "Keep the emoji HUD. It is the fast status surface."
+  - "Explicit deep dives and completed design reports may show progress separately; their concluding question still follows description, options, recommendation."
   - "Use d. Deep dive as the only expansion mode for evidence, gates, trade-offs, codebase exploration, or alternate lenses."
   - "Use plain ASCII arrows like => in templates."
   - "Deep-dive output uses markdown headings and bold labels only; XML tags must never appear in visible output."
@@ -318,15 +317,9 @@ on_failure: "Rewrite using the orientation or design template. Remove progress b
 </format-contract>
 
 <orientation-template>
-## q{n}) Clarify {weakest_dimension} ({lens_tag})
+{brief_context_and_smallest_socratic_question}
 
-**Question**
-{smallest_socratic_question}
-
-**Recommended**
-`{a|b|c}` because {why_this_answer_frame_best_reduces_ambiguity}
-
-**Ways to answer**
+**Options**
 `a` {answer_frame_a} -> {what_this_clarifies}
 
 `b` {answer_frame_b} -> {what_this_clarifies}
@@ -335,19 +328,12 @@ on_failure: "Rewrite using the orientation or design template. Remove progress b
 
 `d` Deep dive
 
-Progress: `.lev/pm/designs/{design_slug}.md` | orientation | ambiguity {0.xx}/{threshold} | next: choose `a`, `b`, `c`, `d`, or `propose`
-
-🧭 orientation | 🎯 ambiguity {0.xx}/{threshold} | ✅ alignment {xx}% | 🌿 open {open_branch_count} (map grows) | 🧪 proof {proof_state} | ⏭️ {next_action}
+**Recommended**
+`{a|b|c}` because {why_this_answer_frame_best_reduces_ambiguity}
 </orientation-template>
 
 <design-template>
-## q{n}) {decision_title} ({lens_tag})
-
-**Decision**
-{one_sentence_decision}
-
-**Recommended**
-`{a|b|c}` because {why_recommended}
+{brief_context_and_decision_question}
 
 **Options**
 `a` {researched_answer_a} -> {design_consequence}
@@ -358,9 +344,8 @@ Progress: `.lev/pm/designs/{design_slug}.md` | orientation | ambiguity {0.xx}/{t
 
 `d` Deep dive
 
-Progress: `.lev/pm/designs/{design_slug}.md` | {design|proof-shaping|ready-to-propose} | ambiguity {0.xx}/{threshold} | open {open_branch_count} | next: choose `a`, `b`, `c`, `d`, or `propose`
-
-🧭 {phase} | 🎯 ambiguity {0.xx}/{threshold} | ✅ alignment {xx}% | 🌿 open {open_branch_count} (map grows) | 🧪 proof {proof_state} | ⏭️ {next_action}
+**Recommended**
+`{a|b|c}` because {why_recommended}
 </design-template>
 
 <design-result>
@@ -463,7 +448,7 @@ score:
     branches: "Resolved branch count over known branch count. It should move toward all resolved or explicitly deferred."
     proof: "Proof-design maturity. Keep details internal unless d. Deep dive is requested."
     next: "The smallest valid transition: answer, deep dive, continue auto, or propose."
-  visible_output: "One recommendation, three a/b/c choices when viable, d. Deep dive, one Progress line, and one emoji HUD."
+  visible_output: "Description, then options (a/b/c when viable, d. Deep dive), then recommendation with rationale. Ordinary question turns omit progress/HUD; persist those fields in state."
 ```
 
 </ambiguity-contract>

@@ -1,6 +1,6 @@
 ---
 name: goal-exec
-description: Convert an explicit user request into a Codex goal and pass its chosen coder, Lev, LazyCodex, SDD, or Fable execution flags to $coder.
+description: Convert an explicit user request into a Codex goal and pass its chosen coder, Lev, omo/omp, SDD, or Fable execution flags to $coder.
 ---
 
 # Goal Exec
@@ -13,7 +13,7 @@ as `lev://exec/<flow>` rather than treating the skill pointer as a runtime URI.
 ## Flags
 
 ```text
-$goal-exec [--coder] [--lev] [--sdd[=checkpoint|pair]] [--lazycodex] [--fable]
+$goal-exec [--coder] [--lev] [--sdd[=checkpoint|pair]] [--omo|--omp] [--fable]
 ```
 
 | Flag | Contract |
@@ -22,11 +22,11 @@ $goal-exec [--coder] [--lev] [--sdd[=checkpoint|pair]] [--lazycodex] [--fable]
 | `--lev` | Pass `--lev`; execution must use `lev exec` and project FlowMind/profile policy. |
 | `--sdd` | Pass `--sdd=checkpoint`. |
 | `--sdd=checkpoint|pair` | Pass the exact SDD mode. Reject other values. |
-| `--lazycodex` | Pass through; use the inline LazyCodex protocol in `$coder`. |
+| `--omo`/`--omp` | Pass through; use the pi-family worker in `$coder`. |
 | `--fable` | Pass through; prefer the configured Fable reviewer profile. |
 
 `--coder` selects the execution owner. The remaining flags refine `$coder` and
-must be copied unchanged into the goal's `Tools:` clause. `--sdd`, `--lazycodex`,
+must be copied unchanged into the goal's `Tools:` clause. `--sdd`, `--omo`, `--omp`,
 or `--fable` imply `--coder`. `--fable` requires SDD because it selects the
 reviewer, never the coder. Reject contradictions instead of silently dropping
 or substituting flags.
@@ -34,12 +34,17 @@ or substituting flags.
 ## Long-Horizon Goal Navigation
 
 When the user explicitly creates a long-horizon or multi-session goal, read
-[recursive wayfinding](../lev/references/recursive.md) and arrange exactly one
-navigation heartbeat bound to that goal. Ordinary discussion, planning, or a
-bounded goal does not create one. The default cadence is 30 minutes unless
-resolved project configuration supplies another interval.
+[long-running guidance](references/long-running.md) before composing the prompt.
+It owns outcome fidelity, acceptance mapping, continuation and completion audit.
+Use [recursive wayfinding](../lev/references/recursive.md) when the route or
+dependencies need reshaping, not as a mandatory restart of a settled plan.
+Prefer native goal continuation. Create a navigation heartbeat only for an
+explicit watch/schedule request or existing authorized policy that needs one;
+never when scheduling is prohibited. An optional timer is not a goal prerequisite.
+When authorized and no cadence is supplied, use 30 minutes or project policy.
 
-Before creating the goal or heartbeat, resolve and freeze the navigation packet:
+For tracked long-horizon work, bind the existing navigation state below. Timer
+fields apply only when scheduling is authorized; otherwise mark them not applicable.
 
 ```yaml
 goal_ref: <stable goal identity; finalize after create_goal>
@@ -60,13 +65,13 @@ stop_conditions:
   - blocker_requires_human_or_external_change
 ```
 
-If the tracker is unconfigured, ask once among the mechanically supported
+If tracked work requires a tracker and none is configured, ask once among the mechanically supported
 Markdown, Beads, and GitHub choices, then persist the selection. Resume reuses
 that binding. An unavailable backend blocks tracker effects; it never causes a
 write to another backend. Do not create the goal until this required choice is
 resolved.
 
-Before creating the goal, confirm the host exposes a callable thread-heartbeat
+Only when a heartbeat is required, confirm the host exposes its callable
 automation surface. After goal creation succeeds, finalize `goal_ref`, derive a
 stable automation idempotency key from `goal_ref + tick_policy`, then inspect
 existing automations by that key. Update the matching heartbeat when present or
@@ -117,6 +122,15 @@ Do not create a goal, dispatch a worker, or modify code while one is absent.
 Create a goal only with explicit user authorization and set a token budget only
 when the user supplies one.
 
+Inspect current goal state before creation; do not duplicate an unfinished goal
+or fake completion to replace it. Display the complete proposed objective in a
+Markdown code block, then save it when creation is authorized and supported.
+
+Pass the displayed goal prompt **VERBATIM** to `create_goal.objective`, preserving
+its wording, formatting and line breaks. If the prompt changes, display the
+complete revised prompt first, then submit that exact text. Verify the returned
+objective matches the displayed prompt before continuing.
+
 For long-horizon work, the stable objective may reference the displayed durable
 navigation packet rather than repeat its evolving horizon. Do not invent
 acceptance criteria or replace exact references with conversation shorthand.
@@ -143,9 +157,13 @@ Hard refs: <absolute paths>.
 Plan: <ordered sequence or durable navigation packet and rolling horizon>.
 Acceptance: <observable hard cuts>.
 Batch gates: <commands and runtime checks>.
-Stop rules: stop on a failed gate, material decision, unavailable required
-identity/profile, unusable explicit session after one focused retry, the same
-blocker twice, or scope conflict with existing work.
+Continuation: after each verified milestone, execute the next authorized ready
+step; an isolated helper or fixture does not complete the integrated outcome.
+Stop rules: repair failed gates within scope under coder's bounded recovery
+policy. Escalate real authority/product choices, exhausted recovery, unavailable
+required identity, or conflicting dirty work; follow host blocked-state rules.
+Completion: audit every accepted requirement against current evidence before
+marking the entire goal complete. No silent scope reduction or fixture-only claims.
 ```
 
 Source coding standards from the nearest project instructions, DNA/rules,

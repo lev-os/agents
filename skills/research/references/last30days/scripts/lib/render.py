@@ -4,11 +4,25 @@ from __future__ import annotations
 
 import json
 import pathlib
+import re
 from collections import Counter
 from datetime import date
 from urllib.parse import urlparse
 
-from . import dates, schema, signals, skill_meta
+from . import (
+    amazon,
+    dates,
+    health,
+    hiring_signals,
+    library_index,
+    meta_ads,
+    registers,
+    relevance,
+    rerank,
+    schema,
+    signals,
+    skill_meta,
+)
 
 
 def _skill_version() -> str:
@@ -36,12 +50,12 @@ def _skill_version() -> str:
             if version:
                 return version
 
-    # No usable manifest found at any ancestor — fall back to SKILL.md frontmatter.
-    # First SKILL.md found in the walk is THIS skill's; never traverse past it.
+    # Nested installs use METHOD.md so the canonical parent remains the only skill.
     for parent in here.parents:
-        skill_md = parent / "METHOD.md"
-        if skill_md.is_file():
-            return skill_meta.read_skill_version(skill_md) or "?"
+        for name in ("SKILL.md", "METHOD.md"):
+            skill_md = parent / name
+            if skill_md.is_file():
+                return skill_meta.read_skill_version(skill_md) or "?"
     return "?"
 
 
@@ -61,7 +75,149 @@ def _render_badge() -> list[str]:
         "",
     ]
 
+
+def _ordinal(count: int) -> str:
+    """1 -> 1st, 2 -> 2nd, 3 -> 3rd, 11-13 -> th (Pipeline card line)."""
+    if 10 <= count % 100 <= 20:
+        suffix = "th"
+    else:
+        suffix = {1: "st", 2: "nd", 3: "rd"}.get(count % 10, "th")
+    return f"{count}{suffix}"
+
+
+def _format_discovery_engagement(
+    engagement: dict[str, dict[str, float | int]],
+) -> str:
+    parts: list[str] = []
+    for source, metrics in engagement.items():
+        metric_parts = [
+            f"{field.replace('_', ' ')} {value:,.0f}"
+            for field, value in metrics.items()
+            if value
+        ]
+        if metric_parts:
+            parts.append(
+                f"{SOURCE_LABELS.get(source, source.title())}: {', '.join(metric_parts)}"
+            )
+    return " · ".join(parts) or "No native engagement counters reported"
+
+
+def render_discovery(report: schema.DiscoveryReport) -> str:
+    """Render a compact topic-per-section discovery brief."""
+    title = (
+        f"# Trending discovery: {report.domain}" if report.domain else "# Trending now"
+    )
+    lines = [
+        *_render_badge(),
+        title,
+        "",
+        f"Window: {report.range_from} to {report.range_to}",
+        f"Feeds: {', '.join(report.plan.sources)}",
+    ]
+    if report.plan.subreddits:
+        lines.append(
+            "Communities: " + ", ".join(f"r/{sub}" for sub in report.plan.subreddits)
+        )
+    lines.append("")
+
+    if not report.topics:
+        if report.outcome == "nothing-solid":
+            lines.extend(
+                [
+                    "**Nothing solid this window.** No topic cleared the confidence "
+                    "floor - not enough cross-source confirmation or engagement to "
+                    "call anything a trend, and ranked noise would be worse than an "
+                    "honest empty result.",
+                    "",
+                ]
+            )
+            if report.weak_signal:
+                lines.extend(
+                    [
+                        f"Closest weak signal: {report.weak_signal} (sub-floor; "
+                        "single-source or too little engagement).",
+                        "",
+                    ]
+                )
+        else:
+            lines.extend(["No trending topic clusters survived this sweep.", ""])
+    for topic in report.topics:
+        momentum = "New this week" if topic.momentum == "new-this-week" else "Building"
+        confirmation = (
+            f" · confirmed across {topic.corroboration_count} sources"
+            if topic.corroboration_count >= 2
+            else ""
+        )
+        lines.extend(
+            [
+                f"## {topic.rank}. {topic.name}",
+                "",
+                f"**Momentum:** {momentum} · velocity {topic.velocity_score:,.2f}{confirmation}",
+                "",
+                topic.why_spiking,
+                "",
+            ]
+        )
+        if topic.top_comment:
+            lines.extend(
+                [
+                    f"**Community voice:** {topic.top_comment}",
+                    "",
+                ]
+            )
+        if topic.podcast_angle:
+            lines.extend(
+                [
+                    f"**Podcast angle:** {topic.podcast_angle}",
+                    "",
+                ]
+            )
+        if topic.x_article_angle:
+            lines.extend(
+                [
+                    f"**X article angle:** {topic.x_article_angle}",
+                    "",
+                ]
+            )
+        pipeline_notes: list[str] = []
+        if topic.previously_surfaced_count > 0:
+            # previously_surfaced_count is PRIOR appearances, so this
+            # appearance is the (count + 1)-th. The queue is all-time.
+            pipeline_notes.append(
+                f"surfaced {_ordinal(topic.previously_surfaced_count + 1)} time"
+            )
+        if topic.covered:
+            # last_surfaced is the last surfacing date, not the covered date,
+            # so no date is rendered here.
+            pipeline_notes.append("marked covered")
+        if pipeline_notes:
+            lines.extend(
+                [
+                    f"**Pipeline:** {', '.join(pipeline_notes)}",
+                    "",
+                ]
+            )
+        lines.extend(
+            [
+                f"**Evidence:** {_format_discovery_engagement(topic.engagement_by_source)}",
+                "",
+                f"**Research next:** `{topic.command}`",
+                "",
+            ]
+        )
+
+    if report.warnings:
+        lines.extend(["### Coverage notes", ""])
+        lines.extend(f"- {warning}" for warning in report.warnings)
+        lines.append("")
+    return "\n".join(lines).rstrip() + "\n"
+
+
 SOURCE_LABELS = {
+    "reddit": "Reddit",
+    "youtube": "YouTube",
+    "tiktok": "TikTok",
+    "instagram": "Instagram",
     "grounding": "Web",
     "hackernews": "Hacker News",
     "truthsocial": "Truth Social",
@@ -73,9 +229,15 @@ SOURCE_LABELS = {
     "arxiv": "arXiv",
     "techmeme": "Techmeme",
     "trustpilot": "Trustpilot",
+    "amazon": "Amazon",
+    "meta_ads": "Meta Ads",
     "perplexity": "Perplexity",
     "jobs": "Jobs",
+    "corpus": "Your files",
 }
+
+PRIVATE_CORPUS_START = "<!-- LAST30DAYS_PRIVATE_CORPUS_START -->"
+PRIVATE_CORPUS_END = "<!-- LAST30DAYS_PRIVATE_CORPUS_END -->"
 
 
 # vote_weight = max points a fully on-topic, max-upvoted top comment can add to
@@ -110,7 +272,527 @@ def _assistant_safety_lines() -> list[str]:
     ]
 
 
-def render_compact(report: schema.Report, cluster_limit: int = 8, fun_level: str = "medium", save_path: str | None = None) -> str:
+def _render_drill_context(report: schema.Report) -> list[str]:
+    context = report.artifacts.get("drill_context") or {}
+    if not report.drill_of or not context:
+        return []
+    titles = context.get("cluster_titles") or [report.drill_of]
+    sources = context.get("sources") or []
+    source_text = ", ".join(_source_label(source) for source in sources) or "none"
+    original = context.get("original_summary") or "No cached summary was available."
+    return [
+        "## Drill Follow-up",
+        "",
+        f"- Target: {context.get('target') or report.drill_of}",
+        f"- Matched: {', '.join(titles)}",
+        "",
+        "### Original",
+        "",
+        str(original),
+        "",
+        "### Deeper",
+        "",
+        f"- {int(context.get('new_items') or 0)} new items after dedupe",
+        f"- Re-researched sources: {source_text}",
+    ]
+
+
+def _render_library_context(report: schema.Report) -> list[str]:
+    if not report.library_context:
+        return []
+    lines = [
+        library_index.LIBRARY_CONTEXT_START,
+        "## From your library",
+        "",
+        "_Prior saved runs on this topic from your local research library "
+        "(historical context, not fresh evidence; set "
+        "LAST30DAYS_LIBRARY_CONTEXT=off to hide)._",
+        "",
+    ]
+    for item in report.library_context:
+        detail = _truncate(item.summary or item.headline, 220)
+        lines.append(
+            f"- You researched **{item.topic}** on {item.published_date} - "
+            f"key finding then: {detail}"
+        )
+    lines.append(library_index.LIBRARY_CONTEXT_END)
+    return lines
+
+
+def render_library_search(
+    query: str,
+    matches: list[library_index.LibrarySearchMatch],
+) -> str:
+    """Render dated FTS matches grouped by the topic run that produced them."""
+    if not matches:
+        return (
+            f"# Library search: {query}\n\n"
+            "No saved briefs or store sightings matched this query.\n"
+        )
+    groups: dict[tuple[str, date], list[library_index.LibrarySearchMatch]] = {}
+    for match in matches:
+        groups.setdefault(match.run_key, []).append(match)
+    lines = [
+        f"# Library search: {query}",
+        "",
+        _AI_SAFETY_NOTE,
+        "",
+        f"Found {len(matches)} match(es) across {len(groups)} topic run(s).",
+        "",
+    ]
+    for (topic, published), run_matches in groups.items():
+        lines.extend([f"## {topic} - {published.isoformat()}", ""])
+        for match in run_matches:
+            label = "Saved brief" if match.source_kind == "brief" else "Store sighting"
+            engagement = ""
+            if match.engagement is not None:
+                engagement = (
+                    f"; {_format_library_engagement(match.engagement)} engagement"
+                )
+            lines.append(f"- **{label}:** {match.headline}{engagement}")
+            if match.snippet and match.snippet != match.headline:
+                lines.append(f"  {match.snippet}")
+            location = match.url or match.source_path
+            if location:
+                lines.append(f"  Source: {location}")
+        lines.append("")
+    return "\n".join(lines).strip() + "\n"
+
+
+def _format_library_engagement(value: float) -> str:
+    if value >= 1_000_000:
+        return f"{value / 1_000_000:.1f}M"
+    if value >= 1_000:
+        return f"{value / 1_000:.1f}K"
+    return f"{value:g}"
+
+
+def _qualifying_representative_ids(
+    cluster: schema.Cluster,
+    candidate_by_id: dict[str, schema.Candidate],
+    *,
+    limit: int | None = None,
+    fallback_limit: int = 1,
+) -> list[str]:
+    """Keep qualifying MMR representatives, or promote a conservative fallback."""
+    representative_ids = [
+        candidate_id
+        for candidate_id in cluster.representative_ids
+        if candidate_id in candidate_by_id
+        and _best_take_relevance_ok(candidate_by_id[candidate_id])
+    ]
+    if not representative_ids:
+        representative_ids = [
+            candidate_id
+            for candidate_id in cluster.candidate_ids
+            if candidate_id in candidate_by_id
+            and _best_take_relevance_ok(candidate_by_id[candidate_id])
+        ][:fallback_limit]
+    return representative_ids[:limit] if limit is not None else representative_ids
+
+
+def _render_ranked_clusters(
+    report: schema.Report,
+    clusters: list[schema.Cluster],
+) -> list[str]:
+    lines = ["## Ranked Evidence Clusters", ""]
+    candidate_by_id = {
+        candidate.candidate_id: candidate for candidate in report.ranked_candidates
+    }
+    solid_clusters = _clusters_clearing_relevance_floor(report, clusters)
+    if clusters and not solid_clusters:
+        lines.extend(
+            [
+                "**Nothing solid this window.**",
+                "",
+                "No recent evidence cluster cleared the relevance floor. "
+                "Do not infer findings or quote community comments from this run.",
+                "",
+            ]
+        )
+    for index, cluster in enumerate(solid_clusters, start=1):
+        lines.append(
+            f"### {index}. {_safe_title(cluster.title)} "
+            f"(score {cluster.score:.0f}, {len(cluster.candidate_ids)} "
+            f"item{'s' if len(cluster.candidate_ids) != 1 else ''}, "
+            f"sources: {', '.join(_source_label(source) for source in cluster.sources)})"
+        )
+        if cluster.uncertainty:
+            lines.append(f"- Uncertainty: {cluster.uncertainty}")
+        representative_ids = _qualifying_representative_ids(
+            cluster,
+            candidate_by_id,
+        )
+        for rep_index, candidate_id in enumerate(representative_ids, start=1):
+            candidate = candidate_by_id.get(candidate_id)
+            if not candidate:
+                continue
+            lines.extend(
+                _render_candidate(candidate, prefix=f"{rep_index}.", report=report)
+            )
+        lines.append("")
+    return lines
+
+
+def _auxiliary_candidate_pool(
+    report: schema.Report,
+    visible_clusters: list[schema.Cluster],
+    solid_clusters: list[schema.Cluster],
+) -> list[schema.Candidate]:
+    """Candidates for Best Takes and Top Community Comments.
+
+    Those sections are cross-cutting evidence surfaces, so they read every
+    cluster that clears the relevance floor, not only the ``cluster_limit``
+    clusters shown in ``## Ranked Evidence Clusters``: a 3,000-vote comment on
+    the thread in cluster eleven is exactly what the brief is for. The
+    nothing-solid gate is unchanged: when the visible set has clusters but
+    none clear the floor, the pool is empty.
+    """
+    if visible_clusters and not solid_clusters:
+        return []
+    all_solid = _clusters_clearing_relevance_floor(report, report.clusters)
+    return _candidates_for_auxiliary_sections(report, report.clusters, all_solid)
+
+
+def _clusters_clearing_relevance_floor(
+    report: schema.Report,
+    clusters: list[schema.Cluster],
+) -> list[schema.Cluster]:
+    """Return visible clusters with positive, non-entity-miss evidence.
+
+    A zero-score cluster is diagnostic retrieval residue rather than evidence.
+    Likewise, a positive cluster with known members but no qualifying member
+    must not be promoted by engagement into the synthesis. Every cluster member
+    is considered because MMR representatives can omit valid evidence. Missing
+    member records are not treated as misses: score remains the only signal
+    available when no member record is present.
+    """
+    candidate_by_id = {
+        candidate.candidate_id: candidate for candidate in report.ranked_candidates
+    }
+    solid: list[schema.Cluster] = []
+    for cluster in clusters:
+        if cluster.score <= 0:
+            continue
+        members = [
+            candidate_by_id[candidate_id]
+            for candidate_id in cluster.candidate_ids
+            if candidate_id in candidate_by_id
+        ]
+        if members and not any(
+            _best_take_relevance_ok(candidate) for candidate in members
+        ):
+            continue
+        solid.append(cluster)
+    return solid
+
+
+def _candidates_in_clusters(
+    report: schema.Report,
+    clusters: list[schema.Cluster],
+) -> list[schema.Candidate]:
+    """Return ranked candidates belonging to the supplied visible clusters."""
+    candidate_ids = {
+        candidate_id for cluster in clusters for candidate_id in cluster.candidate_ids
+    }
+    return [
+        candidate
+        for candidate in report.ranked_candidates
+        if candidate.candidate_id in candidate_ids
+    ]
+
+
+def _candidates_for_auxiliary_sections(
+    report: schema.Report,
+    requested_clusters: list[schema.Cluster],
+    visible_clusters: list[schema.Cluster],
+) -> list[schema.Candidate]:
+    """Exclude rejected cluster members while preserving unclustered evidence."""
+    if requested_clusters and not visible_clusters:
+        return []
+    clustered_ids = {
+        candidate_id
+        for cluster in report.clusters
+        for candidate_id in cluster.candidate_ids
+    }
+    visible_ids = {
+        candidate_id
+        for cluster in visible_clusters
+        for candidate_id in cluster.candidate_ids
+    }
+    return [
+        candidate
+        for candidate in report.ranked_candidates
+        if candidate.candidate_id not in clustered_ids
+        or candidate.candidate_id in visible_ids
+    ]
+
+
+def _visible_clusters_fail_relevance_floor(
+    report: schema.Report,
+    clusters: list[schema.Cluster],
+) -> bool:
+    """Whether a non-empty visible cluster set contains no usable evidence."""
+    return bool(clusters) and not _clusters_clearing_relevance_floor(report, clusters)
+
+
+def _render_corpus_section(report: schema.Report, limit: int = 8) -> list[str]:
+    """Render private local evidence in one removable, clearly badged block."""
+    candidates = [
+        candidate
+        for candidate in report.ranked_candidates
+        if candidate.source == "corpus"
+    ][:limit]
+    if not candidates:
+        return []
+    lines = [
+        PRIVATE_CORPUS_START,
+        "## From your files",
+        "",
+        "> 🔒 **LOCAL ONLY** - excluded from hosted publishing and agent JSON unless explicitly opted in.",
+        "",
+    ]
+    for candidate in candidates:
+        primary = schema.candidate_primary_item(candidate)
+        path = str((primary.metadata if primary else {}).get("relative_path") or "")
+        published = primary.published_at if primary else None
+        detail = f"modified {published}" if published else "modification date unknown"
+        # Corpus content sits inside the EVIDENCE FOR SYNTHESIS envelope, so it
+        # needs the engine-sentinel defanging every other evidence path gets
+        # (#1053) on top of the corpus-marker defanging. A local file is not
+        # automatically trustworthy input: it may have been downloaded, shared,
+        # or generated by someone else.
+        lines.append(
+            f"- **{_defang_corpus_sentinels(_safe_title(candidate.title))}** "
+            f"({detail}, relevance {candidate.final_score:.0f})"
+        )
+        if path:
+            lines.append(
+                f"  - File: `{_defang_corpus_sentinels(_safe_title(path))}`"
+            )
+        if candidate.snippet:
+            lines.append(
+                "  - "
+                + _defang_corpus_sentinels(
+                    _format_untrusted_evidence(
+                        candidate.snippet, 300, continuation_indent="    "
+                    )
+                )
+            )
+    lines.append(PRIVATE_CORPUS_END)
+    return lines
+
+
+def _defang_corpus_sentinels(value: str) -> str:
+    """Source content must not be able to terminate the private-block markers.
+
+    A note containing the literal end marker would otherwise close the block
+    early, leaving later corpus snippets in publishable output.
+    """
+    return value.replace("LAST30DAYS_PRIVATE_CORPUS", "LAST30DAYS_PRIVATE-CORPUS")
+
+
+def _defang_engine_sentinels(value: str) -> str:
+    """Source content must not be able to forge the engine's own block markers.
+
+    The EVIDENCE FOR SYNTHESIS and PASS-THROUGH FOOTER envelopes are HTML
+    comments, and LAW 5 tells the host model to emit the footer block
+    verbatim. Scraped text carrying those markers could therefore close the
+    evidence envelope early or open a footer the model relays to the user
+    unmodified. Breaking the comment delimiters is what actually neutralizes
+    them; the phrase substitutions are defense in depth for a model that
+    pattern-matches on the wording rather than the comment syntax.
+    """
+    return (
+        value.replace("<!--", "<!- -")
+        .replace("-->", "- ->")
+        .replace("PASS-THROUGH FOOTER", "PASS-THROUGH-FOOTER")
+        .replace("EVIDENCE FOR SYNTHESIS", "EVIDENCE-FOR-SYNTHESIS")
+    )
+
+
+def _safe_title(title: str) -> str:
+    """Render a scraped title as one defanged line.
+
+    On X, TikTok, Instagram and LinkedIn the title *is* the post body
+    (``normalize.py`` takes ``text[:140]``), and normalization only strips
+    the ends, so internal newlines survive. Unlike snippets, titles are
+    interpolated straight into engine-authored structure, so an unflattened
+    one can open its own markdown blocks or forge the sentinels above.
+    Collapsing whitespace first is what keeps the title on the line the
+    caller built for it.
+    """
+    return _defang_engine_sentinels(" ".join(title.split()))
+
+
+_FRESHNESS_PRIORITY = {
+    "contradicted": 0,
+    "stale": 1,
+    "unsupported": 2,
+    "current": 3,
+}
+
+
+def _candidate_freshness_flag(report: schema.Report, candidate_id: str) -> str:
+    states = {
+        verdict.verdict
+        for verdict in report.freshness_verdicts
+        if verdict.candidate_id == candidate_id
+    }
+    if not states:
+        return ""
+    ordered = sorted(states, key=lambda state: _FRESHNESS_PRIORITY[state])
+    return " [freshness:" + ",".join(ordered) + "]"
+
+
+def _render_freshness_verdicts(report: schema.Report) -> list[str]:
+    if not report.freshness_verdicts:
+        return []
+    lines = [
+        "## Freshness Verification",
+        "",
+        "| Verdict | Claim | Evidence | Checked |",
+        "| --- | --- | --- | --- |",
+    ]
+    for verdict in report.freshness_verdicts:
+        claim = verdict.claim.replace("|", "\\|")
+        if verdict.detail:
+            # The verifier's detail carries the formatted movement for stale
+            # rows and the reason a claim could not be re-checked otherwise.
+            claim += f" ({verdict.detail.replace('|', chr(92) + '|')})"
+        evidence_label = (
+            verdict.evidence_timestamp or verdict.source_timestamp or "source"
+        )
+        evidence = (
+            f"[{evidence_label}]({verdict.evidence_url})"
+            if verdict.evidence_url
+            else evidence_label
+        )
+        lines.append(
+            f"| **{verdict.verdict}** | {claim} | {evidence} | {verdict.checked_at} |"
+        )
+    return lines
+
+
+def _clusters_for_register(
+    report: schema.Report,
+    audience: registers.AudienceRegister,
+    fallback_limit: int,
+) -> list[schema.Cluster]:
+    """Apply a preset's source emphasis without mutating pipeline rankings."""
+
+    clusters = list(report.clusters)
+    if audience.emphasis_weights:
+        clusters.sort(
+            key=lambda cluster: (
+                -cluster.score
+                * max(
+                    (audience.emphasis_for(source) for source in cluster.sources),
+                    default=1.0,
+                )
+            )
+        )
+    return clusters[: audience.budget_for("clusters", fallback_limit)]
+
+
+def _render_registered_sections(
+    report: schema.Report,
+    audience: registers.AudienceRegister,
+    fun_params: dict[str, float | int],
+    cluster_limit: int,
+    *,
+    include_source_diagnostics: bool = True,
+) -> list[str]:
+    """Render one audience preset's ordered, budgeted evidence sections."""
+
+    visible_clusters = _clusters_for_register(report, audience, cluster_limit)
+    solid_clusters = _clusters_clearing_relevance_floor(report, visible_clusters)
+    visible_candidates = _candidates_for_auxiliary_sections(
+        report,
+        visible_clusters,
+        solid_clusters,
+    )
+    no_solid_evidence = bool(visible_clusters) and not solid_clusters
+    aux_candidates = _auxiliary_candidate_pool(report, visible_clusters, solid_clusters)
+    if no_solid_evidence:
+        best_takes: list[str] = []
+        top_comments: list[str] = []
+    else:
+        best_takes = _render_best_takes(
+            aux_candidates,
+            limit=audience.budget_for("best_takes", int(fun_params["limit"])),
+            threshold=float(fun_params["threshold"]),
+            vote_weight=float(fun_params.get("vote_weight", 18.0)),
+            # The preset's source emphasis must reach the lead section's own
+            # ranking: a creator register surfaces TikTok/IG/YouTube takes ahead
+            # of equally-rated HN or GitHub ones.
+            source_weight=(
+                audience.emphasis_for if audience.emphasis_weights else None
+            ),
+        )
+        if not best_takes:
+            best_takes = [
+                "## Best Takes",
+                "",
+                "- No qualifying takes surfaced in this run.",
+            ]
+
+        top_comments = _render_top_comments(
+            report,
+            limit=audience.budget_for("top_comments", 8),
+            candidates=aux_candidates,
+        )
+        if not top_comments:
+            top_comments = [
+                "## Top Community Comments",
+                "",
+                "- No qualifying community comments surfaced in this run.",
+            ]
+
+    sections = {
+        "hiring_signals": (
+            []
+            if no_solid_evidence
+            else _render_hiring_signals(
+                report,
+                candidates=None if not visible_clusters else visible_candidates,
+            )
+        ),
+        "clusters": _render_ranked_clusters(
+            report,
+            visible_clusters,
+        ),
+        "stats": _render_stats(report),
+        "best_takes": best_takes,
+        "top_comments": top_comments,
+        "source_outcomes": _render_source_outcome_note(report),
+        "source_coverage": _render_source_coverage(report, include_errors=False),
+    }
+    lines: list[str] = []
+    for section_name in audience.section_order:
+        if not include_source_diagnostics and section_name in {
+            "source_outcomes",
+            "source_coverage",
+        }:
+            continue
+        block = sections[section_name]
+        if not block:
+            continue
+        if lines and lines[-1] != "":
+            lines.append("")
+        lines.extend(block)
+    return lines
+
+
+def render_compact(
+    report: schema.Report,
+    cluster_limit: int = 8,
+    fun_level: str = "medium",
+    save_path: str | None = None,
+    register: str = "default",
+) -> str:
+    audience = registers.get_register(register)
+    evidence_report = schema.without_sources(report, {"corpus"})
     non_empty = [s for s, items in sorted(report.items_by_source.items()) if items]
     lines = [
         *_render_badge(),
@@ -118,21 +800,32 @@ def render_compact(report: schema.Report, cluster_limit: int = 8, fun_level: str
         "",
         *_assistant_safety_lines(),
         f"- Date range: {report.range_from} to {report.range_to}",
-        f"- Sources: {len(non_empty)} active ({', '.join(_source_label(s) for s in non_empty)})" if non_empty else "- Sources: none",
+        f"- Sources: {len(non_empty)} active ({', '.join(_source_label(s) for s in non_empty)})"
+        if non_empty
+        else "- Sources: none",
         "",
     ]
+    drill_context = _render_drill_context(report)
+    if drill_context:
+        lines.extend([*drill_context, ""])
+    library_context = _render_library_context(report)
+    if library_context:
+        lines.extend([*library_context, ""])
 
     freshness_warning = _assess_data_freshness(report)
     if freshness_warning:
-        lines.extend([
-            "## Freshness",
-            f"- {freshness_warning}",
-            "",
-        ])
+        lines.extend(
+            [
+                "## Freshness",
+                f"- {freshness_warning}",
+                "",
+            ]
+        )
 
-    if report.warnings:
+    user_warnings = _warnings_without_source_failures(report.warnings)
+    if user_warnings:
         lines.append("## Warnings")
-        lines.extend(f"- {warning}" for warning in report.warnings)
+        lines.extend(f"- {warning}" for warning in user_warnings)
         lines.append("")
 
     # LAW 7 backstop: emit the DEGRADED RUN WARNING block BEFORE the evidence
@@ -151,45 +844,83 @@ def render_compact(report: schema.Report, cluster_limit: int = 8, fun_level: str
     # verbatim as user output. The envelope comments give the model an
     # unambiguous scope for "pass through verbatim" (the PASS-THROUGH FOOTER
     # block below) vs "synthesize from" (this block).
-    lines.append("<!-- EVIDENCE FOR SYNTHESIS: read this, do not emit verbatim. Transform into `What I learned:` prose per LAW 2. -->")
+    lines.append(
+        "<!-- EVIDENCE FOR SYNTHESIS: read this, do not emit verbatim. Transform into `What I learned:` prose per LAW 2. -->"
+    )
     lines.append("")
-    hiring_block = _render_hiring_signals(report)
-    if hiring_block:
+    # Echo the synthesis contract early so it survives tail truncation (#726).
+    lines.extend(_render_synthesis_directive())
+    visible_clusters = evidence_report.clusters[:cluster_limit]
+    solid_clusters = _clusters_clearing_relevance_floor(
+        evidence_report,
+        visible_clusters,
+    )
+    visible_candidates = _candidates_for_auxiliary_sections(
+        evidence_report,
+        visible_clusters,
+        solid_clusters,
+    )
+    no_solid_evidence = bool(visible_clusters) and not solid_clusters
+    aux_candidates = _auxiliary_candidate_pool(
+        evidence_report, visible_clusters, solid_clusters
+    )
+    hiring_block = (
+        []
+        if no_solid_evidence
+        else _render_hiring_signals(
+            evidence_report,
+            candidates=None if not visible_clusters else visible_candidates,
+        )
+    )
+    if hiring_block and audience.name in {"default", "eli5"}:
         lines.extend(hiring_block)
         lines.append("")
-    lines.append("## Ranked Evidence Clusters")
-    lines.append("")
-    candidate_by_id = {candidate.candidate_id: candidate for candidate in report.ranked_candidates}
-    for index, cluster in enumerate(report.clusters[:cluster_limit], start=1):
-        lines.append(
-            f"### {index}. {cluster.title} "
-            f"(score {cluster.score:.0f}, {len(cluster.candidate_ids)} item{'s' if len(cluster.candidate_ids) != 1 else ''}, "
-            f"sources: {', '.join(_source_label(source) for source in cluster.sources)})"
-        )
-        if cluster.uncertainty:
-            lines.append(f"- Uncertainty: {cluster.uncertainty}")
-        for rep_index, candidate_id in enumerate(cluster.representative_ids, start=1):
-            candidate = candidate_by_id.get(candidate_id)
-            if not candidate:
-                continue
-            lines.extend(_render_candidate(candidate, prefix=f"{rep_index}."))
-        lines.append("")
-
-    lines.extend(_render_stats(report))
-
     fun_params = _FUN_LEVELS.get(fun_level, _FUN_LEVELS["medium"])
-    best_takes = _render_best_takes(report.ranked_candidates, limit=fun_params["limit"], threshold=fun_params["threshold"], vote_weight=fun_params.get("vote_weight", 18.0))
-    if best_takes:
-        lines.extend([""] + best_takes)
+    if audience.name in {"default", "eli5"}:
+        # Keep this legacy assembly byte-for-byte stable. ELI5 has always been
+        # a synthesis-only voice change, so it intentionally takes this path.
+        lines.extend(_render_ranked_clusters(evidence_report, visible_clusters))
+        lines.extend(_render_stats(evidence_report))
 
-    top_comments = _render_top_comments(report)
-    if top_comments:
-        lines.extend([""] + top_comments)
+        if not no_solid_evidence:
+            best_takes = _render_best_takes(
+                aux_candidates,
+                limit=fun_params["limit"],
+                threshold=fun_params["threshold"],
+                vote_weight=fun_params.get("vote_weight", 18.0),
+            )
+            if best_takes:
+                lines.extend([""] + best_takes)
 
-    lines.extend(_render_source_coverage(report))
+            top_comments = _render_top_comments(
+                evidence_report,
+                candidates=aux_candidates,
+            )
+            if top_comments:
+                lines.extend([""] + top_comments)
+
+        outcome_note = _render_source_outcome_note(report)
+        if outcome_note:
+            lines.extend([""] + outcome_note)
+
+        lines.extend(_render_source_coverage(report, include_errors=False))
+    else:
+        lines.extend(
+            _render_registered_sections(
+                evidence_report, audience, fun_params, cluster_limit
+            )
+        )
+    corpus_section = _render_corpus_section(report)
+    if corpus_section:
+        lines.extend(["", *corpus_section])
     # Close EVIDENCE FOR SYNTHESIS envelope before anything that passes through verbatim.
     lines.append("")
     lines.append("<!-- END EVIDENCE FOR SYNTHESIS -->")
+
+    freshness_verdicts = _render_freshness_verdicts(report)
+    if freshness_verdicts:
+        lines.append("")
+        lines.extend(freshness_verdicts)
 
     pre_research_warning = _render_pre_research_warning(report)
     if pre_research_warning:
@@ -204,7 +935,9 @@ def render_compact(report: schema.Report, cluster_limit: int = 8, fun_level: str
     footer = _render_emoji_footer(report, save_path)
     if footer:
         lines.append("")
-        lines.append("<!-- PASS-THROUGH FOOTER: emit verbatim in the model response per LAW 5. -->")
+        lines.append(
+            "<!-- PASS-THROUGH FOOTER: emit verbatim in the model response per LAW 5. -->"
+        )
         lines.extend(footer)
         lines.append("<!-- END PASS-THROUGH FOOTER -->")
 
@@ -218,6 +951,8 @@ def render_for_html(
     synthesis_md: str | None = None,
     *,
     save_path: str | None = None,
+    fun_level: str = "medium",
+    register: str = "default",
 ) -> str:
     """Render markdown intended for shareable HTML conversion.
 
@@ -227,20 +962,59 @@ def render_for_html(
     model-facing safety note, and evidence scratchpad emitted by
     render_compact().
 
-    When synthesis_md is None, the body is intentionally sparse: badge,
-    metadata, optional data quality note, and engine footer only.
+    With the default/eli5 register and no synthesis_md, the body is
+    intentionally sparse: badge, metadata, optional data quality note, and
+    engine footer only. Other named registers render their ordered evidence
+    sections so direct HTML output reflects the selected audience preset.
     """
+    audience = registers.get_register(register)
+    evidence_report = schema.without_sources(report, {"corpus"})
     lines = [
         *_render_badge(),
         *_render_html_metadata(report),
     ]
-    hiring_block = _render_hiring_signals(report)
+    drill_context = _render_drill_context(report)
+    if drill_context:
+        lines.extend(["", *drill_context])
+    html_clusters = _clusters_clearing_relevance_floor(
+        evidence_report,
+        evidence_report.clusters,
+    )
+    html_candidates = _candidates_for_auxiliary_sections(
+        evidence_report,
+        evidence_report.clusters,
+        html_clusters,
+    )
+    hiring_block = _render_hiring_signals(
+        evidence_report,
+        candidates=html_candidates if evidence_report.clusters else None,
+    )
     if synthesis_md:
         lines.extend(["", synthesis_md.strip()])
         if hiring_block and "## Hiring Signals" not in synthesis_md:
             lines.extend(["", *hiring_block])
-    elif hiring_block:
+    elif hiring_block and audience.name in {"default", "eli5"}:
         lines.extend(["", *hiring_block])
+    if not synthesis_md and audience.name not in {"default", "eli5"}:
+        fun_params = _FUN_LEVELS.get(fun_level, _FUN_LEVELS["medium"])
+        lines.extend(
+            [
+                "",
+                *_render_registered_sections(
+                    evidence_report,
+                    audience,
+                    fun_params,
+                    8,
+                    include_source_diagnostics=False,
+                ),
+            ]
+        )
+    corpus_section = _render_corpus_section(report)
+    if corpus_section:
+        lines.extend(["", *corpus_section])
+    freshness_verdicts = _render_freshness_verdicts(report)
+    if freshness_verdicts:
+        lines.extend(["", *freshness_verdicts])
     # Data quality warnings are NOT rendered into the HTML artifact. The HTML
     # is meant to be shared (Slack, email, Notion); recipients haven't asked
     # for technical commentary about how the run was produced. Generators see
@@ -276,6 +1050,13 @@ def render_for_html_comparison(
     ]
     if synthesis_md:
         lines.extend(["", synthesis_md.strip()])
+    for label, report in entity_reports:
+        freshness_verdicts = _render_freshness_verdicts(report)
+        if freshness_verdicts:
+            lines.extend(["", f"## {label}", "", *freshness_verdicts])
+        corpus_section = _render_corpus_section(report)
+        if corpus_section:
+            lines.extend(["", f"## {label}", "", *corpus_section])
     # Comparison data quality notes also go to stderr, not into the artifact.
     _append_html_footer(lines, main_report, save_path)
     return "\n".join(lines).strip() + "\n"
@@ -290,9 +1071,13 @@ def collect_html_warnings(report: schema.Report) -> list[str]:
     """
     notes: list[str] = []
     if _render_degraded_run_warning(report):
-        notes.append("Run was missing pre-flight resolution. Re-run with `--plan` for richer results.")
+        notes.append(
+            "Run was missing pre-flight resolution. Re-run with `--plan` for richer results."
+        )
     elif _render_pre_research_warning(report):
-        notes.append("Pre-research was skipped, so results may be thinner than a resolved run.")
+        notes.append(
+            "Pre-research was skipped, so results may be thinner than a resolved run."
+        )
     freshness_warning = _assess_data_freshness(report)
     if freshness_warning:
         notes.append(freshness_warning)
@@ -333,10 +1118,14 @@ def _render_html_data_quality_note(report: schema.Report) -> str | None:
     notes: list[str] = []
     degraded_warning = _render_degraded_run_warning(report)
     if degraded_warning:
-        notes.append("This run was missing pre-flight resolution. Re-run with `--plan` for richer results.")
+        notes.append(
+            "This run was missing pre-flight resolution. Re-run with `--plan` for richer results."
+        )
     pre_research_warning = _render_pre_research_warning(report)
     if pre_research_warning and not degraded_warning:
-        notes.append("Pre-research was skipped, so results may be thinner than a resolved run.")
+        notes.append(
+            "Pre-research was skipped, so results may be thinner than a resolved run."
+        )
     freshness_warning = _assess_data_freshness(report)
     if freshness_warning:
         notes.append(freshness_warning)
@@ -372,12 +1161,46 @@ def _dedupe_notes(notes: list[str]) -> list[str]:
     return out
 
 
-def _append_html_footer(lines: list[str], report: schema.Report, save_path: str | None) -> None:
+def _append_html_footer(
+    lines: list[str], report: schema.Report, save_path: str | None
+) -> None:
     footer = _render_emoji_footer(report, save_path)
     lines.append("")
-    lines.append("<!-- PASS-THROUGH FOOTER: emit verbatim in the model response per LAW 5. -->")
+    lines.append(
+        "<!-- PASS-THROUGH FOOTER: emit verbatim in the model response per LAW 5. -->"
+    )
     lines.extend(footer)
     lines.append("<!-- END PASS-THROUGH FOOTER -->")
+
+
+def _render_synthesis_directive() -> list[str]:
+    """Echo the synthesis contract at the TOP of the evidence envelope.
+
+    Added 2026-06-30 for issue #726 (Grok Build v0.2.67 emitted only logs and
+    raw evidence clusters instead of the canonical synthesis). Root cause: the
+    strong directive only lived in `_render_canonical_boundary` — the very END
+    of stdout, AFTER the whole evidence block and footer. Hosts that truncate
+    the tail (`engine | head -N`, timeout-backgrounding that captures partial
+    output, scrollback caps) keep the badge and the `### N.` clusters but never
+    reach the instruction that says "synthesize, don't dump", so they fall into
+    the LAW 6 failure mode and emit the raw evidence.
+
+    This block restates the contract in the head region that survives
+    truncation. It lives INSIDE the EVIDENCE FOR SYNTHESIS envelope (a model
+    instruction, not user output), mirroring how the DEGRADED RUN WARNING is
+    positioned early so the pass-through contract still carries it.
+    """
+    return [
+        "> **SYNTHESIS CONTRACT — read before emitting anything.** Everything below this",
+        "> line, up to where this evidence envelope closes, is raw evidence for you to",
+        "> READ, not text to emit. Transform it into `What I learned:` prose paragraphs",
+        "> per LAW 2. Do NOT pass the `### N.` evidence clusters or the stats and",
+        "> source-coverage blocks through verbatim. The ONLY block you emit verbatim is",
+        "> the PASS-THROUGH FOOTER (the emoji tree) lower down. The full contract repeats",
+        "> at the end-of-output boundary near the bottom; if your captured output was",
+        "> truncated and never reached it, this contract still binds.",
+        "",
+    ]
 
 
 def _render_canonical_boundary() -> list[str]:
@@ -480,7 +1303,7 @@ def _render_pre_research_warning(report: schema.Report) -> list[str]:
         f"rerun `/last30days {report.topic}`. The skill will resolve handles",
         "and communities before calling the engine this time, producing richer results.",
         "",
-        "If this topic really is abstract (e.g. \"AI regulation\") and doesn't need",
+        'If this topic really is abstract (e.g. "AI regulation") and doesn\'t need',
         "handle resolution, add `--auto-resolve` to the engine command or ignore this",
         "warning - the current results are the keyword-search fallback.",
     ]
@@ -518,7 +1341,7 @@ def _render_degraded_run_warning(report: schema.Report) -> list[str]:
         "<!-- USER-VISIBLE BANNER: emit verbatim before synthesis per LAW 5 / LAW 7. -->",
         "## DEGRADED RUN WARNING",
         "",
-        f"⚠️  This run was called BARE on a named-entity topic (\"{report.topic}\"):",
+        f'⚠️  This run was called BARE on a named-entity topic ("{report.topic}"):',
         "no `--plan` JSON, no pre-flight handle resolution. The engine ran",
         "deterministic fallback retrieval, which is the cron/headless path -",
         "weaker than the path where the hosting reasoning model authors its own",
@@ -546,19 +1369,17 @@ def _render_degraded_run_warning(report: schema.Report) -> list[str]:
 
 
 def _parse_comparison_entities(topic: str) -> list[str] | None:
-    """Return list of entity names if topic is a comparison query, else None.
+    """Return entity names if topic is a comparison query, else None.
 
-    Splits on ` vs ` or ` versus ` (case-insensitive). Caps at 4 entities
-    for table readability. Returns None if only one entity or empty input.
+    Delegates to ``planner._comparison_entities`` so scaffold columns match
+    vs-routing (including `/`, trailing-context strip, and dedup).
     """
     if not topic:
         return None
-    import re
-    parts = re.split(r"\s+(?:vs\.?|versus)\s+", topic.strip(), flags=re.IGNORECASE)
-    parts = [p.strip() for p in parts if p.strip()]
-    if len(parts) < 2:
-        return None
-    return parts[:4]
+    from . import planner
+
+    entities = planner._comparison_entities(topic)
+    return entities if len(entities) >= 2 else None
 
 
 def _render_comparison_scaffold(topic: str) -> list[str]:
@@ -598,7 +1419,7 @@ def _render_comparison_scaffold(topic: str) -> list[str]:
     fill_instructions = (
         "Fill each cell based on the research above. Keep cells short (5-15 words). "
         "Use ' - ' (hyphen with spaces) not em-dashes. Write N/A for axes that do not apply to this topic class. "
-        "Ground the \"What it is\" row in first-party positioning fetched during this run's research when "
+        'Ground the "What it is" row in first-party positioning fetched during this run\'s research when '
         "available - describe each entity as it pitches itself today, never from memory. "
         "This scaffold matches the April 9 launch-video exemplar shape."
     )
@@ -668,6 +1489,8 @@ def render_comparison_multi(
         "`What I learned:` prose per LAW 2. Each entity has its own evidence subsection. -->"
     )
     lines.append("")
+    # Echo the synthesis contract early so it survives tail truncation (#726).
+    lines.extend(_render_synthesis_directive())
 
     resolved_block = _render_resolved_entities_block(entity_reports)
     if resolved_block:
@@ -676,15 +1499,22 @@ def render_comparison_multi(
 
     fun_params = _FUN_LEVELS.get(fun_level, _FUN_LEVELS["medium"])
     for label, report in entity_reports:
-        lines.extend(_render_entity_evidence_block(
-            label=label,
-            report=report,
-            cluster_limit=cluster_limit,
-            fun_params=fun_params,
-        ))
+        lines.extend(
+            _render_entity_evidence_block(
+                label=label,
+                report=report,
+                cluster_limit=cluster_limit,
+                fun_params=fun_params,
+            )
+        )
 
     lines.append("<!-- END EVIDENCE FOR SYNTHESIS -->")
     lines.append("")
+
+    for label, report in entity_reports:
+        freshness_verdicts = _render_freshness_verdicts(report)
+        if freshness_verdicts:
+            lines.extend([f"## {label}", "", *freshness_verdicts, ""])
 
     # Reuse the existing comparison scaffold by feeding it the synthesized
     # topic. _parse_comparison_entities splits on " vs " so the scaffold
@@ -695,7 +1525,9 @@ def render_comparison_multi(
     footer = _render_emoji_footer(main_report, save_path)
     if footer:
         lines.append("")
-        lines.append("<!-- PASS-THROUGH FOOTER: emit verbatim in the model response per LAW 5. -->")
+        lines.append(
+            "<!-- PASS-THROUGH FOOTER: emit verbatim in the model response per LAW 5. -->"
+        )
         lines.extend(footer)
         lines.append("<!-- END PASS-THROUGH FOOTER -->")
 
@@ -732,15 +1564,20 @@ def _render_resolved_entities_block(
 
         x_display = f"@{x_handle}" if x_handle else "-"
         subs_display = (
-            ", ".join(f"r/{s}" for s in subs[:5]) + (
-                f" (+{len(subs) - 5})" if len(subs) > 5 else ""
+            (
+                ", ".join(f"r/{s}" for s in subs[:5])
+                + (f" (+{len(subs) - 5})" if len(subs) > 5 else "")
             )
-        ) if subs else "-"
+            if subs
+            else "-"
+        )
         gh_display = f"@{gh_user}" if gh_user else "-"
         if gh_repos:
-            gh_display += f" ({', '.join(gh_repos[:3])}" + (
-                f" +{len(gh_repos) - 3}" if len(gh_repos) > 3 else ""
-            ) + ")"
+            gh_display += (
+                f" ({', '.join(gh_repos[:3])}"
+                + (f" +{len(gh_repos) - 3}" if len(gh_repos) > 3 else "")
+                + ")"
+            )
         context_display = _truncate(context, 120) if context else "-"
 
         out.append(
@@ -758,40 +1595,77 @@ def _render_entity_evidence_block(
     fun_params: dict,
 ) -> list[str]:
     """Render one entity's clusters and best-takes inside the evidence envelope."""
-    candidate_by_id = {c.candidate_id: c for c in report.ranked_candidates}
+    evidence_report = schema.without_sources(report, {"corpus"})
+    candidate_by_id = {c.candidate_id: c for c in evidence_report.ranked_candidates}
+    requested_clusters = evidence_report.clusters[:cluster_limit]
+    visible_clusters = _clusters_clearing_relevance_floor(
+        evidence_report,
+        requested_clusters,
+    )
     out: list[str] = [f"## {label}", ""]
 
-    if not report.clusters:
+    if not evidence_report.clusters:
         out.append("(no significant discussion this month)")
         out.append("")
+        corpus_section = _render_corpus_section(report)
+        if corpus_section:
+            out.extend(corpus_section)
+            out.append("")
         return out
 
     out.append("### Ranked Evidence Clusters")
     out.append("")
-    for index, cluster in enumerate(report.clusters[:cluster_limit], start=1):
+    if requested_clusters and not visible_clusters:
+        out.extend(
+            [
+                "**Nothing solid this window.**",
+                "",
+                "No recent evidence cluster cleared the relevance floor.",
+                "",
+            ]
+        )
+    for index, cluster in enumerate(visible_clusters, start=1):
         out.append(
-            f"#### {index}. {cluster.title} "
+            f"#### {index}. {_safe_title(cluster.title)} "
             f"(score {cluster.score:.0f}, {len(cluster.candidate_ids)} item"
             f"{'s' if len(cluster.candidate_ids) != 1 else ''}, "
             f"sources: {', '.join(_source_label(s) for s in cluster.sources)})"
         )
         if cluster.uncertainty:
             out.append(f"- Uncertainty: {cluster.uncertainty}")
-        for rep_index, candidate_id in enumerate(cluster.representative_ids, start=1):
+        representative_ids = _qualifying_representative_ids(
+            cluster,
+            candidate_by_id,
+        )
+        for rep_index, candidate_id in enumerate(representative_ids, start=1):
             candidate = candidate_by_id.get(candidate_id)
             if not candidate:
                 continue
-            out.extend(_render_candidate(candidate, prefix=f"{rep_index}."))
+            out.extend(
+                _render_candidate(
+                    candidate, prefix=f"{rep_index}.", report=evidence_report
+                )
+            )
         out.append("")
 
+    comparison_candidates = _candidates_for_auxiliary_sections(
+        evidence_report,
+        requested_clusters,
+        visible_clusters,
+    )
     best_takes = _render_best_takes(
-        report.ranked_candidates,
+        comparison_candidates,
         limit=fun_params["limit"],
         threshold=fun_params["threshold"],
         vote_weight=fun_params.get("vote_weight", 18.0),
     )
     if best_takes:
         out.extend(best_takes)
+        out.append("")
+
+    corpus_section = _render_corpus_section(report)
+    if corpus_section:
+        out.extend(corpus_section)
         out.append("")
 
     return out
@@ -816,23 +1690,121 @@ def render_comparison_multi_context(
     if resolved_block:
         lines.extend(resolved_block)
         lines.append("")
+    # render_context surfaces warnings for a single-entity run; omitting them
+    # here left context mode the one supported output where a dropped entity
+    # or a failed source is invisible. Placed above the per-entity sections so
+    # it survives tail truncation, matching render_comparison_multi.
+    aggregated_warnings = [
+        f"[{label}] {warning}"
+        for label, report in entity_reports
+        for warning in report.warnings
+    ]
+    if aggregated_warnings:
+        lines.append("Warnings:")
+        lines.extend(f"- {warning}" for warning in aggregated_warnings)
+        lines.append("")
     for label, report in entity_reports:
+        evidence_report = schema.without_sources(report, {"corpus"})
+        requested_clusters = evidence_report.clusters[:cluster_limit]
+        visible_clusters = _clusters_clearing_relevance_floor(
+            evidence_report,
+            requested_clusters,
+        )
         lines.append(f"## {label}")
         lines.append(f"Intent: {report.query_plan.intent}")
-        if not report.clusters:
+        if not evidence_report.clusters:
             lines.append("- (no significant discussion this month)")
+        elif not visible_clusters:
+            lines.append("- Nothing solid this window.")
         else:
-            for cluster in report.clusters[:cluster_limit]:
+            for cluster in visible_clusters:
                 lines.append(
-                    f"- {cluster.title} "
+                    f"- {_safe_title(cluster.title)} "
                     f"[{', '.join(_source_label(s) for s in cluster.sources)}]"
                 )
+        corpus_section = _render_corpus_section(report)
+        if corpus_section:
+            lines.extend(["", *corpus_section])
         lines.append("")
     return "\n".join(lines).strip() + "\n"
 
 
-def render_full(report: schema.Report) -> str:
-    """Full data dump: ALL clusters + ALL items by source. For saved files and debugging."""
+_SAFE_MARKDOWN_LINK_SCHEMES = ("http", "https")
+_MARKDOWN_LINK_UNSAFE_CHARS = ("(", ")", "[", "]", "\\", "<", ">", "`")
+_MARKDOWN_PLAIN_TEXT_ESCAPES = re.compile(r"([\\`*_{}\[\]()#+\-.!|~:])")
+
+
+def _sanitize_url_for_single_line_output(url: str) -> str:
+    """Collapse embedded newlines/carriage-returns out of an untrusted URL.
+
+    A URL is not supposed to contain raw line breaks; a source-controlled
+    value that does could otherwise inject fabricated report structure
+    (fake headings, list items) into the saved single-line output --
+    whether or not it ends up wrapped in markdown link syntax. Applied
+    before either the link-safety check or the plain-text fallback below,
+    so this closes the injection at the root rather than only for links.
+    """
+    return "".join(
+        " "
+        if ch.isspace() or ord(ch) < 0x20 or 0x7F <= ord(ch) <= 0x9F
+        else ch
+        for ch in url
+    )
+
+
+def _escape_markdown_plain_text(value: str) -> str:
+    """Make untrusted text inert in Markdown without hiding its contents."""
+    value = value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    return _MARKDOWN_PLAIN_TEXT_ESCAPES.sub(r"\\\1", value)
+
+
+def _markdown_url_link(url: str) -> str:
+    """Render ``url`` as a markdown link when it's safe to, else escaped text.
+
+    Source URLs are untrusted API responses, not authored content: `(`/`)`/
+    `[`/`]` would corrupt markdown link syntax, a backslash can escape
+    adjacent markdown delimiters, and an unrestricted scheme (e.g.
+    ``javascript:``) would become an active link with none of the safety
+    filtering ``html_render.py`` already applies via
+    ``html.escape(url, quote=True)``. Falls back to escaped plain text so
+    rejected input cannot remain active Markdown or raw HTML.
+    """
+    if not url:
+        return ""
+    sanitized_url = _sanitize_url_for_single_line_output(url)
+    if not sanitized_url.strip():
+        return ""
+
+    has_whitespace_or_control = any(
+        ch.isspace() or ord(ch) < 0x20 or 0x7F <= ord(ch) <= 0x9F
+        for ch in url
+    )
+    safe_destination = False
+    if not has_whitespace_or_control and not any(
+        ch in sanitized_url for ch in _MARKDOWN_LINK_UNSAFE_CHARS
+    ):
+        try:
+            parsed = urlparse(sanitized_url)
+            _ = parsed.port
+            safe_destination = (
+                parsed.scheme.lower() in _SAFE_MARKDOWN_LINK_SCHEMES
+                and bool(parsed.netloc and parsed.hostname)
+            )
+        except ValueError:
+            safe_destination = False
+
+    if safe_destination:
+        return f"[{sanitized_url}]({sanitized_url})"
+    return _escape_markdown_plain_text(sanitized_url)
+
+
+def render_full(report: schema.Report, save_path: str | None = None) -> str:
+    """Full data dump: ALL clusters + ALL items by source. For saved files and debugging.
+
+    When ``save_path`` is provided, the deterministic emoji footer is appended
+    so the saved artifact cites the file actually written (collision fallback
+    included), matching the stdout footer contract."""
+    evidence_report = schema.without_sources(report, {"corpus"})
     # Start with the same header as compact
     non_empty = [s for s, items in sorted(report.items_by_source.items()) if items]
     lines = [
@@ -840,7 +1812,9 @@ def render_full(report: schema.Report) -> str:
         "",
         *_assistant_safety_lines(),
         f"- Date range: {report.range_from} to {report.range_to}",
-        f"- Sources: {len(non_empty)} active ({', '.join(_source_label(s) for s in non_empty)})" if non_empty else "- Sources: none",
+        f"- Sources: {len(non_empty)} active ({', '.join(_source_label(s) for s in non_empty)})"
+        if non_empty
+        else "- Sources: none",
         "",
     ]
 
@@ -848,6 +1822,10 @@ def render_full(report: schema.Report) -> str:
         lines.append("## Warnings")
         lines.extend(f"- {warning}" for warning in report.warnings)
         lines.append("")
+
+    library_context = _render_library_context(report)
+    if library_context:
+        lines.extend([*library_context, ""])
 
     # When this Report is a per-entity sub-run from vs-mode / --competitors,
     # include the single-row Resolved Entities block so the saved file is
@@ -861,27 +1839,20 @@ def render_full(report: schema.Report) -> str:
             lines.append("")
 
     # ALL clusters (no limit)
-    lines.append("## Ranked Evidence Clusters")
-    lines.append("")
-    candidate_by_id = {c.candidate_id: c for c in report.ranked_candidates}
-    for index, cluster in enumerate(report.clusters, start=1):
-        lines.append(
-            f"### {index}. {cluster.title} "
-            f"(score {cluster.score:.0f}, {len(cluster.candidate_ids)} item{'s' if len(cluster.candidate_ids) != 1 else ''}, "
-            f"sources: {', '.join(_source_label(s) for s in cluster.sources)})"
-        )
-        if cluster.uncertainty:
-            lines.append(f"- Uncertainty: {cluster.uncertainty}")
-        for rep_index, cid in enumerate(cluster.representative_ids, start=1):
-            candidate = candidate_by_id.get(cid)
-            if not candidate:
-                continue
-            lines.extend(_render_candidate(candidate, prefix=f"{rep_index}."))
-        lines.append("")
+    lines.extend(_render_ranked_clusters(evidence_report, evidence_report.clusters))
 
     fun_params = _FUN_LEVELS["medium"]
+    full_clusters = _clusters_clearing_relevance_floor(
+        evidence_report,
+        evidence_report.clusters,
+    )
+    full_candidates = _candidates_for_auxiliary_sections(
+        evidence_report,
+        evidence_report.clusters,
+        full_clusters,
+    )
     best_takes = _render_best_takes(
-        report.ranked_candidates,
+        full_candidates,
         limit=fun_params["limit"],
         threshold=fun_params["threshold"],
         vote_weight=fun_params["vote_weight"],
@@ -893,33 +1864,76 @@ def render_full(report: schema.Report) -> str:
     # ALL items by source (flat dump, v2-style)
     lines.append("## All Items by Source")
     lines.append("")
-    source_order = ["reddit", "x", "youtube", "tiktok", "instagram", "threads", "pinterest",
-                    "hackernews", "bluesky", "truthsocial", "polymarket", "grounding", "xiaohongshu", "github", "digg", "perplexity", "jobs"]
+    source_order = [
+        "reddit",
+        "x",
+        "youtube",
+        "tiktok",
+        "instagram",
+        "threads",
+        "pinterest",
+        "hackernews",
+        "bluesky",
+        "truthsocial",
+        "polymarket",
+        "grounding",
+        "xiaohongshu",
+        "github",
+        "digg",
+        "perplexity",
+        "jobs",
+    ]
+    # The list above fixes the display order for the sources it names, but it
+    # is not the source registry and drifts every time one is added: amazon,
+    # arxiv, techmeme, trustpilot, linkedin, and dripstack were all silently
+    # absent from this dump while appearing normally in the ranked section
+    # above, so the saved artifact -- the copy users keep -- was missing
+    # evidence the run actually collected. Append whatever else the report
+    # carries, sorted for determinism, so a new source is visible here the
+    # day it lands rather than the day someone notices.
+    source_order += sorted(
+        source for source in evidence_report.items_by_source
+        if source not in source_order
+    )
     for source in source_order:
-        items = report.items_by_source.get(source, [])
+        items = evidence_report.items_by_source.get(source, [])
         if not items:
             continue
         lines.append(f"### {_source_label(source)} ({len(items)} items)")
         lines.append("")
         for item in items:
             score = item.local_rank_score if item.local_rank_score is not None else 0
-            lines.append(f"**{item.item_id}** (score:{score:.0f}) {item.author or ''} ({item.published_at or 'date unknown'}) [{_format_item_engagement(item)}]")
-            lines.append(f"  {item.title}")
+            lines.append(
+                f"**{item.item_id}** (score:{score:.0f}) {item.author or ''} ({item.published_at or 'date unknown'}) [{_format_item_engagement(item)}]"
+            )
+            lines.append(f"  {_safe_title(item.title)}")
             if item.url:
-                lines.append(f"  {item.url}")
+                rendered_url = _markdown_url_link(item.url)
+                if rendered_url:
+                    lines.append(f"  {rendered_url}")
             if item.container:
                 lines.append(f"  *{item.container}*")
             if item.snippet:
-                lines.append(f"  {item.snippet[:500]}")
+                lines.append(
+                    f"  {_format_untrusted_evidence(item.snippet, 500, continuation_indent='  ')}"
+                )
             # Top comments for Reddit, YouTube, TikTok, HackerNews.
             top_comments = item.metadata.get("top_comments", [])
             if top_comments and isinstance(top_comments[0], dict):
                 vote_label = _vote_label_for(item.source)
                 for tc in top_comments[:3]:
-                    excerpt = tc.get("excerpt", tc.get("text", ""))[:200]
+                    excerpt = tc.get("excerpt", tc.get("text", ""))
                     tc_score = tc.get("score", "")
                     attribution = _comment_attribution(item.source, tc.get("author"))
-                    lines.append(f"  Top comment {attribution} ({tc_score} {vote_label}): {excerpt}")
+                    vote_part = (
+                        f" ({tc_score} {vote_label})"
+                        if tc_score is not None and tc_score != ""
+                        else ""
+                    )
+                    lines.append(
+                        f"  Top comment {attribution}{vote_part}: "
+                        f"{_format_untrusted_evidence(excerpt, 200, continuation_indent='  ')}"
+                    )
             # Digg: inline X-post quotes attached to the cluster.
             for post in _digg_posts_for(item, limit=3):
                 lines.append(f"  > {_format_digg_quote(post)}")
@@ -928,18 +1942,28 @@ def render_full(report: schema.Report) -> str:
             if insights:
                 lines.append("  Insights:")
                 for ins in insights[:3]:
-                    lines.append(f"    - {ins[:200]}")
+                    lines.append(
+                        f"    - {_format_untrusted_evidence(ins, 200, continuation_indent='      ')}"
+                    )
             # Transcript highlights for YouTube
             highlights = item.metadata.get("transcript_highlights", [])
             if highlights:
-                lines.append("  Highlights (auto-generated transcript; may contain transcription errors):")
+                lines.append(
+                    "  Highlights (auto-generated transcript; may contain transcription errors):"
+                )
                 for hl in highlights[:5]:
-                    lines.append(f'    - "{hl[:200]}"')
+                    lines.append(
+                        f'    - "{_format_untrusted_evidence(hl, 200, continuation_indent="      ")}"'
+                    )
             # Full transcript snippet for YouTube
             transcript = item.metadata.get("transcript_snippet", "")
             if transcript and len(transcript) > 100:
-                lines.append(f"  <details><summary>Transcript ({len(transcript.split())} words; auto-generated — may contain transcription errors)</summary>")
-                lines.append(f"  {transcript[:5000]}")
+                lines.append(
+                    f"  <details><summary>Transcript ({len(transcript.split())} words; auto-generated — may contain transcription errors)</summary>"
+                )
+                lines.append(
+                    f"  {_format_untrusted_evidence(transcript, 5000, continuation_indent='  ')}"
+                )
                 lines.append("  </details>")
             # Polymarket outcome prices and market details
             outcome_prices = item.metadata.get("outcome_prices") or []
@@ -950,7 +1974,11 @@ def render_full(report: schema.Report) -> str:
                 odds_parts = []
                 for name, price in outcome_prices:
                     if isinstance(price, (int, float)):
-                        pct = f"{price * 100:.0f}%" if price >= 0.1 else f"{price * 100:.1f}%"
+                        pct = (
+                            f"{price * 100:.0f}%"
+                            if price >= 0.1
+                            else f"{price * 100:.1f}%"
+                        )
                         odds_parts.append(f"{name}: {pct}")
                 if odds_parts:
                     lines.append(f"  Odds: {' | '.join(odds_parts)}")
@@ -962,8 +1990,21 @@ def render_full(report: schema.Report) -> str:
                     lines.append(f"  Closes: {end_date}")
             lines.append("")
 
-    lines.extend(_render_stats(report))
-    lines.extend(_render_source_coverage(report))
+    corpus_section = _render_corpus_section(report)
+    if corpus_section:
+        lines.extend(corpus_section)
+        lines.append("")
+
+    freshness_verdicts = _render_freshness_verdicts(evidence_report)
+    if freshness_verdicts:
+        lines.extend(freshness_verdicts)
+        lines.append("")
+    lines.extend(_render_stats(evidence_report))
+    lines.extend(_render_source_coverage(evidence_report))
+    if save_path:
+        footer_lines = _render_emoji_footer(evidence_report, save_path)
+        if footer_lines:
+            lines.extend(["", *footer_lines])
     return "\n".join(lines).strip() + "\n"
 
 
@@ -973,31 +2014,89 @@ def _format_item_engagement(item: schema.SourceItem) -> str:
     if not eng:
         return ""
     parts = []
-    for key in ["score", "likes", "views", "points", "reposts", "replies", "comments",
-                "play_count", "digg_count", "share_count", "num_comments"]:
+    for key in [
+        "score",
+        "likes",
+        "views",
+        "points",
+        "reposts",
+        "replies",
+        "comments",
+        "play_count",
+        "digg_count",
+        "share_count",
+        "num_comments",
+        "ratings",
+    ]:
         val = eng.get(key)
         if val is not None and val != 0:
             parts.append(f"{val} {key}")
+    # Same drift as the source list above: this allowlist silently blanks the
+    # engagement of any source whose metric is not on it (trustpilot's
+    # `reviews`/`trustScore` today), so the item renders an empty `[]` in the
+    # saved dump. Fall through only when nothing matched, which fixes the
+    # blank case without adding previously-unshown keys to sources that
+    # already render fine.
+    if not parts:
+        for key, val in sorted(eng.items()):
+            if val not in (None, 0, ""):
+                parts.append(f"{val} {key}")
     return ", ".join(parts) if parts else ""
 
 
 def render_context(report: schema.Report, cluster_limit: int = 6) -> str:
-    candidate_by_id = {candidate.candidate_id: candidate for candidate in report.ranked_candidates}
+    evidence_report = schema.without_sources(report, {"corpus"})
+    candidate_by_id = {
+        candidate.candidate_id: candidate
+        for candidate in evidence_report.ranked_candidates
+    }
+    requested_clusters = evidence_report.clusters[:cluster_limit]
+    visible_clusters = _clusters_clearing_relevance_floor(
+        evidence_report,
+        requested_clusters,
+    )
+    no_solid_evidence = bool(requested_clusters) and not visible_clusters
     lines = [
         f"Topic: {report.topic}",
         f"Intent: {report.query_plan.intent}",
         _AI_SAFETY_NOTE,
     ]
+    drill_context = _render_drill_context(report)
+    if drill_context:
+        lines.extend(["", *drill_context])
+    library_context = _render_library_context(report)
+    if library_context:
+        lines.extend(["", *library_context])
     freshness_warning = _assess_data_freshness(report)
     if freshness_warning:
         lines.append(f"Freshness warning: {freshness_warning}")
-    hiring_block = _render_hiring_signals(report)
+    context_candidates = _candidates_for_auxiliary_sections(
+        report,
+        requested_clusters,
+        visible_clusters,
+    )
+    hiring_block = (
+        []
+        if no_solid_evidence
+        else _render_hiring_signals(
+            report,
+            candidates=context_candidates if requested_clusters else None,
+        )
+    )
     if hiring_block:
         lines.extend(["", *hiring_block, ""])
     lines.append("Top clusters:")
-    for cluster in report.clusters[:cluster_limit]:
-        lines.append(f"- {cluster.title} [{', '.join(_source_label(source) for source in cluster.sources)}]")
-        for candidate_id in cluster.representative_ids[:2]:
+    if no_solid_evidence:
+        lines.append("- Nothing solid this window.")
+    for cluster in visible_clusters:
+        lines.append(
+            f"- {_safe_title(cluster.title)} [{', '.join(_source_label(source) for source in cluster.sources)}]"
+        )
+        for candidate_id in _qualifying_representative_ids(
+            cluster,
+            candidate_by_id,
+            limit=2,
+        ):
             candidate = candidate_by_id.get(candidate_id)
             if not candidate:
                 continue
@@ -1009,10 +2108,22 @@ def render_context(report: schema.Report, cluster_limit: int = 6) -> str:
             ]
             lines.append(f"  - {' | '.join(detail_parts)}")
             if candidate.snippet:
-                lines.append(f"    Evidence: {_truncate(candidate.snippet, 180)}")
+                lines.append(
+                    f"    Evidence: "
+                    f"{_format_untrusted_evidence(candidate.snippet, 180, continuation_indent='      ')}"
+                )
+    corpus_section = _render_corpus_section(report)
+    if corpus_section:
+        lines.extend(["", *corpus_section])
     if report.warnings:
         lines.append("Warnings:")
         lines.extend(f"- {warning}" for warning in report.warnings)
+    if report.freshness_verdicts:
+        lines.append("Freshness verdicts:")
+        lines.extend(
+            f"- {verdict.verdict}: {verdict.claim} ({verdict.evidence_url or verdict.source_url})"
+            for verdict in report.freshness_verdicts
+        )
     return "\n".join(lines).strip() + "\n"
 
 
@@ -1024,36 +2135,76 @@ def render_brief(report: schema.Report, cluster_limit: int = 8) -> str:
     Audience Questions, and Source Clusters. Sections 2-4 are omitted when there
     is no matching data; Sections 1 and 5 always appear.
     """
+    evidence_report = schema.without_sources(report, {"corpus"})
     non_empty = [s for s, items in sorted(report.items_by_source.items()) if items]
     lines = [
         f"# Production Brief: {report.topic}",
         "",
         *_assistant_safety_lines(),
         f"- Date range: {report.range_from} to {report.range_to}",
-        f"- Sources: {len(non_empty)} active ({', '.join(_source_label(s) for s in non_empty)})" if non_empty else "- Sources: none",
+        f"- Sources: {len(non_empty)} active ({', '.join(_source_label(s) for s in non_empty)})"
+        if non_empty
+        else "- Sources: none",
         "",
     ]
+    drill_context = _render_drill_context(report)
+    if drill_context:
+        lines.extend([*drill_context, ""])
+    library_context = _render_library_context(report)
+    if library_context:
+        lines.extend([*library_context, ""])
 
     lines.append("## Ranked Storylines")
     lines.append("")
-    candidate_by_id = {c.candidate_id: c for c in report.ranked_candidates}
-    for i, cluster in enumerate(report.clusters[:cluster_limit], start=1):
+    candidate_by_id = {c.candidate_id: c for c in evidence_report.ranked_candidates}
+    requested_clusters = evidence_report.clusters[:cluster_limit]
+    visible_clusters = _clusters_clearing_relevance_floor(
+        evidence_report,
+        requested_clusters,
+    )
+    brief_candidates = _candidates_for_auxiliary_sections(
+        evidence_report,
+        requested_clusters,
+        visible_clusters,
+    )
+    qualifying_candidates = [
+        candidate
+        for candidate in brief_candidates
+        if _best_take_relevance_ok(candidate)
+    ]
+    if requested_clusters and not visible_clusters:
+        lines.extend(["**Nothing solid this window.**", ""])
+    for i, cluster in enumerate(visible_clusters, start=1):
         source_tags = ", ".join(_source_label(s) for s in cluster.sources)
-        qualifier = f" [{cluster.uncertainty.replace('-', ' ')}]" if cluster.uncertainty else ""
-        lines.append(f"### {i}. {cluster.title} (score {cluster.score:.0f}, {source_tags}){qualifier}")
-        for cid in cluster.representative_ids[:2]:
+        qualifier = (
+            f" [{cluster.uncertainty.replace('-', ' ')}]" if cluster.uncertainty else ""
+        )
+        lines.append(
+            f"### {i}. {_safe_title(cluster.title)} (score {cluster.score:.0f}, {source_tags}){qualifier}"
+        )
+        for cid in _qualifying_representative_ids(
+            cluster,
+            candidate_by_id,
+            limit=2,
+        ):
             candidate = candidate_by_id.get(cid)
             if not candidate:
                 continue
             if candidate.snippet:
-                lines.append(f"- {_truncate(candidate.snippet, 280)}")
+                lines.append(
+                    f"- {_format_untrusted_evidence(candidate.snippet, 280, continuation_indent='  ')}"
+                )
             explanation = _format_explanation(candidate)
             if explanation:
                 lines.append(f"  _Why: {explanation}_")
         lines.append("")
 
     hooks = sorted(
-        (c for c in report.ranked_candidates if c.fun_score is not None and c.fun_score >= 70),
+        (
+            c
+            for c in qualifying_candidates
+            if c.fun_score is not None and c.fun_score >= 70
+        ),
         key=lambda c: -(c.fun_score or 0),
     )
     if hooks:
@@ -1072,7 +2223,8 @@ def render_brief(report: schema.Report, cluster_limit: int = 8) -> str:
                 attribution = source_label
             reason = (
                 f" — {candidate.fun_explanation}"
-                if candidate.fun_explanation and candidate.fun_explanation != "heuristic-fallback"
+                if candidate.fun_explanation
+                and candidate.fun_explanation != "heuristic-fallback"
                 else ""
             )
             lines.append(
@@ -1081,17 +2233,21 @@ def render_brief(report: schema.Report, cluster_limit: int = 8) -> str:
             )
         lines.append("")
 
-    tensions = [c for c in report.clusters[:cluster_limit] if c.uncertainty]
+    tensions = [c for c in visible_clusters if c.uncertainty]
     if tensions:
         lines.append("## Topic Tensions")
         lines.append("")
         for cluster in tensions[:cluster_limit]:
-            label = cluster.uncertainty.replace("-", " ").title() if cluster.uncertainty else ""
+            label = (
+                cluster.uncertainty.replace("-", " ").title()
+                if cluster.uncertainty
+                else ""
+            )
             source_tags = ", ".join(_source_label(s) for s in cluster.sources)
-            lines.append(f"- **{cluster.title}** [{label}]: {source_tags}")
+            lines.append(f"- **{_safe_title(cluster.title)}** [{label}]: {source_tags}")
         lines.append("")
 
-    questions = _extract_audience_questions(report.ranked_candidates)
+    questions = _extract_audience_questions(qualifying_candidates)
     if questions:
         lines.append("## Audience Questions")
         lines.append("")
@@ -1101,10 +2257,20 @@ def render_brief(report: schema.Report, cluster_limit: int = 8) -> str:
 
     lines.append("## Source Clusters")
     lines.append("")
-    for cluster in report.clusters[:cluster_limit]:
+    for cluster in visible_clusters:
         source_tags = " + ".join(_source_label(s) for s in cluster.sources)
-        lines.append(f"- **{cluster.title}**: {source_tags}")
+        lines.append(f"- **{_safe_title(cluster.title)}**: {source_tags}")
     lines.append("")
+
+    corpus_section = _render_corpus_section(report)
+    if corpus_section:
+        lines.extend(corpus_section)
+        lines.append("")
+
+    freshness_verdicts = _render_freshness_verdicts(report)
+    if freshness_verdicts:
+        lines.extend(freshness_verdicts)
+        lines.append("")
 
     return "\n".join(lines).strip() + "\n"
 
@@ -1125,13 +2291,30 @@ def _extract_audience_questions(candidates: list[schema.Candidate]) -> list[str]
     return questions
 
 
-def _render_hiring_signals(report: schema.Report) -> list[str]:
+def _render_hiring_signals(
+    report: schema.Report,
+    *,
+    candidates: list[schema.Candidate] | None = None,
+) -> list[str]:
     summary = report.artifacts.get("hiring_signals")
     if not isinstance(summary, dict):
         return []
+    mode = summary.get("mode") or "standard"
+    if candidates is not None:
+        job_items: dict[str, schema.SourceItem] = {}
+        for candidate in candidates:
+            for item in candidate.source_items:
+                if item.source == "jobs":
+                    job_items[item.item_id] = item
+        if not job_items:
+            return []
+        summary = hiring_signals.analyze(
+            list(job_items.values()),
+            explicit=mode == "explicit",
+            topic=report.topic,
+        )
     signals = summary.get("signals") or []
     include = bool(summary.get("include"))
-    mode = summary.get("mode") or "standard"
     if not include and mode != "explicit":
         return []
 
@@ -1174,7 +2357,7 @@ def _render_hiring_signals(report: schema.Report) -> list[str]:
         out.append(
             "- Strategic single-role signals (judge novelty yourself - a founding "
             "or first-of-function role can outweigh a whole department; in synthesis, "
-            "distinguish \"new bets\" from \"doubling down\"):"
+            'distinguish "new bets" from "doubling down"):'
         )
         for cand in strategic[:8]:
             title = cand.get("title") or "Job posting"
@@ -1190,7 +2373,11 @@ def _render_hiring_signals(report: schema.Report) -> list[str]:
     return out
 
 
-def _render_candidate(candidate: schema.Candidate, prefix: str) -> list[str]:
+def _render_candidate(
+    candidate: schema.Candidate,
+    prefix: str,
+    report: schema.Report | None = None,
+) -> list[str]:
     primary = schema.candidate_primary_item(candidate)
     detail_parts = [
         _format_date(primary),
@@ -1208,10 +2395,14 @@ def _render_candidate(candidate: schema.Candidate, prefix: str) -> list[str]:
         detail_parts.append("interaction:→@" + ",@".join(interaction_targets[:2]))
     details = " | ".join(part for part in detail_parts if part)
     lines = [
-        f"{prefix} [{schema.candidate_source_label(candidate)}] {candidate.title}",
+        f"{prefix} [{schema.candidate_source_label(candidate)}] {_safe_title(candidate.title)}"
+        + (_candidate_freshness_flag(report, candidate.candidate_id) if report else ""),
         f"   - {details}",
-        f"   - URL: {candidate.url}",
     ]
+    if candidate.url:
+        rendered_url = _markdown_url_link(candidate.url)
+        if rendered_url:
+            lines.append(f"   - URL: {rendered_url}")
     corroboration = _format_corroboration(candidate)
     if corroboration:
         lines.append(f"   - {corroboration}")
@@ -1219,24 +2410,36 @@ def _render_candidate(candidate: schema.Candidate, prefix: str) -> list[str]:
     if explanation:
         lines.append(f"   - Why: {explanation}")
     if candidate.snippet:
-        lines.append(f"   - Evidence: {_truncate(candidate.snippet, 360)}")
+        lines.append(
+            f"   - Evidence: {_format_untrusted_evidence(candidate.snippet, 360)}"
+        )
     for tc in _top_comments_list(primary):
         excerpt = tc.get("excerpt") or tc.get("text") or ""
         score = tc.get("score", "")
         vote_label = _vote_label_for(primary.source) if primary else "upvotes"
         source = primary.source if primary else None
         attribution = _comment_attribution(source, tc.get("author"))
-        lines.append(f"   - {attribution} ({score} {vote_label}): {_truncate(excerpt.strip(), 240)}")
+        vote_part = (
+            f" ({score} {vote_label})"
+            if score is not None and score != ""
+            else ""
+        )
+        lines.append(
+            f"   - {attribution}{vote_part}: "
+            f"{_format_untrusted_evidence(excerpt.strip(), 240)}"
+        )
     for post in _digg_posts_for(primary):
         lines.append(f"   - {_format_digg_quote(post)}")
     insight = _comment_insight(primary)
     if insight:
-        lines.append(f"   - Insight: {_truncate(insight, 220)}")
+        lines.append(f"   - Insight: {_format_untrusted_evidence(insight, 220)}")
     highlights = _transcript_highlights(primary)
     if highlights:
-        lines.append("   - Highlights (auto-generated transcript; may contain transcription errors):")
+        lines.append(
+            "   - Highlights (auto-generated transcript; may contain transcription errors):"
+        )
         for hl in highlights:
-            lines.append(f'     - "{_truncate(hl, 200)}"')
+            lines.append(f'     - "{_format_untrusted_evidence(hl, 200)}"')
     return lines
 
 
@@ -1271,13 +2474,23 @@ def _shorten_polymarket_title(title: str) -> str:
         t = t[5:].strip()
 
     # Drop "by <Month> <Day>" or "by <Month> <Day>, <Year>" tail
-    t = re.sub(r"\s+by\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+(?:,\s*\d{4})?$", "", t, flags=re.IGNORECASE)
+    t = re.sub(
+        r"\s+by\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+(?:,\s*\d{4})?$",
+        "",
+        t,
+        flags=re.IGNORECASE,
+    )
     # Drop "in <Year>" tail (e.g. "separate in 2026")
     t = re.sub(r"\s+in\s+\d{4}$", "", t, flags=re.IGNORECASE)
     # Drop "by <Year>" tail
     t = re.sub(r"\s+by\s+\d{4}$", "", t, flags=re.IGNORECASE)
     # Drop "before <Month> <Day>" tail
-    t = re.sub(r"\s+before\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+$", "", t, flags=re.IGNORECASE)
+    t = re.sub(
+        r"\s+before\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+$",
+        "",
+        t,
+        flags=re.IGNORECASE,
+    )
 
     # Pattern: "<Subject> visit <Place>" -> "<Place> visit"
     m = re.match(r"^(.+?)\s+visit\s+(?:the\s+)?(.+)$", t, flags=re.IGNORECASE)
@@ -1293,12 +2506,14 @@ def _shorten_polymarket_title(title: str) -> str:
         t = " ".join(words[:6])
 
     # Drop a leading article so the descriptor doesn't read "an Anthropic Claude..."
-    t = re.sub(r"^(?:a|an|the)\s+", "", t, flags=re.I)
+    t = re.sub(r"^(?:a|an|the)\s+", "", t, flags=re.IGNORECASE)
 
     return t
 
 
-def _polymarket_top_markets(items: list[schema.SourceItem], limit: int = 3) -> list[str]:
+def _polymarket_top_markets(
+    items: list[schema.SourceItem], limit: int = 3
+) -> list[str]:
     """Build short summary strings for the top Polymarket markets by volume.
 
     Returns list like: ['UK visit 5.5%', 'Israel visit 8%', 'blocked from entering 36%']
@@ -1320,9 +2535,15 @@ def _polymarket_top_markets(items: list[schema.SourceItem], limit: int = 3) -> l
         if not isinstance(lead_price, (int, float)):
             continue
 
-        pct = f"{lead_price * 100:.0f}%" if lead_price >= 0.1 else f"{lead_price * 100:.1f}%"
+        pct = (
+            f"{lead_price * 100:.0f}%"
+            if lead_price >= 0.1
+            else f"{lead_price * 100:.1f}%"
+        )
 
-        descriptor = _shorten_polymarket_title(item.metadata.get("question") or item.title or "")
+        descriptor = _shorten_polymarket_title(
+            item.metadata.get("question") or item.title or ""
+        )
         if not descriptor:
             continue
 
@@ -1345,20 +2566,99 @@ def _polymarket_top_markets(items: list[schema.SourceItem], limit: int = 3) -> l
     return summaries
 
 
-def _render_source_coverage(report: schema.Report) -> list[str]:
+# Warnings that only restate a per-source outcome. The compact (model-facing)
+# stdout carries those through ## Partial Coverage, and the user-facing
+# footer carries counts only; doctor --postmortem, the saved raw file, and
+# --emit=json keep the full list.
+_SOURCE_FAILURE_WARNING_PREFIXES = (
+    "Some sources failed",
+    "Some sources returned partial results",
+)
+
+
+def _warnings_without_source_failures(warnings: list[str]) -> list[str]:
+    return [
+        warning
+        for warning in warnings
+        if not warning.startswith(_SOURCE_FAILURE_WARNING_PREFIXES)
+    ]
+
+
+def _render_source_coverage(
+    report: schema.Report,
+    *,
+    include_errors: bool = True,
+) -> list[str]:
     lines = [
         "## Source Coverage",
         "",
     ]
-    for source, items in sorted(report.items_by_source.items()):
-        lines.append(f"- {_source_label(source)}: {len(items)} item{'s' if len(items) != 1 else ''}")
-    if report.errors_by_source:
+    sources = sorted(set(report.items_by_source) | set(report.source_status))
+    for source in sources:
+        items = report.items_by_source.get(source, [])
+        line = f"- {_source_label(source)}: {len(items)} item{'s' if len(items) != 1 else ''}"
+        outcome = report.source_status.get(source)
+        if outcome and outcome.state != health.OK:
+            line += f" ({_format_outcome(outcome)})"
+        lines.append(line)
+    if include_errors and report.errors_by_source:
         lines.append("")
         lines.append("## Source Errors")
         lines.append("")
         for source, error in sorted(report.errors_by_source.items()):
             lines.append(f"- {_source_label(source)}: {error}")
     return lines
+
+
+def _render_source_outcome_note(report: schema.Report) -> list[str]:
+    """Tell the synthesizer that a failed source is not evidence of silence."""
+    affected = [
+        outcome
+        for outcome in report.source_status.values()
+        if outcome.state not in (health.OK, schema.NO_RESULTS)
+    ]
+    if not affected:
+        return []
+    summaries = "; ".join(
+        f"{_source_label(outcome.source)} {_format_outcome(outcome)}"
+        for outcome in sorted(affected, key=lambda item: item.source)
+    )
+    return [
+        "## Partial Coverage",
+        "",
+        f"> {summaries}.",
+        "> Do not interpret a failed source as no discussion on that source. "
+        "Synthesize only from available evidence; run `doctor` for fix prescriptions.",
+    ]
+
+
+def _format_outcome(outcome: schema.SourceOutcome) -> str:
+    detail = " ".join((outcome.detail or "").split())
+    if len(detail) > 140:
+        detail = detail[:137].rstrip() + "..."
+    state = outcome.state
+    if state == schema.PARTIAL:
+        noun = "item" if outcome.items_returned == 1 else "items"
+        summary = f"partial — {outcome.items_returned} {noun} returned"
+        detail_l = detail.lower()
+        if (
+            "429" in detail_l
+            or "rate-limited" in detail_l
+            or "rate limit" in detail_l
+            or "too many requests" in detail_l
+        ):
+            summary += ", some requests rate-limited"
+    elif state == schema.NO_RESULTS:
+        summary = "no results"
+    elif state == schema.PAYMENT_REQUIRED:
+        summary = health.credits_exhausted_label(outcome.source)
+    else:
+        summary = state
+    if detail:
+        summary += f": {detail}"
+    if outcome.fix_hint == "doctor":
+        summary += " (run doctor for fixes)"
+    return summary
 
 
 # Known publications for the Web line of the emoji-tree footer.
@@ -1440,8 +2740,7 @@ def _site_name_for_url(url: str) -> str:
     # urlparse needs a scheme to resolve the netloc; prepend http:// if missing.
     parsed = urlparse(u if "://" in u else f"http://{u}")
     host = (parsed.netloc or parsed.path.split("/", 1)[0]).lower()
-    if host.startswith("www."):
-        host = host[4:]
+    host = host.removeprefix("www.")
     if not host:
         return u[:40]
     if host in _SITE_NAMES:
@@ -1480,26 +2779,80 @@ def _format_web_line_sources(items: list[schema.SourceItem], limit: int = 8) -> 
 # Report.items_by_source.  Order here is the render order.
 _FOOTER_SOURCES: list[tuple[str, str, str, str, list[tuple[str, str]]]] = [
     # (source_key,  emoji, display_name, item_word_singular, [(engagement_key, word)])
-    ("reddit",      "🟠", "Reddit",       "thread",   [("score", "upvotes"), ("num_comments", "comments")]),
-    ("x",           "🔵", "X",            "post",     [("likes", "likes"), ("reposts", "reposts")]),
-    ("youtube",     "🔴", "YouTube",      "video",    [("views", "views")]),  # transcripts appended below in _build_source_footer_lines
-    ("tiktok",      "🎵", "TikTok",       "video",    [("views", "views"), ("likes", "likes")]),
-    ("instagram",   "📸", "Instagram",    "reel",     [("views", "views"), ("likes", "likes")]),
-    ("threads",     "🧵", "Threads",      "post",     [("likes", "likes"), ("replies", "replies")]),
-    ("pinterest",   "📌", "Pinterest",    "pin",      [("saves", "saves"), ("comments", "comments")]),
-    ("hackernews",  "🟡", "HN",           "story",    [("points", "points"), ("comments", "comments")]),
-    ("bluesky",     "🦋", "Bluesky",      "post",     [("likes", "likes"), ("reposts", "reposts")]),
-    ("truthsocial", "🇺🇸", "Truth Social", "post",     [("likes", "likes"), ("reposts", "reposts")]),
-    ("linkedin",    "👔", "LinkedIn",     "post",     [("likes", "likes"), ("comments", "comments")]),
-    ("github",      "🐙", "GitHub",       "item",     [("stars", "stars"), ("merged_prs", "merged"), ("reactions", "reactions"), ("comments", "comments")]),
-    ("digg",        "⛏️", "Digg",         "cluster",  [("postCount", "posts"), ("uniqueAuthors", "authors")]),
-    ("arxiv",       "📄", "arXiv",        "paper",    []),
-    ("techmeme",    "📰", "Techmeme",     "headline", []),
-    ("trustpilot",  "⭐", "Trustpilot",   "review",   [("reviews", "reviews")]),
+    (
+        "reddit",
+        "🟠",
+        "Reddit",
+        "thread",
+        [("score", "upvotes"), ("num_comments", "comments")],
+    ),
+    ("x", "🔵", "X", "post", [("likes", "likes"), ("reposts", "reposts")]),
+    (
+        "youtube",
+        "🔴",
+        "YouTube",
+        "video",
+        [("views", "views")],
+    ),  # transcripts appended below in _build_source_footer_lines
+    ("tiktok", "🎵", "TikTok", "video", [("views", "views"), ("likes", "likes")]),
+    ("instagram", "📸", "Instagram", "reel", [("views", "views"), ("likes", "likes")]),
+    ("threads", "🧵", "Threads", "post", [("likes", "likes"), ("replies", "replies")]),
+    (
+        "pinterest",
+        "📌",
+        "Pinterest",
+        "pin",
+        [("saves", "saves"), ("comments", "comments")],
+    ),
+    (
+        "hackernews",
+        "🟡",
+        "HN",
+        "story",
+        [("points", "points"), ("comments", "comments")],
+    ),
+    ("bluesky", "🦋", "Bluesky", "post", [("likes", "likes"), ("reposts", "reposts")]),
+    (
+        "truthsocial",
+        "🇺🇸",
+        "Truth Social",
+        "post",
+        [("likes", "likes"), ("reposts", "reposts")],
+    ),
+    (
+        "linkedin",
+        "👔",
+        "LinkedIn",
+        "post",
+        [("likes", "likes"), ("comments", "comments")],
+    ),
+    (
+        "github",
+        "🐙",
+        "GitHub",
+        "item",
+        [
+            ("stars", "stars"),
+            ("merged_prs", "merged"),
+            ("reactions", "reactions"),
+            ("comments", "comments"),
+        ],
+    ),
+    (
+        "digg",
+        "⛏️",
+        "Digg",
+        "cluster",
+        [("postCount", "posts"), ("uniqueAuthors", "authors")],
+    ),
+    ("arxiv", "📄", "arXiv", "paper", []),
+    ("techmeme", "📰", "Techmeme", "headline", []),
+    ("trustpilot", "⭐", "Trustpilot", "review", [("reviews", "reviews")]),
     # Jobs must appear so a scoped --hiring-signals run (jobs-only) still emits
     # the LAW 5 footer; without it the footer was dropped entirely.
-    ("jobs",        "💼", "Jobs",         "role",     []),
-    ("perplexity",  "🧠", "Perplexity",   "result",    [("citations", "citations")]),
+    ("jobs", "💼", "Jobs", "role", []),
+    ("perplexity", "🧠", "Perplexity", "result", [("citations", "citations")]),
+    ("corpus", "🔒", "Your files", "file", []),
 ]
 
 
@@ -1516,7 +2869,9 @@ def _sum_engagement(items: list[schema.SourceItem], key: str) -> int:
     return total
 
 
-def _footer_line_for_source(emoji: str, label: str, count: int, item_word: str, stats: str) -> str:
+def _footer_line_for_source(
+    emoji: str, label: str, count: int, item_word: str, stats: str
+) -> str:
     count_str = f"{count:,}" if count >= 1000 else str(count)
     plural = f"{item_word}s" if count != 1 else item_word
     if stats:
@@ -1525,9 +2880,12 @@ def _footer_line_for_source(emoji: str, label: str, count: int, item_word: str, 
 
 
 def _build_source_footer_lines(report: schema.Report) -> list[str]:
-    """Return emoji-tree body lines (without tree characters) for each populated source.
+    """Return emoji-tree lines for populated sources only (>=1 item).
 
-    The caller adds the tree characters (├─ / └─) after assembling all lines.
+    Sources that returned zero items - clean NO_RESULTS or a failure - are
+    omitted; their outcome still surfaces in the ## Source Coverage /
+    ## Partial Coverage evidence blocks. The caller adds the tree characters
+    (├─ / └─) after assembling all lines.
     """
     out: list[str] = []
     for source_key, emoji, label, item_word, engagement_fields in _FOOTER_SOURCES:
@@ -1546,12 +2904,20 @@ def _build_source_footer_lines(report: schema.Report) -> list[str]:
         # case that needs to be loud is the one previously omitted from the footer.
         if source_key == "youtube":
             with_transcripts = sum(
-                1 for it in items
-                if (it.metadata.get("transcript_highlights") or it.metadata.get("transcript_snippet"))
+                1
+                for it in items
+                if (
+                    it.metadata.get("transcript_highlights")
+                    or it.metadata.get("transcript_snippet")
+                )
             )
             parts.append(f"{with_transcripts}/{len(items)} with transcripts")
         stats = " │ ".join(parts)
-        out.append(_footer_line_for_source(emoji, label, len(items), item_word, stats))
+        line = _footer_line_for_source(emoji, label, len(items), item_word, stats)
+        # Counts only: run diagnostics live in doctor --postmortem, the saved
+        # raw file, and the model-facing ## Partial Coverage note, never on
+        # the user-facing conclusion surface.
+        out.append(line)
 
     # Polymarket (special: count + odds string from existing helper)
     polymarket_items = report.items_by_source.get("polymarket") or []
@@ -1562,9 +2928,18 @@ def _build_source_footer_lines(report: schema.Report) -> list[str]:
         count_str = f"{count:,}" if count >= 1000 else str(count)
         plural = "markets" if count != 1 else "market"
         if odds_str:
-            out.append(f"📊 Polymarket: {count_str} {plural} │ {odds_str}")
+            line = f"📊 Polymarket: {count_str} {plural} │ {odds_str}"
         else:
-            out.append(f"📊 Polymarket: {count_str} {plural}")
+            line = f"📊 Polymarket: {count_str} {plural}"
+        out.append(line)
+
+    amazon_line = _amazon_footer_line(report)
+    if amazon_line:
+        out.append(amazon_line)
+
+    meta_ads_line = _meta_ads_footer_line(report)
+    if meta_ads_line:
+        out.append(meta_ads_line)
 
     # Web (sources from grounding)
     web_items = report.items_by_source.get("grounding") or []
@@ -1574,11 +2949,250 @@ def _build_source_footer_lines(report: schema.Report) -> list[str]:
         count_str = f"{count:,}" if count >= 1000 else str(count)
         plural = "pages" if count != 1 else "page"
         if names:
-            out.append(f"🌐 Web: {count_str} {plural} - {names}")
+            line = f"🌐 Web: {count_str} {plural} - {names}"
         else:
-            out.append(f"🌐 Web: {count_str} {plural}")
+            line = f"🌐 Web: {count_str} {plural}"
+        out.append(line)
 
+    # Only populated sources (>=1 item) get an emoji-tree line. A source that
+    # returned zero items - whether it completed cleanly (NO_RESULTS) or failed
+    # (rate-limited / unreachable / etc.) - is omitted from the user-facing
+    # footer. Its failure signal remains visible to synthesis in the
+    # ## Partial Coverage / ## Source Coverage evidence blocks, so nothing is
+    # silently lost; the conclusion surface just stays clean.
     return out
+
+
+def _amazon_footer_line(report: schema.Report) -> str | None:
+    """Build the 📦 Amazon emoji-footer line (R1c).
+
+    Follows the Polymarket shape -- unit count, then *named products
+    carrying their own numbers* -- rather than the three-count inventory
+    shape every social source uses. ``3 products │ 611 ratings │ 56
+    reviews`` fits the box and says nothing; a named product with the
+    direction its rating moved this month is the whole reason the source
+    exists.
+
+    Three renderings:
+
+    * **Default/deep** -- per-product drift entries (see
+      ``amazon.footer_entry``).
+    * **Quick depth** -- no review pulls means no recent window, so the
+      inventory form is the honest one here and only here. Never render a
+      ``→`` against a null window.
+    * **Empty search** -- name the keyword rather than suppressing the
+      line. Observability, not spend: an empty result means the model's
+      keyword or its relevance judgment was wrong, and a hidden line means
+      nobody ever finds out.
+    """
+    items = report.items_by_source.get("amazon") or []
+    keyword = str((report.artifacts or {}).get("amazon_query") or "").strip()
+    outcome = report.source_status.get("amazon")
+    failed = bool(outcome and outcome.state != health.OK)
+
+    if not items:
+        if not keyword:
+            return None
+        # An empty result is only a keyword problem when the search actually
+        # ran and came back empty. On an expired token or a CLI failure,
+        # "no products matched" sends the user to fix the wrong thing --
+        # so lead with the real outcome, same as every other footer branch.
+        if failed:
+            # Counts-only footer: the outcome itself lives in ## Partial
+            # Coverage and doctor --postmortem, so just avoid the misleading
+            # "no products matched" wording when the search never ran.
+            return f'📦 Amazon: no results for "{keyword}"'
+        return f'📦 Amazon: no products matched "{keyword}"'
+
+    count = len(items)
+    plural = "products" if count != 1 else "product"
+    all_stats = [amazon.stats_from_item(item) for item in items]
+
+    # Quick depth pulls no reviews at all, so nothing has a recent window.
+    if not any(s.get("reviews_pulled") for s in all_stats):
+        rated = [s["all_time"] for s in all_stats if s.get("all_time") is not None]
+        total_ratings = sum(s.get("ratings_total") or 0 for s in all_stats)
+        parts = [f"{count} {plural}"]
+        if rated:
+            parts.append(f"{sum(rated) / len(rated):.1f}★ average")
+        if total_ratings:
+            parts.append(f"{total_ratings:,} ratings")
+        line = f"📦 Amazon: {' │ '.join(parts)}"
+        return line
+
+    # Only the *sampled* products earn a slot. A run can carry a dozen
+    # discovered products, but only the two or three that got a review pull
+    # have a recent window at all -- rendering the rest appends a string of
+    # `quiet` entries that push the line past every other source in the box
+    # while adding nothing (observed live: 12 entries, 9 of them padding).
+    # The count still reports everything found, so nothing is hidden.
+    sampled = [
+        (s, item) for s, item in zip(all_stats, items) if s.get("reviews_pulled")
+    ]
+    # Variants of one product share a short name; showing both reads as a
+    # rendering bug even though the ASINs differ.
+    stats, shown_items, seen_names = [], [], set()
+    for stat, item in sampled:
+        key = (stat.get("short_name") or "").strip().lower()
+        if key and key in seen_names:
+            continue
+        if key:
+            seen_names.add(key)
+        stats.append(stat)
+        shown_items.append(item)
+    items = shown_items
+
+    # Deliberately no quote fragment here. The design called for one
+    # model-written phrase on the sharpest negative drift ("... ↓ \"the lid
+    # jams\""), but this footer is rendered by the engine *before* the model
+    # ever sees the report, and the model passes it through verbatim -- so
+    # there is no weave-time write path for the model to supply one. Rather
+    # than ship a branch that can never fire, the quote is deferred: the
+    # same evidence reaches the reader through the body section's
+    # Loved/Gripes/Watch line, which the model does author. `footer_entry`
+    # still accepts a quote so a future writer can supply one.
+    entries = [amazon.footer_entry(s) for s in stats]
+    line = f"📦 Amazon: {count} {plural} │ {', '.join(entries)}"
+    return line
+
+
+# Longest advertiser or candidate name the footer will print. The footer is one
+# scannable line inside a box; an unbounded source-controlled name would push
+# every other source's line out of view.
+_META_ADS_NAME_MAX = 32
+
+
+def _footer_safe(value: str, limit: int = _META_ADS_NAME_MAX) -> str:
+    """Make a source-controlled string safe to interpolate into a footer line.
+
+    The advertiser name, the closest-candidate name, and the promo codes all
+    come from the upstream API, so they are attacker-influenceable. Left raw, a
+    name carrying a newline or the footer's own separator could forge extra
+    footer rows in the passed-through emoji tree, which the model relays
+    verbatim. Collapse control characters and the separator, then clip.
+    """
+    cleaned = _sanitize_url_for_single_line_output(str(value or "")).replace("│", "|")
+    cleaned = " ".join(cleaned.split()).strip()
+    if len(cleaned) > limit:
+        cleaned = cleaned[:limit].rstrip() + "…"
+    return cleaned
+
+
+_PLACEMENT_SHORT = {
+    "FACEBOOK": "FB",
+    "INSTAGRAM": "IG",
+    "THREADS": "Threads",
+    "MESSENGER": "Messenger",
+    "WHATSAPP": "WhatsApp",
+    "AUDIENCE_NETWORK": "Audience",
+}
+
+
+def _meta_ads_footer_line(report: schema.Report) -> str | None:
+    """Build the 📣 Meta Ads emoji-footer line.
+
+    Every count comes from the adapter's tally, never from ``items_by_source``.
+    The pipeline truncates each source's stream to a per-depth limit (12 at
+    default) before rendering, so counting surviving items would report 12
+    creatives for a page that ran thirty, and would under-count the video and
+    transcript work that was actually paid for.
+
+    Four shapes, because an empty line is never the right answer here -- if the
+    lane ran and found nothing, the reader needs to know which nothing it was:
+
+    * **Resolved with creatives** -- advertiser, what launched this window, and
+      the paid-media detail (placements, promo codes, transcripts).
+    * **Resolved, nothing new** -- name the advertiser and how much it is still
+      running from before, so "no ads" is not confused with "not advertising".
+    * **Unresolved** -- name the closest candidate and point at the override.
+    * **Failed** -- name the outcome rather than implying an empty Ad Library.
+    """
+    tally = (report.artifacts or {}).get("meta_ads_tally") or {}
+    page = (report.artifacts or {}).get("meta_ads_page") or {}
+    outcome = report.source_status.get("meta_ads")
+    if not tally and not page and outcome is None:
+        return None
+
+    # Three distinct states, and conflating any two of them misleads:
+    #   failed      -- the lane could not run; say so, never "found nothing".
+    #   partial     -- it ran and was cut short; its counts are a floor, so a
+    #                  "nothing new" conclusion drawn from them would be a
+    #                  claim the data does not support.
+    #   no results  -- it ran to completion and the answer is genuinely empty.
+    # NO_RESULTS is what the pipeline stamps on any zero-item source, so
+    # treating it as failure would collapse every honest empty state below into
+    # a generic "no ads pulled".
+    state = getattr(outcome, "state", None)
+    detail = str(getattr(outcome, "detail", "") or "").strip()
+    if outcome and state not in (health.OK, schema.PARTIAL, schema.NO_RESULTS):
+        return f"📣 Meta Ads: no ads pulled ({detail})" if detail else "📣 Meta Ads: no ads pulled"
+    cut_short = state == schema.PARTIAL
+
+    resolution = str(tally.get("resolution") or "")
+    if resolution == meta_ads.NO_CANDIDATES:
+        return "📣 Meta Ads: no advertiser candidates returned │ pass --meta-ads-page to target one"
+    if resolution == meta_ads.UNRESOLVED or not page:
+        candidate = _footer_safe(tally.get("top_candidate") or "")
+        if candidate:
+            return (
+                f"📣 Meta Ads: no advertiser matched │ closest: {candidate} "
+                f"│ pass --meta-ads-page to target one"
+            )
+        return "📣 Meta Ads: no advertiser matched │ pass --meta-ads-page to target one"
+
+    advertiser = _footer_safe(page.get("name") or tally.get("advertiser") or "")
+    launched = int(tally.get("launched_in_window") or 0)
+    still = int(tally.get("still_running") or 0)
+
+    if not launched:
+        # A cut-short lane never reached the end of the page, so "no new
+        # creatives" would state a conclusion its own data cannot support.
+        if cut_short:
+            head = f"📣 Meta Ads: {advertiser} │ incomplete".rstrip()
+            parts = [head, "no new creatives seen before the run was cut short"]
+            if detail:
+                parts.append(_footer_safe(detail, 60))
+            return " │ ".join(parts)
+        parts = [f"📣 Meta Ads: no new creatives for {advertiser}".rstrip()]
+        if still:
+            parts.append(f"{still} still running from before")
+        return " │ ".join(parts)
+
+    fetched = int(tally.get("fetched") or 0)
+    total = int(tally.get("endpoint_total") or 0)
+    # A page bigger than the depth cap is a sample, and saying so is the
+    # difference between "this brand launched 12 creatives" and "we looked at
+    # 60 of its 222 live ads and 12 of those were new". The two numbers are
+    # different units on purpose -- deduped creatives against raw ads -- so
+    # both get named rather than sharing one bare noun.
+    if tally.get("cursor_remaining") and total > fetched > 0:
+        head = f"{launched} new of {fetched} ads fetched ({total:,} live)"
+    else:
+        head = f"{launched} new {'creative' if launched == 1 else 'creatives'}"
+
+    parts = [f"📣 Meta Ads: {advertiser} │ {head}"] if advertiser else [f"📣 Meta Ads: {head}"]
+    if cut_short:
+        parts.append("incomplete")
+    if still:
+        parts.append(f"{still} running from before")
+    # Resolution that rested on substring containment is the weakest tier the
+    # resolver accepts, so the reader is told to check the advertiser rather
+    # than left to assume the name was confirmed.
+    if str(tally.get("match_strength") or "") == meta_ads.MATCH_CONTAINED:
+        parts.append("matched by partial name")
+    placements = [
+        _PLACEMENT_SHORT.get(str(p).upper(), _footer_safe(p, 12))
+        for p in (tally.get("placements") or [])
+    ]
+    if placements:
+        parts.append(", ".join(placements))
+    codes = [_footer_safe(c, 16) for c in (tally.get("promo_codes") or []) if c]
+    if codes:
+        parts.append(f"code {', '.join(codes)}")
+    transcribed = int(tally.get("transcribed") or 0)
+    if transcribed:
+        parts.append(f"{transcribed} transcribed")
+    return " │ ".join(parts)
 
 
 def _top_voices_footer_line(report: schema.Report) -> str | None:
@@ -1589,7 +3203,15 @@ def _top_voices_footer_line(report: schema.Report) -> str | None:
     """
     handle_items = {
         source: report.items_by_source.get(source) or []
-        for source in ("x", "bluesky", "truthsocial", "youtube", "tiktok", "instagram", "threads")
+        for source in (
+            "x",
+            "bluesky",
+            "truthsocial",
+            "youtube",
+            "tiktok",
+            "instagram",
+            "threads",
+        )
     }
     handle_counts: Counter[str] = Counter()
     for items in handle_items.values():
@@ -1619,21 +3241,35 @@ def _render_emoji_footer(report: schema.Report, save_path: str | None) -> list[s
     """Produce the deterministic magic footer block.
 
     Returns a list of markdown lines, including enclosing ``---`` separators.
-    Returns an empty list if no sources are populated.
+    Returns an empty list only when there is nothing to report - no populated
+    sources, no top voices, and no save path. When every source returned zero
+    items but a save path exists, the banner and the 'Raw results saved to' line
+    still render so the durable raw-file citation is never silently dropped.
     """
     source_lines = _build_source_footer_lines(report)
-    if not source_lines:
-        return []
-
     voices_line = _top_voices_footer_line(report)
+    # The freshness verdict is computed for the report body, but a reader who
+    # only scans this footer never sees it — and it is the one line that says
+    # how much of the evidence is actually recent.
+    freshness_warning = _assess_data_freshness(report)
+    freshness_line = f"🕒 {freshness_warning}" if freshness_warning else None
     raw_line = f"📎 Raw results saved to {save_path}" if save_path else None
 
     body: list[str] = []
     body.extend(source_lines)
     if voices_line:
         body.append(voices_line)
+    # Append freshness whenever it would annotate something: either the body
+    # already has content, or the raw-results line will make the footer
+    # non-empty. An otherwise empty run stays silent rather than announcing
+    # its own emptiness.
+    if freshness_line and (body or raw_line):
+        body.append(freshness_line)
     if raw_line:
         body.append(raw_line)
+
+    if not body:
+        return []
 
     # Apply tree characters: ├─ for all but the last body line, └─ for the last.
     tree_lines: list[str] = []
@@ -1693,6 +3329,9 @@ def _render_stats(report: schema.Report) -> list[str]:
         actor_summary = _top_actor_summary(source, items)
         if actor_summary:
             parts.append(actor_summary)
+        if source == "x" and report.artifacts.get("x_provenance") == "connector":
+            # Host-fetched lane (--x-posts): name the provenance in the footer.
+            parts.append("via X connector")
         lines.append(f"- {_source_label(source)}: {' | '.join(parts)}")
     lines.append("")
     return lines
@@ -1715,7 +3354,9 @@ def _assess_data_freshness(report: schema.Report) -> str | None:
                 item.published_at,
                 reference_date=report.range_to,
             )
-        ) is not None and _days_ago <= 7
+        )
+        is not None
+        and _days_ago <= 7
     ]
     if len(recent_items) < 3:
         return f"Limited recent data: only {len(recent_items)} of {len(dated_items)} dated items are from the last 7 days."
@@ -1750,22 +3391,29 @@ def _format_actor(item: schema.SourceItem | None) -> str | None:
 
 # Per-source engagement display fields: list of (field_name, label) tuples.
 ENGAGEMENT_DISPLAY: dict[str, list[tuple[str, str]]] = {
-    "reddit":       [("score", "pts"), ("num_comments", "cmt")],
-    "x":            [("likes", "likes"), ("reposts", "rt"), ("replies", "re")],
-    "youtube":      [("views", "views"), ("likes", "likes"), ("comments", "cmt")],
-    "tiktok":       [("views", "views"), ("likes", "likes"), ("comments", "cmt")],
-    "instagram":    [("views", "views"), ("likes", "likes"), ("comments", "cmt")],
-    "threads":      [("likes", "likes"), ("replies", "re")],
-    "pinterest":    [("saves", "saves"), ("comments", "cmt")],
-    "hackernews":   [("points", "pts"), ("comments", "cmt")],
-    "bluesky":      [("likes", "likes"), ("reposts", "rt"), ("replies", "re")],
-    "truthsocial":  [("likes", "likes"), ("reposts", "rt"), ("replies", "re")],
-    "linkedin":     [("likes", "likes"), ("comments", "cmt")],
-    "polymarket":   [],
-    "github":       [("stars", "stars"), ("merged_prs", "merged"), ("reactions", "react"), ("comments", "cmt")],
-    "perplexity":   [("citations", "cite")],
-    "digg":         [("postCount", "posts"), ("uniqueAuthors", "auth")],
-    "trustpilot":   [("reviews", "reviews")],
+    "reddit": [("score", "pts"), ("num_comments", "cmt")],
+    "x": [("likes", "likes"), ("reposts", "rt"), ("replies", "re")],
+    "youtube": [("views", "views"), ("likes", "likes"), ("comments", "cmt")],
+    "tiktok": [("views", "views"), ("likes", "likes"), ("comments", "cmt")],
+    "instagram": [("views", "views"), ("likes", "likes"), ("comments", "cmt")],
+    "threads": [("likes", "likes"), ("replies", "re")],
+    "pinterest": [("saves", "saves"), ("comments", "cmt")],
+    "hackernews": [("points", "pts"), ("comments", "cmt")],
+    "bluesky": [("likes", "likes"), ("reposts", "rt"), ("replies", "re")],
+    "truthsocial": [("likes", "likes"), ("reposts", "rt"), ("replies", "re")],
+    "linkedin": [("likes", "likes"), ("comments", "cmt")],
+    "polymarket": [],
+    "github": [
+        ("stars", "stars"),
+        ("merged_prs", "merged"),
+        ("reactions", "react"),
+        ("comments", "cmt"),
+    ],
+    "perplexity": [("citations", "cite")],
+    "digg": [("postCount", "posts"), ("uniqueAuthors", "auth")],
+    "trustpilot": [("reviews", "reviews")],
+    "amazon": [("ratings", "ratings")],
+    "meta_ads": [("variants", "variants")],
 }
 
 
@@ -1835,7 +3483,9 @@ def _top_actor_summary(source: str, items: list[schema.SourceItem]) -> str | Non
     return f"{label}: {', '.join(actors)}"
 
 
-def _top_actors_for_source(source: str, items: list[schema.SourceItem], limit: int = 3) -> list[str]:
+def _top_actors_for_source(
+    source: str, items: list[schema.SourceItem], limit: int = 3
+) -> list[str]:
     counts: Counter[str] = Counter()
     for item in items:
         actor = _stats_actor(item)
@@ -1844,7 +3494,9 @@ def _top_actors_for_source(source: str, items: list[schema.SourceItem], limit: i
     return [actor for actor, _ in counts.most_common(limit)]
 
 
-def _top_voices_overall(items_by_source: dict[str, list[schema.SourceItem]], limit: int = 5) -> list[str]:
+def _top_voices_overall(
+    items_by_source: dict[str, list[schema.SourceItem]], limit: int = 5
+) -> list[str]:
     counts: Counter[str] = Counter()
     for items in items_by_source.values():
         for item in items:
@@ -1894,7 +3546,10 @@ _TOP_COMMENT_MIN_SCORE: dict[str, int] = {
     "youtube": 50,
     "tiktok": 500,
     "instagram": 5,
-    "hackernews": 5,
+    # Zero, not a tuned floor: the Algolia items endpoint returns points=null
+    # for every comment child (only stories carry points), so any positive
+    # threshold here rejects the entire source rather than filtering it.
+    "hackernews": 0,
 }
 _TOP_COMMENT_VOTE_LABEL: dict[str, str] = {
     "reddit": "upvotes",
@@ -1936,11 +3591,13 @@ def _comment_attribution(source: str | None, author: str | None) -> str:
     # Some sources (YouTube/TikTok) already store the author with a leading '@';
     # strip it before re-prefixing so we don't emit '@@handle'.
     if prefix and author.startswith(prefix):
-        author = author[len(prefix):]
+        author = author[len(prefix) :]
     return f"{prefix}{author}" if prefix else author
 
 
-def _top_comments_list(item: schema.SourceItem | None, limit: int = 3, min_score: int | None = None) -> list[dict]:
+def _top_comments_list(
+    item: schema.SourceItem | None, limit: int = 3, min_score: int | None = None
+) -> list[dict]:
     """Return up to `limit` top comments with score at or above the source's minimum.
 
     If `min_score` is passed explicitly it overrides the per-source default;
@@ -2009,24 +3666,15 @@ def _source_label(source: str) -> str:
     return SOURCE_LABELS.get(source, source.replace("_", " ").title())
 
 
-
 def _best_take_relevance_ok(candidate) -> bool:
     """Exclude off-topic-but-viral candidates from Best Takes.
 
-    The engine demotes candidates that don't match the topic entity by tagging
-    ``entity-miss`` in the explanation and/or zeroing ``final_score`` (e.g. a
-    39k-like Grand Tour comment surfacing in a 'Patagonia brand' run). Those
-    must never reach Best Takes no matter how upvoted their comments are.
-    Plain ``fallback-local-score`` (without entity-miss) is NOT a demotion --
-    it is the default reason when LLM rerank didn't score an item -- so it is
-    not gated here.
+    Delegates to ``rerank.candidate_relevance_ok``, which owns the entity-miss
+    demotion test. Do not re-implement the check here: this site previously
+    carried its own copy, which meant the first-party carve-out applied in
+    rerank never reached Best Takes or cluster visibility.
     """
-    explanation = (candidate.explanation or "").lower()
-    if "entity-miss" in explanation:
-        return False
-    if (candidate.final_score or 0.0) <= 0.0:
-        return False
-    return True
+    return rerank.candidate_relevance_ok(candidate)
 
 
 def _effective_fun_score(candidate, vote_weight: float) -> float:
@@ -2045,32 +3693,84 @@ def _effective_fun_score(candidate, vote_weight: float) -> float:
     return base + vote_weight * confidence * vote_signal
 
 
-def _render_best_takes(candidates, limit=5, threshold=70.0, vote_weight=_FUN_LEVELS["medium"]["vote_weight"]):
+def _render_best_takes(
+    candidates,
+    limit=5,
+    threshold=70.0,
+    vote_weight=_FUN_LEVELS["medium"]["vote_weight"],
+    source_weight=None,
+):
     eligible = [
-        c for c in candidates
+        c
+        for c in candidates
         if c.fun_score is not None
         and c.fun_score >= _BEST_TAKE_FUNNY_FLOOR
         and _best_take_relevance_ok(c)
     ]
     scored = [(c, _effective_fun_score(c, vote_weight)) for c in eligible]
+    # Audience presets promote sources INSIDE the ranking (a pre-sort of the
+    # input is discarded by this sort): weight the ordering, not the
+    # threshold, so emphasis reorders takes without inventing eligibility.
+    rank_key = (
+        (lambda pair: -pair[1] * source_weight(pair[0].source))
+        if source_weight
+        else (lambda pair: -pair[1])
+    )
     # Carry the effective score forward so the display loop doesn't recompute it.
-    gems = [(c, eff) for c, eff in sorted(scored, key=lambda pair: -pair[1]) if eff >= threshold]
+    gems = [(c, eff) for c, eff in sorted(scored, key=rank_key) if eff >= threshold]
     if len(gems) < 2:
         return []
     lines = ["## Best Takes", ""]
     for candidate, effective in gems[:limit]:
         text = candidate.title.strip()
+        selected_comment_item = None
+        hackernews_take = None
         for item in candidate.source_items:
             for comment in item.metadata.get("top_comments", [])[:3]:
-                body = (comment.get("body") or comment.get("text") or "") if isinstance(comment, dict) else str(comment)
+                body = (
+                    (
+                        comment.get("body")
+                        or comment.get("text")
+                        or (
+                            comment.get("excerpt")
+                            if item.source == "hackernews"
+                            else ""
+                        )
+                        or ""
+                    )
+                    if isinstance(comment, dict)
+                    else str(comment)
+                )
                 body = body.strip()
-                if body and len(body) < len(text) and len(body) > 10:
+                if not body or len(body) <= 10:
+                    continue
+                if item.source == "hackernews" and (
+                    hackernews_take is None or len(body) < len(hackernews_take[0])
+                ):
+                    hackernews_take = (body, item)
+                elif hackernews_take is None and len(body) < len(text):
                     text = body
-        source_label = _source_label(candidate.source)
-        author = candidate.source_items[0].author if candidate.source_items else None
-        attribution = f"@{author} on {source_label}" if author and candidate.source in ("x", "tiktok", "instagram", "threads") else f"{source_label}"
-        if author and candidate.source == "reddit":
-            container = candidate.source_items[0].container if candidate.source_items else None
+                    selected_comment_item = item
+        if hackernews_take is not None:
+            text, selected_comment_item = hackernews_take
+        attribution_item = (
+            selected_comment_item
+            or (candidate.source_items[0] if candidate.source_items else None)
+        )
+        attribution_source = (
+            selected_comment_item.source
+            if selected_comment_item is not None
+            else candidate.source
+        )
+        source_label = _source_label(attribution_source)
+        author = attribution_item.author if attribution_item else None
+        attribution = (
+            f"@{author} on {source_label}"
+            if author and attribution_source in ("x", "tiktok", "instagram", "threads")
+            else f"{source_label}"
+        )
+        if author and attribution_source == "reddit":
+            container = attribution_item.container if attribution_item else None
             attribution = f"r/{container} comment" if container else "Reddit"
         # fun: is the LLM humor score; flag when crowd votes materially lifted
         # this item's ranking, so a lower-fun item ranking above a higher-fun one
@@ -2078,12 +3778,25 @@ def _render_best_takes(candidates, limit=5, threshold=70.0, vote_weight=_FUN_LEV
         crowd_boost = effective - (candidate.fun_score or 0.0)
         crowd_tag = " +crowd" if crowd_boost >= 5.0 else ""
         score_tag = f"(fun:{candidate.fun_score:.0f}{crowd_tag})"
-        reason = f" -- {candidate.fun_explanation}" if candidate.fun_explanation and candidate.fun_explanation != "heuristic-fallback" else ""
-        lines.append(f'- "{_truncate(text, 280)}" -- {attribution} {score_tag}{reason}')
+        reason = (
+            f" -- {candidate.fun_explanation}"
+            if candidate.fun_explanation
+            and candidate.fun_explanation != "heuristic-fallback"
+            else ""
+        )
+        lines.append(
+            f'- "{_format_untrusted_evidence(text, 280, continuation_indent="  ")}" '
+            f"-- {attribution} {score_tag}{reason}"
+        )
     return lines
 
 
-def _render_top_comments(report, limit: int = 8) -> list[str]:
+def _render_top_comments(
+    report,
+    limit: int = 8,
+    *,
+    candidates: list[schema.Candidate] | None = None,
+) -> list[str]:
     """Vote-ranked community comments across ALL ranked candidates — not just the
     top-cluster representatives — surfaced into the EVIDENCE block so the reading
     model can weave the funniest/highest-engagement lines into the synthesis.
@@ -2098,7 +3811,24 @@ def _render_top_comments(report, limit: int = 8) -> list[str]:
     """
     seen: set[str] = set()
     scored: list[tuple[float, schema.Candidate, schema.SourceItem, dict, str]] = []
-    for cand in report.ranked_candidates:
+    candidate_pool = report.ranked_candidates if candidates is None else candidates
+    floor_candidates = [
+        cand
+        for cand in candidate_pool
+        if _best_take_relevance_ok(cand)
+        and (cand.local_relevance or 0.0) >= relevance.RELEVANCE_FLOOR
+    ]
+    apply_relevance_floor = len(floor_candidates) >= relevance.MIN_ON_TOPIC
+    for cand in candidate_pool:
+        if not _best_take_relevance_ok(cand):
+            continue
+        # Skip comments from off-topic threads when enough candidates clear the
+        # floor; sparse niche topics still surface their best comments (#641).
+        if (
+            apply_relevance_floor
+            and (cand.local_relevance or 0.0) < relevance.RELEVANCE_FLOOR
+        ):
+            continue
         for item in cand.source_items:
             # Pass min_score=0 here: the cross-platform list deliberately does
             # NOT gate on the per-platform absolute floor, because a less-watched
@@ -2108,14 +3838,21 @@ def _render_top_comments(report, limit: int = 8) -> list[str]:
             for tc in _top_comments_list(item, min_score=0):
                 if not isinstance(tc, dict):
                     continue
-                body = (tc.get("excerpt") or tc.get("text") or tc.get("body") or "").strip()
+                body = (
+                    tc.get("excerpt") or tc.get("text") or tc.get("body") or ""
+                ).strip()
                 if len(body) < 12:
                     continue
                 key = body[:60].lower()
                 if key in seen:
                     continue
                 seen.add(key)
-                strength = signals.normalized_comment_vote(cand.source, tc.get("score"))
+                # Blend vote strength (60%) with thread relevance (40%) so comments
+                # from on-topic threads rank above off-topic viral comments.
+                vote_strength = signals.normalized_comment_vote(
+                    item.source, tc.get("score")
+                )
+                strength = 0.6 * vote_strength + 0.4 * (cand.local_relevance or 0.0)
                 scored.append((strength, cand, item, tc, body))
     if len(scored) < 2:
         return []
@@ -2130,7 +3867,7 @@ def _render_top_comments(report, limit: int = 8) -> list[str]:
     # among same-rank picks. The model still makes the final quotable pick.
     by_source: dict[str, list] = {}
     for row in scored:
-        by_source.setdefault(row[1].source, []).append(row)
+        by_source.setdefault(row[2].source, []).append(row)
     for src_rows in by_source.values():
         src_rows.sort(key=lambda row: -row[0])
     ordered: list = []
@@ -2140,13 +3877,21 @@ def _render_top_comments(report, limit: int = 8) -> list[str]:
         tier.sort(key=lambda row: -row[0])  # among same-rank picks, strongest first
         ordered.extend(tier)
     lines = ["## Top Community Comments", ""]
-    for _strength, cand, _item, tc, body in ordered[:limit]:
+    for _strength, cand, item, tc, body in ordered[:limit]:
         score = tc.get("score", "")
-        vote_label = _vote_label_for(cand.source)
-        attribution = _comment_attribution(cand.source, tc.get("author"))
+        vote_label = _vote_label_for(item.source)
+        attribution = _comment_attribution(item.source, tc.get("author"))
         url = tc.get("url") or cand.url or ""
         url_part = f" — {url}" if url else ""
-        lines.append(f'- "{_truncate(body, 240)}" — {attribution} ({score} {vote_label}){url_part}')
+        vote_part = (
+            f" ({score} {vote_label})"
+            if score is not None and score != ""
+            else ""
+        )
+        lines.append(
+            f'- "{_format_untrusted_evidence(body, 240, continuation_indent="  ")}" '
+            f"— {attribution}{vote_part}{url_part}"
+        )
     return lines
 
 
@@ -2155,3 +3900,48 @@ def _truncate(text: str, limit: int) -> str:
     if len(text) <= limit:
         return text
     return text[: limit - 3].rstrip() + "..."
+
+
+_ATX_HEADING_PREFIX = re.compile(r"^(#{1,6})(\s|$)")
+
+
+def _escape_atx_heading_prefix(line: str) -> str:
+    """Neutralize leading ATX heading markers so scraped text cannot mint sections."""
+    stripped = line.lstrip()
+    if not stripped:
+        return line
+    leading = line[: len(line) - len(stripped)]
+    match = _ATX_HEADING_PREFIX.match(stripped)
+    if not match:
+        return line
+    hashes = match.group(1)
+    rest = stripped[len(hashes) :]
+    return f"{leading}{'\\#' * len(hashes)}{rest}"
+
+
+def _format_untrusted_evidence(
+    text: str,
+    limit: int,
+    *,
+    continuation_indent: str = "     ",
+) -> str:
+    """Truncate scraped text and keep it from injecting markdown structure.
+
+    Multi-line snippets previously broke out of the ``   - Evidence:`` indent
+    so a bare ``##`` from a jobs page became a sibling of engine section
+    headings inside the EVIDENCE FOR SYNTHESIS block (#874). Continuation
+    lines stay indented (CommonMark ATX headings need ≤3 leading spaces), and
+    leading ``#`` runs are escaped as defense in depth.
+
+    Indentation stops CommonMark from parsing a forged heading, but it does
+    nothing to an HTML comment a model reads as text, so the engine's own
+    block sentinels are defanged here too (#1053).
+    """
+    truncated = _truncate(text, limit)
+    if not truncated:
+        return truncated
+    lines = _defang_engine_sentinels(truncated).splitlines()
+    safe: list[str] = [_escape_atx_heading_prefix(lines[0])]
+    for line in lines[1:]:
+        safe.append(continuation_indent + _escape_atx_heading_prefix(line))
+    return "\n".join(safe)

@@ -171,13 +171,20 @@ def _build_urls(query: str, depth: str, subreddits: Optional[List[str]]) -> List
 
 
 def _fetch_feed(url: str, query: str) -> List[Dict[str, Any]]:
-    """Fetch and parse one feed. Never raises."""
+    """Fetch and parse one feed. Never raises. One limiter-respecting 429 retry."""
     try:
-        text = http.reddit_keyless_get_text(url, timeout=FEED_TIMEOUT, accept="application/atom+xml")
+        text, _error = http.reddit_keyless_get_text_retry_429(
+            url, timeout=FEED_TIMEOUT, accept="application/atom+xml"
+        )
         return _parse_feed(text, query) if text else []
     except Exception as e:  # defensive: a single bad feed must not sink the run
         _log(f"feed fetch failed for {url}: {e}")
         return []
+
+
+def _result_timeout(batch_size: int) -> float:
+    """Per-future wait: the fetch's own timeout plus the bucket's queue depth."""
+    return FEED_TIMEOUT + 5 + http.reddit_keyless_wait_allowance(batch_size)
 
 
 def search_rss(
@@ -203,10 +210,17 @@ def search_rss(
     all_posts: List[Dict[str, Any]] = []
     workers = min(MAX_WORKERS, len(urls)) or 1
     with ThreadPoolExecutor(max_workers=workers) as executor:
-        futures = {executor.submit(_fetch_feed, url, query): url for url in urls}
+        # submit_with_context, not executor.submit: a plain submit starts the
+        # worker with an empty context, dropping the pipeline's
+        # capture_failures() sink so a feed's 429/403 is silently discarded and
+        # the source reports a clean no-results (issue #899).
+        futures = {
+            http.submit_with_context(executor, _fetch_feed, url, query): url
+            for url in urls
+        }
         for future in futures:
             try:
-                all_posts.extend(future.result(timeout=FEED_TIMEOUT + 5))
+                all_posts.extend(future.result(timeout=_result_timeout(len(urls))))
             except (Exception, FuturesTimeoutError) as e:
                 _log(f"feed future failed: {e}")
 

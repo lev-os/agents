@@ -4,10 +4,42 @@ from __future__ import annotations
 
 import sys
 import urllib.parse
+from dataclasses import dataclass
 from datetime import datetime
 from urllib.parse import urlparse
 
-from . import dates, env, http, web_search_keyless
+from . import dates, env, http, parallel_mcp, schema, web_search_keyless
+
+
+@dataclass(frozen=True)
+class GroundedClaimText:
+    """Candidate text with its exact primary evidence item."""
+
+    candidate_id: str
+    title: str
+    summary: str
+    item: schema.SourceItem
+
+
+def claim_source_map(report: schema.Report) -> dict[str, GroundedClaimText]:
+    """Expose only candidate claims that have a clean primary-item trace.
+
+    Freshness verification deliberately starts here instead of scanning all
+    report prose. A candidate without a primary ``SourceItem`` cannot produce
+    an auditable per-claim verdict.
+    """
+    grounded: dict[str, GroundedClaimText] = {}
+    for candidate in report.ranked_candidates:
+        item = schema.candidate_primary_item(candidate)
+        if item is None:
+            continue
+        grounded[candidate.candidate_id] = GroundedClaimText(
+            candidate_id=candidate.candidate_id,
+            title=candidate.title,
+            summary=candidate.snippet or item.snippet or item.body,
+            item=item,
+        )
+    return grounded
 
 
 # ---------------------------------------------------------------------------
@@ -236,6 +268,10 @@ def web_search(
         if not key:
             raise RuntimeError("PARALLEL_API_KEY is required when web_backend='parallel'")
         items, artifact = parallel_search(query, date_range, key)
+    elif backend == "parallel-mcp":
+        items, artifact = parallel_mcp.search(
+            query, date_range, config.get("PARALLEL_API_KEY")
+        )
     elif backend == "keyless":
         items, artifact = web_search_keyless.keyless_search(query, date_range, config)
     elif backend != "none":
@@ -243,7 +279,13 @@ def web_search(
     else:
         return [], {}
     if items and not _reddit_excluded(config):
-        items = _enrich_reddit_items(items)
+        # Reddit enrichment is a best-effort secondary fetch on already-retrieved
+        # web results. Isolate its HTTP failures in a throwaway capture sink so a
+        # reddit.com fetch failure (e.g. a 403 on a datacenter IP) is not
+        # attributed to the web/grounding source itself — which would otherwise
+        # discard the successfully retrieved results and report the source failed.
+        with http.capture_failures():
+            items = _enrich_reddit_items(items)
     return items, artifact
 
 

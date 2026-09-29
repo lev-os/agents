@@ -1,0 +1,1704 @@
+{
+ "meta": {
+  "title": "lev.now — Ontology whiteboard",
+  "description": "Every ontology and DNA term in one place, bird's-eye plus drill-downs, and the naming technique.",
+  "provenance": {
+   "agent": "Claude Code · Opus 5.5 · recovery orchestrator",
+   "workstream": "agent-runtime-convergence",
+   "source": ".lev/now/ontology-whiteboard-20260929.json",
+   "createdAt": "2026-09-29"
+  }
+ },
+ "theme": {
+  "preset": "midnight-ink",
+  "mode": "light"
+ },
+ "root": [
+  "hero",
+  "s-how",
+  "s-eye",
+  "s-grid",
+  "s-mod",
+  "s-pipe",
+  "s-nest",
+  "s-untangle",
+  "s-irmap",
+  "s-dnad",
+  "s-over",
+  "s-inv"
+ ],
+ "elements": {
+  "hero": {
+   "type": "hero",
+   "variant": "editorial",
+   "props": {
+    "category": "ONTOLOGY WHITEBOARD · 2026-09-29",
+    "title": "75 words, one board, and DNA retired into Lev IR",
+    "subtitle": "Every term, bird's-eye plus drill-downs. New: the untangling of dna / ir / lev ir / ontology / graph / process / crystallize, and your message mapped into Lev IR.",
+    "meta": "Harvested from design-fractal-source-framework.md, design-dna-authoring-contract.md and the vernacular. The count is an output of this harvest, not a target."
+   }
+  },
+  "s-how": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "How to name this",
+    "title": "Which technique, in what order"
+   },
+   "children": [
+    "t-how"
+   ]
+  },
+  "t-how": {
+   "type": "text",
+   "props": {
+    "content": "Naming something this tangled fails if you start by picking words. Top domain modelers (Evans' *ubiquitous language*, concept mapping, formal concept analysis) work in this order:\n\n1. **Inventory:** every word in play, with where it came from. That is the table at the bottom of this page.\n2. **Whiteboard:** how the words relate, as pictures, not definitions. Those are the diagrams below.\n3. **Word × property grid:** two words with identical rows are synonyms, so keep one. One word that needs two rows is overloaded, so split it. The grid below does this for the place words, and it answers most of the island question without anyone choosing a word.\n4. **Pick words only for what is still contested,** about 6 words. **This is where `/pov` fits.** It forces several framings: an npm user reading config, an agent grepping, you saying it out loud, a newcomer. Then it reduces to one pick. `/pov` is the right tool for step 4 and the wrong one for step 1.\n5. **Lock** the winners into `dna/vernacular.yaml` with a retired list and a guard test, so the eleventh version can't come back.\n\nNaming tests for each winner: it greps uniquely, it's speakable, it doesn't collide with a taken word (`provider` is taken), places get nouns, mechanisms get verbs."
+   }
+  },
+  "s-eye": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "Bird's-eye",
+    "title": "Lev dev versus a Lev-managed project"
+   },
+   "children": [
+    "d-eye",
+    "t-eye"
+   ]
+  },
+  "d-eye": {
+   "type": "diagram",
+   "props": {
+    "engine": "mermaid",
+    "content": "flowchart LR\n  subgraph DEV[\"leviathan repo = Lev dev\"]\n    direction TB\n    DC[\"core/* - 40+ core modules\"]\n    DP[\"plugins/* - ~56 plugins\"]\n    DD[\"dna/ - system DNA\"]\n    DL[\".lev/ - our own project island\"]\n    DL --> DWS[\"workstreams/auth-rewrite\"] --> DT[\"tasks/login-flow\"] --> DM[\"memory/notes.md\"]\n  end\n  subgraph NPM[\"npm: @lev-os/cli\"]\n    B[\"same modules, prebuilt catalog\"]\n  end\n  subgraph APP[\"my-app = Lev-managed project\"]\n    direction TB\n    AL[\".lev/config.yaml - project island\"]\n    AU[\"packages/ui - declared island\"]\n    AN[\"node_modules/@lev-os/cli\"]\n    AX[\"node_modules/@acme/lev-memory-s3 - third-party module\"]\n    AL -->|\"islands: packages/*\"| AU\n    AL -->|\"modules: [...]\"| AX\n    AL --> AWS[\".lev/pm/workstreams/...\"]\n  end\n  DC -->|publish| B\n  DP -->|publish| B\n  DD -->|publish| B\n  B -->|install| AN\n  classDef dog fill:#fde68a,stroke:#b45309,color:#111\n  class DL,DWS,DT,DM dog",
+    "caption": "Yellow = dogfood. Our repo is both the distribution's source and one Lev-managed project."
+   }
+  },
+  "t-eye": {
+   "type": "text",
+   "props": {
+    "content": "**The one idea:** the Lev repo is two things at once. `core/*`, `plugins/*` and `dna/` are the **product**, which gets published. `.lev/` is **one project that uses the product**, which is the dogfood layer. A consumer's `my-app/` has exactly the same shape, except the modules arrive through `node_modules` instead of sitting in source folders.\n\n| | Lev dev (this repo) | Lev-managed project |\n|---|---|---|\n| Where modules come from | source folders `core/*`, `plugins/*` | `node_modules/@lev-os/cli` + listed third-party modules |\n| How modules are found | scanned live | catalog prebuilt at publish (locked 2026-07-06) |\n| Project island | `.lev/` (our workstreams, tasks) | `.lev/` (their workstreams, tasks) |\n| Extra islands | none declared today | `packages/*` etc. via `islands:` |\n| Rules | identical | identical: no privileged internal path (invariant I-31) |\n| Today's gap | poly hard-codes `core/` + `plugins/` | project islands get only listed commands, not `src/handlers/` |"
+   }
+  },
+  "s-grid": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "Word × property",
+    "title": "What kinds of folder exist (the grid that settles island vs module)"
+   },
+   "children": [
+    "t-grid",
+    "d-kind"
+   ]
+  },
+  "t-grid": {
+   "type": "data-table",
+   "props": {
+    "columns": [
+     {
+      "key": "f",
+      "label": "Folder"
+     },
+     {
+      "key": "ex",
+      "label": "Example"
+     },
+     {
+      "key": "a",
+      "label": "Lev looks inside it"
+     },
+     {
+      "key": "b",
+      "label": "Has a config entry"
+     },
+     {
+      "key": "c",
+      "label": "Can claim folder names"
+     },
+     {
+      "key": "d",
+      "label": "Can own entity kinds"
+     },
+     {
+      "key": "e",
+      "label": "Can add sub-islands"
+     },
+     {
+      "key": "g",
+      "label": "Found by"
+     }
+    ],
+    "rows": [
+     {
+      "f": "core module",
+      "ex": "core/memory",
+      "a": "yes",
+      "b": "yes",
+      "c": "yes",
+      "d": "yes",
+      "e": "yes",
+      "g": "distribution islands"
+     },
+     {
+      "f": "plugin",
+      "ex": "plugins/sdlc",
+      "a": "yes",
+      "b": "yes",
+      "c": "yes",
+      "d": "yes",
+      "e": "yes",
+      "g": "distribution islands"
+     },
+     {
+      "f": "third-party module",
+      "ex": "@acme/lev-memory-s3",
+      "a": "yes",
+      "b": "yes",
+      "c": "yes",
+      "d": "yes",
+      "e": "yes",
+      "g": "modules: list"
+     },
+     {
+      "f": "project",
+      "ex": "my-app/.lev",
+      "a": "yes",
+      "b": "yes",
+      "c": "yes (rare)",
+      "d": "yes (rare)",
+      "e": "yes",
+      "g": "it's the start"
+     },
+     {
+      "f": "package island",
+      "ex": "packages/ui",
+      "a": "yes",
+      "b": "package.json is enough",
+      "c": "·",
+      "d": "·",
+      "e": "yes",
+      "g": "parent's islands:"
+     },
+     {
+      "f": "entity island",
+      "ex": "tasks/login-flow",
+      "a": "yes",
+      "b": "·",
+      "c": "·",
+      "d": "·",
+      "e": "·",
+      "g": "marker file dna.yaml"
+     },
+     {
+      "f": "a resolver's folder",
+      "ex": "src/handlers/",
+      "a": "it's a match",
+      "b": "·",
+      "c": "·",
+      "d": "·",
+      "e": "·",
+      "g": "a resolver"
+     },
+     {
+      "f": "ordinary folder",
+      "ex": "src/utils/",
+      "a": "·",
+      "b": "·",
+      "c": "·",
+      "d": "·",
+      "e": "·",
+      "g": "-"
+     }
+    ]
+   }
+  },
+  "d-kind": {
+   "type": "diagram",
+   "props": {
+    "engine": "mermaid",
+    "content": "flowchart TD\n  Q1{\"Does Lev look inside it?\"} -->|no| O[\"ordinary folder\"]\n  Q1 -->|\"it IS inside a resolver's folder\"| M[\"a match - e.g. a handler file\"]\n  Q1 -->|yes| Q2{\"Has a config entry?\"}\n  Q2 -->|\"no, marker file only\"| EI[\"entity island - task, workstream\"]\n  Q2 -->|yes| Q3{\"Offers anything?<br/>claims folder names or owns entity kinds\"}\n  Q3 -->|no| PI[\"island only - packages/ui\"]\n  Q3 -->|yes| MOD[\"module - core, plugin, third-party, project\"]",
+    "caption": "Two independent properties, so two words: 'looked inside' is one word (island or root, your pick); 'offers things' is module. Every module is looked inside; not everything looked inside is a module."
+   }
+  },
+  "s-mod": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "Drill-down 1",
+    "title": "Everything a module can be"
+   },
+   "children": [
+    "d-mod",
+    "t-mod"
+   ]
+  },
+  "d-mod": {
+   "type": "diagram",
+   "props": {
+    "engine": "mermaid",
+    "content": "mindmap\n  root((module))\n    Is - definition\n      identity - package\n      settings and knobs\n      own files - sources\n      enabled or not\n    Offers - provides\n      claims folder names - resolvers\n        poly - handlers\n        core/memory - memory\n        core/flowmind - flows\n        plugins/dna - dna\n        core/eval - evals\n      owns entity kinds\n        core/workstream - workstream, task\n        plugins/sdlc - plan, spec, decision\n        core/memory - memory\n      adds to another owner's surface - contribution\n    Receives - because it is an island\n      src/handlers becomes commands\n      src/memory becomes memory code\n      flows become programs\n      dna becomes its contract\n    Rules about it - its contract file\n      checks - rules with a runnable test\n      guidance - rules with no test\n      behaviors and failure modes\n      plus schemas and gate thresholds",
+    "caption": "Four faces of one folder. 'Is' and 'Offers' are the two halves of config.yaml; 'Receives' happens to every island; 'Rules about it' is its contract file (see 'DNA, taken apart')."
+   }
+  },
+  "t-mod": {
+   "type": "text",
+   "props": {
+    "content": "Concrete: `core/memory` under the design.\n\n```text\ncore/memory/\n  config.yaml          IS: package, knobs, sources   OFFERS: resolvers.memory, entity_definitions.memory\n  dna/memory.dna.yaml  GOVERNED BY: constraints, behaviors, failure modes, gates   (if DNA moves next to modules)\n  src/handlers/*.ts    RECEIVES: poly turns these into `lev memory ...` commands\n  src/memory/          (other islands put memory code in THEIR src/memory/; core/memory receives it)\n```"
+   }
+  },
+  "s-pipe": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "Drill-down 2",
+    "title": "What happens when you run lev (all code, no LLM)"
+   },
+   "children": [
+    "d-pipe"
+   ]
+  },
+  "d-pipe": {
+   "type": "diagram",
+   "props": {
+    "engine": "mermaid",
+    "content": "sequenceDiagram\n  autonumber\n  participant U as lev CLI\n  participant C as core/config - the pipeline\n  participant P as core/poly\n  participant M as core/memory\n  participant D as plugins/dna\n  U->>C: resolve this project\n  C->>C: find islands - .lev, islands:, distribution, entity islands\n  C->>C: collect resolvers + entity kinds from every enabled module\n  C->>C: fail if two modules claim one name\n  C->>C: apply each island's resolver_paths\n  C->>C: scan every island once\n  C->>P: every src/handlers file, with provenance\n  C->>M: every memory/ and src/memory file\n  C->>D: every dna/*.dna.yaml\n  P->>U: command registry - a derived view\n  Note over C,D: Today steps 2-3 are hard-coded in source-catalog.ts - GAP",
+    "caption": "The design's section 4.8. An LLM only ever writes the files; it never decides who owns a folder."
+   }
+  },
+  "s-nest": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "Drill-down 3",
+    "title": "Nesting: workstream, then task, then memory"
+   },
+   "children": [
+    "d-nest"
+   ]
+  },
+  "d-nest": {
+   "type": "diagram",
+   "props": {
+    "engine": "mermaid",
+    "content": "flowchart TD\n  P[\".lev/ project island\"] --> PM[\"memory/project-glossary.md\"]\n  P --> W[\"pm/workstreams/auth-rewrite<br/>marker: state/workstream.yaml\"]\n  W --> WM[\"memory/decisions.md\"]\n  W --> T[\"tasks/login-flow<br/>marker: dna.yaml\"]\n  T --> TM[\"memory/notes.md\"]\n  P --> OT[\"pm/tasks/orphan-fix - task with no workstream\"]\n  UI[\"packages/ui island\"] --> UM[\"memory/components.md\"]\n  classDef mem fill:#bbf7d0,stroke:#15803d,color:#111\n  class PM,WM,TM,UM mem",
+    "caption": "Green = memory records. Memory declares 'under: island, workstream, task'; workstream and task never learn memory exists."
+   }
+  },
+  "s-dna": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "Drill-down 4",
+    "title": "Contract owners: outer wins"
+   },
+   "children": [
+    "d-dna"
+   ]
+  },
+  "d-dna": {
+   "type": "diagram",
+   "props": {
+    "engine": "mermaid",
+    "content": "flowchart LR\n  S[\"system<br/>dna/\"] --> C[\"module class<br/>core-contract, plugin-contract\"] --> SE[\"seam<br/>dna/architecture/tmux...\"] --> MO[\"module<br/>core/memory/dna/ ?\"] --> PR[\"project or island<br/>.lev/dna/\"] --> TK[\"task<br/>tasks/id/dna.yaml\"]",
+    "caption": "Inner owners may tighten a rule or add new ones, never loosen. Where 'module' lives (next to the module or central) is the biggest open DNA question."
+   }
+  },
+  "s-over": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "The mess",
+    "title": "Words that mean more than one thing, or one thing with many words"
+   },
+   "children": [
+    "d-over"
+   ]
+  },
+  "d-over": {
+   "type": "diagram",
+   "props": {
+    "engine": "mermaid",
+    "content": "flowchart LR\n  R([\"resolver\"]) --> r1[\"a module's claim on a folder - JP\"]\n  R --> r2[\"a shape normalizer - fractal.yaml:8\"]\n  R --> r3[\"all of core/config - config.dna.yaml:3\"]\n  FR([\"fractal resolver\"]) --> f1[\"core/config's self-name\"]\n  FR --> f2[\"function that finds islands, not globs\"]\n  I([\"island\"]) --> i1[\"any folder Lev looks inside\"]\n  I --> i2[\"narrow override folder - dead example\"]\n  I --> i3[\"workstream folder with slots\"]\n  L1[\"fractal root\"] -.same thing.-> I\n  L2[\"app root\"] -.same thing, fewer rules.-> I\n  L3[\"task_as_fractal\"] -.same thing.-> I\n  PV([\"provider\"]) --> p1[\"execution backend - taken\"]\n  PV -.blocks.-> PS[\"provides: key\"]\n  MD([\"module definition vs contribution\"]) --> m1[\"3 different two-way splits in 3 designs\"]\n  classDef hot fill:#fecaca,stroke:#b91c1c,color:#111\n  class R,FR,I,PV,MD hot",
+    "caption": "Red = overloaded. Dotted = synonyms that should collapse to one word.",
+    "initialZoom": 0.9
+   }
+  },
+  "s-inv": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "Inventory",
+    "title": "All the words, in one spot"
+   },
+   "children": [
+    "t-cnt",
+    "t-freq-note",
+    "t-freq",
+    "t-inv"
+   ]
+  },
+  "t-cnt": {
+   "type": "text",
+   "props": {
+    "content": "**75 words** across five whiteboard columns: Places 17, Declarations 14, Machinery 18, Nouns 13, DNA 13. **17 need work** (overloaded, synonym, dead, taken, multiple homes, or no canon). The rest are settled or already ruled."
+   }
+  },
+  "t-inv": {
+   "type": "data-table",
+   "props": {
+    "columns": [
+     {
+      "key": "t",
+      "label": "Word"
+     },
+     {
+      "key": "g",
+      "label": "Column"
+     },
+     {
+      "key": "m",
+      "label": "What it means today"
+     },
+     {
+      "key": "s",
+      "label": "Status"
+     },
+     {
+      "key": "src",
+      "label": "Source"
+     }
+    ],
+    "rows": [
+     {
+      "t": "module",
+      "g": "Places",
+      "m": "A folder with a config file that can offer things to others",
+      "s": "keep (proposed core word)",
+      "src": "design-fractal-source-framework.md 4.1"
+     },
+     {
+      "t": "core module / core package",
+      "g": "Places",
+      "m": "A module under core/* (@lev-os/*)",
+      "s": "keep",
+      "src": "AGENTS.md 0"
+     },
+     {
+      "t": "plugin",
+      "g": "Places",
+      "m": "A module under plugins/*",
+      "s": "keep",
+      "src": "AGENTS.md 1"
+     },
+     {
+      "t": "third-party module",
+      "g": "Places",
+      "m": "A module installed from npm, e.g. @acme/lev-memory-s3",
+      "s": "proposed",
+      "src": "design-fractal-source-framework.md 4.7, Q6"
+     },
+     {
+      "t": "project",
+      "g": "Places",
+      "m": "A repo Lev manages; its .lev/ is the project island",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md 4.4"
+     },
+     {
+      "t": "distribution",
+      "g": "Places",
+      "m": "The shipped Lev package: core/* + plugins/* + dna/",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md 4.7; source-catalog.ts:433"
+     },
+     {
+      "t": "component",
+      "g": "Places",
+      "m": "JP's spoken word for a module",
+      "s": "no canon",
+      "src": "design-fractal-source-framework.md lane-12 quote"
+     },
+     {
+      "t": "island",
+      "g": "Places",
+      "m": "Any folder Lev looks inside with every resolver",
+      "s": "OVERLOADED (3 meanings)",
+      "src": "design-fractal-source-framework.md section 3"
+     },
+     {
+      "t": "declared island",
+      "g": "Places",
+      "m": "Island with a config entry (config.yaml, package.json#leviathan, .lev/config.yaml)",
+      "s": "proposed",
+      "src": "design-fractal-source-framework.md 4.4"
+     },
+     {
+      "t": "entity island",
+      "g": "Places",
+      "m": "Island that is an entity instance (workstream or task folder); found by marker file",
+      "s": "proposed",
+      "src": "design-fractal-source-framework.md 4.4"
+     },
+     {
+      "t": "fractal root",
+      "g": "Places",
+      "m": "Any dir satisfying an entry adapter",
+      "s": "SYNONYM of island",
+      "src": "design-fractal-source-framework.md Part 2 def 7; vernacular.yaml:272"
+     },
+     {
+      "t": "fractal island",
+      "g": "Places",
+      "m": "Narrow override sub-root with reject policy (eval overrides, dead)",
+      "s": "OVERLOADED / dead example",
+      "src": "design-fractal-source-framework.md Part 2 def 8"
+     },
+     {
+      "t": "app root",
+      "g": "Places",
+      "m": "A project island in poly; gets only explicitly listed commands",
+      "s": "SYNONYM, different rules today",
+      "src": "commands.ts:435-462"
+     },
+     {
+      "t": "fractal leaf",
+      "g": "Places",
+      "m": "JP's word for one owned folder pattern",
+      "s": "no canon",
+      "src": "lane-12 quote"
+     },
+     {
+      "t": "slot",
+      "g": "Places",
+      "m": "Route-ontology word for an owned folder in a workstream",
+      "s": "superseded",
+      "src": "design-fractal-route-ontology.md"
+     },
+     {
+      "t": "seam",
+      "g": "Places",
+      "m": "A feature that crosses modules; its DNA lives in dna/architecture/<seam>/",
+      "s": "keep",
+      "src": "design-dna-authoring-contract.md 6.1"
+     },
+     {
+      "t": "task_as_fractal",
+      "g": "Places",
+      "m": "Vernacular note that a task folder is fractal",
+      "s": "SYNONYM of entity island",
+      "src": "vernacular.yaml:575"
+     },
+     {
+      "t": "package",
+      "g": "Declarations",
+      "m": "Identity block in config.yaml",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md 4.1"
+     },
+     {
+      "t": "settings / config_schema / knob",
+      "g": "Declarations",
+      "m": "A module's own tunable values",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md 4.1"
+     },
+     {
+      "t": "enabled",
+      "g": "Declarations",
+      "m": "Installed is not active",
+      "s": "keep",
+      "src": "design-module-configuration-composition.md:101"
+     },
+     {
+      "t": "sources:",
+      "g": "Declarations",
+      "m": "A module's OWN files, globs relative to itself",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md fact 2"
+     },
+     {
+      "t": "resolvers:",
+      "g": "Declarations",
+      "m": "Folder names a module claims in every island",
+      "s": "proposed key",
+      "src": "design-fractal-source-framework.md 4.2"
+     },
+     {
+      "t": "resolver_paths:",
+      "g": "Declarations",
+      "m": "An island remaps a resolver folder for itself",
+      "s": "proposed key",
+      "src": "design-fractal-source-framework.md 4.2"
+     },
+     {
+      "t": "entity_definitions:",
+      "g": "Declarations",
+      "m": "Entity kinds a module owns: uri, identity, locations",
+      "s": "keep (ruled)",
+      "src": "entity-definitions.ts:121"
+     },
+     {
+      "t": "islands: / fractal_roots:",
+      "g": "Declarations",
+      "m": "Sub-islands a declared island adds",
+      "s": "rename pending (Q1)",
+      "src": "config-loader.ts:1689"
+     },
+     {
+      "t": "modules:",
+      "g": "Declarations",
+      "m": "Third-party modules a project turns on",
+      "s": "proposed key",
+      "src": "design-fractal-source-framework.md Q6"
+     },
+     {
+      "t": "provides:",
+      "g": "Declarations",
+      "m": "Wrapper sketched by DNA design around resolvers",
+      "s": "competing sketch",
+      "src": "design-dna-authoring-contract.md 6.3"
+     },
+     {
+      "t": "contribution",
+      "g": "Declarations",
+      "m": "An entry a module adds to someone else's keyed surface (schedules)",
+      "s": "keep, narrowed",
+      "src": "design-fractal-source-framework.md 4.1"
+     },
+     {
+      "t": "overlay (poly.sdk / poly.surfaces)",
+      "g": "Declarations",
+      "m": "Per-command surface metadata poly reads",
+      "s": "keep",
+      "src": "commands.ts:82-114"
+     },
+     {
+      "t": "fractals: block",
+      "g": "Declarations",
+      "m": "Poly 'fractal ownership' block",
+      "s": "DEAD (no reader)",
+      "src": "core/poly/config.yaml:26"
+     },
+     {
+      "t": "handlers: / poly.handlers block",
+      "g": "Declarations",
+      "m": "Command blocks in 4 configs",
+      "s": "DEAD (no reader)",
+      "src": "design-fractal-source-framework.md fact 5"
+     },
+     {
+      "t": "resolver",
+      "g": "Machinery",
+      "m": "A module's claim / a shape normalizer / all of core/config",
+      "s": "OVERLOADED (3 meanings)",
+      "src": "fractal.yaml:8; config.dna.yaml:3"
+     },
+     {
+      "t": "fractal resolver",
+      "g": "Machinery",
+      "m": "core/config's self-name AND the function resolveFractalSourceInputs",
+      "s": "OVERLOADED (package + function)",
+      "src": "config.dna.yaml:3; config-loader.ts:1788"
+     },
+     {
+      "t": "pipeline / 'the catalog'",
+      "g": "Machinery",
+      "m": "Find islands, collect resolvers, scan once, hand out",
+      "s": "name pending (Q2)",
+      "src": "design-fractal-source-framework.md 4.8"
+     },
+     {
+      "t": "catalog",
+      "g": "Machinery",
+      "m": "Resolved set: namespace to files + hashes",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md Part 2 def 3"
+     },
+     {
+      "t": "scanner",
+      "g": "Machinery",
+      "m": "The one scan/extract engine inside core/config",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md Part 2 def 9"
+     },
+     {
+      "t": "source descriptor",
+      "g": "Machinery",
+      "m": "Data: id, namespace, kind, adapter, globs, collision policy",
+      "s": "keep (internal)",
+      "src": "design-fractal-source-framework.md Part 2 def 1"
+     },
+     {
+      "t": "namespace",
+      "g": "Machinery",
+      "m": "Typed id root.kind a consumer asks for",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md Part 2 def 2"
+     },
+     {
+      "t": "kind",
+      "g": "Machinery",
+      "m": "What a match becomes (operation, flow, memory record)",
+      "s": "keep, overloaded with entity kind",
+      "src": "design-fractal-source-framework.md 4.3"
+     },
+     {
+      "t": "adapter / entry adapter",
+      "g": "Machinery",
+      "m": "Parser (yaml/json/package_json) / what makes a folder a root",
+      "s": "keep",
+      "src": "config-loader.ts:1643"
+     },
+     {
+      "t": "scope",
+      "g": "Machinery",
+      "m": "system, global, project, project-local, profile, env",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md Part 2 def 6"
+     },
+     {
+      "t": "cascade",
+      "g": "Machinery",
+      "m": "Fixed merge order across scopes",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md Part 2 def 6"
+     },
+     {
+      "t": "collision policy",
+      "g": "Machinery",
+      "m": "select / merge / reject",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md Part 2 def 6"
+     },
+     {
+      "t": "provenance",
+      "g": "Machinery",
+      "m": "Source path, scope, hash, descriptor id on every value",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md Part 2 def 5"
+     },
+     {
+      "t": "projection",
+      "g": "Machinery",
+      "m": "Derived view: poly registry, entities.yaml, gate view",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md Part 2 def 10"
+     },
+     {
+      "t": "route",
+      "g": "Machinery",
+      "m": "XDG location token (runtime.event_log)",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md Part 2 def 11"
+     },
+     {
+      "t": "residue",
+      "g": "Machinery",
+      "m": "Anything violating placement rules",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md Part 2 def 12"
+     },
+     {
+      "t": "provider",
+      "g": "Machinery",
+      "m": "Execution backend inside a harness",
+      "s": "TAKEN (blocks 'provides')",
+      "src": "vernacular.yaml:15-17"
+     },
+     {
+      "t": "EntityCatalogPort<T>",
+      "g": "Machinery",
+      "m": "Optional TS port to locate an entity in code",
+      "s": "keep, optional (JP)",
+      "src": "design-fractal-source-framework.md 4.6"
+     },
+     {
+      "t": "entity",
+      "g": "Nouns",
+      "m": "A thing Lev tracks with an id and a home",
+      "s": "keep",
+      "src": "dna/entities.yaml"
+     },
+     {
+      "t": "entity kind",
+      "g": "Nouns",
+      "m": "workstream, task, plan, spec, memory ...",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md 4.6"
+     },
+     {
+      "t": "instance",
+      "g": "Nouns",
+      "m": "One entity on disk",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md 4.5"
+     },
+     {
+      "t": "location",
+      "g": "Nouns",
+      "m": "Where instances of a kind live (pattern)",
+      "s": "keep",
+      "src": "entity-definitions.ts:69"
+     },
+     {
+      "t": "marker",
+      "g": "Nouns",
+      "m": "File that proves a folder is an instance (dna.yaml)",
+      "s": "keep",
+      "src": "entity-definitions.ts:69"
+     },
+     {
+      "t": "containment",
+      "g": "Nouns",
+      "m": "Which kind houses another (task in workstream)",
+      "s": "keep",
+      "src": "core/workstream/config.yaml:38"
+     },
+     {
+      "t": "under:",
+      "g": "Nouns",
+      "m": "Generic nesting: 'this pattern inside every X'",
+      "s": "proposed",
+      "src": "design-fractal-source-framework.md 4.5"
+     },
+     {
+      "t": "identity_field / uri",
+      "g": "Nouns",
+      "m": "How an instance is named and addressed",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md 4.5"
+     },
+     {
+      "t": "duplicate_policy / identity scope",
+      "g": "Nouns",
+      "m": "Global vs within-parent ids",
+      "s": "pending (Q4)",
+      "src": "design-fractal-source-framework.md Q4"
+     },
+     {
+      "t": "handler",
+      "g": "Nouns",
+      "m": "A file in src/handlers exporting handler",
+      "s": "keep",
+      "src": "AGENTS.md 1"
+     },
+     {
+      "t": "operation",
+      "g": "Nouns",
+      "m": "Registry entry a handler becomes",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md 4.2"
+     },
+     {
+      "t": "command",
+      "g": "Nouns",
+      "m": "The CLI form: lev task list",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md 4.6"
+     },
+     {
+      "t": "verb",
+      "g": "Nouns",
+      "m": "Last word of a command; generic list/show/resolve",
+      "s": "keep",
+      "src": "design-fractal-source-framework.md 4.6"
+     },
+     {
+      "t": "DNA",
+      "g": "DNA",
+      "m": "Constraints, behaviors, failure modes of anything",
+      "s": "keep, definition pending (DNA Q2)",
+      "src": "design-dna-authoring-contract.md 2"
+     },
+     {
+      "t": "contract",
+      "g": "DNA",
+      "m": "A module's DNA file",
+      "s": "keep",
+      "src": "design-dna-authoring-contract.md 6.2"
+     },
+     {
+      "t": "constraint / behavior / failure mode",
+      "g": "DNA",
+      "m": "The three sections that make a file DNA",
+      "s": "keep",
+      "src": "design-dna-authoring-contract.md 6.2"
+     },
+     {
+      "t": "gate",
+      "g": "DNA",
+      "m": "Constraint with enforcement: gate AND a runnable check",
+      "s": "5 registries today",
+      "src": "design-dna-authoring-contract.md split brain 4"
+     },
+     {
+      "t": "gate policy",
+      "g": "DNA",
+      "m": "Thresholds next to an evaluator; config, not DNA",
+      "s": "keep",
+      "src": "design-dna-authoring-contract.md 6.2"
+     },
+     {
+      "t": "vernacular term",
+      "g": "DNA",
+      "m": "One word, one owner, retired list",
+      "s": "keep",
+      "src": "design-dna-authoring-contract.md 6.2"
+     },
+     {
+      "t": "primitive",
+      "g": "DNA",
+      "m": "Graph primitive list",
+      "s": "3 homes, 3 counts",
+      "src": "design-dna-authoring-contract.md split brain 5"
+     },
+     {
+      "t": "intent",
+      "g": "DNA",
+      "m": "Skill source dna/skills/<name>.intent.yaml",
+      "s": "keep",
+      "src": "design-dna-authoring-contract.md 6.2"
+     },
+     {
+      "t": "standard",
+      "g": "DNA",
+      "m": "Reusable rule library dna/standards/",
+      "s": "keep",
+      "src": "design-dna-authoring-contract.md 6.2"
+     },
+     {
+      "t": "feature DNA / seam DNA",
+      "g": "DNA",
+      "m": "Cross-module rules",
+      "s": "3 homes",
+      "src": "design-dna-authoring-contract.md split brain 6"
+     },
+     {
+      "t": "module class",
+      "g": "DNA",
+      "m": "All core modules / all plugins (core-contract, plugin-contract)",
+      "s": "3 homes each",
+      "src": "design-dna-authoring-contract.md split brain 1"
+     },
+     {
+      "t": "owner",
+      "g": "DNA",
+      "m": "Who holds a truth: system, class, seam, module, project, task",
+      "s": "keep",
+      "src": "design-dna-authoring-contract.md 6.1"
+     },
+     {
+      "t": "precedence",
+      "g": "DNA",
+      "m": "Outer owner wins; inner may tighten, never loosen",
+      "s": "keep",
+      "src": "design-dna-authoring-contract.md 6.4"
+     }
+    ]
+   }
+  },
+  "t-freq": {
+   "type": "data-table",
+   "props": {
+    "columns": [
+     {
+      "key": "w",
+      "label": "Word"
+     },
+     {
+      "key": "c",
+      "label": "Code (hits / files)"
+     },
+     {
+      "key": "y",
+      "label": "YAML"
+     },
+     {
+      "key": "m",
+      "label": "Markdown"
+     }
+    ],
+    "rows": [
+     {
+      "w": "resolver (bare)",
+      "c": "266 / 116",
+      "y": "716 / 204",
+      "m": "1222 / 364"
+     },
+     {
+      "w": "fractal resolver",
+      "c": "26 / 10",
+      "y": "21 / 10",
+      "m": "35 / 22"
+     },
+     {
+      "w": "island",
+      "c": "57 / 18",
+      "y": "310 / 73",
+      "m": "382 / 102"
+     },
+     {
+      "w": "fractal root",
+      "c": "52 / 12",
+      "y": "223 / 70",
+      "m": "210 / 81"
+     },
+     {
+      "w": "fractal island",
+      "c": "3 / 3",
+      "y": "51 / 22",
+      "m": "40 / 18"
+     },
+     {
+      "w": "app root",
+      "c": "223 / 49",
+      "y": "14 / 8",
+      "m": "17 / 10"
+     },
+     {
+      "w": "task_as_fractal",
+      "c": "0 / 0",
+      "y": "1 / 1",
+      "m": "1 / 1"
+     },
+     {
+      "w": "provider",
+      "c": "6894 / 957",
+      "y": "7639 / 849",
+      "m": "13948 / 2162"
+     },
+     {
+      "w": "provides:",
+      "c": "14 / 10",
+      "y": "14 / 7",
+      "m": "73 / 55"
+     },
+     {
+      "w": "contribution",
+      "c": "99 / 43",
+      "y": "987 / 494",
+      "m": "777 / 313"
+     },
+     {
+      "w": "module definition",
+      "c": "0 / 0",
+      "y": "0 / 0",
+      "m": "5 / 3"
+     },
+     {
+      "w": "slot",
+      "c": "468 / 98",
+      "y": "374 / 133",
+      "m": "1808 / 446"
+     },
+     {
+      "w": "fractal leaf",
+      "c": "0 / 0",
+      "y": "0 / 0",
+      "m": "0 / 0"
+     },
+     {
+      "w": "component",
+      "c": "1241 / 241",
+      "y": "978 / 237",
+      "m": "7882 / 2496"
+     },
+     {
+      "w": "module",
+      "c": "2189 / 850",
+      "y": "2300 / 551",
+      "m": "8367 / 2023"
+     },
+     {
+      "w": "kind:",
+      "c": "1628 / 553",
+      "y": "2567 / 567",
+      "m": "675 / 133"
+     },
+     {
+      "w": "entity_definitions",
+      "c": "33 / 11",
+      "y": "23 / 16",
+      "m": "98 / 41"
+     },
+     {
+      "w": "source descriptor",
+      "c": "330 / 83",
+      "y": "68 / 29",
+      "m": "59 / 17"
+     },
+     {
+      "w": "catalog",
+      "c": "1921 / 377",
+      "y": "1720 / 333",
+      "m": "2694 / 702"
+     },
+     {
+      "w": "dna (word)",
+      "c": "1676 / 346",
+      "y": "8496 / 1152",
+      "m": "15888 / 2393"
+     }
+    ]
+   }
+  },
+  "t-freq-note": {
+   "type": "text",
+   "props": {
+    "content": "**How often each word appears** (`git grep -c -i -P` over tracked files; excludes workshop/intake, _archive, .claude-omc, dist, jsonl). What this says:\n- **Code already picked a word for 'looked inside': `app root`** (223 hits in 49 code files) versus island (57) and fractal root (52). Any rename touches that the most.\n- **`provider` is saturated** (6,894 hits in 957 code files), so a `provides:` key would be read as 'provider' by every grep and every agent.\n- **`fractal leaf` is 0 everywhere; `module definition` is 0 in code and YAML.** They exist only in conversation. Drop them.\n- `resolver` (266 code hits), `catalog` (1,921) and `slot` (468) already carry other meanings in code. A new meaning collides with those."
+   }
+  },
+  "s-dnad": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "DNA, taken apart",
+    "title": "What 'DNA' actually is: 18 families, and what a program reads"
+   },
+   "children": [
+    "t-dnad-kpi2",
+    "t-dnad-pov",
+    "d-dnad2",
+    "t-dnad2",
+    "t-dnad-q",
+    "t-dnad-kpi",
+    "t-dnad-opts",
+    "d-dna"
+   ]
+  },
+  "t-dnad-kpi": {
+   "type": "text",
+   "props": {
+    "content": "Your read is right: it grew into a god object. Evidence (Python scan of every tracked `dna/**/*.yaml`, `*.dna.yaml` and `plugins/*/dna/*.yaml`, 188 files, 0 unparseable):\n\n- **No schema in practice.** 447 different top-level keys; **344 of them appear in exactly one file.** A schema does exist (`plugins/dna/schemas/dna.feature.schema.yaml`, 31 keys, `additionalProperties: false`). 69 of 79 `*.dna.yaml` files fit it, but only 71 of the 188 files overall do. **76 files have none of the three sections** (constraints, behaviors, failure modes) that canon says make something DNA (`dna/authoring/boundaries.yaml:15`, 'DNA is a concept, not a file format').\n- **About half the rules can't be enforced.** 915 rule items: 440 have a runnable check, **340 have no check at all**, 70 have an `echo`/manual check, and 65 have a check written in prose. **73 rules are labelled `enforcement: gate` with no runnable check.** 191 more say `catalogue` and 122 say `aspirational`.\n- **It's mostly prose.** 71% of all text characters sit in description, rationale or notes fields or in strings over 160 characters. That's a spec written as YAML.\n\n(The rule classes come from a heuristic on the check text: `vitest|pnpm|rg|grep|test` counts as runnable; `echo|manual` does not. That's an inference, not proof the command passes.)"
+   }
+  },
+  "d-dnad": {
+   "type": "diagram",
+   "props": {
+    "engine": "mermaid",
+    "content": "flowchart LR\n  B([\"'DNA' today<br/>188 files, 447 keys\"]) --> A1[\"checked rules<br/>440\"]\n  B --> A2[\"unchecked rules<br/>475\"]\n  B --> A3[\"behaviors + failure modes<br/>compile to FlowMind\"]\n  B --> A4[\"prose<br/>71% of text\"]\n  B --> A5[\"vocabulary<br/>vernacular, primitives, emotes\"]\n  B --> A6[\"entity kinds + schemas<br/>entities.yaml, pm/, *.schema\"]\n  B --> A7[\"gate registries<br/>gates.yaml, gates/, overlay\"]\n  B --> A8[\"doctrine + router<br/>thesis, graph, fractal, index\"]\n  B --> A9[\"rule libraries + how-to-write<br/>standards/, authoring/\"]\n  B --> A10[\"seam concepts<br/>architecture/ 27\"]\n  B --> A11[\"skill intents<br/>skills/ 15\"]\n  B --> A12[\"specs as YAML<br/>research, testing, hygiene, kpis, archetypes\"]\n  B --> A13[\"another project<br/>external/buzz 13\"]\n  A1 --> K1[\"contract: checks\"]\n  A2 --> K2[\"contract: guidance<br/>never called a gate\"]\n  A3 --> K3[\"contract: behaviors<br/>FlowMind source\"]\n  A4 --> K4[\"docs/specs, linked by refs\"]\n  A5 --> K5[\"vocabulary\"]\n  A6 --> K6[\"owner config + schemas/\"]\n  A7 --> K7[\"generated gate view\"]\n  A12 --> K4\n  A13 --> K8[\"buzz's repo\"]\n  classDef hot fill:#fecaca,stroke:#b91c1c,color:#111\n  class A2,A4,A12 hot",
+    "caption": "Left: what is inside 'DNA' today. Right: where each one would go. Red = the parts that make it feel like notes.",
+    "initialZoom": 0.85
+   }
+  },
+  "t-dnad": {
+   "type": "data-table",
+   "props": {
+    "columns": [
+     {
+      "key": "t",
+      "label": "What it really is"
+     },
+     {
+      "key": "n",
+      "label": "How much"
+     },
+     {
+      "key": "ex",
+      "label": "Example"
+     },
+     {
+      "key": "h",
+      "label": "Proposed home, in plain words"
+     }
+    ],
+    "rows": [
+     {
+      "t": "Checked rule",
+      "n": "440 rules",
+      "ex": "memory never implements a storage adapter; check = vitest boundary test",
+      "h": "The module's contract, under checks. Only these may be called gates."
+     },
+     {
+      "t": "Unchecked rule",
+      "n": "475 rules",
+      "ex": "sdlc spec_before_code, check = echo 'Manual: ...'",
+      "h": "The module's contract, under guidance: advice agents read, never counted as enforcement."
+     },
+     {
+      "t": "Behavior / failure mode",
+      "n": "52 / 44 files",
+      "ex": "memory: on recall miss, fall back to search",
+      "h": "The module's contract; compiles to a FlowMind graph (spec-dna: DNA is to FlowMind as SCSS is to CSS)."
+     },
+     {
+      "t": "Prose",
+      "n": "71% of text",
+      "ex": "description:, rationale:, long notes",
+      "h": "One-line 'why' stays; long prose moves to docs/specs and is linked by refs."
+     },
+     {
+      "t": "Vocabulary",
+      "n": "vernacular, primitives, id-aliases, emotes",
+      "ex": "'nudge is a mechanism, never a CLI verb'",
+      "h": "One vocabulary file, each term with an owner."
+     },
+     {
+      "t": "Entity kind / schema",
+      "n": "entities.yaml, pm/ 11, 2 schemas",
+      "ex": "task: where it lives, its id field",
+      "h": "The owning module's config.yaml + schemas/; entities.yaml generated."
+     },
+     {
+      "t": "Gate registry",
+      "n": "5 registries",
+      "ex": "dna/gates.yaml, .lev/validation-gates.yaml",
+      "h": "Generated from every contract's checks; the project may only tighten."
+     },
+     {
+      "t": "Doctrine + router",
+      "n": "thesis, graph, fractal, index",
+      "ex": "'code is an artifact of DNA'",
+      "h": "Stays at the Lev root as system doctrine."
+     },
+     {
+      "t": "Rule library / how-to-write",
+      "n": "standards 14, authoring 7",
+      "ex": "code-quality smells; how to write a core contract",
+      "h": "Stays; thresholds move to config."
+     },
+     {
+      "t": "Seam concept",
+      "n": "architecture 27",
+      "ex": "tmux control plane",
+      "h": "Stays in dna/architecture/<seam>/."
+     },
+     {
+      "t": "Skill intent",
+      "n": "skills 15",
+      "ex": "lev-proof.intent.yaml",
+      "h": "Source for generated SKILL.md; next to its owner."
+     },
+     {
+      "t": "Spec written as YAML",
+      "n": "research, testing, hygiene, lifecycle-kpis, archetypes",
+      "ex": "testing.yaml: test classes, promotion gates",
+      "h": "Either becomes a real kind with a schema, or moves to docs/specs."
+     },
+     {
+      "t": "Another project's DNA",
+      "n": "external/buzz 13 files, 191 rules",
+      "ex": "buzz contracts",
+      "h": "buzz's own repo."
+     }
+    ]
+   }
+  },
+  "t-dnad-opts": {
+   "type": "text",
+   "props": {
+    "content": "**The decision underneath all of this: what does the word 'DNA' mean?** (A replacement for my own earlier shorthand. 'That goes in the DNA' was meaningless. From here on the page says which of the 13 things above, and in which file.)\n\n- **(a) DNA means only the contract.** A contract is rules with checks, guidance, behaviors and failure modes, using the schema that already exists, and it compiles to FlowMind. Everything else gets called what it is: vocabulary, entity kind, gate view, doctrine, spec. The `dna/` folder can still host those, but they stop being 'DNA'. Example: `vernacular.yaml` is 'the vocabulary', not 'DNA'.\n- **(b) DNA means the typed declarative layer.** Every file starts with `kind:` from a short closed list (contract, vocabulary, entity, seam, standard, intent, doctrine, notes), and each kind has a published schema. This is how Kubernetes made freeform YAML into a standard: `apiVersion` + `kind`, one schema per kind. Your other projects would write `kind: contract` or `kind: notes` and get validation from `lev dna validate`. `notes` is the honest home for spec-as-YAML: allowed, machine-readable, never authoritative. Example: `testing.yaml` becomes `kind: notes` until someone gives it a schema.\n- **(c) Retire the word.** Say 'contract' and name every other kind. Example: `dna/` is renamed `canon/`.\n\n**Recommendation: (b), with (a)'s discipline inside the contract kind.** It's the only option that gives your outside projects a standard that still allows freeform notes. It keeps the word you and the LLMs already use. And it forces every file to say what it is, which is exactly what's missing today. Confidence: medium. It's a naming and standard decision, so it's yours.\n\n**Three smaller rules, the same under any option:**\n1. A rule with no runnable check is **guidance**, never a gate. That relabels 73 rules currently marked `enforcement: gate`, which needs your OK because gates only ratchet forward.\n2. Prose over one line moves to a spec and gets linked.\n3. One file, one owner, one kind."
+   }
+  },
+  "t-dnad-kpi2": {
+   "type": "text",
+   "props": {
+    "content": "Four agents read every file section by section: 44 module rule files, 18 plugin files, plugin-local DNA, 17 `.dna.yaml` files outside `dna/`, the 27 architecture files, 14 standards, 7 authoring guides, 7 gate homes, the root doctrine files, and all 291 task packets. The reports are in `.lev/pm/reports/2026-09-29-dna-census/`.\n\n**The headline: the only part of 'DNA' any program runs is a rule's `id` + `check` (a shell command) + `enforcement` label.** Two readers run these: `tooling/scripts/run-dna-ratchet.js` and `core/validator`, and only for `dna/core`. Everything else is notes, or it's read by one narrow script. The core agentic loop (plan, execute, verify) reads **no** root DNA. Its only DNA input is a task's `acceptance` list, which becomes the exit requirements (`task-exit-requirements.ts:133`)."
+   }
+  },
+  "d-dnad2": {
+   "type": "diagram",
+   "props": {
+    "engine": "mermaid",
+    "initialZoom": 0.85,
+    "caption": "Green = a program reads it. Grey = notes nobody reads. What's green is the real IR today; it is small.",
+    "content": "flowchart LR\n  subgraph READ[\"Read by a program: the real IR today\"]\n    direction TB\n    R1[\"runnable checks<br/>ratchet + validator, core only\"]\n    R2[\"import allowlist<br/>core-boundaries, generator broken\"]\n    R3[\"entity kinds<br/>config.yaml entity_definitions\"]\n    R4[\"closed lists<br/>uri-schemes, source-namespaces, emote keys\"]\n    R5[\"task acceptance<br/>becomes exit requirements\"]\n    R6[\"1 JSON schema<br/>lifecycle trigger\"]\n  end\n  subgraph NOTES[\"Nobody reads it\"]\n    direction TB\n    N1[\"hollow rules<br/>no check, manual, or pipe-true\"]\n    N2[\"module definition<br/>owns and does-not-own prose\"]\n    N3[\"behaviors + failure modes<br/>0 of 205 link to a rule\"]\n    N4[\"feature seams<br/>99 rules, no runner\"]\n    N5[\"process specs<br/>KPIs, escalation, idle loop\"]\n    N6[\"standards<br/>hand-copied into TS, drifted\"]\n    N7[\"vocabulary + type model<br/>2-3 prose copies\"]\n    N8[\"agent personas + policies\"]\n    N9[\"rulings, history, prose reports\"]\n    N10[\"other projects' YAML\"]\n  end\n  classDef ok fill:#bbf7d0,stroke:#15803d,color:#111\n  classDef no fill:#e5e7eb,stroke:#6b7280,color:#111\n  class R1,R2,R3,R4,R5,R6 ok\n  class N1,N2,N3,N4,N5,N6,N7,N8,N9,N10 no"
+   }
+  },
+  "t-dnad2": {
+   "type": "data-table",
+   "props": {
+    "columns": [
+     {
+      "key": "f",
+      "label": "Family: what it really is"
+     },
+     {
+      "key": "x",
+      "label": "Example"
+     },
+     {
+      "key": "n",
+      "label": "How much (census)"
+     },
+     {
+      "key": "r",
+      "label": "Read by a program?"
+     }
+    ],
+    "rows": [
+     {
+      "f": "Runnable checks",
+      "x": "memory boundary: vitest run tests/boundary.test.ts",
+      "n": "412 checks in 44 module files; plugins: 31 of 339 rule items",
+      "r": "YES: run-dna-ratchet.js + core/validator, dna/core only. Plugin checks never run. Only storage's checks have a should-fail test"
+     },
+     {
+      "f": "Hollow rules",
+      "x": "enforcement: gate, check ends in || true",
+      "n": "module files: 41 no check, 42 'manual', 24 gate checks ending in || true; gates.yaml: 32 with no check; plugins: 26 gate-labelled, no check",
+      "r": "no: label only"
+     },
+     {
+      "f": "Module definition",
+      "x": "owns / does-not-own, responsibilities",
+      "n": "~7% of module file bytes; structured in 3 of 44; 17 package: blocks repeat package.json",
+      "r": "no"
+     },
+     {
+      "f": "Behaviors + failure modes",
+      "x": "'on recall miss, fall back to search'",
+      "n": "186 behaviors, 205 failure modes (core); 0 of 205 ids match a rule; plugins 0 of 12",
+      "r": "no (the compiler would link them, but ids never match)"
+     },
+     {
+      "f": "System structure (architecture as meta)",
+      "x": "which package may import which",
+      "n": "core-boundaries concept.yaml import allowlist, layers, write authority",
+      "r": "partly: turned into one dependency-cruiser file; the generator is broken since the key moved"
+     },
+     {
+      "f": "Feature seams",
+      "x": "tmux control plane contract",
+      "n": "10 seam folders; 2 of 10 carry the 5 required fields; 99 rules, 22 runnable",
+      "r": "no runner"
+     },
+     {
+      "f": "Process / SDLC specs",
+      "x": "escalation stages, idle loop, KPIs, research job, test strategy",
+      "n": "cascade, task-bundle, run-fabric, testing, research, lifecycle-kpis",
+      "r": "one: testing.yaml's promotion gate"
+     },
+     {
+      "f": "Coding standards + thresholds",
+      "x": "smell catalog, LOC limits, id aliases",
+      "n": "14 standards files",
+      "r": "2 parsed (uri-schemes, source-namespaces); the rest hand-copied into TS and drifted (id-aliases: 10 in YAML, 8 in TS)"
+     },
+     {
+      "f": "Vocabulary + type model",
+      "x": "terms, primitives, node types",
+      "n": "written 2-3 times: vernacular, graph, primitives",
+      "r": "emote keys only; the loader has no caller outside tests"
+     },
+     {
+      "f": "Entity kinds + schemas",
+      "x": "where tasks live; fields",
+      "n": "entities.yaml, dna/pm schemas, config entity_definitions",
+      "r": "yes, from config.yaml; entities.yaml: one path; 1 compiled JSON schema"
+     },
+     {
+      "f": "Gate registries",
+      "x": "lists of gates",
+      "n": "7 homes",
+      "r": "2 run: 13 enforced gates in CI, plus the split-brain rulebook. The 2,534-line validation-gates overlay is switched off"
+     },
+     {
+      "f": "Task specs",
+      "x": "intent, acceptance, local constraints, claim ledger",
+      "n": "291 task dna.yaml; 167 keys in 130 shapes; 1 of 291 has the 3 'DNA' sections",
+      "r": "acceptance becomes exit requirements; lev task validate reads 7 keys"
+     },
+     {
+      "f": "Flows stored as DNA",
+      "x": "entry/nodes/routes saved as .dna.yaml",
+      "n": "15 sections outside dna/; flows parked in dna/pm/flows",
+      "r": "the loader passes them through without validating"
+     },
+     {
+      "f": "Agent personas + policies",
+      "x": "personality/tools/memory/hooks; escalation and mutation policies",
+      "n": "plugins + GitAgent-style examples",
+      "r": "carried as metadata; no target reads it"
+     },
+     {
+      "f": "Rulings, history, provenance",
+      "x": "operator rulings, migration history, status logs",
+      "n": "every slice",
+      "r": "no"
+     },
+     {
+      "f": "Prose + reports",
+      "x": "essays, audit/drift reports, open questions, vendoring plans",
+      "n": "~71% of all text",
+      "r": "no"
+     },
+     {
+      "f": "Other projects' YAML",
+      "x": "buzz advisories, Freedom Society run budgets, Sofia training loop",
+      "n": "buzz 191 entries; community examples",
+      "r": "no, by design; they share 'YAML with ids + prose', not a schema"
+     },
+     {
+      "f": "Code parked under dna/",
+      "x": "core-boundaries/tools/*.mjs",
+      "n": "a few scripts",
+      "r": "run from elsewhere"
+     }
+    ]
+   }
+  },
+  "t-dnad-q": {
+   "type": "text",
+   "props": {
+    "content": "**Your questions, answered from the census** (evidence, with inferences marked):\n\n- **What is architecture?** Three different things share the word. (1) **System structure**: which package may import which, layers, who may write what. It spans modules, and it's the only architecture any code consumes. (2) **Feature seams**: contracts for one cross-module feature, like tmux; nothing runs them. (3) **Process**: cascade stages, task-bundle lifecycle, success criteria. That's how we work, which is SDLC, not what the system is. Also, 366 of 412 module checks only grep their own folder, so most 'architecture' rules are per-module copies: `no_plugin_imports` appears 13 times.\n- **Is it domain-based?** Not today. Root `dna/` is organized by topic (vocabulary, graph, testing), not by owner, even though `dna/fractal.yaml:127` says the module name is the address.\n- **Does it scale?** No (inference from evidence). There's no schema: 447 keys, 167 more in task packets. Rules are copy-pasted across modules. The copies drift: id-aliases 10 vs 8; sdlc's flow list says 18 while config declares 36 and there are 42 on disk.\n- **Core agentic loop?** It runs without DNA. The verify command comes from `execution.yaml`, and the only DNA it reads is task acceptance. So 'DNA outranks code' (`dna/index.yaml`) is a claim the loop doesn't enforce.\n- **Rebuild-from-nothing versus vast multi-party scale** (inference): rebuilding from nothing needs a small, self-checking core, where every rule carries its check and a should-fail case, because prose can't bootstrap anything. Multi-party scale needs typed, owner-namespaced, versioned kinds with collision rules. Today's DNA has neither."
+   }
+  },
+  "t-dnad-pov": {
+   "type": "text",
+   "props": {
+    "content": "**/pov result on DNA (four turns plus a room test, 2026-09-29, pending JP)**\n\n**Proposed rule:** *Something is IR only if a deterministic program reads it and a test proves that program rejects a bad one. Everything else is documentation, and is called that.* An LLM reading text is prompt context, not IR (the translator boundary, applied to canon).\n\nWhat survives as IR (each already has a program reader):\n- **checks**: id, one-sentence rule, check command, a should-fail case, gate or advisory.\n- **boundaries**: which package may import which, and who may write what.\n- **entity kinds**: in the owner's config.yaml.\n- **registries**: uri schemes, namespaces.\n- **task spec**: intent, acceptance, verifier.\n\nBehaviors meant to run become **flows**. The rest moves to docs: README or spec, design docs, SDLC docs or flows, decision records, agent config, other repos.\n\nFull table: DNA design section 6.9."
+   }
+  },
+  "s-irmap": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "The map",
+    "title": "Lev IR: what replaces 'DNA', end to end"
+   },
+   "children": [
+    "t-irmap",
+    "d-irmap",
+    "d-irscope",
+    "t-irfacets"
+   ]
+  },
+  "t-irmap": {
+   "type": "text",
+   "props": {
+    "content": "**Ruled 2026-09-29.** You: *\"DNA is cursed ... it's IR, internal representation of all these various structures, checks, policies\"*, and the readable rule prose *\"should be a projection.\"*\n\nThis isn't a new idea. It already has an owner: **`.lev/pm/plans/plan-impl-modular-lev-ir.md`** (in progress, priority 1, workstream `modular-lev-ir`), with vocabulary in `dna/vernacular.yaml#lev_ir`. What it already decided:\n- Lev IR is one representation family: a small base schema plus **domain-owned extensions**.\n- Scopes: **Core IR**, **Plugin IR**, **Project IR**. Resolving them produces the **resolved project IR**, checked for composition conflicts; the last writer does not simply win.\n- Stages: **candidate, admitted, resolved**. An agent may author a candidate; admission requires the owning writer.\n- Today authored files are the source and the graph is a read model. Later the graph can be the source and **files become projections**. That's exactly your 'DNA should be a projection.'\n- On 2026-09-13 it recorded `dna/architecture/` as the authored **Architecture IR**, owned by `plugins/dna` (slice S04C)."
+   }
+  },
+  "d-irmap": {
+   "type": "diagram",
+   "props": {
+    "engine": "mermaid",
+    "initialZoom": 0.8,
+    "caption": "Left to right: authored sources, the fractal resolver, the IR pipeline, the programs that consume it, and generated projections. Docs link to the IR but are never IR.",
+    "content": "flowchart LR\n  subgraph SRC[\"Authored - found by fractal ownership\"]\n    direction TB\n    A1[\"checks<br/>rule + check + should-fail\"]\n    A2[\"structural constraints<br/>imports, write authority\"]\n    A3[\"entity kinds<br/>config.yaml entity_definitions\"]\n    A4[\"flows<br/>*.flow.yaml\"]\n    A5[\"registries<br/>uri schemes, namespaces\"]\n    A6[\"task spec<br/>intent, acceptance, verifier\"]\n  end\n  FR[\"fractal resolver<br/>core/config\"]\n  subgraph IR[\"Lev IR pipeline\"]\n    direction TB\n    C[\"candidate IR\"] --> V{\"validate<br/>base schema + owner callback\"}\n    V -->|admit| AD[\"admitted IR\"]\n    AD --> RS[\"resolved project IR<br/>core + enabled plugins + project\"]\n  end\n  subgraph USE[\"Programs that read it\"]\n    direction TB\n    U1[\"core/eval - verdicts\"]\n    U2[\"core/validator + boundary audit\"]\n    U3[\"orchestration - task admission\"]\n    U4[\"exec - runs flows\"]\n    U5[\"poly - command registry\"]\n  end\n  subgraph PROJ[\"Projections - generated, never edited\"]\n    direction TB\n    P1[\"rulebook view<br/>what 'DNA' prose was\"]\n    P2[\"gate view\"]\n    P3[\"entities catalog\"]\n    P4[\"AGENTS.md vocabulary, SKILL.md\"]\n    P5[\"now pages, spec tables\"]\n  end\n  DOCS[\"docs: specs, designs,<br/>decision records, READMEs<br/>prose + rationale, linked by refs\"]\n  SRC --> FR --> C\n  RS --> USE\n  RS --> PROJ\n  DOCS -. refs .-> SRC\n  classDef ir fill:#dbeafe,stroke:#1d4ed8,color:#111\n  classDef proj fill:#fef3c7,stroke:#b45309,color:#111\n  class C,AD,RS,V ir\n  class P1,P2,P3,P4,P5 proj"
+   }
+  },
+  "d-irscope": {
+   "type": "diagram",
+   "props": {
+    "engine": "mermaid",
+    "initialZoom": 0.9,
+    "caption": "The same facets at every scope. An inner scope may add kinds and tighten rules; it may never weaken an outer one (modular Lev IR plan, D3).",
+    "content": "flowchart TB\n  CORE[\"Core IR<br/>core/* fractal roots\"] --> RES[\"resolved project IR\"]\n  PLUG[\"Plugin IR<br/>enabled plugins/* + npm modules\"] --> RES\n  PROJ[\"Project IR<br/>.lev + declared fractal roots\"] --> RES\n  TASK[\"task + workstream entity roots<br/>task spec, local checks\"] --> PROJ\n  RES --> LOOP[\"core agentic loop<br/>plan - execute - verify\"]\n  LOOP -. \"observed state proposes<br/>amendments, never rewrites\" .-> PROJ"
+   }
+  },
+  "t-irfacets": {
+   "type": "data-table",
+   "props": {
+    "columns": [
+     {
+      "key": "f",
+      "label": "IR facet"
+     },
+     {
+      "key": "o",
+      "label": "Owner that reads it"
+     },
+     {
+      "key": "w",
+      "label": "Where it lives (target)"
+     },
+     {
+      "key": "was",
+      "label": "Was called"
+     }
+    ],
+    "rows": [
+     {
+      "f": "checks (policies)",
+      "o": "core/eval decides verdicts; ratchet and validator run them",
+      "w": "next to each owner, found by fractal ownership",
+      "was": "constraints with check, gates"
+     },
+     {
+      "f": "structural constraints (architecture)",
+      "o": "boundary audit, dependency-cruiser; plugins/dna compiles today",
+      "w": "system scope, plus per-feature seams",
+      "was": "dna/architecture, core-contract"
+     },
+     {
+      "f": "entity kinds",
+      "o": "core/config",
+      "w": "owner config.yaml entity_definitions",
+      "was": "dna/entities.yaml, dna/pm schemas"
+     },
+     {
+      "f": "flows",
+      "o": "core/flowmind compiler, exec",
+      "w": "*.flow.yaml",
+      "was": "behaviors (never linked)"
+     },
+     {
+      "f": "registries",
+      "o": "core/config",
+      "w": "owner config or system registry",
+      "was": "dna/standards uri-schemes, namespaces"
+     },
+     {
+      "f": "task spec",
+      "o": "orchestration readiness, exit requirements",
+      "w": "the task entity root",
+      "was": "task dna.yaml"
+     },
+     {
+      "f": "(not IR) rationale, descriptions, process prose, rulings",
+      "o": "people and agents (prompt context)",
+      "w": "docs/specs, designs, decision records, plugins/sdlc docs",
+      "was": "~71% of 'DNA' text"
+     }
+    ]
+   }
+  },
+  "s-untangle": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "The untangling",
+    "title": "What I think each word is (dna, ir, lev ir, arch ir, ontology, graph, structure, meta structure, process)"
+   },
+   "children": [
+    "t-un-intro",
+    "d-un-layers",
+    "t-un-words",
+    "t-un-stages",
+    "t-un-map",
+    "t-un-gaps"
+   ]
+  },
+  "t-un-intro": {
+   "type": "text",
+   "props": {
+    "content": "You asked me to say what I think it is. Here it is, in one picture and one table.\n\n**Three layers, six facets.** Every one of your words is either a layer, a facet, or a synonym for one of them.\n- **Ontology** (the meta-structure): the kinds, their relations and their lifecycle stages. What CAN exist. Small. Base kinds in core; plugins add namespaced kinds.\n- **Instances** (the material graph): the actual tasks, modules, checks, flows, typed by the ontology. Authored in fractal roots; mirrored into `core/context-graph` as a read model.\n- **Projections**: generated from instances, never edited: the command registry, rulebook prose, `entities.yaml`, gate views, SKILL.md, this page.\n\n**Lev IR = ontology + instances**, in the stages candidate → admitted → resolved. Machine-readability is not the test: `task.yaml` is IR whether or not code reads every field, because it is an instance of a declared kind. But a field the ontology does not declare is cruft, which is what makes hygiene a diff.\n\nThe **facets** are the columns: structure, work, policy, execution, knowledge, vocabulary. The Lev IR plan already calls them \"typed facets connected by references\" (D1)."
+   }
+  },
+  "d-un-layers": {
+   "type": "diagram",
+   "props": {
+    "engine": "mermaid",
+    "initialZoom": 0.8,
+    "caption": "Rows are layers; columns are facets. 'DNA' was a bag that cut across every cell. Each cell now has a name and an owner.",
+    "content": "flowchart TB\n  subgraph ONT[\"ONTOLOGY - kinds, relations, lifecycle stages  (small, versioned, core + plugin extensions)\"]\n    direction LR\n    O1[\"structure<br/>module, fractal root,<br/>ownership, boundary, seam\"]\n    O2[\"work<br/>workstream, task, spec,<br/>plan, decision\"]\n    O3[\"policy<br/>check, guidance,<br/>gate, standard\"]\n    O4[\"execution<br/>flow, run, trigger,<br/>hook, event\"]\n    O5[\"knowledge<br/>claim, evidence,<br/>memory, source\"]\n    O6[\"vocabulary<br/>term, alias,<br/>retired\"]\n  end\n  subgraph INST[\"INSTANCES - the material graph  (authored in fractal roots, read model in context-graph)\"]\n    direction LR\n    I1[\"core/memory<br/>owns: memory\"]\n    I2[\"tasks/login-flow/<br/>task.yaml exec.yaml\"]\n    I3[\"memory boundary check<br/>+ should-fail case\"]\n    I4[\"plan-execute-verify<br/>.flow.yaml\"]\n    I5[\"claim: 'parity 19 rows'<br/>evidence: receipt\"]\n    I6[\"fractal root<br/>aliases: island, app root\"]\n  end\n  subgraph PROJ[\"PROJECTIONS - generated, never edited\"]\n    direction LR\n    P1[\"command registry\"]\n    P2[\"rulebook prose<br/>(what DNA text was)\"]\n    P3[\"entities catalog, gate view\"]\n    P4[\"AGENTS.md reducer, SKILL.md\"]\n    P5[\"now pages, spec tables\"]\n  end\n  ONT --> INST --> PROJ\n  classDef ont fill:#dbeafe,stroke:#1d4ed8,color:#111\n  classDef inst fill:#dcfce7,stroke:#15803d,color:#111\n  classDef proj fill:#fef3c7,stroke:#b45309,color:#111\n  class O1,O2,O3,O4,O5,O6 ont\n  class I1,I2,I3,I4,I5,I6 inst\n  class P1,P2,P3,P4,P5 proj"
+   }
+  },
+  "t-un-words": {
+   "type": "data-table",
+   "props": {
+    "columns": [
+     {
+      "key": "w",
+      "label": "Your word"
+     },
+     {
+      "key": "is",
+      "label": "What I think it is"
+     },
+     {
+      "key": "v",
+      "label": "Verdict"
+     },
+     {
+      "key": "ev",
+      "label": "Where it already lives"
+     }
+    ],
+    "rows": [
+     {
+      "w": "DNA",
+      "is": "Three things at once: (1) your ISA: ideal-state declarations across every facet, the ratchet from current to target; (2) the input format of the gate compiler; (3) a dumping ground for prose and process. (1) survives as a current-vs-target stage on instances. (2) becomes the checks facet. (3) becomes docs, or gets deleted.",
+      "v": "Retired (ruled).",
+      "ev": "dna/ tree; task dna.yaml"
+     },
+     {
+      "w": "IR",
+      "is": "Bare 'IR' means two things today: Lev IR and FlowMind's compiled graph.",
+      "v": "Always say Lev IR, or name the facet.",
+      "ev": "~2,500 doc hits"
+     },
+     {
+      "w": "Lev IR",
+      "is": "The umbrella: ontology + instances + the resolved image, in stages candidate → admitted → resolved. Core IR, Plugin IR, Project IR compose into it.",
+      "v": "Keep. Already owned.",
+      "ev": "dna/vernacular.yaml#lev_ir; plan-impl-modular-lev-ir.md D0–D3"
+     },
+     {
+      "w": "arch IR / architecture",
+      "is": "One facet: structure. Kinds: module, fractal root, ownership, boundary (import allowlist), seam. Not process; process was hiding inside it.",
+      "v": "Keep as 'the structure facet'. Drop the '-IR' suffix per facet.",
+      "ev": "dna/architecture/core-boundaries/concept.yaml (the one part code reads)"
+     },
+     {
+      "w": "ontology",
+      "is": "The meta-structure layer only: what CAN exist. Two vocabulary entries already say this.",
+      "v": "Keep, for the schema layer only. Not a name for the whole.",
+      "ev": "dna/vernacular.yaml:508, :642; entity_definitions; FlowMind node types; LevEvent; graph.yaml#lifecycle_domains"
+     },
+     {
+      "w": "graph",
+      "is": "Two senses today: the material graph (instances + relations in context-graph, lev://entity ids) and FlowMind's execution graph.",
+      "v": "'The graph' = context-graph. FlowMind's gets its own name (open).",
+      "ev": "core/context-graph; core/flowmind GraphDocument"
+     },
+     {
+      "w": "structure",
+      "is": "Ambiguous: sometimes the ontology, sometimes the structure facet.",
+      "v": "Retire as a canon word. Say which.",
+      "ev": "—"
+     },
+     {
+      "w": "meta structure",
+      "is": "= ontology.",
+      "v": "Say ontology.",
+      "ev": "—"
+     },
+     {
+      "w": "FlowMind IR",
+      "is": "The compiled execution graph of one flow. Not a WAL: the WAL is the run ledger (core/execution-ledger). Not always a DAG: flows loop.",
+      "v": "Rename (your call): execution graph / flow graph / program.",
+      "ev": "core/flowmind GraphDocument"
+     },
+     {
+      "w": "process",
+      "is": "Not a kind. 'Anything reactive' = anything with a trigger. It decomposes into flow (definition) + run (one execution) + trigger (what starts it) + hook (where it attaches). The core loop is the base flow; SDLC extends it.",
+      "v": "Map to flow/run/trigger/hook. Don't mint 'process'.",
+      "ev": "plan-execute-verify.flow.yaml; core/event-dispatch triggers; vocabulary lacks trigger and hook (gap)"
+     },
+     {
+      "w": "crystallize / idea shaping / ISA",
+      "is": "The entity lifecycle stage: ephemeral → captured → classified → crystallizing → crystallized → manifesting → completed. It's a field, not a folder. Your ISA is 'the target state of every instance' plus that stage.",
+      "v": "Keep. Already canon and partly in code. Gap: most instances don't record a stage.",
+      "ev": "dna/graph.yaml:340; docs/design/design-graph-lifecycle-theory.md; core/flowmind router policy WorkCrystallizationState; _archive/sessions/README.md (2025 origin)"
+     },
+     {
+      "w": "lev ontology builder / framework",
+      "is": "The machinery: base schema, extension registration, validation callbacks, projections. The plan describes it (D3, D4) without a package; D4 rejected a catch-all core/lev-ir package.",
+      "v": "Call the machinery 'the Lev IR framework' (like 'the fractal framework'). 'Ontology' stays the schema layer. One package or distributed owners is an open fork.",
+      "ev": "plan D3, D4"
+     }
+    ]
+   }
+  },
+  "t-un-stages": {
+   "type": "text",
+   "props": {
+    "content": "**The breadcrumb you gave: \"we are crystallizing\".** It lands on the entity lifecycle in `dna/graph.yaml:340`: *ephemeral → captured → classified → crystallizing → crystallized → manifesting → completed*. The 2025 archive called sessions \"intelligence crystallization laboratories\" (`_archive/sessions/README.md`); the lifecycle theory design separates it from governance, tracker and runtime lifecycles; FlowMind's router carries it as `WorkCrystallizationState`. So idea shaping is already IR: a stage on every work entity.\n\n**Your new rule, now stamped in AGENTS.md:** the stage decides the rules. In the high-entropy stages (ephemeral, captured, classified) the job is shaping: map intent, fit to the ontology, offer options. Canonizing (a new term, a new kind, a rename, a gate change) is allowed only from `crystallized` onward, by ruling. This is how graphs get extended per project: shape first, crystallize, then manifest.\n\n**Gap:** the stage is declared in the ontology but mostly absent on instances (unverified how many carry one), and no check enforces stage-dependent rules. Both are candidates for the first Lev IR slice."
+   }
+  },
+  "t-un-map": {
+   "type": "data-table",
+   "props": {
+    "columns": [
+     {
+      "key": "said",
+      "label": "What you said"
+     },
+     {
+      "key": "intent",
+      "label": "Intent"
+     },
+     {
+      "key": "term",
+      "label": "Existing Lev IR term, owner"
+     },
+     {
+      "key": "st",
+      "label": "Status"
+     }
+    ],
+    "rows": [
+     {
+      "said": "task.yaml, exec.yaml",
+      "intent": "name the task's files for what they are",
+      "term": "work facet: task (core/workstream entity_definitions), marker file",
+      "st": "ruled; rename in the cutover slice"
+     },
+     {
+      "said": "a task is a mini IR/graph that maps fractally to what it interacts with",
+      "intent": "a task folder is a fractal root whose files are owned instances",
+      "term": "entity fractal root (fractal design 4.4, 4.5); fractal ownership",
+      "st": "designed, not built"
+     },
+     {
+      "said": "n IR leafs",
+      "intent": "the files inside a task root",
+      "term": "owned files (matches) of each module's `owns:`",
+      "st": "mapped; no new word"
+     },
+     {
+      "said": "hygiene is a diff; unresolvable = smell",
+      "intent": "cruft is anything the catalog can't resolve",
+      "term": "fractal design I-21, I-22, N-27 (content-map delta)",
+      "st": "invariant exists; unimplemented → follow-up"
+     },
+     {
+      "said": "vernacular resolver",
+      "intent": "a tool that maps aliases to canonical terms",
+      "term": "the AGENTS.md reducer (manual) over dna/vernacular.yaml",
+      "st": "gap → follow-up"
+     },
+     {
+      "said": "do not canonize user input; map to intent + Lev IR; ask",
+      "intent": "a standing rule for every agent",
+      "term": "AGENTS.md 'The Lev IR mapper'; response footer bullet",
+      "st": "stamped"
+     },
+     {
+      "said": "process = anything reactive; core loop is the base",
+      "intent": "execution facet",
+      "term": "flow + run + trigger + hook; plan-execute-verify.flow.yaml; core/event-dispatch",
+      "st": "mapped; vocabulary lacks trigger/hook (gap)"
+     },
+     {
+      "said": "hooks: human↔CEO node vs worker/substrate; per-task dynamic setup",
+      "intent": "a hook kind with a scope, derived per task",
+      "term": "no kind today; lifeos-isa hooks census is prior art",
+      "st": "gap → follow-up (separate thread, as you said)"
+     },
+     {
+      "said": "Lev IR umbrella; rename FlowMind IR",
+      "intent": "call things what they are",
+      "term": "dna/vernacular.yaml#lev_ir; GraphDocument",
+      "st": "ruled / name open → question"
+     },
+     {
+      "said": "kill DNA; absorb plugins/dna into core",
+      "intent": "IR belongs in core",
+      "term": "moves listed in dna/AGENTS.md; spec-dna open question 3",
+      "st": "ruled; slice pending"
+     },
+     {
+      "said": "DNA was my ISA; the ratchet",
+      "intent": "current-vs-target on every instance",
+      "term": "gate ratchet aspirational → declared → enforced; lifeos 'evolving_target' intent; ir_artifact_stage",
+      "st": "partial: only gates have it (gap)"
+     },
+     {
+      "said": "we are crystallizing; different rules at high entropy",
+      "intent": "stage-dependent rules",
+      "term": "graph.yaml#lifecycle_domains.entity; WorkCrystallizationState",
+      "st": "stamped as a rule; no check yet (gap)"
+     },
+     {
+      "said": "lev ontology builder/framework",
+      "intent": "a name for the whole",
+      "term": "Lev IR (umbrella) + Lev ontology (schema) + Lev IR framework (machinery)",
+      "st": "recommended; your call → question"
+     }
+    ]
+   }
+  },
+  "t-un-gaps": {
+   "type": "text",
+   "props": {
+    "content": "**Where the current 'DNA' content goes, by facet** (your question: if it all found a proper home, where?):\n- **checks with a runnable test** → policy facet, next to the owner; core/eval decides verdicts. Today only `dna/core` checks run.\n- **rules with no test** → the owner's spec as guidance (docs), until a test exists.\n- **import allowlist, write authority** → structure facet, one system-level instance, enforced by core/validator.\n- **module identity, owns / does-not-own** → the module's `config.yaml` (`owns:`, `entity_definitions:`) and README.\n- **behaviors meant to run** → flows. **Failure modes** → the flow's failure branches, or docs.\n- **entity kinds and schemas** → `entity_definitions` in the owner's config; schemas beside it.\n- **process specs: escalation stages, idle loop, KPIs, test strategy** → execution facet under `plugins/sdlc`: flows if runnable, docs if not. The core loop is the base flow they extend.\n- **vocabulary, primitives** → the vocabulary facet, one file, each term with an owner.\n- **doctrine, rulings, history** → docs and decision records.\n- **task dna.yaml** → `task.yaml`, the work facet's task spec.\n- **other projects' YAML** → their repos, using the published facet schemas; freeform notes stay theirs.\n\n**What the exercise found missing** (gaps, not opinions): a stage field on most instances; a trigger/hook kind and vocabulary; an exec-spec kind (`exec.yaml` is authored, `runtime_binding` is derived; they are different things); a general current-vs-target field beyond gates; a vernacular resolver; the hygiene diff; and two names (FlowMind's compiled graph, the base ontology's owner package)."
+   }
+  }
+ }
+}

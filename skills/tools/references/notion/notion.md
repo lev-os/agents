@@ -9,6 +9,10 @@ description: >-
 
 # Notion CLI
 
+Run `ntn` from the resolved target project root. The CLI session created by
+`ntn login` and an API token in `NOTION_API_TOKEN` are separate credential
+paths; prefer the already-present token, and never print it.
+
 ## Look things up before answering
 
 The CLI is self-documenting. Always prefer running these commands over guessing
@@ -24,6 +28,8 @@ syntax or relying on memorized knowledge:
 - `ntn <command> --help` — help for any command or subcommand.
 
 ## Install
+
+Install only when requested; first check whether `ntn` is already available.
 
 ```bash
 curl -fsSL https://ntn.dev | bash
@@ -46,8 +52,8 @@ Run `ntn api --help` for full syntax. Quick summary:
 # GET with query param
 ntn api v1/users page_size==100
 
-# POST with inline body fields
-ntn api v1/pages parent[page_id]=abc123
+# POST with inline body fields (quote shell metacharacters)
+ntn api v1/pages 'parent[page_id]=abc123'
 
 # POST with JSON body
 ntn api v1/pages -d '{"parent":{"page_id":"abc123"}}'
@@ -66,7 +72,7 @@ the `markdown` field when creating or updating comments via `ntn api`.
 ntn api v1/comments -d '{"parent":{"page_id":"abc123"},"markdown":"Here is a [link](https://example.com) and **bold text**."}'
 
 # Page with markdown body
-ntn pages create --parent page:abc123 --content '## Heading\n\nSome *formatted* content.'
+ntn pages create --parent page:abc123 --content $'## Heading\n\nSome *formatted* content.'
 ```
 
 The `markdown` field supports inline formatting (bold, italic, code, links, etc.).

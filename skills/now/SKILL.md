@@ -39,7 +39,7 @@ Build one canonical RenderSpec component graph and render it to single-file HTML
    npx tsx plugins/now/src/cli.ts .lev/now/{slug}.json --output .lev/now/{slug}.html
    ```
    Use `--show-source` only for explicit renderer debugging.
-6. Open locally. Run QA only when the user passes `publish` or explicitly asks for QA; published pages still require desktop and mobile inspection.
+6. Open locally. Run QA only when the user passes `publish` or explicitly asks for QA; published pages still require desktop and mobile inspection. If the page has a `feedback` element, start the answer poller in the background right after opening it (see Collect Feedback Answers) instead of asking the user to paste JSON back.
 7. For publish, QA a clean build and run:
    ```bash
    bash ~/.claude/skills/here-now/scripts/publish.sh .lev/now/{slug}.html --title "lev.now — {topic}" --client lev-now
@@ -53,6 +53,7 @@ Build one canonical RenderSpec component graph and render it to single-file HTML
 | Sales letter / visual explainer | Claim sequence, differentiation, proof, objections, action; usually hero + document/text + cards/tables/diagrams + testimonial + action |
 | Teach-style content | Mission, current knowledge, one win, explanation, worked example, retrieval or practice, feedback, primary source; usually document + code/diagram + action or feedback |
 | Explainer brief / technical | Verdict, boundaries, evidence, mechanics, risks, next move; usually document + diagram/code/table + callout, optionally navigation |
+| Explain diff (code change) | Background (deep, skippable) → intuition with toy data → literate code tour ordered by dependency → the change's own open ends → 5-question quiz; usually document + mermaid diagram + one `custom-html` interactive figure + stacked code-block steps + `feedback` variant `quiz` (every option gets `why`; wrong ones explain why not after the reveal) + source-list. No colored left-border accents. Reference: `plugins/now/examples/explain-diff.json` |
 | Feedback | Context beside the decision, stable response IDs, explicit choices, optional action; use existing content components + feedback rather than a feedback-only page type |
 | Multi-document browsing | Sidebar section + navigation list + routed documents + pager; folder intake compiles exactly this graph |
 
@@ -72,6 +73,21 @@ When visual encoding is load-bearing—architecture maps, dense comparisons, cau
 - An `action` with `capabilityRef` is declarative. The renderer emits `lev:action`; it never invokes tools, evaluates code, or performs network requests.
 - FlowMind/Poly and the interaction host resolve capability references. Oracle Open Agent Spec inputs compile behind this boundary into capability cards/operations; they are not a renderer dependency.
 - AgentPing may render live packet surfaces. Do not move Lev DNA semantics or execution policy into AgentPing components.
+
+## Collect Feedback Answers
+
+The feedback component saves answers in browser localStorage under `lev-now-feedback-<pageId>`. Brave, Chrome and Chromium persist that to a per-profile LevelDB, and `scripts/feedback-answers.py` (in this skill directory, Python standard library only) reads it from disk. It needs no server, debugging port or pasted JSON, and it covers `file://` pages and published here.now pages alike.
+
+```bash
+python3 scripts/feedback-answers.py .lev/now/{slug}.json --wait   # run as a background job
+python3 scripts/feedback-answers.py .lev/now/{slug}.json          # read the current answers once
+```
+
+- `--wait` exits 0 once every feedback item has a choice or note and the answers have stayed unchanged for `--settle` seconds (default 20). The job's completion is the signal to continue: act on the answers without asking the user where they are.
+- On `--timeout` (default 3600 s), it prints the partial answers and exits 2.
+- Output lists each item's `choice` label, whether it was the `recommended` option, and any `note`. Treat notes as questions or constraints to answer before acting on that item's choice.
+- The browser writes to disk a few seconds after a click, so a one-shot read immediately after the user answers can miss the last change.
+- Stable `pageId`s matter: answers persist per `pageId`, and a re-rendered page with the same ID restores and reports earlier answers.
 
 ## Visual QA Gate
 

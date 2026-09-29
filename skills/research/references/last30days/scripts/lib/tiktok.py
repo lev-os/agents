@@ -355,13 +355,17 @@ def fetch_captions(
         if not url:
             continue
         try:
-            data = http.get(
-                f"{SCRAPECREATORS_BASE}/video/transcript",
-                params={"url": url},
-                headers=http.scrapecreators_headers(token),
-                timeout=15,
-                retries=1,
-            )
+            # Isolate transcript fetch errors from the pipeline-level
+            # capture_failures() context so an individual video's 400
+            # doesn't poison the entire source outcome.
+            with http.capture_failures() as _tf:
+                data = http.get(
+                    f"{SCRAPECREATORS_BASE}/video/transcript",
+                    params={"url": url},
+                    headers=http.scrapecreators_headers(token),
+                    timeout=15,
+                    retries=1,
+                )
             transcript = data.get("transcript")
             if transcript:
                 if isinstance(transcript, list):
@@ -446,7 +450,7 @@ def search_and_enrich(
                 items.append(item)
 
     # Sort merged results by views descending
-    items.sort(key=lambda x: x.get("engagement", {}).get("views", 0), reverse=True)
+    items.sort(key=lambda x: x.get("engagement", {}).get("views") or 0, reverse=True)
 
     if not items:
         return {"items": [], "error": last_error}
@@ -524,7 +528,7 @@ def enrich_with_comments(
 
     enriched_count = 0
     with ThreadPoolExecutor(max_workers=min(4, len(top_items))) as executor:
-        futures = {executor.submit(_enrich_one, item): item for item in top_items}
+        futures = {http.submit_with_context(executor, _enrich_one, item): item for item in top_items}
         for future in as_completed(futures):
             if future.result():
                 enriched_count += 1

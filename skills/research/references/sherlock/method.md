@@ -3,6 +3,37 @@
 Load for explicit `research --sherlock`, dossiers, multi-round OSINT and saved
 investigation resume. This selector is skill syntax, not a runtime flag.
 
+## Implemented runtime route
+
+Inspect `lev research --help`, then preview:
+
+```bash
+lev research "<query>" --flow=sherlock --flow-plan-only --rounds=2 --max-queries=16 --state-dir="<directory>"
+```
+
+Execute the same route without `--flow-plan-only`. Use `--pause-after-round=1`
+when an intermediate checkpoint is requested. Resume the exact query/directory
+with `--flow=sherlock --resume`; saved scope/budgets stay authoritative.
+After an actual human scope decision, explicitly use `--approve-expansion` and
+changed controls on resume. That flag is an operator assertion, not a sealed
+permission receipt or release authority. `--budget-usd` holds before calls unless
+a trusted adapter contract supplies a guaranteed cost ceiling.
+
+The default source-bound analyst is Perplexity with structured-output capability.
+Quote spans are compiled from provider excerpts; source pages and independent
+ancestry need separate verification. Normalized statements remain model
+observations. Matching scope/proposition/polarity determines evidence bookkeeping;
+headings, alternate scope and unknown mapping remain visible context.
+
+Current qualification: fixture suite and structured provider-boundary preview
+pass. The revised full live two-round path remains unqualified after malformed
+analyst JSON; the earlier completed two-round sample had semantic defects.
+GLM5.3 evaluation timed out twice without final output; routing parity is pending.
+Older unchecked relation states are preserved and rejected by analysis contract2;
+do not silently overwrite them as current qualified investigations.
+
+## Method
+
 1. Define target, audience, hypotheses, activated domains, source classes,
    exclusions and output directory. Confirm missing choices that materially
    change the investigation; do not pause for already-approved scope.

@@ -12,8 +12,9 @@ def resolve(invocation, capabilities):
         words = words[1:]
     auto = any(w in {'auto', '--until=human'} for w in words)
     once = '--once' in words
+    herdr = '--herdr' in words
     watches = [w.partition('=')[2] for w in words if w.startswith('--watch=')]
-    unknown = [w for w in words if w not in {'auto', '--until=human', '--once'} and not w.startswith('--watch=')]
+    unknown = [w for w in words if w not in {'auto', '--until=human', '--once', '--herdr'} and not w.startswith('--watch=')]
     reasons = []
     if unknown or (once and auto) or len(watches) > 1:
         reasons.append('Conflicting or unsupported invocation controls')
@@ -29,7 +30,9 @@ def resolve(invocation, capabilities):
     return {'mode': mode, 'valid': not reasons, 'blocked_reasons': reasons,
             'goal_required': mode == 'auto' and not reasons,
             'goal_operations': ['inspect_existing', 'reuse_matching_or_create'] if mode == 'auto' and not reasons else [],
-            'watch_interval': watch, 'mode_allows_execution': mode != 'discover' and not reasons,
+            'watch_interval': watch, 'herdr': herdr,
+            'load_references': ['references/herdr.md'] if herdr else [],
+            'mode_allows_execution': mode != 'discover' and not reasons,
             'branch_authorization': 'unknown_until_full_branch_instructions_read',
             'next_action': 'list_then_read_every_branch_including_continuation_pages',
             'unit_limit': 1 if mode == 'once' else 0 if mode == 'discover' else None,

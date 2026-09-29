@@ -1,0 +1,821 @@
+{
+ "meta": {
+  "title": "Orchestrator status",
+  "description": "Plain-English status of the recovery orchestrator: the build sequence, the tabs, the CLI gaps and their fixes, and the calls JP makes on the page."
+ },
+ "theme": {
+  "preset": "teal-slate",
+  "mode": "dark"
+ },
+ "root": [
+  "hero",
+  "s-rulings",
+  "s-designs",
+  "s-fb",
+  "s-seq",
+  "s-tabs",
+  "s-cli",
+  "s-where",
+  "s-since",
+  "s-foot"
+ ],
+ "elements": {
+  "hero": {
+   "type": "hero",
+   "variant": "editorial",
+   "props": {
+    "category": "ORCHESTRATOR · 2026-09-29 05:15 CDT · LOOP PAUSED",
+    "title": "Both architecture designs landed. 15 questions decide the rest.",
+    "subtitle": "The ontology design and the DNA design are committed. Nothing gets built until you answer the questions below; each one has examples and a recommendation.",
+    "meta": "ontology design f8e7b4442 · DNA design e46b80a93 · 6 local commits unpushed"
+   }
+  },
+  "s-since": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "Since you paused",
+    "title": "What changed in the last hour"
+   },
+   "children": [
+    "t-since"
+   ]
+  },
+  "t-since": {
+   "type": "text",
+   "props": {
+    "content": "- **Pushed** 63 commits to origin/main (8f16472ac), as you answered.\n- **Killed** the four orphaned `bun --eval` exec workers. Voice daemons left alone.\n- **Deleted** the `lev sitrep` / `lev ws` task packet (16548f1a6). Your /sitrep and /ws skills are untouched.\n- **Withdrew** the Letta Code borrow from the omo plan and dropped the memory-upkeep slice (7637b9def).\n- **Reworded** the task-bundle lineage gate to name the run ledger (328d71c54). Finding: its check still scans folders that no longer exist, so it can never fail. The DNA tab owns giving it a real check.\n- **Saved** the gap reports as structured follow-ups and questions on the agent-runtime-convergence workstream (d18f1d030). They lived only in untracked omo scratch before.\n- **omo autocompact** was already set: a 600K reserve on a 1M window compacts above 400K. The problem is that compaction sometimes starts and fails. Logged as a follow-up.\n- **Opened** three tabs: Ouroboros re-intake, ontology design, DNA decomposition. **Closed** evals, cleanup, meta-eval, old ontology, scripts-audit (all committed)."
+   }
+  },
+  "s-tabs": {
+   "type": "section",
+   "variant": "full-width",
+   "props": {
+    "label": "Tabs",
+    "title": "Who is working on what"
+   },
+   "children": [
+    "tabs-table"
+   ]
+  },
+  "tabs-table": {
+   "type": "data-table",
+   "props": {
+    "columns": [
+     {
+      "key": "tab",
+      "label": "Tab"
+     },
+     {
+      "key": "goal",
+      "label": "Bounded goal"
+     },
+     {
+      "key": "done",
+      "label": "Done when"
+     }
+    ],
+    "rows": [
+     {
+      "tab": "ontology-design",
+      "goal": "One design for how Lev finds things by convention: which module owns which folder pattern, what a resolver is, what an island is, how entities nest (workstream → task → memory), what a module is vs what it provides, and the words for all of it. Converges the ten existing fractal/config designs into one.",
+      "done": "One canonical design committed, the others marked superseded, naming questions listed with examples"
+     },
+     {
+      "tab": "dna-decomp",
+      "goal": "Census of every place DNA lives today, the split brains, what earlier DNA designs decided, and one home per kind of DNA per owner, lined up with the ontology design.",
+      "done": "Decomposition written into one DNA design; ontology tab told which file to fold in"
+     },
+     {
+      "tab": "ooo-intake",
+      "goal": "Pull the latest Ouroboros, list what's new since 05-30, rescan all parity rows against today's Lev code, update its parity card and scorecard.",
+      "done": "Card + scorecard committed, three ideas worth taking for Lev's check-and-retry loop; tab stays open"
+     },
+     {
+      "tab": "09 ui (parked)",
+      "goal": "Jarvis formalization onto Lev.",
+      "done": "Waits for Sunny's open PR to merge and for generated surfaces"
+     },
+     {
+      "tab": "orch skill (background agent)",
+      "goal": "orch --herdr: interview the target project, scan, recommend a tab layout, and link ll, now and ws, as a reference loaded only on --herdr.",
+      "done": "Skill updated and validated with skill-builder"
+     }
+    ]
+   }
+  },
+  "s-seq": {
+   "type": "section",
+   "variant": "full-width",
+   "props": {
+    "label": "Sequence",
+    "title": "Each layer builds on the one before it"
+   },
+   "children": [
+    "seq-table"
+   ]
+  },
+  "seq-table": {
+   "type": "data-table",
+   "props": {
+    "stickyHeader": true,
+    "columns": [
+     {
+      "key": "layer",
+      "label": "Layer"
+     },
+     {
+      "key": "what",
+      "label": "What it is"
+     },
+     {
+      "key": "done",
+      "label": "Done"
+     },
+     {
+      "key": "under",
+      "label": "Under-specced"
+     }
+    ],
+    "rows": [
+     {
+      "layer": "1. Stamp the architecture (now)",
+      "what": "Design only. Ontology + fractal resolution; DNA decomposition; your review of both.",
+      "done": "Entity locations live in each module's config (3f8801ba0); core/workstream owns task and workstream commands (20331bf0b); old run/receipt canon removed from the task bundle.",
+      "under": "How a module claims a folder pattern; what an island is; module definition vs what it provides; every name. Whether the entity lookup port exists at all (you: optional)."
+     },
+     {
+      "layer": "2. Make the declarations real",
+      "what": "One resolution pipeline reads the declarations. Poly's handlers scan becomes a declaration like any other. The entity registry is derived from module configs. Workstream state gets one shape.",
+      "done": "Nothing yet.",
+      "under": "Waits on layer 1. The workstream next-steps shape is split between the /ws skill and the core/workstream schema, and it currently blocks CLI writes."
+     },
+     {
+      "layer": "3. Generate every surface from one registry",
+      "what": "CLI, HTTP, SDK, MCP and Jarvis's OpenAPI from one registry build (decided: one generator). Handlers return data and never print. `status` becomes the one meta verb.",
+      "done": "Registry build exists (6a95b380d, one registry for every door); all packages marked private.",
+      "under": "Where the old core/poly SDK folders go; how the ambiguous flat names settle once modules declare what they provide."
+     },
+     {
+      "layer": "4. Prove the result",
+      "what": "The check-and-retry loop: an agent claims done, core/eval decides, the loop retries or stops. Proven on a real task with a negative case. Substrate parity (tmux vs herdr). Daemon/cron end-to-end receipt.",
+      "done": "Eval runs through a VerificationCommandRunner port and `lev eval run` (dfbcb822c). tmux watch is real (2ca49ba32). The default plan-execute-verify flow exists.",
+      "under": "The loop's pass/fail is decided inside exec, not core/eval. Last proof-backed run was 09-10 on an example, not a real task. What counts as proof is not written down."
+     },
+     {
+      "layer": "5. Product surfaces",
+      "what": "Jarvis and voice on the generated HTTP client; no custom Jarvis API.",
+      "done": "Sunny: Jarvis chat is a registered exec worker; kit Button and PeekSheet adoption (open PR).",
+      "under": "Is Jarvis the assistant's name inside Lev, or does everything say Lev?"
+     },
+     {
+      "layer": "6. Sweep the gaps",
+      "what": "CLI defects, substrate gaps, the Grok campaign, os-lab dataset, worktrees, scripts.",
+      "done": "All saved as structured follow-ups (d18f1d030); os/ stripped to the learning sandbox (11c6ae418).",
+      "under": "Re-scoped after layers 1–3; many defects disappear once handlers follow one contract."
+     }
+    ]
+   }
+  },
+  "s-cli": {
+   "type": "section",
+   "variant": "full-width",
+   "props": {
+    "label": "CLI gaps",
+    "title": "Why each 'what really works' failure happens, and the fix"
+   },
+   "children": [
+    "cli-table"
+   ]
+  },
+  "cli-table": {
+   "type": "data-table",
+   "props": {
+    "columns": [
+     {
+      "key": "gap",
+      "label": "Gap"
+     },
+     {
+      "key": "why",
+      "label": "Why"
+     },
+     {
+      "key": "fix",
+      "label": "Fix (after the architecture is stamped)"
+     }
+    ],
+    "rows": [
+     {
+      "gap": "lev validator:validate --json puts JSON on stderr",
+      "why": "The handler is older than poly's handler contract: it reads its own --json flag, prints with console.log and returns nothing. In --json mode poly owns stdout, sends every handler print to stderr, then prints what the handler returned, which is nothing.",
+      "fix": "Handler returns the report object and prints nothing; poly renders it. (core/validator/src/handlers/validate.ts, core/poly/src/surfaces/cli/execute.ts:209-215)"
+     },
+     {
+      "gap": "lev validate / lev check refuse as ambiguous",
+      "why": "Three modules declare validate. Refusing is the rule you set on 09-28; `check` is advertised as an alias of a name that can never resolve.",
+      "fix": "Keep the refusal; drop the check alias."
+     },
+     {
+      "gap": "lev status refuses as ambiguous",
+      "why": "Five modules declare status.",
+      "fix": "Your 09-26 namespace ruling makes status a meta verb: one snapshot across modules, --deep for detail. That also covers what sitrep was for."
+     },
+     {
+      "gap": "lev graph contradicts its help",
+      "why": "Claims are only valid inside an exec worker; the help text predates that.",
+      "fix": "Fold claim submission into lev exec and delete the top-level verb."
+     },
+     {
+      "gap": "lev exec loses a failing step's output",
+      "why": "The runner keeps only the exit code in the receipt.",
+      "fix": "Keep the failing step's output tail in the run artifacts and print it."
+     },
+     {
+      "gap": "lev doctor suggests lev migrate-xdg",
+      "why": "The command never existed (core/build doctor hint).",
+      "fix": "Delete the hint."
+     },
+     {
+      "gap": "lev workstream list flags a workstream invalid",
+      "why": "The /ws skill and the core/workstream schema disagree on the next-steps shape. Now it blocks writes too.",
+      "fix": "One owner picks the shape (ontology design), then fix data and the path join."
+     },
+     {
+      "gap": "lev trace prints a log path that doesn't exist",
+      "why": "It prints the path whether or not the file was written.",
+      "fix": "Print it only when the file exists."
+     },
+     {
+      "gap": "lev now prints an npm warning",
+      "why": "Launched through npm, which reads a pnpm-only project setting.",
+      "fix": "Launch through the workspace runner."
+     },
+     {
+      "gap": "evaluator report cites a node that doesn't exist",
+      "why": "Enforcement provenance assumes a nodes-style flow.",
+      "fix": "Cite real node or step ids only."
+     }
+    ]
+   }
+  },
+  "s-where": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "Tracking",
+    "title": "Where the gap files were, and where they are now"
+   },
+   "children": [
+    "t-where"
+   ]
+  },
+  "t-where": {
+   "type": "text",
+   "props": {
+    "content": "`substrate-fix.md` and the other lane reports live in `.omo/ulw/lane01/reports/`. That is omo's ultrawork scratch folder, and it is untracked in git. The cleanup lane ran in omo's ultrawork mode, which writes its own report folder instead of Lev entities. Nothing in Lev knew those files existed.\n\nThey are now structured follow-ups and questions under `.lev/pm/workstreams/agent-runtime-convergence/state/` (d18f1d030). Each row has the defect, the fix, the owner and a code anchor. They could not be linked into the workstream through the CLI, because that workstream's state fails its own schema. The one-master-tracker question is a card below."
+   }
+  },
+  "s-fb": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "Decide",
+    "title": "Your calls: 15 design questions plus 3 from before"
+   },
+   "children": [
+    "fb"
+   ]
+  },
+  "fb": {
+   "type": "feedback",
+   "props": {
+    "pageId": "status-orchestrator-20260929-v3",
+    "title": "Decisions",
+    "buckets": [
+     {
+      "name": "Ontology"
+     },
+     {
+      "name": "DNA"
+     },
+     {
+      "name": "Tracker, evaluators, loop"
+     }
+    ],
+    "items": [
+     {
+      "id": "island-word",
+      "bucket": 0,
+      "wave": "ontology",
+      "title": "What is the one word for a folder Lev looks inside?",
+      "insight": "Example: `packages/ui` gets its own memory handlers; a task folder carries its own memory.",
+      "options": [
+       {
+        "label": "island (config key fractal_roots becomes islands)",
+        "recommended": true,
+        "why": "your natural word; covers project folders and entity folders"
+       },
+       {
+        "label": "fractal root (retire island)"
+       },
+       {
+        "label": "module for folders with config, island only for entity folders"
+       }
+      ]
+     },
+     {
+      "id": "resolver-word",
+      "bucket": 0,
+      "wave": "ontology",
+      "title": "What do we call a module's claim on a folder name, and the pipeline?",
+      "insight": "Example: poly owns every `src/handlers/` folder; memory owns every `memory/` folder.",
+      "options": [
+       {
+        "label": "resolver (key resolvers:); the pipeline is 'the catalog'; 'fractal resolver' retired",
+        "recommended": true,
+        "why": "your definition word for word; the overload goes away"
+       },
+       {
+        "label": "slot (key slots:)"
+       },
+       {
+        "label": "claim (key claims:)"
+       }
+      ]
+     },
+     {
+      "id": "resolver-key-place",
+      "bucket": 0,
+      "wave": "ontology",
+      "title": "Does resolvers: sit at the top of config.yaml, or under a provides: wrapper?",
+      "insight": "`entity_definitions:` is already top-level by ruling.",
+      "options": [
+       {
+        "label": "top level, beside entity_definitions",
+        "recommended": true,
+        "why": "a provides: wrapper would reopen the entity ruling or hold only half of what a module provides"
+       },
+       {
+        "label": "under provides: (and move entity_definitions in too)"
+       }
+      ]
+     },
+     {
+      "id": "folder-layout",
+      "bucket": 0,
+      "wave": "ontology",
+      "title": "Where do contributed folders live inside an island?",
+      "insight": "Example: memory for `packages/ui`.",
+      "options": [
+       {
+        "label": "code in src/memory/, data in memory/ at the island root",
+        "recommended": true,
+        "why": "nothing existing moves; code and data stay apart"
+       },
+       {
+        "label": "everything under src/memory/"
+       },
+       {
+        "label": "a dedicated fractal/memory/ folder"
+       }
+      ]
+     },
+     {
+      "id": "nested-ids",
+      "bucket": 0,
+      "wave": "ontology",
+      "title": "Do nested records need ids unique across the whole project?",
+      "insight": "Example: two tasks each have `memory/notes.md`.",
+      "options": [
+       {
+        "label": "each kind chooses (tasks global, memory within its parent)",
+        "recommended": true,
+        "why": "tasks keep bare ids; memory stays natural"
+       },
+       {
+        "label": "always unique project-wide"
+       },
+       {
+        "label": "always qualified by parent path, even tasks"
+       }
+      ]
+     },
+     {
+      "id": "noun-verbs",
+      "bucket": 0,
+      "wave": "ontology",
+      "title": "How does a module that owns several nouns lay out extra verbs?",
+      "insight": "Example: core/workstream owns both workstream and task; `lev task move`.",
+      "options": [
+       {
+        "label": "a folder per noun: src/handlers/task/move.ts",
+        "recommended": true,
+        "why": "reads like the CLI; files, not config"
+       },
+       {
+        "label": "flat with a dot: src/handlers/task.move.ts"
+       },
+       {
+        "label": "only generic verbs for secondary nouns; extras in config"
+       }
+      ]
+     },
+     {
+      "id": "third-party",
+      "bucket": 0,
+      "wave": "ontology",
+      "title": "How does an npm-installed module join a project?",
+      "insight": "Example: `@acme/lev-memory-s3` installed in your project.",
+      "options": [
+       {
+        "label": "listed in .lev/config.yaml modules:",
+        "recommended": true,
+        "why": "no walk over node_modules; installed is not active"
+       },
+       {
+        "label": "found automatically from package.json"
+       },
+       {
+        "label": "found automatically, inactive until enabled"
+       }
+      ]
+     },
+     {
+      "id": "namespace-list",
+      "bucket": 0,
+      "wave": "ontology",
+      "title": "Derive the authored-root list in dna/standards/source-namespaces.yaml?",
+      "insight": "You rejected YAML registries on 09-26, and this file is one: 37 roots with owners. Deriving it changes an enforced conformance test.",
+      "options": [
+       {
+        "label": "derive it: a namespace's first word must be its owning module's name",
+        "recommended": true,
+        "why": "e.g. memory.record is valid because core/memory declares it"
+       },
+       {
+        "label": "keep the authored list"
+       }
+      ]
+     },
+     {
+      "id": "task-config",
+      "bucket": 0,
+      "wave": "ontology",
+      "title": "Can a task folder carry its own config to add or override resolvers?",
+      "insight": "Example: a task remaps memory to notes/.",
+      "options": [
+       {
+        "label": "no for now; task folders only receive resolvers",
+        "recommended": true,
+        "why": "simpler; adding it later breaks nothing"
+       },
+       {
+        "label": "yes; a config.yaml promotes it to a declared island"
+       }
+      ]
+     },
+     {
+      "id": "dna-home",
+      "bucket": 1,
+      "wave": "dna",
+      "title": "Where does a module's own DNA live? (gates every DNA file move)",
+      "insight": "Example: core/memory's contract.",
+      "options": [
+       {
+        "label": "next to the module: core/memory/dna/memory.dna.yaml",
+        "recommended": true,
+        "why": "travels with the npm package; found like handlers; the rule 'dna/ outranks core/' becomes an owner rule"
+       },
+       {
+        "label": "stay central: dna/core/memory.dna.yaml"
+       },
+       {
+        "label": "next to the module, plus a generated read-only mirror under dna/core/"
+       }
+      ]
+     },
+     {
+      "id": "dna-what",
+      "bucket": 1,
+      "wave": "dna",
+      "title": "What earns the name DNA?",
+      "insight": "Example: `provider-boundary.yaml` holds constraints but compiles to nothing.",
+      "options": [
+       {
+        "label": "any file whose job is constraints, behaviors and failure modes",
+        "recommended": true,
+        "why": "today's rule; simplest for the split"
+       },
+       {
+        "label": "only files that compile to a FlowMind graph"
+       },
+       {
+        "label": "only files that also say how they are re-checked"
+       }
+      ]
+     },
+     {
+      "id": "gate-home",
+      "bucket": 1,
+      "wave": "dna",
+      "title": "Where do gates live?",
+      "insight": "Example: the exec static gate lives in `dna/gates.yaml` today, away from core/exec. Also: may gates whose check is only an echo or pseudocode be labelled manual, or must each get a real check first?",
+      "options": [
+       {
+        "label": "inside the owner's contract, with a generated gate view",
+        "recommended": true,
+        "why": "gates sit with their owners; lev validate lists them"
+       },
+       {
+        "label": "one big dna/gates.yaml"
+       },
+       {
+        "label": "keep today's five registries"
+       }
+      ]
+     },
+     {
+      "id": "vocab-home",
+      "bucket": 1,
+      "wave": "dna",
+      "title": "Vocabulary: one file or per owner?",
+      "insight": "Example: the word recall, minted by core/memory.",
+      "options": [
+       {
+        "label": "one dna/vernacular.yaml, each term tagged with its owner",
+        "recommended": true,
+        "why": "naming stays in one place for you"
+       },
+       {
+        "label": "each module keeps its own vocabulary section"
+       }
+      ]
+     },
+     {
+      "id": "entities-file",
+      "bucket": 1,
+      "wave": "dna",
+      "title": "What happens to dna/entities.yaml?",
+      "insight": "Today core/config reads it directly (entity-roots.ts:116).",
+      "options": [
+       {
+        "label": "generated catalog of every owner's entity_definitions",
+        "recommended": true,
+        "why": "one truth per kind, still browsable"
+       },
+       {
+        "label": "keep it only for kinds no module owns"
+       },
+       {
+        "label": "delete it once every kind has an owner"
+       }
+      ]
+     },
+     {
+      "id": "lineage-gate",
+      "bucket": 1,
+      "wave": "dna",
+      "title": "Give the hollow lineage gate a real check in core/execution-ledger?",
+      "insight": "Its check scans task folders for runs, which no longer exist, so it can never fail. Your 09-29 ruling froze the current check.",
+      "options": [
+       {
+        "label": "yes: move the check to a test over the run ledger, keep enforcement",
+        "recommended": true,
+        "why": "turns a gate that cannot fail back into a real gate"
+       },
+       {
+        "label": "leave it as is for now"
+       }
+      ]
+     },
+     {
+      "id": "tracker-home",
+      "bucket": 2,
+      "wave": "now",
+      "title": "Where does the one master tracker live?",
+      "insight": "You want one place that links every plan, design, gap and lane. Today three things half-do it. The agent-runtime-convergence workstream is 5,032 lines and currently fails its own schema. The master roadmap file records evidence and status. The orchestrator ledger lives outside the repo.",
+      "options": [
+       {
+        "label": "Let the ontology design define a tracker entity, then build it there",
+        "recommended": true,
+        "why": "a tracker is itself a noun; deciding it inside the ontology avoids a fourth half-tracker"
+       },
+       {
+        "label": "Use the master roadmap file now, and link everything from it"
+       },
+       {
+        "label": "Slim the agent-runtime-convergence workstream and make it the tracker"
+       }
+      ]
+     },
+     {
+      "id": "eval-file-checks",
+      "bucket": 2,
+      "wave": "re-explained",
+      "title": "Evaluators that check files: who opens the file?",
+      "insight": "**Example.** The proposal-readiness evaluator grades a proposal. One of its checks is that every file the proposal cites exists, for example `docs/specs/spec-exec.md`. Today the evaluator opens the disk itself to look.\n\nBefore any evaluator may block work as a gate, Lev tests it on known-good and known-bad samples inside a sealed box with no disk access, to prove it gives the right answer. An evaluator that opens the disk can't run in that box. So it can never be tested, and it can never become a gate.\n\nWorse, if the AI step upstream says \"that file exists\", the evaluator believes the AI over the disk. That lets a missing file pass.",
+      "options": [
+       {
+        "label": "Code checks the files first and hands the evaluator the answers",
+        "recommended": true,
+        "why": "e.g. the evaluator receives `spec-exec.md exists: yes`. It can be tested in the box, and the AI can no longer vouch for a file."
+       },
+       {
+        "label": "Let each evaluator read one declared folder, snapshotted for testing",
+        "desc": "needs a new rule and a new name"
+       },
+       {
+        "label": "Wait until evaluators run in their own process",
+        "desc": "blocked on unrelated work"
+       }
+      ]
+     },
+     {
+      "id": "loop",
+      "bucket": 2,
+      "wave": "loop",
+      "title": "When should the 15-minute loop resume?",
+      "insight": "The design tabs run on their own. The loop would read their reports, pass findings between them, and rebuild this page.",
+      "options": [
+       {
+        "label": "Resume now at 15 minutes",
+        "recommended": true,
+        "why": "keeps the two design tabs in step with each other"
+       },
+       {
+        "label": "Resume at 30 minutes"
+       },
+       {
+        "label": "Stay paused until I review the designs"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "s-foot": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "Status",
+    "title": "Status line"
+   },
+   "children": [
+    "t-foot"
+   ]
+  },
+  "t-foot": {
+   "type": "text",
+   "props": {
+    "content": "🧙🏽‍♂️ **[lev://mesh]** lev://recovery-orchestrator | ⚡ PAUSED · STAMPING ONTOLOGY + DNA | lev://design 📐"
+   }
+  },
+  "s-designs": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "Designs",
+    "title": "What the two designs say"
+   },
+   "children": [
+    "t-designs"
+   ]
+  },
+  "t-designs": {
+   "type": "text",
+   "props": {
+    "content": "**Ontology design** (`.lev/pm/designs/design-fractal-source-framework.md`, part 1). A module declares two things in its own config.yaml. It declares **resolvers**: reserved folder names it owns, the way poly owns `handlers`. It also declares **entity kinds**. core/config finds every island once, checks that no two modules claim the same name, and hands each owner its matches. Entity kinds get list, show and resolve with no new TypeScript. Nesting like workstream, then task, then memory is one rule.\n\nToday's ground truth:\n- Folder patterns have three homes: 12 owner groups hard-coded in core/config, 8 modules that load their own sources, and a dead block in poly.\n- Poly hard-codes `core/` and `plugins/`.\n- Island support is implemented but declared nowhere.\n\nSix older designs now point here as superseded.\n\n**DNA design** (`.lev/pm/designs/design-dna-authoring-contract.md`). It counted where DNA lives today: 58 module contracts, 3 plugin-local DNA folders, 5 gate registries, and entity kinds split across three places. That adds up to 9 split brains. Its proposal is one home per kind of DNA per owner, and `plugins/dna` finds DNA files the same way poly finds handlers. It confirmed the lineage gate is hollow (its folder scan matches 0 folders).\n\nThe first build slice after your answers: the dna resolver declaration, plus the validator reading from the catalog, with no file moves."
+   }
+  },
+  "s-rulings": {
+   "type": "section",
+   "variant": "stacked",
+   "props": {
+    "label": "Rulings 2026-09-29",
+    "title": "What the untangling did to the 18 cards"
+   },
+   "children": [
+    "t-rulings-intro",
+    "t-rulings"
+   ]
+  },
+  "t-rulings-intro": {
+   "type": "text",
+   "props": {
+    "content": "JP: \"this should probably answer all the herdr loops and 16 open status page cards.\" Row by row: what the 2026-09-29 rulings (fractal root, `owns:`, DNA retired into Lev IR, task.yaml/exec.yaml, graph patch, stage-aware rules) did to each card. Cards marked Open or Held still want a ruling; the rest are answered or superseded. Whiteboard: `ontology-whiteboard-20260929.html`, section 'The untangling'."
+   }
+  },
+  "t-rulings": {
+   "type": "data-table",
+   "props": {
+    "columns": [
+     {
+      "key": "c",
+      "label": "Card"
+     },
+     {
+      "key": "s",
+      "label": "Status"
+     },
+     {
+      "key": "r",
+      "label": "Ruling or state"
+     }
+    ],
+    "rows": [
+     {
+      "c": "island-word",
+      "s": "Ruled",
+      "r": "fractal root. JP: 'roots makes more sense than islands'. `fractal_roots:` stays the key."
+     },
+     {
+      "c": "resolver-word",
+      "s": "Ruled",
+      "r": "the claim is `owns:` (fractal ownership); the pipeline is the fractal resolver; its output the source catalog."
+     },
+     {
+      "c": "resolver-key-place",
+      "s": "Ruled by extension",
+      "r": "`owns:` sits top-level in the module's config.yaml beside `entity_definitions:`."
+     },
+     {
+      "c": "folder-layout",
+      "s": "Design holds",
+      "r": "data folder at the fractal root, code under src/ (fractal design Part 1). Not contradicted."
+     },
+     {
+      "c": "nested-ids",
+      "s": "Open",
+      "r": "each kind chooses (design); no ruling yet."
+     },
+     {
+      "c": "noun-verbs",
+      "s": "Open",
+      "r": "poly owns command naming; not this thread."
+     },
+     {
+      "c": "third-party",
+      "s": "Design holds",
+      "r": "listed under `modules:` in .lev/config.yaml (design ideal)."
+     },
+     {
+      "c": "namespace-list",
+      "s": "Deprioritized",
+      "r": "the hygiene diff (catalog minus tree) supersedes a registry; JP: good, not highest priority."
+     },
+     {
+      "c": "task-config",
+      "s": "Ruled in part",
+      "r": "a task is an entity fractal root with `task.yaml` + `exec.yaml`; its own config stays 'no for now'."
+     },
+     {
+      "c": "dna-home",
+      "s": "Superseded",
+      "r": "DNA retired. Each facet lives with its owner: checks beside the module, structure in core/config, entity kinds in `entity_definitions`."
+     },
+     {
+      "c": "dna-what",
+      "s": "Superseded",
+      "r": "nothing earns the name. Lev IR = ontology + instances; the test is 'instance of a declared kind', not machine-readable."
+     },
+     {
+      "c": "gate-home",
+      "s": "Ruled by extension",
+      "r": "policy facet beside the owner; core/validator runs, core/eval decides; the gate view is a projection. Relabels still need JP."
+     },
+     {
+      "c": "vocab-home",
+      "s": "Aligned",
+      "r": "one vocabulary file, each term with an owner; vernacular resolver is a follow-up."
+     },
+     {
+      "c": "entities-file",
+      "s": "Aligned",
+      "r": "`entity_definitions` per owner is the truth; entities.yaml becomes a generated catalog (projection)."
+     },
+     {
+      "c": "lineage-gate",
+      "s": "Held",
+      "r": "JP froze the check on 09-29; reopen as a numbered fork with the run-ledger evidence."
+     },
+     {
+      "c": "tracker-home",
+      "s": "Held",
+      "r": "workstream stays the aggregate root; the master tracker question waits on the hygiene diff and stage fields."
+     },
+     {
+      "c": "eval-file-checks",
+      "s": "Held",
+      "r": "one brain: whoever opens the file produces an observation; only core/eval discharges the verdict. Wiring not decided."
+     },
+     {
+      "c": "loop",
+      "s": "Paused",
+      "r": "JP paused the 15-minute loop; resumes on his word."
+     }
+    ]
+   }
+  }
+ }
+}

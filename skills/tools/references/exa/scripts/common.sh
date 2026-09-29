@@ -3,7 +3,7 @@
 set -euo pipefail
 
 load_env_file() {
-  local env_file="${HOME}/.env.local"
+  local env_file="${EXA_ENV_FILE:-${HOME}/.env.local}"
   if [[ -f "$env_file" ]]; then
     while IFS= read -r line || [[ -n "$line" ]]; do
       [[ -z "$line" ]] && continue
@@ -17,7 +17,10 @@ load_env_file() {
         elif [[ "${value:0:1}" == "'" && "${value: -1}" == "'" ]]; then
           value="${value:1:${#value}-2}"
         fi
-        export "${key}=${value}"
+        # Explicit process environment wins over the optional env file.
+        if [[ -z "${!key+x}" ]]; then
+          export "${key}=${value}"
+        fi
       fi
     done < "$env_file"
   fi

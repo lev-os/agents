@@ -1,0 +1,539 @@
+{
+  "meta": {
+    "title": "N1 follow-ups — is lev worth it?",
+    "description": "Outside-model panel on whether lev is worth it, the state-change tribunal, and the DNA / noun / owner choices (2026-09-27).",
+    "provenance": {
+      "sessionId": "74d1fed5-3d75-4cc3-98b2-1e3f0e81abf5",
+      "agent": "Claude Code · Opus 5.5 · audit burn-down session 3",
+      "workstream": "first-party-audit-20260922-backlog-burn-down",
+      "source": "~/.agents/levnow/decision-n1-followups-20260927.json",
+      "createdAt": "2026-09-27",
+      "resume": "claude --resume 74d1fed5-3d75-4cc3-98b2-1e3f0e81abf5"
+    }
+  },
+  "theme": {
+    "preset": "midnight-ink",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "worth",
+    "mine",
+    "blind",
+    "landed",
+    "decisions"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "FIRST-PARTY AUDIT · N1 FOLLOW-UPS",
+        "title": "Is lev worth it?",
+        "subtitle": "4 outside seats (GPT-6, GLM 5.3, clean Opus, clean Fable) on a neutral fact sheet: 4 of 4 say radically simplify. Plus 16 choices.",
+        "meta": "2026-09-27 · workstream first-party-audit-20260922-backlog-burn-down"
+      }
+    },
+    "worth": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "OUTSIDE PANEL",
+        "title": "Same brief, four model families, no repo access"
+      },
+      "children": [
+        "worth-text"
+      ]
+    },
+    "worth-text": {
+      "type": "text",
+      "props": {
+        "maxWidth": "100%",
+        "content": "| Seat | Verdict | In its words |\n|---|---|---|\n| codex | Radically simplify | \"Lev has earned an extraction trial, not another expansion cycle.\" |\n| glm | Radically simplify: the alternative, with two changes | \"Jarvis is real working software; the framework around it is consuming the project.\" |\n| opus-clean | Radically simplify, anchored on Jarvis rather than a new framework | \"Why not the alternative as written: a \"CLI builder + MCP builder\" is framework v2 waiting to happen.\" |\n| fable-clean | Radically simplify | \"If an agent needs 5,661 words to avoid breaking things, the tests are wrong, not the agent.\" |\n\n- **Fact sheet:** `~/.local/state/lev/tribunal/n1-followups-20260927/prompt-worth-it.md` (your question quoted word for word).\n- **Caveat:** the brief was measured by an agent inside the repo; the commit sample is hand-classified."
+      }
+    },
+    "mine": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "MY ANSWER",
+        "title": "Claude, this session (informed, so weigh it less)"
+      },
+      "children": [
+        "mine-text"
+      ]
+    },
+    "mine-text": {
+      "type": "text",
+      "props": {
+        "maxWidth": "72ch",
+        "content": "**Yes, but not in this shape.** Tonight's numbers, all re-checked by me:\n- 60 of 98 sampled commits are governance, 9 are user-facing. 12 of 50 gates are enforced and none run automatically.\n- `lev status` exits 2, `lev task list` fails, `lev search` goes to an unimplemented catalog.\n- Jarvis imports lev in 117 files; the next app, 17. 20,756 tracked files sit in Python virtualenvs.\n\n**What is worth keeping** are the ideas that nothing else has together: only one module decides truth, every effect leaves a receipt, gates only ratchet forward, and one declaration projects to CLI, MCP and HTTP.\n\n**What is not worth it** is the breadth: 44 core packages, 65 plugins and 42 crates for one operator and one real consumer. Breadth creates split-brain; split-brain creates rulings, records and vocabulary; those become more for every agent to read. This session is the example: hours of work, zero user-facing change.\n\n**Your alternative is closer than it sounds.** Poly already is the CLI/MCP/HTTP builder, built from module declarations. \"Gates + builders\" = poly + the 12 enforced gates + the modules Jarvis actually reaches. That is a cut, not a rewrite.\n\n**What I would do:** freeze new modules, records and rulings for 30 days; delete the virtualenvs; make each declared gate run or delete it; archive what Jarvis does not reach; rerun the 14/15 DNA experiment blind against a one-page contract; track user-facing commit share weekly. Caveat: I spent this session inside the repo's own canon, so weigh the four outside seats above mine."
+      }
+    },
+    "blind": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "BLIND CLI GUESSES",
+        "title": "\"If you were going to do this, what would you type?\""
+      },
+      "children": [
+        "blind-text"
+      ]
+    },
+    "blind-text": {
+      "type": "text",
+      "props": {
+        "maxWidth": "100%",
+        "content": "Blind first commands per seat. Families: codex = OpenAI (gpt-6-astra), glm = Z.ai (glm-5.3 via OpenRouter), opus-clean and fable-clean = Anthropic. Sources: seat-blind-cli-codex.md:5-25, seat-blind-cli-glm.md:3-23, and the courier text for the two clean seats.\n\n| # | Goal | codex | glm | opus-clean | fable-clean | Consensus | vs ruled `lev <noun> <verb>` / live lev |\n|---|---|---|---|---|---|---|---|\n| 1 | Ready tasks | `lev task list --ready` | `lev task list --status ready` | `lev task list --ready` | `lev task list --ready` | 4/4 `lev task list`; 3/4 `--ready` | Fits the grammar. Not live: `lev task` has only `validate` (verified: `timeout 60 lev task --help`) |\n| 2 | Show T1 | `lev task show T1` | same | same | same | 4/4 | Fits. Not live for task |\n| 3 | Create under W1 | `lev task create \"rate limiter\" --workstream W1` | `lev task create --workstream W1 --title \"Fix X\"` | `lev task create \"title\" --workstream W1` | `lev task create \"rate limiter\" --workstream W1` | 4/4 `task create … --workstream W1` | Fits. Not live |\n| 4 | Start | `lev task start T1` | same | same | same | 4/4 | Fits. Collides with the reserved `lev work start <agent>` (verified: dna/vernacular.yaml:1004-1027) |\n| 5 | Done | `lev task done T1` | same | same | same | 4/4 | Fits. No seat said `close`, which is a locked workflow stage that applies to entities too (verified: dna/vernacular.yaml:720-724) |\n| 6 | Blocked by T2 | `lev task block T1 --on T2` | same | same | same | 4/4 | Fits |\n| 7 | Reopen | `lev task reopen T1` | same | same | same | 4/4 | Fits |\n| 8 | Delete, then undo | `task delete` then `lev task restore T1` | `task delete` then `lev undo` | `task delete` then `lev undo` | `task delete` then `lev task restore T1` | delete 4/4; undo split 2/2 | The ruling is soft delete plus restore (verified: decision yaml:94). All 4 seats name `restore` as first try or fallback. A root `lev undo` is not in the ruled meta list (:89) |\n| 9 | Archive W1 | `lev workstream archive W1` | same | same | same | 4/4 | Fits the grammar, but workstreams have no archived state: active, paused, completed, superseded (verified: core/workstream/src/schema.ts:26). Live path: `lev workstream update W1 --status completed` |\n| 10 | Overall state | `lev status` | same | same | same | 4/4 | Matches the ruled meta list (:89) |\n| 11 | Health gate | `lev doctor` | same | same | same | 4/4 | Matches the ruling (:93) |\n| 12 | Search all | `lev search \"rate limiter\"` | same | same | same | 4/4 | Root `search` is not in the ruled meta list. Who owns search is still an open fork (:78) |\n| 13 | Web research | `lev research \"…\" --save` | same | same | same | 4/4 | Allowed only if `research` is a module's own name (owner-verb ruling :88). Inference |\n| 14 | Stored context | `lev context search \"auth tokens\"` | same | `lev context \"auth tokens\"` | `lev context search \"auth tokens\"` | 3/4 `context search` | Fits. The opus form uses the bare noun's default verb, which the grammar ruling allows |\n| 15 | Run flow | `lev flow run ./release.flow.yaml` | same | same | same | 4/4 | Mismatch. The live command is `lev exec --flow <path>` (verified: AGENTS.md:207) |\n| 16 | Init, then upgrade | `lev init` / `lev upgrade` | same | same | same | 4/4 | Not in the ruled meta list. The operator asked for these as conveniences, \"explanation owed\" (decision yaml meta_alias) |\n| 17 | Submit proof | `lev claim prove C1 --evidence …` | `lev claim submit C1 --proof …` | `lev proof submit --claim \"…\" --evidence …` | `lev proof submit --claim \"…\" --evidence …` | Split 2/2, and the split follows model family: OpenAI and Z.ai used the noun `claim`, both Anthropic seats used `proof` | Both forms fit the grammar. The `claim` form matches the ruling \"claim = proof\" (:95) literally |\n| 18 | Timed exclusive lock | `lev task lock T1 --ttl 15m` | `lev task lock T1 --ttl 30m` | same | same | 4/4 `task lock`; 3/4 fall back to `lev task claim` | No seat guessed the reserved `lev work assign`. 3 fallbacks use `claim` to mean a lock, against the ruling |\n| 19 | Machine output | `--json` | `--json` | `--json` | `--json` | 4/4 | Fits |\n\nWhat the table says: every first try is either `lev <noun> <verb>` or a bare root verb, so the grammar ruling is confirmed by 4 seats from 3 families. For state change (goals 4-7), all 4 seats guessed a named transition first, and 3 of 4 fell back to `lev task update T1 --status …`. Where live lev differs from these guesses: flows (`exec --flow`, not `flow run`), workstream archive (no archived state), and the root verbs outside the ruled list (search, research, init, upgrade, undo)."
+      }
+    },
+    "landed": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "WHAT LANDED TONIGHT",
+        "title": "M1 rulings, built and checked"
+      },
+      "children": [
+        "landed-text"
+      ]
+    },
+    "landed-text": {
+      "type": "text",
+      "props": {
+        "maxWidth": "72ch",
+        "content": "- **Deleted:** core/a2a, core/agent-fs, core/credential-vault, core/flowmind-memory (0 consumers). core/security is held for the card below.\n- **Converged:** Agent Card version + url into core/poly-compiler; mount types + quotas into spec-agentfs; per-agent allowlist into plugins/vault; write rules into core/memory.\n- **Checked by me (named test files + typecheck only):** poly-compiler 10/10, vault-engine 27/27, write-gates 15/15, all typechecks exit 0; 0 live references to the deleted packages; `has_spec` now lists only core/security.\n- **Operation ids:** `lev workstream list` now reports `workstream.list` (was `workstream.workstream`).\n- **Specs:** 20 specs stripped of current-state content; 233 removed items kept as follow-ups under the workstream's `state/follow-ups/`.\n- **.lev/tmp:** untracked; the gap report moved to .lev/pm/reports.\n- **Not done:** .lev/matrix delete (blocked by the permission classifier); the last reviewer on the operation-id fix was stopped when you said stop running tests."
+      }
+    },
+    "decisions": {
+      "type": "feedback",
+      "props": {
+        "pageId": "n1-followups-20260927",
+        "title": "Decisions",
+        "buckets": [
+          {
+            "name": "Direction"
+          },
+          {
+            "name": "State changes"
+          },
+          {
+            "name": "DNA + nouns"
+          },
+          {
+            "name": "Root words"
+          },
+          {
+            "name": "Owners"
+          },
+          {
+            "name": "Loose ends"
+          }
+        ],
+        "items": [
+          {
+            "id": "N2-worth-it",
+            "bucket": 0,
+            "wave": "direction",
+            "title": "Is lev worth it? What happens next",
+            "insight": "**4 of 4 outside seats: radically simplify.** None said continue as-is; none said stop. My own answer is in the section above the cards.",
+            "detail": "- **codex** (codex exec (model: gpt-6-astra)): Radically simplify. Stop expanding Lev as a general framework and give a small extraction 30 days to prove it deserves to continue (seat-worth-it-codex.md:1). — \"Lev has earned an extraction trial, not another expansion cycle.\"\n- **glm** (openrouter z-ai/glm-5.3. The direct Z.ai call returned HTTP 429 (insufficient balance), and the courier fell back to OpenRouter. Exit 0): Radically simplify: the alternative, with two changes. Keep Jarvis and the runtime it actually imports, and keep the 12 enforced gates as CI (seat-worth-it-glm.md:7). — \"Jarvis is real working software; the framework around it is consuming the project.\"\n- **opus-clean** (opus (clean Plan agent)): Radically simplify, anchored on Jarvis rather than a new framework. — \"Why not the alternative as written: a \"CLI builder + MCP builder\" is framework v2 waiting to happen.\"\n- **fable-clean** (fable (clean Plan agent)): Radically simplify. Not the alternative as written, but a version that keeps the one thing that might be real. — \"If an agent needs 5,661 words to avoid breaking things, the tests are wrong, not the agent.\"\n- **They agree:** Jarvis is the one real consumer; freeze framework and governance growth now; delete the tracked virtualenvs; archive, don't destroy; end 30 days with a measured go/no-go.\n- **They split on:** whether a CLI + MCP builder is just \"framework v2\" (Opus, codex) or the core of the plan (Fable, GLM); how fast to cut; whether to rerun the 14/15 DNA experiment first (Opus, Fable).",
+            "options": [
+              {
+                "label": "Radically simplify, anchored on Jarvis",
+                "desc": "30 days: freeze new modules, records and rulings; archive what Jarvis does not reach; make the 35 declared gates run or delete them; rerun the 14/15 experiment blind; measure user-facing commit share weekly",
+                "recommended": true
+              },
+              {
+                "label": "The alternative as you wrote it",
+                "desc": "Enforced gates + a CLI builder + an MCP builder with a fixed test suite; generate everything else"
+              },
+              {
+                "label": "Continue as-is",
+                "desc": "Keep building the framework in its current shape"
+              },
+              {
+                "label": "Stop",
+                "desc": "Freeze lev; build Jarvis features directly"
+              }
+            ]
+          },
+          {
+            "id": "N2-n1-scope",
+            "bucket": 0,
+            "wave": "direction",
+            "title": "How much of the naming work to do now",
+            "insight": "Most N1 questions get smaller after a cut: fewer modules, fewer words to collide. The cheap mechanical pieces pay off either way.",
+            "detail": "- **Cheap and mechanical:** folder = noun, handler file = verb, a collision fails the build, operation ids carry the verb (done tonight for most commands).\n- **Expensive:** moving entities out of dna/, moving task to workstream, the graph noun, state verbs on every entity.\n- If you pick \"simplify\" above, the expensive items should wait until you know which modules survive.",
+            "options": [
+              {
+                "label": "Mechanical pieces now, park the rest",
+                "desc": "Folder-noun convention + build-time collision error now; entity moves and state verbs after the cut",
+                "recommended": true
+              },
+              {
+                "label": "Do all of N1 now",
+                "desc": "Rule every card below and build it"
+              },
+              {
+                "label": "Park all of N1",
+                "desc": "No naming work until the simplification is done"
+              }
+            ]
+          },
+          {
+            "id": "N2-state-verb",
+            "bucket": 1,
+            "wave": "state changes",
+            "title": "How do lev entities change state?",
+            "insight": "When a task goes from in progress to done: its own command (`lev task done T1`) or one generic command (`lev task move T1 done`)? **Blind, 4 of 4 models expected named commands. Informed: 3 named (GLM, Opus, Fable) vs 1 generic move (codex).** The deciding point: agent clients approve tools by name, so named commands let you allow `block` and gate `archive`. Cost: about 30–40 more MCP tools across entity types. Note: Fable suggested keeping `workstream update --status` for one release as an alias, which breaks the no-shims hard-cutover rule; a ruling would drop that part.",
+            "detail": "- verified: informed picks. glm C (seat-state-verb-glm.md:1), opus-clean C (courier text), codex B (seat-state-verb-codex.md:1), fable-clean empty ('Complete.')\n- verified: blind Part 2b, 4/4 C (seat-blind-cli-codex.md:31, seat-blind-cli-glm.md:29, plus both clean seats). 3 of 4 wanted `update --status` as a fallback\n- verified: every command becomes one MCP tool (core/poly/src/surfaces/mcp/tools.ts:69-101) and one POST route (core/poly/src/surfaces/http/index.ts:158-172), so C needs no new plumbing and B needs no new plumbing either\n- verified: today `lev task` has only `validate` (timeout 60 lev task --help); workstream uses a generic setter with active|paused|completed|superseded (core/workstream/src/schema.ts:26)\n- verified: lifecycles declare states only (plugins/sdlc/config.yaml:73-79); task is an alias of execution_packet with no states (:80-89)\n- verified: spec transitions are judged by a language-model prompt (plugins/sdlc/flows/spec-lifecycle.flow.yaml:70-106), which conflicts with the deterministic-gate doctrine (inference)\n- **Why the pick:** C has 2 of 3 answering informed seats across two model families (Z.ai, Anthropic), and all 4 blind seats (three families) guessed it first. That matters for agents who will guess commands without reading docs. The deciding argument is that agent clients approve tools by name. Only C lets the operator auto-allow `task_block` while gating `task_archive`. The one dissenting seat (codex, B) names that same need as its own reason to switch to C. C also fits the existing one-command, one-tool, one-POST projection with no new plumbing, and it replaces the language-model transition judge with declared data. This is a majority, not consensus: the codex dissent is substantive (tool count, the need for revisions and idempotency on any option), and the second Anthropic seat is missing.\n- **Confidence:** Medium. 2-1 among answering informed seats, with fable-clean missing; a B vote there would make the result divergent, 2-2. Blind 4/4 supports C. The main cost (tool count hurting agents) is unmeasured. Before this becomes law: re-run fable-clean, and adopt codex's revision and idempotency requirement whichever option wins.",
+            "options": [
+              {
+                "label": "A. Generic setter (`lev task update T1 --status done`)",
+                "desc": "State is an editable field checked by a validator. One tool per type. No informed seat picked it. Opus-clean rejects it because Google's AIP-216 says state should be output only, and because 'status' already names the root command. 3 of 4 blind seats expected it only as a fallback."
+              },
+              {
+                "label": "B. Generic move (`lev task move T1 done`)",
+                "desc": "Codex's pick. One `task_move` tool and one `POST /api/task/move` route per type, with mandatory declared from/to pairs, an expected revision and an idempotency key. The cost: no per-transition approval, a shared bag of arguments (`--on` only makes sense for blocked), and ambiguity when two events reach the same state (start and unblock both reach in_progress)."
+              },
+              {
+                "label": "C. Named transitions (`lev task done T1`, `lev task block T1 --on T2`)",
+                "desc": "The tribunal's leading pick (glm, opus-clean; 4/4 blind). Each lifecycle declares events as data. Each event becomes one CLI verb, MCP tool, SDK method and POST route. Illegal events fail with the current state and the allowed events. Costs about 30-40 MCP tools across types. Open sub-questions: task start vs work start, archive vs restore, reopen reason, renaming the status field to state.",
+                "recommended": true
+              },
+              {
+                "label": "D. Hybrid (C plus `lev task transition T1 <event>`)",
+                "desc": "No seat picked it. Glm and opus-clean both reject it because one generic tool bypasses every per-tool approval. The blind seats' instinct to keep a generic fallback lands closest to this option."
+              },
+              {
+                "label": "E. Desired-state reconciliation (`lev task apply T1 --desired done`)",
+                "desc": "No seat picked it. Codex defers it until durable reconciliation is actually needed. Glm and opus-clean reject it: it hides which events fired and their side effects while other agents act on the same entity, and it cannot collect per-event arguments."
+              }
+            ]
+          },
+          {
+            "id": "N2-dna-role",
+            "bucket": 2,
+            "wave": "dna + nouns",
+            "title": "What dna/ should be from now on",
+            "insight": "dna/ mixes four things today: repo-wide intent, contracts for single modules, lists that running code reads, and 12k lines of outside notes. Running code reads 6 of its files and writes a seventh. The open-source copy ships only one of those six. In 5 of 8 facts checked, dna/ and module config disagree. Existing canon already says lists should be derived, and poly already builds commands from each module's config.yaml. So shrink dna/ to repo-wide intent that no running code imports. Each module then owns its own facts: entity types and states go in its config.yaml, CLI nouns come from its folder names (config.yaml only overrides), and its contract lives in a DNA file next to its code. Gates find all of this by folder convention, not from a list. Deleting dna/ outright leaves the thesis and vocabulary with no home. Generating config from dna/ brings back the registry you rejected.",
+            "detail": "- verified: dna/fractal.yaml:6 'Registries are derived artifacts'; dna/core/poly.dna.yaml:73-74 registry_is_derived\n- verified: runtime reads at core/config/src/entity-roots.ts:112, core/config/src/config-loader.ts:1475, core/config/src/module-data-declarations.ts:279, core/lifecycle/src/vocab.ts:11, core/lifecycle/src/envelope.ts:15, core/uri/src/manifest.ts:61\n- verified: runtime write at core/context-graph/src/handlers/ratchet-admission.ts:272 (dna/graph.yaml, via MCP tool at core/context-graph/src/surfaces/mcp.ts:220)\n- verified: core/exec/src/execution/preflight.ts:66-80 puts the dna/gates.yaml criteria in front of every run prompt\n- verified: tooling/oss-boundary.json:59-62 ships graph, entities, vernacular and testing only. Inference: core/lifecycle, core/uri and data declarations fail or fall back in a shipped install (not probed)\n- verified (find/wc): 179 files, 39,714 lines. Repo-wide intent 16.7%, module contracts 30.6%, external notes 31.5% (class labels are judgment)\n- **Why the pick:** This is the only option that meets all three of your constraints: dna is intent, dna is not imported, and there are no YAML registries. It reuses conventions that already work (poly reads config.yaml, sdlc declares entity_definitions, 3 plugins keep their own dna/, task packets use per-folder dna.yaml). It also fixes a real product bug: running code reads files the open-source copy does not ship.\n- **Confidence:** medium-high. The direction is well supported. Still open: the name of the module-local DNA file, where the 14 skills intents go, and whether each of the 395 dna/core check commands is truly module-local (only 15 of 41 files mention no other module).",
+            "options": [
+              {
+                "label": "Intent root, modules own the rest",
+                "desc": "dna/ keeps only repo-wide intent, about 40 files: thesis, graph principles, vernacular, the core and plugin contracts, cross-module architecture, testing taxonomy and authoring rules. Module contracts move next to their module; you pick the file name. Module facts go in config.yaml, and nouns come from folders. Runtime-read files move to their owners: emotes and the lifecycle schema to core/lifecycle, uri-schemes to core/uri, entities to workstream and sdlc. Data roots are derived from config data blocks. external/ leaves dna/. Order: cut the runtime reads first. Then move entities, with a scan-and-collide check in core/config. Then move module contracts and switch ratchet and validator discovery to a glob in the same commit. Delete entities.yaml last and replace its gate with a one-owner-per-type gate.",
+                "recommended": true
+              },
+              {
+                "label": "Colocate everything, dissolve dna/",
+                "desc": "The same moves, and then thesis, vernacular and the architecture concepts also leave dna/, which is deleted. One rule covers everything. But repo-wide intent has no owning module, the authority stack in AGENTS.md, dna/index.yaml and lev-canon must be rewritten, and all 179 files move."
+              },
+              {
+                "label": "Central dna/, generated module config",
+                "desc": "Keep dna/ as the place you write things and compile sections into config.yaml. Nothing moves, but it adds a codegen step and generated blocks inside hand-edited files, where hand edits get overwritten. It also brings back the authored registry you rejected."
+              },
+              {
+                "label": "Only cut runtime reads",
+                "desc": "Move the 7 runtime-read files to their owners and leave dna/core and dna/plugins central. Cheap, and it fixes the shipped-install bug. But contracts stay in a different tree from their code, and the drift between lists and config continues."
+              }
+            ]
+          },
+          {
+            "id": "N2-entities-home",
+            "bucket": 2,
+            "wave": "dna + nouns",
+            "title": "Where entity types, states and roots should be declared",
+            "insight": "Entity types are declared in at least five places: dna/entities.yaml, sdlc config.yaml, the project .lev/config.yaml, code type lists in plugins/now and core/flowmind, and 14 template folders. Plan states differ across four of these sources. Running code reads only one thing from dna/entities.yaml, the decision roots, and the code already has its own copy of them. The simplest home is the owning module's config.yaml. Each module declares the types it owns, with states, roots and a schema file in its own schemas/ folder. core/config builds the index by scanning module configs, as it already does for data blocks. If two modules claim one type, the build fails. The same check should cover CLI nouns, so the task entity and `lev task` cannot end up in different modules. Owners follow your 09-26 ruling: task and session to workstream, work to sdlc, vault to plugins/vault. Graph is still open.",
+            "detail": "- verified: dna/entities.yaml:31-286 (9 types, pm family, task block)\n- verified: core/config/src/entity-roots.ts:53-62 and :112-125 read only the decision roots, and a hard-coded fallback copy already exists\n- verified: plugins/sdlc/config.yaml:73-105 entity_definitions (precedent)\n- verified: plan states disagree across plugins/sdlc/config.yaml:76, .lev/config.yaml:1101, dna/entities.yaml:90 and .lev/pm/plans/_template/schema.json\n- verified: plugins/now/src/lev/entities.ts:10 still lists kinds that dna/entities.yaml:163-170 marks as consolidated\n- verified: task storage path dna/entities.yaml:250 says .lev/tasks, but core/exec/src/exec-command/admission.ts:58 and disk use .lev/pm/tasks (285 dirs vs 1)\n- **Why the pick:** It follows an existing precedent (sdlc entity_definitions) and reuses the core/config scanner. It puts states next to the code that enforces them, which is the likeliest fix for the four-way plan-state drift. And it matches the entity owners you already ruled.\n- **Confidence:** medium-high. Open: the owner of graph and parity-entry, and whether project .lev/config.yaml may still override states or may only extend them.",
+            "options": [
+              {
+                "label": "Owning module's config.yaml declares its entities",
+                "desc": "Each module's config.yaml gets an entities block, grown from sdlc's entity_definitions, with states, roots, naming and a schema path in the module's schemas/ folder. core/config builds the index by scanning, and two claims on one type fail the build (the same check covers CLI nouns). Entity identity addresses move to core/uri. The consolidated-types list moves to the vernacular retired list. A `--json` listing command replaces any YAML registry. The entities.yaml gate is replaced with a one-owner-per-type gate.",
+                "recommended": true
+              },
+              {
+                "label": "Folder-per-entity convention",
+                "desc": "An entity type is a folder, <module>/entities/<type>/, holding its schema and template, with no list anywhere. This is the most file-based option, but it adds a new folder convention and more files. The existing .lev/pm/*/_template folders show the risk: type definitions mixed in with project data."
+              },
+              {
+                "label": "Code type lists in core/domain",
+                "desc": "Entity kinds live in code only. This removes the YAML, but projects can no longer add types through config, and it breaks the rule that domain holds only types used by two or more contexts."
+              },
+              {
+                "label": "Keep dna/entities.yaml as a generated view",
+                "desc": "Build it from module declarations for agents and the open-source copy. This keeps a registry-shaped file you said you do not want. A CLI listing does the same job without one."
+              }
+            ]
+          },
+          {
+            "id": "N2-noun-convention",
+            "bucket": 2,
+            "wave": "dna + nouns",
+            "title": "How `lev <noun> <verb>` should come from the filesystem",
+            "insight": "Today the root word is the handler file name, and whichever package is scanned first wins it. Losers vanish silently, which is why 19 words have several owners. Make the package folder the noun and the handler file the verb, and all 19 split onto separate paths with no config. Canon already asks for this, and HTTP, MCP and UI already work this way. The open piece is extra nouns: workstream will own task and session, and autoresearch presents experiment and content. Recommended: a handler subfolder with no index file is an extra noun. A subfolder with an index file stays one multi-file verb, as today. A one-line config override only renames a module's own noun (graph, maybe evolve or hand). Every choice here needs your open fork ruled yes: may a module claim a noun other than its folder name? The worker command `lev graph patch` is not covered; the graph card decides it.",
+            "detail": "- verified: core/poly/src/registry/commands.ts:190 makes the root word the handler file name; :200 and :231 let the first writer win\n- verified (this merge): commands.ts:176-184 already treats a handler folder with index.js/index.ts as one command. core/index/src/handlers/find/ is 8 files under index.js; plugins/sdlc/src/handlers/session/ has index.ts plus bootstrap.ts\n- verified: commands.ts:369, :387, :398 and :401 already scope HTTP, MCP and UI by package\n- verified: dna/core/poly.dna.yaml:266 'lev workstream create/show/list/update by fractal convention' (aspirational); dna/fractal.yaml:129-139 says the module name is the address segment, with no stutter\n- verified (simulation against the real loader): 19 of 19 contested words resolve, and 5 same-package duplicates appear. 1 is real: plugins/browser browse.ts vs browser.ts\n- verified: 0 of 108 config.yaml files declare a noun today\n- **Why the pick:** This is pure file-based routing, which is what you asked for. It keeps `lev task validate` stable for the 22 files that cite it, handles multi-noun packages like autoresearch without a list, and needs at most a handful of one-line renames. Collisions fail at build time instead of being settled by load order.\n- **Confidence:** medium. The counts come from a simulation against the real loader's claims. The 'same stem' test is a heuristic (it decides validator/validate and browse/browser), the key name is not in the vernacular yet, and the noun-claim fork is unruled.",
+            "options": [
+              {
+                "label": "Folder is the noun, plus a one-line rename",
+                "desc": "Noun = package folder, verb = handler file. A repeat or same-stem word collapses (the stutter rule), and any collision fails the build. The config.yaml line `poly: noun: graph` renames a module's own noun (the key name is yours to pick). Resolves 19 of 19 conflicts. But task and session are reachable only as `lev workstream task validate`, which breaks the 22 files citing `lev task validate`, and autoresearch cannot express three nouns."
+              },
+              {
+                "label": "Above, plus index-less handler subfolders as extra nouns",
+                "desc": "The same as the first option, plus `src/handlers/<noun>/<verb>.ts` with no index file gives a package another noun with zero config. core/workstream/src/handlers/task/validate.ts serves `lev task validate`, and autoresearch uses content/ and experiment/ subfolders. A folder that has an index file stays one multi-file verb, so core/index's find/ needs no flattening. Two packages claiming the same noun fails the build. sdlc's session/ moves to workstream per the ruling.",
+                "recommended": true
+              },
+              {
+                "label": "Per-package noun list in config.yaml",
+                "desc": "`poly: nouns: [workstream, task, session]`. This is config, not convention. Each handler still needs a mapping to its noun, which brings back a small registry in every package."
+              },
+              {
+                "label": "Keep flat roots, fix conflicts by renaming",
+                "desc": "The 19 conflicts and the load-order winners stay until someone renames them. This contradicts the ruled `lev <noun> <verb>` grammar and the rule that a collision fails the build."
+              }
+            ]
+          },
+          {
+            "id": "N2-orchestration-and-task",
+            "bucket": 2,
+            "wave": "dna + nouns",
+            "title": "Getting `lev task` out of orchestration",
+            "insight": "`lev task` runs core/orchestration's task handler today (a live probe reports it as orchestration.task). You ruled that task belongs to workstream, not orchestration. But canon gives the readiness logic behind the command (950 lines) to orchestration, and workstream is not allowed to import orchestration. The smallest honest move is to relocate only the thin CLI handler and file a fork to allow that one import edge. Moving the logic too means rewriting ownership canon and touching about 23 files plus 20 test fixtures. This keeps `lev task validate` working only if you pick the subfolder option on the noun card. The wider orchestration cleanup is a separate job: about 47% of its code looks misplaced, including git worktrees, a persistent queue, a session writer and the CDO runner.",
+            "detail": "- verified live: `LEV_ROOT=. timeout 60 bun core/poly/bin/lev task --help --json` returned operation.id orchestration.task, exit 0\n- verified: core/orchestration/config.yaml:55-57 declares task and core/orchestration/src/handlers/task.ts (180 lines) handles it\n- verified: ruling at .lev/pm/decisions/20260926-n1-command-namespace-tribunal.yaml:96 (task goes to workstream) and :101 'lev task does NOT belong to orchestration'\n- verified: dna/architecture/core-boundaries/concept.yaml:97 gives orchestration task_admission. :206 lets workstream import only domain, config and utils. :207 bars exec from importing workstream\n- verified: the readiness logic is imported by core/exec at preflight.ts:6, task-backed-completion.ts:8 and handlers/trace.ts:17\n- verified: orchestration has 13,461 non-test lines and 11 imports outside its allowlist. Inference: about 6,390 lines look misplaced (classified from file headers)\n- **Why the pick:** It meets your ruling with the smallest diff that can be undone, and leaves the readiness logic with its canon owner. The one locked-rule crossing (the import allowlist) becomes an explicit fork instead of a silent override. The cleanup should still run later, as its own audited job.\n- **Confidence:** medium. File counts come from rg lists and are approximate. The allowlist change needs your ruling, and the path `lev task validate` depends on the subfolder option on the noun card.",
+            "options": [
+              {
+                "label": "Move only the CLI handler, keep the logic, file a fork for the import",
+                "desc": "Move handlers/task.ts and its test into core/workstream as handlers/task/validate.ts. The readiness logic stays in orchestration. File a numbered fork to add orchestration to workstream's allowlist at concept.yaml:206. About 7 files.",
+                "recommended": true
+              },
+              {
+                "label": "Move the handler and the readiness logic",
+                "desc": "Move task-readiness.ts, task-exit-requirements.ts, their tests and 20 fixtures into workstream. This changes the ownership in concept.yaml:97 and exec's allowlist at :207, and touches about 23 referencing files."
+              },
+              {
+                "label": "Readiness port in core/domain",
+                "desc": "Put a readiness interface in core/domain. Orchestration implements it and exec wires it in. The workstream handler calls it with no direct import. Cleanest boundary, but it adds an interface and wiring for one CLI command."
+              },
+              {
+                "label": "Defer until a full orchestration cleanup",
+                "desc": "First run a placement pass: cdo to plugins/cdo, primitive types to domain, git worktree and the queue to their effect and ledger owners, session-writer to workstream, workflow-loader to config/flowmind. Then move task as part of it. `lev task` stays in orchestration against your ruling until then."
+              }
+            ]
+          },
+          {
+            "id": "N2-belong-to-poly",
+            "bucket": 3,
+            "wave": "root words",
+            "title": "What 'belong to poly' means",
+            "insight": "'Belong to poly' means no single module owns the word; the host does. core/poly is the program that reads every module's config.yaml and handler files and builds the lev CLI, MCP tools and HTTP routes from them. The host answers a verb in one of two ways. It can answer by itself: help lists what poly built, and version reads lev's own version. Or it can fan out: ask every module the same question and merge the replies. Today only help and version are poly's. `lev status` belongs to core/daemon only because core packages sort first, and it fails with exit 2. `lev doctor` is core/build's fixed checklist. Your ruling makes status and doctor fan-outs: each module ships a small probe, and poly collects the results. Seven modules claim the bare word status today, and 18 declare some kind of status command.",
+            "detail": "- verified: core/poly/src/surfaces/cli/index.ts:194-207 (version) and :209-212 (help) are poly's own. Live `lev version --json` gave 1.0.0, exit 0\n- verified: core/daemon/config.yaml:58-60 plus commands.ts:231 first-writer-wins. Live `lev status --json` returned UNIMPLEMENTED_COMMAND_SURFACE, exit 2\n- verified: core/build/src/handlers/doctor.ts:585-607 hardcodes 6 categories. Live run gave 35 checks: 12 pass, 23 warn\n- verified: 7 modules claim the bare word status (daemon, orchestration, autowiki, genui-exec-daemon, platforms, watchdog, workflow-orchestrator). 18 modules declare some status handler, sdk entry or surface, for example plugins/vault/config.yaml:80\n- verified: ruled meta list 'status, doctor, help, version', status never fails, 'Snapshot + --deep' at .lev/pm/decisions/20260926-n1-command-namespace-tribunal.yaml:89-93\n- verified: a fan-out already exists inside one owner at core/index/src/handlers/find/index.js:133-134\n- **Why the pick:** It matches your ruling (status observes, doctor fails, snapshot plus --deep). It reuses status commands that 18 modules already declare, and it ends the sort-order accident that hands status to core/daemon.\n- **Confidence:** high on the explanation. Medium on the probe mechanism: nothing is built yet, the probe contract (result shape, time limit, hang handling) is undefined, and `lev autowiki status` was seen hanging earlier.",
+            "options": [
+              {
+                "label": "Confirm the reading",
+                "desc": "help and version are poly's own. status and doctor fan out over per-module probes, each declared in that module's config.yaml. status always exits 0; doctor fails when any probe fails. --deep switches the status probes from a snapshot to a live check.",
+                "recommended": true
+              },
+              {
+                "label": "Status and doctor stay with one module each",
+                "desc": "Reserve the words at the root but let one module answer each, for example core/build keeps doctor. Simpler, but that owner has to know every other module's health."
+              },
+              {
+                "label": "Worked example first",
+                "desc": "Before ruling, see one module's probe and the merged `lev status` output."
+              }
+            ]
+          },
+          {
+            "id": "N2-conveniences",
+            "bucket": 3,
+            "wave": "root words",
+            "title": "lev init / lev upgrade, and lev sdlc work vs lev work",
+            "insight": "Your ruling allows three kinds of root word: a module's own name (lev exec), poly's own verbs (help, version), and fan-outs (status, doctor). lev init and lev upgrade are none of these. Both belong to core/build, so the strict rule makes them lev build init and lev build upgrade. Today lev upgrade quietly runs install, so the real upgrade handler never runs. core/onboarding also holds install and init logic, but nothing calls it. Cleanest fix: installing and upgrading lev is the host's own job, like version, so add two host verbs. That changes your ruled list of four, so record it as a new ruling. Work is simpler. You gave work to sdlc and preferred lev sdlc work, which is plain noun plus verb under the folder rule. Root lev work and the go alias go away. Today lev sdlc work fails.",
+            "detail": "- verified: core/build/src/handlers/init.ts, install.ts, upgrade.ts and doctor.ts all have a single owner\n- verified: core/build/config.yaml:22 `aliases: [upgrade]`. Live `lev upgrade --help` printed the install help, so upgrade.ts never runs\n- verified: core/onboarding/config.yaml:5-10 describes install/init lifecycle; rg '@lev-os/onboarding' finds no user besides core/config/src/modules.ts\n- verified: plugins/sdlc/src/handlers/work.ts:100-117 is the root `lev work` stage router. Live `lev sdlc work` returned 'Unknown sdlc subcommand: work' (sdlc.ts:139-143)\n- verified: ruling at .lev/pm/decisions/20260926-n1-command-namespace-tribunal.yaml:89-90: meta list is 'status, doctor, help, version', meta aliases 'No', and the note asks for init/upgrade and prefers lev sdlc work\n- verified (this merge): dna/vernacular.yaml:1018-1023 still names `lev work assign/start/release` under core/workstream/src/handlers/work/. That is stale against the ruling that work goes to sdlc\n- **Why the pick:** Setting up and upgrading lev is about the host itself, just like version. So this adds two words without letting any module mint shortcuts, and it answers the explanation the ruling says is owed. lev sdlc work already fits the rule, so work needs no exception.\n- **Confidence:** medium-high. It amends a recorded ruling, so it must be logged as a new ruling. Whether core/onboarding is meant to replace core/build's handlers is unverified.",
+            "options": [
+              {
+                "label": "init and upgrade become host verbs",
+                "desc": "The host list grows to status, doctor, help, version, init and upgrade, recorded as an amendment to your ruled list of four. Poly owns the words and calls the install code: core/build now, core/onboarding if it ever gets wired in. upgrade means install --force, which also fixes the shadowed handler. Work becomes `lev sdlc work`; delete the root `lev work`, the go alias, and the stale vernacular entry.",
+                "recommended": true
+              },
+              {
+                "label": "A module whose own name is the verb",
+                "desc": "Create or rename modules called init and upgrade. This obeys the letter of the rule, but one module per verb is not a real boundary."
+              },
+              {
+                "label": "Modules declare aliases in their own config.yaml",
+                "desc": "Aliases show in help, and a clash fails the build. This half-exists already. It contradicts your 'No' ruling and the rule that leaf packages must not mint command names, and it reopens the root to roughly 200 words."
+              },
+              {
+                "label": "Hold now, promote later",
+                "desc": "Ship the strict rule now (lev build init, lev sdlc work). Later, promote a few shortcuts through one short list owned by poly, as your note suggested."
+              }
+            ]
+          },
+          {
+            "id": "N2-search",
+            "bucket": 3,
+            "wave": "root words",
+            "title": "Who answers search, find and research",
+            "insight": "Single owner means one module answers. lev research asks only plugins/research. Fan-out means one command asks many modules and merges what comes back. Local search already fans out, but inside one module: lev find is core/index, which queries its own sources (code, docs, tasks, memory, graph) and merges the results. A live run just hit 3 of them. A root fan-out would duplicate that work. Meanwhile 'search' means three different things. CLI lev search goes to a platform-API catalog and fails. The help text calls it index search. The MCP tool lev_search runs index find. 'Context' has no search owner either: plugins/context compresses conversations, and root lev context is code-graph symbol lookup. Simplest answer: no root search. Use lev research for the web and lev index find for local search.",
+            "detail": "- verified live: `lev search foo --json` goes to knowledge-registry.search, not_implemented, exit 2 (plugins/knowledge-registry/config.yaml:56-58)\n- verified: core/poly/src/surfaces/cli/envelope.ts:327 help says 'semantic index search'; core/index/config.yaml:332-337 maps MCP lev_search to index find\n- verified: core/index/src/handlers/find/scope-mapper.js:24-40 and find/index.js:133-134 fan out internally. Live `lev find` ran ck, bd and ephemeral sources, exit 0\n- verified live: `lev index find foo` returned UNKNOWN_INDEX_SUBCOMMAND, exit 1 (core/index/src/handlers/index.js:185-216)\n- verified: docs/specs/spec-index.md:68-69 keeps web research fan-out in lev research\n- verified: plugins/context/config.yaml:10 is conversation compression. Live `lev context --help` printed code-graph usage\n- **Why the pick:** core/index is already the one place where local search results come together, and research already owns the web. Option A follows your 'only a module's own name' ruling without new machinery or a second ranking engine.\n- **Confidence:** medium. The cost is 137 mentions of 'lev find' across 38 files (not counting .lev/, tests/ and tooling/).",
+            "options": [
+              {
+                "label": "No root search; each module under its own noun",
+                "desc": "`lev research <q>` for the web and `lev index find <q>` for local search. Under the folder rule, poly's two-word dispatch can reach find/ directly; if not, the index handler adds a find route. Graph queries go under the graph noun. Delete root search, root find and the lookup alias, and update the 38 files that cite lev find.",
+                "recommended": true
+              },
+              {
+                "label": "lev find as a host fan-out",
+                "desc": "Poly asks every module that declares a find ability (index, research, context-graph, code-graph, memory) and merges the results. This keeps `lev find`, but poly would need its own ranking, which duplicates core/index's merging. Research is also slow and uses the network."
+              },
+              {
+                "label": "research owns search",
+                "desc": "Root search goes to plugins/research, which already has `lev research search`, and local search stays under index. That still leaves one module owning a root word that is not its own name."
+              },
+              {
+                "label": "Shortcut later, or finish index gather",
+                "desc": "Keep root `lev find` as a shortcut to `lev index find`, promoted later through a short list owned by poly. Or finish `lev index gather` (find plus optional research), which already exists but does not have research wired in (gather.js:110)."
+              }
+            ]
+          },
+          {
+            "id": "N2-security",
+            "bucket": 4,
+            "wave": "owners",
+            "title": "core/security: what it is, and where taint + SSRF should live",
+            "insight": "core/security is a spike from March, merged on 09-26, that bundles seven small defensive helpers. Nothing imports it and it is not in the pnpm workspace, so CI never builds or tests it. Two pieces are new. Taint labels mark data as trusted or untrusted and carry the mark onto anything made from it. The SSRF check refuses URLs that point at private networks or cloud metadata. Both have passing tests (25 of 25 under bun). The other five either duplicate an owner that already exists or have no tests and no users. The injection scanner copies guardrails, Receipt copies EffectReceipt and EvalDecision, and the hash chain copies the Rust lev-audit crate. Security already lives in three plugins: guardrails filters LLM input and output, defendr scans code before install, and vault holds secrets. A new plugins/security would be a fourth home.",
+            "detail": "- verified: `cd core/security && bun test src/handlers/__tests__/` gave 25 pass, 0 fail\n- verified: 0 importers (rg \"from '@lev-os/security\"); not in pnpm-workspace.yaml (grep exit 1)\n- verified: taint and SSRF exist nowhere else. rg for ssrf, taint and 169.254.169.254 outside core/security finds 0\n- verified: three injection pattern lists: core/security/src/handlers/injection-scanner.ts:46, plugins/guardrails/src/detectors/injection-detector.ts:11 (tested, 5/5) and plugins/defendr/src/scanners/static.ts:153\n- verified: Receipt duplicates EffectReceipt at core/domain/src/effect-control-record-contract.ts:230 and EvalDecision at core/eval/src/eval-decision.ts:51\n- verified: the hash-chain owner is Rust, crates/lev-audit/src/integrity.rs:37-42. core/execution-ledger has no chain, so the earlier decision page was wrong\n- **Why the pick:** It keeps the one tested injection owner, mints no names, deletes the five duplicated or untested pieces, and puts taint and SSRF next to the runtime middleware that would enforce them. If you want the word 'security' on it, the rename option gets you that without adding a fourth home. Neither option creates a caller: the first tool that fetches URLs still has to wire in the SSRF check.\n- **Confidence:** medium. The ownership and duplication facts are verified. Whether taint belongs in guardrails or in effect policy, where outbound network effects are decided, is a judgment call with no consumer to test against. core/security typecheck was not run.",
+            "options": [
+              {
+                "label": "New plugins/security holding taint + SSRF",
+                "desc": "Move taint-tracker.ts, 4 types and 17 tests into a new plugin and delete core/security. This mints plugins/security and `lev security`. The injection detector cannot come along unless the whole guardrails engine moves. defendr would still also claim the word security."
+              },
+              {
+                "label": "Taint + SSRF into plugins/guardrails",
+                "desc": "Move the same 3 files into guardrails/src/detectors and switch the tests to vitest. Add the taint_tracking and ssrf_protection capabilities, and delete all 14 core/security files. Mints no names. guardrails keeps the one tested injection detector, and its middleware wrap() is the natural place to enforce these checks later.",
+                "recommended": true
+              },
+              {
+                "label": "Delete everything now",
+                "desc": "Delete all 14 files and keep the design spike plus commit fb97c0774 as the record. Re-extract when something that fetches URLs or tracks data flow needs it. This conflicts with your rule to drop only when there is no live intent, and the spike is still a live draft."
+              },
+              {
+                "label": "Rename guardrails to security, then do the guardrails move",
+                "desc": "One home for runtime guards under the word you reached for: plugins/security, @lev-os/security, `lev security scan/audit`, plus core/config/src/modules.ts:53. It is a rename, not an addition. defendr's description would need narrowing to supply-chain scanning."
+              }
+            ]
+          },
+          {
+            "id": "N2-graph",
+            "bucket": 4,
+            "wave": "owners",
+            "title": "Who owns the noun \"graph\"",
+            "insight": "'Graph' means at least twelve things here. The canonical one is the knowledge graph in core/context-graph, and the boundary file names that package as its owner. But today `lev graph` is served by core/exec and does one thing: a worker submits its proof claim, and every worker is told to type `lev graph patch`. context-graph has its own, different graph-patch command that applies raw graph edits. It sits at `lev graph-patch` next to 15 other graph-* words that nothing references. If context-graph simply takes the noun graph, `lev graph patch` would silently switch to that raw-edit command and break every worker. Separately, code-graph hides discourse-graph's query and analyze commands. So context-graph can own graph only with one recorded exception, or the worker command has to be renamed.",
+            "detail": "- verified: core/exec/config.yaml:125-167 binds `graph` to src/handlers/done.ts as lev.graph.patch (http /api/lev/graph/patch, mcp lev_graph_patch). Live `lev graph --help` confirms\n- verified (this merge): core/exec/src/handlers/done.ts:20 and :156 submit the Claim through exec's claim-admission, which writes the ledger\n- verified (this merge): core/context-graph/src/handlers/graph-patch.ts:451-463 is a separate exported handler. It applies raw JSON graph operations, returns the schema when given no operations, and rejects claim-scoped use. So it is not the worker claim path\n- verified: dna/architecture/core-boundaries/concept.yaml:128-130 and :242-244 give context-graph entity_graph, graph_queries and knowledge_graph\n- verified: dna/vernacular.yaml:167-168 defines graph_patch as 'an aligned proposal expressed as graph operations'\n- verified: worker contract at core/orchestration/src/completion/completion-instruction.ts:97,102 and core/domain/src/claim.ts:75. The research counted 10 non-test files citing `lev graph patch`; this merge's rg over core, plugins and .lev/flows found 13\n- **Why the pick:** graph + patch is the right noun and verb (a claim is a proposed graph change), and context-graph is the canon owner. Keeping `lev graph patch` byte-identical avoids touching the worker contract, which every dispatched worker depends on. The price is one recorded binding exception, forced by the rule that only exec writes the ledger, plus renaming context-graph's raw patch command. The strict option is purer but spends a worker-contract rename to avoid that exception.\n- **Confidence:** medium-low. The facts and import limits are verified. Unverified: whether poly can bind one verb under a noun to a different module, and whether context-graph's raw graph-patch command has MCP or script users that a rename would break.",
+            "options": [
+              {
+                "label": "context-graph owns `lev graph`; exec keeps `patch` as one recorded exception",
+                "desc": "The 17 graph-* roots become `lev graph <verb>` (query, export, health and so on), which is free because nothing references them. First rename or hide context-graph's own raw graph-patch command (the new name is yours). `lev graph patch` stays byte-identical for workers and is still served by core/exec, because only exec writes the ledger. code-graph and discourse-graph go to their own folder-name roots, which ends the shadowing. Needs the noun-claim fork ruled yes, plus one recorded exception to 'one module per noun'.",
+                "recommended": true
+              },
+              {
+                "label": "Strict folder rule: `lev context-graph <verb>`, claim submission under `lev exec`",
+                "desc": "Needs no exception and fits the noun card exactly. But it renames the worker contract in 10-13 source and flow files, the test fixtures and the pi claim-wait parser, and mints a new exec verb. 'graph' stops being a root word."
+              },
+              {
+                "label": "Status quo: core/exec keeps `lev graph`",
+                "desc": "No churn. But the root word graph then means proof submission, not the knowledge graph the boundary file names, and the 17 flat graph-* words stay."
+              },
+              {
+                "label": "Defer the noun, fix the side issues now",
+                "desc": "Hold the graph noun until the namespace rules are ruled. Meanwhile, fix only the discourse-graph shadowing and the duplicate TrustGraph adapters as separate jobs."
+              }
+            ]
+          },
+          {
+            "id": "N2-matrix",
+            "bucket": 5,
+            "wave": "loose ends",
+            "title": "Delete .lev/matrix (6 files that drive the deleted packages)?",
+            "insight": "Follows your \"same PR follows the package decisions\" ruling: every scenario drives a2a, agent-fs, credential-vault or flowmind-memory, none is security-only. The permission classifier blocked `trash` twice, so I did not work around it.",
+            "detail": "- To do it yourself: `! trash .lev/matrix/README.md .lev/matrix/scenario-1-context-graph.yaml .lev/matrix/scenario-2-credential-rotation.yaml .lev/matrix/scenario-3-memory-seeding.yaml .lev/matrix/scenario-4-a2a-pingpong.yaml .lev/matrix/scenario-5-scratch-workspace.yaml`\n- The two draft plans that mix deleted packages with the held security section are marked superseded, with a header scoping the ruling to the deleted parts.",
+            "options": [
+              {
+                "label": "Delete them (I will run the command)",
+                "desc": "Or tell me to retry and approve the prompt",
+                "recommended": true
+              },
+              {
+                "label": "Keep them",
+                "desc": "They stay as records of the old matrix eval"
+              }
+            ]
+          },
+          {
+            "id": "N2-bare-noun",
+            "bucket": 5,
+            "wave": "loose ends",
+            "title": "What should a bare noun report as its operation?",
+            "insight": "`lev workstream list --json` now reports `workstream.list` (was `workstream.workstream`). A bare `lev workstream` still reports `workstream.workstream`. You ruled the bare noun runs the module's default verb.",
+            "detail": "- The fix left a 9-verb table for deploy, dna validate and index until poly's registry loads each module's declared `subcommands:`; that is the follow-up that deletes the table.\n- It also adds one registry scan per process when a module-named command gets a verb (~0.3–0.9 s at today's load); reusing the CLI's loaded registry removes it.\n- An unknown verb (`lev workstream bogus`) keeps reporting the noun, so free text never lands in operation ids.",
+            "options": [
+              {
+                "label": "Report the default verb",
+                "desc": "Each module names its default verb in its own config.yaml; `lev workstream` reports workstream.list",
+                "recommended": true
+              },
+              {
+                "label": "Keep noun.noun for bare calls",
+                "desc": "No declaration needed"
+              }
+            ]
+          },
+          {
+            "id": "N2-memory-admission",
+            "bucket": 5,
+            "wave": "loose ends",
+            "title": "Enforce memory write admission on every store, or keep it a library?",
+            "insight": "The flowmind-memory write rules (not derivable from code, summary ≤150 chars, 500 entries / 64KB, decay below 0.1 = prune) now live in core/memory. Nothing calls them yet.",
+            "detail": "- Enforcing inside `HybridMemoryOrchestrator.store` changes behavior for every existing caller.\n- The gates take an index/summary shape that today's store paths do not carry.",
+            "options": [
+              {
+                "label": "Library now, enforce when an index writer exists",
+                "desc": "The first MEMORY-index writer calls writeGate; store() unchanged",
+                "recommended": true
+              },
+              {
+                "label": "Enforce in store()",
+                "desc": "Every memory write passes derivability at least"
+              }
+            ]
+          },
+          {
+            "id": "N2-spec-forks",
+            "bucket": 5,
+            "wave": "loose ends",
+            "title": "Six spec questions the ideal-state cleanup opened",
+            "insight": "Stripping \"current state\" out of 19 specs exposed places where the ideal behavior was never decided. The specs now say nothing on these until you rule.",
+            "detail": "- **Context-graph extract source:** may handlers pass precomputed operations? Recommended: yes, amend DNA (medium).\n- **Duplicate start() on daemon surfaces:** MCP throws, the other three return the handle. Recommended: fail closed everywhere (low-medium).\n- **Surface health:** gRPC always says SERVING. Recommended: health reflects bindings and state (medium).\n- **Transport security:** gRPC/HTTP/WebSocket have no auth. Recommended: lock loopback-only plaintext, require auth/TLS off-loopback (medium).\n- **Notion storage:** default adapter, but writes throw. Recommended: implement writes (medium; from your \"Notion is the brain\" preference).\n- **World-model baseline:** fixed density vs a prior-state store. Recommended: prior-state store (medium).\n- Also: the spec template still recommends Current/Target State sections, which contradicts the ideal-state rule. Recommended: remove them from the template.",
+            "options": [
+              {
+                "label": "Take all six recommendations + fix the template",
+                "desc": "I write them into DNA/specs",
+                "recommended": true
+              },
+              {
+                "label": "Show me each one separately",
+                "desc": "Next page gets one card per fork"
+              },
+              {
+                "label": "Park them",
+                "desc": "Specs stay silent on these until the cut is done"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

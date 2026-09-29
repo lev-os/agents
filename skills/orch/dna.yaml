@@ -1,5 +1,5 @@
 name: orch
-version: 0.1.0
+version: 0.2.0
 description: "Agent-agnostic goal chaining, lifecycle routing, blocker collection, and scheduling"
 entry: route
 
@@ -12,6 +12,7 @@ nodes:
       auto: "user wants every reachable branch exercised until decisions or completion"
       execute: "user has an aligned bounded slice to run"
       monitor: "user wants recurring progress or scheduler supervision"
+      herdr: "--herdr passed; combines with the mode above and loads references/herdr.md"
     validation:
       rule: "exactly one mode selected and project/write boundary resolved"
     on_failure: "Ask one focused question or report the missing startup capability"
@@ -40,10 +41,19 @@ nodes:
     validation:
       rule: "scheduler handle and goal revision are checked before any follow-up"
 
+  herdr:
+    description: "Run lanes as herdr tabs: interview, scan, tab layout, lane docs, ledger, tab policy, operator channel, tick loop"
+    content: references/herdr.md
+    requires: [route]
+    next: execute
+    validation:
+      rule: "references/herdr.md loaded; target repo and workspace recorded; every open pane has a lane doc and a ledger lane entry; the ledger parses after every edit"
+    on_failure: "Open no pane; report the missing lane doc, workspace or unparseable ledger"
+
   execute:
     description: "Dispatch one bounded unit through its owning skill"
     content: SKILL.md
-    requires: [plan, auto]
+    requires: [plan, auto, herdr]
     next: verify
     validation:
       rule: "one worker or route ran within frozen scope and returned a result"

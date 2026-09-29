@@ -1,11 +1,11 @@
 ---
 name: explain
-description: Use when the user needs to catch up on a conversation or recent tasks, understand unfamiliar project terms, surface decisions, or receive a clear goal closeout.
+description: Use when the user needs to catch up on a conversation or recent tasks, understand unfamiliar project terms, surface decisions, receive a clear goal closeout, or request explain eli5 or Caveman explanation mode.
 ---
 
 # /explain — Inline catch-up
 
-Restore the user's understanding: what this work is for, what happened, which decisions matter, and what happens next. Deliver directly in chat. This is the explanation discipline of /now without rendering, publishing, or creating files.
+Restore the user's understanding: what this work is for, what happened, which decisions matter, and what happens next. Deliver directly in chat. Embedded visuals may use local files required by their renderer; no standalone deliverable or publication is implied.
 
 ## Commands and selection
 
@@ -23,6 +23,10 @@ These are skill invocation patterns, not shell commands. N is a positive integer
 For numeric selection, combine pinned and ordinary results from the available conversation listing, deduplicate by host and conversation ID, and sort all candidates by last update descending. Pin order and running status do not change recency. Include the current conversation if it qualifies. Snapshot selection before reading so retrieval does not change the chosen set. Exclude archived conversations unless requested. State unavailable hosts/sources and listing limits rather than claiming exhaustive global coverage.
 
 For `--project`, resolve the current conversation's project ID and filter before selecting N. When no project ID exists, use a verified project root and explain that fallback; never treat unrelated paths or every projectless task as one project. If project identity cannot be established, ask which project rather than silently using global scope. Return fewer than N when fewer are available and say how many were found.
+
+## Explanation modes
+
+`/explain eli5 <topic>` or `/explain --eli5 <topic>` selects ELI5 and must load [references/caveman.md](references/caveman.md). Explicit `/explain caveman <topic>` selects concise mode from the same reference. These are skill patterns, not shell commands. Modes apply to the requested explanation only; normal Explain keeps its existing behavior. ELI5 first builds an accessible concept and a useful example, then trims prose; brevity alone is not comprehension. Preserve exact technical strings and necessary causal details. An ordinary explanation or catch-up does not activate either mode.
 
 ## Read and explain
 
@@ -57,6 +61,58 @@ Never coin LLM-derived jargon, slogans, or compound labels to make ordinary work
 Separate decisions already made from proposals and decisions awaiting the user. For each consequential decision explain the choice, who made or must make it, why it matters, and what it changes. For an open decision, give the viable options and tradeoff, a recommendation with its reason, and what waits for the answer. Keep technical work the agent can resolve separate from product, policy, or authority choices requiring the user. Never infer acceptance from a worker's success or the user's silence. Say "No decision needed from you" when true.
 
 ## Inline output
+
+### Goal progress
+
+If a goal prompt exists for the task being explained, report its progress. Read
+the current goal and status through the available goal surface; use supplied
+context only when that surface is unavailable and label its freshness. Compare
+the goal with subsequent user decisions and current evidence.
+
+For goal progress and goal templates, use any available embedded visualizer/gen ui available,
+following its instructions. Preserve the milestone statuses, evidence limits,
+stopping state, and complete copy-ready proposed goal text. Keep the visualization
+inline and label proposed changes as unsaved. If no embedded visualizer is
+available or it cannot render the content, use the existing Markdown templates
+below. Both forms carry the same information; do not duplicate them.
+
+Markdown fallback for goal progress:
+
+```text
+Goal: {goal_intent}
+[ {emoji_progress_bar} ] {completed}/{total} acceptance milestones verified
+
+1. {step and status}
+2. {step and status}
+…
+n. {final acceptance step and status}
+
+{update_needed_or_resume}
+```
+
+Use ✅ verified, 🟡 partial/in progress, ⬜ remaining, and ⛔ blocked, with one
+segment per named milestone. Show partial work honestly; the bar is milestone
+coverage, not elapsed time, effort, or an invented completion percentage. If
+the milestones cannot be established, say progress is unquantified. List the
+ordered steps needed to finish, retaining completed prerequisites where useful.
+
+End with either `Update needed: <specific stale scope, policy or acceptance
+text and proposed correction>` or `Resume: <next eligible step>`. Include an
+actual paused, blocked, usage-limited or other stopping state and its prerequisite
+instead of implying execution can resume immediately. A goal can need a policy
+update while its outcome remains correct. When an update is needed, automatically
+include the complete proposed replacement goal prompt immediately after the
+update note, using the embedded visualizer when available or a fenced `markdown`
+code block otherwise. Do not ask whether to show it or
+require another turn. Make it copy-ready: preserve the outcome, exact hard refs,
+acceptance, exclusions and unresolved decisions; incorporate the user's latest
+authorized policy changes. Include Outcome, Tools, Hard refs, Plan, Acceptance,
+Batch gates and Stop rules. Show the full replacement, not a diff, ellipses or
+placeholder instructions. Label it proposed until actually saved.
+
+This report does not itself update,
+resume, complete or replace the goal; those actions require their own request
+and supported tool. Never mark unfinished work complete to rewrite its prompt.
 
 Default to roughly 300–500 words for one task; use a compact comparison table for multiple tasks, with one entry per selected conversation and short shared explanations for related work. Expand only enough to cover the requested scope. Put decisions requiring attention near the top. Use a small inline diagram only when it makes a dependency easier to understand. Keep evidence and detail beside the claims they qualify.
 

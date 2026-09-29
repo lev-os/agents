@@ -1,6 +1,6 @@
 ---
 name: coder
-description: Run and supervise Lev-aware coding workers across Codex, LazyCodex, Claude Code, Gemini, OpenCode, or Pi, including CAAM identity handling and single-worker or coder-reviewer SDD modes.
+description: Run and supervise Lev-aware coding workers across Codex, Claude Code, Gemini, OpenCode, Pi, OmO Native (omo), or oh-my-pi (omp), including CAAM identity handling and single-worker or coder-reviewer SDD modes.
 ---
 
 # Coder
@@ -14,14 +14,15 @@ Iron law: worker prose is a claim, not evidence.
 ## Flags And Resolution
 
 ```text
-$coder [--lev] [--lazycodex] [--sdd[=checkpoint|pair]] [--fable]
+$coder [--lev] [--omo|--omp] [--sdd[=checkpoint|pair]] [--fable]
 ```
 
 | Flags | Runtime and topology |
 |---|---|
 | none | Best available coding CLI; one coder; controller verifies. |
 | `--lev` | `lev exec`; project FlowMind/profile controls the worker. |
-| `--lazycodex` | Codex with installed LazyCodex roles, hooks, and evidence protocol. |
+| `--omo` | OmO Native (`omo`, senpi/pi-family engine) headless worker. |
+| `--omp` | oh-my-pi (`omp`, pi-family) headless worker. |
 | `--sdd` | `--sdd=checkpoint`: coder, controller gates, independent reviewer by PR-sized batch. |
 | `--sdd=pair` | One coder session and one reviewer session alternate at completed-slice boundaries. |
 | `--fable` | SDD reviewer uses the configured Fable profile; coder policy is unchanged. |
@@ -63,6 +64,8 @@ Before every launch:
 2. Read the nearest `AGENTS.md`/`CLAUDE.md` and relevant project `.lev` state:
    config, workstream, task `dna.yaml` and `execution.yaml`, FlowMind graph,
    exec profile, rules index, and validation gates when present.
+   When those fields are present, apply the Claim-to-verifier handoff below;
+   keep the existing task/proposal owner and do not recreate the contract.
 3. Freeze a context packet containing the outcome, absolute hard refs, current
    slice, constraints, non-goals, exact verifier commands, stop rules, and final
    report shape. Do not depend on parent conversation history.
@@ -75,6 +78,24 @@ Before every launch:
 With `--lev`, run `lev exec --help` in the target project before constructing
 flags. Use the project-declared FlowMind or exec profile. If Lev cannot carry the
 task, stop; `--lev` does not permit a transparent raw-CLI fallback.
+
+### Claim-to-verifier handoff
+
+For Lev tasks, preserve the task's existing `claim_verifier_map` and
+`forbidden_moves` in the packet when present. Those fields belong to the task
+and proposal owners (`skill://propose` owns their readiness contract); Coder
+reuses them through worker dispatch and checks that the result did not violate
+them. Keep these packet invariants explicit: exact project/workstream and
+identity/session, allowed write scope, hard references, acceptance owner,
+forbidden moves, existing helpers or patterns to reuse, behaviors that must
+remain unchanged, and each claim's falsifying verifier. For a task without those
+fields, state each behavior claim beside the smallest verifier that can falsify
+it, including the false-green case the verifier must reject.
+
+Constructed example: if the claim is "retry `fetchConfig` on 5xx but never on
+4xx," a mock that only returns 5xx is a false green. The verifier must exercise
+both status classes and observe the request count or equivalent effect. This is
+a teaching example, not evidence about the current repository.
 
 ## Identity And Rotation
 
@@ -95,8 +116,9 @@ rate-limit failure, excluding failed/cooling-down profiles for this dispatch.
 Use only authorized accounts with equivalent access to the supplied data;
 profile existence alone does not establish equivalent authority.
 
-Allow at most one account switch and one recovery launch per dispatch. An
-explicitly pinned account disables account rotation. Record provider, profile
+Allow at most one account switch per dispatch. Recovery attempts follow the
+Time Budgets And Recovery policy below. An explicitly pinned account disables
+account rotation. Record provider, profile
 kind/alias or direct mode, failure class, attempt, and exact session ID without
 credentials. A live auth failure overrides passive health; unknown expiry
 alone does not prove rejection. Stop on exhausted eligible profiles or the
@@ -123,6 +145,35 @@ Preserve all prompt, permission, timeout, session, and verification controls.
 Do not fall back to an unknown identity, bypass an account pin, evade a known
 limit on the same account, or replace a required provider. If direct auth also
 fails, return the attention packet. No global auth change is needed for this path.
+
+## Time Budgets And Recovery
+
+Be liberal with worker max-time: include source discovery, provider latency,
+implementation and verification in the estimate. Ten minutes is not a default
+ceiling. Choose a generous finite initial budget T and a finite cumulative
+ceiling for the batch, respecting any user or project limits.
+
+For recoverable deadline or transport failures, allow three retries after the
+initial attempt (four attempts total). Increase max-time exponentially:
+T, 2T, 4T, 8T, capped by the remaining batch budget. This increases execution
+time, not blocking sleep between polls. Distinguish response inactivity from
+total elapsed time; a live worker is not failed merely because observation
+timed out. Poll its exact handle and give meaningful progress updates.
+
+Before each retry, confirm the previous process and children are terminal,
+inspect partial changes, and resume the exact session with a focused correction.
+Account recovery and transport retries share this three-retry budget. Do not
+reset the count by changing accounts, sessions, or wording. Repeated identical
+failures without a plausible correction escalate early; scope, credentials,
+identity and architectural blockers are not solved by adding time.
+
+After three retries, inspect the retained result. If it is almost done—an
+understood, scoped diff with only bounded implementation or verification left—
+the controller may finish directly within the original authority and run the
+same acceptance checks. Otherwise escalate with the partial work, exact blocker
+and smallest needed decision. Respect an explicit user requirement forbidding
+direct completion. Read-only companions remain read-only; direct completion
+does not count as an independent review.
 
 ## Inline Coding-Agent Protocol
 
@@ -174,21 +225,20 @@ timeout, and persistence requirement. Then:
    packet copies without deleting durable provider-session evidence.
 
 The Identity And Rotation policy applies to companions, including direct CLI
-mode. Account recovery and transport retry share one recovery-launch budget;
-they do not multiply retries or create a new companion session.
-Allow one focused transport retry in the same explicit session. Then return the
-attention packet on unavailable identity, timeout, failed resume, evidence
-mismatch, or the same blocker twice. Never substitute a forbidden provider or
-convert the read-only request into implementation.
+mode. Apply Time Budgets And Recovery within the same explicit companion
+session, sharing the three-retry budget with account recovery. Escalate on
+unavailable identity, unusable resume, evidence mismatch or an unchanged blocker
+without a plausible correction. Preserve the requested provider and read-only
+scope; controller completion cannot supply missing independent approval.
 
-## Inline Codex And LazyCodex Protocol
+## Inline Codex Protocol
 
 For direct trusted-local Codex, use `command codex exec` with JSON events,
 closed stdin, a frozen prompt, and an output-last-message file. Capture the
 first `thread.started.thread_id` immediately. Resume only that explicit thread
 from the same repository and identity; never use `--last` when runs can overlap.
 
-Keep fast mode disabled for the LazyCodex worker policy. A direct background
+Keep fast mode disabled for Codex workers. A direct background
 launch has this artifact split; choose `workspace-write` for ordinary work and
 the bypass flag only for a bounded task in an externally trusted checkout:
 
@@ -208,9 +258,16 @@ the bypass flag only for a bounded task in an externally trusted checkout:
 runner_pid=$!
 ```
 
+The `--dangerously-bypass-approvals-and-sandbox` line below is an example for a
+trusted checkout only. It does not authorize bypassing project policy, an
+account pin, a read-only request or an untrusted workspace. Use the safest
+permission mode that can finish the bounded task and preserve the selected
+identity and exact session.
+
 The current `resume` surface has no `-C`. Change to the repository first, retain
 the selected identity unless Identity And Rotation admits recovery, and pass
 the exact thread ID:
+
 
 ```bash
 cd "$runner_repo"
@@ -230,22 +287,10 @@ across two checks is a diagnostic trigger, not proof of failure. Inspect the
 process before terminating it; if recovery is safe, resume the same thread with
 the smallest correction. Preserve every attempt separately.
 
-LazyCodex is a worker policy, role set, hook set, and evidence protocol—not an
-auth home. Do not route auth through `~/.codex-lazycodex-trial`. Resolve identity
-through CAAM and model policy through the project/Lev profile.
-
-When the active agent surface exposes selectable LazyCodex roles, use the
-right-sized `lazycodex-worker-low|medium|high` role and its evidence hook. Use
-`lazycodex-code-reviewer` for checkpoint code/spec review,
-`lazycodex-qa-executor` for independent runtime QA when the task requires it,
-and `lazycodex-gate-reviewer` only for a final gate. If the surface cannot bind
-installed role definitions, put the complete role, difficulty, deliverable,
-scope, hard refs, and verifier contract in the child prompt and record that the
-named role was not independently selected.
-
-LazyCodex evidence hooks may reject incomplete worker reports. Preserve that
-evidence behavior, but do not inherit an unbounded review-until-approval loop;
-the SDD verdict and retry limits below control continuation.
+Resolve identity through CAAM and model policy through the project/Lev
+profile. Put the complete role, difficulty, deliverable, scope, hard refs, and
+verifier contract in the child prompt; the SDD verdict and retry limits below
+control continuation.
 
 After a Codex profile change, heed CAAM's daemon warning. A disk auth swap does
 not prove an existing daemon changed identity; restart only through an explicit
@@ -304,6 +349,14 @@ that identity boundary as unverified. Detailed live syntax may be checked in
 [references/claude.md](references/claude.md),
 [references/opencode.md](references/opencode.md), and
 [references/pi.md](references/pi.md) when that provider is selected.
+
+OmO Native (`omo`) and oh-my-pi (`omp`) are pi-family harnesses: both run
+headless with `-p --mode json`, closed stdin, and emit the same pi event stream
+(`session`, `turn_*`, `message_*`, `agent_end` with `usage` and `cost`). Pick
+permissions explicitly (`omo --permission-preset workspace|read-only`,
+`omp --approval-mode write|always-ask`) and resolve models live
+(`omo --list-models`, `omp models --json`). Syntax and caveats:
+[references/pi.md](references/pi.md).
 
 ## SDD
 
@@ -368,7 +421,9 @@ gates after integration.
 
 Escalate on invalid credentials, exhausted account capacity, unrecoverable
 explicit session, material worker decision, failed declared gate, requested
-runtime/profile unavailable, or the same blocker twice.
+runtime/profile unavailable, or exhausted recovery without a bounded direct
+finish under Time Budgets And Recovery. Repeated blockers without a plausible
+correction escalate early.
 
 Return provider, profile alias, project/workstream, topology and role, Lev
 execution/FlowMind node, provider session ID, failure class, last successful

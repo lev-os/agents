@@ -1,0 +1,943 @@
+{
+ "meta": {
+  "title": "Overnight burn-down recap",
+  "description": "What the 2026-09-27 overnight loop did, what it found, and the 9 decisions and 23 held patches waiting on you.",
+  "layout": "default",
+  "provenance": {
+   "sessionId": "74d1fed5-3d75-4cc3-98b2-1e3f0e81abf5",
+   "agent": "Claude Code · Opus 5.5 · audit burn-down session 3",
+   "workstream": "task-bundle-ontology",
+   "source": ".lev/now/explainer-overnight-burndown-20260927.json",
+   "createdAt": "2026-09-27",
+   "resume": "claude --resume 74d1fed5-3d75-4cc3-98b2-1e3f0e81abf5"
+  }
+ },
+ "theme": {
+  "preset": "terracotta-sage",
+  "mode": "light"
+ },
+ "root": [
+  "hero",
+  "numbers",
+  "start",
+  "arc",
+  "answers",
+  "findings",
+  "decisions",
+  "order",
+  "patches",
+  "landed",
+  "blocked",
+  "deepdives",
+  "method",
+  "where"
+ ],
+ "elements": {
+  "hero": {
+   "type": "hero",
+   "props": {
+    "category": "ARCH BURN-DOWN · SESSION 3 · 2026-09-27",
+    "title": "What we did overnight, and what is waiting on you",
+    "subtitle": "Starting from your answers to 15 architecture questions, an overnight loop ran 65 ticks from 03:30 to 13:18. It fixed what was obvious, measured what was not, and prepared 23 patches for 9 decisions only you can make. Nothing from the loop was committed; your syncs swept some of it in.",
+    "meta": "workstream task-bundle-ontology · loop ledger ~/.local/state/lev/spikes/arch-burndown-20260927/loop-ledger.yaml · decisions .lev/pm/decisions/20260927-overnight-arch-burndown-forks.yaml"
+   },
+   "variant": "editorial"
+  },
+  "k-ticks": {
+   "type": "card",
+   "props": {
+    "value": "65",
+    "label": "loop ticks",
+    "trend": {
+     "direction": "flat",
+     "value": "03:30 to 13:18, 85 ledger entries"
+    }
+   },
+   "variant": "kpi"
+  },
+  "k-answers": {
+   "type": "card",
+   "props": {
+    "value": "15",
+    "label": "answers from you",
+    "trend": {
+     "direction": "flat",
+     "value": "recorded verbatim at 03:40"
+    }
+   },
+   "variant": "kpi"
+  },
+  "k-forks": {
+   "type": "card",
+   "props": {
+    "value": "9",
+    "label": "decisions for you",
+    "trend": {
+     "direction": "flat",
+     "value": "each with evidence and a pick"
+    }
+   },
+   "variant": "kpi"
+  },
+  "k-patches": {
+   "type": "card",
+   "props": {
+    "value": "23",
+    "label": "held patches",
+    "trend": {
+     "direction": "flat",
+     "value": "all apply in order on HEAD"
+    }
+   },
+   "variant": "kpi"
+  },
+  "k-sweep": {
+   "type": "card",
+   "props": {
+    "value": "157",
+    "label": "findings logged",
+    "trend": {
+     "direction": "flat",
+     "value": "in the task-bundle-ontology sweep"
+    }
+   },
+   "variant": "kpi"
+  },
+  "k-fable": {
+   "type": "card",
+   "props": {
+    "value": "17",
+    "label": "Fable 5.1 advice seats",
+    "trend": {
+     "direction": "flat",
+     "value": "saved verbatim, then spot-checked"
+    }
+   },
+   "variant": "kpi"
+  },
+  "numbers": {
+   "type": "section",
+   "props": {
+    "label": "AT A GLANCE",
+    "title": "The night in six numbers",
+    "id": "numbers"
+   },
+   "variant": "kpi-row",
+   "children": [
+    "k-ticks",
+    "k-answers",
+    "k-forks",
+    "k-patches",
+    "k-sweep",
+    "k-fable"
+   ]
+  },
+  "start-text": {
+   "type": "text",
+   "props": {
+    "content": "**1. Rule on the 9 decisions** in `.lev/pm/decisions/20260927-overnight-arch-burndown-forks.yaml`. The suggested order is further down this page. Each decision holds only the patches that depend on it.\n\n**2. Say which held patches to apply.** Recipes are in `~/.local/state/lev/spikes/arch-burndown-20260927/apply-recipes.yaml`. `sh ~/.local/state/lev/spikes/arch-burndown-20260927/check-held-patches.sh` proves they still stack; as of 13:30 all 23 apply in order on committed HEAD.\n\n**3. Clear 5 blockers the loop could not.** A stuck code-graph tool, an untracked flow file that live programs depend on, slow `lev` startup, one full sdlc test run, and a leftover worktree (see \"Blocked on you\").\n\n**4. The 40 follow-up questions from round 2 are still open.** They are on `.lev/now/arch-burndown-round2-20260927.html` and came from 6 research lanes on your notes.",
+    "maxWidth": "78ch"
+   }
+  },
+  "start-correction": {
+   "type": "card",
+   "props": {
+    "title": "Correction: the \"waiting for commit OK\" batch is already committed",
+    "content": "The decision record and the handoff pointer still say six finished changes wait for your commit OK. They do not. Your 12:18 sync commit `27f06bfbf` (\"sync: checkpoint lanes before merging #268\") swept in all of their files. Checked with `git log -1` on each file: event-dispatch refusing unrunnable programs, the exec test fixture, the cdo boundary audit flow, the earlier flow fixes, the pre-push hook log, and the sdlc test event-log fix. It was a sync, not a reviewed commit. One of those files, `default-task-flow.ts`, has since been edited again by another session. Both records were corrected at 13:54.",
+    "variant": "warning"
+   },
+   "variant": "callout"
+  },
+  "start": {
+   "type": "section",
+   "props": {
+    "label": "START HERE",
+    "title": "What needs you, in order",
+    "id": "start"
+   },
+   "variant": "stacked",
+   "children": [
+    "start-text",
+    "start-correction"
+   ]
+  },
+  "arc-timeline": {
+   "type": "timeline",
+   "props": {
+    "items": [
+     {
+      "date": "02:39",
+      "title": "Round 1: 15 architecture questions",
+      "description": "The interview page asked what the default loop is, what \"task\" means, who owns entity kinds, where DNA lives, and how drift is stopped. You answered all 15: 9 with a pick, 6 with notes asking for more thought.",
+      "status": "completed"
+     },
+     {
+      "date": "03:30-03:48",
+      "title": "The loop starts and applies your picks",
+      "description": "\"task\" now means a task packet only, and the positional prompt fills the words input (about 20 flows migrated). A first-run worker prints a clear \"trust this folder once\" message. Gates that had no verdict stopped picking a branch by position. Your 03:48 sync committed these.",
+      "status": "completed"
+     },
+     {
+      "date": "03:40-04:44",
+      "title": "Research on your open notes, then round 2",
+      "description": "6 research lanes (eval before the task, validation pickup, entity kinds, loop variants, DRY vs drift, the DNA map) plus a critic. The result was the round-2 page with 40 follow-up calls, and a census of all 43 core packages with 14 questions.",
+      "status": "completed"
+     },
+     {
+      "date": "04:47-06:00",
+      "title": "Gates that could never fail",
+      "description": "Two enforced gates were passing against a package that no longer exists, and a runtime guard named 2 deleted test files; both fixed. A census found 214 flow steps in 56 flows that nothing runs, so they go to the model as \"Execute shell command\". Measured: rejecting unknown steps breaks 0 tests.",
+      "status": "completed"
+     },
+     {
+      "date": "06:10-07:05",
+      "title": "Programs, triggers and CLI routing",
+      "description": "Registration now refuses programs whose flow cannot run (committed in your 12:18 sync). Only 4 of 85 registered programs have ever fired for real. 164 of 296 declared CLI commands do not route, including the pre-push session capture, which has never worked. The first 4 decisions were written up.",
+      "status": "completed"
+     },
+     {
+      "date": "07:18-09:40",
+      "title": "Decisions 2, 5, 1, 6, 7 and 8 prepared",
+      "description": "Each got a Fable 5.1 advice seat, a held patch, a failing-then-passing test and a check that it applies. Startup slowness (27-60 s per lev call) was profiled: slow disk reads made worse by the tsx cache, not a code regression.",
+      "status": "completed"
+     },
+     {
+      "date": "09:52-11:30",
+      "title": "Vault bug, and the first combined check",
+      "description": "Secrets written by lev vault could not be read by a second process because the key salt was never saved; two held patches fix it (7 failing tests before, 41 passing after). Applied together, the 11 patches passed every recipe check except one registry-name clash, which got two alternative fixes.",
+      "status": "completed"
+     },
+     {
+      "date": "11:41-12:16",
+      "title": "Combined check v2, and Fable ranks the decisions",
+      "description": "18 patches applied together in a fresh worktree: every recipe check passed, and a real lev vault store/get worked across processes. Fable agreed with 7 of the recommendations and proposed the ruling order.",
+      "status": "completed"
+     },
+     {
+      "date": "12:30-13:18",
+      "title": "Decision 9: which export a command runs",
+      "description": "Three resolvers pick a handler three ways. A new registry check found 40 of 139 registered commands that cannot resolve. Fixes for discourse-graph (6), the index refresh duplicate and pricing. 26 CLI commands silently ignore their flags; 8 were confirmed live. Combined check v3: all 23 patches stack.",
+      "status": "completed"
+     },
+     {
+      "date": "13:23",
+      "title": "Loop disarmed",
+      "description": "You cancelled the cron. The handoff pointer and the workstream were updated.",
+      "status": "completed"
+     },
+     {
+      "date": "next",
+      "title": "Your rulings",
+      "description": "9 decisions, then apply the held patches in order and run their recipe checks.",
+      "status": "upcoming"
+     }
+    ]
+   }
+  },
+  "arc": {
+   "type": "section",
+   "props": {
+    "label": "THE NIGHT",
+    "title": "How the work unfolded",
+    "id": "arc"
+   },
+   "variant": "full-width",
+   "children": [
+    "arc-timeline"
+   ]
+  },
+  "answers-lead": {
+   "type": "text",
+   "props": {
+    "content": "Your notes are paraphrased here; the verbatim text is in `~/.local/state/lev/spikes/arch-burndown-20260927/interview-answers/raw-20260927.json`. \"Built\" means code landed and was tested; \"round 2\" means the question went to research and came back as follow-up calls you have not answered yet.",
+    "maxWidth": "78ch"
+   }
+  },
+  "answers-table": {
+   "type": "data-table",
+   "props": {
+    "columns": [
+     {
+      "key": "q",
+      "label": "Question"
+     },
+     {
+      "key": "then",
+      "label": "What happened"
+     },
+     {
+      "key": "a",
+      "label": "Your answer"
+     }
+    ],
+    "rows": [
+     {
+      "q": "When `lev exec` runs, which loop is the default?",
+      "a": "One rule: is there a task to check against?",
+      "then": "Built: a task run without a flow uses the shipped sdlc flow; a bare prompt says \"Nothing was verified\"."
+     },
+     {
+      "q": "What should the default verify step check?",
+      "a": "Note: check spec-compliance fields, not only the prompt; model the eval before the task starts, because agents pad validation with made-up scripts.",
+      "then": "Research lane \"eval before the task\" → round 2."
+     },
+     {
+      "q": "Which worker does a fresh project get?",
+      "a": "Keep tmux claude-code and print a clear \"trust this folder once\" message.",
+      "then": "Built and committed (tests 29/29)."
+     },
+     {
+      "q": "What does \"task\" mean on the command line?",
+      "a": "A task packet only; your words go to another input that the positional prompt fills.",
+      "then": "Built and committed (about 20 flows migrated)."
+     },
+     {
+      "q": "What makes a flow a conforming work loop?",
+      "a": "Check the graph shape, for task runs and flows that opt in.",
+      "then": "Built as a check: 92 of 141 graphs fail it once bound to a task."
+     },
+     {
+      "q": "How does a domain plugin extend the core loop?",
+      "a": "The domain ships a whole flow that passes the loop check; evaluator packs fill its verify gate.",
+      "then": "Recorded; shapes decisions 1 and 3."
+     },
+     {
+      "q": "What is DNA from now on?",
+      "a": "Note: DNA needs decomposing; define the Lev IR and its ontologies first.",
+      "then": "Research lane \"DNA map\" → round 2."
+     },
+     {
+      "q": "How do rules reach the plan and act prompts?",
+      "a": "Code selects the rules from the slice's allowed paths and shows them as \"done when\" statements. Note: verification needs a deep dive after entities, verbs and DNA.",
+      "then": "Recorded as a deep dive."
+     },
+     {
+      "q": "When verify fails, clean up or start over?",
+      "a": "Clean up by default. Note: support every variant so you can test which works best; plan/act/verify are words for explaining, not variable names.",
+      "then": "Now a standing loop rule: every variant selectable."
+     },
+     {
+      "q": "Should entity kinds be declared by folder?",
+      "a": "Note: the same conventions as today; file-based routing preferred, config YAML is fine too.",
+      "then": "Research lane \"entity kinds\" → round 2."
+     },
+     {
+      "q": "Who owns each kind?",
+      "a": "Core owns the work kinds and sdlc extends them. Note: put decision in the workstream too; sdlc may own spec and ADR (to debate); everything needs strong types.",
+      "then": "Research lane \"entity kinds\" → round 2."
+     },
+     {
+      "q": "Three faces of one task: markdown compiled to YAML?",
+      "a": "Note: not realistic; status can be updated mechanically; maybe one md and one yaml; views go to generative UI in Jarvis.",
+      "then": "Research → round 2."
+     },
+     {
+      "q": "Which command does a skill call after writing an entity?",
+      "a": "Note: this was meant to be picked up per module, convention over config, so agents cannot pass arbitrary checks.",
+      "then": "Research lane \"validation pickup\" → round 2."
+     },
+     {
+      "q": "Where do lifecycle skills and templates ship from?",
+      "a": "Split by owner. Note: how has eval builder drifted? Maybe a new Lev with the new pieces, rather than changing skills that work.",
+      "then": "Recorded."
+     },
+     {
+      "q": "Copied facts: one owner and a check everywhere?",
+      "a": "Note: stop canonizing, this is context; research agent-managed code bases; show sequence diagrams of how \"never copy a fact\" would actually work.",
+      "then": "Research lane \"DRY vs drift\" → round 2."
+     }
+    ]
+   }
+  },
+  "answers": {
+   "type": "section",
+   "props": {
+    "label": "YOUR ANSWERS",
+    "title": "The 15 questions you answered, and what happened to each",
+    "id": "answers"
+   },
+   "variant": "full-width",
+   "children": [
+    "answers-lead",
+    "answers-table"
+   ]
+  },
+  "f1": {
+   "type": "card",
+   "props": {
+    "title": "Success reported for work nothing did",
+    "content": "Flow steps that no runner handles go to the model as \"Execute shell command: <op>\": 214 steps in 56 flows. Flows with such steps finish green with nothing run. `--flowmind-program` and `--flowmind-file` run nothing but label the run as if they did. Printing help counts as success. Decisions 1, 5 and 8.",
+    "label": "FALSE GREENS"
+   },
+   "variant": "elevated"
+  },
+  "f2": {
+   "type": "card",
+   "props": {
+    "title": "Gates that could not fail",
+    "content": "Two enforced gates were passing against a package that no longer exists. A runtime guard named 2 deleted test files. A gate with no verdict picked its first branch. All fixed; the gate fixes were committed in your 03:48 sync.",
+    "label": "GATES"
+   },
+   "variant": "elevated"
+  },
+  "f3": {
+   "type": "card",
+   "props": {
+    "title": "Declared CLI commands that do not route",
+    "content": "164 of 296 declared commands fail or run something else. The git pre-push session capture has never worked (0 captured events since 2026-04-11). `lev status` is still unimplemented; that was already ruled in the n1 decision. Decision 2.",
+    "label": "CLI ROUTING"
+   },
+   "variant": "elevated"
+  },
+  "f4": {
+   "type": "card",
+   "props": {
+    "title": "Programs that never fire",
+    "content": "88 programs declared; 76 register, 9 are refused, and 3 declared in core never load. Only 3 both load and get real triggers. One program re-triggered itself (1789 failures, already fixed on 09-23). Decisions 3 and 7.",
+    "label": "PROGRAMS"
+   },
+   "variant": "elevated"
+  },
+  "f5": {
+   "type": "card",
+   "props": {
+    "title": "Vault secrets could not be read back",
+    "content": "The key salt was random and never saved, so a second process could not decrypt what the first stored. Two held patches: save the salt in a header, then read CLI arguments with the secret on stdin only. The real vault was never touched.",
+    "label": "VAULT"
+   },
+   "variant": "elevated"
+  },
+  "f6": {
+   "type": "card",
+   "props": {
+    "title": "Three ways to pick a command's handler",
+    "content": "The SDK path, the CLI path and the command list each resolve a handler differently. 40 of 139 registered commands cannot resolve at all. The registry check has a list of known broken commands that may only shrink; fixes for discourse-graph (6) and index refresh have landed as held patches. Decision 9.",
+    "label": "HANDLERS"
+   },
+   "variant": "elevated"
+  },
+  "f7": {
+   "type": "card",
+   "props": {
+    "title": "CLI flags silently ignored",
+    "content": "26 CLI commands expect an object and drop CLI flags; 8 were confirmed live (graph-query, graph-get-entity, graph-traverse, graph-trace-lineage, graph-find-similar, graph-infer, oauth-status, oauth-doctor). `lev pricing --provider=exa` answered with model prices; its patch is held. Root cause: arguments declared in a `handlers:` config section that nothing reads.",
+    "label": "INPUT"
+   },
+   "variant": "elevated"
+  },
+  "f8": {
+   "type": "card",
+   "props": {
+    "title": "The environment fought back",
+    "content": "`lev` calls took 27-60 s because of slow directory reads made worse by the tsx cache. The code-graph tool is stuck on 2026-09-16 lock files. A worktree `dist` symlink wrote stale flows into main's catalog; the catalog was rebuilt and a memory note added.",
+    "label": "ENVIRONMENT"
+   },
+   "variant": "elevated"
+  },
+  "findings": {
+   "type": "section",
+   "props": {
+    "label": "WHAT WE FOUND",
+    "title": "Eight patterns behind most of the findings",
+    "id": "findings"
+   },
+   "variant": "card-grid",
+   "children": [
+    "f1",
+    "f2",
+    "f3",
+    "f4",
+    "f5",
+    "f6",
+    "f7",
+    "f8"
+   ]
+  },
+  "dec-lead": {
+   "type": "text",
+   "props": {
+    "content": "Each decision in the record has its evidence with file and line references, the options with why-not, advice where it was sought, and what it holds. Recommendations are the loop's, checked against Fable 5.1 where noted; none is a ruling until you make it.",
+    "maxWidth": "78ch"
+   }
+  },
+  "dec-table": {
+   "type": "data-table",
+   "props": {
+    "columns": [
+     {
+      "key": "q",
+      "label": "Decision"
+     },
+     {
+      "key": "rec",
+      "label": "Recommended (confidence)"
+     },
+     {
+      "key": "opts",
+      "label": "Options"
+     },
+     {
+      "key": "prep",
+      "label": "Prepared"
+     }
+    ],
+    "rows": [
+     {
+      "q": "1. A flow step no runner recognises is handed to the model. Fail instead?",
+      "opts": "a fail closed everywhere now · b fail at run time now, report first, enforce after migration · c keep the model fallback behind a setting",
+      "rec": "b (medium)",
+      "prep": "run-time half + approval-step add-on"
+     },
+     {
+      "q": "2. 164 of 296 declared CLI commands do not route",
+      "opts": "a fix routing in core/poly · b delete unused declarations, wire the live ones · c report-only check first",
+      "rec": "c, then a (medium)",
+      "prep": "step 1 (capture-push + 5 vault verbs) + name fix B (A is the alternative)"
+     },
+     {
+      "q": "3. Programs that never fire or cannot run",
+      "opts": "a per-plugin pass · b registration warning only · c bulk unregister",
+      "rec": "a (medium)",
+      "prep": "cheap cut (2 never-written entries) + lock-test roster"
+     },
+     {
+      "q": "4. The trustgraph backend is named in DNA, but core never imports plugins",
+      "opts": "a the plugin registers its adapter · b allowlist the import in the boundary gate · c move backend selection out of context-graph",
+      "rec": "a (Fable: a canon conflict to rule first) (medium)",
+      "prep": "none"
+     },
+     {
+      "q": "5. A command result with no success field: success or failure?",
+      "opts": "a align the outlier (only success:false fails) · b fail closed everywhere · c a now, b as a ratchet",
+      "rec": "a (divergence kept: the loop leaned c) (medium)",
+      "prep": "one line + test"
+     },
+     {
+      "q": "6. `lev exec --profile` has never announced the profile",
+      "opts": "a delete the event and its trigger · b apply the prepared listener · c listener, validate phase only",
+      "rec": "a (medium)",
+      "prep": "delete patch"
+     },
+     {
+      "q": "7. Programs declared in core configs never load",
+      "opts": "a scan core too · b core declares no programs · c leave them, report them",
+      "rec": "b (medium)",
+      "prep": "patch + lock test"
+     },
+     {
+      "q": "8. `--flowmind-program` and `--flowmind-file` run nothing",
+      "opts": "a delete both flags (use --flow) · b make them run · c stop the false success first",
+      "rec": "a, with c's help fix (high)",
+      "prep": "8c then 8a (26 files)"
+     },
+     {
+      "q": "9. Three resolvers disagree on which export a command runs",
+      "opts": "a one shared resolver · b narrow to #export else handler (withdrawn) · c document the three · d (refuted) · e keep the SDK rule; CLI fails closed until decision 2",
+      "rec": "e (Fable agrees after two rounds) (medium)",
+      "prep": "none; rule before decision 2"
+     }
+    ]
+   }
+  },
+  "decisions": {
+   "type": "section",
+   "props": {
+    "label": "DECISIONS FOR YOU",
+    "title": "Nine decisions, each with a recommendation",
+    "id": "decisions"
+   },
+   "variant": "full-width",
+   "children": [
+    "dec-lead",
+    "dec-table"
+   ]
+  },
+  "order-diagram": {
+   "type": "diagram",
+   "props": {
+    "engine": "mermaid",
+    "content": "graph TD\n  D1[1 steps with no runner] --> D56[5 success rule and 6 profile event]\n  D56 --> D8[8 flags that run nothing]\n  D8 --> D73[7 programs in core configs, 3 dormant programs]\n  D73 --> D9[9 handler resolvers]\n  D9 --> D2[2 CLI routing]\n  D2 --> D4[4 trustgraph backend]\n  V[vault salt and vault CLI args] --> D2",
+    "caption": "Fable agrees with every recommendation except decision 4, which it calls a canon conflict to rule first. Land both vault patches before decision 2 step 1, or 5 vault commands misread their arguments."
+   }
+  },
+  "order": {
+   "type": "section",
+   "props": {
+    "label": "RULING ORDER",
+    "title": "The suggested order",
+    "id": "order",
+    "subtitle": "From Fable 5.1 at tick 54; decision 9 was added at tick 61."
+   },
+   "variant": "full-width",
+   "children": [
+    "order-diagram"
+   ]
+  },
+  "patches-lead": {
+   "type": "text",
+   "props": {
+    "content": "Every patch was built in a scratch copy with a failing test first, then checked with `git apply --check`. Combined checks: v1 (11 patches), v2 (18, with a real `lev vault` smoke test in a fresh worktree) and v3 (all 23). Optional extras: the vault scrypt-cost add-on (48/48) and decision 2's fix A. All files are in `~/.local/state/lev/spikes/arch-burndown-20260927/`.",
+    "maxWidth": "78ch"
+   }
+  },
+  "patches-table": {
+   "type": "data-table",
+   "props": {
+    "columns": [
+     {
+      "key": "p",
+      "label": "Patch (apply order)"
+     },
+     {
+      "key": "waits",
+      "label": "Waits on"
+     },
+     {
+      "key": "what",
+      "label": "What it does"
+     },
+     {
+      "key": "proof",
+      "label": "Proof"
+     }
+    ],
+    "rows": [
+     {
+      "p": "1. fork1-runtime-fail-closed",
+      "what": "A step no runner handles fails at run time instead of going to the model",
+      "waits": "decision 1",
+      "proof": "7/7; 4 fail with the source reverted"
+     },
+     {
+      "p": "2. fork1-addon-default-fails-closed",
+      "what": "Approval steps fail closed too",
+      "waits": "decision 1",
+      "proof": "8/8"
+     },
+     {
+      "p": "3. fork6a-delete-profile-event",
+      "what": "Delete the never-fired profile event and trigger",
+      "waits": "decision 6",
+      "proof": "exec 15/15, bridge 9/9"
+     },
+     {
+      "p": "4. fork5-command-success-rule",
+      "what": "The JSON result treats only success:false as failure, like the exit code",
+      "waits": "decision 5",
+      "proof": "new test fails with the fix reverted"
+     },
+     {
+      "p": "5. vault-salt-header",
+      "what": "Save the key salt so a second process can read secrets",
+      "waits": "none (bug)",
+      "proof": "7 failing → 41/41"
+     },
+     {
+      "p": "6. vault-cli-args",
+      "what": "Vault reads CLI arguments; the secret comes from stdin only",
+      "waits": "none (bug)",
+      "proof": "5 failing → 46/46"
+     },
+     {
+      "p": "7. fork2-step1-capture-push-routing",
+      "what": "Two-word commands route; `lev sdlc capture-push` works",
+      "waits": "decision 2",
+      "proof": "3/3; live capture emitted 1 event"
+     },
+     {
+      "p": "8. fork2-fix-b-name-is-verb",
+      "what": "A two-word command is named by its verb (fix A is the alternative)",
+      "waits": "decision 2",
+      "proof": "24/24"
+     },
+     {
+      "p": "9. fork7b-core-declares-no-programs",
+      "what": "Core configs declare no programs; a lock test keeps it so",
+      "waits": "decision 7",
+      "proof": "lock test fails before, passes after"
+     },
+     {
+      "p": "10. fork3-never-written-programs",
+      "what": "Remove 2 program entries whose flows were never written",
+      "waits": "decision 3",
+      "proof": "applies to main, -13 lines"
+     },
+     {
+      "p": "11. sdlc-test-storage-setup",
+      "what": "sdlc tests use scratch storage",
+      "waits": "one full sdlc run",
+      "proof": "needs one full plugins/sdlc run first"
+     },
+     {
+      "p": "12. fork8c-help-is-not-success",
+      "what": "Printing help is no longer a success",
+      "waits": "decision 8",
+      "proof": "fails before, passes after"
+     },
+     {
+      "p": "13. fork8a-delete-flowmind-flags",
+      "what": "Delete both flowmind flags (26 files)",
+      "waits": "decision 8",
+      "proof": "all 26 callers found"
+     },
+     {
+      "p": "14. research-send-flow",
+      "what": "research passes its flow with --flow",
+      "waits": "decision 8",
+      "proof": "applies after 8a"
+     },
+     {
+      "p": "15. research-exit-code",
+      "what": "The timetravel CLI exits 1 when a workflow run fails",
+      "waits": "none (bug)",
+      "proof": "4 failing → 8/8"
+     },
+     {
+      "p": "16. autoreason-run-handler",
+      "what": "Add the missing entry point, and a test that declared handlers exist",
+      "waits": "none (bug)",
+      "proof": "32/32"
+     },
+     {
+      "p": "17. plugins-programs-lock-test",
+      "what": "Lock the list of refused plugin programs (it can only shrink)",
+      "waits": "none",
+      "proof": "fails when a new one appears"
+     },
+     {
+      "p": "18. plugins-programs-lock-test-fork3-ratchet",
+      "what": "The list shrinks with decision 3",
+      "waits": "decision 3",
+      "proof": "1/1"
+     },
+     {
+      "p": "19. poly-handler-resolves-check",
+      "what": "`build-registry.js --check-handlers`: 40 of 139 unresolved, a list that only shrinks",
+      "waits": "none",
+      "proof": "poly 4/4; live probe"
+     },
+     {
+      "p": "20. discourse-graph-handler-exports",
+      "what": "6 discourse-graph commands work on the SDK and CLI paths",
+      "waits": "none",
+      "proof": "proven live on both paths"
+     },
+     {
+      "p": "21. index-refresh-dead-entry",
+      "what": "Delete a duplicate registry entry whose handler was never written",
+      "waits": "none",
+      "proof": "lev index refresh stays the owner"
+     },
+     {
+      "p": "22. registry-baseline-shrink-after-dg-index",
+      "what": "Remove the 7 fixed rows from the known-broken list",
+      "waits": "follows the 3 above",
+      "proof": "check exit 1 → exit 0"
+     },
+     {
+      "p": "23. pricing-cli-flags",
+      "what": "`lev pricing` honors its flags and refuses unknown ones",
+      "waits": "none",
+      "proof": "live: Exa per request; typo exits 1"
+     }
+    ]
+   }
+  },
+  "patches": {
+   "type": "section",
+   "props": {
+    "label": "HELD PATCHES",
+    "title": "23 patches, in the order they apply",
+    "id": "patches"
+   },
+   "variant": "full-width",
+   "children": [
+    "patches-lead",
+    "patches-table"
+   ]
+  },
+  "landed-text": {
+   "type": "text",
+   "props": {
+    "content": "The loop committed nothing itself. Three of your sync commits included its work:\n\n- **`4797228d1` (03:29):** the round-1 gate fix in core/eval and core/flowmind.\n- **`512d6806f` (03:48):** gates that fail closed in core/exec, \"task\" means a task packet, and the trust-this-folder message.\n- **`27f06bfbf` (12:18):** programs whose flow cannot run are refused at registration; exec tests write a real task packet; the cdo boundary audit runs its 5 commands; the earlier flow fixes (rust-plan, exec-validate, deepen-plan, 4 sdlc steps); the pre-push hook logs capture output; two sdlc tests stop writing into the real event log.\n\nThese went in with syncs, not reviewed commits, so their commit messages do not carry the tested/not-tested notes. The test counts are in the handoff for each tick.",
+    "maxWidth": "78ch"
+   }
+  },
+  "landed": {
+   "type": "section",
+   "props": {
+    "label": "ALREADY COMMITTED",
+    "title": "What your syncs swept in",
+    "id": "landed"
+   },
+   "variant": "stacked",
+   "children": [
+    "landed-text"
+   ]
+  },
+  "b1": {
+   "type": "card",
+   "props": {
+    "title": "Code-graph tool",
+    "content": "Refuses to start because of stale lock files from 2026-09-16 in `/private/tmp/cbm-daemon-501`, so `lev index` never completes and the MCP server times out (it failed again this session).",
+    "label": "TOOLING"
+   },
+   "variant": "default"
+  },
+  "b2": {
+   "type": "card",
+   "props": {
+    "title": "Untracked flow file",
+    "content": "`plugins/autowiki/flows/refresh.flow.yaml` is untracked, but 2 of the 3 programs doing real work run it. A clean checkout refuses them. Add it in your next sync.",
+    "label": "REPO"
+   },
+   "variant": "default"
+  },
+  "b3": {
+   "type": "card",
+   "props": {
+    "title": "Slow lev startup",
+    "content": "Every call took 27-60 s this morning; something was doing about 8,000 disk operations a second. Find it with `sudo fs_usage -f filesys`.",
+    "label": "MACHINE"
+   },
+   "variant": "default"
+  },
+  "b4": {
+   "type": "card",
+   "props": {
+    "title": "One full sdlc test run",
+    "content": "The sdlc test-storage patch needs one full `plugins/sdlc` test run first; the loop only runs named test files.",
+    "label": "TESTS"
+   },
+   "variant": "default"
+  },
+  "b5": {
+   "type": "card",
+   "props": {
+    "title": "Leftover worktree",
+    "content": "`.claude/worktrees/combined-v2` has 44 `node_modules` symlinks into main (the command guard blocks removing them). Do not run `pnpm install` there. Remove it with `git worktree remove --force .claude/worktrees/combined-v2`.",
+    "label": "CLEANUP"
+   },
+   "variant": "default"
+  },
+  "blocked": {
+   "type": "section",
+   "props": {
+    "label": "BLOCKED ON YOU",
+    "title": "Five things the loop could not do",
+    "id": "blocked"
+   },
+   "variant": "card-grid",
+   "children": [
+    "b1",
+    "b2",
+    "b3",
+    "b4",
+    "b5"
+   ]
+  },
+  "dd-text": {
+   "type": "text",
+   "props": {
+    "content": "- **Move the unread `handlers:` config sections into `poly.sdk`** (context-graph, imessage, sentinel; 23 commands with arguments). context-graph's `query` clashes with code-graph's `query`, and 9 handler files answer to two CLI names. Tied to decision 2.\n- **sdlc ralph trigger:** its registered command is the missing trigger for the dormant ralph flow; fold into decision 3's per-plugin pass.\n- **qit-engines SDK:** compile, validate and g_tower from `schemas/engine.schema.yaml`; there is live intent in `dna/vernacular.yaml` and core/world-model.\n- **Triggers for 62 programs with no emitter** (decision 3).\n- **Per-module CLI cleanup:** 43 unimplemented, 27 shadowed and 71 unknown surfaces (decision 2).\n- **Who owns the spec lifecycle** (decision 3).\n\nEarlier ticks also logged: verification beyond schema checks (your answer on rules), the blast radius of rejecting unknown steps (measured: 0 tests break), and an acyclic-trigger gate.",
+    "maxWidth": "78ch"
+   }
+  },
+  "deepdives": {
+   "type": "section",
+   "props": {
+    "label": "DEEP DIVES",
+    "title": "Six potential tasks the loop logged instead of doing",
+    "id": "deepdives"
+   },
+   "variant": "stacked",
+   "children": [
+    "dd-text"
+   ]
+  },
+  "method-text": {
+   "type": "text",
+   "props": {
+    "content": "**Rules:** no commits; no git stash, checkout or reset; typecheck plus named test files only; potential tasks go to the sweep ledger; every loop variant stays selectable; everything saved to disk each tick so nothing lived only in the conversation.\n\n**Advice:** Fable 5.1 answered 17 questions. Each answer was saved verbatim and checked against the code before it was used. Where Fable and the loop disagreed, both positions were kept, not blended.\n\n**Mistakes caught and corrected:**\n- Tick times written between 04:35 and 06:05 were guesses, running up to 2 hours ahead. They were caught against file timestamps, corrected, and a memory note was added: run `date` before stamping.\n- The handler census first counted any default export as a match, which hid 14 broken commands. It now follows re-exports and was re-proven live.\n- The loop's own recommendation for decision 9 was withdrawn when it turned out to cross a DNA safety gate.\n- Five claims from Fable were refuted and recorded, for example \"27 affected entries\" (it was 12).\n- The tick-65 probe first compared a wrapped result, so its verdicts were wrong. It was fixed and rerun before anything was recorded.\n- This page's check found the \"waiting for commit OK\" list was stale: your 12:18 sync had committed it. Both records now say so.",
+    "maxWidth": "78ch"
+   }
+  },
+  "method": {
+   "type": "section",
+   "props": {
+    "label": "HOW THE LOOP WORKED",
+    "title": "Rules it ran under, and the mistakes it caught",
+    "id": "method"
+   },
+   "variant": "stacked",
+   "children": [
+    "method-text"
+   ]
+  },
+  "where-table": {
+   "type": "data-table",
+   "props": {
+    "columns": [
+     {
+      "key": "what",
+      "label": "What"
+     },
+     {
+      "key": "path",
+      "label": "Path"
+     }
+    ],
+    "rows": [
+     {
+      "what": "The 9 decisions",
+      "path": ".lev/pm/decisions/20260927-overnight-arch-burndown-forks.yaml"
+     },
+     {
+      "what": "Handoff, with the morning pointer at the top",
+      "path": ".lev/pm/handoffs/20260923-first-party-audit-20260922-backlog-burn-down-audit-backlog-intent-forks-session-3.md"
+     },
+     {
+      "what": "Sweep ledger (157 findings)",
+      "path": ".lev/pm/workstreams/task-bundle-ontology/captures/20260927-capture-sweep.yaml"
+     },
+     {
+      "what": "Held patches, recipes, stacking check",
+      "path": "~/.local/state/lev/spikes/arch-burndown-20260927/ (apply-recipes.yaml, check-held-patches.sh)"
+     },
+     {
+      "what": "Tick-by-tick log",
+      "path": "~/.local/state/lev/spikes/arch-burndown-20260927/loop-ledger.yaml"
+     },
+     {
+      "what": "Combined check reports",
+      "path": "~/.local/state/lev/spikes/arch-burndown-20260927/combined-check-{report,v2-report,v3-report}.yaml"
+     },
+     {
+      "what": "Fable 5.1 advice seats",
+      "path": "~/.local/state/lev/tribunal/core-simplify-20260927/seat-*-fable.*"
+     },
+     {
+      "what": "Your 15 answers (verbatim)",
+      "path": "~/.local/state/lev/spikes/arch-burndown-20260927/interview-answers/raw-20260927.json"
+     },
+     {
+      "what": "Round 1, round 2 and core census pages",
+      "path": ".lev/now/arch-burndown-interview-20260927.html, arch-burndown-round2-20260927.html, core-census-20260927.html"
+     }
+    ]
+   }
+  },
+  "where": {
+   "type": "section",
+   "props": {
+    "label": "WHERE THINGS LIVE",
+    "title": "Files to open",
+    "id": "where"
+   },
+   "variant": "full-width",
+   "children": [
+    "where-table"
+   ]
+  }
+ }
+}
