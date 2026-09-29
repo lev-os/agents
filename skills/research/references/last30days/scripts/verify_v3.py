@@ -52,7 +52,7 @@ def run_command(cmd: list[str], *, env: dict[str, str] | None = None, timeout: i
 
 
 def verify_unit() -> dict[str, str]:
-    run_command([PYTHON, "-m", "unittest", "discover", "-s", "tests", "-p", "test_*.py"], timeout=600)
+    run_command([PYTHON, "-m", "pytest", "tests"], timeout=600)
     run_command(
         [
             PYTHON,
@@ -92,7 +92,7 @@ def verify_smoke() -> list[dict[str, object]]:
         env["LAST30DAYS_REASONING_PROVIDER"] = provider
         start = time.time()
         result = run_command(
-            [PYTHON, str(ENGINE), SMOKE_TOPIC, "--emit=json", *extra],
+            [PYTHON, str(ENGINE), SMOKE_TOPIC, "--emit=json", "--json-profile=raw", *extra],
             env=env,
             timeout=240,
         )
@@ -118,7 +118,7 @@ def verify_latency() -> dict[str, dict[str, object]]:
         for topic in LATENCY_TOPICS:
             start = time.time()
             run_command(
-                [PYTHON, str(ENGINE), topic, "--emit=json", *extra],
+                [PYTHON, str(ENGINE), topic, "--emit=json", "--json-profile=raw", *extra],
                 timeout=300,
             )
             timings.append(time.time() - start)

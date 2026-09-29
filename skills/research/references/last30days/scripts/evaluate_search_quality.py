@@ -332,6 +332,12 @@ def run_last30days(repo_dir: Path, topic: str, *, search: str, timeout_seconds: 
     if not engine.exists():
         engine = repo_dir / "scripts" / "last30days.py"
     cmd = [sys.executable, str(engine), topic, "--emit=json"]
+    # Current engines default to the stable agent export, while older revisions
+    # used by the evaluator implicitly emit the raw report and do not recognize
+    # --json-profile. Request raw explicitly whenever the checked-out engine
+    # supports the selector.
+    if not engine.exists() or "--json-profile" in engine.read_text(encoding="utf-8"):
+        cmd.append("--json-profile=raw")
     if search:
         cmd.extend(["--search", search])
     if quick:
@@ -349,7 +355,16 @@ def run_last30days(repo_dir: Path, topic: str, *, search: str, timeout_seconds: 
     )
     if result.returncode != 0:
         raise RuntimeError(f"{repo_dir.name} failed for '{topic}' with exit {result.returncode}\n{result.stderr.strip()}")
-    return json.loads(result.stdout)
+    payload = json.loads(result.stdout)
+    # Shape guard: the evaluator compares raw Report fields. If the engine
+    # emitted the agent profile anyway (flag detection missed a future
+    # spelling), fail loudly instead of scoring empty ranked_candidates.
+    if "schema_version" in payload and "ranked_candidates" not in payload:
+        raise RuntimeError(
+            f"{repo_dir.name} emitted the agent JSON profile; the evaluator "
+            "requires the raw Report (--json-profile=raw)."
+        )
+    return payload
 
 
 def create_worktree(rev: str) -> Path:

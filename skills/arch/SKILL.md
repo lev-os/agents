@@ -55,12 +55,32 @@ Execute this procedure for every architectural analysis:
 1. CLASSIFY    Level (strategic/integrative/tactical)
 2. ELICIT      Quality attributes (if not provided, ASK)
 3. BUILD       Utility tree (prioritized scenarios, H/M/L rankings)
-4. IDENTIFY    Candidate approaches (2-3 options minimum)
+4. IDENTIFY    Candidate approaches (2-3 meaningful options when they exist)
 5. ANALYZE     Trade-offs per approach (sensitivity points, tradeoff points, risks)
 6. RECOMMEND   With explicit justification (optimized, sacrificed, why)
 7. GENERATE    Artifacts (ADR draft, C4 descriptions, fitness functions)
 8. PROPOSE     Review triggers and thresholds
 ```
+
+### Proportionate depth and real options
+
+Match the analysis depth to the decision's blast radius, reversibility,
+uncertainty and evidence burden. A small, reversible L4 change may need a
+focused boundary and one viable approach; a public protocol, storage, security
+or multi-team decision needs the full flow. Do not add options only to reach a
+count. When alternatives are genuinely invalid, record the constraint and the
+evidence that rules them out.
+
+Use meaningful options that could actually be chosen. For example:
+
+| Weak analysis | Useful analysis |
+|---|---|
+| "Option C: do nothing" added only to reach three candidates | "Only the in-process queue meets the no-new-vendor constraint; the hosted queue is rejected because the supplied deployment boundary forbids a new external dependency." |
+| "Use caching for scale" | "A bounded read-through cache lowers p95 reads but adds invalidation risk; the measured write rate and stale-data tolerance decide whether that trade is acceptable." |
+
+The examples are constructed teaching cases, not evidence about the current
+system. Replace every boundary, threshold and constraint with the supplied
+project facts and cite the verifier that can confirm it.
 
 ### Step 2: Elicitation Questions
 
@@ -177,7 +197,8 @@ ARCHITECTURAL ANALYSIS: [System Name]
 Do NOT:
 - Recommend without documenting trade-offs
 - Skip quality attribute elicitation when requirements are vague
-- Propose single-option solutions (always 2-3 candidates)
+- Present a single option without either a meaningful alternative or evidence
+  that alternatives are invalid
 - Use vague terms like "scalable" without measurable criteria
 - Ignore non-functional requirements
 - Copy architecture from unrelated systems without adaptation
@@ -322,7 +343,7 @@ Skill-specific technique rationale. Apply patterns from the skill body. Progress
 
 ## Absorbed Patterns (Waves 4–6)
 
-Reference patterns from external parity analysis. Use as architectural vocabulary in ADR, C4, and fitness function work.
+Reference patterns from external parity analysis. Use as architectural vocabulary in ADR, C4, and fitness function work. The patterns and their source notes are supplied context, not current-system proof. Verify the named repository, runtime boundary and measured behavior before presenting any inherited statement as an observation.
 
 ### Edge Delivery Pipeline (from Clawhip, Wave 4 — cw-02)
 
@@ -337,7 +358,7 @@ Dispatcher → Router → Renderer → Sink
 - **Renderer**: Formats for human consumption (markdown, ANSI, JSON)
 - **Sink**: Delivers to destination (terminal, file, webhook, channel)
 
-The renderer/sink split is the key insight: separating them enables surface-agnostic delivery, testable rendering without sending, and sink multiplexing without renderer duplication. Lev's current event bus collapses Renderer + Sink — this is the canonical target shape.
+The renderer/sink split is the key insight: separating them enables surface-agnostic delivery, testable rendering without sending, and sink multiplexing without renderer duplication. The source-supplied note says Lev's current event bus collapses Renderer + Sink and presents the split as a target shape; confirm that boundary against current code before treating either claim as verified.
 
 Source: `workshop/analysis/clawhip/analysis.md`, `.lev/pm/parity/clawhip.yaml`
 

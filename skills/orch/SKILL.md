@@ -9,6 +9,13 @@ Use one control plan and one verified loop. Preserve the requested features
 through failure → diagnosis → forward revision → retest. Never revert to a
 smaller feature set or declare a failed evaluation complete.
 
+For persistent goals or multi-turn AUTO work, read
+[long-running guidance](../goal-exec/references/long-running.md). It owns the
+shared acceptance-map, vertical-slice, stall-detection and final-audit rules;
+the mode and branch-authority controls below remain binding. Prefer connected
+end-to-end work over another detached helper. Finish a verified slice, then
+continue ready work without asking for permission already granted.
+
 ## Pick the mode
 
 For a literal orch invocation, read project capabilities and call the bundled
@@ -39,6 +46,10 @@ call. If more graph work remains afterward, the graph result is partial.
 - Explicit stop, status, closeout and read-only requests override execution.
   Natural-language all-ready-work requests mean AUTO; one-unit requests mean ONCE.
 - ONCE combined with AUTO/--until=human is invalid. Return a blocked report before effects.
+- --herdr = run lanes as herdr tabs, one agent per lane. It combines with the
+  modes above: bare --herdr interviews, scans and recommends a tab layout; auto
+  also opens lanes and runs the tick loop; --once runs one tick. Before any
+  herdr action, load references/herdr.md (the resolver lists it in load_references).
 
 ## Establish the control plan BEFORE any job effects
 
@@ -68,8 +79,10 @@ the user first: that ends the turn before the required report exists. Never
 proceed anyway or change a capability flag to simulate availability.
 If available, inspect timers, update the matching timer or create one, and verify
 its handle/interval. Timers recover unattended work; they never delay ready jobs.
-AUTO may choose a timer when unattended continuation needs it. A long-horizon
-northstar wake defaults to 30 minutes. Keep goal/worker wakes deduplicated.
+Prefer native goal continuation; AUTO does not itself require a timer. Choose a
+timer only within an explicit watch request or existing authorized scheduling
+policy, never against a no-schedules instruction. When authorized, a long-horizon
+wake defaults to 30 minutes. Keep goal/worker wakes deduplicated.
 
 DISCOVER ends after saving the graph and the required recommendation/report.
 Do not enter the execution loop in discovery mode.
@@ -122,6 +135,11 @@ make status complete. Re-list or inspect known remaining branches before writing
 JSON printed in chat is not a file. Waiting for a running worker is an exit path
 too: write the project's report with status=waiting before yielding. Never ask
 whether to continue already-authorized supervision or use a timer to delay ready work.
+
+The output-artifact requirement applies when the project declares one and writes
+are authorized. Otherwise retain the existing authorized state location or report
+inline; do not invent a reporting system or violate a read-only/no-file request.
+Checkpoint writes do not justify ending AUTO while authorized ready work remains.
 
 Discovery, success, partial, blocked, waiting, cancelled and closeout outcomes ALL
 require the project's output artifact. Re-read its schema, write the exact required

@@ -19,6 +19,15 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from . import dates, grounding, log
 from .resolve import _has_backend
 
+# Peer cap vs total vs-entity cap (main + peers).
+COMPETITORS_MIN = 1
+COMPETITORS_MAX = 6
+COMPETITORS_DEFAULT = 2
+COMPARISON_ENTITY_MAX = COMPETITORS_MAX + 1
+# Discovery SERP fan-out is small (3 queries today) but still needs a ceiling
+# so a future query expansion cannot open one worker per query unbounded.
+MAX_DISCOVERY_WORKERS = 3
+
 # A "brand-shaped" token starts with uppercase OR is camelCase with an
 # uppercase letter later. Catches "Anthropic", "OpenAI", "xAI", "iPhone",
 # "eBay", "Hugging", "Face".
@@ -172,7 +181,7 @@ def discover_competitors(
         items, _artifact = grounding.web_search(query, date_range, config)
         return label, items
 
-    with ThreadPoolExecutor(max_workers=len(queries)) as executor:
+    with ThreadPoolExecutor(max_workers=min(len(queries), MAX_DISCOVERY_WORKERS)) as executor:
         futures = {
             executor.submit(_search, label, q): label
             for label, q in queries.items()

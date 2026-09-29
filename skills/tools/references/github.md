@@ -1,214 +1,179 @@
 ---
 name: gh
-description: Patterns for invoking the GitHub CLI (gh) from agents. Covers structured output, pagination, repo targeting, search vs list, gh api fallback.
+description: Use when a task needs GitHub repositories, issues, pull requests, Actions, releases, discussions, or API/GraphQL access through gh.
 ---
 
-# Reference
+# GitHub CLI
 
-## Interactivity policy
+Use the installed `gh` as the transport. The executable and its live help are
+the command contract; this file supplies routing, structured output, and
+fallbacks for version-dependent capabilities.
 
-`gh` already does the right thing in non-TTY contexts: it skips the pager,
-strips ANSI color, and errors out fast with a helpful message instead of
-prompting (e.g. `must provide --title and --body when not running interactively`).
-You don't need to defensively set `GH_PAGER` or pass `--no-pager` (no such
-flag exists).
+## Target and authentication
 
-## Parsing JSON
+Run commands from the named project root so `gh` can resolve its remote. Pass
+`--repo OWNER/REPO` when the target is explicit or the current directory is not
+that repository. Check authentication without exposing a token; use the JSON
+form only when the current `gh auth status --help` exposes it:
 
-Human output from `gh` is column-formatted. If you want structured data:
+```bash
+gh auth status
+gh auth status --json hosts
+```
 
-- Add `--json field1,field2,...` for structured output.
-- Run a command with `--json` and **no field list** to print the full set of
-  available fields, then pick what you need.
-- Use `--jq '<expr>'` for filtering without piping through a separate `jq`.
-- Use `--template '<go-template>'` (alongside `--json`) when you want shaped
-  text output. Note that `--template`/`-T` collides with a body-template flag
-  on a few commands (e.g. `gh pr create -T`, `gh issue create -T`); always
-  check `--help` before assuming which one you're hitting.
+Use `gh auth login` only when the user asks to establish a session.
 
-## Pagination and silent truncation
+## Discover before use
 
-List commands cap results.
+For a command or flag that has not been used in this session, run its exact
+help first:
 
-- `gh issue list`, `gh pr list`, `gh search ...`: pass `-L N` (`--limit N`).
-  The default is usually 30.
-- `gh issue list` / `gh pr list` do not expose aggregate totals like
-  `totalCount` via `--json`. If you need a true total, use `gh api graphql`
-  to query `totalCount`; otherwise, treat `-L` as the cap for the current call.
-- For raw API calls use `gh api --paginate <path>`. Combine with
-  `--jq` and (optionally) `--slurp` to assemble one array.
+```bash
+gh <group> --help
+gh <group> <command> --help
+```
 
-## Repo targeting
+Some installations accept a command but show parent help or return a preview
+feature error. Treat that as unsupported for the current run and use `gh api`
+or GraphQL. Do not infer support from a zero exit status alone.
 
-`gh` infers the repo from the cwd's git remotes. 
+## Structured reads
 
-Pass `--repo OWNER/REPO` (`-R`) to override the resolved CWD repo.
+Prefer `--json` with an explicit field list, then `--jq` or `--template` for a
+small result. Run `--json` without fields only to discover fields. On commands
+where `-T`/`--template` is also a body-template flag, follow that command's
+help rather than assuming the formatting flag. List calls
+are capped; pass `--limit` and state the cap when a complete total is not
+available. For raw REST collections use `--paginate`, and use GraphQL
+`totalCount` when an exact count matters.
 
-## Search vs list
+```bash
+gh issue list --repo OWNER/REPO --state open --limit 100 --json number,title,url
+gh pr view 42 --repo OWNER/REPO --json number,title,author,mergeStateStatus
+gh api --paginate repos/OWNER/REPO/issues --jq '.[] | {number,title}'
+```
 
-- `gh search issues|prs|code|repos|commits|users` uses GitHub's search
-  index and accepts the full search syntax (`is:open`, `author:`,
-  `label:`, `repo:owner/name`, `in:title`, ...). Pass each qualifier as
-  its own bare token, not as one quoted string:
-  `gh search issues repo:cli/cli is:open author:monalisa` works, but
-  `gh search issues "repo:cli/cli is:open"` is treated as a single keyword (parsed as `repo:"cli/cli is:open"`)
-  and fails with `Invalid search query`. Quote only multi-word free text
-  (`gh search issues "broken feature"`). Most qualifiers also have a
-  dedicated flag (`--repo`, `--author`, `--label`, ...). Prefer search for
-  anything cross-repo or filtered by author/label.
-- `gh issue list --search "..."` and `gh pr list --search "..."` take the
-  query as one quoted string (it is a flag value) and are scoped to one repo.
-- Bots author as GitHub Apps, so `--author dependabot` matches nothing. Use
-  `--app dependabot` (on `pr`/`issue list` and `search prs|issues`; expands
-  to `author:app/<slug>`) or `--author "dependabot[bot]"`.
-- `gh search issues` also takes `--search-type <lexical|semantic|hybrid>`
-  (github.com/GHEC only, issues only): use `semantic` when the user describes a
-  problem in natural language rather than exact terms, and `hybrid` to blend
-  keyword and semantic ranking; `lexical` (default) is exact matching.
+Search and list have different query parsing. `gh search issues|prs|code|repos|commits|users`
+accepts each qualifier as its own token (`repo:OWNER/REPO is:open`); quote
+only multi-word free text. `gh issue list --search` and `gh pr list --search`
+take the complete query as one quoted flag value. For bot-authored work,
+`--app dependabot` matches the GitHub App while `--author dependabot` generally
+does not; use the exact bot login when the command requires `--author`.
 
-## Issue types, sub-issues, and relationships
+For search-vs-list quoting and bots, issue relationships, attachment constraints,
+discussions, remote contents, or worktree flags, read
+[compatibility details](github-compatibility.md). Its version-sensitive examples
+require exact live-help support before use.
 
-Newer `gh issue` subcommands model issue types, sub-issue hierarchy, and
-blocked-by/blocking relationships.
+## Capability routes
 
-- `gh issue create`: `--type <name>`, `--parent <number|url>` (creates the
-  new issue as a sub-issue), `--blocked-by <number|url,...>`, `--blocking <number|url,...>`.
-- `gh issue edit` (edits one or more issues in the same repo, e.g.
-  `gh issue edit 23 34`): `--type <name>` / `--remove-type`,
-  `--parent <n|url>` / `--remove-parent`,
-  `--add-sub-issue <n,n>` / `--remove-sub-issue <n,n>`,
-  `--add-blocked-by <n,n>` / `--remove-blocked-by <n,n>`,
-  `--add-blocking <n,n>` / `--remove-blocking <n,n>`. Relationship and parent
-  refs are issue numbers or URLs; a URL may point to another repo on the same
-  host, but a different host is rejected. `--add-sub-issue` cannot be used
-  when editing more than one issue.
-- `gh issue list --type <name>` filters by issue type.
-- `gh issue view` and `gh issue list` accept these as `--json` fields (prefer
-  them over scraping the default text output): `issueType`, `parent`,
-  `subIssues`, `subIssuesSummary`, `blockedBy`, `blocking`. `subIssues`,
-  `blockedBy`, and `blocking` are objects shaped
-  `{"nodes": [...], "totalCount": N}` (not flat arrays), and `nodes` is capped
-  (`subIssues` at 100, `blockedBy`/`blocking` at 50), so compare the node count
-  against `totalCount` to detect truncation.
-- GHES: issue types and sub-issues need 3.17+; blocked-by/blocking
-  relationships need 3.19+.
+| Need | Preferred route | Fallback or caveat |
+|---|---|---|
+| Repository, clone, fork, file tree | `gh repo ...` | `gh api repos/OWNER/REPO` and `contents/...` |
+| Issues, labels, comments, assignments | `gh issue ...` | REST `issues/...` endpoints |
+| Pull requests, checks, reviews, diff | `gh pr ...` | REST `pulls/...`, `issues/.../comments`, and review endpoints |
+| Actions workflows and runs | `gh workflow ...`, `gh run ...` | REST Actions endpoints from the live API contract |
+| Releases and assets | `gh release ...` | REST `releases` and `releases/.../assets` |
+| Discussions and relationships | `gh discussion ...` or `gh issue ...` relationship flags | GraphQL when the installed CLI lacks the preview command or field |
+| Remote files and directories | `gh repo read-file`, `gh repo read-dir` when shown by help | REST contents API; decode a file's base64 `content` |
+| Arbitrary REST or GraphQL | `gh api`, `gh api graphql` | Read the endpoint schema first when it mutates state |
 
-## Attaching images and videos
+### Issues and pull requests
 
-`--attach <path>` is available on `gh issue create`, `gh issue edit`,
-`gh issue comment`, `gh pr create`, `gh pr edit`, and `gh pr comment`.
+The common route is:
 
-- Repeat `--attach` to upload multiple files:
-  `gh issue comment 12 --attach ./before.png --attach ./after.png`.
-- Each command invocation accepts at most 50 `--attach` values total across
-  images and videos.
-- Supported files are `png`, `jpg`, `jpeg`, `gif`, `webp`, `svg`, `mp4`,
-  `mov`, and `webm`.
-- For an image, append alt text to the path after `#`. Quote the value so the
-  shell does not treat `#` as a comment:
-  `gh pr create --attach './login.png#The login error state'`. Without alt
-  text, the filename is used.
-- `--attach` paths and local Markdown destinations may be absolute or relative
-  to the directory where `gh` runs.
-- If the body references an attached path, `gh` rewrites that Markdown
-  reference to the uploaded URL. The reference keeps its existing alt text.
-  Otherwise, `gh` appends the attachment to the body. For example:
-  `gh pr edit 23 --body '![error](./login.png)' --attach ./login.png`.
-- Videos cannot take alt text. A standalone `![recording](./repro.mp4)` becomes
-  a bare player URL, while an inline video image becomes a link. A
-  reference-style video image such as `![recording][clip]` with
-  `[clip]: ./repro.mp4` is rejected; use a reference-style link instead.
-- `gh issue create` and `gh pr create`: `--attach` cannot be used with
-  `--web`. `gh pr create --attach` also cannot be used with `--dry-run`.
-- `gh issue edit`: `--attach` can edit only one issue at a time.
-- `gh issue comment` and `gh pr comment`: `--attach` cannot be used with
-  `--web` or `--delete-last`. It works alone, with `--edit-last`, or with one
-  of `--body`, `--body-file`, or `--editor`.
-- Uploads require GitHub.com or a GHE.com tenant, an OAuth token, classic PAT,
-  or fine-grained PAT, and `WRITE`, `MAINTAIN`, or `ADMIN` repository
-  permission. GitHub Enterprise Server and GitHub App tokens are unsupported.
-- Uploads stop at the first failure. If earlier files uploaded, `gh` still
-  writes those attachments and exits non-zero. Create and edit commands also
-  print the issue or pull request URL.
+```bash
+gh issue list --repo OWNER/REPO --limit 50
+gh issue view 123 --repo OWNER/REPO --comments
+gh pr list --repo OWNER/REPO --limit 50
+gh pr view 42 --repo OWNER/REPO --comments
+gh pr checks 42 --repo OWNER/REPO
+gh pr diff 42 --repo OWNER/REPO
+```
 
-## Discussions (`gh discussion`)
+`gh pr view --comments` exposes issue-level conversation comments. Review-thread
+comments on changed lines are a separate API surface; use the REST pull-request
+review-comments endpoint or a GraphQL query when that distinction matters.
 
-Preview command set, subject to change. Subcommands:
+For create/edit/review/comment/merge, inspect the exact help immediately before
+the mutation, show the prepared command, and require the user's existing
+authorization for that effect. `gh pr checkout` changes local branch state;
+use a worktree option when the help exposes one and isolation is requested.
 
-- `gh discussion list [--state open|closed|all] [--category <name>] [--author <handle>] [--label <name>,...] [--answered] [--search <query>] [--sort created|updated] [--order asc|desc] [--limit N] [--after <cursor>] [--json <fields>] [--web]`
-  lists a repo's discussions. `--state` defaults to open, `--sort` to updated,
-  `--order` to desc. `--answered` is tri-state (`--answered=false` for
-  unanswered) for Q&A categories.
-- `gh discussion view {<number>|<url>|<comment-id>|<comment-url>} [--comments] [--order oldest|newest] [--limit N] [--after <cursor>] [--json <fields>] [--web]`
-  shows a discussion's body; add `--comments` for its comments, or pass a
-  comment ID/URL as the argument to list that comment's replies (no
-  `--replies` flag; `--comments` is rejected with a comment argument).
-  `--order` (default newest), `--limit`, and `--after` apply only to comment
-  and reply listings.
-- `gh discussion create [--title <t>] [--body <b> | --body-file <path>] [--category <name>] [--label <name>,...]`
-  creates a discussion. `--title`, a body (`--body` or `--body-file`), and
-  `--category` are required non-interactively; omitting any will prompt on a
-  terminal.
-- `gh discussion edit {<number>|<url>} [--title <t>] [--body <b>] [--body-file <path>] [--category <name>] [--add-label <name>,...] [--remove-label <name>,...]`
-  edits title, body, category, or labels.
-- `gh discussion comment {<number>|<discussion-url>|<comment-id>|<comment-url>} [--body <b>] [--body-file <path>] [--edit] [--delete] [--yes]`
-  adds a top-level comment (when given a discussion) or a reply (when given a
-  comment); `--edit` or `--delete` updates or removes a comment/reply and
-  needs a comment ID or URL. `--yes` skips the `--delete` confirmation.
-- `--json`/`--jq`/`--template` are available on `list` and `view` only;
-  `create` and `edit` print the discussion URL. `comment` prints the discussion comment (or reply) URL.
+Newer `gh issue` versions may expose issue types, parents, sub-issues,
+blocking, and blocked-by relationships. If help does not show those flags,
+use the matching REST or GraphQL mutation instead. Compare nested `nodes` and
+`totalCount` when relationship fields are capped.
 
-## Reading files and directories (`gh repo read-file` / `read-dir`)
+### Attachments and discussions
 
-Preview commands, subject to change. They read a repo's contents over the API
-without cloning, and honor `--repo OWNER/REPO` (`-R`) and `--ref <branch|tag|commit>`
-(default branch when omitted).
+Some `gh` versions expose `--attach` for issue/PR create, edit, and comments.
+Check each command's help before using it. If supported, quote paths that
+contain `#` so the shell preserves alt text:
 
-- `gh repo read-file <path> [--ref <ref>] [--output <path> [--clobber]] [--allow-escape-sequences] [--json <fields>] [--jq <expr>]`
-  prints a file's contents. In non-TTY contexts the raw bytes go straight to
-  stdout (pipe-friendly); binary files are written as-is when piped but are
-  refused on a TTY. By default, a file containing terminal escape sequences is
-  refused; pass `--allow-escape-sequences` to read it anyway. `--output <path>` (`-o`) writes to
-  disk instead of stdout (a trailing slash writes under a directory using the
-  remote file name; `--clobber` allows overwrite); writing to disk always
-  includes the raw bytes regardless of escape sequences. `--output` and `--json` are
-  mutually exclusive. `--json` fields include `name`, `path`, `gitSHA`, `size`,
-  `type`, `encoding`, and `content` (base64 encoded).
-- `gh repo read-dir [<path>] [--ref <ref>] [--json <fields>] [--jq <expr>]`
-  lists a directory; with no path it lists the repo root. Non-TTY output is tab
-  separated as type, name, octal mode, and byte size. `--json` fields include
-  `name`, `path`, `type`, `gitType`, `mode`, `modeOctal`, `gitSHA`, `size`, and
-  `submodule`. A path pointing at a file errors and points you at `read-file`
-  (and vice versa).
+```bash
+gh pr create --title "Title" --body-file ./body.md --attach './screen.png#Login state'
+```
 
-## Fall back to `gh api` for anything `--json` doesn't expose
+Check the per-command help for attachment count, host, and permission limits.
+The public CLI's upload support is version and host dependent, may cap a
+single invocation at 50 files, requires a supported GitHub host and write
+permission, and cannot be combined with some web or dry-run modes. Uploads can
+partially succeed; record the returned issue or PR URL and report the first
+failed attachment. When `--attach` is absent, keep the body in a `--body-file`
+and use a provider-supported upload or an already-hosted URL.
 
-Sometimes useful data isn't on the typed commands. Examples:
+Discussions are preview/version-dependent. If `gh discussion --help` exposes
+the group, use its `list`, `view`, `create`, `edit`, and `comment` commands
+with live help. Otherwise use `gh api graphql` with the repository's
+discussion schema and verify the returned node or URL; do not silently treat
+an issue as a discussion.
 
-- Review-thread comments on a PR: `gh api repos/{owner}/{repo}/pulls/{n}/comments`
-  (the `--comments` flag on `gh pr view` shows issue-level comments only).
-- Arbitrary GraphQL: `gh api graphql -f query='...' -F var=value`.
-- REST shortcuts: `gh api repos/{owner}/{repo}/...` - note the
-  `{owner}/{repo}` placeholder is filled in for you when run from a repo
-  with detected remotes; pass them literally if you want determinism.
+### Actions and releases
 
-## Authentication
+Use live help for workflow names, inputs, and permissions:
 
-- `gh auth status` prints the active host(s), user, and which env var (if
-  any) is being honored.
-- `gh auth status --json` is supported.
+```bash
+gh workflow list --repo OWNER/REPO
+gh run list --repo OWNER/REPO --limit 20
+gh run view RUN_ID --repo OWNER/REPO --log-failed
+gh run watch RUN_ID --repo OWNER/REPO
+gh workflow run WORKFLOW --repo OWNER/REPO -f key=value
+gh run rerun RUN_ID --repo OWNER/REPO --failed
+```
 
-## Other notes
+`workflow run`, rerun, cancellation, and release operations mutate remote
+state. Confirm the exact workflow/ref/environment and inspect resulting run or
+release IDs. Release assets use `gh release upload` and `gh release download`
+when those commands are present; REST is the fallback for installations that
+only expose core release commands.
 
-- `gh pr checkout <n>` switches branches. Use `gh pr diff <n>` or
-  `gh pr view <n>` if you only need to read.
-- `gh pr checkout <n> --worktree <path>` checks the PR out into a git worktree
-  at `<path>` instead of switching the current branch.
-- `gh issue develop <n> --checkout` creates a linked branch for the issue and
-  checks it out. Add `--worktree <path>` to check that branch out into a git
-  worktree at `<path>` instead of switching the current branch;
-  `--worktree` requires `--checkout`, cannot be blank, and cannot be combined
-  with `--list`.
-- `NO_COLOR`, `CLICOLOR_FORCE`, and `GH_FORCE_TTY` are honored. Set
-  `GH_FORCE_TTY=1` if you want TTY-style output (colors, tables, the
-  pager, interactivity) inside an agent harness; leave it unset unless needed.
+## API and GraphQL fallback
+
+Use `gh api` for an endpoint or field missing from a typed command. REST
+examples:
+
+```bash
+gh api repos/OWNER/REPO
+gh api repos/OWNER/REPO/pulls/42/comments --paginate
+gh api repos/OWNER/REPO/actions/runs --paginate --jq '.workflow_runs[] | {id,name,status}'
+gh api repos/OWNER/REPO/contents/path/to/file --jq '.content'
+```
+
+Use `-f` for strings and `-F` for typed values. Adding fields selects POST
+unless `--method GET` is explicit; distinguish read parameters from mutations. `-X PATCH` or `-X DELETE`
+changes state and requires the same mutation gate as a typed command. For
+GraphQL, pass a query with `-f query=...` and variables with `-f` or `-F`; keep
+the query small and inspect `errors` before consuming `data`.
+
+```bash
+gh api graphql -f query='query { viewer { login } }'
+```
+
+## Completion evidence
+
+Return the command path, target repository, operation result, and resulting ID
+or URL. For reads, include the applied limit or pagination result. For Actions,
+discussions, uploads, and API calls, distinguish command success from provider
+success (`status`, `ok`, or GraphQL `errors`). Preserve uncertain external
+effects as uncertain and do not retry a mutation blindly.

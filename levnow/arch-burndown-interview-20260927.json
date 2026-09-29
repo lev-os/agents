@@ -1,0 +1,550 @@
+{
+  "meta": {
+    "title": "Arch burn-down: the interview",
+    "description": "Spikes, seats and 15 interview questions for the entity / core-loop / DNA burn-down (2026-09-27).",
+    "provenance": {
+      "sessionId": "74d1fed5-3d75-4cc3-98b2-1e3f0e81abf5",
+      "agent": "Claude Code · Opus 5.5 · audit burn-down session 3",
+      "workstream": "task-bundle-ontology",
+      "source": "~/.agents/levnow/arch-burndown-interview-20260927.json",
+      "createdAt": "2026-09-27",
+      "resume": "claude --resume 74d1fed5-3d75-4cc3-98b2-1e3f0e81abf5"
+    }
+  },
+  "theme": {
+    "preset": "midnight-ink",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "tonight",
+    "decisions",
+    "seq",
+    "fable",
+    "disagree",
+    "wins",
+    "findings",
+    "risks"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "ARCH BURN-DOWN · INTERVIEW PREP",
+        "title": "Entities, the core loop, and what DNA is",
+        "subtitle": "9 spikes (5 live lev runs), Astra and Fable on the core loop, Fable on sequence. 15 questions, each with a default, in dependency order. The three-face sample is first.",
+        "meta": "2026-09-27 · workstream task-bundle-ontology · capture .lev/pm/workstreams/task-bundle-ontology/captures/20260927-capture-sweep.yaml"
+      }
+    },
+    "tonight": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "WHAT WE LEARNED TONIGHT",
+        "title": "Live runs and spikes, in one screen"
+      },
+      "children": [
+        "tonight-text"
+      ]
+    },
+    "tonight-text": {
+      "type": "text",
+      "props": {
+        "maxWidth": "72ch",
+        "content": "- **Fail-open gate fixed (uncommitted):** FlowMind's executor and core/eval no longer pick a branch by position when a gate has no verdict; the node fails. Typecheck x2 exit 0; 16/16, 37/37, 48/48 on the named test files. DNA `gate_evaluator_default`: 1 known violation, now 0.\n- **The live `lev exec` path uses a different gate** (`core/exec/src/execution/dispatch/gate.ts`) that already fails closed on a missing variable.\n- **The happy path is broken 4 ways:**\n  1. `--knob task=` is read as a task-packet id, and the positional prompt is silently replaced by the flow's default.\n  2. A fresh folder stops at Claude Code's \"trust this folder\" screen.\n  3. Print mode needs a turn cap nobody sets.\n  4. `--until` hangs after the agent says DONE, so its verifier, timeout and receipt never happen.\n- **The default check does not check the work:** `intent_conservation` compares the delivered prompt with the declared one and ignores the agent's output. 721 of 735 task slices already declare a verifier command.\n- **Warm workers warm nothing:** the pool flips a status flag, `reuse_node` is a no-op, and every step's session is shut down.\n- **DNA:**\n  - 176 files, 39,683 lines; about 15% are constraints with a runnable check. The last ratchet run: 328 pass, 24 fail, 155 skipped, and it is not in CI.\n  - 31% of the lines are vendored research that says nothing reads it.\n  - \"14/15 vs 0/15\" is one run per arm, scored on a rubric.\n- **Skills rarely validate what they write:** 1 of 13 repo writers, 1 of 21 global writers. The lifecycle skills and pm templates live only in the personal agents repo."
+      }
+    },
+    "decisions": {
+      "type": "feedback",
+      "props": {
+        "pageId": "arch-burndown-interview-20260927",
+        "title": "The interview",
+        "buckets": [
+          {
+            "name": "Start here"
+          },
+          {
+            "name": "Entities"
+          },
+          {
+            "name": "Core loop"
+          },
+          {
+            "name": "DNA + gates"
+          },
+          {
+            "name": "Skills"
+          }
+        ],
+        "items": [
+          {
+            "id": "A-12",
+            "bucket": 0,
+            "wave": "start here",
+            "title": "Three faces of one task: is markdown what you write, with YAML compiled from it?",
+            "insight": "A real task (`code-intelligence-binding-v1`) rewritten as one `task.md` compiles back to today's `dna.yaml` + `execution.yaml` and renders as a card through `plugins/now`. The compiled packet passes the real readiness check (ready, 0 diagnostics).",
+            "detail": "- **Parity** (`plans-vs-tasks/three-face/parity.json`): what-file 13 fields equal, 3 differ (`source_context`, `claim_ledger`), 1 lost (`collaborators`, not written in the markdown). How-file 21 equal; the 9 missing are all runtime state (status, receipts, dates), which should never be hand-written.\n- **Files:** `~/.local/state/lev/spikes/arch-burndown-20260927/plans-vs-tasks/three-face/{task.md, task.compiled.yaml, task.card.json}`\n- **Plans today:** 28 live one-task plans (21 with no packet), 33 live multi-task programs, 98 dead; canon contradicts itself on what a plan is (`dna/entities.yaml:82` vs `:170`).\n- **One task.md with a '## Plan' section, compiled to today's two files** (recommended): three-face/parity.json: every authored field round-trips; validateTaskReadiness ready=true on the compiled packet; 14 live programs link 2 or more packets; 24 distinct plan status values\n- **A separate plan file linked 1:1 to each packet**: 7 live one-task plans already duplicate their packet's steps\n- **Keep hand-authoring dna.yaml and execution.yaml**: Operator: 'i still can't get away from humans needed to read md'\n- **Why the pick:** One task.md compiled to the two files, plus a separate program kind whose name the operator chooses. Then archive the 98 dead plans with one census row each and move the 13 research docs out of plans/.\n- **Spikes:** plans-vs-tasks",
+            "options": [
+              {
+                "label": "One task.md with a '## Plan' section, compiled to today's two files",
+                "desc": "Current readers don't change. Multi-task programs become their own kind with a small machine part (child refs, order, done condition). Status comes only from receipts at runtime.",
+                "recommended": true
+              },
+              {
+                "label": "A separate plan file linked 1:1 to each packet",
+                "desc": "Today's pattern."
+              },
+              {
+                "label": "Keep hand-authoring dna.yaml and execution.yaml",
+                "desc": "No markdown face."
+              }
+            ]
+          },
+          {
+            "id": "A-10",
+            "bucket": 1,
+            "wave": "entities",
+            "title": "Should entity kinds be declared by folder (entities/<kind>/entity.yaml), found by core/config in any module or project?",
+            "insight": "The operator said the entities folder is native to lev core, not sdlc. This replaces up to 9 places that define kinds today.",
+            "detail": "- **Yes: core/config ships one descriptor, and the folder name is the kind id** (recommended): entities-native probe-output.json; core/config/src/claim-content-contract.ts:133-137: 5 required fields block plan and spec today; core/config/src/entity-roots.ts:236-270; source-namespaces.yaml has no 'lev' root\n- **Owners keep declaring their own sources: blocks**: plugins/sdlc/config.yaml:642-660\n- **Walk the full fractal root**: It would also scan every sources: glob declared at the project root; fractal_roots is declared nowhere (rg)\n- **Why the pick:** Yes, with the 'entity' namespace root. Start with decision moving into a folder, which changes no behavior.\n- **Spikes:** entities-native",
+            "options": [
+              {
+                "label": "Yes: core/config ships one descriptor, and the folder name is the kind id",
+                "desc": "A kind claimed twice is rejected with both files named, and `extends` merges. The only required field is the kind; the claim fields become optional. A config `entities:` block only tunes locations and states. Register a new 'entity' namespace root.",
+                "recommended": true
+              },
+              {
+                "label": "Owners keep declaring their own sources: blocks",
+                "desc": "Today's model."
+              },
+              {
+                "label": "Walk the full fractal root",
+                "desc": "Discover everything under every declared root."
+              }
+            ]
+          },
+          {
+            "id": "A-11",
+            "bucket": 1,
+            "wave": "entities",
+            "title": "Who owns each kind?",
+            "insight": "This sets where each entity folder, template and validator lives. The operator said sdlc extends plan.",
+            "detail": "- **Core-owned work kinds, sdlc extends them** (recommended): Operator: 'task = what, plan = how; spec extends task; sdlc would extend plan'; dna/standards/source-namespaces.yaml:124-126 gives the pm root to @lev-os/workstream, while plugins/sdlc/config.yaml:25-28 claims all of .lev/pm\n- **plugins/sdlc owns plan too**: plugins/sdlc/config.yaml:74\n- **Move decision to core/memory now**: The operator tabled it as 'just an idea not canon'\n- **Why the pick:** Core-owned work kinds that sdlc extends. core/orchestration cannot own plan because it cannot import core/config (dna/architecture/core-boundaries/concept.yaml:197).\n- **Spikes:** entities-native, skills-global, plans-vs-tasks",
+            "options": [
+              {
+                "label": "Core-owned work kinds, sdlc extends them",
+                "desc": "core/workstream owns task, plan, workstream, capture, handoff, follow-up and session. plugins/sdlc owns spec (extends task), the execution packet (extends plan), proposal and decision, with decision revisited for memory later. Report defaults to sdlc.",
+                "recommended": true
+              },
+              {
+                "label": "plugins/sdlc owns plan too",
+                "desc": "Keeps today's declarations."
+              },
+              {
+                "label": "Move decision to core/memory now",
+                "desc": "Act on 'decision is really a memory' now."
+              }
+            ]
+          },
+          {
+            "id": "A-01",
+            "bucket": 2,
+            "wave": "core loop",
+            "title": "When someone runs lev exec, what loop runs by default?",
+            "insight": "This unblocks the shipped default flow and the one-line 'unverified' message for bare prompts. It also settles whether --until must work before release.",
+            "detail": "- **One rule: is there a task to check against?** (recommended): core/exec/src/execution/runner/task-runner.ts:497-560 and task-transport-runner.ts:37-52: a bare prompt is one call, and success means the provider exited 0; .lev/pm/captures/20260926-work-model-entity-pattern-grounding.yaml:48: a second independent seat reached the same answer; Operator: 'or just let it fly, there is no implicit loop if u dont want one'\n- **Reject bare prompts**: Operator: 'a rejection that says you have to pass in something to check against'; It breaks the most-typed command\n- **Bare prompts default to --until**: Run 5: --until hangs today and never runs its verifier; The user gave no done condition to loop on\n- **Why the pick:** One rule: is there a task to check against? It keeps the happy path for bare prompts, and the sealed task is what gives the verify step something to check. --until is advertised only after it is fixed.\n- **Spikes:** core-loop-live, Fable seat",
+            "options": [
+              {
+                "label": "One rule: is there a task to check against?",
+                "desc": "A task plus a flow runs that flow, checked against the loop contract. A task with no flow runs the shipped plan-act-verify flow. A bare prompt runs once and prints that nothing was verified. --until is the opt-in loop.",
+                "recommended": true
+              },
+              {
+                "label": "Reject bare prompts",
+                "desc": "Refuse a prompt that comes with nothing to check against."
+              },
+              {
+                "label": "Bare prompts default to --until",
+                "desc": "Every one-shot becomes a loop."
+              }
+            ]
+          },
+          {
+            "id": "A-02",
+            "bucket": 2,
+            "wave": "core loop",
+            "title": "What should the default verify step actually check?",
+            "insight": "intent_conservation only proves the prompt arrived intact. Without a check on the work, the default loop can never fail bad work, and 'verify' becomes theater.",
+            "detail": "- **intent_conservation plus the slice's own verifier commands, run by code** (recommended): intent-conservation-proof.ts:167-186 ignores the agent's output; 721 of 735 slices declare verifier_contract (plans-vs-tasks); task-readiness.ts:449-454 already requires a verifier\n- **intent_conservation alone; domains add real checks**: Operator: 'ship w/ the most basic one, intent conservation'; The demo's other check is only exec_result != ''\n- **The verifier command decides; intent_conservation is advisory**: gate-decision.ts:121-130 already supports three outcomes: pass, fail and escalate\n- **Why the pick:** intent_conservation plus the slice's own verifier commands. It needs no new format, the packet already carries the command, and code decides.\n- **Spikes:** core-loop-live, gates-in-loop, plans-vs-tasks",
+            "options": [
+              {
+                "label": "intent_conservation plus the slice's own verifier commands, run by code",
+                "desc": "Verify runs the verifier commands the task packet already declares. core/eval gives the verdict from their exit codes, and intent_conservation stays on as the drift guard.",
+                "recommended": true
+              },
+              {
+                "label": "intent_conservation alone; domains add real checks",
+                "desc": "Ship the most basic check as the default."
+              },
+              {
+                "label": "The verifier command decides; intent_conservation is advisory",
+                "desc": "Drop drift detection from the verdict."
+              }
+            ]
+          },
+          {
+            "id": "A-03",
+            "bucket": 2,
+            "wave": "core loop",
+            "title": "Which worker should a fresh project get on its first run?",
+            "insight": "The first run in a new folder stops at Claude Code's trust screen, and print mode fails without a turn cap. No one-shot finishes out of the box.",
+            "detail": "- **Print mode for one-shots and --until, with a default turn cap** (recommended): Run 4: 'argv_template requires a turn cap'; plugins/platforms/providers/claude-code-print/card.yaml uses {max_turns}\n- **Keep tmux claude-code and print a clear 'trust this folder once' message**: Run 3: trust screen block; core/substrate/src/session/patterns.ts:144\n- **Default to the direct (non-tmux) surface**: core/config/src/exec-invocation-surface.ts:39: the default surface is tmux\n- **Why the pick:** Print mode with a default turn cap for one-shots and --until. Lev correctly refuses to auto-accept the trust screen, so the fix is picking a worker that doesn't show one.\n- **Spikes:** core-loop-live",
+            "options": [
+              {
+                "label": "Print mode for one-shots and --until, with a default turn cap",
+                "desc": "Use claude-code-print with a default turn cap. Keep tmux claude-code for flows that need live panes.",
+                "recommended": true
+              },
+              {
+                "label": "Keep tmux claude-code and print a clear 'trust this folder once' message",
+                "desc": "Change nothing else."
+              },
+              {
+                "label": "Default to the direct (non-tmux) surface",
+                "desc": "Skip the pane entirely."
+              }
+            ]
+          },
+          {
+            "id": "A-04",
+            "bucket": 2,
+            "wave": "core loop",
+            "title": "What does the word 'task' mean on the lev exec command line?",
+            "insight": "'task' is both the user's words (the flow knob, as documented in exec's help) and a task-packet id (with.task). As a result the demo can't be given a task either way. Naming a CLI input is an operator decision.",
+            "detail": "- **'task' means a task packet only; the user's words use another input that the positional prompt always fills** (recommended): core/exec/src/completion/prepare-node-completion.ts:100-102: taskRef = with.task; core/exec/src/exec-args/help.ts:113 documents --knob task=\"fix tests\" as the prompt; graph-support.ts:192-231: the knob default beats the positional prompt\n- **The positional prompt always overrides knobs.task; packets use task_ref only**: prepare-node-completion.ts:93-96: task_ref is already accepted\n- **Keep both meanings and document the collision**: Runs 2 and 3 show both failure modes\n- **Why the pick:** 'task' means a task packet only, and the positional prompt always fills the flow's prompt input. The operator names the new input.\n- **Spikes:** core-loop-live",
+            "options": [
+              {
+                "label": "'task' means a task packet only; the user's words use another input that the positional prompt always fills",
+                "desc": "This removes the collision at the source. The new input name and any dedicated packet flag need a ruling.",
+                "recommended": true
+              },
+              {
+                "label": "The positional prompt always overrides knobs.task; packets use task_ref only",
+                "desc": "Smaller change, but 'task' keeps two meanings."
+              },
+              {
+                "label": "Keep both meanings and document the collision",
+                "desc": "No code change."
+              }
+            ]
+          },
+          {
+            "id": "A-05",
+            "bucket": 2,
+            "wave": "core loop",
+            "title": "What makes a flow a conforming work loop, and which flows have to conform?",
+            "insight": "This is 'core loop is a schema' made checkable. It replaces overlays and decides how sdlc and future domain flows are graded.",
+            "detail": "- **Check the graph shape, for task runs and flows that opt in** (recommended): gate.ts:50-52: the runtime already treats evaluators.required as the gate switch; graph-support.ts:354-369: an existing structural rule that blocks; flow-validation.ts:36-37: exec throws only on errors; The demo passes unchanged\n- **Required role: plan|act|verify fields on nodes**: Fable seat\n- **Fixed node names apply and verify_gate (today's classifier)**: exec-flow-validation.ts:317-325: the working demo classifies as unknown\n- **Every graph flow must conform**: 279 of 287 flows fail; 184 have none of plan, act or gate (flow-conformance summary.json)\n- **Why the pick:** Check the graph shape, with an optional role field, scoped to task runs plus opt-in flows. Also copy the result into the exec.flow_validated event.\n- **Spikes:** flow-conformance, overlay-history, Fable seat",
+            "options": [
+              {
+                "label": "Check the graph shape, for task runs and flows that opt in",
+                "desc": "Every path to a success end must pass a gate with an eval, required evaluators and a retry cap. 'act' is a lev.exec node or one marked role: act. 'plan' is either a plan node or the task's execution.yaml. It becomes an error in core/flowmind flow validation, which exec admission already enforces.",
+                "recommended": true
+              },
+              {
+                "label": "Required role: plan|act|verify fields on nodes",
+                "desc": "Explicit, but it adds authoring words and every existing flow needs edits."
+              },
+              {
+                "label": "Fixed node names apply and verify_gate (today's classifier)",
+                "desc": "Names become public API."
+              },
+              {
+                "label": "Every graph flow must conform",
+                "desc": "This includes routers, reports and hooks."
+              }
+            ]
+          },
+          {
+            "id": "A-06",
+            "bucket": 2,
+            "wave": "core loop",
+            "title": "How does a domain plugin (sdlc, cdo, a video or sports domain) extend the core loop?",
+            "insight": "This closes the overlay question for good. It unblocks rewriting the sdlc flow and deleting the overlay leftovers.",
+            "detail": "- **This is the June-rule fork.** `dna/graph.yaml:257-263` says the loop is one slotted template; nothing implements it. Astra and Fable both pick \"domain ships a whole conforming flow\". The ruling text changes from \"no runtime overlay engine\" to \"no graph splicing at any time\".\n- **The domain ships a whole flow that passes the loop check; evaluator packs fill its verify gate** (recommended): dna/architecture/semantic-control/concept.yaml:115-123 (the 2026-06-13 ruling); Operator: 'core loop is really a schema... must have a plan, exec, verify'; core/config/src/scoped-asset-resolution.ts:241-265: extends works today\n- **Packs in fixed slots only**: sdlc needs spec readiness before plan and tests after act (Fable seat)\n- **Open a new fork to build compile-time splicing**: git log for overlay-resolver/merge/splice files is empty; The CDO overlay targets admission_gate, but the tick loop's gate is named gate (tick-loop.flow.yaml:255)\n- **Why the pick:** The domain ships a whole conforming flow, and packs fill its verify gate. This is consistent with every ruling, and a reader never has to merge files in their head.\n- **Spikes:** overlay-history, flow-conformance, Fable seat",
+            "options": [
+              {
+                "label": "The domain ships a whole flow that passes the loop check; evaluator packs fill its verify gate",
+                "desc": "The generic flow `extends` key-merge stays as authoring sugar, and the check runs on the merged result. Amend the ruling text from 'no runtime overlay engine' to 'no graph splicing at any time'.",
+                "recommended": true
+              },
+              {
+                "label": "Packs in fixed slots only",
+                "desc": "Domains cannot add steps."
+              },
+              {
+                "label": "Open a new fork to build compile-time splicing",
+                "desc": "Revisit the ruled-out design."
+              }
+            ]
+          },
+          {
+            "id": "A-07",
+            "bucket": 3,
+            "wave": "dna + gates",
+            "title": "What is DNA from now on, and where do a module's rules live?",
+            "insight": "Rules need one home before plan and act prompts and verify can share them. This also decides what happens to 39,683 lines that agents read as canon.",
+            "detail": "- **DNA is a small typed block that any config or flow can carry** (recommended): core/validator/src/adapters/dna-constraints.ts:27-31: the validator already loads the target's config.yaml; tooling/scripts/run-dna-ratchet.js:139-141: it already parses constraints from any YAML; dna/external/buzz/index.yaml:800-806: self-declared unread; run-dna-ratchet.js --compare exists\n- **A sibling contract file per module**: One more file kind per module\n- **Keep dna/core/*.dna.yaml central**: The ratchet skips dna/plugins (21 checks) and dna/architecture (28) (run-dna-ratchet.js:87-101)\n- **Why the pick:** DNA as a typed block, with rules inline in module config.yaml. Also restate the '14/15' thesis claim as a one-run pilot, and turn each of the ~152 string-presence checks into a named test or delete it.\n- **Spikes:** dna-what-is-it, gates-in-loop",
+            "options": [
+              {
+                "label": "DNA is a small typed block that any config or flow can carry",
+                "desc": "Rules with a runnable check move into each module's config.yaml, and plugins/dna becomes the extractor. dna/ keeps only the router, vocabulary and ontology, and the vendored research leaves dna/. The ratchet runs in CI and fails only on new failures.",
+                "recommended": true
+              },
+              {
+                "label": "A sibling contract file per module",
+                "desc": "core/<pkg>/contract.yaml next to config.yaml."
+              },
+              {
+                "label": "Keep dna/core/*.dna.yaml central",
+                "desc": "Today's layout."
+              }
+            ]
+          },
+          {
+            "id": "A-15",
+            "bucket": 3,
+            "wave": "dna + gates",
+            "title": "Copied facts: one owner and a check wherever a fact is copied?",
+            "insight": "Your DHH point: \"DRY doesn't make the same kinda sense but drift is also a concern.\" DHH said *abstractions*, not DRY, and paired cheap copying with cheap syncing. Of 8 facts checked in both `dna/` and the owning module's `config.yaml`, 5 disagree.",
+            "detail": "- **Source:** `workshop/analysis/agent-era-rethink-20260927/analysis.md` (DHH Rails World keynote, DHH Omarchy interview, Khourshid secondhand).\n- DRY's original meaning is one authoritative home per piece of knowledge, not \"no duplicate code\".\n- **Spike if yes:** name an owner for each of the 8 facts and write a check that fails on all 5 known disagreements.",
+            "options": [
+              {
+                "label": "Copy code freely; never copy a fact without one owner and a check",
+                "desc": "Local by default; a copied fact carries a check that fails when the copies disagree",
+                "recommended": true
+              },
+              {
+                "label": "Everything local, accept drift",
+                "desc": "Agents re-sync on demand; no checks"
+              },
+              {
+                "label": "Keep facts central (today's dna/)",
+                "desc": "One place, read by lookup; drift between dna/ and modules continues"
+              }
+            ]
+          },
+          {
+            "id": "A-08",
+            "bucket": 3,
+            "wave": "dna + gates",
+            "title": "How do the rules reach the plan and act prompts, and which checks does verify run?",
+            "insight": "This is 'gates baked into planning'. If the agent sees the rules before acting, verify finds drift, not absence, and the fix is a cleanup.",
+            "detail": "- **Code selects the rules from the slice's allowed paths and shows them as 'done when' statements** (recommended): Spike select-rules.mjs: 49 rules and 38 checks for one real slice; dna/standards/standing-constraints.yaml:21-28 bans deny-lists in prompts; No code maps changed paths to owning modules (rg)\n- **One standards text file per plugin, injected via {{standards}} and used as the verify rubric**: Fable seat\n- **Show only the slice constraints; module rules are checked at verify only**: execution.yaml:170-212 slice constraints\n- **Run every check of every touched module**: 38 distinct checks for one slice\n- **Why the pick:** Code selects the rules from the slice's allowed paths. The selector's home is assumed to be core/config until the boundary walk. Add per-rule path patterns only if the number of checks hurts.\n- **Spikes:** gates-in-loop, Fable seat",
+            "options": [
+              {
+                "label": "Code selects the rules from the slice's allowed paths and shows them as 'done when' statements",
+                "desc": "The rules are the owning modules' rules plus the task and slice constraints. Verify runs the slice's verifier, a check that the diff stayed inside the allowed paths, and the checks for the rule ids the plan named.",
+                "recommended": true
+              },
+              {
+                "label": "One standards text file per plugin, injected via {{standards}} and used as the verify rubric",
+                "desc": "Simple for authors, but it is a second rule format, and an LLM rubric verdict would bypass core/eval."
+              },
+              {
+                "label": "Show only the slice constraints; module rules are checked at verify only",
+                "desc": "Fewer tokens, but the agent can't aim at the module rules."
+              },
+              {
+                "label": "Run every check of every touched module",
+                "desc": "Thorough but slow."
+              }
+            ]
+          },
+          {
+            "id": "A-09",
+            "bucket": 3,
+            "wave": "dna + gates",
+            "title": "When verify fails, does the loop clean up or start over, and does the worker stay warm?",
+            "insight": "Today every retry is a fresh session with no findings. That is the full rewrite the operator wants to avoid.",
+            "detail": "- **Clean up by default** (recommended): core/exec/src/execution/repair-graph.ts:17-60 and core/eval/src/repair-rearm.ts:9-37 work today; graph-contract-runner.ts:57: reuse_node is a no-op; shared.ts:451-462: each step's session is shut down\n- **Always re-plan**: plan-execute-verify.flow.yaml verify_gate fail: plan\n- **Build out WarmWorkerPool and substrate leases**: warm-worker-pool.ts:216-242 only flips a status flag; only tests create it\n- **Delete reuse_node; a fresh session receives the findings**: graph-contract-runner.ts:326-328: failure_evidence already reaches the retried worker\n- **Why the pick:** Clean up by default, with a warm act session on retry. Verify stays deterministic code, so it never grades inside the worker's context.\n- **Spikes:** gates-in-loop, core-loop-live, Fable seat",
+            "options": [
+              {
+                "label": "Clean up by default",
+                "desc": "A failure goes back to act with the findings and 'fix only these'. The loop re-plans only through the existing re-plan evaluator or when intent_conservation reports drift. Make reuse_node real with the existing same-session follow-up.",
+                "recommended": true
+              },
+              {
+                "label": "Always re-plan",
+                "desc": "Today's demo behavior (fail goes to plan)."
+              },
+              {
+                "label": "Build out WarmWorkerPool and substrate leases",
+                "desc": "A general warm-worker system."
+              },
+              {
+                "label": "Delete reuse_node; a fresh session receives the findings",
+                "desc": "Cold retries that still get the findings."
+              }
+            ]
+          },
+          {
+            "id": "A-13",
+            "bucket": 4,
+            "wave": "skills",
+            "title": "What single command does a skill call after writing an entity, and where is the rule 'this kind is checked by this validator' kept?",
+            "insight": "The operator said skills must call lev to validate what they create. Today 1 of 13 repo writers and 1 of 21 global writers do.",
+            "detail": "- **Extend the existing lev validate to take a file path and dispatch by kind** (recommended): core/validator/src/handlers/validate.ts:47-51: directory-only today; The entity contract already has validator_ref, but only decision declares one (plugins/sdlc/config.yaml:90-106); core/orchestration/src/handlers/task.ts:108\n- **A new verb, lev entity validate**: AGENTS.md: leaf packages never mint verbs\n- **One command per kind**: doc-lint has no command of its own; capture, retro, roadmap and census have no validator\n- **Why the pick:** Extend lev validate, with no new verb. Also make doc-lint load schemas from the owning package and look into subfolders. Fold roadmap into plan and retro and census into report, and give capture a schema.\n- **Spikes:** skills-repo, skills-global, entities-native",
+            "options": [
+              {
+                "label": "Extend the existing lev validate to take a file path and dispatch by kind",
+                "desc": "Each kind's contract names its validator. Each skill intent lists the kinds it writes, and the skill compiler adds the validate step.",
+                "recommended": true
+              },
+              {
+                "label": "A new verb, lev entity validate",
+                "desc": "Clear, but it mints CLI vocabulary."
+              },
+              {
+                "label": "One command per kind",
+                "desc": "Today's scattered set."
+              }
+            ]
+          },
+          {
+            "id": "A-14",
+            "bucket": 4,
+            "wave": "skills",
+            "title": "Where do the lifecycle skills and entity templates ship from?",
+            "insight": "capture, ws, close, lev-plan, propose, exec, interview, poc and every pm template exist only in the personal lev-os/agents repo, so no other lev project gets them.",
+            "detail": "- **Split by owner** (recommended): ~/.agents/skills/work/SKILL.md:96-97 'simulate the plugins/sdlc overlay'; eval-builder: global 331 lines vs plugin 88; dna/entities.yaml:35,48,61,84,96 point templates at ~/.agents; 50 top-level captures vs 35 workstream capture folders\n- **One sdlc skill pack for everything**: The operator said entities are native to core, not sdlc\n- **Keep them personal; only add validate steps**: Other projects can't build on lev\n- **Why the pick:** Split by owner. Keep dump, auto-enrich, dotfiles-sync, ux and skill-builder personal.\n- **Spikes:** skills-global, skills-repo",
+            "options": [
+              {
+                "label": "Split by owner",
+                "desc": "Workstream, plan and exec skills ship with their core packages, and the sdlc ones ship in plugins/sdlc. Templates sit next to each kind, and global copies become thin pointers. Delete the drifted global eval-builder and lev-audit. Captures live only under their workstream.",
+                "recommended": true
+              },
+              {
+                "label": "One sdlc skill pack for everything",
+                "desc": "Simpler to ship."
+              },
+              {
+                "label": "Keep them personal; only add validate steps",
+                "desc": "Smallest change."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "seq": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "SEQUENCE",
+        "title": "Order built from the spikes (prep stage)"
+      },
+      "children": [
+        "seq-text"
+      ]
+    },
+    "seq-text": {
+      "type": "text",
+      "props": {
+        "maxWidth": "72ch",
+        "content": "1. Today, no interview needed: do the quick wins. Order: (a) land the in-flight fail-closed gate fix with the session that owns it; (b) the narrow 'gate has no check' validation error; (c) the intent_conservation helper path; (d) the lev validate path bug; (e) the compatibility warnings in the event; (f) the overlay leftovers; (g) the dogfood stale-path fixes.\n2. Interview, loop lane: default loop per run type, then what verify checks, then the fresh-project worker, then what 'task' means on the command line.\n3. Fix --until end to end, before any other loop work. That covers the completion capture hang on the awareness FIFO, the idle timeout that never fires, the receipt and terminal ledger row, and passing verifier failure text to the next round in place of 'do not repeat the same approach'. Fable treats --until as unchanged; it cannot finish a run today.\n4. Repair the happy path per the rulings: rename the prompt input, make the positional prompt always fill it, default one-shots to print mode with a turn cap, and make the worker environment follow --root-path, not the caller's LEV_PROJECT_ROOT.\n5. Interview, loop lane continued: what makes a flow a conforming loop, then how domains extend it.\n6. Build the loop contract. It is a shape-based check that raises an error in core/flowmind flow validation, scoped to task runs and flows that opt in. Promote the demo to the shipped default loop with fail going to act, no on_timeout: done, and the slice verifier inside verify. Stop picking the default by the name 'tick-loop'. Confirm placement with the core-boundaries walk (Fable says core/exec plus core/eval; the evidence points at core/flowmind).\n7. Domain conformance: rewrite the sdlc plan-execute-verify and exec-validate flows so code decides and evaluators.required is set. Turn the SDLC overlay's research and spec stages into a conforming flow and delete both overlay files. Amend the ruling text to 'no graph splicing at any time'.\n8. Run Fable's falsification spike, reshaped: 5 tasks on the default loop and 5 on the sdlc flow. Measure whether verify ever fails on bad work, and compare retry diff size with the first attempt. Only run it after steps 3, 4 and 6; otherwise the trust screen, the hang and the name collision decide the result.\n9. Interview, DNA and gates lane: where rules live, then how they reach plan and act, then cleanup vs re-plan and warm sessions.\n10. DNA moves: vendored research out of dna/, rules into module config.yaml with the ratchet reading them there, the ratchet in CI failing only on new failures, and plugins/dna as the extractor.\n11. Gates in the loop: the rule selector, 'done when' injection into plan and act, the allowed-paths check at verify, the capped repair loop as the fail edge, and reuse_node made real through the same-session follow-up.\n12. Interview, entities lane: native kinds, then owners, then task.md and the program kind, then the validate command, then where skills ship from. This lane is independent of the loop lane and can run in parallel after step 1.\n13. Entities build: rename the contract and add the native descriptor. Move decision into a folder first, which changes no behavior. Then add the core/workstream kinds one per commit, and amend docs/specs/spec-config.md:533-539 and the AGENTS.md layer example in the same commits.\n14. Verbs: lev validate <file> dispatches by kind. doc-lint loads schemas from the owning package and looks into subfolders. Skill intents list the kinds they write, the skill compiler adds the validate step, and the skills are regenerated.\n15. Dogfood cleanup: the task.md compiler and the program kind. Archive the 98 dead plans with census rows and move the research docs out. Migrate the lifecycle skills to their owners and delete the drifted global duplicates."
+      }
+    },
+    "fable": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "FABLE ON SEQUENCE",
+        "title": "Recovered from its transcript (the stage only got \"Done.\")"
+      },
+      "children": [
+        "fable-text"
+      ]
+    },
+    "fable-text": {
+      "type": "text",
+      "props": {
+        "maxWidth": "72ch",
+        "content": "## Dependency list (A → B means B waits on A)\n\n- **Entity contract (7)** → plans vs tasks (2), skills validate what they write (3), skill/entity domain map (4), DNA runtime-data moves (5), `lev validate <path>` dispatch (10).\n- **Core loop as schema (8)** → gates/cleanup in the loop (6), DNA rules compiling into the verify gate (5), which flows the conformance error applies to.\n- **Fail-open fix (9)** → nothing. Independent. Ship first.\n- **Nouns/verbs (10)** is mostly ruled; only open piece is \"one validate verb dispatching by kind vs `lev <kind> validate`\", and that falls out of 7.\n- **DNA (5)** is last: it needs both 7 (where runtime data and entity schemas land) and 8 (where rules run).\n- **Skills (3, 4)** are pure dogfood once 7 and 10 are ruled; they can run fully in parallel with 5.\n\n## Day 1, morning: quick wins before the interview (no ruling needed)\n\nEverything here is a bug fix or a deletion of something the spikes proved dead.\n\n1. **Gate fail-closed.** `core/eval` DefaultGateEvaluator: no eval → escalate, never pass. `core/flowmind/src/exec-flow-validation.ts`: branches without eval → **error**. Leave `guards.ts` alone for now.\n2. **Demo blockers.** Rename the demo knob `task` → `goal` (or let the positional prompt win); make `intent_conservation` load its helpers package-relative, not from project root; give `claude-code-print` a default `--max-turns`.\n3. **doc-lint:** `relPath` vs `relativePath` one-liner; recurse into subfolders.\n4. **Classifier by role, not node name** (`lev.exec` = act, `evaluators.required` = verify). Still warning-only; flipping to error is an interview ruling.\n5. **Delete model 1 residue:** `--flowmind-overlay` option, overlay index fields, CDO `flowmind.overlays` block. Archive the SDLC overlay file.\n6. **Skip `--until` hang.** Root cause under bun is untested; timebox 30 min of diagnosis, otherwise it is week-1 work.\n\nEverything else waits, because doing it now would pre-empt a ruling.\n\n## Day 1, afternoon: the interview, five questions in this order\n\nEach one unlocks the next; each has a default so the interview can be short.\n\n1. **Entity contract minimum.** \"A kind is a folder `entities/<kind>/entity.yaml`, found by core/config anywhere; kind id = folder name; the only required field is the kind; duplicates fail closed; `extends` for customisation; namespace root `entity`. `lev validate <path>` dispatches by kind, no new verb.\" Unlocks 7, 3, 4, 10. Default: yes to all; decision moves to `plugins/sdlc/entities/decision/` first as the no-behaviour-change proof.\n2. **Plan is two kinds.** \"One-task plan folds into the task as a `## Plan` section and compiles to `dna.yaml` + `execution.yaml` (the spike proved round-trip parity); program is a new 1-to-many kind with only child refs, order, done condition as machine fields; research docs leave `plans/`; status is runtime-only. core/workstream owns task and plan, sdlc extends.\" Unlocks 2 and the skills migration. Default: yes.\n3. **Core loop contract.** \"Every flow run for a task must have plan, act, and a gate with `evaluators.required` plus `max_iterations`, checked as an **error** in core/flowmind at load. A bare prompt is one call plus an optional one-time verifier; `--until` is the explicit opt-in loop. Domain flows are whole flows that conform; packs fill the gate; no splice at any time.\" Unlocks 8, 6, and the rules half of 5. Default: yes; reject one-shots that claim a task without a verifier.\n4. **Verify is cleanup.** \"Loop becomes rules → plan → act → verify. Failed verify goes back to act with findings `{rule_id, path, evidence}` via the existing `policy.repair`; back to plan only when a re-plan evaluator says so. Default verify = step verifier command + diff-inside-write-scope check + intent_conservation. `reuse_node`: make real or delete?\" Unlocks 6. Default: delete `reuse_node` and the warm-worker pool this week; add warm sessions only when the cleanup edge measurably needs it.\n5. **What DNA is.** \"DNA is one typed block `{intent, constraints, behaviors, failure_modes}` any config, flow or entity can carry. A constraint without a runnable check is not a rule: it becomes spec text or is deleted. `dna/` shrinks to index + vernacular + graph. Rules live in the owning module's config.yaml and run in the core loop's verify gate. `dna/external/buzz` is deleted; the thesis restates the eval claim as n=1.\" Unlocks 5. Default: yes.\n\nIf time remains: skills product/personal split (ship the 15, keep 5 personal) — it is a consequence of 1 and 2, not a fresh decision.\n\n## Day 2: turn rulings into commits\n\nTwo parallel tracks, one person can alternate.\n\n- **Track A (loop):** conformance error in core/flowmind, scoped to task-run flows; carry the compatibility result into `exec.flow_validated`; add `evaluators.required` + `max_iterations` to `plugins/sdlc/flows/plan-execute-verify.flow.yaml`; ship the default core-loop flow using `policy.repair` as the cleanup edge; amend the ruling text in `dna/graph.yaml` and the semantic-control concept.\n- **Track B (entities):** the rename (`EntityContract`, `loadEntityContract`), `core/config/src/entity-contract.ts` with the one native descriptor, folder-name identity, claim fields optional; move decision to its folder; update the 5 callers and 2 tests. Register the `entity` root.\n\n## Week 1\n\n- **Entities:** core/workstream kinds one per commit (task, plan, workstream, capture, handoff, follow_up, session), each with locations, states, template. `lev validate <path>` dispatch. Then trim `dna/entities.yaml` keeping the gate check equivalent.\n- **Skills (dogfood, parallel):** add a `writes:` list to each intent, compiler emits \"run `lev validate <path>`\" after every write, regenerate. Delete the global `eval-builder` duplicate. Move capture, ws, close, lev-plan, propose, exec into the repo.\n- **Plans:** the `task.md` compiler; program kind; migrate 28 one-task plans, archive 98 dead.\n- **Loop:** rules selector (changed paths → owning module rules) in core/config; write-scope diff check; `--until` completion detection and the 300s timeout; pass verifier failures into the next round.\n- **DNA:** delete `external/buzz`; move notes to `.lev/pm`; loader accepts a block; ratchet in CI with `--compare`; move module rules into config.yaml; runtime data to its readers.\n\nExplainability check for every ruling: if it cannot be stated in one sentence in AGENTS.md, it is not done.\n"
+      }
+    },
+    "disagree": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "WHERE THE SPIKES CORRECT FABLE",
+        "title": "Fable answered from the brief; the spikes read the code"
+      },
+      "children": [
+        "disagree-text"
+      ]
+    },
+    "disagree-text": {
+      "type": "text",
+      "props": {
+        "maxWidth": "72ch",
+        "content": "1. Fable says intent_conservation grades output against the sealed intent. It doesn't: it compares the delivered prompt with the declared one and ignores the agent's output (intent-conservation-proof.ts:167-186). Fable's first falsifier ('core-loop-only verify never fails on a bad result') is therefore already known to be true from the code, so the default verify must add the slice's verifier commands.\n2. Fable's fail-open fix targets gate-evaluator.ts:166-171. That code is off the lev exec path, and another session has already fixed it in an uncommitted diff. The lev exec hole is different: a node with branches but no eval, op or prompt becomes an unnamed tool step (guards.ts:28).\n3. Fable's compile rule ('a gate needs an eval or a non-empty evaluators list') has two problems. A node with evaluators but no eval is not a gate at all (guards.ts:28). And refusing every node with branches but no eval would break 148 op nodes that route on exit code. The rule must target nodes with branches and no eval, op, prompt or subgraph.\n4. Fable's `lev exec --task T-42` flag does not exist. Task packets travel through --with/--knob task, which collides with the prompt knob that exec's help documents (help.ts:113). Naming it needs an operator ruling.\n5. Fable requires `role:` fields on nodes. The spikes favor checking graph shape with an optional role field: fewer new words, and the working demo passes without edits.\n6. Fable proposes a per-plugin standards text file injected via {{standards}} and used as the verify rubric. That is a second rule format next to the constraints-with-checks that already exist, and an LLM rubric verdict bypasses core/eval. Use one source (module rules plus slice constraints), shown as 'done when' statements, since standing-constraints.yaml:21-28 bans deny-lists in prompts.\n7. Fable places the contract validator 'next to the gate evaluator in core/eval' and the loop file in core/exec/flows, which does not exist. Flow validation lives in core/flowmind/src/exec-flow-validation.ts, and exec admission already throws on its errors. Default-flow selection lives in the core/flowmind indexer, keyed on the name 'tick-loop'.\n8. Fable's warm rule ('warm for plan, act and retry') assumes warm sessions exist. None do in the loop: reuse_node is a no-op and every step's session is shut down. The cheapest real version warms only the verify-fail-to-act edge, using the existing same-session follow-up.\n9. Fable leaves --until 'unchanged, documented as opt-in'. It currently hangs after the agent finishes and never runs its verifier or writes a receipt, so it has to be fixed before it is the answer for one-shots.\n10. Fable's 10-task spike would run into the trust screen, the task-name collision and the --until hang before it measured anything. Run it only after the happy-path fixes."
+      }
+    },
+    "wins": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "QUICK WINS",
+        "title": "No ruling needed"
+      },
+      "children": [
+        "wins-text"
+      ]
+    },
+    "wins-text": {
+      "type": "text",
+      "props": {
+        "maxWidth": "72ch",
+        "content": "1. Land the fail-closed gate fix that another session already has as an uncommitted diff (core/eval/src/gate-evaluator.ts, core/flowmind/src/graph-executor.ts, two gate test files, dna/core-contract.dna.yaml). Coordinate with that session and don't redo the work. It must keep the enforced Argo boundary check green (dna/core/flowmind.dna.yaml:400-415), which greps 'nodeExecutor semantic fallback' and runs gate-evaluator.behavior-lock.test.ts.\n   - *Check:* `pnpm --dir core/eval exec vitest run src/gate/__tests__/gate-evaluator.test.ts` · *Layer:* product\n2. Make exec flow validation refuse a node that has `branches` but no eval, op, prompt or subgraph. That shape silently becomes an unnamed tool step (guards.ts:28). Do NOT refuse every 'branches without eval' node: 148 op nodes route on exit code legitimately. Today this affects 6 nodes, 2 of them trial snapshots. Error message: 'gate has no check'.\n   - *Check:* `pnpm --dir core/flowmind exec vitest run src/__tests__/exec-flow-validation.test.ts (add one negative case)` · *Layer:* product\n3. Load the intent_conservation helper files from the installed core/eval package instead of '<project root>/core/eval/evaluators/intent_conservation' (intent-conservation-proof.ts:233-237). Config-cascade overrides can come later. (assumption: the evaluators folder ships with the package)\n   - *Check:* `pnpm --dir core/exec exec vitest run src/execution/dispatch/intent-conservation-proof.test.ts (add a case whose rootPath is a temp dir)` · *Layer:* product\n4. Fix lev validate's doc-lint adapter, which prints 'violation in undefined'. It reads v.relativePath, but the field is relPath (core/validator/src/adapters/doc-lint.ts:39 vs plugins/sdlc/src/validators/doc-lint.ts:32).\n   - *Check:* `lev validate .lev/pm/plans --json | rg -c 'violation in undefined' (expect 0)` · *Layer:* product\n5. Stop dropping the flow compatibility warnings: copy them into the exec.flow_validated event (core/exec/src/exec-command/flow.ts:97-128).\n   - *Check:* `pnpm --dir core/exec exec vitest run src/execution/flow-validation.test.ts` · *Layer:* product\n6. Delete the dead overlay leftovers, which the 2026-06-13 ruling already rejects:\n- the never-applied --flowmind-overlay option (exec-args/parser.ts:88-90, task-banner.ts:56, task-runner.ts:546)\n- the overlay index fields (exec-flow-validation.ts:242-249,467-469)\n- plugins/cdo/config.yaml:47-52\n- the three docs that describe live injection (docs/plugins/sdlc.md:183, docs/design/design-semantic-control.md:336, docs/specs/spec-orchestration-loop.md:214)\nLeave the sdlc and cdo overlay flow files until the domain-extension question is answered.\n   - *Check:* `rg -n 'flowmindOverlay|inject_after|inject_before' core docs plugins/cdo/config.yaml -g '!**/dist/**' (expect no hits)` · *Layer:* product\n7. Point the samurai verify flow at the CLI: its prompt tells the model to edit workstream state files directly, but canon says to write through `lev workstream update` (plugins/samurai/flows/verify.flow.yaml:82).\n   - *Check:* `lev flowmind validate plugins/samurai/flows/verify.flow.yaml` · *Layer:* product\n8. Fix stale paths that mislead agents:\n- dna/entities.yaml:248 says '.lev/tasks/'; the real path is '.lev/pm/tasks/'.\n- core/flowmind/AGENTS.md cites the constraint manifold at core/flowmind/src/kernel/; it lives at core/eval/src/constraint-manifold.ts.\n- lev-proof SKILL.md:43 cites `pnpm run test:pentagon:gate`, which is not a script. Fix it through its intent/flow source if it is generated.\n- The flowmind-author global skill points at ~/.lev/flows/lev-flowmind-audit.flow.yaml; the file is repo .lev/flows/.\n   - *Check:* `test -e on each corrected path, plus: rg -n 'test:pentagon:gate' .agents/skills (expect 0)` · *Layer:* dogfood\n9. Delete the unused skills.jeff prompt-injection blocks in .lev/exec-profiles/exec.yaml:26-31. They are read (core/config/src/exec-runtime-profile.ts:335-337) and never used.\n   - *Check:* `rg -n jeff .lev/exec-profiles (expect 0)` · *Layer:* dogfood\n10. Mark the '14/15 vs 0/15, DNA steers, prose does not' thesis claim as a one-run pilot: one agent, one task, a rubric score, and a control that wrote no code. Annotate it; don't delete it (dna/thesis.yaml:4,206,325).\n   - *Check:* `git show d027362b4 --stat (the annotation must match the commit body)` · *Layer:* dogfood"
+      }
+    },
+    "findings": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "FINDINGS",
+        "title": "15 findings with evidence"
+      },
+      "children": [
+        "findings-text"
+      ]
+    },
+    "findings-text": {
+      "type": "text",
+      "props": {
+        "maxWidth": "72ch",
+        "content": "1. **The fail-open gate bug (a gate with no answer takes its first branch) is real, but it is not on the `lev exec --flow` path.** Another session already has an uncommitted fix that fails the gate instead. It returns no branch and marks the gate node failed, and it updates the core-contract DNA rule to show 0 known violations.\n   - *Evidence:* Buggy code at core/eval/src/gate-evaluator.ts:166-171 and core/flowmind/src/graph-executor.ts:620-645. GraphFlowExecutor is only constructed at core/exec/src/outcome-navigation-base.ts:293 and in flowmind session.ts (core-loop-live). `git diff -- core/eval/src/gate-evaluator.ts core/flowmind/src/graph-executor.ts dna/core-contract.dna.yaml` shows the uncommitted fix plus updated tests in core/eval/src/gate/__tests__/gate-evaluator.test.ts and gate-expression.test.ts.\n2. **On the `lev exec` path the real hole is different.** A node counts as a gate only if it has both `eval` and `branches`, and `type: gate` is ignored. A node that has branches but no eval, op or prompt becomes an unnamed tool step, and the validator accepts it. On tmux that crashes the run. On the direct surface it may end the run as done without taking either branch (inference). An expression gate whose variable is missing does fail closed.\n   - *Evidence:* core/domain/src/graph/guards.ts:28 (read). Run 1 log: the missing-variable gate took fail (gate_expression_unresolved_path); the no-eval node was dispatched as 'tool' and crashed. core/orchestration/src/execution-contract/core.ts:465-481 + core/exec/src/execution/dispatch/agent.ts:612-697 (inference).\n3. **A blanket rule of 'branches without eval is an error' would break 148 working nodes.** Those nodes use op (mostly lev.validate) and route on the command's exit code. Only 6 nodes have branches with no eval, op or prompt, and 2 of those are trial snapshots.\n   - *Evidence:* Read-only script over git-tracked *.flow.yaml (scratchpad branches-no-eval.ts): 160 nodes have branches and no eval. 148 have an op, 6 a prompt and 6 nothing. The 3 marked type: gate all use op lev.validate (plugins/autowiki/flows/wiki-heartbeat.flow.yaml#decide-ingest, wiki-killswitch-p2#composite-verdict, plugins/browser/flows/webmcp-site-scan#auth_gate).\n4. **The shipped default check, intent_conservation, never looks at the work.** It compares the prompt the worker received with the prompt the flow declared. It also loads its helper files from the project root, so outside the Leviathan checkout it would escalate (inference, not run). The demo's only other check is that the output is not empty.\n   - *Evidence:* core/exec/src/execution/dispatch/intent-conservation-proof.ts:167-186 ignores output. :233-237 (read) builds packRoot = join(rootPath, 'core/eval/evaluators/intent_conservation'). community/examples/exec-flow-demo/plan-execute-verify.flow.yaml verify_gate eval \"exec_result != ''\".\n5. **Task packets already carry the checks a default verify needs.** 721 of 735 slices declare a verifier command, and packet readiness requires one. The default loop has no reason to invent a new done check.\n   - *Evidence:* plans-vs-tasks extract-tasks.ts: 735 slices, verifier_contract on 721. core/orchestration/src/entities/task-readiness.ts:449-454 (per gates-in-loop).\n6. **The happy path is broken in four independent ways.** (1) The demo cannot be given a task: `--knob task=` is read as a task-packet id, and the positional prompt is silently replaced by the flow's knob default. (2) A fresh folder stops at Claude Code's trust screen. (3) Print mode fails without a turn cap. (4) No `--task` flag exists, yet exec's own help documents `--knob task=\"fix tests\"` as the prompt.\n   - *Evidence:* core/exec/src/completion/prepare-node-completion.ts:100-102 (read; taskRef = options.with.task). Run 2: 'Task packet is missing...'. Run 3: prompt.txt hash matches 'Create a plan for: build a greeting' and hits the trust screen. Run 4: 'argv_template requires a turn cap'. core/exec/src/exec-args/help.ts:46-47,113 (read).\n7. **--until cannot finish.** The agent wrote the file and said DONE within about 13 seconds, but lev hung until it was killed at 15 minutes. The completion relay was blocked on the awareness FIFO, the 300-second idle timeout never fired, the verifier never ran, and no receipt was written. A ledger reservation was left open. The loop also passes no verifier failure text to the next round and tells the agent 'Do not repeat the same approach'.\n   - *Evidence:* Run 5, exit 124: ps/lsof show tee blocked with 16384 unread bytes, and the ledger has only an execution.reservation row. core/substrate/src/execution-transport/awareness.ts:38-43. core/exec/src/execution/runner/task-runner.ts:194-201. core/orchestration/src/loop/iterative-runner.ts:224,281-286,334,377-397.\n8. **The 'core loop is a schema' rule cannot be checked today.** The classifier matches the node names apply and verify_gate and only ever warns. Exec drops those warnings from its event. The working demo loop classifies as unknown because its act node is called execute. Of 84 written flows that do work, 81 would fail a plan + act + evaluator-gate contract, and the sdlc plugin's plan-execute-verify flow verifies with an LLM prompt.\n   - *Evidence:* core/flowmind/src/exec-flow-validation.ts:124 (warnings only, read) and :317-325. core/exec/src/exec-command/flow.ts:97-128 (no warnings field). flow-conformance summary.json: 279 of 287 fail; 70 of 72 lev.exec flows have no evaluator gate. plugins/sdlc/flows/plan-execute-verify.flow.yaml:54-72.\n9. **The spikes disagree about whether the classifier runs in production.** It does. validateGraphDocument calls it on every exec flow validation, and indexFlowMindFiles calls it to pick the default evaluators for direct tasks. That default is chosen by looking for a flow named 'tick-loop', which is the /work conversational state machine, not the plan-act-verify loop.\n   - *Evidence:* core/flowmind/src/exec-flow-validation.ts:124,460,484-500 (read). core/exec/src/exec-command/evidence.ts:84-96 (read). This corrects the overlay-history spike's 'no production caller', which came from searching for a private function name outside its file.\n10. **The overlay merge JP remembers was designed but never built.** It was ruled out on 2026-06-13 as a second mechanism, even though the rejected design was compile-time, not runtime. What remains is dead: a CLI option, index fields, a CDO config block and three docs. 'Capability/facet bindings' refers to two unrelated mechanisms. The generic flow `extends` key-merge does work today.\n   - *Evidence:* `git log --all -- '**/overlay-resolver*' '**/overlay-merge*' '**/overlay-splice*'` returns nothing. The 1a74562dc trailer reads 'Rejected: runtime overlay-merge engine'. core/exec/src/exec-args/parser.ts:88-90; plugins/cdo/config.yaml:47-52; core/config/src/scoped-asset-resolution.ts:241-265 (probe: rust-plan resolves 6 parent nodes plus 2 of its own).\n11. **Every piece of 'gates in planning plus a warm cleanup' exists somewhere, but none of it is wired into the loop.** Module rules come with checks, slices carry allowed paths and verifier commands, failure evidence is carried into retries, and a capped repair loop exists but is used by one flow. The other pieces are dead or off:\n- The same-session remediate path is pi-only.\n- Preflight is off by default and injects every gate in the repo.\n- reuse_node behaves the same as a new node.\n- Every flow step's session is shut down when the step ends.\n- WarmWorkerPool only flips a status flag.\nThe demo sends a failure back to plan, which means a rewrite.\n   - *Evidence:* core/exec/src/execution/repair-graph.ts:17-60 (used only by plugins/sdlc/flows/contract-hygiene.flow.yaml). graph-contract-runner.ts:57,326-328. shared.ts:451-462. core/daemon/src/warm-worker-pool.ts:216-242. preflight.ts:26-86 with task-runner.ts:279-281 (read: mode defaults to 'off'). plan-execute-verify.flow.yaml fail: plan.\n12. **DNA today is mostly notes with a real rule engine inside.** It is 176 files and 39,683 lines. About 15% is constraints with a runnable check (406). Its last ratchet run had 507 checks: 328 passed, 24 failed and 155 were skipped, and the ratchet is not in CI. 31% is vendored outside research that says in writing nothing reads it. 'DNA can be extracted from any config or flow' is not realized. The '14/15 vs 0/15' proof is one run per arm scored on a rubric.\n   - *Evidence:* find dna | wc: 176 files, 39,683 lines. ~/.local/state/lev/dna-ratchet/6fa6037b...-dirty.json. dna/external/buzz/index.yaml:800-806. plugins/dna/src/loader.ts:57-67 (whole file, needs name + description). git show d027362b4. package.json:153 vs 186 (test:all excludes test:dna-ratchet).\n13. **'Plan' is two kinds sharing one folder.** There are 28 live one-task plans, 21 of them with no task packet, and 33 live multi-task programs; 14 of those link 2 or more packets and the largest links 19. Another 98 plans are dead. Canon contradicts itself on what a plan is. A single task.md with a '## Plan' section compiles back to the real packet and passes the real readiness check. No markdown-to-YAML compiler exists today.\n   - *Evidence:* plans-vs-tasks plans.tsv. dna/entities.yaml:82 vs :170. three-face/parity.json: every authored field round-trips. validateTaskReadiness returned ready=true with 0 diagnostics on the compiled packet. rg finds 0 writers of dna.yaml or execution.yaml in core, plugins or tooling.\n14. **Native entity kinds need almost no new machinery.** The core/config catalog already finds folders, rejects a kind claimed twice (naming both files) and merges `extends`. Three things are missing:\n- a core-owned descriptor\n- a kind id taken from the folder name\n- optional claim fields: 5 are required today, so plan, spec and execution packet cannot load\nAlso, the 'lev' namespace root is unregistered, and decision's fingerprint hashes the whole sdlc config file.\n   - *Evidence:* entities-native probe-output.json (double claim, project shadow and cross-scope all rejected with RejectedScopedAssetDuplicateError). core/config/src/claim-content-contract.ts:133-137 and :226. dna/standards/source-namespaces.yaml: 37 roots, none named lev. `git log --since=2026-09-01 -- plugins/sdlc/config.yaml`: 8 commits.\n15. **Skills almost never validate what they write: 1 of 13 repo writers does, and 1 of 21 global writers (propose).** The lifecycle skills and every pm template exist only in the personal lev-os/agents repo. The one frontmatter checker reads its schemas from the repo's own .lev/pm/_template folders, never looks into subfolders, and its `lev validate` adapter prints 'undefined' for every violation.\n   - *Evidence:* skills-repo and skills-global matrix.tsv. plugins/sdlc/src/validators/doc-lint.ts:392-408,561-569. core/validator/src/adapters/doc-lint.ts:39 (read) reads v.relativePath, but the result field is relPath (plugins/sdlc/src/validators/doc-lint.ts:32, read)."
+      }
+    },
+    "risks": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "OPEN RISKS",
+        "title": "Check before building"
+      },
+      "children": [
+        "risks-text"
+      ]
+    },
+    "risks-text": {
+      "type": "text",
+      "props": {
+        "maxWidth": "72ch",
+        "content": "1. Another session is editing the gate code right now: uncommitted diffs in core/eval/src/gate-evaluator.ts, core/flowmind/src/graph-executor.ts, dna/core-contract.dna.yaml and the gate tests. Duplicating or stashing that work would collide. Coordinate, and never use git stash.\n2. On the lev exec path, resuming a run takes the first branch of any gate without a simple expression (core/exec/src/execution/runner/graph-resume.ts:23-35, read). A resumed run could skip past a verify gate onto pass (inference, not run).\n3. Six flows, including both demo loops, route a verify gate's on_timeout to `done`. For gates without required evaluators, the walker redirects failed or capped steps to on_timeout (core/orchestration/src/execution-contract/core.ts:263-300,409-420), and finalize judges success by the end node's name (graph-finalize.ts:76-79). This could report success after repeated failures (inference). Evaluator gates are guarded by the attempts_exhausted and escalated reasons (graph-contract-runner.ts:501-503,562-563).\n4. The --until hang's root cause is unconfirmed under bun. It may be a design issue in the substrate FIFO reader, not a one-line fix.\n5. Workers inherit LEV_PROJECT_ROOT and LEV_SESSION_ID from the caller's shell even when --root-path points elsewhere (run 5 launch.sh). Runs in other projects may write into this repo's state.\n6. Moving decision's declaration changes its fingerprint, so pending claims bound to the old one would fail 'binding mismatch'. Whether any stored claim holds the old fingerprint is unconfirmed.\n7. doc-lint silently skips a folder when its _template/schema.json moves (doc-lint.ts:396). Moving schemas can quietly turn validation off.\n8. The DNA ratchet has 24 enforced checks failing now. Making it a CI gate without a --compare baseline would block every merge.\n9. The rule selector found 49 rules and 38 checks for a single slice. Verify cost may push toward per-rule path patterns sooner than planned.\n10. Several counts are heuristic: plan classification (43 rows judged by hand, and dead counts range 91-108 depending on the cutoff), DNA line classes, and the ~152 string-presence checks. Treat them as sizes, not censuses.\n11. JP's own words from the 2026-06-13 overlay interview cannot be recovered (transcripts before 2026-08-28 are gone), so the ruling's reasoning is partly inferred.\n12. CLI naming is an operator surface and must wait for a ruling: the prompt input's new name, any packet flag, and extending lev validate to files. So must the new 'entity' namespace root, which needs DNA review.\n13. HEAD moved during the spikes because other sessions committed. Some line refs have already drifted (the task binding is now at prepare-node-completion.ts:100-102, not 160-162), so re-check each line before editing."
+      }
+    }
+  }
+}

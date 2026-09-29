@@ -1,0 +1,342 @@
+{
+  "meta": {
+    "title": "Audit reds — decisions",
+    "description": "20 failing rule checks, every one waiting on an operator decision (2026-09-26).",
+    "provenance": {
+      "sessionId": "74d1fed5-3d75-4cc3-98b2-1e3f0e81abf5",
+      "agent": "Claude Code · Opus 5.5 · audit burn-down session 3",
+      "workstream": "first-party-audit-20260922-backlog-burn-down",
+      "source": "~/.agents/levnow/decision-audit-reds-20260926.json",
+      "createdAt": "2026-09-26",
+      "resume": "claude --resume 74d1fed5-3d75-4cc3-98b2-1e3f0e81abf5"
+    }
+  },
+  "theme": {
+    "preset": "midnight-ink",
+    "mode": "dark"
+  },
+  "root": [
+    "hero",
+    "context",
+    "decisions"
+  ],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "FIRST-PARTY AUDIT · SESSION 3",
+        "title": "20 red checks, 14 decisions",
+        "subtitle": "Every remaining failure is a choice only you can make. Pick, add a note, then Copy JSON back into the chat.",
+        "meta": "2026-09-26 · workstream first-party-audit-20260922-backlog-burn-down"
+      }
+    },
+    "context": {
+      "type": "section",
+      "variant": "stacked",
+      "props": {
+        "label": "WHERE IT STANDS",
+        "title": "51 → 24 → 20"
+      },
+      "children": [
+        "context-text"
+      ]
+    },
+    "context-text": {
+      "type": "text",
+      "props": {
+        "maxWidth": "72ch",
+        "content": "- **51** checks failed on 09-23. The recorded run today: **328 passed, 24 failed** (`run-dna-ratchet.js --record`).\n- **4 of the 24** were timeouts under load; all passed at load 11.7.\n- The **20 real reds** map onto the cards below. Nothing else is left that I can fix without you.\n- Held: wave 2 (verdict scanner, stochastic validation, semantic-control merge) — another session is editing `core/eval` and `core/exec`."
+      }
+    },
+    "decisions": {
+      "type": "feedback",
+      "props": {
+        "pageId": "audit-reds-decisions-20260926",
+        "title": "Decisions",
+        "buckets": [
+          {
+            "name": "Canon names"
+          },
+          {
+            "name": "Scope"
+          },
+          {
+            "name": "PR merges"
+          },
+          {
+            "name": "CLI verbs"
+          },
+          {
+            "name": "Needs your OK"
+          }
+        ],
+        "items": [
+          {
+            "id": "R1",
+            "bucket": 0,
+            "wave": "canon name",
+            "title": "What should the core/domain control record be called?",
+            "insight": "The struct holds per-operation **before/after observations** plus a verification result. The glossary calls that *evidence*; a *receipt* is a bundled completion proof.",
+            "detail": "- `dna/core/domain.dna.yaml:124` and `core/domain/AGENTS.md:25` (06-26) say **ControlReceipt**.\n- The 06-17 sweep `92c476f13` renamed ~20 `*Receipt` types to `*Evidence`.\n- Code is left at the committed `ControlReceipt` state until you rule.",
+            "options": [
+              {
+                "label": "ControlEvidence",
+                "desc": "Rename back; amend the domain rule and AGENTS.md to match the glossary",
+                "recommended": true
+              },
+              {
+                "label": "ControlReceipt",
+                "desc": "Keep the committed name; add a glossary exception"
+              }
+            ]
+          },
+          {
+            "id": "R2",
+            "bucket": 1,
+            "wave": "9 red checks",
+            "title": "The testing package: what should its rules describe?",
+            "insight": "9 testing checks fail for one reason: an untested June checkpoint (`ea94550fc`, *Tested: not run*) deleted the portable test CLI, while `core/testing` grew daemon-bound proof code.",
+            "detail": "- The deletion reverted `43a567fe5`; it was a checkpoint, not a decision.\n- Failing checks include `cli_binary_declared`, `zero_workspace_runtime_deps`, `six_test_classes`, `taxonomy_resolution_cascade`.",
+            "options": [
+              {
+                "label": "Restore CLI, move proof code out",
+                "desc": "core/testing becomes the portable CLI again"
+              },
+              {
+                "label": "Rewrite rules to match what ships",
+                "desc": "DNA describes the daemon-bound package that exists today",
+                "recommended": true
+              },
+              {
+                "label": "Restore CLI alongside",
+                "desc": "Both live in core/testing"
+              },
+              {
+                "label": "Retire the portable CLI idea",
+                "desc": "Drop the checks that describe it"
+              }
+            ]
+          },
+          {
+            "id": "R3",
+            "bucket": 1,
+            "wave": "agent-made",
+            "title": "Deploy receipts now use the existing task-receipt route. Keep it?",
+            "insight": "An agent resolved K7 by routing deploy receipts through `task.receipt` (`plugins/deploy/src/shared/deploy-receipt.ts`). No new name, stored in the XDG state dir.",
+            "options": [
+              {
+                "label": "Keep task.receipt",
+                "desc": "Revisit only if deploy receipts need their own retention",
+                "recommended": true
+              },
+              {
+                "label": "Mint a deploy route",
+                "desc": "New storage route name; needs a naming ruling"
+              }
+            ]
+          },
+          {
+            "id": "R4",
+            "bucket": 2,
+            "wave": "PR #203",
+            "title": "The TOON output router from PR #203: fold in or delete?",
+            "insight": "PR #203 (a stale April branch) added `core/poly/src/handlers/output-router.ts`, a TOON formatter and `agent-detector.ts`. **Nothing imports them**, and the handler breaks the 3-handler poly rule.",
+            "detail": "- Fails `allowed_poly_handlers_only` (core/poly DNA + gates.yaml) and the poly `gates.test.ts` handler test.\n- `agent-detector.ts` overlaps the existing robot-mode pipe detection.",
+            "options": [
+              {
+                "label": "Fold TOON into output modes",
+                "desc": "`--output=toon` on the existing envelope; delete the handler",
+                "recommended": true
+              },
+              {
+                "label": "Delete the feature",
+                "desc": "Remove router, formatter and detector"
+              }
+            ]
+          },
+          {
+            "id": "R5a",
+            "bucket": 3,
+            "wave": "CLI verb",
+            "title": "Root `lev index add`: build it or change the hint?",
+            "insight": "The removed-root-command hint says *Use 'lev index add'* and a test expects it, but the index plugin has no `add` handler. That is a gap, not a naming choice.",
+            "options": [
+              {
+                "label": "Build lev index add",
+                "desc": "Implement the advertised verb",
+                "recommended": true
+              },
+              {
+                "label": "Point the hint elsewhere",
+                "desc": "Name the verb that should replace root add"
+              }
+            ]
+          },
+          {
+            "id": "R5b",
+            "bucket": 3,
+            "wave": "CLI verb",
+            "title": "Root `lev status`: daemon status or index status?",
+            "insight": "`core/daemon/config.yaml:58` declares root `status`; the surface test expects index local-only status. First writer wins today.",
+            "options": [
+              {
+                "label": "Daemon owns lev status",
+                "desc": "Index status lives at lev index status; update the test"
+              },
+              {
+                "label": "Index owns lev status",
+                "desc": "Daemon moves to lev daemon status"
+              }
+            ]
+          },
+          {
+            "id": "R5c",
+            "bucket": 3,
+            "wave": "CLI verb",
+            "title": "Root `lev search`: research (web) or index (local)?",
+            "insight": "Research and index both want root `search`. The surface test expects the index local-hybrid fallback.",
+            "options": [
+              {
+                "label": "Index owns lev search",
+                "desc": "Web search stays at lev research search"
+              },
+              {
+                "label": "Research owns lev search",
+                "desc": "Local search at lev index search; update the test"
+              }
+            ]
+          },
+          {
+            "id": "R5d",
+            "bucket": 3,
+            "wave": "CLI verb",
+            "title": "Root `lev create` and root `lev build`",
+            "insight": "Root `create` now resolves to workstream create, but the test expects an *unimplemented surface* error. Root `build` does not exist; the test expects an index local-refresh.",
+            "options": [
+              {
+                "label": "Keep create, drop root build",
+                "desc": "Update both tests to the current surface"
+              },
+              {
+                "label": "Blocklist create, add root build",
+                "desc": "Match the tests; build = index refresh"
+              },
+              {
+                "label": "Keep create, add root build",
+                "desc": "Only the create test changes"
+              }
+            ]
+          },
+          {
+            "id": "R6",
+            "bucket": 1,
+            "wave": "gate before code",
+            "title": "The strategy-change rule is enforced but no code exists for it",
+            "insight": "`strategy_mutation_policy_is_shared` is `enforcement: gate`, yet no StrategyMutation / LFD / ADAPT code exists anywhere. Gates never get demoted, so it stays red until built.",
+            "options": [
+              {
+                "label": "Schedule as its own design slice",
+                "desc": "Red check stands as the reminder",
+                "recommended": true
+              },
+              {
+                "label": "Build it now",
+                "desc": "Design + implement in this workstream"
+              }
+            ]
+          },
+          {
+            "id": "R7",
+            "bucket": 1,
+            "wave": "substrate",
+            "title": "tmux dual-attach proof needs a control-mode client",
+            "insight": "`tmux_attach_dual_proof` needs a `tmux -C` control-mode client plus a promotion record. Neither exists.",
+            "options": [
+              {
+                "label": "Leave red, size the client",
+                "desc": "Plan it as a substrate slice",
+                "recommended": true
+              },
+              {
+                "label": "Build the client now",
+                "desc": "Substrate work in this workstream"
+              }
+            ]
+          },
+          {
+            "id": "M1",
+            "bucket": 2,
+            "wave": "PR merges",
+            "title": "Today's 12 PR merges: 5 spec-less core packages and 7 .lev/tmp files",
+            "insight": "The merges added 237 files written against an older main: `core/{a2a,agent-fs,credential-vault,flowmind-memory,security}` with no specs, and 7 committed `.lev/tmp` scratch files.",
+            "options": [
+              {
+                "label": "Keep packages, write specs, delete tmp files",
+                "recommended": true
+              },
+              {
+                "label": "Keep packages, delete tmp files, specs later"
+              },
+              {
+                "label": "Revert some packages",
+                "desc": "Name them in Other"
+              }
+            ]
+          },
+          {
+            "id": "OK1",
+            "bucket": 4,
+            "wave": "needs your OK",
+            "title": "Write the 25 docs/specs/spec-*.md files?",
+            "insight": "Your global rule: *NEVER save markdown unless explicitly asked*. `has_spec` stays red without them.",
+            "options": [
+              {
+                "label": "Yes, write them",
+                "recommended": true
+              },
+              {
+                "label": "No"
+              }
+            ]
+          },
+          {
+            "id": "OK2",
+            "bucket": 4,
+            "wave": "needs your OK",
+            "title": "Annotate the 4 frozen audit records?",
+            "insight": "`.lev/audits/mcp-cutover-*/generation-v{5,8}-*.flow.yaml` keep `flowmind_no_substrate_override` red. The safety check denied my edit.",
+            "options": [
+              {
+                "label": "Yes, annotate (option A)",
+                "recommended": true
+              },
+              {
+                "label": "Exclude record dirs from the scan instead"
+              },
+              {
+                "label": "No, leave red"
+              }
+            ]
+          },
+          {
+            "id": "OK3",
+            "bucket": 4,
+            "wave": "needs your OK",
+            "title": "Delete the unreferenced research stubs?",
+            "insight": "`plugins/research/stubs/*` and `plugins/research/pnpm-lock.yaml` are unused (package.json uses `workspace:*`). The safety check denied the delete.",
+            "options": [
+              {
+                "label": "Yes, delete",
+                "recommended": true
+              },
+              {
+                "label": "No, keep"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

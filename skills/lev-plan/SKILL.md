@@ -10,6 +10,8 @@ execution proposal. It preserves the source fidelity table, explains current and
 target state, resolves architecture and ownership, builds a dependency/slice map,
 and records human-readable execution and rollback. It also manages the plan FSM.
 
+For any non-trivial direct or routed invocation, load [Project Context](../lev/references/project-context.md) before project-specific lookup. It resolves the active project and its declared breadcrumbs.
+
 It is not merely a frontmatter generator. A schema-valid shallow plan is still a
 failed plan.
 

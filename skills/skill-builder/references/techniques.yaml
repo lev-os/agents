@@ -31,7 +31,7 @@ primitives:
         rules:
           - Capture from REAL baseline failures, not imagination
           - Use the agent's exact words, not paraphrases
-          - 5-8 entries minimum for discipline skills
+          - No fixed entry quota; include observed rationalizations relevant to the subject and omit the table when none were observed
           - Place AFTER the instructions, not before
         example: |
           | "I'll push later" | Later = never. Push NOW. |
@@ -71,7 +71,8 @@ primitives:
   # with the tool-calling interface.
   #
   # IMPORTANT: Use natural language, NOT LLM_MUST directives.
-  # LLM_MUST in data files triggers injection detection.
+  # A cited injection check flagged LLM_MUST in data files; rerun the
+  # host-specific check rather than treating that observation as universal.
 
   positioned_commands:
     implements_as:
@@ -89,13 +90,14 @@ primitives:
               on_failure: "specific recovery action"
         rules:
           - validation MUST be a command the agent can run or a state it can check
-          - "git status shows clean" → agent will run git status
-          - "goal met" → agent will vibes-check (BAD)
-          - validation strings are the #1 highest-leverage technique
+          - "\"git status shows clean\" → agent will run git status"
+          - "\"goal met\" → agent will vibes-check (BAD)"
+          - validation strings were high-leverage in the cited test; do not treat that ranking as a universal grade
         evidence: |
           Blind behavioral test: agent given YAML with validation: "git log
           --oneline origin/HEAD..HEAD returns 0 lines" literally ran that
-          exact command. 11 tool calls vs 4 for prose-only instructions.
+          exact command. The tool-call comparison is source-supplied evidence
+          for that tested case, not a general quality grade or promotion proof.
 
       on_failure_directive:
         what: "Explicit instruction for what to do when something breaks"
@@ -111,7 +113,8 @@ primitives:
           - Line 5-10: Core instruction (the ONE thing this skill does)
           - Line 12-20: The non-negotiable constraint
           - Everything else follows
-          - Rules at line 500 are dead code
+          - Keep high-value rules near the entry point; line position alone is
+            not evidence that a rule is dead or effective
 
   # ============================================================
   # 3. PROCEDURAL PRESUPPOSITION CHAINS — Sequencing as constraint
@@ -143,8 +146,9 @@ primitives:
         rules:
           - Every step has an id, action, instruction, and validation
           - Use `next:` for explicit sequencing in complex flows
-          - Config blocks between steps are ignored by LLMs (tested)
-          - 50-step YAMLs are fully traversed (stress tested)
+          - Config blocks between steps were ignored in the cited test; verify the current task
+          - Traversal claims remain bounded to the tested scenario; do not infer
+            behavior for arbitrary step counts without a matching check
 
       gate_functions:
         format: |
@@ -157,7 +161,8 @@ primitives:
 
             Skip any step = {specific consequence}
         rules:
-          - 4-5 numbered steps maximum
+          - Use only the steps needed to make the gate inspectable; avoid a fixed
+            step quota and split only when a named branch requires it
           - Each step is a verb (IDENTIFY, RUN, READ, VERIFY)
           - Include failure branch inline
           - End with consequence statement
@@ -173,10 +178,10 @@ format_spec:
     + rationalization table at the end as prolepsis
 
   why: |
-    - YAML validation strings become executable commands (proven)
+    - In the cited bounded test, YAML validation strings were executed as commands; verify that behavior for the current host before relying on it
     - instruction: | blocks match existing context.yaml patterns
-    - Natural language avoids injection detection (LLM_MUST doesn't)
-    - Rationalization tables catch thoughts at moment of generation
+    - Natural language avoided the cited injection check; rerun for the current host
+    - Rationalization tables are intended to surface observed evasions; test whether they do so for the current subject
 
   template: |
     metadata:
@@ -205,7 +210,7 @@ evidence:
   blind_behavioral_test:
     date: 2026-03-22
     method: "4 formats, same scenario, same model (Haiku), blind"
-    result: "YAML (Format B) won — validation strings became executable commands"
+    result: "In the cited comparison, YAML (Format B) produced the strongest observed command execution; this remains case-specific evidence"
     scores:
       yaml: "8/10 + bonus, 11 tool calls"
       markdown: "8.5/10, 4 tool calls"
@@ -213,10 +218,10 @@ evidence:
       hybrid: "3/10 + bonus, 7 tool calls (caught hypothetical)"
 
   extension_test:
-    result: "File extension (.yaml vs .md) does not affect compliance"
+    result: "The cited extension comparison found no compliance difference; verify the current host before generalizing"
 
   injection_test:
-    result: "LLM_MUST in data files triggers injection detection. Use natural language."
+    result: "The cited injection check flagged LLM_MUST in data files; use natural language and rerun the host-specific check"
 
   stress_test:
     result: "pending — 707-line YAML, 50 steps, buried directive at step 25"

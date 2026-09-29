@@ -1,0 +1,155 @@
+{
+  "meta": {
+    "title": "M1 — five dark core packages",
+    "description": "Five core/* packages merged from PR #203 on 2026-09-26: what each duplicates, and what to do with it.",
+    "provenance": {
+      "sessionId": "74d1fed5-3d75-4cc3-98b2-1e3f0e81abf5",
+      "agent": "Claude Code · Opus 5.5 · audit burn-down session 3",
+      "workstream": "first-party-audit-20260922-backlog-burn-down",
+      "source": "~/.agents/levnow/decision-m1-openfang-packages-20260926.json",
+      "createdAt": "2026-09-26",
+      "resume": "claude --resume 74d1fed5-3d75-4cc3-98b2-1e3f0e81abf5"
+    }
+  },
+  "theme": { "preset": "midnight-ink", "mode": "dark" },
+  "root": ["hero", "context", "decisions"],
+  "elements": {
+    "hero": {
+      "type": "hero",
+      "variant": "editorial",
+      "props": {
+        "category": "FIRST-PARTY AUDIT · M1",
+        "title": "5 packages, 5 existing owners",
+        "subtitle": "Each package re-implements something Lev already has. Pick per card, add a note if you like, then Copy JSON back into the chat.",
+        "meta": "2026-09-26 · workstream first-party-audit-20260922-backlog-burn-down"
+      }
+    },
+    "context": {
+      "type": "section",
+      "variant": "stacked",
+      "props": { "label": "WHERE IT STANDS", "title": "Merged today, 175 days stale" },
+      "children": ["context-text"]
+    },
+    "context-text": {
+      "type": "text",
+      "props": {
+        "maxWidth": "72ch",
+        "content": "- **Source:** all 5 came from PR #203 (merge `a6716bf4c`, 09-26 04:17). The branch was authored 03-31 to 04-04.\n- **Not built by anything:** none of the 5 is in `pnpm-workspace.yaml`. So turbo and CI never typecheck or test them.\n- **No users:** 0 code imports anywhere in core, plugins, apps, tests or tooling. The only mention is a dependency string in `plugins/hands/config.yaml:21`.\n- **4 of 5 fail typecheck** with the same missing `@lev-os/domain/event-source.js` import (re-run: `core/a2a` tsc gives TS2307).\n- **Original intent:** the OpenFang intake decided *EXTRACT + MONITOR*, meaning \"inform\" existing Lev owners, not add new packages (`workshop/analysis/openfang/analysis.md:141-152`).\n- **Tests I re-ran:** vault 31/31, guardrails 5/5, flowmind-memory 15/15 (bun), security 25/25 (bun).\n- **Keep:** `core/poly/src/formatters/toon.ts` came from the same PR, but R4 (fold TOON into output modes) now depends on it.\n- **OK1:** the 5 specs stay on hold until these cards are decided."
+      }
+    },
+    "decisions": {
+      "type": "feedback",
+      "props": {
+        "pageId": "m1-openfang-packages-20260926",
+        "title": "Decisions",
+        "buckets": [{ "name": "Packages" }, { "name": "Same-PR leftovers" }],
+        "items": [
+          {
+            "id": "M1-a2a",
+            "bucket": 0,
+            "wave": "split-brain",
+            "title": "core/a2a — in-memory agent-to-agent protocol",
+            "insight": "Lev already has **three** A2A owners. This package would be the fourth, and it has no transport, no tests and no users.",
+            "detail": "- Contents: a task router with a Map-based state machine and turn/token budgets, plus an Agent Card builder with no HTTP server. 868 LOC.\n- Existing owners:\n  - `core/orchestration/src/a2a/dispatcher.ts` (dispatch);\n  - `core/poly-compiler/src/projections.ts:83` `projectArtifactToA2A` (Agent Card);\n  - `core/domain/src/poly-protocol/surface.ts:17` (the `a2a` surface kind).\n- It also mints CLI verbs `a2a card|discover|task` from a leaf package (failure mode 15).",
+            "options": [
+              { "label": "Converge then delete", "desc": "Fold the Agent Card shape into the poly-compiler projection. Record the A2A task-state list as a requirement for a future poly a2a surface. Delete the package.", "recommended": true },
+              { "label": "Re-home as poly a2a surface", "desc": "Move the card server into a core/poly a2a adapter, but only once a real outside A2A caller exists" },
+              { "label": "Delete outright", "desc": "The design spike and the OpenFang analysis stay as the record" },
+              { "label": "Keep as core/a2a", "desc": "Join the workspace, fix the import, write a spec. This makes a fourth A2A owner." }
+            ]
+          },
+          {
+            "id": "M1-agent-fs",
+            "bucket": 0,
+            "wave": "split-brain",
+            "title": "core/agent-fs — per-agent mounted folders in TypeScript",
+            "insight": "The approved owner is **crates/lev-agentfs** (Rust, with a TS SDK). Its spec already covers mounts, copy-on-write overlays and sandboxing.",
+            "detail": "- Contents: `MountEngine` creates a session folder with project/reference/scratch/memory/output mounts, byte and file quotas, and a path-traversal guard. 843 LOC, 0 tests.\n- Owner: `docs/specs/spec-agentfs.md` (`lifecycle_state: approved`). The glossary term is `env-agentfs`.\n- It does raw directory I/O itself (readdir/mkdir/rm) instead of going through `core/file`.\n- New ideas worth keeping: the five mount types and the per-session quotas.",
+            "options": [
+              { "label": "Add delta to spec-agentfs, then delete", "desc": "Record mount types and quotas as requirements in the agentfs spec, then delete the TS package", "recommended": true },
+              { "label": "Delete outright", "desc": "crates/lev-agentfs already does mount, overlay and sandbox" },
+              { "label": "Thin TS adapter over agentfs-sdk", "desc": "Rewrite as a wrapper around the Rust SDK. Only worth it when a TS caller needs it; none does today." }
+            ]
+          },
+          {
+            "id": "M1-credential-vault",
+            "bucket": 0,
+            "wave": "split-brain",
+            "title": "core/credential-vault — encrypted secret store",
+            "insight": "**plugins/vault** already ships (`ships-with: true`) with AES-256-GCM, scrypt, expiry, rotation, revoke and audit. Its tests are green (31/31, re-run).",
+            "detail": "- Contents: one `.enc` file per secret, an append-only event log, and per-secret `allowedAgents` plus a revoked set. OAuth2 PKCE is an interface only. 743 LOC, 0 tests.\n- The one real addition is the per-agent allowlist gate (`vault-gates.ts:21-29`). plugins/vault scopes by graph depth instead.\n- OpenFang intent: \"Extract credential vault design → inform auth architecture\" (analysis.md:151).",
+            "options": [
+              { "label": "Port allowlist into plugins/vault, then delete", "desc": "Add the per-agent allowlist as an option next to depth scoping, then delete the package", "recommended": true },
+              { "label": "Delete outright", "desc": "plugins/vault already covers everything else" },
+              { "label": "Promote vault to core", "desc": "Merge plugins/vault into a new core credential owner. This mints an owner name, so it needs its own ruling." }
+            ]
+          },
+          {
+            "id": "M1-flowmind-memory",
+            "bucket": 0,
+            "wave": "split-brain",
+            "title": "core/flowmind-memory — MEMORY.md-style index with write rules",
+            "insight": "**core/memory** already owns store, recall, decay and consolidation. The new part is the **write rules**: reject facts derivable from code, decay stale entries, cap the size. Tested 15/15.",
+            "detail": "- `dna/core/memory.dna.yaml:24`: \"Memory owns the semantic memory API\". The memory package already has decay (`memory-decay-manager.js`) and a `consolidate()` port.\n- `ConsolidationReport` would mean two different things in two packages.\n- The name is misleading: it imports nothing from flowmind.\n- Your own memory practice (derivable facts, staleness) shows the write rules are wanted.",
+            "options": [
+              { "label": "Move write rules into core/memory, then delete", "desc": "Port the derivability, staleness and budget rules plus their 15 tests as memory write admission. Drop the duplicate recall and the hand-written YAML parser.", "recommended": true },
+              { "label": "Delete outright", "desc": "Keep the design spike as the record of the idea" },
+              { "label": "Keep as a separate package", "desc": "Rename it, join the workspace, write a spec. Still a second memory owner." }
+            ]
+          },
+          {
+            "id": "M1-security",
+            "bucket": 0,
+            "wave": "split-brain",
+            "title": "core/security — seven security pieces in one package",
+            "insight": "Five of the seven pieces duplicate an existing owner. One (a universal `Receipt` type) breaks the one-brain rule. Only **taint tracking** and the **SSRF URL check** are new.",
+            "detail": "- Duplicates:\n  - prompt-injection scanner → `plugins/guardrails` (5/5);\n  - `Receipt`/`EvalOutcome` → core/effect and core/eval;\n  - hash-chained audit log → the execution-ledger segment integrity;\n  - loop guard and rate limiter → orchestration budgets.\n- New: taint labels with propagation, and `isURLSafe`. Tested; the whole package is 25/25 under bun.",
+            "options": [
+              { "label": "Split: taint + SSRF to guardrails, delete the rest", "desc": "Move the two new pieces and their tests into plugins/guardrails as detectors, then delete the package", "recommended": true },
+              { "label": "Delete outright", "desc": "Keep the security-stack design spike as the record; extract again when something needs it" },
+              { "label": "New bounded context core/security", "desc": "Strip the duplicates and register a core security owner for information-flow control. This mints a name, so it needs its own ruling." }
+            ]
+          },
+          {
+            "id": "M1-lev-tmp",
+            "bucket": 1,
+            "wave": "hygiene",
+            "title": ".lev/tmp — 7 tracked files inside an ignored folder",
+            "insight": "`.lev/tmp/` is gitignored (`.gitignore:191`). But the old branch predated that rule, so the merge brought in 7 **tracked** files.",
+            "detail": "- `gap-analysis-report.md` is the branch's own audit: \"the DNA is decorative, not structural\" (4 FATAL / 8 ERROR / 11 WARNING).\n- 5 matrix flows drive the packages above. One of them, matrix-004, fails `lev flowmind validate`.\n- `matrix-architect-brief.md` is a \"hidden\" eval brief committed where agents can read it.",
+            "options": [
+              { "label": "Untrack all; keep the gap report in .lev/pm/reports", "desc": "Move the gap report next to the same PR's cohesion report and untrack the rest so the ignore rule holds", "recommended": true },
+              { "label": "Untrack all 7", "desc": "Rely on git history as the record" },
+              { "label": "Leave as is", "desc": "Tracked files stay inside an ignored folder" }
+            ]
+          },
+          {
+            "id": "M1-same-pr",
+            "bucket": 1,
+            "wave": "hygiene",
+            "title": "Everything else PR #203 added",
+            "insight": "Files outside the 5 packages were built around them. They should follow the package decisions.",
+            "detail": "- `plugins/hands`: 8 files, also outside the workspace; declares `@lev-os/flowmind-memory`.\n- `.lev/matrix/`: 6 files (scenarios 1–5 plus a README).\n- `docs/design`: 4 spikes. `docs/reports/cohesion-agentfs-flowmind.yaml`.\n- `.lev/pm`: 2 designs, 3 intake records, 2 draft plans, 1 report.",
+            "options": [
+              { "label": "Follow the package decisions", "desc": "Delete the drivers of deleted packages. Keep design spikes as records and mark them superseded.", "recommended": true },
+              { "label": "Audit each separately", "desc": "Treat plugins/hands as its own M-card later" },
+              { "label": "Keep all as records", "desc": "Annotate only" }
+            ]
+          },
+          {
+            "id": "M1-specs",
+            "bucket": 1,
+            "wave": "OK1 follow-through",
+            "title": "The 5 specs held under OK1",
+            "insight": "If a package converges and is deleted, its spec belongs in the **owner's** spec as an amendment, not in a new file.",
+            "detail": "- Owner specs that would be amended: `spec-poly-compiler` (Agent Card), `spec-agentfs` (mounts/quotas), plugins/vault README/spec (allowlist), `spec-memory` (write rules), guardrails (taint/SSRF).",
+            "options": [
+              { "label": "Amend owner specs only", "desc": "No new spec files for deleted packages", "recommended": true },
+              { "label": "Write the 5 specs anyway", "desc": "Record them as specs of deleted packages" }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

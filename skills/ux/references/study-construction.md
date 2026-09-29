@@ -39,6 +39,9 @@ Not every study needs the same psychological dimensions. Pick the axes that matt
 
 ## 3. Construct Personas
 
+Reuse Product Craft's workflow test: role, daily workflow, frustration, current workaround and resulting time/money/risk cost. State whether each comes from observed users, supplied evidence or a synthetic hypothesis. A demographic label alone is not a workflow persona.
+
+
 Each persona is a **coherent worldview**, not a list of traits. The prompt injection should read like a person describing themselves, not a psych profile.
 
 **Construction process:**

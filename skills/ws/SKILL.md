@@ -12,6 +12,8 @@ Workstream YAML is the durable identity for lifecycle work until workstreams are
 graph ops. `/ws` is the projection and repair surface around
 `.lev/pm/workstreams/*/state/workstream.yaml`.
 
+For any non-trivial direct or routed invocation, load [Project Context](../lev/references/project-context.md) before project-specific lookup. It resolves the active project and its declared breadcrumbs.
+
 ## Entity Reconciliation
 
 After authorized material progress, reconcile touched and causally affected

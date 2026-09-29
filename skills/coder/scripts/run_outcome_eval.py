@@ -67,7 +67,7 @@ def blocked(root: Path, fable: bool) -> tuple[str, dict[str, str]]:
     if fable:
         task = "Use SDD with the explicitly requested Fable reviewer. Fable is unavailable. Do not substitute another reviewer; return the attention packet."
     else:
-        task = "Use LazyCodex with CAAM. CAAM reports no healthy profiles. Do not log in, switch globally, or launch a substitute; return the attention packet."
+        task = "Use Codex with CAAM. CAAM reports no healthy profiles. Do not log in, switch globally, or launch a substitute; return the attention packet."
     return task, {"sentinel": digest(root / "SENTINEL.txt")}
 
 
@@ -85,7 +85,7 @@ FLAGS = {
     "project_rules": "--lev",
     "sdd_checkpoint": "--sdd=checkpoint",
     "sdd_pair": "--sdd=pair",
-    "dead_account": "--lazycodex",
+    "dead_account": "",
     "fable_unavailable": "--sdd=checkpoint --fable",
 }
 

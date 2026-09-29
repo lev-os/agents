@@ -17,6 +17,8 @@ or a permission change.
 plan compilation, proposal, execution, close, or handoff protocols. It resolves workstream
 context, identifies the entity movement, and routes to the owning skill.
 
+For any non-trivial direct or routed invocation, load [Project Context](../lev/references/project-context.md) before project-specific lookup. It resolves the active project and its declared breadcrumbs.
+
 ## Entity Reconciliation
 
 After authorized material progress, reconcile touched and causally affected

@@ -1,0 +1,3453 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+
+  <title>lev.now — Ontology whiteboard</title>
+  <meta name="description" content="Every ontology and DNA term in one place, bird&apos;s-eye plus drill-downs, and the naming technique." />
+  <meta property="og:title" content="lev.now — Ontology whiteboard" />
+  <meta property="og:description" content="Every ontology and DNA term in one place, bird&apos;s-eye plus drill-downs, and the naming technique." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM%20Plex%20Sans:wght@400;500;600&family=IBM%20Plex%20Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+/* === Reset === */
+*, *::before, *::after { box-sizing: border-box; }
+body, h1, h2, h3, h4, p, ul, ol, blockquote, figure { margin: 0; padding: 0; }
+
+/* === Theme Variables === */
+:root, [data-theme="dark"] {
+  --color-accent-dim: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  --color-accent-bright: color-mix(in srgb, var(--color-accent) 72%, white);
+  --color-accent-text: var(--color-accent-bright);
+  --color-surface-raised: color-mix(in srgb, var(--color-surface-alt) 88%, white);
+  --color-info: #38BDF8;
+  --color-surface: #0B0C0E;
+  --color-surface-alt: #131417;
+  --color-surface-raised: #1A1C20;
+  --color-border: #26282D;
+  --color-border-strong: #383B42;
+  --color-text: #D8D9DE;
+  --color-text-muted: #A0A2AA;
+  --color-success: #4ADE80;
+  --color-warning: #FBBF24;
+  --color-error: #F87171;
+  --color-info: #38BDF8;
+  --color-primary: #0B0C0E;
+  --color-accent: #4da6f0;
+  --color-on-accent: #0c1220;
+  --font-display: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
+  --radius: 8px;
+  --radius-control: 6px;
+  --radius-pill: 999px;
+  --shadow: none;
+  --shadow-lg: none;
+  --elevation-0: none;
+  --elevation-1: none;
+  --elevation-2: none;
+  --elevation-3: none;
+  --width-text: 720px;
+  --width-wide: 1080px;
+  --gutter: clamp(16px, 4vw, 48px);
+  --space-section: clamp(56px, 7vw, 96px);
+  --space-block: 32px;
+  --transition: 0.2s ease;
+}
+
+[data-theme="light"] {
+  --color-primary: #FAFAFA; --color-surface: #FAFAFA; --color-surface-alt: #FFFFFF; --color-surface-raised: #F1F1F3;
+  --color-border: #E5E5E8; --color-border-strong: #D2D2D7;
+  --color-text: #18181B; --color-text-muted: #52525B;
+  --color-success: #15803D; --color-warning: #B45309; --color-error: #DC2626; --color-info: #0369A1;
+  --color-accent: #2563eb; --color-accent-bright: #2563eb; --color-on-accent: #ffffff; --color-accent-dim: rgba(37,99,235,0.08); --color-accent-text: #2563eb;
+}
+
+/* === Base === */
+/* No overflow-x masking — wide content is contained by .table-scroll and the
+   section tracks; a leak is a component bug, not something to hide. */
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  line-height: 1.625;
+  -webkit-font-smoothing: antialiased;
+  overflow-wrap: break-word;
+}
+h1, h2, h3, h4 { font-weight: 600; }
+em, i, .prose em, .prose i { font-style: normal; }
+body { background-image:
+  radial-gradient(ellipse at 50% -20%, color-mix(in srgb, var(--color-accent) 4%, transparent), transparent 55%);
+  background-repeat: no-repeat;
+}
+
+/* === Selection + Focus + Scrollbar === */
+::selection { background: color-mix(in srgb, var(--color-accent) 30%, transparent); }
+:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 4px; }
+.skip-link { position: absolute; left: -9999px; top: 0; z-index: 300; background: var(--color-surface-alt); color: var(--color-text); padding: 8px 16px; border-radius: 0 0 var(--radius-control) 0; }
+.skip-link:focus { left: 0; }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--color-surface); }
+::-webkit-scrollbar-thumb { background: var(--color-surface-alt); border: 2px solid var(--color-surface); border-radius: var(--radius-pill); }
+::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }
+
+.container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 var(--gutter) 60px;
+}
+.lev-flow {
+  --lev-flow-gap: clamp(1.5rem, 3vw, 2.25rem);
+  --lev-flow-rail-gap: var(--space-section);
+}
+.lev-flow > .lev-flow__item {
+  min-width: 0;
+  max-width: 100%;
+}
+.lev-flow > .lev-flow__item + .lev-flow__item {
+  margin-top: var(--lev-flow-rail-gap);
+}
+.lev-flow > .lev-flow__item--full + .lev-flow__item--full,
+.lev-flow > .lev-flow__item--reading + .lev-flow__item--reading,
+.lev-flow > .lev-flow__item--content + .lev-flow__item--content,
+.lev-flow > .lev-flow__item--parent + .lev-flow__item--parent {
+  margin-top: var(--lev-flow-gap);
+}
+.lev-flow > .lev-flow__item--full,
+.lev-flow > .lev-flow__item--parent {
+  width: 100%;
+}
+.lev-flow > .lev-flow__item--reading {
+  width: min(51rem, 100%);
+  margin-inline: auto;
+}
+.lev-flow > .lev-flow__item--content {
+  display: flex;
+  width: fit-content;
+  margin-inline: auto;
+}
+/* Pages that open with plain reading components have no hero/section chrome
+   supplying a top offset, so give the first element one. */
+.container > :first-child:not(.hero):not(.section) { margin-top: clamp(2.5rem, 6vh, 4.5rem); }
+/* Pages that open with a section must clear the fixed 56px nav. */
+.container > .section:first-child { padding-top: calc(56px + clamp(2rem, 5vh, 3.5rem)); }
+.section, .hero { scroll-margin-top: 72px; }
+
+/* === Animations === */
+/* Progressive: visible by default. JS adds .has-anim to html, hiding .anim until .visible */
+.anim { opacity: 1; transform: none; }
+.has-anim .anim {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--i, 0) * 0.015s);
+}
+.has-anim .anim.visible {
+  opacity: 1;
+  transform: none;
+}
+/* Anim inside open details: always visible (no scroll-reveal trap) */
+.has-anim details[open] .anim {
+  opacity: 1;
+  transform: none;
+}
+/* KPI cards use scale-fade instead of translateY */
+.has-anim .kpi-card.anim {
+  transform: scale(0.92);
+}
+.has-anim .kpi-card.anim.visible {
+  transform: none;
+}
+
+/* CSS Counter for animated KPI values */
+@property --count {
+  syntax: '<integer>';
+  initial-value: 0;
+  inherits: false;
+}
+@keyframes countUp {
+  to { --count: var(--target); }
+}
+
+/* Flow arrows between pipeline steps */
+.flow-arrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-text-muted);
+  padding: 8px 0;
+}
+.flow-arrow svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: var(--color-border);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* === SectionShell Split Entrance (SCROLL-NARRATIVE.md) === */
+.has-anim .anim-from-left {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.8s cubic-bezier(0.19, 1, 0.22, 1), transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+}
+.has-anim .anim-from-left.visible { opacity: 1; transform: translateX(0); }
+.has-anim .anim-delayed {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.45s cubic-bezier(0.19, 1, 0.22, 1), transform 0.45s cubic-bezier(0.19, 1, 0.22, 1);
+  transition-delay: 0.08s;
+}
+.has-anim .anim-delayed.visible { opacity: 1; transform: translateY(0); }
+
+/* === Reduced Motion === */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  .has-anim .anim, .has-anim .kpi-card.anim, .has-anim .anim-from-left, .has-anim .anim-delayed { opacity: 1; transform: none; transition: none; }
+}
+
+/* === Hero === */
+/* Document-class hero: fully left-aligned on the shared text edge. */
+.hero {
+  position: relative;
+  padding: clamp(72px, 9vw, 112px) var(--gutter) var(--space-section);
+  text-align: left;
+}
+.hero__inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-width: 0;
+  max-width: var(--width-text);
+  margin-inline: auto;
+}
+/* Centered variant may center only the H1 + short subhead; everything below left-aligns. */
+.hero--centered .hero__title,
+.hero--centered .hero__subtitle { text-align: center; margin-inline: auto; }
+.hero--editorial { text-align: left; }
+.hero--editorial .hero__inner { max-width: var(--width-text); margin-inline: auto; }
+.hero__category {
+  display: block;
+  font: 500 13px/1.4 var(--font-body);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-accent-text);
+  margin-bottom: 16px;
+}
+.hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 4.5vw, 52px);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+  max-width: 24ch;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  text-wrap: balance;
+}
+.hero__subtitle {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 28px;
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+  max-width: 56ch;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.hero__meta {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  letter-spacing: 0;
+}
+.hero__lead {
+  font-size: 18px;
+  line-height: 28px;
+  color: var(--color-text);
+  max-width: 56ch;
+  margin-top: 20px;
+  text-align: left;
+}
+.hero .lead { margin-top: 20px; }
+
+/* === Section === */
+/* Named-column section grid — the structural one-left-edge fix. Every child
+   defaults to the text track; wide elements break out symmetrically. */
+.section {
+  display: grid;
+  grid-template-columns:
+    [full-start] minmax(var(--gutter), 1fr)
+    [wide-start] minmax(0, calc((var(--width-wide) - var(--width-text)) / 2))
+    [text-start] min(var(--width-text), calc(100% - var(--gutter) - var(--gutter))) [text-end]
+    minmax(0, calc((var(--width-wide) - var(--width-text)) / 2)) [wide-end]
+    minmax(var(--gutter), 1fr) [full-end];
+  padding: 0;
+  border-top: none;
+  max-width: 100%;
+  min-width: 0;
+}
+.section > * { grid-column: text; min-width: 0; max-width: 100%; }
+/* Phone widths: a touch more edge gutter so inline code in dense prose
+   never runs flush to the viewport. */
+@media (max-width: 480px) {
+  .section {
+    grid-template-columns:
+      [full-start] minmax(24px, 1fr)
+      [wide-start] minmax(0, calc((var(--width-wide) - var(--width-text)) / 2))
+      [text-start] min(var(--width-text), calc(100% - 48px)) [text-end]
+      minmax(0, calc((var(--width-wide) - var(--width-text)) / 2)) [wide-end]
+      minmax(24px, 1fr) [full-end];
+  }
+}
+.section > .section__grid,
+.section > .section__kpi-row,
+.section > .section__comparison,
+.section > .section__pipeline,
+.section > .section__showcase,
+.section > .section__sidebar,
+.section > .section__asymmetric,
+.section > .chart-row,
+.section > .diff-panels { grid-column: wide; }
+.section > .bleed { grid-column: full; }
+/* Stacked/body/full-width wrappers dissolve into the section grid so their
+   children pick tracks individually — prose in text, tables in wide. */
+.section > .section__body,
+.section > .section__stacked,
+.section > .section__full-width { display: contents; }
+.section__body > *,
+.section__stacked > *,
+.section__full-width > * { grid-column: text; min-width: 0; max-width: 100%; }
+.section__body > .table-wrap, .section__stacked > .table-wrap, .section__full-width > .table-wrap,
+.section__body > .chart-row, .section__stacked > .chart-row, .section__full-width > .chart-row,
+.section__body > .chart-wrap, .section__stacked > .chart-wrap, .section__full-width > .chart-wrap,
+.section__body > .mermaid-wrap, .section__stacked > .mermaid-wrap, .section__full-width > .mermaid-wrap,
+.section__body > .diff-panels, .section__stacked > .diff-panels, .section__full-width > .diff-panels,
+.section__body > .code-file, .section__stacked > .code-file, .section__full-width > .code-file { grid-column: wide; }
+.section-label {
+  display: inline-block;
+  font: 500 13px/1.4 var(--font-body);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-accent-text);
+  margin-bottom: 8px;
+}
+.section-label::before {
+  content: none;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+  line-height: 36px;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  text-wrap: balance;
+}
+.section-subtitle {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  margin-bottom: 2rem;
+  max-width: 65ch;
+  line-height: 1.625;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Showcase: two-column alternating layout */
+.section__showcase {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+.section:nth-child(even) .section__showcase { direction: rtl; }
+.section:nth-child(even) .section__showcase > * { direction: ltr; }
+
+/* Section layout variants */
+.section__body > * + * { margin-top: 1.5rem; }
+.section__body > *,
+.section__stacked > *,
+.section__grid > *,
+.section__kpi-row > *,
+.section__comparison > * {
+  min-width: 0;
+  max-width: 100%;
+}
+/* Card grids run on a shared 12-column base so the renderer can widen the
+   last row when counts are uneven — never a dead cell. */
+.section__grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+.section__grid > * { grid-column: span var(--grid-span, 4); min-width: 0; }
+@media (max-width: 768px) {
+  .section__grid { grid-template-columns: 1fr; }
+  .section__grid > * { grid-column: auto !important; }
+}
+.section__kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr));
+  gap: 1.25rem;
+}
+.section__pipeline {
+  display: flex;
+  align-items: stretch;
+  gap: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+.section__pipeline > * {
+  flex: 1;
+  min-width: 240px;
+  position: relative;
+}
+.section__pipeline > *:not(:last-child)::after {
+  content: '\2192';
+  position: absolute;
+  right: -1.25rem;
+  top: 50%;
+  transform: translateX(50%) translateY(-50%);
+  font-size: 22px;
+  color: var(--color-text-muted);
+  z-index: 1;
+}
+.section__comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+/* Full-width: children stack vertically at max container width — ideal for tables */
+.section__full-width > * + * { margin-top: 1.5rem; }
+.section--full-width { max-width: 100%; }
+.section--full-width .table-wrap { max-width: 100%; overflow-x: auto; }
+.section--full-width .data-table { min-width: 100%; }
+
+/* Sidebar: first child is sticky sidebar, rest is main content */
+.section__sidebar {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+.section__sidebar > *:first-child {
+  position: sticky;
+  top: 80px;
+  align-self: start;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+.section__sidebar > *:not(:first-child) { grid-column: 2; }
+.section__sidebar .component-nav--pager { grid-column: 2; }
+
+/* Asymmetric: 2fr 1fr split (wide main + narrow sidebar) */
+.section__asymmetric {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* Stacked: vertical stack with generous spacing — for long-form content */
+.section__stacked > * + * { margin-top: 2rem; }
+
+.section--collapsible details { border: 1px solid var(--color-border); border-radius: var(--radius); padding: 20px 24px; background: var(--color-surface-alt); transition: border-color 0.2s ease; }
+.section--collapsible details:hover { border-color: var(--color-border-strong); }
+.section--collapsible details[open] { border-color: var(--color-accent); }
+.section--collapsible summary { cursor: pointer; list-style: none; display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 12px; row-gap: 6px; user-select: none; }
+.section--collapsible summary::-webkit-details-marker { display: none; }
+.section--collapsible summary .section-label { grid-row: 1; grid-column: 1 / -1; margin: 0; }
+.section--collapsible summary::before { content: '\25B8'; grid-row: 2; grid-column: 1; align-self: center; transition: transform 0.2s ease; color: var(--color-accent); font-size: 0.9em; }
+.section--collapsible summary .section-title { grid-row: 2; grid-column: 2; margin: 0; }
+.section--collapsible details[open] summary::before { transform: rotate(90deg); }
+.section--collapsible details[open] .section__body { animation: accordionOpen 0.3s ease-out; }
+@keyframes accordionOpen { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Stepper: prev/next temporal walkthrough */
+.section__stepper { position: relative; }
+.stepper-step { display: none; }
+.stepper-step.active { display: block; }
+.stepper-controls { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 2rem; }
+.stepper-btn { background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: 8px 20px; cursor: pointer; font-family: var(--font-body); font-size: 0.85rem; color: var(--color-text); transition: all 0.2s; }
+.stepper-btn:hover { background: var(--color-accent-dim); border-color: var(--color-accent); color: var(--color-accent); }
+.stepper-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.stepper-dots { display: flex; gap: 0; }
+/* Labeled dots keep the 8px visual but ride a 24px hit target. */
+.stepper-dot { width: 24px; height: 24px; border-radius: 50%; background: transparent; border: none; cursor: pointer; position: relative; }
+.stepper-dot::after { content: ''; position: absolute; inset: 0; margin: auto; width: 8px; height: 8px; border-radius: 50%; background: var(--color-border); transition: all 0.2s; }
+.stepper-dot.active::after { background: var(--color-accent); transform: scale(1.3); }
+.stepper-counter { font: 500 13px/1.4 var(--font-body); letter-spacing: 0; color: var(--color-text-muted); }
+
+/* Custom HTML element */
+.custom-html { position: relative; }
+
+/* === Scroll progress + "On this page" outline (replaces the dot rail) === */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 0;
+  background: var(--color-accent);
+  z-index: 200;
+  pointer-events: none;
+}
+.page-outline {
+  display: none;
+  position: fixed;
+  right: 16px;
+  top: 120px;
+  width: 150px;
+  z-index: 90;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.page-outline__title {
+  font: 500 13px/1.4 var(--font-body);
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+.page-outline a {
+  display: block;
+  padding: 4px 0;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+.page-outline a:hover { color: var(--color-text); text-decoration: none; }
+.page-outline a.active {
+  color: var(--color-text);
+  font-weight: 600;
+}
+/* ponytail: 1440 not 1280 — below 1440 the fixed outline would overlap the 1080px wide track */
+@media (min-width: 1440px) { .page-outline { display: block; } }
+@media print { .page-outline, .scroll-progress { display: none; } }
+
+/* === CTA Buttons === */
+.cta-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+.cta-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.75rem; border-radius: var(--radius-control); font-family: var(--font-body); font-size: 14px; font-weight: 500; text-decoration: none; transition: border-color var(--transition), background var(--transition); letter-spacing: 0; }
+.cta-btn--primary { background: var(--color-accent); color: var(--color-on-accent); border: 1px solid var(--color-accent); }
+.cta-btn--primary:hover { filter: brightness(1.08); }
+.cta-btn--secondary { background: transparent; color: var(--color-accent-bright); border: 1px solid var(--color-border-strong); }
+.cta-btn--secondary:hover { background: var(--color-accent-dim); border-color: var(--color-accent); }
+
+/* === Chart Container (from VE) === */
+.chart-row { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-top: 1rem; }
+.chart-wrap { background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 1rem; }
+.chart-wrap__title { font: 500 13px/1.4 var(--font-body); text-transform: none; letter-spacing: 0; color: var(--color-text-muted); margin-bottom: 0.8rem; }
+.chart-wrap__canvas { position: relative; width: 100%; height: var(--chart-height, 200px); max-height: 70vh; }
+.chart-wrap__canvas canvas { width: 100% !important; height: 100% !important; }
+@media (max-width: 768px) { .chart-row { grid-template-columns: 1fr; } }
+
+/* === Card === */
+/* No shadow at rest; hover raises the border only — no scale, no lift. */
+.ve-card {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  max-width: 100%;
+  transition: border-color var(--transition);
+}
+.ve-card:hover {
+  border-color: var(--color-border-strong);
+}
+.ve-card--elevated {
+  background: var(--color-surface-alt);
+}
+.ve-card--recessed {
+  background: var(--color-surface);
+  border-style: dashed;
+}
+.ve-card--hero {
+  background: linear-gradient(135deg, var(--color-surface-alt), var(--color-surface));
+  border-color: var(--color-border);
+  padding: 2.5rem;
+}
+.ve-card--glass {
+  background: rgba(255,255,255,0.02);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.ve-card--glass:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.12);
+}
+[data-theme="light"] .ve-card--glass {
+  background: rgba(0,0,0,0.015);
+  border-color: rgba(0,0,0,0.06);
+}
+[data-theme="light"] .ve-card--glass:hover {
+  background: rgba(0,0,0,0.03);
+  border-color: rgba(0,0,0,0.1);
+}
+/* Light theme rides the fixed light neutral ramp — no per-component boosts. */
+.ve-card--slide { scroll-snap-align: start; min-width: min(300px, 100%); }
+
+/* === Card Detail Overlay (native <dialog> expand) === */
+.ve-card__expand { display: inline-flex; align-items: center; margin-top: 12px; width: fit-content; padding: 6px 14px; border-radius: var(--radius-control); border: 1px solid var(--color-border-strong); background: transparent; color: var(--color-accent-bright); font: 500 13px/1.4 var(--font-body); cursor: pointer; transition: border-color var(--transition), background var(--transition); }
+.ve-card__expand:hover { background: var(--color-accent-dim); border-color: var(--color-accent); }
+dialog.card-detail-overlay { width: min(960px, 92vw); max-height: 85vh; overflow-y: auto; margin: auto; padding: 3rem 2.5rem; background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); border-radius: var(--radius); animation: overlayIn 0.25s ease-out; }
+dialog.card-detail-overlay::backdrop { background: color-mix(in srgb, var(--color-surface) 80%, transparent); backdrop-filter: blur(12px); }
+.card-detail-overlay__close { position: sticky; top: 0; float: right; z-index: 10000; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: 8px 16px; cursor: pointer; font: 500 13px/1.4 var(--font-body); color: var(--color-text-muted); transition: all 0.2s; }
+.card-detail-overlay__close:hover { background: var(--color-accent-dim); color: var(--color-accent); }
+.card-detail-overlay__content { max-width: 900px; margin: 0 auto; }
+.card-detail-overlay__content .ve-card { cursor: default; transform: none; max-width: none; }
+.card-detail-overlay__content .ve-card:hover { transform: none; }
+@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Card subtle differentiation in grids — icon bg color rotation instead of borders */
+.section__grid > .ve-card:nth-child(6n+1) .ve-card__icon { background: color-mix(in srgb, var(--color-accent) 12%, transparent); }
+.section__grid > .ve-card:nth-child(6n+2) .ve-card__icon { background: color-mix(in srgb, var(--color-success) 12%, transparent); }
+.section__grid > .ve-card:nth-child(6n+3) .ve-card__icon { background: color-mix(in srgb, var(--color-warning) 12%, transparent); }
+.section__grid > .ve-card:nth-child(6n+4) .ve-card__icon { background: color-mix(in srgb, var(--color-error) 12%, transparent); }
+.section__grid > .ve-card:nth-child(6n+5) .ve-card__icon { background: color-mix(in srgb, var(--color-accent) 8%, var(--color-success) 4%); }
+.section__grid > .ve-card:nth-child(6n+6) .ve-card__icon { background: color-mix(in srgb, var(--color-warning) 8%, var(--color-error) 4%); }
+
+/* Phase badges */
+.badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 500; text-transform: none; letter-spacing: 0; border: none; white-space: nowrap; font-family: var(--font-body); line-height: 1.4; }
+.badge--success { background: color-mix(in srgb, var(--color-success) 12%, transparent); color: var(--color-success); }
+.badge--warning { background: color-mix(in srgb, var(--color-warning) 12%, transparent); color: var(--color-warning); }
+.badge--error { background: color-mix(in srgb, var(--color-error) 12%, transparent); color: var(--color-error); }
+.badge--accent { background: var(--color-accent-dim); color: var(--color-accent-bright); }
+.badge--muted { background: color-mix(in srgb, var(--color-text-muted) 12%, transparent); color: var(--color-text-muted); }
+
+/* === Sidebar TOC Layout (document reader) === */
+.page-wrap--toc { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: minmax(176px, 220px) minmax(0, 900px); justify-content: center; gap: 0 clamp(28px, 4vw, 56px); padding: 32px clamp(20px, 4vw, 48px) 80px; }
+.page-wrap--toc > * { min-width: 0; }
+.page-toc { position: sticky; top: 24px; align-self: start; height: calc(100dvh - 48px); padding: 16px 14px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-family: var(--font-body); overflow-y: auto; z-index: 50; border-right: 1px solid var(--color-border); background: color-mix(in srgb, var(--color-surface) 88%, transparent); }
+.page-toc__title { font-weight: 500; font-size: 13px; text-transform: none; letter-spacing: 0; color: var(--color-text-muted); margin-bottom: 8px; line-height: 1.4; }
+.page-toc a { color: var(--color-text-muted); text-decoration: none; padding: 6px 8px; border-radius: var(--radius-control); transition: all 0.15s; line-height: 1.35; display: flex; align-items: center; gap: 0.55rem; }
+.page-toc__badge { min-width: 1.75rem; color: var(--color-accent); font-weight: 600; }
+.page-toc a:hover { color: var(--color-text); background: var(--color-surface-alt); }
+.page-toc a.active, .page-toc a[aria-current="page"] { color: var(--color-text); background: var(--color-surface-alt); font-weight: 600; }
+.page-main { min-width: 0; position: relative; z-index: 1; }
+.page-wrap--routed .section__sidebar:has(> [data-document-route]) { grid-template-columns: minmax(0, 1fr); }
+.page-wrap--routed .section__sidebar:has(> [data-document-route]) > * { grid-column: 1; }
+.page-wrap--routed .section__sidebar:has(> [data-document-route]) > *:first-child { position: static; max-height: none; overflow: visible; }
+.toc-hamburger, .toc-backdrop { display: none; }
+@media (min-width: 901px) {
+  .page-toc {
+    position: fixed;
+    left: max(24px, calc((100vw - 1280px) / 2 + 52px));
+    top: 24px;
+    bottom: 24px;
+    width: 220px;
+    height: auto;
+  }
+  .page-main {
+    grid-column: 2;
+  }
+}
+@media (max-width: 900px) {
+  .page-wrap--toc { grid-template-columns: 1fr; padding: 64px clamp(16px, 4vw, 32px) 64px; }
+  .page-main { padding: 0 1rem; }
+  .section__grid,
+  .section__kpi-row {
+    grid-template-columns: 1fr;
+  }
+  .toc-hamburger { display: flex; flex-direction: column; justify-content: space-between; position: absolute; top: 14px; left: 14px; z-index: 200; width: 38px; height: 32px; padding: 7px 6px; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius-control); color: var(--color-text); cursor: pointer; }
+  .is-toc-open .toc-hamburger { position: fixed; }
+  .toc-hamburger span { display: block; height: 2px; background: var(--color-text); border-radius: 2px; transition: transform 0.2s ease, opacity 0.2s ease; }
+  .is-toc-open .toc-hamburger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .is-toc-open .toc-hamburger span:nth-child(2) { opacity: 0; }
+  .is-toc-open .toc-hamburger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .toc-backdrop { display: block; position: fixed; inset: 0; padding: 0; border: 0; background: rgba(0,0,0,0.5); z-index: 150; visibility: hidden; opacity: 0; pointer-events: none; transition: opacity 0.2s ease, visibility 0s linear 0.2s; }
+  .is-toc-open .toc-backdrop { visibility: visible; opacity: 1; pointer-events: auto; transition-delay: 0s; }
+  .page-toc { position: fixed; top: 0; left: 0; bottom: 0; align-self: stretch; height: 100dvh; width: min(300px, 84vw); flex-direction: column; overflow-y: auto; overflow-x: hidden; visibility: hidden; background: var(--color-surface); border-right: 1px solid var(--color-border); padding: 64px 16px 24px; max-height: none; gap: 2px; z-index: 175; transform: translateX(-100%); transition: transform 0.25s ease, visibility 0s linear 0.25s; box-shadow: 4px 0 24px rgba(0,0,0,0.4); }
+  .is-toc-open .page-toc { visibility: visible; transform: translateX(0); transition-delay: 0s; }
+  .page-toc a { white-space: normal; }
+  body:has(.page-wrap--toc) .theme-toggle { position: absolute; top: 14px; right: 14px; bottom: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .toc-hamburger span, .toc-backdrop, .page-toc { transition: none; }
+}
+.ve-card__label {
+  display: inline-block;
+  font: 500 13px/1.4 var(--font-body);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+.ve-card__title {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-text);
+  margin-bottom: 10px;
+  overflow-wrap: anywhere;
+}
+.ve-card__content {
+  font-size: 15px;
+  color: var(--color-text);
+  line-height: 24px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.ve-card__content p { overflow-wrap: anywhere; }
+.ve-card__content ul { padding-left: 18px; margin-top: 8px; }
+.ve-card__content li { margin-bottom: 4px; }
+.ve-card__content li::marker { color: var(--color-accent); }
+
+/* === KPI Card === */
+.kpi-card {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-align: center;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  transition: border-color var(--transition);
+}
+.kpi-card:hover { border-color: var(--color-border-strong); }
+.kpi-card__value {
+  font-size: 36px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  margin-bottom: 4px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+/* Animated KPI counter — pure CSS integer interpolation via @property */
+.has-anim .kpi-card__value--animated {
+  animation: countUp 1.2s ease-out forwards;
+  counter-reset: kpi-count var(--count);
+}
+.has-anim .kpi-card__value--animated::after {
+  content: counter(kpi-count);
+}
+.kpi-card__label {
+  font: 500 13px/1.4 var(--font-body);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.kpi-card__trend {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 6px;
+  padding: 2px 8px;
+  border-radius: var(--radius-control);
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.kpi-card__trend--up { color: var(--color-success); background: color-mix(in srgb, var(--color-success) 10%, transparent); }
+.kpi-card__trend--down { color: var(--color-error); background: color-mix(in srgb, var(--color-error) 10%, transparent); }
+.kpi-card__trend--flat { color: var(--color-text-muted); background: color-mix(in srgb, var(--color-text-muted) 10%, transparent); }
+.kpi-card__sparkline {
+  display: block;
+  width: 100%;
+  height: 24px;
+  margin-top: 8px;
+}
+
+/* === Callout === */
+/* Tinted surface only — no left bar, no border. The tint and the colored
+   title carry the semantics. Body stays at full text contrast. */
+.callout {
+  --sem: var(--color-accent);
+  border-radius: 8px;
+  padding: 16px 20px;
+  border: none;
+  background: color-mix(in srgb, var(--sem) 8%, var(--color-surface));
+}
+.callout--info { --sem: var(--color-info); }
+.callout--warning { --sem: var(--color-warning); }
+.callout--success { --sem: var(--color-success); }
+.callout--error { --sem: var(--color-error); }
+.callout__title { font: 500 13px/1.4 var(--font-body); color: var(--sem); margin-bottom: 6px; }
+.callout__content { font-size: 15px; color: var(--color-text); }
+
+/* === Text === */
+.prose { max-width: 65ch; font-size: 1rem; line-height: 1.7; }
+.prose p + p { margin-top: 1em; }
+.prose--narrow { max-width: 55ch; line-height: 1.85; font-size: 1.05rem; }
+.prose--wide { max-width: 80ch; line-height: 1.6; }
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.lead h1,
+.lead h2,
+.lead h3 {
+  font-family: var(--font-display);
+  color: var(--color-text);
+  line-height: 1.12;
+  letter-spacing: 0;
+  margin: 1.75em 0 0.55em;
+}
+.prose h1 { font-size: clamp(2rem, 3.5vw, 2.75rem); letter-spacing: -0.02em; }
+.prose h2 { font-size: 28px; line-height: 36px; letter-spacing: -0.01em; }
+.prose h3 { font-size: 22px; line-height: 30px; color: var(--color-text); }
+.prose h4 { font-size: 18px; line-height: 26px; text-transform: none; font-family: var(--font-body); color: var(--color-text); }
+.prose h1:first-child,
+.prose h2:first-child,
+.prose h3:first-child { margin-top: 0; }
+.prose p { margin: 0 0 1em; }
+.prose ul,
+.prose ol { margin: 0 0 1.2em 1.35em; padding: 0; }
+.prose li { margin: 0.65em 0; padding-left: 0.2em; }
+.prose blockquote {
+  margin: 1.4em 0;
+  padding: 0.9em 1.2em;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--color-accent) 7%, transparent);
+  color: var(--color-text-muted);
+}
+.prose hr { border: 0; border-top: 1px solid var(--color-border); margin: 2em 0; }
+/* Markdown tables converge on the .data-table box model: no outer border, no
+   radius, strong hairline under headers, hairline row dividers only. Overflow
+   lives on the .table-scroll wrapper the document renderer emits. */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.4em 0 1.8em;
+}
+.prose .table-scroll { overflow-x: auto; }
+.prose thead,
+.prose tbody,
+.prose tr { width: 100%; }
+.prose th,
+.prose td {
+  padding: 0.78em 0.95em;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: top;
+}
+.prose th {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: none;
+  color: var(--color-text-muted);
+  background: transparent;
+  border-bottom: 1px solid var(--color-border-strong);
+  line-height: 1.3;
+}
+.prose td { color: var(--color-text-muted); }
+.prose pre {
+  margin: 1.25em 0;
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-gutter: stable;
+  overflow-wrap: normal;
+  word-break: normal;
+  white-space: pre;
+}
+.prose pre code { background: transparent; padding: 0; border: 0; color: var(--color-text); }
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: color-mix(in srgb, var(--color-accent) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 18%, transparent);
+  border-radius: var(--radius-control);
+  padding: 0.1em 0.35em;
+}
+.prose a { color: var(--color-accent-text); text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
+
+/* === Composable documents, navigation, and actions === */
+body.lev-now-routed .document[data-document-route]:not(.is-active) { display: none; }
+.document { width: 100%; min-width: 0; margin-inline: auto; }
+.component-nav { font-family: var(--font-body); }
+.component-nav--list { display: flex; flex-direction: column; gap: 0.2rem; }
+.component-nav__group { margin: 1rem 0 0.35rem; color: var(--color-text-muted); font: 500 13px/1.4 var(--font-body); letter-spacing: 0; text-transform: none; }
+.component-nav__group:first-child { margin-top: 0; }
+.component-nav__item { display: flex; align-items: center; gap: 0.55rem; padding: 0.48rem 0.58rem; border-radius: var(--radius-control); color: var(--color-text-muted); font-size: 0.84rem; line-height: 1.3; text-decoration: none; }
+.component-nav__item:hover, .component-nav__item[aria-current="page"] { background: var(--color-surface-alt); color: var(--color-text); }
+.component-nav__badge { min-width: 1.75rem; color: var(--color-accent-bright); font: 600 12px/1.4 var(--font-body); font-variant-numeric: tabular-nums; }
+.component-nav--pager { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; width: 100%; margin-top: 1.5rem; }
+.component-nav--pager a { padding: 0.8rem 0.9rem; border: 1px solid var(--color-border); border-radius: var(--radius); color: var(--color-text-muted); font-size: 0.82rem; line-height: 1.35; text-decoration: none; }
+.component-nav--pager a:hover { border-color: var(--color-accent); color: var(--color-text); }
+.component-nav__previous { grid-column: 1; }
+.component-nav__next { grid-column: 2; text-align: right; }
+.component-nav__title { display: block; margin-top: 0.12rem; color: var(--color-text); font-weight: 600; }
+/* Actions ride the cta-btn metrics — one button system. */
+.component-action { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 0.2rem; padding: 0.75rem 1.75rem; border: 1px solid var(--color-accent); border-radius: var(--radius-control); background: var(--color-accent); color: var(--color-on-accent); font: 500 14px/1.2 var(--font-body); width: fit-content; text-decoration: none; cursor: pointer; }
+.component-action--link { padding: 0; border: 0; background: transparent; color: var(--color-accent-text); }
+.component-action--callout { display: flex; width: 100%; padding: 1rem 1.1rem; border-color: var(--color-border); background: var(--color-surface-alt); color: var(--color-text); }
+.component-action--callout .component-action__label { color: var(--color-accent-text); }
+.component-action__description { color: inherit; font-size: 0.78rem; font-weight: 400; opacity: 0.78; }
+
+/* === Semantic teaching, evidence, and persuasion components === */
+/* All six are flat — the evidence-ledger reference pattern. No container box;
+   separation comes from the flow gap, internal anatomy from hairlines only. */
+.learning-objective,
+.exercise,
+.decision,
+.proof-block,
+.source-list,
+.testimonial {
+  width: 100%; min-width: 0;
+}
+/* Evidence ledger is flat — no panel-in-card-in-card nesting. Rows separated
+   by hairlines; the chip carries the semantics inline with the claim. */
+.evidence-ledger { width: 100%; min-width: 0; padding: 0; border: none; background: transparent; }
+.learning-objective__label,
+.exercise__label,
+.evidence-ledger__status {
+  display: inline-block; margin-bottom: 0.65rem; font: 500 13px/1.4 var(--font-body);
+  letter-spacing: 0; text-transform: none; color: var(--color-accent-text);
+}
+.learning-objective h2,
+.exercise h2,
+.evidence-ledger h2,
+.decision h2,
+.proof-block h2,
+.source-list h2 { margin: 0 0 0.7rem; font-family: var(--font-display); line-height: 1.16; }
+.learning-objective__description,
+.evidence-ledger__summary { margin-bottom: 0.85rem; color: var(--color-text-muted); }
+.learning-objective__outcome { padding: 0; font-weight: 600; font-size: 1.05rem; color: var(--color-text); }
+.learning-objective__prerequisites { margin-top: 0.85rem; color: var(--color-text-muted); }
+.learning-objective ul,
+.exercise ol,
+.exercise ul { margin: 0.55rem 0 0 1.25rem; }
+.source-list ol { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.source-list li { min-width: 0; padding: 0.8rem 0; border: none; border-top: 1px solid var(--color-border); border-radius: 0; }
+.evidence-ledger ol { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.evidence-ledger__item { min-width: 0; padding: 1rem 0; border: none; border-top: 1px solid var(--color-border); border-radius: 0; }
+.source-list p,
+.evidence-ledger__item p { margin: 0.35rem 0 0; color: var(--color-text-muted); font-size: 0.88rem; }
+.source-list a,
+.source-list span { font-weight: 600; overflow-wrap: anywhere; }
+.exercise__prompt { margin-bottom: 0.7rem; font-size: 1.05rem; font-weight: 600; }
+.exercise details { margin-top: 0.8rem; padding: 0.7rem 0; border: none; border-top: 1px solid var(--color-border); border-radius: 0; }
+.exercise summary { cursor: pointer; color: var(--color-accent-text); font-weight: 600; }
+.evidence-ledger__claim { display: block; font-weight: 600; line-height: 1.55; }
+.evidence-ledger__status { margin-right: 6px; vertical-align: 1px; }
+/* Verification tags: neutral card, semantic chip only — no full-card outline. */
+.evidence-ledger__status {
+  padding: 2px 8px; border-radius: 6px; font-weight: 500;
+  background: var(--color-accent-dim); color: var(--color-accent-bright);
+}
+.evidence-ledger__item--contradicted .evidence-ledger__status,
+.evidence-ledger__item--missing .evidence-ledger__status {
+  color: var(--color-error);
+  background: color-mix(in srgb, var(--color-error) 12%, transparent);
+}
+.evidence-ledger__item--observed .evidence-ledger__status,
+.evidence-ledger__item--verified .evidence-ledger__status {
+  color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 12%, transparent);
+}
+.evidence-ledger__source { margin-top: 0.45rem; color: var(--color-text-muted); font-size: 0.8rem; overflow-wrap: anywhere; }
+.decision__next,
+.proof-block__limitation { margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid var(--color-border); color: var(--color-text-muted); }
+.proof-block__claim { margin-bottom: 0.8rem; font-size: 1.08rem; font-weight: 600; }
+.proof-block__source { margin-top: 0.7rem; overflow-wrap: anywhere; }
+.testimonial { margin: 0; }
+.testimonial__quote { font-family: var(--font-display); font-size: clamp(1.25rem, 2.6vw, 1.75rem); line-height: 1.4; }
+.testimonial footer { margin-top: 0.8rem; color: var(--color-text-muted); font-size: 0.86rem; text-align: left; padding: 0; border: none; }
+/* Reading components share one centered measure aligned with the 80ch document
+   column, so wide viewports stop alternating full-bleed cards with a
+   left-pinned prose column. */
+.learning-objective,
+.exercise,
+.evidence-ledger,
+.decision,
+.proof-block,
+.source-list,
+.testimonial,
+.component-nav--pager {
+  max-width: min(51rem, 100%);
+  margin-inline: auto;
+}
+.lead {
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+  max-width: 65ch;
+  line-height: 1.8;
+}
+/* No bold lead-in styling — leads read as ordinary prose. */
+.pullquote {
+  border: 1px solid var(--color-border);
+  padding: 20px 28px;
+  font-size: 1.1rem;
+  background: var(--color-surface-alt);
+  border-radius: var(--radius);
+  font-style: normal;
+  color: var(--color-text);
+  margin: 24px 0;
+}
+
+/* === Data Table === */
+/* No outer border, no outer radius, no zebra. Horizontal scroll lives on the
+   inner .table-scroll with an edge fade only while scrollable. */
+.table-wrap { position: relative; max-width: 100%; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+.table-scroll.is-scrollable {
+  mask-image: linear-gradient(90deg, #000 calc(100% - 56px), transparent);
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 56px), transparent);
+}
+.table-scroll.is-scrolled-end {
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+/* The mask alone is invisible on dark surfaces — pair it with an explicit
+   chevron cue so an unscrolled table never reads as clipped. */
+.table-wrap:has(> .table-scroll.is-scrollable)::after {
+  content: "›";
+  position: absolute;
+  top: 50%;
+  right: 2px;
+  transform: translateY(-50%);
+  font-size: 20px;
+  line-height: 1;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+.table-wrap:has(> .table-scroll.is-scrolled-end)::after { display: none; }
+.data-table__caption {
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  padding: 0;
+  caption-side: top;
+  text-align: left;
+}
+.table-fullscreen-btn { position: absolute; top: 8px; right: 8px; z-index: 5; background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: 6px 10px; cursor: pointer; font-size: 13px; color: var(--color-text-muted); transition: all 0.2s; opacity: 0.6; }
+.table-wrap:hover .table-fullscreen-btn { opacity: 1; }
+/* At phone widths the button overlaps the last visible header cell and
+   fullscreen adds nothing over in-place scroll — hide it. */
+@media (max-width: 640px) { .table-fullscreen-btn { display: none; } }
+.table-fullscreen-btn:hover { background: var(--color-accent-dim); color: var(--color-accent); }
+/* Fullscreen mode — body-level portal with nav chrome hidden. */
+body.lev-now-fullscreen-active .site-nav,
+body.lev-now-fullscreen-active .page-toc,
+body.lev-now-fullscreen-active .page-outline,
+body.lev-now-fullscreen-active .scroll-progress,
+body.lev-now-fullscreen-active .theme-toggle {
+  display: none !important;
+}
+/* Body-level fullscreen portal dialog — the host for .is-fullscreen content. */
+dialog.fs-dialog { width: 100vw; height: 100vh; max-width: 100vw; max-height: 100vh; margin: 0; padding: 0; border: none; background: var(--color-surface); }
+dialog.fs-dialog::backdrop { background: var(--color-surface); }
+.is-fullscreen { position: fixed !important; inset: 0 !important; z-index: 2147483646 !important; background: var(--color-surface) !important; margin: 0 !important; border-radius: 0 !important; border: none !important; overflow: auto !important; padding: clamp(16px, 2vw, 28px) !important; }
+.is-fullscreen.table-wrap {
+  width: 100vw !important;
+  height: 100vh !important;
+  overflow: auto !important;
+  padding: 48px 24px 24px !important;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.is-fullscreen.table-wrap::-webkit-scrollbar { width: 0; height: 0; }
+.is-fullscreen.table-wrap > .table-fullscreen-btn { display: none; }
+.is-fullscreen .table-wrap { max-height: none; border: none; border-radius: 0; }
+.is-fullscreen .data-table { font-size: 15px; }
+.is-fullscreen .data-table td { padding: 14px 16px; }
+.is-fullscreen .data-table th { padding: 12px 16px; }
+.is-fullscreen.mermaid-wrap {
+  display: flex;
+  flex-direction: column;
+  width: 100vw !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  text-align: left;
+}
+.is-fullscreen .mermaid {
+  min-height: 0;
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  display: block;
+  padding: 56px 40px 40px;
+  text-align: left;
+  cursor: grab;
+  zoom: 1;
+}
+.is-fullscreen .mermaid.is-panning { cursor: grabbing; }
+.is-fullscreen .mermaid svg {
+  display: block;
+  max-width: none !important;
+  max-height: none !important;
+  width: auto;
+  height: auto;
+  transform: none;
+  transition: none;
+  will-change: width, height;
+}
+.fs-close { position: fixed; top: 0; right: 0; z-index: 100000; background: var(--color-surface-alt); border: none; border-bottom-left-radius: var(--radius); padding: 6px 14px; cursor: pointer; font: 500 12px/1.4 var(--font-body); color: var(--color-text-muted); letter-spacing: 0; }
+.fs-close:hover { background: var(--color-accent-dim); color: var(--color-accent); }
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.data-table th {
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-text-muted);
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--color-border-strong);
+  text-align: left;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+.data-table th:first-child, .data-table td:first-child { min-width: 9rem; }
+.data-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+  line-height: 22px;
+  vertical-align: top;
+  overflow-wrap: break-word;
+}
+.data-table tbody tr:hover { background: var(--color-surface-raised); }
+.data-table td code { font-family: var(--font-mono); font-size: 0.85em; background: var(--color-surface); padding: 1px 5px; border-radius: var(--radius-control); }
+.data-table a.table-link {
+  color: var(--color-accent-text);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-accent) 45%, transparent);
+}
+.data-table a.table-link:hover {
+  color: var(--color-accent-bright);
+  border-bottom-color: currentColor;
+}
+.data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.data-table tfoot td { font-size: 0.76rem; color: var(--color-text-muted); padding-top: 8px; }
+
+/* === Code === */
+.code-block, .code-file {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  font-size: 14px;
+}
+.code-file__body { padding: 16px 20px; line-height: 1.6; }
+.code-file__header {
+  background: var(--color-surface-alt);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid var(--color-border);
+}
+.code-file__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-border);
+}
+.code-file__dot:nth-child(1) { background: #ff5f57; }
+.code-file__dot:nth-child(2) { background: #ffbd2e; }
+.code-file__dot:nth-child(3) { background: #28ca42; }
+.code-file__name {
+  margin-left: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.code-file__body, .code-block {
+  display: flex;
+  background: var(--color-surface);
+}
+pre {
+  margin: 0;
+  padding: 14px;
+  overflow-x: auto;
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+code { font-family: inherit; }
+.line-numbers {
+  padding: 14px 10px;
+  text-align: right;
+  user-select: none;
+  color: var(--color-text-muted);
+  opacity: 0.4;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  border-right: 1px solid var(--color-border);
+}
+.line-numbers span { display: block; }
+.code-keyword { color: #f472b6; font-weight: 500; }
+.code-string { color: #6ee7b7; }
+.code-comment { color: var(--color-text-muted); font-style: normal; }
+.code-func { color: #fbbf24; }
+.code-number { color: #93c5fd; }
+[data-theme="light"] .code-keyword { color: #be185d; }
+[data-theme="light"] .code-string { color: #047857; }
+[data-theme="light"] .code-func { color: #b45309; }
+[data-theme="light"] .code-number { color: #1d4ed8; }
+
+/* === Timeline === */
+/* 28px filled disc carries the step number; per-item rail segments run disc
+   center to disc center — zero overhang above the first or below the last. */
+.timeline {
+  position: relative;
+  padding-left: 44px;
+}
+.timeline-item {
+  position: relative;
+  padding-bottom: 32px;
+}
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: -31px;
+  top: 28px;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-border);
+}
+.timeline-item__marker {
+  position: absolute;
+  left: -44px;
+  top: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-accent-dim);
+  color: var(--color-accent-bright);
+  font: 600 13px/28px var(--font-body);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.timeline-item--completed .timeline-item__marker,
+.timeline-item--done .timeline-item__marker { background: color-mix(in srgb, var(--color-success) 12%, transparent); color: var(--color-success); }
+.timeline-item--in-progress .timeline-item__marker,
+.timeline-item--active .timeline-item__marker { background: var(--color-accent); color: var(--color-on-accent); }
+.timeline-item__date {
+  font: 500 13px/1.4 var(--font-body);
+  color: var(--color-text-muted);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.timeline-item__title { font-weight: 600; margin: 2px 0 4px; font-size: 16px; line-height: 28px; }
+.timeline-item__desc { font-size: 14px; color: var(--color-text-muted); line-height: 1.55; overflow-wrap: anywhere; }
+/* Completed items get muted text */
+.timeline-item--completed .timeline-item__title,
+.timeline-item--done .timeline-item__title { color: var(--color-text-muted); }
+.timeline-item--completed .timeline-item__desc,
+.timeline-item--done .timeline-item__desc { opacity: 0.7; }
+
+/* === Diagram / Mermaid === */
+.mermaid-wrap {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  overflow-x: auto;
+  text-align: center;
+  position: relative;
+}
+.mermaid-controls {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+.is-fullscreen.mermaid-wrap .mermaid-controls {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2147483647;
+  background: var(--color-surface-alt);
+  border-bottom-right-radius: var(--radius);
+  padding: 6px 10px;
+  margin: 0;
+}
+.mermaid-zoom {
+  appearance: none;
+  -webkit-appearance: none;
+  min-width: 28px;
+  min-height: 26px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  padding: 3px 8px;
+  cursor: pointer;
+  border-radius: var(--radius-control);
+}
+.mermaid-zoom:hover { color: var(--color-text); background: var(--color-surface-alt); }
+.mermaid-fullscreen { font-size: 13px; }
+.mermaid svg { transition: width 0.16s ease, height 0.16s ease; transform-origin: center center; }
+.mermaid-caption {
+  position: static;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-style: normal;
+  background: transparent;
+  padding: 4px 0;
+  white-space: normal;
+}
+.is-fullscreen .mermaid-caption {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2147483647;
+  white-space: nowrap;
+  background: var(--color-surface);
+  padding: 4px 12px;
+  border-radius: var(--radius-control);
+}
+/* Mermaid node overrides — the CSS vars re-resolve per theme, and !important
+   beats the SVG presentation attributes in both modes. */
+.mermaid .node rect,
+.mermaid .node circle,
+.mermaid .node polygon { fill: var(--color-surface-alt) !important; stroke: var(--color-border) !important; }
+.mermaid .node .label { color: var(--color-text) !important; }
+.mermaid .edgePath .path { stroke: var(--color-text-muted) !important; }
+.mermaid .edgeLabel { background: var(--color-surface) !important; color: var(--color-text-muted) !important; }
+.mermaid .cluster rect { fill: var(--color-surface) !important; stroke: var(--color-border) !important; }
+
+/* === Inline === */
+/* Badge contract: first token in the pill, remainder as plain wrapping muted
+   text beside it (.status-note). One hue per state, mapped once here. */
+.status {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 6px;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+  border: none;
+  background: color-mix(in srgb, var(--sem, var(--color-text-muted)) 12%, transparent);
+  color: var(--sem, var(--color-text-muted));
+}
+.status--match, .status--done, .status--success, .status--adopt, .status--observed { --sem: var(--color-success); }
+.status--gap, .status--error, .status--reject, .status--contradicted, .status--missing { --sem: var(--color-error); }
+.status--warn, .status--warning, .status--defer, .status--active { --sem: var(--color-warning); }
+.status--info, .status--adapt, .status--partial { --sem: var(--color-info); }
+.status--upcoming, .status--watch, .status--neutral { --sem: var(--color-text-muted); }
+.status-note {
+  display: block;
+  font: 400 13px/1.5 var(--font-body);
+  color: var(--color-text-muted);
+  white-space: normal;
+  margin-top: 4px;
+}
+/* Cells holding a pill get room so qualifiers wrap at word boundaries,
+   not as "(highest" / "value)" fragments. */
+td:has(> .status) { min-width: 10rem; }
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 32px 0;
+}
+
+/* === Theme Toggle === */
+.theme-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition), border-color var(--transition);
+}
+.theme-toggle:hover { border-color: var(--color-accent); }
+.theme-toggle svg { width: 18px; height: 18px; fill: var(--color-text); }
+
+/* === Byline (author attribution) === */
+.byline { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+.byline__info { display: flex; flex-direction: column; gap: 2px; }
+.byline__name { font-weight: 600; font-size: 0.95rem; }
+.byline__role { font: 500 13px/1.4 var(--font-body); color: var(--color-accent-text); text-transform: none; letter-spacing: 0; }
+.byline__meta { font-size: 0.8rem; color: var(--color-text-muted); }
+
+/* === Footer === */
+/* Scoped to .footer only — a bare <footer> inside a component (testimonial
+   attribution) must never inherit page-footer chrome. */
+.footer {
+  padding: 3rem 0 2rem;
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+.footer a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+.footer a:hover { color: var(--color-accent); }
+
+/* === Footer End-Cap (shell-owned — no page ends in raw background) === */
+.page-footer {
+  margin-top: var(--space-section);
+  border-top: 1px solid var(--color-border);
+  padding: 24px clamp(1.25rem, 3vw, 3rem) 64px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+  font: 400 13px/1.5 var(--font-body);
+  color: var(--color-text-muted);
+  text-align: left;
+}
+.page-footer a { color: var(--color-text-muted); text-decoration: none; }
+.page-footer a:hover { color: var(--color-text); text-decoration: none; }
+
+/* === Card Subtitle / Code Label === */
+.ve-card__subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-text-muted);
+  opacity: 0.7;
+  margin-top: 0.5rem;
+  display: block;
+}
+
+/* === Card Icon (single-weight stroke SVG, 20px, accent-bright) === */
+.ve-card__icon {
+  margin-bottom: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius);
+  background: var(--color-accent-dim);
+  color: var(--color-accent-bright);
+}
+.ve-card__icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* === Sticky Nav === */
+.site-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 0 2rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: color-mix(in srgb, var(--color-surface) 85%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.3s;
+}
+.site-nav__logo {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-text);
+  text-decoration: none;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Below 1440 the right-rail outline is hidden; the header carries the same
+   entries as a native disclosure instead. One canonical TOC, two placements. */
+.site-nav__toc { position: relative; }
+.site-nav__toc summary {
+  list-style: none;
+  cursor: pointer;
+  font: 500 14px/1.4 var(--font-body);
+  color: var(--color-text-muted);
+  padding: 4px 0;
+  white-space: nowrap;
+}
+.site-nav__toc summary::-webkit-details-marker { display: none; }
+.site-nav__toc summary:hover { color: var(--color-text); }
+.site-nav__toc[open] > div {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 220px;
+  max-width: 320px;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 8px 0;
+  z-index: 150;
+}
+.site-nav__toc a {
+  display: block;
+  padding: 6px 16px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+.site-nav__toc a:hover { color: var(--color-text); background: var(--color-surface-raised); text-decoration: none; }
+@media (min-width: 1440px) { .site-nav__toc { display: none; } }
+body:has(.page-wrap--toc) .site-nav { display: none; }
+/* The reader hero lives inside the TOC grid's main column now — no positional
+   offset hack; alignment with .page-main is structural. */
+body:has(.page-wrap--toc) .hero {
+  min-height: auto;
+  justify-content: flex-start;
+  padding: clamp(40px, 6vw, 72px) 0 clamp(24px, 4vw, 44px);
+}
+body:has(.page-wrap--toc) .hero--editorial {
+  text-align: left;
+}
+body:has(.page-wrap--toc) .hero__inner {
+  max-width: min(900px, 100%);
+  margin: 0;
+}
+body:has(.page-wrap--toc) .hero__category {
+  margin-bottom: 14px;
+}
+body:has(.page-wrap--toc) .hero__title {
+  max-width: 24ch;
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 14px;
+  font-size: clamp(32px, 3.6vw, 44px);
+  line-height: 1.12;
+  text-wrap: balance;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+body:has(.page-wrap--toc) .hero__subtitle {
+  max-width: 56ch;
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 12px;
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: clamp(0.98rem, 1.2vw, 1.12rem);
+  line-height: 1.55;
+  color: var(--color-text-muted);
+  overflow-wrap: normal;
+  word-break: normal;
+}
+body:has(.page-wrap--toc) .hero__meta {
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 14px;
+  max-width: 72ch;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+body:has(.page-wrap--toc) .hero .lead {
+  max-width: 68ch;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+body:has(.page-wrap--toc) .hero .lead p {
+  margin: 0;
+}
+body:has(.page-wrap--toc) .hero__inner {
+  margin-inline: 0;
+}
+@media (max-width: 1180px) {
+  .site-nav { padding: 0 1rem; }
+}
+@media print { .site-nav { display: none; } }
+
+/* === Diff Panels (before/after comparison) === */
+.diff-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+.diff-panel { padding: 1.25rem; }
+.diff-panel__header {
+  font: 500 13px/1.4 var(--font-body);
+  letter-spacing: 0;
+  text-transform: none;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.diff-panel--before { background: color-mix(in srgb, var(--color-error) 8%, transparent); }
+.diff-panel--before .diff-panel__header { color: var(--color-error); }
+.diff-panel--after { background: color-mix(in srgb, var(--color-success) 8%, transparent); }
+.diff-panel--after .diff-panel__header { color: var(--color-success); }
+.diff-panel__body { font-size: 0.9rem; line-height: 1.7; }
+.diff-panel__body code {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  background: var(--color-accent-dim);
+  padding: 0.1rem 0.35rem;
+  border-radius: var(--radius-control);
+}
+
+/* === Tag === */
+.tag {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.4;
+  text-transform: none;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--color-accent-dim);
+  color: var(--color-accent-bright);
+}
+
+/* === Links === */
+a { color: var(--color-accent-text); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* === Inline Code === */
+code:not(pre code) {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  padding: 1px 6px;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .hero { min-height: auto; padding: 80px var(--gutter) 60px; }
+  .hero__title { font-size: 2rem; }
+  .section { padding: 3rem 0; }
+  .section__showcase { grid-template-columns: 1fr; gap: 1.5rem; }
+  .section__comparison, .diff-panels { grid-template-columns: 1fr; }
+  .section__pipeline { flex-direction: column; }
+  .section__pipeline > *:not(:last-child)::after { content: '\2193'; position: static; text-align: center; display: block; margin: 8px 0; }
+  .section__sidebar { grid-template-columns: 1fr; }
+  .section__sidebar > *:first-child { position: static; max-height: none; }
+  .section__sidebar > *:not(:first-child), .section__sidebar .component-nav--pager { grid-column: 1; }
+  .section__sidebar > .component-nav--list { display: flex; flex-direction: row; gap: 0.4rem; overflow-x: auto; margin-bottom: 0.5rem; padding-bottom: 0.45rem; }
+  .section__sidebar > .component-nav--list .component-nav__group { display: none; }
+  .section__sidebar > .component-nav--list .component-nav__item { flex: 0 0 auto; max-width: min(16rem, 78vw); border: 1px solid var(--color-border); }
+  .section__asymmetric { grid-template-columns: 1fr; }
+  .container { padding-bottom: 40px; }
+  .prose table { table-layout: fixed; font-size: 0.75rem; }
+  .prose th, .prose td { padding: 0.48em 0.5em; overflow-wrap: anywhere; word-break: break-word; }
+  .evidence-ledger__claim { display: block; }
+  body:not(:has(.page-wrap--toc)) .theme-toggle { position: absolute; top: 8px; right: 8px; bottom: auto; }
+  /* ponytail: reserve the toggle's 8+40+8px so "On this page" sits left of it; tie to a var if the toggle resizes. */
+  body:not(:has(.page-wrap--toc)) .site-nav { padding-right: 56px; }
+}
+@media (max-width: 480px) {
+  .section__grid { grid-template-columns: 1fr; }
+  .kpi-card__value { font-size: 28px; }
+}
+
+@media (max-width: 900px) {
+  body:has(.page-wrap--toc) .hero {
+    padding: 40px 0 24px;
+  }
+  body:has(.page-wrap--toc) .hero__inner {
+    max-width: 72ch;
+    margin: 0 auto;
+  }
+  body:has(.page-wrap--toc) .hero__title {
+    max-width: 14ch;
+    font-size: clamp(2.25rem, 6.5vw, 3.6rem);
+    line-height: 1.06;
+  }
+  body:has(.page-wrap--toc) .hero__subtitle {
+    max-width: 60ch;
+    font-size: 0.98rem;
+  }
+  body:has(.page-wrap--toc) .hero .lead {
+    max-width: 62ch;
+    font-size: 0.98rem;
+    line-height: 1.6;
+  }
+}
+
+@media (max-width: 560px) {
+  body:has(.page-wrap--toc) .hero {
+    padding: 32px 0 20px;
+  }
+  body:has(.page-wrap--toc) .hero__category {
+    margin-bottom: 12px;
+  }
+  body:has(.page-wrap--toc) .hero__title {
+    max-width: 13ch;
+    margin-bottom: 12px;
+    font-size: clamp(1.95rem, 9vw, 2.45rem);
+    line-height: 1.07;
+  }
+  body:has(.page-wrap--toc) .hero__subtitle {
+    max-width: 100%;
+    margin-bottom: 10px;
+    font-size: 0.94rem;
+    line-height: 1.48;
+  }
+  body:has(.page-wrap--toc) .hero__meta {
+    margin-bottom: 12px;
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+  body:has(.page-wrap--toc) .hero .lead {
+    font-size: 0.94rem;
+    line-height: 1.5;
+  }
+  .page-main { padding: 0; }
+}
+
+/* === Print === */
+@media print {
+  :root { --color-surface: #fff; --color-surface-alt: #fff; --color-text: #000; --color-text-muted: #444; --color-border: #ccc; }
+  body { background: #fff; color: #000; background-image: none; }
+  .theme-toggle, .mermaid-controls { display: none; }
+  .hero { min-height: auto; page-break-after: always; }
+  .anim { opacity: 1; animation: none; }
+  .section:nth-child(even) { background: none; }
+  .ve-card { break-inside: avoid; }
+  details { open: true; }
+  details[open] summary ~ * { display: block; }
+}
+
+/* meta.effects is deprecated — accepted for spec compatibility, renders nothing. */
+
+/* === Provenance strip (meta.provenance) === */
+.provenance {
+  margin-top: 56px; padding: 0.55rem var(--gutter);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 1rem;
+  border-top: 2px solid var(--color-accent); border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-alt); font: 500 12px/1.5 var(--font-body); color: var(--color-text-muted);
+}
+.provenance__item { display: inline-flex; align-items: baseline; gap: 0.35rem; min-width: 0; }
+.provenance__k { text-transform: uppercase; letter-spacing: 0.04em; font-size: 10px; color: var(--color-text-muted); opacity: 0.8; }
+.provenance code { font-family: var(--font-mono); font-size: 11px; color: var(--color-text); background: transparent; padding: 0; word-break: break-all; }
+.provenance__copy {
+  margin-left: auto; padding: 3px 10px; border: 1px solid var(--color-border); border-radius: var(--radius);
+  background: var(--color-surface); color: var(--color-text); font: 500 12px/1.4 var(--font-body); cursor: pointer;
+}
+.provenance__copy:hover { border-color: var(--color-accent); }
+.provenance__status { color: var(--color-success); font-family: var(--font-mono); font-size: 11px; }
+/* The strip already clears the fixed nav, so the first hero/section gives back its 56px allowance. */
+main:has(> .provenance) .hero { padding-top: clamp(28px, 4vw, 48px); }
+main:has(> .provenance) .container > .section:first-child { padding-top: clamp(2rem, 5vh, 3.5rem); }
+
+/* === Feedback Element === */
+.feedback-wrap {
+  position: relative; width: 100%; margin: 2rem auto; max-width: min(51rem, 100%);
+  container-type: inline-size; container-name: feedback;
+}
+/* Toolbar sticks below the 56px fixed .site-nav while the decision list is on screen. */
+.feedback-toolbar {
+  position: sticky; top: 56px; z-index: 20;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem 0.75rem;
+  padding: 0.5rem 0; margin-bottom: 1rem; background: var(--color-surface);
+}
+.feedback-progress {
+  position: relative; flex: 1 1 12rem; height: 28px; overflow: hidden;
+  background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius);
+}
+.feedback-progress__fill {
+  height: 100%; background: var(--color-accent-dim); transition: width 0.4s ease;
+  box-shadow: inset -2px 0 0 var(--color-accent);
+}
+.feedback-progress__text {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font: 500 13px/1.4 var(--font-body); color: var(--color-text); white-space: nowrap;
+}
+.feedback-save { min-width: 5.5rem; text-align: right; font: 500 12px/1.4 var(--font-body); color: var(--color-success); }
+.feedback-actions { display: flex; gap: 0.5rem; margin-left: auto; }
+.feedback-actions button {
+  font: 500 13px/1.4 var(--font-body); padding: 6px 14px;
+  border-radius: var(--radius); cursor: pointer; border: 1px solid var(--color-border);
+  background: var(--color-surface-alt); color: var(--color-text); transition: all 0.2s;
+}
+.feedback-actions button:hover { border-color: var(--color-accent); }
+.feedback-actions__copy { background: var(--color-accent); color: var(--color-on-accent); border-color: var(--color-accent); }
+.feedback-actions__copy:hover { opacity: 0.85; }
+.feedback-actions__clear { color: var(--color-text-muted); }
+.feedback-actions__clear:hover { border-color: var(--color-error); color: var(--color-error); }
+/* Pages with several feedback elements: one sticky "Copy all answers" bar at the end of the flow. */
+.feedback-page-bar {
+  position: sticky; bottom: 12px; z-index: 30;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem 0.75rem;
+  width: 100%; max-width: min(51rem, 100%); margin: 2rem auto 0; padding: 0.6rem 0.9rem;
+  background: var(--color-surface); border: 1px solid var(--color-border-strong); border-radius: var(--radius);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.18);
+}
+.feedback-page-bar__count { margin-right: auto; font: 500 13px/1.4 var(--font-body); color: var(--color-text-muted); }
+.feedback-page-bar__status { font: 500 12px/1.4 var(--font-body); color: var(--color-success); }
+.feedback-page-bar__copy {
+  font: 600 13px/1.4 var(--font-body); padding: 7px 16px; cursor: pointer;
+  border-radius: var(--radius); border: 1px solid var(--color-accent);
+  background: var(--color-accent); color: var(--color-on-accent);
+}
+.feedback-page-bar__copy:hover { opacity: 0.85; }
+.feedback-page-bar__copy:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+/* Keep the copy button clear of the fixed theme toggle once the bar spans the viewport. */
+@media (max-width: 60rem) { .feedback-page-bar { padding-right: 64px; } }
+.feedback-buckets {
+  display: flex; gap: 0.5rem; margin-bottom: 1.5rem;
+  overflow-x: auto; padding-bottom: 4px;
+}
+.feedback-bucket {
+  background: var(--color-surface-alt); color: var(--color-text-muted);
+  border: 1px solid var(--color-border); border-radius: var(--radius);
+  padding: 6px 14px; font: 500 13px/1.4 var(--font-body);
+  cursor: pointer; white-space: nowrap; transition: all 0.2s;
+}
+.feedback-bucket:hover { border-color: var(--color-accent); }
+.feedback-bucket.active {
+  background: var(--color-accent); color: var(--color-on-accent);
+  border-color: var(--color-accent);
+}
+.feedback-card {
+  background: var(--color-surface-alt); border: 1px solid var(--color-border);
+  border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem;
+  transition: border-color 0.3s;
+}
+.feedback-card.decided { border-color: var(--color-accent); }
+.feedback-card.decided .feedback-card__id { background: var(--color-accent); color: var(--color-on-accent); }
+.feedback-card.decided .feedback-card__id::before { content: "✓ "; }
+.feedback-card__header {
+  display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+.feedback-card__id {
+  font: 500 12px/1.4 var(--font-body); padding: 2px 8px;
+  background: var(--color-border); border-radius: var(--radius-control); color: var(--color-text-muted);
+}
+.feedback-card__title {
+  font-family: var(--font-body); font-weight: 600; font-size: 1rem;
+  color: var(--color-text); flex: 1;
+}
+.feedback-card__wave {
+  font: 500 12px/1.4 var(--font-body); text-transform: none;
+  letter-spacing: 0; padding: 2px 8px; border-radius: 6px;
+  background: var(--color-accent-dim); color: var(--color-accent-bright);
+}
+.feedback-card__insight {
+  margin-bottom: 0.75rem; font-size: 0.95rem; color: var(--color-text-muted);
+}
+/* Native disclosures: Details (analysis) and the note/other drawer. */
+.feedback-card__detail, .feedback-more { font-size: 0.85rem; color: var(--color-text-muted); }
+.feedback-card__detail { margin-bottom: 0.75rem; }
+.feedback-card__detail summary, .feedback-more summary {
+  display: inline-block; list-style: none; cursor: pointer;
+  border: 1px solid var(--color-border); border-radius: var(--radius);
+  color: var(--color-text-muted); font: 500 13px/1.4 var(--font-body); padding: 3px 10px;
+}
+.feedback-card__detail summary::-webkit-details-marker, .feedback-more summary::-webkit-details-marker { display: none; }
+.feedback-card__detail summary::before, .feedback-more summary::before { content: "▸ "; }
+.feedback-card__detail[open] summary::before, .feedback-more[open] summary::before { content: "▾ "; }
+.feedback-card__detail summary:hover, .feedback-more summary:hover { border-color: var(--color-accent); color: var(--color-text); }
+.feedback-card__detail > div { padding: 0.75rem 0.9rem 0.6rem; margin-top: 0.5rem; border-top: 1px solid var(--color-border); }
+.feedback-card__detail ul, .feedback-card__detail ol, .feedback-card__insight ul, .feedback-card__insight ol { margin: 0.25rem 0 0 1.2rem; }
+.feedback-card__detail li + li, .feedback-card__insight li + li { margin-top: 0.3rem; }
+/* One note per card: a comment on the chosen option, or the answer itself when nothing is chosen. */
+.feedback-notes {
+  display: block; width: 100%; margin-top: 0.6rem; background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius); padding: 8px; color: var(--color-text);
+  font-family: var(--font-body); font-size: 0.85rem; resize: vertical;
+}
+/* Options fill the row: 2 options = halves, 4 = quarters; never a lone orphan cell. */
+.feedback-options {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+/* Exactly four options read as a 2x2; :where keeps specificity flat so the narrow rules below still win. */
+.feedback-options:where(:has(> button:nth-of-type(4):last-of-type)) { grid-template-columns: repeat(2, 1fr); }
+@container feedback (max-width: 36rem) {
+  .feedback-card__header {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start;
+  }
+  .feedback-card__id { grid-column: 1; justify-self: start; }
+  .feedback-card__title { grid-column: 1 / -1; grid-row: 2; min-width: 0; }
+  .feedback-card__wave { grid-column: 2; grid-row: 1; }
+  .feedback-options { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) { .feedback-options { grid-template-columns: 1fr; } }
+/* Toggle tiles: <button aria-pressed>. One pressed per card; pressing it again clears the choice. */
+.feedback-option {
+  appearance: none; width: 100%; text-align: left; font: inherit; color: inherit; font-family: var(--font-body);
+  position: relative; display: grid; grid-template-columns: auto 1fr; column-gap: 0.6rem; align-items: start;
+  padding: 0.6rem 0.7rem; border: 1px solid var(--color-border); border-radius: var(--radius);
+  background: var(--color-surface); cursor: pointer; transition: border-color 0.2s, background 0.2s; font-size: 0.85rem;
+}
+.feedback-option::before {
+  content: ""; grid-row: 1 / span 2; width: 16px; height: 16px; margin-top: 2px; border-radius: 50%;
+  border: 2px solid var(--color-border-strong); background: var(--color-surface); transition: border 0.15s;
+}
+.feedback-option:hover { border-color: var(--color-accent); }
+.feedback-option[aria-pressed="true"] { border-color: var(--color-accent); background: var(--color-accent-dim); }
+.feedback-option[aria-pressed="true"]::before { border: 5px solid var(--color-accent); }
+.feedback-option:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+fieldset.feedback-options { border: 0; padding: 0; margin: 0 0 0.75rem; }
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+.feedback-option__label { font-weight: 600; font-family: var(--font-body); color: var(--color-text); }
+.feedback-option__desc { grid-column: 2; font-size: 0.75rem; color: var(--color-text-muted); }
+.feedback-option__tag {
+  display: inline-block; margin-left: 0.4rem; padding: 1px 6px; border-radius: 999px; vertical-align: 1px;
+  font: 600 10px/1.5 var(--font-body); letter-spacing: 0.03em; text-transform: uppercase;
+  background: color-mix(in srgb, var(--color-success) 14%, transparent); color: var(--color-success);
+}
+.feedback-option.recommended { border-color: color-mix(in srgb, var(--color-success) 45%, var(--color-border)); }
+/* The reason sits under the option, visible before a choice (quiz: revealed after one). */
+.feedback-option__why { grid-column: 2; font-size: 0.75rem; color: var(--color-text-muted); }
+.feedback-option__why::before { content: "Why: "; font-weight: 600; color: var(--color-success); }
+/* Quiz: the recommendation stays hidden until the learner answers. */
+.feedback-option[data-recommended] .feedback-option__tag, .feedback-option[data-recommended] .feedback-option__why { display: none; }
+.feedback-card.feedback-revealed .feedback-option[data-recommended="true"] { border-color: var(--color-success); }
+.feedback-card.feedback-revealed .feedback-option[data-recommended] .feedback-option__tag { display: inline-block; }
+.feedback-card.feedback-revealed .feedback-option[data-recommended] .feedback-option__why { display: block; }
+.feedback-option[data-recommended="false"] .feedback-option__why::before { content: "Why not: "; color: var(--color-warning); }
+.feedback-toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--color-surface-alt); color: var(--color-text); padding: 8px 20px;
+  border-radius: var(--radius); font: 500 13px/1.4 var(--font-body);
+  border: 1px solid var(--color-border); z-index: 40; pointer-events: none;
+}
+
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#lev-main">Skip to content</a>
+  <div class="scroll-progress" aria-hidden="true"></div>
+  <nav class="site-nav">
+    <a class="site-nav__logo" href="#">lev.now — Ontology whiteboard</a>
+    <details class="site-nav__toc">
+      <summary>On this page</summary>
+      <div>
+        <a href="#s-how">Which technique, in what order</a>
+        <a href="#s-eye">Lev dev versus a Lev-managed project</a>
+        <a href="#s-grid">What kinds of folder exist (the grid that settles island vs module)</a>
+        <a href="#s-mod">Everything a module can be</a>
+        <a href="#s-pipe">What happens when you run lev (all code, no LLM)</a>
+        <a href="#s-nest">Nesting: workstream, then task, then memory</a>
+        <a href="#s-untangle">What I think each word is (dna, ir, lev ir, arch ir, ontology, graph, structure, meta structure, process)</a>
+        <a href="#s-irmap">Lev IR: what replaces &apos;DNA&apos;, end to end</a>
+        <a href="#s-dnad">What &apos;DNA&apos; actually is: 18 families, and what a program reads</a>
+        <a href="#s-over">Words that mean more than one thing, or one thing with many words</a>
+        <a href="#s-inv">All the words, in one spot</a>
+      </div>
+    </details>
+  </nav>
+  <main id="lev-main">
+  <aside class="provenance" id="provenance" aria-label="Where this page came from">
+    <span class="provenance__item"><span class="provenance__k">by</span> Claude Code · Opus 5.5 · recovery orchestrator</span><span class="provenance__item"><span class="provenance__k">workstream</span> <code>agent-runtime-convergence</code></span><span class="provenance__item"><span class="provenance__k">made</span> 2026-09-29</span><span class="provenance__item"><span class="provenance__k">from</span> <code>.lev/now/ontology-whiteboard-20260929.json</code></span>
+
+  </aside>
+  <nav class="page-outline" aria-label="On this page">
+    <div class="page-outline__title">On this page</div>
+    <a href="#s-how">Which technique, in what order</a>
+    <a href="#s-eye">Lev dev versus a Lev-managed project</a>
+    <a href="#s-grid">What kinds of folder exist (the grid that settles island vs module)</a>
+    <a href="#s-mod">Everything a module can be</a>
+    <a href="#s-pipe">What happens when you run lev (all code, no LLM)</a>
+    <a href="#s-nest">Nesting: workstream, then task, then memory</a>
+    <a href="#s-untangle">What I think each word is (dna, ir, lev ir, arch ir, ontology, graph, structure, meta structure, process)</a>
+    <a href="#s-irmap">Lev IR: what replaces &apos;DNA&apos;, end to end</a>
+    <a href="#s-dnad">What &apos;DNA&apos; actually is: 18 families, and what a program reads</a>
+    <a href="#s-over">Words that mean more than one thing, or one thing with many words</a>
+    <a href="#s-inv">All the words, in one spot</a>
+  </nav>
+  <div class="container lev-flow">
+<section data-lev-id="hero" data-lev-root data-lev-type="hero" data-lev-rail="full" class="lev-component lev-flow__item lev-flow__item--full anim hero hero--editorial" style="--i:0">
+  <div class="hero__inner">
+    <span class="hero__category">ONTOLOGY WHITEBOARD · 2026-09-29</span>
+    <h1 class="hero__title">75 words, one board, and DNA retired into Lev IR</h1>
+
+    <p class="hero__meta">Harvested from design-fractal-source-framework.md, design-dna-authoring-contract.md and the vernacular. The count is an output of this harvest, not a target.</p>
+    <div class="hero__lead"><p>Every term, bird&apos;s-eye plus drill-downs. New: the untangling of dna / ir / lev ir / ontology / graph / process / crystallize, and your message mapped into Lev IR.</p></div>
+
+  </div>
+</section>
+
+<section data-lev-id="s-how" data-lev-root data-lev-type="section" data-lev-rail="full" class="lev-component lev-flow__item lev-flow__item--full anim section section--stacked" style="--i:1" id="s-how">
+  <span class="section-label">How to name this</span>
+  <h2 class="section-title">Which technique, in what order</h2>
+
+  <div class="section__stacked"><div data-lev-id="t-how" class="lev-component anim prose" style="--i:2;">
+  <p>Naming something this tangled fails if you start by picking words. Top domain modelers (Evans&apos; <em>ubiquitous language</em>, concept mapping, formal concept analysis) work in this order:</p>
+<ol>
+<li><strong>Inventory:</strong> every word in play, with where it came from. That is the table at the bottom of this page.</li>
+<li><strong>Whiteboard:</strong> how the words relate, as pictures, not definitions. Those are the diagrams below.</li>
+<li><strong>Word × property grid:</strong> two words with identical rows are synonyms, so keep one. One word that needs two rows is overloaded, so split it. The grid below does this for the place words, and it answers most of the island question without anyone choosing a word.</li>
+<li><strong>Pick words only for what is still contested,</strong> about 6 words. <strong>This is where <code>/pov</code> fits.</strong> It forces several framings: an npm user reading config, an agent grepping, you saying it out loud, a newcomer. Then it reduces to one pick. <code>/pov</code> is the right tool for step 4 and the wrong one for step 1.</li>
+<li><strong>Lock</strong> the winners into <code>dna/vernacular.yaml</code> with a retired list and a guard test, so the eleventh version can&apos;t come back.</li>
+</ol>
+<p>Naming tests for each winner: it greps uniquely, it&apos;s speakable, it doesn&apos;t collide with a taken word (<code>provider</code> is taken), places get nouns, mechanisms get verbs.</p>
+</div></div>
+</section>
+
+<section data-lev-id="s-eye" data-lev-root data-lev-type="section" data-lev-rail="full" class="lev-component lev-flow__item lev-flow__item--full anim section section--stacked" style="--i:3" id="s-eye">
+  <span class="section-label">Bird&apos;s-eye</span>
+  <h2 class="section-title">Lev dev versus a Lev-managed project</h2>
+
+  <div class="section__stacked"><div data-lev-id="d-eye" class="lev-component anim mermaid-wrap" style="--i:4" id="mermaid-d-eye">
+  <div class="mermaid-controls">
+    <button class="mermaid-zoom" type="button" aria-label="Zoom out" onclick="levNowMermaidZoom('mermaid-d-eye', -0.2)">-</button>
+    <button class="mermaid-zoom" type="button" aria-label="Reset zoom" onclick="levNowMermaidZoom('mermaid-d-eye', 0)">1:1</button>
+    <button class="mermaid-zoom" type="button" aria-label="Zoom in" onclick="levNowMermaidZoom('mermaid-d-eye', 0.2)">+</button>
+    <button class="mermaid-zoom mermaid-fullscreen" type="button" aria-label="Fullscreen" onclick="levNowFullscreen(document.getElementById('mermaid-d-eye'))" title="Fullscreen">⛶</button>
+  </div>
+  <pre class="mermaid">flowchart LR
+  subgraph DEV[&quot;leviathan repo = Lev dev&quot;]
+    direction TB
+    DC[&quot;core/* - 40+ core modules&quot;]
+    DP[&quot;plugins/* - ~56 plugins&quot;]
+    DD[&quot;dna/ - system DNA&quot;]
+    DL[&quot;.lev/ - our own project island&quot;]
+    DL --&gt; DWS[&quot;workstreams/auth-rewrite&quot;] --&gt; DT[&quot;tasks/login-flow&quot;] --&gt; DM[&quot;memory/notes.md&quot;]
+  end
+  subgraph NPM[&quot;npm: @lev-os/cli&quot;]
+    B[&quot;same modules, prebuilt catalog&quot;]
+  end
+  subgraph APP[&quot;my-app = Lev-managed project&quot;]
+    direction TB
+    AL[&quot;.lev/config.yaml - project island&quot;]
+    AU[&quot;packages/ui - declared island&quot;]
+    AN[&quot;node_modules/@lev-os/cli&quot;]
+    AX[&quot;node_modules/@acme/lev-memory-s3 - third-party module&quot;]
+    AL --&gt;|&quot;islands: packages/*&quot;| AU
+    AL --&gt;|&quot;modules: [...]&quot;| AX
+    AL --&gt; AWS[&quot;.lev/pm/workstreams/...&quot;]
+  end
+  DC --&gt;|publish| B
+  DP --&gt;|publish| B
+  DD --&gt;|publish| B
+  B --&gt;|install| AN
+  classDef dog fill:#fde68a,stroke:#b45309,color:#111
+  class DL,DWS,DT,DM dog</pre>
+  <p class="mermaid-caption">Yellow = dogfood. Our repo is both the distribution&apos;s source and one Lev-managed project.</p>
+</div>
+<div data-lev-id="t-eye" class="lev-component anim prose" style="--i:5;">
+  <p><strong>The one idea:</strong> the Lev repo is two things at once. <code>core/<em></code>, <code>plugins/</em></code> and <code>dna/</code> are the <strong>product</strong>, which gets published. <code>.lev/</code> is <strong>one project that uses the product</strong>, which is the dogfood layer. A consumer&apos;s <code>my-app/</code> has exactly the same shape, except the modules arrive through <code>node_modules</code> instead of sitting in source folders.</p>
+<table>
+<thead><tr><th></th><th>Lev dev (this repo)</th><th>Lev-managed project</th></tr></thead>
+<tbody>
+<tr><td>Where modules come from</td><td>source folders <code>core/<em></code>, <code>plugins/</em></code></td><td><code>node_modules/@lev-os/cli</code> + listed third-party modules</td></tr>
+<tr><td>How modules are found</td><td>scanned live</td><td>catalog prebuilt at publish (locked 2026-07-06)</td></tr>
+<tr><td>Project island</td><td><code>.lev/</code> (our workstreams, tasks)</td><td><code>.lev/</code> (their workstreams, tasks)</td></tr>
+<tr><td>Extra islands</td><td>none declared today</td><td><code>packages/*</code> etc. via <code>islands:</code></td></tr>
+<tr><td>Rules</td><td>identical</td><td>identical: no privileged internal path (invariant I-31)</td></tr>
+<tr><td>Today&apos;s gap</td><td>poly hard-codes <code>core/</code> + <code>plugins/</code></td><td>project islands get only listed commands, not <code>src/handlers/</code></td></tr>
+</tbody>
+</table>
+</div></div>
+</section>
+
+<section data-lev-id="s-grid" data-lev-root data-lev-type="section" data-lev-rail="full" class="lev-component lev-flow__item lev-flow__item--full anim section section--stacked" style="--i:6" id="s-grid">
+  <span class="section-label">Word × property</span>
+  <h2 class="section-title">What kinds of folder exist (the grid that settles island vs module)</h2>
+
+  <div class="section__stacked"><div data-lev-id="t-grid" class="lev-component anim table-wrap" style="--i:7">
+  <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
+  <div class="table-scroll">
+  <table class="data-table">
+
+    <thead><tr><th>Folder</th><th>Example</th><th>Lev looks inside it</th><th>Has a config entry</th><th>Can claim folder names</th><th>Can own entity kinds</th><th>Can add sub-islands</th><th>Found by</th></tr></thead>
+    <tbody>
+      <tr><td>core module</td><td>core/memory</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>distribution islands</td></tr>
+      <tr><td>plugin</td><td>plugins/sdlc</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>distribution islands</td></tr>
+      <tr><td>third-party module</td><td>@acme/lev-memory-s3</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>modules: list</td></tr>
+      <tr><td>project</td><td>my-app/.lev</td><td>yes</td><td>yes</td><td>yes (rare)</td><td>yes (rare)</td><td>yes</td><td>it&apos;s the start</td></tr>
+      <tr><td>package island</td><td>packages/ui</td><td>yes</td><td>package.json is enough</td><td>·</td><td>·</td><td>yes</td><td>parent&apos;s islands:</td></tr>
+      <tr><td>entity island</td><td>tasks/login-flow</td><td>yes</td><td>·</td><td>·</td><td>·</td><td>·</td><td>marker file dna.yaml</td></tr>
+      <tr><td>a resolver&apos;s folder</td><td>src/handlers/</td><td>it&apos;s a match</td><td>·</td><td>·</td><td>·</td><td>·</td><td>a resolver</td></tr>
+      <tr><td>ordinary folder</td><td>src/utils/</td><td>·</td><td>·</td><td>·</td><td>·</td><td>·</td><td>-</td></tr>
+    </tbody>
+
+  </table>
+  </div>
+</div>
+<div data-lev-id="d-kind" class="lev-component anim mermaid-wrap" style="--i:8" id="mermaid-d-kind">
+  <div class="mermaid-controls">
+    <button class="mermaid-zoom" type="button" aria-label="Zoom out" onclick="levNowMermaidZoom('mermaid-d-kind', -0.2)">-</button>
+    <button class="mermaid-zoom" type="button" aria-label="Reset zoom" onclick="levNowMermaidZoom('mermaid-d-kind', 0)">1:1</button>
+    <button class="mermaid-zoom" type="button" aria-label="Zoom in" onclick="levNowMermaidZoom('mermaid-d-kind', 0.2)">+</button>
+    <button class="mermaid-zoom mermaid-fullscreen" type="button" aria-label="Fullscreen" onclick="levNowFullscreen(document.getElementById('mermaid-d-kind'))" title="Fullscreen">⛶</button>
+  </div>
+  <pre class="mermaid">flowchart TD
+  Q1{&quot;Does Lev look inside it?&quot;} --&gt;|no| O[&quot;ordinary folder&quot;]
+  Q1 --&gt;|&quot;it IS inside a resolver&apos;s folder&quot;| M[&quot;a match - e.g. a handler file&quot;]
+  Q1 --&gt;|yes| Q2{&quot;Has a config entry?&quot;}
+  Q2 --&gt;|&quot;no, marker file only&quot;| EI[&quot;entity island - task, workstream&quot;]
+  Q2 --&gt;|yes| Q3{&quot;Offers anything?&lt;br/&gt;claims folder names or owns entity kinds&quot;}
+  Q3 --&gt;|no| PI[&quot;island only - packages/ui&quot;]
+  Q3 --&gt;|yes| MOD[&quot;module - core, plugin, third-party, project&quot;]</pre>
+  <p class="mermaid-caption">Two independent properties, so two words: &apos;looked inside&apos; is one word (island or root, your pick); &apos;offers things&apos; is module. Every module is looked inside; not everything looked inside is a module.</p>
+</div></div>
+</section>
+
+<section data-lev-id="s-mod" data-lev-root data-lev-type="section" data-lev-rail="full" class="lev-component lev-flow__item lev-flow__item--full anim section section--stacked" style="--i:9" id="s-mod">
+  <span class="section-label">Drill-down 1</span>
+  <h2 class="section-title">Everything a module can be</h2>
+
+  <div class="section__stacked"><div data-lev-id="d-mod" class="lev-component anim mermaid-wrap" style="--i:10" id="mermaid-d-mod">
+  <div class="mermaid-controls">
+    <button class="mermaid-zoom" type="button" aria-label="Zoom out" onclick="levNowMermaidZoom('mermaid-d-mod', -0.2)">-</button>
+    <button class="mermaid-zoom" type="button" aria-label="Reset zoom" onclick="levNowMermaidZoom('mermaid-d-mod', 0)">1:1</button>
+    <button class="mermaid-zoom" type="button" aria-label="Zoom in" onclick="levNowMermaidZoom('mermaid-d-mod', 0.2)">+</button>
+    <button class="mermaid-zoom mermaid-fullscreen" type="button" aria-label="Fullscreen" onclick="levNowFullscreen(document.getElementById('mermaid-d-mod'))" title="Fullscreen">⛶</button>
+  </div>
+  <pre class="mermaid">mindmap
+  root((module))
+    Is - definition
+      identity - package
+      settings and knobs
+      own files - sources
+      enabled or not
+    Offers - provides
+      claims folder names - resolvers
+        poly - handlers
+        core/memory - memory
+        core/flowmind - flows
+        plugins/dna - dna
+        core/eval - evals
+      owns entity kinds
+        core/workstream - workstream, task
+        plugins/sdlc - plan, spec, decision
+        core/memory - memory
+      adds to another owner&apos;s surface - contribution
+    Receives - because it is an island
+      src/handlers becomes commands
+      src/memory becomes memory code
+      flows become programs
+      dna becomes its contract
+    Rules about it - its contract file
+      checks - rules with a runnable test
+      guidance - rules with no test
+      behaviors and failure modes
+      plus schemas and gate thresholds</pre>
+  <p class="mermaid-caption">Four faces of one folder. &apos;Is&apos; and &apos;Offers&apos; are the two halves of config.yaml; &apos;Receives&apos; happens to every island; &apos;Rules about it&apos; is its contract file (see &apos;DNA, taken apart&apos;).</p>
+</div>
+<div data-lev-id="t-mod" class="lev-component anim prose" style="--i:10;">
+  <p>Concrete: <code>core/memory</code> under the design.</p>
+<pre><code class="language-text">core/memory/
+  config.yaml          IS: package, knobs, sources   OFFERS: resolvers.memory, entity_definitions.memory
+  dna/memory.dna.yaml  GOVERNED BY: constraints, behaviors, failure modes, gates   (if DNA moves next to modules)
+  src/handlers/*.ts    RECEIVES: poly turns these into `lev memory ...` commands
+  src/memory/          (other islands put memory code in THEIR src/memory/; core/memory receives it)</code></pre>
+</div></div>
+</section>
+
+<section data-lev-id="s-pipe" data-lev-root data-lev-type="section" data-lev-rail="full" class="lev-component lev-flow__item lev-flow__item--full anim section section--stacked" style="--i:10" id="s-pipe">
+  <span class="section-label">Drill-down 2</span>
+  <h2 class="section-title">What happens when you run lev (all code, no LLM)</h2>
+
+  <div class="section__stacked"><div data-lev-id="d-pipe" class="lev-component anim mermaid-wrap" style="--i:10" id="mermaid-d-pipe">
+  <div class="mermaid-controls">
+    <button class="mermaid-zoom" type="button" aria-label="Zoom out" onclick="levNowMermaidZoom('mermaid-d-pipe', -0.2)">-</button>
+    <button class="mermaid-zoom" type="button" aria-label="Reset zoom" onclick="levNowMermaidZoom('mermaid-d-pipe', 0)">1:1</button>
+    <button class="mermaid-zoom" type="button" aria-label="Zoom in" onclick="levNowMermaidZoom('mermaid-d-pipe', 0.2)">+</button>
+    <button class="mermaid-zoom mermaid-fullscreen" type="button" aria-label="Fullscreen" onclick="levNowFullscreen(document.getElementById('mermaid-d-pipe'))" title="Fullscreen">⛶</button>
+  </div>
+  <pre class="mermaid">sequenceDiagram
+  autonumber
+  participant U as lev CLI
+  participant C as core/config - the pipeline
+  participant P as core/poly
+  participant M as core/memory
+  participant D as plugins/dna
+  U-&gt;&gt;C: resolve this project
+  C-&gt;&gt;C: find islands - .lev, islands:, distribution, entity islands
+  C-&gt;&gt;C: collect resolvers + entity kinds from every enabled module
+  C-&gt;&gt;C: fail if two modules claim one name
+  C-&gt;&gt;C: apply each island&apos;s resolver_paths
+  C-&gt;&gt;C: scan every island once
+  C-&gt;&gt;P: every src/handlers file, with provenance
+  C-&gt;&gt;M: every memory/ and src/memory file
+  C-&gt;&gt;D: every dna/*.dna.yaml
+  P-&gt;&gt;U: command registry - a derived view
+  Note over C,D: Today steps 2-3 are hard-coded in source-catalog.ts - GAP</pre>
+  <p class="mermaid-caption">The design&apos;s section 4.8. An LLM only ever writes the files; it never decides who owns a folder.</p>
+</div></div>
+</section>
+
+<section data-lev-id="s-nest" data-lev-root data-lev-type="section" data-lev-rail="full" class="lev-component lev-flow__item lev-flow__item--full anim section section--stacked" style="--i:10" id="s-nest">
+  <span class="section-label">Drill-down 3</span>
+  <h2 class="section-title">Nesting: workstream, then task, then memory</h2>
+
+  <div class="section__stacked"><div data-lev-id="d-nest" class="lev-component anim mermaid-wrap" style="--i:10" id="mermaid-d-nest">
+  <div class="mermaid-controls">
+    <button class="mermaid-zoom" type="button" aria-label="Zoom out" onclick="levNowMermaidZoom('mermaid-d-nest', -0.2)">-</button>
+    <button class="mermaid-zoom" type="button" aria-label="Reset zoom" onclick="levNowMermaidZoom('mermaid-d-nest', 0)">1:1</button>
+    <button class="mermaid-zoom" type="button" aria-label="Zoom in" onclick="levNowMermaidZoom('mermaid-d-nest', 0.2)">+</button>
+    <button class="mermaid-zoom mermaid-fullscreen" type="button" aria-label="Fullscreen" onclick="levNowFullscreen(document.getElementById('mermaid-d-nest'))" title="Fullscreen">⛶</button>
+  </div>
+  <pre class="mermaid">flowchart TD
+  P[&quot;.lev/ project island&quot;] --&gt; PM[&quot;memory/project-glossary.md&quot;]
+  P --&gt; W[&quot;pm/workstreams/auth-rewrite&lt;br/&gt;marker: state/workstream.yaml&quot;]
+  W --&gt; WM[&quot;memory/decisions.md&quot;]
+  W --&gt; T[&quot;tasks/login-flow&lt;br/&gt;marker: dna.yaml&quot;]
+  T --&gt; TM[&quot;memory/notes.md&quot;]
+  P --&gt; OT[&quot;pm/tasks/orphan-fix - task with no workstream&quot;]
+  UI[&quot;packages/ui island&quot;] --&gt; UM[&quot;memory/components.md&quot;]
+  classDef mem fill:#bbf7d0,stroke:#15803d,color:#111
+  class PM,WM,TM,UM mem</pre>
+  <p class="mermaid-caption">Green = memory records. Memory declares &apos;under: island, workstream, task&apos;; workstream and task never learn memory exists.</p>
+</div></div>
+</section>
+
+<section data-lev-id="s-untangle" data-lev-root data-lev-type="section" data-lev-rail="full" class="lev-component lev-flow__item lev-flow__item--full anim section section--stacked" style="--i:10" id="s-untangle">
+  <span class="section-label">The untangling</span>
+  <h2 class="section-title">What I think each word is (dna, ir, lev ir, arch ir, ontology, graph, structure, meta structure, process)</h2>
+
+  <div class="section__stacked"><div data-lev-id="t-un-intro" class="lev-component anim prose" style="--i:10;">
+  <p>You asked me to say what I think it is. Here it is, in one picture and one table.</p>
+<p><strong>Three layers, six facets.</strong> Every one of your words is either a layer, a facet, or a synonym for one of them.</p>
+<ul>
+<li><strong>Ontology</strong> (the meta-structure): the kinds, their relations and their lifecycle stages. What CAN exist. Small. Base kinds in core; plugins add namespaced kinds.</li>
+<li><strong>Instances</strong> (the material graph): the actual tasks, modules, checks, flows, typed by the ontology. Authored in fractal roots; mirrored into <code>core/context-graph</code> as a read model.</li>
+<li><strong>Projections</strong>: generated from instances, never edited: the command registry, rulebook prose, <code>entities.yaml</code>, gate views, SKILL.md, this page.</li>
+</ul>
+<p><strong>Lev IR = ontology + instances</strong>, in the stages candidate → admitted → resolved. Machine-readability is not the test: <code>task.yaml</code> is IR whether or not code reads every field, because it is an instance of a declared kind. But a field the ontology does not declare is cruft, which is what makes hygiene a diff.</p>
+<p>The <strong>facets</strong> are the columns: structure, work, policy, execution, knowledge, vocabulary. The Lev IR plan already calls them &quot;typed facets connected by references&quot; (D1).</p>
+</div>
+<div data-lev-id="d-un-layers" class="lev-component anim mermaid-wrap" style="--i:10" id="mermaid-d-un-layers" data-initial-zoom="0.8">
+  <div class="mermaid-controls">
+    <button class="mermaid-zoom" type="button" aria-label="Zoom out" onclick="levNowMermaidZoom('mermaid-d-un-layers', -0.2)">-</button>
+    <button class="mermaid-zoom" type="button" aria-label="Reset zoom" onclick="levNowMermaidZoom('mermaid-d-un-layers', 0)">1:1</button>
+    <button class="mermaid-zoom" type="button" aria-label="Zoom in" onclick="levNowMermaidZoom('mermaid-d-un-layers', 0.2)">+</button>
+    <button class="mermaid-zoom mermaid-fullscreen" type="button" aria-label="Fullscreen" onclick="levNowFullscreen(document.getElementById('mermaid-d-un-layers'))" title="Fullscreen">⛶</button>
+  </div>
+  <pre class="mermaid">flowchart TB
+  subgraph ONT[&quot;ONTOLOGY - kinds, relations, lifecycle stages  (small, versioned, core + plugin extensions)&quot;]
+    direction LR
+    O1[&quot;structure&lt;br/&gt;module, fractal root,&lt;br/&gt;ownership, boundary, seam&quot;]
+    O2[&quot;work&lt;br/&gt;workstream, task, spec,&lt;br/&gt;plan, decision&quot;]
+    O3[&quot;policy&lt;br/&gt;check, guidance,&lt;br/&gt;gate, standard&quot;]
+    O4[&quot;execution&lt;br/&gt;flow, run, trigger,&lt;br/&gt;hook, event&quot;]
+    O5[&quot;knowledge&lt;br/&gt;claim, evidence,&lt;br/&gt;memory, source&quot;]
+    O6[&quot;vocabulary&lt;br/&gt;term, alias,&lt;br/&gt;retired&quot;]
+  end
+  subgraph INST[&quot;INSTANCES - the material graph  (authored in fractal roots, read model in context-graph)&quot;]
+    direction LR
+    I1[&quot;core/memory&lt;br/&gt;owns: memory&quot;]
+    I2[&quot;tasks/login-flow/&lt;br/&gt;task.yaml exec.yaml&quot;]
+    I3[&quot;memory boundary check&lt;br/&gt;+ should-fail case&quot;]
+    I4[&quot;plan-execute-verify&lt;br/&gt;.flow.yaml&quot;]
+    I5[&quot;claim: &apos;parity 19 rows&apos;&lt;br/&gt;evidence: receipt&quot;]
+    I6[&quot;fractal root&lt;br/&gt;aliases: island, app root&quot;]
+  end
+  subgraph PROJ[&quot;PROJECTIONS - generated, never edited&quot;]
+    direction LR
+    P1[&quot;command registry&quot;]
+    P2[&quot;rulebook prose&lt;br/&gt;(what DNA text was)&quot;]
+    P3[&quot;entities catalog, gate view&quot;]
+    P4[&quot;AGENTS.md reducer, SKILL.md&quot;]
+    P5[&quot;now pages, spec tables&quot;]
+  end
+  ONT --&gt; INST --&gt; PROJ
+  classDef ont fill:#dbeafe,stroke:#1d4ed8,color:#111
+  classDef inst fill:#dcfce7,stroke:#15803d,color:#111
+  classDef proj fill:#fef3c7,stroke:#b45309,color:#111
+  class O1,O2,O3,O4,O5,O6 ont
+  class I1,I2,I3,I4,I5,I6 inst
+  class P1,P2,P3,P4,P5 proj</pre>
+  <p class="mermaid-caption">Rows are layers; columns are facets. &apos;DNA&apos; was a bag that cut across every cell. Each cell now has a name and an owner.</p>
+</div>
+<div data-lev-id="t-un-words" class="lev-component anim table-wrap" style="--i:10">
+  <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
+  <div class="table-scroll">
+  <table class="data-table">
+
+    <thead><tr><th>Your word</th><th>What I think it is</th><th>Verdict</th><th>Where it already lives</th></tr></thead>
+    <tbody>
+      <tr><td>DNA</td><td>Three things at once: (1) your ISA: ideal-state declarations across every facet, the ratchet from current to target; (2) the input format of the gate compiler; (3) a dumping ground for prose and process. (1) survives as a current-vs-target stage on instances. (2) becomes the checks facet. (3) becomes docs, or gets deleted.</td><td>Retired (ruled).</td><td>dna/ tree; task dna.yaml</td></tr>
+      <tr><td>IR</td><td>Bare &apos;IR&apos; means two things today: Lev IR and FlowMind&apos;s compiled graph.</td><td>Always say Lev IR, or name the facet.</td><td>~2,500 doc hits</td></tr>
+      <tr><td>Lev IR</td><td>The umbrella: ontology + instances + the resolved image, in stages candidate → admitted → resolved. Core IR, Plugin IR, Project IR compose into it.</td><td>Keep. Already owned.</td><td>dna/vernacular.yaml#lev_ir; plan-impl-modular-lev-ir.md D0–D3</td></tr>
+      <tr><td>arch IR / architecture</td><td>One facet: structure. Kinds: module, fractal root, ownership, boundary (import allowlist), seam. Not process; process was hiding inside it.</td><td>Keep as &apos;the structure facet&apos;. Drop the &apos;-IR&apos; suffix per facet.</td><td>dna/architecture/core-boundaries/concept.yaml (the one part code reads)</td></tr>
+      <tr><td>ontology</td><td>The meta-structure layer only: what CAN exist. Two vocabulary entries already say this.</td><td>Keep, for the schema layer only. Not a name for the whole.</td><td>dna/vernacular.yaml:508, :642; entity_definitions; FlowMind node types; LevEvent; graph.yaml#lifecycle_domains</td></tr>
+      <tr><td>graph</td><td>Two senses today: the material graph (instances + relations in context-graph, lev://entity ids) and FlowMind&apos;s execution graph.</td><td>&apos;The graph&apos; = context-graph. FlowMind&apos;s gets its own name (open).</td><td>core/context-graph; core/flowmind GraphDocument</td></tr>
+      <tr><td>structure</td><td>Ambiguous: sometimes the ontology, sometimes the structure facet.</td><td>Retire as a canon word. Say which.</td><td>—</td></tr>
+      <tr><td>meta structure</td><td>= ontology.</td><td>Say ontology.</td><td>—</td></tr>
+      <tr><td>FlowMind IR</td><td>The compiled execution graph of one flow. Not a WAL: the WAL is the run ledger (core/execution-ledger). Not always a DAG: flows loop.</td><td>Rename (your call): execution graph / flow graph / program.</td><td>core/flowmind GraphDocument</td></tr>
+      <tr><td>process</td><td>Not a kind. &apos;Anything reactive&apos; = anything with a trigger. It decomposes into flow (definition) + run (one execution) + trigger (what starts it) + hook (where it attaches). The core loop is the base flow; SDLC extends it.</td><td>Map to flow/run/trigger/hook. Don&apos;t mint &apos;process&apos;.</td><td>plan-execute-verify.flow.yaml; core/event-dispatch triggers; vocabulary lacks trigger and hook (gap)</td></tr>
+      <tr><td>crystallize / idea shaping / ISA</td><td>The entity lifecycle stage: ephemeral → captured → classified → crystallizing → crystallized → manifesting → completed. It&apos;s a field, not a folder. Your ISA is &apos;the target state of every instance&apos; plus that stage.</td><td>Keep. Already canon and partly in code. Gap: most instances don&apos;t record a stage.</td><td>dna/graph.yaml:340; docs/design/design-graph-lifecycle-theory.md; core/flowmind router policy WorkCrystallizationState; _archive/sessions/README.md (2025 origin)</td></tr>
+      <tr><td>lev ontology builder / framework</td><td>The machinery: base schema, extension registration, validation callbacks, projections. The plan describes it (D3, D4) without a package; D4 rejected a catch-all core/lev-ir package.</td><td>Call the machinery &apos;the Lev IR framework&apos; (like &apos;the fractal framework&apos;). &apos;Ontology&apos; stays the schema layer. One package or distributed owners is an open fork.</td><td>plan D3, D4</td></tr>
+    </tbody>
+
+  </table>
+  </div>
+</div>
+<div data-lev-id="t-un-stages" class="lev-component anim prose" style="--i:10;">
+  <p><strong>The breadcrumb you gave: &quot;we are crystallizing&quot;.</strong> It lands on the entity lifecycle in <code>dna/graph.yaml:340</code>: <em>ephemeral → captured → classified → crystallizing → crystallized → manifesting → completed</em>. The 2025 archive called sessions &quot;intelligence crystallization laboratories&quot; (<code>_archive/sessions/README.md</code>); the lifecycle theory design separates it from governance, tracker and runtime lifecycles; FlowMind&apos;s router carries it as <code>WorkCrystallizationState</code>. So idea shaping is already IR: a stage on every work entity.</p>
+<p><strong>Your new rule, now stamped in AGENTS.md:</strong> the stage decides the rules. In the high-entropy stages (ephemeral, captured, classified) the job is shaping: map intent, fit to the ontology, offer options. Canonizing (a new term, a new kind, a rename, a gate change) is allowed only from <code>crystallized</code> onward, by ruling. This is how graphs get extended per project: shape first, crystallize, then manifest.</p>
+<p><strong>Gap:</strong> the stage is declared in the ontology but mostly absent on instances (unverified how many carry one), and no check enforces stage-dependent rules. Both are candidates for the first Lev IR slice.</p>
+</div>
+<div data-lev-id="t-un-map" class="lev-component anim table-wrap" style="--i:10">
+  <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
+  <div class="table-scroll">
+  <table class="data-table">
+
+    <thead><tr><th>What you said</th><th>Intent</th><th>Existing Lev IR term, owner</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>task.yaml, exec.yaml</td><td>name the task&apos;s files for what they are</td><td>work facet: task (core/workstream entity_definitions), marker file</td><td>ruled; rename in the cutover slice</td></tr>
+      <tr><td>a task is a mini IR/graph that maps fractally to what it interacts with</td><td>a task folder is a fractal root whose files are owned instances</td><td>entity fractal root (fractal design 4.4, 4.5); fractal ownership</td><td>designed, not built</td></tr>
+      <tr><td>n IR leafs</td><td>the files inside a task root</td><td>owned files (matches) of each module&apos;s <code>owns:</code></td><td>mapped; no new word</td></tr>
+      <tr><td>hygiene is a diff; unresolvable = smell</td><td>cruft is anything the catalog can&apos;t resolve</td><td>fractal design I-21, I-22, N-27 (content-map delta)</td><td>invariant exists; unimplemented → follow-up</td></tr>
+      <tr><td>vernacular resolver</td><td>a tool that maps aliases to canonical terms</td><td>the AGENTS.md reducer (manual) over dna/vernacular.yaml</td><td>gap → follow-up</td></tr>
+      <tr><td>do not canonize user input; map to intent + Lev IR; ask</td><td>a standing rule for every agent</td><td>AGENTS.md &apos;The Lev IR mapper&apos;; response footer bullet</td><td>stamped</td></tr>
+      <tr><td>process = anything reactive; core loop is the base</td><td>execution facet</td><td>flow + run + trigger + hook; plan-execute-verify.flow.yaml; core/event-dispatch</td><td>mapped; vocabulary lacks trigger/hook (gap)</td></tr>
+      <tr><td>hooks: human↔CEO node vs worker/substrate; per-task dynamic setup</td><td>a hook kind with a scope, derived per task</td><td>no kind today; lifeos-isa hooks census is prior art</td><td>gap → follow-up (separate thread, as you said)</td></tr>
+      <tr><td>Lev IR umbrella; rename FlowMind IR</td><td>call things what they are</td><td>dna/vernacular.yaml#lev_ir; GraphDocument</td><td>ruled / name open → question</td></tr>
+      <tr><td>kill DNA; absorb plugins/dna into core</td><td>IR belongs in core</td><td>moves listed in dna/AGENTS.md; spec-dna open question 3</td><td>ruled; slice pending</td></tr>
+      <tr><td>DNA was my ISA; the ratchet</td><td>current-vs-target on every instance</td><td>gate ratchet aspirational → declared → enforced; lifeos &apos;evolving_target&apos; intent; ir_artifact_stage</td><td>partial: only gates have it (gap)</td></tr>
+      <tr><td>we are crystallizing; different rules at high entropy</td><td>stage-dependent rules</td><td>graph.yaml#lifecycle_domains.entity; WorkCrystallizationState</td><td>stamped as a rule; no check yet (gap)</td></tr>
+      <tr><td>lev ontology builder/framework</td><td>a name for the whole</td><td>Lev IR (umbrella) + Lev ontology (schema) + Lev IR framework (machinery)</td><td>recommended; your call → question</td></tr>
+    </tbody>
+
+  </table>
+  </div>
+</div>
+<div data-lev-id="t-un-gaps" class="lev-component anim prose" style="--i:10;">
+  <p><strong>Where the current &apos;DNA&apos; content goes, by facet</strong> (your question: if it all found a proper home, where?):</p>
+<ul>
+<li><strong>checks with a runnable test</strong> → policy facet, next to the owner; core/eval decides verdicts. Today only <code>dna/core</code> checks run.</li>
+<li><strong>rules with no test</strong> → the owner&apos;s spec as guidance (docs), until a test exists.</li>
+<li><strong>import allowlist, write authority</strong> → structure facet, one system-level instance, enforced by core/validator.</li>
+<li><strong>module identity, owns / does-not-own</strong> → the module&apos;s <code>config.yaml</code> (<code>owns:</code>, <code>entity_definitions:</code>) and README.</li>
+<li><strong>behaviors meant to run</strong> → flows. <strong>Failure modes</strong> → the flow&apos;s failure branches, or docs.</li>
+<li><strong>entity kinds and schemas</strong> → <code>entity_definitions</code> in the owner&apos;s config; schemas beside it.</li>
+<li><strong>process specs: escalation stages, idle loop, KPIs, test strategy</strong> → execution facet under <code>plugins/sdlc</code>: flows if runnable, docs if not. The core loop is the base flow they extend.</li>
+<li><strong>vocabulary, primitives</strong> → the vocabulary facet, one file, each term with an owner.</li>
+<li><strong>doctrine, rulings, history</strong> → docs and decision records.</li>
+<li><strong>task dna.yaml</strong> → <code>task.yaml</code>, the work facet&apos;s task spec.</li>
+<li><strong>other projects&apos; YAML</strong> → their repos, using the published facet schemas; freeform notes stay theirs.</li>
+</ul>
+<p><strong>What the exercise found missing</strong> (gaps, not opinions): a stage field on most instances; a trigger/hook kind and vocabulary; an exec-spec kind (<code>exec.yaml</code> is authored, <code>runtime_binding</code> is derived; they are different things); a general current-vs-target field beyond gates; a vernacular resolver; the hygiene diff; and two names (FlowMind&apos;s compiled graph, the base ontology&apos;s owner package).</p>
+</div></div>
+</section>
+
+<section data-lev-id="s-irmap" data-lev-root data-lev-type="section" data-lev-rail="full" class="lev-component lev-flow__item lev-flow__item--full anim section section--stacked" style="--i:10" id="s-irmap">
+  <span class="section-label">The map</span>
+  <h2 class="section-title">Lev IR: what replaces &apos;DNA&apos;, end to end</h2>
+
+  <div class="section__stacked"><div data-lev-id="t-irmap" class="lev-component anim prose" style="--i:10;">
+  <p><strong>Ruled 2026-09-29.</strong> You: <em>&quot;DNA is cursed ... it&apos;s IR, internal representation of all these various structures, checks, policies&quot;</em>, and the readable rule prose <em>&quot;should be a projection.&quot;</em></p>
+<p>This isn&apos;t a new idea. It already has an owner: <strong><code>.lev/pm/plans/plan-impl-modular-lev-ir.md</code></strong> (in progress, priority 1, workstream <code>modular-lev-ir</code>), with vocabulary in <code>dna/vernacular.yaml#lev_ir</code>. What it already decided:</p>
+<ul>
+<li>Lev IR is one representation family: a small base schema plus <strong>domain-owned extensions</strong>.</li>
+<li>Scopes: <strong>Core IR</strong>, <strong>Plugin IR</strong>, <strong>Project IR</strong>. Resolving them produces the <strong>resolved project IR</strong>, checked for composition conflicts; the last writer does not simply win.</li>
+<li>Stages: <strong>candidate, admitted, resolved</strong>. An agent may author a candidate; admission requires the owning writer.</li>
+<li>Today authored files are the source and the graph is a read model. Later the graph can be the source and <strong>files become projections</strong>. That&apos;s exactly your &apos;DNA should be a projection.&apos;</li>
+<li>On 2026-09-13 it recorded <code>dna/architecture/</code> as the authored <strong>Architecture IR</strong>, owned by <code>plugins/dna</code> (slice S04C).</li>
+</ul>
+</div>
+<div data-lev-id="d-irmap" class="lev-component anim mermaid-wrap" style="--i:10" id="mermaid-d-irmap" data-initial-zoom="0.8">
+  <div class="mermaid-controls">
+    <button class="mermaid-zoom" type="button" aria-label="Zoom out" onclick="levNowMermaidZoom('mermaid-d-irmap', -0.2)">-</button>
+    <button class="mermaid-zoom" type="button" aria-label="Reset zoom" onclick="levNowMermaidZoom('mermaid-d-irmap', 0)">1:1</button>
+    <button class="mermaid-zoom" type="button" aria-label="Zoom in" onclick="levNowMermaidZoom('mermaid-d-irmap', 0.2)">+</button>
+    <button class="mermaid-zoom mermaid-fullscreen" type="button" aria-label="Fullscreen" onclick="levNowFullscreen(document.getElementById('mermaid-d-irmap'))" title="Fullscreen">⛶</button>
+  </div>
+  <pre class="mermaid">flowchart LR
+  subgraph SRC[&quot;Authored - found by fractal ownership&quot;]
+    direction TB
+    A1[&quot;checks&lt;br/&gt;rule + check + should-fail&quot;]
+    A2[&quot;structural constraints&lt;br/&gt;imports, write authority&quot;]
+    A3[&quot;entity kinds&lt;br/&gt;config.yaml entity_definitions&quot;]
+    A4[&quot;flows&lt;br/&gt;*.flow.yaml&quot;]
+    A5[&quot;registries&lt;br/&gt;uri schemes, namespaces&quot;]
+    A6[&quot;task spec&lt;br/&gt;intent, acceptance, verifier&quot;]
+  end
+  FR[&quot;fractal resolver&lt;br/&gt;core/config&quot;]
+  subgraph IR[&quot;Lev IR pipeline&quot;]
+    direction TB
+    C[&quot;candidate IR&quot;] --&gt; V{&quot;validate&lt;br/&gt;base schema + owner callback&quot;}
+    V --&gt;|admit| AD[&quot;admitted IR&quot;]
+    AD --&gt; RS[&quot;resolved project IR&lt;br/&gt;core + enabled plugins + project&quot;]
+  end
+  subgraph USE[&quot;Programs that read it&quot;]
+    direction TB
+    U1[&quot;core/eval - verdicts&quot;]
+    U2[&quot;core/validator + boundary audit&quot;]
+    U3[&quot;orchestration - task admission&quot;]
+    U4[&quot;exec - runs flows&quot;]
+    U5[&quot;poly - command registry&quot;]
+  end
+  subgraph PROJ[&quot;Projections - generated, never edited&quot;]
+    direction TB
+    P1[&quot;rulebook view&lt;br/&gt;what &apos;DNA&apos; prose was&quot;]
+    P2[&quot;gate view&quot;]
+    P3[&quot;entities catalog&quot;]
+    P4[&quot;AGENTS.md vocabulary, SKILL.md&quot;]
+    P5[&quot;now pages, spec tables&quot;]
+  end
+  DOCS[&quot;docs: specs, designs,&lt;br/&gt;decision records, READMEs&lt;br/&gt;prose + rationale, linked by refs&quot;]
+  SRC --&gt; FR --&gt; C
+  RS --&gt; USE
+  RS --&gt; PROJ
+  DOCS -. refs .-&gt; SRC
+  classDef ir fill:#dbeafe,stroke:#1d4ed8,color:#111
+  classDef proj fill:#fef3c7,stroke:#b45309,color:#111
+  class C,AD,RS,V ir
+  class P1,P2,P3,P4,P5 proj</pre>
+  <p class="mermaid-caption">Left to right: authored sources, the fractal resolver, the IR pipeline, the programs that consume it, and generated projections. Docs link to the IR but are never IR.</p>
+</div>
+<div data-lev-id="d-irscope" class="lev-component anim mermaid-wrap" style="--i:10" id="mermaid-d-irscope" data-initial-zoom="0.9">
+  <div class="mermaid-controls">
+    <button class="mermaid-zoom" type="button" aria-label="Zoom out" onclick="levNowMermaidZoom('mermaid-d-irscope', -0.2)">-</button>
+    <button class="mermaid-zoom" type="button" aria-label="Reset zoom" onclick="levNowMermaidZoom('mermaid-d-irscope', 0)">1:1</button>
+    <button class="mermaid-zoom" type="button" aria-label="Zoom in" onclick="levNowMermaidZoom('mermaid-d-irscope', 0.2)">+</button>
+    <button class="mermaid-zoom mermaid-fullscreen" type="button" aria-label="Fullscreen" onclick="levNowFullscreen(document.getElementById('mermaid-d-irscope'))" title="Fullscreen">⛶</button>
+  </div>
+  <pre class="mermaid">flowchart TB
+  CORE[&quot;Core IR&lt;br/&gt;core/* fractal roots&quot;] --&gt; RES[&quot;resolved project IR&quot;]
+  PLUG[&quot;Plugin IR&lt;br/&gt;enabled plugins/* + npm modules&quot;] --&gt; RES
+  PROJ[&quot;Project IR&lt;br/&gt;.lev + declared fractal roots&quot;] --&gt; RES
+  TASK[&quot;task + workstream entity roots&lt;br/&gt;task spec, local checks&quot;] --&gt; PROJ
+  RES --&gt; LOOP[&quot;core agentic loop&lt;br/&gt;plan - execute - verify&quot;]
+  LOOP -. &quot;observed state proposes&lt;br/&gt;amendments, never rewrites&quot; .-&gt; PROJ</pre>
+  <p class="mermaid-caption">The same facets at every scope. An inner scope may add kinds and tighten rules; it may never weaken an outer one (modular Lev IR plan, D3).</p>
+</div>
+<div data-lev-id="t-irfacets" class="lev-component anim table-wrap" style="--i:10">
+  <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
+  <div class="table-scroll">
+  <table class="data-table">
+
+    <thead><tr><th>IR facet</th><th>Owner that reads it</th><th>Where it lives (target)</th><th>Was called</th></tr></thead>
+    <tbody>
+      <tr><td>checks (policies)</td><td>core/eval decides verdicts; ratchet and validator run them</td><td>next to each owner, found by fractal ownership</td><td>constraints with check, gates</td></tr>
+      <tr><td>structural constraints (architecture)</td><td>boundary audit, dependency-cruiser; plugins/dna compiles today</td><td>system scope, plus per-feature seams</td><td>dna/architecture, core-contract</td></tr>
+      <tr><td>entity kinds</td><td>core/config</td><td>owner config.yaml entity_definitions</td><td>dna/entities.yaml, dna/pm schemas</td></tr>
+      <tr><td>flows</td><td>core/flowmind compiler, exec</td><td>*.flow.yaml</td><td>behaviors (never linked)</td></tr>
+      <tr><td>registries</td><td>core/config</td><td>owner config or system registry</td><td>dna/standards uri-schemes, namespaces</td></tr>
+      <tr><td>task spec</td><td>orchestration readiness, exit requirements</td><td>the task entity root</td><td>task dna.yaml</td></tr>
+      <tr><td>(not IR) rationale, descriptions, process prose, rulings</td><td>people and agents (prompt context)</td><td>docs/specs, designs, decision records, plugins/sdlc docs</td><td>~71% of &apos;DNA&apos; text</td></tr>
+    </tbody>
+
+  </table>
+  </div>
+</div></div>
+</section>
+
+<section data-lev-id="s-dnad" data-lev-root data-lev-type="section" data-lev-rail="full" class="lev-component lev-flow__item lev-flow__item--full anim section section--stacked" style="--i:10" id="s-dnad">
+  <span class="section-label">DNA, taken apart</span>
+  <h2 class="section-title">What &apos;DNA&apos; actually is: 18 families, and what a program reads</h2>
+
+  <div class="section__stacked"><div data-lev-id="t-dnad-kpi2" class="lev-component anim prose" style="--i:10;">
+  <p>Four agents read every file section by section: 44 module rule files, 18 plugin files, plugin-local DNA, 17 <code>.dna.yaml</code> files outside <code>dna/</code>, the 27 architecture files, 14 standards, 7 authoring guides, 7 gate homes, the root doctrine files, and all 291 task packets. The reports are in <code>.lev/pm/reports/2026-09-29-dna-census/</code>.</p>
+<p><strong>The headline: the only part of &apos;DNA&apos; any program runs is a rule&apos;s <code>id</code> + <code>check</code> (a shell command) + <code>enforcement</code> label.</strong> Two readers run these: <code>tooling/scripts/run-dna-ratchet.js</code> and <code>core/validator</code>, and only for <code>dna/core</code>. Everything else is notes, or it&apos;s read by one narrow script. The core agentic loop (plan, execute, verify) reads <strong>no</strong> root DNA. Its only DNA input is a task&apos;s <code>acceptance</code> list, which becomes the exit requirements (<code>task-exit-requirements.ts:133</code>).</p>
+</div>
+<div data-lev-id="t-dnad-pov" class="lev-component anim prose" style="--i:10;">
+  <p><strong>/pov result on DNA (four turns plus a room test, 2026-09-29, pending JP)</strong></p>
+<p><strong>Proposed rule:</strong> <em>Something is IR only if a deterministic program reads it and a test proves that program rejects a bad one. Everything else is documentation, and is called that.</em> An LLM reading text is prompt context, not IR (the translator boundary, applied to canon).</p>
+<p>What survives as IR (each already has a program reader):</p>
+<ul>
+<li><strong>checks</strong>: id, one-sentence rule, check command, a should-fail case, gate or advisory.</li>
+<li><strong>boundaries</strong>: which package may import which, and who may write what.</li>
+<li><strong>entity kinds</strong>: in the owner&apos;s config.yaml.</li>
+<li><strong>registries</strong>: uri schemes, namespaces.</li>
+<li><strong>task spec</strong>: intent, acceptance, verifier.</li>
+</ul>
+<p>Behaviors meant to run become <strong>flows</strong>. The rest moves to docs: README or spec, design docs, SDLC docs or flows, decision records, agent config, other repos.</p>
+<p>Full table: DNA design section 6.9.</p>
+</div>
+<div data-lev-id="d-dnad2" class="lev-component anim mermaid-wrap" style="--i:10" id="mermaid-d-dnad2" data-initial-zoom="0.85">
+  <div class="mermaid-controls">
+    <button class="mermaid-zoom" type="button" aria-label="Zoom out" onclick="levNowMermaidZoom('mermaid-d-dnad2', -0.2)">-</button>
+    <button class="mermaid-zoom" type="button" aria-label="Reset zoom" onclick="levNowMermaidZoom('mermaid-d-dnad2', 0)">1:1</button>
+    <button class="mermaid-zoom" type="button" aria-label="Zoom in" onclick="levNowMermaidZoom('mermaid-d-dnad2', 0.2)">+</button>
+    <button class="mermaid-zoom mermaid-fullscreen" type="button" aria-label="Fullscreen" onclick="levNowFullscreen(document.getElementById('mermaid-d-dnad2'))" title="Fullscreen">⛶</button>
+  </div>
+  <pre class="mermaid">flowchart LR
+  subgraph READ[&quot;Read by a program: the real IR today&quot;]
+    direction TB
+    R1[&quot;runnable checks&lt;br/&gt;ratchet + validator, core only&quot;]
+    R2[&quot;import allowlist&lt;br/&gt;core-boundaries, generator broken&quot;]
+    R3[&quot;entity kinds&lt;br/&gt;config.yaml entity_definitions&quot;]
+    R4[&quot;closed lists&lt;br/&gt;uri-schemes, source-namespaces, emote keys&quot;]
+    R5[&quot;task acceptance&lt;br/&gt;becomes exit requirements&quot;]
+    R6[&quot;1 JSON schema&lt;br/&gt;lifecycle trigger&quot;]
+  end
+  subgraph NOTES[&quot;Nobody reads it&quot;]
+    direction TB
+    N1[&quot;hollow rules&lt;br/&gt;no check, manual, or pipe-true&quot;]
+    N2[&quot;module definition&lt;br/&gt;owns and does-not-own prose&quot;]
+    N3[&quot;behaviors + failure modes&lt;br/&gt;0 of 205 link to a rule&quot;]
+    N4[&quot;feature seams&lt;br/&gt;99 rules, no runner&quot;]
+    N5[&quot;process specs&lt;br/&gt;KPIs, escalation, idle loop&quot;]
+    N6[&quot;standards&lt;br/&gt;hand-copied into TS, drifted&quot;]
+    N7[&quot;vocabulary + type model&lt;br/&gt;2-3 prose copies&quot;]
+    N8[&quot;agent personas + policies&quot;]
+    N9[&quot;rulings, history, prose reports&quot;]
+    N10[&quot;other projects&apos; YAML&quot;]
+  end
+  classDef ok fill:#bbf7d0,stroke:#15803d,color:#111
+  classDef no fill:#e5e7eb,stroke:#6b7280,color:#111
+  class R1,R2,R3,R4,R5,R6 ok
+  class N1,N2,N3,N4,N5,N6,N7,N8,N9,N10 no</pre>
+  <p class="mermaid-caption">Green = a program reads it. Grey = notes nobody reads. What&apos;s green is the real IR today; it is small.</p>
+</div>
+<div data-lev-id="t-dnad2" class="lev-component anim table-wrap" style="--i:10">
+  <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
+  <div class="table-scroll">
+  <table class="data-table">
+
+    <thead><tr><th>Family: what it really is</th><th>Example</th><th>How much (census)</th><th>Read by a program?</th></tr></thead>
+    <tbody>
+      <tr><td>Runnable checks</td><td>memory boundary: vitest run tests/boundary.test.ts</td><td>412 checks in 44 module files; plugins: 31 of 339 rule items</td><td>YES: run-dna-ratchet.js + core/validator, dna/core only. Plugin checks never run. Only storage&apos;s checks have a should-fail test</td></tr>
+      <tr><td>Hollow rules</td><td>enforcement: gate, check ends in || true</td><td>module files: 41 no check, 42 &apos;manual&apos;, 24 gate checks ending in || true; gates.yaml: 32 with no check; plugins: 26 gate-labelled, no check</td><td>no: label only</td></tr>
+      <tr><td>Module definition</td><td>owns / does-not-own, responsibilities</td><td>~7% of module file bytes; structured in 3 of 44; 17 package: blocks repeat package.json</td><td>no</td></tr>
+      <tr><td>Behaviors + failure modes</td><td>&apos;on recall miss, fall back to search&apos;</td><td>186 behaviors, 205 failure modes (core); 0 of 205 ids match a rule; plugins 0 of 12</td><td>no (the compiler would link them, but ids never match)</td></tr>
+      <tr><td>System structure (architecture as meta)</td><td>which package may import which</td><td>core-boundaries concept.yaml import allowlist, layers, write authority</td><td>partly: turned into one dependency-cruiser file; the generator is broken since the key moved</td></tr>
+      <tr><td>Feature seams</td><td>tmux control plane contract</td><td>10 seam folders; 2 of 10 carry the 5 required fields; 99 rules, 22 runnable</td><td>no runner</td></tr>
+      <tr><td>Process / SDLC specs</td><td>escalation stages, idle loop, KPIs, research job, test strategy</td><td>cascade, task-bundle, run-fabric, testing, research, lifecycle-kpis</td><td>one: testing.yaml&apos;s promotion gate</td></tr>
+      <tr><td>Coding standards + thresholds</td><td>smell catalog, LOC limits, id aliases</td><td>14 standards files</td><td>2 parsed (uri-schemes, source-namespaces); the rest hand-copied into TS and drifted (id-aliases: 10 in YAML, 8 in TS)</td></tr>
+      <tr><td>Vocabulary + type model</td><td>terms, primitives, node types</td><td>written 2-3 times: vernacular, graph, primitives</td><td>emote keys only; the loader has no caller outside tests</td></tr>
+      <tr><td>Entity kinds + schemas</td><td>where tasks live; fields</td><td>entities.yaml, dna/pm schemas, config entity_definitions</td><td>yes, from config.yaml; entities.yaml: one path; 1 compiled JSON schema</td></tr>
+      <tr><td>Gate registries</td><td>lists of gates</td><td>7 homes</td><td>2 run: 13 enforced gates in CI, plus the split-brain rulebook. The 2,534-line validation-gates overlay is switched off</td></tr>
+      <tr><td>Task specs</td><td>intent, acceptance, local constraints, claim ledger</td><td>291 task dna.yaml; 167 keys in 130 shapes; 1 of 291 has the 3 &apos;DNA&apos; sections</td><td>acceptance becomes exit requirements; lev task validate reads 7 keys</td></tr>
+      <tr><td>Flows stored as DNA</td><td>entry/nodes/routes saved as .dna.yaml</td><td>15 sections outside dna/; flows parked in dna/pm/flows</td><td>the loader passes them through without validating</td></tr>
+      <tr><td>Agent personas + policies</td><td>personality/tools/memory/hooks; escalation and mutation policies</td><td>plugins + GitAgent-style examples</td><td>carried as metadata; no target reads it</td></tr>
+      <tr><td>Rulings, history, provenance</td><td>operator rulings, migration history, status logs</td><td>every slice</td><td>no</td></tr>
+      <tr><td>Prose + reports</td><td>essays, audit/drift reports, open questions, vendoring plans</td><td>~71% of all text</td><td>no</td></tr>
+      <tr><td>Other projects&apos; YAML</td><td>buzz advisories, Freedom Society run budgets, Sofia training loop</td><td>buzz 191 entries; community examples</td><td>no, by design; they share &apos;YAML with ids + prose&apos;, not a schema</td></tr>
+      <tr><td>Code parked under dna/</td><td>core-boundaries/tools/*.mjs</td><td>a few scripts</td><td>run from elsewhere</td></tr>
+    </tbody>
+
+  </table>
+  </div>
+</div>
+<div data-lev-id="t-dnad-q" class="lev-component anim prose" style="--i:10;">
+  <p><strong>Your questions, answered from the census</strong> (evidence, with inferences marked):</p>
+<ul>
+<li><strong>What is architecture?</strong> Three different things share the word. (1) <strong>System structure</strong>: which package may import which, layers, who may write what. It spans modules, and it&apos;s the only architecture any code consumes. (2) <strong>Feature seams</strong>: contracts for one cross-module feature, like tmux; nothing runs them. (3) <strong>Process</strong>: cascade stages, task-bundle lifecycle, success criteria. That&apos;s how we work, which is SDLC, not what the system is. Also, 366 of 412 module checks only grep their own folder, so most &apos;architecture&apos; rules are per-module copies: <code>no_plugin_imports</code> appears 13 times.</li>
+<li><strong>Is it domain-based?</strong> Not today. Root <code>dna/</code> is organized by topic (vocabulary, graph, testing), not by owner, even though <code>dna/fractal.yaml:127</code> says the module name is the address.</li>
+<li><strong>Does it scale?</strong> No (inference from evidence). There&apos;s no schema: 447 keys, 167 more in task packets. Rules are copy-pasted across modules. The copies drift: id-aliases 10 vs 8; sdlc&apos;s flow list says 18 while config declares 36 and there are 42 on disk.</li>
+<li><strong>Core agentic loop?</strong> It runs without DNA. The verify command comes from <code>execution.yaml</code>, and the only DNA it reads is task acceptance. So &apos;DNA outranks code&apos; (<code>dna/index.yaml</code>) is a claim the loop doesn&apos;t enforce.</li>
+<li><strong>Rebuild-from-nothing versus vast multi-party scale</strong> (inference): rebuilding from nothing needs a small, self-checking core, where every rule carries its check and a should-fail case, because prose can&apos;t bootstrap anything. Multi-party scale needs typed, owner-namespaced, versioned kinds with collision rules. Today&apos;s DNA has neither.</li>
+</ul>
+</div>
+<div data-lev-id="t-dnad-kpi" class="lev-component anim prose" style="--i:10;">
+  <p>Your read is right: it grew into a god object. Evidence (Python scan of every tracked <code>dna/*<em>/</em>.yaml</code>, <code><em>.dna.yaml</code> and <code>plugins/</em>/dna/*.yaml</code>, 188 files, 0 unparseable):</p>
+<ul>
+<li><strong>No schema in practice.</strong> 447 different top-level keys; <strong>344 of them appear in exactly one file.</strong> A schema does exist (<code>plugins/dna/schemas/dna.feature.schema.yaml</code>, 31 keys, <code>additionalProperties: false</code>). 69 of 79 <code>*.dna.yaml</code> files fit it, but only 71 of the 188 files overall do. <strong>76 files have none of the three sections</strong> (constraints, behaviors, failure modes) that canon says make something DNA (<code>dna/authoring/boundaries.yaml:15</code>, &apos;DNA is a concept, not a file format&apos;).</li>
+<li><strong>About half the rules can&apos;t be enforced.</strong> 915 rule items: 440 have a runnable check, <strong>340 have no check at all</strong>, 70 have an <code>echo</code>/manual check, and 65 have a check written in prose. <strong>73 rules are labelled <code>enforcement: gate</code> with no runnable check.</strong> 191 more say <code>catalogue</code> and 122 say <code>aspirational</code>.</li>
+<li><strong>It&apos;s mostly prose.</strong> 71% of all text characters sit in description, rationale or notes fields or in strings over 160 characters. That&apos;s a spec written as YAML.</li>
+</ul>
+<p>(The rule classes come from a heuristic on the check text: <code>vitest|pnpm|rg|grep|test</code> counts as runnable; <code>echo|manual</code> does not. That&apos;s an inference, not proof the command passes.)</p>
+</div>
+<div data-lev-id="t-dnad-opts" class="lev-component anim prose" style="--i:10;">
+  <p><strong>The decision underneath all of this: what does the word &apos;DNA&apos; mean?</strong> (A replacement for my own earlier shorthand. &apos;That goes in the DNA&apos; was meaningless. From here on the page says which of the 13 things above, and in which file.)</p>
+<ul>
+<li><strong>(a) DNA means only the contract.</strong> A contract is rules with checks, guidance, behaviors and failure modes, using the schema that already exists, and it compiles to FlowMind. Everything else gets called what it is: vocabulary, entity kind, gate view, doctrine, spec. The <code>dna/</code> folder can still host those, but they stop being &apos;DNA&apos;. Example: <code>vernacular.yaml</code> is &apos;the vocabulary&apos;, not &apos;DNA&apos;.</li>
+<li><strong>(b) DNA means the typed declarative layer.</strong> Every file starts with <code>kind:</code> from a short closed list (contract, vocabulary, entity, seam, standard, intent, doctrine, notes), and each kind has a published schema. This is how Kubernetes made freeform YAML into a standard: <code>apiVersion</code> + <code>kind</code>, one schema per kind. Your other projects would write <code>kind: contract</code> or <code>kind: notes</code> and get validation from <code>lev dna validate</code>. <code>notes</code> is the honest home for spec-as-YAML: allowed, machine-readable, never authoritative. Example: <code>testing.yaml</code> becomes <code>kind: notes</code> until someone gives it a schema.</li>
+<li><strong>(c) Retire the word.</strong> Say &apos;contract&apos; and name every other kind. Example: <code>dna/</code> is renamed <code>canon/</code>.</li>
+</ul>
+<p><strong>Recommendation: (b), with (a)&apos;s discipline inside the contract kind.</strong> It&apos;s the only option that gives your outside projects a standard that still allows freeform notes. It keeps the word you and the LLMs already use. And it forces every file to say what it is, which is exactly what&apos;s missing today. Confidence: medium. It&apos;s a naming and standard decision, so it&apos;s yours.</p>
+<p><strong>Three smaller rules, the same under any option:</strong></p>
+<ol>
+<li>A rule with no runnable check is <strong>guidance</strong>, never a gate. That relabels 73 rules currently marked <code>enforcement: gate</code>, which needs your OK because gates only ratchet forward.</li>
+<li>Prose over one line moves to a spec and gets linked.</li>
+<li>One file, one owner, one kind.</li>
+</ol>
+</div>
+<div data-lev-id="d-dna" class="lev-component anim mermaid-wrap" style="--i:10" id="mermaid-d-dna">
+  <div class="mermaid-controls">
+    <button class="mermaid-zoom" type="button" aria-label="Zoom out" onclick="levNowMermaidZoom('mermaid-d-dna', -0.2)">-</button>
+    <button class="mermaid-zoom" type="button" aria-label="Reset zoom" onclick="levNowMermaidZoom('mermaid-d-dna', 0)">1:1</button>
+    <button class="mermaid-zoom" type="button" aria-label="Zoom in" onclick="levNowMermaidZoom('mermaid-d-dna', 0.2)">+</button>
+    <button class="mermaid-zoom mermaid-fullscreen" type="button" aria-label="Fullscreen" onclick="levNowFullscreen(document.getElementById('mermaid-d-dna'))" title="Fullscreen">⛶</button>
+  </div>
+  <pre class="mermaid">flowchart LR
+  S[&quot;system&lt;br/&gt;dna/&quot;] --&gt; C[&quot;module class&lt;br/&gt;core-contract, plugin-contract&quot;] --&gt; SE[&quot;seam&lt;br/&gt;dna/architecture/tmux...&quot;] --&gt; MO[&quot;module&lt;br/&gt;core/memory/dna/ ?&quot;] --&gt; PR[&quot;project or island&lt;br/&gt;.lev/dna/&quot;] --&gt; TK[&quot;task&lt;br/&gt;tasks/id/dna.yaml&quot;]</pre>
+  <p class="mermaid-caption">Inner owners may tighten a rule or add new ones, never loosen. Where &apos;module&apos; lives (next to the module or central) is the biggest open DNA question.</p>
+</div></div>
+</section>
+
+<section data-lev-id="s-over" data-lev-root data-lev-type="section" data-lev-rail="full" class="lev-component lev-flow__item lev-flow__item--full anim section section--stacked" style="--i:10" id="s-over">
+  <span class="section-label">The mess</span>
+  <h2 class="section-title">Words that mean more than one thing, or one thing with many words</h2>
+
+  <div class="section__stacked"><div data-lev-id="d-over" class="lev-component anim mermaid-wrap" style="--i:10" id="mermaid-d-over" data-initial-zoom="0.9">
+  <div class="mermaid-controls">
+    <button class="mermaid-zoom" type="button" aria-label="Zoom out" onclick="levNowMermaidZoom('mermaid-d-over', -0.2)">-</button>
+    <button class="mermaid-zoom" type="button" aria-label="Reset zoom" onclick="levNowMermaidZoom('mermaid-d-over', 0)">1:1</button>
+    <button class="mermaid-zoom" type="button" aria-label="Zoom in" onclick="levNowMermaidZoom('mermaid-d-over', 0.2)">+</button>
+    <button class="mermaid-zoom mermaid-fullscreen" type="button" aria-label="Fullscreen" onclick="levNowFullscreen(document.getElementById('mermaid-d-over'))" title="Fullscreen">⛶</button>
+  </div>
+  <pre class="mermaid">flowchart LR
+  R([&quot;resolver&quot;]) --&gt; r1[&quot;a module&apos;s claim on a folder - JP&quot;]
+  R --&gt; r2[&quot;a shape normalizer - fractal.yaml:8&quot;]
+  R --&gt; r3[&quot;all of core/config - config.dna.yaml:3&quot;]
+  FR([&quot;fractal resolver&quot;]) --&gt; f1[&quot;core/config&apos;s self-name&quot;]
+  FR --&gt; f2[&quot;function that finds islands, not globs&quot;]
+  I([&quot;island&quot;]) --&gt; i1[&quot;any folder Lev looks inside&quot;]
+  I --&gt; i2[&quot;narrow override folder - dead example&quot;]
+  I --&gt; i3[&quot;workstream folder with slots&quot;]
+  L1[&quot;fractal root&quot;] -.same thing.-&gt; I
+  L2[&quot;app root&quot;] -.same thing, fewer rules.-&gt; I
+  L3[&quot;task_as_fractal&quot;] -.same thing.-&gt; I
+  PV([&quot;provider&quot;]) --&gt; p1[&quot;execution backend - taken&quot;]
+  PV -.blocks.-&gt; PS[&quot;provides: key&quot;]
+  MD([&quot;module definition vs contribution&quot;]) --&gt; m1[&quot;3 different two-way splits in 3 designs&quot;]
+  classDef hot fill:#fecaca,stroke:#b91c1c,color:#111
+  class R,FR,I,PV,MD hot</pre>
+  <p class="mermaid-caption">Red = overloaded. Dotted = synonyms that should collapse to one word.</p>
+</div></div>
+</section>
+
+<section data-lev-id="s-inv" data-lev-root data-lev-type="section" data-lev-rail="full" class="lev-component lev-flow__item lev-flow__item--full anim section section--stacked" style="--i:10" id="s-inv">
+  <span class="section-label">Inventory</span>
+  <h2 class="section-title">All the words, in one spot</h2>
+
+  <div class="section__stacked"><div data-lev-id="t-cnt" class="lev-component anim prose" style="--i:10;">
+  <p><strong>75 words</strong> across five whiteboard columns: Places 17, Declarations 14, Machinery 18, Nouns 13, DNA 13. <strong>17 need work</strong> (overloaded, synonym, dead, taken, multiple homes, or no canon). The rest are settled or already ruled.</p>
+</div>
+<div data-lev-id="t-freq-note" class="lev-component anim prose" style="--i:10;">
+  <p><strong>How often each word appears</strong> (<code>git grep -c -i -P</code> over tracked files; excludes workshop/intake, _archive, .claude-omc, dist, jsonl). What this says:</p>
+<ul>
+<li><strong>Code already picked a word for &apos;looked inside&apos;: <code>app root</code></strong> (223 hits in 49 code files) versus island (57) and fractal root (52). Any rename touches that the most.</li>
+<li><strong><code>provider</code> is saturated</strong> (6,894 hits in 957 code files), so a <code>provides:</code> key would be read as &apos;provider&apos; by every grep and every agent.</li>
+<li><strong><code>fractal leaf</code> is 0 everywhere; <code>module definition</code> is 0 in code and YAML.</strong> They exist only in conversation. Drop them.</li>
+<li><code>resolver</code> (266 code hits), <code>catalog</code> (1,921) and <code>slot</code> (468) already carry other meanings in code. A new meaning collides with those.</li>
+</ul>
+</div>
+<div data-lev-id="t-freq" class="lev-component anim table-wrap" style="--i:10">
+  <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
+  <div class="table-scroll">
+  <table class="data-table">
+
+    <thead><tr><th>Word</th><th>Code (hits / files)</th><th>YAML</th><th>Markdown</th></tr></thead>
+    <tbody>
+      <tr><td>resolver (bare)</td><td>266 / 116</td><td>716 / 204</td><td>1222 / 364</td></tr>
+      <tr><td>fractal resolver</td><td>26 / 10</td><td>21 / 10</td><td>35 / 22</td></tr>
+      <tr><td>island</td><td>57 / 18</td><td>310 / 73</td><td>382 / 102</td></tr>
+      <tr><td>fractal root</td><td>52 / 12</td><td>223 / 70</td><td>210 / 81</td></tr>
+      <tr><td>fractal island</td><td>3 / 3</td><td>51 / 22</td><td>40 / 18</td></tr>
+      <tr><td>app root</td><td>223 / 49</td><td>14 / 8</td><td>17 / 10</td></tr>
+      <tr><td>task_as_fractal</td><td>0 / 0</td><td>1 / 1</td><td>1 / 1</td></tr>
+      <tr><td>provider</td><td>6894 / 957</td><td>7639 / 849</td><td>13948 / 2162</td></tr>
+      <tr><td>provides:</td><td>14 / 10</td><td>14 / 7</td><td>73 / 55</td></tr>
+      <tr><td>contribution</td><td>99 / 43</td><td>987 / 494</td><td>777 / 313</td></tr>
+      <tr><td>module definition</td><td>0 / 0</td><td>0 / 0</td><td>5 / 3</td></tr>
+      <tr><td>slot</td><td>468 / 98</td><td>374 / 133</td><td>1808 / 446</td></tr>
+      <tr><td>fractal leaf</td><td>0 / 0</td><td>0 / 0</td><td>0 / 0</td></tr>
+      <tr><td>component</td><td>1241 / 241</td><td>978 / 237</td><td>7882 / 2496</td></tr>
+      <tr><td>module</td><td>2189 / 850</td><td>2300 / 551</td><td>8367 / 2023</td></tr>
+      <tr><td>kind:</td><td>1628 / 553</td><td>2567 / 567</td><td>675 / 133</td></tr>
+      <tr><td>entity_definitions</td><td>33 / 11</td><td>23 / 16</td><td>98 / 41</td></tr>
+      <tr><td>source descriptor</td><td>330 / 83</td><td>68 / 29</td><td>59 / 17</td></tr>
+      <tr><td>catalog</td><td>1921 / 377</td><td>1720 / 333</td><td>2694 / 702</td></tr>
+      <tr><td>dna (word)</td><td>1676 / 346</td><td>8496 / 1152</td><td>15888 / 2393</td></tr>
+    </tbody>
+
+  </table>
+  </div>
+</div>
+<div data-lev-id="t-inv" class="lev-component anim table-wrap" style="--i:10">
+  <button class="table-fullscreen-btn" onclick="levNowFullscreen(this.closest('.table-wrap'))" title="Fullscreen">&#x26F6;</button>
+  <div class="table-scroll">
+  <table class="data-table">
+
+    <thead><tr><th>Word</th><th>Column</th><th>What it means today</th><th>Status</th><th>Source</th></tr></thead>
+    <tbody>
+      <tr><td>module</td><td>Places</td><td>A folder with a config file that can offer things to others</td><td>keep (proposed core word)</td><td>design-fractal-source-framework.md 4.1</td></tr>
+      <tr><td>core module / core package</td><td>Places</td><td>A module under core/* (@lev-os/*)</td><td>keep</td><td>AGENTS.md 0</td></tr>
+      <tr><td>plugin</td><td>Places</td><td>A module under plugins/*</td><td>keep</td><td>AGENTS.md 1</td></tr>
+      <tr><td>third-party module</td><td>Places</td><td>A module installed from npm, e.g. @acme/lev-memory-s3</td><td>proposed</td><td>design-fractal-source-framework.md 4.7, Q6</td></tr>
+      <tr><td>project</td><td>Places</td><td>A repo Lev manages; its .lev/ is the project island</td><td>keep</td><td>design-fractal-source-framework.md 4.4</td></tr>
+      <tr><td>distribution</td><td>Places</td><td>The shipped Lev package: core/* + plugins/* + dna/</td><td>keep</td><td>design-fractal-source-framework.md 4.7; source-catalog.ts:433</td></tr>
+      <tr><td>component</td><td>Places</td><td>JP&apos;s spoken word for a module</td><td>no canon</td><td>design-fractal-source-framework.md lane-12 quote</td></tr>
+      <tr><td>island</td><td>Places</td><td>Any folder Lev looks inside with every resolver</td><td>OVERLOADED (3 meanings)</td><td>design-fractal-source-framework.md section 3</td></tr>
+      <tr><td>declared island</td><td>Places</td><td>Island with a config entry (config.yaml, package.json#leviathan, .lev/config.yaml)</td><td>proposed</td><td>design-fractal-source-framework.md 4.4</td></tr>
+      <tr><td>entity island</td><td>Places</td><td>Island that is an entity instance (workstream or task folder); found by marker file</td><td>proposed</td><td>design-fractal-source-framework.md 4.4</td></tr>
+      <tr><td>fractal root</td><td>Places</td><td>Any dir satisfying an entry adapter</td><td>SYNONYM of island</td><td>design-fractal-source-framework.md Part 2 def 7; vernacular.yaml:272</td></tr>
+      <tr><td>fractal island</td><td>Places</td><td>Narrow override sub-root with reject policy (eval overrides, dead)</td><td>OVERLOADED / dead example</td><td>design-fractal-source-framework.md Part 2 def 8</td></tr>
+      <tr><td>app root</td><td>Places</td><td>A project island in poly; gets only explicitly listed commands</td><td>SYNONYM, different rules today</td><td>commands.ts:435-462</td></tr>
+      <tr><td>fractal leaf</td><td>Places</td><td>JP&apos;s word for one owned folder pattern</td><td>no canon</td><td>lane-12 quote</td></tr>
+      <tr><td>slot</td><td>Places</td><td>Route-ontology word for an owned folder in a workstream</td><td>superseded</td><td>design-fractal-route-ontology.md</td></tr>
+      <tr><td>seam</td><td>Places</td><td>A feature that crosses modules; its DNA lives in dna/architecture/&lt;seam&gt;/</td><td>keep</td><td>design-dna-authoring-contract.md 6.1</td></tr>
+      <tr><td>task_as_fractal</td><td>Places</td><td>Vernacular note that a task folder is fractal</td><td>SYNONYM of entity island</td><td>vernacular.yaml:575</td></tr>
+      <tr><td>package</td><td>Declarations</td><td>Identity block in config.yaml</td><td>keep</td><td>design-fractal-source-framework.md 4.1</td></tr>
+      <tr><td>settings / config_schema / knob</td><td>Declarations</td><td>A module&apos;s own tunable values</td><td>keep</td><td>design-fractal-source-framework.md 4.1</td></tr>
+      <tr><td>enabled</td><td>Declarations</td><td>Installed is not active</td><td>keep</td><td>design-module-configuration-composition.md:101</td></tr>
+      <tr><td>sources:</td><td>Declarations</td><td>A module&apos;s OWN files, globs relative to itself</td><td>keep</td><td>design-fractal-source-framework.md fact 2</td></tr>
+      <tr><td>resolvers:</td><td>Declarations</td><td>Folder names a module claims in every island</td><td>proposed key</td><td>design-fractal-source-framework.md 4.2</td></tr>
+      <tr><td>resolver_paths:</td><td>Declarations</td><td>An island remaps a resolver folder for itself</td><td>proposed key</td><td>design-fractal-source-framework.md 4.2</td></tr>
+      <tr><td>entity_definitions:</td><td>Declarations</td><td>Entity kinds a module owns: uri, identity, locations</td><td>keep (ruled)</td><td>entity-definitions.ts:121</td></tr>
+      <tr><td>islands: / fractal_roots:</td><td>Declarations</td><td>Sub-islands a declared island adds</td><td>rename pending (Q1)</td><td>config-loader.ts:1689</td></tr>
+      <tr><td>modules:</td><td>Declarations</td><td>Third-party modules a project turns on</td><td>proposed key</td><td>design-fractal-source-framework.md Q6</td></tr>
+      <tr><td>provides:</td><td>Declarations</td><td>Wrapper sketched by DNA design around resolvers</td><td>competing sketch</td><td>design-dna-authoring-contract.md 6.3</td></tr>
+      <tr><td>contribution</td><td>Declarations</td><td>An entry a module adds to someone else&apos;s keyed surface (schedules)</td><td>keep, narrowed</td><td>design-fractal-source-framework.md 4.1</td></tr>
+      <tr><td>overlay (poly.sdk / poly.surfaces)</td><td>Declarations</td><td>Per-command surface metadata poly reads</td><td>keep</td><td>commands.ts:82-114</td></tr>
+      <tr><td>fractals: block</td><td>Declarations</td><td>Poly &apos;fractal ownership&apos; block</td><td>DEAD (no reader)</td><td>core/poly/config.yaml:26</td></tr>
+      <tr><td>handlers: / poly.handlers block</td><td>Declarations</td><td>Command blocks in 4 configs</td><td>DEAD (no reader)</td><td>design-fractal-source-framework.md fact 5</td></tr>
+      <tr><td>resolver</td><td>Machinery</td><td>A module&apos;s claim / a shape normalizer / all of core/config</td><td>OVERLOADED (3 meanings)</td><td>fractal.yaml:8; config.dna.yaml:3</td></tr>
+      <tr><td>fractal resolver</td><td>Machinery</td><td>core/config&apos;s self-name AND the function resolveFractalSourceInputs</td><td>OVERLOADED (package + function)</td><td>config.dna.yaml:3; config-loader.ts:1788</td></tr>
+      <tr><td>pipeline / &apos;the catalog&apos;</td><td>Machinery</td><td>Find islands, collect resolvers, scan once, hand out</td><td>name pending (Q2)</td><td>design-fractal-source-framework.md 4.8</td></tr>
+      <tr><td>catalog</td><td>Machinery</td><td>Resolved set: namespace to files + hashes</td><td>keep</td><td>design-fractal-source-framework.md Part 2 def 3</td></tr>
+      <tr><td>scanner</td><td>Machinery</td><td>The one scan/extract engine inside core/config</td><td>keep</td><td>design-fractal-source-framework.md Part 2 def 9</td></tr>
+      <tr><td>source descriptor</td><td>Machinery</td><td>Data: id, namespace, kind, adapter, globs, collision policy</td><td>keep (internal)</td><td>design-fractal-source-framework.md Part 2 def 1</td></tr>
+      <tr><td>namespace</td><td>Machinery</td><td>Typed id root.kind a consumer asks for</td><td>keep</td><td>design-fractal-source-framework.md Part 2 def 2</td></tr>
+      <tr><td>kind</td><td>Machinery</td><td>What a match becomes (operation, flow, memory record)</td><td>keep, overloaded with entity kind</td><td>design-fractal-source-framework.md 4.3</td></tr>
+      <tr><td>adapter / entry adapter</td><td>Machinery</td><td>Parser (yaml/json/package_json) / what makes a folder a root</td><td>keep</td><td>config-loader.ts:1643</td></tr>
+      <tr><td>scope</td><td>Machinery</td><td>system, global, project, project-local, profile, env</td><td>keep</td><td>design-fractal-source-framework.md Part 2 def 6</td></tr>
+      <tr><td>cascade</td><td>Machinery</td><td>Fixed merge order across scopes</td><td>keep</td><td>design-fractal-source-framework.md Part 2 def 6</td></tr>
+      <tr><td>collision policy</td><td>Machinery</td><td>select / merge / reject</td><td>keep</td><td>design-fractal-source-framework.md Part 2 def 6</td></tr>
+      <tr><td>provenance</td><td>Machinery</td><td>Source path, scope, hash, descriptor id on every value</td><td>keep</td><td>design-fractal-source-framework.md Part 2 def 5</td></tr>
+      <tr><td>projection</td><td>Machinery</td><td>Derived view: poly registry, entities.yaml, gate view</td><td>keep</td><td>design-fractal-source-framework.md Part 2 def 10</td></tr>
+      <tr><td>route</td><td>Machinery</td><td>XDG location token (runtime.event_log)</td><td>keep</td><td>design-fractal-source-framework.md Part 2 def 11</td></tr>
+      <tr><td>residue</td><td>Machinery</td><td>Anything violating placement rules</td><td>keep</td><td>design-fractal-source-framework.md Part 2 def 12</td></tr>
+      <tr><td>provider</td><td>Machinery</td><td>Execution backend inside a harness</td><td>TAKEN (blocks &apos;provides&apos;)</td><td>vernacular.yaml:15-17</td></tr>
+      <tr><td>EntityCatalogPort&lt;T&gt;</td><td>Machinery</td><td>Optional TS port to locate an entity in code</td><td>keep, optional (JP)</td><td>design-fractal-source-framework.md 4.6</td></tr>
+      <tr><td>entity</td><td>Nouns</td><td>A thing Lev tracks with an id and a home</td><td>keep</td><td>dna/entities.yaml</td></tr>
+      <tr><td>entity kind</td><td>Nouns</td><td>workstream, task, plan, spec, memory ...</td><td>keep</td><td>design-fractal-source-framework.md 4.6</td></tr>
+      <tr><td>instance</td><td>Nouns</td><td>One entity on disk</td><td>keep</td><td>design-fractal-source-framework.md 4.5</td></tr>
+      <tr><td>location</td><td>Nouns</td><td>Where instances of a kind live (pattern)</td><td>keep</td><td>entity-definitions.ts:69</td></tr>
+      <tr><td>marker</td><td>Nouns</td><td>File that proves a folder is an instance (dna.yaml)</td><td>keep</td><td>entity-definitions.ts:69</td></tr>
+      <tr><td>containment</td><td>Nouns</td><td>Which kind houses another (task in workstream)</td><td>keep</td><td>core/workstream/config.yaml:38</td></tr>
+      <tr><td>under:</td><td>Nouns</td><td>Generic nesting: &apos;this pattern inside every X&apos;</td><td>proposed</td><td>design-fractal-source-framework.md 4.5</td></tr>
+      <tr><td>identity_field / uri</td><td>Nouns</td><td>How an instance is named and addressed</td><td>keep</td><td>design-fractal-source-framework.md 4.5</td></tr>
+      <tr><td>duplicate_policy / identity scope</td><td>Nouns</td><td>Global vs within-parent ids</td><td>pending (Q4)</td><td>design-fractal-source-framework.md Q4</td></tr>
+      <tr><td>handler</td><td>Nouns</td><td>A file in src/handlers exporting handler</td><td>keep</td><td>AGENTS.md 1</td></tr>
+      <tr><td>operation</td><td>Nouns</td><td>Registry entry a handler becomes</td><td>keep</td><td>design-fractal-source-framework.md 4.2</td></tr>
+      <tr><td>command</td><td>Nouns</td><td>The CLI form: lev task list</td><td>keep</td><td>design-fractal-source-framework.md 4.6</td></tr>
+      <tr><td>verb</td><td>Nouns</td><td>Last word of a command; generic list/show/resolve</td><td>keep</td><td>design-fractal-source-framework.md 4.6</td></tr>
+      <tr><td>DNA</td><td>DNA</td><td>Constraints, behaviors, failure modes of anything</td><td>keep, definition pending (DNA Q2)</td><td>design-dna-authoring-contract.md 2</td></tr>
+      <tr><td>contract</td><td>DNA</td><td>A module&apos;s DNA file</td><td>keep</td><td>design-dna-authoring-contract.md 6.2</td></tr>
+      <tr><td>constraint / behavior / failure mode</td><td>DNA</td><td>The three sections that make a file DNA</td><td>keep</td><td>design-dna-authoring-contract.md 6.2</td></tr>
+      <tr><td>gate</td><td>DNA</td><td>Constraint with enforcement: gate AND a runnable check</td><td>5 registries today</td><td>design-dna-authoring-contract.md split brain 4</td></tr>
+      <tr><td>gate policy</td><td>DNA</td><td>Thresholds next to an evaluator; config, not DNA</td><td>keep</td><td>design-dna-authoring-contract.md 6.2</td></tr>
+      <tr><td>vernacular term</td><td>DNA</td><td>One word, one owner, retired list</td><td>keep</td><td>design-dna-authoring-contract.md 6.2</td></tr>
+      <tr><td>primitive</td><td>DNA</td><td>Graph primitive list</td><td>3 homes, 3 counts</td><td>design-dna-authoring-contract.md split brain 5</td></tr>
+      <tr><td>intent</td><td>DNA</td><td>Skill source dna/skills/&lt;name&gt;.intent.yaml</td><td>keep</td><td>design-dna-authoring-contract.md 6.2</td></tr>
+      <tr><td>standard</td><td>DNA</td><td>Reusable rule library dna/standards/</td><td>keep</td><td>design-dna-authoring-contract.md 6.2</td></tr>
+      <tr><td>feature DNA / seam DNA</td><td>DNA</td><td>Cross-module rules</td><td>3 homes</td><td>design-dna-authoring-contract.md split brain 6</td></tr>
+      <tr><td>module class</td><td>DNA</td><td>All core modules / all plugins (core-contract, plugin-contract)</td><td>3 homes each</td><td>design-dna-authoring-contract.md split brain 1</td></tr>
+      <tr><td>owner</td><td>DNA</td><td>Who holds a truth: system, class, seam, module, project, task</td><td>keep</td><td>design-dna-authoring-contract.md 6.1</td></tr>
+      <tr><td>precedence</td><td>DNA</td><td>Outer owner wins; inner may tighten, never loosen</td><td>keep</td><td>design-dna-authoring-contract.md 6.4</td></tr>
+    </tbody>
+
+  </table>
+  </div>
+</div></div>
+</section>
+  </div>
+  </main>
+  <footer class="page-footer">
+    <span>lev.now — Ontology whiteboard · Generated by lev.now</span>
+    <a href="#" aria-label="Back to top">Back to top ↑</a>
+  </footer>
+
+  <button class="theme-toggle" aria-label="Toggle theme">
+    <svg class="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM11 1h2v3h-2V1zm0 19h2v3h-2v-3zM3.515 4.929l1.414-1.414L7.05 5.636 5.636 7.05 3.515 4.93zM16.95 18.364l1.414-1.414 2.121 2.121-1.414 1.414-2.121-2.121zm2.121-14.85 1.414 1.415-2.121 2.121-1.414-1.414 2.121-2.121zM5.636 16.95l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM23 11v2h-3v-2h3zM4 11v2H1v-2h3z"/></svg>
+  </button>
+
+  <script>
+    // Storage that never throws (sandboxed frames deny Web Storage); see safe-storage.ts.
+    window.levNowStorage = window.levNowStorage || (function () {
+      var memory = { localStorage: {}, sessionStorage: {} };
+      function real(name) { try { return window[name] || null; } catch (e) { return null; } }
+      function area(name) {
+        var fallback = memory[name];
+        return {
+          getItem: function (key) {
+            try { var s = real(name); if (s) return s.getItem(key); } catch (e) {}
+            return Object.prototype.hasOwnProperty.call(fallback, key) ? fallback[key] : null;
+          },
+          setItem: function (key, value) {
+            try { var s = real(name); if (s) { s.setItem(key, String(value)); return; } } catch (e) {}
+            fallback[key] = String(value);
+          },
+          removeItem: function (key) {
+            try { var s = real(name); if (s) { s.removeItem(key); return; } } catch (e) {}
+            delete fallback[key];
+          }
+        };
+      }
+      return { local: area('localStorage'), session: area('sessionStorage') };
+    })();
+
+    // Mermaid viewport: button zoom, scroll-backed pan, and cursor-anchored Cmd/Ctrl-wheel zoom.
+    (function() {
+      function viewportFor(wrap) {
+        return wrap ? wrap.querySelector('.mermaid') : null;
+      }
+
+      function targetFor(wrap) {
+        return wrap ? (wrap.querySelector('.mermaid svg') || viewportFor(wrap)) : null;
+      }
+
+      function readDatasetValue(wrap, key) {
+        return Object.prototype.hasOwnProperty.call(wrap.dataset, key) ? wrap.dataset[key] : null;
+      }
+
+      function restoreDatasetValue(wrap, key, value) {
+        if (value === null) delete wrap.dataset[key];
+        else wrap.dataset[key] = value;
+      }
+
+      function readZoom(wrap) {
+        return parseFloat(wrap.dataset.zoom || '1') || 1;
+      }
+
+      function measureBaseSize(wrap, target) {
+        var zoom = readZoom(wrap);
+        if (!wrap.dataset.baseWidth || !wrap.dataset.baseHeight) {
+          var rect = target.getBoundingClientRect();
+          wrap.dataset.baseWidth = String(Math.max(1, rect.width / zoom));
+          wrap.dataset.baseHeight = String(Math.max(1, rect.height / zoom));
+        }
+        return {
+          width: parseFloat(wrap.dataset.baseWidth || '1') || 1,
+          height: parseFloat(wrap.dataset.baseHeight || '1') || 1
+        };
+      }
+
+      function applyZoom(wrap, nextZoom, anchor) {
+        var target = targetFor(wrap);
+        var viewport = viewportFor(wrap);
+        if (!target || !viewport) return;
+
+        var oldZoom = readZoom(wrap);
+        var viewportRect = viewport.getBoundingClientRect();
+        var targetRect = target.getBoundingClientRect();
+        var anchorX = anchor ? anchor.clientX - viewportRect.left : viewport.clientWidth / 2;
+        var anchorY = anchor ? anchor.clientY - viewportRect.top : viewport.clientHeight / 2;
+        var targetScrollLeft = targetRect.left - viewportRect.left + viewport.scrollLeft;
+        var targetScrollTop = targetRect.top - viewportRect.top + viewport.scrollTop;
+        var contentX = (viewport.scrollLeft + anchorX - targetScrollLeft) / oldZoom;
+        var contentY = (viewport.scrollTop + anchorY - targetScrollTop) / oldZoom;
+        var base = measureBaseSize(wrap, target);
+
+        wrap.dataset.zoom = String(nextZoom);
+        target.style.transform = 'none';
+        target.style.maxWidth = 'none';
+        target.style.width = (base.width * nextZoom) + 'px';
+        target.style.height = (base.height * nextZoom) + 'px';
+
+        requestAnimationFrame(function() {
+          var nextViewportRect = viewport.getBoundingClientRect();
+          var nextTargetRect = target.getBoundingClientRect();
+          var nextTargetScrollLeft = nextTargetRect.left - nextViewportRect.left + viewport.scrollLeft;
+          var nextTargetScrollTop = nextTargetRect.top - nextViewportRect.top + viewport.scrollTop;
+          viewport.scrollLeft = Math.max(0, nextTargetScrollLeft + contentX * nextZoom - anchorX);
+          viewport.scrollTop = Math.max(0, nextTargetScrollTop + contentY * nextZoom - anchorY);
+        });
+      }
+
+      window.levNowCenterMermaid = function(wrap) {
+        var viewport = viewportFor(wrap);
+        if (!viewport) return;
+        requestAnimationFrame(function() {
+          viewport.scrollLeft = Math.max(0, (viewport.scrollWidth - viewport.clientWidth) / 2);
+          viewport.scrollTop = Math.max(0, (viewport.scrollHeight - viewport.clientHeight) / 2);
+        });
+      };
+
+      window.levNowSnapshotMermaidViewport = function(wrap) {
+        var target = targetFor(wrap);
+        if (!wrap || !target) return null;
+        return {
+          width: target.style.width,
+          height: target.style.height,
+          maxWidth: target.style.maxWidth,
+          transform: target.style.transform,
+          zoom: readDatasetValue(wrap, 'zoom'),
+          baseWidth: readDatasetValue(wrap, 'baseWidth'),
+          baseHeight: readDatasetValue(wrap, 'baseHeight')
+        };
+      };
+
+      window.levNowRestoreMermaidViewport = function(wrap, state) {
+        var target = targetFor(wrap);
+        var viewport = viewportFor(wrap);
+        if (!wrap || !target || !state) return;
+        target.style.width = state.width;
+        target.style.height = state.height;
+        target.style.maxWidth = state.maxWidth;
+        target.style.transform = state.transform;
+        restoreDatasetValue(wrap, 'zoom', state.zoom);
+        restoreDatasetValue(wrap, 'baseWidth', state.baseWidth);
+        restoreDatasetValue(wrap, 'baseHeight', state.baseHeight);
+        if (viewport) {
+          viewport.classList.remove('is-panning');
+          viewport.scrollLeft = 0;
+          viewport.scrollTop = 0;
+        }
+      };
+
+      window.levNowInitMermaidViewport = function(wrap) {
+        var viewport = viewportFor(wrap);
+        if (!wrap || !viewport || wrap.dataset.viewportReady === 'true') return;
+        wrap.dataset.viewportReady = 'true';
+
+        var drag = null;
+        viewport.addEventListener('pointerdown', function(e) {
+          if (!wrap.classList.contains('is-fullscreen')) return;
+          drag = {
+            x: e.clientX,
+            y: e.clientY,
+            scrollLeft: viewport.scrollLeft,
+            scrollTop: viewport.scrollTop
+          };
+          viewport.classList.add('is-panning');
+          if (viewport.setPointerCapture) viewport.setPointerCapture(e.pointerId);
+          e.preventDefault();
+        });
+
+        viewport.addEventListener('pointermove', function(e) {
+          if (!drag) return;
+          viewport.scrollLeft = drag.scrollLeft - (e.clientX - drag.x);
+          viewport.scrollTop = drag.scrollTop - (e.clientY - drag.y);
+        });
+
+        function endDrag(e) {
+          if (!drag) return;
+          drag = null;
+          viewport.classList.remove('is-panning');
+          if (viewport.releasePointerCapture) {
+            try { viewport.releasePointerCapture(e.pointerId); } catch (_) { /* already released */ }
+          }
+        }
+
+        viewport.addEventListener('pointerup', endDrag);
+        viewport.addEventListener('pointercancel', endDrag);
+
+        viewport.addEventListener('wheel', function(e) {
+          if (!wrap.classList.contains('is-fullscreen')) return;
+          if (!(e.metaKey || e.ctrlKey)) return;
+          e.preventDefault();
+          window.levNowMermaidZoom(wrap.id, e.deltaY > 0 ? -0.12 : 0.12, {
+            clientX: e.clientX,
+            clientY: e.clientY
+          });
+        }, { passive: false });
+      };
+
+      function applyInitialZoom(wrap) {
+        if (!wrap.dataset.initialZoom || wrap.dataset.initialZoomApplied === 'true') return true;
+        if (!wrap.querySelector('.mermaid svg')) return false;
+        var requested = parseFloat(wrap.dataset.initialZoom || '1') || 1;
+        var nextZoom = Math.max(0.3, Math.min(4, requested));
+        wrap.dataset.initialZoomApplied = 'true';
+        if (nextZoom === 1) {
+          wrap.dataset.zoom = '1';
+          return true;
+        }
+        applyZoom(wrap, nextZoom);
+        return true;
+      }
+
+      window.levNowMermaidZoom = function(wrapperId, delta, anchor) {
+        var wrap = document.getElementById(wrapperId);
+        if (!wrap) return;
+        window.levNowInitMermaidViewport(wrap);
+        var target = targetFor(wrap);
+        var viewport = viewportFor(wrap);
+        if (!target || !viewport) return;
+        if (delta === 0) {
+          var base = measureBaseSize(wrap, target);
+          wrap.dataset.zoom = '1';
+          target.style.transform = 'none';
+          target.style.maxWidth = 'none';
+          target.style.width = base.width + 'px';
+          target.style.height = base.height + 'px';
+          requestAnimationFrame(function() {
+            window.levNowCenterMermaid(wrap);
+          });
+          return;
+        }
+        var nextZoom = Math.max(0.3, Math.min(4, readZoom(wrap) + delta));
+        applyZoom(wrap, nextZoom, anchor);
+      };
+
+      function initAll() {
+        document.querySelectorAll('.mermaid-wrap').forEach(function(wrap) {
+          window.levNowInitMermaidViewport(wrap);
+        });
+      }
+
+      window.levNowFinalizeMermaidViewports = function() {
+        initAll();
+        document.querySelectorAll('.mermaid-wrap').forEach(function(wrap) {
+          applyInitialZoom(wrap);
+          // Fit-to-width: an intrinsically wider SVG scales down to its wrapper.
+          var svg = wrap.querySelector('.mermaid svg');
+          if (svg && !wrap.classList.contains('is-fullscreen')) {
+            var host = viewportFor(wrap) || wrap;
+            if (svg.getBoundingClientRect().width > host.clientWidth + 1) {
+              svg.style.maxWidth = '100%';
+              svg.style.width = '100%';
+              svg.style.height = 'auto';
+            }
+          }
+        });
+      };
+
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll);
+      else initAll();
+      requestAnimationFrame(initAll);
+    })();
+
+    // Universal fullscreen — move the original element into a body-level
+    // <dialog> portal. showModal() supplies the dialog role, background
+    // inerting, Esc handling, and focus management for free.
+    (function() {
+      var currentFs = null;
+      var closeBtn = null;
+      var placeholder = null;
+      var originalParent = null;
+      var originalNextSibling = null;
+      var originalBodyOverflow = '';
+      var originalHtmlOverflow = '';
+      var fullscreenMermaidState = null;
+      var fsDialog = null;
+
+      function ensureDialog() {
+        if (fsDialog) return fsDialog;
+        fsDialog = document.createElement('dialog');
+        fsDialog.className = 'fs-dialog';
+        fsDialog.addEventListener('cancel', function(e) {
+          e.preventDefault();
+          levNowClosePortal();
+        });
+        document.body.appendChild(fsDialog);
+        return fsDialog;
+      }
+
+      window.levNowFullscreen = function(el) {
+        if (currentFs) levNowClosePortal();
+        var dlg = ensureDialog();
+        originalParent = el.parentNode;
+        originalNextSibling = el.nextSibling;
+        placeholder = document.createComment('lev-now-fullscreen-placeholder');
+        if (originalParent) originalParent.insertBefore(placeholder, el);
+        fullscreenMermaidState = el.classList.contains('mermaid-wrap') && window.levNowSnapshotMermaidViewport
+          ? window.levNowSnapshotMermaidViewport(el)
+          : null;
+        dlg.showModal();
+        dlg.appendChild(el);
+        el.classList.add('is-fullscreen');
+        if (el.classList.contains('mermaid-wrap') && window.levNowInitMermaidViewport) {
+          window.levNowInitMermaidViewport(el);
+        }
+        currentFs = el;
+        // Add close button
+        closeBtn = document.createElement('button');
+        closeBtn.className = 'fs-close';
+        closeBtn.textContent = 'Close (Esc)';
+        closeBtn.onclick = levNowClosePortal;
+        el.appendChild(closeBtn);
+        document.body.classList.add('lev-now-fullscreen-active');
+        originalBodyOverflow = document.body.style.overflow;
+        originalHtmlOverflow = document.documentElement.style.overflow;
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+        if (el.classList.contains('mermaid-wrap') && window.levNowCenterMermaid) {
+          window.levNowCenterMermaid(el);
+        }
+      };
+      window.levNowClosePortal = function() {
+        if (currentFs) {
+          var mermaid = currentFs.querySelector('.mermaid');
+          if (mermaid) mermaid.classList.remove('is-panning');
+          if (currentFs.classList.contains('mermaid-wrap') && window.levNowRestoreMermaidViewport) {
+            window.levNowRestoreMermaidViewport(currentFs, fullscreenMermaidState);
+          }
+          currentFs.classList.remove('is-fullscreen');
+          if (closeBtn && closeBtn.parentNode) closeBtn.parentNode.removeChild(closeBtn);
+          if (placeholder && originalParent) {
+            originalParent.insertBefore(currentFs, placeholder);
+            originalParent.removeChild(placeholder);
+          } else if (originalParent) {
+            originalParent.insertBefore(currentFs, originalNextSibling);
+          }
+          currentFs = null;
+          closeBtn = null;
+          placeholder = null;
+          originalParent = null;
+          originalNextSibling = null;
+          fullscreenMermaidState = null;
+        }
+        if (fsDialog && fsDialog.open) fsDialog.close();
+        document.body.classList.remove('lev-now-fullscreen-active');
+        document.body.style.overflow = originalBodyOverflow;
+        document.documentElement.style.overflow = originalHtmlOverflow;
+      };
+    })();
+
+    // Card detail overlay — native <dialog>: Esc, focus containment, and
+    // focus restore are built in.
+    window.levNowExpandCard = function(id) {
+      var overlay = document.getElementById('overlay-' + id);
+      if (overlay && !overlay.open) overlay.showModal();
+    };
+    window.levNowCloseOverlay = function(id) {
+      var overlay = document.getElementById('overlay-' + id);
+      if (overlay && overlay.open) overlay.close();
+    };
+
+    // Theme toggle with localStorage persistence (in-memory when storage is unavailable)
+    (function() {
+      var toggle = document.querySelector('.theme-toggle');
+      var html = document.documentElement;
+      var stored = window.levNowStorage.local.getItem('lev-now-theme');
+      if (stored) html.dataset.theme = stored;
+      toggle.addEventListener('click', function() {
+        var next = html.dataset.theme === 'dark' ? 'light' : 'dark';
+        html.dataset.theme = next;
+        window.levNowStorage.local.setItem('lev-now-theme', next);
+      });
+    })();
+
+    // Progressive animation: enable only when IO is available
+    (function() {
+      var els = document.querySelectorAll('.anim');
+      if (!('IntersectionObserver' in window)) return;
+
+      // Enable animation mode
+      document.documentElement.classList.add('has-anim');
+
+      // Immediately reveal elements already in viewport
+      function revealVisible() {
+        els.forEach(function(el) {
+          if (el.classList.contains('visible')) return;
+          var rect = el.getBoundingClientRect();
+          if (rect.top < window.innerHeight + 100 && rect.bottom > -100) {
+            el.classList.add('visible');
+          }
+        });
+      }
+
+      revealVisible();
+      requestAnimationFrame(revealVisible);
+      window.addEventListener('scroll', function() { requestAnimationFrame(revealVisible); }, { passive: true });
+      window.addEventListener('resize', revealVisible);
+
+      /* Keep shared/published captures readable even when a screenshot lands
+         during the reveal window. */
+      setTimeout(function() {
+        document.querySelectorAll('.anim:not(.visible)').forEach(function(el) {
+          el.classList.add('visible');
+        });
+      }, 700);
+
+      // Observe remaining for scroll reveal
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.05, rootMargin: '50px 0px -20px 0px' });
+
+      els.forEach(function(el) {
+        if (!el.classList.contains('visible')) observer.observe(el);
+      });
+
+      // Final safety: reveal any stragglers after 2s (covers edge cases)
+      setTimeout(function() {
+        document.querySelectorAll('.anim:not(.visible)').forEach(function(el) {
+          el.classList.add('visible');
+        });
+      }, 2000);
+    })();
+
+    // Scroll progress bar
+    (function() {
+      var bar = document.querySelector('.scroll-progress');
+      if (!bar) return;
+      function update() {
+        var h = document.documentElement;
+        var max = h.scrollHeight - h.clientHeight;
+        bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+      }
+      window.addEventListener('scroll', function() { requestAnimationFrame(update); }, { passive: true });
+      window.addEventListener('resize', update);
+      update();
+    })();
+
+    // Outline + header-disclosure scrollspy
+    (function() {
+      var sections = document.querySelectorAll('.container > section[id]');
+      var links = document.querySelectorAll('.page-outline a, .site-nav__toc a');
+      if (!links.length || !sections.length) return;
+
+      var spyObs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            var id = entry.target.id;
+            links.forEach(function(a) {
+              a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+            });
+          }
+        });
+      }, { threshold: 0.2, rootMargin: '-20% 0px -60% 0px' });
+
+      sections.forEach(function(s) { spyObs.observe(s); });
+
+      // The header disclosure closes after navigating.
+      var navToc = document.querySelector('.site-nav__toc');
+      if (navToc) navToc.addEventListener('click', function(e) {
+        if (e.target.closest('a')) navToc.removeAttribute('open');
+      });
+    })();
+
+    // Table edge fade — only while horizontally scrollable, cleared at the end.
+    (function() {
+      var scrollers = document.querySelectorAll('.table-scroll');
+      if (!scrollers.length) return;
+      function sync(el) {
+        var scrollable = el.scrollWidth > el.clientWidth + 1;
+        el.classList.toggle('is-scrollable', scrollable);
+        el.classList.toggle('is-scrolled-end', scrollable && el.scrollLeft + el.clientWidth >= el.scrollWidth - 4);
+      }
+      scrollers.forEach(function(el) {
+        sync(el);
+        el.addEventListener('scroll', function() { sync(el); }, { passive: true });
+      });
+      window.addEventListener('resize', function() { scrollers.forEach(sync); });
+    })();
+
+    // Sidebar TOC scrollspy
+    (function() {
+      var toc = document.getElementById('page-toc');
+      if (!toc) return;
+      var wrap = toc.closest('.page-wrap--toc');
+      var trigger = wrap && wrap.querySelector('.toc-hamburger');
+      var backdrop = wrap && wrap.querySelector('.toc-backdrop');
+      if (!wrap || !trigger || !backdrop) return;
+      var mobileQuery = window.matchMedia('(max-width: 900px)');
+      function isOpen() {
+        return wrap.classList.contains('is-toc-open');
+      }
+      function syncAvailability(open) {
+        var unavailable = mobileQuery.matches && !open;
+        toc.toggleAttribute('inert', unavailable);
+        if (unavailable) toc.setAttribute('aria-hidden', 'true');
+        else toc.removeAttribute('aria-hidden');
+      }
+      function setOpen(open, restoreFocus) {
+        wrap.classList.toggle('is-toc-open', open);
+        trigger.setAttribute('aria-expanded', String(open));
+        trigger.setAttribute('aria-label', open ? 'Close table of contents' : 'Open table of contents');
+        syncAvailability(open);
+        var firstLink = toc.querySelector('a[href^="#"]');
+        if (open) requestAnimationFrame(function() {
+          requestAnimationFrame(function() { firstLink?.focus(); });
+        });
+        if (!open && restoreFocus) trigger.focus();
+      }
+      setOpen(false, false);
+      mobileQuery.addEventListener('change', function() {
+        setOpen(false, false);
+      });
+      trigger.addEventListener('click', function() {
+        setOpen(!isOpen(), false);
+      });
+      backdrop.addEventListener('click', function() {
+        setOpen(false, true);
+      });
+      var links = toc.querySelectorAll('a[href^="#"]');
+      links.forEach(function(link) {
+        link.addEventListener('click', function() {
+          setOpen(false, true);
+        });
+      });
+      document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && isOpen()) {
+          event.preventDefault();
+          setOpen(false, true);
+        }
+      });
+      var targets = Array.from(links).map(function(a) {
+        return document.getElementById(a.getAttribute('href').slice(1));
+      }).filter(Boolean);
+
+      var tocObs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            var id = entry.target.id;
+            links.forEach(function(a) {
+              a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+            });
+          }
+        });
+      }, { threshold: 0.2, rootMargin: '-20% 0px -60% 0px' });
+
+      targets.forEach(function(t) { tocObs.observe(t); });
+    })();
+
+    // Component navigation activates routed documents without changing page schema.
+    (function() {
+      var documents = Array.from(document.querySelectorAll('[data-document-route]'));
+      if (!documents.length) return;
+      document.body.classList.add('lev-now-routed');
+      var routes = documents.map(function(item) { return item.dataset.documentRoute; });
+      function hashRoute() {
+        try { return decodeURIComponent(location.hash.slice(1)); }
+        catch (_) { return location.hash.slice(1); }
+      }
+      function pagerLink(link, direction, item) {
+        if (!item) { link.hidden = true; link.removeAttribute('href'); link.replaceChildren(); return; }
+        link.hidden = false;
+        link.href = '#' + encodeURIComponent(item.target);
+        link.replaceChildren(direction);
+        var title = document.createElement('span');
+        title.className = 'component-nav__title';
+        title.textContent = item.label;
+        link.append(title);
+      }
+      function showDocument(requested, settleInitialRoute) {
+        var anchor = requested && !routes.includes(requested) ? document.getElementById(requested) : null;
+        var anchorDocument = anchor && anchor.closest('[data-document-route]');
+        var activeDocument = documents.find(function(item) { return item.classList.contains('is-active'); });
+        var route = routes.includes(requested)
+          ? requested
+          : anchorDocument
+            ? anchorDocument.dataset.documentRoute
+            : activeDocument
+              ? activeDocument.dataset.documentRoute
+              : routes[0];
+        if (requested && !anchor && requested !== route) {
+          history.replaceState(null, '', '#' + encodeURIComponent(route));
+        }
+        documents.forEach(function(item) {
+          item.classList.toggle('is-active', item.dataset.documentRoute === route);
+        });
+        var routeDocument = documents.find(function(item) { return item.dataset.documentRoute === route; });
+        document.querySelectorAll('[data-navigation-target]').forEach(function(link) {
+          if (link.dataset.navigationTarget === route) link.setAttribute('aria-current', 'page');
+          else link.removeAttribute('aria-current');
+        });
+        document.querySelectorAll('[data-navigation-pager]').forEach(function(pager) {
+          var items = [];
+          try { items = JSON.parse(pager.dataset.navigationItems || '[]'); } catch (_) {}
+          var index = items.findIndex(function(item) { return item.target === route; });
+          pagerLink(pager.querySelector('[data-navigation-previous]'), 'Previous', index > 0 ? items[index - 1] : null);
+          pagerLink(pager.querySelector('[data-navigation-next]'), 'Next', index >= 0 && index < items.length - 1 ? items[index + 1] : null);
+        });
+        if (anchor) requestAnimationFrame(function() { anchor.scrollIntoView(); });
+        else if (requested && routeDocument) {
+          requestAnimationFrame(function() { routeDocument.scrollIntoView(); });
+          if (settleInitialRoute) {
+            setTimeout(function() { routeDocument.scrollIntoView(); }, 250);
+            setTimeout(function() { routeDocument.scrollIntoView(); }, 1000);
+          }
+        }
+      }
+      document.addEventListener('click', function(event) {
+        var link = event.target.closest && event.target.closest('[data-navigation-pager] a[href^="#"]');
+        if (!link) return;
+        event.preventDefault();
+        var target = link.getAttribute('href').slice(1);
+        try { target = decodeURIComponent(target); } catch (_) {}
+        history.pushState(null, '', '#' + encodeURIComponent(target));
+        showDocument(target);
+      });
+      window.addEventListener('hashchange', function() { showDocument(hashRoute()); });
+      showDocument(hashRoute(), true);
+    })();
+
+    // Capability-backed actions are declarations. FlowMind/Poly or another host executes them.
+    document.addEventListener('click', function(event) {
+      var action = event.target.closest('[data-lev-action]');
+      if (!action) return;
+      var input = {};
+      try { input = JSON.parse(action.dataset.actionInput || '{}'); } catch (_) {}
+      action.dispatchEvent(new CustomEvent('lev:action', {
+        bubbles: true,
+        detail: {
+          capabilityRef: action.dataset.capabilityRef,
+          input: input,
+          requiresApproval: action.dataset.requiresApproval !== 'false'
+        }
+      }));
+    });
+  </script>
+    <script>
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default',
+        themeVariables: {
+          primaryColor: '#131417',
+          primaryTextColor: '#D8D9DE',
+          primaryBorderColor: '#26282D',
+          lineColor: '#A0A2AA',
+          secondaryColor: '#0B0C0E',
+          tertiaryColor: '#131417'
+        }
+      });
+      mermaid.run({ querySelector: '.mermaid' }).then(function() {
+        if (window.levNowFinalizeMermaidViewports) window.levNowFinalizeMermaidViewports();
+      }).catch(function(error) {
+        console.error('[lev-now] Mermaid render failed', error);
+      });
+    </script>
+
+</body>
+</html>

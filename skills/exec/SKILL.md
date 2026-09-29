@@ -8,6 +8,8 @@ description: Use when running execution-ready task slices, dispatching verified 
 `/exec` runs execution-ready entities. It does not invent plans, weaken
 verifiers, or complete work without review evidence.
 
+For any non-trivial direct or routed invocation, load [Project Context](../lev/references/project-context.md) before project-specific lookup. It resolves the active project and its declared breadcrumbs.
+
 ## Addresses
 
 `skill://exec` loads this guidance. Address the selected task as

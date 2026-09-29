@@ -23,6 +23,24 @@ class Modes(unittest.TestCase):
         self.assertFalse(unavailable['goal_required'])
         self.assertTrue(unavailable['report_required'])
 
+    def test_herdr_modifier(self):
+        caps = {'scheduler_available': True, 'supported_intervals': ['15m', '20m']}
+        for command, mode in [('$orch --herdr', 'discover'), ('$orch --herdr auto', 'auto'),
+                              ('$orch auto --herdr --watch=15m', 'auto'), ('$orch --once --herdr', 'once')]:
+            with self.subTest(command=command):
+                result = module.resolve(command, caps)
+                self.assertTrue(result['valid'], result['blocked_reasons'])
+                self.assertEqual(result['mode'], mode)
+                self.assertTrue(result['herdr'])
+                self.assertEqual(result['load_references'], ['references/herdr.md'])
+        self.assertFalse(module.resolve('$orch --herdr', caps)['mode_allows_execution'])
+        self.assertEqual(module.resolve('$orch auto', caps)['load_references'], [])
+        self.assertFalse(module.resolve('$orch --herdr --once auto', caps)['valid'])
+        self.assertFalse(module.resolve('$orch --herdrx', caps)['valid'])
+        ref = Path(__file__).resolve().parents[1] / 'references/herdr.md'
+        self.assertTrue(ref.is_file())
+        self.assertIn('references/herdr.md', (ref.parents[1] / 'SKILL.md').read_text())
+
 
 if __name__ == '__main__':
     unittest.main()

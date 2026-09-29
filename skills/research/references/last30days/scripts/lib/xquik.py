@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional
 
 from . import http, log
 from .relevance import token_overlap_relevance as _compute_relevance
+from .x_api import is_own_post
 
 # Per-process probe cache: (state, reason). state is "unset" until probed, then
 # True (funded/working) | False (auth/payment failure) | None (inconclusive).
@@ -148,8 +149,10 @@ def _execute_search(
         if status == 402:
             # Unpaid key — fatal for the source, and surfaced on the real search
             # path (not just --diagnose) so a live run reports it instead of
-            # settling silently empty.
-            return [], "Xquik key unpaid (402)"
+            # settling silently empty. The X retrieval branch classifies by
+            # message text only, so the detail carries the "payment required"
+            # marker that http.classify_failure maps to PAYMENT_REQUIRED.
+            return [], "Xquik key unpaid: payment required (402)"
         if status in (401, 403):
             return [], f"Xquik auth failed ({status})"
         _log(f"HTTP error for '{label}': {exc}")
@@ -175,15 +178,10 @@ def _execute_search(
     return items, None
 
 
-def _is_own(url: str, handle: str) -> bool:
-    """True when a tweet URL is authored by ``handle`` (their own post).
-
-    Used by the ABOUT lane to drop the subject's own tweets so only mentions
-    *by others* remain. Handles both x.com and twitter.com permalinks.
-    """
-    u = (url or "").lower()
-    h = handle.lower().lstrip("@").strip()
-    return bool(h) and (f"x.com/{h}/status" in u or f"twitter.com/{h}/status" in u)
+# True when a tweet URL is authored by ``handle`` (their own post). Used by
+# the ABOUT lane to drop the subject's own tweets so only mentions *by
+# others* remain; the implementation is ``x_api.is_own_post``.
+_is_own = is_own_post
 
 
 def search_handles(
@@ -286,7 +284,7 @@ def probe_works(token: str, timeout: int = 8) -> Optional[bool]:
     except http.HTTPError as exc:
         status = getattr(exc, "status_code", None)
         if status == 402:
-            _probe_cache = (False, "xquik key unpaid (402)")
+            _probe_cache = (False, "xquik key unpaid: payment required (402)")
         elif status in (401, 403):
             _probe_cache = (False, f"xquik auth failed ({status})")
         else:

@@ -1,6 +1,6 @@
 ---
 name: skill-builder
-description: Use when creating skills, converting docs/repos/PDFs to skills, installing external skills, auditing skill security, or merging skills
+description: Use when creating skills, converting docs/repos/PDFs to skills, installing external skills, auditing skill quality or security, or merging skills
 ---
 
 # Skill Builder
@@ -8,6 +8,62 @@ description: Use when creating skills, converting docs/repos/PDFs to skills, ins
 Skill edits are candidates until relevant behavioral checks pass. Preserve existing
 work; missing baseline evidence is evaluation work, not authority to delete it.
 An explicit skills-first update may precede trials, but must remain unqualified.
+
+## Qualification states and selectors
+
+Keep these states separate in every report: **structural** (the file parses and
+source obligations map), **behavioral** (bounded fresh scenarios show the
+intended judgment), and **integration** (the target host loads, routes and
+authorizes it). A structural pass never upgrades the other states.
+
+The following are skill selectors, not invented runtime APIs:
+
+- `--audit <skill|folder|all>` performs a read-only quality audit.
+- `--behavior` requests bounded fresh behavioral trials within an explicit
+  budget; it does not install, promote or edit the subject or grader.
+- `--security` enters the existing mandatory security intake scan.
+
+For `--audit <target> --security`, select the existing security scan. For
+`--audit <target> --behavior`, inspect the target and then run the requested
+bounded trials. If both modifiers are present, run security before behavioral
+trials within their declared scope and budget. A bare `--behavior` needs an
+explicit target or an unambiguous current subject.
+
+Do not compute an aggregate expertise score. Report findings, evidence and
+remaining gaps by state and by artifact.
+
+## Operational expertise acquisition
+
+When turning a repeated method or source material into a skill, every resulting
+skill must cover these obligations; they are not a fixed execution sequence:
+
+1. **Purpose** — name the user decision or outcome and the branch that needs the method.
+2. **Evidence** — collect source passages, observed failures and counterexamples; label supplied, observed, inferred and unknown separately.
+3. **Judgment** — state the distinction that changes the decision, including the boundary where it stops applying.
+4. **Action** — turn the distinction into the smallest ordered action that produces an inspectable artifact or state.
+5. **Verification** — name the command, observation or comparison that can falsify the action's claim.
+6. **Recovery** — define what to preserve, what to retry, and when to stop or escalate after a failed check.
+
+Map each source obligation to its destination before compression, deletion or
+merging. Keep lossless source mapping in a ledger; unresolved mappings remain
+open. Use the operationalizing-expertise method's sentence form, “When X, do Y
+because Z,” and validate against counterexamples. Its corpus, quote-bank,
+operator-count and triangulation deliverables are for that larger program; do
+not impose them on a bounded skill edit unless that scope is explicitly chosen.
+
+The acquisition sequence is distinct from those six obligations:
+
+1. Define competence, success conditions and limits from the task and owner evidence; ask the operator only about unresolved consequential choices.
+2. Acquire anchored successes, failures and corrections from representative cases and source passages.
+3. Extract the fact or distinction that changes the action, including what remains unknown.
+4. Challenge it with counterfactuals, missing-evidence cases and boundary exceptions.
+5. Encode `notice → why → test → bad/good → exception` as a trigger, action, invariant, evidence check and recovery path.
+6. Test held-out transfer on a fresh case and retain the result as pending until the evidence supports it.
+
+For each encoded rule, make the teaching pattern explicit: **notice** the signal,
+state **why** the distinction matters, name the **test**, show a **bad** and a
+**good** case, and state the **exception** or boundary. Use the examples as
+anchors for judgment, not as a substitute for case evidence.
 
 ## Routing
 
@@ -21,10 +77,12 @@ steps:
       | URL, skills.sh link, skill:// | Intake & Install | intake      |
       | "new skill", "from scratch"   | Author (TDD)     | author_red  |
       | Docs site, GitHub repo, PDF   | Extraction       | extract     |
-      | "audit", "is this safe"       | Security Scan    | security    |
+      | "--audit", audit               | Read-only Audit  | [Audit section](#read-only-audit-and-behavior-checks) |
+      | "--security", "is this safe"  | Security Scan    | security    |
+      | "--behavior"                   | Behavior Checks  | [Behavior section](#read-only-audit-and-behavior-checks) |
       | "merge these skills"          | Merge            | merge       |
       Ambiguous? Ask: "Are you converting existing material or authoring from scratch?"
-    validation: "User intent classified into exactly one workflow"
+    validation: "Primary workflow, target and any explicitly requested additional checks are identified"
     on_failure: "Ask a clarifying question. Do not guess."
 ```
 
@@ -84,6 +142,44 @@ c. {option_c}
 
 YAML is for contracts, FSM/process steps, validation rules, and machine-checkable state. Templates are Markdown prose inside live XML sections.
 
+## Read-only Audit and Behavior Checks
+
+For `--audit <skill|folder|all>`, read the selected subject and its reachable
+references without changing files, activation state, credentials or runtime
+settings. `all` inventories the selected scope first, then prioritizes findings
+by consequence and evidence gap; inspect only the material needed to resolve a
+finding and make no bulk calls or automatic edits. The default finding is:
+
+`source → distinction → consequence → evidence → minimal repair → test`
+
+Attach the source line or artifact pointer, state whether the distinction is
+observed or inferred, and name the smallest repair and check. Report each
+finding under structural, behavioral or integration status. Do not turn a
+quality grade into a promotion decision and do not apply an automatic effect.
+
+For `--behavior`, freeze the subject and reference digests, scenario packet,
+allowed effects and finite budget first. Use fresh contexts, keep source,
+reference and absorbed arms identifiable, and preserve raw outputs. A fresh
+prompt is not OS isolation; label shared-workspace trials
+`representative_nonhermetic`. A no-op or inconclusive result stays visible.
+
+For FlowMind-backed checks, keep semantic observations, schema validity,
+observable outcome and acceptance evidence as separate checks. Jev may be used
+as an optional bounded observer; it is never a new evaluator or promotion
+authority. `--security` uses the existing mandatory intake scan below, with no
+gate weakening.
+
+<report>
+## Skill Builder Audit — {subject}
+
+Status: structural={pass|pending|blocked}; behavioral={pass|pending|blocked}; integration={pass|pending|blocked}
+
+Finding: {source} → {distinction} → {consequence} → {evidence} → {minimal repair} → {test}
+
+Open evidence gaps: {none or exact gaps}
+Effects: read-only; no automatic install, promotion, activation or settings change
+</report>
+
 ## Workflow 1: Intake & Install
 
 ```yaml
@@ -119,21 +215,35 @@ steps:
     on_failure: "Hard reject. Quarantine to .archive/ with reason."
 
   - id: intake_score
-    action: Score quality on 5 dimensions (1-10 each)
+    action: Record imported quality triage without promotion
     instruction: |
-      Actionability (concrete steps vs vague), Depth (expert vs surface), Structure (tables vs wall of text), Triggers (WHAT/WHEN + tags vs bare), Uniqueness (novel vs generic).
-      A (8+) promote. B (7-7.9) promote with note. C (5-6.9) hold in _todo. D (<5) reject.
-    validation: "Grade letter assigned. Destination directory determined."
-    on_failure: "Default to C grade, hold in _todo for human review."
+      Inspect the five source dimensions without collapsing them into an
+      expertise score: actionability (concrete next actions), depth (expert
+      distinctions and limits), structure (usable organization), triggers
+      (when to invoke and when not to), and uniqueness (useful contribution
+      beyond existing skills). Record evidence, gaps and specific repairs.
+      If an imported source already has numeric dimensions or a letter grade,
+      preserve them as triage metadata only: they guide human attention but do
+      not prove behavior, authorize promotion or replace security, behavioral
+      or integration checks. Explain the basis and uncertainty of any grade.
+    validation: "Triage note and evidence basis recorded; promotion remains blocked on the separate qualification states."
+    on_failure: "Record the missing basis and keep the subject pending human review."
 
   - id: intake_catalog
     action: Move from staging to final location
     instruction: |
+      Catalog placement may use the supplied triage grade, but it never means
+      behavioral promotion:
       A/B → `mv` to `~/.agents/skills-db/{domain}/{name}/`
       C → `mv` to `~/.agents/skills-db/_todo/{name}/`
       D → `mv` to `~/.agents/skills-db/.archive/{name}/`
-      Activation to ~/.agents/skills/ happens ONLY if user explicitly requests it.
-    validation: "Skill no longer in _workshop/. ls confirms new location."
+      Keep unresolved subjects in a reviewable candidate or todo location;
+      archive only with a recorded reason. Activation to ~/.agents/skills/
+      requires explicit user authorization. Report security, behavioral and
+      integration checks separately. An explicitly authorized skills-first
+      installation may precede full behavioral trials and stays unqualified;
+      mandatory security checks and permission boundaries still apply.
+    validation: "Catalog destination and separate qualification states are recorded; activation requires explicit user authorization, and incomplete qualification stays explicit."
     on_failure: "Check permissions and path. Retry mv."
 ```
 
@@ -183,13 +293,13 @@ steps:
       - validation: strings are concrete verifiable checks (commands or binary states)
       - Artifact-producing skills need a canon write gate plus lifecycle ledger: compiled_intent, disk vs memory state, artifact ref, route, blocker, confidence
       - Natural language in instruction blocks. Never LLM_MUST directives
-      - Under 300 lines total. Prose is the enemy.
+      - Fit the operative body to the host context and task. There is no universal line ceiling; split only when a later branch needs an explicit context boundary and the pointer names its trigger.
 
       Run the frozen scenarios WITH the candidate skill using fresh contexts.
       Retain raw outputs and artifact deltas; independent review assesses semantic
       outcomes, not repeated instruction wording. A changed fixture/rubric starts
       a new evaluator generation; do not repair subject and grader in one attempt.
-    validation: "wc -l SKILL.md under 300. Frontmatter has supported keys. All steps have validation: strings. Artifact-producing skills include a fidelity/memory/ledger table. Reusable templates use live XML sections, not fenced code blocks. Subagent passes scenarios that failed in RED."
+    validation: "Frontmatter has supported keys. All steps have validation: strings. Artifact-producing skills include a fidelity/memory/ledger table. Reusable templates use live XML sections, not fenced code blocks. Context size and any split have a stated basis. Subagent passes scenarios that failed in RED."
     on_failure: "Scenarios still fail → skill doesn't address the right rationalizations. Back to RED captures."
 
   - id: author_refactor
@@ -241,10 +351,10 @@ steps:
     action: Enhance and apply authoring standards
     instruction: |
       Bug in skill-seekers ≤2.7.4: use scripts/enhance-workaround.sh output/{name}
-      Then apply author_green rules: trigger-only description, under 300 lines, validation on every step.
+      Then apply author_green rules: trigger-only description, proportionate context, and validation on every step.
       Package: `echo "y" | skill-seekers package output/{name}/ [--target claude|gemini|openai|markdown]`
       Then follow intake_score → intake_catalog for installation.
-    validation: "SKILL.md has YAML frontmatter, description starts with 'Use when', wc -l under 300"
+    validation: "SKILL.md has YAML frontmatter, description starts with 'Use when', and every operative step has a concrete validation check"
     on_failure: "Enhancement failed. Manually apply author_green standards."
 ```
 
@@ -289,12 +399,11 @@ steps:
     action: Analyze overlap and produce merged skill
     instruction: |
       1. Read all source skills, identify trigger overlap (>30% = merge candidate)
-      2. If merged content ≤ 300 lines → single SKILL.md (LEAF or HUB)
-      3. If > 300 lines → ROUTER: write <100L routing header + independent sub-skills
-         Add `skill_type: router` and `subsumes: [list]` to frontmatter
+      2. If the merged material fits one owner and context, keep one SKILL.md (LEAF or HUB).
+      3. If a branch needs a separate context boundary, write a concise routing header plus independent sub-skills; add `skill_type: router` and `subsumes: [list]` only when the host supports those fields.
       4. Run author_red → author_green → author_refactor on the result
-    validation: "Merged skill exists. No source triggers lost. wc -l under ceiling."
-    on_failure: "Too large. Split into router + sub-skills."
+    validation: "Merged skill exists. No source triggers lost. Any split has a named branch trigger, destination and load check."
+    on_failure: "Context boundary is unclear. Keep one owner or record the exact branch that requires a split."
 ```
 
 ## Workflow 6: Fractal Auto-Generation
@@ -321,7 +430,7 @@ steps:
       cat flow.yaml | lev skill scaffold --dry-run --from-flow -
       ```
       Output goes to stdout for review, never directly to disk.
-      Scaffold must satisfy author_green rules: trigger-only description, validation on every step, under 300 lines.
+      Scaffold must satisfy author_green rules: trigger-only description and validation on every step; use proportionate context and split only for a named branch.
       Reusable output templates must use live XML sections with Markdown prose inside, not fenced code blocks.
       For lifecycle verbs: extract the verb's handler signature as the skill's first step.
     validation: "Dry-run output parses as valid SKILL.md frontmatter + steps. Live XML sections wrap reusable templates. No files written."
@@ -355,8 +464,13 @@ steps:
 | "The prose edit is complete, so absorption is proven" | Qualification still needs source-obligation coverage and observed behavioral outcomes. |
 | "This skill is obviously clear" | Clear to you ≠ clear to agents. Baseline proves it or it doesn't ship. |
 | "Another authoring tool proves this skill works" | Authoring tools produce candidates; evaluate the actual installed instructions. |
-| "Too complex for 300 lines" | Cut prose. Lead with format. Move API docs to references/. 300 is the ceiling. |
+| "This is too much context" | Identify the branch that needs it, move only on-demand detail behind a validated pointer, and preserve the operative rule inline. |
 | "validation: strings are busywork" | Validation strings are the highest-leverage technique. Agents literally execute them. |
 | "Operational instructions go in references/" | Agents don't cat references/. If it matters for execution, it lives in SKILL.md. |
 | "Description should explain what the skill does" | Description = trigger conditions ONLY. Workflow summaries cause agents to shortcut the body. |
 | "WebFetch can grab the SKILL.md content" | WebFetch summarizes. git clone and cp verbatim. Always. |
+
+Load `references/techniques.yaml` when `author_refactor` or `--audit` needs
+concrete examples of prolepsis, positioned validation or procedural chains.
+Validate that pointer and the referenced example before relying on it; the
+reference is reusable detail, not a hidden runtime dependency.
