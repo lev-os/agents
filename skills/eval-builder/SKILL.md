@@ -329,3 +329,6 @@ harness, receipt, meta-eval, holdout, or live-provider run has not happened yet.
 A promotion claim about a real provider or operational boundary is invalid
 until the computed field target has run through FlowMind, Exec, and Eval; an
 unavailable live provider leaves promotion blocked, not implementation.
+
+## Evaluation case discipline
+For decision-evaluation cases, state claims in falsifiable atomic form, include a counter-hypothesis, allow an independent audit to return zero findings, and preserve reviewer notes as observations. Only `core/eval` discharges a verdict.
