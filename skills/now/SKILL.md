@@ -6,17 +6,33 @@ allowed-tools: Read Write Bash Glob Grep
 
 # /now — Composable Deterministic Pages
 
-Build one canonical RenderSpec component graph and render it to single-file HTML with lev.now. Fonts and optional diagram/chart runtimes may load from configured CDNs. Never route content to a separate lesson, brief, reader, sales, or feedback schema. Those are recipes assembled from the same components.
+For ordinary pages, build one canonical RenderSpec component graph and render it to single-file HTML with lev.now. The live `--showcase` reference adapter below uses Lev UI components without compiling through RenderSpec. Fonts and optional diagram/chart runtimes may load from configured CDNs. Never route content to a separate lesson, brief, reader, sales, or feedback schema. Those are recipes assembled from the same components.
 
 ## Commands
 
 | Pattern | Operation |
 |---|---|
 | `/now <topic>` | Research/decompose, compose RenderSpec, render, open, QA |
+| `/now --showcase <topic>` | Build and prove a live reference implementation using Lev UI components |
 | `/now publish <topic>` | Compose, QA, and publish to here.now |
 | `/now attach <topic> --path <path>` | Compose, publish, and link to a handle path |
 | `/now render <file.json>` | Render an existing RenderSpec deterministically |
 | `/now reader <dir> [-o out]` | Materialize Markdown files, compile them into ordinary document/navigation components, and render compatibility paths |
+
+## Showcase route
+
+Use `--showcase` for an investor demonstration, live debugger, or working reference implementation. This adapter uses Lev UI components and does not compile through RenderSpec or target Storybook. Propose missing components explicitly; do not present them as already shipped.
+
+1. Resolve audience, observable behavior, input provenance, live effects, and design model. Interview only for missing choices: live data, realistic source-backed reference data, or synthetic data? Which actions must actually execute? Reuse answers already supplied. Reference shaping is allowed; fabricated successful inference and fake live status are not.
+2. Research current libraries for the requested medium using primary sources. Choose for visible impact and functional fit. Use actual graph engines and Archify rather than imitating a requested library with hand-drawn markup. Honor requested quality tiers for other media.
+3. Use the requested design model through an available authenticated route and retain model/session evidence. Follow the applicable system prompt. Keep private repository context local unless its export is authorized; a generic design-only brief may guide presentation. Do not silently substitute a required model.
+4. Reuse `plugins/now/showcase/` as the live React adapter; keep case source and provenance under `.lev/now/showcase/<slug>/`. Use `@lev-os/lev-ui` components and theme around real visualization engines. Record missing component proposals with behavior, reuse, and proof required; do not create another component catalog.
+5. Route CLI inference through `core/exec`; use the existing FlowMind execution graph and typed observation/policy boundaries. Keep credentials server-side. WebSocket events must be actual ordered observations with run references. Reference simulations own isolated state; they do not mutate canonical work by implication.
+6. Verify desktop/mobile layout, keyboard interaction, selection and drill-down, disconnection, cancellation, provider error/unknown, and the complete click-to-inference-to-observation-to-declared-branch path. Label snapshots, reference projections, replay, and live execution separately. Preserve exact checks, run references, screenshots, and remaining integration gaps.
+
+Run the current reference adapter from the target project with `npx tsx plugins/now/src/cli.ts --showcase`.
+
+A working showcase proves its inspected behavior, not every product integration. Report the accessible demo, selected libraries, requested-model evidence, verified interactions, and residual limits. Ordinary `/now` requests continue with the RenderSpec workflow below.
 
 ## Required Workflow
 
