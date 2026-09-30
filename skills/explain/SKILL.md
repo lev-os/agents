@@ -62,6 +62,10 @@ Separate decisions already made from proposals and decisions awaiting the user. 
 
 ## Inline output
 
+### Debug footer
+
+When project instructions require a HUD, use their canonical template after the explanation. Keep outcome, blockers, human decisions and next action visible; place entity rows, gates, alignment, provenance, intent mapping and turn counters in a collapsed native disclosure when the available renderer supports it. Preserve all required fields. Prefer responsive HTML text and tables over a space-aligned terminal box; SVG is optional for stage marks, not the text container. Fall back to a compact Markdown table when disclosure is unsupported, and state that limitation. A footer never substitutes for the explanation or implies fresh verification.
+
 ### Goal progress
 
 If a goal prompt exists for the task being explained, report its progress. Read

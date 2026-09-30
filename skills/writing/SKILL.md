@@ -103,3 +103,6 @@ named file, write only final prose and preserve code, YAML/data and link targets
 unless explicitly asked to change them. Embedded work returns the final text.
 For recommendations, show proposals without editing. Automations show readable
 output and compact editorial reasoning before artifact links.
+
+## README opening and example
+For a README, put audience, purpose, and the first useful action in the opening. Include one command or example verified against current package scripts or source, and state only limitations that affect use.
