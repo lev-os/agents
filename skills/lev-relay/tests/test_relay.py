@@ -228,6 +228,17 @@ class RelayTests(unittest.TestCase):
             self.assertNotIn(forbidden, out)
         self.assertIn("Sanitized output", out)
 
+    def test_plain_user_tool_wrappers_and_notifications_excluded(self):
+        s = self.write([
+            {"message":{"role":"user","content":"Tool result (fixture, id=tool): NEVER-PAYLOAD"}},
+            {"message":{"role":"user","content":"<task-notification>NEVER-BACKGROUND</task-notification>"}},
+            {"message":{"role":"assistant","content":"<system-reminder>NEVER-SYSTEM</system-reminder>allowed"}}])
+        out = relay.render(relay.delta(s,None),"trace")
+        for text in ['NEVER-PAYLOAD','NEVER-BACKGROUND','NEVER-SYSTEM']:
+            self.assertNotIn(text,out)
+        self.assertIn('allowed',out)
+        self.assertIn('tool_payload_wrappers',out)
+
     def test_claude_main_roles_and_exact_uuid(self):
         s = self.write([{}, {"message":{"role":"assistant","content":[{"type":"text","text":"exact"}]}}], agent="claude", sid="full-id")
         self.assertEqual(s["identity"]["session_id"], "full-id")
