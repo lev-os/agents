@@ -61,6 +61,18 @@ class RelayTests(unittest.TestCase):
         with patch.object(relay, "roots", return_value=[("default", self.root)]):
             self.assertEqual(relay.inventory(["omo"], "fixture-host", NOW - 86400)["count"], 0)
 
+    def test_unknown_activity_does_not_claim_complete_recent_inventory(self):
+        self.source.write_text(json.dumps({'type':'session','version':3,'id':'unknown-time'})+'\n')
+        with patch.object(relay, "roots", return_value=[("default", self.root)]):
+            result=relay.inventory(['omo'],'fixture-host',NOW-86400)
+        self.assertEqual(result['coverage'],'incomplete')
+        self.assertIn('membership unknown',result['errors'][0]['error'])
+
+    def test_omp_config_dir_is_relative_to_home(self):
+        with patch.dict(os.environ,{'PI_CONFIG_DIR':'fixture/config'},clear=True):
+            locations=relay.roots('omp',self.root)
+        self.assertEqual(locations[0][1],self.root/'fixture/config/agent/sessions')
+
     def test_find_title_and_full_id(self):
         self.write([{}], title="Exact title")
         with patch.object(relay, "roots", return_value=[("default", self.root)]):
