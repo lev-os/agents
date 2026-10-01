@@ -30,7 +30,7 @@ sequenceDiagram
 |---|---|---|
 | Claude | Claude Code 2.1.285 | `~/.claude/projects/<project>/<session-id>.jsonl`; `CLAUDE_CONFIG_DIR` override. Official Agent SDK `list_sessions` / `get_session_messages` is a possible future SDK adapter, not required or installed here. |
 | OMO | `omo-ai` 5.1.3, native `@code-yeongyu/senpi` 2026.9.29-4 | `~/.omo/agent/sessions/**/*.jsonl`; `OMO_CODING_AGENT_DIR`, `SENPI_CODING_AGENT_DIR`, then `PI_CODING_AGENT_DIR` override. Session header + entry IDs/parent IDs. This is not the OpenCode edition. |
-| OMP | `@oh-my-pi/pi-coding-agent` 18.4.4 | `~/.omp/agent/sessions/**/*.jsonl`, `~/.omp/profiles/<profile>/agent/sessions`; `PI_CONFIG_DIR`, `PI_CODING_AGENT_DIR`, `PI_CODING_AGENT_SESSION_DIR`, or explicit session-dir roots. Default FileSessionStorage; SQL storage excluded. |
+| OMP | `@oh-my-pi/pi-coding-agent` 18.4.4 | `~/.omp/agent/sessions/**/*.jsonl`, `~/.omp/profiles/<profile>/agent/sessions`; `PI_CONFIG_DIR` is a directory name relative to home, `PI_CODING_AGENT_DIR` is the agent path, and `PI_CODING_AGENT_SESSION_DIR` or explicit session-dir roots select storage. Default FileSessionStorage; SQL storage excluded. |
 
 Local package source references verified during discovery:
 
