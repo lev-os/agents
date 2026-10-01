@@ -48,7 +48,7 @@ def timestamp(value: Any) -> float | None:
         return None
 
 
-PRIVATE = re.compile(r"<(thinking|analysis|reasoning|tool_call|tool_result)(?:\s[^>]*)?>.*?(?:</\1>|$)", re.I | re.S)
+PRIVATE = re.compile(r"<(thinking|analysis|reasoning|tool[_-]call|tool[_-]result|task-notification|system-reminder)(?:\s[^>]*)?>.*?(?:</\1>|$)", re.I | re.S)
 SECRET_PATTERNS = [
     re.compile(r"-----BEGIN (?:[A-Z ]+)?PRIVATE KEY-----.*?(?:-----END (?:[A-Z ]+)?PRIVATE KEY-----|$)", re.S),
     re.compile(r"\b(?:gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-(?:ant-|proj-)?[A-Za-z0-9_-]{20,}|AKIA[A-Z0-9]{16})\b"),
@@ -98,6 +98,9 @@ def prose(message: dict) -> tuple[str, dict]:
     else:
         text = ""
         omitted["non_text_blocks"] += 1
+    if re.match(r"\s*(?:Tool result\s*\(|Tool output\s*:)", text, re.I):
+        omitted["tool_payload_wrappers"] = 1
+        return "", omitted
     text, counts = sanitize(text)
     omitted.update(counts)
     return text, omitted
