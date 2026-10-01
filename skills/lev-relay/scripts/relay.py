@@ -222,7 +222,9 @@ def roots(agent: str, home: Path | None = None) -> list[tuple[str, Path]]:
     base = os.environ.get("PI_CODING_AGENT_DIR")
     if base:
         return [("default", Path(base) / "sessions")]
-    config = Path(os.environ.get("PI_CONFIG_DIR", home / ".omp"))
+    # OMP defines PI_CONFIG_DIR as a directory name joined under home.
+    # Node path.join keeps the home prefix even for a leading slash.
+    config = home / os.environ.get("PI_CONFIG_DIR", ".omp").lstrip("/")
     found = [("default", config / "agent/sessions")]
     profiles = config / "profiles"
     if profiles.is_dir():
@@ -264,7 +266,11 @@ def inventory(agents: list[str], machine: str, since: float | None, query: str =
                 try:
                     session = load_session(agent, path, machine, profile)
                     epoch = session["last_activity_epoch"]
-                    if since is not None and (epoch is None or epoch < since):
+                    if since is not None and epoch is None:
+                        errors.append({"agent": agent, "source": str(path),
+                                       "error": "activity timestamp unavailable; recent-window membership unknown"})
+                        continue
+                    if since is not None and epoch < since:
                         continue
                     if query.casefold() not in (session["title"] + " " + session["identity"]["session_id"] + " " + str(session["project"])).casefold():
                         continue
