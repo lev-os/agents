@@ -52,7 +52,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npx --yes @coldtea/pr-lens-cli@0.11.0 analyze --base "$BASE_SHA" --head "$HEAD_SHA" --pr "$PR_NUMBER" --provider gemini --model gemini-2.5-pro --out "$RUNNER_TEMP/pr-lens/graph.json"
+          npx --yes @coldtea/pr-lens-cli@0.11.0 analyze --base "$BASE_SHA" --head "$HEAD_SHA" --pr "$PR_NUMBER" --provider gemini --model gemini-3.1-pro-preview --out "$RUNNER_TEMP/pr-lens/graph.json"
           npx --yes @coldtea/pr-lens-cli@0.11.0 validate "$RUNNER_TEMP/pr-lens/graph.json"
           npx --yes @coldtea/pr-lens-cli@0.11.0 render "$RUNNER_TEMP/pr-lens/graph.json" --out "$RUNNER_TEMP/pr-lens/assets"
       - name: Publish readable diagrams and update one comment
