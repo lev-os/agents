@@ -103,6 +103,7 @@ Load from ~/.agents/skills-db/thinking/patterns/{name}/SKILL.md when reasoning d
 | (p) | Product design wizard | skill://lev-design-os |
 | (w) | Run UX pipeline | Persona-first steps + downstream UX phases below |
 | (f) | Full UX run | Step 1 persona detection + Step 2 persona fanout + full downstream pipeline |
+| (i) | Interactive run (interview me) | Same as full, but asks one question at a time with options and a recommendation, and pauses after each step for review |
 | (r) | User research/personas | Step 1 persona detection + Step 2 persona fanout + research synthesis |
 | (d) | CDO-backed persona base | Step 1 persona detection + Step 2 CDO persona fanout + research synthesis |
 | (v) | Visual design / .pen | Pencil MCP tools |
@@ -131,6 +132,8 @@ Treat the user's message (including any `/ux ...` text) as the input.
   mode to `research` unless the user explicitly requests full pipeline.
 
 - If it contains `full` or `interactive`: ask a small set of clarifying questions first, then run step-by-step.
+- If it contains `interactive`, `interview`, `interview me` or `ask me`: run interactive mode. Ask ONE question at a time (AskUserQuestion when available: 2-4 options, the recommended one first and labelled, an ASCII preview when the choice is visual), look up anything the repo or prior runs can answer instead of asking, record each answer verbatim in the run folder before the next question, and stop after each pipeline step for review.
+- When the request is a design for a real product surface and no mode is named, offer interactive mode as the first option of the clarifying question.
 
 - If it contains `step N`: in persona-first modes, `step 1` means Persona
   Detection and `step 2` means Persona Fanout. Otherwise, match the named
@@ -153,7 +156,7 @@ Treat the user's message (including any `/ux ...` text) as the input.
     quickly with little analysis.
 
 - If inference confidence is below `0.75`, ask exactly one clarifying question:
-  `Should I run the full UX pipeline, user research/personas only, persona base from CDO insights, or spike/wireframes only?`
+  `Should I run the full UX pipeline, an interactive run that interviews you step by step, user research/personas only, persona base from CDO insights, or spike/wireframes only?`
 
 - In any non-auto mode except `spike`, `continue`, or explicit `step N`, use
   the persona-first sequence:
