@@ -33,6 +33,9 @@ Full design runs load the same reference at Problem Framing for principles/brand
 ```
 Request arrives
 |
++-- Product quality / craft audit / onboarding / activation?
+|   -> Load: references/product-craft.md (12-rule scorecard)
+|
 +-- Product planning (vision, roadmap, data model, export)?
 |   -> Load: skill://lev-design-os
 |      (~/.agents/skills/lev-design-os/SKILL.md + references/)
@@ -105,6 +108,7 @@ Load from ~/.agents/skills-db/thinking/patterns/{name}/SKILL.md when reasoning d
 | (v) | Visual design / .pen | Pencil MCP tools |
 | (c) | CLI/agentic UX patterns | Phase 0.5 lev-ref |
 | (b) | Browse design skills | lev-skill resolve |
+| (k) | Product craft audit | `/ux --craft`: 12-rule scorecard, X/12, top 3 fixes (references/product-craft.md) |
 
 ---
 
@@ -401,6 +405,8 @@ Artifacts (expected):
 - `wireframes.md`
 
 - `constraint_bundle.yaml`
+
+- `craft_audit.yaml` (full runs: the 12 product-craft rules scored with evidence, X/12, top 3 fixes)
 
 - `summary.md`
 
