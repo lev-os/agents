@@ -313,6 +313,25 @@ For a direct Product Craft request, suggest `product-craft-audit-[product-name].
 as the filename only when a saved artifact is requested. The UX route returns
 the same content inline by default.
 
+Scorecard (always fill every row; status is satisfied, partial, missing, unknown or n/a):
+
+| Rule | Status | Evidence | Action | Effort |
+|---|---|---|---|---|
+| 1. User persona | | | | |
+| 2. UX principles | | | | |
+| 3. Brand foundation | | | | |
+| 4. Information architecture | | | | |
+| 5. Layout consistency | | | | |
+| 6. Design system | | | | |
+| 7. Color palette | | | | |
+| 8. State design | | | | |
+| 9. Onboarding | | | | |
+| 10. Performance | | | | |
+| 11. Micro-interactions | | | | |
+| 12. Activation event | | | | |
+
+In a full UX run, write the same scorecard as `craft_audit.yaml` in the run folder and show the X/12 line in `summary.md`.
+
 Include:
 - Completed Product Craft Audit table (all 12 rules with status, evidence, action and effort)
 - Overall score (X/12) with unknown and not-applicable counts
