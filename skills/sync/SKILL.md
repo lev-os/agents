@@ -60,6 +60,11 @@ Directional rule:
   there too before landing the feature branch.
 - Use simple commit messages based on the changed files or area.
 - Prefer durable checkpoints over perfect commit curation.
+- Total means every *tracked* change and every new file that belongs in Git.
+  It never means stray local state. Before `git add .`, run the intake guard
+  below; it is the only exception to "never path-scoped".
+- Never create, register or re-add a submodule. A nested Git checkout that is
+  not already in `.gitmodules` is local state, not work to checkpoint.
 - Do not leave dirty submodules behind in the selected boundary. The paired
   `main` checkout is part of that boundary only with explicit `--main`.
 
@@ -93,6 +98,7 @@ SYNC_REPO(repo):
   CHECKPOINT(repo)
 
 CHECKPOINT(repo):
+  INTAKE_GUARD(repo)                 # stops before anything is staged
   if repo has changes:
     git add .
     git commit -m "<simple message based on changed files>"
@@ -130,6 +136,7 @@ MERGE_MAIN_INTO_CURRENT(current_repo):
    - main-into-current merge is a separate explicit direction, not the default
 3. Recurse into **all dirty submodules** inside the current checkout first.
 4. In each dirty repo/submodule:
+   - run the Intake Guard; stop with its report if it finds anything
    - `git add .`
    - `git commit -m "<simple message based on changed files>"` if there is anything to commit
    - if the branch has an upstream (`git rev-parse --abbrev-ref @{u}` succeeds): `git pull --no-rebase && git push`
@@ -242,7 +249,32 @@ If the user invoked `sync`, the answer is already:
 - recursive submodules,
 - no feature->main merge unless `--main` or explicit landing request is present.
 
+## Intake Guard
+
+Run before every `git add .`. List new files with
+`git ls-files --others --exclude-standard --directory`, then stop and report
+(do not stage anything) if any of these appear:
+
+- **A nested Git checkout** (the path contains `.git`) that `.gitmodules` does
+  not list. `git add .` would commit it as a gitlink. Never "fix" that by
+  adding a `.gitmodules` entry.
+- **A new file over 1 MB** that `.gitattributes` does not route to Git LFS
+  (`git check-attr filter -- <path>` is not `lfs`), or any archive (`.zip`,
+  `.tar*`, `.7z`, `.dmg`).
+- **Machine-local state:** `*.local`, `.env*`, `active.*`, inbox or scratch
+  folders (`_inbox/`, `tmp/`), or credentials.
+
+The report names each path and the `.gitignore` line or LFS rule that would
+cover it. The user decides; a later plain `sync` does not count as approval.
+
+Why: on 2026-10-06 a sync in suntiq-product committed a retired
+`prototype/ArgoEdge` checkout as a gitlink, then registered it in
+`.gitmodules`. It also committed a 5.8 MB `labs/_inbox` zip outside LFS, and a
+per-machine `active.local` whose ignore rule had been deleted.
+
 ## Stop Conditions
+
+- Stop with an intake report if the Intake Guard finds anything.
 
 - Stop with a conflict-resolution brief if a merge conflict appears.
 - Stop and report if `git push` still fails after a normal `git pull --no-rebase`.
