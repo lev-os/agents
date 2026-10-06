@@ -9,6 +9,26 @@ Skill edits are candidates until relevant behavioral checks pass. Preserve exist
 work; missing baseline evidence is evaluation work, not authority to delete it.
 An explicit skills-first update may precede trials, but must remain unqualified.
 
+## Contents
+
+- [Qualification and selectors](#qualification-states-and-selectors)
+- [Source inventory and IR](#scrape-and-analyze-skill-structure)
+- [Expertise acquisition](#operational-expertise-acquisition)
+- [Route the request](#routing)
+- [Pointers and invocation](#pointer-repair-and-invocation)
+- [References and freedom](#reference-navigation-and-degrees-of-freedom)
+- [Output templates](#output-sections)
+- [Audit and behavior checks](#read-only-audit-and-behavior-checks)
+- [Absorb into the owner](#absorb-learn-and-test-in-the-existing-owner)
+- [Intake and install](#workflow-1-intake--install)
+- [Author a skill](#workflow-2-author-from-scratch-tdd)
+- [Extract source material](#workflow-3-extraction-pipeline)
+- [Security scan](#workflow-4-security-scan)
+- [Merge skills](#workflow-5-merge)
+- [Generate candidates](#workflow-6-fractal-auto-generation)
+- [Reference index](#references)
+- [Observed rationalizations](#rationalization-table)
+
 ## Qualification states and selectors
 
 Keep these states separate in every report: **structural** (the file parses and
@@ -170,6 +190,61 @@ actual host before claiming these properties. Host-specific metadata is not a
 universal Lev contract. These operative rules are inline; loading the source
 SKILL-MECHANICS document is not a runtime prerequisite.
 
+## Reference navigation and degrees of freedom
+
+For authoring, absorption and audit, choose freedom **per step** from its
+requirements, variability and failure consequence:
+
+| Freedom | Fit | Instruction form |
+|---------|-----|------------------|
+| High | Several valid approaches; context changes the judgment | Outcome, evidence and boundaries in prose |
+| Medium | Preferred method with permitted variation | Template or parameterized procedure; name allowed choices |
+| Low | Fragile operation; consistency or sequence is required | Verified command or script with constrained inputs |
+
+One skill may mix all three. Record the requirement, chosen freedom, permitted
+variation, failure consequence and verifier together. Freedom governs method;
+authorization still governs effects. Reuse a proven command before creating a
+script. Constrain sensitive inputs, preview effects when supported, and define
+recovery or rollback for consequential changes.
+
+Reference files over 100 lines need an early TOC matching actual headings.
+Give branch-needed references a direct SKILL.md pointer and a loading condition;
+check paths and anchors. Keep nested references explicit in the coverage ledger.
+Review bytes or tokens and branch count alongside line count: dense single-line
+prose still needs navigation. Keep structured references valid; use comment/key
+indexes or a separate guide instead of inserting Markdown into schemas or data.
+Treat Anthropic's 500-line body guidance as a navigation review trigger under
+this owner's existing context policy, not a universal rejection threshold.
+
+Test intended models and hosts separately. Declare supported targets and
+observed results in evidence; use frontmatter only when the host supports it.
+For ordered workflows, track completion with evidence. Validate outputs,
+repair failed checks and retry within a finite budget; leave unresolved failures
+visible when that budget ends. Place dependency detection and scoped setup
+instructions beside script entrypoints. Installation still needs its existing
+authority; a missing tool is not permission for a global install.
+
+Source: [Anthropic skill authoring guidance](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices),
+reviewed with [Simon Scrapes' video](https://www.youtube.com/watch?v=e7TY56-yIvM)
+on 2026-10-03. These are design recommendations; neither a universal 100-line
+read cutoff nor zero context cost for script execution is established here.
+
+For exhaustive audits, freeze the top-level inventory and file digests first.
+Give every skill and bundled reference a coverage row, including orphaned files,
+symlink targets, unreadable resources and excluded external links. Trace local
+pointers recursively, distinguish literal examples from operative instructions,
+and record reference cycles and unresolved targets. Reading bytes or running
+pattern checks establishes inventory coverage only; label semantic inspection
+and behavioral observations separately. Never report exhaustive review while
+files remain unexamined without explicit per-file gaps.
+
+Additional checks: trigger positives, negatives and competing owners; output
+contract and falsifier; permission and effect boundaries; idempotency, recovery
+and retry limits where effects occur; dependency availability in a clean
+environment; reference freshness and source ownership. These extend the local
+qualification contract. An audit recommends repairs without executing subject
+scripts or modifying audited packages.
+
 ## Output Sections
 
 Use XML sections directly in the skill body for reusable output templates and semantic response blocks. Do not wrap active XML sections in fenced Markdown or XML code blocks. Fenced blocks are for literal examples only; active templates live as real sections.
@@ -190,9 +265,11 @@ YAML is for contracts, FSM/process steps, validation rules, and machine-checkabl
 
 For `--audit <skill|folder|all>`, read the selected subject and its reachable
 references without changing files, activation state, credentials or runtime
-settings. `all` inventories the selected scope first, then prioritizes findings
-by consequence and evidence gap; inspect only the material needed to resolve a
-finding and make no bulk calls or automatic edits. The default finding is:
+settings. `all` inventories every selected top-level skill and its bundled and
+reachable references, then inspects each with per-file coverage and explicit
+limitations. Prioritize findings by consequence and evidence gap without dropping
+subjects from an exhaustive request. Use deterministic batching for inventory;
+make no automatic subject edits or executions. The default finding is:
 
 `source → distinction → consequence → evidence → minimal repair → test`
 
@@ -554,13 +631,17 @@ steps:
 
 ## References
 
-| File | Content |
-|------|---------|
-| references/setup.md | Installation (uv/venv/pip auto-detection) |
-| references/advanced-commands.md | Large docs, async, splitting |
-| references/techniques.yaml | 3 enforcement primitives + evidence |
-| references/security-audit-gates.md | Scoring rubric, quarantine protocol |
-| scripts/enhance-workaround.sh | Fix for broken skill-seekers enhance |
+| Material | Load when |
+|----------|-----------|
+| [Setup](references/setup.md) | Extraction needs skill-seekers installation |
+| [Troubleshooting](references/troubleshooting.md) | Setup or extraction fails |
+| [Advanced commands](references/advanced-commands.md) | Large documentation, async processing or source splitting is needed |
+| [Advanced workflows](references/advanced-workflows.md) | Extraction needs custom configs, agents or MCP integration |
+| [Skill-seekers source README](references/skill-seekers-readme.md) | Verify a source-tool capability not covered by local commands; recheck live help |
+| [Enforcement techniques](references/techniques.yaml) | Refactor or audit needs concrete validation and sequencing examples |
+| [Technique archive](references/techniques-full.yaml) | Investigate provenance or a technique absent from the compact reference; claims remain unqualified |
+| [Security gates](references/security-audit-gates.md) | Security workflow needs detailed scanner and quarantine rules |
+| [Enhancement workaround](scripts/enhance-workaround.sh) | The verified affected skill-seekers version requires this workaround; inspect before authorized execution |
 
 ## Rationalization Table
 
