@@ -1,0 +1,112 @@
+name: PR Lens
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request to diagram
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: pr-lens-${{ github.event.pull_request.number || inputs.pr_number }}
+  cancel-in-progress: true
+
+jobs:
+  diagram:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
+    steps:
+      # Only trusted default-branch code is checked out; PR code is read as a diff.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
+      - name: Resolve the current pull request
+        id: pr
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" > "$RUNNER_TEMP/pr-lens-pr.json"
+          jq -r '"base=\(.base.sha)\nhead=\(.head.sha)"' "$RUNNER_TEMP/pr-lens-pr.json" >> "$GITHUB_OUTPUT"
+          git fetch origin "$(jq -r .base.sha "$RUNNER_TEMP/pr-lens-pr.json")" "refs/pull/$PR_NUMBER/head"
+      - name: Analyze, validate, and render
+        env:
+          GEMINI_API_KEY: ${{ secrets.PR_LENS_GEMINI_API_KEY }}
+          BASE_SHA: ${{ steps.pr.outputs.base }}
+          HEAD_SHA: ${{ steps.pr.outputs.head }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes @coldtea/pr-lens-cli@0.11.0 analyze --base "$BASE_SHA" --head "$HEAD_SHA" --pr "$PR_NUMBER" --provider gemini --model gemini-3.1-pro-preview --out "$RUNNER_TEMP/pr-lens/graph.json"
+          npx --yes @coldtea/pr-lens-cli@0.11.0 validate "$RUNNER_TEMP/pr-lens/graph.json"
+          npx --yes @coldtea/pr-lens-cli@0.11.0 render "$RUNNER_TEMP/pr-lens/graph.json" --out "$RUNNER_TEMP/pr-lens/assets"
+      - name: Publish readable diagrams and update one comment
+        env:
+          HEAD_SHA: ${{ steps.pr.outputs.head }}
+        shell: python
+        run: |
+          import html, json, os, pathlib, subprocess, urllib.request
+          work = pathlib.Path(os.environ['RUNNER_TEMP']) / 'pr-lens'
+          repo, number, head = os.environ['GITHUB_REPOSITORY'], os.environ['PR_NUMBER'], os.environ['HEAD_SHA']
+          def gh(endpoint, method='GET', body=None):
+              args = ['gh', 'api', endpoint, '--method', method]
+              if body is not None:
+                  args += ['--input', '-']
+              return json.loads(subprocess.check_output(args, input=None if body is None else json.dumps(body).encode()))
+          def api(path, method='GET', body=None, token=None, revision=None):
+              headers = {'Content-Type': 'application/json'}
+              if token: headers['Authorization'] = 'Bearer ' + token
+              if revision is not None: headers['If-Match'] = str(revision)
+              req = urllib.request.Request('https://prlens.dev/api/' + path, data=None if body is None else json.dumps(body).encode(), headers=headers, method=method)
+              with urllib.request.urlopen(req, timeout=90) as response: return json.load(response)
+          def current():
+              return gh(f'repos/{repo}/pulls/{number}')['head']['sha'] == head
+          if not current():
+              print('PR head moved; the newer run owns its comment.')
+              raise SystemExit(0)
+          graph = json.loads((work / 'assets/drawn.graph.json').read_text())
+          canvas = api('canvas', 'POST')
+          published = api('canvas/' + canvas['id'], 'PUT', graph, canvas['writeToken'], 0)
+          tiles = published['tiles']
+          if not tiles: raise RuntimeError('PR Lens returned no rendered diagrams')
+          for tile in tiles:
+              for url in tile['images'].values():
+                  with urllib.request.urlopen(url, timeout=60) as response:
+                      if response.status != 200 or b'<svg' not in response.read(2048):
+                          raise RuntimeError('Diagram is not readable without authentication')
+          marker = '<!-- pr-lens -->'
+          body = marker + '\n### ' + html.escape(graph['title']) + '\n\n'
+          body += html.escape(graph.get('summary', '')) + '\n\n'
+          body += '[Open the animated canvas](' + published['viewUrl'] + ')\n\n'
+          for tile in tiles:
+              images = tile['images']
+              body += '<details open><summary>' + html.escape(tile['title']) + '</summary>\n\n<picture>\n'
+              if 'dark' in images: body += '<source media="(prefers-color-scheme: dark)" srcset="' + html.escape(images['dark'], quote=True) + '">\n'
+              body += '<img alt="' + html.escape(tile['title'], quote=True) + '" src="' + html.escape(images.get('light') or images['dark'], quote=True) + '">\n</picture>\n\n</details>\n\n'
+          body += '<sub>Rendered by [PR Lens](https://prlens.dev/) · commit `' + head[:12] + '`</sub>\n'
+          comments = json.loads(subprocess.check_output(['gh', 'api', f'repos/{repo}/issues/{number}/comments', '--paginate', '--slurp']))
+          mine = next((c for page in comments for c in page if c['user']['login'] == 'github-actions[bot]' and c['body'].startswith(marker)), None)
+          if not current():
+              print('PR head moved; leaving the comment to its newer run.')
+              raise SystemExit(0)
+          if mine:
+              result = gh(f'repos/{repo}/issues/comments/{mine["id"]}', 'PATCH', {'body': body})
+          else:
+              result = gh(f'repos/{repo}/issues/{number}/comments', 'POST', {'body': body})
+          print('Verified', len(tiles), 'diagrams:', result['html_url'])
+          print('Canvas:', published['viewUrl'])
