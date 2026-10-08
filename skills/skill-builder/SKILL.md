@@ -9,6 +9,26 @@ Skill edits are candidates until relevant behavioral checks pass. Preserve exist
 work; missing baseline evidence is evaluation work, not authority to delete it.
 An explicit skills-first update may precede trials, but must remain unqualified.
 
+## Contents
+
+- [Qualification and selectors](#qualification-states-and-selectors)
+- [Source inventory and IR](#scrape-and-analyze-skill-structure)
+- [Expertise acquisition](#operational-expertise-acquisition)
+- [Route the request](#routing)
+- [Pointers and invocation](#pointer-repair-and-invocation)
+- [References and freedom](#reference-navigation-and-degrees-of-freedom)
+- [Output templates](#output-sections)
+- [Audit and behavior checks](#read-only-audit-and-behavior-checks)
+- [Absorb into the owner](#absorb-learn-and-test-in-the-existing-owner)
+- [Intake and install](#workflow-1-intake--install)
+- [Author a skill](#workflow-2-author-from-scratch-tdd)
+- [Extract source material](#workflow-3-extraction-pipeline)
+- [Security scan](#workflow-4-security-scan)
+- [Merge skills](#workflow-5-merge)
+- [Generate candidates](#workflow-6-fractal-auto-generation)
+- [Reference index](#references)
+- [Observed rationalizations](#rationalization-table)
+
 ## Qualification states and selectors
 
 Keep these states separate in every report: **structural** (the file parses and
@@ -18,6 +38,9 @@ authorizes it). A structural pass never upgrades the other states.
 
 The following are skill selectors, not invented runtime APIs:
 
+- `--scrape <url|repo>` collects exact source snapshots and a coverage manifest for analysis.
+- `--analyze <source|snapshot>` builds per-skill JSON IRs and a graph report without installing or executing the subject.
+- `--absorb <source>` learns into an existing owner; starts with the quick fixture comparison below.
 - `--audit <skill|folder|all>` performs a read-only quality audit.
 - `--behavior` requests bounded fresh behavioral trials within an explicit
   budget; it does not install, promote or edit the subject or grader.
@@ -31,6 +54,45 @@ explicit target or an unambiguous current subject.
 
 Do not compute an aggregate expertise score. Report findings, evidence and
 remaining gaps by state and by artifact.
+
+## Scrape and analyze skill structure
+
+For the AIUX Playground corpus, reuse the source-backed analyzer at
+`/Users/jean-patricksmith/ops/audits/skill-ir-20260930/build_ir.py` when that file
+is available: inspect `--help`, use `--acquire` for permitted public GETs, run
+without that selector for cached analysis, and run `--check` for integrity.
+Its catalog-specific acquisition is an implementation reference; other sources
+follow the same IR obligations below rather than silently using that catalog.
+
+`--scrape` and `--analyze` are skill selectors. For skill catalogs, collect each
+listed entry and its actual package source; keep catalog descriptions separate.
+For repositories or local folders, pin the revision or file digests. Preserve
+source attribution and license information, and record inaccessible sources.
+
+1. Collect exact source bytes into the authorized staging location. Resolve
+   package-local references recursively and inventory bundled scripts without
+   running them. Bound external-link traversal by the chosen source/package
+   scope; record unresolved, missing, excluded and unsafe paths explicitly.
+2. Emit one JSON IR per skill: identity and provenance; heading taxonomy and
+   bullet TOC; triggers and exclusions; rules; ordered workflow and branch
+   routes; inputs and outputs; tools and script dependencies; declared side
+   effects; gates, verification and recovery. Attach source file, line and
+   digest to extracted facts; label inferred relations. Distinguish operative
+   instructions from examples/templates and declared effects from observed runs.
+3. Build a typed graph linking skills, resources, steps, routes, tools, effects,
+   gates and artifacts. Use an available graph library or standard algorithms
+   for components, cycles, shared dependencies and overlap candidates. Explain
+   the edge definitions; similarity is a review cue, not behavioral parity.
+4. Validate catalog coverage, source digests, reference containment, IR schema
+   and graph endpoints. Deliver JSON plus a browsable report with per-skill
+   bullet TOCs, comparisons and explicit coverage gaps. If requested, register
+   metadata-only candidates in skills-db/_todo; keep them inactive and unaudited.
+
+Completion requires every listed entry to have an IR or an explicit source
+failure, every bundled script to have a static-analysis record, and every
+reachable reference to have a resolution status. Scraping and analysis do not
+qualify installation, promotion, execution, or source retirement. Route a later
+learning request to `--absorb` and activation to the existing intake checks.
 
 ## Operational expertise acquisition
 
@@ -80,6 +142,8 @@ steps:
       | "--audit", audit               | Read-only Audit  | [Audit section](#read-only-audit-and-behavior-checks) |
       | "--security", "is this safe"  | Security Scan    | security    |
       | "--behavior"                   | Behavior Checks  | [Behavior section](#read-only-audit-and-behavior-checks) |
+      | "--scrape", "--analyze"       | Source Analysis  | [Scrape and analyze](#scrape-and-analyze-skill-structure) |
+      | "--absorb", "learn from this"  | Absorb           | [Absorb](#absorb-learn-and-test-in-the-existing-owner) |
       | "merge these skills"          | Merge            | merge       |
       Ambiguous? Ask: "Are you converting existing material or authoring from scratch?"
     validation: "Primary workflow, target and any explicitly requested additional checks are identified"
@@ -126,6 +190,61 @@ actual host before claiming these properties. Host-specific metadata is not a
 universal Lev contract. These operative rules are inline; loading the source
 SKILL-MECHANICS document is not a runtime prerequisite.
 
+## Reference navigation and degrees of freedom
+
+For authoring, absorption and audit, choose freedom **per step** from its
+requirements, variability and failure consequence:
+
+| Freedom | Fit | Instruction form |
+|---------|-----|------------------|
+| High | Several valid approaches; context changes the judgment | Outcome, evidence and boundaries in prose |
+| Medium | Preferred method with permitted variation | Template or parameterized procedure; name allowed choices |
+| Low | Fragile operation; consistency or sequence is required | Verified command or script with constrained inputs |
+
+One skill may mix all three. Record the requirement, chosen freedom, permitted
+variation, failure consequence and verifier together. Freedom governs method;
+authorization still governs effects. Reuse a proven command before creating a
+script. Constrain sensitive inputs, preview effects when supported, and define
+recovery or rollback for consequential changes.
+
+Reference files over 100 lines need an early TOC matching actual headings.
+Give branch-needed references a direct SKILL.md pointer and a loading condition;
+check paths and anchors. Keep nested references explicit in the coverage ledger.
+Review bytes or tokens and branch count alongside line count: dense single-line
+prose still needs navigation. Keep structured references valid; use comment/key
+indexes or a separate guide instead of inserting Markdown into schemas or data.
+Treat Anthropic's 500-line body guidance as a navigation review trigger under
+this owner's existing context policy, not a universal rejection threshold.
+
+Test intended models and hosts separately. Declare supported targets and
+observed results in evidence; use frontmatter only when the host supports it.
+For ordered workflows, track completion with evidence. Validate outputs,
+repair failed checks and retry within a finite budget; leave unresolved failures
+visible when that budget ends. Place dependency detection and scoped setup
+instructions beside script entrypoints. Installation still needs its existing
+authority; a missing tool is not permission for a global install.
+
+Source: [Anthropic skill authoring guidance](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices),
+reviewed with [Simon Scrapes' video](https://www.youtube.com/watch?v=e7TY56-yIvM)
+on 2026-10-03. These are design recommendations; neither a universal 100-line
+read cutoff nor zero context cost for script execution is established here.
+
+For exhaustive audits, freeze the top-level inventory and file digests first.
+Give every skill and bundled reference a coverage row, including orphaned files,
+symlink targets, unreadable resources and excluded external links. Trace local
+pointers recursively, distinguish literal examples from operative instructions,
+and record reference cycles and unresolved targets. Reading bytes or running
+pattern checks establishes inventory coverage only; label semantic inspection
+and behavioral observations separately. Never report exhaustive review while
+files remain unexamined without explicit per-file gaps.
+
+Additional checks: trigger positives, negatives and competing owners; output
+contract and falsifier; permission and effect boundaries; idempotency, recovery
+and retry limits where effects occur; dependency availability in a clean
+environment; reference freshness and source ownership. These extend the local
+qualification contract. An audit recommends repairs without executing subject
+scripts or modifying audited packages.
+
 ## Output Sections
 
 Use XML sections directly in the skill body for reusable output templates and semantic response blocks. Do not wrap active XML sections in fenced Markdown or XML code blocks. Fenced blocks are for literal examples only; active templates live as real sections.
@@ -146,9 +265,11 @@ YAML is for contracts, FSM/process steps, validation rules, and machine-checkabl
 
 For `--audit <skill|folder|all>`, read the selected subject and its reachable
 references without changing files, activation state, credentials or runtime
-settings. `all` inventories the selected scope first, then prioritizes findings
-by consequence and evidence gap; inspect only the material needed to resolve a
-finding and make no bulk calls or automatic edits. The default finding is:
+settings. `all` inventories every selected top-level skill and its bundled and
+reachable references, then inspects each with per-file coverage and explicit
+limitations. Prioritize findings by consequence and evidence gap without dropping
+subjects from an exhaustive request. Use deterministic batching for inventory;
+make no automatic subject edits or executions. The default finding is:
 
 `source → distinction → consequence → evidence → minimal repair → test`
 
@@ -179,6 +300,67 @@ Finding: {source} → {distinction} → {consequence} → {evidence} → {minima
 Open evidence gaps: {none or exact gaps}
 Effects: read-only; no automatic install, promotion, activation or settings change
 </report>
+
+## Absorb: learn and test in the existing owner
+
+`--absorb <source>` selects learning from a skill, document, bundle, or observed
+method. Resolve its existing owner and the user's concrete task. Keep the source
+as attributed reference; author the candidate in the owner's vocabulary and
+contracts. A useful specialist may remain task-local instead of changing a skill.
+This selector is skill syntax; it does not claim a runtime CLI command exists.
+
+Start with a quick three-arm comparison before a broad mapping or rewrite:
+
+1. Inspect the source and current owner, choose a fixture tied to the user's actual work, and
+   draft the smallest complete candidate. Use a real read-only artifact or a
+   disposable worktree when possible; label a supplied example as synthetic.
+   State the expected artifact and why it changes the next action. A synthetic
+   falsifier alone does not establish usefulness for the user's actual task.
+2. Freeze the fixture, question, source, unchanged-owner and candidate digests, model, tools,
+   permitted effects, and finite trial budget. Define observable checks before
+   dispatch and keep their expected answers out of the subjects' prompts.
+3. Give three fresh subagents the same fixture and task:
+   - Contender alone: paste the complete original source skill and references.
+   - Lev alone: paste the complete unchanged owner skill and references.
+   - Contender plus Lev: paste the complete Lev candidate with independently
+     authored adaptations from the contender and its required references.
+   Verify required references are reachable under the same access policy.
+   None receives another arm's results, the grader, or a proposed winner. Any
+   skill instruction change uses these three arms, including a method supplied
+   as prose. If an arm exceeds scope or budget, report the comparison incomplete;
+   do not fabricate a baseline or switch to direct application.
+4. Compare actual outputs against the frozen checks. Compare the combined
+   candidate against unchanged Lev to identify added benefit or regression, and
+   contender against unchanged Lev to identify useful alternatives. Contender
+   versus combined alone cannot show whether the addition helps Lev. Record
+   useful decisions,
+   correctness, lost obligations, regressions, and measured effort separately.
+   A tie, failure, missing runtime, or inconclusive comparison is a valid result.
+   Fresh context with shared filesystem access is representative_nonhermetic;
+   it does not establish OS isolation or broad behavioral qualification.
+5. If the candidate helps the user's task, complete the source-to-owner obligation map and name
+   the next held-out check. Otherwise preserve the result and revise, defer, or
+   keep task-local use. One comparison never authorizes installation, promotion,
+   source retirement, product edits, or a new truth-deciding path. Apply only the
+   effects already authorized by the user, preserving generated-source ownership.
+
+Direct specialist use produces an artifact, assessment, or task output without
+changing skill instructions. It is task application, not evidence of absorption.
+Return the useful artifact itself, not only test counts or a status summary.
+
+Save frozen inputs, literal full prompts, agent identities, actual artifacts, raw outputs,
+comparison observations, commands and failures as JSON in the resolved Lev XDG
+state/artifact route or a fresh system-temp directory; record the absolute path.
+Reuse the environment's path resolver instead of a hardcoded project folder.
+Report structural, behavioral and integration states separately. Code checks
+identity, digests, scope and observable results; LLMs supply semantic observations.
+Canonical Lev acceptance, when required, remains with core/eval.
+
+Roll the JSON evidence into the user's requested output. Show what was learned,
+what was applied to which owner, what remains unproved, and the next action. When no presentation is
+specified, choose suitable tools, skills, inline visuals and reporting for a rich
+report at your discretion. Preserve private source text in the evidence store;
+share findings and original formulations rather than publishing source prompts.
 
 ## Workflow 1: Intake & Install
 
@@ -449,13 +631,17 @@ steps:
 
 ## References
 
-| File | Content |
-|------|---------|
-| references/setup.md | Installation (uv/venv/pip auto-detection) |
-| references/advanced-commands.md | Large docs, async, splitting |
-| references/techniques.yaml | 3 enforcement primitives + evidence |
-| references/security-audit-gates.md | Scoring rubric, quarantine protocol |
-| scripts/enhance-workaround.sh | Fix for broken skill-seekers enhance |
+| Material | Load when |
+|----------|-----------|
+| [Setup](references/setup.md) | Extraction needs skill-seekers installation |
+| [Troubleshooting](references/troubleshooting.md) | Setup or extraction fails |
+| [Advanced commands](references/advanced-commands.md) | Large documentation, async processing or source splitting is needed |
+| [Advanced workflows](references/advanced-workflows.md) | Extraction needs custom configs, agents or MCP integration |
+| [Skill-seekers source README](references/skill-seekers-readme.md) | Verify a source-tool capability not covered by local commands; recheck live help |
+| [Enforcement techniques](references/techniques.yaml) | Refactor or audit needs concrete validation and sequencing examples |
+| [Technique archive](references/techniques-full.yaml) | Investigate provenance or a technique absent from the compact reference; claims remain unqualified |
+| [Security gates](references/security-audit-gates.md) | Security workflow needs detailed scanner and quarantine rules |
+| [Enhancement workaround](scripts/enhance-workaround.sh) | The verified affected skill-seekers version requires this workaround; inspect before authorized execution |
 
 ## Rationalization Table
 

@@ -112,3 +112,6 @@ Remaining Risks:
 **Bad:** Start rewriting architecture before protecting behavior with tests.
 
 **Bad:** Collapse multiple smell categories into one large refactor with no intermediate verification.
+
+## Behavior check
+For a proposed refactor, preserve the before-state, name the behavior-equivalence claim and its input domain, then run one focused regression check against that claim. A smaller diff alone does not establish safe cleanup.
