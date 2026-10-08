@@ -1,11 +1,23 @@
 ---
 name: dotfiles-sync
-description: Use when reconciling chezmoi local-vs-remote drift, reviewing pending machine-state changes, or performing safe remote-first dotfiles sync across machines.
+description: Reconcile chezmoi dotfiles and the separate ~/.agents Git repository using commits and merges, with semantic conflict review and quiet scheduled sync.
 ---
 
 # Workflow: Dotfiles Sync
 
 NEVER REBASE. ALWAYS MERGE.
+
+## Authorized recurring machine sync
+
+When the user authorizes recurring sync, that authorization covers safe changes within the agreed scope; do not ask for routine confirmation on every tick. Keep the interactive report/confirmation flow below for ad hoc sync without standing authorization.
+
+- Use one host-local hourly Codex tick, serial execution and a nonblocking lock. Sync `~/.agents` hourly; run the chezmoi workflow only when 24 hours have passed since its last attempt. Record attempts and successes separately. Preserve existing holds and deduplicate unchanged alerts.
+- Treat `~/.agents` as its own Git repository, not a new chezmoi-managed tree. Never `chezmoi add ~/.agents`. Keep existing repository and submodule boundaries; do not advance or recurse into vendor submodules automatically.
+- Inspect the current branch, upstream, index, merge state and changed paths. Review and commit eligible tracked source changes in the agents repository, then fetch and merge the configured upstream (or `git pull --no-rebase`) and push normally. Never rebase, force-push, stage unknown files en masse, or overwrite concurrent staging. Newly created files need explicit scope evidence before inclusion.
+- Exclude secrets, credentials, runtime state, transcripts, caches, logs, generated indexes, installations and vendor content, even if tracked. If excluded dirty paths or unknown staged changes prevent a safe merge, hold that repository and report the blocker; do not stash, reset or clean them away.
+- Resolve a new textual conflict only when both intents are clear, the semantic combination is unambiguous and validation supports it. Otherwise preserve the conflict and escalate with both intents and a concrete recommendation. Previously held conflicts require the user's decision before resolution.
+- For chezmoi, retain its established managed scope and inspect local/remote intent before any re-add or apply. Do not enable optional files, change settings scope, run broad installers, remove files, or apply entire directories unattended. Override chezmoi autoCommit/autoPush for any approved re-add so review, commit, merge and push remain ordered.
+- Keep routine success/no-change quiet. Persist concise host-local results and timestamps; report new actionable errors or conflicts, meaningful worsening, and recovery. Never include secret values or raw credential diffs in reports.
 
 ## Terminology
 

@@ -39,3 +39,28 @@ Bad: repeat "create core/eval" from an old chat without checking today's tree.
 Good: find its current owner and tests, explain which extraction landed, and
 identify the remaining integration evidence. If no project source is accessible,
 give a dated historical explanation and mark current state unverified.
+
+## Refresh checklist
+
+Use this checklist for an old conversation, for example two weeks old, while
+other work moved the repo under it. What the conversation says about the repo
+is then a dated report, not the current state. Look around first. Then present
+the conversation again.
+
+```yaml
+steps:
+  - id: recover
+    action: From the conversation, recover the goal, the history (what was done and decided, with dates), and the last response with its open items and next steps.
+    validation: "The goal, each decision and each item of the last response is listed with its date."
+  - id: look_around
+    action: Read the repo as it is now. Find what moved since the last substantive turn - the commits of other work, and the current state of each file, record, check and command that the history or the last response names.
+    validation: "Each named thing has an observation made in this turn (a command, a file read), or the mark not found or not checked."
+  - id: compare
+    action: Mark each claim, open item and next step of the conversation as still true, changed, done by other work, or gone. Put the evidence beside each mark. These marks refine step 3 above - still true is current; changed, done by other work and gone are superseded; not checked is unverified.
+    validation: "No item of the last response is presented again without its mark."
+  - id: present_again
+    action: Present the goal, the history and the last response against the current state, in the report layout of SKILL.md (Inline output). Start with what changed under the conversation. Keep the next steps that are still valid and withdraw the others.
+    validation: "The reader can continue from this message without the old one, and no stale claim is given as current."
+```
+
+A refresh reads. It does not repair what it finds.

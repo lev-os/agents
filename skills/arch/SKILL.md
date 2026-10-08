@@ -215,6 +215,7 @@ Load references based on task:
 | Generating ADR | `references/adr-template.md` |
 | Selecting architecture style, fitness functions | `references/style-selection.md` |
 | ML systems, architecture-agility balance, views, design patterns | `references/advanced-patterns.md` |
+| Choosing a pattern; tradeoff talk with the user | `references/patterns/index.md` |
 
 Read references with: `cat ~/.claude/skills/software-architect/references/<file>.md`
 
