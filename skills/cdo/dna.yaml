@@ -1,5 +1,5 @@
 name: cdo
-version: 2.1.0
+version: 2.2.0
 description: "Adaptive multi-agent deliberation for cdo/think/deep/debug/parliament workflows"
 entry: parse
 
@@ -68,7 +68,7 @@ anti_patterns:
       - "I can synthesize this myself"
       - "no need for a separate synthesis step"
   - excuse: "I'll plan all turns upfront"
-    reality: "Turn N+1 comes from Turn N's synthesis. No pre-planning."
+    reality: "Turn N+1 comes from Turn N's synthesis. No pre-planning, except the plan modifier, whose approved plan each directive may amend."
     priority: discipline
     triggers:
       - "let me plan all the turns first"
@@ -76,7 +76,7 @@ anti_patterns:
       - "I'll map out the full deliberation"
       - "let me outline every round before starting"
   - excuse: "The agents mostly agree, so we're done"
-    reality: ">70% agreement = groupthink. Add devil's advocate."
+    reality: ">70% agreement = groupthink. Add a devil's advocate who must bring evidence; a checked null is valid."
     priority: discipline
     triggers:
       - "they all agree, let's move on"
@@ -110,3 +110,10 @@ anti_patterns:
       - "I have a better approach"
       - "let me override that recommendation"
       - "the synthesis missed something obvious"
+  - excuse: "The budget ran out, so call it satisfied"
+    reality: "Budget exhaustion is not satisfaction. Report the unmet criteria."
+    priority: safety
+    triggers:
+      - "we're out of waves, so it's done"
+      - "good enough, mark it satisfied"
+      - "the judge would probably pass this"

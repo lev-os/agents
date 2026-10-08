@@ -46,7 +46,7 @@ Progressive disclosure — only load what the current invocation needs.
 
 | Condition | Load | Purpose |
 |-----------|------|---------|
-| Complexity >= deep | `dispatch/skill-injection.md` | Skill discovery + injection protocol |
+| Complexity >= deep, plan, or multi-wave | `dispatch/skill-injection.md` | Skill discovery before every wave + injection protocol |
 | Team mode active | `dispatch/team-mode.md` | TeamCreate/SendMessage patterns |
 | lev-exec mode | `dispatch/multi-model.md` | Multi-model dispatch via CLI |
 | Preset == debug | `modes/debug.md` | 7-turn RCA protocol |
@@ -57,6 +57,10 @@ Progressive disclosure — only load what the current invocation needs.
 | Domain == exec dev | `domains/dev.md` | Dev team shape + SDLC integration |
 | Domain == exec arch | `domains/arch.md` | Architecture team + ADR output |
 | Domain == exec <tag> | `domains/generic.md` | Auto-compose from skill catalog |
+| plan modifier | `references/wave-planner.md`, `templates/dashboard.md` | Wave plan, skills per node, judged loop |
+| plan or judge modifier | `engine/convergence.md` (Type 5) | Judged satisfaction exit |
+| modes modifier | `references/reasoning-operators.md` | Bounded reasoning operators and claim audit |
+| reality modifier | `references/reality-check.md` | Vision checklist and gap bridge |
 
 ---
 
@@ -67,7 +71,7 @@ Progressive disclosure — only load what the current invocation needs.
 - `skill://work` — Unified lifecycle router. CDO's exec dev aligns with /work entity lifecycle.
 - `skill://arch` — Architecture analysis. CDO's exec arch loads ATAM, C4, ADR frameworks.
 - `skill://lev-find` — Context gathering. CDO agents use find for codebase exploration.
-- `skill://skill-discovery` — Skill catalog search. CDO's skill injection discovers 2-3 skills per agent.
+- `skill://skill-discovery` — Skill catalog search (`lev-skills`). CDO discovers skills before every wave: 2-3 per agent by default, 1-5 per plan node.
 - `skill://lev-orch-thinking-parliament` — Legacy parliament. CDO subsumes this — use `modes/parliament.md`.
 
 ---
@@ -81,3 +85,4 @@ Interactive DAG design — user sees a proposed DAG with turns, agents, roles, a
 - Select power combos (e.g., "architect + critic + pragmatist")
 - Adjust turn count and width
 - Override convergence criteria
+- With plan: edit every wave, not only Turn 1 (templates/dashboard.md, Wave Plan Dashboard)
