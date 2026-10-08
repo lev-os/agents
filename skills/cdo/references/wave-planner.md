@@ -29,11 +29,11 @@ steps:
     action: Draft the waves as a DAG. Each wave has a purpose, the criteria it should move, and nodes; each node has a role, a focus question, inputs, an output file and 1-5 skills.
     validation: "Every node names 1-5 existing skills, and at least one wave targets every acceptance criterion."
   - id: render
-    action: Render the Wave Plan dashboard from templates/dashboard.md. Use an embedded visualizer or the user's established renderer when available; otherwise use the Markdown dashboard.
-    validation: "The user can see every wave, node, skill, criterion, the judge and the budget."
+    action: Render the Wave Plan dashboard from templates/dashboard.md in the reply itself. Use an embedded visualizer or the user's established renderer when available; otherwise use the Markdown dashboard. A plan that exists only in a file is not rendered.
+    validation: "The reply shows every wave, node, skill, criterion, the judge and the budget."
   - id: edit
     action: Offer numbered edits (add or remove waves or nodes, swap skills, change a node's skill count from 1 to 5, change criteria, budget or judge, re-run discovery for a node) and re-render until the user approves.
-    validation: "Approval is explicit. Silence is not approval."
+    validation: "Approval is explicit. Silence is not approval. No wave runs before approval: end the reply after the dashboard and the edit menu."
   - id: freeze
     action: Freeze the acceptance criteria, the budget and the judge, and save the approved plan as tmp/cdo-{session}/plan.yaml.
     validation: "plan.yaml exists with goal, acceptance, budget, judge and waves."
@@ -61,7 +61,7 @@ plan:
   acceptance:
     - {id: A1, criterion: "<observable result>", check: "<how the judge verifies it>"}
   budget: {max_waves: 5, max_no_progress_waves: 2, wall_clock: null}
-  judge: "fresh judge agent; inside Leviathan, also record the plugin completion_gate receipt"
+  judge: "fresh judge agent; inside Leviathan, also record the plugin receipt"
   waves:
     - id: W1
       purpose: "<what this wave learns or builds>"
@@ -75,7 +75,7 @@ plan:
 
 | Where | Backend | Notes |
 |---|---|---|
-| Inside `digital/leviathan` | Lev plugin: `cdo run` with a profile | Deterministic. On a failed completion_gate, the flow schedules another round, up to max_ticks. No profile encodes a wave plan or the run's own acceptance criteria yet, so keep plan.yaml as the plan and run the Type 5 judge beside the plugin receipt. Record a wave-plan profile as a plugin follow-up under the Safe skill update pattern. |
+| Inside `digital/leviathan` | Lev plugin: `cdo run` with a profile | Deterministic. On a failed completion_gate, the flow schedules another round, up to max_ticks. Check `plugins/cdo/profiles/` for a profile that carries the wave plan, and read what the completion_gate tests. If no profile carries the plan, keep plan.yaml as the plan and run the Type 5 judge beside the plugin receipt. |
 | Claude Code, and the user opted in to workflows | Workflow tool | Load the workflow-authoring skill that the Workflow tool names first. Map each wave to a `phase()`, its nodes to `agent()` calls inside `parallel()`, and the judge to an `agent()` with a schema that returns `{satisfied, unmet}`. Loop in the script while the judge is not satisfied and budget remains. |
 | Any host | Agent tool or TeamCreate, per execute_turns | Default. |
 
