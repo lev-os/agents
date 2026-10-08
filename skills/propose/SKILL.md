@@ -64,7 +64,7 @@ verifier cannot be named, route to `/interview`.
 Intent: {one_sentence_intent}
 Source: {chat|capture|design|task}; refs {known_refs_or_none}
 Plan: {plan_ref_or_not_required}; source fidelity {score_or_unknown}; lost rows {count_or_unknown}
-Acceptance: {known_acceptance_or_gap}
+Requirements: {known_requirements_or_gap}
 Constraints: {write_scope_boundaries_forbidden_moves}
 Open decisions: {none_or_blocking_decisions}
 Recommended slice: {one_vertical_slice_or_gap}
@@ -85,6 +85,71 @@ require a `/lev-plan` source before slicing. A capture or design may go directly
 to proposal only when one bounded vertical outcome is already clear. `propose`
 must not silently become the broad-plan author.
 
+### Requirements: how will we prove it?
+
+Everything the task must make true is one `requirements:` list in the task's
+`dna.yaml` (`schema: lev.task.v2`): operator acceptance, slice exits,
+constraints, forbidden moves and source claims are all rows of it. Write it in
+three passes:
+
+1. **Think.** For the slice, list what must be true when it is done and what
+   must not be true (regressions, forbidden moves, false-green paths, a second
+   path left behind). This list is scratch work; only its sentences land.
+2. **Write.** Each item becomes one row whose `text` is a plain sentence; a
+   negative idea is written into the sentence ("An invalid flow never exits 0").
+3. **Prove.** For every row ask "how will we prove it?":
+   - a command can show it: give the row a `check:`;
+   - only reading the change can show it (one path, no swallowed error, tests
+     cover both outcomes): leave `check:` off; the review agent answers it from
+     the diff;
+   - nothing can show it: sharpen the sentence until something can, or route
+     the open question to `/interview`.
+
+Row shape (`core/domain/src/task-requirements.ts`; the task reader is
+`core/workstream/src/task-packet.ts`):
+
+```yaml
+schema: lev.task.v2
+requirements:
+  - id: invalid-flow-exits-nonzero    # unique across dna.yaml and evals/
+    type: acceptance                   # acceptance | constraint | a claim type
+    owner_slice: <slice id>            # set when the row is that slice's exit
+    text: An invalid flow makes `lev flowmind validate <file>` exit non-zero.
+    source_ref: <plan#section or path:line>   # when a plan or design states it
+    risk: high                         # optional: high | medium | low
+    invalid_proof: [<evidence that looks like proof and is not>]
+    check:                             # omitted when the review agent answers
+      command: lev                     # the program
+      argv: [flowmind, validate, <known-bad file>]
+      expectedExit: nonzero            # zero | nonzero | any
+      timeoutMs: 120000
+```
+
+- At least one `type: acceptance` row has no `owner_slice`: the operator's
+  acceptance. A slice exit is an acceptance row with `owner_slice`; a
+  constraint or forbidden move is `type: constraint`.
+- A claim type (`behavior_change`, `architecture_boundary`, `no_regression`,
+  ...) is for a claim a plan or design states; its slice lists it in
+  `claim_coverage` and `verifier_contract.proves_claims`, and
+  `lev task validate` names any trace fields its type needs.
+- `check:` is a core/eval command case without `id` (the row id is the case
+  id; `EvalCommandCase` in `core/eval/src/command-cases.ts`): `command` is the
+  program and `argv` its arguments, plus optional `cwd` (inside the project),
+  `timeoutMs`, `expectedExit` or `expectedExitCode`, `stdoutContains`,
+  `stderrContains`. A shell line is rejected: a pipe or `&&` becomes separate
+  rows. A search that must find nothing is `git grep` with
+  `expectedExit: nonzero`.
+- A check that needs a known input (a bad file, a sample) points at a fixture
+  the packet writes in the task folder under `fixtures/`, named so repo-wide
+  scans of that kind skip it (a flow fixture is `<name>.yaml`, never
+  `<name>.flow.yaml`).
+- Run every check once before emitting. A check for what the slice adds or
+  fixes is red on today's tree; a check already green is a regression guard. A
+  slice whose checks are all green today proves nothing new: add the red check
+  or say why the review agent carries the change.
+- When the list outgrows `dna.yaml`, move rows to `evals/<name>.yaml` in the
+  task folder under the same `requirements:` key.
+
 ## Shared Planning and TDD Contract
 
 ### Overlay and iteration planning
@@ -98,11 +163,11 @@ return to `skill://lev-plan`.
 Prepare each selected unit for the future loop prompt: "Do the next bit of work
 on this effort. Select ONE ready coherent unit, finish that single thing, record
 the result and remaining frontier, then stop." A unit may be a substantial
-vertical chunk, not the full effort. Preserve plan claim references and map them
-to checks in `claim_verifier_map`; keep dependencies, scope and stop conditions
-explicit. The outer Ralph loop reloads state between units; `lev-ralph` adds the
-worker/reviewer-fixer cycle inside one unit. Runtime adoption and dedicated
-`claim.yaml` are deferred; preparing a packet does not dispatch or prove Ralph.
+vertical chunk, not the full effort. Carry each plan claim as a requirement row
+with its `source_ref` and its proof; keep dependencies, scope and stop
+conditions explicit. The outer Ralph loop reloads state between units;
+`lev-ralph` adds the worker/reviewer-fixer cycle inside one unit. Runtime
+adoption is deferred; preparing a packet does not dispatch or prove Ralph.
 
 ### Shared substance and conditional TDD
 
@@ -253,17 +318,12 @@ mode, the claim it threatens, and the verifier that can falsify it.
 
 A review finding becomes a separate slice only when it has a distinct operator
 outcome, owner, independently verifiable boundary, and reversible delivery unit.
-Otherwise repair the existing slice's constraint, acceptance, dependency, or
-verifier mapping. Review cycles do not authorize additional task emission.
+Otherwise repair the existing slice's requirement rows or dependencies. Review
+cycles do not authorize additional task emission.
 
-Use this compact mapping:
-
-```yaml
-claim_verifier_map:
-  - claim_ref: <acceptance or design claim>
-    failure_mode: <credible false-green path>
-    verifier_ref: <command, test, or proof profile>
-```
+Record each finding on the requirement row it threatens: the false-green path
+goes in `invalid_proof`, and the command that falsifies it is the row's
+`check:` (or the review agent answers the row).
 
 Reference shared runtime, standards, evidence, and proof profiles. When the
 repository has DNA standards or boundary laws, load the applicable files before
@@ -329,6 +389,12 @@ steps:
     action: Render compact slice records without creating task folders.
     validation: Every record has an outcome, owner, dependencies, proof, status, and open decisions; at least one approved-map slice is runnable.
 
+  - id: prove_requirements
+    when: mode == emit and semantic_readiness == ready
+    action: Write the slice's requirements list with the Expectation And Proof Check passes (think, write, prove), then run every check once on today's tree.
+    validation: Every row is one sentence that a check or the review agent can answer; at least one check is red today when the slice adds or fixes behaviour.
+    failure: Sharpen a row nothing can prove, or route its open question to /interview.
+
   - id: emit_slice
     when: mode == emit and semantic_readiness == ready
     action: Write one lean task packet for the selected vertical slice.
@@ -336,11 +402,11 @@ steps:
 
   - id: validate_structure
     when: mode == emit
-    action: Run `lev task validate <task-id|task-path>` and report deterministic failures separately.
+    action: Run `lev task validate <task-id|task-path> --json`; it validates every `check:` through core/eval. Report deterministic failures separately.
     failure: Keep the task proposed; do not offer /exec.
 
   - id: compare_source
-    action: Recompare intent, boundaries, acceptance, verifier, dependencies, and freshness with the source.
+    action: Recompare intent, boundaries, requirements and their proof, dependencies, and freshness with the source.
     failure: Repair and rejudge before offering /exec.
 ```
 
@@ -365,16 +431,16 @@ proof boilerplate, or claims that all slices are execution-ready.
 
 ```yaml
 dna_yaml.required:
-  [ontology, intent, entity_kind, lifecycle_target, acceptance, local_refs, local_constraints, source_context]
+  [schema (lev.task.v2), ontology, intent, entity_kind, lifecycle_target, lifecycle_stage, requirements, local_refs, source_context]
 
 source_context.required:
   [capture_refs, plan_ref_or_not_required, plan_digest_or_na, covered_intent_ids, source_fidelity]
 
 execution_yaml.required:
-  [topology, runtime_profile_ref, dependencies, structural_preconditions, slices]
+  [topology, runtime_profile_ref, dependencies, structural_preconditions, slices, exit_conditions]
 
 slice.required:
-  [id, operator_outcome, claim_verifier_map, what_to_build, acceptance_criteria, write_scope, forbidden_moves]
+  [id, operator_outcome, what_to_build, write_scope]
 
 shared_contract_refs:
   [standards_ref, execution_evidence_profile_ref, proof_profile_ref]
