@@ -40,9 +40,11 @@ Inside the Leviathan repo, prefer the plugin-backed CDO runtime defined in
 - Default for `/cdo` use in this repo, including bounded think/deep/full/debug flows.
 - Any run that requires `method_recipe` stage output or scheduler replay.
 - Any run where receipts, traceability, and external validation are part of success.
-- `plan` and `judge` runs: the plugin loop retries rounds until its completion_gate
-  passes, but no profile encodes a wave plan or the run's own acceptance criteria
-  yet. See references/wave-planner.md (Execution backends).
+- `plan` and `judge` runs: before you rely on the plugin as the judge, read
+  `plugins/cdo/profiles/` and the completion_gate in the adaptive deliberation flow.
+  Check whether a profile carries the wave plan and whether the gate checks the
+  run's own acceptance criteria. Cite what you read. See references/wave-planner.md
+  (Execution backends).
 
 Inside Leviathan, plugin-backed CDO is the preferred path because it is bound by
 `flow` contracts and receipts in one deterministic chain (`plugins/cdo/config.yaml`
@@ -277,6 +279,7 @@ steps:
         - Decision/Answer: the actual output
         - Confidence: numeric + qualitative
         - Judge Verdict (plan or judge only): each acceptance criterion as met or unmet, with evidence; a run that ended on budget says so
+        - Wave Plan (plan only): the approved plan, then planned versus actual for each wave
         - Key Tensions: what was debated, what won, why
         - Minority Reports: dissenting views preserved, not buried
         - Action Items: concrete next steps if applicable
@@ -296,7 +299,7 @@ steps:
       (see "External Validator Before Broadcast" section). Any claim that
       fails recognition against the ground-truth surface is either retracted
       or downgraded to CANDIDATE.
-    validation: "FINAL.md exists at tmp/cdo-{session}/FINAL.md with all six sections (plus the judge verdict when a judge ran) AND external-validator pass logged"
+    validation: "FINAL.md exists at tmp/cdo-{session}/FINAL.md with all six sections (plus the judge verdict when a judge ran, and the wave plan in plan mode) AND external-validator pass logged"
     on_failure: "Re-run final synthesis with explicit section checklist + external-validator brief"
 ```
 

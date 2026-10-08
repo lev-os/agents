@@ -45,10 +45,10 @@ anti-groupthink devil's advocate still runs at more than 70% agreement, as an
 operator that must attack with evidence and may return a checked null.
 
 Inside Leviathan, `cdo modes-analysis` runs the plugin profile
-`cdo.modes-project-analysis`. Its synthesis_gate requires
-`top_findings_count >= 5`, which is a findings quota that this method rejects.
-Treat that gate as a follow-up for `plugins/cdo` under the Safe skill update
-pattern. Do not manufacture findings to pass it.
+`cdo.modes-project-analysis`. Read its synthesis_gate before the run. If the
+gate demands a minimum count of findings, do not manufacture findings to pass
+it. Report the shortfall and treat the gate as a follow-up for `plugins/cdo`
+under the Safe skill update pattern.
 
 ## When the user asks to act
 

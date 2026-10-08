@@ -62,7 +62,7 @@ T1, or when the budget ends. The judge never produced the work it judges.
 - **Not satisfied, budget remains**: the next wave targets the unmet criteria.
 - **Budget exhausted**: FINAL.md reports the unmet criteria and does not claim satisfaction.
 - **Outside Leviathan**: dispatch a fresh judge agent with the frozen criteria and the wave's artifacts.
-- **Inside `digital/leviathan`**: the plugin loop already has this shape. The completion_gate passes to semantic_done, or fails to schedule_next and another round, up to max_ticks, then writes a hard_cap receipt. Its gate checks resolved branches, claim verdicts, proof refs, level tags and provenance. It does not yet check the run's own acceptance criteria. Until a profile binds those criteria to core eval, also dispatch the judge above and record its verdict beside the plugin receipt.
+- **Inside `digital/leviathan`**: the plugin loop has this shape. On a failed completion_gate, the flow schedules another round, up to max_ticks, then writes a hard_cap receipt. Read the gate before you rely on it, and cite the lines you read. If it does not check the run's own acceptance criteria through a core eval decision, also dispatch the judge above and record its verdict beside the plugin receipt.
 
 ```yaml
 judge_verdict:

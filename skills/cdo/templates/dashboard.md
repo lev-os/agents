@@ -70,7 +70,7 @@ Same as above PLUS:
 ───────────────────────────────────────────────────────────
 ```
 
-**Wave Plan Dashboard** (plan modifier; shown before T1, re-rendered after every edit):
+**Wave Plan Dashboard** (plan modifier; shown in the reply before T1, re-rendered after every edit):
 ```
 ═══════════════════════════════════════════════════════════
   CDO WAVE PLAN — {PROBLEM}
