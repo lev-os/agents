@@ -75,6 +75,30 @@ Route different roles to different models via codex CLI or OpenRouter.
 
 **Effect**: Enables model diversity. Analytical roles get reasoning-optimized models, creative roles get generation-optimized models.
 
+### `plan` — Wave Plan
+
+Plan the whole run before T1: up to 10 waves (or the user's number), each with nodes, and 1-5 discovered skills per node. Show the Wave Plan dashboard, let the user edit it, and run only after explicit approval.
+
+**Effect**: Adds a planning phase and the Wave Plan dashboard. Implies `judge`. The plan is a forecast: the previous synthesis directive and the judge's unmet criteria may amend each wave. See `references/wave-planner.md`.
+
+### `judge` — Judged Exit
+
+An independent judge decides whether the run satisfied acceptance criteria frozen before T1.
+
+**Effect**: Replaces the confidence exit with Type 5 convergence (`engine/convergence.md`). Not satisfied and budget remains → another wave aimed at the unmet criteria. Budget exhausted → FINAL.md reports the unmet criteria.
+
+### `modes` — Reasoning Operators
+
+Run reasoning modes as bounded operators on pivotal questions, with an independent claim audit before synthesis.
+
+**Effect**: Turn 0 writes a decision contract and a neutral case file. Synthesis audits claims before it writes the directive. See `references/reasoning-operators.md`.
+
+### `reality` — Reality Check
+
+Measure what is built against the stated vision, then plan, push and refine the bridge.
+
+**Effect**: Turn 0 builds the vision checklist. Later turns run gap analysis, bridge planning, ambition waves and refinement waves. See `references/reality-check.md`.
+
 ---
 
 ## Arg Parse
@@ -127,12 +151,28 @@ Full preset with multi-model dispatch.
 ```
 Debug preset — fixed 7-turn RCA. No modifiers apply (debug has its own protocol).
 
+```
+/cdo plan,full "design our release process"
+```
+Full preset. Plan the waves and the skills for each node, approve, then run with a judge.
+
+```
+/cdo judge,deep "make the flaky test suite reliable"
+```
+Deep preset. A judge on frozen criteria decides when to stop.
+
+```
+/cdo modes,reality,deep "where does project X stand against its vision?"
+```
+Deep preset. A vision checklist, then reasoning operators with a claim audit.
+
 ### Inference Rules
 
 - If no preset specified but modifiers present → infer `deep`
 - `debug` ignores all modifiers (fixed protocol)
 - Domain can appear with any preset
 - Conflicting modifiers: last one wins
+- `plan` implies `judge`
 
 ### Inline Overrides
 

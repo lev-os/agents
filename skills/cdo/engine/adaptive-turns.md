@@ -11,9 +11,9 @@ Before each turn, the orchestrator reads the previous synthesis and makes three 
 
 1. **Width**: How many agents? (1-20)
 2. **Roles**: What perspectives needed?
-3. **Skills**: What 2-3 skills per agent? (via lev-catalog)
+3. **Skills**: What 2-3 skills per agent, or the plan node's 1-5? Discover them before every turn (dispatch/skill-injection.md).
 
-For Turn 1, these come from the preset. For Turn N+1, they come from the synthesis directive.
+For Turn 1, these come from the preset. For Turn N+1, they come from the synthesis directive. In plan mode, they start from the planned wave.
 
 ## Synthesis Directive Format
 
@@ -63,7 +63,7 @@ When the `adaptive` flag is set:
 
 ## Anti-Patterns
 
-- **DO NOT** pre-plan all turns at start. Only compose the current turn.
+- **DO NOT** pre-plan all turns at start. Only compose the current turn. Exception: with the plan modifier, the approved plan proposes each wave, and the current directive may still amend it (references/wave-planner.md).
 - **DO NOT** let the orchestrator synthesize. Always dispatch a separate agent.
 - **DO NOT** let agents see each other's work during a turn. Disk isolation is mandatory.
 - **DO NOT** skip synthesis between turns. Even if only 1 agent ran.
