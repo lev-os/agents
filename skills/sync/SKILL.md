@@ -60,6 +60,11 @@ Directional rule:
   there too before landing the feature branch.
 - Use simple commit messages based on the changed files or area.
 - Prefer durable checkpoints over perfect commit curation.
+- Total means every *tracked* change and every new file that belongs in Git.
+  Before `git add .`, run the Intake Guard below; it is the only exception to
+  "never path-scoped".
+- Never create, register or re-add a submodule. A nested Git checkout that is
+  not already in `.gitmodules` is local state, not work to checkpoint.
 - Do not leave dirty submodules behind in the selected boundary. The paired
   `main` checkout is part of that boundary only with explicit `--main`.
 
@@ -93,6 +98,7 @@ SYNC_REPO(repo):
   CHECKPOINT(repo)
 
 CHECKPOINT(repo):
+  INTAKE_GUARD(repo)                 # stops before anything is staged
   if repo has changes:
     git add .
     git commit -m "<simple message based on changed files>"
@@ -130,6 +136,7 @@ MERGE_MAIN_INTO_CURRENT(current_repo):
    - main-into-current merge is a separate explicit direction, not the default
 3. Recurse into **all dirty submodules** inside the current checkout first.
 4. In each dirty repo/submodule:
+   - run the Intake Guard: stop on a nested checkout; ask about secrets, files over 3 MB and anything that looks out of place
    - `git add .`
    - `git commit -m "<simple message based on changed files>"` if there is anything to commit
    - if the branch has an upstream (`git rev-parse --abbrev-ref @{u}` succeeds): `git pull --no-rebase && git push`
@@ -242,7 +249,45 @@ If the user invoked `sync`, the answer is already:
 - recursive submodules,
 - no feature->main merge unless `--main` or explicit landing request is present.
 
+## Intake Guard
+
+Run before every `git add .`. List what would be staged with
+`git ls-files --others --exclude-standard --directory` plus `git status --short`.
+
+**Stop and escalate (never stage, never work around):**
+
+- **A nested Git checkout** (a folder with its own `.git`) that `.gitmodules`
+  does not list. `git add .` would commit it as a gitlink. Never register it as
+  a submodule to make it fit. Report the path and wait for the user.
+
+**Ask before staging** (name each path and why; stage only what the user approves):
+
+- **Secrets:** anything that looks like a credential — `.env*`, `*.pem`, `*.key`,
+  tokens or keys inside a file, service-account JSON, `*.local` env files.
+- **Large files:** any new file over 3 MB that `.gitattributes` does not route
+  to Git LFS (`git check-attr filter -- <path>` is not `lfs`).
+
+**Use judgement and mention it** — watch out for things that generally do not
+belong in a repository, for example:
+
+- a sync that suddenly adds 1,000+ files, or one folder full of generated output;
+- logs, crash dumps, coverage reports, build and test output, caches;
+- per-machine state (an editor's or tool's local config, recorded "active"
+  settings, lock or pid files);
+- downloaded archives or exports nobody references.
+
+For these, say what you noticed and ask; do not refuse on a name alone. An
+inbox folder (`_inbox/`) is a normal place for work in progress and is not
+blocked.
+
+Why: on 2026-10-06 a sync in suntiq-product committed a retired
+`prototype/ArgoEdge` checkout as a gitlink and then registered it in
+`.gitmodules`, alongside a per-machine `active.local` and a batch of
+unreferenced exports and screenshots.
+
 ## Stop Conditions
+
+- Stop and escalate on a nested Git checkout; ask before staging secrets or files over 3 MB (Intake Guard).
 
 - Stop with a conflict-resolution brief if a merge conflict appears.
 - Stop and report if `git push` still fails after a normal `git pull --no-rebase`.
