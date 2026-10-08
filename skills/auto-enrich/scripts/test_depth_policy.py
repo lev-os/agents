@@ -59,6 +59,22 @@ class DepthPolicyOutcomeTest(unittest.TestCase):
         ):
             self.assertIn(required, coder_text)
 
+    def test_standard_allows_repair_and_verification(self) -> None:
+        policy = compile_policy("standard")
+        self.assertEqual(policy["review_cycles"], 2)
+        self.assertEqual(policy["hard_max_cycles"], 5)
+        self.assertEqual(compile_policy("standard", cycles=3)["review_cycles"], 3)
+        with self.assertRaises(ValueError):
+            compile_policy("standard", cycles=6)
+
+    def test_explicit_one_cycle_cap_is_respected(self) -> None:
+        for mode in ("standard", "deep"):
+            policy = compile_policy(mode, max_cycles=1)
+            self.assertEqual(policy["review_cycles"], 1)
+            self.assertEqual(policy["hard_max_cycles"], 1)
+            with self.assertRaises(ValueError):
+                compile_policy(mode, cycles=2, max_cycles=1)
+
     def test_simple_launches_no_companion(self) -> None:
         for options in ({}, {"cycles": 0}, {"max_cycles": 0}, {"interview_turns": 0}, {"cycles": 0, "max_cycles": 0, "interview_turns": 0}):
             with self.subTest(options=options):

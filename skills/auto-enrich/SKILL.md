@@ -47,8 +47,10 @@ Next: {orient|interview|lev-plan|harden|propose|human_decision|stop}
 /auto-enrich --host=claude|codex   # fallback only when runtime identity is unavailable
 ```
 
-Bare `/auto-enrich` means `--standard`. Resolve the mode by running
-`python3 scripts/depth_policy.py --mode=<mode>` from this skill directory.
+Bare `/auto-enrich` means `--standard`. Resolve its budget from the table below.
+No Python command is required to run this workflow. The optional
+`scripts/depth_policy.py` checks settings and session identity for regression
+tests; it does not drive reviews or determine semantic approval.
 Never sleep; surface each completed turn immediately.
 
 ## Depth Modes
@@ -56,7 +58,7 @@ Never sleep; surface each completed turn immediately.
 | Mode | Companion | Interview | Hardening |
 |---|---|---|---|
 | `--simple` | none | none | one host-only pass, then domain-appropriate routing |
-| `--standard` | one persistent opposite-provider session | at most one turn when material ambiguity exists | one companion cycle |
+| `--standard` | one persistent opposite-provider session | at most one turn when material ambiguity exists | two cycles by default, hard maximum five |
 | `--deep` | one persistent opposite-provider session | up to 12 turns | two cycles by default, hard maximum five |
 
 Admit `--simple` only for one bounded artifact or vertical outcome with intact
@@ -66,9 +68,38 @@ stop with `needs_standard` and explain the failed admission condition. Never
 silently launch a companion after the user selected `--simple`, and never use
 simplicity to skip workstream, fidelity, write-scope, or deterministic checks.
 
-`--cycles`, `--max-cycles`, and `--max-interview-turns` may narrow
-standard/deep budgets. They may not give simple mode a companion or exceed
-deep's hard maximum. Reject contradictory depth flags.
+`--cycles=N` sets the review budget; `--max-cycles=N` sets its hard ceiling.
+Standard/deep allow 1-5; omitted values mean two reviews, extendable up to five
+while actionable blockers decrease. An explicit one-cycle budget is valid but
+cannot verify a repair made after its only review. `--max-interview-turns` may
+narrow the selected mode's interview limit. Reject contradictory flags and any
+companion budget in simple mode.
+
+### Review and repair loop
+
+A cycle is a substantive review of a frozen candidate. Formatting corrections
+and transport recovery resume the same session and do not consume another
+review cycle. Preserve both the provider session ID and cycle count on resume.
+
+1. Review the frozen candidate in the persistent companion session.
+2. Check each finding against evidence. Repair valid planning defects; record
+   rejected findings with exact counterevidence. Preserve human decisions as open.
+3. After a repair or disputed finding, resume that same session with the revised
+   artifact/digest, focused diff and finding dispositions. The companion verifies
+   the repair and either withdraws or substantiates each disputed finding.
+4. Stop on approval of the latest digest, a verified implementation/human-decision
+   handoff, a repeated blocker after the repair attempt, or the cycle ceiling.
+   After the default two cycles, continue within the ceiling only while remaining
+   actionable blockers decrease. Merely rejecting a finding is not convergence
+   until the reviewer has seen the counterevidence.
+
+A known human decision can remain unresolved during review. Verify the plan's
+hold and handoff; do not ask the reviewer to decide for the human. On budget
+exhaustion, report `unverified_revisions` or `unresolved_findings`, never approval
+of a changed candidate. A first-pass approval needs no artificial second pass.
+Do not mark the enrichment goal achieved merely because its review budget ended;
+report which result was verified and what remains. This is one persistent review
+conversation, not a worker pool.
 
 ## Ownership
 
@@ -106,7 +137,7 @@ steps:
   - id: select_companion
     action: Resolve depth and the required companion identity
     instruction: |
-      Run scripts/depth_policy.py and preserve its JSON result. In simple mode,
+      Resolve and record depth/budgets from the Depth Modes table. In simple mode,
       record companion_disabled and skip companion selection, role-packet
       injection, interview, and companion hardening. In standard/deep mode,
       read host identity from system/runtime context: Codex requires Claude Code;
@@ -215,13 +246,16 @@ steps:
       smallest patch inside the named planning write scope, refresh digests, and
       verify every changed path is in the exact allowlist. Never grow task count
       during review. Stop on approval, implementation
-      lane, repeated blocker, non-decreasing blocker count, default cycle budget,
-      or hard maximum. Only exceed the default cycle count when blockers are
-      decreasing and the user-requested maximum allows it.
+      lane or human-decision handoff, repeated blocker after a repair attempt,
+      non-decreasing actionable blockers after verification, or the hard maximum.
+      Apply the Review and repair loop above: send every repair and disputed
+      finding back before treating it as resolved. The default maximum already
+      allows continuation to five while blockers decrease; respect a smaller
+      explicit user cap.
       After each patch, recompute plan/source coverage. Architecture quality cannot
       be purchased by dropping a material user requirement, non-goal, relationship,
       decision boundary, or acceptance condition.
-    validation: "Verdict, semantic scores, deterministic preconditions, blocker delta, fidelity baseline/final/lost rows, artifact-size direction, and cycles used are recorded."
+    validation: "Latest candidate digest is reviewed, or unverified_revisions is explicit; verdict, disputed-finding dispositions, semantic scores, deterministic preconditions, blocker delta, fidelity baseline/final/lost rows, artifact-size direction, and cycles used are recorded."
     on_failure: "Stop with NEEDS_IMPLEMENTATION_LANE or remaining blockers; never fake approval."
 
   - id: route_next
@@ -324,7 +358,7 @@ Lifecycle:
 - Compiled intent: {one_sentence_intent}
 - Memory state: {companion_session_id_and_open_branch_or_none}
 - Disk state: {workstream_and_design_refs_or_memory_only}
-- Artifact: {enriched_ref_and_digest}
+- Artifact: {enriched_ref_and_digest}; review coverage {latest_digest_verified|unverified_revisions|unresolved_findings}
 - Route: {interview|lev-plan|propose|poc|implementation_handoff|human_decision}
 - Blocker: {none_or_exact_blocker}
 - Confidence: {0_to_1_with_basis}
@@ -353,7 +387,7 @@ Lifecycle:
 | "Three fixed rounds" | Interview turns and review cycles have different gates and budgets. |
 | "Shell variables stand in for host-produced resolutions" | Durable decisions belong in the Lev design/workstream; shell state is runtime-only. |
 | "I would not patch the plan" | Auto-enrich authorizes minimal planning edits inside its declared write scope, never implementation. |
-| "Two rounds is the bounded default" | Correct for review, but a hard maximum and semantic stop conditions still apply. |
+| "I repaired or rejected the findings, so the pass is done" | Resume the same reviewer with the changed candidate and counterevidence; host judgment alone does not verify the repair. |
 | "The installed Lev CLI has no verified lev propose command" | Invoke the existing `/propose` skill contract; never invent a CLI surface. |
 | "Almost approved—one more round; add three task packets so implementation can clarify it" | Implementation uncertainty is NEEDS_IMPLEMENTATION_LANE, never permission to grow tasks during review. |
 | "Applying `/interview` logic is equivalent to loading it" | The host reads and injects the current canonical interview body with its path and digest. |

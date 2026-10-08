@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile auto-enrich depth flags and validate companion session traces."""
+"""Optional regression helper for depth settings and session identity; not a review runner."""
 
 from __future__ import annotations
 
@@ -22,8 +22,8 @@ POLICIES = {
         "mode": "standard",
         "companion_required": True,
         "max_interview_turns": 1,
-        "review_cycles": 1,
-        "hard_max_cycles": 1,
+        "review_cycles": 2,
+        "hard_max_cycles": 5,
         "semantic_review": "companion",
     },
     "deep": {
@@ -49,6 +49,8 @@ def compile_policy(
         if max_cycles < minimum or max_cycles > int(policy["hard_max_cycles"]):
             raise ValueError(f"max cycles must be between {minimum} and {policy['hard_max_cycles']} for {mode}")
         policy["hard_max_cycles"] = max_cycles
+        if cycles is None:
+            policy["review_cycles"] = min(int(policy["review_cycles"]), max_cycles)
     if cycles is not None:
         if mode == "simple" and cycles != 0:
             raise ValueError("simple mode forbids companion review cycles")
