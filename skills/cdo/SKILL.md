@@ -1,6 +1,6 @@
 ---
 name: cdo
-description: "Routes adaptive multi-agent deliberation with fractal context cycles. Use when using /cdo, think/deep/debug/parliament work, or long runs paired with autoresearch scheduling."
+description: "Routes adaptive multi-agent deliberation with fractal context cycles. Use when using /cdo, think/deep/debug/parliament work, planning multi-wave runs with skills per node and a judge, or long runs paired with autoresearch scheduling."
 ---
 
 # CDO — Adaptive Multi-Agent Deliberation
@@ -40,6 +40,11 @@ Inside the Leviathan repo, prefer the plugin-backed CDO runtime defined in
 - Default for `/cdo` use in this repo, including bounded think/deep/full/debug flows.
 - Any run that requires `method_recipe` stage output or scheduler replay.
 - Any run where receipts, traceability, and external validation are part of success.
+- `plan` and `judge` runs: before you rely on the plugin as the judge, read
+  `plugins/cdo/profiles/` and the completion_gate in the adaptive deliberation flow.
+  Check whether a profile carries the wave plan and whether the gate checks the
+  run's own acceptance criteria. Cite what you read. See references/wave-planner.md
+  (Execution backends).
 
 Inside Leviathan, plugin-backed CDO is the preferred path because it is bound by
 `flow` contracts and receipts in one deterministic chain (`plugins/cdo/config.yaml`
@@ -88,6 +93,12 @@ You never think, analyze, or synthesize yourself. All reasoning happens in agent
 directive. You do not pre-plan turns. You do not override the directive. You read
 the YAML block from synthesis and execute exactly what it says.
 
+**Plan mode (`plan` modifier) is the one exception to pre-planning.** The user
+approves a multi-wave plan before T1. That plan is a forecast, not a contract:
+before each wave, the synthesis directive and the judge's unmet criteria keep,
+amend or replace the planned wave, and the dashboard shows planned versus
+actual. The directive still wins. See references/wave-planner.md.
+
 ```yaml
 steps:
 
@@ -98,7 +109,7 @@ steps:
 
       Args are composable, comma-separated. Split tokens and classify:
         - Base preset: quick | think | deep | full | debug
-        - Modifiers: hitl, bd, team, adaptive, autoresearch, adaptive-runtime, lev-exec, exec
+        - Modifiers: hitl, bd, team, adaptive, autoresearch, adaptive-runtime, lev-exec, exec, plan, judge, modes, reality
         - Domain: token after "exec" (dev, arch, or <tag>)
         - Problem: everything remaining
 
@@ -110,6 +121,7 @@ steps:
         - Bug, failure, unexpected behavior → debug
 
       If modifiers present but no preset → default to deep.
+      If "plan" → also set "judge".
       If "debug" → ignore all modifiers (fixed protocol).
     validation: "preset variable is set to one of: quick, think, deep, full, debug"
     on_failure: "Ask the user to clarify what they want analyzed"
@@ -135,9 +147,15 @@ steps:
         - autoresearch | adaptive-runtime: use codex-autoresearch as the long-run scheduler/runtime for CDO. CDO still owns reasoning; autoresearch owns run state, counters, health checks, pause/resume, and exit-gate enforcement.
         - lev-exec: route roles to different models via codex/openrouter
         - exec <domain>: inject domain team shape for T1
+        - plan: before T1, plan up to 10 waves (or the user's number) as a DAG, attach 1-5 discovered skills to each node, show the Wave Plan dashboard, and run only after explicit approval. Load references/wave-planner.md.
+        - judge: after each wave, an independent judge checks the frozen acceptance criteria. Not satisfied and budget remains → run another wave aimed at the unmet criteria. Load engine/convergence.md (Type 5).
+        - modes: run reasoning modes as bounded operators on pivotal questions, with an independent claim audit before synthesis. Load references/reasoning-operators.md.
+        - reality: measure what is built against the stated vision, then plan and refine the bridge. Load references/reality-check.md.
 
       For deep+ or hitl: show planning dashboard before T1 — proposed DAG
       with turns, agents, roles, skills. Two seconds of preview saves minutes.
+      With plan: show the Wave Plan dashboard instead (every wave, node, skill,
+      criterion, the judge and the budget) and wait for explicit approval.
 
       Load sub-files only as needed (see references/architecture.md for table).
     validation: "width, max_turns, team_mode, and convergence_type are all set"
@@ -217,7 +235,7 @@ steps:
       COMPOSE: Read previous synthesis directive (or problem statement for T1).
         - Decide width from directive (or preset default for T1)
         - Decide roles from directive (or preset/domain default for T1)
-        - For deep+: discover 2-3 skills per agent via skill-discovery
+        - Discover skills before every turn or wave for deep+, plan, or any multi-wave run (dispatch/skill-injection.md): 2-3 per agent by default, or the node's planned count of 1-5. In plan mode, start from the planned wave, then apply the directive and the judge's unmet criteria.
         - Generate agent briefs with role, context, constraints, output format
         - In Autoresearch Scheduler Mode: first read `cdo_scheduler`, compute unmet metrics, then decide this turn's width and strategy. Do not follow a preplanned roster if current evidence says to change strategy.
 
@@ -230,7 +248,7 @@ steps:
       SYNTHESIZE: Dispatch a dedicated synthesis agent (never yourself).
         - Reads ALL turn N artifacts from disk
         - Produces: common ground, tensions, gaps, surprises
-        - Anti-groupthink: if >70% agreement, auto-add devil's advocate next turn
+        - Anti-groupthink: if >70% agreement, auto-add devil's advocate next turn. The advocate attacks with evidence. A checked null is a valid result, and a challenge without evidence is rejected, not kept for balance.
         - Emits YAML directive block:
             confidence: <float>
             convergence_met: <bool>
@@ -242,6 +260,7 @@ steps:
             scheduler_update: {turn_count, agents_this_turn, total_agents, unique_skills, exit_eligible, remaining_turns_min, remaining_agents_min, next_turn_strategy}
 
       ADAPT: Check exit criteria.
+        - judge active (plan or judge): the judge decides, not confidence or agreement. Dispatch it on the frozen acceptance criteria (engine/convergence.md, Type 5). Satisfied → go to synthesize_final. Not satisfied and budget remains → next wave, aimed at the unmet criteria. Budget exhausted → synthesize_final, reported as unmet. The confidence and agreement exits below apply only without a judge.
         - confidence >= threshold AND convergence_met → go to synthesize_final
         - Max turns reached → go to synthesize_final (forced)
         - All tensions resolved, no new gaps in 2 consecutive turns → synthesize_final
@@ -259,6 +278,8 @@ steps:
       FINAL.md contains:
         - Decision/Answer: the actual output
         - Confidence: numeric + qualitative
+        - Judge Verdict (plan or judge only): each acceptance criterion as met or unmet, with evidence; a run that ended on budget says so
+        - Wave Plan (plan only): the approved plan, then planned versus actual for each wave
         - Key Tensions: what was debated, what won, why
         - Minority Reports: dissenting views preserved, not buried
         - Action Items: concrete next steps if applicable
@@ -278,7 +299,7 @@ steps:
       (see "External Validator Before Broadcast" section). Any claim that
       fails recognition against the ground-truth surface is either retracted
       or downgraded to CANDIDATE.
-    validation: "FINAL.md exists at tmp/cdo-{session}/FINAL.md with all six sections AND external-validator pass logged"
+    validation: "FINAL.md exists at tmp/cdo-{session}/FINAL.md with all six sections (plus the judge verdict when a judge ran, and the wave plan in plan mode) AND external-validator pass logged"
     on_failure: "Re-run final synthesis with explicit section checklist + external-validator brief"
 ```
 
@@ -393,9 +414,12 @@ When the user says any of these, STOP your current approach immediately:
 | Excuse | Reality |
 |--------|---------|
 | "Let me synthesize the agents' output myself" | You are the router. Synthesis is always a separate agent. Dispatch it. |
-| "I'll plan all turns upfront for efficiency" | Pre-planning defeats adaptive deliberation. Turn N+1 comes from Turn N's synthesis. |
+| "I'll plan all turns upfront for efficiency" | Pre-planning defeats adaptive deliberation. Turn N+1 comes from Turn N's synthesis. Only the plan modifier plans ahead, and each directive may amend that plan. |
 | "I'll write a complete 50-agent roster and execute it" | In autoresearch/adaptive-runtime mode, the roster is only a candidate queue. The scheduler chooses the next quantum from live evidence and unmet metrics. |
-| "The agents mostly agree, so we're done" | >70% agreement is a groupthink smell. Add a devil's advocate, don't exit. |
+| "The agents mostly agree, so we're done" | >70% agreement is a groupthink smell. Add a devil's advocate, don't exit. The advocate needs evidence; a checked null is a valid result. |
+| "The plan says wave 4 is a red team, so run it as planned" | The plan is a forecast. When the directive or the judge's unmet criteria point elsewhere, amend the wave and show planned versus actual. |
+| "Confidence is 0.9, so skip the judge" | With a judge, only the judge on the frozen criteria decides satisfaction. Confidence is narrative, not an exit. |
+| "The budget ran out, so call it satisfied" | Budget exhaustion is not satisfaction. FINAL.md lists the unmet criteria. |
 | "I'll skip the dashboard for this one" | Dashboard catches bad composition before you waste 5 agent calls. Show it. |
 | "This is simple enough for CDO" | If the answer fits in one sentence, just answer it. CDO is for genuine multi-perspective problems. |
 | "I'll just run one more fix attempt" | 3 failed fixes = wrong architecture. Stop fixing. Report the pattern. |
@@ -493,7 +517,7 @@ multi_wave:
   shape: "5 agents minimum per wave. Up to 10 waves. Default 3 waves minimum for cross-layer."
 
   per_wave_delta:
-    rule: "Each wave MUST introduce 2-3 skills not used in prior wave, OR a new adversarial angle."
+    rule: "Each wave MUST introduce 2-3 skills not used in prior wave, OR a new adversarial angle. Run skill discovery before each wave; a plan node may set its own count of 1-5 skills."
     examples_of_new_angles:
       - wave_2: "shift from 'is this convergence real?' to 'what layer would kill this claim?'"
       - wave_3: "shift from internal reasoning to ground-truth validator (partner's code/text)"
@@ -524,6 +548,7 @@ multi_wave:
       - "External validator pass logged"
       - "Graveyard non-empty if any claims were retracted"
       - "Minority reports preserved verbatim"
+      - "With a judge: its verdict per acceptance criterion is logged"
 ```
 
 # User Signal Extension — The NACK Signal
@@ -592,7 +617,7 @@ skill_acquisition:
       example: "protocol design → mechanism-design, protocol-networks, nash-equilibrium, requisite-variety"
 
     4_inject_into_briefs:
-      action: "Each CDO agent gets 1-3 relevant skills injected as context in their system prompt"
+      action: "Each CDO agent gets 1-3 relevant skills injected as context in their system prompt (a plan node may set 1-5)"
       rule: "Skills are context, not instructions. The agent reads the skill to understand patterns, not to follow a script."
 
   anti_pattern: "Dispatching CDO agents without checking what skills exist is like coding without reading the docs."
@@ -656,6 +681,10 @@ convergence_check:
     rule: "Before declaring convergence, ask: what did we ASSUME without evidence?"
     action: "If any assumption is load-bearing and unverified, add a depth probe turn"
     budget: "Use all budgeted turns. Early convergence is a smell, not a feature."
+
+  judged_mode:
+    rule: "With plan or judge, convergence means the judge is satisfied on the frozen acceptance criteria (engine/convergence.md, Type 5). The checks above become evidence for the judge."
+    budget: "A satisfied judge ends the run early. The use-all-turns rule applies only without a judge."
 ```
 
 ## Delegation with Budget Inheritance (from Hermes, Wave 5 — hm-05)

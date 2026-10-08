@@ -1,11 +1,11 @@
 ---
 name: cdo-convergence
-description: Four convergence criteria types — when to stop the turn loop
+description: Five convergence criteria types — when to stop the turn loop
 ---
 
 # Convergence Criteria
 
-Four types of convergence, chosen per-workflow. Every workflow MUST declare which type it uses.
+Five types of convergence, chosen per-workflow. Every workflow MUST declare which type it uses.
 
 ## Type 1: Turn Count (fixed structure)
 
@@ -53,6 +53,27 @@ loop:
 
 Delta is measured by the synthesizer comparing its current output to the previous iteration. If the substance isn't changing, the system has converged naturally.
 
+## Type 5: Judged Satisfaction (`plan` or `judge`)
+
+Stop when an independent judge is satisfied on acceptance criteria frozen before
+T1, or when the budget ends. The judge never produced the work it judges.
+
+- **Budget**: counts and clocks. Use maximum waves, consecutive waves without progress, and wall-clock time when relevant. Confidence floats are not an exit in this mode.
+- **Not satisfied, budget remains**: the next wave targets the unmet criteria.
+- **Budget exhausted**: FINAL.md reports the unmet criteria and does not claim satisfaction.
+- **Outside Leviathan**: dispatch a fresh judge agent with the frozen criteria and the wave's artifacts.
+- **Inside `digital/leviathan`**: the plugin loop has this shape. On a failed completion_gate, the flow schedules another round, up to max_ticks, then writes a hard_cap receipt. Read the gate before you rely on it, and cite the lines you read. If it does not check the run's own acceptance criteria through a core eval decision, also dispatch the judge above and record its verdict beside the plugin receipt.
+
+```yaml
+judge_verdict:
+  wave: W3
+  satisfied: false
+  criteria:
+    - {id: A1, status: met, evidence: "t3-tester.md: all 12 tests pass"}
+    - {id: A2, status: unmet, evidence: "no benchmark artifact", next: "add a benchmark node to W4"}
+  budget: {waves_used: 3, max_waves: 5, no_progress_waves: 0}
+```
+
 ## Validation Checklist
 
 Before declaring ANY workflow complete, verify:
@@ -62,3 +83,4 @@ Before declaring ANY workflow complete, verify:
 - [ ] `FINAL.md` exists with full synthesis
 - [ ] Max iterations not exceeded (or forced-FINAL if they were)
 - [ ] Confidence documented in final synthesis
+- [ ] With a judge: a verdict for each criterion is documented, and a budget exit is reported as unmet

@@ -41,9 +41,9 @@ Write to: tmp/cdo-{session}/t{N}-synthesis.md
 
 If synthesis finds >70% agreement AND confidence is rising, automatically add a devil's advocate agent to the next turn with directive:
 
-> "Argue the opposite of the current consensus with full conviction."
+> "Attack the foundation of the current consensus with evidence. If careful checking finds no evidence against it, report that checked null. Do not argue without evidence."
 
-This is not optional. Unanimous agreement is a smell — the system must pressure-test it before accepting convergence.
+This is not optional. Unanimous agreement is a smell — the system must pressure-test it before accepting convergence. A challenge without evidence is rejected, not kept for balance. A checked null is a valid result and counts as pressure-tested.
 
 ## BD Integration
 

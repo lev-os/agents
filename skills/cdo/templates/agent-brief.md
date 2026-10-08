@@ -24,7 +24,7 @@ You are the **{ROLE}** in a CDO deliberation. {ROLE_DESCRIPTION}.
 {SPECIFIC_FOCUS_FOR_THIS_TURN — from synthesis directive or initial brief}
 
 ## Your Skills
-{INJECTED_SKILL_CONTENTS — 2-3 skills inline}
+{INJECTED_SKILL_CONTENTS — 2-3 skills inline, or the plan node's 1-5}
 
 ## Input Files
 Read these before forming your analysis:
