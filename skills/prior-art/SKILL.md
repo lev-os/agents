@@ -216,3 +216,6 @@ When using Grep, exclude noise directories via the `glob` parameter. Common patt
 - `__pycache__/`, `site-packages/` — compiled Python
 
 When a broad search returns >50 hits dominated by one of these directories, narrow the scope rather than trying to filter mentally.
+
+## Source-derived reports
+For a requested codebase report, ground conclusions in source citations, separate direct evidence from inference and gaps, and match depth to the question. Finish with one next check or action a reader can verify.
