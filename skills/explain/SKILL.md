@@ -1,6 +1,6 @@
 ---
 name: explain
-description: Use when the user needs to catch up on a conversation or recent tasks, understand unfamiliar project terms, surface decisions, receive a clear goal closeout, or request explain eli5 or Caveman explanation mode.
+description: Use when the user needs a catch-up, concept explanation, goal closeout, current-state refresh, Lev context mapping, or a visual guided lesson.
 ---
 
 # /explain — Inline catch-up
@@ -17,12 +17,56 @@ Restore the user's understanding: what this work is for, what happened, which de
 | `/explain N` | N most recently updated conversations globally |
 | `/explain N --project` | N most recently updated conversations in the current project |
 | `/explain closeout` | Current batch or goal, including completed, interrupted, and blocked outcomes |
+| `/explain --refresh [topic or task]` | Reorient from current project evidence, then explain what changed since the selected conversation |
+| `/explain --levify [topic or task]` | Map intent and concepts through the bound project's existing Lev vocabulary, owners and lifecycle |
+| `/explain --teach [topic or task]` | Teach a small, source-backed concept batch with a learning map, visuals and retrieval practice |
 
 These are skill invocation patterns, not shell commands. N is a positive integer. A numeric request selects N distinct conversations before grouping related work; do not silently replace conversations with N projects.
 
 For numeric selection, combine pinned and ordinary results from the available conversation listing, deduplicate by host and conversation ID, and sort all candidates by last update descending. Pin order and running status do not change recency. Include the current conversation if it qualifies. Snapshot selection before reading so retrieval does not change the chosen set. Exclude archived conversations unless requested. State unavailable hosts/sources and listing limits rather than claiming exhaustive global coverage.
 
 For `--project`, resolve the current conversation's project ID and filter before selecting N. When no project ID exists, use a verified project root and explain that fallback; never treat unrelated paths or every projectless task as one project. If project identity cannot be established, ask which project rather than silently using global scope. Return fewer than N when fewer are available and say how many were found.
+
+## Mode routing and context
+
+On every route, classify what the reader needs: catch-up, explanation, diagnosis,
+decision support, or teaching. Disambiguate overloaded terms before explaining;
+look for conflating domains, representations, layers and lifecycle stages.
+Use domain modeling to separate actors, concepts, relationships and ownership.
+Consolidate genuine aliases after lookup; retain distinctions that change behavior.
+
+Flags load their reference leaves, not parallel skills or runtime commands:
+- `--refresh`: read [references/refresh.md](references/refresh.md).
+- `--levify`: read [references/levify.md](references/levify.md).
+- `--teach`: read [references/teach.md](references/teach.md).
+- ELI5/Caveman: read [references/caveman.md](references/caveman.md).
+
+Modifiers compose without changing conversation selection: refresh establishes
+current facts; Lev context maps them; the selected teaching/prose mode presents
+them. Assess Lev relevance on every route. Load the Lev leaf automatically when
+the topic concerns Lev, a bound Lev-managed project, or a Lev-enabled task and
+the mapping helps the user. Framework development activates its development
+context; merely mentioning an agent brand does not. Respect a plain/general
+explanation request. Explicit `--levify` requests a mapping even for an outside
+topic; unmatched concepts remain explicit gaps rather than forced analogies.
+
+Use tools/skills in your environment for speed and efficiency. Inspect available
+surfaces and honor their instructions: embedded visuals for interactive chat,
+Mermaid for compact topology, Now or the user's established renderer for a
+requested durable lesson, Sites when a website is requested. Keep publication
+under the user's actual authorization. An ordinary explanation includes 1-2
+useful visuals; a teaching batch may use 2-3 when each stamps a distinct concept.
+Scale the surface to the concept and reader: small inline diagrams for orientation,
+dynamic controls for branches, a generated artifact for a larger requested course
+or explainer. Honor text-only requests and state unavailable rendering support.
+The visuals must disambiguate or support practice, not decorate prose.
+
+For teaching, show a mental map from the reader's present understanding to one
+observable ability. Include material branches, prerequisites and unresolved
+questions; a map is not proof of learning. Present 2-3 short stanzas at a time:
+concept, example/visual, then one prediction or retrieval check. Give feedback
+before advancing and never infer mastery from silence or an attractive graphic.
+
 
 ## Explanation modes
 
@@ -38,6 +82,18 @@ steps:
   - id: gather
     action: Read the current context and substantive recent turns of selected conversations. Page backward when purpose, a decision, or the latest outcome is missing. Follow referenced evidence only for claims that materially affect the explanation.
     validation: "Each selected conversation has readable source evidence or an explicit unavailable/partial entry; discovery summaries alone are not completion evidence."
+  - id: refresh
+    condition: "--refresh requested"
+    action: Follow Refresh current state before synthesis; independently recheck the old conversation's consequential claims against the bound project's current evidence.
+    validation: "Checkout and coverage are recorded; changed owners, paths, decisions, and status claims are current, superseded, or explicitly unverified with sources."
+  - id: lev_context
+    condition: "--levify requested, or Lev relevance established during orient"
+    action: Load references/levify.md and follow existing project/owner/lifecycle routers; retain the user's requested action scope.
+    validation: "Intent, concepts, owners, lifecycle domains and dogfood/product layers are sourced, proposed, or explicitly unmapped."
+  - id: teach
+    condition: "--teach requested, or user explicitly asks for a guided lesson"
+    action: Load references/teach.md; use the user's mission to select a small concept batch and suitable available visual/practice surfaces.
+    validation: "Learning map, source-backed example, visuals and one feedback-bearing practice step are present; learning is not claimed before a response."
   - id: synthesize
     action: Combine repeated progress, retries, and worker messages into meaningful changes. Explain purpose first, then changes, decisions, current state, and next action. Preserve changes of direction and their reasons.
     validation: "The reader can tell what the work accomplishes, what changed, and whether they need to act without opening another conversation."
