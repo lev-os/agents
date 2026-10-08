@@ -1,6 +1,6 @@
 ---
 name: cdo-dashboard-template
-description: Planning dashboard format — auto view + HITL interactive DAG
+description: Planning dashboard format — auto view, HITL interactive DAG, and the wave plan
 ---
 
 **Auto Dashboard** (shown for deep+, non-interactive):
@@ -67,5 +67,52 @@ Same as above PLUS:
   Next Turn Directive:
     Width: {N} agents
     Focus: {summary}
+───────────────────────────────────────────────────────────
+```
+
+**Wave Plan Dashboard** (plan modifier; shown before T1, re-rendered after every edit):
+```
+═══════════════════════════════════════════════════════════
+  CDO WAVE PLAN — {PROBLEM}
+═══════════════════════════════════════════════════════════
+  Goal: {goal}
+  Acceptance: A1 {criterion}  |  A2 {criterion}  |  ...
+  Judge: {fresh judge agent | + plugin completion_gate receipt}
+  Budget: {max_waves} waves  |  {n} without progress  |  {wall_clock}
+───────────────────────────────────────────────────────────
+  W1 {purpose}                                  targets: A1
+    ├─ W1N1 {role} [skills: {s1}]
+    ├─ W1N2 {role} [skills: {s1}, {s2}, {s3}]
+    └─ → Synthesizer → Judge
+  W2 {purpose}                                  targets: A1, A2
+    ├─ W2N1 {role} [skills: {s1}, {s2}, {s3}, {s4}, {s5}]
+    └─ → Synthesizer → Judge
+  ...
+  W{N} {purpose}                                targets: A{k}
+───────────────────────────────────────────────────────────
+  {S} distinct skills across {M} nodes (1-5 per node)
+  Backend: {Agent tool | TeamCreate | Lev plugin | Workflow (opt-in)}
+═══════════════════════════════════════════════════════════
+
+🪄 Edit the plan:
+1. Approve and run
+2. Add, remove or reorder waves
+3. Add or remove nodes in a wave
+4. Swap skills on a node, or change its count (1-5)
+5. Re-run skill discovery for a node
+6. Change acceptance criteria, judge or budget
+7. All of the above: edit everything
+8. ⬅️ Back
+```
+
+**Wave Progress** (plan or judge; shown after each judge verdict):
+```
+───────────────────────────────────────────────────────────
+  WAVE {N} JUDGED — {satisfied | not satisfied}
+───────────────────────────────────────────────────────────
+  Criteria: A1 met  |  A2 unmet ({evidence})  |  ...
+  Planned W{N+1}: {purpose} [{nodes} nodes]
+  Actual  W{N+1}: {kept | amended: {change} | replaced: {why}}
+  Budget: {used}/{max} waves  |  {n} without progress
 ───────────────────────────────────────────────────────────
 ```
