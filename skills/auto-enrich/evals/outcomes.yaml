@@ -5,9 +5,9 @@ gate: promotion
 claim: >-
   Simple mode completes without a companion invocation, while standard and deep
   use exactly one explicit opposite-provider companion session across every
-  interview and hardening turn.
+  interview and hardening turn; repairs and disputed findings return to that session before closure.
 deterministic:
-  policy: python3 scripts/depth_policy.py --mode=<simple|standard|deep>
+  optional_policy_check: python3 scripts/depth_policy.py --mode=<simple|standard|deep>
   test: python3 scripts/test_depth_policy.py
 cases:
   - id: simple_no_companion
@@ -15,13 +15,22 @@ cases:
     outcome: zero companion_invocation events and one host-only semantic pass
   - id: standard_one_session
     mode: standard
-    outcome: one explicit session id reused for optional interview and one hardening cycle
+    outcome: one explicit session id reused for optional interview and review-repair-verification; default two review cycles, ceiling five
   - id: deep_one_session
     mode: deep
     outcome: one explicit session id reused across every bounded turn and cycle
   - id: session_replacement_rejected
     mode: deep
     outcome: a trace containing two companion session ids fails validation
+  - id: repair_requires_same_session_verification
+    mode: standard
+    outcome: revised digest and rejected-finding counterevidence return to the same reviewer; final approval names the latest digest
+  - id: one_cycle_exhaustion_is_unverified
+    mode: standard
+    outcome: with an explicit one-cycle cap, a post-review repair remains unverified_revisions rather than approved
+  - id: known_human_decision_handoff
+    mode: standard
+    outcome: companion verifies the plan holds emission on the decision; the host preserves the decision without asking the reviewer to impersonate the operator
 field_gate:
   requirements:
     - run simple with a real planning artifact and prove no second CLI process or companion event
