@@ -20,6 +20,7 @@ Restore the user's understanding: what this work is for, what happened, which de
 | `/explain --refresh [topic or task]` | Reorient from current project evidence, then explain what changed since the selected conversation |
 | `/explain --levify [topic or task]` | Map intent and concepts through the bound project's existing Lev vocabulary, owners and lifecycle |
 | `/explain --teach [topic or task]` | Teach a small, source-backed concept batch with a learning map, visuals and retrieval practice |
+| `/explain --code <path or module>` | Make a guided code tour: several pages from system context down to the code, with diagrams, snippets, patterns and gaps |
 
 These are skill invocation patterns, not shell commands. N is a positive integer. A numeric request selects N distinct conversations before grouping related work; do not silently replace conversations with N projects.
 
@@ -39,6 +40,7 @@ Flags load their reference leaves, not parallel skills or runtime commands:
 - `--refresh`: read [references/refresh.md](references/refresh.md).
 - `--levify`: read [references/levify.md](references/levify.md).
 - `--teach`: read [references/teach.md](references/teach.md).
+- `--code`: read [references/code.md](references/code.md).
 - ELI5/Caveman: read [references/caveman.md](references/caveman.md).
 
 Modifiers compose without changing conversation selection: refresh establishes
