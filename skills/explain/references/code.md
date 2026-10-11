@@ -58,8 +58,10 @@ reader or the page order is unclear.
    Done when: every diagram node names a real file, package or function.
 
 6. **Cut the snippets.** Copy the lines from the file; never retype them. A
-   snippet is 5 to 25 lines. Put `path:start-end` in `filename`. Name the lines
-   that matter, and why, in the text under the snippet.
+   snippet is 5 to 25 lines. Put `path:start-end` in `filename`, set
+   `startLine` to `start` so the rows show the file's line numbers, and list
+   the lines that matter in `highlightLines` (file line numbers, or `'a-b'` ranges). Name those
+   lines, and why, in the text under the snippet.
    Done when: `sed -n 'start,endp' path` prints each snippet exactly.
 
 7. **Build the RenderSpec** at `.lev/now/<slug>-tour.json` in the project:
