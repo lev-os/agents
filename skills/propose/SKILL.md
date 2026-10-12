@@ -21,7 +21,10 @@ For any non-trivial direct or routed invocation, load [Project Context](../lev/r
 - `/propose map` and `/propose all slices` render a compact slice map only.
   They never create child task folders.
 - `/propose emit <slice-id>` writes exactly one
-  `.lev/pm/tasks/<task-id>/{dna.yaml,execution.yaml}` packet.
+  `{dna.yaml,execution.yaml}` packet in the task folder of the workstream that
+  owns the slice: `.lev/pm/workstreams/<workstream-id>/tasks/<task-id>/`.
+  Use `.lev/pm/tasks/<task-id>/` only when no workstream owns it. Both places
+  are declared in `core/workstream/config.yaml` (`entity_definitions.task`).
 - Materialize a task just before it enters the ready set. Regenerate from the
   current source when a design, dependency, or boundary has changed.
 
@@ -46,7 +49,7 @@ or evidence changed; do not rewrite every referenced document.
 
 Lifecycle lane: Execution preparation
 Entity movement: `captured | designed | planned | aligned -> proposed | execution_ready | needs_interview | needs_plan`
-Workstream: resolve the active workstream before writing task artifacts
+Workstream: resolve the workstream that owns the slice (the `ws` skill) before writing task artifacts; the task folder goes under it
 Upstream: `/capture`, `/interview`, `/lev-plan`, `.lev/pm/designs/*`, `.lev/pm/plans/*`, aligned simple-slice intent
 Downstream: `/exec`, `/capture`, `/lev-plan`, `/interview`
 Router: `/work`
