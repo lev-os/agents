@@ -14,6 +14,42 @@ triggers:
 Inventory conversation state, write durable artifacts, and route each entity to
 its next lifecycle owner. `/dump` is `capture --deep`.
 
+## Patch, Route, and Clear
+
+Recognize a brain dump as deep capture. Preserve source wording in the existing
+owning capture when one fits; patch changed rows instead of creating another
+capture for the same topic. Break the source into rows before enrichment.
+
+Probe prior art for each material row before editing its destination. When the
+active workflow authorizes delegation, use a small read-only agent fanout and
+reconcile its findings centrally. Decide whether the row updates, supersedes,
+duplicates, or conflicts with existing intent. Resolve a conflict from an
+explicit ruling or ask the human before the dependent write; never silently
+append contradictory canon.
+
+Write through the destination's owner, then read back its relevant projection
+and check source fidelity. Only after that check, mark the capture row `done`
+with `next_route: none` and the actual `destination_ref`. Here `done` means
+capture reconciliation, not implemented or shipped. The active queue projects
+rows whose `route_state` is not `done` or `rejected`; retained ledger rows and
+source messages preserve history. A missing, failed, or conflicting destination
+keeps the row active. Leave future implementation work with its owning artifact.
+
+## Structured Data Projection
+
+For YAML/JSON, gauge byte size and structure before loading content into agent
+context. Use code mode, Bash, or Python with an available parser to inspect
+top-level keys, collection counts, and the requested paths. Read a small record
+directly when it fits the current question; for a large record, emit a bounded
+projection with source path, selected keys/row IDs, and omitted scope. Keep
+unknown fields intact when patching; use the owner writer or a layout-preserving
+editor rather than rewriting the whole document from a partial projection.
+
+This is a development stopgap using available tools, not a new public CLI.
+Human-facing prose belongs in Markdown; YAML holds machine declarations and
+established structured payloads, and JSON holds runtime state. Follow existing
+contracts until their migration is authorized.
+
 ## Entity Reconciliation
 
 After authorized material progress, reconcile touched and causally affected
@@ -59,8 +95,8 @@ steps:
     on_failure: "Unknown state stays in memory and becomes the first output bucket."
 
   - id: prior_art_probe
-    action: For non-trivial items, search existing work before creating new files.
-    validation: "Existing home found, or 'no prior art found' is stated."
+    action: For every material row, probe existing work and decide update, supersession, duplicate, or conflict before writing canon.
+    validation: "An existing home and reconciliation basis are recorded, or the searched scope and missing prior art are explicit; conflicts are resolved or blocked."
     on_failure: "Route to /prior-art before proposing new artifacts."
 
   - id: seed_qa_contract
@@ -69,8 +105,8 @@ steps:
     on_failure: "Keep the item captured and route to /interview or /propose before /exec."
 
   - id: write_artifacts
-    action: Save in-memory items to the selected workstream or .lev/pm route.
-    validation: "No writable item remains only in conversation memory."
+    action: Patch the existing capture and route each writable row into its owning artifact.
+    validation: "No writable item remains only in conversation memory; each destination is read back before the capture row leaves the active queue."
     on_failure: "List only the unwritten items under In Memory with blocker."
 
   - id: score_fidelity
@@ -79,8 +115,8 @@ steps:
     on_failure: "Re-capture at higher zoom or route to /interview."
 
   - id: reconcile_capture_ledger
-    action: Build or update only changed lifecycle ledger rows before routing or final output; preserve accepted unchanged rows by reference.
-    validation: "Every changed item has the full ledger fields; unchanged accepted items retain a valid referenced row."
+    action: Update changed ledger rows, clear verified reconciled rows from the active projection, and retain source history.
+    validation: "Every changed row has the full ledger fields; reconciled rows identify their checked destination; unresolved rows remain active."
     on_failure: "Do not advance routes. Show unresolved ledger rows under In Memory or Blocked."
 
   - id: show_delta
@@ -117,9 +153,10 @@ deep_capture:
   repeat_until: "all writable items have stored fidelity >= in-memory fidelity and every material source row has a visible destination"
   loop:
     - inventory by topic
-    - prior-art per topic
+    - prior-art per material row
     - write or update durable route
-    - score fidelity
+    - read back destination and score fidelity
+    - clear reconciled rows from the active queue while retaining history
     - enrich weak captures
   circuit_breaker: "3 iterations without fidelity improvement"
 ```
