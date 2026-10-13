@@ -11,8 +11,9 @@ Run a design-acquisition interview. First reduce ambiguity until the subject, in
 
 The interview output is a design, not a spec. It should carry the product
 framing normally expected from a PRD, but inside the design artifact.
-After design alignment, route by scope and domain: broad work needs
-`skill://lev-plan`; a bounded coding slice uses `skill://propose`; non-coding
+After design alignment, route by scope and domain: broad work needs a plan from
+`skill://lev-plan`; a bounded coding slice uses that skill's slice review or
+packet with the plan recorded as not required; non-coding
 work can use a sufficient plan directly with its domain execution owner.
 </goal>
 
@@ -265,7 +266,7 @@ steps:
       The output target is a design artifact: problem framing, constraints, direction, alternatives, interaction model, PRD-style product sections, risks, and recommendation.
       It should also carry proof design and a design-to-propose handoff when the next step is execution packet creation.
       Write or update the design under .lev/pm/designs/ using the canonical design template.
-      When the user says propose, stop interviewing and hand the aligned design to propose.
+      When the user says propose, stop interviewing and hand the aligned design to `skill://lev-plan`.
     validation: "A design artifact path under .lev/pm/designs/ is named or updated."
     on_failure: "Add a concrete design artifact target before asking."
 ```
@@ -370,7 +371,7 @@ proposal readiness below describe the SDLC overlay, not a mandatory non-coding g
 | Result | Next owner |
 |---|---|
 | Broad aligned design | `skill://lev-plan` |
-| Bounded coding slice ready to specify | `skill://propose` |
+| Bounded coding slice ready to specify | `skill://lev-plan` slice review or `emit`, plan not required |
 | Sufficient non-coding plan and authorized next action | `skill://exec` with the domain method; proposal optional |
 | Planning artifact needs adversarial enrichment | `skill://auto-enrich` |
 | Feasibility remains unresolved | `skill://poc` |
@@ -470,7 +471,7 @@ rules:
   - "Use YAML for workflow, contracts, scoring, validation, and state."
   - "Template wrappers in this file are XML, but visible interview output is plain markdown only — never emit XML tags (decision-context, analysis, evidence, options, etc.) into the transcript."
   - "Use d. Deep dive for evidence, gates, trade-offs, codebase exploration, and alternate lenses."
-  - "When the user says propose, stop interviewing and route the aligned design to propose."
+  - "When the user says propose, stop interviewing and route the aligned design to `skill://lev-plan`."
   - "When the user says plan, route to the standalone planning lane instead of treating plan as a propose prerequisite."
 validation: "Output is an orientation question while ambiguity is high, a design question while branches remain, or the compact design result when ready. Deep detail appears only after d. Deep dive."
 on_failure: "Rewrite the response using the orientation, design, or design-result live XML template."

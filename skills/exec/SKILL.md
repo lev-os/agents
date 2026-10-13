@@ -25,7 +25,7 @@ and SDD mechanics and `skill://lev` before authoring unfamiliar URI families.
 First classify coding versus non-coding. The SDLC task-packet protocol below
 applies to coding or an explicitly selected SDLC overlay, not every Lev task.
 Coding with unresolved architecture routes to `skill://arch`, then
-`skill://lev-plan` for broad work and `skill://propose` for packet readiness.
+`skill://lev-plan` for broad work and for packet readiness.
 Skip settled decisions. Non-coding may enter from a sufficient plan or domain
 artifact without propose: bind outcome, permitted effects, acceptance, context,
 dependencies and stopping condition; then use the selected domain skill or
@@ -88,7 +88,7 @@ Before dispatch:
    before a real dispatch when profile/model selection matters. Treat dry-run
    binding output as resolution evidence, not live provider execution proof.
 5. If no project, FlowMind, or exec-profile policy exists, stop and route to
-   `/propose` or diagnostics for a policy decision instead of inventing a stale
+   `/lev-plan` or diagnostics for a policy decision instead of inventing a stale
    model default in the skill.
 
 ## Worker / Reviewer Profile Pattern
@@ -135,8 +135,8 @@ or evidence changed; do not rewrite every referenced document.
 Lifecycle lane: Exec
 Entity movement: `execution_ready -> executing -> verified | blocked | needs_propose`
 Workstream: resolve active workstream and task entity before dispatch
-Upstream: `/propose` for SDLC; sufficient plan or domain artifact for non-coding
-Downstream: `/close`, `/lev-plan`, `/propose`, `/handoff`, selected domain skill
+Upstream: `/lev-plan` packet for SDLC; sufficient plan or domain artifact for non-coding
+Downstream: `/close`, `/lev-plan`, `/handoff`, selected domain skill
 Router: `/work`
 HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count} ✅{done_count} | 🚦{gate}={score} | ⏭️ {next} | 🔁{loop_state}`
 
@@ -152,7 +152,7 @@ by Lev SDK, not prose:
 5. If `proof_gates.pentagon.lfd.required` is true, verify the LFD target,
    constraints, instruments, dev/holdout policy, cheap paths, and preflight
    calibration before dispatch.
-6. If readiness fails, stop before worker dispatch and route to `/propose`.
+6. If readiness fails, stop before worker dispatch and route to `/lev-plan`.
 
 Hard rule: a green command is not enough. Completion needs queryable
 receipt/trace evidence: node artifacts, branch decisions, verifier commands,
@@ -164,7 +164,7 @@ selected candidates. Routing and telemetry claims need machine-readable traces.
 For LFD-shaped work, a worker must not see or mutate holdout answers, scorer
 internals, private lint details, or calibration fixtures. If the execution
 surface cannot enforce that read/write split, run only dev/preflight checks and
-route the holdout or harness design back to `/propose`.
+route the holdout or harness design back to `/lev-plan`.
 
 ## Isolated TDD Cycle Contract
 
@@ -227,7 +227,7 @@ unavailable, not passed. Reviewer-fixer runs still need checks after their edits
 
 ## Execution Follow-up Ledger
 
-Every exec follow-up must preserve the artifact ledger from `/propose` and add
+Every exec follow-up must preserve the artifact ledger from `/lev-plan` and add
 runtime evidence: selected slice, command, cwd, verifier, receipt/trace refs,
 touched files, result, fidelity/confidence, and next route. Follow-ups are
 compiled into agent-operational rows, not copied from final-answer prose. If a
@@ -241,27 +241,27 @@ steps:
   - id: resolve_context
     action: Identify workstream, task path, execution artifact, and target slice.
     validation: "workstream id, task id/path, and current slice are known."
-    on_failure: "Route to /work, /ws, or /propose before executing."
+    on_failure: "Route to /work, /ws, or /lev-plan before executing."
 
   - id: validate_task
     action: Run `lev task validate <task-id|task-path>`.
     validation: "Task validation exits 0, or failures are captured as proposal work."
-    on_failure: "Do not dispatch. Route to /propose with diagnostics."
+    on_failure: "Do not dispatch. Route to /lev-plan with diagnostics."
 
   - id: read_execution_yaml
-    action: Extract topology, runtime_profile, proof_gates, verifier_contract, write_scope, dependencies, and forbidden_moves.
+    action: Extract topology, the existing runtime_profile_ref, verifier_contract, write_scope, dependencies, and forbidden_moves; resolve the selected flow's gate nodes and the task's requirements and checks.
     validation: "Every slice has verifier, write scope, and dependency status."
     on_failure: "Treat as not execution-ready."
 
   - id: read_proof_gates
-    action: Classify Pentagon, UltraQA, and ai-slop-cleaner gates for the selected slice.
-    validation: "Each applicable proof gate has commands, scenario classes, expected receipts, owner-local test placement, and cleanup policy."
-    on_failure: "Route to /propose for proof-gate repair before dispatch."
+    action: Classify the Pentagon, UltraQA, and ai-slop-cleaner gates that apply to the selected slice from the selected flow's gate nodes and the task's requirement rows and checks. Do not require or create a proof_gates container.
+    validation: "Each applicable proof gate has commands, scenario classes, expected receipts, owner-local test placement, and cleanup policy in its existing owning declaration or a referenced proof instruction."
+    on_failure: "Hold an unsupported inline contract; otherwise route to /lev-plan for proof-gate repair before dispatch."
 
   - id: verify_lfd_preflight
     action: Verify Pentagon-LFD target and cheap-path hardening when present.
     validation: "Score/lint/probe/status/proof instruments exist, known-good passes, known-bad fails, lint VOID is non-oracular, holdout is aggregate-only or unavailable to worker, and cheap-path probes fail closed."
-    on_failure: "Do not dispatch. Route to /propose with the failed cheap path and missing instrument."
+    on_failure: "Do not dispatch. Route to /lev-plan with the failed cheap path and missing instrument."
 
   - id: classify_batch
     action: Mark slices parallel_safe or serial_only and lev_exec_first or subagent_required.
@@ -271,7 +271,7 @@ steps:
   - id: verify_surface
     action: Run `lev exec --help`, confirm flow exists, and confirm command shape before dispatch.
     validation: "No guessed flags or flow names."
-    on_failure: "Downgrade to subagent or route to /propose."
+    on_failure: "Downgrade to subagent or route to /lev-plan."
 
   - id: dispatch
     action: Run the selected flow or subagent with bounded prompt, write scope, and verifier.
@@ -336,7 +336,7 @@ steps:
   its declared checks, review the integrated batch once when review is warranted,
   then decide whether the next slice is still execution-ready.
 - Reviewer `advice` is a terminal blocker for the current dispatch. Route to
-  diagnostics or `/propose`; do not treat advice as another worker prompt.
+  diagnostics or `/lev-plan`; do not treat advice as another worker prompt.
 - A no-op worker followed by reviewer advice is an immediate stop condition.
 - A green command plus reviewer advice means the verifier is insufficient or the
   claim is overbroad. Stop and repair the task/proof, not the code.
@@ -376,7 +376,7 @@ steps:
 | reviewer loop needed | `lev-ralph` if supported by current CLI |
 | no clean verifier or bespoke context | subagent with explicit scope and verifier |
 | architecture or tradeoff work | `skill://arch`, then `/interview` for human decisions or `/lev-plan` for broad changes |
-| weak/missing execution artifact | `/propose` |
+| weak/missing execution artifact | `/lev-plan` |
 
 ## Next-Step Mini-Router
 
@@ -386,7 +386,7 @@ a choice is useful. A clear authorized next step proceeds without a forced menu.
 | Result | Route | Expected result |
 |---|---|---|
 | Accepted checks and review | `skill://close` | Settle the completed chunk, not the whole effort by inference |
-| Coding contract or scope changed | `skill://propose` | Repair the selected SDLC packet |
+| Coding contract or scope changed | `skill://lev-plan` | Repair the selected SDLC packet |
 | Non-coding plan incomplete | `skill://lev-plan` | Repair outcome, acceptance or next unit without mandatory proposal |
 | Architecture decision unresolved | `skill://arch` | Resolve technical options before implementation |
 | Blocked, paused or budget spent | `skill://handoff` | Preserve result and exact resumption condition |
@@ -438,11 +438,11 @@ docs and carry explicit notes for:
 | "We can infer success from no-regression." | Behavioral claims need direct outcome evidence. |
 | "The CLI probably supports that flag." | Run `--help`; never guess. |
 | "Trace is optional." | Routing, telemetry, and receipt claims need machine-readable evidence. |
-| "The executor can fix the plan." | Weak plans route to `/propose`, not execution. |
+| "The executor can fix the plan." | Weak plans route to `/lev-plan`, not execution. |
 | "The scorer is just a helper." | For LFD-shaped work, the scorer is the target; if it is weak, patch the loss function before dispatch. |
 
 ## Related
 
 - `/work` routes lifecycle state.
-- `/propose` creates execution-ready artifacts.
+- `/lev-plan` plans and creates execution-ready artifacts; `/propose` is its compatibility alias.
 - `/close` seals verified work.
