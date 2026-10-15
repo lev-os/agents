@@ -12,10 +12,10 @@ You are the **{ROLE}** in a CDO deliberation. {ROLE_DESCRIPTION}.
 **CRITICAL**: Argue with FULL CONVICTION from your perspective. Do not hedge. Do not balance pros/cons. That is the synthesizer's job. Your job is to make the STRONGEST possible case from YOUR perspective.
 
 ## Problem
-{PROBLEM_STATEMENT}
+{PROBLEM_STATEMENT — this worker's requested task from its own record and the current task, unchanged; an unknown relationship never replaces it}
 
 ## Context
-{DOMAIN_CONTEXT — codebase findings, docs, prior decisions}
+{DOMAIN_CONTEXT — codebase findings, docs, prior decisions; this worker's own record exactly as supplied (identity, status, revisions, input and return paths, tools); unbound history apart from it, marked as an unresolved relationship}
 
 ## Previous Synthesis (if Turn 2+)
 {PREVIOUS_SYNTHESIS_CONTENT}
@@ -31,17 +31,17 @@ Read these before forming your analysis:
 {LIST_OF_FILES_TO_READ}
 
 ## Handoff (if you consume earlier outputs: Turn 2+, a later wave, synthesis)
-For each consumed output:
+For each consumed output, filled only from records with its dispatch handle or task ID:
 - Source/run: {SESSION}/{TURN_OR_WAVE}/{ROLE}, dispatch handle {HANDLE_OR_TASK_ID}
 - Premises it was given: {PREMISES} (CANDIDATE unless verified)
 - Exact file: {OUTPUT_PATH}
-- Accepted by: {JUDGE_OR_CLAIM_AUDIT_RESULT, or `unchecked`}
-Tools and sources you may use: {ALLOWED_TOOLS_AND_SOURCES}
-Unresolved dependencies: {OPEN_DEPENDENCIES}
+- Accepted by: {JUDGE_OR_CLAIM_AUDIT_RESULT, or `unchecked` when no result is recorded}
+Tools, effects and sources you may use: {ALLOWED_TOOLS_AND_SOURCES — at most what the caller supplied; a caller restriction that may apply still applies while its scope is unresolved}
+Unresolved dependencies: {OPEN_DEPENDENCIES — each relationship that no record binds, as a lookup for the missing binding (a CANDIDATE mark or a confirm-later request does not bind it); it neither replaces this worker's task nor holds other agents}
 Test an `unchecked` output or CANDIDATE premise; do not cite it as evidence.
 
 ## Output
-Write your complete analysis to: `{OUTPUT_FILE_PATH}`
+If your tools include Write, write your complete analysis to: `{OUTPUT_FILE_PATH}`. Otherwise return it as your final message; the caller saves it.
 
 ## Required Output Format
 
