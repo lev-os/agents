@@ -286,7 +286,8 @@ finding under structural, behavioral or integration status. Do not turn a
 quality grade into a promotion decision and do not apply an automatic effect.
 
 For `--behavior`, freeze the subject and reference digests, scenario packet,
-allowed effects and finite budget first. Use fresh contexts, keep source,
+allowed effects, finite budget and the comparison controls in Absorb step 2
+first. Use fresh contexts, keep source,
 reference and absorbed arms identifiable, and preserve raw outputs. A fresh
 prompt is not OS isolation; label shared-workspace trials
 `representative_nonhermetic`. A no-op or inconclusive result stays visible.
@@ -323,8 +324,12 @@ Start with a quick three-arm comparison before a broad mapping or rewrite:
    disposable worktree when possible; label a supplied example as synthetic.
    State the expected artifact and why it changes the next action. A synthetic
    falsifier alone does not establish usefulness for the user's actual task.
-2. Freeze the fixture, question, source, unchanged-owner and candidate digests, model, tools,
-   permitted effects, and finite trial budget. Define observable checks before
+2. Freeze the fixture, question, source, unchanged-owner and candidate digests,
+   permitted effects and finite trial budget, plus these comparison controls:
+   the resolved model and effort with any relevant model overrides, and the
+   tool and context policy. Keep every shared non-treatment package and
+   reference byte-identical across arms. Record an unknown control as
+   unresolved before any comparison. Define observable checks before
    dispatch and keep their expected answers out of the subjects' prompts.
 3. Give three fresh subagents the same fixture and task:
    - Contender alone: paste the complete original source skill and references.
