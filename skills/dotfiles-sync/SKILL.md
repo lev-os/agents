@@ -7,11 +7,19 @@ description: Reconcile chezmoi dotfiles and the separate ~/.agents Git repositor
 
 NEVER REBASE. ALWAYS MERGE.
 
+Every invocation covers two repositories: `~/.agents` for shared skills and
+`~/.local/share/chezmoi` for dotfiles. Complete each repository independently.
+The `dotfiles` helper checks chezmoi only; its clean result says nothing about
+Agents. Report both outcomes before calling the sync complete.
+
 ## Authorized recurring machine sync
 
 When the user authorizes recurring sync, that authorization covers safe changes within the agreed scope; do not ask for routine confirmation on every tick. Keep the interactive report/confirmation flow below for ad hoc sync without standing authorization.
 
 - Use one host-local hourly Codex tick, serial execution and a nonblocking lock. Sync `~/.agents` hourly; run the chezmoi workflow only when 24 hours have passed since its last attempt. Record attempts and successes separately. Preserve existing holds and deduplicate unchanged alerts.
+
+## Repository rules (every run)
+
 - Treat `~/.agents` as its own Git repository, not a new chezmoi-managed tree. Never `chezmoi add ~/.agents`. Keep existing repository and submodule boundaries; do not advance or recurse into vendor submodules automatically.
 - Dirty and new skill source files are expected: this sync shares work in progress as well as finished skills. Inspect the branch, upstream, index, merge state and tracked/untracked paths. Review each changed skill with its new local references, scripts and assets as one coherent change. A new file inside a skill, or a new skill with `SKILL.md`, is eligible when its content serves that skill and passes the exclusions below; it does not need separate approval merely because it is untracked or unfinished.
 - Stage only reviewed explicit paths, including eligible new dependencies, and inspect the staged diff before committing. Preserve pre-existing staging: include it only when its exact contents are reviewed and belong to the same eligible change; otherwise leave it intact and hold only the affected change. Recheck file/index contents before commit; if they changed during review, retry that change on a later tick. Commit the reviewed snapshot, fetch and MERGE the configured upstream, then push normally. Never rebase, force-push, mass-add unknown files, or overwrite concurrent work.
@@ -33,12 +41,14 @@ Always use "local" and "remote" when presenting drift reports. Never use chezmoi
 ## Trigger
 
 Run this workflow when you need to:
+- share modified or new agent skills and their dependencies
 - reconcile local-vs-remote dotfile drift
 - inspect pending chezmoi changes before apply
 - perform a safe remote-first sync across machines
 
 ## Inputs
 
+- Agents repository at `$HOME/.agents`, with its configured branch and upstream
 - Chezmoi remote repo at `$HOME/.local/share/chezmoi`
 - Local state under `$HOME`
 - `dotfiles` helper available on PATH
@@ -49,9 +59,10 @@ Run this workflow when you need to:
 
 ### Phase 1: Scan + Auto-Classify (immediate, no user interaction)
 
-1. Run `dotfiles status` and `dotfiles sync` in parallel.
-2. Run `dotfiles inspect chezmoi-diff` to get full diff content for every entry.
-3. **Auto-classify every diff** into exactly one of these buckets. There is NO "manual review" bucket — every diff MUST be classified:
+1. Inspect `~/.agents`: branch, upstream, index, merge state, and every tracked/untracked change. Review each changed skill with its dependencies under the repository rules above. Record every change as eligible or held with a concrete reason. Done: every Agents change has a disposition, including a clean repository that still needs upstream reconciliation.
+2. Run `dotfiles status` and `dotfiles sync` in parallel.
+3. Run `dotfiles inspect chezmoi-diff` to get full diff content for every entry.
+4. **Auto-classify every chezmoi diff** into exactly one of these buckets. There is NO "manual review" bucket — every diff MUST be classified:
    - **remote-only** — exists in remote, not reflected locally. This does not automatically mean local intentionally removed it; it can also mean this machine never installed or does not use an optional file.
    - **local-drift** — local changed intentionally, remote is stale (MM where target newer)
    - **conflict** — both changed in the same area (MM where both recent, content diverges structurally)
@@ -70,7 +81,7 @@ Run this workflow when you need to:
    - Treat `run_onchange_*` scripts as executable side effects, not normal file updates. Inspect the script before GO. Example: the QMD installer was narrow; `install-deps` triggered broad Homebrew upgrades and was not safe as a QMD-scoped action.
    - Check `.lev/pm/handoffs/` and memory for prior decisions about specific paths before classifying ambiguous items.
 
-4. For each classified diff, determine GO/NO-GO:
+5. For each classified diff, determine GO/NO-GO:
    - **remote-only** → GO only when the remote file is clearly desired on this machine; otherwise ESCALATE or intentional-removal/forget
    - **local-drift** → GO (re-add from local to remote)
    - **conflict** → ESCALATE (present both sides, require explicit user decision)
@@ -90,6 +101,12 @@ SUMMARY
   Auto-resolved: N (GO)
   Escalations: N (need your call)
   Volatile skipped: N
+
+REPOSITORIES
+| Repository | Local changes | Upstream state | Action or concrete hold |
+|------------|---------------|----------------|-------------------------|
+| Agents (~/.agents) | reviewed eligible and held paths | verified or unavailable | commit, merge, push; or reason |
+| Dotfiles (chezmoi) | classified differences | verified or unavailable | reviewed actions; or reason |
 
 ACTIONS (GO)
 | # | Path | Direction | What changes | Classification |
@@ -116,21 +133,25 @@ CHEZMOIIGNORE CANDIDATES
 
 For escalations, explain intent, not just timestamps. Timestamp is evidence only. Example: local OpenCode config newer than remote means local may win, but a single remote package-name correction can still be merged intentionally.
 
-End the report with a single go/no-go prompt:
+When execution is already authorized in this conversation or by the recurring
+contract, proceed with the reviewed actions. Ask only for unresolved decisions
+or actions outside that authorization. Otherwise end the report with a single go/no-go prompt:
 - If zero escalations: "All N actions are auto-classified GO. Execute? [y/n]"
 - If escalations exist: "N actions ready, M need your call. Resolve escalations first, then execute."
 
-### Phase 3: Execute (only after user confirms)
+### Phase 3: Execute (within existing authorization or after confirmation)
 
-5. Re-add local-drift files to remote: `chezmoi re-add <paths>`
-6. Remove intentional-removal files from remote: `chezmoi forget --force <paths>`
-7. Review `git -C ~/.local/share/chezmoi status --short`
-8. Commit with descriptive message
-9. Fetch, then merge remote changes (NEVER rebase)
-10. Push
-11. Only after remote is settled: `chezmoi apply --force` for remote-only and script-rename paths
-12. Re-run `dotfiles sync` to verify clean state
-13. Report final state
+6. Sync Agents first. Load [Sync](../sync/SKILL.md) and run its plan from `~/.agents`. Use its bounded run only when its whole-repository staging and submodule behavior fit the reviewed inventory. When excluded, held or concurrent paths make that unsafe, use explicit reviewed paths: stage, inspect the staged diff, recheck the snapshot, commit, fetch, merge the configured upstream, and push normally. Preserve other changes and existing staging. A clean Agents tree still needs fetch/merge/push reconciliation. Done: eligible changes are published, or a concrete Git/validation blocker is recorded; independent chezmoi work can continue.
+7. Re-add local-drift files to remote: `chezmoi re-add <paths>`
+8. Remove intentional-removal files from remote: `chezmoi forget --force <paths>`
+9. Review `git -C ~/.local/share/chezmoi status --short`
+10. Commit with descriptive message when changes exist
+11. Fetch, then merge remote changes (NEVER rebase)
+12. Push
+13. Only after remote is settled: apply the reviewed remote-only and script-rename paths explicitly; exclude scripts unless their effects were reviewed and authorized.
+14. Verify Agents: compare local HEAD with the live upstream branch, inspect remaining dirty paths, and account for every held or concurrently changed path. A failed upstream check leaves publication unverified.
+15. Re-run `dotfiles sync` and `dotfiles status` to verify chezmoi state.
+16. Report both repository outcomes, pushed commits, remaining differences and concrete holds. Done: neither repository is omitted or inferred from the other's success.
 
 ## Team
 
@@ -143,13 +164,16 @@ End the report with a single go/no-go prompt:
 ## Outputs
 
 - Enriched drift report (first response, always)
-- Updated chezmoi remote repo state
+- Updated Agents and chezmoi remote repo states, with separate outcomes
 - Updated local home state after apply
 - Dry-run report at `~/.local/state/lev/dotfiles-sync-plan.latest.txt`
 - Workstream state update at `.lev/pm/workstreams/dotfiles-sync/state/workstream.yaml`
 
 ## Validation
 
+- Agents was inspected and reconciled on this invocation; eligible modified/new skills and dependencies were published or have a concrete blocker.
+- Agents local HEAD matches the live upstream branch, or publication is explicitly unverified; remaining dirty paths are accounted for.
+- The final report includes both Agents and chezmoi outcomes. Chezmoi-only success cannot complete this workflow.
 - Every diff is classified — zero items in any "manual review" or "unclassified" bucket
 - `dotfiles sync` completes clean after execution
 - Any committed remote changes are pushed successfully
