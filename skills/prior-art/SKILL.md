@@ -7,7 +7,7 @@ description: Use when you need an evidence-first provenance report from `cass`, 
 
 Find the existing evidence first, then summarize what it means. This skill is narrower than `lev-research`: it is for provenance, lineage, decision history, and "what already exists?" questions.
 
-If the repo itself is unfamiliar, pair this with `codebase-archaeology` first so the prior-art sweep starts from real project structure instead of guesses.
+If the repo itself is unfamiliar, orient graph-first (tool 0 below) so the prior-art sweep starts from real project structure instead of guesses.
 
 ## 1. Frame the search
 
@@ -26,14 +26,18 @@ If the repo itself is unfamiliar, pair this with `codebase-archaeology` first so
 **Tool priority order:**
 0. **codebase-memory MCP** (if available) — for CODE prior art, use
    `search_graph`/`search_code`/`trace_path`/`get_architecture` first; the
-   graph knows symbols, callers, and structure Grep can't rank. Skip silently
-   if the MCP server is not connected this session.
+   graph knows symbols, callers, and structure Grep can't rank. If the MCP
+   server is not connected this session, note that gap and continue with Grep.
 1. **Grep** — exact keyword/pattern search across the repo (instant)
 2. **Glob** — find files by name pattern (instant)
 3. **SemanticSearch** — meaning-based code/doc search (fast)
 4. **Read** — open files directly when you know the path (instant)
 5. **cass** — session history search (5-10s, reasonable)
 6. **`lev find`** — multi-backend fusion search (bd + qmd + ck; ~20s including cold start — **use only if agent tools found nothing**)
+
+Count a tool, MCP server, or `lev find` backend as available only after it
+answers in this session. A missing tool or failed backend is a recorded search
+gap, not evidence that no prior art exists.
 
 **Gitignored intake caveat:** Grep/rg respect `.gitignore`, so
 `workshop/intake/` and other intake sandboxes are silently skipped. When the
@@ -190,13 +194,15 @@ For multi-project work, emit one project block per repo or workspace, then a fin
 
 Always include source paths or session references when possible. If no strong prior art is found, say so plainly and list the next searches you would run.
 
+Trace each claim to its original source, not to a later summary, handoff, or report that cites it. When they disagree, cite the original with its revision or date and label the later copy `Stale` with the discrepancy. Copy paths, URLs, session IDs, line ranges, and revisions verbatim. Before calling a value absent or a claim unsupported, inspect the provided or referenced original rows within the claimed search scope; absence from a bounded summary or projection is not absence from the original. Report scope you did not search as unknown, not as unsupported.
+
 **Validation:** The output separates evidence from interpretation and includes a concrete next step list.
 
-**On failure:** Remove unsupported claims before you answer.
+**On failure:** Quarantine claims the inspected originals do not support: name each as unsupported with the scope searched, keep it out of `Verified`, and withdraw every conclusion or next step that depended on it.
 
 ## Guardrails
 
-- Do not write markdown files unless the user explicitly asks you to.
+- Return the report inline. Save a file only when the user or the invoked workflow authorizes saving; then human-facing prose goes in Markdown, configuration and machine declarations in YAML, and runtime state in JSON.
 - Do not replace `lev-research`; use this skill when the question is specifically about prior art, provenance, lineage, or decision history.
 - Do not treat search hits as proof until you have read the underlying file, expanded the session hit, or inspected the diagram.
 - Do not stop after one search angle. Rephrase the question, then search again.
