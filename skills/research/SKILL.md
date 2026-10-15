@@ -19,7 +19,7 @@ They are not `lev research` CLI flags. Inspect live help before runtime calls.
 |---|---|---|
 | Explicit `--sherlock`, dossier, OSINT, multi-round investigation or resume | [Sherlock](references/sherlock/method.md) | Source-bearing investigation state, deductions, gaps and local dashboard |
 | Explicit `--last30`, last 30 days, recent community testimony or engagement | [Last30](references/last30.md) | Dated platform evidence, coverage, source URLs and provider gaps |
-| Ordinary external question | [Classifier](nodes/classify.md), then its selected node | Source-backed results from the fixed routine |
+| Ordinary external question | [Classifier](nodes/classify.md), then read its selected routine file (step 1) | Source-backed results from the fixed routine |
 | Aviation training resources/corpus | [Pilot training](references/pilot-training.md) | Sourced learning resources; no corpus acceptance claim |
 
 Explicit selectors take precedence. If both child selectors are supplied,
@@ -29,9 +29,10 @@ alone remains local retrieval. Ordinary "deep research" uses the deep routine.
 
 ## Execute the ordinary routine
 
-1. Read the selected routine under `nodes/`; domain routines load
-   [domain contracts](references/domain-routines.md). These domain contracts
-   are not native CLI strategies. Follow fixed stages and fallback order.
+1. When the classifier selects a routine, read `nodes/<routine>.md` (domain routines:
+   [domain contracts](references/domain-routines.md)) before applying or adapting its
+   method, including when backend or network tools are unavailable. These domain
+   contracts are not native CLI strategies. Follow fixed stages and fallback order.
 2. For deep/max/academic, load [prompt and evidence contracts](references/runtime-contract.md)
    and prepare objective, audience, scope, context, subquestions, evidence and output.
 3. Run `lev research --help`. Implementation is `plugins/research`; compatibility
@@ -51,10 +52,16 @@ alone remains local retrieval. Ordinary "deep research" uses the deep routine.
 Quick and deep runs alike keep a short source ledger in the returned answer.
 Mark each source discovered (URL or search snippet only), inspected (content
 actually fetched and read) or failed/unavailable, with its URL or locator,
-access time and how it was obtained. Tie each factual claim to the inspected
+access time, publication time (`unknown` when the source shows none) and how it
+was obtained. Access time records retrieval only. Order sources by publication,
+observation or validity time only where each source states that time; otherwise
+weigh authority and applicability, not recency. Tie each factual claim to the inspected
 sources that support it. A URL or fetched search snippet is discovery, not
 full-page verification: label a claim resting only on discovered sources as
-unverified. Record tool failures and the step 6 fallbacks as ledger gaps.
+unverified. A publisher or authority taken only from a URL, domain or other
+locator is inference: label it so, and call a publisher identified only when
+inspected content shows it. Such inference may still inform authority and
+applicability. Record tool failures and the step 6 fallbacks as ledger gaps.
 
 The existing `--flow=deep-research` route is a prompt-compilation/recursive-search
 POC. Do not describe it as execution of arbitrary graph nodes. Sherlock's method
