@@ -87,7 +87,7 @@ steps:
 
   - id: render_and_route
     action: Render the brief from the template, plus a packet preview when asked, and name the next route. horizon writes no task folder and dispatches nothing.
-    validation: "The brief cites ledger row IDs and carries no second executable ledger; any packet preview is labeled unvalidated and unemitted; Next names exactly one route."
+    validation: "The brief cites ledger row IDs and carries no second executable ledger; any packet preview is labeled unvalidated and unemitted; every preserved row passes the cold-read recall check; Next names exactly one route, and evidence with no available owner stays unresolved."
 ```
 
 ## Does Not Count Defaults
@@ -209,6 +209,14 @@ explicit authorization.
 Render the Markdown inside; do not print the wrapper tags. Delete blocks that
 do not apply; a bounded run keeps the core blocks only. A `lost` fidelity row
 blocks a ready brief, and `narrowed-approved` needs the operator's decision.
+
+A row counts as `preserved` only when its decision-bearing constraints,
+cross-owner boundaries, and unresolved options appear in the brief or behind an
+exact source retrieval pointer. Copy full stable IDs, session identity, and
+other opaque refs exactly. Before marking the brief ready, cold-read it in fresh
+context and confirm each row's constraints and unknowns are recoverable from the
+brief or its pointers. Next names a route only for a gap its owner can close;
+evidence with no available owner stays an unresolved blocker.
 
 <horizon-brief>
 ## Horizon Brief: {brief_id}
