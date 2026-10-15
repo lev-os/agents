@@ -1,0 +1,228 @@
+Opus 5.5 Motion Design: What the Viral 'One-Prompt' Videos Are Hiding
+
+Opus 5.5 dropped on September 22 and within hours people were posting launch films, showreels and full music videos, all rendered from code, all captioned "one prompt"
+
+I spent the week taking those videos apart. A few really did start from 30 words. The best ones started from a 9,500-character brief, a skills folder, two API keys and a run that kept going for 12 hours while the author slept
+
+Below is the whole setup, piece by piece, so your first attempt stops looking like the same demo everyone else posted
+
+ 
+
+AT A GLANCE
+
+Frame Function: Opus writes code, a browser turns it into frames
+
+The Rig: Claude Code, ffmpeg and a headless browser in 10 minutes
+
+The Brief: a production document in place of a vibe
+
+The Reference: borrow a visual grammar and skip the default look
+
+State Lists: one shape that morphs through the whole story
+
+Springs and Sound: motion with mass, audio on the same clock
+
+The Critic: Opus scores its own contact sheet and fixes the worst 3
+
+The Skill: pack the pipeline so the next film is one command
+
+ 
+
+1: Frame Function, or Why Opus Writes a Program Instead of a Video
+
+Opus 5.5 has no way to output an MP4. Every clip on your feed is a program it wrote, and some other tool turned that program into pictures
+
+The whole trick is one function that answers a single question
+
+ 
+
+A headless browser calls it 900 times for a 15-second clip at 60 fps, grabs every frame, and ffmpeg glues them into a file
+
+Nothing runs on a timer, so frame 240 can be drawn on its own without replaying frames 0 to 239. A title that lands too early is one number to change plus a re-render
+
+Left alone, Opus picks the zero-dependency route: one index.html, Playwright capturing frame by frame, ffmpeg encoding. Tommy Rossi found it skips Remotion and HyperFrames even when they're installed, so name a framework if you want one
+
+Where code loses: photoreal scenes, complex characters and organic movement still want footage or a video model. Product films, UI motion, data stories, typography and launch explainers are where seek(t) wins
+
+ 
+
+2: The Rig, or Why the Chat App Alone Gives You Mid Results
+
+The chat app can write the animation. Only an agent with a shell, like Claude Code, can render it, listen to it and look at its own frames
+
+That feedback loop is the whole gap between the viral clips and the "it's a bit mid" replies
+
+ 
+
+Then drop a CLAUDE.md in the project root. Claude Code reads it on every run, so your house rules never need repeating
+
+ 
+
+Effort settings: Opus 5.5 starts on medium. Every viral one-shot ran on xhigh or max. Medium is for small fixes, xhigh for new films, max when the first 3 seconds have to carry a launch
+
+ 
+
+3: The Brief, or Why a Vibe Prompt Leaves Every Decision Open
+
+Ask for "an insane product video" and the model fills each blank with the safest default it knows. That's where the centered gradient title comes from
+
+The famous one-liner still has a job
+
+ 
+
+"Showreel" hands Opus a genre with known rules. Making the model the subject means there's no product to get wrong. 15 seconds fits 6 to 8 shots, and "go all out" stacks extra effort on top of xhigh
+
+Run it once to test your rig and move on. Hundreds of people sent the same sentence and got reels that rhyme with each other, a pattern the athemeroy dataset labels brief contagion
+
+When there's something to sell, Opus needs a production document before any render task. Thariq from the Claude Code team put it bluntly: the post says one-shot while the prompt runs 10k characters with skills, examples and keys
+
+ 
+
+Tony Dinh's TypingMind reel: three extra lines did it, the product URL, a demand for real screenshots, logo and assets, and "must have music". Opus went to the site, collected everything itself and finished in under 30 minutes. A year earlier a similar launch video cost him about $1,200
+
+Rob Hallam's follow-up: after his first reel he asked for a product ad in the same chat, and it came out faster because the renderer, audio synth and export pipeline already existed. Keep one session per brand
+
+Keys: put them in .env and refer to them by name in the prompt. achxvi's public Pocketsflow prompt used a joke placeholder for exactly this reason
+
+ 
+
+4: The Reference, or Why Every One-Prompt Reel Looks the Same
+
+With no visual grammar supplied, Opus brings its own, and unrelated reels start looking like siblings
+
+Rexan Wong went through dozens of viral clips and kept seeing the same thing: naming a style works better than describing one, and a reference frame or video hands over pacing, type and transitions in one go
+
+Three kinds of reference pull their weight. A single frame of a video you love, a short clip Opus slices with ffmpeg, or a folder of your own past work. Pleometric's TikTok-feed piece grew from one frame of another viral animation, and his Donald-style film pointed at his own PC-98 gallery, a library nobody else can copy
+
+ 
+
+For a product film, also let Opus pull the real screens from the live site and review that asset list yourself. If something is missing, the agent should stop and ask instead of drawing a convincing fake
+
+Library choice: Pleometric suggested p5.js and Opus wrote its own paper renderer instead. Spell out the look and the limits and let the model pick the technique
+
+Where to dig for references: whatships.com for launch videos, Dribbble motion, your competitors' launch films
+
+ 
+
+5: State Lists, or Why One Shape That Never Cuts Beats Ten Effects
+
+"Zoom in, morph, add particles" is a list of activity. A storyboard says what the viewer knows at each second
+
+ 
+
+The most-bookmarked prompt of launch week was an XML spec. @twoclipping's UI morph pulled 907K views and 19K bookmarks with it, and @verbove's MakerMap film used the same structure on a real product
+
+The idea behind both: a single container morphs size, radius and color from state to state, a cursor drives every change with real clicks, and the final frame matches the first so the clip loops
+
+ 
+
+Each beat needs an entry state, an exit state and a reason to be there. If the agent can't explain why shot four exists, shot four gets cut
+
+The story version: NFT_Chen had Opus code a cartoon video editor with a timeline, waveform and export button, then stage the whole film inside it. A fake UI works like a film set where every element has a known state
+
+ 
+
+6: Springs and Sound, or Why Cheap Motion Feels Cheap
+
+A fixed easing curve slides from A to B. Motion with mass speeds up, overshoots a hair and settles
+
+Closed-form springs give that feel while staying a pure function of time, so seek(t) stays deterministic. When a value changes target several times, like a cursor or a container's width, stack one spring per change instead of restarting it
+
+ 
+
+That way frame 812 still renders without simulating frames 0 to 811
+
+Give each class of object its own rule. Small UI snaps with minimal overshoot, panels settle, the camera glides almost invisibly, headlines land hard and hold long enough to read, mascots bounce on purpose. If everything overshoots, nothing feels precise
+
+Sound runs on the same clock as the picture. Rob Hallam assumed the audio in his reel was added in post, and it came straight from code. @oozn's Steve Jobs biopic synthesized its soundtrack in Node with 23 transitions locked to 120 BPM
+
+With your own track, measure it before you animate
+
+ 
+
+State changes go on beats, big moments on downbeats, clicks and whooshes on hits
+
+The blindfold test: close your eyes and listen to the film. If the audio has no shape without the picture, the sound design is unfinished
+
+ 
+
+7: The Critic, or Why Opus Has to Watch Its Own Frames
+
+Opus 5.5 reads images, so it can inspect what it just rendered. That one habit is what the clips that blew up had in common
+
+@mablesjoseph was open about his watercolor short: 163 model calls and close to 7 hours of work. Drew's launch-day piece reached 1.7M views and still showed visible cleanup rounds
+
+Skip watching a full export ten times in a row. Have ffmpeg build the evidence
+
+ 
+
+Then hand Opus a critique task with teeth
+
+ 
+
+What to hunt for: overlapping text, elements sliding where they should ease, corner labels, blurry scaled type, a dead beat with nothing happening, a stutter at the loop point
+
+ 
+
+8: The Skill, or Why the Next Video Should Be One Sentence
+
+If the only record of the film lives in a chat, you had a lucky session. Keep the decisions in files the next run can read
+
+ 
+
+Overnight runs need gates. Donald dictated for five minutes, went to sleep and woke up to a 142-second music video that went on to 2.1M views. His prompt ran around 9,500 characters, and @pradeepXkapoor's "Pip" robot film used a 19,000-character brief
+
+ 
+
+The agent can work for hours between gates. A missing interface screenshot is a blocker, and an unclear reference gets a question or one test frame before 900 polished wrong ones
+
+Generate-then-trace: Donald's key move. Seedance 2.5 renders base shots with characters and physics, then Opus redraws the whole film in JavaScript on top, so viewers only see the code-drawn layer. John Heibel's PDoom repo (1.1K stars) shows the subagent version, where Opus writes ANIMATION_GUIDE.md to brief parallel workers across nine chapters
+
+Formats: every aspect ratio comes from the same timeline, never from a crop. Vertical gets bigger type and fewer elements, square gets tighter holds, wide gets more spatial context
+
+Wrap all of this into a skill and the course shrinks to one line
+
+ 
+
+Turning it into income: achxvi now sells exactly this as a service, with music, a mascot in any style, product features, an offer at the end, any language and up to 3 edits. His 38-second vertical product film took 45 minutes
+
+Repos to clone: PDoomVideo for the music-video pipeline, ClaudeAnimationBase as a starter
+
+ 
+
+The Whole Studio in One Table
+
+ 
+
+ 
+
+Why This Actually Matters
+
+A launch film that cost around $1,200 through an agency a year ago now fits into one afternoon with a skill and a critique loop
+
+The first one-prompt result shows up fast, and that's what made the timeline go wild. The bigger deal is that your tenth film comes out better than your first, because the brief, the renderer and the review checklist carry over from run to run
+
+For the next launch you swap the product brief and the assets and keep everything else
+
+ 
+
+What Actually Matters Here
+
+The prompt is roughly a tenth of the result. The harness around it does the rest
+
+Seekability is the one rule you can't bend: any frame has to render on its own, the same way every time
+
+Real product assets only. Opus can invent a camera move, and it should never invent your dashboard
+
+The critique loop is the step people skip because the first render feels like progress, and it's the step every viral clip had
+
+So which piece of your setup would fail the contact sheet test first?
+
+If you made it this far, you already know more about code-rendered video than most people posting it
+
+There's a lot more to this, from character bibles to full generate-then-trace pipelines
+
+@seeconvm is where I keep breaking it down.
+
+More coming soon.
+
