@@ -35,6 +35,11 @@ Bad:
 
 Briefly describe the design problem, the proposed direction, and why it is the right next step.
 
+Include a skim-friendly snapshot: desired outcome, current frontier, high-level
+architecture, and how success will be proved. Keep this human-facing document
+in Markdown. Machine declarations and runtime state stay in their contracted
+YAML/JSON files; do not create a second requirements ledger here.
+
 ## Problem Framing
 
 ### Current State
@@ -61,6 +66,13 @@ Describe the proposed solution from the user, operator, or system perspective.
 ### User / Operator Stories
 
 1. As a `<role>`, I want `<capability>`, so that `<benefit>`.
+
+### Behavior and Acceptance
+
+Map each material story to a requirement ID and a Given/When/Then scenario.
+State observable acceptance criteria, relevant hostile cases, what must be
+true, and what must not be true. These are views of the same requirements,
+not separate competing checklists.
 
 ### Implementation Decisions
 

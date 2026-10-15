@@ -38,7 +38,7 @@ Lifecycle lane: Router
 Entity movement: `unknown -> routed`
 Workstream: resolve active workstream before writes or dispatch
 Upstream: any lifecycle skill or user request
-Downstream: `/ws`, `/capture`, `/prior-art`, `/interview`, `/lev-plan`, `/propose`, `/exec`, `/close`, `/handoff`
+Downstream: `/ws`, `/capture`, `/prior-art`, `/interview`, `/lev-plan`, `/exec`, `/close`, `/handoff`
 Router: `/work`
 HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count} ✅{done_count} | 🚦{gate}={score} | ⏭️ {next} | 🔁{loop_state}`
 
@@ -96,7 +96,7 @@ Next: {one_primary_action}
 The software lanes and task packet rules below simulate the `plugins/sdlc`
 overlay. For non-coding work, retain workstream identity and acceptance but use
 the selected domain's artifacts; a sufficient plan can route directly to its
-domain skill or `skill://exec` without `skill://propose`.
+domain skill or `skill://exec` without an SDLC packet.
 
 ## Next-Step Mini-Router
 
@@ -113,7 +113,7 @@ authority. Unknown destinations return to `skill://lev`; paused work routes to
 | Lane | Entity movement | Owns |
 |---|---|---|
 | Shape | `memory -> captured | blocked` | `/capture`, `/prior-art`, `/interview` |
-| Plan | `captured | designed -> planned | proposed | execution_ready` | `/lev-plan`, `/propose`, `/capture` |
+| Plan | `captured | designed -> planned | proposed | execution_ready` | `/lev-plan` (`/propose` is its compatibility alias), `/capture` |
 | Exec | `execution_ready -> executing -> verified | blocked | needs_propose` | `/exec` |
 | Close | `verified -> closed | monitoring | follow_up` | `/close`, `/handoff` |
 | Router | `unknown -> routed` | `/work`, `/ws` |
@@ -128,8 +128,8 @@ authority. Unknown destinations return to `skill://lev`; paused work routes to
   `skill://<lane>`.
 - Move entities forward one lifecycle state at a time; do not skip from memory
   directly to execution unless sufficient captured, planned or proposed context already exists.
-- Broad work uses `/lev-plan`; for SDLC delivery it precedes `/propose`.
-  One bounded software slice may
+- Broad work compiles a plan in `/lev-plan`; for SDLC delivery the plan
+  precedes its slice map and task packet. One bounded software slice may
   record that a plan is not required.
 - Workstreams are durable identity. Markdown handoffs are projections, not the
   canonical state.
@@ -148,12 +148,12 @@ details.
 
 | Gate state | Meaning | Route |
 |---|---|---|
-| `needs_proof_design` | Highest-risk claim, fail-closed acceptance, or owner-local test placement is unclear | `/interview`, `/lev-plan`, or `/propose` according to scope |
-| `needs_proof_gates` | A non-trivial task lacks `execution.yaml.proof_gates` | `/propose` |
+| `needs_proof_design` | Highest-risk claim, fail-closed acceptance, or owner-local test placement is unclear | `/interview` or `/lev-plan` according to scope |
+| `needs_proof_gates` | Applicable selected-flow node packs or task requirements, or requirement-row `check:` proof, are missing or unresolved; for a v2 task, absence of `execution.yaml.proof_gates` alone must not trigger repair | `/lev-plan` |
 | `needs_runtime_qa` | Declared baseline, Pentagon, UltraQA, or harness runtime checks still need execution | `/exec` |
 | `needs_quality_review` | Cleanup, refactor, fallback, boundary, or AI-slop risk needs ai-slop-cleaner review | `/exec` |
 | `needs_close_verdict` | Work is implemented but proof-gate verdicts or residual risks are not sealed | `/close` |
-| `proof_blocked` | A proof gate fails or cannot run safely | `/propose` for contract repair or `/capture` for follow-up |
+| `proof_blocked` | A proof gate fails or cannot run safely | `/lev-plan` for contract repair or `/capture` for follow-up |
 
 ## Router
 
@@ -193,8 +193,8 @@ steps:
 | Need evidence, provenance, lineage, or duplicate detection | `/prior-art` |
 | Broad/multi-slice idea or design is aligned but lacks a runbook/DAG | `/lev-plan` |
 | Existing plan is shallow, stale, or needs source-fidelity review | `/lev-plan deepen|review` |
-| SDLC plan is faithful and needs a slice map or one execution packet | `skill://propose` |
-| One bounded software intent is aligned and plan-not-required | `skill://propose` |
+| SDLC plan is faithful and needs a slice map or one execution packet | `skill://lev-plan` `map` or `emit <slice-id>` |
+| One bounded software intent is aligned and plan-not-required | `skill://lev-plan` review or `emit <slice-id>` |
 | Non-coding plan is sufficient for authorized execution | Domain skill or `skill://exec`; no mandatory SDLC packet |
 | Task has `dna.yaml` and `execution.yaml` with a verifier | `/exec` |
 | Task needs proof design, proof gates, runtime QA, or quality review | route by `proof_gate_state` |
@@ -227,9 +227,9 @@ do not make another skill depend on reading them at runtime.
 |---|---|---|
 | `templates/report.md` | `.lev/pm/reports/` | `/prior-art`, `/capture` |
 | `templates/plan.md` | `.lev/pm/plans/` | `/lev-plan` |
-| `templates/design.md` | `.lev/pm/designs/` | `/interview`, `/propose` |
-| `templates/proposal.md` | `.lev/pm/proposals/` | `/propose` |
-| `templates/spec.md` | `.lev/pm/specs/` | `/propose` |
+| `templates/design.md` | `.lev/pm/designs/` | `/interview`, `/lev-plan` |
+| `templates/proposal.md` | `.lev/pm/proposals/` | `/lev-plan` |
+| `templates/spec.md` | `.lev/pm/specs/` | `/lev-plan` |
 | `templates/decision.md` | `.lev/pm/decisions/` | `/close` |
 | `templates/validation-report.md` | `.lev/pm/validation-reports/` | `/exec`, `/close` |
 

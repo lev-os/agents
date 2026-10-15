@@ -29,35 +29,41 @@ or evidence changed; do not rewrite every referenced document.
 
 ## Next Route Contract
 
-`$lev next` executes the next eligible bounded action in the active workstream;
-it does not merely describe the next action. Revalidate its entity/source basis,
-authority, dependencies and budget first. If blocked, name the exact prerequisite.
+`$lev --auto` and `$lev --recursive` mean the same bounded unblocking move:
+one recursive wayfinding checkpoint, then concrete forward progress on the
+chosen POC or integration path. `$lev next` advances one already-clear unit.
+These are skill semantics, not additional Lev CLI commands or flags.
 
-Project the selected action as one line: `Next: skill://<name>`,
-`Next: cli://<registered-operation>`, or `Next: trigger://<registered-trigger>`.
-These are typed route references, never shell text. Skill routes load the named
-skill; CLI routes resolve a real command and inspect help; trigger routes resolve
-an existing registered event/flow. Unknown routes remain blocked. This skill
-contract does not create a `lev next` CLI command.
+1. Load [recursive wayfinding](references/recursive.md) in frontier mode.
+   Reconcile the current blocker, failed assumption or dependency against the
+   existing outcome map; reuse an already-settled path instead of replanning it.
+2. Select one actionable child: a bounded POC when feasibility is unresolved,
+   or the existing integration/execution owner when the path is ready. State
+   the expected result, permitted effects and the smallest relevant check.
+3. Perform that action within existing authority, verify the result and return
+   its evidence to the parent. A route recommendation alone is not progress.
+   Stop after the useful increment or at a real decision/dependency boundary.
 
-For this session's Codex POC, before emitting an automatic Next line, register
-the current turn and current entity digest with
-`python3 /Users/jean-patricksmith/ops/pocs/lev-codex-hud/auto.py recommend --route <route> --entity <absolute-path> --turn <current-turn-id>`.
-Only configured read-only skill routes are currently admitted automatically;
-CLI/trigger references require their existing resolver and authority.
-On explicit `$lev next` or `$lev --auto`, rearm a paused episode if no attempt
-is outstanding. Never reset its consumed budget. An injected `Call $lev next`
-with a continuation ID requires `auto.py start --id <id>` before work and
-`auto.py settle --id <id> --evidence <path>` after reporting evidence. These
-controller bookkeeping writes are permitted; they do not authorize task effects.
-Queue → start → settle the reported result → review against the bounded claim →
-`auto.py accept --id <id> --evidence <review-evidence>` before another auto route.
-Controller acceptance permits routing; it is not canonical lifecycle acceptance.
-After 10 automatic turns, pause for mandatory human review. Ordinary rearm must
-not clear that limit or reset counters; explicit human authorization is required
-for another episode.
-Do not assume Stop continuation emits UserPromptSubmit. Never claim native
-continuation until its delivery/start evidence is present.
+Reuse these owners rather than implementing another controller:
+
+| Situation | Route |
+|---|---|
+| Feasibility or an unknown integration seam | `skill://poc` |
+| Settled software slice needs a packet | `skill://lev-plan` Emit |
+| Ready, admitted integration or other domain work | Its existing `skill://exec` or domain owner |
+| One unit needs coordination of managed branches | `skill://orch --once`; follow its mode/capability contract |
+| An explicitly requested tick of an existing typed loop | `skill://ll run`; follow its existing loop contract |
+| An explicitly requested persistent goal | `skill://goal-exec`; preserve its goal-creation gate |
+
+The Lev auto/recursive alias does not select orch AUTO, create a goal, schedule
+LL, start a heartbeat, or require an external episode ledger. Those broader
+modes keep their own explicit triggers and authority. Preserve any limits
+already binding on the selected work.
+
+Project the selected owner as `Next: skill://<name>` or a resolved
+`cli://<registered-operation>` / `trigger://<registered-trigger>`. Skill routes
+load guidance; CLI/trigger routes resolve real supported operations before
+use. Unknown routes stay unresolved. No task-specific Ops script is needed.
 
 ## First Move: Route OR Operate the Runtime
 
@@ -83,12 +89,12 @@ offer; code is one possible manifestation. Normal progression visits the next
 stage only after its conditions hold. Gate rejection stays or returns to an
 earlier stage; it never skips forward or certifies a later stage.
 
-For graph proposals, recursive depth/density requests, or `--auto --recursive`,
+For graph proposals or explicit recursive depth/density requests,
 load [references/recursive.md](references/recursive.md). It defines breadth-first
 simulation, candidate graph deltas, durable capture, and existing-to-proposed
 visualization. These are skill semantics, not newly implemented CLI flags.
-`--auto` performs eligible shaping/projection within scope; applying proposed
-effects still requires their existing authority. The current `propose` skill
+Auto/recursive defaults to frontier wayfinding plus one useful increment;
+applying proposed effects still requires their existing authority. The current `propose` skill
 implements SDLC packet specialization; generic patch-offer routing does not
 silently rename that skill or claim a new runtime API.
 
@@ -100,11 +106,10 @@ structural failure changes the path to the outcome. `$lev --recursive` is skill
 syntax that force-loads this procedure; it is not a `lev` CLI flag. Skip the
 reference for a clear bounded request whose route and acceptance are already
 known.
-Do not finish a user-facing recursive pass until the reference's required
-steps 1-3 and steps 4-10 tables are rendered with the active session HUD.
-For this artifact, those tables replace any generic follow-up menu or bullet
-limit: do not render `🪄 Next steps`. Mark user-provided facts `(supplied)`, not
-`(observed)`, and place the exact active-session HUD as the final line.
+A requested full outcome-map or rolling-horizon projection renders the
+reference's required tables. A frontier checkpoint stays compact: name what
+changed, the selected path, the action taken and its check. Mark user facts
+`(supplied)` and evidence `(observed)`; use the active session HUD when supplied.
 
 ## Domain Overlay Simulation
 
@@ -144,6 +149,7 @@ currently available authorized methods without claiming Ralph ran.
 | Accept verified work | `skill://close` | Acceptance and learnings |
 | Pause or transfer context | `skill://handoff` | Durable continuity and resume pointer |
 | Create or consolidate a skill | `skill://skill-builder` | Skill instructions and behavioral checks |
+| Tool integrations, APIs, CLI setup or desktop automation | `skill://tools` | Load one integration leaf, its bundled entrypoint or documented host runtime |
 | Prompt-stack operation | `skill://stack` | Inspect or run the selected stack |
 
 ## Routing Examples
@@ -245,8 +251,11 @@ research branch creation or fixed token/session quota is implied.
 ## URI And Skill Pointers
 
 Read [references/uri-syntax.md](references/uri-syntax.md) when authoring or
-interpreting `skill://` or `lev://` references. `skill://<name>` is a prompt-level
-request to load guidance. Lev runtime actions use `lev://exec/<target>` and
+interpreting `skill://` or `lev://` references. `skill://<top-level-or-db-id>` is a
+prompt-level request to load guidance. For Tools, worker availability or
+FlowMind skill references, read [references/tool-skills.md](references/tool-skills.md)
+and its [included FlowMind declaration](references/tools.flow.yaml).
+Lev runtime actions use `lev://exec/<target>` and
 durable objects use `lev://entity/<space>/<type>/<id>`.
 
 Do not conflate the prompt pointer `skill://exec` with the runtime address
