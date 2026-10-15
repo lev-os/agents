@@ -61,8 +61,10 @@ Request arrives
 |      Continue into research mode or full pipeline depending on context
 |
 +-- "What design skills exist?" / browse?
-|   -> Query: ls ~/.agents/skills-db/design-ux/
-|      Deep:  ~/.agents/lev-skills.sh discover "{query}" --json --category=design
+|   -> Load `skill://skill-discovery` for this design request.
+|      For corpus-only results use `--namespace skills-db`; filter the physical
+|      UX collection with `--category design-ux`. Use returned subject node IDs
+|      for semantic navigation, never as physical category names.
 |
 +-- Ambiguous?
     -> Infer from local/contextual signals first. If confidence < 0.75, ask one
@@ -108,7 +110,7 @@ Load from ~/.agents/skills-db/thinking/patterns/{name}/SKILL.md when reasoning d
 | (d) | CDO-backed persona base | Step 1 persona detection + Step 2 CDO persona fanout + research synthesis |
 | (v) | Visual design / .pen | Pencil MCP tools |
 | (c) | CLI/agentic UX patterns | Phase 0.5 lev-ref |
-| (b) | Browse design skills | lev-skill resolve |
+| (b) | Browse design skills | `skill://skill-discovery` with the design-UX corpus scope |
 | (k) | Product craft audit | `/ux --craft`: 12-rule scorecard, X/12, top 3 fixes (references/product-craft.md) |
 
 ---
@@ -461,7 +463,7 @@ Key patterns:
 1. Load lev-ref patterns:
 
 ```bash
-sed -n '1,220p' docs/_inbox/lev-ref/SKILL.md
+cat docs/_inbox/lev-ref/SKILL.md
 ```
 
 2. Apply inline conventions (CLI-as-Prompt):
@@ -479,17 +481,9 @@ Route to specialized skills using the Hub Decision Tree above.
 1. Check hub_routes (frontmatter) for trigger match against request keywords.
    - If match -> load that skill, optionally resume after persona fanout or at the named downstream phase.
 
-2. If no hub_route match, query skills-db dynamically:
+2. If no `hub_route` matches, load `skill://skill-discovery` and run or reuse only a completed, applicable campaign for the current UX task. This branch is optional enrichment: use `--namespace skills-db` for corpus-only results and `--category design-ux` only as a physical collection filter. The shared owner supplies query planning, browse/query completion, and source-loading rules; do not replace it with a one-query shortcut. Use returned `matches` and their `skill_name`, `local_path`, `realpath`, `source_id`, `digest`, and `index_revision` fields to present candidates. A descriptor identifies a source; it is not loaded content. After a skill is selected for use, read it in full through the shared owner before treating it as applicable, and preserve unresolved bundle or reference boundaries.
 
-```bash
-# Design-ux category first (high-signal, 12 skills)
-rg -l -i "{keywords}" ~/.agents/skills-db/design-ux/*/SKILL.md
-
-# Broader search only if design-ux returns empty
-lev-skill resolve "{keywords}" --json 2>/dev/null | jq '.results[:5]'
-```
-
-3. If curated scores available, prefer higher-scored patterns:
+3. If curated scores are available, use them only as a prioritization hint after the source itself is verified:
 
 ```bash
 grep -i "{keyword}" ~/.agents/skills-db/thinking/11-ui-ux/task.csv \
@@ -505,9 +499,11 @@ grep -i "{keyword}" ~/.agents/skills-db/thinking/11-ui-ux/task.csv \
 5. Present discovered skills:
    - 1 clear match -> propose loading it
    - 2-3 matches -> ranked list, let user choose
-   - 0 matches -> continue with built-in UX pipeline
+   - no applicable match, or optional enrichment unavailable -> continue with built-in UX pipeline and keep the discovery gap explicit
 
-6. Continue pipeline regardless — routing enriches, never blocks.
+6. If the response is `stale_index`, preserve it as an error and name the owner repair frontier; `--no-cache` does not repair source staleness. Keep the optional enrichment incomplete and continue the built-in UX pipeline. Do not turn stale, failed, or unavailable results into an empty match or an absence claim.
+
+7. Continue the UX pipeline regardless — routing enriches, never blocks. Keep selected skill content, full-load evidence, injection, observed use, and task outcome separate.
 
 ## Step 0b: Unconstrained Domain Exploration
 

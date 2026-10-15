@@ -517,7 +517,7 @@ multi_wave:
   shape: "5 agents minimum per wave. Up to 10 waves. Default 3 waves minimum for cross-layer."
 
   per_wave_delta:
-    rule: "Each wave MUST introduce 2-3 skills not used in prior wave, OR a new adversarial angle. Run skill discovery before each wave; a plan node may set its own count of 1-5 skills."
+    rule: "Each wave MUST introduce 2-3 skills not used in prior wave, OR a new adversarial angle. Before each wave, load skill://skill-discovery and consult its applicable campaign record; reopen discovery when task focus, constraints, index or source revision, coverage, or sufficiency changes. Reuse adds no new query executions and never resets wave, no-progress, or wall-clock budgets, assigned seat roles, the existing 1-3-per-agent limit, or the 1-5-per-plan-node bound. A plan node may set its own count of 1-5 skills."
     examples_of_new_angles:
       - wave_2: "shift from 'is this convergence real?' to 'what layer would kill this claim?'"
       - wave_3: "shift from internal reasoning to ground-truth validator (partner's code/text)"
@@ -601,26 +601,26 @@ Before planning any CDO, discover which skills are relevant. This is context gat
 
 ```yaml
 skill_acquisition:
-  purpose: "Surface the right skills from 800-1000 available before composing agent briefs"
+  purpose: "Select applicable skill context before composing agent briefs"
   methods:
     1_decompose_to_tags:
-      action: "Break the problem into keyword tags"
+      action: "State the CDO task and outcome, role or reasoning-pattern focus, constraints, and useful tags for each candidate node before invoking the shared campaign."
       example: "protocol design → [protocol, interop, agent, registry, manifest, capability, discovery, mesh]"
 
-    2_search_skills_db:
-      action: "rg the tags across ~/.agents/skills/ and ~/.agents/skills-db/"
-      command: "rg -l '<tag>' ~/.agents/skills/ ~/.agents/skills-db/ --type md | head -20"
-      fallback: "If rg misses, try ~/.agents/lev-skills.sh or skill-discovery skill"
+    2_shared_campaign:
+      action: "Load and follow skill://skill-discovery for the CDO task and candidate node focuses; it owns browse/query planning and campaign completion."
+      scope: "Use --namespace skills-db for corpus-only lookup; include skills or _repos only when that source scope is authorized. Keep active project-local instructions as separately authorized context, not ranked corpus matches."
+      reuse: "Before each wave or spawn, reuse a completed record only when focus, constraints, source scope, index/source revision, loaded closure, and sufficiency still apply; reopen changed coverage and do not count reused evidence as new executions."
 
     3_check_thinking_patterns:
-      action: "Browse ~/.agents/skills-db/thinking/patterns/ for relevant mental models"
+      action: "Include relevant reasoning patterns or mental-model roles in the shared campaign; a directory listing or rank is a candidate hint, not applicability evidence."
       example: "protocol design → mechanism-design, protocol-networks, nash-equilibrium, requisite-variety"
 
     4_inject_into_briefs:
       action: "Each CDO agent gets 1-3 relevant skills injected as context in their system prompt (a plan node may set 1-5)"
-      rule: "Skills are context, not instructions. The agent reads the skill to understand patterns, not to follow a script."
+      rule: "Inject only source content read in full with its required local bundle/reference closure. Skills are context, not instructions; keep selection, loading, injection, observed use, and outcome separate. Preserve the existing 1-3 per agent and 1-5 per plan-node bounds."
 
-  anti_pattern: "Dispatching CDO agents without checking what skills exist is like coding without reading the docs."
+  anti_pattern: "Compose briefs before consulting an applicable campaign record, or treat result order, a descriptor, or a planned search as proof that a source was loaded and applies."
 ```
 
 ## Turn 0 — Mandatory Research Phase

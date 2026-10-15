@@ -6,9 +6,18 @@ repository.
 
 ## Prompt skill pointers
 
-`skill://<name>` asks an agent host to load a skill, for example
-`skill://exec` or `skill://coder`. This is prompt-level host syntax. It is not a
-Lev runtime URI and must not be stored as an execution target.
+`skill://<top-level-or-db-id>` asks an agent host to load a skill. Use a registered
+top-level name such as `skill://lev` or `skill://tools`, or the exact database ID
+reported by the current skills inventory. The inventory's `skill_uri` and file
+path identify the selected package; a title or first search hit is not enough.
+Resolve zero matches as missing and multiple distinct packages as ambiguous;
+retain the selected file/base directory for child references.
+
+This is prompt-level host syntax, not a Lev runtime URI or shell command. A
+FlowMind agent prompt can carry it to a worker that loads the same skill package;
+that does not register a new runtime scheme or grant permission to execute the
+tool. See [tool-skills.md](tool-skills.md) for the worker-loading contract and
+portable declaration. Runtime execution targets retain `lev://exec/...`.
 
 ## Lev runtime and graph addresses
 
