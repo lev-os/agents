@@ -48,6 +48,14 @@ alone remains local retrieval. Ordinary "deep research" uses the deep routine.
 7. Return source URLs, findings, uncertainty and remaining gaps. A completed
    process, synthesis without URLs or fixture success does not prove live research.
 
+Quick and deep runs alike keep a short source ledger in the returned answer.
+Mark each source discovered (URL or search snippet only), inspected (content
+actually fetched and read) or failed/unavailable, with its URL or locator,
+access time and how it was obtained. Tie each factual claim to the inspected
+sources that support it. A URL or fetched search snippet is discovery, not
+full-page verification: label a claim resting only on discovered sources as
+unverified. Record tool failures and the step 6 fallbacks as ledger gaps.
+
 The existing `--flow=deep-research` route is a prompt-compilation/recursive-search
 POC. Do not describe it as execution of arbitrary graph nodes. Sherlock's method
 requires its own verified graph route and reports node outcomes.

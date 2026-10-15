@@ -216,8 +216,9 @@ Load references based on task:
 | Selecting architecture style, fitness functions | `references/style-selection.md` |
 | ML systems, architecture-agility balance, views, design patterns | `references/advanced-patterns.md` |
 | Choosing a pattern; tradeoff talk with the user | `references/patterns/index.md` |
+| Agent or system memory: what persists, entity identity, facts that change over time | `references/memory-design.md` |
 
-Read references with: `cat ~/.claude/skills/software-architect/references/<file>.md`
+Resolve every `references/...` path in this skill relative to the directory that contains this SKILL.md.
 
 ---
 

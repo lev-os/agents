@@ -5,6 +5,21 @@ invokes `$lev --recursive`, or when an existing route becomes ambiguous after
 new evidence, a failed assumption, a changed dependency, or a structural
 failure. This is skill syntax, not a `lev` CLI flag.
 
+## Default: One Frontier Checkpoint
+
+Lev `--auto` and `--recursive` both request a bounded wayfinding checkpoint
+followed by one useful increment. When the agent is stuck, use **Recurse on
+Ambiguity or Failure** on the current node: reconcile the evidence, expand
+only until a POC or integration action is selectable, perform that authorized
+action and propagate its result. An already-clear node goes directly to its
+owner. Keep the existing outcome map and later obligations.
+
+Report the changed understanding, selected route, action taken and smallest
+check in a compact checkpoint. Use the full graph proposal and two horizon
+tables when the user requests that projection or the effort needs a material
+map revision. Auto does not implicitly start a goal, scheduled tick, heartbeat
+or orch AUTO; those retain their separate explicit invocation contracts.
+
 ## Navigation Objects
 
 - **Outcome:** the observable change in the world the effort exists to create.
@@ -139,7 +154,9 @@ frontier. High fidelity means explicit uncertainty, not fabricated certainty.
 
 ### Required User-Facing Projection
 
-Every user-facing wayfinding pass renders the rolling horizon as two tables.
+Every full outcome-map or rolling-horizon projection renders two tables.
+A default frontier checkpoint uses the compact report above and does not
+manufacture a new horizon just to fill tables.
 Narrative may explain the delta, but it never substitutes for these tables.
 Render only existing steps; do not pad either table.
 
@@ -232,6 +249,14 @@ completion and does not justify a discovery task. Pause, cancellation, and
 confirmed completion stop navigation heartbeats.
 
 ## Completion Check
+
+For a default frontier checkpoint, completion means the blocker was reconciled,
+one POC/integration child was advanced within authority (or its exact real
+prerequisite was established), and the result/check was returned to the parent.
+Update only affected existing pointers. A full graph proposal, new horizon,
+goal or tracker setup is not required merely to finish this local checkpoint.
+
+The criteria below apply to a full outcome-map or rolling-horizon projection.
 
 A wayfinding pass is complete when the requested graph proposal and material
 reasoning have been captured within write authority, existing-to-proposed changes

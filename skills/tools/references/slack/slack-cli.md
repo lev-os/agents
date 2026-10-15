@@ -60,12 +60,30 @@ printed `/slackauthticket ...` command in their workspace, collect the
 challenge shown by Slack, and finish with the documented `--ticket` and
 `--challenge` flags. Verify with `auth list` and record the team ID.
 
-CLI login alone does not establish Web API access. `slack api --help` lists
-token precedence: explicit token, app selection (which can install an app),
-`SLACK_BOT_TOKEN`, `SLACK_USER_TOKEN`, then an app prompt. Resolve the intended
-token without an unrequested install. Raw HTTP also needs an OAuth token;
-see `./slack-api.md` for token type and scope rules. Never print a
-token or treat a token's presence as proof that the target team is reachable.
+An existing CLI login may already provide enough Web API permissions.
+`slack api` does not automatically select the saved login token: its live help
+lists explicit token, app selection (which can install an app),
+`SLACK_BOT_TOKEN`, `SLACK_USER_TOKEN`, then an app prompt. Before asking for
+another token or login, bridge the existing login:
+
+1. Use `auth list` to bind the exact team ID.
+2. Read only that team's `token` from the CLI's credential store. The default
+   is `~/.slack/credentials.json`, keyed by team ID; respect a custom
+   `--config-dir` instead of assuming the default store.
+3. Pass it as `SLACK_USER_TOKEN` in the child process environment for
+   `slack api auth.test`. Keep it out of command arguments, shell tracing,
+   output, source files, and persistent shell configuration. Resolve any
+   higher-precedence bot token explicitly rather than silently selecting it.
+4. Require `ok: true` and a matching `team_id`. Inspect `x-oauth-scopes` in the
+   response headers (`--include`) and check the requested method's scopes.
+   Identity success alone does not prove message history, search, or posting.
+5. Reuse the same process-local credential only for supported, authorized
+   operations. `missing_scope` requires the requested OAuth permissions;
+   another successful CLI login is not proof that those permissions changed.
+   Handle expired or revoked credentials through the documented CLI auth flow.
+
+Raw HTTP can use the verified credential in its Authorization header; see
+`./slack-api.md` for method and token rules. Never infer access from token shape.
 
 ## Web API calls
 
@@ -77,8 +95,11 @@ Use the CLI when it exposes `api` and run its help first:
 ```
 
 Method arguments use positional `key=value`; CLI metadata such as `--team`,
-`--token`, `--json`, and `--data` uses flags. Inspect the response envelope and
-require `ok: true`. Read-only calls can run within the user's authorization;
+`--token`, `--json`, and `--data` uses flags. In CLI v4.9.0, positional fields
+put the token in the form body: combining them with `--method GET` returned
+`not_authed` even with a valid token. For a method requiring GET, use raw HTTP
+with query parameters and an Authorization header. Inspect the response
+envelope and require `ok: true`. Read-only calls can run within the user's authorization;
 post, update, delete, archive, kick, admin, deploy, and other state changes
 need the user's existing mutation authorization.
 

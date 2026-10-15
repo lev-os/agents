@@ -1,0 +1,51 @@
+{
+  "name": "claude-codex-computer-use",
+  "version": "0.1.2",
+  "description": "MCP bridge for using an existing OpenAI Computer Use installation from Claude Code on macOS",
+  "keywords": [
+    "claude-code",
+    "claude-plugin",
+    "computer-use",
+    "macos",
+    "mcp",
+    "desktop-automation"
+  ],
+  "homepage": "https://github.com/songkeys/claude-codex-computer-use",
+  "bugs": {
+    "url": "https://github.com/songkeys/claude-codex-computer-use/issues"
+  },
+  "license": "MIT",
+  "author": "Songkeys",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/songkeys/claude-codex-computer-use.git"
+  },
+  "files": [
+    ".claude-plugin",
+    "bin",
+    "skills",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "type": "module",
+  "bin": {
+    "claude-codex-computer-use": "bin/computer-use-mcp-bridge.mjs"
+  },
+  "engines": {
+    "node": ">=22.14.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "node --test test/bridge.test.mjs",
+    "smoke": "node scripts/real-smoke-test.mjs",
+    "prepack": "pnpm test",
+    "release": "bumpp package.json .claude-plugin/plugin.json"
+  },
+  "devDependencies": {
+    "bumpp": "^11.1.0"
+  },
+  "packageManager": "pnpm@11.1.1"
+}

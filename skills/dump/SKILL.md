@@ -12,6 +12,11 @@ output_template: hud
 the shared lifecycle ledger, then takes the obvious next lifecycle action only
 when the ledger proves the row is durable and write-authorized.
 
+Use capture's patch-and-route protocol: reconcile each material row against
+prior art, update its existing home, and clear it from the active queue only
+after checking the destination. Retain source history and use capture's
+size/structure/projection rule for YAML and JSON.
+
 ## Entity Reconciliation
 
 After authorized material progress, reconcile touched and causally affected

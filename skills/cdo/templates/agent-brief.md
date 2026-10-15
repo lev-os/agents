@@ -30,6 +30,16 @@ You are the **{ROLE}** in a CDO deliberation. {ROLE_DESCRIPTION}.
 Read these before forming your analysis:
 {LIST_OF_FILES_TO_READ}
 
+## Handoff (if you consume earlier outputs: Turn 2+, a later wave, synthesis)
+For each consumed output:
+- Source/run: {SESSION}/{TURN_OR_WAVE}/{ROLE}, dispatch handle {HANDLE_OR_TASK_ID}
+- Premises it was given: {PREMISES} (CANDIDATE unless verified)
+- Exact file: {OUTPUT_PATH}
+- Accepted by: {JUDGE_OR_CLAIM_AUDIT_RESULT, or `unchecked`}
+Tools and sources you may use: {ALLOWED_TOOLS_AND_SOURCES}
+Unresolved dependencies: {OPEN_DEPENDENCIES}
+Test an `unchecked` output or CANDIDATE premise; do not cite it as evidence.
+
 ## Output
 Write your complete analysis to: `{OUTPUT_FILE_PATH}`
 
@@ -51,4 +61,11 @@ Write your complete analysis to: `{OUTPUT_FILE_PATH}`
 ### Confidence
 [0-100% — how confident are you in this analysis?]
 [1-sentence justification for the score]
+
+### Handoff Return
+- Inputs read: [exact paths, with the source/run identity of each consumed output]
+- Premises relied on: [each marked CANDIDATE unless verified]
+- Artifacts written: [exact paths]
+- Checks run: [check and result, or "none"]
+- Unresolved: [open dependencies or questions]
 ```

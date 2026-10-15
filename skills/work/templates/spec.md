@@ -10,6 +10,15 @@ status: draft
 
 # {{TITLE}} — Behavioral Specification
 
+## Contents
+
+- Orientation: [How To Fill This Out](#how-to-fill-this-out), [Executive Summary](#executive-summary), [Context](#context)
+- Behavior: [User Scenarios (BDD)](#user-scenarios-bdd), [Behavioral Specification](#behavioral-specification)
+- Risk and architecture: [FMEA / Risk Analysis](#fmea--risk-analysis), [Quality Attributes](#quality-attributes), [ATAM / Trade-off Analysis](#atam--trade-off-analysis), [C1-C4 Views](#c1-c4-views)
+- Scope and gates: [MoSCoW Priorities](#moscow-priorities), [Fitness Functions](#fitness-functions), [Validation Gates](#validation-gates-levvalidation-gatesyaml)
+- Contract: [Contract](#contract), [Cross-References](#cross-references)
+- Delivery: [Implementation Guidance](#implementation-guidance), [BD Task Decomposition](#bd-task-decomposition), [Test Coverage](#test-coverage), [Success Criteria](#success-criteria), [Rollback Plan](#rollback-plan), [Open Questions](#open-questions)
+
 ## How To Fill This Out
 
 Use this template for SDLC behavioral specs. A spec defines the target system and its contract. It is not a design doc and it is not an execution plan.
