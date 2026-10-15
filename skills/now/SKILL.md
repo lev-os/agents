@@ -77,7 +77,7 @@ Recipes may be mixed. A technical lesson can include a sales-quality value propo
 
 ## Visual Explainer Link
 
-When visual encoding is load-bearing—architecture maps, dense comparisons, causal flows, spatial explanations, or custom interaction—also read [`../visual-explainer/SKILL.md`](../visual-explainer/SKILL.md). That skill supplies visual research and art-direction methods. Bring its output back into this same RenderSpec graph using diagrams, charts, tables, sections, and other catalog components. Use `custom-html` only when the component graph cannot express the required visual.
+For architecture maps and technical flows, read [Archify](../archify/SKILL.md). For interactive charts and visual explanations, read the [visualization package](../../skills-db/creative/interactive-visualization-creator/SKILL.md). Bring the selected output back into this same RenderSpec graph using diagrams, charts, tables, sections, and other catalog components. Use `custom-html` only when the component graph cannot express the required visual.
 
 ## Component and Runtime Boundaries
 

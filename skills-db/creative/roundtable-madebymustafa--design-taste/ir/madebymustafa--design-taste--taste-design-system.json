@@ -1,0 +1,994 @@
+{
+  "schema": "skill-ir/1.0",
+  "identity": {
+    "slug": "madebymustafa--design-taste--taste-design-system",
+    "title": "taste-design-system",
+    "catalog_category": "creative-candidate"
+  },
+  "source": {
+    "source_id": "madebymustafa/design-taste@c4a6bff0871eb4b15371b0e7d2751628b0ed4608",
+    "snapshot_path": "source/skills/taste-design-system/SKILL.md",
+    "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463",
+    "bytes": 5289,
+    "repo_reference": "https://github.com/madebymustafa/design-taste",
+    "repo_revision": "c4a6bff0871eb4b15371b0e7d2751628b0ed4608",
+    "revision_status": "github_commit_pinned",
+    "catalog_metadata": {
+      "slug": "madebymustafa--design-taste--taste-design-system",
+      "title": "taste-design-system",
+      "category": "creative-candidate",
+      "github_url": "https://github.com/madebymustafa/design-taste"
+    },
+    "source_kind": "repository_skill_file",
+    "path_base": "candidate_package_root"
+  },
+  "license": {
+    "value": "MIT",
+    "status": "See preserved repository license files and inventory interpretation; no legal approval inferred."
+  },
+  "frontmatter": {
+    "status": "present",
+    "line_start": 1,
+    "line_end": 11,
+    "fields": {
+      "name": "taste-design-system",
+      "description": "|",
+      "triggers": ""
+    },
+    "raw": "name: taste-design-system\ndescription: |\n  Builds and audits design systems for agentic workflows: three-tier design tokens (primitive → semantic → component), W3C DTCG token format, spacing and type scales, color ramps, component anatomy, documentation, governance, and adoption metrics. Use when creating tokens, scaffolding a component library, or auditing an existing system for consistency. Stack on the design-taste core skill.\ntriggers:\n  - \"design system\"\n  - \"design tokens\"\n  - \"token architecture\"\n  - \"component library\"\n  - \"design system audit\"\n  - \"design tokens file\""
+  },
+  "line_count": 85,
+  "ontology": {
+    "triggers": [
+      {
+        "text": "Builds and audits design systems for agentic workflows: three-tier design tokens (primitive → semantic → component), W3C DTCG token format, spacing and type scales, color ramps, component anatomy, documentation, governance, and adoption metrics. Use when creating tokens, scaffolding a component library, or auditing an existing system for consistency. Stack on the design-taste core skill.",
+        "evidence": {
+          "line_start": 4,
+          "line_end": 4,
+          "text": "  Builds and audits design systems for agentic workflows: three-tier design tokens (primitive → semantic → component), W3C DTCG token format, spacing and type scales, color ramps, component anatomy, documentation, governance, and adoption metrics. Use when creating tokens, scaffolding a component library, or auditing an existing system for consistency. Stack on the design-taste core skill.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        }
+      }
+    ],
+    "workflows": [
+      {
+        "section": "1. TOKEN ARCHITECTURE (Three Tiers, Never Two)",
+        "start_line": 18,
+        "items": [
+          {
+            "text": "**Primitive tokens** — raw values: `--color-ink-900`, `--space-4`, `--radius-md`. No meaning beyond the value.",
+            "line": 20
+          },
+          {
+            "text": "**Semantic tokens** — meaning, not value: `--color-surface`, `--color-text-muted`, `--color-border`, `--space-inset-lg`. Products consume semantic tokens ONLY.",
+            "line": 21
+          },
+          {
+            "text": "**Component tokens** — per-component aliases: `--button-bg-primary`, `--button-radius`, `--input-border-width`. Components never reference primitives directly.",
+            "line": 22
+          }
+        ],
+        "classification": "ordered_or_bulleted_source_structure_inferred"
+      },
+      {
+        "section": "3. THE INVENTORY (Audit Before You Build)",
+        "start_line": 41,
+        "items": [
+          {
+            "text": "**Colors** — list every hex in the codebase. Flag any value not in the token set (>15 unique out-of-scheme colors = system is broken).",
+            "line": 45
+          },
+          {
+            "text": "**Spacing** — flag any margin/padding not on the 4px (or 8px) scale.",
+            "line": 46
+          },
+          {
+            "text": "**Type** — count distinct font sizes/weights in use. >5 sizes on one page = no hierarchy.",
+            "line": 47
+          },
+          {
+            "text": "**Radius / elevation / borders** — collect every value; cluster into 2–4 tokens.",
+            "line": 48
+          },
+          {
+            "text": "**Components** — list every component; flag components with >3 variants doing the same job, and any component styling itself from raw values.",
+            "line": 49
+          }
+        ],
+        "classification": "ordered_or_bulleted_source_structure_inferred"
+      },
+      {
+        "section": "4. SCALES (Fixed Reference)",
+        "start_line": 53,
+        "items": [
+          {
+            "text": "**Spacing:** 4/8/12/16/24/32/48/64/96. Gaps below 4px only for hairline borders. Never 5, 7, 10, 14px — unless a deliberate optical override is documented.",
+            "line": 55
+          },
+          {
+            "text": "**Type scale (fluid):** 12/14/16/18/24/32/48/64 rendered with `clamp()` where responsive.",
+            "line": 56
+          },
+          {
+            "text": "**Color ramps:** 9–11 steps from 50→950 in OKLCH (perceptually even), neutrals and at least one accent family. Dark mode = semantic mapping change, not new colors.",
+            "line": 57
+          },
+          {
+            "text": "**Elevation:** 3 levels max: flat (no shadow), raised (subtle, blur ≥ 16px, opacity ≤ 0.15), floating (blur ≥ 40px, opacity ≤ 0.2). Everything else is a bug.",
+            "line": 58
+          }
+        ],
+        "classification": "ordered_or_bulleted_source_structure_inferred"
+      },
+      {
+        "section": "5. COMPONENT ANATOMY (Every Component Ships With)",
+        "start_line": 60,
+        "items": [
+          {
+            "text": "One job, one name. If a component has an \"and\" in its description, split it.",
+            "line": 62
+          },
+          {
+            "text": "Full state matrix: default, hover, active/pressed, focus-visible, disabled, loading, error. If a state is impossible, document why.",
+            "line": 63
+          },
+          {
+            "text": "Size variants only where real (sm/md/lg), never color variants pretending to be states.",
+            "line": 64
+          },
+          {
+            "text": "Responsive behavior and the breakpoint where it changes.",
+            "line": 65
+          },
+          {
+            "text": "Token references in code — zero raw values inside component styles.",
+            "line": 66
+          }
+        ],
+        "classification": "ordered_or_bulleted_source_structure_inferred"
+      },
+      {
+        "section": "6. DOCUMENTATION & GOVERNANCE",
+        "start_line": 68,
+        "items": [
+          {
+            "text": "One page per component: purpose, anatomy diagram (as code comment), state matrix, usage rules, do/don't examples, accessibility notes.",
+            "line": 70
+          },
+          {
+            "text": "Change process: token changes are additive (new token → deprecate old → remove after one release cycle). Never mutate a token value silently.",
+            "line": 71
+          },
+          {
+            "text": "Ownership: one person (or one skill) holds the token file. Component decisions route through it.",
+            "line": 72
+          },
+          {
+            "text": "**Adoption metrics (measure quarterly):** % of screens consuming semantic tokens, # of raw-color violations, # of off-scale spacing values, % of components with documented states. The number that matters: violation count trending down.",
+            "line": 73
+          }
+        ],
+        "classification": "ordered_or_bulleted_source_structure_inferred"
+      },
+      {
+        "section": "7. CHECKLIST (Fail the System If…)",
+        "start_line": 75,
+        "items": [
+          {
+            "text": "[ ] Any component references a primitive directly.",
+            "line": 77
+          },
+          {
+            "text": "[ ] Any UI uses a hex not present in the token set.",
+            "line": 78
+          },
+          {
+            "text": "[ ] Any spacing value off the scale without a documented override.",
+            "line": 79
+          },
+          {
+            "text": "[ ] Any component missing a disabled or focus-visible state.",
+            "line": 80
+          },
+          {
+            "text": "[ ] More than 3 elevation levels in use.",
+            "line": 81
+          },
+          {
+            "text": "[ ] Token names encode meaning AND value (\"dark-purple\" instead of semantic).",
+            "line": 82
+          },
+          {
+            "text": "[ ] Two components exist that do the same job with different APIs.",
+            "line": 83
+          }
+        ],
+        "classification": "ordered_or_bulleted_source_structure_inferred"
+      }
+    ],
+    "actions": [
+      {
+        "text": "3. **Type** — count distinct font sizes/weights in use. >5 sizes on one page = no hierarchy.",
+        "evidence": {
+          "line_start": 47,
+          "line_end": 47,
+          "text": "3. **Type** — count distinct font sizes/weights in use. >5 sizes on one page = no hierarchy.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        }
+      },
+      {
+        "text": "- Change process: token changes are additive (new token → deprecate old → remove after one release cycle). Never mutate a token value silently.",
+        "evidence": {
+          "line_start": 71,
+          "line_end": 71,
+          "text": "- Change process: token changes are additive (new token → deprecate old → remove after one release cycle). Never mutate a token value silently.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        }
+      },
+      {
+        "text": "- Ownership: one person (or one skill) holds the token file. Component decisions route through it.",
+        "evidence": {
+          "line_start": 72,
+          "line_end": 72,
+          "text": "- Ownership: one person (or one skill) holds the token file. Component decisions route through it.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        }
+      },
+      {
+        "text": "- [ ] More than 3 elevation levels in use.",
+        "evidence": {
+          "line_start": 81,
+          "line_end": 81,
+          "text": "- [ ] More than 3 elevation levels in use.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        }
+      }
+    ],
+    "routes": [
+      {
+        "text": "Builds and audits design systems for agentic workflows: three-tier design tokens (primitive → semantic → component), W3C DTCG token format, spacing and type scales, color ramps, component anatomy, documentation, governance, and adoption metrics. Use when creating tokens, scaffolding a component library, or auditing an existing system for consistency. Stack on the design-taste core skill.",
+        "evidence": {
+          "line_start": 4,
+          "line_end": 4,
+          "text": "  Builds and audits design systems for agentic workflows: three-tier design tokens (primitive → semantic → component), W3C DTCG token format, spacing and type scales, color ramps, component anatomy, documentation, governance, and adoption metrics. Use when creating tokens, scaffolding a component library, or auditing an existing system for consistency. Stack on the design-taste core skill.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        }
+      },
+      {
+        "text": "- Ownership: one person (or one skill) holds the token file. Component decisions route through it.",
+        "evidence": {
+          "line_start": 72,
+          "line_end": 72,
+          "text": "- Ownership: one person (or one skill) holds the token file. Component decisions route through it.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        }
+      }
+    ],
+    "effects": [
+      {
+        "text": "Write tokens as a flat key map (or W3C DTCG JSON if the stack supports it):",
+        "verb": "write",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 28,
+          "line_end": 28,
+          "text": "Write tokens as a flat key map (or W3C DTCG JSON if the stack supports it):",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        },
+        "classification": "declared_instruction_or_claim"
+      },
+      {
+        "text": "Run the inventory before building anything:",
+        "verb": "run",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 43,
+          "line_end": 43,
+          "text": "Run the inventory before building anything:",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        },
+        "classification": "declared_instruction_or_claim"
+      },
+      {
+        "text": "- Change process: token changes are additive (new token → deprecate old → remove after one release cycle). Never mutate a token value silently.",
+        "verb": "remove",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 71,
+          "line_end": 71,
+          "text": "- Change process: token changes are additive (new token → deprecate old → remove after one release cycle). Never mutate a token value silently.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        },
+        "classification": "declared_instruction_or_claim"
+      }
+    ],
+    "command_examples": [],
+    "template_commands": [],
+    "package_path_candidates": [],
+    "references": [],
+    "external_urls": [],
+    "constraints": [
+      {
+        "text": "## 1. TOKEN ARCHITECTURE (Three Tiers, Never Two)",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 18,
+          "line_end": 18,
+          "text": "## 1. TOKEN ARCHITECTURE (Three Tiers, Never Two)",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        }
+      },
+      {
+        "text": "2. **Semantic tokens** — meaning, not value: `--color-surface`, `--color-text-muted`, `--color-border`, `--space-inset-lg`. Products consume semantic tokens ONLY.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 21,
+          "line_end": 21,
+          "text": "2. **Semantic tokens** — meaning, not value: `--color-surface`, `--color-text-muted`, `--color-border`, `--space-inset-lg`. Products consume semantic tokens ONLY.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        }
+      },
+      {
+        "text": "3. **Component tokens** — per-component aliases: `--button-bg-primary`, `--button-radius`, `--input-border-width`. Components never reference primitives directly.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 22,
+          "line_end": 22,
+          "text": "3. **Component tokens** — per-component aliases: `--button-bg-primary`, `--button-radius`, `--input-border-width`. Components never reference primitives directly.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        }
+      },
+      {
+        "text": "Naming conventions: kebab-case, noun-first, scale-last (`--space-4`, `--color-ink-900`, `--radius-md`). Never encode intent in names (\"fancy-purple\"), never use hex colors directly in components.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 39,
+          "line_end": 39,
+          "text": "Naming conventions: kebab-case, noun-first, scale-last (`--space-4`, `--color-ink-900`, `--radius-md`). Never encode intent in names (\"fancy-purple\"), never use hex colors directly in components.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        }
+      },
+      {
+        "text": "Output: a token map, a violation list with counts, and the fix order (primitives first, then semantic mapping, then component cleanup). Never refactor a system in the same pass as auditing it — audit, report, then change.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 51,
+          "line_end": 51,
+          "text": "Output: a token map, a violation list with counts, and the fix order (primitives first, then semantic mapping, then component cleanup). Never refactor a system in the same pass as auditing it — audit, report, then change.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        }
+      },
+      {
+        "text": "- **Spacing:** 4/8/12/16/24/32/48/64/96. Gaps below 4px only for hairline borders. Never 5, 7, 10, 14px — unless a deliberate optical override is documented.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 55,
+          "line_end": 55,
+          "text": "- **Spacing:** 4/8/12/16/24/32/48/64/96. Gaps below 4px only for hairline borders. Never 5, 7, 10, 14px — unless a deliberate optical override is documented.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        }
+      },
+      {
+        "text": "3. Size variants only where real (sm/md/lg), never color variants pretending to be states.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 64,
+          "line_end": 64,
+          "text": "3. Size variants only where real (sm/md/lg), never color variants pretending to be states.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        }
+      },
+      {
+        "text": "- One page per component: purpose, anatomy diagram (as code comment), state matrix, usage rules, do/don't examples, accessibility notes.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 70,
+          "line_end": 70,
+          "text": "- One page per component: purpose, anatomy diagram (as code comment), state matrix, usage rules, do/don't examples, accessibility notes.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        }
+      },
+      {
+        "text": "- Change process: token changes are additive (new token → deprecate old → remove after one release cycle). Never mutate a token value silently.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 71,
+          "line_end": 71,
+          "text": "- Change process: token changes are additive (new token → deprecate old → remove after one release cycle). Never mutate a token value silently.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        }
+      }
+    ],
+    "invariants": [
+      {
+        "text": "## 1. TOKEN ARCHITECTURE (Three Tiers, Never Two)",
+        "evidence": {
+          "line_start": 18,
+          "line_end": 18,
+          "text": "## 1. TOKEN ARCHITECTURE (Three Tiers, Never Two)",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "2. **Semantic tokens** — meaning, not value: `--color-surface`, `--color-text-muted`, `--color-border`, `--space-inset-lg`. Products consume semantic tokens ONLY.",
+        "evidence": {
+          "line_start": 21,
+          "line_end": 21,
+          "text": "2. **Semantic tokens** — meaning, not value: `--color-surface`, `--color-text-muted`, `--color-border`, `--space-inset-lg`. Products consume semantic tokens ONLY.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "3. **Component tokens** — per-component aliases: `--button-bg-primary`, `--button-radius`, `--input-border-width`. Components never reference primitives directly.",
+        "evidence": {
+          "line_start": 22,
+          "line_end": 22,
+          "text": "3. **Component tokens** — per-component aliases: `--button-bg-primary`, `--button-radius`, `--input-border-width`. Components never reference primitives directly.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "Naming conventions: kebab-case, noun-first, scale-last (`--space-4`, `--color-ink-900`, `--radius-md`). Never encode intent in names (\"fancy-purple\"), never use hex colors directly in components.",
+        "evidence": {
+          "line_start": 39,
+          "line_end": 39,
+          "text": "Naming conventions: kebab-case, noun-first, scale-last (`--space-4`, `--color-ink-900`, `--radius-md`). Never encode intent in names (\"fancy-purple\"), never use hex colors directly in components.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "Output: a token map, a violation list with counts, and the fix order (primitives first, then semantic mapping, then component cleanup). Never refactor a system in the same pass as auditing it — audit, report, then change.",
+        "evidence": {
+          "line_start": 51,
+          "line_end": 51,
+          "text": "Output: a token map, a violation list with counts, and the fix order (primitives first, then semantic mapping, then component cleanup). Never refactor a system in the same pass as auditing it — audit, report, then change.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "- **Spacing:** 4/8/12/16/24/32/48/64/96. Gaps below 4px only for hairline borders. Never 5, 7, 10, 14px — unless a deliberate optical override is documented.",
+        "evidence": {
+          "line_start": 55,
+          "line_end": 55,
+          "text": "- **Spacing:** 4/8/12/16/24/32/48/64/96. Gaps below 4px only for hairline borders. Never 5, 7, 10, 14px — unless a deliberate optical override is documented.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "3. Size variants only where real (sm/md/lg), never color variants pretending to be states.",
+        "evidence": {
+          "line_start": 64,
+          "line_end": 64,
+          "text": "3. Size variants only where real (sm/md/lg), never color variants pretending to be states.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "- One page per component: purpose, anatomy diagram (as code comment), state matrix, usage rules, do/don't examples, accessibility notes.",
+        "evidence": {
+          "line_start": 70,
+          "line_end": 70,
+          "text": "- One page per component: purpose, anatomy diagram (as code comment), state matrix, usage rules, do/don't examples, accessibility notes.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "- Change process: token changes are additive (new token → deprecate old → remove after one release cycle). Never mutate a token value silently.",
+        "evidence": {
+          "line_start": 71,
+          "line_end": 71,
+          "text": "- Change process: token changes are additive (new token → deprecate old → remove after one release cycle). Never mutate a token value silently.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      }
+    ],
+    "inputs": [
+      {
+        "text": "3. **Component tokens** — per-component aliases: `--button-bg-primary`, `--button-radius`, `--input-border-width`. Components never reference primitives directly.",
+        "evidence": {
+          "line_start": 22,
+          "line_end": 22,
+          "text": "3. **Component tokens** — per-component aliases: `--button-bg-primary`, `--button-radius`, `--input-border-width`. Components never reference primitives directly.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        },
+        "status": "input_candidate"
+      }
+    ],
+    "outputs": [
+      {
+        "text": "Output: a token map, a violation list with counts, and the fix order (primitives first, then semantic mapping, then component cleanup). Never refactor a system in the same pass as auditing it — audit, report, then change.",
+        "evidence": {
+          "line_start": 51,
+          "line_end": 51,
+          "text": "Output: a token map, a violation list with counts, and the fix order (primitives first, then semantic mapping, then component cleanup). Never refactor a system in the same pass as auditing it — audit, report, then change.",
+          "source_file": "source/skills/taste-design-system/SKILL.md",
+          "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463"
+        },
+        "status": "output_candidate"
+      }
+    ],
+    "recovery": [],
+    "headings": [
+      {
+        "level": 1,
+        "title": "taste-design-system",
+        "line": 14,
+        "bullets": []
+      },
+      {
+        "level": 2,
+        "title": "1. TOKEN ARCHITECTURE (Three Tiers, Never Two)",
+        "line": 18,
+        "bullets": [
+          {
+            "text": "**Primitive tokens** — raw values: `--color-ink-900`, `--space-4`, `--radius-md`. No meaning beyond the value.",
+            "line": 20
+          },
+          {
+            "text": "**Semantic tokens** — meaning, not value: `--color-surface`, `--color-text-muted`, `--color-border`, `--space-inset-lg`. Products consume semantic tokens ONLY.",
+            "line": 21
+          },
+          {
+            "text": "**Component tokens** — per-component aliases: `--button-bg-primary`, `--button-radius`, `--input-border-width`. Components never reference primitives directly.",
+            "line": 22
+          }
+        ]
+      },
+      {
+        "level": 2,
+        "title": "2. TOKEN FORMAT (DTCG, Not Freeform)",
+        "line": 26,
+        "bullets": []
+      },
+      {
+        "level": 2,
+        "title": "3. THE INVENTORY (Audit Before You Build)",
+        "line": 41,
+        "bullets": [
+          {
+            "text": "**Colors** — list every hex in the codebase. Flag any value not in the token set (>15 unique out-of-scheme colors = system is broken).",
+            "line": 45
+          },
+          {
+            "text": "**Spacing** — flag any margin/padding not on the 4px (or 8px) scale.",
+            "line": 46
+          },
+          {
+            "text": "**Type** — count distinct font sizes/weights in use. >5 sizes on one page = no hierarchy.",
+            "line": 47
+          },
+          {
+            "text": "**Radius / elevation / borders** — collect every value; cluster into 2–4 tokens.",
+            "line": 48
+          },
+          {
+            "text": "**Components** — list every component; flag components with >3 variants doing the same job, and any component styling itself from raw values.",
+            "line": 49
+          }
+        ]
+      },
+      {
+        "level": 2,
+        "title": "4. SCALES (Fixed Reference)",
+        "line": 53,
+        "bullets": [
+          {
+            "text": "**Spacing:** 4/8/12/16/24/32/48/64/96. Gaps below 4px only for hairline borders. Never 5, 7, 10, 14px — unless a deliberate optical override is documented.",
+            "line": 55
+          },
+          {
+            "text": "**Type scale (fluid):** 12/14/16/18/24/32/48/64 rendered with `clamp()` where responsive.",
+            "line": 56
+          },
+          {
+            "text": "**Color ramps:** 9–11 steps from 50→950 in OKLCH (perceptually even), neutrals and at least one accent family. Dark mode = semantic mapping change, not new colors.",
+            "line": 57
+          },
+          {
+            "text": "**Elevation:** 3 levels max: flat (no shadow), raised (subtle, blur ≥ 16px, opacity ≤ 0.15), floating (blur ≥ 40px, opacity ≤ 0.2). Everything else is a bug.",
+            "line": 58
+          }
+        ]
+      },
+      {
+        "level": 2,
+        "title": "5. COMPONENT ANATOMY (Every Component Ships With)",
+        "line": 60,
+        "bullets": [
+          {
+            "text": "One job, one name. If a component has an \"and\" in its description, split it.",
+            "line": 62
+          },
+          {
+            "text": "Full state matrix: default, hover, active/pressed, focus-visible, disabled, loading, error. If a state is impossible, document why.",
+            "line": 63
+          },
+          {
+            "text": "Size variants only where real (sm/md/lg), never color variants pretending to be states.",
+            "line": 64
+          },
+          {
+            "text": "Responsive behavior and the breakpoint where it changes.",
+            "line": 65
+          },
+          {
+            "text": "Token references in code — zero raw values inside component styles.",
+            "line": 66
+          }
+        ]
+      },
+      {
+        "level": 2,
+        "title": "6. DOCUMENTATION & GOVERNANCE",
+        "line": 68,
+        "bullets": [
+          {
+            "text": "One page per component: purpose, anatomy diagram (as code comment), state matrix, usage rules, do/don't examples, accessibility notes.",
+            "line": 70
+          },
+          {
+            "text": "Change process: token changes are additive (new token → deprecate old → remove after one release cycle). Never mutate a token value silently.",
+            "line": 71
+          },
+          {
+            "text": "Ownership: one person (or one skill) holds the token file. Component decisions route through it.",
+            "line": 72
+          },
+          {
+            "text": "**Adoption metrics (measure quarterly):** % of screens consuming semantic tokens, # of raw-color violations, # of off-scale spacing values, % of components with documented states. The number that matters: violation count trending down.",
+            "line": 73
+          }
+        ]
+      },
+      {
+        "level": 2,
+        "title": "7. CHECKLIST (Fail the System If…)",
+        "line": 75,
+        "bullets": [
+          {
+            "text": "[ ] Any component references a primitive directly.",
+            "line": 77
+          },
+          {
+            "text": "[ ] Any UI uses a hex not present in the token set.",
+            "line": 78
+          },
+          {
+            "text": "[ ] Any spacing value off the scale without a documented override.",
+            "line": 79
+          },
+          {
+            "text": "[ ] Any component missing a disabled or focus-visible state.",
+            "line": 80
+          },
+          {
+            "text": "[ ] More than 3 elevation levels in use.",
+            "line": 81
+          },
+          {
+            "text": "[ ] Token names encode meaning AND value (\"dark-purple\" instead of semantic).",
+            "line": 82
+          },
+          {
+            "text": "[ ] Two components exist that do the same job with different APIs.",
+            "line": 83
+          }
+        ]
+      }
+    ],
+    "template_status": "source_not_executed; fenced commands remain example-only only when surrounding prose says so, otherwise context-unknown; live XML template commands are not executable evidence"
+  },
+  "package": {
+    "resolved_files": [
+      {
+        "path": "LICENSE",
+        "source_file": "source/LICENSE",
+        "sha256": "7a0f09be6768f60fd7c01ecab6af369614c224061ffc76792ef06881493bb4a2",
+        "bytes": 1063
+      },
+      {
+        "path": "README.md",
+        "source_file": "source/README.md",
+        "sha256": "434f11a1a53cbc0c0b9e60509d57a16a079759edcd6e29e1c3db6c43e3e7585b",
+        "bytes": 8932
+      },
+      {
+        "path": "docs/CONTRIBUTING.md",
+        "source_file": "source/docs/CONTRIBUTING.md",
+        "sha256": "3fe928d31df326ee31aba4a7f3d1b52f24494f3f4ef71f3eb86be066bbdb8f25",
+        "bytes": 2215
+      },
+      {
+        "path": "docs/INSTALL.md",
+        "source_file": "source/docs/INSTALL.md",
+        "sha256": "4a3d4dc9b8242dd8e1030b08f3e071969b361776e090a3fc99947ce4fcb1f80b",
+        "bytes": 1357
+      },
+      {
+        "path": "examples/after.html",
+        "source_file": "source/examples/after.html",
+        "sha256": "96a9fc7112edc9e97c4deb2d011ca9d1c97faa7103b96227a3ec68feda20ff2d",
+        "bytes": 15160
+      },
+      {
+        "path": "examples/before.html",
+        "source_file": "source/examples/before.html",
+        "sha256": "d0ea8b8e76cf91cfc18647938333220911fd787a367779c1b7c85ff055722ba7",
+        "bytes": 10905
+      },
+      {
+        "path": "examples/brutalist-industrial.html",
+        "source_file": "source/examples/brutalist-industrial.html",
+        "sha256": "ec19e0fa5c1f0a46c763a0e5794b5e0a435f5d1328904e681f66f43b24dd3cd9",
+        "bytes": 13559
+      },
+      {
+        "path": "examples/cinematic-motion.html",
+        "source_file": "source/examples/cinematic-motion.html",
+        "sha256": "664fcb0943138667dc072e9448eaa455f0a0ff429631dd38e69779723ed82921",
+        "bytes": 46020
+      },
+      {
+        "path": "examples/corporate-trust.html",
+        "source_file": "source/examples/corporate-trust.html",
+        "sha256": "40ebb48ec0762b3eeb55159a8a5832976be448dc66591ab23d476ff9b3361962",
+        "bytes": 17164
+      },
+      {
+        "path": "examples/dark-tech.html",
+        "source_file": "source/examples/dark-tech.html",
+        "sha256": "02ecacaa3c96fa6bd10dc5bc0905d3245ec8dbc76a320ec7854c3e7ce2001c03",
+        "bytes": 14518
+      },
+      {
+        "path": "examples/japanese-minimal.html",
+        "source_file": "source/examples/japanese-minimal.html",
+        "sha256": "8ba16ad151c61b71de3419d798fc4a2885b92b2bd85043ceb2d32be4607153ec",
+        "bytes": 15283
+      },
+      {
+        "path": "examples/neo-brutalism.html",
+        "source_file": "source/examples/neo-brutalism.html",
+        "sha256": "98700443ad3b9eb1a8093044c56af9023c368e15e41d77e898496929581646fa",
+        "bytes": 14668
+      },
+      {
+        "path": "examples/playful-color.html",
+        "source_file": "source/examples/playful-color.html",
+        "sha256": "2ff6b3872bef20c0879c2d9043c5604fd8e6bc2adc1d1316925feb58d95510a2",
+        "bytes": 15292
+      },
+      {
+        "path": "examples/quiet-luxury.html",
+        "source_file": "source/examples/quiet-luxury.html",
+        "sha256": "b1f01023d6d39462585ccbd5203a64b4fc424846f4c45fef726238913608cf49",
+        "bytes": 14725
+      },
+      {
+        "path": "examples/retro-print.html",
+        "source_file": "source/examples/retro-print.html",
+        "sha256": "b19638c631365ffb635562941508994a664b42fdf309603747d06b7a2ded4144",
+        "bytes": 15107
+      },
+      {
+        "path": "scripts/capture-screenshots.mjs",
+        "source_file": "source/scripts/capture-screenshots.mjs",
+        "sha256": "a74feefab187bdc375e8aa4e039f7ff737ba40b909cde39dc8de391552be7476",
+        "bytes": 5724
+      },
+      {
+        "path": "scripts/install.sh",
+        "source_file": "source/scripts/install.sh",
+        "sha256": "7c5cd911982d2c6b23ccf0f5c2c8724a6ce0050ea6e696358b99463e5c1c904a",
+        "bytes": 1494
+      },
+      {
+        "path": "scripts/validate.sh",
+        "source_file": "source/scripts/validate.sh",
+        "sha256": "b34aab295eb729cde0af78af10a8712312dfbe3793b6972a2657147ae0ee3c1d",
+        "bytes": 2114
+      },
+      {
+        "path": "skills/brutalist-industrial/SKILL.md",
+        "source_file": "source/skills/brutalist-industrial/SKILL.md",
+        "sha256": "7e16d97e74a303d62d572ad02c155d65dccd478fcf3372416765585b12ed0702",
+        "bytes": 3856
+      },
+      {
+        "path": "skills/cinematic-motion/SKILL.md",
+        "source_file": "source/skills/cinematic-motion/SKILL.md",
+        "sha256": "b5e4b30e362c14e319f3c14eb725ce6b35d1f733c3314a1b5d0b592d39664fed",
+        "bytes": 7766
+      },
+      {
+        "path": "skills/corporate-trust/SKILL.md",
+        "source_file": "source/skills/corporate-trust/SKILL.md",
+        "sha256": "4b692ddc70c655486fdafda1271d9d068f24f9d2f137d19e1e4ea953a8f7f13b",
+        "bytes": 4425
+      },
+      {
+        "path": "skills/dark-tech/SKILL.md",
+        "source_file": "source/skills/dark-tech/SKILL.md",
+        "sha256": "6b856e651ba2a90a8bfe901ec206aa9ea262904eecf6454bf6f073e06ebee3e4",
+        "bytes": 4213
+      },
+      {
+        "path": "skills/design-taste/SKILL.md",
+        "source_file": "source/skills/design-taste/SKILL.md",
+        "sha256": "c848bbddfdea89962da7b90faf53e033e9b2a8c1944f5dc98dbd78aeb758489f",
+        "bytes": 6939
+      },
+      {
+        "path": "skills/editorial-minimal/SKILL.md",
+        "source_file": "source/skills/editorial-minimal/SKILL.md",
+        "sha256": "fd6c52053a992de985d5053278994784088f20bf9e76e1224ad9c75cdd8e3676",
+        "bytes": 3540
+      },
+      {
+        "path": "skills/japanese-minimal/SKILL.md",
+        "source_file": "source/skills/japanese-minimal/SKILL.md",
+        "sha256": "7b96ba5a48afd7d4e69f79f589f95e4fa6874384db0762c6d90b5cad0e1a6465",
+        "bytes": 3843
+      },
+      {
+        "path": "skills/neo-brutalism/SKILL.md",
+        "source_file": "source/skills/neo-brutalism/SKILL.md",
+        "sha256": "bc71fa3bba394f4a314b244003eabfad4a705caaee407a277f721267b14deb2e",
+        "bytes": 4132
+      },
+      {
+        "path": "skills/playful-color/SKILL.md",
+        "source_file": "source/skills/playful-color/SKILL.md",
+        "sha256": "4e0b86bd1842d2cd300d6b22d3d069b48070c10a704a027453c88f6d5a21cdab",
+        "bytes": 3830
+      },
+      {
+        "path": "skills/quiet-luxury/SKILL.md",
+        "source_file": "source/skills/quiet-luxury/SKILL.md",
+        "sha256": "3f439a21dbb284554449563c05cb2da6fab9b156bd08a2ab5168b4c5cc781468",
+        "bytes": 3863
+      },
+      {
+        "path": "skills/retro-print/SKILL.md",
+        "source_file": "source/skills/retro-print/SKILL.md",
+        "sha256": "9036bd4daf53dd27a7e2c05d9c1d158a6a8aa0e67a2ea5d49f6f8b7b34ff1731",
+        "bytes": 3984
+      },
+      {
+        "path": "skills/taste-accessibility/SKILL.md",
+        "source_file": "source/skills/taste-accessibility/SKILL.md",
+        "sha256": "4d293f850d91330f98812ec6a36110ddbd9d2337f58719d32e9731a4ea519558",
+        "bytes": 5522
+      },
+      {
+        "path": "skills/taste-brand-identity/SKILL.md",
+        "source_file": "source/skills/taste-brand-identity/SKILL.md",
+        "sha256": "f21fd39579be578597f4ed73b10837c7a6ddfbabeee003d131a85c9d52171b8a",
+        "bytes": 4414
+      },
+      {
+        "path": "skills/taste-code-craft/SKILL.md",
+        "source_file": "source/skills/taste-code-craft/SKILL.md",
+        "sha256": "e03ebe7c3b60ed43937405106c6632901beecd278f8b1bfa3d84bf17252f38dc",
+        "bytes": 4706
+      },
+      {
+        "path": "skills/taste-code-review/SKILL.md",
+        "source_file": "source/skills/taste-code-review/SKILL.md",
+        "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad",
+        "bytes": 3858
+      },
+      {
+        "path": "skills/taste-color/SKILL.md",
+        "source_file": "source/skills/taste-color/SKILL.md",
+        "sha256": "e56ad74bef333f3d328a752f840f4e70240f3519f3a56dc585b26d2395be9482",
+        "bytes": 4280
+      },
+      {
+        "path": "skills/taste-design-review/SKILL.md",
+        "source_file": "source/skills/taste-design-review/SKILL.md",
+        "sha256": "9082d8464ad0f5aafd8aace266a4369e9690f95c72a4f8267272a730a5012056",
+        "bytes": 5263
+      },
+      {
+        "path": "skills/taste-design-system/SKILL.md",
+        "source_file": "source/skills/taste-design-system/SKILL.md",
+        "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463",
+        "bytes": 5289
+      },
+      {
+        "path": "skills/taste-gsap/SKILL.md",
+        "source_file": "source/skills/taste-gsap/SKILL.md",
+        "sha256": "648b1b14375061b643fa1f45a2f65ac12edd0bd6c9a489f24f60cd21f547ef5f",
+        "bytes": 6119
+      },
+      {
+        "path": "skills/taste-landing-page/SKILL.md",
+        "source_file": "source/skills/taste-landing-page/SKILL.md",
+        "sha256": "1df0cf49cff462ecc9139aa179d01f0e3e62824e1ca1ef13bc40f71e114b5a62",
+        "bytes": 5482
+      },
+      {
+        "path": "skills/taste-motion/SKILL.md",
+        "source_file": "source/skills/taste-motion/SKILL.md",
+        "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18",
+        "bytes": 4949
+      },
+      {
+        "path": "skills/taste-typography/SKILL.md",
+        "source_file": "source/skills/taste-typography/SKILL.md",
+        "sha256": "8c9ce32d56237ade84985868db6cc5753082987a9cd1e67d0e2bbb8bc2e3e648",
+        "bytes": 4788
+      },
+      {
+        "path": "skills/taste-ux-copy/SKILL.md",
+        "source_file": "source/skills/taste-ux-copy/SKILL.md",
+        "sha256": "7a17e03e158ace46461e1ce046f79e2e1c0d63c65f8155f4ff2fa0161be6b40f",
+        "bytes": 4972
+      },
+      {
+        "path": "skills/taste-web-performance/SKILL.md",
+        "source_file": "source/skills/taste-web-performance/SKILL.md",
+        "sha256": "1d2a07263d33ce98cc708a2d056eadb1636e9a78d9ad04a93896630bf6ec5213",
+        "bytes": 4237
+      }
+    ],
+    "unresolved_references": [],
+    "bundle_scope": "Acquired repository text sources; membership does not imply runtime dependency of this individual method.",
+    "reference_resolution_ref": "inventory.json",
+    "scripts_analysis_ref": "script-analysis.json"
+  },
+  "qualification": {
+    "structural": "static_parser_candidates",
+    "behavioral": "not_run",
+    "integration": "not_run",
+    "activation": "inactive"
+  }
+}
