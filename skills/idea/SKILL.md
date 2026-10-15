@@ -105,11 +105,12 @@ proposal reference; fill its canonical entity reference only after an owning
 reader resolves it. Existence, lifecycle maturity, alignment, and domain binding
 are separate facts. Unknown existence is `null`, not an invented negative.
 
-Load [the idea template](templates/idea.yaml) when inspecting, capturing, or
-updating structured idea state. Its candidate ontology and future-target fields
-are manual v1 authoring data, not new registered runtime kinds or a shipped
-graph matcher. Keep registered kind mappings unresolved until the actual domain
-contract supplies them.
+For a save, resume, or recovery, load [the record contract](references/record-contract.md)
+and the project's owning schema and template before drafting the record. Use
+[the bundled template](templates/idea.yaml) only as a compatible fallback.
+Candidate ontology and future-target fields are optional authoring data; the
+idea remains useful without a classifier, graph matcher, or bound domain.
+Keep registered type mappings unresolved until the owning contract supplies them.
 
 ## Run the conversation
 
@@ -157,7 +158,7 @@ steps:
       Apply the canon write gate below. Resolve the project's configured idea
       home and owning writer from live declarations. Reuse an existing record
       and identity. On a new idea, use the agreed title, check duplicates, and
-      load templates/idea.yaml. Preserve source refs and design relationships.
+      load the owning template. Preserve source refs and design relationships.
       Current Lev read verbs are discovered through help; do not invent a write
       command. If no idea writer exists and direct authoring is authorized,
         write the YAML record at its declared home and read it back. That fallback
@@ -211,9 +212,10 @@ write, or handoff; an ordinary question does not need an administrative table.
 | {User's material goal or constraint} | {Operational interpretation} | {Preserved, approved narrowing, or gap} | {Disk, memory, or both} | {Resolved ref or none} | {Existing owner or unresolved} | {Exact gap or none} | {Evidence, assumption, or unknown} |
 
 Keep the source wording and its material relationships. On a preservation gap,
-retain the original and repair the interpretation before advancing. An authored
-stage label or a saved file is not a lifecycle proof. Keep the current seven
-stages; classification is an operation, and completion belongs to its verifier.
+retain the original and repair the interpretation before advancing. Derive stage
+from owner evidence; do not write it into the idea record. A saved file is not
+a lifecycle proof. Keep the current seven stages; classification is a supporting
+operation, and completion belongs to its verifier.
 
 <wizard-synthesis>
 🧙‍♂️ **The idea taking shape: {Title}**
