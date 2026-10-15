@@ -469,6 +469,120 @@ class S06ControllerTest(unittest.TestCase):
                 self.assertTrue(observation["budget"]["aborted"])
                 self.assertTrue(observation["terminal"]["cleanup"]["callbacks_stopped"])
 
+    def test_known_server_request_missing_id_fails_in_all_receive_phases(self) -> None:
+        prefix = POSITIVE_PEER.split('reply(turn_request, {"turn": turn_value()})', 1)[0]
+        params = {"threadId": "thread-fixture-1", "turnId": "turn-fixture-1",
+                  "callId": "missing-id-call", "namespace": "skills_db",
+                  "tool": "discover", "arguments": {"query": QUERY}}
+        self.assertEqual(len(KNOWN_SERVER_REQUEST_METHODS), 11)
+
+        for phase in ("before_turn_start_response", "active_turn"):
+            for index, method in enumerate(KNOWN_SERVER_REQUEST_METHODS):
+                with self.subTest(phase=phase, method=method):
+                    frame = {"method": method, "params": params}
+                    setup = ""
+                    if phase == "active_turn":
+                        setup = ('reply(turn_request, {"turn": turn_value()})\n'
+                                 'thread_id, turn_id = "thread-fixture-1", "turn-fixture-1"\n')
+                    after_frame = ""
+                    if phase == "before_turn_start_response":
+                        after_frame = ('reply(turn_request, {"turn": turn_value()})\n'
+                                       'thread_id, turn_id = "thread-fixture-1", "turn-fixture-1"\n')
+                    peer = self.write_peer(
+                        prefix + "\n" + setup + "send(" + repr(frame) + ")\n" + after_frame
+                        + 'send({"method":"turn/completed","params":{"threadId":thread_id,'
+                        + '"turn":turn_value("completed")}})\n',
+                        f"peer-missing-id-{phase}-{index}.py",
+                    )
+                    candidate = ScriptedSkillsController(self.fixture, lane="missing-id-matrix")
+                    dispatch_calls: list[dict[str, Any]] = []
+
+                    def record_forbidden_dispatch(request_params: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any] | None]:
+                        dispatch_calls.append(request_params)
+                        raise AssertionError("missing-ID request reached CLI/source dispatch")
+
+                    candidate._dispatch_callback = record_forbidden_dispatch
+                    observation = candidate.run_scripted_peer(peer, task_text="t", instruction_text="i")
+
+                    self.assertNotEqual(observation["terminal"]["state"], "completed")
+                    self.assertEqual(observation["budget"]["attempted_calls"], 1)
+                    self.assertEqual(observation["budget"]["admitted_calls"], 1)
+                    self.assertTrue(observation["budget"]["aborted"])
+                    self.assertEqual(dispatch_calls, [])
+                    self.assertEqual(candidate.cli_runs, [])
+                    self.assertEqual(candidate.transfers, [])
+                    self.assertTrue(any(
+                        item.get("request_method") == method and item["error"] == "ProtocolError"
+                        for item in candidate.callback_observations
+                    ))
+
+    def test_method_request_with_matching_client_id_is_not_a_response(self) -> None:
+        prefix = POSITIVE_PEER.split('reply(turn_request, {"turn": turn_value()})', 1)[0]
+        params = {"threadId": "thread-fixture-1", "turnId": "turn-fixture-1",
+                  "callId": "matching-id-call", "namespace": "skills_db",
+                  "tool": "discover", "arguments": {"query": QUERY}}
+        # turn/start is the third client request. A method-bearing request with
+        # that ID and a result field must be classified as a request first.
+        frame = {"method": "item/tool/call", "id": 3, "params": params,
+                 "result": {"turn": {"id": "turn-fixture-1"}}}
+        peer = self.write_peer(
+            prefix + "\nsend(" + repr(frame) + ")\n"
+            + 'send({"method":"turn/completed","params":{"threadId":"thread-fixture-1",'
+            + '"turn":{"id":"turn-fixture-1","rootTurnId":None,"items":[],"itemsView":"full",'
+            + '"status":"completed","error":None,"startedAt":1,"completedAt":2,"durationMs":1}}})\n',
+            "peer-method-matching-client-id.py",
+        )
+        candidate = ScriptedSkillsController(self.fixture, lane="method-id-collision")
+        dispatch_calls: list[dict[str, Any]] = []
+
+        def record_forbidden_dispatch(request_params: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any] | None]:
+            dispatch_calls.append(request_params)
+            raise AssertionError("malformed method-bearing frame reached CLI/source dispatch")
+
+        candidate._dispatch_callback = record_forbidden_dispatch
+        observation = candidate.run_scripted_peer(peer, task_text="t", instruction_text="i")
+        self.assertNotEqual(observation["terminal"]["state"], "completed")
+        self.assertEqual(observation["budget"]["attempted_calls"], 1)
+        self.assertEqual(observation["budget"]["admitted_calls"], 1)
+        self.assertEqual(dispatch_calls, [])
+        self.assertEqual(candidate.cli_runs, [])
+        self.assertEqual(candidate.transfers, [])
+
+    def test_valid_server_request_during_client_wait_cannot_dispatch(self) -> None:
+        prefix = POSITIVE_PEER.split('reply(turn_request, {"turn": turn_value()})', 1)[0]
+        params = {"threadId": "thread-fixture-1", "turnId": "turn-fixture-1",
+                  "callId": "early-valid-call", "namespace": "skills_db",
+                  "tool": "discover", "arguments": {"query": QUERY}}
+        frame = {"method": "item/tool/call", "id": "early-valid-id", "params": params}
+        peer = self.write_peer(
+            prefix + "\nsend(" + repr(frame) + ")\n"
+            + 'early_response = receive()\nlog({"early_response": early_response})\n'
+            + 'reply(turn_request, {"turn": turn_value()})\n'
+            + 'thread_id, turn_id = "thread-fixture-1", "turn-fixture-1"\n'
+            + 'send({"method":"turn/completed","params":{"threadId":thread_id,'
+            + '"turn":turn_value("completed")}})\n',
+            "peer-request-during-client-wait.py",
+        )
+        candidate = ScriptedSkillsController(self.fixture, lane="request-during-client-wait")
+        dispatch_calls: list[dict[str, Any]] = []
+
+        def record_forbidden_dispatch(request_params: dict[str, Any]) -> None:
+            dispatch_calls.append(request_params)
+            raise AssertionError("request during a client wait reached CLI/source dispatch")
+
+        candidate._dispatch_callback = record_forbidden_dispatch
+        observation = candidate.run_scripted_peer(peer, task_text="t", instruction_text="i")
+        self.assertEqual(observation["terminal"]["state"], "completed")
+        self.assertEqual(observation["budget"]["attempted_calls"], 1)
+        self.assertEqual(observation["budget"]["admitted_calls"], 1)
+        self.assertEqual(dispatch_calls, [])
+        self.assertEqual(candidate.cli_runs, [])
+        self.assertEqual(candidate.transfers, [])
+        peer_events = self.read_peer_log(candidate.peer_log)
+        early_response = next(item["early_response"] for item in peer_events if "early_response" in item)
+        self.assertEqual(early_response["id"], "early-valid-id")
+        self.assertIs(early_response["result"]["success"], False)
+
     def test_valid_string_and_int64_request_ids_dispatch(self) -> None:
         prefix = POSITIVE_PEER.split('# Two concurrently outstanding callbacks')[0]
         for request_id in ("valid-id", 7, -(2**63), 2**63-1):

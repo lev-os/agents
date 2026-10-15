@@ -114,7 +114,7 @@ steps:
     on_failure: "If the thread is too large, bucket by topic and continue."
 
   - id: classify
-    action: Compile user/source prose into agent-operational intent, state, and route.
+    action: Compile user/source prose into agent-operational intent, state, and route, keeping the source's modal force; a relationship the source leaves unestablished stays `unknown`, not same, different, or impossible.
     validation: "Each item has compiled_intent, route_state, and next_route."
     on_failure: "Unknown state stays in memory and becomes the first output bucket."
 
@@ -135,7 +135,7 @@ steps:
 
   - id: score_fidelity
     action: Score each new or materially changed captured row against its source before advancement. Reuse an accepted score and source mapping when neither the source nor compiled intent changed.
-    validation: "Every material row has fidelity_components, fidelity_note, and fidelity >= 0.8; no material constraint, non-goal, decision boundary, relationship, or acceptance condition is silently lost."
+    validation: "Every material row has fidelity_components, fidelity_note, and fidelity >= 0.8; no material constraint, non-goal, decision boundary, relationship, or acceptance condition is silently lost, and no row states a claim more strongly than its source."
     on_failure: "Re-capture at higher zoom or route to /interview."
 
   - id: reconcile_capture_ledger

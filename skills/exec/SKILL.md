@@ -8,7 +8,24 @@ description: Use when running execution-ready task slices, dispatching verified 
 `/exec` runs execution-ready entities. It does not invent plans, weaken
 verifiers, or complete work without review evidence.
 
-**Load order:** for any non-trivial direct or routed invocation, load [Project Context](../lev/references/project-context.md) next, right after this guidance and before reading or looking up any task, plan, workstream, or other project artifact, whether the run dispatches or only reviews. It resolves the active project and its declared breadcrumbs.
+**Load order:** for any non-trivial direct or routed invocation, whether the run
+dispatches or only reviews:
+
+1. Read [Project Context](../lev/references/project-context.md) as the next file
+   you read after this guidance. Make no read or lookup of a task, plan,
+   workstream or other project file before it, whether that read would succeed
+   or fail.
+2. Bind the project root that its lookups will use. A project directory that the
+   task declares is that root, and active-project discovery never replaces it.
+   Join a relative declared path to the actual runtime cwd
+   (`<cwd>/<declared path>`), also when the cwd's last component has the same
+   spelling; the same name does not mean the same directory. Else use the active
+   project that Project Context resolves.
+3. Only then run its lookups and the task's own reads. Prefix every
+   project-relative instruction, config, breadcrumb and artifact path with that
+   root. If a failed read shows a wrongly resolved root, correct the root before
+   you guess artifact file names; a miss outside the bound root is unsearched,
+   not absent.
 
 ## Addresses
 
@@ -136,7 +153,7 @@ Lifecycle lane: Exec
 Entity movement: `execution_ready -> executing -> verified | blocked | needs_propose`
 Workstream: resolve active workstream and task entity before dispatch
 Upstream: `/lev-plan` packet for SDLC; sufficient plan or domain artifact for non-coding
-Downstream: `/close`, `/lev-plan`, `/handoff`, selected domain skill
+Downstream: `/close` (including its handoff step), `/lev-plan`, selected domain skill
 Router: `/work`
 HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count} ✅{done_count} | 🚦{gate}={score} | ⏭️ {next} | 🔁{loop_state}`
 
@@ -166,15 +183,22 @@ internals, private lint details, or calibration fixtures. If the execution
 surface cannot enforce that read/write split, run only dev/preflight checks and
 route the holdout or harness design back to `/lev-plan`.
 
-Evaluator integrity applies to every dispatch. Pin the run's evaluator surface
-(declared verifiers, rubrics, scorers, fixtures, holdout policy) by digest
-before dispatch and keep it outside the worker's write scope; a changed
-evaluator starts a new run and never counts as candidate improvement. Accept a
-verifier result or receipt only when it names the exact candidate revision
-(commit or file digests) it checked; any later edit makes earlier evidence for
-that candidate stale until rerun. Keep rejected candidate generations and their
-evidence refs in receipts or the follow-up ledger; reverting the worktree does
-not erase them.
+Evaluator integrity applies to every dispatch and review. Pin the run's
+evaluator surface (declared verifiers, rubrics, scorers, fixtures, holdout
+policy) by digest before dispatch and keep it outside the worker's write scope;
+a changed evaluator starts a new run and never counts as candidate improvement.
+When the evaluator's identity or bytes are unavailable, first recover and verify
+the original evaluator pinned before the producer ran and held outside its write
+scope; a new rubric or digest does not replace that recovery. If recovery fails,
+keep the historical result and its unknowns, and pin any new evaluator as a
+separate prospective generation for fresh trials; it grants no retroactive
+acceptance. Accept a verifier result or receipt only when it names the exact
+candidate revision (commit or file digests) it checked; any later edit makes
+earlier evidence for that candidate stale until rerun. A check result that does
+not name the revision it ran against holds only at its recorded scope, never as
+a run against the requested or artifact revision. Keep rejected candidate
+generations and their evidence refs in receipts or the follow-up ledger;
+reverting the worktree does not erase them.
 
 ## Isolated TDD Cycle Contract
 
@@ -201,6 +225,38 @@ and matching local artifacts. If lookup finds no source, ask where it lives
 when interaction is available; if none exists or cannot be supplied, report Spec: unavailable;
 do not infer requirements from the implementation. Load applicable repository
 standards and compare only the selected diff and necessary context.
+
+Build the verdict and next action in this order:
+
+1. Construct the evidence state from the supplied records and check it against
+   Evaluator integrity in the Adversarial Exec Contract. Keep four items apart:
+   the requested revision, the returned artifact revision, the revision a check
+   actually ran against, and the evaluator identity pinned before the producer
+   ran. Carry each supplied worker, run and session identity, each full revision
+   string and the literal artifact locator into the evidence state and into the
+   verdict or next action that cites them, exactly as supplied; a short label
+   may accompany an exact value but never replaces it. A mapping from a supplied
+   identity to a canonical one stays unknown unless a record states it; a native
+   session ID alone establishes no Lev session record ID or mapping; without
+   such a record the two are neither known equal nor known different. An
+   unrecorded, unavailable or null field stays unknown, never proof that
+   something does not exist or did not run: unavailable evaluator identity or
+   bytes are unrecorded or unavailable here, not proof that the original never
+   existed or was never pinned.
+2. Draft the verdict and next actions only from that state. Trace each proposed
+   acceptance or unblocking path to the unchanged requested target. Only a check
+   that names the exact target (commit or declared file digests), or a verified
+   identity or content binding that satisfies the declared verifier, proves that
+   target; an older artifact checked against a general task scope does not.
+   Without that proof keep the target held; do not change the target or weaken
+   its criterion to fit an available artifact.
+3. Audit the whole draft before you return it: headings, body and follow-ups.
+   Each categorical claim needs evidence and the same modal force as its state;
+   a correct table does not excuse a contradicting sentence. Test each absence
+   claim against a counterexample, such as the original existing outside the
+   supplied records, and remove or rephrase a claim it defeats without
+   presenting the counterexample as fact. Return the corrected artifact, not the
+   audit.
 
 Keep **Spec** and **Standards/quality** findings separate. Spec checks missing,
 partial, incorrect and unrequested behavior against cited source requirements.
@@ -404,7 +460,7 @@ a choice is useful. A clear authorized next step proceeds without a forced menu.
 | Coding contract or scope changed | `skill://lev-plan` | Repair the selected SDLC packet |
 | Non-coding plan incomplete | `skill://lev-plan` | Repair outcome, acceptance or next unit without mandatory proposal |
 | Architecture decision unresolved | `skill://arch` | Resolve technical options before implementation |
-| Blocked, paused or budget spent | `skill://handoff` | Preserve result and exact resumption condition |
+| Blocked, paused or budget spent | `skill://close` handoff step or `skill://work` handoff template, with `skill://ws` | Preserve result and exact resumption condition |
 | Domain or next owner unclear | `skill://lev` | Resolve the overlay and method |
 
 For 10x Ralph/proposal expansion, use an outer controller loop. One successful
