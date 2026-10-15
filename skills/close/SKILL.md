@@ -27,7 +27,7 @@ Lifecycle lane: Close
 Entity movement: `verified -> closed | monitoring | follow_up | blocked`
 Workstream: update active workstream before reporting done
 Upstream: `/exec`
-Downstream: `/handoff`, `/work`
+Downstream: `/work`; continuity runs in this protocol's `handoff` step; `/ws` owns workstream state
 Router: `/work`
 HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count} ✅{done_count} | 🚦{gate}={score} | ⏭️ {next} | 🔁{loop_state}`
 
@@ -48,7 +48,7 @@ grant new execution, publishing, or checkpoint authority.
 | Acceptance failed within the existing authorized contract | `skill://exec` using the same domain method |
 | Coding contract must change | `skill://propose`; `skill://lev-plan` if the broader plan changes |
 | Non-coding scope or plan must change | `skill://lev-plan` or `skill://interview`; proposal optional |
-| Accepted or paused, context needs preservation | `skill://handoff` |
+| Accepted or paused, context needs preservation | Protocol step `handoff` (work template); `skill://ws` for workstream state |
 | Several completed efforts warrant synthesis | `skill://lev-learn` |
 | Another effort or uncertain next owner | `skill://lev` |
 
@@ -92,9 +92,9 @@ steps:
     on_failure: "Route to /work for next-verb selection."
 
   - id: handoff
-    action: Invoke /handoff to update workstream state and resume prompt.
-    validation: "Workstream YAML reflects close result."
-    on_failure: "Do not end without durable state."
+    action: Write the session handoff directly from the existing work template (`../work/templates/handoff.md`) at `.lev/pm/handoffs/{YYYYMMDD}-{workstream}-{component}-{slug}-session-{N}.md`, patching the current session file when it exists and carrying exact IDs, paths, failed checks, source revisions, and unresolved needs verbatim. Update the active workstream YAML (`.lev/pm/workstreams/<ws-id>/state/workstream.yaml`, owned by `skill://ws`) through its verified owning CLI or adapter, or by a layout-preserving file edit when none is verified. A `/handoff` route may run these steps only where it resolves on this host.
+    validation: "Workstream YAML reflects close result, the handoff exists at its canonical path, and a cold-start recall check passed: recall, artifact, continuation, and decision questions answered from the handoff alone match the original sources and current artifact state."
+    on_failure: "Do not end without durable state. Patch each missing or mismatched fact into the handoff and rerun the recall check."
 ```
 
 ## Trigger Record
@@ -142,11 +142,12 @@ Max rework: 2. Three consecutive gate failures becomes blocked.
 - "Repo-wide audit passed, so feature-local Pentagon proof is done."
 - "Temporary QA harness cleanup can be handled later."
 - "I'll write handoff later."
+- "The handoff reads complete, so a cold start will work."
 - "Pull with rebase."
 
 ## Related
 
 - `/exec` provides verified work.
 - `/capture` clears in-memory leftovers.
-- `/handoff` updates workstream continuity.
+- The `handoff` step writes continuity from the work template; `/ws` owns workstream state; a `/handoff` alias applies only where the host resolves it.
 - `/work` routes the next entity.

@@ -194,6 +194,20 @@ Each tick:
 Validation is always done by the NEXT tick. This is inherited from autodev-loop
 and is non-negotiable. Set `self_validation: false` (the default).
 
+### Evaluator Integrity Rule
+
+Before a producing tick begins, freeze its acceptance: the tick's Done
+Criteria, the loop's `validation` section, `execution.verifier`, and their
+fixtures. Record their digests with the tick result and keep them out of every
+tick's Scope; a tick that edits them is rejected. Only frozen acceptance can
+pass a tick. Probes generated after seeing its output add diagnostics; they
+never replace or weaken frozen acceptance. Any evaluator change, including a C4
+ratchet promotion, is a new evaluator generation recorded between ticks; it
+binds only ticks that begin afterward and never counts as advancement.
+Validation passes only for the exact revision it checked; a later edit makes
+that evidence stale until re-validated. Keep rejected tick records and their
+evidence rather than deleting or overwriting them.
+
 ---
 
 ## Meta-Prompting: How to Write Tick Prompts
@@ -276,11 +290,14 @@ Each tick follows this 10-step procedure:
 1. LOAD loop YAML from .lev/loops/<loop-id>/loop.yaml
 2. LOAD state from .lev/loops/<loop-id>/state.json
 3. SELECT tick type using ordering strategy + constraints
-4. GENERATE prompt using meta-prompting template + current state
+4. GENERATE prompt using meta-prompting template + current state; freeze its
+   acceptance digests before step 5 (Evaluator Integrity Rule)
 5. EXECUTE via lev exec or inline (Agent tool for complex, Read/Edit for simple)
 6. RECORD result to .lev/loops/<loop-id>/ticks/<tick-number>.json
 7. UPDATE state.json (tick count, type history, advancement tracking)
-8. CHECKPOINT git (git add . && git commit -m "levloop: {tick_type} — {summary}")
+8. CHECKPOINT git: stage only the tick's task-owned paths from its Scope
+   (git add -- <path>...; never broad staging), then
+   git commit -m "levloop: {tick_type} — {summary}"
 9. EMIT telemetry (tick type, duration, files changed, advancement)
 10. SELECT next tick (or exit if circuit breaker / duration limit)
 ```
@@ -334,7 +351,10 @@ Memory persists through the filesystem (state.json, tick reports, git history).
 
 ## Dynamic Flowmind Generation
 
-Between ticks, auto-generate an adversarial validation flowmind:
+Between ticks, auto-generate an adversarial diagnostic flowmind. Its
+post-output probes sit beside the tick's frozen acceptance (Evaluator Integrity
+Rule): a failed probe records a diagnostic and may trigger the escalate fix
+below, but any revision still passes only on frozen acceptance.
 
 1. Read the previous tick's output (files changed, report)
 2. Extract invariants that should hold (word count, voice consistency, no forbidden patterns)
@@ -372,7 +392,9 @@ nodes:
 ### C4 Ratchet for Validation
 
 If the same invariant fails 3+ times across ticks, promote it from the generated
-flowmind to the loop's `validation` section (permanent). Gates only move forward.
+flowmind to the loop's `validation` section (permanent) as a new evaluator
+generation recorded between ticks; it binds ticks that begin afterward. Gates
+only move forward.
 
 ---
 

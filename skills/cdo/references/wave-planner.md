@@ -23,8 +23,8 @@ steps:
     action: State the goal, the acceptance criteria and the budget before planning anything.
     validation: "Each acceptance criterion is observable. The budget names max_waves (default 5; up to 10, or the user's number), a consecutive no-progress limit (default 2) and, when relevant, a wall-clock limit."
   - id: discover
-    action: Run skill discovery for each candidate node focus. Use skill://skill-discovery first (`lev-skills "<broad keywords>" --json --limit=5`), rg over ~/.agents/skills and ~/.agents/skills-db when results are weak, and dispatch/skill-injection.md for weighted workshop skills.
-    validation: "Each node lists the skills considered and chosen, and every chosen skill has a local path that exists."
+    action: Consult a completed, applicable `skill://skill-discovery` campaign record for each candidate node focus; run that shared campaign when no record matches the node's task, scope, revisions, and sufficiency. The shared owner supplies query planning and completion rules. Use dispatch/skill-injection.md for weighted workshop skills.
+    validation: "Each node names an applicable complete campaign or an explicit incomplete frontier; every chosen source has a returned actual path, digest, and verified full required local closure. A first hit or descriptor alone is insufficient."
   - id: draft
     action: Draft the waves as a DAG. Each wave has a purpose, the criteria it should move, and nodes; each node has a role, a focus question, inputs, an output file and 1-5 skills.
     validation: "Every node names 1-5 existing skills, and at least one wave targets every acceptance criterion."
@@ -32,14 +32,14 @@ steps:
     action: Render the Wave Plan dashboard from templates/dashboard.md in the reply itself. Use an embedded visualizer or the user's established renderer when available; otherwise use the Markdown dashboard. A plan that exists only in a file is not rendered.
     validation: "The reply shows every wave, node, skill, criterion, the judge and the budget."
   - id: edit
-    action: Offer numbered edits (add or remove waves or nodes, swap skills, change a node's skill count from 1 to 5, change criteria, budget or judge, re-run discovery for a node) and re-render until the user approves.
+    action: Offer numbered edits (add or remove waves or nodes, swap skills, change a node's skill count from 1 to 5, change criteria, budget or judge, refresh a node's discovery record when its scope or evidence changes) and re-render until the user approves.
     validation: "Approval is explicit. Silence is not approval. No wave runs before approval: end the reply after the dashboard and the edit menu."
   - id: freeze
     action: Freeze the acceptance criteria, the budget and the judge, and save the approved plan as tmp/cdo-{session}/plan.yaml.
     validation: "plan.yaml exists with goal, acceptance, budget, judge and waves."
   - id: run_wave
-    action: Before each wave, re-run discover for its nodes and apply the previous synthesis directive and the judge's unmet criteria. Then compose, dispatch and synthesize per execute_turns.
-    validation: "The wave's artifacts and its synthesis directive exist on disk."
+    action: Before each wave, consult its nodes' campaign records and apply the previous synthesis directive and the judge's unmet criteria. Reopen discovery only when task focus, constraints, source scope, index/source revision, coverage, or sufficiency changed; reuse adds no new query executions. Preserve the approved max_waves, max_no_progress_waves, wall_clock, planned node set, and each node's 1-5 skill-count limit; discovery reuse or reopening never resets or expands them. Then compose, dispatch and synthesize per execute_turns.
+    validation: "The wave's artifacts and synthesis directive exist, each node's skill decision is backed by applicable full-load evidence or an explicit incomplete frontier, and the original and remaining caller budgets, planned node set, and node skill-count bounds remain visible."
   - id: judge
     action: Dispatch the judge on the frozen criteria (engine/convergence.md, Type 5).
     validation: "The judge returned satisfied or not_satisfied with evidence for each criterion."
