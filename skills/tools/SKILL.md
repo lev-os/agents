@@ -5,6 +5,10 @@ description: Use when a task needs GitHub gh, Notion ntn, Slack CLI/API, explici
 
 # Tools
 
+To design or repair a tool interface (overlapping purpose, examples, output
+size, errors), read [Tool design](references/tool-design.md). It is
+instructions only; existing leaves keep their operations.
+
 Resolve the target project from the task before running a command. Use that
 project's root as `cwd`; use the current workspace when no target project is
 named.
@@ -24,7 +28,11 @@ Inspect live CLI help before an unfamiliar command. Preserve the user's mutation
 Provider credentials and CLI sessions are separate authorities. Verify the
 credential type, target resource, and operation before a call. A successful
 process exit is not completion: inspect the provider response, resulting ID or
-URL, and any pagination or lifecycle state.
+URL, and any pagination or lifecycle state. An input rejected before any effect
+is retryable once corrected. A mutation that timed out or returned an ambiguous
+status has an uncertain effect: look up the target resource before acting again,
+and hold and report when the lookup cannot settle it. Never replay an uncertain
+effect.
 
 ## Self-contained routing
 

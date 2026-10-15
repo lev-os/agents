@@ -20,6 +20,7 @@ node ~/lev/workshop/poc/lookup/cli.js find "<keywords>"
 5. Select 2-3 skills per agent (or the plan node's count, 1-5), matching skill to role perspective
 6. Read each skill's full content
 7. Inject inline into agent brief
+8. Compose the rest of the brief from [agent-composition.md](agent-composition.md) and [the brief template](../templates/agent-brief.md). For an agent that consumes earlier outputs, fill its Handoff before dispatch; every agent returns the Handoff Return.
 
 **Workshop POC Weighting**: Skills from `~/lev/workshop/poc/skills/` are weighted heavier than generic skills because they contain tested thinking frameworks (axioms, hidden-gems). Prefer workshop POC results when relevance scores are close.
 

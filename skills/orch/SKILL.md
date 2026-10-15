@@ -96,8 +96,15 @@ operations and record the observed result of each:
 3. After verifier success, invoke owner acceptance/completion.
 
 A successful dispatch or an output file does not satisfy step 2. A worker saying
-DONE does not satisfy step 2. Never report verified=true without the actual verifier
-result. On failed verification, diagnose and repair within scope, then verify again.
+DONE does not satisfy step 2. Agreement among workers or reviewers is neither
+independent evidence nor proof of delegation; count a delegation only from the
+host's returned worker handle and result. Never report verified=true without the
+actual verifier result. On failed verification, diagnose and repair within scope,
+then verify again. When an output fails or is superseded, invalidate the
+acceptance of every direct and transitive consumer, including acceptance based
+on the superseded version: trace the handoffs, so in A→B→C a failed A invalidates
+B and C even when C cites only B. Hold them and re-verify each against the
+current output after the repair. Branches outside that consumer chain continue.
 
 For a host API exposing dispatch/verify/complete, the required tool sequence is
 dispatch(id) → verify(id) → complete(id). Do not collapse it to dispatch→complete,
@@ -177,7 +184,12 @@ pointers from the installed catalog and inspect live CLI help; never invent flag
 A fully specified local work order can execute without building unrelated infrastructure.
 
 Work orders carry outcome, owned scope, exclusions, refs, deliverable, verifier
-and stop condition. Actual missing execution capabilities block the affected work.
+and stop condition. Before a dependent worker starts, its handoff also carries
+the upstream source and run identity, the premises it may rely on, exact
+artifact paths or IDs, the upstream acceptance result with its check evidence,
+allowed tools and sources, and unresolved dependencies. Copy them from the
+upstream record, not a summary; an unknown field holds only that dependent.
+Actual missing execution capabilities block the affected work.
 Missing reports/tests/bookkeeping are usually work; promotion evidence holds
 release, not unrelated implementation. Offer supported system-level fallbacks
 without granting authority, provisioning, changing identities or weakening gates.
