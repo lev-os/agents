@@ -27,8 +27,10 @@ errors. Do not invent a method or scope from a similar name.
 
 ## Credentials and scope
 
-The Slack CLI's authenticated team session and a raw HTTP token are separate
-auth paths. A raw call must use the token type named by the method contract:
+Follow the existing-login bridge in `./slack-cli.md` before requesting a new
+token or login. The CLI's saved session and `slack api` token selection are
+separate paths; a saved credential may work when explicitly supplied, within
+its actual granted scopes. A raw call must use the token type named by the method contract:
 
 - `xoxb-...`: bot token for app/bot scopes.
 - `xoxp-...`: user token for methods accepting user tokens and their scopes.

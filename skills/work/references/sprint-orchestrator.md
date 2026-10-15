@@ -335,16 +335,10 @@ Use CDO complexity classification (from `lev-cdo` skill) to determine team shape
 Before spawning any agent (teammate or subagent), discover and inject relevant skills:
 
 ```
-1. Extract keywords from entity spec/proposal
-2. Search skill sources (priority order from work SKILL.md):
-   a. Project-local: .claude/skills/, .agents/skills/ in project
-   b. Global canonical: ~/.agents/skills/
-   c. Skills DB: ~/.agents/skills-db/
-   d. POC/polymath: ~/lev/workshop/poc/skills/, ~/lev/workshop/intake/cc-polymath/skills/
-3. For each matched skill:
-   a. Read SKILL.md content
-   b. Inject as system prompt prefix for the agent
-   c. Log which skills were injected (for audit trail)
+1. Resolve governing project-local instructions through the active project's approved config and instruction routes. Keep that context separate from corpus results and query counts.
+2. For reusable skill candidates, load `skill://skill-discovery` and run or reuse a completed campaign for the entity and worker focus. Reuse only when task focus, constraints, source scope, index/source revision, loaded closure, and sufficiency still apply; reopen changed coverage without counting reused evidence as new executions.
+3. For each selected source, retain its returned `source_id`, `local_path`, `realpath`, `digest`, and `index_revision`. Read the complete source through its actual path, verify its digest, and resolve the required local reference or bundle closure from the declared base. A descriptor, existing path, excerpt, or unresolved external reference does not establish a complete load.
+4. Inject only fully loaded, applicable source content. Log what was actually injected with its available source identity and digest; keep selection, loading, injection, observed use, and outcome separate. Carry unresolved or unavailable source boundaries forward instead of presenting them as loaded context.
 ```
 
 **Teammate prompt template:**
@@ -527,7 +521,7 @@ Use this router before each L3 tick dispatch. Goal: deterministic sub-skill sele
 |------------------|-------------------|----------------------|--------------------|
 | Sprint/session bootstrap | `lev-cdo-router` | `lev-cdo` | Every session start before first tick |
 | Complexity execution path | `lev-cdo-workflows` | `work` | Router returns `deep` or `epic` |
-| Skill context injection | `skill-discovery` | `find-skills` | Before spawning any teammate/subagent |
+| Skill context injection | `skill-discovery` | — | Before spawning any teammate/subagent |
 | Human gate escalation | `agentping` | `work` gate hooks | CDO gate/hard blocker needs explicit approval |
 | Evidence quality pass | `workflow-quality-audit` | `work` VALIDATE | Sprint close or parity promotion checks |
 | External context sweep | `lev-find` | `research` | Confidence-gated deepen or stale evidence |
@@ -536,7 +530,7 @@ Use this router before each L3 tick dispatch. Goal: deterministic sub-skill sele
 
 1. Run `lev-cdo-router` first for every new entity tick.
 2. If complexity is `deep` or `epic`, chain `lev-cdo-workflows` before dispatch.
-3. Always run `skill-discovery` before worker spawn and inject matched skills in prompts.
+3. Always load `skill://skill-discovery` before worker spawn; consult its applicable campaign record and inject only fully loaded, applicable source content.
 4. Use `agentping` only for explicit human-in-the-loop requirements.
 5. Run `workflow-quality-audit` before sprint close to verify evidence coverage.
 
