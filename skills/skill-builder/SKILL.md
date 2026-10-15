@@ -34,7 +34,14 @@ An explicit skills-first update may precede trials, but must remain unqualified.
 Keep these states separate in every report: **structural** (the file parses and
 source obligations map), **behavioral** (bounded fresh scenarios show the
 intended judgment), and **integration** (the target host loads, routes and
-authorizes it). A structural pass never upgrades the other states.
+authorizes it). A structural pass never upgrades the other states. Infer the
+subject and its unchanged baseline from the candidate's actual changed artifacts
+and declared outcome, never from the skill running the review; the
+evaluation-method owner and the subject owner are distinct roles. When
+skill-builder's own source is among those changed artifacts, its pre-change
+evaluator (checks, rubrics, fixtures, grader prompts) stays frozen outside the
+candidate's scope; a changed grader starts a new evaluator generation and never
+counts as candidate improvement.
 
 The following are skill selectors, not invented runtime APIs:
 
@@ -336,6 +343,10 @@ Start with a quick three-arm comparison before a broad mapping or rewrite:
    useful decisions,
    correctness, lost obligations, regressions, and measured effort separately.
    A tie, failure, missing runtime, or inconclusive comparison is a valid result.
+   Check validity before usefulness: an arm that breaks the frozen scope,
+   required artifact or check contract records that failure and cannot win on
+   quality. When semantic review compares arms, give it unlabeled outputs in
+   both orders; an order-dependent preference is a tie.
    Fresh context with shared filesystem access is representative_nonhermetic;
    it does not establish OS isolation or broad behavioral qualification.
 5. If the candidate helps the user's task, complete the source-to-owner obligation map and name

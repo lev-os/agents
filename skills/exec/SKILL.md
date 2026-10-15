@@ -8,7 +8,7 @@ description: Use when running execution-ready task slices, dispatching verified 
 `/exec` runs execution-ready entities. It does not invent plans, weaken
 verifiers, or complete work without review evidence.
 
-For any non-trivial direct or routed invocation, load [Project Context](../lev/references/project-context.md) before project-specific lookup. It resolves the active project and its declared breadcrumbs.
+**Load order:** for any non-trivial direct or routed invocation, load [Project Context](../lev/references/project-context.md) next, right after this guidance and before reading or looking up any task, plan, workstream, or other project artifact, whether the run dispatches or only reviews. It resolves the active project and its declared breadcrumbs.
 
 ## Addresses
 
@@ -166,6 +166,16 @@ internals, private lint details, or calibration fixtures. If the execution
 surface cannot enforce that read/write split, run only dev/preflight checks and
 route the holdout or harness design back to `/lev-plan`.
 
+Evaluator integrity applies to every dispatch. Pin the run's evaluator surface
+(declared verifiers, rubrics, scorers, fixtures, holdout policy) by digest
+before dispatch and keep it outside the worker's write scope; a changed
+evaluator starts a new run and never counts as candidate improvement. Accept a
+verifier result or receipt only when it names the exact candidate revision
+(commit or file digests) it checked; any later edit makes earlier evidence for
+that candidate stale until rerun. Keep rejected candidate generations and their
+evidence refs in receipts or the follow-up ledger; reverting the worktree does
+not erase them.
+
 ## Isolated TDD Cycle Contract
 
 When isolated TDD is selected, consult every applicable TDD section and rule at
@@ -304,6 +314,11 @@ steps:
 - Treat UltraQA scenario generation as proposal/design input, but runtime
   execution belongs here: commands, exit codes, timeouts, temporary harnesses,
   cleanup, flaky reruns, misleading-output checks, and residual risks.
+- When Exec invokes UltraQA as a method, UltraQA returns observations and
+  repair requests and issues no OMX state commands. Exec applies in-scope
+  repairs within the current slice or routes them, records state through its
+  bound tracker, and never re-enters Exec from UltraQA output. UltraQA prose
+  never settles completion.
 - Run Pentagon gates from `execution.yaml.proof_gates.pentagon` when present.
   Do not substitute a repo-wide green audit for a feature-local promotion claim.
 - When `proof_gates.pentagon.lfd` is present, run the declared score, lint,
