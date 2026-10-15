@@ -1,249 +1,123 @@
 ---
 name: sync
-description: "Checkpoint sync for the current checkout and recursive dirty submodules. In feature branches, paired main checkout and feature->main landing require explicit --main."
+description: "Checkpoint sync: one bounded script run commits, merge-pulls and pushes the current checkout and its dirty submodules, with a Lore commit message per repository. Landing on main needs explicit --main."
 ---
 
 # Sync
 
-Git here is a checkpointing mechanism, not a standard feature-branch or pull-request workflow.
+Git here is a checkpoint mechanism, not a pull-request workflow. A sync is **total** inside its boundary and **bounded** in time.
 
-## Core rule
+`scripts/sync.sh` does every git operation of a sync in one run. The run stops itself when its **budget** is spent (300 seconds). Your part is the commit messages and the report. A whole sync is two snippets.
 
-**Sync is never path-scoped, but its branch boundary depends on the requested mode.**
+## Steps
 
-Default `sync` is a **full checkpoint of the current checkout only**:
-- the checkout you are currently in,
-- and the dirty submodules inside that checkout, recursively.
+1. **Plan.** Run this from anywhere in the checkout. Add the mode flag from [Modes](#modes) when the user asked for one.
 
-If the current checkout is a feature/non-main branch, default `sync` must **not**
-touch the paired `main` checkout and must **not** merge the feature branch into
-`main`.
+   ```bash
+   ~/.agents/skills/sync/scripts/sync.sh plan
+   ```
 
-The paired `main` checkout is included only when the user explicitly passes
-`--main` or says to land/merge the current branch onto `main`.
+   It only reads. It lists each dirty repository, submodules first and the checkout last, with its changed paths. Then it prints the run snippet with one empty message block per repository.
+   Done when: you hold a key for every dirty repository, or the output says nothing is dirty.
 
-Do **not** ask whether to sync only some files, only one repo, or only “your” changes.
-If the user says `sync`, the default meaning is:
+2. **Write the messages and run.** Fill every block of the printed snippet with a [Lore message](#lore-messages). Run the snippet as one command, with a tool timeout of 310000 ms so the run ends inside the call.
 
-> checkpoint everything dirty in the current checkout, recursively through its
-> dirty submodules, then pull/push the current branch if it has an upstream.
+   ```bash
+   ~/.agents/skills/sync/scripts/sync.sh run <<'MSG'
+   == services/telemetry-ingest
+   Decode the J1939 engine hours so the fleet page stops showing zero
 
-This is **not** “all worktrees on disk” and it is **not** “land this branch on
-main”.
-Within the selected boundary, it is always total, never partial.
+   Confidence: high
+   Scope-risk: narrow
+   Tested: pnpm test decode -> 14 passed
+   == .
+   Point the product at the new decoder and keep today's handoff with it
 
-Directional rule:
-- `sync` on a feature branch: current branch only.
-- `sync --main`: current branch + paired main checkout + feature branch landed
-  onto main.
-- `main > current`, `merge main into this branch`, or equivalent: merge main
-  into the current branch, never the current branch into main.
+   Confidence: medium
+   Scope-risk: narrow
+   Not-tested: no check was run on the handoff text
+   MSG
+   ```
 
-## Rules
+   Done when: the output ends with `sync: done` or `sync: STOPPED (exit N)`.
 
-- Do not optimize for PRs.
-- Do not use `git rebase`.
-- Use merge-based pulls only: `git pull --no-rebase`.
-- Never do a path-scoped sync inside the selected boundary. The branch boundary
-  is selected by mode: default current checkout, optional `--main`, or explicit
-  main-into-current.
-- If you are in a feature/non-main worktree, the default goal is to checkpoint
-  and push that feature branch, not to land it on `main`.
-- Do not merge a feature branch into `main` unless the user explicitly passes
-  `--main` or explicitly asks to land/merge the branch onto `main`.
-- Merging `main` into the current feature branch is allowed only when the user
-  asks for that direction; do not infer it from plain `sync`.
-- Sync dirty submodules first, then sync the parent repo.
-- If `--main` is not present, do not inspect, checkpoint, pull, push, or merge
-  the paired `main` checkout as part of sync.
-- If `--main` is present and the paired `main` checkout is dirty, commit/pull/push
-  there too before landing the feature branch.
-- Use simple commit messages based on the changed files or area.
-- Prefer durable checkpoints over perfect commit curation.
-- Do not leave dirty submodules behind in the selected boundary. The paired
-  `main` checkout is part of that boundary only with explicit `--main`.
+3. **Report.** On `sync: done`, give the user the state lines the script printed: each commit, each push, each warning. On `STOPPED`, apply the row for that exit code in [Exit codes](#exit-codes).
+   Done when: the user knows what is pushed, what is committed but not pushed, and what is still dirty.
 
-## Recursive Model
+**One retry.** After a `STOPPED` run, fix the cause the table names and run the snippet again once. If the second run also stops, report it to the user and end the sync.
 
-Treat sync as a recursive checkpoint over a fixed boundary:
-- default boundary repo A = current checkout
-- optional boundary repo B = paired `main` checkout, only with explicit `--main`
+Every git write of a sync goes through the script. The sync needs no other git command from you, before or after.
 
-There is no “selected subset” mode.
+## Modes
 
-```text
-SYNC_BOUNDARY(current_repo):
-  SYNC_REPO(current_repo)
+The boundary is fixed by the mode, and inside it everything dirty is taken. The user saying "sync" has already answered "which files?": all of them.
 
-  if mode_has_explicit_main_flag and repo_is_worktree(current_repo) and branch(current_repo) != "main":
-    main_repo = resolve_main_checkout(current_repo)
-    SYNC_REPO(main_repo)
-    MERGE_WORKTREE_INTO_MAIN(current_repo, main_repo)
-    PUSH(main_repo)
+| The user says | Flag on `plan` and `run` | What the run covers |
+|---|---|---|
+| "sync" | none | The current checkout and its dirty submodules, recursively. The current branch goes to its upstream. A branch with no upstream stays local. |
+| "sync --main", "land this on main" | `--main` | The above, then the paired `main` checkout and its dirty submodules, then the current branch merged into `main` with `--no-ff`, then `main` pushed. |
+| "main > current", "merge main into this branch" | `--from-main` | The above, then `origin/main` merged into the current branch, then the branch pushed. |
+| "skip the push check", "--no-verify" | `--no-verify` | Push hooks are skipped. Use it only on the user's word in this conversation. |
 
-  if mode_is_main_into_current:
-    MERGE_MAIN_INTO_CURRENT(current_repo)
+Plain "sync" on a feature branch leaves `main` alone. All pulls are merges (`git pull --no-rebase`); the script never rebases, never force-pushes and never opens a pull request.
 
-SYNC_REPO(repo):
-  children = dirty_submodules(repo)  # recursive
+## Lore messages
 
-  for child in children:
-    SYNC_REPO(child)
+Each repository gets one commit that holds everything dirty in it. Sync is the one place a whole-repository commit is right, because the user asked for a total checkpoint.
 
-  CHECKPOINT(repo)
+```
+<intent line: why these changes exist, not what changed>
 
-CHECKPOINT(repo):
-  if repo has changes:
-    git add .
-    git commit -m "<simple message based on changed files>"
-  if branch_has_upstream:          # git rev-parse --abbrev-ref @{u} succeeds
-    git pull --no-rebase
-    git push
-  # else: local-only branch — skip pull/push unless explicit --main landing is requested
+<optional body: context, or the second intent when the checkpoint holds two>
 
-MERGE_WORKTREE_INTO_MAIN(current_repo, main_repo):
-  # Only legal with explicit --main / explicit feature->main landing request.
-  # cd into main_repo checkout, then:
-  git merge <current_worktree_branch> --no-ff --no-edit
-  # --no-rebase is NOT a valid merge flag; merge is merge-only by default
-  # --no-ff preserves the merge commit so the worktree branch is visible in history
-
-MERGE_MAIN_INTO_CURRENT(current_repo):
-  # Only legal when the user explicitly asks for main > current.
-  # Stay in the current checkout.
-  git fetch origin main
-  git merge origin/main --no-ff --no-edit
-  # If conflicts appear, stop with a conflict-resolution brief.
+Confidence: <low|medium|high>
+Scope-risk: <narrow|moderate|broad>
+Tested: <command run this session> -> <result seen>
+Not-tested: <the real gap>
 ```
 
-## Workflow
+- The intent line says why. Take it from the changed paths in the plan output and from what this session did. For work that another session left, say what it keeps safe ("Keep the insights runs so the next session starts from them").
+- `Confidence:` and `Scope-risk:` go on every message. The script refuses a message without them, before it changes anything.
+- `Tested:` quotes only a command run in this session, with its result. With no check run, write an honest `Not-tested:` line.
+- Other true trailers are welcome: `Constraint:`, `Rejected: <alternative> | <reason>`, `Reversibility:`, `Directive:`, `Related:`.
+- A message carries no attribution line.
+- A repository with no block gets a fallback message that says so. Write the block.
 
-1. Inspect the current state.
-   - `git status --short`
-   - `git branch --show-current`
-   - `git worktree list`
-   - `git submodule status --recursive`
-2. Determine the fixed sync boundary:
-   - current checkout always included
-   - paired `main` checkout included only if `--main` or explicit feature->main
-     landing was requested
-   - main-into-current merge is a separate explicit direction, not the default
-3. Recurse into **all dirty submodules** inside the current checkout first.
-4. In each dirty repo/submodule:
-   - `git add .`
-   - `git commit -m "<simple message based on changed files>"` if there is anything to commit
-   - if the branch has an upstream (`git rev-parse --abbrev-ref @{u}` succeeds): `git pull --no-rebase && git push`
-   - if no upstream (local-only branch): skip pull/push unless explicit `--main`
-     landing was requested
-5. After the current checkout's submodules are synced, checkpoint the current checkout repo itself (same commit/pull/push rules).
-6. If `--main` was explicitly requested and the current checkout is a non-main worktree:
-   - locate the paired `main` checkout
-   - recurse into **all dirty submodules** in that `main` checkout (apply step 4 to each)
-   - checkpoint the `main` checkout repo itself (apply step 4)
-   - merge the current worktree branch into `main`:
-     - `git merge <worktree-branch> --no-ff --no-edit` (NOT `--no-rebase` — that flag is pull-only)
-     - if conflicts appear, stop with a conflict-resolution brief; do not switch to PR workflow
-   - `git pull --no-rebase` (only if main tracks an upstream, which it should)
-   - `git push`
-7. If the user explicitly requested main > current:
-   - stay in the current checkout
-   - `git fetch origin main`
-   - `git merge origin/main --no-ff --no-edit`
-   - if conflicts appear, stop with a conflict-resolution brief
-   - run the requested/current verification after resolving
-8. Finish by confirming the selected boundary is checkpointed:
-   - current checkout clean or committed
-   - current checkout dirty submodules handled before the parent
-   - paired `main` checkout touched only when explicitly requested
-   - worktree branch landed on `main` only when `--main` / explicit feature->main
-     landing was requested
+The full protocol is in `~/lev/.agents/skills/lev-lore-commit/SKILL.md`. Read it when a trailer is unclear.
 
-## Commit Message Guidance
+## Bounds
 
-Keep it short and obvious.
+| Bound | Default | Change it with |
+|---|---|---|
+| Time for a whole `run` | 300 s | `SYNC_BUDGET=600` before the command, on the user's word |
+| Time for a `plan` | 60 s | `SYNC_BUDGET` |
+| New untracked files in one repository | 100 MB | `SYNC_MAX_ADD_MB` |
+| Syncs in one checkout at a time | 1, held by `sync.lock` in the git directory | none |
+| Merge-pull and push attempts per repository | 2 | none |
 
-- `intent: callsign strict mode`
-- `data: enrichment checkpoint`
-- `sync: checkpoint current work`
+When the budget is spent, the script prints the step it was in and the state so far, then stops git and every hook that git started.
 
-## Conflict-Resolution Brief
+## Exit codes
 
-When a merge or pull conflict appears, do not only list conflicted files.
-Before stopping, inspect enough context to give the user actionable resolution
-paths.
+| Exit | Meaning | What you do |
+|---|---|---|
+| 0 | Done | Report. |
+| 2 | Merge conflict. The merge is left in place. | Write the brief in [references/conflict-brief.md](references/conflict-brief.md) and stop. |
+| 3 | Untracked files over the limit. Nothing was committed in that repository. | Show the user the largest paths the script printed. Ask: ignore them, or raise the limit. |
+| 4 | A commit, pull or push failed with no conflict | Read the git or hook message above the `STOPPED` line. Fix the cause, then use the one retry. |
+| 64 | A message or an argument is wrong. Nothing was changed. | Fix the block the script names and run again. This run does not use up the one retry. |
+| 75 | Another sync holds this checkout | See [Troubleshooting](#troubleshooting). |
+| 124 | Budget spent | See [Troubleshooting](#troubleshooting). |
 
-Required conflict inspection:
-- `git status --short`
-- `git diff --name-only --diff-filter=U`
-- `git ls-files -u <conflicted-paths>`
-- `git diff --cc -- <conflicted-files>`
-- for submodules: `git -C <submodule> log --oneline --decorate --graph --all --max-count=20`
-- for code conflicts: inspect both sides with `git show :2:<path>` and `git show :3:<path>` when useful
+## Troubleshooting
 
-Required conflict brief:
-```yaml
-sync_conflict:
-  state: blocked
-  conflicted_paths:
-    - <path>
-  inferred_intents:
-    ours: <what the local side was trying to preserve>
-    theirs: <what the incoming side was trying to preserve>
-  solution_paths:
-    - option: <merge both | take ours | take theirs | advance submodule pointer | manual synthesis>
-      blast_radius: <low|medium|high>
-      why: <one sentence>
-      risks:
-        - <specific risk>
-      validation:
-        - <command that would prove this option>
-  recommended_strategy: <one option plus why>
-  next_command_sequence:
-    - <minimal non-destructive commands to apply the recommendation>
-```
-
-Guidance:
-- Infer intent from both sides before recommending a resolution.
-- Prefer a synthesis that preserves both sides' intended behavior when the
-  combined behavior is coherent and testable.
-- Treat submodule conflicts as pointer-selection problems backed by submodule
-  commit ancestry. State whether one pointer contains the other, whether a
-  merge commit exists, or whether a new submodule merge is required.
-- Include blast radius in practical terms: affected module, tests likely to
-  break, deployment/runtime surfaces touched, and whether generated artifacts or
-  submodule pointers are involved.
-- If the correct strategy is clear and low-risk, recommend it explicitly; do not
-  hide behind "resolve conflicts manually."
-- Do not run the resolution automatically unless the user asked sync to continue
-  and the resolution is low-risk, non-destructive, and fully justified by the
-  brief.
-
-## Repo-Specific Notes
-
-- If `--main` is requested and `main` has submodules, recurse first. The parent
-  repo sync is not complete until dirty child repos are checkpointed.
-- In repos like this one, `data/` is a submodule. Commit and push there before updating the parent repo pointer.
-- If multiple agents touched different areas, the job is to checkpoint **all dirty repos in boundary**, not to preserve a per-feature narrative.
-- Do not stop at “my spike files are synced”. That is the old wrong behavior. Sync means **everything dirty in boundary is checkpointed**.
-- On `Sunny-PC` or another feature branch, default boundary means the feature
-  branch and its submodules only. Do not merge `Sunny-PC` into `main` unless
-  `--main` is explicitly present.
-
-## What not to ask
-
-Do **not** ask:
-- “Do you want a scoped sync or full sync?”
-- “Should I only sync my changes?”
-- “Should I leave unrelated dirty files alone?”
-
-If the user invoked `sync`, the answer is already:
-- full checkpoint,
-- current checkout + dirty recursive submodules,
-- recursive submodules,
-- no feature->main merge unless `--main` or explicit landing request is present.
-
-## Stop Conditions
-
-- Stop with a conflict-resolution brief if a merge conflict appears.
-- Stop and report if `git push` still fails after a normal `git pull --no-rebase`.
-- Do not switch to a PR-based workflow.
+| Symptom | Cause | Fix |
+|---|---|---|
+| Exit 75, or two sessions synced one checkout at the same time and the commits look tangled | A dual sync: two sessions, for example a forked chat, ran sync together | Stop it with the command the script printed (`kill -TERM -- -<pid>`), then sync again. The new run takes everything that is dirty, merge-pulls and pushes. |
+| Exit 124 during a push | A push hook hangs or runs a long check | The commit is safe in the local branch. Sync again. If it stops at the same step, tell the user which hook; raise `SYNC_BUDGET` only on the user's word. |
+| The chat shows a sync with no result for many minutes | The session stopped, not the sync. A run cannot outlive its budget. | Run `plan`. It shows what is still dirty and whether a lock is left. |
+| Exit 4 and the hook names a wrong Node or pnpm version | The shell found an old Node first | Put the project's Node first in `PATH` in the same snippet, then sync again. |
+| Exit 4 at `git add`, and `index.lock` exists | A stopped git left its lock | Check that no git runs (`pgrep -fl git`). Remove `.git/index.lock`. Sync again. |
+| `plan` notes a sync lock, and no sync runs | A stopped run left it | Nothing. The next run takes over a lock whose process is gone. |
+| "N paths became dirty during the run" | Another session wrote during the sync | Sync again to take them. |
+| "WARNING detached HEAD" on a submodule | The submodule is not on a branch, so its commit was not pushed | Check out its branch in the submodule and sync again, so the parent points at a pushed commit. |

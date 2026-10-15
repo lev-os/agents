@@ -1,0 +1,64 @@
+# Index: purpose, fields, matching, routes, boundaries, examples.
+purpose: Capture the shaped ontology, preserve future entities, and find its manifestation owners.
+status: Manual skill procedure; no automatic graph matcher or plugin generator is claimed.
+fields:
+  candidate_type:
+    shape: [local_ref, label, meaning, registered_ref, source_refs]
+    meaning: A proposed term; registered_ref stays null until resolved to an admitted ontology entry.
+  candidate_relation:
+    shape: [local_ref, source_type, target_type, meaning, source_refs]
+    meaning: A relation between local candidate terms with its constraints.
+  future_entity:
+    shape: [local_ref, label, candidate_kind, kind_ref, entity_ref, target, target_state]
+    target: { exists: null, locator: null, evidence_refs: [] }
+    existence: Null means unknown; true or false requires an owning observation. A saved proposal is not its target.
+  classification:
+    shape: [node_ref, type_ref, evidence_refs]
+    meaning: The interpretation of a future entity against candidate vocabulary.
+  domain_candidate:
+    shape: [plugin_ref, ontology_revision, scope_refs, mapping, covered_requirements, missing_requirements, conflicts, evidence_refs]
+    meaning: An evidence-backed possible owner for all or part of the idea graph.
+  manifestation_binding:
+    shape: [scope_refs, plugin_ref, ontology_revision, workflow_ref, design_refs, missing_requirements]
+    meaning: Domain designs stay at their own homes and are referenced by the idea.
+matching:
+  - id: inventory
+    action: Read the project's current domain declarations and applicable skill inventory.
+    validation: The examined scope and contract revisions are recorded; unavailable inventory is explicit.
+  - id: compare
+    action: Compare candidate types, relations, outputs, constraints, and verifiers; include existing-plugin extension and composite-domain options.
+    validation: Every candidate has a concrete semantic mapping, coverage, gaps, and source refs; keyword overlap alone is insufficient.
+  - id: record
+    action: Record fit, partial, ambiguous, no_fit, or unknown per manifestation scope.
+    validation: Uncertainty and partial coverage remain visible; no_fit has evidence from a bounded current inventory.
+  - id: propose_missing
+    action: When coverage is missing, retain a prospective plugin or extension node and a blocked_by relationship from the intended output.
+    validation: The local node, target existence, missing contract, creation route, and original idea relationship are preserved.
+  - id: continue
+    action: Use the existing plugin-build workflow within active authorization, then refresh inventory and retry the original binding.
+    validation: Source creation, contract validation, and owner availability are observed separately; the original idea is not automatically completed.
+routes:
+  software: interview for design decisions; lev-plan for broad delivery; propose for a ready bounded coding slice.
+  interface: ux for user flows and research; impeccable for interface design and critique.
+  video: motion-graphics or a verified video specialist for treatment, beats, picture, sound, and production checks.
+  visual_identity: Appropriate identity and asset methods selected from actual source evidence; do not substitute logo-sting production for identity design.
+  missing_domain: lev-plugin-build for plugin construction through the existing software workflow.
+boundaries:
+  - Idea shaping defines candidate ontology and classification before capture attempts domain binding.
+  - Capture can succeed while a domain remains unbound.
+  - A proposed term does not establish an admitted kind, and a proposed plugin does not establish available support.
+  - Keep lifecycle, alignment, target existence, and domain binding independent.
+  - Changed idea or catalog revisions invalidate prior matching evidence.
+  - Revision fields remain null until resolved from the owning artifact or contract; workflow labels are not revision values.
+  - Use live help for real CLI operations and the active project's writer; these route names are skill pointers.
+examples:
+  video:
+    candidate_terms: [production, scene]
+    candidate_relationship: Production contains ordered scenes.
+    requirement: Picture and narration share a timing basis.
+    future_targets: [Narrated launch video, domain plugin supplying missing coverage]
+    interpretation: These are local candidate declarations until owner vocabulary resolves.
+  meaning_conflict:
+    source_term: scene
+    alternative_meanings: [Timed video segment, runtime UI container]
+    action: Ask which meaning is intended before binding; identical spelling does not prove a fit.
