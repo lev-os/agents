@@ -1,0 +1,914 @@
+{
+  "schema": "skill-ir/1.0",
+  "identity": {
+    "slug": "madebymustafa--design-taste--taste-motion",
+    "title": "taste-motion",
+    "catalog_category": "creative-candidate"
+  },
+  "source": {
+    "source_id": "madebymustafa/design-taste@c4a6bff0871eb4b15371b0e7d2751628b0ed4608",
+    "snapshot_path": "source/skills/taste-motion/SKILL.md",
+    "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18",
+    "bytes": 4949,
+    "repo_reference": "https://github.com/madebymustafa/design-taste",
+    "repo_revision": "c4a6bff0871eb4b15371b0e7d2751628b0ed4608",
+    "revision_status": "github_commit_pinned",
+    "catalog_metadata": {
+      "slug": "madebymustafa--design-taste--taste-motion",
+      "title": "taste-motion",
+      "category": "creative-candidate",
+      "github_url": "https://github.com/madebymustafa/design-taste"
+    },
+    "source_kind": "repository_skill_file",
+    "path_base": "candidate_package_root"
+  },
+  "license": {
+    "value": "MIT",
+    "status": "See preserved repository license files and inventory interpretation; no legal approval inferred."
+  },
+  "frontmatter": {
+    "status": "present",
+    "line_start": 1,
+    "line_end": 11,
+    "fields": {
+      "name": "taste-motion",
+      "description": "|",
+      "triggers": ""
+    },
+    "raw": "name: taste-motion\ndescription: |\n  Motion craft for agent-built interfaces: duration and easing tokens, entrance choreography, hover/active micro-interactions, scroll-driven reveals, layout transitions, and prefers-reduced-motion compliance. Prevents the two AI-motion crimes: nothing moves at all, or everything moves forever. Stack on the design-taste core skill.\ntriggers:\n  - \"animation\"\n  - \"motion design\"\n  - \"transitions\"\n  - \"micro interactions\"\n  - \"scroll animation\"\n  - \"easing\""
+  },
+  "line_count": 92,
+  "ontology": {
+    "triggers": [],
+    "workflows": [
+      {
+        "section": "2. THE EASING TOKENS (Fixed)",
+        "start_line": 29,
+        "items": [
+          {
+            "text": "**Standard (UI states):** `cubic-bezier(0.4, 0, 0.2, 1)` — fast in, calm out. Default for hovers and toggles.",
+            "line": 31
+          },
+          {
+            "text": "**Emphasized (entrances/reveals):** `cubic-bezier(0.22, 1, 0.36, 1)` — long calm tail. Premium feel.",
+            "line": 32
+          },
+          {
+            "text": "**Exit:** `cubic-bezier(0.4, 0, 1, 1)` or faster — exits are snappier than entrances.",
+            "line": 33
+          },
+          {
+            "text": "**Spring/overshoot (playful packs only):** `cubic-bezier(0.34, 1.56, 0.64, 1)` — max once per element, never on loops.",
+            "line": 34
+          },
+          {
+            "text": "Never use `ease-in-out` as a catch-all. Never use `linear` except for marquees/progress.",
+            "line": 35
+          }
+        ],
+        "classification": "ordered_or_bulleted_source_structure_inferred"
+      },
+      {
+        "section": "4. CHOREOGRAPHY (Entrances)",
+        "start_line": 43,
+        "items": [
+          {
+            "text": "**One scene per section:** on scroll reveal, the section's elements enter in 2–3 stages (heading → body → CTA), 60–120ms apart, same duration and easing. Stagger is hierarchy.",
+            "line": 45
+          },
+          {
+            "text": "**Distance ≤ 20px** for reveals (translateY 8–16px) + opacity. Bigger distances look like PowerPoint.",
+            "line": 46
+          },
+          {
+            "text": "**Scale entrances ≤ 0.96→1** and only on dialogs/popovers, never on full sections.",
+            "line": 47
+          },
+          {
+            "text": "**Hero:** one sequence, 600–900ms total, elements entering once. No looping float, no repeating wave.",
+            "line": 48
+          },
+          {
+            "text": "**Loop allowance:** exactly one class of loops allowed per page — ambient status indicators (live dots, loaders, spinners). Everything else loops = error.",
+            "line": 49
+          }
+        ],
+        "classification": "ordered_or_bulleted_source_structure_inferred"
+      },
+      {
+        "section": "5. MICRO-INTERACTIONS (Hover, Press, Focus)",
+        "start_line": 51,
+        "items": [
+          {
+            "text": "Hover: 100–150ms, standard easing, one property change (bg tone, border, translateY −1 to −3px). Never both color AND position AND shadow at once.",
+            "line": 53
+          },
+          {
+            "text": "Pressed: inverse of hover (translate down, shadow off), 80–120ms.",
+            "line": 54
+          },
+          {
+            "text": "Focus-visible: 2px ring, 3:1 contrast, `outline-offset: 2px`, animated in with 100ms fade — never `outline: none` without replacement.",
+            "line": 55
+          },
+          {
+            "text": "Disabled: no hover states at all — the element must look inert (opacity 0.4–0.5, no pointer change).",
+            "line": 56
+          },
+          {
+            "text": "Transitions on load/state-change only where the state is visible; a transition nobody can perceive is dead code.",
+            "line": 57
+          }
+        ],
+        "classification": "ordered_or_bulleted_source_structure_inferred"
+      },
+      {
+        "section": "6. SCROLL & LAYOUT",
+        "start_line": 59,
+        "items": [
+          {
+            "text": "**Scroll-triggered:** IntersectionObserver (or CSS `animation-timeline` where supported), one reveal per element, then done. No elements that re-animate on every scroll pass.",
+            "line": 61
+          },
+          {
+            "text": "**Sticky:** allowed for nav and section labels; sticky + animation = performance risk, keep the animation out.",
+            "line": 62
+          },
+          {
+            "text": "**View transitions / page transitions:** 300–500ms, shared-element moves where they earn it (list → detail). Disabled entirely under `prefers-reduced-motion`.",
+            "line": 63
+          },
+          {
+            "text": "**Layout transitions:** `FLIP` pattern (transform-based), never re-layout animations.",
+            "line": 64
+          }
+        ],
+        "classification": "ordered_or_bulleted_source_structure_inferred"
+      },
+      {
+        "section": "7. REDUCED MOTION (Non-Negotiable)",
+        "start_line": 66,
+        "items": [
+          {
+            "text": "Above the CSS gate, zero motion by default when the media query matches: no parallax, no auto-scroll carousels, no marquees.",
+            "line": 79
+          },
+          {
+            "text": "Animate presence only: content appears without motion (opacity 0→1 over 1 frame).",
+            "line": 80
+          }
+        ],
+        "classification": "ordered_or_bulleted_source_structure_inferred"
+      },
+      {
+        "section": "8. CHECKLIST (Fail the Page If…)",
+        "start_line": 82,
+        "items": [
+          {
+            "text": "[ ] Any element animates for more than ~1.5s (outside loops/loaders).",
+            "line": 84
+          },
+          {
+            "text": "[ ] More than one looping element per viewport.",
+            "line": 85
+          },
+          {
+            "text": "[ ] Any `width`, `height`, `margin`, or `top` animation.",
+            "line": 86
+          },
+          {
+            "text": "[ ] Reveal distances beyond 20px.",
+            "line": 87
+          },
+          {
+            "text": "[ ] `ease-in-out` used as the global easing.",
+            "line": 88
+          },
+          {
+            "text": "[ ] Every element on the page animates on load (bounce-entrance festival).",
+            "line": 89
+          },
+          {
+            "text": "[ ] No `prefers-reduced-motion` handling exists at all.",
+            "line": 90
+          }
+        ],
+        "classification": "ordered_or_bulleted_source_structure_inferred"
+      }
+    ],
+    "actions": [
+      {
+        "text": "- Never use `ease-in-out` as a catch-all. Never use `linear` except for marquees/progress.",
+        "evidence": {
+          "line_start": 35,
+          "line_end": 35,
+          "text": "- Never use `ease-in-out` as a catch-all. Never use `linear` except for marquees/progress.",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        }
+      }
+    ],
+    "routes": [],
+    "effects": [
+      {
+        "text": "| `--dur-base` | 200–300ms | small entrances, state changes (toggle, open/close) |",
+        "verb": "open",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 23,
+          "line_end": 23,
+          "text": "| `--dur-base` | 200–300ms | small entrances, state changes (toggle, open/close) |",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        },
+        "classification": "declared_instruction_or_claim"
+      },
+      {
+        "text": "| `--dur-slow` | 400–600ms | section reveals, page-level transitions, dialog open |",
+        "verb": "open",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 24,
+          "line_end": 24,
+          "text": "| `--dur-slow` | 400–600ms | section reveals, page-level transitions, dialog open |",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        },
+        "classification": "declared_instruction_or_claim"
+      },
+      {
+        "text": "*If you can't explain an animation in one sentence, delete it.*",
+        "verb": "delete",
+        "modality": "conditional",
+        "evidence": {
+          "line_start": 92,
+          "line_end": 92,
+          "text": "*If you can't explain an animation in one sentence, delete it.*",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        },
+        "classification": "declared_instruction_or_claim"
+      }
+    ],
+    "command_examples": [],
+    "template_commands": [],
+    "package_path_candidates": [],
+    "references": [],
+    "external_urls": [],
+    "constraints": [
+      {
+        "text": "- **Spring/overshoot (playful packs only):** `cubic-bezier(0.34, 1.56, 0.64, 1)` — max once per element, never on loops.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 34,
+          "line_end": 34,
+          "text": "- **Spring/overshoot (playful packs only):** `cubic-bezier(0.34, 1.56, 0.64, 1)` — max once per element, never on loops.",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        }
+      },
+      {
+        "text": "- Never use `ease-in-out` as a catch-all. Never use `linear` except for marquees/progress.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 35,
+          "line_end": 35,
+          "text": "- Never use `ease-in-out` as a catch-all. Never use `linear` except for marquees/progress.",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        }
+      },
+      {
+        "text": "**Never animate:** `width`/`height` (layout jank — use transform: scale), `margin`, `top/left` (use transform), `box-shadow` at large sizes (use a pre-blurred pseudo-element), `filter: blur` on large surfaces.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 41,
+          "line_end": 41,
+          "text": "**Never animate:** `width`/`height` (layout jank — use transform: scale), `margin`, `top/left` (use transform), `box-shadow` at large sizes (use a pre-blurred pseudo-element), `filter: blur` on large surfaces.",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        }
+      },
+      {
+        "text": "- **Scale entrances ≤ 0.96→1** and only on dialogs/popovers, never on full sections.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 47,
+          "line_end": 47,
+          "text": "- **Scale entrances ≤ 0.96→1** and only on dialogs/popovers, never on full sections.",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        }
+      },
+      {
+        "text": "- Hover: 100–150ms, standard easing, one property change (bg tone, border, translateY −1 to −3px). Never both color AND position AND shadow at once.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 53,
+          "line_end": 53,
+          "text": "- Hover: 100–150ms, standard easing, one property change (bg tone, border, translateY −1 to −3px). Never both color AND position AND shadow at once.",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        }
+      },
+      {
+        "text": "- Focus-visible: 2px ring, 3:1 contrast, `outline-offset: 2px`, animated in with 100ms fade — never `outline: none` without replacement.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 55,
+          "line_end": 55,
+          "text": "- Focus-visible: 2px ring, 3:1 contrast, `outline-offset: 2px`, animated in with 100ms fade — never `outline: none` without replacement.",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        }
+      },
+      {
+        "text": "- Transitions on load/state-change only where the state is visible; a transition nobody can perceive is dead code.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 57,
+          "line_end": 57,
+          "text": "- Transitions on load/state-change only where the state is visible; a transition nobody can perceive is dead code.",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        }
+      },
+      {
+        "text": "- **Layout transitions:** `FLIP` pattern (transform-based), never re-layout animations.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 64,
+          "line_end": 64,
+          "text": "- **Layout transitions:** `FLIP` pattern (transform-based), never re-layout animations.",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        }
+      },
+      {
+        "text": "- Animate presence only: content appears without motion (opacity 0→1 over 1 frame).",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 80,
+          "line_end": 80,
+          "text": "- Animate presence only: content appears without motion (opacity 0→1 over 1 frame).",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        }
+      }
+    ],
+    "invariants": [
+      {
+        "text": "- **Spring/overshoot (playful packs only):** `cubic-bezier(0.34, 1.56, 0.64, 1)` — max once per element, never on loops.",
+        "evidence": {
+          "line_start": 34,
+          "line_end": 34,
+          "text": "- **Spring/overshoot (playful packs only):** `cubic-bezier(0.34, 1.56, 0.64, 1)` — max once per element, never on loops.",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "- Never use `ease-in-out` as a catch-all. Never use `linear` except for marquees/progress.",
+        "evidence": {
+          "line_start": 35,
+          "line_end": 35,
+          "text": "- Never use `ease-in-out` as a catch-all. Never use `linear` except for marquees/progress.",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "**Never animate:** `width`/`height` (layout jank — use transform: scale), `margin`, `top/left` (use transform), `box-shadow` at large sizes (use a pre-blurred pseudo-element), `filter: blur` on large surfaces.",
+        "evidence": {
+          "line_start": 41,
+          "line_end": 41,
+          "text": "**Never animate:** `width`/`height` (layout jank — use transform: scale), `margin`, `top/left` (use transform), `box-shadow` at large sizes (use a pre-blurred pseudo-element), `filter: blur` on large surfaces.",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "- **Scale entrances ≤ 0.96→1** and only on dialogs/popovers, never on full sections.",
+        "evidence": {
+          "line_start": 47,
+          "line_end": 47,
+          "text": "- **Scale entrances ≤ 0.96→1** and only on dialogs/popovers, never on full sections.",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "- Hover: 100–150ms, standard easing, one property change (bg tone, border, translateY −1 to −3px). Never both color AND position AND shadow at once.",
+        "evidence": {
+          "line_start": 53,
+          "line_end": 53,
+          "text": "- Hover: 100–150ms, standard easing, one property change (bg tone, border, translateY −1 to −3px). Never both color AND position AND shadow at once.",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "- Focus-visible: 2px ring, 3:1 contrast, `outline-offset: 2px`, animated in with 100ms fade — never `outline: none` without replacement.",
+        "evidence": {
+          "line_start": 55,
+          "line_end": 55,
+          "text": "- Focus-visible: 2px ring, 3:1 contrast, `outline-offset: 2px`, animated in with 100ms fade — never `outline: none` without replacement.",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "- Transitions on load/state-change only where the state is visible; a transition nobody can perceive is dead code.",
+        "evidence": {
+          "line_start": 57,
+          "line_end": 57,
+          "text": "- Transitions on load/state-change only where the state is visible; a transition nobody can perceive is dead code.",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "- **Layout transitions:** `FLIP` pattern (transform-based), never re-layout animations.",
+        "evidence": {
+          "line_start": 64,
+          "line_end": 64,
+          "text": "- **Layout transitions:** `FLIP` pattern (transform-based), never re-layout animations.",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "- Animate presence only: content appears without motion (opacity 0→1 over 1 frame).",
+        "evidence": {
+          "line_start": 80,
+          "line_end": 80,
+          "text": "- Animate presence only: content appears without motion (opacity 0→1 over 1 frame).",
+          "source_file": "source/skills/taste-motion/SKILL.md",
+          "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      }
+    ],
+    "inputs": [],
+    "outputs": [],
+    "recovery": [],
+    "headings": [
+      {
+        "level": 1,
+        "title": "taste-motion",
+        "line": 14,
+        "bullets": []
+      },
+      {
+        "level": 2,
+        "title": "1. THE DURATION SCALE (Fixed Tokens)",
+        "line": 18,
+        "bullets": []
+      },
+      {
+        "level": 2,
+        "title": "2. THE EASING TOKENS (Fixed)",
+        "line": 29,
+        "bullets": [
+          {
+            "text": "**Standard (UI states):** `cubic-bezier(0.4, 0, 0.2, 1)` — fast in, calm out. Default for hovers and toggles.",
+            "line": 31
+          },
+          {
+            "text": "**Emphasized (entrances/reveals):** `cubic-bezier(0.22, 1, 0.36, 1)` — long calm tail. Premium feel.",
+            "line": 32
+          },
+          {
+            "text": "**Exit:** `cubic-bezier(0.4, 0, 1, 1)` or faster — exits are snappier than entrances.",
+            "line": 33
+          },
+          {
+            "text": "**Spring/overshoot (playful packs only):** `cubic-bezier(0.34, 1.56, 0.64, 1)` — max once per element, never on loops.",
+            "line": 34
+          },
+          {
+            "text": "Never use `ease-in-out` as a catch-all. Never use `linear` except for marquees/progress.",
+            "line": 35
+          }
+        ]
+      },
+      {
+        "level": 2,
+        "title": "3. WHAT TO ANIMATE (And What Not To)",
+        "line": 37,
+        "bullets": []
+      },
+      {
+        "level": 2,
+        "title": "4. CHOREOGRAPHY (Entrances)",
+        "line": 43,
+        "bullets": [
+          {
+            "text": "**One scene per section:** on scroll reveal, the section's elements enter in 2–3 stages (heading → body → CTA), 60–120ms apart, same duration and easing. Stagger is hierarchy.",
+            "line": 45
+          },
+          {
+            "text": "**Distance ≤ 20px** for reveals (translateY 8–16px) + opacity. Bigger distances look like PowerPoint.",
+            "line": 46
+          },
+          {
+            "text": "**Scale entrances ≤ 0.96→1** and only on dialogs/popovers, never on full sections.",
+            "line": 47
+          },
+          {
+            "text": "**Hero:** one sequence, 600–900ms total, elements entering once. No looping float, no repeating wave.",
+            "line": 48
+          },
+          {
+            "text": "**Loop allowance:** exactly one class of loops allowed per page — ambient status indicators (live dots, loaders, spinners). Everything else loops = error.",
+            "line": 49
+          }
+        ]
+      },
+      {
+        "level": 2,
+        "title": "5. MICRO-INTERACTIONS (Hover, Press, Focus)",
+        "line": 51,
+        "bullets": [
+          {
+            "text": "Hover: 100–150ms, standard easing, one property change (bg tone, border, translateY −1 to −3px). Never both color AND position AND shadow at once.",
+            "line": 53
+          },
+          {
+            "text": "Pressed: inverse of hover (translate down, shadow off), 80–120ms.",
+            "line": 54
+          },
+          {
+            "text": "Focus-visible: 2px ring, 3:1 contrast, `outline-offset: 2px`, animated in with 100ms fade — never `outline: none` without replacement.",
+            "line": 55
+          },
+          {
+            "text": "Disabled: no hover states at all — the element must look inert (opacity 0.4–0.5, no pointer change).",
+            "line": 56
+          },
+          {
+            "text": "Transitions on load/state-change only where the state is visible; a transition nobody can perceive is dead code.",
+            "line": 57
+          }
+        ]
+      },
+      {
+        "level": 2,
+        "title": "6. SCROLL & LAYOUT",
+        "line": 59,
+        "bullets": [
+          {
+            "text": "**Scroll-triggered:** IntersectionObserver (or CSS `animation-timeline` where supported), one reveal per element, then done. No elements that re-animate on every scroll pass.",
+            "line": 61
+          },
+          {
+            "text": "**Sticky:** allowed for nav and section labels; sticky + animation = performance risk, keep the animation out.",
+            "line": 62
+          },
+          {
+            "text": "**View transitions / page transitions:** 300–500ms, shared-element moves where they earn it (list → detail). Disabled entirely under `prefers-reduced-motion`.",
+            "line": 63
+          },
+          {
+            "text": "**Layout transitions:** `FLIP` pattern (transform-based), never re-layout animations.",
+            "line": 64
+          }
+        ]
+      },
+      {
+        "level": 2,
+        "title": "7. REDUCED MOTION (Non-Negotiable)",
+        "line": 66,
+        "bullets": [
+          {
+            "text": "Above the CSS gate, zero motion by default when the media query matches: no parallax, no auto-scroll carousels, no marquees.",
+            "line": 79
+          },
+          {
+            "text": "Animate presence only: content appears without motion (opacity 0→1 over 1 frame).",
+            "line": 80
+          }
+        ]
+      },
+      {
+        "level": 2,
+        "title": "8. CHECKLIST (Fail the Page If…)",
+        "line": 82,
+        "bullets": [
+          {
+            "text": "[ ] Any element animates for more than ~1.5s (outside loops/loaders).",
+            "line": 84
+          },
+          {
+            "text": "[ ] More than one looping element per viewport.",
+            "line": 85
+          },
+          {
+            "text": "[ ] Any `width`, `height`, `margin`, or `top` animation.",
+            "line": 86
+          },
+          {
+            "text": "[ ] Reveal distances beyond 20px.",
+            "line": 87
+          },
+          {
+            "text": "[ ] `ease-in-out` used as the global easing.",
+            "line": 88
+          },
+          {
+            "text": "[ ] Every element on the page animates on load (bounce-entrance festival).",
+            "line": 89
+          },
+          {
+            "text": "[ ] No `prefers-reduced-motion` handling exists at all.",
+            "line": 90
+          }
+        ]
+      }
+    ],
+    "template_status": "source_not_executed; fenced commands remain example-only only when surrounding prose says so, otherwise context-unknown; live XML template commands are not executable evidence"
+  },
+  "package": {
+    "resolved_files": [
+      {
+        "path": "LICENSE",
+        "source_file": "source/LICENSE",
+        "sha256": "7a0f09be6768f60fd7c01ecab6af369614c224061ffc76792ef06881493bb4a2",
+        "bytes": 1063
+      },
+      {
+        "path": "README.md",
+        "source_file": "source/README.md",
+        "sha256": "434f11a1a53cbc0c0b9e60509d57a16a079759edcd6e29e1c3db6c43e3e7585b",
+        "bytes": 8932
+      },
+      {
+        "path": "docs/CONTRIBUTING.md",
+        "source_file": "source/docs/CONTRIBUTING.md",
+        "sha256": "3fe928d31df326ee31aba4a7f3d1b52f24494f3f4ef71f3eb86be066bbdb8f25",
+        "bytes": 2215
+      },
+      {
+        "path": "docs/INSTALL.md",
+        "source_file": "source/docs/INSTALL.md",
+        "sha256": "4a3d4dc9b8242dd8e1030b08f3e071969b361776e090a3fc99947ce4fcb1f80b",
+        "bytes": 1357
+      },
+      {
+        "path": "examples/after.html",
+        "source_file": "source/examples/after.html",
+        "sha256": "96a9fc7112edc9e97c4deb2d011ca9d1c97faa7103b96227a3ec68feda20ff2d",
+        "bytes": 15160
+      },
+      {
+        "path": "examples/before.html",
+        "source_file": "source/examples/before.html",
+        "sha256": "d0ea8b8e76cf91cfc18647938333220911fd787a367779c1b7c85ff055722ba7",
+        "bytes": 10905
+      },
+      {
+        "path": "examples/brutalist-industrial.html",
+        "source_file": "source/examples/brutalist-industrial.html",
+        "sha256": "ec19e0fa5c1f0a46c763a0e5794b5e0a435f5d1328904e681f66f43b24dd3cd9",
+        "bytes": 13559
+      },
+      {
+        "path": "examples/cinematic-motion.html",
+        "source_file": "source/examples/cinematic-motion.html",
+        "sha256": "664fcb0943138667dc072e9448eaa455f0a0ff429631dd38e69779723ed82921",
+        "bytes": 46020
+      },
+      {
+        "path": "examples/corporate-trust.html",
+        "source_file": "source/examples/corporate-trust.html",
+        "sha256": "40ebb48ec0762b3eeb55159a8a5832976be448dc66591ab23d476ff9b3361962",
+        "bytes": 17164
+      },
+      {
+        "path": "examples/dark-tech.html",
+        "source_file": "source/examples/dark-tech.html",
+        "sha256": "02ecacaa3c96fa6bd10dc5bc0905d3245ec8dbc76a320ec7854c3e7ce2001c03",
+        "bytes": 14518
+      },
+      {
+        "path": "examples/japanese-minimal.html",
+        "source_file": "source/examples/japanese-minimal.html",
+        "sha256": "8ba16ad151c61b71de3419d798fc4a2885b92b2bd85043ceb2d32be4607153ec",
+        "bytes": 15283
+      },
+      {
+        "path": "examples/neo-brutalism.html",
+        "source_file": "source/examples/neo-brutalism.html",
+        "sha256": "98700443ad3b9eb1a8093044c56af9023c368e15e41d77e898496929581646fa",
+        "bytes": 14668
+      },
+      {
+        "path": "examples/playful-color.html",
+        "source_file": "source/examples/playful-color.html",
+        "sha256": "2ff6b3872bef20c0879c2d9043c5604fd8e6bc2adc1d1316925feb58d95510a2",
+        "bytes": 15292
+      },
+      {
+        "path": "examples/quiet-luxury.html",
+        "source_file": "source/examples/quiet-luxury.html",
+        "sha256": "b1f01023d6d39462585ccbd5203a64b4fc424846f4c45fef726238913608cf49",
+        "bytes": 14725
+      },
+      {
+        "path": "examples/retro-print.html",
+        "source_file": "source/examples/retro-print.html",
+        "sha256": "b19638c631365ffb635562941508994a664b42fdf309603747d06b7a2ded4144",
+        "bytes": 15107
+      },
+      {
+        "path": "scripts/capture-screenshots.mjs",
+        "source_file": "source/scripts/capture-screenshots.mjs",
+        "sha256": "a74feefab187bdc375e8aa4e039f7ff737ba40b909cde39dc8de391552be7476",
+        "bytes": 5724
+      },
+      {
+        "path": "scripts/install.sh",
+        "source_file": "source/scripts/install.sh",
+        "sha256": "7c5cd911982d2c6b23ccf0f5c2c8724a6ce0050ea6e696358b99463e5c1c904a",
+        "bytes": 1494
+      },
+      {
+        "path": "scripts/validate.sh",
+        "source_file": "source/scripts/validate.sh",
+        "sha256": "b34aab295eb729cde0af78af10a8712312dfbe3793b6972a2657147ae0ee3c1d",
+        "bytes": 2114
+      },
+      {
+        "path": "skills/brutalist-industrial/SKILL.md",
+        "source_file": "source/skills/brutalist-industrial/SKILL.md",
+        "sha256": "7e16d97e74a303d62d572ad02c155d65dccd478fcf3372416765585b12ed0702",
+        "bytes": 3856
+      },
+      {
+        "path": "skills/cinematic-motion/SKILL.md",
+        "source_file": "source/skills/cinematic-motion/SKILL.md",
+        "sha256": "b5e4b30e362c14e319f3c14eb725ce6b35d1f733c3314a1b5d0b592d39664fed",
+        "bytes": 7766
+      },
+      {
+        "path": "skills/corporate-trust/SKILL.md",
+        "source_file": "source/skills/corporate-trust/SKILL.md",
+        "sha256": "4b692ddc70c655486fdafda1271d9d068f24f9d2f137d19e1e4ea953a8f7f13b",
+        "bytes": 4425
+      },
+      {
+        "path": "skills/dark-tech/SKILL.md",
+        "source_file": "source/skills/dark-tech/SKILL.md",
+        "sha256": "6b856e651ba2a90a8bfe901ec206aa9ea262904eecf6454bf6f073e06ebee3e4",
+        "bytes": 4213
+      },
+      {
+        "path": "skills/design-taste/SKILL.md",
+        "source_file": "source/skills/design-taste/SKILL.md",
+        "sha256": "c848bbddfdea89962da7b90faf53e033e9b2a8c1944f5dc98dbd78aeb758489f",
+        "bytes": 6939
+      },
+      {
+        "path": "skills/editorial-minimal/SKILL.md",
+        "source_file": "source/skills/editorial-minimal/SKILL.md",
+        "sha256": "fd6c52053a992de985d5053278994784088f20bf9e76e1224ad9c75cdd8e3676",
+        "bytes": 3540
+      },
+      {
+        "path": "skills/japanese-minimal/SKILL.md",
+        "source_file": "source/skills/japanese-minimal/SKILL.md",
+        "sha256": "7b96ba5a48afd7d4e69f79f589f95e4fa6874384db0762c6d90b5cad0e1a6465",
+        "bytes": 3843
+      },
+      {
+        "path": "skills/neo-brutalism/SKILL.md",
+        "source_file": "source/skills/neo-brutalism/SKILL.md",
+        "sha256": "bc71fa3bba394f4a314b244003eabfad4a705caaee407a277f721267b14deb2e",
+        "bytes": 4132
+      },
+      {
+        "path": "skills/playful-color/SKILL.md",
+        "source_file": "source/skills/playful-color/SKILL.md",
+        "sha256": "4e0b86bd1842d2cd300d6b22d3d069b48070c10a704a027453c88f6d5a21cdab",
+        "bytes": 3830
+      },
+      {
+        "path": "skills/quiet-luxury/SKILL.md",
+        "source_file": "source/skills/quiet-luxury/SKILL.md",
+        "sha256": "3f439a21dbb284554449563c05cb2da6fab9b156bd08a2ab5168b4c5cc781468",
+        "bytes": 3863
+      },
+      {
+        "path": "skills/retro-print/SKILL.md",
+        "source_file": "source/skills/retro-print/SKILL.md",
+        "sha256": "9036bd4daf53dd27a7e2c05d9c1d158a6a8aa0e67a2ea5d49f6f8b7b34ff1731",
+        "bytes": 3984
+      },
+      {
+        "path": "skills/taste-accessibility/SKILL.md",
+        "source_file": "source/skills/taste-accessibility/SKILL.md",
+        "sha256": "4d293f850d91330f98812ec6a36110ddbd9d2337f58719d32e9731a4ea519558",
+        "bytes": 5522
+      },
+      {
+        "path": "skills/taste-brand-identity/SKILL.md",
+        "source_file": "source/skills/taste-brand-identity/SKILL.md",
+        "sha256": "f21fd39579be578597f4ed73b10837c7a6ddfbabeee003d131a85c9d52171b8a",
+        "bytes": 4414
+      },
+      {
+        "path": "skills/taste-code-craft/SKILL.md",
+        "source_file": "source/skills/taste-code-craft/SKILL.md",
+        "sha256": "e03ebe7c3b60ed43937405106c6632901beecd278f8b1bfa3d84bf17252f38dc",
+        "bytes": 4706
+      },
+      {
+        "path": "skills/taste-code-review/SKILL.md",
+        "source_file": "source/skills/taste-code-review/SKILL.md",
+        "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad",
+        "bytes": 3858
+      },
+      {
+        "path": "skills/taste-color/SKILL.md",
+        "source_file": "source/skills/taste-color/SKILL.md",
+        "sha256": "e56ad74bef333f3d328a752f840f4e70240f3519f3a56dc585b26d2395be9482",
+        "bytes": 4280
+      },
+      {
+        "path": "skills/taste-design-review/SKILL.md",
+        "source_file": "source/skills/taste-design-review/SKILL.md",
+        "sha256": "9082d8464ad0f5aafd8aace266a4369e9690f95c72a4f8267272a730a5012056",
+        "bytes": 5263
+      },
+      {
+        "path": "skills/taste-design-system/SKILL.md",
+        "source_file": "source/skills/taste-design-system/SKILL.md",
+        "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463",
+        "bytes": 5289
+      },
+      {
+        "path": "skills/taste-gsap/SKILL.md",
+        "source_file": "source/skills/taste-gsap/SKILL.md",
+        "sha256": "648b1b14375061b643fa1f45a2f65ac12edd0bd6c9a489f24f60cd21f547ef5f",
+        "bytes": 6119
+      },
+      {
+        "path": "skills/taste-landing-page/SKILL.md",
+        "source_file": "source/skills/taste-landing-page/SKILL.md",
+        "sha256": "1df0cf49cff462ecc9139aa179d01f0e3e62824e1ca1ef13bc40f71e114b5a62",
+        "bytes": 5482
+      },
+      {
+        "path": "skills/taste-motion/SKILL.md",
+        "source_file": "source/skills/taste-motion/SKILL.md",
+        "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18",
+        "bytes": 4949
+      },
+      {
+        "path": "skills/taste-typography/SKILL.md",
+        "source_file": "source/skills/taste-typography/SKILL.md",
+        "sha256": "8c9ce32d56237ade84985868db6cc5753082987a9cd1e67d0e2bbb8bc2e3e648",
+        "bytes": 4788
+      },
+      {
+        "path": "skills/taste-ux-copy/SKILL.md",
+        "source_file": "source/skills/taste-ux-copy/SKILL.md",
+        "sha256": "7a17e03e158ace46461e1ce046f79e2e1c0d63c65f8155f4ff2fa0161be6b40f",
+        "bytes": 4972
+      },
+      {
+        "path": "skills/taste-web-performance/SKILL.md",
+        "source_file": "source/skills/taste-web-performance/SKILL.md",
+        "sha256": "1d2a07263d33ce98cc708a2d056eadb1636e9a78d9ad04a93896630bf6ec5213",
+        "bytes": 4237
+      }
+    ],
+    "unresolved_references": [],
+    "bundle_scope": "Acquired repository text sources; membership does not imply runtime dependency of this individual method.",
+    "reference_resolution_ref": "inventory.json",
+    "scripts_analysis_ref": "script-analysis.json"
+  },
+  "qualification": {
+    "structural": "static_parser_candidates",
+    "behavioral": "not_run",
+    "integration": "not_run",
+    "activation": "inactive"
+  }
+}

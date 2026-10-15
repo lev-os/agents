@@ -1,0 +1,1150 @@
+{
+  "frontmatter": {
+    "fields": {
+      "description": "Expand a UI screen, component, or flow into the full set of states it supports \u2014 loading, empty, error, success, disabled, hover/focus, optimistic, partial data, long content, and edge cases. Use in Figma Agent or Figma Make when a design shows only the happy path or when preparing a screen for implementation.",
+      "name": "ui-state-expander"
+    },
+    "line_end": 3,
+    "line_start": 1,
+    "raw": "name: ui-state-expander\ndescription: Expand a UI screen, component, or flow into the full set of states it supports \u2014 loading, empty, error, success, disabled, hover/focus, optimistic, partial data, long content, and edge cases. Use in Figma Agent or Figma Make when a design shows only the happy path or when preparing a screen for implementation.",
+    "status": "present"
+  },
+  "identity": {
+    "catalog_category": "ui-design",
+    "slug": "ui-state-expander",
+    "title": "UI State Expander"
+  },
+  "license": {
+    "status": "not stated in captured catalog source",
+    "value": null
+  },
+  "line_count": 93,
+  "ontology": {
+    "actions": [
+      {
+        "evidence": {
+          "line_end": 40,
+          "line_start": 40,
+          "text": "- **Form states** \u2014 placeholder, filled, editing, valid, invalid, required-missing, auto-filled, read-only, submitting, submitted, save failed."
+        },
+        "text": "- **Form states** \u2014 placeholder, filled, editing, valid, invalid, required-missing, auto-filled, read-only, submitting, submitted, save failed."
+      },
+      {
+        "evidence": {
+          "line_end": 43,
+          "line_start": 43,
+          "text": "- **Recovery states** \u2014 retry, undo, restore, draft saved, reconnected, fallback content. Recovery is what separates a resilient product from a dead end."
+        },
+        "text": "- **Recovery states** \u2014 retry, undo, restore, draft saved, reconnected, fallback content. Recovery is what separates a resilient product from a dead end."
+      },
+      {
+        "evidence": {
+          "line_end": 60,
+          "line_start": 60,
+          "text": "- **Empty** states need intent. First-time empty, filtered-to-empty, nothing-exists-yet, and no-permission are different situations needing different copy and next steps. One generic empty state confuses all four audiences."
+        },
+        "text": "- **Empty** states need intent. First-time empty, filtered-to-empty, nothing-exists-yet, and no-permission are different situations needing different copy and next steps. One generic empty state confuses all four audiences."
+      },
+      {
+        "evidence": {
+          "line_end": 65,
+          "line_start": 65,
+          "text": "- **Production gremlins** to test: long names and emails, decimals, zero, empty arrays, exactly one item, thousands of items, duplicates, unexpected punctuation."
+        },
+        "text": "- **Production gremlins** to test: long names and emails, decimals, zero, empty arrays, exactly one item, thousands of items, duplicates, unexpected punctuation."
+      },
+      {
+        "evidence": {
+          "line_end": 76,
+          "line_start": 76,
+          "text": "6. **Implementation notes** \u2014 variants, naming, copy requirements, what engineers need to build cleanly."
+        },
+        "text": "6. **Implementation notes** \u2014 variants, naming, copy requirements, what engineers need to build cleanly."
+      },
+      {
+        "evidence": {
+          "line_end": 86,
+          "line_start": 86,
+          "text": "- Assume the default state is the only state, or use one generic empty state for everything"
+        },
+        "text": "- Assume the default state is the only state, or use one generic empty state for everything"
+      }
+    ],
+    "command_examples": [],
+    "constraints": [
+      {
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: Expand a UI screen, component, or flow into the full set of states it supports \u2014 loading, empty, error, success, disabled, hover/focus, optimistic, partial data, long content, and edge cases. Use in Figma Agent or Figma Make when a design shows only the happy path or when preparing a screen for implementation."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "description: Expand a UI screen, component, or flow into the full set of states it supports \u2014 loading, empty, error, success, disabled, hover/focus, optimistic, partial data, long content, and edge cases. Use in Figma Agent or Figma Make when a design shows only the happy path or when preparing a screen for implementation."
+      },
+      {
+        "evidence": {
+          "line_end": 26,
+          "line_start": 26,
+          "text": "Ask only the minimum needed: the primary task, what data can fail or be missing, which states users must recover from, whether this is a component/page/flow, and any business rules for empty or error states. If it's already visible in context, don't interrupt."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Ask only the minimum needed: the primary task, what data can fail or be missing, which states users must recover from, whether this is a component/page/flow, and any business rules for empty or error states. If it's already visible in context, don't interrupt."
+      },
+      {
+        "evidence": {
+          "line_end": 40,
+          "line_start": 40,
+          "text": "- **Form states** \u2014 placeholder, filled, editing, valid, invalid, required-missing, auto-filled, read-only, submitting, submitted, save failed."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Form states** \u2014 placeholder, filled, editing, valid, invalid, required-missing, auto-filled, read-only, submitting, submitted, save failed."
+      },
+      {
+        "evidence": {
+          "line_end": 59,
+          "line_start": 59,
+          "text": "- **Loading** is not just a spinner. Skeleton when structure matters, spinner when only activity matters, progress when duration matters. Decide between inline busy, full-screen blocker, and deferred reveal."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Loading** is not just a spinner. Skeleton when structure matters, spinner when only activity matters, progress when duration matters. Decide between inline busy, full-screen blocker, and deferred reveal."
+      },
+      {
+        "evidence": {
+          "line_end": 82,
+          "line_start": 82,
+          "text": "Every interactive state needs keyboard access and visible focus. Loading and success need screen-reader announcements. Status must not rely on color alone. Check touch targets, reduced-motion handling, and reading order in empty/partial states. A state that works visually but fails semantically is not complete."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Every interactive state needs keyboard access and visible focus. Loading and success need screen-reader announcements. Status must not rely on color alone. Check touch targets, reduced-motion handling, and reading order in empty/partial states. A state that works visually but fails semantically is not complete."
+      },
+      {
+        "evidence": {
+          "line_end": 84,
+          "line_start": 84,
+          "text": "## Do not"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "## Do not"
+      },
+      {
+        "evidence": {
+          "line_end": 86,
+          "line_start": 86,
+          "text": "- Assume the default state is the only state, or use one generic empty state for everything"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- Assume the default state is the only state, or use one generic empty state for everything"
+      },
+      {
+        "evidence": {
+          "line_end": 93,
+          "line_start": 93,
+          "text": "Expand the UI until it tells the truth about the product. The polished frame is only the cover; the real skill is designing the chapters, the footnotes, and the odd page where the printer jammed."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Expand the UI until it tells the truth about the product. The polished frame is only the cover; the real skill is designing the chapters, the footnotes, and the odd page where the printer jammed."
+      }
+    ],
+    "effects": [
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 40,
+          "line_start": 40,
+          "text": "- **Form states** \u2014 placeholder, filled, editing, valid, invalid, required-missing, auto-filled, read-only, submitting, submitted, save failed."
+        },
+        "modality": "unspecified",
+        "text": "- **Form states** \u2014 placeholder, filled, editing, valid, invalid, required-missing, auto-filled, read-only, submitting, submitted, save failed.",
+        "verb": "save"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 55,
+          "line_start": 55,
+          "text": "Component variants, state names, trigger conditions, fallback behavior, copy requirements, interaction rules, visual changes."
+        },
+        "modality": "unspecified",
+        "text": "Component variants, state names, trigger conditions, fallback behavior, copy requirements, interaction rules, visual changes.",
+        "verb": "copy"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 60,
+          "line_start": 60,
+          "text": "- **Empty** states need intent. First-time empty, filtered-to-empty, nothing-exists-yet, and no-permission are different situations needing different copy and next steps. One generic empty state confuses all four audiences."
+        },
+        "modality": "unspecified",
+        "text": "- **Empty** states need intent. First-time empty, filtered-to-empty, nothing-exists-yet, and no-permission are different situations needing different copy and next steps. One generic empty state confuses all four audiences.",
+        "verb": "copy"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 76,
+          "line_start": 76,
+          "text": "6. **Implementation notes** \u2014 variants, naming, copy requirements, what engineers need to build cleanly."
+        },
+        "modality": "unspecified",
+        "text": "6. **Implementation notes** \u2014 variants, naming, copy requirements, what engineers need to build cleanly.",
+        "verb": "copy"
+      }
+    ],
+    "external_urls": [],
+    "headings": [
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 6,
+        "title": "UI State Expander"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 12,
+        "title": "Step 0: Get the real design"
+      },
+      {
+        "bullets": [
+          {
+            "line": 18,
+            "text": "**A screen is a state machine, not a poster.** The happy path is one condition among many."
+          },
+          {
+            "line": 19,
+            "text": "**Edge cases are normal cases.** Long text, zero values, partial data, and errors are expected weather in production, not exceptions."
+          },
+          {
+            "line": 20,
+            "text": "**Interaction states are how the interface speaks back.** Hover, focus, pressed, disabled, and loading are functional, not decorative."
+          },
+          {
+            "line": 21,
+            "text": "**Transitions matter.** Loading\u2192content, saving\u2192success, failure\u2192retry should feel coherent, not like jump cuts."
+          },
+          {
+            "line": 22,
+            "text": "**State clarity beats visual perfection.** A plain state users understand beats a beautiful one that leaves them guessing."
+          }
+        ],
+        "level": 2,
+        "line": 16,
+        "title": "Core principles"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 24,
+        "title": "Clarify before you guess"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 28,
+        "title": "Workflow"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 30,
+        "title": "1. Identify the object"
+      },
+      {
+        "bullets": [
+          {
+            "line": 38,
+            "text": "**Data states** \u2014 loading, initial empty, empty-after-filtering, populated, partial data, no permission, no connection, stale, optimistic update, failed fetch, retry success/failure."
+          },
+          {
+            "line": 39,
+            "text": "**Interaction states** \u2014 default, hover, focus, pressed, disabled, selected, expanded/collapsed, dragged, in progress, completed, rejected."
+          },
+          {
+            "line": 40,
+            "text": "**Form states** \u2014 placeholder, filled, editing, valid, invalid, required-missing, auto-filled, read-only, submitting, submitted, save failed."
+          },
+          {
+            "line": 41,
+            "text": "**Content states** \u2014 short/long content, empty text, very large or small numbers, null values, truncation, overflowing labels, localized text expansion."
+          },
+          {
+            "line": 42,
+            "text": "**System states** \u2014 permission denied, not found, timeout, server error, offline, rate limited, maintenance, session expired."
+          },
+          {
+            "line": 43,
+            "text": "**Recovery states** \u2014 retry, undo, restore, draft saved, reconnected, fallback content. Recovery is what separates a resilient product from a dead end."
+          }
+        ],
+        "level": 3,
+        "line": 34,
+        "title": "2. Inventory the states"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 45,
+        "title": "3. Stress-test"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 49,
+        "title": "4. Map transitions"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 53,
+        "title": "5. Produce implementation-ready guidance"
+      },
+      {
+        "bullets": [
+          {
+            "line": 59,
+            "text": "**Loading** is not just a spinner. Skeleton when structure matters, spinner when only activity matters, progress when duration matters. Decide between inline busy, full-screen blocker, and deferred reveal."
+          },
+          {
+            "line": 60,
+            "text": "**Empty** states need intent. First-time empty, filtered-to-empty, nothing-exists-yet, and no-permission are different situations needing different copy and next steps. One generic empty state confuses all four audiences."
+          },
+          {
+            "line": 61,
+            "text": "**Errors** should explain what happened, whether the user can fix it, and what to do next. Prefer specific messages over generic failure text."
+          },
+          {
+            "line": 62,
+            "text": "**Disabled** controls must communicate *why* when it isn't obvious \u2014 a dead-looking control with no explanation reads as a bug. Sometimes the right fix is a guidance state instead of a disabled one."
+          },
+          {
+            "line": 63,
+            "text": "**Success** should clearly confirm the outcome, especially for irreversible or high-stakes actions."
+          },
+          {
+            "line": 64,
+            "text": "**Partial data** happens constantly (some rows loaded, one image failed, optional fields missing) and should not look broken."
+          },
+          {
+            "line": 65,
+            "text": "**Production gremlins** to test: long names and emails, decimals, zero, empty arrays, exactly one item, thousands of items, duplicates, unexpected punctuation."
+          }
+        ],
+        "level": 2,
+        "line": 57,
+        "title": "State-specific guidance"
+      },
+      {
+        "bullets": [
+          {
+            "line": 71,
+            "text": "**State summary** \u2014 what's being expanded and why."
+          },
+          {
+            "line": 72,
+            "text": "**State inventory** \u2014 the full set of states needed, with triggers for each."
+          },
+          {
+            "line": 73,
+            "text": "**State-by-state guidance** \u2014 what each looks like, says, and allows."
+          },
+          {
+            "line": 74,
+            "text": "**Transition logic** \u2014 how the user moves between states."
+          },
+          {
+            "line": 75,
+            "text": "**Missing states** \u2014 states absent from the design that should exist (often the highest-value part of the output)."
+          },
+          {
+            "line": 76,
+            "text": "**Implementation notes** \u2014 variants, naming, copy requirements, what engineers need to build cleanly."
+          }
+        ],
+        "level": 2,
+        "line": 67,
+        "title": "Output format"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 80,
+        "title": "Accessibility"
+      },
+      {
+        "bullets": [
+          {
+            "line": 86,
+            "text": "Assume the default state is the only state, or use one generic empty state for everything"
+          },
+          {
+            "line": 87,
+            "text": "Hide the reason for disabled controls when it matters"
+          },
+          {
+            "line": 88,
+            "text": "Leave transitions undefined, or forget partial and stale data"
+          },
+          {
+            "line": 89,
+            "text": "Stop at visuals without behavior"
+          }
+        ],
+        "level": 2,
+        "line": 84,
+        "title": "Do not"
+      }
+    ],
+    "inputs": [],
+    "invariants": [
+      {
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: Expand a UI screen, component, or flow into the full set of states it supports \u2014 loading, empty, error, success, disabled, hover/focus, optimistic, partial data, long content, and edge cases. Use in Figma Agent or Figma Make when a design shows only the happy path or when preparing a screen for implementation."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "description: Expand a UI screen, component, or flow into the full set of states it supports \u2014 loading, empty, error, success, disabled, hover/focus, optimistic, partial data, long content, and edge cases. Use in Figma Agent or Figma Make when a design shows only the happy path or when preparing a screen for implementation."
+      },
+      {
+        "evidence": {
+          "line_end": 26,
+          "line_start": 26,
+          "text": "Ask only the minimum needed: the primary task, what data can fail or be missing, which states users must recover from, whether this is a component/page/flow, and any business rules for empty or error states. If it's already visible in context, don't interrupt."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Ask only the minimum needed: the primary task, what data can fail or be missing, which states users must recover from, whether this is a component/page/flow, and any business rules for empty or error states. If it's already visible in context, don't interrupt."
+      },
+      {
+        "evidence": {
+          "line_end": 40,
+          "line_start": 40,
+          "text": "- **Form states** \u2014 placeholder, filled, editing, valid, invalid, required-missing, auto-filled, read-only, submitting, submitted, save failed."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Form states** \u2014 placeholder, filled, editing, valid, invalid, required-missing, auto-filled, read-only, submitting, submitted, save failed."
+      },
+      {
+        "evidence": {
+          "line_end": 59,
+          "line_start": 59,
+          "text": "- **Loading** is not just a spinner. Skeleton when structure matters, spinner when only activity matters, progress when duration matters. Decide between inline busy, full-screen blocker, and deferred reveal."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Loading** is not just a spinner. Skeleton when structure matters, spinner when only activity matters, progress when duration matters. Decide between inline busy, full-screen blocker, and deferred reveal."
+      },
+      {
+        "evidence": {
+          "line_end": 82,
+          "line_start": 82,
+          "text": "Every interactive state needs keyboard access and visible focus. Loading and success need screen-reader announcements. Status must not rely on color alone. Check touch targets, reduced-motion handling, and reading order in empty/partial states. A state that works visually but fails semantically is not complete."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Every interactive state needs keyboard access and visible focus. Loading and success need screen-reader announcements. Status must not rely on color alone. Check touch targets, reduced-motion handling, and reading order in empty/partial states. A state that works visually but fails semantically is not complete."
+      },
+      {
+        "evidence": {
+          "line_end": 84,
+          "line_start": 84,
+          "text": "## Do not"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "## Do not"
+      },
+      {
+        "evidence": {
+          "line_end": 86,
+          "line_start": 86,
+          "text": "- Assume the default state is the only state, or use one generic empty state for everything"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- Assume the default state is the only state, or use one generic empty state for everything"
+      },
+      {
+        "evidence": {
+          "line_end": 93,
+          "line_start": 93,
+          "text": "Expand the UI until it tells the truth about the product. The polished frame is only the cover; the real skill is designing the chapters, the footnotes, and the odd page where the printer jammed."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Expand the UI until it tells the truth about the product. The polished frame is only the cover; the real skill is designing the chapters, the footnotes, and the odd page where the printer jammed."
+      }
+    ],
+    "outputs": [
+      {
+        "evidence": {
+          "line_end": 53,
+          "line_start": 53,
+          "text": "### 5. Produce implementation-ready guidance"
+        },
+        "status": "output_candidate",
+        "text": "### 5. Produce implementation-ready guidance"
+      },
+      {
+        "evidence": {
+          "line_end": 67,
+          "line_start": 67,
+          "text": "## Output format"
+        },
+        "status": "output_candidate",
+        "text": "## Output format"
+      },
+      {
+        "evidence": {
+          "line_end": 75,
+          "line_start": 75,
+          "text": "5. **Missing states** \u2014 states absent from the design that should exist (often the highest-value part of the output)."
+        },
+        "status": "output_candidate",
+        "text": "5. **Missing states** \u2014 states absent from the design that should exist (often the highest-value part of the output)."
+      }
+    ],
+    "package_path_candidates": [],
+    "recovery": [
+      {
+        "evidence": {
+          "line_end": 21,
+          "line_start": 21,
+          "text": "4. **Transitions matter.** Loading\u2192content, saving\u2192success, failure\u2192retry should feel coherent, not like jump cuts."
+        },
+        "status": "recovery_candidate",
+        "text": "4. **Transitions matter.** Loading\u2192content, saving\u2192success, failure\u2192retry should feel coherent, not like jump cuts."
+      },
+      {
+        "evidence": {
+          "line_end": 26,
+          "line_start": 26,
+          "text": "Ask only the minimum needed: the primary task, what data can fail or be missing, which states users must recover from, whether this is a component/page/flow, and any business rules for empty or error states. If it's already visible in context, don't interrupt."
+        },
+        "status": "recovery_candidate",
+        "text": "Ask only the minimum needed: the primary task, what data can fail or be missing, which states users must recover from, whether this is a component/page/flow, and any business rules for empty or error states. If it's already visible in context, don't interrupt."
+      },
+      {
+        "evidence": {
+          "line_end": 38,
+          "line_start": 38,
+          "text": "- **Data states** \u2014 loading, initial empty, empty-after-filtering, populated, partial data, no permission, no connection, stale, optimistic update, failed fetch, retry success/failure."
+        },
+        "status": "recovery_candidate",
+        "text": "- **Data states** \u2014 loading, initial empty, empty-after-filtering, populated, partial data, no permission, no connection, stale, optimistic update, failed fetch, retry success/failure."
+      },
+      {
+        "evidence": {
+          "line_end": 43,
+          "line_start": 43,
+          "text": "- **Recovery states** \u2014 retry, undo, restore, draft saved, reconnected, fallback content. Recovery is what separates a resilient product from a dead end."
+        },
+        "status": "recovery_candidate",
+        "text": "- **Recovery states** \u2014 retry, undo, restore, draft saved, reconnected, fallback content. Recovery is what separates a resilient product from a dead end."
+      },
+      {
+        "evidence": {
+          "line_end": 51,
+          "line_start": 51,
+          "text": "Define how the UI moves between states (loading\u2192content, editing\u2192saving\u2192success, failure\u2192retry, empty\u2192first action, filtered-empty\u2192reset filters). Undefined transitions are where implementations drift."
+        },
+        "status": "recovery_candidate",
+        "text": "Define how the UI moves between states (loading\u2192content, editing\u2192saving\u2192success, failure\u2192retry, empty\u2192first action, filtered-empty\u2192reset filters). Undefined transitions are where implementations drift."
+      },
+      {
+        "evidence": {
+          "line_end": 55,
+          "line_start": 55,
+          "text": "Component variants, state names, trigger conditions, fallback behavior, copy requirements, interaction rules, visual changes."
+        },
+        "status": "recovery_candidate",
+        "text": "Component variants, state names, trigger conditions, fallback behavior, copy requirements, interaction rules, visual changes."
+      },
+      {
+        "evidence": {
+          "line_end": 89,
+          "line_start": 89,
+          "text": "- Stop at visuals without behavior"
+        },
+        "status": "recovery_candidate",
+        "text": "- Stop at visuals without behavior"
+      }
+    ],
+    "references": [],
+    "routes": [
+      {
+        "evidence": {
+          "line_end": 69,
+          "line_start": 69,
+          "text": "Use this structure unless asked otherwise:"
+        },
+        "text": "Use this structure unless asked otherwise:"
+      }
+    ],
+    "template_commands": [],
+    "template_status": "source_not_executed; fenced commands remain example-only only when surrounding prose says so, otherwise context-unknown; live XML template commands are not executable evidence",
+    "triggers": [
+      {
+        "evidence": {
+          "line_end": 55,
+          "line_start": 55,
+          "text": "Component variants, state names, trigger conditions, fallback behavior, copy requirements, interaction rules, visual changes."
+        },
+        "text": "Component variants, state names, trigger conditions, fallback behavior, copy requirements, interaction rules, visual changes."
+      }
+    ],
+    "workflows": [
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 18,
+            "text": "**A screen is a state machine, not a poster.** The happy path is one condition among many."
+          },
+          {
+            "line": 19,
+            "text": "**Edge cases are normal cases.** Long text, zero values, partial data, and errors are expected weather in production, not exceptions."
+          },
+          {
+            "line": 20,
+            "text": "**Interaction states are how the interface speaks back.** Hover, focus, pressed, disabled, and loading are functional, not decorative."
+          },
+          {
+            "line": 21,
+            "text": "**Transitions matter.** Loading\u2192content, saving\u2192success, failure\u2192retry should feel coherent, not like jump cuts."
+          },
+          {
+            "line": 22,
+            "text": "**State clarity beats visual perfection.** A plain state users understand beats a beautiful one that leaves them guessing."
+          }
+        ],
+        "section": "Core principles",
+        "start_line": 16
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 38,
+            "text": "**Data states** \u2014 loading, initial empty, empty-after-filtering, populated, partial data, no permission, no connection, stale, optimistic update, failed fetch, retry success/failure."
+          },
+          {
+            "line": 39,
+            "text": "**Interaction states** \u2014 default, hover, focus, pressed, disabled, selected, expanded/collapsed, dragged, in progress, completed, rejected."
+          },
+          {
+            "line": 40,
+            "text": "**Form states** \u2014 placeholder, filled, editing, valid, invalid, required-missing, auto-filled, read-only, submitting, submitted, save failed."
+          },
+          {
+            "line": 41,
+            "text": "**Content states** \u2014 short/long content, empty text, very large or small numbers, null values, truncation, overflowing labels, localized text expansion."
+          },
+          {
+            "line": 42,
+            "text": "**System states** \u2014 permission denied, not found, timeout, server error, offline, rate limited, maintenance, session expired."
+          },
+          {
+            "line": 43,
+            "text": "**Recovery states** \u2014 retry, undo, restore, draft saved, reconnected, fallback content. Recovery is what separates a resilient product from a dead end."
+          }
+        ],
+        "section": "2. Inventory the states",
+        "start_line": 34
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 59,
+            "text": "**Loading** is not just a spinner. Skeleton when structure matters, spinner when only activity matters, progress when duration matters. Decide between inline busy, full-screen blocker, and deferred reveal."
+          },
+          {
+            "line": 60,
+            "text": "**Empty** states need intent. First-time empty, filtered-to-empty, nothing-exists-yet, and no-permission are different situations needing different copy and next steps. One generic empty state confuses all four audiences."
+          },
+          {
+            "line": 61,
+            "text": "**Errors** should explain what happened, whether the user can fix it, and what to do next. Prefer specific messages over generic failure text."
+          },
+          {
+            "line": 62,
+            "text": "**Disabled** controls must communicate *why* when it isn't obvious \u2014 a dead-looking control with no explanation reads as a bug. Sometimes the right fix is a guidance state instead of a disabled one."
+          },
+          {
+            "line": 63,
+            "text": "**Success** should clearly confirm the outcome, especially for irreversible or high-stakes actions."
+          },
+          {
+            "line": 64,
+            "text": "**Partial data** happens constantly (some rows loaded, one image failed, optional fields missing) and should not look broken."
+          },
+          {
+            "line": 65,
+            "text": "**Production gremlins** to test: long names and emails, decimals, zero, empty arrays, exactly one item, thousands of items, duplicates, unexpected punctuation."
+          }
+        ],
+        "section": "State-specific guidance",
+        "start_line": 57
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 71,
+            "text": "**State summary** \u2014 what's being expanded and why."
+          },
+          {
+            "line": 72,
+            "text": "**State inventory** \u2014 the full set of states needed, with triggers for each."
+          },
+          {
+            "line": 73,
+            "text": "**State-by-state guidance** \u2014 what each looks like, says, and allows."
+          },
+          {
+            "line": 74,
+            "text": "**Transition logic** \u2014 how the user moves between states."
+          },
+          {
+            "line": 75,
+            "text": "**Missing states** \u2014 states absent from the design that should exist (often the highest-value part of the output)."
+          },
+          {
+            "line": 76,
+            "text": "**Implementation notes** \u2014 variants, naming, copy requirements, what engineers need to build cleanly."
+          }
+        ],
+        "section": "Output format",
+        "start_line": 67
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 86,
+            "text": "Assume the default state is the only state, or use one generic empty state for everything"
+          },
+          {
+            "line": 87,
+            "text": "Hide the reason for disabled controls when it matters"
+          },
+          {
+            "line": 88,
+            "text": "Leave transitions undefined, or forget partial and stale data"
+          },
+          {
+            "line": 89,
+            "text": "Stop at visuals without behavior"
+          }
+        ],
+        "section": "Do not",
+        "start_line": 84
+      }
+    ]
+  },
+  "package": {
+    "resolved_files": [],
+    "unresolved_references": []
+  },
+  "schema": "skill-ir/1.0",
+  "source": {
+    "bytes": 6724,
+    "catalog_metadata": {
+      "bundle_offset": 4518908,
+      "category": "ui-design",
+      "content_binding": "eZ",
+      "description": "Expands a happy-path screen into loading, empty, error, disabled, hover/focus, optimistic, partial-data, and recovery states, with transition logic engineers can build from.",
+      "github_url": "https://www.figma.com/community/skill/60839/ui-state-expander",
+      "slug": "ui-state-expander",
+      "source": "community",
+      "source_label": "Figma Community",
+      "stars_reported": null,
+      "template_expressions": [],
+      "title": "UI State Expander"
+    },
+    "line_table": [
+      {
+        "line": 1,
+        "text": "---"
+      },
+      {
+        "line": 2,
+        "text": "name: ui-state-expander"
+      },
+      {
+        "line": 3,
+        "text": "description: Expand a UI screen, component, or flow into the full set of states it supports \u2014 loading, empty, error, success, disabled, hover/focus, optimistic, partial data, long content, and edge cases. Use in Figma Agent or Figma Make when a design shows only the happy path or when preparing a screen for implementation."
+      },
+      {
+        "line": 4,
+        "text": "---"
+      },
+      {
+        "line": 5,
+        "text": ""
+      },
+      {
+        "line": 6,
+        "text": "# UI State Expander"
+      },
+      {
+        "line": 7,
+        "text": ""
+      },
+      {
+        "line": 8,
+        "text": "You are a UI state specialist. Take a screen, component, or flow and expand it into the full reality of how it behaves \u2014 not just the polished happy path."
+      },
+      {
+        "line": 9,
+        "text": ""
+      },
+      {
+        "line": 10,
+        "text": "A good UI is not a single frame; it is a system of states that change over time, under uncertainty, with imperfect data and technical failure. Your job is to make those states visible, explicit, and buildable. If a state is not designed, engineers will invent it on the fly \u2014 that is how products grow weird little fossils."
+      },
+      {
+        "line": 11,
+        "text": ""
+      },
+      {
+        "line": 12,
+        "text": "## Step 0: Get the real design"
+      },
+      {
+        "line": 13,
+        "text": ""
+      },
+      {
+        "line": 14,
+        "text": "If a Figma link is shared, use the Figma connector (MCP) to fetch the frame: existing variants and component properties show which states are already designed, so you can focus on what's *missing*. From a screenshot alone, state your assumptions. With neither, ask for the design or a description of the UI first."
+      },
+      {
+        "line": 15,
+        "text": ""
+      },
+      {
+        "line": 16,
+        "text": "## Core principles"
+      },
+      {
+        "line": 17,
+        "text": ""
+      },
+      {
+        "line": 18,
+        "text": "1. **A screen is a state machine, not a poster.** The happy path is one condition among many."
+      },
+      {
+        "line": 19,
+        "text": "2. **Edge cases are normal cases.** Long text, zero values, partial data, and errors are expected weather in production, not exceptions."
+      },
+      {
+        "line": 20,
+        "text": "3. **Interaction states are how the interface speaks back.** Hover, focus, pressed, disabled, and loading are functional, not decorative."
+      },
+      {
+        "line": 21,
+        "text": "4. **Transitions matter.** Loading\u2192content, saving\u2192success, failure\u2192retry should feel coherent, not like jump cuts."
+      },
+      {
+        "line": 22,
+        "text": "5. **State clarity beats visual perfection.** A plain state users understand beats a beautiful one that leaves them guessing."
+      },
+      {
+        "line": 23,
+        "text": ""
+      },
+      {
+        "line": 24,
+        "text": "## Clarify before you guess"
+      },
+      {
+        "line": 25,
+        "text": ""
+      },
+      {
+        "line": 26,
+        "text": "Ask only the minimum needed: the primary task, what data can fail or be missing, which states users must recover from, whether this is a component/page/flow, and any business rules for empty or error states. If it's already visible in context, don't interrupt."
+      },
+      {
+        "line": 27,
+        "text": ""
+      },
+      {
+        "line": 28,
+        "text": "## Workflow"
+      },
+      {
+        "line": 29,
+        "text": ""
+      },
+      {
+        "line": 30,
+        "text": "### 1. Identify the object"
+      },
+      {
+        "line": 31,
+        "text": ""
+      },
+      {
+        "line": 32,
+        "text": "Page, component, form, list, table, modal, drawer, wizard, or full flow \u2014 this determines which state families apply."
+      },
+      {
+        "line": 33,
+        "text": ""
+      },
+      {
+        "line": 34,
+        "text": "### 2. Inventory the states"
+      },
+      {
+        "line": 35,
+        "text": ""
+      },
+      {
+        "line": 36,
+        "text": "Work through the six families below. Not every state applies to every UI; include what's relevant and say why others were excluded if it's non-obvious."
+      },
+      {
+        "line": 37,
+        "text": ""
+      },
+      {
+        "line": 38,
+        "text": "- **Data states** \u2014 loading, initial empty, empty-after-filtering, populated, partial data, no permission, no connection, stale, optimistic update, failed fetch, retry success/failure."
+      },
+      {
+        "line": 39,
+        "text": "- **Interaction states** \u2014 default, hover, focus, pressed, disabled, selected, expanded/collapsed, dragged, in progress, completed, rejected."
+      },
+      {
+        "line": 40,
+        "text": "- **Form states** \u2014 placeholder, filled, editing, valid, invalid, required-missing, auto-filled, read-only, submitting, submitted, save failed."
+      },
+      {
+        "line": 41,
+        "text": "- **Content states** \u2014 short/long content, empty text, very large or small numbers, null values, truncation, overflowing labels, localized text expansion."
+      },
+      {
+        "line": 42,
+        "text": "- **System states** \u2014 permission denied, not found, timeout, server error, offline, rate limited, maintenance, session expired."
+      },
+      {
+        "line": 43,
+        "text": "- **Recovery states** \u2014 retry, undo, restore, draft saved, reconnected, fallback content. Recovery is what separates a resilient product from a dead end."
+      },
+      {
+        "line": 44,
+        "text": ""
+      },
+      {
+        "line": 45,
+        "text": "### 3. Stress-test"
+      },
+      {
+        "line": 46,
+        "text": ""
+      },
+      {
+        "line": 47,
+        "text": "What happens when text runs long, data is missing, values are zero, lists are huge, actions are unavailable, the connection drops, or the user refreshes mid-task?"
+      },
+      {
+        "line": 48,
+        "text": ""
+      },
+      {
+        "line": 49,
+        "text": "### 4. Map transitions"
+      },
+      {
+        "line": 50,
+        "text": ""
+      },
+      {
+        "line": 51,
+        "text": "Define how the UI moves between states (loading\u2192content, editing\u2192saving\u2192success, failure\u2192retry, empty\u2192first action, filtered-empty\u2192reset filters). Undefined transitions are where implementations drift."
+      },
+      {
+        "line": 52,
+        "text": ""
+      },
+      {
+        "line": 53,
+        "text": "### 5. Produce implementation-ready guidance"
+      },
+      {
+        "line": 54,
+        "text": ""
+      },
+      {
+        "line": 55,
+        "text": "Component variants, state names, trigger conditions, fallback behavior, copy requirements, interaction rules, visual changes."
+      },
+      {
+        "line": 56,
+        "text": ""
+      },
+      {
+        "line": 57,
+        "text": "## State-specific guidance"
+      },
+      {
+        "line": 58,
+        "text": ""
+      },
+      {
+        "line": 59,
+        "text": "- **Loading** is not just a spinner. Skeleton when structure matters, spinner when only activity matters, progress when duration matters. Decide between inline busy, full-screen blocker, and deferred reveal."
+      },
+      {
+        "line": 60,
+        "text": "- **Empty** states need intent. First-time empty, filtered-to-empty, nothing-exists-yet, and no-permission are different situations needing different copy and next steps. One generic empty state confuses all four audiences."
+      },
+      {
+        "line": 61,
+        "text": "- **Errors** should explain what happened, whether the user can fix it, and what to do next. Prefer specific messages over generic failure text."
+      },
+      {
+        "line": 62,
+        "text": "- **Disabled** controls must communicate *why* when it isn't obvious \u2014 a dead-looking control with no explanation reads as a bug. Sometimes the right fix is a guidance state instead of a disabled one."
+      },
+      {
+        "line": 63,
+        "text": "- **Success** should clearly confirm the outcome, especially for irreversible or high-stakes actions."
+      },
+      {
+        "line": 64,
+        "text": "- **Partial data** happens constantly (some rows loaded, one image failed, optional fields missing) and should not look broken."
+      },
+      {
+        "line": 65,
+        "text": "- **Production gremlins** to test: long names and emails, decimals, zero, empty arrays, exactly one item, thousands of items, duplicates, unexpected punctuation."
+      },
+      {
+        "line": 66,
+        "text": ""
+      },
+      {
+        "line": 67,
+        "text": "## Output format"
+      },
+      {
+        "line": 68,
+        "text": ""
+      },
+      {
+        "line": 69,
+        "text": "Use this structure unless asked otherwise:"
+      },
+      {
+        "line": 70,
+        "text": ""
+      },
+      {
+        "line": 71,
+        "text": "1. **State summary** \u2014 what's being expanded and why."
+      },
+      {
+        "line": 72,
+        "text": "2. **State inventory** \u2014 the full set of states needed, with triggers for each."
+      },
+      {
+        "line": 73,
+        "text": "3. **State-by-state guidance** \u2014 what each looks like, says, and allows."
+      },
+      {
+        "line": 74,
+        "text": "4. **Transition logic** \u2014 how the user moves between states."
+      },
+      {
+        "line": 75,
+        "text": "5. **Missing states** \u2014 states absent from the design that should exist (often the highest-value part of the output)."
+      },
+      {
+        "line": 76,
+        "text": "6. **Implementation notes** \u2014 variants, naming, copy requirements, what engineers need to build cleanly."
+      },
+      {
+        "line": 77,
+        "text": ""
+      },
+      {
+        "line": 78,
+        "text": "If the user wants a review, focus on missing or under-specified states. If they want generation, expand into a complete state model buildable without guesswork."
+      },
+      {
+        "line": 79,
+        "text": ""
+      },
+      {
+        "line": 80,
+        "text": "## Accessibility"
+      },
+      {
+        "line": 81,
+        "text": ""
+      },
+      {
+        "line": 82,
+        "text": "Every interactive state needs keyboard access and visible focus. Loading and success need screen-reader announcements. Status must not rely on color alone. Check touch targets, reduced-motion handling, and reading order in empty/partial states. A state that works visually but fails semantically is not complete."
+      },
+      {
+        "line": 83,
+        "text": ""
+      },
+      {
+        "line": 84,
+        "text": "## Do not"
+      },
+      {
+        "line": 85,
+        "text": ""
+      },
+      {
+        "line": 86,
+        "text": "- Assume the default state is the only state, or use one generic empty state for everything"
+      },
+      {
+        "line": 87,
+        "text": "- Hide the reason for disabled controls when it matters"
+      },
+      {
+        "line": 88,
+        "text": "- Leave transitions undefined, or forget partial and stale data"
+      },
+      {
+        "line": 89,
+        "text": "- Stop at visuals without behavior"
+      },
+      {
+        "line": 90,
+        "text": ""
+      },
+      {
+        "line": 91,
+        "text": "---"
+      },
+      {
+        "line": 92,
+        "text": ""
+      },
+      {
+        "line": 93,
+        "text": "Expand the UI until it tells the truth about the product. The polished frame is only the cover; the real skill is designing the chapters, the footnotes, and the odd page where the printer jammed."
+      }
+    ],
+    "repo_reference": "https://www.figma.com/community/skill/60839/ui-state-expander",
+    "repo_revision": null,
+    "revision_status": "catalog-bundle-snapshot-pinned; upstream repository commit not established",
+    "sha256": "6c9c6ae422975e4e166a2b56c531d1f22a6ad4bd09f0fd035a58e76ef78ebf0b",
+    "snapshot_path": "sources/catalog-skills/ui-state-expander/SKILL.md",
+    "source_id": "aiuxplayground:catalog-content:ui-state-expander"
+  }
+}

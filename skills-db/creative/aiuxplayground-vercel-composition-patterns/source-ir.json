@@ -1,0 +1,915 @@
+{
+  "frontmatter": {
+    "fields": {
+      "description": "",
+      "license": "MIT",
+      "metadata": "",
+      "name": "vercel-composition-patterns"
+    },
+    "line_end": 12,
+    "line_start": 1,
+    "raw": "name: vercel-composition-patterns\ndescription:\n  React composition patterns that scale. Use when refactoring components with\n  boolean prop proliferation, building flexible component libraries, or\n  designing reusable APIs. Triggers on tasks involving compound components,\n  render props, context providers, or component architecture. Includes React 19\n  API changes.\nlicense: MIT\nmetadata:\n  author: vercel\n  version: '1.0.0'",
+    "status": "present"
+  },
+  "identity": {
+    "catalog_category": "engineering",
+    "slug": "vercel-composition-patterns",
+    "title": "Vercel Composition Patterns"
+  },
+  "license": {
+    "status": "not stated in captured catalog source",
+    "value": null
+  },
+  "line_count": 89,
+  "ontology": {
+    "actions": [
+      {
+        "evidence": {
+          "line_end": 60,
+          "line_start": 60,
+          "text": "- `patterns-explicit-variants` - Create explicit variant components instead of"
+        },
+        "text": "- `patterns-explicit-variants` - Create explicit variant components instead of"
+      },
+      {
+        "evidence": {
+          "line_end": 62,
+          "line_start": 62,
+          "text": "- `patterns-children-over-render-props` - Use children for composition instead"
+        },
+        "text": "- `patterns-children-over-render-props` - Use children for composition instead"
+      },
+      {
+        "evidence": {
+          "line_end": 69,
+          "line_start": 69,
+          "text": "- `react19-no-forwardref` - Don't use `forwardRef`; use `use()` instead of `useContext()`"
+        },
+        "text": "- `react19-no-forwardref` - Don't use `forwardRef`; use `use()` instead of `useContext()`"
+      }
+    ],
+    "command_examples": [],
+    "constraints": [
+      {
+        "evidence": {
+          "line_end": 45,
+          "line_start": 45,
+          "text": "- `architecture-avoid-boolean-props` - Don't add boolean props to customize"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- `architecture-avoid-boolean-props` - Don't add boolean props to customize"
+      },
+      {
+        "evidence": {
+          "line_end": 52,
+          "line_start": 52,
+          "text": "- `state-decouple-implementation` - Provider is the only place that knows how"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- `state-decouple-implementation` - Provider is the only place that knows how"
+      },
+      {
+        "evidence": {
+          "line_end": 67,
+          "line_start": 67,
+          "text": "> **\u26a0\ufe0f React 19+ only.** Skip this section if using React 18 or earlier."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "> **\u26a0\ufe0f React 19+ only.** Skip this section if using React 18 or earlier."
+      },
+      {
+        "evidence": {
+          "line_end": 69,
+          "line_start": 69,
+          "text": "- `react19-no-forwardref` - Don't use `forwardRef`; use `use()` instead of `useContext()`"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- `react19-no-forwardref` - Don't use `forwardRef`; use `use()` instead of `useContext()`"
+      }
+    ],
+    "effects": [
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 56,
+          "line_start": 56,
+          "text": "- `state-lift-state` - Move state into provider components for sibling access"
+        },
+        "modality": "unspecified",
+        "text": "- `state-lift-state` - Move state into provider components for sibling access",
+        "verb": "move"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 60,
+          "line_start": 60,
+          "text": "- `patterns-explicit-variants` - Create explicit variant components instead of"
+        },
+        "modality": "unspecified",
+        "text": "- `patterns-explicit-variants` - Create explicit variant components instead of",
+        "verb": "create"
+      }
+    ],
+    "external_urls": [],
+    "headings": [
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 15,
+        "title": "React Composition Patterns"
+      },
+      {
+        "bullets": [
+          {
+            "line": 26,
+            "text": "Refactoring components with many boolean props"
+          },
+          {
+            "line": 27,
+            "text": "Building reusable component libraries"
+          },
+          {
+            "line": 28,
+            "text": "Designing flexible component APIs"
+          },
+          {
+            "line": 29,
+            "text": "Reviewing component architecture"
+          },
+          {
+            "line": 30,
+            "text": "Working with compound components or context providers"
+          }
+        ],
+        "level": 2,
+        "line": 22,
+        "title": "When to Apply"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 32,
+        "title": "Rule Categories by Priority"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 41,
+        "title": "Quick Reference"
+      },
+      {
+        "bullets": [
+          {
+            "line": 45,
+            "text": "`architecture-avoid-boolean-props` - Don't add boolean props to customize"
+          },
+          {
+            "line": 47,
+            "text": "`architecture-compound-components` - Structure complex components with shared"
+          }
+        ],
+        "level": 3,
+        "line": 43,
+        "title": "1. Component Architecture (HIGH)"
+      },
+      {
+        "bullets": [
+          {
+            "line": 52,
+            "text": "`state-decouple-implementation` - Provider is the only place that knows how"
+          },
+          {
+            "line": 54,
+            "text": "`state-context-interface` - Define generic interface with state, actions, meta"
+          },
+          {
+            "line": 56,
+            "text": "`state-lift-state` - Move state into provider components for sibling access"
+          }
+        ],
+        "level": 3,
+        "line": 50,
+        "title": "2. State Management (MEDIUM)"
+      },
+      {
+        "bullets": [
+          {
+            "line": 60,
+            "text": "`patterns-explicit-variants` - Create explicit variant components instead of"
+          },
+          {
+            "line": 62,
+            "text": "`patterns-children-over-render-props` - Use children for composition instead"
+          }
+        ],
+        "level": 3,
+        "line": 58,
+        "title": "3. Implementation Patterns (MEDIUM)"
+      },
+      {
+        "bullets": [
+          {
+            "line": 69,
+            "text": "`react19-no-forwardref` - Don't use `forwardRef`; use `use()` instead of `useContext()`"
+          }
+        ],
+        "level": 3,
+        "line": 65,
+        "title": "4. React 19 APIs (MEDIUM)"
+      },
+      {
+        "bullets": [
+          {
+            "line": 82,
+            "text": "Brief explanation of why it matters"
+          },
+          {
+            "line": 83,
+            "text": "Incorrect code example with explanation"
+          },
+          {
+            "line": 84,
+            "text": "Correct code example with explanation"
+          },
+          {
+            "line": 85,
+            "text": "Additional context and references"
+          }
+        ],
+        "level": 2,
+        "line": 71,
+        "title": "How to Use"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 87,
+        "title": "Full Compiled Document"
+      }
+    ],
+    "inputs": [],
+    "invariants": [
+      {
+        "evidence": {
+          "line_end": 45,
+          "line_start": 45,
+          "text": "- `architecture-avoid-boolean-props` - Don't add boolean props to customize"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- `architecture-avoid-boolean-props` - Don't add boolean props to customize"
+      },
+      {
+        "evidence": {
+          "line_end": 52,
+          "line_start": 52,
+          "text": "- `state-decouple-implementation` - Provider is the only place that knows how"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- `state-decouple-implementation` - Provider is the only place that knows how"
+      },
+      {
+        "evidence": {
+          "line_end": 67,
+          "line_start": 67,
+          "text": "> **\u26a0\ufe0f React 19+ only.** Skip this section if using React 18 or earlier."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "> **\u26a0\ufe0f React 19+ only.** Skip this section if using React 18 or earlier."
+      },
+      {
+        "evidence": {
+          "line_end": 69,
+          "line_start": 69,
+          "text": "- `react19-no-forwardref` - Don't use `forwardRef`; use `use()` instead of `useContext()`"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- `react19-no-forwardref` - Don't use `forwardRef`; use `use()` instead of `useContext()`"
+      }
+    ],
+    "outputs": [],
+    "package_path_candidates": [],
+    "recovery": [],
+    "references": [],
+    "routes": [],
+    "template_commands": [],
+    "template_status": "source_not_executed; fenced commands remain example-only only when surrounding prose says so, otherwise context-unknown; live XML template commands are not executable evidence",
+    "triggers": [
+      {
+        "evidence": {
+          "line_end": 4,
+          "line_start": 4,
+          "text": "  React composition patterns that scale. Use when refactoring components with"
+        },
+        "text": "React composition patterns that scale. Use when refactoring components with"
+      }
+    ],
+    "workflows": [
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 26,
+            "text": "Refactoring components with many boolean props"
+          },
+          {
+            "line": 27,
+            "text": "Building reusable component libraries"
+          },
+          {
+            "line": 28,
+            "text": "Designing flexible component APIs"
+          },
+          {
+            "line": 29,
+            "text": "Reviewing component architecture"
+          },
+          {
+            "line": 30,
+            "text": "Working with compound components or context providers"
+          }
+        ],
+        "section": "When to Apply",
+        "start_line": 22
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 45,
+            "text": "`architecture-avoid-boolean-props` - Don't add boolean props to customize"
+          },
+          {
+            "line": 47,
+            "text": "`architecture-compound-components` - Structure complex components with shared"
+          }
+        ],
+        "section": "1. Component Architecture (HIGH)",
+        "start_line": 43
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 52,
+            "text": "`state-decouple-implementation` - Provider is the only place that knows how"
+          },
+          {
+            "line": 54,
+            "text": "`state-context-interface` - Define generic interface with state, actions, meta"
+          },
+          {
+            "line": 56,
+            "text": "`state-lift-state` - Move state into provider components for sibling access"
+          }
+        ],
+        "section": "2. State Management (MEDIUM)",
+        "start_line": 50
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 60,
+            "text": "`patterns-explicit-variants` - Create explicit variant components instead of"
+          },
+          {
+            "line": 62,
+            "text": "`patterns-children-over-render-props` - Use children for composition instead"
+          }
+        ],
+        "section": "3. Implementation Patterns (MEDIUM)",
+        "start_line": 58
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 82,
+            "text": "Brief explanation of why it matters"
+          },
+          {
+            "line": 83,
+            "text": "Incorrect code example with explanation"
+          },
+          {
+            "line": 84,
+            "text": "Correct code example with explanation"
+          },
+          {
+            "line": 85,
+            "text": "Additional context and references"
+          }
+        ],
+        "section": "How to Use",
+        "start_line": 71
+      }
+    ]
+  },
+  "package": {
+    "reference_resolution": [],
+    "resolved_files": [
+      {
+        "bytes": 22627,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/89e3ddd58fcf99a53a50e25dfd21b8cde1be5f10b7df6bacd3dfa6796932f516.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/composition-patterns/AGENTS.md",
+        "sha256": "89e3ddd58fcf99a53a50e25dfd21b8cde1be5f10b7df6bacd3dfa6796932f516",
+        "text": true
+      },
+      {
+        "bytes": 2140,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/85915a43a6f0b4efe525e3cf6398dd866166da2025837c4460468a24a940da94.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/composition-patterns/README.md",
+        "sha256": "85915a43a6f0b4efe525e3cf6398dd866166da2025837c4460468a24a940da94",
+        "text": true
+      },
+      {
+        "bytes": 2886,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/e38e0eaa609316b10423a9a138ed95e35099accd3f735585295c8a8f165c28a3.md",
+        "kind": "skill",
+        "path": "agent-skills-HEAD/skills/composition-patterns/SKILL.md",
+        "sha256": "e38e0eaa609316b10423a9a138ed95e35099accd3f735585295c8a8f165c28a3",
+        "text": true
+      },
+      {
+        "bytes": 530,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/49262ed5cb4186f31ee980cf8d990be0170c51efed4908d0464a1cff9905bd05.json",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/composition-patterns/metadata.json",
+        "sha256": "49262ed5cb4186f31ee980cf8d990be0170c51efed4908d0464a1cff9905bd05",
+        "text": true
+      },
+      {
+        "bytes": 829,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/a174213b87e6911e2b766995a2cbaf8d1534057076e82fb79fe3f0ecb38047df.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/composition-patterns/rules/_sections.md",
+        "sha256": "a174213b87e6911e2b766995a2cbaf8d1534057076e82fb79fe3f0ecb38047df",
+        "text": true
+      },
+      {
+        "bytes": 329,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/587f7d16b0660eb61fee4a4d3d7df2b3077d6835de170602c7d6e60bee559131.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/composition-patterns/rules/_template.md",
+        "sha256": "587f7d16b0660eb61fee4a4d3d7df2b3077d6835de170602c7d6e60bee559131",
+        "text": true
+      },
+      {
+        "bytes": 2267,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/007555ebb020f4d552582a2c4db194db71a1fd33094012e5187bcfa4f8c392d5.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/composition-patterns/rules/architecture-avoid-boolean-props.md",
+        "sha256": "007555ebb020f4d552582a2c4db194db71a1fd33094012e5187bcfa4f8c392d5",
+        "text": true
+      },
+      {
+        "bytes": 2600,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/f246af13dc269b521cf20eb8ad99a0cb645beac381c8c9b117262c34612c8457.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/composition-patterns/rules/architecture-compound-components.md",
+        "sha256": "f246af13dc269b521cf20eb8ad99a0cb645beac381c8c9b117262c34612c8457",
+        "text": true
+      },
+      {
+        "bytes": 1886,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/7c45a0d21b3c4126a32cba916ee31adeae195386ad1dbbe6634aedb7457aa0ad.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/composition-patterns/rules/patterns-children-over-render-props.md",
+        "sha256": "7c45a0d21b3c4126a32cba916ee31adeae195386ad1dbbe6634aedb7457aa0ad",
+        "text": true
+      },
+      {
+        "bytes": 2395,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/8c19e596e61807549d01ce8c6954c6358199f97a8511c0c02c625ec0efda8c0e.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/composition-patterns/rules/patterns-explicit-variants.md",
+        "sha256": "8c19e596e61807549d01ce8c6954c6358199f97a8511c0c02c625ec0efda8c0e",
+        "text": true
+      },
+      {
+        "bytes": 953,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/881830adb7534c4b2d70db426556646ad9837f5478f744f35641f635ada22227.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/composition-patterns/rules/react19-no-forwardref.md",
+        "sha256": "881830adb7534c4b2d70db426556646ad9837f5478f744f35641f635ada22227",
+        "text": true
+      },
+      {
+        "bytes": 4974,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/09e73afbf9285fa416679cc864a287b9e8b821d0969272ab784295386d8c9bc3.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/composition-patterns/rules/state-context-interface.md",
+        "sha256": "09e73afbf9285fa416679cc864a287b9e8b821d0969272ab784295386d8c9bc3",
+        "text": true
+      },
+      {
+        "bytes": 2699,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/76a8c1eb29a70d8996ab3f71260345af2f7bc89deab815a421d6c87c6591a9c3.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/composition-patterns/rules/state-decouple-implementation.md",
+        "sha256": "76a8c1eb29a70d8996ab3f71260345af2f7bc89deab815a421d6c87c6591a9c3",
+        "text": true
+      },
+      {
+        "bytes": 3224,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/74c54038a6c554c748fe31cec673b80861b5d920b7553cf78cdf10d18b4b759b.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/composition-patterns/rules/state-lift-state.md",
+        "sha256": "74c54038a6c554c748fe31cec673b80861b5d920b7553cf78cdf10d18b4b759b",
+        "text": true
+      }
+    ],
+    "scripts": [],
+    "unresolved_references": []
+  },
+  "schema": "skill-ir/1.0",
+  "source": {
+    "bytes": 2886,
+    "catalog_metadata": {
+      "bundle_offset": 4543102,
+      "category": "engineering",
+      "content_binding": "N$",
+      "description": "React composition patterns for scalable UI: compound components, slot APIs, state lifting, and architecture that keeps design systems maintainable.",
+      "github_url": "https://github.com/vercel-labs/agent-skills/tree/main/skills/composition-patterns",
+      "slug": "vercel-composition-patterns",
+      "source": "vercel",
+      "source_label": "Vercel",
+      "stars_reported": 28,
+      "template_expressions": [],
+      "title": "Vercel Composition Patterns"
+    },
+    "line_table": [
+      {
+        "line": 1,
+        "text": "---"
+      },
+      {
+        "line": 2,
+        "text": "name: vercel-composition-patterns"
+      },
+      {
+        "line": 3,
+        "text": "description:"
+      },
+      {
+        "line": 4,
+        "text": "  React composition patterns that scale. Use when refactoring components with"
+      },
+      {
+        "line": 5,
+        "text": "  boolean prop proliferation, building flexible component libraries, or"
+      },
+      {
+        "line": 6,
+        "text": "  designing reusable APIs. Triggers on tasks involving compound components,"
+      },
+      {
+        "line": 7,
+        "text": "  render props, context providers, or component architecture. Includes React 19"
+      },
+      {
+        "line": 8,
+        "text": "  API changes."
+      },
+      {
+        "line": 9,
+        "text": "license: MIT"
+      },
+      {
+        "line": 10,
+        "text": "metadata:"
+      },
+      {
+        "line": 11,
+        "text": "  author: vercel"
+      },
+      {
+        "line": 12,
+        "text": "  version: '1.0.0'"
+      },
+      {
+        "line": 13,
+        "text": "---"
+      },
+      {
+        "line": 14,
+        "text": ""
+      },
+      {
+        "line": 15,
+        "text": "# React Composition Patterns"
+      },
+      {
+        "line": 16,
+        "text": ""
+      },
+      {
+        "line": 17,
+        "text": "Composition patterns for building flexible, maintainable React components. Avoid"
+      },
+      {
+        "line": 18,
+        "text": "boolean prop proliferation by using compound components, lifting state, and"
+      },
+      {
+        "line": 19,
+        "text": "composing internals. These patterns make codebases easier for both humans and AI"
+      },
+      {
+        "line": 20,
+        "text": "agents to work with as they scale."
+      },
+      {
+        "line": 21,
+        "text": ""
+      },
+      {
+        "line": 22,
+        "text": "## When to Apply"
+      },
+      {
+        "line": 23,
+        "text": ""
+      },
+      {
+        "line": 24,
+        "text": "Reference these guidelines when:"
+      },
+      {
+        "line": 25,
+        "text": ""
+      },
+      {
+        "line": 26,
+        "text": "- Refactoring components with many boolean props"
+      },
+      {
+        "line": 27,
+        "text": "- Building reusable component libraries"
+      },
+      {
+        "line": 28,
+        "text": "- Designing flexible component APIs"
+      },
+      {
+        "line": 29,
+        "text": "- Reviewing component architecture"
+      },
+      {
+        "line": 30,
+        "text": "- Working with compound components or context providers"
+      },
+      {
+        "line": 31,
+        "text": ""
+      },
+      {
+        "line": 32,
+        "text": "## Rule Categories by Priority"
+      },
+      {
+        "line": 33,
+        "text": ""
+      },
+      {
+        "line": 34,
+        "text": "| Priority | Category                | Impact | Prefix          |"
+      },
+      {
+        "line": 35,
+        "text": "| -------- | ----------------------- | ------ | --------------- |"
+      },
+      {
+        "line": 36,
+        "text": "| 1        | Component Architecture  | HIGH   | `architecture-` |"
+      },
+      {
+        "line": 37,
+        "text": "| 2        | State Management        | MEDIUM | `state-`        |"
+      },
+      {
+        "line": 38,
+        "text": "| 3        | Implementation Patterns | MEDIUM | `patterns-`     |"
+      },
+      {
+        "line": 39,
+        "text": "| 4        | React 19 APIs           | MEDIUM | `react19-`      |"
+      },
+      {
+        "line": 40,
+        "text": ""
+      },
+      {
+        "line": 41,
+        "text": "## Quick Reference"
+      },
+      {
+        "line": 42,
+        "text": ""
+      },
+      {
+        "line": 43,
+        "text": "### 1. Component Architecture (HIGH)"
+      },
+      {
+        "line": 44,
+        "text": ""
+      },
+      {
+        "line": 45,
+        "text": "- `architecture-avoid-boolean-props` - Don't add boolean props to customize"
+      },
+      {
+        "line": 46,
+        "text": "  behavior; use composition"
+      },
+      {
+        "line": 47,
+        "text": "- `architecture-compound-components` - Structure complex components with shared"
+      },
+      {
+        "line": 48,
+        "text": "  context"
+      },
+      {
+        "line": 49,
+        "text": ""
+      },
+      {
+        "line": 50,
+        "text": "### 2. State Management (MEDIUM)"
+      },
+      {
+        "line": 51,
+        "text": ""
+      },
+      {
+        "line": 52,
+        "text": "- `state-decouple-implementation` - Provider is the only place that knows how"
+      },
+      {
+        "line": 53,
+        "text": "  state is managed"
+      },
+      {
+        "line": 54,
+        "text": "- `state-context-interface` - Define generic interface with state, actions, meta"
+      },
+      {
+        "line": 55,
+        "text": "  for dependency injection"
+      },
+      {
+        "line": 56,
+        "text": "- `state-lift-state` - Move state into provider components for sibling access"
+      },
+      {
+        "line": 57,
+        "text": ""
+      },
+      {
+        "line": 58,
+        "text": "### 3. Implementation Patterns (MEDIUM)"
+      },
+      {
+        "line": 59,
+        "text": ""
+      },
+      {
+        "line": 60,
+        "text": "- `patterns-explicit-variants` - Create explicit variant components instead of"
+      },
+      {
+        "line": 61,
+        "text": "  boolean modes"
+      },
+      {
+        "line": 62,
+        "text": "- `patterns-children-over-render-props` - Use children for composition instead"
+      },
+      {
+        "line": 63,
+        "text": "  of renderX props"
+      },
+      {
+        "line": 64,
+        "text": ""
+      },
+      {
+        "line": 65,
+        "text": "### 4. React 19 APIs (MEDIUM)"
+      },
+      {
+        "line": 66,
+        "text": ""
+      },
+      {
+        "line": 67,
+        "text": "> **\u26a0\ufe0f React 19+ only.** Skip this section if using React 18 or earlier."
+      },
+      {
+        "line": 68,
+        "text": ""
+      },
+      {
+        "line": 69,
+        "text": "- `react19-no-forwardref` - Don't use `forwardRef`; use `use()` instead of `useContext()`"
+      },
+      {
+        "line": 70,
+        "text": ""
+      },
+      {
+        "line": 71,
+        "text": "## How to Use"
+      },
+      {
+        "line": 72,
+        "text": ""
+      },
+      {
+        "line": 73,
+        "text": "Read individual rule files for detailed explanations and code examples:"
+      },
+      {
+        "line": 74,
+        "text": ""
+      },
+      {
+        "line": 75,
+        "text": "```"
+      },
+      {
+        "line": 76,
+        "text": "rules/architecture-avoid-boolean-props.md"
+      },
+      {
+        "line": 77,
+        "text": "rules/state-context-interface.md"
+      },
+      {
+        "line": 78,
+        "text": "```"
+      },
+      {
+        "line": 79,
+        "text": ""
+      },
+      {
+        "line": 80,
+        "text": "Each rule file contains:"
+      },
+      {
+        "line": 81,
+        "text": ""
+      },
+      {
+        "line": 82,
+        "text": "- Brief explanation of why it matters"
+      },
+      {
+        "line": 83,
+        "text": "- Incorrect code example with explanation"
+      },
+      {
+        "line": 84,
+        "text": "- Correct code example with explanation"
+      },
+      {
+        "line": 85,
+        "text": "- Additional context and references"
+      },
+      {
+        "line": 86,
+        "text": ""
+      },
+      {
+        "line": 87,
+        "text": "## Full Compiled Document"
+      },
+      {
+        "line": 88,
+        "text": ""
+      },
+      {
+        "line": 89,
+        "text": "For the complete guide with all rules expanded: `AGENTS.md`"
+      }
+    ],
+    "matched_upstream_skill_path": "agent-skills-HEAD/skills/composition-patterns/SKILL.md",
+    "repo": "vercel-labs/agent-skills",
+    "repo_reference": "https://github.com/vercel-labs/agent-skills/tree/main/skills/composition-patterns",
+    "repo_revision": "unknown",
+    "revision_status": "archive-digest-pinned upstream package matched by exact_content_hash_match",
+    "sha256": "e38e0eaa609316b10423a9a138ed95e35099accd3f735585295c8a8f165c28a3",
+    "snapshot_path": "sources/catalog-skills/vercel-composition-patterns/SKILL.md",
+    "source_id": "aiuxplayground:catalog-content:vercel-composition-patterns"
+  }
+}

@@ -1,0 +1,2761 @@
+{
+  "frontmatter": {
+    "fields": {
+      "description": "Build scalable design systems with Tailwind CSS v4, design tokens, component libraries, and responsive patterns. Use when creating component libraries, implementing design systems, or standardizing UI patterns.",
+      "name": "tailwind-design-system"
+    },
+    "line_end": 3,
+    "line_start": 1,
+    "raw": "name: tailwind-design-system\ndescription: Build scalable design systems with Tailwind CSS v4, design tokens, component libraries, and responsive patterns. Use when creating component libraries, implementing design systems, or standardizing UI patterns.",
+    "status": "present"
+  },
+  "identity": {
+    "catalog_category": "design-systems",
+    "slug": "tailwind-design-system",
+    "title": "Tailwind Design System"
+  },
+  "license": {
+    "status": "not stated in captured catalog source",
+    "value": null
+  },
+  "line_count": 565,
+  "ontology": {
+    "actions": [],
+    "command_examples": [],
+    "constraints": [
+      {
+        "evidence": {
+          "line_end": 560,
+          "line_start": 560,
+          "text": "- **Theme modifiers**: `@theme inline` (reference other CSS vars), `@theme static` (always output), `@import \"tailwindcss\" theme(static)`"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Theme modifiers**: `@theme inline` (reference other CSS vars), `@theme static` (always output), `@import \"tailwindcss\" theme(static)`"
+      }
+    ],
+    "effects": [],
+    "external_urls": [
+      {
+        "evidence": {
+          "line_end": 10,
+          "line_start": 10,
+          "text": "> **Note**: This skill targets Tailwind CSS v4 (2024+). For v3 projects, refer to the [upgrade guide](https://tailwindcss.com/docs/upgrade-guide)."
+        },
+        "url": "https://tailwindcss.com/docs/upgrade-guide"
+      }
+    ],
+    "headings": [
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 6,
+        "title": "Tailwind Design System (v4)"
+      },
+      {
+        "bullets": [
+          {
+            "line": 14,
+            "text": "Creating a component library with Tailwind v4"
+          },
+          {
+            "line": 15,
+            "text": "Implementing design tokens and theming with CSS-first configuration"
+          },
+          {
+            "line": 16,
+            "text": "Building responsive and accessible components"
+          },
+          {
+            "line": 17,
+            "text": "Standardizing UI patterns across a codebase"
+          },
+          {
+            "line": 18,
+            "text": "Migrating from Tailwind v3 to v4"
+          },
+          {
+            "line": 19,
+            "text": "Setting up dark mode with native CSS features"
+          }
+        ],
+        "level": 2,
+        "line": 12,
+        "title": "When to Use This Skill"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 21,
+        "title": "Key v4 Changes"
+      },
+      {
+        "bullets": [
+          {
+            "line": 154,
+            "text": "{"
+          }
+        ],
+        "level": 2,
+        "line": 31,
+        "title": "Quick Start"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 164,
+        "title": "Core Concepts"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 166,
+        "title": "1. Design Token Hierarchy"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 177,
+        "title": "2. Component Architecture"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 183,
+        "title": "Patterns"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 185,
+        "title": "Pattern 1: CVA (Class Variance Authority) Components"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 251,
+        "title": "Pattern 2: Compound Components (React 19)"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 356,
+        "title": "Pattern 3: Form Components"
+      },
+      {
+        "bullets": [
+          {
+            "line": 533,
+            "text": "**Pattern 5: Native CSS Animations**: dialog `@keyframes`, native popover API with `@starting-style`, `allow-discrete` transitions, and a full `DialogContent`/`DialogOverlay` implementation using Radix UI"
+          },
+          {
+            "line": 534,
+            "text": "**Pattern 6: Dark Mode**: `ThemeProvider` context with `localStorage` persistence, `prefers-color-scheme` detection, meta `theme-color` update, and a `ThemeToggle` button component"
+          }
+        ],
+        "level": 3,
+        "line": 453,
+        "title": "Pattern 4: Responsive Grid System"
+      },
+      {
+        "bullets": [
+          {
+            "line": 559,
+            "text": "**Custom `@utility`**: reusable CSS utilities for decorative lines and text gradients"
+          },
+          {
+            "line": 560,
+            "text": "**Theme modifiers**: `@theme inline` (reference other CSS vars), `@theme static` (always output), `@import \"tailwindcss\" theme(static)`"
+          },
+          {
+            "line": 561,
+            "text": "**Namespace overrides**: clearing default Tailwind color scales with `--color-*: initial`"
+          },
+          {
+            "line": 562,
+            "text": "**Semi-transparent variants**: `color-mix()` for alpha scale generation"
+          },
+          {
+            "line": 563,
+            "text": "**Container queries**: `--container-*` token definitions"
+          },
+          {
+            "line": 564,
+            "text": "**v3\u2192v4 migration checklist**: 10-item checklist covering config, directives, colors, dark mode, animations, React 19 ref changes"
+          },
+          {
+            "line": 565,
+            "text": "**Best practices**: full Do's and Don'ts list"
+          }
+        ],
+        "level": 2,
+        "line": 536,
+        "title": "Utility Functions"
+      }
+    ],
+    "inputs": [],
+    "invariants": [
+      {
+        "evidence": {
+          "line_end": 560,
+          "line_start": 560,
+          "text": "- **Theme modifiers**: `@theme inline` (reference other CSS vars), `@theme static` (always output), `@import \"tailwindcss\" theme(static)`"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Theme modifiers**: `@theme inline` (reference other CSS vars), `@theme static` (always output), `@import \"tailwindcss\" theme(static)`"
+      }
+    ],
+    "outputs": [
+      {
+        "evidence": {
+          "line_end": 560,
+          "line_start": 560,
+          "text": "- **Theme modifiers**: `@theme inline` (reference other CSS vars), `@theme static` (always output), `@import \"tailwindcss\" theme(static)`"
+        },
+        "status": "output_candidate",
+        "text": "- **Theme modifiers**: `@theme inline` (reference other CSS vars), `@theme static` (always output), `@import \"tailwindcss\" theme(static)`"
+      }
+    ],
+    "package_path_candidates": [
+      {
+        "evidence": {
+          "line_end": 531,
+          "line_start": 531,
+          "text": "For advanced animation and dark mode patterns, see [references/advanced-patterns.md](references/advanced-patterns.md):"
+        },
+        "path": "references/advanced-patterns.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 531,
+          "line_start": 531,
+          "text": "For advanced animation and dark mode patterns, see [references/advanced-patterns.md](references/advanced-patterns.md):"
+        },
+        "path": "references/advanced-patterns.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 557,
+          "line_start": 557,
+          "text": "For advanced v4 CSS patterns, the full v3-to-v4 migration checklist, and complete best practices, see [references/advanced-patterns.md](references/advanced-patterns.md):"
+        },
+        "path": "references/advanced-patterns.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 557,
+          "line_start": 557,
+          "text": "For advanced v4 CSS patterns, the full v3-to-v4 migration checklist, and complete best practices, see [references/advanced-patterns.md](references/advanced-patterns.md):"
+        },
+        "path": "references/advanced-patterns.md",
+        "status": "candidate_package_path"
+      }
+    ],
+    "recovery": [],
+    "references": [
+      {
+        "evidence": {
+          "line_end": 10,
+          "line_start": 10,
+          "text": "> **Note**: This skill targets Tailwind CSS v4 (2024+). For v3 projects, refer to the [upgrade guide](https://tailwindcss.com/docs/upgrade-guide)."
+        },
+        "reference": "https://tailwindcss.com/docs/upgrade-guide"
+      },
+      {
+        "evidence": {
+          "line_end": 531,
+          "line_start": 531,
+          "text": "For advanced animation and dark mode patterns, see [references/advanced-patterns.md](references/advanced-patterns.md):"
+        },
+        "reference": "references/advanced-patterns.md"
+      },
+      {
+        "evidence": {
+          "line_end": 557,
+          "line_start": 557,
+          "text": "For advanced v4 CSS patterns, the full v3-to-v4 migration checklist, and complete best practices, see [references/advanced-patterns.md](references/advanced-patterns.md):"
+        },
+        "reference": "references/advanced-patterns.md"
+      }
+    ],
+    "routes": [
+      {
+        "evidence": {
+          "line_end": 12,
+          "line_start": 12,
+          "text": "## When to Use This Skill"
+        },
+        "text": "## When to Use This Skill"
+      }
+    ],
+    "template_commands": [],
+    "template_status": "source_not_executed; fenced commands remain example-only only when surrounding prose says so, otherwise context-unknown; live XML template commands are not executable evidence",
+    "triggers": [
+      {
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: Build scalable design systems with Tailwind CSS v4, design tokens, component libraries, and responsive patterns. Use when creating component libraries, implementing design systems, or standardizing UI patterns."
+        },
+        "text": "description: Build scalable design systems with Tailwind CSS v4, design tokens, component libraries, and responsive patterns. Use when creating component libraries, implementing design systems, or standardizing UI patterns."
+      },
+      {
+        "evidence": {
+          "line_end": 12,
+          "line_start": 12,
+          "text": "## When to Use This Skill"
+        },
+        "text": "## When to Use This Skill"
+      }
+    ],
+    "workflows": [
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 14,
+            "text": "Creating a component library with Tailwind v4"
+          },
+          {
+            "line": 15,
+            "text": "Implementing design tokens and theming with CSS-first configuration"
+          },
+          {
+            "line": 16,
+            "text": "Building responsive and accessible components"
+          },
+          {
+            "line": 17,
+            "text": "Standardizing UI patterns across a codebase"
+          },
+          {
+            "line": 18,
+            "text": "Migrating from Tailwind v3 to v4"
+          },
+          {
+            "line": 19,
+            "text": "Setting up dark mode with native CSS features"
+          }
+        ],
+        "section": "When to Use This Skill",
+        "start_line": 12
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 533,
+            "text": "**Pattern 5: Native CSS Animations**: dialog `@keyframes`, native popover API with `@starting-style`, `allow-discrete` transitions, and a full `DialogContent`/`DialogOverlay` implementation using Radix UI"
+          },
+          {
+            "line": 534,
+            "text": "**Pattern 6: Dark Mode**: `ThemeProvider` context with `localStorage` persistence, `prefers-color-scheme` detection, meta `theme-color` update, and a `ThemeToggle` button component"
+          }
+        ],
+        "section": "Pattern 4: Responsive Grid System",
+        "start_line": 453
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 559,
+            "text": "**Custom `@utility`**: reusable CSS utilities for decorative lines and text gradients"
+          },
+          {
+            "line": 560,
+            "text": "**Theme modifiers**: `@theme inline` (reference other CSS vars), `@theme static` (always output), `@import \"tailwindcss\" theme(static)`"
+          },
+          {
+            "line": 561,
+            "text": "**Namespace overrides**: clearing default Tailwind color scales with `--color-*: initial`"
+          },
+          {
+            "line": 562,
+            "text": "**Semi-transparent variants**: `color-mix()` for alpha scale generation"
+          },
+          {
+            "line": 563,
+            "text": "**Container queries**: `--container-*` token definitions"
+          },
+          {
+            "line": 564,
+            "text": "**v3\u2192v4 migration checklist**: 10-item checklist covering config, directives, colors, dark mode, animations, React 19 ref changes"
+          },
+          {
+            "line": 565,
+            "text": "**Best practices**: full Do's and Don'ts list"
+          }
+        ],
+        "section": "Utility Functions",
+        "start_line": 536
+      }
+    ]
+  },
+  "package": {
+    "reference_resolution": [
+      {
+        "commit": "unknown",
+        "path": "agents-HEAD/plugins/frontend-mobile-development/skills/tailwind-design-system/references/advanced-patterns.md",
+        "reference": "references/advanced-patterns.md",
+        "repo": "wshobson/agents",
+        "sha256": "40a4a9fa931f4bc95213870ea1fe7c32ce50aacf3531af07954b660c4f51e1a2",
+        "snapshot_path": "sources/upstream/wshobson-agents-unknown/content-by-sha256/40a4a9fa931f4bc95213870ea1fe7c32ce50aacf3531af07954b660c4f51e1a2.md",
+        "source_line": 531,
+        "source_text": "For advanced animation and dark mode patterns, see [references/advanced-patterns.md](references/advanced-patterns.md):",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "agents-HEAD/plugins/frontend-mobile-development/skills/tailwind-design-system/references/advanced-patterns.md",
+        "reference": "references/advanced-patterns.md",
+        "repo": "wshobson/agents",
+        "sha256": "40a4a9fa931f4bc95213870ea1fe7c32ce50aacf3531af07954b660c4f51e1a2",
+        "snapshot_path": "sources/upstream/wshobson-agents-unknown/content-by-sha256/40a4a9fa931f4bc95213870ea1fe7c32ce50aacf3531af07954b660c4f51e1a2.md",
+        "source_line": 531,
+        "source_text": "For advanced animation and dark mode patterns, see [references/advanced-patterns.md](references/advanced-patterns.md):",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "agents-HEAD/plugins/frontend-mobile-development/skills/tailwind-design-system/references/advanced-patterns.md",
+        "reference": "references/advanced-patterns.md",
+        "repo": "wshobson/agents",
+        "sha256": "40a4a9fa931f4bc95213870ea1fe7c32ce50aacf3531af07954b660c4f51e1a2",
+        "snapshot_path": "sources/upstream/wshobson-agents-unknown/content-by-sha256/40a4a9fa931f4bc95213870ea1fe7c32ce50aacf3531af07954b660c4f51e1a2.md",
+        "source_line": 557,
+        "source_text": "For advanced v4 CSS patterns, the full v3-to-v4 migration checklist, and complete best practices, see [references/advanced-patterns.md](references/advanced-patterns.md):",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "agents-HEAD/plugins/frontend-mobile-development/skills/tailwind-design-system/references/advanced-patterns.md",
+        "reference": "references/advanced-patterns.md",
+        "repo": "wshobson/agents",
+        "sha256": "40a4a9fa931f4bc95213870ea1fe7c32ce50aacf3531af07954b660c4f51e1a2",
+        "snapshot_path": "sources/upstream/wshobson-agents-unknown/content-by-sha256/40a4a9fa931f4bc95213870ea1fe7c32ce50aacf3531af07954b660c4f51e1a2.md",
+        "source_line": 557,
+        "source_text": "For advanced v4 CSS patterns, the full v3-to-v4 migration checklist, and complete best practices, see [references/advanced-patterns.md](references/advanced-patterns.md):",
+        "status": "resolved"
+      }
+    ],
+    "resolved_files": [
+      {
+        "bytes": 5290,
+        "content_snapshot": "sources/upstream/wshobson-agents-unknown/content-by-sha256/b6577edb7b7f71a6954f68b80c7eea1748ccdf31862759f864bce558fb2bcf83.md",
+        "kind": "skill",
+        "path": "agents-HEAD/plugins/frontend-mobile-development/skills/tailwind-design-system/SKILL.md",
+        "sha256": "b6577edb7b7f71a6954f68b80c7eea1748ccdf31862759f864bce558fb2bcf83",
+        "text": true
+      },
+      {
+        "bytes": 8108,
+        "content_snapshot": "sources/upstream/wshobson-agents-unknown/content-by-sha256/40a4a9fa931f4bc95213870ea1fe7c32ce50aacf3531af07954b660c4f51e1a2.md",
+        "kind": "reference",
+        "path": "agents-HEAD/plugins/frontend-mobile-development/skills/tailwind-design-system/references/advanced-patterns.md",
+        "sha256": "40a4a9fa931f4bc95213870ea1fe7c32ce50aacf3531af07954b660c4f51e1a2",
+        "text": true
+      },
+      {
+        "bytes": 10661,
+        "content_snapshot": "sources/upstream/wshobson-agents-unknown/content-by-sha256/06db0dc31dabeced9ea5ee27dfe2f98fd1783756a3930e6aeacf09ab4fc6562a.md",
+        "kind": "reference",
+        "path": "agents-HEAD/plugins/frontend-mobile-development/skills/tailwind-design-system/references/details.md",
+        "sha256": "06db0dc31dabeced9ea5ee27dfe2f98fd1783756a3930e6aeacf09ab4fc6562a",
+        "text": true
+      }
+    ],
+    "scripts": [],
+    "unresolved_references": []
+  },
+  "schema": "skill-ir/1.0",
+  "source": {
+    "bytes": 15703,
+    "catalog_metadata": {
+      "bundle_offset": 4394899,
+      "category": "design-systems",
+      "content_binding": "CZ",
+      "description": "Build scalable design systems with Tailwind CSS v4: CSS-first tokens, OKLCH theming, CVA components, dark mode, and v3-to-v4 migration patterns.",
+      "github_url": "https://github.com/wshobson/agents/blob/main/plugins/frontend-mobile-development/skills/tailwind-design-system/SKILL.md",
+      "slug": "tailwind-design-system",
+      "source": "community",
+      "source_label": "wshobson",
+      "stars_reported": 35712,
+      "template_expressions": [],
+      "title": "Tailwind Design System"
+    },
+    "line_table": [
+      {
+        "line": 1,
+        "text": "---"
+      },
+      {
+        "line": 2,
+        "text": "name: tailwind-design-system"
+      },
+      {
+        "line": 3,
+        "text": "description: Build scalable design systems with Tailwind CSS v4, design tokens, component libraries, and responsive patterns. Use when creating component libraries, implementing design systems, or standardizing UI patterns."
+      },
+      {
+        "line": 4,
+        "text": "---"
+      },
+      {
+        "line": 5,
+        "text": ""
+      },
+      {
+        "line": 6,
+        "text": "# Tailwind Design System (v4)"
+      },
+      {
+        "line": 7,
+        "text": ""
+      },
+      {
+        "line": 8,
+        "text": "Build production-ready design systems with Tailwind CSS v4, including CSS-first configuration, design tokens, component variants, responsive patterns, and accessibility."
+      },
+      {
+        "line": 9,
+        "text": ""
+      },
+      {
+        "line": 10,
+        "text": "> **Note**: This skill targets Tailwind CSS v4 (2024+). For v3 projects, refer to the [upgrade guide](https://tailwindcss.com/docs/upgrade-guide)."
+      },
+      {
+        "line": 11,
+        "text": ""
+      },
+      {
+        "line": 12,
+        "text": "## When to Use This Skill"
+      },
+      {
+        "line": 13,
+        "text": ""
+      },
+      {
+        "line": 14,
+        "text": "- Creating a component library with Tailwind v4"
+      },
+      {
+        "line": 15,
+        "text": "- Implementing design tokens and theming with CSS-first configuration"
+      },
+      {
+        "line": 16,
+        "text": "- Building responsive and accessible components"
+      },
+      {
+        "line": 17,
+        "text": "- Standardizing UI patterns across a codebase"
+      },
+      {
+        "line": 18,
+        "text": "- Migrating from Tailwind v3 to v4"
+      },
+      {
+        "line": 19,
+        "text": "- Setting up dark mode with native CSS features"
+      },
+      {
+        "line": 20,
+        "text": ""
+      },
+      {
+        "line": 21,
+        "text": "## Key v4 Changes"
+      },
+      {
+        "line": 22,
+        "text": ""
+      },
+      {
+        "line": 23,
+        "text": "| v3 Pattern                            | v4 Pattern                                                            |"
+      },
+      {
+        "line": 24,
+        "text": "| ------------------------------------- | --------------------------------------------------------------------- |"
+      },
+      {
+        "line": 25,
+        "text": "| `tailwind.config.ts`                  | `@theme` in CSS                                                       |"
+      },
+      {
+        "line": 26,
+        "text": "| `@tailwind base/components/utilities` | `@import \"tailwindcss\"`                                               |"
+      },
+      {
+        "line": 27,
+        "text": "| `darkMode: \"class\"`                   | `@custom-variant dark (&:where(.dark, .dark *))`                      |"
+      },
+      {
+        "line": 28,
+        "text": "| `theme.extend.colors`                 | `@theme { --color-*: value }`                                         |"
+      },
+      {
+        "line": 29,
+        "text": "| `require(\"tailwindcss-animate\")`      | CSS `@keyframes` in `@theme` + `@starting-style` for entry animations |"
+      },
+      {
+        "line": 30,
+        "text": ""
+      },
+      {
+        "line": 31,
+        "text": "## Quick Start"
+      },
+      {
+        "line": 32,
+        "text": ""
+      },
+      {
+        "line": 33,
+        "text": "```css"
+      },
+      {
+        "line": 34,
+        "text": "/* app.css - Tailwind v4 CSS-first configuration */"
+      },
+      {
+        "line": 35,
+        "text": "@import \"tailwindcss\";"
+      },
+      {
+        "line": 36,
+        "text": ""
+      },
+      {
+        "line": 37,
+        "text": "/* Define your theme with @theme */"
+      },
+      {
+        "line": 38,
+        "text": "@theme {"
+      },
+      {
+        "line": 39,
+        "text": "  /* Semantic color tokens using OKLCH for better color perception */"
+      },
+      {
+        "line": 40,
+        "text": "  --color-background: oklch(100% 0 0);"
+      },
+      {
+        "line": 41,
+        "text": "  --color-foreground: oklch(14.5% 0.025 264);"
+      },
+      {
+        "line": 42,
+        "text": ""
+      },
+      {
+        "line": 43,
+        "text": "  --color-primary: oklch(14.5% 0.025 264);"
+      },
+      {
+        "line": 44,
+        "text": "  --color-primary-foreground: oklch(98% 0.01 264);"
+      },
+      {
+        "line": 45,
+        "text": ""
+      },
+      {
+        "line": 46,
+        "text": "  --color-secondary: oklch(96% 0.01 264);"
+      },
+      {
+        "line": 47,
+        "text": "  --color-secondary-foreground: oklch(14.5% 0.025 264);"
+      },
+      {
+        "line": 48,
+        "text": ""
+      },
+      {
+        "line": 49,
+        "text": "  --color-muted: oklch(96% 0.01 264);"
+      },
+      {
+        "line": 50,
+        "text": "  --color-muted-foreground: oklch(46% 0.02 264);"
+      },
+      {
+        "line": 51,
+        "text": ""
+      },
+      {
+        "line": 52,
+        "text": "  --color-accent: oklch(96% 0.01 264);"
+      },
+      {
+        "line": 53,
+        "text": "  --color-accent-foreground: oklch(14.5% 0.025 264);"
+      },
+      {
+        "line": 54,
+        "text": ""
+      },
+      {
+        "line": 55,
+        "text": "  --color-destructive: oklch(53% 0.22 27);"
+      },
+      {
+        "line": 56,
+        "text": "  --color-destructive-foreground: oklch(98% 0.01 264);"
+      },
+      {
+        "line": 57,
+        "text": ""
+      },
+      {
+        "line": 58,
+        "text": "  --color-border: oklch(91% 0.01 264);"
+      },
+      {
+        "line": 59,
+        "text": "  --color-ring: oklch(14.5% 0.025 264);"
+      },
+      {
+        "line": 60,
+        "text": ""
+      },
+      {
+        "line": 61,
+        "text": "  --color-card: oklch(100% 0 0);"
+      },
+      {
+        "line": 62,
+        "text": "  --color-card-foreground: oklch(14.5% 0.025 264);"
+      },
+      {
+        "line": 63,
+        "text": ""
+      },
+      {
+        "line": 64,
+        "text": "  /* Ring offset for focus states */"
+      },
+      {
+        "line": 65,
+        "text": "  --color-ring-offset: oklch(100% 0 0);"
+      },
+      {
+        "line": 66,
+        "text": ""
+      },
+      {
+        "line": 67,
+        "text": "  /* Radius tokens */"
+      },
+      {
+        "line": 68,
+        "text": "  --radius-sm: 0.25rem;"
+      },
+      {
+        "line": 69,
+        "text": "  --radius-md: 0.375rem;"
+      },
+      {
+        "line": 70,
+        "text": "  --radius-lg: 0.5rem;"
+      },
+      {
+        "line": 71,
+        "text": "  --radius-xl: 0.75rem;"
+      },
+      {
+        "line": 72,
+        "text": ""
+      },
+      {
+        "line": 73,
+        "text": "  /* Animation tokens - keyframes inside @theme are output when referenced by --animate-* variables */"
+      },
+      {
+        "line": 74,
+        "text": "  --animate-fade-in: fade-in 0.2s ease-out;"
+      },
+      {
+        "line": 75,
+        "text": "  --animate-fade-out: fade-out 0.2s ease-in;"
+      },
+      {
+        "line": 76,
+        "text": "  --animate-slide-in: slide-in 0.3s ease-out;"
+      },
+      {
+        "line": 77,
+        "text": "  --animate-slide-out: slide-out 0.3s ease-in;"
+      },
+      {
+        "line": 78,
+        "text": ""
+      },
+      {
+        "line": 79,
+        "text": "  @keyframes fade-in {"
+      },
+      {
+        "line": 80,
+        "text": "    from {"
+      },
+      {
+        "line": 81,
+        "text": "      opacity: 0;"
+      },
+      {
+        "line": 82,
+        "text": "    }"
+      },
+      {
+        "line": 83,
+        "text": "    to {"
+      },
+      {
+        "line": 84,
+        "text": "      opacity: 1;"
+      },
+      {
+        "line": 85,
+        "text": "    }"
+      },
+      {
+        "line": 86,
+        "text": "  }"
+      },
+      {
+        "line": 87,
+        "text": ""
+      },
+      {
+        "line": 88,
+        "text": "  @keyframes fade-out {"
+      },
+      {
+        "line": 89,
+        "text": "    from {"
+      },
+      {
+        "line": 90,
+        "text": "      opacity: 1;"
+      },
+      {
+        "line": 91,
+        "text": "    }"
+      },
+      {
+        "line": 92,
+        "text": "    to {"
+      },
+      {
+        "line": 93,
+        "text": "      opacity: 0;"
+      },
+      {
+        "line": 94,
+        "text": "    }"
+      },
+      {
+        "line": 95,
+        "text": "  }"
+      },
+      {
+        "line": 96,
+        "text": ""
+      },
+      {
+        "line": 97,
+        "text": "  @keyframes slide-in {"
+      },
+      {
+        "line": 98,
+        "text": "    from {"
+      },
+      {
+        "line": 99,
+        "text": "      transform: translateY(-0.5rem);"
+      },
+      {
+        "line": 100,
+        "text": "      opacity: 0;"
+      },
+      {
+        "line": 101,
+        "text": "    }"
+      },
+      {
+        "line": 102,
+        "text": "    to {"
+      },
+      {
+        "line": 103,
+        "text": "      transform: translateY(0);"
+      },
+      {
+        "line": 104,
+        "text": "      opacity: 1;"
+      },
+      {
+        "line": 105,
+        "text": "    }"
+      },
+      {
+        "line": 106,
+        "text": "  }"
+      },
+      {
+        "line": 107,
+        "text": ""
+      },
+      {
+        "line": 108,
+        "text": "  @keyframes slide-out {"
+      },
+      {
+        "line": 109,
+        "text": "    from {"
+      },
+      {
+        "line": 110,
+        "text": "      transform: translateY(0);"
+      },
+      {
+        "line": 111,
+        "text": "      opacity: 1;"
+      },
+      {
+        "line": 112,
+        "text": "    }"
+      },
+      {
+        "line": 113,
+        "text": "    to {"
+      },
+      {
+        "line": 114,
+        "text": "      transform: translateY(-0.5rem);"
+      },
+      {
+        "line": 115,
+        "text": "      opacity: 0;"
+      },
+      {
+        "line": 116,
+        "text": "    }"
+      },
+      {
+        "line": 117,
+        "text": "  }"
+      },
+      {
+        "line": 118,
+        "text": "}"
+      },
+      {
+        "line": 119,
+        "text": ""
+      },
+      {
+        "line": 120,
+        "text": "/* Dark mode variant - use @custom-variant for class-based dark mode */"
+      },
+      {
+        "line": 121,
+        "text": "@custom-variant dark (&:where(.dark, .dark *));"
+      },
+      {
+        "line": 122,
+        "text": ""
+      },
+      {
+        "line": 123,
+        "text": "/* Dark mode theme overrides */"
+      },
+      {
+        "line": 124,
+        "text": ".dark {"
+      },
+      {
+        "line": 125,
+        "text": "  --color-background: oklch(14.5% 0.025 264);"
+      },
+      {
+        "line": 126,
+        "text": "  --color-foreground: oklch(98% 0.01 264);"
+      },
+      {
+        "line": 127,
+        "text": ""
+      },
+      {
+        "line": 128,
+        "text": "  --color-primary: oklch(98% 0.01 264);"
+      },
+      {
+        "line": 129,
+        "text": "  --color-primary-foreground: oklch(14.5% 0.025 264);"
+      },
+      {
+        "line": 130,
+        "text": ""
+      },
+      {
+        "line": 131,
+        "text": "  --color-secondary: oklch(22% 0.02 264);"
+      },
+      {
+        "line": 132,
+        "text": "  --color-secondary-foreground: oklch(98% 0.01 264);"
+      },
+      {
+        "line": 133,
+        "text": ""
+      },
+      {
+        "line": 134,
+        "text": "  --color-muted: oklch(22% 0.02 264);"
+      },
+      {
+        "line": 135,
+        "text": "  --color-muted-foreground: oklch(65% 0.02 264);"
+      },
+      {
+        "line": 136,
+        "text": ""
+      },
+      {
+        "line": 137,
+        "text": "  --color-accent: oklch(22% 0.02 264);"
+      },
+      {
+        "line": 138,
+        "text": "  --color-accent-foreground: oklch(98% 0.01 264);"
+      },
+      {
+        "line": 139,
+        "text": ""
+      },
+      {
+        "line": 140,
+        "text": "  --color-destructive: oklch(42% 0.15 27);"
+      },
+      {
+        "line": 141,
+        "text": "  --color-destructive-foreground: oklch(98% 0.01 264);"
+      },
+      {
+        "line": 142,
+        "text": ""
+      },
+      {
+        "line": 143,
+        "text": "  --color-border: oklch(22% 0.02 264);"
+      },
+      {
+        "line": 144,
+        "text": "  --color-ring: oklch(83% 0.02 264);"
+      },
+      {
+        "line": 145,
+        "text": ""
+      },
+      {
+        "line": 146,
+        "text": "  --color-card: oklch(14.5% 0.025 264);"
+      },
+      {
+        "line": 147,
+        "text": "  --color-card-foreground: oklch(98% 0.01 264);"
+      },
+      {
+        "line": 148,
+        "text": ""
+      },
+      {
+        "line": 149,
+        "text": "  --color-ring-offset: oklch(14.5% 0.025 264);"
+      },
+      {
+        "line": 150,
+        "text": "}"
+      },
+      {
+        "line": 151,
+        "text": ""
+      },
+      {
+        "line": 152,
+        "text": "/* Base styles */"
+      },
+      {
+        "line": 153,
+        "text": "@layer base {"
+      },
+      {
+        "line": 154,
+        "text": "  * {"
+      },
+      {
+        "line": 155,
+        "text": "    @apply border-border;"
+      },
+      {
+        "line": 156,
+        "text": "  }"
+      },
+      {
+        "line": 157,
+        "text": ""
+      },
+      {
+        "line": 158,
+        "text": "  body {"
+      },
+      {
+        "line": 159,
+        "text": "    @apply bg-background text-foreground antialiased;"
+      },
+      {
+        "line": 160,
+        "text": "  }"
+      },
+      {
+        "line": 161,
+        "text": "}"
+      },
+      {
+        "line": 162,
+        "text": "```"
+      },
+      {
+        "line": 163,
+        "text": ""
+      },
+      {
+        "line": 164,
+        "text": "## Core Concepts"
+      },
+      {
+        "line": 165,
+        "text": ""
+      },
+      {
+        "line": 166,
+        "text": "### 1. Design Token Hierarchy"
+      },
+      {
+        "line": 167,
+        "text": ""
+      },
+      {
+        "line": 168,
+        "text": "```"
+      },
+      {
+        "line": 169,
+        "text": "Brand Tokens (abstract)"
+      },
+      {
+        "line": 170,
+        "text": "    \u2514\u2500\u2500 Semantic Tokens (purpose)"
+      },
+      {
+        "line": 171,
+        "text": "        \u2514\u2500\u2500 Component Tokens (specific)"
+      },
+      {
+        "line": 172,
+        "text": ""
+      },
+      {
+        "line": 173,
+        "text": "Example:"
+      },
+      {
+        "line": 174,
+        "text": "    oklch(45% 0.2 260) \u2192 --color-primary \u2192 bg-primary"
+      },
+      {
+        "line": 175,
+        "text": "```"
+      },
+      {
+        "line": 176,
+        "text": ""
+      },
+      {
+        "line": 177,
+        "text": "### 2. Component Architecture"
+      },
+      {
+        "line": 178,
+        "text": ""
+      },
+      {
+        "line": 179,
+        "text": "```"
+      },
+      {
+        "line": 180,
+        "text": "Base styles \u2192 Variants \u2192 Sizes \u2192 States \u2192 Overrides"
+      },
+      {
+        "line": 181,
+        "text": "```"
+      },
+      {
+        "line": 182,
+        "text": ""
+      },
+      {
+        "line": 183,
+        "text": "## Patterns"
+      },
+      {
+        "line": 184,
+        "text": ""
+      },
+      {
+        "line": 185,
+        "text": "### Pattern 1: CVA (Class Variance Authority) Components"
+      },
+      {
+        "line": 186,
+        "text": ""
+      },
+      {
+        "line": 187,
+        "text": "```typescript"
+      },
+      {
+        "line": 188,
+        "text": "// components/ui/button.tsx"
+      },
+      {
+        "line": 189,
+        "text": "import { Slot } from '@radix-ui/react-slot'"
+      },
+      {
+        "line": 190,
+        "text": "import { cva, type VariantProps } from 'class-variance-authority'"
+      },
+      {
+        "line": 191,
+        "text": "import { cn } from '@/lib/utils'"
+      },
+      {
+        "line": 192,
+        "text": ""
+      },
+      {
+        "line": 193,
+        "text": "const buttonVariants = cva("
+      },
+      {
+        "line": 194,
+        "text": "  // Base styles - v4 uses native CSS variables"
+      },
+      {
+        "line": 195,
+        "text": "  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',"
+      },
+      {
+        "line": 196,
+        "text": "  {"
+      },
+      {
+        "line": 197,
+        "text": "    variants: {"
+      },
+      {
+        "line": 198,
+        "text": "      variant: {"
+      },
+      {
+        "line": 199,
+        "text": "        default: 'bg-primary text-primary-foreground hover:bg-primary/90',"
+      },
+      {
+        "line": 200,
+        "text": "        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',"
+      },
+      {
+        "line": 201,
+        "text": "        outline: 'border border-border bg-background hover:bg-accent hover:text-accent-foreground',"
+      },
+      {
+        "line": 202,
+        "text": "        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',"
+      },
+      {
+        "line": 203,
+        "text": "        ghost: 'hover:bg-accent hover:text-accent-foreground',"
+      },
+      {
+        "line": 204,
+        "text": "        link: 'text-primary underline-offset-4 hover:underline',"
+      },
+      {
+        "line": 205,
+        "text": "      },"
+      },
+      {
+        "line": 206,
+        "text": "      size: {"
+      },
+      {
+        "line": 207,
+        "text": "        default: 'h-10 px-4 py-2',"
+      },
+      {
+        "line": 208,
+        "text": "        sm: 'h-9 rounded-md px-3',"
+      },
+      {
+        "line": 209,
+        "text": "        lg: 'h-11 rounded-md px-8',"
+      },
+      {
+        "line": 210,
+        "text": "        icon: 'size-10',"
+      },
+      {
+        "line": 211,
+        "text": "      },"
+      },
+      {
+        "line": 212,
+        "text": "    },"
+      },
+      {
+        "line": 213,
+        "text": "    defaultVariants: {"
+      },
+      {
+        "line": 214,
+        "text": "      variant: 'default',"
+      },
+      {
+        "line": 215,
+        "text": "      size: 'default',"
+      },
+      {
+        "line": 216,
+        "text": "    },"
+      },
+      {
+        "line": 217,
+        "text": "  }"
+      },
+      {
+        "line": 218,
+        "text": ")"
+      },
+      {
+        "line": 219,
+        "text": ""
+      },
+      {
+        "line": 220,
+        "text": "export interface ButtonProps"
+      },
+      {
+        "line": 221,
+        "text": "  extends React.ButtonHTMLAttributes<HTMLButtonElement>,"
+      },
+      {
+        "line": 222,
+        "text": "    VariantProps<typeof buttonVariants> {"
+      },
+      {
+        "line": 223,
+        "text": "  asChild?: boolean"
+      },
+      {
+        "line": 224,
+        "text": "}"
+      },
+      {
+        "line": 225,
+        "text": ""
+      },
+      {
+        "line": 226,
+        "text": "// React 19: No forwardRef needed"
+      },
+      {
+        "line": 227,
+        "text": "export function Button({"
+      },
+      {
+        "line": 228,
+        "text": "  className,"
+      },
+      {
+        "line": 229,
+        "text": "  variant,"
+      },
+      {
+        "line": 230,
+        "text": "  size,"
+      },
+      {
+        "line": 231,
+        "text": "  asChild = false,"
+      },
+      {
+        "line": 232,
+        "text": "  ref,"
+      },
+      {
+        "line": 233,
+        "text": "  ...props"
+      },
+      {
+        "line": 234,
+        "text": "}: ButtonProps & { ref?: React.Ref<HTMLButtonElement> }) {"
+      },
+      {
+        "line": 235,
+        "text": "  const Comp = asChild ? Slot : 'button'"
+      },
+      {
+        "line": 236,
+        "text": "  return ("
+      },
+      {
+        "line": 237,
+        "text": "    <Comp"
+      },
+      {
+        "line": 238,
+        "text": "      className={cn(buttonVariants({ variant, size, className }))}"
+      },
+      {
+        "line": 239,
+        "text": "      ref={ref}"
+      },
+      {
+        "line": 240,
+        "text": "      {...props}"
+      },
+      {
+        "line": 241,
+        "text": "    />"
+      },
+      {
+        "line": 242,
+        "text": "  )"
+      },
+      {
+        "line": 243,
+        "text": "}"
+      },
+      {
+        "line": 244,
+        "text": ""
+      },
+      {
+        "line": 245,
+        "text": "// Usage"
+      },
+      {
+        "line": 246,
+        "text": "<Button variant=\"destructive\" size=\"lg\">Delete</Button>"
+      },
+      {
+        "line": 247,
+        "text": "<Button variant=\"outline\">Cancel</Button>"
+      },
+      {
+        "line": 248,
+        "text": "<Button asChild><Link href=\"/home\">Home</Link></Button>"
+      },
+      {
+        "line": 249,
+        "text": "```"
+      },
+      {
+        "line": 250,
+        "text": ""
+      },
+      {
+        "line": 251,
+        "text": "### Pattern 2: Compound Components (React 19)"
+      },
+      {
+        "line": 252,
+        "text": ""
+      },
+      {
+        "line": 253,
+        "text": "```typescript"
+      },
+      {
+        "line": 254,
+        "text": "// components/ui/card.tsx"
+      },
+      {
+        "line": 255,
+        "text": "import { cn } from '@/lib/utils'"
+      },
+      {
+        "line": 256,
+        "text": ""
+      },
+      {
+        "line": 257,
+        "text": "// React 19: ref is a regular prop, no forwardRef"
+      },
+      {
+        "line": 258,
+        "text": "export function Card({"
+      },
+      {
+        "line": 259,
+        "text": "  className,"
+      },
+      {
+        "line": 260,
+        "text": "  ref,"
+      },
+      {
+        "line": 261,
+        "text": "  ...props"
+      },
+      {
+        "line": 262,
+        "text": "}: React.HTMLAttributes<HTMLDivElement> & { ref?: React.Ref<HTMLDivElement> }) {"
+      },
+      {
+        "line": 263,
+        "text": "  return ("
+      },
+      {
+        "line": 264,
+        "text": "    <div"
+      },
+      {
+        "line": 265,
+        "text": "      ref={ref}"
+      },
+      {
+        "line": 266,
+        "text": "      className={cn("
+      },
+      {
+        "line": 267,
+        "text": "        'rounded-lg border border-border bg-card text-card-foreground shadow-sm',"
+      },
+      {
+        "line": 268,
+        "text": "        className"
+      },
+      {
+        "line": 269,
+        "text": "      )}"
+      },
+      {
+        "line": 270,
+        "text": "      {...props}"
+      },
+      {
+        "line": 271,
+        "text": "    />"
+      },
+      {
+        "line": 272,
+        "text": "  )"
+      },
+      {
+        "line": 273,
+        "text": "}"
+      },
+      {
+        "line": 274,
+        "text": ""
+      },
+      {
+        "line": 275,
+        "text": "export function CardHeader({"
+      },
+      {
+        "line": 276,
+        "text": "  className,"
+      },
+      {
+        "line": 277,
+        "text": "  ref,"
+      },
+      {
+        "line": 278,
+        "text": "  ...props"
+      },
+      {
+        "line": 279,
+        "text": "}: React.HTMLAttributes<HTMLDivElement> & { ref?: React.Ref<HTMLDivElement> }) {"
+      },
+      {
+        "line": 280,
+        "text": "  return ("
+      },
+      {
+        "line": 281,
+        "text": "    <div"
+      },
+      {
+        "line": 282,
+        "text": "      ref={ref}"
+      },
+      {
+        "line": 283,
+        "text": "      className={cn('flex flex-col space-y-1.5 p-6', className)}"
+      },
+      {
+        "line": 284,
+        "text": "      {...props}"
+      },
+      {
+        "line": 285,
+        "text": "    />"
+      },
+      {
+        "line": 286,
+        "text": "  )"
+      },
+      {
+        "line": 287,
+        "text": "}"
+      },
+      {
+        "line": 288,
+        "text": ""
+      },
+      {
+        "line": 289,
+        "text": "export function CardTitle({"
+      },
+      {
+        "line": 290,
+        "text": "  className,"
+      },
+      {
+        "line": 291,
+        "text": "  ref,"
+      },
+      {
+        "line": 292,
+        "text": "  ...props"
+      },
+      {
+        "line": 293,
+        "text": "}: React.HTMLAttributes<HTMLHeadingElement> & { ref?: React.Ref<HTMLHeadingElement> }) {"
+      },
+      {
+        "line": 294,
+        "text": "  return ("
+      },
+      {
+        "line": 295,
+        "text": "    <h3"
+      },
+      {
+        "line": 296,
+        "text": "      ref={ref}"
+      },
+      {
+        "line": 297,
+        "text": "      className={cn('text-2xl font-semibold leading-none tracking-tight', className)}"
+      },
+      {
+        "line": 298,
+        "text": "      {...props}"
+      },
+      {
+        "line": 299,
+        "text": "    />"
+      },
+      {
+        "line": 300,
+        "text": "  )"
+      },
+      {
+        "line": 301,
+        "text": "}"
+      },
+      {
+        "line": 302,
+        "text": ""
+      },
+      {
+        "line": 303,
+        "text": "export function CardDescription({"
+      },
+      {
+        "line": 304,
+        "text": "  className,"
+      },
+      {
+        "line": 305,
+        "text": "  ref,"
+      },
+      {
+        "line": 306,
+        "text": "  ...props"
+      },
+      {
+        "line": 307,
+        "text": "}: React.HTMLAttributes<HTMLParagraphElement> & { ref?: React.Ref<HTMLParagraphElement> }) {"
+      },
+      {
+        "line": 308,
+        "text": "  return ("
+      },
+      {
+        "line": 309,
+        "text": "    <p"
+      },
+      {
+        "line": 310,
+        "text": "      ref={ref}"
+      },
+      {
+        "line": 311,
+        "text": "      className={cn('text-sm text-muted-foreground', className)}"
+      },
+      {
+        "line": 312,
+        "text": "      {...props}"
+      },
+      {
+        "line": 313,
+        "text": "    />"
+      },
+      {
+        "line": 314,
+        "text": "  )"
+      },
+      {
+        "line": 315,
+        "text": "}"
+      },
+      {
+        "line": 316,
+        "text": ""
+      },
+      {
+        "line": 317,
+        "text": "export function CardContent({"
+      },
+      {
+        "line": 318,
+        "text": "  className,"
+      },
+      {
+        "line": 319,
+        "text": "  ref,"
+      },
+      {
+        "line": 320,
+        "text": "  ...props"
+      },
+      {
+        "line": 321,
+        "text": "}: React.HTMLAttributes<HTMLDivElement> & { ref?: React.Ref<HTMLDivElement> }) {"
+      },
+      {
+        "line": 322,
+        "text": "  return ("
+      },
+      {
+        "line": 323,
+        "text": "    <div ref={ref} className={cn('p-6 pt-0', className)} {...props} />"
+      },
+      {
+        "line": 324,
+        "text": "  )"
+      },
+      {
+        "line": 325,
+        "text": "}"
+      },
+      {
+        "line": 326,
+        "text": ""
+      },
+      {
+        "line": 327,
+        "text": "export function CardFooter({"
+      },
+      {
+        "line": 328,
+        "text": "  className,"
+      },
+      {
+        "line": 329,
+        "text": "  ref,"
+      },
+      {
+        "line": 330,
+        "text": "  ...props"
+      },
+      {
+        "line": 331,
+        "text": "}: React.HTMLAttributes<HTMLDivElement> & { ref?: React.Ref<HTMLDivElement> }) {"
+      },
+      {
+        "line": 332,
+        "text": "  return ("
+      },
+      {
+        "line": 333,
+        "text": "    <div"
+      },
+      {
+        "line": 334,
+        "text": "      ref={ref}"
+      },
+      {
+        "line": 335,
+        "text": "      className={cn('flex items-center p-6 pt-0', className)}"
+      },
+      {
+        "line": 336,
+        "text": "      {...props}"
+      },
+      {
+        "line": 337,
+        "text": "    />"
+      },
+      {
+        "line": 338,
+        "text": "  )"
+      },
+      {
+        "line": 339,
+        "text": "}"
+      },
+      {
+        "line": 340,
+        "text": ""
+      },
+      {
+        "line": 341,
+        "text": "// Usage"
+      },
+      {
+        "line": 342,
+        "text": "<Card>"
+      },
+      {
+        "line": 343,
+        "text": "  <CardHeader>"
+      },
+      {
+        "line": 344,
+        "text": "    <CardTitle>Account</CardTitle>"
+      },
+      {
+        "line": 345,
+        "text": "    <CardDescription>Manage your account settings</CardDescription>"
+      },
+      {
+        "line": 346,
+        "text": "  </CardHeader>"
+      },
+      {
+        "line": 347,
+        "text": "  <CardContent>"
+      },
+      {
+        "line": 348,
+        "text": "    <form>...</form>"
+      },
+      {
+        "line": 349,
+        "text": "  </CardContent>"
+      },
+      {
+        "line": 350,
+        "text": "  <CardFooter>"
+      },
+      {
+        "line": 351,
+        "text": "    <Button>Save</Button>"
+      },
+      {
+        "line": 352,
+        "text": "  </CardFooter>"
+      },
+      {
+        "line": 353,
+        "text": "</Card>"
+      },
+      {
+        "line": 354,
+        "text": "```"
+      },
+      {
+        "line": 355,
+        "text": ""
+      },
+      {
+        "line": 356,
+        "text": "### Pattern 3: Form Components"
+      },
+      {
+        "line": 357,
+        "text": ""
+      },
+      {
+        "line": 358,
+        "text": "```typescript"
+      },
+      {
+        "line": 359,
+        "text": "// components/ui/input.tsx"
+      },
+      {
+        "line": 360,
+        "text": "import { cn } from '@/lib/utils'"
+      },
+      {
+        "line": 361,
+        "text": ""
+      },
+      {
+        "line": 362,
+        "text": "export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {"
+      },
+      {
+        "line": 363,
+        "text": "  error?: string"
+      },
+      {
+        "line": 364,
+        "text": "  ref?: React.Ref<HTMLInputElement>"
+      },
+      {
+        "line": 365,
+        "text": "}"
+      },
+      {
+        "line": 366,
+        "text": ""
+      },
+      {
+        "line": 367,
+        "text": "export function Input({ className, type, error, ref, ...props }: InputProps) {"
+      },
+      {
+        "line": 368,
+        "text": "  return ("
+      },
+      {
+        "line": 369,
+        "text": "    <div className=\"relative\">"
+      },
+      {
+        "line": 370,
+        "text": "      <input"
+      },
+      {
+        "line": 371,
+        "text": "        type={type}"
+      },
+      {
+        "line": 372,
+        "text": "        className={cn("
+      },
+      {
+        "line": 373,
+        "text": "          'flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',"
+      },
+      {
+        "line": 374,
+        "text": "          error && 'border-destructive focus-visible:ring-destructive',"
+      },
+      {
+        "line": 375,
+        "text": "          className"
+      },
+      {
+        "line": 376,
+        "text": "        )}"
+      },
+      {
+        "line": 377,
+        "text": "        ref={ref}"
+      },
+      {
+        "line": 378,
+        "text": "        aria-invalid={!!error}"
+      },
+      {
+        "line": 379,
+        "text": "        aria-describedby={error ? `${props.id}-error` : undefined}"
+      },
+      {
+        "line": 380,
+        "text": "        {...props}"
+      },
+      {
+        "line": 381,
+        "text": "      />"
+      },
+      {
+        "line": 382,
+        "text": "      {error && ("
+      },
+      {
+        "line": 383,
+        "text": "        <p"
+      },
+      {
+        "line": 384,
+        "text": "          id={`${props.id}-error`}"
+      },
+      {
+        "line": 385,
+        "text": "          className=\"mt-1 text-sm text-destructive\""
+      },
+      {
+        "line": 386,
+        "text": "          role=\"alert\""
+      },
+      {
+        "line": 387,
+        "text": "        >"
+      },
+      {
+        "line": 388,
+        "text": "          {error}"
+      },
+      {
+        "line": 389,
+        "text": "        </p>"
+      },
+      {
+        "line": 390,
+        "text": "      )}"
+      },
+      {
+        "line": 391,
+        "text": "    </div>"
+      },
+      {
+        "line": 392,
+        "text": "  )"
+      },
+      {
+        "line": 393,
+        "text": "}"
+      },
+      {
+        "line": 394,
+        "text": ""
+      },
+      {
+        "line": 395,
+        "text": "// components/ui/label.tsx"
+      },
+      {
+        "line": 396,
+        "text": "import { cva, type VariantProps } from 'class-variance-authority'"
+      },
+      {
+        "line": 397,
+        "text": ""
+      },
+      {
+        "line": 398,
+        "text": "const labelVariants = cva("
+      },
+      {
+        "line": 399,
+        "text": "  'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'"
+      },
+      {
+        "line": 400,
+        "text": ")"
+      },
+      {
+        "line": 401,
+        "text": ""
+      },
+      {
+        "line": 402,
+        "text": "export function Label({"
+      },
+      {
+        "line": 403,
+        "text": "  className,"
+      },
+      {
+        "line": 404,
+        "text": "  ref,"
+      },
+      {
+        "line": 405,
+        "text": "  ...props"
+      },
+      {
+        "line": 406,
+        "text": "}: React.LabelHTMLAttributes<HTMLLabelElement> & { ref?: React.Ref<HTMLLabelElement> }) {"
+      },
+      {
+        "line": 407,
+        "text": "  return ("
+      },
+      {
+        "line": 408,
+        "text": "    <label ref={ref} className={cn(labelVariants(), className)} {...props} />"
+      },
+      {
+        "line": 409,
+        "text": "  )"
+      },
+      {
+        "line": 410,
+        "text": "}"
+      },
+      {
+        "line": 411,
+        "text": ""
+      },
+      {
+        "line": 412,
+        "text": "// Usage with React Hook Form + Zod"
+      },
+      {
+        "line": 413,
+        "text": "import { useForm } from 'react-hook-form'"
+      },
+      {
+        "line": 414,
+        "text": "import { zodResolver } from '@hookform/resolvers/zod'"
+      },
+      {
+        "line": 415,
+        "text": "import { z } from 'zod'"
+      },
+      {
+        "line": 416,
+        "text": ""
+      },
+      {
+        "line": 417,
+        "text": "const schema = z.object({"
+      },
+      {
+        "line": 418,
+        "text": "  email: z.string().email('Invalid email address'),"
+      },
+      {
+        "line": 419,
+        "text": "  password: z.string().min(8, 'Password must be at least 8 characters'),"
+      },
+      {
+        "line": 420,
+        "text": "})"
+      },
+      {
+        "line": 421,
+        "text": ""
+      },
+      {
+        "line": 422,
+        "text": "function LoginForm() {"
+      },
+      {
+        "line": 423,
+        "text": "  const { register, handleSubmit, formState: { errors } } = useForm({"
+      },
+      {
+        "line": 424,
+        "text": "    resolver: zodResolver(schema),"
+      },
+      {
+        "line": 425,
+        "text": "  })"
+      },
+      {
+        "line": 426,
+        "text": ""
+      },
+      {
+        "line": 427,
+        "text": "  return ("
+      },
+      {
+        "line": 428,
+        "text": "    <form onSubmit={handleSubmit(onSubmit)} className=\"space-y-4\">"
+      },
+      {
+        "line": 429,
+        "text": "      <div className=\"space-y-2\">"
+      },
+      {
+        "line": 430,
+        "text": "        <Label htmlFor=\"email\">Email</Label>"
+      },
+      {
+        "line": 431,
+        "text": "        <Input"
+      },
+      {
+        "line": 432,
+        "text": "          id=\"email\""
+      },
+      {
+        "line": 433,
+        "text": "          type=\"email\""
+      },
+      {
+        "line": 434,
+        "text": "          {...register('email')}"
+      },
+      {
+        "line": 435,
+        "text": "          error={errors.email?.message}"
+      },
+      {
+        "line": 436,
+        "text": "        />"
+      },
+      {
+        "line": 437,
+        "text": "      </div>"
+      },
+      {
+        "line": 438,
+        "text": "      <div className=\"space-y-2\">"
+      },
+      {
+        "line": 439,
+        "text": "        <Label htmlFor=\"password\">Password</Label>"
+      },
+      {
+        "line": 440,
+        "text": "        <Input"
+      },
+      {
+        "line": 441,
+        "text": "          id=\"password\""
+      },
+      {
+        "line": 442,
+        "text": "          type=\"password\""
+      },
+      {
+        "line": 443,
+        "text": "          {...register('password')}"
+      },
+      {
+        "line": 444,
+        "text": "          error={errors.password?.message}"
+      },
+      {
+        "line": 445,
+        "text": "        />"
+      },
+      {
+        "line": 446,
+        "text": "      </div>"
+      },
+      {
+        "line": 447,
+        "text": "      <Button type=\"submit\" className=\"w-full\">Sign In</Button>"
+      },
+      {
+        "line": 448,
+        "text": "    </form>"
+      },
+      {
+        "line": 449,
+        "text": "  )"
+      },
+      {
+        "line": 450,
+        "text": "}"
+      },
+      {
+        "line": 451,
+        "text": "```"
+      },
+      {
+        "line": 452,
+        "text": ""
+      },
+      {
+        "line": 453,
+        "text": "### Pattern 4: Responsive Grid System"
+      },
+      {
+        "line": 454,
+        "text": ""
+      },
+      {
+        "line": 455,
+        "text": "```typescript"
+      },
+      {
+        "line": 456,
+        "text": "// components/ui/grid.tsx"
+      },
+      {
+        "line": 457,
+        "text": "import { cn } from '@/lib/utils'"
+      },
+      {
+        "line": 458,
+        "text": "import { cva, type VariantProps } from 'class-variance-authority'"
+      },
+      {
+        "line": 459,
+        "text": ""
+      },
+      {
+        "line": 460,
+        "text": "const gridVariants = cva('grid', {"
+      },
+      {
+        "line": 461,
+        "text": "  variants: {"
+      },
+      {
+        "line": 462,
+        "text": "    cols: {"
+      },
+      {
+        "line": 463,
+        "text": "      1: 'grid-cols-1',"
+      },
+      {
+        "line": 464,
+        "text": "      2: 'grid-cols-1 sm:grid-cols-2',"
+      },
+      {
+        "line": 465,
+        "text": "      3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',"
+      },
+      {
+        "line": 466,
+        "text": "      4: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',"
+      },
+      {
+        "line": 467,
+        "text": "      5: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5',"
+      },
+      {
+        "line": 468,
+        "text": "      6: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6',"
+      },
+      {
+        "line": 469,
+        "text": "    },"
+      },
+      {
+        "line": 470,
+        "text": "    gap: {"
+      },
+      {
+        "line": 471,
+        "text": "      none: 'gap-0',"
+      },
+      {
+        "line": 472,
+        "text": "      sm: 'gap-2',"
+      },
+      {
+        "line": 473,
+        "text": "      md: 'gap-4',"
+      },
+      {
+        "line": 474,
+        "text": "      lg: 'gap-6',"
+      },
+      {
+        "line": 475,
+        "text": "      xl: 'gap-8',"
+      },
+      {
+        "line": 476,
+        "text": "    },"
+      },
+      {
+        "line": 477,
+        "text": "  },"
+      },
+      {
+        "line": 478,
+        "text": "  defaultVariants: {"
+      },
+      {
+        "line": 479,
+        "text": "    cols: 3,"
+      },
+      {
+        "line": 480,
+        "text": "    gap: 'md',"
+      },
+      {
+        "line": 481,
+        "text": "  },"
+      },
+      {
+        "line": 482,
+        "text": "})"
+      },
+      {
+        "line": 483,
+        "text": ""
+      },
+      {
+        "line": 484,
+        "text": "interface GridProps"
+      },
+      {
+        "line": 485,
+        "text": "  extends React.HTMLAttributes<HTMLDivElement>,"
+      },
+      {
+        "line": 486,
+        "text": "    VariantProps<typeof gridVariants> {}"
+      },
+      {
+        "line": 487,
+        "text": ""
+      },
+      {
+        "line": 488,
+        "text": "export function Grid({ className, cols, gap, ...props }: GridProps) {"
+      },
+      {
+        "line": 489,
+        "text": "  return ("
+      },
+      {
+        "line": 490,
+        "text": "    <div className={cn(gridVariants({ cols, gap, className }))} {...props} />"
+      },
+      {
+        "line": 491,
+        "text": "  )"
+      },
+      {
+        "line": 492,
+        "text": "}"
+      },
+      {
+        "line": 493,
+        "text": ""
+      },
+      {
+        "line": 494,
+        "text": "// Container component"
+      },
+      {
+        "line": 495,
+        "text": "const containerVariants = cva('mx-auto w-full px-4 sm:px-6 lg:px-8', {"
+      },
+      {
+        "line": 496,
+        "text": "  variants: {"
+      },
+      {
+        "line": 497,
+        "text": "    size: {"
+      },
+      {
+        "line": 498,
+        "text": "      sm: 'max-w-screen-sm',"
+      },
+      {
+        "line": 499,
+        "text": "      md: 'max-w-screen-md',"
+      },
+      {
+        "line": 500,
+        "text": "      lg: 'max-w-screen-lg',"
+      },
+      {
+        "line": 501,
+        "text": "      xl: 'max-w-screen-xl',"
+      },
+      {
+        "line": 502,
+        "text": "      '2xl': 'max-w-screen-2xl',"
+      },
+      {
+        "line": 503,
+        "text": "      full: 'max-w-full',"
+      },
+      {
+        "line": 504,
+        "text": "    },"
+      },
+      {
+        "line": 505,
+        "text": "  },"
+      },
+      {
+        "line": 506,
+        "text": "  defaultVariants: {"
+      },
+      {
+        "line": 507,
+        "text": "    size: 'xl',"
+      },
+      {
+        "line": 508,
+        "text": "  },"
+      },
+      {
+        "line": 509,
+        "text": "})"
+      },
+      {
+        "line": 510,
+        "text": ""
+      },
+      {
+        "line": 511,
+        "text": "interface ContainerProps"
+      },
+      {
+        "line": 512,
+        "text": "  extends React.HTMLAttributes<HTMLDivElement>,"
+      },
+      {
+        "line": 513,
+        "text": "    VariantProps<typeof containerVariants> {}"
+      },
+      {
+        "line": 514,
+        "text": ""
+      },
+      {
+        "line": 515,
+        "text": "export function Container({ className, size, ...props }: ContainerProps) {"
+      },
+      {
+        "line": 516,
+        "text": "  return ("
+      },
+      {
+        "line": 517,
+        "text": "    <div className={cn(containerVariants({ size, className }))} {...props} />"
+      },
+      {
+        "line": 518,
+        "text": "  )"
+      },
+      {
+        "line": 519,
+        "text": "}"
+      },
+      {
+        "line": 520,
+        "text": ""
+      },
+      {
+        "line": 521,
+        "text": "// Usage"
+      },
+      {
+        "line": 522,
+        "text": "<Container>"
+      },
+      {
+        "line": 523,
+        "text": "  <Grid cols={4} gap=\"lg\">"
+      },
+      {
+        "line": 524,
+        "text": "    {products.map((product) => ("
+      },
+      {
+        "line": 525,
+        "text": "      <ProductCard key={product.id} product={product} />"
+      },
+      {
+        "line": 526,
+        "text": "    ))}"
+      },
+      {
+        "line": 527,
+        "text": "  </Grid>"
+      },
+      {
+        "line": 528,
+        "text": "</Container>"
+      },
+      {
+        "line": 529,
+        "text": "```"
+      },
+      {
+        "line": 530,
+        "text": ""
+      },
+      {
+        "line": 531,
+        "text": "For advanced animation and dark mode patterns, see [references/advanced-patterns.md](references/advanced-patterns.md):"
+      },
+      {
+        "line": 532,
+        "text": ""
+      },
+      {
+        "line": 533,
+        "text": "- **Pattern 5: Native CSS Animations**: dialog `@keyframes`, native popover API with `@starting-style`, `allow-discrete` transitions, and a full `DialogContent`/`DialogOverlay` implementation using Radix UI"
+      },
+      {
+        "line": 534,
+        "text": "- **Pattern 6: Dark Mode**: `ThemeProvider` context with `localStorage` persistence, `prefers-color-scheme` detection, meta `theme-color` update, and a `ThemeToggle` button component"
+      },
+      {
+        "line": 535,
+        "text": ""
+      },
+      {
+        "line": 536,
+        "text": "## Utility Functions"
+      },
+      {
+        "line": 537,
+        "text": ""
+      },
+      {
+        "line": 538,
+        "text": "```typescript"
+      },
+      {
+        "line": 539,
+        "text": "// lib/utils.ts"
+      },
+      {
+        "line": 540,
+        "text": "import { type ClassValue, clsx } from \"clsx\";"
+      },
+      {
+        "line": 541,
+        "text": "import { twMerge } from \"tailwind-merge\";"
+      },
+      {
+        "line": 542,
+        "text": ""
+      },
+      {
+        "line": 543,
+        "text": "export function cn(...inputs: ClassValue[]) {"
+      },
+      {
+        "line": 544,
+        "text": "  return twMerge(clsx(inputs));"
+      },
+      {
+        "line": 545,
+        "text": "}"
+      },
+      {
+        "line": 546,
+        "text": ""
+      },
+      {
+        "line": 547,
+        "text": "// Focus ring utility"
+      },
+      {
+        "line": 548,
+        "text": "export const focusRing = cn("
+      },
+      {
+        "line": 549,
+        "text": "  \"focus-visible:outline-none focus-visible:ring-2\","
+      },
+      {
+        "line": 550,
+        "text": "  \"focus-visible:ring-ring focus-visible:ring-offset-2\","
+      },
+      {
+        "line": 551,
+        "text": ");"
+      },
+      {
+        "line": 552,
+        "text": ""
+      },
+      {
+        "line": 553,
+        "text": "// Disabled utility"
+      },
+      {
+        "line": 554,
+        "text": "export const disabled = \"disabled:pointer-events-none disabled:opacity-50\";"
+      },
+      {
+        "line": 555,
+        "text": "```"
+      },
+      {
+        "line": 556,
+        "text": ""
+      },
+      {
+        "line": 557,
+        "text": "For advanced v4 CSS patterns, the full v3-to-v4 migration checklist, and complete best practices, see [references/advanced-patterns.md](references/advanced-patterns.md):"
+      },
+      {
+        "line": 558,
+        "text": ""
+      },
+      {
+        "line": 559,
+        "text": "- **Custom `@utility`**: reusable CSS utilities for decorative lines and text gradients"
+      },
+      {
+        "line": 560,
+        "text": "- **Theme modifiers**: `@theme inline` (reference other CSS vars), `@theme static` (always output), `@import \"tailwindcss\" theme(static)`"
+      },
+      {
+        "line": 561,
+        "text": "- **Namespace overrides**: clearing default Tailwind color scales with `--color-*: initial`"
+      },
+      {
+        "line": 562,
+        "text": "- **Semi-transparent variants**: `color-mix()` for alpha scale generation"
+      },
+      {
+        "line": 563,
+        "text": "- **Container queries**: `--container-*` token definitions"
+      },
+      {
+        "line": 564,
+        "text": "- **v3\u2192v4 migration checklist**: 10-item checklist covering config, directives, colors, dark mode, animations, React 19 ref changes"
+      },
+      {
+        "line": 565,
+        "text": "- **Best practices**: full Do's and Don'ts list"
+      }
+    ],
+    "matched_upstream_skill_path": "agents-HEAD/plugins/frontend-mobile-development/skills/tailwind-design-system/SKILL.md",
+    "repo": "wshobson/agents",
+    "repo_reference": "https://github.com/wshobson/agents/blob/main/plugins/frontend-mobile-development/skills/tailwind-design-system/SKILL.md",
+    "repo_revision": "unknown",
+    "revision_status": "archive-digest-pinned upstream package matched by catalog_slug_package_map",
+    "sha256": "b590a40ffd2d279eb3f0e26082f700d06233e9213e8f8b5a5182bcf7d7f99b5e",
+    "snapshot_path": "sources/catalog-skills/tailwind-design-system/SKILL.md",
+    "source_id": "aiuxplayground:catalog-content:tailwind-design-system"
+  }
+}

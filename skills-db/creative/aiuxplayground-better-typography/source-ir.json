@@ -1,0 +1,1746 @@
+{
+  "frontmatter": {
+    "fields": {
+      "description": "Web typography from choosing fonts to spacing, wrapping and accessibility. Use when picking or pairing typefaces, configuring variable fonts or OpenType features, setting up a type scale, checking heading hierarchy, styling text in components, truncating text, styling underlines, selection, placeholders or carets, or reviewing frontend code for typography. Triggers on typography, fonts, font formats, woff2, variable fonts, font-weight, opentype, font-feature-settings, letter-spacing, line-height, type scale, heading hierarchy, heading levels, tabular numbers, text-wrap, truncation, line clamp, underlines, text-decoration, text selection, iOS input zoom, scaled input text, font smoothing, text contrast, measure, line length, text-box, smart punctuation, drop cap.",
+      "name": "better-typography"
+    },
+    "line_end": 3,
+    "line_start": 1,
+    "raw": "name: better-typography\ndescription: Web typography from choosing fonts to spacing, wrapping and accessibility. Use when picking or pairing typefaces, configuring variable fonts or OpenType features, setting up a type scale, checking heading hierarchy, styling text in components, truncating text, styling underlines, selection, placeholders or carets, or reviewing frontend code for typography. Triggers on typography, fonts, font formats, woff2, variable fonts, font-weight, opentype, font-feature-settings, letter-spacing, line-height, type scale, heading hierarchy, heading levels, tabular numbers, text-wrap, truncation, line clamp, underlines, text-decoration, text selection, iOS input zoom, scaled input text, font smoothing, text contrast, measure, line length, text-box, smart punctuation, drop cap.",
+    "status": "present"
+  },
+  "identity": {
+    "catalog_category": "visual-design",
+    "slug": "better-typography",
+    "title": "Better Typography"
+  },
+  "license": {
+    "status": "not stated in captured catalog source",
+    "value": null
+  },
+  "line_count": 171,
+  "ontology": {
+    "actions": [
+      {
+        "evidence": {
+          "line_end": 168,
+          "line_start": 168,
+          "text": "1. **Verification**: list the exact checks run and their observed results, including wrapping, hierarchy, text resizing, font loading, and dynamic-value stability when applicable. If a check was not run, state what still needs verification."
+        },
+        "text": "1. **Verification**: list the exact checks run and their observed results, including wrapping, hierarchy, text resizing, font loading, and dynamic-value stability when applicable. If a check was not run, state what still needs verification."
+      }
+    ],
+    "command_examples": [],
+    "constraints": [
+      {
+        "evidence": {
+          "line_end": 14,
+          "line_start": 14,
+          "text": "**Match the project's styling system.** Before suggesting or writing any fix, check how the codebase styles things and express every change in that system: Tailwind utilities in a Tailwind project, plain declarations in CSS, CSS Modules, styled-components or StyleX. The [cheat sheet](css-cheat-sheet.md) maps each declaration to its Tailwind equivalent. Never introduce a second styling approach just to apply a typography fix."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "**Match the project's styling system.** Before suggesting or writing any fix, check how the codebase styles things and express every change in that system: Tailwind utilities in a Tailwind project, plain declarations in CSS, CSS Modules, styled-components or StyleX. The [cheat sheet](css-cheat-sheet.md) maps each declaration to its Tailwind equivalent. Never introduce a second styling approach just to apply a typography fix."
+      },
+      {
+        "evidence": {
+          "line_end": 31,
+          "line_start": 31,
+          "text": "Use `.woff2` (Brotli compression, broadly supported) on the web. `.woff` is a fallback only for very old browsers; `.ttf` and `.otf` are raw desktop formats with no web compression. How the files are loaded is the project's own concern, this skill does not prescribe it."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Use `.woff2` (Brotli compression, broadly supported) on the web. `.woff` is a fallback only for very old browsers; `.ttf` and `.otf` are raw desktop formats with no web compression. How the files are loaded is the project's own concern, this skill does not prescribe it."
+      },
+      {
+        "evidence": {
+          "line_end": 39,
+          "line_start": 39,
+          "text": "Browsers may synthesize a requested weight or style that the active family does not provide. Prefer loading the faces the design actually uses. Set `font-synthesis: none` only after verifying that every required bold, italic, small-cap, superscript, and subscript form remains visually distinct across the complete fallback stack; disabling synthesis is not a diagnostic and must not erase emphasis."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Browsers may synthesize a requested weight or style that the active family does not provide. Prefer loading the faces the design actually uses. Set `font-synthesis: none` only after verifying that every required bold, italic, small-cap, superscript, and subscript form remains visually distinct across the complete fallback stack; disabling synthesis is not a diagnostic and must not erase emphasis."
+      },
+      {
+        "evidence": {
+          "line_end": 43,
+          "line_start": 43,
+          "text": "Rarely use more than three fonts. Weight and size define hierarchy, but overusing them hurts readability quickly. Pair for contrast, not similarity: a serif headline with a sans body reads as deliberate, two near-identical sans-serifs read as a mistake. Below `18px`, stay at weight `400`+; weights under `300` are display-only (`28px`+), they disappear at text sizes."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Rarely use more than three fonts. Weight and size define hierarchy, but overusing them hurts readability quickly. Pair for contrast, not similarity: a serif headline with a sans body reads as deliberate, two near-identical sans-serifs read as a mistake. Below `18px`, stay at weight `400`+; weights under `300` are display-only (`28px`+), they disappear at text sizes."
+      },
+      {
+        "evidence": {
+          "line_end": 51,
+          "line_start": 51,
+          "text": "Within a coherent page hierarchy, map heading levels to descending steps of the type scale: a visually subordinate heading should not accidentally overpower its parent. Adjacent levels may share a size toward the small end of the scale as long as weight or spacing keeps them distinct. Pick semantic heading elements according to `better-accessibility`; this skill controls only their visual treatment."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Within a coherent page hierarchy, map heading levels to descending steps of the type scale: a visually subordinate heading should not accidentally overpower its parent. Adjacent levels may share a size toward the small end of the scale as long as weight or spacing keeps them distinct. Pick semantic heading elements according to `better-accessibility`; this skill controls only their visual treatment."
+      },
+      {
+        "evidence": {
+          "line_end": 55,
+          "line_start": 55,
+          "text": "Headings tighter, around `1.1`. Body copy `1.5` to `1.6`. Prefer unitless values so line-height scales with the font size; fixed values like `24px` do not. Tight line-height is for short text: anything that wraps to three or more lines needs at least `1.4`, even in height-constrained rows."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Headings tighter, around `1.1`. Body copy `1.5` to `1.6`. Prefer unitless values so line-height scales with the font size; fixed values like `24px` do not. Tight line-height is for short text: anything that wraps to three or more lines needs at least `1.4`, even in height-constrained rows."
+      },
+      {
+        "evidence": {
+          "line_end": 59,
+          "line_start": 59,
+          "text": "Large headings often look better with slightly negative letter-spacing. Small uppercase labels need a little positive letter-spacing so letters do not feel crowded. Body copy at reading sizes needs neither."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Large headings often look better with slightly negative letter-spacing. Small uppercase labels need a little positive letter-spacing so letters do not feel crowded. Body copy at reading sizes needs neither."
+      },
+      {
+        "evidence": {
+          "line_end": 79,
+          "line_start": 79,
+          "text": "Store text in natural case and control presentation with `text-transform`, so redesigns never require rewriting copy. Use smart punctuation: curly quotes in prose (straight quotes in code), an en dash for ranges like `2010\u20132020`, an em dash to set off a thought, the single ellipsis character, `&nbsp;` to keep values like `16 px` together and `&shy;` to control where long words may break."
+        },
+        "kind": "prohibited_operation",
+        "modality": "prohibited",
+        "text": "Store text in natural case and control presentation with `text-transform`, so redesigns never require rewriting copy. Use smart punctuation: curly quotes in prose (straight quotes in code), an en dash for ranges like `2010\u20132020`, an em dash to set off a thought, the single ellipsis character, `&nbsp;` to keep values like `16 px` together and `&shy;` to control where long words may break.",
+        "verb": "copy"
+      },
+      {
+        "evidence": {
+          "line_end": 83,
+          "line_start": 83,
+          "text": "Default underlines sit wherever the browser decides. Pull position and thickness from the font's own metrics with `text-underline-position: from-font` and `text-decoration-thickness: from-font`, or tune manually with `text-decoration-thickness`, `text-underline-offset` and `text-decoration-skip-ink`. `text-decoration-style` draws the line dotted, dashed or wavy; a dotted underline is a common hint that a word carries extra information, like an abbreviation or a defined term. Unless the only thing animating is a color change, build the underline as a separate element instead of using `text-decoration`: color is the only part of a real underline that animates reliably."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Default underlines sit wherever the browser decides. Pull position and thickness from the font's own metrics with `text-underline-position: from-font` and `text-decoration-thickness: from-font`, or tune manually with `text-decoration-thickness`, `text-underline-offset` and `text-decoration-skip-ink`. `text-decoration-style` draws the line dotted, dashed or wavy; a dotted underline is a common hint that a word carries extra information, like an abbreviation or a defined term. Unless the only thing animating is a color change, build the underline as a separate element instead of using `text-decoration`: color is the only part of a real underline that animates reliably."
+      },
+      {
+        "evidence": {
+          "line_end": 91,
+          "line_start": 91,
+          "text": "Start long-form body text near the browser default of `16px`, then judge it in the actual typeface, measure, platform, and product density. UI text can go smaller: `14px` is a useful starting point for inputs and menus (inputs still need `16px` on mobile, see principle 15), `13px` for captions, rarely below `12px`. When text appears low-contrast, use `better-colors` to measure the rendered pair and `better-accessibility` to classify the requirement; do not change colors unless asked."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Start long-form body text near the browser default of `16px`, then judge it in the actual typeface, measure, platform, and product density. UI text can go smaller: `14px` is a useful starting point for inputs and menus (inputs still need `16px` on mobile, see principle 15), `13px` for captions, rarely below `12px`. When text appears low-contrast, use `better-colors` to measure the rendered pair and `better-accessibility` to classify the requirement; do not change colors unless asked."
+      },
+      {
+        "evidence": {
+          "line_end": 99,
+          "line_start": 99,
+          "text": "Set `lang` so browsers and assistive technology choose the right pronunciation, quotes, and hyphenation. Set `dir` at the document or content boundary where direction changes, preserve digit order, and use `<bdi>` for isolated mixed-direction values when needed. Spatial mirroring and logical CSS properties belong to `better-layout`."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Set `lang` so browsers and assistive technology choose the right pronunciation, quotes, and hyphenation. Set `dir` at the document or content boundary where direction changes, preserve digit order, and use `<bdi>` for isolated mixed-direction values when needed. Spatial mirroring and logical CSS properties belong to `better-layout`."
+      },
+      {
+        "evidence": {
+          "line_end": 103,
+          "line_start": 103,
+          "text": "`::selection` can carry brand into the reading experience when the selected combination stays legible. Keep text selectable by default. Use `user-select: none` only on a specific draggable or gesture-driven surface where accidental selection demonstrably interferes with the interaction; never disable selection across the interface or merely because a button label can be highlighted."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "`::selection` can carry brand into the reading experience when the selected combination stays legible. Keep text selectable by default. Use `user-select: none` only on a specific draggable or gesture-driven surface where accidental selection demonstrably interferes with the interaction; never disable selection across the interface or merely because a button label can be highlighted."
+      },
+      {
+        "evidence": {
+          "line_end": 112,
+          "line_start": 112,
+          "text": "| Synthesized face differs from the intended design | Load the required face; disable only the verified synthesis mode without erasing emphasis |"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "| Synthesized face differs from the intended design | Load the required face; disable only the verified synthesis mode without erasing emphasis |"
+      },
+      {
+        "evidence": {
+          "line_end": 128,
+          "line_start": 128,
+          "text": "| Selection disabled across application chrome | Restore selection; suppress it only on a specific interaction that conflicts with dragging or gestures |"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "| Selection disabled across application chrome | Restore selection; suppress it only on a specific interaction that conflicts with dragging or gestures |"
+      },
+      {
+        "evidence": {
+          "line_end": 130,
+          "line_start": 130,
+          "text": "| Thin/Light weight on `14px` UI text | Weight `400`+ below `18px`; thin weights are display-only |"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "| Thin/Light weight on `14px` UI text | Weight `400`+ below `18px`; thin weights are display-only |"
+      },
+      {
+        "evidence": {
+          "line_end": 135,
+          "line_start": 135,
+          "text": "Use this format only when the user asks for a standalone typography review. When `better-interface` orchestrates the review, provide domain evidence and findings to that skill and let its output format, severity scale, consolidation rules, cap, and verdict take precedence."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Use this format only when the user asks for a standalone typography review. When `better-interface` orchestrates the review, provide domain evidence and findings to that skill and let its output format, severity scale, consolidation rules, cap, and verdict take precedence."
+      },
+      {
+        "evidence": {
+          "line_end": 141,
+          "line_start": 141,
+          "text": "Group all confirmed findings by principle. Use a markdown table with **Severity**, **Location**, **Before**, **After**, and **Why** columns. Never use separate \"Before:\" / \"After:\" lines."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Group all confirmed findings by principle. Use a markdown table with **Severity**, **Location**, **Before**, **After**, and **Why** columns. Never use separate \"Before:\" / \"After:\" lines."
+      },
+      {
+        "evidence": {
+          "line_end": 169,
+          "line_start": 169,
+          "text": "2. **Verdict**: `Block` if any `HIGH` finding remains, `Needs changes` if only `MEDIUM` or `LOW` findings remain, and `Approve` only when no actionable findings remain."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "2. **Verdict**: `Block` if any `HIGH` finding remains, `Needs changes` if only `MEDIUM` or `LOW` findings remain, and `Approve` only when no actionable findings remain."
+      }
+    ],
+    "effects": [
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 55,
+          "line_start": 55,
+          "text": "Headings tighter, around `1.1`. Body copy `1.5` to `1.6`. Prefer unitless values so line-height scales with the font size; fixed values like `24px` do not. Tight line-height is for short text: anything that wraps to three or more lines needs at least `1.4`, even in height-constrained rows."
+        },
+        "modality": "unspecified",
+        "text": "Headings tighter, around `1.1`. Body copy `1.5` to `1.6`. Prefer unitless values so line-height scales with the font size; fixed values like `24px` do not. Tight line-height is for short text: anything that wraps to three or more lines needs at least `1.4`, even in height-constrained rows.",
+        "verb": "copy"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 59,
+          "line_start": 59,
+          "text": "Large headings often look better with slightly negative letter-spacing. Small uppercase labels need a little positive letter-spacing so letters do not feel crowded. Body copy at reading sizes needs neither."
+        },
+        "modality": "unspecified",
+        "text": "Large headings often look better with slightly negative letter-spacing. Small uppercase labels need a little positive letter-spacing so letters do not feel crowded. Body copy at reading sizes needs neither.",
+        "verb": "copy"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 77,
+          "line_start": 77,
+          "text": "### 13. Write Copy Naturally, Style with CSS"
+        },
+        "modality": "unspecified",
+        "text": "### 13. Write Copy Naturally, Style with CSS",
+        "verb": "write"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 77,
+          "line_start": 77,
+          "text": "### 13. Write Copy Naturally, Style with CSS"
+        },
+        "modality": "unspecified",
+        "text": "### 13. Write Copy Naturally, Style with CSS",
+        "verb": "copy"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 122,
+          "line_start": 122,
+          "text": "| `UPPERCASE` typed into copy | Natural case + `text-transform` |"
+        },
+        "modality": "unspecified",
+        "text": "| `UPPERCASE` typed into copy | Natural case + `text-transform` |",
+        "verb": "copy"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 168,
+          "line_start": 168,
+          "text": "1. **Verification**: list the exact checks run and their observed results, including wrapping, hierarchy, text resizing, font loading, and dynamic-value stability when applicable. If a check was not run, state what still needs verification."
+        },
+        "modality": "unspecified",
+        "text": "1. **Verification**: list the exact checks run and their observed results, including wrapping, hierarchy, text resizing, font loading, and dynamic-value stability when applicable. If a check was not run, state what still needs verification.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 168,
+          "line_start": 168,
+          "text": "1. **Verification**: list the exact checks run and their observed results, including wrapping, hierarchy, text resizing, font loading, and dynamic-value stability when applicable. If a check was not run, state what still needs verification."
+        },
+        "modality": "conditional",
+        "text": "1. **Verification**: list the exact checks run and their observed results, including wrapping, hierarchy, text resizing, font loading, and dynamic-value stability when applicable. If a check was not run, state what still needs verification.",
+        "verb": "run"
+      }
+    ],
+    "external_urls": [],
+    "headings": [
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 6,
+        "title": "Great typography"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 16,
+        "title": "Quick Reference"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 27,
+        "title": "Core Principles"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 29,
+        "title": "1. Serve the Right Format"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 33,
+        "title": "2. Properties Over Raw Tags"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 37,
+        "title": "3. Load Intended Weights and Styles"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 41,
+        "title": "4. Fewer Fonts, Sizes and Weights"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 45,
+        "title": "5. Use a Type Scale with Semantic Names"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 49,
+        "title": "6. Heading Sizes Descend with Level"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 53,
+        "title": "7. Line-Height by Role"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 57,
+        "title": "8. Letter-Spacing by Size"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 61,
+        "title": "9. Cap the Measure"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 65,
+        "title": "10. Wrap Deliberately"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 69,
+        "title": "11. Tabular Numbers on Changing Values"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 73,
+        "title": "12. Truncate Without Losing Content"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 77,
+        "title": "13. Write Copy Naturally, Style with CSS"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 81,
+        "title": "14. Underlines from the Font"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 85,
+        "title": "15. Inputs at 16px on Mobile"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 89,
+        "title": "16. Size and Contrast Floors"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 93,
+        "title": "17. Font Smoothing on the Root"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 97,
+        "title": "18. Language and Bidi Behavior"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 101,
+        "title": "19. Keep Useful Text Selectable"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 105,
+        "title": "Common Mistakes"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 133,
+        "title": "Review Output Format"
+      },
+      {
+        "bullets": [
+          {
+            "line": 143,
+            "text": "**Severity**: `HIGH` makes text unreadable, unavailable, or structurally misleading; `MEDIUM` harms hierarchy, wrapping, or scanning; `LOW` is isolated typographic polish."
+          },
+          {
+            "line": 144,
+            "text": "**Location**: cite `path/to/file:line`. If the artifact has no source files, cite the exact screen and component instead."
+          },
+          {
+            "line": 145,
+            "text": "**Before / After**: show the current typography and an actionable replacement."
+          },
+          {
+            "line": 146,
+            "text": "**Why**: name the violated principle and its effect on readability or hierarchy."
+          }
+        ],
+        "level": 3,
+        "line": 139,
+        "title": "Findings"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 150,
+        "title": "Example"
+      },
+      {
+        "bullets": [],
+        "level": 4,
+        "line": 152,
+        "title": "Tabular numbers"
+      },
+      {
+        "bullets": [],
+        "level": 4,
+        "line": 158,
+        "title": "Line-height and measure"
+      },
+      {
+        "bullets": [
+          {
+            "line": 168,
+            "text": "**Verification**: list the exact checks run and their observed results, including wrapping, hierarchy, text resizing, font loading, and dynamic-value stability when applicable. If a check was not run, state what still needs verification."
+          },
+          {
+            "line": 169,
+            "text": "**Verdict**: `Block` if any `HIGH` finding remains, `Needs changes` if only `MEDIUM` or `LOW` findings remain, and `Approve` only when no actionable findings remain."
+          }
+        ],
+        "level": 3,
+        "line": 164,
+        "title": "Verification and Verdict"
+      }
+    ],
+    "inputs": [
+      {
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: Web typography from choosing fonts to spacing, wrapping and accessibility. Use when picking or pairing typefaces, configuring variable fonts or OpenType features, setting up a type scale, checking heading hierarchy, styling text in components, truncating text, styling underlines, selection, placeholders or carets, or reviewing frontend code for typography. Triggers on typography, fonts, font formats, woff2, variable fonts, font-weight, opentype, font-feature-settings, letter-spacing, line-height, type scale, heading hierarchy, heading levels, tabular numbers, text-wrap, truncation, line clamp, underlines, text-decoration, text selection, iOS input zoom, scaled input text, font smoothing, text contrast, measure, line length, text-box, smart punctuation, drop cap."
+        },
+        "status": "input_candidate",
+        "text": "description: Web typography from choosing fonts to spacing, wrapping and accessibility. Use when picking or pairing typefaces, configuring variable fonts or OpenType features, setting up a type scale, checking heading hierarchy, styling text in components, truncating text, styling underlines, selection, placeholders or carets, or reviewing frontend code for typography. Triggers on typography, fonts, font formats, woff2, variable fonts, font-weight, opentype, font-feature-settings, letter-spacing, line-height, type scale, heading hierarchy, heading levels, tabular numbers, text-wrap, truncation, line clamp, underlines, text-decoration, text selection, iOS input zoom, scaled input text, font smoothing, text contrast, measure, line length, text-box, smart punctuation, drop cap."
+      },
+      {
+        "evidence": {
+          "line_end": 85,
+          "line_start": 85,
+          "text": "### 15. Inputs at 16px on Mobile"
+        },
+        "status": "input_candidate",
+        "text": "### 15. Inputs at 16px on Mobile"
+      },
+      {
+        "evidence": {
+          "line_end": 87,
+          "line_start": 87,
+          "text": "iOS Safari zooms the whole page when an input's text is smaller than `16px`. Two fixes hold the font size at `16px` in different ways, so ask which one the design wants instead of choosing silently: size the input up on mobile (`text-base sm:text-sm`), which changes how it looks on small screens, or keep `font-size: 16px` and render the intended size with `transform: scale()`, compensating width and `line-height` so the design is identical at every viewport. [Both recipes](details-and-accessibility.md)."
+        },
+        "status": "input_candidate",
+        "text": "iOS Safari zooms the whole page when an input's text is smaller than `16px`. Two fixes hold the font size at `16px` in different ways, so ask which one the design wants instead of choosing silently: size the input up on mobile (`text-base sm:text-sm`), which changes how it looks on small screens, or keep `font-size: 16px` and render the intended size with `transform: scale()`, compensating width and `line-height` so the design is identical at every viewport. [Both recipes](details-and-accessibility.md)."
+      },
+      {
+        "evidence": {
+          "line_end": 91,
+          "line_start": 91,
+          "text": "Start long-form body text near the browser default of `16px`, then judge it in the actual typeface, measure, platform, and product density. UI text can go smaller: `14px` is a useful starting point for inputs and menus (inputs still need `16px` on mobile, see principle 15), `13px` for captions, rarely below `12px`. When text appears low-contrast, use `better-colors` to measure the rendered pair and `better-accessibility` to classify the requirement; do not change colors unless asked."
+        },
+        "status": "input_candidate",
+        "text": "Start long-form body text near the browser default of `16px`, then judge it in the actual typeface, measure, platform, and product density. UI text can go smaller: `14px` is a useful starting point for inputs and menus (inputs still need `16px` on mobile, see principle 15), `13px` for captions, rarely below `12px`. When text appears low-contrast, use `better-colors` to measure the rendered pair and `better-accessibility` to classify the requirement; do not change colors unless asked."
+      },
+      {
+        "evidence": {
+          "line_end": 125,
+          "line_start": 125,
+          "text": "| Inputs below `16px` zoom on iOS | Ask first: `text-base sm:text-sm`, or `16px` scaled down with `transform` to keep the designed size |"
+        },
+        "status": "input_candidate",
+        "text": "| Inputs below `16px` zoom on iOS | Ask first: `text-base sm:text-sm`, or `16px` scaled down with `transform` to keep the designed size |"
+      }
+    ],
+    "invariants": [
+      {
+        "evidence": {
+          "line_end": 14,
+          "line_start": 14,
+          "text": "**Match the project's styling system.** Before suggesting or writing any fix, check how the codebase styles things and express every change in that system: Tailwind utilities in a Tailwind project, plain declarations in CSS, CSS Modules, styled-components or StyleX. The [cheat sheet](css-cheat-sheet.md) maps each declaration to its Tailwind equivalent. Never introduce a second styling approach just to apply a typography fix."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "**Match the project's styling system.** Before suggesting or writing any fix, check how the codebase styles things and express every change in that system: Tailwind utilities in a Tailwind project, plain declarations in CSS, CSS Modules, styled-components or StyleX. The [cheat sheet](css-cheat-sheet.md) maps each declaration to its Tailwind equivalent. Never introduce a second styling approach just to apply a typography fix."
+      },
+      {
+        "evidence": {
+          "line_end": 31,
+          "line_start": 31,
+          "text": "Use `.woff2` (Brotli compression, broadly supported) on the web. `.woff` is a fallback only for very old browsers; `.ttf` and `.otf` are raw desktop formats with no web compression. How the files are loaded is the project's own concern, this skill does not prescribe it."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Use `.woff2` (Brotli compression, broadly supported) on the web. `.woff` is a fallback only for very old browsers; `.ttf` and `.otf` are raw desktop formats with no web compression. How the files are loaded is the project's own concern, this skill does not prescribe it."
+      },
+      {
+        "evidence": {
+          "line_end": 39,
+          "line_start": 39,
+          "text": "Browsers may synthesize a requested weight or style that the active family does not provide. Prefer loading the faces the design actually uses. Set `font-synthesis: none` only after verifying that every required bold, italic, small-cap, superscript, and subscript form remains visually distinct across the complete fallback stack; disabling synthesis is not a diagnostic and must not erase emphasis."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Browsers may synthesize a requested weight or style that the active family does not provide. Prefer loading the faces the design actually uses. Set `font-synthesis: none` only after verifying that every required bold, italic, small-cap, superscript, and subscript form remains visually distinct across the complete fallback stack; disabling synthesis is not a diagnostic and must not erase emphasis."
+      },
+      {
+        "evidence": {
+          "line_end": 43,
+          "line_start": 43,
+          "text": "Rarely use more than three fonts. Weight and size define hierarchy, but overusing them hurts readability quickly. Pair for contrast, not similarity: a serif headline with a sans body reads as deliberate, two near-identical sans-serifs read as a mistake. Below `18px`, stay at weight `400`+; weights under `300` are display-only (`28px`+), they disappear at text sizes."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Rarely use more than three fonts. Weight and size define hierarchy, but overusing them hurts readability quickly. Pair for contrast, not similarity: a serif headline with a sans body reads as deliberate, two near-identical sans-serifs read as a mistake. Below `18px`, stay at weight `400`+; weights under `300` are display-only (`28px`+), they disappear at text sizes."
+      },
+      {
+        "evidence": {
+          "line_end": 51,
+          "line_start": 51,
+          "text": "Within a coherent page hierarchy, map heading levels to descending steps of the type scale: a visually subordinate heading should not accidentally overpower its parent. Adjacent levels may share a size toward the small end of the scale as long as weight or spacing keeps them distinct. Pick semantic heading elements according to `better-accessibility`; this skill controls only their visual treatment."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Within a coherent page hierarchy, map heading levels to descending steps of the type scale: a visually subordinate heading should not accidentally overpower its parent. Adjacent levels may share a size toward the small end of the scale as long as weight or spacing keeps them distinct. Pick semantic heading elements according to `better-accessibility`; this skill controls only their visual treatment."
+      },
+      {
+        "evidence": {
+          "line_end": 55,
+          "line_start": 55,
+          "text": "Headings tighter, around `1.1`. Body copy `1.5` to `1.6`. Prefer unitless values so line-height scales with the font size; fixed values like `24px` do not. Tight line-height is for short text: anything that wraps to three or more lines needs at least `1.4`, even in height-constrained rows."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Headings tighter, around `1.1`. Body copy `1.5` to `1.6`. Prefer unitless values so line-height scales with the font size; fixed values like `24px` do not. Tight line-height is for short text: anything that wraps to three or more lines needs at least `1.4`, even in height-constrained rows."
+      },
+      {
+        "evidence": {
+          "line_end": 59,
+          "line_start": 59,
+          "text": "Large headings often look better with slightly negative letter-spacing. Small uppercase labels need a little positive letter-spacing so letters do not feel crowded. Body copy at reading sizes needs neither."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Large headings often look better with slightly negative letter-spacing. Small uppercase labels need a little positive letter-spacing so letters do not feel crowded. Body copy at reading sizes needs neither."
+      },
+      {
+        "evidence": {
+          "line_end": 79,
+          "line_start": 79,
+          "text": "Store text in natural case and control presentation with `text-transform`, so redesigns never require rewriting copy. Use smart punctuation: curly quotes in prose (straight quotes in code), an en dash for ranges like `2010\u20132020`, an em dash to set off a thought, the single ellipsis character, `&nbsp;` to keep values like `16 px` together and `&shy;` to control where long words may break."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Store text in natural case and control presentation with `text-transform`, so redesigns never require rewriting copy. Use smart punctuation: curly quotes in prose (straight quotes in code), an en dash for ranges like `2010\u20132020`, an em dash to set off a thought, the single ellipsis character, `&nbsp;` to keep values like `16 px` together and `&shy;` to control where long words may break."
+      },
+      {
+        "evidence": {
+          "line_end": 83,
+          "line_start": 83,
+          "text": "Default underlines sit wherever the browser decides. Pull position and thickness from the font's own metrics with `text-underline-position: from-font` and `text-decoration-thickness: from-font`, or tune manually with `text-decoration-thickness`, `text-underline-offset` and `text-decoration-skip-ink`. `text-decoration-style` draws the line dotted, dashed or wavy; a dotted underline is a common hint that a word carries extra information, like an abbreviation or a defined term. Unless the only thing animating is a color change, build the underline as a separate element instead of using `text-decoration`: color is the only part of a real underline that animates reliably."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Default underlines sit wherever the browser decides. Pull position and thickness from the font's own metrics with `text-underline-position: from-font` and `text-decoration-thickness: from-font`, or tune manually with `text-decoration-thickness`, `text-underline-offset` and `text-decoration-skip-ink`. `text-decoration-style` draws the line dotted, dashed or wavy; a dotted underline is a common hint that a word carries extra information, like an abbreviation or a defined term. Unless the only thing animating is a color change, build the underline as a separate element instead of using `text-decoration`: color is the only part of a real underline that animates reliably."
+      },
+      {
+        "evidence": {
+          "line_end": 91,
+          "line_start": 91,
+          "text": "Start long-form body text near the browser default of `16px`, then judge it in the actual typeface, measure, platform, and product density. UI text can go smaller: `14px` is a useful starting point for inputs and menus (inputs still need `16px` on mobile, see principle 15), `13px` for captions, rarely below `12px`. When text appears low-contrast, use `better-colors` to measure the rendered pair and `better-accessibility` to classify the requirement; do not change colors unless asked."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Start long-form body text near the browser default of `16px`, then judge it in the actual typeface, measure, platform, and product density. UI text can go smaller: `14px` is a useful starting point for inputs and menus (inputs still need `16px` on mobile, see principle 15), `13px` for captions, rarely below `12px`. When text appears low-contrast, use `better-colors` to measure the rendered pair and `better-accessibility` to classify the requirement; do not change colors unless asked."
+      },
+      {
+        "evidence": {
+          "line_end": 99,
+          "line_start": 99,
+          "text": "Set `lang` so browsers and assistive technology choose the right pronunciation, quotes, and hyphenation. Set `dir` at the document or content boundary where direction changes, preserve digit order, and use `<bdi>` for isolated mixed-direction values when needed. Spatial mirroring and logical CSS properties belong to `better-layout`."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Set `lang` so browsers and assistive technology choose the right pronunciation, quotes, and hyphenation. Set `dir` at the document or content boundary where direction changes, preserve digit order, and use `<bdi>` for isolated mixed-direction values when needed. Spatial mirroring and logical CSS properties belong to `better-layout`."
+      },
+      {
+        "evidence": {
+          "line_end": 103,
+          "line_start": 103,
+          "text": "`::selection` can carry brand into the reading experience when the selected combination stays legible. Keep text selectable by default. Use `user-select: none` only on a specific draggable or gesture-driven surface where accidental selection demonstrably interferes with the interaction; never disable selection across the interface or merely because a button label can be highlighted."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "`::selection` can carry brand into the reading experience when the selected combination stays legible. Keep text selectable by default. Use `user-select: none` only on a specific draggable or gesture-driven surface where accidental selection demonstrably interferes with the interaction; never disable selection across the interface or merely because a button label can be highlighted."
+      },
+      {
+        "evidence": {
+          "line_end": 112,
+          "line_start": 112,
+          "text": "| Synthesized face differs from the intended design | Load the required face; disable only the verified synthesis mode without erasing emphasis |"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "| Synthesized face differs from the intended design | Load the required face; disable only the verified synthesis mode without erasing emphasis |"
+      },
+      {
+        "evidence": {
+          "line_end": 128,
+          "line_start": 128,
+          "text": "| Selection disabled across application chrome | Restore selection; suppress it only on a specific interaction that conflicts with dragging or gestures |"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "| Selection disabled across application chrome | Restore selection; suppress it only on a specific interaction that conflicts with dragging or gestures |"
+      },
+      {
+        "evidence": {
+          "line_end": 130,
+          "line_start": 130,
+          "text": "| Thin/Light weight on `14px` UI text | Weight `400`+ below `18px`; thin weights are display-only |"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "| Thin/Light weight on `14px` UI text | Weight `400`+ below `18px`; thin weights are display-only |"
+      },
+      {
+        "evidence": {
+          "line_end": 135,
+          "line_start": 135,
+          "text": "Use this format only when the user asks for a standalone typography review. When `better-interface` orchestrates the review, provide domain evidence and findings to that skill and let its output format, severity scale, consolidation rules, cap, and verdict take precedence."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Use this format only when the user asks for a standalone typography review. When `better-interface` orchestrates the review, provide domain evidence and findings to that skill and let its output format, severity scale, consolidation rules, cap, and verdict take precedence."
+      },
+      {
+        "evidence": {
+          "line_end": 141,
+          "line_start": 141,
+          "text": "Group all confirmed findings by principle. Use a markdown table with **Severity**, **Location**, **Before**, **After**, and **Why** columns. Never use separate \"Before:\" / \"After:\" lines."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Group all confirmed findings by principle. Use a markdown table with **Severity**, **Location**, **Before**, **After**, and **Why** columns. Never use separate \"Before:\" / \"After:\" lines."
+      },
+      {
+        "evidence": {
+          "line_end": 169,
+          "line_start": 169,
+          "text": "2. **Verdict**: `Block` if any `HIGH` finding remains, `Needs changes` if only `MEDIUM` or `LOW` findings remain, and `Approve` only when no actionable findings remain."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "2. **Verdict**: `Block` if any `HIGH` finding remains, `Needs changes` if only `MEDIUM` or `LOW` findings remain, and `Approve` only when no actionable findings remain."
+      }
+    ],
+    "outputs": [
+      {
+        "evidence": {
+          "line_end": 133,
+          "line_start": 133,
+          "text": "## Review Output Format"
+        },
+        "status": "output_candidate",
+        "text": "## Review Output Format"
+      },
+      {
+        "evidence": {
+          "line_end": 135,
+          "line_start": 135,
+          "text": "Use this format only when the user asks for a standalone typography review. When `better-interface` orchestrates the review, provide domain evidence and findings to that skill and let its output format, severity scale, consolidation rules, cap, and verdict take precedence."
+        },
+        "status": "output_candidate",
+        "text": "Use this format only when the user asks for a standalone typography review. When `better-interface` orchestrates the review, provide domain evidence and findings to that skill and let its output format, severity scale, consolidation rules, cap, and verdict take precedence."
+      },
+      {
+        "evidence": {
+          "line_end": 171,
+          "line_start": 171,
+          "text": "When there are no findings, omit the tables, state \"No actionable typography findings\", report verification, and end with `Approve`."
+        },
+        "status": "output_candidate",
+        "text": "When there are no findings, omit the tables, state \"No actionable typography findings\", report verification, and end with `Approve`."
+      }
+    ],
+    "package_path_candidates": [],
+    "recovery": [
+      {
+        "evidence": {
+          "line_end": 31,
+          "line_start": 31,
+          "text": "Use `.woff2` (Brotli compression, broadly supported) on the web. `.woff` is a fallback only for very old browsers; `.ttf` and `.otf` are raw desktop formats with no web compression. How the files are loaded is the project's own concern, this skill does not prescribe it."
+        },
+        "status": "recovery_candidate",
+        "text": "Use `.woff2` (Brotli compression, broadly supported) on the web. `.woff` is a fallback only for very old browsers; `.ttf` and `.otf` are raw desktop formats with no web compression. How the files are loaded is the project's own concern, this skill does not prescribe it."
+      },
+      {
+        "evidence": {
+          "line_end": 35,
+          "line_start": 35,
+          "text": "When a CSS property exists, use it. `font-weight: 650` instead of `font-variation-settings: \"wght\" 650`, `font-optical-sizing: auto` instead of `\"opsz\"`, `font-variant-numeric: tabular-nums` instead of `font-feature-settings: \"tnum\" 1`. Properties keep working when a non-variable fallback renders. Reserve the raw-tag properties for custom axes (`\"GRAD\" 80`) and niche features (`\"ss01\" 1`) that have no property of their own."
+        },
+        "status": "recovery_candidate",
+        "text": "When a CSS property exists, use it. `font-weight: 650` instead of `font-variation-settings: \"wght\" 650`, `font-optical-sizing: auto` instead of `\"opsz\"`, `font-variant-numeric: tabular-nums` instead of `font-feature-settings: \"tnum\" 1`. Properties keep working when a non-variable fallback renders. Reserve the raw-tag properties for custom axes (`\"GRAD\" 80`) and niche features (`\"ss01\" 1`) that have no property of their own."
+      },
+      {
+        "evidence": {
+          "line_end": 39,
+          "line_start": 39,
+          "text": "Browsers may synthesize a requested weight or style that the active family does not provide. Prefer loading the faces the design actually uses. Set `font-synthesis: none` only after verifying that every required bold, italic, small-cap, superscript, and subscript form remains visually distinct across the complete fallback stack; disabling synthesis is not a diagnostic and must not erase emphasis."
+        },
+        "status": "recovery_candidate",
+        "text": "Browsers may synthesize a requested weight or style that the active family does not provide. Prefer loading the faces the design actually uses. Set `font-synthesis: none` only after verifying that every required bold, italic, small-cap, superscript, and subscript form remains visually distinct across the complete fallback stack; disabling synthesis is not a diagnostic and must not erase emphasis."
+      },
+      {
+        "evidence": {
+          "line_end": 99,
+          "line_start": 99,
+          "text": "Set `lang` so browsers and assistive technology choose the right pronunciation, quotes, and hyphenation. Set `dir` at the document or content boundary where direction changes, preserve digit order, and use `<bdi>` for isolated mixed-direction values when needed. Spatial mirroring and logical CSS properties belong to `better-layout`."
+        },
+        "status": "recovery_candidate",
+        "text": "Set `lang` so browsers and assistive technology choose the right pronunciation, quotes, and hyphenation. Set `dir` at the document or content boundary where direction changes, preserve digit order, and use `<bdi>` for isolated mixed-direction values when needed. Spatial mirroring and logical CSS properties belong to `better-layout`."
+      },
+      {
+        "evidence": {
+          "line_end": 156,
+          "line_start": 156,
+          "text": "| LOW | `src/numbers.css:8` | `font-feature-settings: \"tnum\" 1` | `font-variant-numeric: tabular-nums` | The high-level property preserves fallback behavior |"
+        },
+        "status": "recovery_candidate",
+        "text": "| LOW | `src/numbers.css:8` | `font-feature-settings: \"tnum\" 1` | `font-variant-numeric: tabular-nums` | The high-level property preserves fallback behavior |"
+      }
+    ],
+    "references": [
+      {
+        "evidence": {
+          "line_end": 14,
+          "line_start": 14,
+          "text": "**Match the project's styling system.** Before suggesting or writing any fix, check how the codebase styles things and express every change in that system: Tailwind utilities in a Tailwind project, plain declarations in CSS, CSS Modules, styled-components or StyleX. The [cheat sheet](css-cheat-sheet.md) maps each declaration to its Tailwind equivalent. Never introduce a second styling approach just to apply a typography fix."
+        },
+        "reference": "css-cheat-sheet.md"
+      },
+      {
+        "evidence": {
+          "line_end": 20,
+          "line_start": 20,
+          "text": "| Choosing fonts | Font categories, pairing, formats, typeface anatomy | [choosing-fonts.md](choosing-fonts.md) |"
+        },
+        "reference": "choosing-fonts.md"
+      },
+      {
+        "evidence": {
+          "line_end": 21,
+          "line_start": 21,
+          "text": "| Variable fonts & OpenType | Axes, weights, tabular numbers, stylistic sets | [variable-fonts-and-opentype.md](variable-fonts-and-opentype.md) |"
+        },
+        "reference": "variable-fonts-and-opentype.md"
+      },
+      {
+        "evidence": {
+          "line_end": 22,
+          "line_start": 22,
+          "text": "| Spacing & sizing | Type scale, heading hierarchy, line-height, letter-spacing, text trimming | [spacing-and-sizing.md](spacing-and-sizing.md) |"
+        },
+        "reference": "spacing-and-sizing.md"
+      },
+      {
+        "evidence": {
+          "line_end": 23,
+          "line_start": 23,
+          "text": "| Wrapping & punctuation | Measure, wrapping, truncation, smart punctuation, RTL | [wrapping-and-punctuation.md](wrapping-and-punctuation.md) |"
+        },
+        "reference": "wrapping-and-punctuation.md"
+      },
+      {
+        "evidence": {
+          "line_end": 24,
+          "line_start": 24,
+          "text": "| Details & accessibility | Underlines, selection, forms, decorative text, contrast | [details-and-accessibility.md](details-and-accessibility.md) |"
+        },
+        "reference": "details-and-accessibility.md"
+      },
+      {
+        "evidence": {
+          "line_end": 25,
+          "line_start": 25,
+          "text": "| CSS cheat sheet | Quick lookup of every property covered, with Tailwind equivalents | [css-cheat-sheet.md](css-cheat-sheet.md) |"
+        },
+        "reference": "css-cheat-sheet.md"
+      },
+      {
+        "evidence": {
+          "line_end": 87,
+          "line_start": 87,
+          "text": "iOS Safari zooms the whole page when an input's text is smaller than `16px`. Two fixes hold the font size at `16px` in different ways, so ask which one the design wants instead of choosing silently: size the input up on mobile (`text-base sm:text-sm`), which changes how it looks on small screens, or keep `font-size: 16px` and render the intended size with `transform: scale()`, compensating width and `line-height` so the design is identical at every viewport. [Both recipes](details-and-accessibility.md)."
+        },
+        "reference": "details-and-accessibility.md"
+      }
+    ],
+    "routes": [
+      {
+        "evidence": {
+          "line_end": 18,
+          "line_start": 18,
+          "text": "| Category | When to use | Reference |"
+        },
+        "text": "| Category | When to use | Reference |"
+      },
+      {
+        "evidence": {
+          "line_end": 35,
+          "line_start": 35,
+          "text": "When a CSS property exists, use it. `font-weight: 650` instead of `font-variation-settings: \"wght\" 650`, `font-optical-sizing: auto` instead of `\"opsz\"`, `font-variant-numeric: tabular-nums` instead of `font-feature-settings: \"tnum\" 1`. Properties keep working when a non-variable fallback renders. Reserve the raw-tag properties for custom axes (`\"GRAD\" 80`) and niche features (`\"ss01\" 1`) that have no property of their own."
+        },
+        "text": "When a CSS property exists, use it. `font-weight: 650` instead of `font-variation-settings: \"wght\" 650`, `font-optical-sizing: auto` instead of `\"opsz\"`, `font-variant-numeric: tabular-nums` instead of `font-feature-settings: \"tnum\" 1`. Properties keep working when a non-variable fallback renders. Reserve the raw-tag properties for custom axes (`\"GRAD\" 80`) and niche features (`\"ss01\" 1`) that have no property of their own."
+      },
+      {
+        "evidence": {
+          "line_end": 47,
+          "line_start": 47,
+          "text": "Define a small set of sizes and deviate from it as little as possible. Hard-coded sizes without a system break down at scale. For solo projects, default names like `text-sm` work fine as long as the usage rules are clear. On a team, name sizes by use (`text-body-sm`), not by size, so the rules stay consistent."
+        },
+        "text": "Define a small set of sizes and deviate from it as little as possible. Hard-coded sizes without a system break down at scale. For solo projects, default names like `text-sm` work fine as long as the usage rules are clear. On a team, name sizes by use (`text-body-sm`), not by size, so the rules stay consistent."
+      },
+      {
+        "evidence": {
+          "line_end": 91,
+          "line_start": 91,
+          "text": "Start long-form body text near the browser default of `16px`, then judge it in the actual typeface, measure, platform, and product density. UI text can go smaller: `14px` is a useful starting point for inputs and menus (inputs still need `16px` on mobile, see principle 15), `13px` for captions, rarely below `12px`. When text appears low-contrast, use `better-colors` to measure the rendered pair and `better-accessibility` to classify the requirement; do not change colors unless asked."
+        },
+        "text": "Start long-form body text near the browser default of `16px`, then judge it in the actual typeface, measure, platform, and product density. UI text can go smaller: `14px` is a useful starting point for inputs and menus (inputs still need `16px` on mobile, see principle 15), `13px` for captions, rarely below `12px`. When text appears low-contrast, use `better-colors` to measure the rendered pair and `better-accessibility` to classify the requirement; do not change colors unless asked."
+      },
+      {
+        "evidence": {
+          "line_end": 99,
+          "line_start": 99,
+          "text": "Set `lang` so browsers and assistive technology choose the right pronunciation, quotes, and hyphenation. Set `dir` at the document or content boundary where direction changes, preserve digit order, and use `<bdi>` for isolated mixed-direction values when needed. Spatial mirroring and logical CSS properties belong to `better-layout`."
+        },
+        "text": "Set `lang` so browsers and assistive technology choose the right pronunciation, quotes, and hyphenation. Set `dir` at the document or content boundary where direction changes, preserve digit order, and use `<bdi>` for isolated mixed-direction values when needed. Spatial mirroring and logical CSS properties belong to `better-layout`."
+      },
+      {
+        "evidence": {
+          "line_end": 103,
+          "line_start": 103,
+          "text": "`::selection` can carry brand into the reading experience when the selected combination stays legible. Keep text selectable by default. Use `user-select: none` only on a specific draggable or gesture-driven surface where accidental selection demonstrably interferes with the interaction; never disable selection across the interface or merely because a button label can be highlighted."
+        },
+        "text": "`::selection` can carry brand into the reading experience when the selected combination stays legible. Keep text selectable by default. Use `user-select: none` only on a specific draggable or gesture-driven surface where accidental selection demonstrably interferes with the interaction; never disable selection across the interface or merely because a button label can be highlighted."
+      }
+    ],
+    "template_commands": [],
+    "template_status": "source_not_executed; fenced commands remain example-only only when surrounding prose says so, otherwise context-unknown; live XML template commands are not executable evidence",
+    "triggers": [
+      {
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: Web typography from choosing fonts to spacing, wrapping and accessibility. Use when picking or pairing typefaces, configuring variable fonts or OpenType features, setting up a type scale, checking heading hierarchy, styling text in components, truncating text, styling underlines, selection, placeholders or carets, or reviewing frontend code for typography. Triggers on typography, fonts, font formats, woff2, variable fonts, font-weight, opentype, font-feature-settings, letter-spacing, line-height, type scale, heading hierarchy, heading levels, tabular numbers, text-wrap, truncation, line clamp, underlines, text-decoration, text selection, iOS input zoom, scaled input text, font smoothing, text contrast, measure, line length, text-box, smart punctuation, drop cap."
+        },
+        "text": "description: Web typography from choosing fonts to spacing, wrapping and accessibility. Use when picking or pairing typefaces, configuring variable fonts or OpenType features, setting up a type scale, checking heading hierarchy, styling text in components, truncating text, styling underlines, selection, placeholders or carets, or reviewing frontend code for typography. Triggers on typography, fonts, font formats, woff2, variable fonts, font-weight, opentype, font-feature-settings, letter-spacing, line-height, type scale, heading hierarchy, heading levels, tabular numbers, text-wrap, truncation, line clamp, underlines, text-decoration, text selection, iOS input zoom, scaled input text, font smoothing, text contrast, measure, line length, text-box, smart punctuation, drop cap."
+      },
+      {
+        "evidence": {
+          "line_end": 18,
+          "line_start": 18,
+          "text": "| Category | When to use | Reference |"
+        },
+        "text": "| Category | When to use | Reference |"
+      }
+    ],
+    "workflows": [
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 143,
+            "text": "**Severity**: `HIGH` makes text unreadable, unavailable, or structurally misleading; `MEDIUM` harms hierarchy, wrapping, or scanning; `LOW` is isolated typographic polish."
+          },
+          {
+            "line": 144,
+            "text": "**Location**: cite `path/to/file:line`. If the artifact has no source files, cite the exact screen and component instead."
+          },
+          {
+            "line": 145,
+            "text": "**Before / After**: show the current typography and an actionable replacement."
+          },
+          {
+            "line": 146,
+            "text": "**Why**: name the violated principle and its effect on readability or hierarchy."
+          }
+        ],
+        "section": "Findings",
+        "start_line": 139
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 168,
+            "text": "**Verification**: list the exact checks run and their observed results, including wrapping, hierarchy, text resizing, font loading, and dynamic-value stability when applicable. If a check was not run, state what still needs verification."
+          },
+          {
+            "line": 169,
+            "text": "**Verdict**: `Block` if any `HIGH` finding remains, `Needs changes` if only `MEDIUM` or `LOW` findings remain, and `Approve` only when no actionable findings remain."
+          }
+        ],
+        "section": "Verification and Verdict",
+        "start_line": 164
+      }
+    ]
+  },
+  "package": {
+    "reference_resolution": [],
+    "resolved_files": [
+      {
+        "bytes": 10846,
+        "content_snapshot": "sources/upstream/jakubkrehel-skills-unknown/content-by-sha256/717f615910470bd2b7c662cce2af2ebd11cd887379a6ea93455c45f3c5ba378d.md",
+        "kind": "skill",
+        "path": "skills-HEAD/skills/better-typography/SKILL.md",
+        "sha256": "717f615910470bd2b7c662cce2af2ebd11cd887379a6ea93455c45f3c5ba378d",
+        "text": true
+      },
+      {
+        "bytes": 111,
+        "content_snapshot": "sources/upstream/jakubkrehel-skills-unknown/content-by-sha256/01d8b8f835112e97ba0e4d97a07775e919407ebb5aab0cce9b4fa280e66b19b8.yaml",
+        "kind": "package_file",
+        "path": "skills-HEAD/skills/better-typography/agents/openai.yaml",
+        "sha256": "01d8b8f835112e97ba0e4d97a07775e919407ebb5aab0cce9b4fa280e66b19b8",
+        "text": true
+      },
+      {
+        "bytes": 3179,
+        "content_snapshot": "sources/upstream/jakubkrehel-skills-unknown/content-by-sha256/d139ec5d68cd123bc305d920295f7bc95a1e1123674de96d19103c1ebffc85c9.md",
+        "kind": "package_file",
+        "path": "skills-HEAD/skills/better-typography/choosing-fonts.md",
+        "sha256": "d139ec5d68cd123bc305d920295f7bc95a1e1123674de96d19103c1ebffc85c9",
+        "text": true
+      },
+      {
+        "bytes": 3952,
+        "content_snapshot": "sources/upstream/jakubkrehel-skills-unknown/content-by-sha256/45c77f0d1954e12e76c3903361f52703cb4f4287d54c651710f60926247165fb.md",
+        "kind": "package_file",
+        "path": "skills-HEAD/skills/better-typography/css-cheat-sheet.md",
+        "sha256": "45c77f0d1954e12e76c3903361f52703cb4f4287d54c651710f60926247165fb",
+        "text": true
+      },
+      {
+        "bytes": 4211,
+        "content_snapshot": "sources/upstream/jakubkrehel-skills-unknown/content-by-sha256/d74e2719ee793fbf7408883e0e5eb396b67514ce07e02412f33d5408ecb4a02e.md",
+        "kind": "package_file",
+        "path": "skills-HEAD/skills/better-typography/details-and-accessibility.md",
+        "sha256": "d74e2719ee793fbf7408883e0e5eb396b67514ce07e02412f33d5408ecb4a02e",
+        "text": true
+      },
+      {
+        "bytes": 4294,
+        "content_snapshot": "sources/upstream/jakubkrehel-skills-unknown/content-by-sha256/e28e7899a73a8b17f38418dfd8c1afda116db81a3b68d53dd51eab019b20ab82.md",
+        "kind": "package_file",
+        "path": "skills-HEAD/skills/better-typography/spacing-and-sizing.md",
+        "sha256": "e28e7899a73a8b17f38418dfd8c1afda116db81a3b68d53dd51eab019b20ab82",
+        "text": true
+      },
+      {
+        "bytes": 4308,
+        "content_snapshot": "sources/upstream/jakubkrehel-skills-unknown/content-by-sha256/2bf1317ea5c0af6e36c57d15aacea512e450acbe4b00a8664c4619a959dea0b0.md",
+        "kind": "package_file",
+        "path": "skills-HEAD/skills/better-typography/variable-fonts-and-opentype.md",
+        "sha256": "2bf1317ea5c0af6e36c57d15aacea512e450acbe4b00a8664c4619a959dea0b0",
+        "text": true
+      },
+      {
+        "bytes": 3277,
+        "content_snapshot": "sources/upstream/jakubkrehel-skills-unknown/content-by-sha256/7cfa3463b68cf21f08ab01a184b12c8bf2fe9340c2c7691a8cc99e4569389efe.md",
+        "kind": "package_file",
+        "path": "skills-HEAD/skills/better-typography/wrapping-and-punctuation.md",
+        "sha256": "7cfa3463b68cf21f08ab01a184b12c8bf2fe9340c2c7691a8cc99e4569389efe",
+        "text": true
+      }
+    ],
+    "scripts": [],
+    "unresolved_references": []
+  },
+  "schema": "skill-ir/1.0",
+  "source": {
+    "bytes": 15601,
+    "catalog_metadata": {
+      "bundle_offset": 4549004,
+      "category": "visual-design",
+      "content_binding": "W$",
+      "description": "Web typography craft: font choice and pairing, type scales, wrapping, OpenType features, and component text details.",
+      "github_url": "https://github.com/jakubkrehel/skills/tree/main/skills/better-typography",
+      "slug": "better-typography",
+      "source": "community",
+      "source_label": "Jakub Krehel",
+      "stars_reported": null,
+      "template_expressions": [],
+      "title": "Better Typography"
+    },
+    "line_table": [
+      {
+        "line": 1,
+        "text": "---"
+      },
+      {
+        "line": 2,
+        "text": "name: better-typography"
+      },
+      {
+        "line": 3,
+        "text": "description: Web typography from choosing fonts to spacing, wrapping and accessibility. Use when picking or pairing typefaces, configuring variable fonts or OpenType features, setting up a type scale, checking heading hierarchy, styling text in components, truncating text, styling underlines, selection, placeholders or carets, or reviewing frontend code for typography. Triggers on typography, fonts, font formats, woff2, variable fonts, font-weight, opentype, font-feature-settings, letter-spacing, line-height, type scale, heading hierarchy, heading levels, tabular numbers, text-wrap, truncation, line clamp, underlines, text-decoration, text selection, iOS input zoom, scaled input text, font smoothing, text contrast, measure, line length, text-box, smart punctuation, drop cap."
+      },
+      {
+        "line": 4,
+        "text": "---"
+      },
+      {
+        "line": 5,
+        "text": ""
+      },
+      {
+        "line": 6,
+        "text": "# Great typography"
+      },
+      {
+        "line": 7,
+        "text": ""
+      },
+      {
+        "line": 8,
+        "text": "Good typography is mostly restraint. A sensible scale, comfortable spacing and enough contrast beat any clever effect. A label, a table cell, a marketing headline and an article paragraph should not share one set of rules. Apply these principles when building or reviewing anything with text in it."
+      },
+      {
+        "line": 9,
+        "text": ""
+      },
+      {
+        "line": 10,
+        "text": "When reviewing, read the page instead of scanning the code: squint to check the hierarchy holds, read one full paragraph for comfort, and resize the viewport to catch bad wrapping, widows and truncation at real content lengths."
+      },
+      {
+        "line": 11,
+        "text": ""
+      },
+      {
+        "line": 12,
+        "text": "The words themselves (button labels, error messages, empty states) are covered by the `better-writing` skill; semantic heading structure by `better-accessibility`; spatial RTL layout and logical CSS properties by `better-layout`; rendered-pair contrast measurement and color remediation by `better-colors`. This skill owns how text renders, wraps, and behaves in mixed-direction content."
+      },
+      {
+        "line": 13,
+        "text": ""
+      },
+      {
+        "line": 14,
+        "text": "**Match the project's styling system.** Before suggesting or writing any fix, check how the codebase styles things and express every change in that system: Tailwind utilities in a Tailwind project, plain declarations in CSS, CSS Modules, styled-components or StyleX. The [cheat sheet](css-cheat-sheet.md) maps each declaration to its Tailwind equivalent. Never introduce a second styling approach just to apply a typography fix."
+      },
+      {
+        "line": 15,
+        "text": ""
+      },
+      {
+        "line": 16,
+        "text": "## Quick Reference"
+      },
+      {
+        "line": 17,
+        "text": ""
+      },
+      {
+        "line": 18,
+        "text": "| Category | When to use | Reference |"
+      },
+      {
+        "line": 19,
+        "text": "| --- | --- | --- |"
+      },
+      {
+        "line": 20,
+        "text": "| Choosing fonts | Font categories, pairing, formats, typeface anatomy | [choosing-fonts.md](choosing-fonts.md) |"
+      },
+      {
+        "line": 21,
+        "text": "| Variable fonts & OpenType | Axes, weights, tabular numbers, stylistic sets | [variable-fonts-and-opentype.md](variable-fonts-and-opentype.md) |"
+      },
+      {
+        "line": 22,
+        "text": "| Spacing & sizing | Type scale, heading hierarchy, line-height, letter-spacing, text trimming | [spacing-and-sizing.md](spacing-and-sizing.md) |"
+      },
+      {
+        "line": 23,
+        "text": "| Wrapping & punctuation | Measure, wrapping, truncation, smart punctuation, RTL | [wrapping-and-punctuation.md](wrapping-and-punctuation.md) |"
+      },
+      {
+        "line": 24,
+        "text": "| Details & accessibility | Underlines, selection, forms, decorative text, contrast | [details-and-accessibility.md](details-and-accessibility.md) |"
+      },
+      {
+        "line": 25,
+        "text": "| CSS cheat sheet | Quick lookup of every property covered, with Tailwind equivalents | [css-cheat-sheet.md](css-cheat-sheet.md) |"
+      },
+      {
+        "line": 26,
+        "text": ""
+      },
+      {
+        "line": 27,
+        "text": "## Core Principles"
+      },
+      {
+        "line": 28,
+        "text": ""
+      },
+      {
+        "line": 29,
+        "text": "### 1. Serve the Right Format"
+      },
+      {
+        "line": 30,
+        "text": ""
+      },
+      {
+        "line": 31,
+        "text": "Use `.woff2` (Brotli compression, broadly supported) on the web. `.woff` is a fallback only for very old browsers; `.ttf` and `.otf` are raw desktop formats with no web compression. How the files are loaded is the project's own concern, this skill does not prescribe it."
+      },
+      {
+        "line": 32,
+        "text": ""
+      },
+      {
+        "line": 33,
+        "text": "### 2. Properties Over Raw Tags"
+      },
+      {
+        "line": 34,
+        "text": ""
+      },
+      {
+        "line": 35,
+        "text": "When a CSS property exists, use it. `font-weight: 650` instead of `font-variation-settings: \"wght\" 650`, `font-optical-sizing: auto` instead of `\"opsz\"`, `font-variant-numeric: tabular-nums` instead of `font-feature-settings: \"tnum\" 1`. Properties keep working when a non-variable fallback renders. Reserve the raw-tag properties for custom axes (`\"GRAD\" 80`) and niche features (`\"ss01\" 1`) that have no property of their own."
+      },
+      {
+        "line": 36,
+        "text": ""
+      },
+      {
+        "line": 37,
+        "text": "### 3. Load Intended Weights and Styles"
+      },
+      {
+        "line": 38,
+        "text": ""
+      },
+      {
+        "line": 39,
+        "text": "Browsers may synthesize a requested weight or style that the active family does not provide. Prefer loading the faces the design actually uses. Set `font-synthesis: none` only after verifying that every required bold, italic, small-cap, superscript, and subscript form remains visually distinct across the complete fallback stack; disabling synthesis is not a diagnostic and must not erase emphasis."
+      },
+      {
+        "line": 40,
+        "text": ""
+      },
+      {
+        "line": 41,
+        "text": "### 4. Fewer Fonts, Sizes and Weights"
+      },
+      {
+        "line": 42,
+        "text": ""
+      },
+      {
+        "line": 43,
+        "text": "Rarely use more than three fonts. Weight and size define hierarchy, but overusing them hurts readability quickly. Pair for contrast, not similarity: a serif headline with a sans body reads as deliberate, two near-identical sans-serifs read as a mistake. Below `18px`, stay at weight `400`+; weights under `300` are display-only (`28px`+), they disappear at text sizes."
+      },
+      {
+        "line": 44,
+        "text": ""
+      },
+      {
+        "line": 45,
+        "text": "### 5. Use a Type Scale with Semantic Names"
+      },
+      {
+        "line": 46,
+        "text": ""
+      },
+      {
+        "line": 47,
+        "text": "Define a small set of sizes and deviate from it as little as possible. Hard-coded sizes without a system break down at scale. For solo projects, default names like `text-sm` work fine as long as the usage rules are clear. On a team, name sizes by use (`text-body-sm`), not by size, so the rules stay consistent."
+      },
+      {
+        "line": 48,
+        "text": ""
+      },
+      {
+        "line": 49,
+        "text": "### 6. Heading Sizes Descend with Level"
+      },
+      {
+        "line": 50,
+        "text": ""
+      },
+      {
+        "line": 51,
+        "text": "Within a coherent page hierarchy, map heading levels to descending steps of the type scale: a visually subordinate heading should not accidentally overpower its parent. Adjacent levels may share a size toward the small end of the scale as long as weight or spacing keeps them distinct. Pick semantic heading elements according to `better-accessibility`; this skill controls only their visual treatment."
+      },
+      {
+        "line": 52,
+        "text": ""
+      },
+      {
+        "line": 53,
+        "text": "### 7. Line-Height by Role"
+      },
+      {
+        "line": 54,
+        "text": ""
+      },
+      {
+        "line": 55,
+        "text": "Headings tighter, around `1.1`. Body copy `1.5` to `1.6`. Prefer unitless values so line-height scales with the font size; fixed values like `24px` do not. Tight line-height is for short text: anything that wraps to three or more lines needs at least `1.4`, even in height-constrained rows."
+      },
+      {
+        "line": 56,
+        "text": ""
+      },
+      {
+        "line": 57,
+        "text": "### 8. Letter-Spacing by Size"
+      },
+      {
+        "line": 58,
+        "text": ""
+      },
+      {
+        "line": 59,
+        "text": "Large headings often look better with slightly negative letter-spacing. Small uppercase labels need a little positive letter-spacing so letters do not feel crowded. Body copy at reading sizes needs neither."
+      },
+      {
+        "line": 60,
+        "text": ""
+      },
+      {
+        "line": 61,
+        "text": "### 9. Cap the Measure"
+      },
+      {
+        "line": 62,
+        "text": ""
+      },
+      {
+        "line": 63,
+        "text": "Long lines make it hard for the eye to find the next line. Cap long-form text around 60\u201375 characters per line. Any unit works: `65ch` measures characters directly, and a pixel or rem cap is just as good: at a `16px` body size the range lands roughly between `560px` and `680px` depending on the font, so Tailwind's `max-w-xl` or `max-w-2xl` fit. What matters is that a cap exists and the resulting line length sits in range."
+      },
+      {
+        "line": 64,
+        "text": ""
+      },
+      {
+        "line": 65,
+        "text": "### 10. Wrap Deliberately"
+      },
+      {
+        "line": 66,
+        "text": ""
+      },
+      {
+        "line": 67,
+        "text": "`text-wrap: balance` distributes text evenly across lines: use it on headings. `text-wrap: pretty` avoids leaving a single short word on the final line: use it on descriptions. Skip both in long-form text: browsers ignore `balance` past a few lines anyway, and evening out a whole paragraph wastes space and makes it harder to read. `overflow-wrap: break-word` where long words, links or IDs could escape the container. `white-space: nowrap` on labels and badges where a line break looks broken."
+      },
+      {
+        "line": 68,
+        "text": ""
+      },
+      {
+        "line": 69,
+        "text": "### 11. Tabular Numbers on Changing Values"
+      },
+      {
+        "line": 70,
+        "text": ""
+      },
+      {
+        "line": 71,
+        "text": "Digits have different widths by default, so timers, counters and prices shift layout as they update. Apply `font-variant-numeric: tabular-nums` to any value that changes."
+      },
+      {
+        "line": 72,
+        "text": ""
+      },
+      {
+        "line": 73,
+        "text": "### 12. Truncate Without Losing Content"
+      },
+      {
+        "line": 74,
+        "text": ""
+      },
+      {
+        "line": 75,
+        "text": "Single line: `text-overflow: ellipsis` with `overflow: hidden` and `white-space: nowrap`. Multiple lines: `line-clamp`. Truncation hides content, so if the missing text matters, keep the full value reachable in a tooltip or expanded view."
+      },
+      {
+        "line": 76,
+        "text": ""
+      },
+      {
+        "line": 77,
+        "text": "### 13. Write Copy Naturally, Style with CSS"
+      },
+      {
+        "line": 78,
+        "text": ""
+      },
+      {
+        "line": 79,
+        "text": "Store text in natural case and control presentation with `text-transform`, so redesigns never require rewriting copy. Use smart punctuation: curly quotes in prose (straight quotes in code), an en dash for ranges like `2010\u20132020`, an em dash to set off a thought, the single ellipsis character, `&nbsp;` to keep values like `16 px` together and `&shy;` to control where long words may break."
+      },
+      {
+        "line": 80,
+        "text": ""
+      },
+      {
+        "line": 81,
+        "text": "### 14. Underlines from the Font"
+      },
+      {
+        "line": 82,
+        "text": ""
+      },
+      {
+        "line": 83,
+        "text": "Default underlines sit wherever the browser decides. Pull position and thickness from the font's own metrics with `text-underline-position: from-font` and `text-decoration-thickness: from-font`, or tune manually with `text-decoration-thickness`, `text-underline-offset` and `text-decoration-skip-ink`. `text-decoration-style` draws the line dotted, dashed or wavy; a dotted underline is a common hint that a word carries extra information, like an abbreviation or a defined term. Unless the only thing animating is a color change, build the underline as a separate element instead of using `text-decoration`: color is the only part of a real underline that animates reliably."
+      },
+      {
+        "line": 84,
+        "text": ""
+      },
+      {
+        "line": 85,
+        "text": "### 15. Inputs at 16px on Mobile"
+      },
+      {
+        "line": 86,
+        "text": ""
+      },
+      {
+        "line": 87,
+        "text": "iOS Safari zooms the whole page when an input's text is smaller than `16px`. Two fixes hold the font size at `16px` in different ways, so ask which one the design wants instead of choosing silently: size the input up on mobile (`text-base sm:text-sm`), which changes how it looks on small screens, or keep `font-size: 16px` and render the intended size with `transform: scale()`, compensating width and `line-height` so the design is identical at every viewport. [Both recipes](details-and-accessibility.md)."
+      },
+      {
+        "line": 88,
+        "text": ""
+      },
+      {
+        "line": 89,
+        "text": "### 16. Size and Contrast Floors"
+      },
+      {
+        "line": 90,
+        "text": ""
+      },
+      {
+        "line": 91,
+        "text": "Start long-form body text near the browser default of `16px`, then judge it in the actual typeface, measure, platform, and product density. UI text can go smaller: `14px` is a useful starting point for inputs and menus (inputs still need `16px` on mobile, see principle 15), `13px` for captions, rarely below `12px`. When text appears low-contrast, use `better-colors` to measure the rendered pair and `better-accessibility` to classify the requirement; do not change colors unless asked."
+      },
+      {
+        "line": 92,
+        "text": ""
+      },
+      {
+        "line": 93,
+        "text": "### 17. Font Smoothing on the Root"
+      },
+      {
+        "line": 94,
+        "text": ""
+      },
+      {
+        "line": 95,
+        "text": "On macOS text renders heavier than intended. Apply `-webkit-font-smoothing: antialiased` and `-moz-osx-font-smoothing: grayscale` (both covered by Tailwind's `antialiased`) once on the root layout so they cover all text."
+      },
+      {
+        "line": 96,
+        "text": ""
+      },
+      {
+        "line": 97,
+        "text": "### 18. Language and Bidi Behavior"
+      },
+      {
+        "line": 98,
+        "text": ""
+      },
+      {
+        "line": 99,
+        "text": "Set `lang` so browsers and assistive technology choose the right pronunciation, quotes, and hyphenation. Set `dir` at the document or content boundary where direction changes, preserve digit order, and use `<bdi>` for isolated mixed-direction values when needed. Spatial mirroring and logical CSS properties belong to `better-layout`."
+      },
+      {
+        "line": 100,
+        "text": ""
+      },
+      {
+        "line": 101,
+        "text": "### 19. Keep Useful Text Selectable"
+      },
+      {
+        "line": 102,
+        "text": ""
+      },
+      {
+        "line": 103,
+        "text": "`::selection` can carry brand into the reading experience when the selected combination stays legible. Keep text selectable by default. Use `user-select: none` only on a specific draggable or gesture-driven surface where accidental selection demonstrably interferes with the interaction; never disable selection across the interface or merely because a button label can be highlighted."
+      },
+      {
+        "line": 104,
+        "text": ""
+      },
+      {
+        "line": 105,
+        "text": "## Common Mistakes"
+      },
+      {
+        "line": 106,
+        "text": ""
+      },
+      {
+        "line": 107,
+        "text": "| Mistake | Fix |"
+      },
+      {
+        "line": 108,
+        "text": "| --- | --- |"
+      },
+      {
+        "line": 109,
+        "text": "| `.ttf`/`.otf` served on the web | Convert to `.woff2` |"
+      },
+      {
+        "line": 110,
+        "text": "| `font-variation-settings: \"wght\"` for weight | `font-weight` (works with non-variable fallbacks) |"
+      },
+      {
+        "line": 111,
+        "text": "| `font-feature-settings: \"tnum\" 1` | `font-variant-numeric: tabular-nums` |"
+      },
+      {
+        "line": 112,
+        "text": "| Synthesized face differs from the intended design | Load the required face; disable only the verified synthesis mode without erasing emphasis |"
+      },
+      {
+        "line": 113,
+        "text": "| Hard-coded one-off font sizes | Use the type scale |"
+      },
+      {
+        "line": 114,
+        "text": "| Child heading visually overpowers its parent | Map that section's hierarchy to descending scale steps |"
+      },
+      {
+        "line": 115,
+        "text": "| Heading element picked for its default size | Choose semantics with `better-accessibility`, then set the visual size in CSS |"
+      },
+      {
+        "line": 116,
+        "text": "| `line-height: 24px` on scalable text | Unitless value (`1.5`) |"
+      },
+      {
+        "line": 117,
+        "text": "| Full-width paragraphs | Cap around 60\u201375 characters per line |"
+      },
+      {
+        "line": 118,
+        "text": "| Orphan on the last line of a paragraph | `text-wrap: pretty` |"
+      },
+      {
+        "line": 119,
+        "text": "| Lopsided two-line heading | `text-wrap: balance` |"
+      },
+      {
+        "line": 120,
+        "text": "| Numbers cause layout shift | `tabular-nums` |"
+      },
+      {
+        "line": 121,
+        "text": "| Truncated text with no way to read it | Tooltip or expanded view for the full value |"
+      },
+      {
+        "line": 122,
+        "text": "| `UPPERCASE` typed into copy | Natural case + `text-transform` |"
+      },
+      {
+        "line": 123,
+        "text": "| Justified text in an interface | `text-align: start`; reserve justify for specific editorial layouts |"
+      },
+      {
+        "line": 124,
+        "text": "| Underline cuts through descenders | `text-decoration-skip-ink: auto`, `from-font` metrics |"
+      },
+      {
+        "line": 125,
+        "text": "| Inputs below `16px` zoom on iOS | Ask first: `text-base sm:text-sm`, or `16px` scaled down with `transform` to keep the designed size |"
+      },
+      {
+        "line": 126,
+        "text": "| Root layout omits font smoothing | Apply `antialiased` once at the root |"
+      },
+      {
+        "line": 127,
+        "text": "| Mixed-direction value renders in the wrong order | Set the correct `lang`/`dir`; isolate the value with `<bdi>` when needed |"
+      },
+      {
+        "line": 128,
+        "text": "| Selection disabled across application chrome | Restore selection; suppress it only on a specific interaction that conflicts with dragging or gestures |"
+      },
+      {
+        "line": 129,
+        "text": "| Extra-info hint with no visual cue | Dotted underline via `text-decoration-style: dotted` |"
+      },
+      {
+        "line": 130,
+        "text": "| Thin/Light weight on `14px` UI text | Weight `400`+ below `18px`; thin weights are display-only |"
+      },
+      {
+        "line": 131,
+        "text": "| `leading-none` on a three-line card description | At least `1.4` on any text that wraps to 3+ lines |"
+      },
+      {
+        "line": 132,
+        "text": ""
+      },
+      {
+        "line": 133,
+        "text": "## Review Output Format"
+      },
+      {
+        "line": 134,
+        "text": ""
+      },
+      {
+        "line": 135,
+        "text": "Use this format only when the user asks for a standalone typography review. When `better-interface` orchestrates the review, provide domain evidence and findings to that skill and let its output format, severity scale, consolidation rules, cap, and verdict take precedence."
+      },
+      {
+        "line": 136,
+        "text": ""
+      },
+      {
+        "line": 137,
+        "text": "Present the standalone review in two parts."
+      },
+      {
+        "line": 138,
+        "text": ""
+      },
+      {
+        "line": 139,
+        "text": "### Findings"
+      },
+      {
+        "line": 140,
+        "text": ""
+      },
+      {
+        "line": 141,
+        "text": "Group all confirmed findings by principle. Use a markdown table with **Severity**, **Location**, **Before**, **After**, and **Why** columns. Never use separate \"Before:\" / \"After:\" lines."
+      },
+      {
+        "line": 142,
+        "text": ""
+      },
+      {
+        "line": 143,
+        "text": "- **Severity**: `HIGH` makes text unreadable, unavailable, or structurally misleading; `MEDIUM` harms hierarchy, wrapping, or scanning; `LOW` is isolated typographic polish."
+      },
+      {
+        "line": 144,
+        "text": "- **Location**: cite `path/to/file:line`. If the artifact has no source files, cite the exact screen and component instead."
+      },
+      {
+        "line": 145,
+        "text": "- **Before / After**: show the current typography and an actionable replacement."
+      },
+      {
+        "line": 146,
+        "text": "- **Why**: name the violated principle and its effect on readability or hierarchy."
+      },
+      {
+        "line": 147,
+        "text": ""
+      },
+      {
+        "line": 148,
+        "text": "Consolidate a repeated systemic issue into one row and list every affected location. Omit principles with no findings."
+      },
+      {
+        "line": 149,
+        "text": ""
+      },
+      {
+        "line": 150,
+        "text": "### Example"
+      },
+      {
+        "line": 151,
+        "text": ""
+      },
+      {
+        "line": 152,
+        "text": "#### Tabular numbers"
+      },
+      {
+        "line": 153,
+        "text": "| Severity | Location | Before | After | Why |"
+      },
+      {
+        "line": 154,
+        "text": "| --- | --- | --- | --- | --- |"
+      },
+      {
+        "line": 155,
+        "text": "| MEDIUM | `src/Price.tsx:17` | `<span>{price}</span>` on a live price | `<span className=\"tabular-nums\">{price}</span>` | Proportional digits cause changing values to shift |"
+      },
+      {
+        "line": 156,
+        "text": "| LOW | `src/numbers.css:8` | `font-feature-settings: \"tnum\" 1` | `font-variant-numeric: tabular-nums` | The high-level property preserves fallback behavior |"
+      },
+      {
+        "line": 157,
+        "text": ""
+      },
+      {
+        "line": 158,
+        "text": "#### Line-height and measure"
+      },
+      {
+        "line": 159,
+        "text": "| Severity | Location | Before | After | Why |"
+      },
+      {
+        "line": 160,
+        "text": "| --- | --- | --- | --- | --- |"
+      },
+      {
+        "line": 161,
+        "text": "| MEDIUM | `src/Article.tsx:33` | `leading-none` on a body paragraph | `leading-normal` (`1.5`\u2013`1.6`) | Wrapped body text needs enough vertical separation |"
+      },
+      {
+        "line": 162,
+        "text": "| MEDIUM | `src/article.css:12` | Full-width article column | `max-width` near 65 characters at `16px` | Long measures make lines hard to track |"
+      },
+      {
+        "line": 163,
+        "text": ""
+      },
+      {
+        "line": 164,
+        "text": "### Verification and Verdict"
+      },
+      {
+        "line": 165,
+        "text": ""
+      },
+      {
+        "line": 166,
+        "text": "After the findings:"
+      },
+      {
+        "line": 167,
+        "text": ""
+      },
+      {
+        "line": 168,
+        "text": "1. **Verification**: list the exact checks run and their observed results, including wrapping, hierarchy, text resizing, font loading, and dynamic-value stability when applicable. If a check was not run, state what still needs verification."
+      },
+      {
+        "line": 169,
+        "text": "2. **Verdict**: `Block` if any `HIGH` finding remains, `Needs changes` if only `MEDIUM` or `LOW` findings remain, and `Approve` only when no actionable findings remain."
+      },
+      {
+        "line": 170,
+        "text": ""
+      },
+      {
+        "line": 171,
+        "text": "When there are no findings, omit the tables, state \"No actionable typography findings\", report verification, and end with `Approve`."
+      }
+    ],
+    "matched_upstream_skill_path": "skills-HEAD/skills/better-typography/SKILL.md",
+    "repo": "jakubkrehel/skills",
+    "repo_reference": "https://github.com/jakubkrehel/skills/tree/main/skills/better-typography",
+    "repo_revision": "unknown",
+    "revision_status": "archive-digest-pinned upstream package matched by catalog_slug_package_map",
+    "sha256": "d2bb4f61f38d2814fde5eb6b130050544d951e444db352d3a1e5006108b673a9",
+    "snapshot_path": "sources/catalog-skills/better-typography/SKILL.md",
+    "source_id": "aiuxplayground:catalog-content:better-typography"
+  }
+}

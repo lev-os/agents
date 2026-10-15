@@ -1,0 +1,3907 @@
+{
+  "frontmatter": {
+    "fields": {
+      "compatibility": "Requires SLEEK_API_KEY environment variable. Network access limited to https://sleek.design only.",
+      "description": "Use when the user wants to design a mobile app, create screens, build UI, or interact with their Sleek projects. Covers high-level requests (\"design an app that does X\") and specific ones (\"list my projects\", \"create a new project\", \"screenshot that screen\").",
+      "metadata": "",
+      "name": "sleek-design-mobile-apps"
+    },
+    "line_end": 7,
+    "line_start": 1,
+    "raw": "name: sleek-design-mobile-apps\ndescription: Use when the user wants to design a mobile app, create screens, build UI, or interact with their Sleek projects. Covers high-level requests (\"design an app that does X\") and specific ones (\"list my projects\", \"create a new project\", \"screenshot that screen\").\ncompatibility: Requires SLEEK_API_KEY environment variable. Network access limited to https://sleek.design only.\nmetadata:\n  requires-env: SLEEK_API_KEY\n  allowed-hosts: https://sleek.design",
+    "status": "present"
+  },
+  "identity": {
+    "catalog_category": "ui-design",
+    "slug": "sleek-design-mobile-apps",
+    "title": "Sleek Design Mobile Apps"
+  },
+  "license": {
+    "status": "not stated in captured catalog source",
+    "value": null
+  },
+  "line_count": 520,
+  "ontology": {
+    "actions": [
+      {
+        "evidence": {
+          "line_end": 50,
+          "line_start": 50,
+          "text": "- **Minimal scopes**: Create API keys with only the scopes required for the task. Prefer short-lived or revocable keys."
+        },
+        "text": "- **Minimal scopes**: Create API keys with only the scopes required for the task. Prefer short-lived or revocable keys."
+      },
+      {
+        "evidence": {
+          "line_end": 460,
+          "line_start": 460,
+          "text": "- **Screenshots** are the visual target. Use them to verify your implementation matches the intended look."
+        },
+        "text": "- **Screenshots** are the visual target. Use them to verify your implementation matches the intended look."
+      },
+      {
+        "evidence": {
+          "line_end": 472,
+          "line_start": 472,
+          "text": "1. **Check if the project already has an icon system** that supports the same sets Sleek uses (Solar, Hugeicons, Material Symbols, MDI). If so, use it. Note: `@expo/vector-icons` does **not** support these sets, do not use it as a substitute."
+        },
+        "text": "1. **Check if the project already has an icon system** that supports the same sets Sleek uses (Solar, Hugeicons, Material Symbols, MDI). If so, use it. Note: `@expo/vector-icons` does **not** support these sets, do not use it as a substitute."
+      }
+    ],
+    "command_examples": [],
+    "constraints": [
+      {
+        "evidence": {
+          "line_end": 4,
+          "line_start": 4,
+          "text": "compatibility: Requires SLEEK_API_KEY environment variable. Network access limited to https://sleek.design only."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "compatibility: Requires SLEEK_API_KEY environment variable. Network access limited to https://sleek.design only."
+      },
+      {
+        "evidence": {
+          "line_end": 27,
+          "line_start": 27,
+          "text": "Create API keys at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation, store it in the `SLEEK_API_KEY` environment variable."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Create API keys at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation, store it in the `SLEEK_API_KEY` environment variable."
+      },
+      {
+        "evidence": {
+          "line_end": 42,
+          "line_start": 42,
+          "text": "Create a key with only the scopes needed for the task."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Create a key with only the scopes needed for the task."
+      },
+      {
+        "evidence": {
+          "line_end": 49,
+          "line_start": 49,
+          "text": "- **HTTPS only**: All communication uses HTTPS. The API key is transmitted only in the `Authorization` header to Sleek endpoints."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **HTTPS only**: All communication uses HTTPS. The API key is transmitted only in the `Authorization` header to Sleek endpoints."
+      },
+      {
+        "evidence": {
+          "line_end": 50,
+          "line_start": 50,
+          "text": "- **Minimal scopes**: Create API keys with only the scopes required for the task. Prefer short-lived or revocable keys."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Minimal scopes**: Create API keys with only the scopes required for the task. Prefer short-lived or revocable keys."
+      },
+      {
+        "evidence": {
+          "line_end": 131,
+          "line_start": 131,
+          "text": "Both list and get accept an optional `inlineIcons` query param (default `false`). When omitted, icons render as `<iconify-icon>` web components and the HTML pulls in the Iconify script, leave it off by default. Pass `?inlineIcons=true` only when the consumer needs self-contained SVGs in the HTML (for example, importing into tools that don't run scripts)."
+        },
+        "kind": "prohibited_operation",
+        "modality": "prohibited",
+        "text": "Both list and get accept an optional `inlineIcons` query param (default `false`). When omitted, icons render as `<iconify-icon>` web components and the HTML pulls in the Iconify script, leave it off by default. Pass `?inlineIcons=true` only when the consumer needs self-contained SVGs in the HTML (for example, importing into tools that don't run scripts).",
+        "verb": "run"
+      },
+      {
+        "evidence": {
+          "line_end": 197,
+          "line_start": 197,
+          "text": "| `imageUrls`              | No       | HTTPS URLs only; included as visual context   |"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "| `imageUrls`              | No       | HTTPS URLs only; included as visual context   |"
+      },
+      {
+        "evidence": {
+          "line_end": 336,
+          "line_start": 336,
+          "text": "Always use `\"background\": \"transparent\"` unless the user explicitly requests a specific background color."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Always use `\"background\": \"transparent\"` unless the user explicitly requests a specific background color."
+      },
+      {
+        "evidence": {
+          "line_end": 368,
+          "line_start": 368,
+          "text": "Sleek has its own AI that plans screen content, visual style, and layout. Pass the user's request to Sleek as-is: don't add details the user didn't ask for. If the user described specific screens and styling, include those. If they just said \"build me a running app,\" send that and let Sleek decide the rest. Sleek produces richer designs when given room to plan, so avoid inventing screen content or layout details that the user didn't specify."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Sleek has its own AI that plans screen content, visual style, and layout. Pass the user's request to Sleek as-is: don't add details the user didn't ask for. If the user described specific screens and styling, include those. If they just said \"build me a running app,\" send that and let Sleek decide the rest. Sleek produces richer designs when given room to plan, so avoid inventing screen content or layout details that the user didn't specify."
+      },
+      {
+        "evidence": {
+          "line_end": 382,
+          "line_start": 382,
+          "text": "Describe what to build using `POST /api/v1/projects/:id/chat/messages`. You can use the user's words directly. Sleek's AI interprets natural language. You do not need to decompose the request into screens; send the full intent as a single message and let Sleek decide what screens to create."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Describe what to build using `POST /api/v1/projects/:id/chat/messages`. You can use the user's words directly. Sleek's AI interprets natural language. You do not need to decompose the request into screens; send the full intent as a single message and let Sleek decide what screens to create."
+      },
+      {
+        "evidence": {
+          "line_end": 390,
+          "line_start": 390,
+          "text": "**One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message. Messages to different projects can run in parallel. Use async polling (not `?wait=true`) when running multiple projects concurrently."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "**One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message. Messages to different projects can run in parallel. Use async polling (not `?wait=true`) when running multiple projects concurrently."
+      },
+      {
+        "evidence": {
+          "line_end": 396,
+          "line_start": 396,
+          "text": "After every chat run that produces `screen_created` or `screen_updated` operations, **always take screenshots and show them to the user** using `POST /api/v1/screenshots`. Never silently complete a chat run without delivering the visuals."
+        },
+        "kind": "prohibited_operation",
+        "modality": "prohibited",
+        "text": "After every chat run that produces `screen_created` or `screen_updated` operations, **always take screenshots and show them to the user** using `POST /api/v1/screenshots`. Never silently complete a chat run without delivering the visuals.",
+        "verb": "run"
+      },
+      {
+        "evidence": {
+          "line_end": 409,
+          "line_start": 409,
+          "text": "When the user wants to implement the designs in code (not just preview them), **always fetch the component HTML code**: do not rely on screenshots alone."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "When the user wants to implement the designs in code (not just preview them), **always fetch the component HTML code**: do not rely on screenshots alone."
+      },
+      {
+        "evidence": {
+          "line_end": 430,
+          "line_start": 430,
+          "text": "When you see a pin block, implement those exact versions instead of `activeVersion`. Components not named in the pin block continue to use their active version. Theme IDs surface only inside pin blocks. This skill exposes no separate endpoint to enumerate them."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "When you see a pin block, implement those exact versions instead of `activeVersion`. Components not named in the pin block continue to use their active version. Theme IDs surface only inside pin blocks. This skill exposes no separate endpoint to enumerate them."
+      },
+      {
+        "evidence": {
+          "line_end": 468,
+          "line_start": 468,
+          "text": "**Use the exact icons from the HTML code**: do not substitute with a different icon set. Matching icons is important for design fidelity."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "**Use the exact icons from the HTML code**: do not substitute with a different icon set. Matching icons is important for design fidelity."
+      },
+      {
+        "evidence": {
+          "line_end": 472,
+          "line_start": 472,
+          "text": "1. **Check if the project already has an icon system** that supports the same sets Sleek uses (Solar, Hugeicons, Material Symbols, MDI). If so, use it. Note: `@expo/vector-icons` does **not** support these sets, do not use it as a substitute."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "1. **Check if the project already has an icon system** that supports the same sets Sleek uses (Solar, Hugeicons, Material Symbols, MDI). If so, use it. Note: `@expo/vector-icons` does **not** support these sets, do not use it as a substitute."
+      },
+      {
+        "evidence": {
+          "line_end": 487,
+          "line_start": 487,
+          "text": "The designs may include navigation elements like tab bars and headers. Update the project's navigation styling and structure to match the designs, don't just implement the screen content while leaving the default navigation untouched."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "The designs may include navigation elements like tab bars and headers. Update the project's navigation styling and structure to match the designs, don't just implement the screen content while leaving the default navigation untouched."
+      },
+      {
+        "evidence": {
+          "line_end": 493,
+          "line_start": 493,
+          "text": "All list endpoints accept `limit` (1-100, default 50) and `offset` (\u22650). The response always includes `pagination.total` so you can page through all results."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "All list endpoints accept `limit` (1-100, default 50) and `offset` (\u22650). The response always includes `pagination.total` so you can page through all results."
+      },
+      {
+        "evidence": {
+          "line_end": 517,
+          "line_start": 517,
+          "text": "| HTTP URLs in `imageUrls`                            | Only HTTPS URLs are accepted                                                    |"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "| HTTP URLs in `imageUrls`                            | Only HTTPS URLs are accepted                                                    |"
+      },
+      {
+        "evidence": {
+          "line_end": 519,
+          "line_start": 519,
+          "text": "| Using `screenId` as `componentIds` in screenshots   | `screenId` and `componentId` are different; always use `componentId` from operations for screenshots |"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "| Using `screenId` as `componentIds` in screenshots   | `screenId` and `componentId` are different; always use `componentId` from operations for screenshots |"
+      }
+    ],
+    "effects": [
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: Use when the user wants to design a mobile app, create screens, build UI, or interact with their Sleek projects. Covers high-level requests (\"design an app that does X\") and specific ones (\"list my projects\", \"create a new project\", \"screenshot that screen\")."
+        },
+        "modality": "conditional",
+        "text": "description: Use when the user wants to design a mobile app, create screens, build UI, or interact with their Sleek projects. Covers high-level requests (\"design an app that does X\") and specific ones (\"list my projects\", \"create a new project\", \"screenshot that screen\").",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: Use when the user wants to design a mobile app, create screens, build UI, or interact with their Sleek projects. Covers high-level requests (\"design an app that does X\") and specific ones (\"list my projects\", \"create a new project\", \"screenshot that screen\")."
+        },
+        "modality": "conditional",
+        "text": "description: Use when the user wants to design a mobile app, create screens, build UI, or interact with their Sleek projects. Covers high-level requests (\"design an app that does X\") and specific ones (\"list my projects\", \"create a new project\", \"screenshot that screen\").",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 16,
+          "line_start": 16,
+          "text": "[sleek.design](https://sleek.design) is an AI-powered mobile app design tool. You interact with it via a REST API at `/api/v1/*` to create projects, describe what you want built in plain language, and get back rendered screens. All communication is standard HTTP with bearer token auth."
+        },
+        "modality": "unspecified",
+        "text": "[sleek.design](https://sleek.design) is an AI-powered mobile app design tool. You interact with it via a REST API at `/api/v1/*` to create projects, describe what you want built in plain language, and get back rendered screens. All communication is standard HTTP with bearer token auth.",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 27,
+          "line_start": 27,
+          "text": "Create API keys at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation, store it in the `SLEEK_API_KEY` environment variable."
+        },
+        "modality": "unspecified",
+        "text": "Create API keys at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation, store it in the `SLEEK_API_KEY` environment variable.",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 36,
+          "line_start": 36,
+          "text": "| `projects:write`  | Create / delete projects     |"
+        },
+        "modality": "unspecified",
+        "text": "| `projects:write`  | Create / delete projects     |",
+        "verb": "write"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 36,
+          "line_start": 36,
+          "text": "| `projects:write`  | Create / delete projects     |"
+        },
+        "modality": "unspecified",
+        "text": "| `projects:write`  | Create / delete projects     |",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 36,
+          "line_start": 36,
+          "text": "| `projects:write`  | Create / delete projects     |"
+        },
+        "modality": "unspecified",
+        "text": "| `projects:write`  | Create / delete projects     |",
+        "verb": "delete"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 38,
+          "line_start": 38,
+          "text": "| `chats:read`      | Get chat run status          |"
+        },
+        "modality": "unspecified",
+        "text": "| `chats:read`      | Get chat run status          |",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 39,
+          "line_start": 39,
+          "text": "| `chats:write`     | Send chat messages           |"
+        },
+        "modality": "unspecified",
+        "text": "| `chats:write`     | Send chat messages           |",
+        "verb": "write"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 39,
+          "line_start": 39,
+          "text": "| `chats:write`     | Send chat messages           |"
+        },
+        "modality": "unspecified",
+        "text": "| `chats:write`     | Send chat messages           |",
+        "verb": "send"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 42,
+          "line_start": 42,
+          "text": "Create a key with only the scopes needed for the task."
+        },
+        "modality": "unspecified",
+        "text": "Create a key with only the scopes needed for the task.",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 50,
+          "line_start": 50,
+          "text": "- **Minimal scopes**: Create API keys with only the scopes required for the task. Prefer short-lived or revocable keys."
+        },
+        "modality": "unspecified",
+        "text": "- **Minimal scopes**: Create API keys with only the scopes required for the task. Prefer short-lived or revocable keys.",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 60,
+          "line_start": 60,
+          "text": "| `POST`   | `/api/v1/projects`                      | `projects:write`  | Create project    |"
+        },
+        "modality": "unspecified",
+        "text": "| `POST`   | `/api/v1/projects`                      | `projects:write`  | Create project    |",
+        "verb": "write"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 60,
+          "line_start": 60,
+          "text": "| `POST`   | `/api/v1/projects`                      | `projects:write`  | Create project    |"
+        },
+        "modality": "unspecified",
+        "text": "| `POST`   | `/api/v1/projects`                      | `projects:write`  | Create project    |",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 62,
+          "line_start": 62,
+          "text": "| `DELETE` | `/api/v1/projects/:id`                  | `projects:write`  | Delete project    |"
+        },
+        "modality": "unspecified",
+        "text": "| `DELETE` | `/api/v1/projects/:id`                  | `projects:write`  | Delete project    |",
+        "verb": "delete"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 62,
+          "line_start": 62,
+          "text": "| `DELETE` | `/api/v1/projects/:id`                  | `projects:write`  | Delete project    |"
+        },
+        "modality": "unspecified",
+        "text": "| `DELETE` | `/api/v1/projects/:id`                  | `projects:write`  | Delete project    |",
+        "verb": "write"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 62,
+          "line_start": 62,
+          "text": "| `DELETE` | `/api/v1/projects/:id`                  | `projects:write`  | Delete project    |"
+        },
+        "modality": "unspecified",
+        "text": "| `DELETE` | `/api/v1/projects/:id`                  | `projects:write`  | Delete project    |",
+        "verb": "delete"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 65,
+          "line_start": 65,
+          "text": "| `POST`   | `/api/v1/projects/:id/chat/messages`    | `chats:write`     | Send chat message |"
+        },
+        "modality": "unspecified",
+        "text": "| `POST`   | `/api/v1/projects/:id/chat/messages`    | `chats:write`     | Send chat message |",
+        "verb": "write"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 65,
+          "line_start": 65,
+          "text": "| `POST`   | `/api/v1/projects/:id/chat/messages`    | `chats:write`     | Send chat message |"
+        },
+        "modality": "unspecified",
+        "text": "| `POST`   | `/api/v1/projects/:id/chat/messages`    | `chats:write`     | Send chat message |",
+        "verb": "send"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 66,
+          "line_start": 66,
+          "text": "| `GET`    | `/api/v1/projects/:id/chat/runs/:runId` | `chats:read`      | Poll run status   |"
+        },
+        "modality": "unspecified",
+        "text": "| `GET`    | `/api/v1/projects/:id/chat/runs/:runId` | `chats:read`      | Poll run status   |",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 101,
+          "line_start": 101,
+          "text": "#### Create project"
+        },
+        "modality": "unspecified",
+        "text": "#### Create project",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 113,
+          "line_start": 113,
+          "text": "#### Get / Delete project"
+        },
+        "modality": "unspecified",
+        "text": "#### Get / Delete project",
+        "verb": "delete"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 153,
+          "line_start": 153,
+          "text": "Fetches a single component by ID. Use this when you need the code for a specific screen (e.g., after a chat run returns a `componentId` in its operations)."
+        },
+        "modality": "conditional",
+        "text": "Fetches a single component by ID. Use this when you need the code for a specific screen (e.g., after a chat run returns a `componentId` in its operations).",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 177,
+          "line_start": 177,
+          "text": "### Chat. Send Message"
+        },
+        "modality": "unspecified",
+        "text": "### Chat. Send Message",
+        "verb": "send"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 198,
+          "line_start": 198,
+          "text": "| `target.screenId`        | No       | Edit a specific screen using its `screenId` (not `componentId`); omit to let AI decide |"
+        },
+        "modality": "unspecified",
+        "text": "| `target.screenId`        | No       | Edit a specific screen using its `screenId` (not `componentId`); omit to let AI decide |",
+        "verb": "edit"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 204,
+          "line_start": 204,
+          "text": "Status `202 Accepted`. `result` and `error` are absent until the run reaches a terminal state."
+        },
+        "modality": "conditional",
+        "text": "Status `202 Accepted`. `result` and `error` are absent until the run reaches a terminal state.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 240,
+          "line_start": 240,
+          "text": "### Chat. Poll Run Status"
+        },
+        "modality": "unspecified",
+        "text": "### Chat. Poll Run Status",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 242,
+          "line_start": 242,
+          "text": "Use this after async send to check progress."
+        },
+        "modality": "unspecified",
+        "text": "Use this after async send to check progress.",
+        "verb": "send"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 249,
+          "line_start": 249,
+          "text": "Response, same shape as send message `data` object:"
+        },
+        "modality": "unspecified",
+        "text": "Response, same shape as send message `data` object:",
+        "verb": "send"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 290,
+          "line_start": 290,
+          "text": "**Run status lifecycle**: `queued` \u2192 `running` \u2192 `completed | failed`"
+        },
+        "modality": "unspecified",
+        "text": "**Run status lifecycle**: `queued` \u2192 `running` \u2192 `completed | failed`",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 354,
+          "line_start": 354,
+          "text": "| 409  | `CONFLICT`              | Another run is active for this project |"
+        },
+        "modality": "unspecified",
+        "text": "| 409  | `CONFLICT`              | Another run is active for this project |",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 357,
+          "line_start": 357,
+          "text": "Chat run-level errors (inside `data.error`):"
+        },
+        "modality": "unspecified",
+        "text": "Chat run-level errors (inside `data.error`):",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 368,
+          "line_start": 368,
+          "text": "Sleek has its own AI that plans screen content, visual style, and layout. Pass the user's request to Sleek as-is: don't add details the user didn't ask for. If the user described specific screens and styling, include those. If they just said \"build me a running app,\" send that and let Sleek decide the rest. Sleek produces richer designs when given room to plan, so avoid inventing screen content or layout details that the user didn't specify."
+        },
+        "modality": "conditional",
+        "text": "Sleek has its own AI that plans screen content, visual style, and layout. Pass the user's request to Sleek as-is: don't add details the user didn't ask for. If the user described specific screens and styling, include those. If they just said \"build me a running app,\" send that and let Sleek decide the rest. Sleek produces richer designs when given room to plan, so avoid inventing screen content or layout details that the user didn't specify.",
+        "verb": "send"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 374,
+          "line_start": 374,
+          "text": "### 1. Create a project"
+        },
+        "modality": "unspecified",
+        "text": "### 1. Create a project",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 376,
+          "line_start": 376,
+          "text": "Create a project with `POST /api/v1/projects` if one doesn't exist yet. Ask the user for a name, or derive one from the request."
+        },
+        "modality": "unspecified",
+        "text": "Create a project with `POST /api/v1/projects` if one doesn't exist yet. Ask the user for a name, or derive one from the request.",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 378,
+          "line_start": 378,
+          "text": "Each project has its own theme, style, and design system. If the user wants multiple design variations, create a separate project for each variation."
+        },
+        "modality": "conditional",
+        "text": "Each project has its own theme, style, and design system. If the user wants multiple design variations, create a separate project for each variation.",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 380,
+          "line_start": 380,
+          "text": "### 2. Send a chat message"
+        },
+        "modality": "unspecified",
+        "text": "### 2. Send a chat message",
+        "verb": "send"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 382,
+          "line_start": 382,
+          "text": "Describe what to build using `POST /api/v1/projects/:id/chat/messages`. You can use the user's words directly. Sleek's AI interprets natural language. You do not need to decompose the request into screens; send the full intent as a single message and let Sleek decide what screens to create."
+        },
+        "modality": "unspecified",
+        "text": "Describe what to build using `POST /api/v1/projects/:id/chat/messages`. You can use the user's words directly. Sleek's AI interprets natural language. You do not need to decompose the request into screens; send the full intent as a single message and let Sleek decide what screens to create.",
+        "verb": "send"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 382,
+          "line_start": 382,
+          "text": "Describe what to build using `POST /api/v1/projects/:id/chat/messages`. You can use the user's words directly. Sleek's AI interprets natural language. You do not need to decompose the request into screens; send the full intent as a single message and let Sleek decide what screens to create."
+        },
+        "modality": "unspecified",
+        "text": "Describe what to build using `POST /api/v1/projects/:id/chat/messages`. You can use the user's words directly. Sleek's AI interprets natural language. You do not need to decompose the request into screens; send the full intent as a single message and let Sleek decide what screens to create.",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 390,
+          "line_start": 390,
+          "text": "**One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message. Messages to different projects can run in parallel. Use async polling (not `?wait=true`) when running multiple projects concurrently."
+        },
+        "modality": "unspecified",
+        "text": "**One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message. Messages to different projects can run in parallel. Use async polling (not `?wait=true`) when running multiple projects concurrently.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 390,
+          "line_start": 390,
+          "text": "**One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message. Messages to different projects can run in parallel. Use async polling (not `?wait=true`) when running multiple projects concurrently."
+        },
+        "modality": "unspecified",
+        "text": "**One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message. Messages to different projects can run in parallel. Use async polling (not `?wait=true`) when running multiple projects concurrently.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 390,
+          "line_start": 390,
+          "text": "**One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message. Messages to different projects can run in parallel. Use async polling (not `?wait=true`) when running multiple projects concurrently."
+        },
+        "modality": "conditional",
+        "text": "**One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message. Messages to different projects can run in parallel. Use async polling (not `?wait=true`) when running multiple projects concurrently.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 390,
+          "line_start": 390,
+          "text": "**One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message. Messages to different projects can run in parallel. Use async polling (not `?wait=true`) when running multiple projects concurrently."
+        },
+        "modality": "permitted",
+        "text": "**One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message. Messages to different projects can run in parallel. Use async polling (not `?wait=true`) when running multiple projects concurrently.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 392,
+          "line_start": 392,
+          "text": "**Safe retries**: add an `idempotency-key` header (\u2264255 chars) to replay-safe re-sends. The server returns the existing run rather than creating a duplicate."
+        },
+        "modality": "unspecified",
+        "text": "**Safe retries**: add an `idempotency-key` header (\u2264255 chars) to replay-safe re-sends. The server returns the existing run rather than creating a duplicate.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 396,
+          "line_start": 396,
+          "text": "After every chat run that produces `screen_created` or `screen_updated` operations, **always take screenshots and show them to the user** using `POST /api/v1/screenshots`. Never silently complete a chat run without delivering the visuals."
+        },
+        "modality": "unspecified",
+        "text": "After every chat run that produces `screen_created` or `screen_updated` operations, **always take screenshots and show them to the user** using `POST /api/v1/screenshots`. Never silently complete a chat run without delivering the visuals.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 403,
+          "line_start": 403,
+          "text": "Save screenshots in the project directory (not a temporary folder) so the user can easily view them."
+        },
+        "modality": "unspecified",
+        "text": "Save screenshots in the project directory (not a temporary folder) so the user can easily view them.",
+        "verb": "save"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 411,
+          "line_start": 411,
+          "text": "Use `GET /api/v1/projects/:id/components/:componentId` to fetch each screen's code. The `componentId` comes from the chat run's `result.operations`."
+        },
+        "modality": "unspecified",
+        "text": "Use `GET /api/v1/projects/:id/components/:componentId` to fetch each screen's code. The `componentId` comes from the chat run's `result.operations`.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 453,
+          "line_start": 453,
+          "text": "The component `code` is a complete HTML document, save it directly to a `.html` file. No build step needed."
+        },
+        "modality": "unspecified",
+        "text": "The component `code` is a complete HTML document, save it directly to a `.html` file. No build step needed.",
+        "verb": "save"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 479,
+          "line_start": 479,
+          "text": "   Collect all icon names from the HTML, fetch their SVGs, and save them as static assets or string constants in the codebase. For **React Native / Expo**, render them with `react-native-svg`'s `SvgXml` component. This works in Expo Go with no additional native dependencies."
+        },
+        "modality": "unspecified",
+        "text": "Collect all icon names from the HTML, fetch their SVGs, and save them as static assets or string constants in the codebase. For **React Native / Expo**, render them with `react-native-svg`'s `SvgXml` component. This works in Expo Go with no additional native dependencies.",
+        "verb": "save"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 505,
+          "line_start": 505,
+          "text": "Component code can be large. When saving it to `.html` files, avoid writing the content through your text output. This is slow and wastes tokens. Instead, use shell commands to fetch the API response and write it directly to disk (e.g., pipe the response body into a file). This applies to both single and multiple components."
+        },
+        "modality": "conditional",
+        "text": "Component code can be large. When saving it to `.html` files, avoid writing the content through your text output. This is slow and wastes tokens. Instead, use shell commands to fetch the API response and write it directly to disk (e.g., pipe the response body into a file). This applies to both single and multiple components.",
+        "verb": "write"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 514,
+          "line_start": 514,
+          "text": "| Using wrong scope                                   | Check key's scopes match the endpoint (e.g. `chats:write` for sending messages) |"
+        },
+        "modality": "unspecified",
+        "text": "| Using wrong scope                                   | Check key's scopes match the endpoint (e.g. `chats:write` for sending messages) |",
+        "verb": "write"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 515,
+          "line_start": 515,
+          "text": "| Sending next message before run completes           | Poll until `completed`/`failed` before next send                                |"
+        },
+        "modality": "unspecified",
+        "text": "| Sending next message before run completes           | Poll until `completed`/`failed` before next send                                |",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 515,
+          "line_start": 515,
+          "text": "| Sending next message before run completes           | Poll until `completed`/`failed` before next send                                |"
+        },
+        "modality": "conditional",
+        "text": "| Sending next message before run completes           | Poll until `completed`/`failed` before next send                                |",
+        "verb": "send"
+      }
+    ],
+    "external_urls": [
+      {
+        "evidence": {
+          "line_end": 4,
+          "line_start": 4,
+          "text": "compatibility: Requires SLEEK_API_KEY environment variable. Network access limited to https://sleek.design only."
+        },
+        "url": "https://sleek.design"
+      },
+      {
+        "evidence": {
+          "line_end": 7,
+          "line_start": 7,
+          "text": "  allowed-hosts: https://sleek.design"
+        },
+        "url": "https://sleek.design"
+      },
+      {
+        "evidence": {
+          "line_end": 12,
+          "line_start": 12,
+          "text": "[![Design mobile apps in minutes](https://raw.githubusercontent.com/sleekdotdesign/agent-skills/main/assets/hero.png)](https://sleek.design)"
+        },
+        "url": "https://raw.githubusercontent.com/sleekdotdesign/agent-skills/main/assets/hero.png"
+      },
+      {
+        "evidence": {
+          "line_end": 12,
+          "line_start": 12,
+          "text": "[![Design mobile apps in minutes](https://raw.githubusercontent.com/sleekdotdesign/agent-skills/main/assets/hero.png)](https://sleek.design)"
+        },
+        "url": "https://sleek.design"
+      },
+      {
+        "evidence": {
+          "line_end": 16,
+          "line_start": 16,
+          "text": "[sleek.design](https://sleek.design) is an AI-powered mobile app design tool. You interact with it via a REST API at `/api/v1/*` to create projects, describe what you want built in plain language, and get back rendered screens. All communication is standard HTTP with bearer token auth."
+        },
+        "url": "https://sleek.design"
+      },
+      {
+        "evidence": {
+          "line_end": 18,
+          "line_start": 18,
+          "text": "**Base URL**: `https://sleek.design`"
+        },
+        "url": "https://sleek.design"
+      },
+      {
+        "evidence": {
+          "line_end": 27,
+          "line_start": 27,
+          "text": "Create API keys at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation, store it in the `SLEEK_API_KEY` environment variable."
+        },
+        "url": "https://sleek.design/dashboard/api-keys**"
+      },
+      {
+        "evidence": {
+          "line_end": 48,
+          "line_start": 48,
+          "text": "- **Single host**: All requests go exclusively to `https://sleek.design`. No data is sent to third parties."
+        },
+        "url": "https://sleek.design"
+      },
+      {
+        "evidence": {
+          "line_end": 466,
+          "line_start": 466,
+          "text": "Sleek uses [Iconify](https://iconify.design) icons in the format `prefix:name` (e.g., `solar:heart-bold`, `material-symbols:search-rounded`, `lucide:settings`). The most common sets are **Solar**, **Hugeicons**, **Material Symbols** and **MDI**."
+        },
+        "url": "https://iconify.design"
+      },
+      {
+        "evidence": {
+          "line_end": 477,
+          "line_start": 477,
+          "text": "   Example: `https://api.iconify.design/solar/heart-bold.svg`"
+        },
+        "url": "https://api.iconify.design/solar/heart-bold.svg"
+      }
+    ],
+    "headings": [
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 10,
+        "title": "Designing with Sleek"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 14,
+        "title": "Overview"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 25,
+        "title": "Prerequisites: API Key"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 31,
+        "title": "Key scopes"
+      },
+      {
+        "bullets": [
+          {
+            "line": 48,
+            "text": "**Single host**: All requests go exclusively to `https://sleek.design`. No data is sent to third parties."
+          },
+          {
+            "line": 49,
+            "text": "**HTTPS only**: All communication uses HTTPS. The API key is transmitted only in the `Authorization` header to Sleek endpoints."
+          },
+          {
+            "line": 50,
+            "text": "**Minimal scopes**: Create API keys with only the scopes required for the task. Prefer short-lived or revocable keys."
+          },
+          {
+            "line": 51,
+            "text": "**Image URLs**: When using `imageUrls` in chat messages, those URLs are fetched by Sleek's servers. Avoid passing URLs that contain sensitive content."
+          }
+        ],
+        "level": 2,
+        "line": 46,
+        "title": "Security & Privacy"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 55,
+        "title": "Quick Reference. All Endpoints"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 73,
+        "title": "Endpoints"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 75,
+        "title": "Projects"
+      },
+      {
+        "bullets": [],
+        "level": 4,
+        "line": 77,
+        "title": "List projects"
+      },
+      {
+        "bullets": [],
+        "level": 4,
+        "line": 101,
+        "title": "Create project"
+      },
+      {
+        "bullets": [],
+        "level": 4,
+        "line": 113,
+        "title": "Get / Delete project"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 122,
+        "title": "Components"
+      },
+      {
+        "bullets": [],
+        "level": 4,
+        "line": 124,
+        "title": "List components"
+      },
+      {
+        "bullets": [],
+        "level": 4,
+        "line": 151,
+        "title": "Get component"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 177,
+        "title": "Chat. Send Message"
+      },
+      {
+        "bullets": [],
+        "level": 4,
+        "line": 202,
+        "title": "Response, async (default, `wait=false`)"
+      },
+      {
+        "bullets": [],
+        "level": 4,
+        "line": 216,
+        "title": "Response, sync (`wait=true`)"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 240,
+        "title": "Chat. Poll Run Status"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 294,
+        "title": "Screenshots"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 342,
+        "title": "Error Shapes"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 366,
+        "title": "Prompting Sleek"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 372,
+        "title": "Designing"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 374,
+        "title": "1. Create a project"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 380,
+        "title": "2. Send a chat message"
+      },
+      {
+        "bullets": [
+          {
+            "line": 398,
+            "text": "**New screens**: one screenshot per screen + one combined screenshot of all screens in the project."
+          },
+          {
+            "line": 399,
+            "text": "**Updated screens**: one screenshot per affected screen."
+          }
+        ],
+        "level": 3,
+        "line": 394,
+        "title": "3. Show the results"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 407,
+        "title": "Implementing Designs"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 413,
+        "title": "Which version to use"
+      },
+      {
+        "bullets": [
+          {
+            "line": 425,
+            "text": "component cmp_abc: version ver_001"
+          },
+          {
+            "line": 426,
+            "text": "component cmp_def: version ver_002"
+          },
+          {
+            "line": 427,
+            "text": "theme thm_ghi: version ver_003"
+          }
+        ],
+        "level": 3,
+        "line": 419,
+        "title": "Pinned versions"
+      },
+      {
+        "bullets": [],
+        "level": 4,
+        "line": 432,
+        "title": "Fetching the right code"
+      },
+      {
+        "bullets": [],
+        "level": 4,
+        "line": 436,
+        "title": "Screenshots of pinned versions"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 451,
+        "title": "HTML prototypes"
+      },
+      {
+        "bullets": [
+          {
+            "line": 459,
+            "text": "**HTML code** is the implementation reference. It contains the exact structure, layout, styling, colors, spacing, content, image URLs, and icon names."
+          },
+          {
+            "line": 460,
+            "text": "**Screenshots** are the visual target. Use them to verify your implementation matches the intended look."
+          }
+        ],
+        "level": 3,
+        "line": 455,
+        "title": "Native frameworks (React Native, SwiftUI, etc.)"
+      },
+      {
+        "bullets": [
+          {
+            "line": 472,
+            "text": "**Check if the project already has an icon system** that supports the same sets Sleek uses (Solar, Hugeicons, Material Symbols, MDI). If so, use it. Note: `@expo/vector-icons` does **not** support these sets, do not use it as a substitute."
+          },
+          {
+            "line": 473,
+            "text": "**Otherwise, fetch the SVGs from the Iconify API and embed them in the code:**"
+          }
+        ],
+        "level": 4,
+        "line": 464,
+        "title": "Icons"
+      },
+      {
+        "bullets": [],
+        "level": 4,
+        "line": 481,
+        "title": "Fonts"
+      },
+      {
+        "bullets": [],
+        "level": 4,
+        "line": 485,
+        "title": "Navigation"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 491,
+        "title": "Pagination"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 501,
+        "title": "Tips"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 503,
+        "title": "Saving component HTML to files"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 509,
+        "title": "Common Mistakes"
+      }
+    ],
+    "inputs": [
+      {
+        "evidence": {
+          "line_end": 19,
+          "line_start": 19,
+          "text": "**Auth**: `Authorization: Bearer $SLEEK_API_KEY` on every `/api/v1/*` request"
+        },
+        "status": "input_candidate",
+        "text": "**Auth**: `Authorization: Bearer $SLEEK_API_KEY` on every `/api/v1/*` request"
+      },
+      {
+        "evidence": {
+          "line_end": 320,
+          "line_start": 320,
+          "text": "| `paddingX`      | _(optional)_  | Horizontal padding; overrides `padding` for left/right when provided |"
+        },
+        "status": "input_candidate",
+        "text": "| `paddingX`      | _(optional)_  | Horizontal padding; overrides `padding` for left/right when provided |"
+      },
+      {
+        "evidence": {
+          "line_end": 321,
+          "line_start": 321,
+          "text": "| `paddingY`      | _(optional)_  | Vertical padding; overrides `padding` for top/bottom when provided   |"
+        },
+        "status": "input_candidate",
+        "text": "| `paddingY`      | _(optional)_  | Vertical padding; overrides `padding` for top/bottom when provided   |"
+      },
+      {
+        "evidence": {
+          "line_end": 322,
+          "line_start": 322,
+          "text": "| `paddingTop`    | _(optional)_  | Top padding; overrides `paddingY` when provided                      |"
+        },
+        "status": "input_candidate",
+        "text": "| `paddingTop`    | _(optional)_  | Top padding; overrides `paddingY` when provided                      |"
+      },
+      {
+        "evidence": {
+          "line_end": 323,
+          "line_start": 323,
+          "text": "| `paddingRight`  | _(optional)_  | Right padding; overrides `paddingX` when provided                    |"
+        },
+        "status": "input_candidate",
+        "text": "| `paddingRight`  | _(optional)_  | Right padding; overrides `paddingX` when provided                    |"
+      },
+      {
+        "evidence": {
+          "line_end": 324,
+          "line_start": 324,
+          "text": "| `paddingBottom` | _(optional)_  | Bottom padding; overrides `paddingY` when provided                   |"
+        },
+        "status": "input_candidate",
+        "text": "| `paddingBottom` | _(optional)_  | Bottom padding; overrides `paddingY` when provided                   |"
+      },
+      {
+        "evidence": {
+          "line_end": 325,
+          "line_start": 325,
+          "text": "| `paddingLeft`   | _(optional)_  | Left padding; overrides `paddingX` when provided                     |"
+        },
+        "status": "input_candidate",
+        "text": "| `paddingLeft`   | _(optional)_  | Left padding; overrides `paddingX` when provided                     |"
+      },
+      {
+        "evidence": {
+          "line_end": 368,
+          "line_start": 368,
+          "text": "Sleek has its own AI that plans screen content, visual style, and layout. Pass the user's request to Sleek as-is: don't add details the user didn't ask for. If the user described specific screens and styling, include those. If they just said \"build me a running app,\" send that and let Sleek decide the rest. Sleek produces richer designs when given room to plan, so avoid inventing screen content or layout details that the user didn't specify."
+        },
+        "status": "input_candidate",
+        "text": "Sleek has its own AI that plans screen content, visual style, and layout. Pass the user's request to Sleek as-is: don't add details the user didn't ask for. If the user described specific screens and styling, include those. If they just said \"build me a running app,\" send that and let Sleek decide the rest. Sleek produces richer designs when given room to plan, so avoid inventing screen content or layout details that the user didn't specify."
+      },
+      {
+        "evidence": {
+          "line_end": 376,
+          "line_start": 376,
+          "text": "Create a project with `POST /api/v1/projects` if one doesn't exist yet. Ask the user for a name, or derive one from the request."
+        },
+        "status": "input_candidate",
+        "text": "Create a project with `POST /api/v1/projects` if one doesn't exist yet. Ask the user for a name, or derive one from the request."
+      },
+      {
+        "evidence": {
+          "line_end": 382,
+          "line_start": 382,
+          "text": "Describe what to build using `POST /api/v1/projects/:id/chat/messages`. You can use the user's words directly. Sleek's AI interprets natural language. You do not need to decompose the request into screens; send the full intent as a single message and let Sleek decide what screens to create."
+        },
+        "status": "input_candidate",
+        "text": "Describe what to build using `POST /api/v1/projects/:id/chat/messages`. You can use the user's words directly. Sleek's AI interprets natural language. You do not need to decompose the request into screens; send the full intent as a single message and let Sleek decide what screens to create."
+      },
+      {
+        "evidence": {
+          "line_end": 434,
+          "line_start": 434,
+          "text": "For each pinned component, find the entry in `versions[]` where `versions[i].id` matches the given version id (e.g. `ver_001`) and use its `code`. Do **not** fall back to `activeVersion` for pinned components."
+        },
+        "status": "input_candidate",
+        "text": "For each pinned component, find the entry in `versions[]` where `versions[i].id` matches the given version id (e.g. `ver_001`) and use its `code`. Do **not** fall back to `activeVersion` for pinned components."
+      },
+      {
+        "evidence": {
+          "line_end": 513,
+          "line_start": 513,
+          "text": "| Sending to `/api/v1` without `Authorization` header | Add `Authorization: Bearer $SLEEK_API_KEY` to every request                              |"
+        },
+        "status": "input_candidate",
+        "text": "| Sending to `/api/v1` without `Authorization` header | Add `Authorization: Bearer $SLEEK_API_KEY` to every request                              |"
+      }
+    ],
+    "invariants": [
+      {
+        "evidence": {
+          "line_end": 4,
+          "line_start": 4,
+          "text": "compatibility: Requires SLEEK_API_KEY environment variable. Network access limited to https://sleek.design only."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "compatibility: Requires SLEEK_API_KEY environment variable. Network access limited to https://sleek.design only."
+      },
+      {
+        "evidence": {
+          "line_end": 27,
+          "line_start": 27,
+          "text": "Create API keys at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation, store it in the `SLEEK_API_KEY` environment variable."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Create API keys at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation, store it in the `SLEEK_API_KEY` environment variable."
+      },
+      {
+        "evidence": {
+          "line_end": 42,
+          "line_start": 42,
+          "text": "Create a key with only the scopes needed for the task."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Create a key with only the scopes needed for the task."
+      },
+      {
+        "evidence": {
+          "line_end": 49,
+          "line_start": 49,
+          "text": "- **HTTPS only**: All communication uses HTTPS. The API key is transmitted only in the `Authorization` header to Sleek endpoints."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **HTTPS only**: All communication uses HTTPS. The API key is transmitted only in the `Authorization` header to Sleek endpoints."
+      },
+      {
+        "evidence": {
+          "line_end": 50,
+          "line_start": 50,
+          "text": "- **Minimal scopes**: Create API keys with only the scopes required for the task. Prefer short-lived or revocable keys."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Minimal scopes**: Create API keys with only the scopes required for the task. Prefer short-lived or revocable keys."
+      },
+      {
+        "evidence": {
+          "line_end": 131,
+          "line_start": 131,
+          "text": "Both list and get accept an optional `inlineIcons` query param (default `false`). When omitted, icons render as `<iconify-icon>` web components and the HTML pulls in the Iconify script, leave it off by default. Pass `?inlineIcons=true` only when the consumer needs self-contained SVGs in the HTML (for example, importing into tools that don't run scripts)."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Both list and get accept an optional `inlineIcons` query param (default `false`). When omitted, icons render as `<iconify-icon>` web components and the HTML pulls in the Iconify script, leave it off by default. Pass `?inlineIcons=true` only when the consumer needs self-contained SVGs in the HTML (for example, importing into tools that don't run scripts)."
+      },
+      {
+        "evidence": {
+          "line_end": 197,
+          "line_start": 197,
+          "text": "| `imageUrls`              | No       | HTTPS URLs only; included as visual context   |"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "| `imageUrls`              | No       | HTTPS URLs only; included as visual context   |"
+      },
+      {
+        "evidence": {
+          "line_end": 336,
+          "line_start": 336,
+          "text": "Always use `\"background\": \"transparent\"` unless the user explicitly requests a specific background color."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Always use `\"background\": \"transparent\"` unless the user explicitly requests a specific background color."
+      },
+      {
+        "evidence": {
+          "line_end": 368,
+          "line_start": 368,
+          "text": "Sleek has its own AI that plans screen content, visual style, and layout. Pass the user's request to Sleek as-is: don't add details the user didn't ask for. If the user described specific screens and styling, include those. If they just said \"build me a running app,\" send that and let Sleek decide the rest. Sleek produces richer designs when given room to plan, so avoid inventing screen content or layout details that the user didn't specify."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Sleek has its own AI that plans screen content, visual style, and layout. Pass the user's request to Sleek as-is: don't add details the user didn't ask for. If the user described specific screens and styling, include those. If they just said \"build me a running app,\" send that and let Sleek decide the rest. Sleek produces richer designs when given room to plan, so avoid inventing screen content or layout details that the user didn't specify."
+      },
+      {
+        "evidence": {
+          "line_end": 382,
+          "line_start": 382,
+          "text": "Describe what to build using `POST /api/v1/projects/:id/chat/messages`. You can use the user's words directly. Sleek's AI interprets natural language. You do not need to decompose the request into screens; send the full intent as a single message and let Sleek decide what screens to create."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Describe what to build using `POST /api/v1/projects/:id/chat/messages`. You can use the user's words directly. Sleek's AI interprets natural language. You do not need to decompose the request into screens; send the full intent as a single message and let Sleek decide what screens to create."
+      },
+      {
+        "evidence": {
+          "line_end": 390,
+          "line_start": 390,
+          "text": "**One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message. Messages to different projects can run in parallel. Use async polling (not `?wait=true`) when running multiple projects concurrently."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "**One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message. Messages to different projects can run in parallel. Use async polling (not `?wait=true`) when running multiple projects concurrently."
+      },
+      {
+        "evidence": {
+          "line_end": 396,
+          "line_start": 396,
+          "text": "After every chat run that produces `screen_created` or `screen_updated` operations, **always take screenshots and show them to the user** using `POST /api/v1/screenshots`. Never silently complete a chat run without delivering the visuals."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "After every chat run that produces `screen_created` or `screen_updated` operations, **always take screenshots and show them to the user** using `POST /api/v1/screenshots`. Never silently complete a chat run without delivering the visuals."
+      },
+      {
+        "evidence": {
+          "line_end": 409,
+          "line_start": 409,
+          "text": "When the user wants to implement the designs in code (not just preview them), **always fetch the component HTML code**: do not rely on screenshots alone."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "When the user wants to implement the designs in code (not just preview them), **always fetch the component HTML code**: do not rely on screenshots alone."
+      },
+      {
+        "evidence": {
+          "line_end": 430,
+          "line_start": 430,
+          "text": "When you see a pin block, implement those exact versions instead of `activeVersion`. Components not named in the pin block continue to use their active version. Theme IDs surface only inside pin blocks. This skill exposes no separate endpoint to enumerate them."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "When you see a pin block, implement those exact versions instead of `activeVersion`. Components not named in the pin block continue to use their active version. Theme IDs surface only inside pin blocks. This skill exposes no separate endpoint to enumerate them."
+      },
+      {
+        "evidence": {
+          "line_end": 468,
+          "line_start": 468,
+          "text": "**Use the exact icons from the HTML code**: do not substitute with a different icon set. Matching icons is important for design fidelity."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "**Use the exact icons from the HTML code**: do not substitute with a different icon set. Matching icons is important for design fidelity."
+      },
+      {
+        "evidence": {
+          "line_end": 472,
+          "line_start": 472,
+          "text": "1. **Check if the project already has an icon system** that supports the same sets Sleek uses (Solar, Hugeicons, Material Symbols, MDI). If so, use it. Note: `@expo/vector-icons` does **not** support these sets, do not use it as a substitute."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "1. **Check if the project already has an icon system** that supports the same sets Sleek uses (Solar, Hugeicons, Material Symbols, MDI). If so, use it. Note: `@expo/vector-icons` does **not** support these sets, do not use it as a substitute."
+      },
+      {
+        "evidence": {
+          "line_end": 487,
+          "line_start": 487,
+          "text": "The designs may include navigation elements like tab bars and headers. Update the project's navigation styling and structure to match the designs, don't just implement the screen content while leaving the default navigation untouched."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "The designs may include navigation elements like tab bars and headers. Update the project's navigation styling and structure to match the designs, don't just implement the screen content while leaving the default navigation untouched."
+      },
+      {
+        "evidence": {
+          "line_end": 493,
+          "line_start": 493,
+          "text": "All list endpoints accept `limit` (1-100, default 50) and `offset` (\u22650). The response always includes `pagination.total` so you can page through all results."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "All list endpoints accept `limit` (1-100, default 50) and `offset` (\u22650). The response always includes `pagination.total` so you can page through all results."
+      },
+      {
+        "evidence": {
+          "line_end": 517,
+          "line_start": 517,
+          "text": "| HTTP URLs in `imageUrls`                            | Only HTTPS URLs are accepted                                                    |"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "| HTTP URLs in `imageUrls`                            | Only HTTPS URLs are accepted                                                    |"
+      },
+      {
+        "evidence": {
+          "line_end": 519,
+          "line_start": 519,
+          "text": "| Using `screenId` as `componentIds` in screenshots   | `screenId` and `componentId` are different; always use `componentId` from operations for screenshots |"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "| Using `screenId` as `componentIds` in screenshots   | `screenId` and `componentId` are different; always use `componentId` from operations for screenshots |"
+      }
+    ],
+    "outputs": [
+      {
+        "evidence": {
+          "line_end": 204,
+          "line_start": 204,
+          "text": "Status `202 Accepted`. `result` and `error` are absent until the run reaches a terminal state."
+        },
+        "status": "output_candidate",
+        "text": "Status `202 Accepted`. `result` and `error` are absent until the run reaches a terminal state."
+      },
+      {
+        "evidence": {
+          "line_end": 261,
+          "line_start": 261,
+          "text": "When completed successfully, `result` is present:"
+        },
+        "status": "output_candidate",
+        "text": "When completed successfully, `result` is present:"
+      },
+      {
+        "evidence": {
+          "line_end": 411,
+          "line_start": 411,
+          "text": "Use `GET /api/v1/projects/:id/components/:componentId` to fetch each screen's code. The `componentId` comes from the chat run's `result.operations`."
+        },
+        "status": "output_candidate",
+        "text": "Use `GET /api/v1/projects/:id/components/:componentId` to fetch each screen's code. The `componentId` comes from the chat run's `result.operations`."
+      },
+      {
+        "evidence": {
+          "line_end": 505,
+          "line_start": 505,
+          "text": "Component code can be large. When saving it to `.html` files, avoid writing the content through your text output. This is slow and wastes tokens. Instead, use shell commands to fetch the API response and write it directly to disk (e.g., pipe the response body into a file). This applies to both single and multiple components."
+        },
+        "status": "output_candidate",
+        "text": "Component code can be large. When saving it to `.html` files, avoid writing the content through your text output. This is slow and wastes tokens. Instead, use shell commands to fetch the API response and write it directly to disk (e.g., pipe the response body into a file). This applies to both single and multiple components."
+      },
+      {
+        "evidence": {
+          "line_end": 518,
+          "line_start": 518,
+          "text": "| Assuming `result` is present on `202`               | `result` is absent until status is `completed`                                  |"
+        },
+        "status": "output_candidate",
+        "text": "| Assuming `result` is present on `202`               | `result` is absent until status is `completed`                                  |"
+      }
+    ],
+    "package_path_candidates": [],
+    "recovery": [
+      {
+        "evidence": {
+          "line_end": 516,
+          "line_start": 516,
+          "text": "| Using `wait=true` on long generations               | It blocks 300s max; have a fallback to polling for `202` response               |"
+        },
+        "status": "recovery_candidate",
+        "text": "| Using `wait=true` on long generations               | It blocks 300s max; have a fallback to polling for `202` response               |"
+      }
+    ],
+    "references": [
+      {
+        "evidence": {
+          "line_end": 12,
+          "line_start": 12,
+          "text": "[![Design mobile apps in minutes](https://raw.githubusercontent.com/sleekdotdesign/agent-skills/main/assets/hero.png)](https://sleek.design)"
+        },
+        "reference": "https://raw.githubusercontent.com/sleekdotdesign/agent-skills/main/assets/hero.png"
+      },
+      {
+        "evidence": {
+          "line_end": 12,
+          "line_start": 12,
+          "text": "[![Design mobile apps in minutes](https://raw.githubusercontent.com/sleekdotdesign/agent-skills/main/assets/hero.png)](https://sleek.design)"
+        },
+        "reference": "https://sleek.design"
+      },
+      {
+        "evidence": {
+          "line_end": 16,
+          "line_start": 16,
+          "text": "[sleek.design](https://sleek.design) is an AI-powered mobile app design tool. You interact with it via a REST API at `/api/v1/*` to create projects, describe what you want built in plain language, and get back rendered screens. All communication is standard HTTP with bearer token auth."
+        },
+        "reference": "https://sleek.design"
+      },
+      {
+        "evidence": {
+          "line_end": 329,
+          "line_start": 329,
+          "text": "| `componentVersionOverrides` | _(optional)_  | Map of `componentId` \u2192 `versions[i].id` to render at a pinned version instead of `activeVersion` (see [Pinned versions](#pinned-versions)) |"
+        },
+        "reference": "#pinned-versions"
+      },
+      {
+        "evidence": {
+          "line_end": 330,
+          "line_start": 330,
+          "text": "| `themeVersionOverrides`     | _(optional)_  | Map of `themeId` \u2192 `versions[i].id` to render with a pinned theme version (see [Pinned versions](#pinned-versions))                       |"
+        },
+        "reference": "#pinned-versions"
+      },
+      {
+        "evidence": {
+          "line_end": 417,
+          "line_start": 417,
+          "text": "If the user's prompt pins specific versions, follow those instead (see [Pinned versions](#pinned-versions) below)."
+        },
+        "reference": "#pinned-versions"
+      },
+      {
+        "evidence": {
+          "line_end": 466,
+          "line_start": 466,
+          "text": "Sleek uses [Iconify](https://iconify.design) icons in the format `prefix:name` (e.g., `solar:heart-bold`, `material-symbols:search-rounded`, `lucide:settings`). The most common sets are **Solar**, **Hugeicons**, **Material Symbols** and **MDI**."
+        },
+        "reference": "https://iconify.design"
+      }
+    ],
+    "routes": [
+      {
+        "evidence": {
+          "line_end": 384,
+          "line_start": 384,
+          "text": "Chat messages are async by default. You get a `runId` and poll for completion with `GET /api/v1/projects/:id/chat/runs/:runId`. You can also use `?wait=true` for a blocking call (up to 300s; falls back to polling if it times out with `202`)."
+        },
+        "text": "Chat messages are async by default. You get a `runId` and poll for completion with `GET /api/v1/projects/:id/chat/runs/:runId`. You can also use `?wait=true` for a blocking call (up to 300s; falls back to polling if it times out with `202`)."
+      },
+      {
+        "evidence": {
+          "line_end": 390,
+          "line_start": 390,
+          "text": "**One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message. Messages to different projects can run in parallel. Use async polling (not `?wait=true`) when running multiple projects concurrently."
+        },
+        "text": "**One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message. Messages to different projects can run in parallel. Use async polling (not `?wait=true`) when running multiple projects concurrently."
+      },
+      {
+        "evidence": {
+          "line_end": 401,
+          "line_start": 401,
+          "text": "Use `background: \"transparent\"` for all screenshots unless the user explicitly requests otherwise."
+        },
+        "text": "Use `background: \"transparent\"` for all screenshots unless the user explicitly requests otherwise."
+      },
+      {
+        "evidence": {
+          "line_end": 430,
+          "line_start": 430,
+          "text": "When you see a pin block, implement those exact versions instead of `activeVersion`. Components not named in the pin block continue to use their active version. Theme IDs surface only inside pin blocks. This skill exposes no separate endpoint to enumerate them."
+        },
+        "text": "When you see a pin block, implement those exact versions instead of `activeVersion`. Components not named in the pin block continue to use their active version. Theme IDs surface only inside pin blocks. This skill exposes no separate endpoint to enumerate them."
+      },
+      {
+        "evidence": {
+          "line_end": 434,
+          "line_start": 434,
+          "text": "For each pinned component, find the entry in `versions[]` where `versions[i].id` matches the given version id (e.g. `ver_001`) and use its `code`. Do **not** fall back to `activeVersion` for pinned components."
+        },
+        "text": "For each pinned component, find the entry in `versions[]` where `versions[i].id` matches the given version id (e.g. `ver_001`) and use its `code`. Do **not** fall back to `activeVersion` for pinned components."
+      },
+      {
+        "evidence": {
+          "line_end": 473,
+          "line_start": 473,
+          "text": "2. **Otherwise, fetch the SVGs from the Iconify API and embed them in the code:**"
+        },
+        "text": "2. **Otherwise, fetch the SVGs from the Iconify API and embed them in the code:**"
+      },
+      {
+        "evidence": {
+          "line_end": 505,
+          "line_start": 505,
+          "text": "Component code can be large. When saving it to `.html` files, avoid writing the content through your text output. This is slow and wastes tokens. Instead, use shell commands to fetch the API response and write it directly to disk (e.g., pipe the response body into a file). This applies to both single and multiple components."
+        },
+        "text": "Component code can be large. When saving it to `.html` files, avoid writing the content through your text output. This is slow and wastes tokens. Instead, use shell commands to fetch the API response and write it directly to disk (e.g., pipe the response body into a file). This applies to both single and multiple components."
+      }
+    ],
+    "template_commands": [],
+    "template_status": "source_not_executed; fenced commands remain example-only only when surrounding prose says so, otherwise context-unknown; live XML template commands are not executable evidence",
+    "triggers": [
+      {
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: Use when the user wants to design a mobile app, create screens, build UI, or interact with their Sleek projects. Covers high-level requests (\"design an app that does X\") and specific ones (\"list my projects\", \"create a new project\", \"screenshot that screen\")."
+        },
+        "text": "description: Use when the user wants to design a mobile app, create screens, build UI, or interact with their Sleek projects. Covers high-level requests (\"design an app that does X\") and specific ones (\"list my projects\", \"create a new project\", \"screenshot that screen\")."
+      }
+    ],
+    "workflows": [
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 48,
+            "text": "**Single host**: All requests go exclusively to `https://sleek.design`. No data is sent to third parties."
+          },
+          {
+            "line": 49,
+            "text": "**HTTPS only**: All communication uses HTTPS. The API key is transmitted only in the `Authorization` header to Sleek endpoints."
+          },
+          {
+            "line": 50,
+            "text": "**Minimal scopes**: Create API keys with only the scopes required for the task. Prefer short-lived or revocable keys."
+          },
+          {
+            "line": 51,
+            "text": "**Image URLs**: When using `imageUrls` in chat messages, those URLs are fetched by Sleek's servers. Avoid passing URLs that contain sensitive content."
+          }
+        ],
+        "section": "Security & Privacy",
+        "start_line": 46
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 398,
+            "text": "**New screens**: one screenshot per screen + one combined screenshot of all screens in the project."
+          },
+          {
+            "line": 399,
+            "text": "**Updated screens**: one screenshot per affected screen."
+          }
+        ],
+        "section": "3. Show the results",
+        "start_line": 394
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 425,
+            "text": "component cmp_abc: version ver_001"
+          },
+          {
+            "line": 426,
+            "text": "component cmp_def: version ver_002"
+          },
+          {
+            "line": 427,
+            "text": "theme thm_ghi: version ver_003"
+          }
+        ],
+        "section": "Pinned versions",
+        "start_line": 419
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 459,
+            "text": "**HTML code** is the implementation reference. It contains the exact structure, layout, styling, colors, spacing, content, image URLs, and icon names."
+          },
+          {
+            "line": 460,
+            "text": "**Screenshots** are the visual target. Use them to verify your implementation matches the intended look."
+          }
+        ],
+        "section": "Native frameworks (React Native, SwiftUI, etc.)",
+        "start_line": 455
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 472,
+            "text": "**Check if the project already has an icon system** that supports the same sets Sleek uses (Solar, Hugeicons, Material Symbols, MDI). If so, use it. Note: `@expo/vector-icons` does **not** support these sets, do not use it as a substitute."
+          },
+          {
+            "line": 473,
+            "text": "**Otherwise, fetch the SVGs from the Iconify API and embed them in the code:**"
+          }
+        ],
+        "section": "Icons",
+        "start_line": 464
+      }
+    ]
+  },
+  "package": {
+    "reference_resolution": [],
+    "resolved_files": [
+      {
+        "bytes": 32304,
+        "content_snapshot": "sources/upstream/sleekdotdesign-agent-skills-unknown/content-by-sha256/f648637fb7939a331de05eed46e7dfc4f60b56241742aa09e0cb508bdefa2013.md",
+        "kind": "skill",
+        "path": "agent-skills-HEAD/skills/design-mobile-apps/SKILL.md",
+        "sha256": "f648637fb7939a331de05eed46e7dfc4f60b56241742aa09e0cb508bdefa2013",
+        "text": true
+      }
+    ],
+    "scripts": [],
+    "unresolved_references": []
+  },
+  "schema": "skill-ir/1.0",
+  "source": {
+    "bytes": 21735,
+    "catalog_metadata": {
+      "bundle_offset": 4526684,
+      "category": "ui-design",
+      "content_binding": "BZ",
+      "description": "Design mobile app screens with Sleek via REST API, describe UIs in plain language, iterate on screens, and deliver screenshots from agent workflows.",
+      "github_url": "https://github.com/sleekdotdesign/agent-skills/tree/main/skills/design-mobile-apps",
+      "slug": "sleek-design-mobile-apps",
+      "source": "community",
+      "source_label": "sleekdotdesign",
+      "stars_reported": 422,
+      "template_expressions": [],
+      "title": "Sleek Design Mobile Apps"
+    },
+    "line_table": [
+      {
+        "line": 1,
+        "text": "---"
+      },
+      {
+        "line": 2,
+        "text": "name: sleek-design-mobile-apps"
+      },
+      {
+        "line": 3,
+        "text": "description: Use when the user wants to design a mobile app, create screens, build UI, or interact with their Sleek projects. Covers high-level requests (\"design an app that does X\") and specific ones (\"list my projects\", \"create a new project\", \"screenshot that screen\")."
+      },
+      {
+        "line": 4,
+        "text": "compatibility: Requires SLEEK_API_KEY environment variable. Network access limited to https://sleek.design only."
+      },
+      {
+        "line": 5,
+        "text": "metadata:"
+      },
+      {
+        "line": 6,
+        "text": "  requires-env: SLEEK_API_KEY"
+      },
+      {
+        "line": 7,
+        "text": "  allowed-hosts: https://sleek.design"
+      },
+      {
+        "line": 8,
+        "text": "---"
+      },
+      {
+        "line": 9,
+        "text": ""
+      },
+      {
+        "line": 10,
+        "text": "# Designing with Sleek"
+      },
+      {
+        "line": 11,
+        "text": ""
+      },
+      {
+        "line": 12,
+        "text": "[![Design mobile apps in minutes](https://raw.githubusercontent.com/sleekdotdesign/agent-skills/main/assets/hero.png)](https://sleek.design)"
+      },
+      {
+        "line": 13,
+        "text": ""
+      },
+      {
+        "line": 14,
+        "text": "## Overview"
+      },
+      {
+        "line": 15,
+        "text": ""
+      },
+      {
+        "line": 16,
+        "text": "[sleek.design](https://sleek.design) is an AI-powered mobile app design tool. You interact with it via a REST API at `/api/v1/*` to create projects, describe what you want built in plain language, and get back rendered screens. All communication is standard HTTP with bearer token auth."
+      },
+      {
+        "line": 17,
+        "text": ""
+      },
+      {
+        "line": 18,
+        "text": "**Base URL**: `https://sleek.design`"
+      },
+      {
+        "line": 19,
+        "text": "**Auth**: `Authorization: Bearer $SLEEK_API_KEY` on every `/api/v1/*` request"
+      },
+      {
+        "line": 20,
+        "text": "**Content-Type**: `application/json` (requests and responses)"
+      },
+      {
+        "line": 21,
+        "text": "**CORS**: Enabled on all `/api/v1/*` endpoints"
+      },
+      {
+        "line": 22,
+        "text": ""
+      },
+      {
+        "line": 23,
+        "text": "---"
+      },
+      {
+        "line": 24,
+        "text": ""
+      },
+      {
+        "line": 25,
+        "text": "## Prerequisites: API Key"
+      },
+      {
+        "line": 26,
+        "text": ""
+      },
+      {
+        "line": 27,
+        "text": "Create API keys at **https://sleek.design/dashboard/api-keys**. The full key value is shown only once at creation, store it in the `SLEEK_API_KEY` environment variable."
+      },
+      {
+        "line": 28,
+        "text": ""
+      },
+      {
+        "line": 29,
+        "text": "**Required plan**: Pro or higher (API access is gated)"
+      },
+      {
+        "line": 30,
+        "text": ""
+      },
+      {
+        "line": 31,
+        "text": "### Key scopes"
+      },
+      {
+        "line": 32,
+        "text": ""
+      },
+      {
+        "line": 33,
+        "text": "| Scope             | What it unlocks              |"
+      },
+      {
+        "line": 34,
+        "text": "| ----------------- | ---------------------------- |"
+      },
+      {
+        "line": 35,
+        "text": "| `projects:read`   | List / get projects          |"
+      },
+      {
+        "line": 36,
+        "text": "| `projects:write`  | Create / delete projects     |"
+      },
+      {
+        "line": 37,
+        "text": "| `components:read` | List components in a project |"
+      },
+      {
+        "line": 38,
+        "text": "| `chats:read`      | Get chat run status          |"
+      },
+      {
+        "line": 39,
+        "text": "| `chats:write`     | Send chat messages           |"
+      },
+      {
+        "line": 40,
+        "text": "| `screenshots`     | Render component screenshots |"
+      },
+      {
+        "line": 41,
+        "text": ""
+      },
+      {
+        "line": 42,
+        "text": "Create a key with only the scopes needed for the task."
+      },
+      {
+        "line": 43,
+        "text": ""
+      },
+      {
+        "line": 44,
+        "text": "---"
+      },
+      {
+        "line": 45,
+        "text": ""
+      },
+      {
+        "line": 46,
+        "text": "## Security & Privacy"
+      },
+      {
+        "line": 47,
+        "text": ""
+      },
+      {
+        "line": 48,
+        "text": "- **Single host**: All requests go exclusively to `https://sleek.design`. No data is sent to third parties."
+      },
+      {
+        "line": 49,
+        "text": "- **HTTPS only**: All communication uses HTTPS. The API key is transmitted only in the `Authorization` header to Sleek endpoints."
+      },
+      {
+        "line": 50,
+        "text": "- **Minimal scopes**: Create API keys with only the scopes required for the task. Prefer short-lived or revocable keys."
+      },
+      {
+        "line": 51,
+        "text": "- **Image URLs**: When using `imageUrls` in chat messages, those URLs are fetched by Sleek's servers. Avoid passing URLs that contain sensitive content."
+      },
+      {
+        "line": 52,
+        "text": ""
+      },
+      {
+        "line": 53,
+        "text": "---"
+      },
+      {
+        "line": 54,
+        "text": ""
+      },
+      {
+        "line": 55,
+        "text": "## Quick Reference. All Endpoints"
+      },
+      {
+        "line": 56,
+        "text": ""
+      },
+      {
+        "line": 57,
+        "text": "| Method   | Path                                    | Scope             | Description       |"
+      },
+      {
+        "line": 58,
+        "text": "| -------- | --------------------------------------- | ----------------- | ----------------- |"
+      },
+      {
+        "line": 59,
+        "text": "| `GET`    | `/api/v1/projects`                      | `projects:read`   | List projects     |"
+      },
+      {
+        "line": 60,
+        "text": "| `POST`   | `/api/v1/projects`                      | `projects:write`  | Create project    |"
+      },
+      {
+        "line": 61,
+        "text": "| `GET`    | `/api/v1/projects/:id`                  | `projects:read`   | Get project       |"
+      },
+      {
+        "line": 62,
+        "text": "| `DELETE` | `/api/v1/projects/:id`                  | `projects:write`  | Delete project    |"
+      },
+      {
+        "line": 63,
+        "text": "| `GET`    | `/api/v1/projects/:id/components`       | `components:read` | List components   |"
+      },
+      {
+        "line": 64,
+        "text": "| `GET`    | `/api/v1/projects/:id/components/:componentId` | `components:read` | Get component |"
+      },
+      {
+        "line": 65,
+        "text": "| `POST`   | `/api/v1/projects/:id/chat/messages`    | `chats:write`     | Send chat message |"
+      },
+      {
+        "line": 66,
+        "text": "| `GET`    | `/api/v1/projects/:id/chat/runs/:runId` | `chats:read`      | Poll run status   |"
+      },
+      {
+        "line": 67,
+        "text": "| `POST`   | `/api/v1/screenshots`                   | `screenshots`     | Render screenshot |"
+      },
+      {
+        "line": 68,
+        "text": ""
+      },
+      {
+        "line": 69,
+        "text": "All IDs are stable string identifiers."
+      },
+      {
+        "line": 70,
+        "text": ""
+      },
+      {
+        "line": 71,
+        "text": "---"
+      },
+      {
+        "line": 72,
+        "text": ""
+      },
+      {
+        "line": 73,
+        "text": "## Endpoints"
+      },
+      {
+        "line": 74,
+        "text": ""
+      },
+      {
+        "line": 75,
+        "text": "### Projects"
+      },
+      {
+        "line": 76,
+        "text": ""
+      },
+      {
+        "line": 77,
+        "text": "#### List projects"
+      },
+      {
+        "line": 78,
+        "text": ""
+      },
+      {
+        "line": 79,
+        "text": "```http"
+      },
+      {
+        "line": 80,
+        "text": "GET /api/v1/projects?limit=50&offset=0"
+      },
+      {
+        "line": 81,
+        "text": "Authorization: Bearer $SLEEK_API_KEY"
+      },
+      {
+        "line": 82,
+        "text": "```"
+      },
+      {
+        "line": 83,
+        "text": ""
+      },
+      {
+        "line": 84,
+        "text": "Response `200`:"
+      },
+      {
+        "line": 85,
+        "text": ""
+      },
+      {
+        "line": 86,
+        "text": "```json"
+      },
+      {
+        "line": 87,
+        "text": "{"
+      },
+      {
+        "line": 88,
+        "text": "  \"data\": ["
+      },
+      {
+        "line": 89,
+        "text": "    {"
+      },
+      {
+        "line": 90,
+        "text": "      \"id\": \"proj_abc\","
+      },
+      {
+        "line": 91,
+        "text": "      \"name\": \"My App\","
+      },
+      {
+        "line": 92,
+        "text": "      \"slug\": \"my-app\","
+      },
+      {
+        "line": 93,
+        "text": "      \"createdAt\": \"2026-01-01T00:00:00Z\","
+      },
+      {
+        "line": 94,
+        "text": "      \"updatedAt\": \"...\""
+      },
+      {
+        "line": 95,
+        "text": "    }"
+      },
+      {
+        "line": 96,
+        "text": "  ],"
+      },
+      {
+        "line": 97,
+        "text": "  \"pagination\": { \"total\": 12, \"limit\": 50, \"offset\": 0 }"
+      },
+      {
+        "line": 98,
+        "text": "}"
+      },
+      {
+        "line": 99,
+        "text": "```"
+      },
+      {
+        "line": 100,
+        "text": ""
+      },
+      {
+        "line": 101,
+        "text": "#### Create project"
+      },
+      {
+        "line": 102,
+        "text": ""
+      },
+      {
+        "line": 103,
+        "text": "```http"
+      },
+      {
+        "line": 104,
+        "text": "POST /api/v1/projects"
+      },
+      {
+        "line": 105,
+        "text": "Authorization: Bearer $SLEEK_API_KEY"
+      },
+      {
+        "line": 106,
+        "text": "Content-Type: application/json"
+      },
+      {
+        "line": 107,
+        "text": ""
+      },
+      {
+        "line": 108,
+        "text": "{ \"name\": \"My New App\" }"
+      },
+      {
+        "line": 109,
+        "text": "```"
+      },
+      {
+        "line": 110,
+        "text": ""
+      },
+      {
+        "line": 111,
+        "text": "Response `201`: same shape as a single project."
+      },
+      {
+        "line": 112,
+        "text": ""
+      },
+      {
+        "line": 113,
+        "text": "#### Get / Delete project"
+      },
+      {
+        "line": 114,
+        "text": ""
+      },
+      {
+        "line": 115,
+        "text": "```http"
+      },
+      {
+        "line": 116,
+        "text": "GET    /api/v1/projects/:projectId"
+      },
+      {
+        "line": 117,
+        "text": "DELETE /api/v1/projects/:projectId   \u2192 204 No Content"
+      },
+      {
+        "line": 118,
+        "text": "```"
+      },
+      {
+        "line": 119,
+        "text": ""
+      },
+      {
+        "line": 120,
+        "text": "---"
+      },
+      {
+        "line": 121,
+        "text": ""
+      },
+      {
+        "line": 122,
+        "text": "### Components"
+      },
+      {
+        "line": 123,
+        "text": ""
+      },
+      {
+        "line": 124,
+        "text": "#### List components"
+      },
+      {
+        "line": 125,
+        "text": ""
+      },
+      {
+        "line": 126,
+        "text": "```http"
+      },
+      {
+        "line": 127,
+        "text": "GET /api/v1/projects/:projectId/components?limit=50&offset=0"
+      },
+      {
+        "line": 128,
+        "text": "Authorization: Bearer $SLEEK_API_KEY"
+      },
+      {
+        "line": 129,
+        "text": "```"
+      },
+      {
+        "line": 130,
+        "text": ""
+      },
+      {
+        "line": 131,
+        "text": "Both list and get accept an optional `inlineIcons` query param (default `false`). When omitted, icons render as `<iconify-icon>` web components and the HTML pulls in the Iconify script, leave it off by default. Pass `?inlineIcons=true` only when the consumer needs self-contained SVGs in the HTML (for example, importing into tools that don't run scripts)."
+      },
+      {
+        "line": 132,
+        "text": ""
+      },
+      {
+        "line": 133,
+        "text": "Response `200`:"
+      },
+      {
+        "line": 134,
+        "text": ""
+      },
+      {
+        "line": 135,
+        "text": "```json"
+      },
+      {
+        "line": 136,
+        "text": "{"
+      },
+      {
+        "line": 137,
+        "text": "  \"data\": ["
+      },
+      {
+        "line": 138,
+        "text": "    {"
+      },
+      {
+        "line": 139,
+        "text": "      \"id\": \"cmp_xyz\","
+      },
+      {
+        "line": 140,
+        "text": "      \"name\": \"Hero Section\","
+      },
+      {
+        "line": 141,
+        "text": "      \"activeVersion\": 3,"
+      },
+      {
+        "line": 142,
+        "text": "      \"versions\": [{ \"id\": \"ver_001\", \"version\": 1, \"code\": \"<!DOCTYPE html>...</html>\", \"createdAt\": \"...\" }],"
+      },
+      {
+        "line": 143,
+        "text": "      \"createdAt\": \"...\","
+      },
+      {
+        "line": 144,
+        "text": "      \"updatedAt\": \"...\""
+      },
+      {
+        "line": 145,
+        "text": "    }"
+      },
+      {
+        "line": 146,
+        "text": "  ],"
+      },
+      {
+        "line": 147,
+        "text": "  \"pagination\": { \"total\": 5, \"limit\": 50, \"offset\": 0 }"
+      },
+      {
+        "line": 148,
+        "text": "}"
+      },
+      {
+        "line": 149,
+        "text": "```"
+      },
+      {
+        "line": 150,
+        "text": ""
+      },
+      {
+        "line": 151,
+        "text": "#### Get component"
+      },
+      {
+        "line": 152,
+        "text": ""
+      },
+      {
+        "line": 153,
+        "text": "Fetches a single component by ID. Use this when you need the code for a specific screen (e.g., after a chat run returns a `componentId` in its operations)."
+      },
+      {
+        "line": 154,
+        "text": ""
+      },
+      {
+        "line": 155,
+        "text": "```http"
+      },
+      {
+        "line": 156,
+        "text": "GET /api/v1/projects/:projectId/components/:componentId"
+      },
+      {
+        "line": 157,
+        "text": "Authorization: Bearer $SLEEK_API_KEY"
+      },
+      {
+        "line": 158,
+        "text": "```"
+      },
+      {
+        "line": 159,
+        "text": ""
+      },
+      {
+        "line": 160,
+        "text": "Response `200`: same shape as a single item from the list endpoint:"
+      },
+      {
+        "line": 161,
+        "text": ""
+      },
+      {
+        "line": 162,
+        "text": "```json"
+      },
+      {
+        "line": 163,
+        "text": "{"
+      },
+      {
+        "line": 164,
+        "text": "  \"data\": {"
+      },
+      {
+        "line": 165,
+        "text": "    \"id\": \"cmp_xyz\","
+      },
+      {
+        "line": 166,
+        "text": "    \"name\": \"Hero Section\","
+      },
+      {
+        "line": 167,
+        "text": "    \"activeVersion\": 3,"
+      },
+      {
+        "line": 168,
+        "text": "    \"versions\": [{ \"id\": \"ver_001\", \"version\": 1, \"code\": \"<!DOCTYPE html>...</html>\", \"createdAt\": \"...\" }],"
+      },
+      {
+        "line": 169,
+        "text": "    \"createdAt\": \"...\","
+      },
+      {
+        "line": 170,
+        "text": "    \"updatedAt\": \"...\""
+      },
+      {
+        "line": 171,
+        "text": "  }"
+      },
+      {
+        "line": 172,
+        "text": "}"
+      },
+      {
+        "line": 173,
+        "text": "```"
+      },
+      {
+        "line": 174,
+        "text": ""
+      },
+      {
+        "line": 175,
+        "text": "---"
+      },
+      {
+        "line": 176,
+        "text": ""
+      },
+      {
+        "line": 177,
+        "text": "### Chat. Send Message"
+      },
+      {
+        "line": 178,
+        "text": ""
+      },
+      {
+        "line": 179,
+        "text": "This is the core action: describe what you want in `message.text` and the AI creates or modifies screens."
+      },
+      {
+        "line": 180,
+        "text": ""
+      },
+      {
+        "line": 181,
+        "text": "```http"
+      },
+      {
+        "line": 182,
+        "text": "POST /api/v1/projects/:projectId/chat/messages?wait=false"
+      },
+      {
+        "line": 183,
+        "text": "Authorization: Bearer $SLEEK_API_KEY"
+      },
+      {
+        "line": 184,
+        "text": "Content-Type: application/json"
+      },
+      {
+        "line": 185,
+        "text": "idempotency-key: <optional, max 255 chars>"
+      },
+      {
+        "line": 186,
+        "text": ""
+      },
+      {
+        "line": 187,
+        "text": "{"
+      },
+      {
+        "line": 188,
+        "text": "  \"message\": { \"text\": \"Add a pricing section with three tiers\" },"
+      },
+      {
+        "line": 189,
+        "text": "  \"imageUrls\": [\"https://example.com/ref.png\"],"
+      },
+      {
+        "line": 190,
+        "text": "  \"target\": { \"screenId\": \"scr_abc\" }"
+      },
+      {
+        "line": 191,
+        "text": "}"
+      },
+      {
+        "line": 192,
+        "text": "```"
+      },
+      {
+        "line": 193,
+        "text": ""
+      },
+      {
+        "line": 194,
+        "text": "| Field                    | Required | Notes                                         |"
+      },
+      {
+        "line": 195,
+        "text": "| ------------------------ | -------- | --------------------------------------------- |"
+      },
+      {
+        "line": 196,
+        "text": "| `message.text`           | Yes      | 1+ chars, trimmed                             |"
+      },
+      {
+        "line": 197,
+        "text": "| `imageUrls`              | No       | HTTPS URLs only; included as visual context   |"
+      },
+      {
+        "line": 198,
+        "text": "| `target.screenId`        | No       | Edit a specific screen using its `screenId` (not `componentId`); omit to let AI decide |"
+      },
+      {
+        "line": 199,
+        "text": "| `?wait=true/false`       | No       | Sync wait mode (default: false)               |"
+      },
+      {
+        "line": 200,
+        "text": "| `idempotency-key` header | No       | Replay-safe re-sends                          |"
+      },
+      {
+        "line": 201,
+        "text": ""
+      },
+      {
+        "line": 202,
+        "text": "#### Response, async (default, `wait=false`)"
+      },
+      {
+        "line": 203,
+        "text": ""
+      },
+      {
+        "line": 204,
+        "text": "Status `202 Accepted`. `result` and `error` are absent until the run reaches a terminal state."
+      },
+      {
+        "line": 205,
+        "text": ""
+      },
+      {
+        "line": 206,
+        "text": "```json"
+      },
+      {
+        "line": 207,
+        "text": "{"
+      },
+      {
+        "line": 208,
+        "text": "  \"data\": {"
+      },
+      {
+        "line": 209,
+        "text": "    \"runId\": \"run_111\","
+      },
+      {
+        "line": 210,
+        "text": "    \"status\": \"queued\","
+      },
+      {
+        "line": 211,
+        "text": "    \"statusUrl\": \"/api/v1/projects/proj_abc/chat/runs/run_111\""
+      },
+      {
+        "line": 212,
+        "text": "  }"
+      },
+      {
+        "line": 213,
+        "text": "}"
+      },
+      {
+        "line": 214,
+        "text": "```"
+      },
+      {
+        "line": 215,
+        "text": ""
+      },
+      {
+        "line": 216,
+        "text": "#### Response, sync (`wait=true`)"
+      },
+      {
+        "line": 217,
+        "text": ""
+      },
+      {
+        "line": 218,
+        "text": "Blocks up to **300 seconds**. Returns `200` when completed, `202` if timed out."
+      },
+      {
+        "line": 219,
+        "text": ""
+      },
+      {
+        "line": 220,
+        "text": "```json"
+      },
+      {
+        "line": 221,
+        "text": "{"
+      },
+      {
+        "line": 222,
+        "text": "  \"data\": {"
+      },
+      {
+        "line": 223,
+        "text": "    \"runId\": \"run_111\","
+      },
+      {
+        "line": 224,
+        "text": "    \"status\": \"completed\","
+      },
+      {
+        "line": 225,
+        "text": "    \"statusUrl\": \"...\","
+      },
+      {
+        "line": 226,
+        "text": "    \"result\": {"
+      },
+      {
+        "line": 227,
+        "text": "      \"assistantText\": \"I added a pricing section with...\","
+      },
+      {
+        "line": 228,
+        "text": "      \"operations\": ["
+      },
+      {
+        "line": 229,
+        "text": "        { \"type\": \"screen_created\", \"screenId\": \"scr_xyz\", \"screenName\": \"Pricing\", \"componentId\": \"cmp_xyz\" },"
+      },
+      {
+        "line": 230,
+        "text": "        { \"type\": \"screen_updated\", \"screenId\": \"scr_abc\", \"componentId\": \"cmp_abc\" },"
+      },
+      {
+        "line": 231,
+        "text": "        { \"type\": \"theme_updated\" }"
+      },
+      {
+        "line": 232,
+        "text": "      ]"
+      },
+      {
+        "line": 233,
+        "text": "    }"
+      },
+      {
+        "line": 234,
+        "text": "  }"
+      },
+      {
+        "line": 235,
+        "text": "}"
+      },
+      {
+        "line": 236,
+        "text": "```"
+      },
+      {
+        "line": 237,
+        "text": ""
+      },
+      {
+        "line": 238,
+        "text": "---"
+      },
+      {
+        "line": 239,
+        "text": ""
+      },
+      {
+        "line": 240,
+        "text": "### Chat. Poll Run Status"
+      },
+      {
+        "line": 241,
+        "text": ""
+      },
+      {
+        "line": 242,
+        "text": "Use this after async send to check progress."
+      },
+      {
+        "line": 243,
+        "text": ""
+      },
+      {
+        "line": 244,
+        "text": "```http"
+      },
+      {
+        "line": 245,
+        "text": "GET /api/v1/projects/:projectId/chat/runs/:runId"
+      },
+      {
+        "line": 246,
+        "text": "Authorization: Bearer $SLEEK_API_KEY"
+      },
+      {
+        "line": 247,
+        "text": "```"
+      },
+      {
+        "line": 248,
+        "text": ""
+      },
+      {
+        "line": 249,
+        "text": "Response, same shape as send message `data` object:"
+      },
+      {
+        "line": 250,
+        "text": ""
+      },
+      {
+        "line": 251,
+        "text": "```json"
+      },
+      {
+        "line": 252,
+        "text": "{"
+      },
+      {
+        "line": 253,
+        "text": "  \"data\": {"
+      },
+      {
+        "line": 254,
+        "text": "    \"runId\": \"run_111\","
+      },
+      {
+        "line": 255,
+        "text": "    \"status\": \"queued\","
+      },
+      {
+        "line": 256,
+        "text": "    \"statusUrl\": \"...\""
+      },
+      {
+        "line": 257,
+        "text": "  }"
+      },
+      {
+        "line": 258,
+        "text": "}"
+      },
+      {
+        "line": 259,
+        "text": "```"
+      },
+      {
+        "line": 260,
+        "text": ""
+      },
+      {
+        "line": 261,
+        "text": "When completed successfully, `result` is present:"
+      },
+      {
+        "line": 262,
+        "text": ""
+      },
+      {
+        "line": 263,
+        "text": "```json"
+      },
+      {
+        "line": 264,
+        "text": "{"
+      },
+      {
+        "line": 265,
+        "text": "  \"data\": {"
+      },
+      {
+        "line": 266,
+        "text": "    \"runId\": \"run_111\","
+      },
+      {
+        "line": 267,
+        "text": "    \"status\": \"completed\","
+      },
+      {
+        "line": 268,
+        "text": "    \"statusUrl\": \"...\","
+      },
+      {
+        "line": 269,
+        "text": "    \"result\": {"
+      },
+      {
+        "line": 270,
+        "text": "      \"assistantText\": \"...\","
+      },
+      {
+        "line": 271,
+        "text": "      \"operations\": [...]"
+      },
+      {
+        "line": 272,
+        "text": "    }"
+      },
+      {
+        "line": 273,
+        "text": "  }"
+      },
+      {
+        "line": 274,
+        "text": "}"
+      },
+      {
+        "line": 275,
+        "text": "```"
+      },
+      {
+        "line": 276,
+        "text": ""
+      },
+      {
+        "line": 277,
+        "text": "When failed, `error` is present:"
+      },
+      {
+        "line": 278,
+        "text": ""
+      },
+      {
+        "line": 279,
+        "text": "```json"
+      },
+      {
+        "line": 280,
+        "text": "{"
+      },
+      {
+        "line": 281,
+        "text": "  \"data\": {"
+      },
+      {
+        "line": 282,
+        "text": "    \"runId\": \"run_111\","
+      },
+      {
+        "line": 283,
+        "text": "    \"status\": \"failed\","
+      },
+      {
+        "line": 284,
+        "text": "    \"statusUrl\": \"...\","
+      },
+      {
+        "line": 285,
+        "text": "    \"error\": { \"code\": \"execution_failed\", \"message\": \"...\" }"
+      },
+      {
+        "line": 286,
+        "text": "  }"
+      },
+      {
+        "line": 287,
+        "text": "}"
+      },
+      {
+        "line": 288,
+        "text": "```"
+      },
+      {
+        "line": 289,
+        "text": ""
+      },
+      {
+        "line": 290,
+        "text": "**Run status lifecycle**: `queued` \u2192 `running` \u2192 `completed | failed`"
+      },
+      {
+        "line": 291,
+        "text": ""
+      },
+      {
+        "line": 292,
+        "text": "---"
+      },
+      {
+        "line": 293,
+        "text": ""
+      },
+      {
+        "line": 294,
+        "text": "### Screenshots"
+      },
+      {
+        "line": 295,
+        "text": ""
+      },
+      {
+        "line": 296,
+        "text": "Takes a snapshot of one or more rendered components."
+      },
+      {
+        "line": 297,
+        "text": ""
+      },
+      {
+        "line": 298,
+        "text": "```http"
+      },
+      {
+        "line": 299,
+        "text": "POST /api/v1/screenshots"
+      },
+      {
+        "line": 300,
+        "text": "Authorization: Bearer $SLEEK_API_KEY"
+      },
+      {
+        "line": 301,
+        "text": "Content-Type: application/json"
+      },
+      {
+        "line": 302,
+        "text": ""
+      },
+      {
+        "line": 303,
+        "text": "{"
+      },
+      {
+        "line": 304,
+        "text": "  \"componentIds\": [\"cmp_xyz\", \"cmp_abc\"],"
+      },
+      {
+        "line": 305,
+        "text": "  \"projectId\": \"proj_abc\","
+      },
+      {
+        "line": 306,
+        "text": "  \"format\": \"png\","
+      },
+      {
+        "line": 307,
+        "text": "  \"scale\": 2,"
+      },
+      {
+        "line": 308,
+        "text": "  \"gap\": 40,"
+      },
+      {
+        "line": 309,
+        "text": "  \"padding\": 40,"
+      },
+      {
+        "line": 310,
+        "text": "  \"background\": \"transparent\""
+      },
+      {
+        "line": 311,
+        "text": "}"
+      },
+      {
+        "line": 312,
+        "text": "```"
+      },
+      {
+        "line": 313,
+        "text": ""
+      },
+      {
+        "line": 314,
+        "text": "| Field        | Default       | Notes                                                                 |"
+      },
+      {
+        "line": 315,
+        "text": "| ------------ | ------------- | --------------------------------------------------------------------- |"
+      },
+      {
+        "line": 316,
+        "text": "| `format`     | `png`         | `png` or `webp`                                                      |"
+      },
+      {
+        "line": 317,
+        "text": "| `scale`      | `2`           | 1-3 (device pixel ratio)                                             |"
+      },
+      {
+        "line": 318,
+        "text": "| `gap`        | `40`          | Pixels between components                                            |"
+      },
+      {
+        "line": 319,
+        "text": "| `padding`       | `40`          | Uniform padding on all sides                                         |"
+      },
+      {
+        "line": 320,
+        "text": "| `paddingX`      | _(optional)_  | Horizontal padding; overrides `padding` for left/right when provided |"
+      },
+      {
+        "line": 321,
+        "text": "| `paddingY`      | _(optional)_  | Vertical padding; overrides `padding` for top/bottom when provided   |"
+      },
+      {
+        "line": 322,
+        "text": "| `paddingTop`    | _(optional)_  | Top padding; overrides `paddingY` when provided                      |"
+      },
+      {
+        "line": 323,
+        "text": "| `paddingRight`  | _(optional)_  | Right padding; overrides `paddingX` when provided                    |"
+      },
+      {
+        "line": 324,
+        "text": "| `paddingBottom` | _(optional)_  | Bottom padding; overrides `paddingY` when provided                   |"
+      },
+      {
+        "line": 325,
+        "text": "| `paddingLeft`   | _(optional)_  | Left padding; overrides `paddingX` when provided                     |"
+      },
+      {
+        "line": 326,
+        "text": "| `background`    | `transparent` | Any CSS color (hex, named, `transparent`)                            |"
+      },
+      {
+        "line": 327,
+        "text": "| `showDots`      | `false`       | Overlay a subtle dot grid on the background                          |"
+      },
+      {
+        "line": 328,
+        "text": "| `radius`        | `48`          | Squircle corner radius per component in pixels (integer \u2265 0); pass `0` for sharp corners |"
+      },
+      {
+        "line": 329,
+        "text": "| `componentVersionOverrides` | _(optional)_  | Map of `componentId` \u2192 `versions[i].id` to render at a pinned version instead of `activeVersion` (see [Pinned versions](#pinned-versions)) |"
+      },
+      {
+        "line": 330,
+        "text": "| `themeVersionOverrides`     | _(optional)_  | Map of `themeId` \u2192 `versions[i].id` to render with a pinned theme version (see [Pinned versions](#pinned-versions))                       |"
+      },
+      {
+        "line": 331,
+        "text": ""
+      },
+      {
+        "line": 332,
+        "text": "Padding resolves with a cascade: per-side \u2192 axis \u2192 uniform. For example, `paddingTop` falls back to `paddingY`, which falls back to `padding`. So `{ \"padding\": 20, \"paddingX\": 10, \"paddingLeft\": 5 }` gives top/bottom 20px, right 10px, left 5px."
+      },
+      {
+        "line": 333,
+        "text": ""
+      },
+      {
+        "line": 334,
+        "text": "When `showDots` is `true`, a dot pattern is drawn over the background color. The dots automatically adapt to the background: dark backgrounds get light dots, light backgrounds get dark dots. This has no effect when `background` is `\"transparent\"`."
+      },
+      {
+        "line": 335,
+        "text": ""
+      },
+      {
+        "line": 336,
+        "text": "Always use `\"background\": \"transparent\"` unless the user explicitly requests a specific background color."
+      },
+      {
+        "line": 337,
+        "text": ""
+      },
+      {
+        "line": 338,
+        "text": "Response: raw binary `image/png` or `image/webp` with `Content-Disposition: attachment`."
+      },
+      {
+        "line": 339,
+        "text": ""
+      },
+      {
+        "line": 340,
+        "text": "---"
+      },
+      {
+        "line": 341,
+        "text": ""
+      },
+      {
+        "line": 342,
+        "text": "## Error Shapes"
+      },
+      {
+        "line": 343,
+        "text": ""
+      },
+      {
+        "line": 344,
+        "text": "```json"
+      },
+      {
+        "line": 345,
+        "text": "{ \"code\": \"UNAUTHORIZED\", \"message\": \"...\" }"
+      },
+      {
+        "line": 346,
+        "text": "```"
+      },
+      {
+        "line": 347,
+        "text": ""
+      },
+      {
+        "line": 348,
+        "text": "| HTTP | Code                    | When                                   |"
+      },
+      {
+        "line": 349,
+        "text": "| ---- | ----------------------- | -------------------------------------- |"
+      },
+      {
+        "line": 350,
+        "text": "| 401  | `UNAUTHORIZED`          | Missing/invalid/expired API key        |"
+      },
+      {
+        "line": 351,
+        "text": "| 403  | `FORBIDDEN`             | Valid key, wrong scope or plan         |"
+      },
+      {
+        "line": 352,
+        "text": "| 404  | `NOT_FOUND`             | Resource doesn't exist                 |"
+      },
+      {
+        "line": 353,
+        "text": "| 400  | `BAD_REQUEST`           | Validation failure                     |"
+      },
+      {
+        "line": 354,
+        "text": "| 409  | `CONFLICT`              | Another run is active for this project |"
+      },
+      {
+        "line": 355,
+        "text": "| 500  | `INTERNAL_SERVER_ERROR` | Server error                           |"
+      },
+      {
+        "line": 356,
+        "text": ""
+      },
+      {
+        "line": 357,
+        "text": "Chat run-level errors (inside `data.error`):"
+      },
+      {
+        "line": 358,
+        "text": ""
+      },
+      {
+        "line": 359,
+        "text": "| Code               | Meaning                          |"
+      },
+      {
+        "line": 360,
+        "text": "| ------------------ | -------------------------------- |"
+      },
+      {
+        "line": 361,
+        "text": "| `out_of_credits`   | Organization has no credits left |"
+      },
+      {
+        "line": 362,
+        "text": "| `execution_failed` | AI execution error               |"
+      },
+      {
+        "line": 363,
+        "text": ""
+      },
+      {
+        "line": 364,
+        "text": "---"
+      },
+      {
+        "line": 365,
+        "text": ""
+      },
+      {
+        "line": 366,
+        "text": "## Prompting Sleek"
+      },
+      {
+        "line": 367,
+        "text": ""
+      },
+      {
+        "line": 368,
+        "text": "Sleek has its own AI that plans screen content, visual style, and layout. Pass the user's request to Sleek as-is: don't add details the user didn't ask for. If the user described specific screens and styling, include those. If they just said \"build me a running app,\" send that and let Sleek decide the rest. Sleek produces richer designs when given room to plan, so avoid inventing screen content or layout details that the user didn't specify."
+      },
+      {
+        "line": 369,
+        "text": ""
+      },
+      {
+        "line": 370,
+        "text": "---"
+      },
+      {
+        "line": 371,
+        "text": ""
+      },
+      {
+        "line": 372,
+        "text": "## Designing"
+      },
+      {
+        "line": 373,
+        "text": ""
+      },
+      {
+        "line": 374,
+        "text": "### 1. Create a project"
+      },
+      {
+        "line": 375,
+        "text": ""
+      },
+      {
+        "line": 376,
+        "text": "Create a project with `POST /api/v1/projects` if one doesn't exist yet. Ask the user for a name, or derive one from the request."
+      },
+      {
+        "line": 377,
+        "text": ""
+      },
+      {
+        "line": 378,
+        "text": "Each project has its own theme, style, and design system. If the user wants multiple design variations, create a separate project for each variation."
+      },
+      {
+        "line": 379,
+        "text": ""
+      },
+      {
+        "line": 380,
+        "text": "### 2. Send a chat message"
+      },
+      {
+        "line": 381,
+        "text": ""
+      },
+      {
+        "line": 382,
+        "text": "Describe what to build using `POST /api/v1/projects/:id/chat/messages`. You can use the user's words directly. Sleek's AI interprets natural language. You do not need to decompose the request into screens; send the full intent as a single message and let Sleek decide what screens to create."
+      },
+      {
+        "line": 383,
+        "text": ""
+      },
+      {
+        "line": 384,
+        "text": "Chat messages are async by default. You get a `runId` and poll for completion with `GET /api/v1/projects/:id/chat/runs/:runId`. You can also use `?wait=true` for a blocking call (up to 300s; falls back to polling if it times out with `202`)."
+      },
+      {
+        "line": 385,
+        "text": ""
+      },
+      {
+        "line": 386,
+        "text": "**Polling**: start at 2s interval, back off to 5s after 10s, give up after 5 minutes."
+      },
+      {
+        "line": 387,
+        "text": ""
+      },
+      {
+        "line": 388,
+        "text": "**Editing a specific screen**: use `target.screenId` to direct changes to the right screen (uses the screen ID from operations, not the component ID)."
+      },
+      {
+        "line": 389,
+        "text": ""
+      },
+      {
+        "line": 390,
+        "text": "**One run at a time**: only one active run is allowed per project. If you get `409 CONFLICT`, wait for the current run to complete before sending the next message. Messages to different projects can run in parallel. Use async polling (not `?wait=true`) when running multiple projects concurrently."
+      },
+      {
+        "line": 391,
+        "text": ""
+      },
+      {
+        "line": 392,
+        "text": "**Safe retries**: add an `idempotency-key` header (\u2264255 chars) to replay-safe re-sends. The server returns the existing run rather than creating a duplicate."
+      },
+      {
+        "line": 393,
+        "text": ""
+      },
+      {
+        "line": 394,
+        "text": "### 3. Show the results"
+      },
+      {
+        "line": 395,
+        "text": ""
+      },
+      {
+        "line": 396,
+        "text": "After every chat run that produces `screen_created` or `screen_updated` operations, **always take screenshots and show them to the user** using `POST /api/v1/screenshots`. Never silently complete a chat run without delivering the visuals."
+      },
+      {
+        "line": 397,
+        "text": ""
+      },
+      {
+        "line": 398,
+        "text": "- **New screens**: one screenshot per screen + one combined screenshot of all screens in the project."
+      },
+      {
+        "line": 399,
+        "text": "- **Updated screens**: one screenshot per affected screen."
+      },
+      {
+        "line": 400,
+        "text": ""
+      },
+      {
+        "line": 401,
+        "text": "Use `background: \"transparent\"` for all screenshots unless the user explicitly requests otherwise."
+      },
+      {
+        "line": 402,
+        "text": ""
+      },
+      {
+        "line": 403,
+        "text": "Save screenshots in the project directory (not a temporary folder) so the user can easily view them."
+      },
+      {
+        "line": 404,
+        "text": ""
+      },
+      {
+        "line": 405,
+        "text": "---"
+      },
+      {
+        "line": 406,
+        "text": ""
+      },
+      {
+        "line": 407,
+        "text": "## Implementing Designs"
+      },
+      {
+        "line": 408,
+        "text": ""
+      },
+      {
+        "line": 409,
+        "text": "When the user wants to implement the designs in code (not just preview them), **always fetch the component HTML code**: do not rely on screenshots alone."
+      },
+      {
+        "line": 410,
+        "text": ""
+      },
+      {
+        "line": 411,
+        "text": "Use `GET /api/v1/projects/:id/components/:componentId` to fetch each screen's code. The `componentId` comes from the chat run's `result.operations`."
+      },
+      {
+        "line": 412,
+        "text": ""
+      },
+      {
+        "line": 413,
+        "text": "### Which version to use"
+      },
+      {
+        "line": 414,
+        "text": ""
+      },
+      {
+        "line": 415,
+        "text": "Each component carries a `versions[]` array and an `activeVersion: number`. **By default, use the entry where `versions[i].version === activeVersion`**: that's the code currently shown in Sleek."
+      },
+      {
+        "line": 416,
+        "text": ""
+      },
+      {
+        "line": 417,
+        "text": "If the user's prompt pins specific versions, follow those instead (see [Pinned versions](#pinned-versions) below)."
+      },
+      {
+        "line": 418,
+        "text": ""
+      },
+      {
+        "line": 419,
+        "text": "### Pinned versions"
+      },
+      {
+        "line": 420,
+        "text": ""
+      },
+      {
+        "line": 421,
+        "text": "The user's prompt may include a pin block telling you to implement specific historical versions instead of the current ones, like this:"
+      },
+      {
+        "line": 422,
+        "text": ""
+      },
+      {
+        "line": 423,
+        "text": "```"
+      },
+      {
+        "line": 424,
+        "text": "... at this exact state instead of the project's current version:"
+      },
+      {
+        "line": 425,
+        "text": "- component cmp_abc: version ver_001"
+      },
+      {
+        "line": 426,
+        "text": "- component cmp_def: version ver_002"
+      },
+      {
+        "line": 427,
+        "text": "- theme thm_ghi: version ver_003"
+      },
+      {
+        "line": 428,
+        "text": "```"
+      },
+      {
+        "line": 429,
+        "text": ""
+      },
+      {
+        "line": 430,
+        "text": "When you see a pin block, implement those exact versions instead of `activeVersion`. Components not named in the pin block continue to use their active version. Theme IDs surface only inside pin blocks. This skill exposes no separate endpoint to enumerate them."
+      },
+      {
+        "line": 431,
+        "text": ""
+      },
+      {
+        "line": 432,
+        "text": "#### Fetching the right code"
+      },
+      {
+        "line": 433,
+        "text": ""
+      },
+      {
+        "line": 434,
+        "text": "For each pinned component, find the entry in `versions[]` where `versions[i].id` matches the given version id (e.g. `ver_001`) and use its `code`. Do **not** fall back to `activeVersion` for pinned components."
+      },
+      {
+        "line": 435,
+        "text": ""
+      },
+      {
+        "line": 436,
+        "text": "#### Screenshots of pinned versions"
+      },
+      {
+        "line": 437,
+        "text": ""
+      },
+      {
+        "line": 438,
+        "text": "Pass `componentVersionOverrides` and `themeVersionOverrides` to `POST /api/v1/screenshots`:"
+      },
+      {
+        "line": 439,
+        "text": ""
+      },
+      {
+        "line": 440,
+        "text": "```json"
+      },
+      {
+        "line": 441,
+        "text": "{"
+      },
+      {
+        "line": 442,
+        "text": "  \"componentIds\": [\"cmp_abc\"],"
+      },
+      {
+        "line": 443,
+        "text": "  \"projectId\": \"proj_xyz\","
+      },
+      {
+        "line": 444,
+        "text": "  \"componentVersionOverrides\": { \"cmp_abc\": \"ver_001\" },"
+      },
+      {
+        "line": 445,
+        "text": "  \"themeVersionOverrides\":     { \"thm_ghi\": \"ver_003\" }"
+      },
+      {
+        "line": 446,
+        "text": "}"
+      },
+      {
+        "line": 447,
+        "text": "```"
+      },
+      {
+        "line": 448,
+        "text": ""
+      },
+      {
+        "line": 449,
+        "text": "Keys are component / theme public ids; values are the corresponding `versions[i].id`. Entities missing from a map fall back to their active version. Include the override maps whenever the prompt specified pinned versions."
+      },
+      {
+        "line": 450,
+        "text": ""
+      },
+      {
+        "line": 451,
+        "text": "### HTML prototypes"
+      },
+      {
+        "line": 452,
+        "text": ""
+      },
+      {
+        "line": 453,
+        "text": "The component `code` is a complete HTML document, save it directly to a `.html` file. No build step needed."
+      },
+      {
+        "line": 454,
+        "text": ""
+      },
+      {
+        "line": 455,
+        "text": "### Native frameworks (React Native, SwiftUI, etc.)"
+      },
+      {
+        "line": 456,
+        "text": ""
+      },
+      {
+        "line": 457,
+        "text": "Use both the HTML code and the screenshots together:"
+      },
+      {
+        "line": 458,
+        "text": ""
+      },
+      {
+        "line": 459,
+        "text": "- **HTML code** is the implementation reference. It contains the exact structure, layout, styling, colors, spacing, content, image URLs, and icon names."
+      },
+      {
+        "line": 460,
+        "text": "- **Screenshots** are the visual target. Use them to verify your implementation matches the intended look."
+      },
+      {
+        "line": 461,
+        "text": ""
+      },
+      {
+        "line": 462,
+        "text": "The HTML tells you *how* to build it; the screenshot tells you *what* it should look like."
+      },
+      {
+        "line": 463,
+        "text": ""
+      },
+      {
+        "line": 464,
+        "text": "#### Icons"
+      },
+      {
+        "line": 465,
+        "text": ""
+      },
+      {
+        "line": 466,
+        "text": "Sleek uses [Iconify](https://iconify.design) icons in the format `prefix:name` (e.g., `solar:heart-bold`, `material-symbols:search-rounded`, `lucide:settings`). The most common sets are **Solar**, **Hugeicons**, **Material Symbols** and **MDI**."
+      },
+      {
+        "line": 467,
+        "text": ""
+      },
+      {
+        "line": 468,
+        "text": "**Use the exact icons from the HTML code**: do not substitute with a different icon set. Matching icons is important for design fidelity."
+      },
+      {
+        "line": 469,
+        "text": ""
+      },
+      {
+        "line": 470,
+        "text": "When implementing icons:"
+      },
+      {
+        "line": 471,
+        "text": ""
+      },
+      {
+        "line": 472,
+        "text": "1. **Check if the project already has an icon system** that supports the same sets Sleek uses (Solar, Hugeicons, Material Symbols, MDI). If so, use it. Note: `@expo/vector-icons` does **not** support these sets, do not use it as a substitute."
+      },
+      {
+        "line": 473,
+        "text": "2. **Otherwise, fetch the SVGs from the Iconify API and embed them in the code:**"
+      },
+      {
+        "line": 474,
+        "text": "   ```"
+      },
+      {
+        "line": 475,
+        "text": "   GET https://api.iconify.design/{prefix}/{name}.svg"
+      },
+      {
+        "line": 476,
+        "text": "   ```"
+      },
+      {
+        "line": 477,
+        "text": "   Example: `https://api.iconify.design/solar/heart-bold.svg`"
+      },
+      {
+        "line": 478,
+        "text": ""
+      },
+      {
+        "line": 479,
+        "text": "   Collect all icon names from the HTML, fetch their SVGs, and save them as static assets or string constants in the codebase. For **React Native / Expo**, render them with `react-native-svg`'s `SvgXml` component. This works in Expo Go with no additional native dependencies."
+      },
+      {
+        "line": 480,
+        "text": ""
+      },
+      {
+        "line": 481,
+        "text": "#### Fonts"
+      },
+      {
+        "line": 482,
+        "text": ""
+      },
+      {
+        "line": 483,
+        "text": "The HTML includes Google Fonts via `<link>` tags in the `<head>`. Use the same fonts and weights when implementing in a native framework, extract the font family names and weights from the `<link>` tags."
+      },
+      {
+        "line": 484,
+        "text": ""
+      },
+      {
+        "line": 485,
+        "text": "#### Navigation"
+      },
+      {
+        "line": 486,
+        "text": ""
+      },
+      {
+        "line": 487,
+        "text": "The designs may include navigation elements like tab bars and headers. Update the project's navigation styling and structure to match the designs, don't just implement the screen content while leaving the default navigation untouched."
+      },
+      {
+        "line": 488,
+        "text": ""
+      },
+      {
+        "line": 489,
+        "text": "---"
+      },
+      {
+        "line": 490,
+        "text": ""
+      },
+      {
+        "line": 491,
+        "text": "## Pagination"
+      },
+      {
+        "line": 492,
+        "text": ""
+      },
+      {
+        "line": 493,
+        "text": "All list endpoints accept `limit` (1-100, default 50) and `offset` (\u22650). The response always includes `pagination.total` so you can page through all results."
+      },
+      {
+        "line": 494,
+        "text": ""
+      },
+      {
+        "line": 495,
+        "text": "```http"
+      },
+      {
+        "line": 496,
+        "text": "GET /api/v1/projects?limit=10&offset=20"
+      },
+      {
+        "line": 497,
+        "text": "```"
+      },
+      {
+        "line": 498,
+        "text": ""
+      },
+      {
+        "line": 499,
+        "text": "---"
+      },
+      {
+        "line": 500,
+        "text": ""
+      },
+      {
+        "line": 501,
+        "text": "## Tips"
+      },
+      {
+        "line": 502,
+        "text": ""
+      },
+      {
+        "line": 503,
+        "text": "### Saving component HTML to files"
+      },
+      {
+        "line": 504,
+        "text": ""
+      },
+      {
+        "line": 505,
+        "text": "Component code can be large. When saving it to `.html` files, avoid writing the content through your text output. This is slow and wastes tokens. Instead, use shell commands to fetch the API response and write it directly to disk (e.g., pipe the response body into a file). This applies to both single and multiple components."
+      },
+      {
+        "line": 506,
+        "text": ""
+      },
+      {
+        "line": 507,
+        "text": "---"
+      },
+      {
+        "line": 508,
+        "text": ""
+      },
+      {
+        "line": 509,
+        "text": "## Common Mistakes"
+      },
+      {
+        "line": 510,
+        "text": ""
+      },
+      {
+        "line": 511,
+        "text": "| Mistake                                             | Fix                                                                             |"
+      },
+      {
+        "line": 512,
+        "text": "| --------------------------------------------------- | ------------------------------------------------------------------------------- |"
+      },
+      {
+        "line": 513,
+        "text": "| Sending to `/api/v1` without `Authorization` header | Add `Authorization: Bearer $SLEEK_API_KEY` to every request                              |"
+      },
+      {
+        "line": 514,
+        "text": "| Using wrong scope                                   | Check key's scopes match the endpoint (e.g. `chats:write` for sending messages) |"
+      },
+      {
+        "line": 515,
+        "text": "| Sending next message before run completes           | Poll until `completed`/`failed` before next send                                |"
+      },
+      {
+        "line": 516,
+        "text": "| Using `wait=true` on long generations               | It blocks 300s max; have a fallback to polling for `202` response               |"
+      },
+      {
+        "line": 517,
+        "text": "| HTTP URLs in `imageUrls`                            | Only HTTPS URLs are accepted                                                    |"
+      },
+      {
+        "line": 518,
+        "text": "| Assuming `result` is present on `202`               | `result` is absent until status is `completed`                                  |"
+      },
+      {
+        "line": 519,
+        "text": "| Using `screenId` as `componentIds` in screenshots   | `screenId` and `componentId` are different; always use `componentId` from operations for screenshots |"
+      },
+      {
+        "line": 520,
+        "text": "| Confusing `versions[i].version` (number) with `versions[i].id` (string) | When resolving pinned versions, match by `id` (e.g. `ver_001`); `version` is the numeric index |"
+      }
+    ],
+    "matched_upstream_skill_path": "agent-skills-HEAD/skills/design-mobile-apps/SKILL.md",
+    "repo": "sleekdotdesign/agent-skills",
+    "repo_reference": "https://github.com/sleekdotdesign/agent-skills/tree/main/skills/design-mobile-apps",
+    "repo_revision": "unknown",
+    "revision_status": "archive-digest-pinned upstream package matched by catalog_slug_package_map",
+    "sha256": "ae6d38907ae79c8f45120ed4807b8bf3ceebd9d774ed0f7de3a9a7ad88089e0c",
+    "snapshot_path": "sources/catalog-skills/sleek-design-mobile-apps/SKILL.md",
+    "source_id": "aiuxplayground:catalog-content:sleek-design-mobile-apps"
+  }
+}

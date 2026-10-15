@@ -1,0 +1,3785 @@
+{
+  "frontmatter": {
+    "fields": {
+      "description": "Use this skill alongside figma-use when the task involves translating an application page, view, or multi-section layout into Figma. Triggers: 'write to Figma', 'create in Figma from code', 'push page to Figma', 'take this app/page and build it in Figma', 'create a screen', 'build a landing page in Figma', 'update the Figma screen to match code', 'convert this modal/dialog/drawer/panel to Figma'. This is the preferred workflow skill whenever the user wants to build or update a full page, modal, dialog, drawer, sidebar, panel, or any composed multi-section view in Figma from code or a description. Discovers design system components, variables, and styles from Code Connect files, existing screens, and library search, then imports them and assembles views incrementally section-by-section using design system tokens instead of hardcoded values.",
+      "disable-model-invocation": "false",
+      "name": "figma-generate-design"
+    },
+    "line_end": 4,
+    "line_start": 1,
+    "raw": "name: figma-generate-design\ndescription: \"Use this skill alongside figma-use when the task involves translating an application page, view, or multi-section layout into Figma. Triggers: 'write to Figma', 'create in Figma from code', 'push page to Figma', 'take this app/page and build it in Figma', 'create a screen', 'build a landing page in Figma', 'update the Figma screen to match code', 'convert this modal/dialog/drawer/panel to Figma'. This is the preferred workflow skill whenever the user wants to build or update a full page, modal, dialog, drawer, sidebar, panel, or any composed multi-section view in Figma from code or a description. Discovers design system components, variables, and styles from Code Connect files, existing screens, and library search, then imports them and assembles views incrementally section-by-section using design system tokens instead of hardcoded values.\"\ndisable-model-invocation: false",
+    "status": "present"
+  },
+  "identity": {
+    "catalog_category": "ui-design",
+    "slug": "figma-generate-design",
+    "title": "Figma Generate Design"
+  },
+  "license": {
+    "status": "not stated in captured catalog source",
+    "value": null
+  },
+  "line_count": 452,
+  "ontology": {
+    "actions": [
+      {
+        "evidence": {
+          "line_end": 17,
+          "line_start": 17,
+          "text": "- Use this skill when the deliverable is a **composed Figma view** (new or updated), full-page screens, modals, dialogs, drawers, sidebars, panels, or any multi-section container, built from design system component instances."
+        },
+        "text": "- Use this skill when the deliverable is a **composed Figma view** (new or updated), full-page screens, modals, dialogs, drawers, sidebars, panels, or any multi-section container, built from design system component instances."
+      },
+      {
+        "evidence": {
+          "line_end": 18,
+          "line_start": 18,
+          "text": "- If the user wants to create **new reusable components or variants**, use [figma-use](../figma-use/SKILL.md) directly."
+        },
+        "text": "- If the user wants to create **new reusable components or variants**, use [figma-use](../figma-use/SKILL.md) directly."
+      },
+      {
+        "evidence": {
+          "line_end": 19,
+          "line_start": 19,
+          "text": "- If the user wants to write **Code Connect mappings**, switch to [figma-code-connect](../figma-code-connect/SKILL.md)."
+        },
+        "text": "- If the user wants to write **Code Connect mappings**, switch to [figma-code-connect](../figma-code-connect/SKILL.md)."
+      },
+      {
+        "evidence": {
+          "line_end": 36,
+          "line_start": 36,
+          "text": "   - Run `generate_figma_design` to capture a pixel-perfect screenshot of the running web app"
+        },
+        "text": "- Run `generate_figma_design` to capture a pixel-perfect screenshot of the running web app"
+      },
+      {
+        "evidence": {
+          "line_end": 38,
+          "line_start": 38,
+          "text": "3. **Once confirmed looking good:** Delete the `generate_figma_design` output. It was only used as a visual reference."
+        },
+        "text": "3. **Once confirmed looking good:** Delete the `generate_figma_design` output. It was only used as a visual reference."
+      },
+      {
+        "evidence": {
+          "line_end": 59,
+          "line_start": 59,
+          "text": "1. If building from code, read the relevant source files to understand the structure, sections, and which components are used."
+        },
+        "text": "1. If building from code, read the relevant source files to understand the structure, sections, and which components are used."
+      },
+      {
+        "evidence": {
+          "line_end": 62,
+          "line_start": 62,
+          "text": "4. **Check whether the view contains any images** (e.g., `<img>`, `<Image>`, background images, product photos, avatars, icons loaded from URLs). If it does and this is a web app, you **must** run the parallel `generate_figma_design` capture workflow, start it immediately alongside Step 2 so the capture runs while you discover components. See \"Parallel Workflow with generate_figma_design\" above."
+        },
+        "text": "4. **Check whether the view contains any images** (e.g., `<img>`, `<Image>`, background images, product photos, avatars, icons loaded from URLs). If it does and this is a web app, you **must** run the parallel `generate_figma_design` capture workflow, start it immediately alongside Step 2 so the capture runs while you discover components. See \"Parallel Workflow with generate_figma_design\" above."
+      },
+      {
+        "evidence": {
+          "line_end": 388,
+          "line_start": 388,
+          "text": "4. Delete the `generate_figma_design` capture output after all images are transferred."
+        },
+        "text": "4. Delete the `generate_figma_design` capture output after all images are transferred."
+      },
+      {
+        "evidence": {
+          "line_end": 394,
+          "line_start": 394,
+          "text": "1. Use `get_metadata` to inspect the existing screen structure."
+        },
+        "text": "1. Use `get_metadata` to inspect the existing screen structure."
+      },
+      {
+        "evidence": {
+          "line_end": 400,
+          "line_start": 400,
+          "text": "   - Remove deprecated sections"
+        },
+        "text": "- Remove deprecated sections"
+      },
+      {
+        "evidence": {
+          "line_end": 425,
+          "line_start": 425,
+          "text": "- [component-patterns.md](../figma-use/references/component-patterns.md): importing by key, finding variants, setProperties, text overrides, working with instances"
+        },
+        "text": "- [component-patterns.md](../figma-use/references/component-patterns.md): importing by key, finding variants, setProperties, text overrides, working with instances"
+      },
+      {
+        "evidence": {
+          "line_end": 426,
+          "line_start": 426,
+          "text": "- [variable-patterns.md](../figma-use/references/variable-patterns.md): creating/binding variables, importing library variables, scopes, aliasing, discovering existing variables"
+        },
+        "text": "- [variable-patterns.md](../figma-use/references/variable-patterns.md): creating/binding variables, importing library variables, scopes, aliasing, discovering existing variables"
+      },
+      {
+        "evidence": {
+          "line_end": 427,
+          "line_start": 427,
+          "text": "- [text-style-patterns.md](../figma-use/references/text-style-patterns.md): creating/applying text styles, importing library text styles, type ramps"
+        },
+        "text": "- [text-style-patterns.md](../figma-use/references/text-style-patterns.md): creating/applying text styles, importing library text styles, type ramps"
+      },
+      {
+        "evidence": {
+          "line_end": 428,
+          "line_start": 428,
+          "text": "- [effect-style-patterns.md](../figma-use/references/effect-style-patterns.md): creating/applying effect styles (shadows), importing library effect styles"
+        },
+        "text": "- [effect-style-patterns.md](../figma-use/references/effect-style-patterns.md): creating/applying effect styles (shadows), importing library effect styles"
+      },
+      {
+        "evidence": {
+          "line_end": 429,
+          "line_start": 429,
+          "text": "- [gotchas.md](../figma-use/references/gotchas.md): layout pitfalls (HUG/FILL interactions, counterAxisAlignItems, sizing order), paint/color issues, page context resets"
+        },
+        "text": "- [gotchas.md](../figma-use/references/gotchas.md): layout pitfalls (HUG/FILL interactions, counterAxisAlignItems, sizing order), paint/color issues, page context resets"
+      },
+      {
+        "evidence": {
+          "line_end": 436,
+          "line_start": 436,
+          "text": "2. **Read the error message carefully** to understand what went wrong."
+        },
+        "text": "2. **Read the error message carefully** to understand what went wrong."
+      },
+      {
+        "evidence": {
+          "line_end": 437,
+          "line_start": 437,
+          "text": "3. If the error is unclear, call `get_metadata` or `get_screenshot` to inspect the current file state."
+        },
+        "text": "3. If the error is unclear, call `get_metadata` or `get_screenshot` to inspect the current file state."
+      },
+      {
+        "evidence": {
+          "line_end": 447,
+          "line_start": 447,
+          "text": "- **Prefer design system tokens over hardcoded values.** Use variable bindings for colors, spacing, and radii. Use text styles for typography. Use effect styles for shadows. This keeps the screen linked to the design system."
+        },
+        "text": "- **Prefer design system tokens over hardcoded values.** Use variable bindings for colors, spacing, and radii. Use text styles for typography. Use effect styles for shadows. This keeps the screen linked to the design system."
+      },
+      {
+        "evidence": {
+          "line_end": 451,
+          "line_start": 451,
+          "text": "- **Validate visually after each section.** Use `get_screenshot` to catch issues early."
+        },
+        "text": "- **Validate visually after each section.** Use `get_screenshot` to catch issues early."
+      }
+    ],
+    "command_examples": [
+      {
+        "evidence": {
+          "line_end": 85,
+          "line_start": 85,
+          "text": "const node = await figma.getNodeByIdAsync(\"609:35535\");"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 215,
+          "line_start": 215,
+          "text": "for (const node of frame.findAll(() => true)) {"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 219,
+          "line_start": 219,
+          "text": "  if ('textStyleId' in node && node.textStyleId) {"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 223,
+          "line_start": 223,
+          "text": "  if ('effectStyleId' in node && node.effectStyleId) {"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 406,
+          "line_start": 406,
+          "text": "// Batch the node lookup and component-set import in parallel. They are"
+        },
+        "kind": "fenced_command",
+        "status": "example_only"
+      }
+    ],
+    "constraints": [
+      {
+        "evidence": {
+          "line_end": 13,
+          "line_start": 13,
+          "text": "**Always pass `skillNames: \"figma-generate-design\"` when calling `use_figma` as part of this skill.** This is a logging parameter. It does not affect execution."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "**Always pass `skillNames: \"figma-generate-design\"` when calling `use_figma` as part of this skill.** This is a logging parameter. It does not affect execution."
+      },
+      {
+        "evidence": {
+          "line_end": 30,
+          "line_start": 30,
+          "text": "## Parallel Workflow with generate_figma_design (Web Apps Only)"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "## Parallel Workflow with generate_figma_design (Web Apps Only)"
+      },
+      {
+        "evidence": {
+          "line_end": 38,
+          "line_start": 38,
+          "text": "3. **Once confirmed looking good:** Delete the `generate_figma_design` output. It was only used as a visual reference."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "3. **Once confirmed looking good:** Delete the `generate_figma_design` output. It was only used as a visual reference."
+      },
+      {
+        "evidence": {
+          "line_end": 42,
+          "line_start": 42,
+          "text": "**This parallel workflow is MANDATORY when the source contains images.** The `use_figma` Plugin API cannot fetch external image URLs. It can only set image fills by copying `imageHash` values from nodes already in the file. `generate_figma_design` rasterizes all visible images into Figma, providing the hashes you need. If you skip the capture when images are present, image frames will be left blank."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "**This parallel workflow is MANDATORY when the source contains images.** The `use_figma` Plugin API cannot fetch external image URLs. It can only set image fills by copying `imageHash` values from nodes already in the file. `generate_figma_design` rasterizes all visible images into Figma, providing the hashes you need. If you skip the capture when images are present, image frames will be left blank."
+      },
+      {
+        "evidence": {
+          "line_end": 48,
+          "line_start": 48,
+          "text": "**Follow these steps in order. Do not skip steps.**"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "**Follow these steps in order. Do not skip steps.**"
+      },
+      {
+        "evidence": {
+          "line_end": 66,
+          "line_start": 66,
+          "text": "You need three things from the design system: **components** (buttons, cards, etc.), **variables** (colors, spacing, radii), and **styles** (text styles, effect styles like shadows). Don't hardcode hex colors or pixel values when design system tokens exist."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "You need three things from the design system: **components** (buttons, cards, etc.), **variables** (colors, spacing, radii), and **styles** (text styles, effect styles like shadows). Don't hardcode hex colors or pixel values when design system tokens exist."
+      },
+      {
+        "evidence": {
+          "line_end": 78,
+          "line_start": 78,
+          "text": "For each component you need (e.g., Button, Card, Input), search for its Code Connect file, glob or grep by component name (e.g., `**/Button.figma.tsx`, `**/Card.figma.ts`). Only read files that match components you actually need."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "For each component you need (e.g., Button, Card, Input), search for its Code Connect file, glob or grep by component name (e.g., `**/Button.figma.tsx`, `**/Card.figma.ts`). Only read files that match components you actually need."
+      },
+      {
+        "evidence": {
+          "line_end": 117,
+          "line_start": 117,
+          "text": "**2a-iii. LAST RESORT: `search_design_system`.** Only if components remain unresolved after completing both 2a-i and 2a-ii."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "**2a-iii. LAST RESORT: `search_design_system`.** Only if components remain unresolved after completing both 2a-i and 2a-ii."
+      },
+      {
+        "evidence": {
+          "line_end": 134,
+          "line_start": 134,
+          "text": "Org libraries in `libraries_available_to_add` are paginated (20 per page). When `libraries_available_to_add_next_offset` is non-null, more org libraries are available, call `get_libraries` again with `offset` set to that value to fetch the next page. Community UI kits only appear on the first page. If the user names a specific library you don't see in the current page, page further before giving up."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Org libraries in `libraries_available_to_add` are paginated (20 per page). When `libraries_available_to_add_next_offset` is non-null, more org libraries are available, call `get_libraries` again with `offset` set to that value to fetch the next page. Community UI kits only appear on the first page. If the user names a specific library you don't see in the current page, page further before giving up."
+      },
+      {
+        "evidence": {
+          "line_end": 136,
+          "line_start": 136,
+          "text": "This is especially useful when the file has many libraries and you want targeted results (e.g. searching only within \"iOS 26\" or \"Material 3\" instead of getting matches from every library)."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "This is especially useful when the file has many libraries and you want targeted results (e.g. searching only within \"iOS 26\" or \"Material 3\" instead of getting matches from every library)."
+      },
+      {
+        "evidence": {
+          "line_end": 158,
+          "line_start": 158,
+          "text": "> **WARNING: Two different variable discovery methods, do not confuse them.**"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "> **WARNING: Two different variable discovery methods, do not confuse them.**"
+      },
+      {
+        "evidence": {
+          "line_end": 160,
+          "line_start": 160,
+          "text": "> - `use_figma` with `figma.variables.getLocalVariableCollectionsAsync()`: returns **only local variables defined in the current file**. If this returns empty, it does **not** mean no variables exist. Remote/published library variables are invisible to this API."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "> - `use_figma` with `figma.variables.getLocalVariableCollectionsAsync()`: returns **only local variables defined in the current file**. If this returns empty, it does **not** mean no variables exist. Remote/published library variables are invisible to this API."
+      },
+      {
+        "evidence": {
+          "line_end": 163,
+          "line_start": 163,
+          "text": "> **Never conclude \"no variables exist\" based solely on `getLocalVariableCollectionsAsync()` returning empty.** Always also run `search_design_system` with `includeVariables: true` to check for library variables before deciding to create your own."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "> **Never conclude \"no variables exist\" based solely on `getLocalVariableCollectionsAsync()` returning empty.** Always also run `search_design_system` with `includeVariables: true` to check for library variables before deciding to create your own."
+      },
+      {
+        "evidence": {
+          "line_end": 241,
+          "line_start": 241,
+          "text": "**Do NOT build sections as top-level page children and reparent them later**: moving nodes across `use_figma` calls with `appendChild()` silently fails and produces orphaned frames. Instead, create the wrapper first, then build each section directly inside it."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "**Do NOT build sections as top-level page children and reparent them later**: moving nodes across `use_figma` calls with `appendChild()` silently fails and produces orphaned frames. Instead, create the wrapper first, then build each section directly inside it."
+      },
+      {
+        "evidence": {
+          "line_end": 337,
+          "line_start": 337,
+          "text": "Only fall back to direct `node.characters` for text that is NOT managed by any component property."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Only fall back to direct `node.characters` for text that is NOT managed by any component property."
+      },
+      {
+        "evidence": {
+          "line_end": 352,
+          "line_start": 352,
+          "text": "**Never hardcode hex colors or pixel spacing** when a design system variable exists. Use `setBoundVariable` for spacing/radii and `setBoundVariableForPaint` for colors. Apply text styles with `node.textStyleId` and effect styles with `node.effectStyleId`."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "**Never hardcode hex colors or pixel spacing** when a design system variable exists. Use `setBoundVariable` for spacing/radii and `setBoundVariableForPaint` for colors. Apply text styles with `node.textStyleId` and effect styles with `node.effectStyleId`."
+      },
+      {
+        "evidence": {
+          "line_end": 356,
+          "line_start": 356,
+          "text": "After composing all sections, call `get_screenshot` on the wrapper frame and compare against the source. Fix any issues with targeted `use_figma` calls, don't rebuild the entire view."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "After composing all sections, call `get_screenshot` on the wrapper frame and compare against the source. Fix any issues with targeted `use_figma` calls, don't rebuild the entire view."
+      },
+      {
+        "evidence": {
+          "line_end": 435,
+          "line_start": 435,
+          "text": "1. **STOP** on error, do not retry immediately."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "1. **STOP** on error, do not retry immediately."
+      },
+      {
+        "evidence": {
+          "line_end": 445,
+          "line_start": 445,
+          "text": "- **Always search before building.** The design system likely has the component, variable, or style you need. Manual construction and hardcoded values should be the exception, not the rule."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Always search before building.** The design system likely has the component, variable, or style you need. Manual construction and hardcoded values should be the exception, not the rule."
+      },
+      {
+        "evidence": {
+          "line_end": 449,
+          "line_start": 449,
+          "text": "- **Work section by section.** Never build more than one major section per `use_figma` call."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Work section by section.** Never build more than one major section per `use_figma` call."
+      }
+    ],
+    "effects": [
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: \"Use this skill alongside figma-use when the task involves translating an application page, view, or multi-section layout into Figma. Triggers: 'write to Figma', 'create in Figma from code', 'push page to Figma', 'take this app/page and build it in Figma', 'create a screen', 'build a landing page in Figma', 'update the Figma screen to match code', 'convert this modal/dialog/drawer/panel to Figma'. This is the preferred workflow skill whenever the user wants to build or update a full page, modal, dialog, drawer, sidebar, panel, or any composed multi-section view in Figma from code or a description. Discovers design system components, variables, and styles from Code Connect files, existing screens, and library search, then imports them and assembles views incrementally section-by-section using design system tokens instead of hardcoded values.\""
+        },
+        "modality": "conditional",
+        "text": "description: \"Use this skill alongside figma-use when the task involves translating an application page, view, or multi-section layout into Figma. Triggers: 'write to Figma', 'create in Figma from code', 'push page to Figma', 'take this app/page and build it in Figma', 'create a screen', 'build a landing page in Figma', 'update the Figma screen to match code', 'convert this modal/dialog/drawer/panel to Figma'. This is the preferred workflow skill whenever the user wants to build or update a full page, modal, dialog, drawer, sidebar, panel, or any composed multi-section view in Figma from code or a description. Discovers design system components, variables, and styles from Code Connect files, existing screens, and library search, then imports them and assembles views incrementally section-by-section using design system tokens instead of hardcoded values.\"",
+        "verb": "write"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: \"Use this skill alongside figma-use when the task involves translating an application page, view, or multi-section layout into Figma. Triggers: 'write to Figma', 'create in Figma from code', 'push page to Figma', 'take this app/page and build it in Figma', 'create a screen', 'build a landing page in Figma', 'update the Figma screen to match code', 'convert this modal/dialog/drawer/panel to Figma'. This is the preferred workflow skill whenever the user wants to build or update a full page, modal, dialog, drawer, sidebar, panel, or any composed multi-section view in Figma from code or a description. Discovers design system components, variables, and styles from Code Connect files, existing screens, and library search, then imports them and assembles views incrementally section-by-section using design system tokens instead of hardcoded values.\""
+        },
+        "modality": "conditional",
+        "text": "description: \"Use this skill alongside figma-use when the task involves translating an application page, view, or multi-section layout into Figma. Triggers: 'write to Figma', 'create in Figma from code', 'push page to Figma', 'take this app/page and build it in Figma', 'create a screen', 'build a landing page in Figma', 'update the Figma screen to match code', 'convert this modal/dialog/drawer/panel to Figma'. This is the preferred workflow skill whenever the user wants to build or update a full page, modal, dialog, drawer, sidebar, panel, or any composed multi-section view in Figma from code or a description. Discovers design system components, variables, and styles from Code Connect files, existing screens, and library search, then imports them and assembles views incrementally section-by-section using design system tokens instead of hardcoded values.\"",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: \"Use this skill alongside figma-use when the task involves translating an application page, view, or multi-section layout into Figma. Triggers: 'write to Figma', 'create in Figma from code', 'push page to Figma', 'take this app/page and build it in Figma', 'create a screen', 'build a landing page in Figma', 'update the Figma screen to match code', 'convert this modal/dialog/drawer/panel to Figma'. This is the preferred workflow skill whenever the user wants to build or update a full page, modal, dialog, drawer, sidebar, panel, or any composed multi-section view in Figma from code or a description. Discovers design system components, variables, and styles from Code Connect files, existing screens, and library search, then imports them and assembles views incrementally section-by-section using design system tokens instead of hardcoded values.\""
+        },
+        "modality": "conditional",
+        "text": "description: \"Use this skill alongside figma-use when the task involves translating an application page, view, or multi-section layout into Figma. Triggers: 'write to Figma', 'create in Figma from code', 'push page to Figma', 'take this app/page and build it in Figma', 'create a screen', 'build a landing page in Figma', 'update the Figma screen to match code', 'convert this modal/dialog/drawer/panel to Figma'. This is the preferred workflow skill whenever the user wants to build or update a full page, modal, dialog, drawer, sidebar, panel, or any composed multi-section view in Figma from code or a description. Discovers design system components, variables, and styles from Code Connect files, existing screens, and library search, then imports them and assembles views incrementally section-by-section using design system tokens instead of hardcoded values.\"",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 9,
+          "line_start": 9,
+          "text": "Use this skill to create or update **screens, views, and multi-section UI containers** in Figma by **reusing the published design system**: components, variables, and styles, rather than drawing primitives with hardcoded values. This includes full pages, modals, dialogs, drawers, sidebars, panels, and any composed view with multiple sections. The key insight: the Figma file likely has a published design system with components, color/spacing variables, and text/effect styles that correspond to the codebase's UI components and tokens. Find and use those instead of drawing boxes with hex colors."
+        },
+        "modality": "unspecified",
+        "text": "Use this skill to create or update **screens, views, and multi-section UI containers** in Figma by **reusing the published design system**: components, variables, and styles, rather than drawing primitives with hardcoded values. This includes full pages, modals, dialogs, drawers, sidebars, panels, and any composed view with multiple sections. The key insight: the Figma file likely has a published design system with components, color/spacing variables, and text/effect styles that correspond to the codebase's UI components and tokens. Find and use those instead of drawing boxes with hex colors.",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 11,
+          "line_start": 11,
+          "text": "**MANDATORY**: You MUST also load [figma-use](../figma-use/SKILL.md) before any `use_figma` call. That skill contains critical rules (color ranges, font loading, etc.) that apply to every script you write."
+        },
+        "modality": "unspecified",
+        "text": "**MANDATORY**: You MUST also load [figma-use](../figma-use/SKILL.md) before any `use_figma` call. That skill contains critical rules (color ranges, font loading, etc.) that apply to every script you write.",
+        "verb": "write"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 18,
+          "line_start": 18,
+          "text": "- If the user wants to create **new reusable components or variants**, use [figma-use](../figma-use/SKILL.md) directly."
+        },
+        "modality": "conditional",
+        "text": "- If the user wants to create **new reusable components or variants**, use [figma-use](../figma-use/SKILL.md) directly.",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 19,
+          "line_start": 19,
+          "text": "- If the user wants to write **Code Connect mappings**, switch to [figma-code-connect](../figma-code-connect/SKILL.md)."
+        },
+        "modality": "conditional",
+        "text": "- If the user wants to write **Code Connect mappings**, switch to [figma-code-connect](../figma-code-connect/SKILL.md).",
+        "verb": "write"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 36,
+          "line_start": 36,
+          "text": "   - Run `generate_figma_design` to capture a pixel-perfect screenshot of the running web app"
+        },
+        "modality": "unspecified",
+        "text": "- Run `generate_figma_design` to capture a pixel-perfect screenshot of the running web app",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 38,
+          "line_start": 38,
+          "text": "3. **Once confirmed looking good:** Delete the `generate_figma_design` output. It was only used as a visual reference."
+        },
+        "modality": "unspecified",
+        "text": "3. **Once confirmed looking good:** Delete the `generate_figma_design` output. It was only used as a visual reference.",
+        "verb": "delete"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 62,
+          "line_start": 62,
+          "text": "4. **Check whether the view contains any images** (e.g., `<img>`, `<Image>`, background images, product photos, avatars, icons loaded from URLs). If it does and this is a web app, you **must** run the parallel `generate_figma_design` capture workflow, start it immediately alongside Step 2 so the capture runs while you discover components. See \"Parallel Workflow with generate_figma_design\" above."
+        },
+        "modality": "conditional",
+        "text": "4. **Check whether the view contains any images** (e.g., `<img>`, `<Image>`, background images, product photos, avatars, icons loaded from URLs). If it does and this is a web app, you **must** run the parallel `generate_figma_design` capture workflow, start it immediately alongside Step 2 so the capture runs while you discover components. See \"Parallel Workflow with generate_figma_design\" above.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 82,
+          "line_start": 82,
+          "text": "**Example:** Code Connect file contains `// url=https://figma.com/design/ABC123/File?node-id=609-35535`. Parse `fileKey` = `ABC123`, `nodeId` = `609:35535`. Run `use_figma` against the **library file** (fileKey `ABC123`, not the target file) to resolve the key:"
+        },
+        "modality": "unspecified",
+        "text": "**Example:** Code Connect file contains `// url=https://figma.com/design/ABC123/File?node-id=609-35535`. Parse `fileKey` = `ABC123`, `nodeId` = `609:35535`. Run `use_figma` against the **library file** (fileKey `ABC123`, not the target file) to resolve the key:",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 140,
+          "line_start": 140,
+          "text": "**Include component properties** in your map. You need to know which TEXT properties each component exposes for text overrides. Create a temporary instance, read its `componentProperties` (and those of nested instances), then remove the temp instance."
+        },
+        "modality": "unspecified",
+        "text": "**Include component properties** in your map. You need to know which TEXT properties each component exposes for text overrides. Create a temporary instance, read its `componentProperties` (and those of nested instances), then remove the temp instance.",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 140,
+          "line_start": 140,
+          "text": "**Include component properties** in your map. You need to know which TEXT properties each component exposes for text overrides. Create a temporary instance, read its `componentProperties` (and those of nested instances), then remove the temp instance."
+        },
+        "modality": "unspecified",
+        "text": "**Include component properties** in your map. You need to know which TEXT properties each component exposes for text overrides. Create a temporary instance, read its `componentProperties` (and those of nested instances), then remove the temp instance.",
+        "verb": "remove"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 163,
+          "line_start": 163,
+          "text": "> **Never conclude \"no variables exist\" based solely on `getLocalVariableCollectionsAsync()` returning empty.** Always also run `search_design_system` with `includeVariables: true` to check for library variables before deciding to create your own."
+        },
+        "modality": "required",
+        "text": "> **Never conclude \"no variables exist\" based solely on `getLocalVariableCollectionsAsync()` returning empty.** Always also run `search_design_system` with `includeVariables: true` to check for library variables before deciding to create your own.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 163,
+          "line_start": 163,
+          "text": "> **Never conclude \"no variables exist\" based solely on `getLocalVariableCollectionsAsync()` returning empty.** Always also run `search_design_system` with `includeVariables: true` to check for library variables before deciding to create your own."
+        },
+        "modality": "unspecified",
+        "text": "> **Never conclude \"no variables exist\" based solely on `getLocalVariableCollectionsAsync()` returning empty.** Always also run `search_design_system` with `includeVariables: true` to check for library variables before deciding to create your own.",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 165,
+          "line_start": 165,
+          "text": "**Query strategy:** `search_design_system` matches against **variable names** (e.g., \"Gray/gray-9\", \"core/gray/100\", \"space/400\"), not categories. Run multiple short, simple queries in parallel rather than one compound query:"
+        },
+        "modality": "unspecified",
+        "text": "**Query strategy:** `search_design_system` matches against **variable names** (e.g., \"Gray/gray-9\", \"core/gray/100\", \"space/400\"), not categories. Run multiple short, simple queries in parallel rather than one compound query:",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 239,
+          "line_start": 239,
+          "text": "### Step 3: Create the Wrapper Frame First"
+        },
+        "modality": "unspecified",
+        "text": "### Step 3: Create the Wrapper Frame First",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 241,
+          "line_start": 241,
+          "text": "**Do NOT build sections as top-level page children and reparent them later**: moving nodes across `use_figma` calls with `appendChild()` silently fails and produces orphaned frames. Instead, create the wrapper first, then build each section directly inside it."
+        },
+        "modality": "unspecified",
+        "text": "**Do NOT build sections as top-level page children and reparent them later**: moving nodes across `use_figma` calls with `appendChild()` silently fails and produces orphaned frames. Instead, create the wrapper first, then build each section directly inside it.",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 243,
+          "line_start": 243,
+          "text": "Create the wrapper in its own `use_figma` call. Position it away from existing content and return its ID:"
+        },
+        "modality": "unspecified",
+        "text": "Create the wrapper in its own `use_figma` call. Position it away from existing content and return its ID:",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 388,
+          "line_start": 388,
+          "text": "4. Delete the `generate_figma_design` capture output after all images are transferred."
+        },
+        "modality": "unspecified",
+        "text": "4. Delete the `generate_figma_design` capture output after all images are transferred.",
+        "verb": "delete"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 400,
+          "line_start": 400,
+          "text": "   - Remove deprecated sections"
+        },
+        "modality": "unspecified",
+        "text": "- Remove deprecated sections",
+        "verb": "remove"
+      }
+    ],
+    "external_urls": [
+      {
+        "evidence": {
+          "line_end": 82,
+          "line_start": 82,
+          "text": "**Example:** Code Connect file contains `// url=https://figma.com/design/ABC123/File?node-id=609-35535`. Parse `fileKey` = `ABC123`, `nodeId` = `609:35535`. Run `use_figma` against the **library file** (fileKey `ABC123`, not the target file) to resolve the key:"
+        },
+        "url": "https://figma.com/design/ABC123/File?node-id=609-35535"
+      }
+    ],
+    "headings": [
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 7,
+        "title": "Build / Update Screens and Views from Design System"
+      },
+      {
+        "bullets": [
+          {
+            "line": 17,
+            "text": "Use this skill when the deliverable is a **composed Figma view** (new or updated), full-page screens, modals, dialogs, drawers, sidebars, panels, or any multi-section container, built from design system component instances."
+          },
+          {
+            "line": 18,
+            "text": "If the user wants to create **new reusable components or variants**, use [figma-use](../figma-use/SKILL.md) directly."
+          },
+          {
+            "line": 19,
+            "text": "If the user wants to write **Code Connect mappings**, switch to [figma-code-connect](../figma-code-connect/SKILL.md)."
+          }
+        ],
+        "level": 2,
+        "line": 15,
+        "title": "Skill Boundaries"
+      },
+      {
+        "bullets": [
+          {
+            "line": 23,
+            "text": "Figma MCP server must be connected"
+          },
+          {
+            "line": 24,
+            "text": "The target Figma file must have a published design system with components (or access to a team library)"
+          },
+          {
+            "line": 25,
+            "text": "User should provide either:"
+          },
+          {
+            "line": 26,
+            "text": "A Figma file URL / file key to work in"
+          },
+          {
+            "line": 27,
+            "text": "Or context about which file to target (the agent can discover pages)"
+          },
+          {
+            "line": 28,
+            "text": "Source code or description of the screen/view to build/update"
+          }
+        ],
+        "level": 2,
+        "line": 21,
+        "title": "Prerequisites"
+      },
+      {
+        "bullets": [
+          {
+            "line": 34,
+            "text": "**In parallel:**"
+          },
+          {
+            "line": 35,
+            "text": "Start building the screen using this skill's workflow (use_figma + design system components)"
+          },
+          {
+            "line": 36,
+            "text": "Run `generate_figma_design` to capture a pixel-perfect screenshot of the running web app"
+          },
+          {
+            "line": 37,
+            "text": "**Once both complete:** Update the use_figma output to match the pixel-perfect layout from the `generate_figma_design` capture. The capture provides the exact spacing, sizing, and visual treatment to aim for, while your use_figma output has proper component instances linked to the design system. If the capture contains images, transfer them to your use_figma output by copying `imageHash` values from the capture's image fills (see Step 5 for details)."
+          },
+          {
+            "line": 38,
+            "text": "**Once confirmed looking good:** Delete the `generate_figma_design` output. It was only used as a visual reference."
+          }
+        ],
+        "level": 2,
+        "line": 30,
+        "title": "Parallel Workflow with generate_figma_design (Web Apps Only)"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 46,
+        "title": "Required Workflow"
+      },
+      {
+        "bullets": [
+          {
+            "line": 59,
+            "text": "If building from code, read the relevant source files to understand the structure, sections, and which components are used."
+          },
+          {
+            "line": 60,
+            "text": "Identify the major sections of the view (e.g., for a page: Header, Hero, Content Panels, Footer; for a modal: Title Bar, Form Sections, Action Bar; for a sidebar: Navigation, Content Area, Footer Actions)."
+          },
+          {
+            "line": 61,
+            "text": "For each section, list the UI components involved (buttons, inputs, cards, navigation pills, accordions, etc.)."
+          },
+          {
+            "line": 62,
+            "text": "**Check whether the view contains any images** (e.g., `<img>`, `<Image>`, background images, product photos, avatars, icons loaded from URLs). If it does and this is a web app, you **must** run the parallel `generate_figma_design` capture workflow, start it immediately alongside Step 2 so the capture runs while you discover components. See \"Parallel Workflow with generate_figma_design\" above."
+          }
+        ],
+        "level": 3,
+        "line": 55,
+        "title": "Step 1: Understand the Deliverable"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 64,
+        "title": "Step 2: Collect Component Keys, Variables, and Styles"
+      },
+      {
+        "bullets": [
+          {
+            "line": 73,
+            "text": "**TypeScript/JS**: `*.figma.ts`, `*.figma.js`"
+          },
+          {
+            "line": 74,
+            "text": "**React (parser-based)**: `*.figma.tsx`"
+          },
+          {
+            "line": 75,
+            "text": "**Kotlin/Compose**: `.kt` files containing `@FigmaConnect`"
+          },
+          {
+            "line": 76,
+            "text": "**Swift**: `.swift` files containing `FigmaConnect`"
+          },
+          {
+            "line": 146,
+            "text": "Button \u2192 key: \"abc123\", type: COMPONENT_SET"
+          },
+          {
+            "line": 148,
+            "text": "PricingCard \u2192 key: \"ghi789\", type: COMPONENT_SET"
+          }
+        ],
+        "level": 4,
+        "line": 68,
+        "title": "2a: Discover components"
+      },
+      {
+        "bullets": [
+          {
+            "line": 167,
+            "text": "**Primitive colors:** \"gray\", \"red\", \"blue\", \"green\", \"white\", \"brand\""
+          },
+          {
+            "line": 168,
+            "text": "**Semantic colors:** \"background\", \"foreground\", \"border\", \"surface\", \"text\""
+          },
+          {
+            "line": 169,
+            "text": "**Spacing/sizing:** \"space\", \"radius\", \"gap\", \"padding\""
+          }
+        ],
+        "level": 4,
+        "line": 154,
+        "title": "2b: Discover variables (colors, spacing, radii)"
+      },
+      {
+        "bullets": [],
+        "level": 4,
+        "line": 204,
+        "title": "2c: Discover styles (text styles, effect styles)"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 239,
+        "title": "Step 3: Create the Wrapper Frame First"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 272,
+        "title": "Step 4: Build Each Section Inside the Wrapper"
+      },
+      {
+        "bullets": [],
+        "level": 4,
+        "line": 321,
+        "title": "Override instance text with setProperties()"
+      },
+      {
+        "bullets": [],
+        "level": 4,
+        "line": 339,
+        "title": "Read source code defaults carefully"
+      },
+      {
+        "bullets": [],
+        "level": 4,
+        "line": 343,
+        "title": "What to build manually vs. import from design system"
+      },
+      {
+        "bullets": [
+          {
+            "line": 359,
+            "text": "**Cropped/clipped text**: line heights or frame sizing cutting off descenders, ascenders, or entire lines"
+          },
+          {
+            "line": 360,
+            "text": "**Overlapping content**: elements stacking on top of each other due to incorrect sizing or missing auto-layout"
+          },
+          {
+            "line": 361,
+            "text": "Placeholder text still showing (\"Title\", \"Heading\", \"Button\")"
+          },
+          {
+            "line": 362,
+            "text": "Truncated content from layout sizing bugs"
+          },
+          {
+            "line": 363,
+            "text": "Wrong component variants (e.g., Neutral vs Primary button)"
+          },
+          {
+            "line": 364,
+            "text": "**Blank image placeholders**: if images are missing, you need to transfer them from the `generate_figma_design` capture (see below)"
+          }
+        ],
+        "level": 3,
+        "line": 354,
+        "title": "Step 5: Validate the Full View and Transfer Images"
+      },
+      {
+        "bullets": [
+          {
+            "line": 370,
+            "text": "Find all image nodes in the capture output by searching for fills with `type === \"IMAGE\"`:"
+          },
+          {
+            "line": 383,
+            "text": "Match each captured image to the corresponding frame in your use_figma output (by position, name, or order)."
+          },
+          {
+            "line": 384,
+            "text": "Apply the image hash to the target frame:"
+          },
+          {
+            "line": 388,
+            "text": "Delete the `generate_figma_design` capture output after all images are transferred."
+          }
+        ],
+        "level": 4,
+        "line": 366,
+        "title": "Transfer images from the generate_figma_design capture"
+      },
+      {
+        "bullets": [
+          {
+            "line": 394,
+            "text": "Use `get_metadata` to inspect the existing screen structure."
+          },
+          {
+            "line": 395,
+            "text": "Identify which sections need updating and which can stay."
+          },
+          {
+            "line": 396,
+            "text": "For each section that needs changes:"
+          },
+          {
+            "line": 397,
+            "text": "Locate the existing nodes by ID or name"
+          },
+          {
+            "line": 398,
+            "text": "Swap component instances if the design system component changed"
+          },
+          {
+            "line": 399,
+            "text": "Update text content, variant properties, or layout as needed"
+          },
+          {
+            "line": 400,
+            "text": "Remove deprecated sections"
+          },
+          {
+            "line": 401,
+            "text": "Add new sections"
+          },
+          {
+            "line": 402,
+            "text": "Validate with `get_screenshot` after each modification."
+          }
+        ],
+        "level": 3,
+        "line": 390,
+        "title": "Step 6: Updating an Existing View"
+      },
+      {
+        "bullets": [
+          {
+            "line": 425,
+            "text": "[component-patterns.md](../figma-use/references/component-patterns.md): importing by key, finding variants, setProperties, text overrides, working with instances"
+          },
+          {
+            "line": 426,
+            "text": "[variable-patterns.md](../figma-use/references/variable-patterns.md): creating/binding variables, importing library variables, scopes, aliasing, discovering existing variables"
+          },
+          {
+            "line": 427,
+            "text": "[text-style-patterns.md](../figma-use/references/text-style-patterns.md): creating/applying text styles, importing library text styles, type ramps"
+          },
+          {
+            "line": 428,
+            "text": "[effect-style-patterns.md](../figma-use/references/effect-style-patterns.md): creating/applying effect styles (shadows), importing library effect styles"
+          },
+          {
+            "line": 429,
+            "text": "[gotchas.md](../figma-use/references/gotchas.md): layout pitfalls (HUG/FILL interactions, counterAxisAlignItems, sizing order), paint/color issues, page context resets"
+          }
+        ],
+        "level": 2,
+        "line": 421,
+        "title": "Reference Docs"
+      },
+      {
+        "bullets": [
+          {
+            "line": 435,
+            "text": "**STOP** on error, do not retry immediately."
+          },
+          {
+            "line": 436,
+            "text": "**Read the error message carefully** to understand what went wrong."
+          },
+          {
+            "line": 437,
+            "text": "If the error is unclear, call `get_metadata` or `get_screenshot` to inspect the current file state."
+          },
+          {
+            "line": 438,
+            "text": "**Fix the script** based on the error message."
+          },
+          {
+            "line": 439,
+            "text": "**Retry** the corrected script. This is safe because failed scripts are atomic (nothing is created if a script errors)."
+          }
+        ],
+        "level": 2,
+        "line": 431,
+        "title": "Error Recovery"
+      },
+      {
+        "bullets": [
+          {
+            "line": 445,
+            "text": "**Always search before building.** The design system likely has the component, variable, or style you need. Manual construction and hardcoded values should be the exception, not the rule."
+          },
+          {
+            "line": 446,
+            "text": "**Search broadly.** Try synonyms and partial terms. A \"NavigationPill\" might be found under \"pill\", \"nav\", \"tab\", or \"chip\". For variables, search \"color\", \"spacing\", \"radius\", etc."
+          },
+          {
+            "line": 447,
+            "text": "**Prefer design system tokens over hardcoded values.** Use variable bindings for colors, spacing, and radii. Use text styles for typography. Use effect styles for shadows. This keeps the screen linked to the design system."
+          },
+          {
+            "line": 448,
+            "text": "**Prefer component instances over manual builds.** Instances stay linked to the source component and update automatically when the design system evolves."
+          },
+          {
+            "line": 449,
+            "text": "**Work section by section.** Never build more than one major section per `use_figma` call."
+          },
+          {
+            "line": 450,
+            "text": "**Return node IDs from every call.** You'll need them to compose sections and for error recovery."
+          },
+          {
+            "line": 451,
+            "text": "**Validate visually after each section.** Use `get_screenshot` to catch issues early."
+          },
+          {
+            "line": 452,
+            "text": "**Match existing conventions.** If the file already has screens, match their naming, sizing, and layout patterns."
+          }
+        ],
+        "level": 2,
+        "line": 443,
+        "title": "Best Practices"
+      }
+    ],
+    "inputs": [
+      {
+        "evidence": {
+          "line_end": 61,
+          "line_start": 61,
+          "text": "3. For each section, list the UI components involved (buttons, inputs, cards, navigation pills, accordions, etc.)."
+        },
+        "status": "input_candidate",
+        "text": "3. For each section, list the UI components involved (buttons, inputs, cards, navigation pills, accordions, etc.)."
+      },
+      {
+        "evidence": {
+          "line_end": 78,
+          "line_start": 78,
+          "text": "For each component you need (e.g., Button, Card, Input), search for its Code Connect file, glob or grep by component name (e.g., `**/Button.figma.tsx`, `**/Card.figma.ts`). Only read files that match components you actually need."
+        },
+        "status": "input_candidate",
+        "text": "For each component you need (e.g., Button, Card, Input), search for its Code Connect file, glob or grep by component name (e.g., `**/Button.figma.tsx`, `**/Card.figma.ts`). Only read files that match components you actually need."
+      },
+      {
+        "evidence": {
+          "line_end": 138,
+          "line_start": 138,
+          "text": "**Search broadly**: try multiple terms and synonyms (e.g., \"button\", \"input\", \"nav\", \"card\", \"accordion\", \"header\", \"footer\", \"tag\", \"avatar\", \"toggle\", \"icon\", etc.). Use `includeComponents: true` to focus on components."
+        },
+        "status": "input_candidate",
+        "text": "**Search broadly**: try multiple terms and synonyms (e.g., \"button\", \"input\", \"nav\", \"card\", \"accordion\", \"header\", \"footer\", \"tag\", \"avatar\", \"toggle\", \"icon\", etc.). Use `includeComponents: true` to focus on components."
+      },
+      {
+        "evidence": {
+          "line_end": 347,
+          "line_start": 347,
+          "text": "| Wrapper frame | **Components**: buttons, cards, inputs, nav, etc. |"
+        },
+        "status": "input_candidate",
+        "text": "| Wrapper frame | **Components**: buttons, cards, inputs, nav, etc. |"
+      }
+    ],
+    "invariants": [
+      {
+        "evidence": {
+          "line_end": 13,
+          "line_start": 13,
+          "text": "**Always pass `skillNames: \"figma-generate-design\"` when calling `use_figma` as part of this skill.** This is a logging parameter. It does not affect execution."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "**Always pass `skillNames: \"figma-generate-design\"` when calling `use_figma` as part of this skill.** This is a logging parameter. It does not affect execution."
+      },
+      {
+        "evidence": {
+          "line_end": 30,
+          "line_start": 30,
+          "text": "## Parallel Workflow with generate_figma_design (Web Apps Only)"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "## Parallel Workflow with generate_figma_design (Web Apps Only)"
+      },
+      {
+        "evidence": {
+          "line_end": 38,
+          "line_start": 38,
+          "text": "3. **Once confirmed looking good:** Delete the `generate_figma_design` output. It was only used as a visual reference."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "3. **Once confirmed looking good:** Delete the `generate_figma_design` output. It was only used as a visual reference."
+      },
+      {
+        "evidence": {
+          "line_end": 42,
+          "line_start": 42,
+          "text": "**This parallel workflow is MANDATORY when the source contains images.** The `use_figma` Plugin API cannot fetch external image URLs. It can only set image fills by copying `imageHash` values from nodes already in the file. `generate_figma_design` rasterizes all visible images into Figma, providing the hashes you need. If you skip the capture when images are present, image frames will be left blank."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "**This parallel workflow is MANDATORY when the source contains images.** The `use_figma` Plugin API cannot fetch external image URLs. It can only set image fills by copying `imageHash` values from nodes already in the file. `generate_figma_design` rasterizes all visible images into Figma, providing the hashes you need. If you skip the capture when images are present, image frames will be left blank."
+      },
+      {
+        "evidence": {
+          "line_end": 48,
+          "line_start": 48,
+          "text": "**Follow these steps in order. Do not skip steps.**"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "**Follow these steps in order. Do not skip steps.**"
+      },
+      {
+        "evidence": {
+          "line_end": 66,
+          "line_start": 66,
+          "text": "You need three things from the design system: **components** (buttons, cards, etc.), **variables** (colors, spacing, radii), and **styles** (text styles, effect styles like shadows). Don't hardcode hex colors or pixel values when design system tokens exist."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "You need three things from the design system: **components** (buttons, cards, etc.), **variables** (colors, spacing, radii), and **styles** (text styles, effect styles like shadows). Don't hardcode hex colors or pixel values when design system tokens exist."
+      },
+      {
+        "evidence": {
+          "line_end": 78,
+          "line_start": 78,
+          "text": "For each component you need (e.g., Button, Card, Input), search for its Code Connect file, glob or grep by component name (e.g., `**/Button.figma.tsx`, `**/Card.figma.ts`). Only read files that match components you actually need."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "For each component you need (e.g., Button, Card, Input), search for its Code Connect file, glob or grep by component name (e.g., `**/Button.figma.tsx`, `**/Card.figma.ts`). Only read files that match components you actually need."
+      },
+      {
+        "evidence": {
+          "line_end": 117,
+          "line_start": 117,
+          "text": "**2a-iii. LAST RESORT: `search_design_system`.** Only if components remain unresolved after completing both 2a-i and 2a-ii."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "**2a-iii. LAST RESORT: `search_design_system`.** Only if components remain unresolved after completing both 2a-i and 2a-ii."
+      },
+      {
+        "evidence": {
+          "line_end": 134,
+          "line_start": 134,
+          "text": "Org libraries in `libraries_available_to_add` are paginated (20 per page). When `libraries_available_to_add_next_offset` is non-null, more org libraries are available, call `get_libraries` again with `offset` set to that value to fetch the next page. Community UI kits only appear on the first page. If the user names a specific library you don't see in the current page, page further before giving up."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Org libraries in `libraries_available_to_add` are paginated (20 per page). When `libraries_available_to_add_next_offset` is non-null, more org libraries are available, call `get_libraries` again with `offset` set to that value to fetch the next page. Community UI kits only appear on the first page. If the user names a specific library you don't see in the current page, page further before giving up."
+      },
+      {
+        "evidence": {
+          "line_end": 136,
+          "line_start": 136,
+          "text": "This is especially useful when the file has many libraries and you want targeted results (e.g. searching only within \"iOS 26\" or \"Material 3\" instead of getting matches from every library)."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "This is especially useful when the file has many libraries and you want targeted results (e.g. searching only within \"iOS 26\" or \"Material 3\" instead of getting matches from every library)."
+      },
+      {
+        "evidence": {
+          "line_end": 158,
+          "line_start": 158,
+          "text": "> **WARNING: Two different variable discovery methods, do not confuse them.**"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "> **WARNING: Two different variable discovery methods, do not confuse them.**"
+      },
+      {
+        "evidence": {
+          "line_end": 160,
+          "line_start": 160,
+          "text": "> - `use_figma` with `figma.variables.getLocalVariableCollectionsAsync()`: returns **only local variables defined in the current file**. If this returns empty, it does **not** mean no variables exist. Remote/published library variables are invisible to this API."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "> - `use_figma` with `figma.variables.getLocalVariableCollectionsAsync()`: returns **only local variables defined in the current file**. If this returns empty, it does **not** mean no variables exist. Remote/published library variables are invisible to this API."
+      },
+      {
+        "evidence": {
+          "line_end": 163,
+          "line_start": 163,
+          "text": "> **Never conclude \"no variables exist\" based solely on `getLocalVariableCollectionsAsync()` returning empty.** Always also run `search_design_system` with `includeVariables: true` to check for library variables before deciding to create your own."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "> **Never conclude \"no variables exist\" based solely on `getLocalVariableCollectionsAsync()` returning empty.** Always also run `search_design_system` with `includeVariables: true` to check for library variables before deciding to create your own."
+      },
+      {
+        "evidence": {
+          "line_end": 241,
+          "line_start": 241,
+          "text": "**Do NOT build sections as top-level page children and reparent them later**: moving nodes across `use_figma` calls with `appendChild()` silently fails and produces orphaned frames. Instead, create the wrapper first, then build each section directly inside it."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "**Do NOT build sections as top-level page children and reparent them later**: moving nodes across `use_figma` calls with `appendChild()` silently fails and produces orphaned frames. Instead, create the wrapper first, then build each section directly inside it."
+      },
+      {
+        "evidence": {
+          "line_end": 337,
+          "line_start": 337,
+          "text": "Only fall back to direct `node.characters` for text that is NOT managed by any component property."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Only fall back to direct `node.characters` for text that is NOT managed by any component property."
+      },
+      {
+        "evidence": {
+          "line_end": 352,
+          "line_start": 352,
+          "text": "**Never hardcode hex colors or pixel spacing** when a design system variable exists. Use `setBoundVariable` for spacing/radii and `setBoundVariableForPaint` for colors. Apply text styles with `node.textStyleId` and effect styles with `node.effectStyleId`."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "**Never hardcode hex colors or pixel spacing** when a design system variable exists. Use `setBoundVariable` for spacing/radii and `setBoundVariableForPaint` for colors. Apply text styles with `node.textStyleId` and effect styles with `node.effectStyleId`."
+      },
+      {
+        "evidence": {
+          "line_end": 356,
+          "line_start": 356,
+          "text": "After composing all sections, call `get_screenshot` on the wrapper frame and compare against the source. Fix any issues with targeted `use_figma` calls, don't rebuild the entire view."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "After composing all sections, call `get_screenshot` on the wrapper frame and compare against the source. Fix any issues with targeted `use_figma` calls, don't rebuild the entire view."
+      },
+      {
+        "evidence": {
+          "line_end": 435,
+          "line_start": 435,
+          "text": "1. **STOP** on error, do not retry immediately."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "1. **STOP** on error, do not retry immediately."
+      },
+      {
+        "evidence": {
+          "line_end": 445,
+          "line_start": 445,
+          "text": "- **Always search before building.** The design system likely has the component, variable, or style you need. Manual construction and hardcoded values should be the exception, not the rule."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Always search before building.** The design system likely has the component, variable, or style you need. Manual construction and hardcoded values should be the exception, not the rule."
+      },
+      {
+        "evidence": {
+          "line_end": 449,
+          "line_start": 449,
+          "text": "- **Work section by section.** Never build more than one major section per `use_figma` call."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Work section by section.** Never build more than one major section per `use_figma` call."
+      }
+    ],
+    "outputs": [
+      {
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: \"Use this skill alongside figma-use when the task involves translating an application page, view, or multi-section layout into Figma. Triggers: 'write to Figma', 'create in Figma from code', 'push page to Figma', 'take this app/page and build it in Figma', 'create a screen', 'build a landing page in Figma', 'update the Figma screen to match code', 'convert this modal/dialog/drawer/panel to Figma'. This is the preferred workflow skill whenever the user wants to build or update a full page, modal, dialog, drawer, sidebar, panel, or any composed multi-section view in Figma from code or a description. Discovers design system components, variables, and styles from Code Connect files, existing screens, and library search, then imports them and assembles views incrementally section-by-section using design system tokens instead of hardcoded values.\""
+        },
+        "status": "output_candidate",
+        "text": "description: \"Use this skill alongside figma-use when the task involves translating an application page, view, or multi-section layout into Figma. Triggers: 'write to Figma', 'create in Figma from code', 'push page to Figma', 'take this app/page and build it in Figma', 'create a screen', 'build a landing page in Figma', 'update the Figma screen to match code', 'convert this modal/dialog/drawer/panel to Figma'. This is the preferred workflow skill whenever the user wants to build or update a full page, modal, dialog, drawer, sidebar, panel, or any composed multi-section view in Figma from code or a description. Discovers design system components, variables, and styles from Code Connect files, existing screens, and library search, then imports them and assembles views incrementally section-by-section using design system tokens instead of hardcoded values.\""
+      },
+      {
+        "evidence": {
+          "line_end": 17,
+          "line_start": 17,
+          "text": "- Use this skill when the deliverable is a **composed Figma view** (new or updated), full-page screens, modals, dialogs, drawers, sidebars, panels, or any multi-section container, built from design system component instances."
+        },
+        "status": "output_candidate",
+        "text": "- Use this skill when the deliverable is a **composed Figma view** (new or updated), full-page screens, modals, dialogs, drawers, sidebars, panels, or any multi-section container, built from design system component instances."
+      },
+      {
+        "evidence": {
+          "line_end": 37,
+          "line_start": 37,
+          "text": "2. **Once both complete:** Update the use_figma output to match the pixel-perfect layout from the `generate_figma_design` capture. The capture provides the exact spacing, sizing, and visual treatment to aim for, while your use_figma output has proper component instances linked to the design system. If the capture contains images, transfer them to your use_figma output by copying `imageHash` values from the capture's image fills (see Step 5 for details)."
+        },
+        "status": "output_candidate",
+        "text": "2. **Once both complete:** Update the use_figma output to match the pixel-perfect layout from the `generate_figma_design` capture. The capture provides the exact spacing, sizing, and visual treatment to aim for, while your use_figma output has proper component instances linked to the design system. If the capture contains images, transfer them to your use_figma output by copying `imageHash` values from the capture's image fills (see Step 5 for details)."
+      },
+      {
+        "evidence": {
+          "line_end": 38,
+          "line_start": 38,
+          "text": "3. **Once confirmed looking good:** Delete the `generate_figma_design` output. It was only used as a visual reference."
+        },
+        "status": "output_candidate",
+        "text": "3. **Once confirmed looking good:** Delete the `generate_figma_design` output. It was only used as a visual reference."
+      },
+      {
+        "evidence": {
+          "line_end": 55,
+          "line_start": 55,
+          "text": "### Step 1: Understand the Deliverable"
+        },
+        "status": "output_candidate",
+        "text": "### Step 1: Understand the Deliverable"
+      },
+      {
+        "evidence": {
+          "line_end": 171,
+          "line_start": 171,
+          "text": "If initial searches return empty, try shorter fragments or different naming conventions, libraries vary widely (\"grey\" vs \"gray\", \"spacing\" vs \"space\", \"color/bg\" vs \"background\")."
+        },
+        "status": "output_candidate",
+        "text": "If initial searches return empty, try shorter fragments or different naming conventions, libraries vary widely (\"grey\" vs \"gray\", \"spacing\" vs \"space\", \"color/bg\" vs \"background\")."
+      },
+      {
+        "evidence": {
+          "line_end": 243,
+          "line_start": 243,
+          "text": "Create the wrapper in its own `use_figma` call. Position it away from existing content and return its ID:"
+        },
+        "status": "output_candidate",
+        "text": "Create the wrapper in its own `use_figma` call. Position it away from existing content and return its ID:"
+      },
+      {
+        "evidence": {
+          "line_end": 341,
+          "line_start": 341,
+          "text": "When translating code components to Figma instances, check the component's default prop values in the source code, not just what's explicitly passed. For example, `<Button size=\"small\">Register</Button>` with no variant prop. Check the component definition to find `variant = \"primary\"` as the default. Selecting the wrong variant (e.g., Neutral instead of Primary) produces a visually incorrect result that's easy to miss."
+        },
+        "status": "output_candidate",
+        "text": "When translating code components to Figma instances, check the component's default prop values in the source code, not just what's explicitly passed. For example, `<Button size=\"small\">Register</Button>` with no variant prop. Check the component definition to find `variant = \"primary\"` as the default. Selecting the wrong variant (e.g., Neutral instead of Primary) produces a visually incorrect result that's easy to miss."
+      },
+      {
+        "evidence": {
+          "line_end": 368,
+          "line_start": 368,
+          "text": "If you ran `generate_figma_design` in parallel (mandatory when the source contains images), transfer the captured images into your design system output:"
+        },
+        "status": "output_candidate",
+        "text": "If you ran `generate_figma_design` in parallel (mandatory when the source contains images), transfer the captured images into your design system output:"
+      },
+      {
+        "evidence": {
+          "line_end": 370,
+          "line_start": 370,
+          "text": "1. Find all image nodes in the capture output by searching for fills with `type === \"IMAGE\"`:"
+        },
+        "status": "output_candidate",
+        "text": "1. Find all image nodes in the capture output by searching for fills with `type === \"IMAGE\"`:"
+      },
+      {
+        "evidence": {
+          "line_end": 383,
+          "line_start": 383,
+          "text": "2. Match each captured image to the corresponding frame in your use_figma output (by position, name, or order)."
+        },
+        "status": "output_candidate",
+        "text": "2. Match each captured image to the corresponding frame in your use_figma output (by position, name, or order)."
+      },
+      {
+        "evidence": {
+          "line_end": 388,
+          "line_start": 388,
+          "text": "4. Delete the `generate_figma_design` capture output after all images are transferred."
+        },
+        "status": "output_candidate",
+        "text": "4. Delete the `generate_figma_design` capture output after all images are transferred."
+      },
+      {
+        "evidence": {
+          "line_end": 450,
+          "line_start": 450,
+          "text": "- **Return node IDs from every call.** You'll need them to compose sections and for error recovery."
+        },
+        "status": "output_candidate",
+        "text": "- **Return node IDs from every call.** You'll need them to compose sections and for error recovery."
+      }
+    ],
+    "package_path_candidates": [],
+    "recovery": [
+      {
+        "evidence": {
+          "line_end": 435,
+          "line_start": 435,
+          "text": "1. **STOP** on error, do not retry immediately."
+        },
+        "status": "recovery_candidate",
+        "text": "1. **STOP** on error, do not retry immediately."
+      },
+      {
+        "evidence": {
+          "line_end": 439,
+          "line_start": 439,
+          "text": "5. **Retry** the corrected script. This is safe because failed scripts are atomic (nothing is created if a script errors)."
+        },
+        "status": "recovery_candidate",
+        "text": "5. **Retry** the corrected script. This is safe because failed scripts are atomic (nothing is created if a script errors)."
+      },
+      {
+        "evidence": {
+          "line_end": 445,
+          "line_start": 445,
+          "text": "- **Always search before building.** The design system likely has the component, variable, or style you need. Manual construction and hardcoded values should be the exception, not the rule."
+        },
+        "status": "recovery_candidate",
+        "text": "- **Always search before building.** The design system likely has the component, variable, or style you need. Manual construction and hardcoded values should be the exception, not the rule."
+      },
+      {
+        "evidence": {
+          "line_end": 448,
+          "line_start": 448,
+          "text": "- **Prefer component instances over manual builds.** Instances stay linked to the source component and update automatically when the design system evolves."
+        },
+        "status": "recovery_candidate",
+        "text": "- **Prefer component instances over manual builds.** Instances stay linked to the source component and update automatically when the design system evolves."
+      }
+    ],
+    "references": [
+      {
+        "evidence": {
+          "line_end": 11,
+          "line_start": 11,
+          "text": "**MANDATORY**: You MUST also load [figma-use](../figma-use/SKILL.md) before any `use_figma` call. That skill contains critical rules (color ranges, font loading, etc.) that apply to every script you write."
+        },
+        "reference": "../figma-use/SKILL.md"
+      },
+      {
+        "evidence": {
+          "line_end": 18,
+          "line_start": 18,
+          "text": "- If the user wants to create **new reusable components or variants**, use [figma-use](../figma-use/SKILL.md) directly."
+        },
+        "reference": "../figma-use/SKILL.md"
+      },
+      {
+        "evidence": {
+          "line_end": 19,
+          "line_start": 19,
+          "text": "- If the user wants to write **Code Connect mappings**, switch to [figma-code-connect](../figma-code-connect/SKILL.md)."
+        },
+        "reference": "../figma-code-connect/SKILL.md"
+      },
+      {
+        "evidence": {
+          "line_end": 202,
+          "line_start": 202,
+          "text": "See [variable-patterns.md](../figma-use/references/variable-patterns.md) for binding patterns."
+        },
+        "reference": "../figma-use/references/variable-patterns.md"
+      },
+      {
+        "evidence": {
+          "line_end": 237,
+          "line_start": 237,
+          "text": "See [text-style-patterns.md](../figma-use/references/text-style-patterns.md) and [effect-style-patterns.md](../figma-use/references/effect-style-patterns.md) for details."
+        },
+        "reference": "../figma-use/references/text-style-patterns.md"
+      },
+      {
+        "evidence": {
+          "line_end": 237,
+          "line_start": 237,
+          "text": "See [text-style-patterns.md](../figma-use/references/text-style-patterns.md) and [effect-style-patterns.md](../figma-use/references/effect-style-patterns.md) for details."
+        },
+        "reference": "../figma-use/references/effect-style-patterns.md"
+      },
+      {
+        "evidence": {
+          "line_end": 323,
+          "line_start": 323,
+          "text": "Component instances ship with placeholder text (\"Title\", \"Heading\", \"Button\"). Use the component property keys you discovered in Step 2 to override them with `setProperties()`: this is more reliable than direct `node.characters` manipulation. See [component-patterns.md](../figma-use/references/component-patterns.md#overriding-text-in-a-component-instance) for the full pattern."
+        },
+        "reference": "../figma-use/references/component-patterns.md#overriding-text-in-a-component-instance"
+      },
+      {
+        "evidence": {
+          "line_end": 423,
+          "line_start": 423,
+          "text": "For detailed API patterns and gotchas, load these from the [figma-use](../figma-use/SKILL.md) references as needed:"
+        },
+        "reference": "../figma-use/SKILL.md"
+      },
+      {
+        "evidence": {
+          "line_end": 425,
+          "line_start": 425,
+          "text": "- [component-patterns.md](../figma-use/references/component-patterns.md): importing by key, finding variants, setProperties, text overrides, working with instances"
+        },
+        "reference": "../figma-use/references/component-patterns.md"
+      },
+      {
+        "evidence": {
+          "line_end": 426,
+          "line_start": 426,
+          "text": "- [variable-patterns.md](../figma-use/references/variable-patterns.md): creating/binding variables, importing library variables, scopes, aliasing, discovering existing variables"
+        },
+        "reference": "../figma-use/references/variable-patterns.md"
+      },
+      {
+        "evidence": {
+          "line_end": 427,
+          "line_start": 427,
+          "text": "- [text-style-patterns.md](../figma-use/references/text-style-patterns.md): creating/applying text styles, importing library text styles, type ramps"
+        },
+        "reference": "../figma-use/references/text-style-patterns.md"
+      },
+      {
+        "evidence": {
+          "line_end": 428,
+          "line_start": 428,
+          "text": "- [effect-style-patterns.md](../figma-use/references/effect-style-patterns.md): creating/applying effect styles (shadows), importing library effect styles"
+        },
+        "reference": "../figma-use/references/effect-style-patterns.md"
+      },
+      {
+        "evidence": {
+          "line_end": 429,
+          "line_start": 429,
+          "text": "- [gotchas.md](../figma-use/references/gotchas.md): layout pitfalls (HUG/FILL interactions, counterAxisAlignItems, sizing order), paint/color issues, page context resets"
+        },
+        "reference": "../figma-use/references/gotchas.md"
+      },
+      {
+        "evidence": {
+          "line_end": 433,
+          "line_start": 433,
+          "text": "Follow the error recovery process from [figma-use](../figma-use/SKILL.md#6-error-recovery--self-correction):"
+        },
+        "reference": "../figma-use/SKILL.md#6-error-recovery--self-correction"
+      }
+    ],
+    "routes": [
+      {
+        "evidence": {
+          "line_end": 44,
+          "line_start": 44,
+          "text": "For non-web apps (iOS, Android, etc.) or when updating existing screens, use the standard workflow below."
+        },
+        "text": "For non-web apps (iOS, Android, etc.) or when updating existing screens, use the standard workflow below."
+      },
+      {
+        "evidence": {
+          "line_end": 200,
+          "line_start": 200,
+          "text": "For library variables (remote = true), import them by key with `figma.variables.importVariableByKeyAsync(key)`. For local variables, use `figma.variables.getVariableByIdAsync(id)` directly."
+        },
+        "text": "For library variables (remote = true), import them by key with `figma.variables.importVariableByKeyAsync(key)`. For local variables, use `figma.variables.getVariableByIdAsync(id)` directly."
+      },
+      {
+        "evidence": {
+          "line_end": 352,
+          "line_start": 352,
+          "text": "**Never hardcode hex colors or pixel spacing** when a design system variable exists. Use `setBoundVariable` for spacing/radii and `setBoundVariableForPaint` for colors. Apply text styles with `node.textStyleId` and effect styles with `node.effectStyleId`."
+        },
+        "text": "**Never hardcode hex colors or pixel spacing** when a design system variable exists. Use `setBoundVariable` for spacing/radii and `setBoundVariableForPaint` for colors. Apply text styles with `node.textStyleId` and effect styles with `node.effectStyleId`."
+      },
+      {
+        "evidence": {
+          "line_end": 447,
+          "line_start": 447,
+          "text": "- **Prefer design system tokens over hardcoded values.** Use variable bindings for colors, spacing, and radii. Use text styles for typography. Use effect styles for shadows. This keeps the screen linked to the design system."
+        },
+        "text": "- **Prefer design system tokens over hardcoded values.** Use variable bindings for colors, spacing, and radii. Use text styles for typography. Use effect styles for shadows. This keeps the screen linked to the design system."
+      }
+    ],
+    "template_commands": [],
+    "template_status": "source_not_executed; fenced commands remain example-only only when surrounding prose says so, otherwise context-unknown; live XML template commands are not executable evidence",
+    "triggers": [
+      {
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: \"Use this skill alongside figma-use when the task involves translating an application page, view, or multi-section layout into Figma. Triggers: 'write to Figma', 'create in Figma from code', 'push page to Figma', 'take this app/page and build it in Figma', 'create a screen', 'build a landing page in Figma', 'update the Figma screen to match code', 'convert this modal/dialog/drawer/panel to Figma'. This is the preferred workflow skill whenever the user wants to build or update a full page, modal, dialog, drawer, sidebar, panel, or any composed multi-section view in Figma from code or a description. Discovers design system components, variables, and styles from Code Connect files, existing screens, and library search, then imports them and assembles views incrementally section-by-section using design system tokens instead of hardcoded values.\""
+        },
+        "text": "description: \"Use this skill alongside figma-use when the task involves translating an application page, view, or multi-section layout into Figma. Triggers: 'write to Figma', 'create in Figma from code', 'push page to Figma', 'take this app/page and build it in Figma', 'create a screen', 'build a landing page in Figma', 'update the Figma screen to match code', 'convert this modal/dialog/drawer/panel to Figma'. This is the preferred workflow skill whenever the user wants to build or update a full page, modal, dialog, drawer, sidebar, panel, or any composed multi-section view in Figma from code or a description. Discovers design system components, variables, and styles from Code Connect files, existing screens, and library search, then imports them and assembles views incrementally section-by-section using design system tokens instead of hardcoded values.\""
+      }
+    ],
+    "workflows": [
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 17,
+            "text": "Use this skill when the deliverable is a **composed Figma view** (new or updated), full-page screens, modals, dialogs, drawers, sidebars, panels, or any multi-section container, built from design system component instances."
+          },
+          {
+            "line": 18,
+            "text": "If the user wants to create **new reusable components or variants**, use [figma-use](../figma-use/SKILL.md) directly."
+          },
+          {
+            "line": 19,
+            "text": "If the user wants to write **Code Connect mappings**, switch to [figma-code-connect](../figma-code-connect/SKILL.md)."
+          }
+        ],
+        "section": "Skill Boundaries",
+        "start_line": 15
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 23,
+            "text": "Figma MCP server must be connected"
+          },
+          {
+            "line": 24,
+            "text": "The target Figma file must have a published design system with components (or access to a team library)"
+          },
+          {
+            "line": 25,
+            "text": "User should provide either:"
+          },
+          {
+            "line": 26,
+            "text": "A Figma file URL / file key to work in"
+          },
+          {
+            "line": 27,
+            "text": "Or context about which file to target (the agent can discover pages)"
+          },
+          {
+            "line": 28,
+            "text": "Source code or description of the screen/view to build/update"
+          }
+        ],
+        "section": "Prerequisites",
+        "start_line": 21
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 34,
+            "text": "**In parallel:**"
+          },
+          {
+            "line": 35,
+            "text": "Start building the screen using this skill's workflow (use_figma + design system components)"
+          },
+          {
+            "line": 36,
+            "text": "Run `generate_figma_design` to capture a pixel-perfect screenshot of the running web app"
+          },
+          {
+            "line": 37,
+            "text": "**Once both complete:** Update the use_figma output to match the pixel-perfect layout from the `generate_figma_design` capture. The capture provides the exact spacing, sizing, and visual treatment to aim for, while your use_figma output has proper component instances linked to the design system. If the capture contains images, transfer them to your use_figma output by copying `imageHash` values from the capture's image fills (see Step 5 for details)."
+          },
+          {
+            "line": 38,
+            "text": "**Once confirmed looking good:** Delete the `generate_figma_design` output. It was only used as a visual reference."
+          }
+        ],
+        "section": "Parallel Workflow with generate_figma_design (Web Apps Only)",
+        "start_line": 30
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 59,
+            "text": "If building from code, read the relevant source files to understand the structure, sections, and which components are used."
+          },
+          {
+            "line": 60,
+            "text": "Identify the major sections of the view (e.g., for a page: Header, Hero, Content Panels, Footer; for a modal: Title Bar, Form Sections, Action Bar; for a sidebar: Navigation, Content Area, Footer Actions)."
+          },
+          {
+            "line": 61,
+            "text": "For each section, list the UI components involved (buttons, inputs, cards, navigation pills, accordions, etc.)."
+          },
+          {
+            "line": 62,
+            "text": "**Check whether the view contains any images** (e.g., `<img>`, `<Image>`, background images, product photos, avatars, icons loaded from URLs). If it does and this is a web app, you **must** run the parallel `generate_figma_design` capture workflow, start it immediately alongside Step 2 so the capture runs while you discover components. See \"Parallel Workflow with generate_figma_design\" above."
+          }
+        ],
+        "section": "Step 1: Understand the Deliverable",
+        "start_line": 55
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 73,
+            "text": "**TypeScript/JS**: `*.figma.ts`, `*.figma.js`"
+          },
+          {
+            "line": 74,
+            "text": "**React (parser-based)**: `*.figma.tsx`"
+          },
+          {
+            "line": 75,
+            "text": "**Kotlin/Compose**: `.kt` files containing `@FigmaConnect`"
+          },
+          {
+            "line": 76,
+            "text": "**Swift**: `.swift` files containing `FigmaConnect`"
+          },
+          {
+            "line": 146,
+            "text": "Button \u2192 key: \"abc123\", type: COMPONENT_SET"
+          },
+          {
+            "line": 148,
+            "text": "PricingCard \u2192 key: \"ghi789\", type: COMPONENT_SET"
+          }
+        ],
+        "section": "2a: Discover components",
+        "start_line": 68
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 167,
+            "text": "**Primitive colors:** \"gray\", \"red\", \"blue\", \"green\", \"white\", \"brand\""
+          },
+          {
+            "line": 168,
+            "text": "**Semantic colors:** \"background\", \"foreground\", \"border\", \"surface\", \"text\""
+          },
+          {
+            "line": 169,
+            "text": "**Spacing/sizing:** \"space\", \"radius\", \"gap\", \"padding\""
+          }
+        ],
+        "section": "2b: Discover variables (colors, spacing, radii)",
+        "start_line": 154
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 359,
+            "text": "**Cropped/clipped text**: line heights or frame sizing cutting off descenders, ascenders, or entire lines"
+          },
+          {
+            "line": 360,
+            "text": "**Overlapping content**: elements stacking on top of each other due to incorrect sizing or missing auto-layout"
+          },
+          {
+            "line": 361,
+            "text": "Placeholder text still showing (\"Title\", \"Heading\", \"Button\")"
+          },
+          {
+            "line": 362,
+            "text": "Truncated content from layout sizing bugs"
+          },
+          {
+            "line": 363,
+            "text": "Wrong component variants (e.g., Neutral vs Primary button)"
+          },
+          {
+            "line": 364,
+            "text": "**Blank image placeholders**: if images are missing, you need to transfer them from the `generate_figma_design` capture (see below)"
+          }
+        ],
+        "section": "Step 5: Validate the Full View and Transfer Images",
+        "start_line": 354
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 370,
+            "text": "Find all image nodes in the capture output by searching for fills with `type === \"IMAGE\"`:"
+          },
+          {
+            "line": 383,
+            "text": "Match each captured image to the corresponding frame in your use_figma output (by position, name, or order)."
+          },
+          {
+            "line": 384,
+            "text": "Apply the image hash to the target frame:"
+          },
+          {
+            "line": 388,
+            "text": "Delete the `generate_figma_design` capture output after all images are transferred."
+          }
+        ],
+        "section": "Transfer images from the generate_figma_design capture",
+        "start_line": 366
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 394,
+            "text": "Use `get_metadata` to inspect the existing screen structure."
+          },
+          {
+            "line": 395,
+            "text": "Identify which sections need updating and which can stay."
+          },
+          {
+            "line": 396,
+            "text": "For each section that needs changes:"
+          },
+          {
+            "line": 397,
+            "text": "Locate the existing nodes by ID or name"
+          },
+          {
+            "line": 398,
+            "text": "Swap component instances if the design system component changed"
+          },
+          {
+            "line": 399,
+            "text": "Update text content, variant properties, or layout as needed"
+          },
+          {
+            "line": 400,
+            "text": "Remove deprecated sections"
+          },
+          {
+            "line": 401,
+            "text": "Add new sections"
+          },
+          {
+            "line": 402,
+            "text": "Validate with `get_screenshot` after each modification."
+          }
+        ],
+        "section": "Step 6: Updating an Existing View",
+        "start_line": 390
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 425,
+            "text": "[component-patterns.md](../figma-use/references/component-patterns.md): importing by key, finding variants, setProperties, text overrides, working with instances"
+          },
+          {
+            "line": 426,
+            "text": "[variable-patterns.md](../figma-use/references/variable-patterns.md): creating/binding variables, importing library variables, scopes, aliasing, discovering existing variables"
+          },
+          {
+            "line": 427,
+            "text": "[text-style-patterns.md](../figma-use/references/text-style-patterns.md): creating/applying text styles, importing library text styles, type ramps"
+          },
+          {
+            "line": 428,
+            "text": "[effect-style-patterns.md](../figma-use/references/effect-style-patterns.md): creating/applying effect styles (shadows), importing library effect styles"
+          },
+          {
+            "line": 429,
+            "text": "[gotchas.md](../figma-use/references/gotchas.md): layout pitfalls (HUG/FILL interactions, counterAxisAlignItems, sizing order), paint/color issues, page context resets"
+          }
+        ],
+        "section": "Reference Docs",
+        "start_line": 421
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 435,
+            "text": "**STOP** on error, do not retry immediately."
+          },
+          {
+            "line": 436,
+            "text": "**Read the error message carefully** to understand what went wrong."
+          },
+          {
+            "line": 437,
+            "text": "If the error is unclear, call `get_metadata` or `get_screenshot` to inspect the current file state."
+          },
+          {
+            "line": 438,
+            "text": "**Fix the script** based on the error message."
+          },
+          {
+            "line": 439,
+            "text": "**Retry** the corrected script. This is safe because failed scripts are atomic (nothing is created if a script errors)."
+          }
+        ],
+        "section": "Error Recovery",
+        "start_line": 431
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 445,
+            "text": "**Always search before building.** The design system likely has the component, variable, or style you need. Manual construction and hardcoded values should be the exception, not the rule."
+          },
+          {
+            "line": 446,
+            "text": "**Search broadly.** Try synonyms and partial terms. A \"NavigationPill\" might be found under \"pill\", \"nav\", \"tab\", or \"chip\". For variables, search \"color\", \"spacing\", \"radius\", etc."
+          },
+          {
+            "line": 447,
+            "text": "**Prefer design system tokens over hardcoded values.** Use variable bindings for colors, spacing, and radii. Use text styles for typography. Use effect styles for shadows. This keeps the screen linked to the design system."
+          },
+          {
+            "line": 448,
+            "text": "**Prefer component instances over manual builds.** Instances stay linked to the source component and update automatically when the design system evolves."
+          },
+          {
+            "line": 449,
+            "text": "**Work section by section.** Never build more than one major section per `use_figma` call."
+          },
+          {
+            "line": 450,
+            "text": "**Return node IDs from every call.** You'll need them to compose sections and for error recovery."
+          },
+          {
+            "line": 451,
+            "text": "**Validate visually after each section.** Use `get_screenshot` to catch issues early."
+          },
+          {
+            "line": 452,
+            "text": "**Match existing conventions.** If the file already has screens, match their naming, sizing, and layout patterns."
+          }
+        ],
+        "section": "Best Practices",
+        "start_line": 443
+      }
+    ]
+  },
+  "package": {
+    "resolved_files": [],
+    "unresolved_references": []
+  },
+  "schema": "skill-ir/1.0",
+  "source": {
+    "bytes": 27457,
+    "catalog_metadata": {
+      "bundle_offset": 4515538,
+      "category": "ui-design",
+      "content_binding": "XB",
+      "description": "Build full pages, modals, and multi-section views in Figma from code or descriptions using design system components, variables, and styles. Pairs with Figma Use and Figma MCP.",
+      "github_url": "https://github.com/figma/mcp-server-guide/tree/main/skills/figma-generate-design",
+      "slug": "figma-generate-design",
+      "source": "community",
+      "source_label": "Figma",
+      "stars_reported": 3300,
+      "template_expressions": [],
+      "title": "Figma Generate Design"
+    },
+    "line_table": [
+      {
+        "line": 1,
+        "text": "---"
+      },
+      {
+        "line": 2,
+        "text": "name: figma-generate-design"
+      },
+      {
+        "line": 3,
+        "text": "description: \"Use this skill alongside figma-use when the task involves translating an application page, view, or multi-section layout into Figma. Triggers: 'write to Figma', 'create in Figma from code', 'push page to Figma', 'take this app/page and build it in Figma', 'create a screen', 'build a landing page in Figma', 'update the Figma screen to match code', 'convert this modal/dialog/drawer/panel to Figma'. This is the preferred workflow skill whenever the user wants to build or update a full page, modal, dialog, drawer, sidebar, panel, or any composed multi-section view in Figma from code or a description. Discovers design system components, variables, and styles from Code Connect files, existing screens, and library search, then imports them and assembles views incrementally section-by-section using design system tokens instead of hardcoded values.\""
+      },
+      {
+        "line": 4,
+        "text": "disable-model-invocation: false"
+      },
+      {
+        "line": 5,
+        "text": "---"
+      },
+      {
+        "line": 6,
+        "text": ""
+      },
+      {
+        "line": 7,
+        "text": "# Build / Update Screens and Views from Design System"
+      },
+      {
+        "line": 8,
+        "text": ""
+      },
+      {
+        "line": 9,
+        "text": "Use this skill to create or update **screens, views, and multi-section UI containers** in Figma by **reusing the published design system**: components, variables, and styles, rather than drawing primitives with hardcoded values. This includes full pages, modals, dialogs, drawers, sidebars, panels, and any composed view with multiple sections. The key insight: the Figma file likely has a published design system with components, color/spacing variables, and text/effect styles that correspond to the codebase's UI components and tokens. Find and use those instead of drawing boxes with hex colors."
+      },
+      {
+        "line": 10,
+        "text": ""
+      },
+      {
+        "line": 11,
+        "text": "**MANDATORY**: You MUST also load [figma-use](../figma-use/SKILL.md) before any `use_figma` call. That skill contains critical rules (color ranges, font loading, etc.) that apply to every script you write."
+      },
+      {
+        "line": 12,
+        "text": ""
+      },
+      {
+        "line": 13,
+        "text": "**Always pass `skillNames: \"figma-generate-design\"` when calling `use_figma` as part of this skill.** This is a logging parameter. It does not affect execution."
+      },
+      {
+        "line": 14,
+        "text": ""
+      },
+      {
+        "line": 15,
+        "text": "## Skill Boundaries"
+      },
+      {
+        "line": 16,
+        "text": ""
+      },
+      {
+        "line": 17,
+        "text": "- Use this skill when the deliverable is a **composed Figma view** (new or updated), full-page screens, modals, dialogs, drawers, sidebars, panels, or any multi-section container, built from design system component instances."
+      },
+      {
+        "line": 18,
+        "text": "- If the user wants to create **new reusable components or variants**, use [figma-use](../figma-use/SKILL.md) directly."
+      },
+      {
+        "line": 19,
+        "text": "- If the user wants to write **Code Connect mappings**, switch to [figma-code-connect](../figma-code-connect/SKILL.md)."
+      },
+      {
+        "line": 20,
+        "text": ""
+      },
+      {
+        "line": 21,
+        "text": "## Prerequisites"
+      },
+      {
+        "line": 22,
+        "text": ""
+      },
+      {
+        "line": 23,
+        "text": "- Figma MCP server must be connected"
+      },
+      {
+        "line": 24,
+        "text": "- The target Figma file must have a published design system with components (or access to a team library)"
+      },
+      {
+        "line": 25,
+        "text": "- User should provide either:"
+      },
+      {
+        "line": 26,
+        "text": "  - A Figma file URL / file key to work in"
+      },
+      {
+        "line": 27,
+        "text": "  - Or context about which file to target (the agent can discover pages)"
+      },
+      {
+        "line": 28,
+        "text": "- Source code or description of the screen/view to build/update"
+      },
+      {
+        "line": 29,
+        "text": ""
+      },
+      {
+        "line": 30,
+        "text": "## Parallel Workflow with generate_figma_design (Web Apps Only)"
+      },
+      {
+        "line": 31,
+        "text": ""
+      },
+      {
+        "line": 32,
+        "text": "When building a screen from a **web app** that can be rendered in a browser, the best results come from running both approaches in parallel:"
+      },
+      {
+        "line": 33,
+        "text": ""
+      },
+      {
+        "line": 34,
+        "text": "1. **In parallel:**"
+      },
+      {
+        "line": 35,
+        "text": "   - Start building the screen using this skill's workflow (use_figma + design system components)"
+      },
+      {
+        "line": 36,
+        "text": "   - Run `generate_figma_design` to capture a pixel-perfect screenshot of the running web app"
+      },
+      {
+        "line": 37,
+        "text": "2. **Once both complete:** Update the use_figma output to match the pixel-perfect layout from the `generate_figma_design` capture. The capture provides the exact spacing, sizing, and visual treatment to aim for, while your use_figma output has proper component instances linked to the design system. If the capture contains images, transfer them to your use_figma output by copying `imageHash` values from the capture's image fills (see Step 5 for details)."
+      },
+      {
+        "line": 38,
+        "text": "3. **Once confirmed looking good:** Delete the `generate_figma_design` output. It was only used as a visual reference."
+      },
+      {
+        "line": 39,
+        "text": ""
+      },
+      {
+        "line": 40,
+        "text": "This combines the best of both: `generate_figma_design` gives pixel-perfect layout accuracy, while use_figma gives proper design system component instances that stay linked and updatable."
+      },
+      {
+        "line": 41,
+        "text": ""
+      },
+      {
+        "line": 42,
+        "text": "**This parallel workflow is MANDATORY when the source contains images.** The `use_figma` Plugin API cannot fetch external image URLs. It can only set image fills by copying `imageHash` values from nodes already in the file. `generate_figma_design` rasterizes all visible images into Figma, providing the hashes you need. If you skip the capture when images are present, image frames will be left blank."
+      },
+      {
+        "line": 43,
+        "text": ""
+      },
+      {
+        "line": 44,
+        "text": "For non-web apps (iOS, Android, etc.) or when updating existing screens, use the standard workflow below."
+      },
+      {
+        "line": 45,
+        "text": ""
+      },
+      {
+        "line": 46,
+        "text": "## Required Workflow"
+      },
+      {
+        "line": 47,
+        "text": ""
+      },
+      {
+        "line": 48,
+        "text": "**Follow these steps in order. Do not skip steps.**"
+      },
+      {
+        "line": 49,
+        "text": ""
+      },
+      {
+        "line": 50,
+        "text": "> **Hard gates, forbidden shortcuts:**"
+      },
+      {
+        "line": 51,
+        "text": ">"
+      },
+      {
+        "line": 52,
+        "text": "> - **Forbidden:** `search_design_system` for component keys until 2a-i is complete and 2a-ii is attempted or logged N/A (e.g. \"empty file, no existing screens\")."
+      },
+      {
+        "line": 53,
+        "text": "> - **Forbidden:** Any `use_figma` call that mutates the canvas (Step 3+) until all Step 2 rows in the checklist below are filled in."
+      },
+      {
+        "line": 54,
+        "text": ""
+      },
+      {
+        "line": 55,
+        "text": "### Step 1: Understand the Deliverable"
+      },
+      {
+        "line": 56,
+        "text": ""
+      },
+      {
+        "line": 57,
+        "text": "Before touching Figma, understand what you're building:"
+      },
+      {
+        "line": 58,
+        "text": ""
+      },
+      {
+        "line": 59,
+        "text": "1. If building from code, read the relevant source files to understand the structure, sections, and which components are used."
+      },
+      {
+        "line": 60,
+        "text": "2. Identify the major sections of the view (e.g., for a page: Header, Hero, Content Panels, Footer; for a modal: Title Bar, Form Sections, Action Bar; for a sidebar: Navigation, Content Area, Footer Actions)."
+      },
+      {
+        "line": 61,
+        "text": "3. For each section, list the UI components involved (buttons, inputs, cards, navigation pills, accordions, etc.)."
+      },
+      {
+        "line": 62,
+        "text": "4. **Check whether the view contains any images** (e.g., `<img>`, `<Image>`, background images, product photos, avatars, icons loaded from URLs). If it does and this is a web app, you **must** run the parallel `generate_figma_design` capture workflow, start it immediately alongside Step 2 so the capture runs while you discover components. See \"Parallel Workflow with generate_figma_design\" above."
+      },
+      {
+        "line": 63,
+        "text": ""
+      },
+      {
+        "line": 64,
+        "text": "### Step 2: Collect Component Keys, Variables, and Styles"
+      },
+      {
+        "line": 65,
+        "text": ""
+      },
+      {
+        "line": 66,
+        "text": "You need three things from the design system: **components** (buttons, cards, etc.), **variables** (colors, spacing, radii), and **styles** (text styles, effect styles like shadows). Don't hardcode hex colors or pixel values when design system tokens exist."
+      },
+      {
+        "line": 67,
+        "text": ""
+      },
+      {
+        "line": 68,
+        "text": "#### 2a: Discover components"
+      },
+      {
+        "line": 69,
+        "text": ""
+      },
+      {
+        "line": 70,
+        "text": ""
+      },
+      {
+        "line": 71,
+        "text": "**2a-i. REQUIRED: Check Code Connect for needed components.** Starting from the component list you built in Step 1, check whether each component has a Code Connect file in the codebase. Code Connect files live next to the component source and are named by platform:"
+      },
+      {
+        "line": 72,
+        "text": ""
+      },
+      {
+        "line": 73,
+        "text": "- **TypeScript/JS**: `*.figma.ts`, `*.figma.js`"
+      },
+      {
+        "line": 74,
+        "text": "- **React (parser-based)**: `*.figma.tsx`"
+      },
+      {
+        "line": 75,
+        "text": "- **Kotlin/Compose**: `.kt` files containing `@FigmaConnect`"
+      },
+      {
+        "line": 76,
+        "text": "- **Swift**: `.swift` files containing `FigmaConnect`"
+      },
+      {
+        "line": 77,
+        "text": ""
+      },
+      {
+        "line": 78,
+        "text": "For each component you need (e.g., Button, Card, Input), search for its Code Connect file, glob or grep by component name (e.g., `**/Button.figma.tsx`, `**/Card.figma.ts`). Only read files that match components you actually need."
+      },
+      {
+        "line": 79,
+        "text": ""
+      },
+      {
+        "line": 80,
+        "text": "From each matching Code Connect file, extract the Figma component URL. Parse `fileKey` and `nodeId` from the URL (convert hyphens to colons: `123-456` \u2192 `123:456`). Then resolve component keys via `use_figma`:"
+      },
+      {
+        "line": 81,
+        "text": ""
+      },
+      {
+        "line": 82,
+        "text": "**Example:** Code Connect file contains `// url=https://figma.com/design/ABC123/File?node-id=609-35535`. Parse `fileKey` = `ABC123`, `nodeId` = `609:35535`. Run `use_figma` against the **library file** (fileKey `ABC123`, not the target file) to resolve the key:"
+      },
+      {
+        "line": 83,
+        "text": ""
+      },
+      {
+        "line": 84,
+        "text": "```js"
+      },
+      {
+        "line": 85,
+        "text": "const node = await figma.getNodeByIdAsync(\"609:35535\");"
+      },
+      {
+        "line": 86,
+        "text": "const set = node?.parent?.type === \"COMPONENT_SET\" ? node.parent : node;"
+      },
+      {
+        "line": 87,
+        "text": "return { componentKey: set.key };"
+      },
+      {
+        "line": 88,
+        "text": "```"
+      },
+      {
+        "line": 89,
+        "text": ""
+      },
+      {
+        "line": 90,
+        "text": "Batch multiple lookups in a single call. Use the returned keys with `importComponentSetByKeyAsync()` in Step 4."
+      },
+      {
+        "line": 91,
+        "text": ""
+      },
+      {
+        "line": 92,
+        "text": "Mark resolved components. If all components are resolved, skip 2a-ii and 2a-iii. If none of the needed components have Code Connect files, proceed to 2a-ii."
+      },
+      {
+        "line": 93,
+        "text": ""
+      },
+      {
+        "line": 94,
+        "text": "**2a-ii. REQUIRED if unresolved components remain: Inspect existing screens.** Check if the target file already contains screens using the same design system. A single `use_figma` call that walks an existing frame's instances gives you an exact, authoritative component map:"
+      },
+      {
+        "line": 95,
+        "text": ""
+      },
+      {
+        "line": 96,
+        "text": "```js"
+      },
+      {
+        "line": 97,
+        "text": "// Read-only discovery, skip invisible content inside instances (hidden"
+      },
+      {
+        "line": 98,
+        "text": "// variants etc.) for the hundreds-of-times-faster findAllWithCriteria."
+      },
+      {
+        "line": 99,
+        "text": "figma.skipInvisibleInstanceChildren = true;"
+      },
+      {
+        "line": 100,
+        "text": ""
+      },
+      {
+        "line": 101,
+        "text": "const frame = figma.currentPage.findOne(n => n.name === \"Existing Screen\");"
+      },
+      {
+        "line": 102,
+        "text": "const uniqueSets = new Map();"
+      },
+      {
+        "line": 103,
+        "text": "frame.findAllWithCriteria({ types: [\"INSTANCE\"] }).forEach(inst => {"
+      },
+      {
+        "line": 104,
+        "text": "  const mc = inst.mainComponent;"
+      },
+      {
+        "line": 105,
+        "text": "  const cs = mc?.parent?.type === \"COMPONENT_SET\" ? mc.parent : null;"
+      },
+      {
+        "line": 106,
+        "text": "  const key = cs ? cs.key : mc?.key;"
+      },
+      {
+        "line": 107,
+        "text": "  const name = cs ? cs.name : mc?.name;"
+      },
+      {
+        "line": 108,
+        "text": "  if (key && !uniqueSets.has(key)) {"
+      },
+      {
+        "line": 109,
+        "text": "    uniqueSets.set(key, { name, key, isSet: !!cs, sampleVariant: mc.name });"
+      },
+      {
+        "line": 110,
+        "text": "  }"
+      },
+      {
+        "line": 111,
+        "text": "});"
+      },
+      {
+        "line": 112,
+        "text": "return [...uniqueSets.values()];"
+      },
+      {
+        "line": 113,
+        "text": "```"
+      },
+      {
+        "line": 114,
+        "text": ""
+      },
+      {
+        "line": 115,
+        "text": "Match results against your unresolved components. Mark any newly resolved. If all components are resolved, skip 2a-iii."
+      },
+      {
+        "line": 116,
+        "text": ""
+      },
+      {
+        "line": 117,
+        "text": "**2a-iii. LAST RESORT: `search_design_system`.** Only if components remain unresolved after completing both 2a-i and 2a-ii."
+      },
+      {
+        "line": 118,
+        "text": ""
+      },
+      {
+        "line": 119,
+        "text": "Before searching, call `get_libraries` to discover which libraries are available for the file. This returns two lists: libraries already added to the file and libraries available to add (community UI kits and org libraries). Each entry includes a `libraryKey` you can pass to `search_design_system` via the `includeLibraryKeys` param to scope your search to specific libraries instead of searching across everything."
+      },
+      {
+        "line": 120,
+        "text": ""
+      },
+      {
+        "line": 121,
+        "text": "```"
+      },
+      {
+        "line": 122,
+        "text": "// Step 1: Discover available libraries"
+      },
+      {
+        "line": 123,
+        "text": "get_libraries({ fileKey })"
+      },
+      {
+        "line": 124,
+        "text": "// Returns: {"
+      },
+      {
+        "line": 125,
+        "text": "//   libraries_added_to_file: [...],"
+      },
+      {
+        "line": 126,
+        "text": "//   libraries_available_to_add: [...],"
+      },
+      {
+        "line": 127,
+        "text": "//   libraries_available_to_add_next_offset: number | null"
+      },
+      {
+        "line": 128,
+        "text": "// }"
+      },
+      {
+        "line": 129,
+        "text": ""
+      },
+      {
+        "line": 130,
+        "text": "// Step 2: Search within a specific library using its libraryKey"
+      },
+      {
+        "line": 131,
+        "text": "search_design_system({ query: \"button\", fileKey, includeLibraryKeys: [\"lk-abc123...\"] })"
+      },
+      {
+        "line": 132,
+        "text": "```"
+      },
+      {
+        "line": 133,
+        "text": ""
+      },
+      {
+        "line": 134,
+        "text": "Org libraries in `libraries_available_to_add` are paginated (20 per page). When `libraries_available_to_add_next_offset` is non-null, more org libraries are available, call `get_libraries` again with `offset` set to that value to fetch the next page. Community UI kits only appear on the first page. If the user names a specific library you don't see in the current page, page further before giving up."
+      },
+      {
+        "line": 135,
+        "text": ""
+      },
+      {
+        "line": 136,
+        "text": "This is especially useful when the file has many libraries and you want targeted results (e.g. searching only within \"iOS 26\" or \"Material 3\" instead of getting matches from every library)."
+      },
+      {
+        "line": 137,
+        "text": ""
+      },
+      {
+        "line": 138,
+        "text": "**Search broadly**: try multiple terms and synonyms (e.g., \"button\", \"input\", \"nav\", \"card\", \"accordion\", \"header\", \"footer\", \"tag\", \"avatar\", \"toggle\", \"icon\", etc.). Use `includeComponents: true` to focus on components."
+      },
+      {
+        "line": 139,
+        "text": ""
+      },
+      {
+        "line": 140,
+        "text": "**Include component properties** in your map. You need to know which TEXT properties each component exposes for text overrides. Create a temporary instance, read its `componentProperties` (and those of nested instances), then remove the temp instance."
+      },
+      {
+        "line": 141,
+        "text": ""
+      },
+      {
+        "line": 142,
+        "text": "Example component map with property info:"
+      },
+      {
+        "line": 143,
+        "text": ""
+      },
+      {
+        "line": 144,
+        "text": "```"
+      },
+      {
+        "line": 145,
+        "text": "Component Map:"
+      },
+      {
+        "line": 146,
+        "text": "- Button \u2192 key: \"abc123\", type: COMPONENT_SET"
+      },
+      {
+        "line": 147,
+        "text": "  Properties: { \"Label#2:0\": TEXT, \"Has Icon#4:64\": BOOLEAN }"
+      },
+      {
+        "line": 148,
+        "text": "- PricingCard \u2192 key: \"ghi789\", type: COMPONENT_SET"
+      },
+      {
+        "line": 149,
+        "text": "  Properties: { \"Device\": VARIANT, \"Variant\": VARIANT }"
+      },
+      {
+        "line": 150,
+        "text": "  Nested \"Text Heading\" has: { \"Text#2104:5\": TEXT }"
+      },
+      {
+        "line": 151,
+        "text": "  Nested \"Button\" has: { \"Label#2:0\": TEXT }"
+      },
+      {
+        "line": 152,
+        "text": "```"
+      },
+      {
+        "line": 153,
+        "text": ""
+      },
+      {
+        "line": 154,
+        "text": "#### 2b: Discover variables (colors, spacing, radii)"
+      },
+      {
+        "line": 155,
+        "text": ""
+      },
+      {
+        "line": 156,
+        "text": "**Inspect existing screens first** (same as components). Or use `search_design_system` with `includeVariables: true`."
+      },
+      {
+        "line": 157,
+        "text": ""
+      },
+      {
+        "line": 158,
+        "text": "> **WARNING: Two different variable discovery methods, do not confuse them.**"
+      },
+      {
+        "line": 159,
+        "text": ">"
+      },
+      {
+        "line": 160,
+        "text": "> - `use_figma` with `figma.variables.getLocalVariableCollectionsAsync()`: returns **only local variables defined in the current file**. If this returns empty, it does **not** mean no variables exist. Remote/published library variables are invisible to this API."
+      },
+      {
+        "line": 161,
+        "text": "> - `search_design_system` with `includeVariables: true`: searches across **all linked libraries**, including remote and published ones. This is the correct tool for discovering design system variables."
+      },
+      {
+        "line": 162,
+        "text": ">"
+      },
+      {
+        "line": 163,
+        "text": "> **Never conclude \"no variables exist\" based solely on `getLocalVariableCollectionsAsync()` returning empty.** Always also run `search_design_system` with `includeVariables: true` to check for library variables before deciding to create your own."
+      },
+      {
+        "line": 164,
+        "text": ""
+      },
+      {
+        "line": 165,
+        "text": "**Query strategy:** `search_design_system` matches against **variable names** (e.g., \"Gray/gray-9\", \"core/gray/100\", \"space/400\"), not categories. Run multiple short, simple queries in parallel rather than one compound query:"
+      },
+      {
+        "line": 166,
+        "text": ""
+      },
+      {
+        "line": 167,
+        "text": "- **Primitive colors:** \"gray\", \"red\", \"blue\", \"green\", \"white\", \"brand\""
+      },
+      {
+        "line": 168,
+        "text": "- **Semantic colors:** \"background\", \"foreground\", \"border\", \"surface\", \"text\""
+      },
+      {
+        "line": 169,
+        "text": "- **Spacing/sizing:** \"space\", \"radius\", \"gap\", \"padding\""
+      },
+      {
+        "line": 170,
+        "text": ""
+      },
+      {
+        "line": 171,
+        "text": "If initial searches return empty, try shorter fragments or different naming conventions, libraries vary widely (\"grey\" vs \"gray\", \"spacing\" vs \"space\", \"color/bg\" vs \"background\")."
+      },
+      {
+        "line": 172,
+        "text": ""
+      },
+      {
+        "line": 173,
+        "text": "Inspect an existing screen's bound variables for the most authoritative results:"
+      },
+      {
+        "line": 174,
+        "text": ""
+      },
+      {
+        "line": 175,
+        "text": "```js"
+      },
+      {
+        "line": 176,
+        "text": "// Read-only discovery, skip invisible instance interiors for speed."
+      },
+      {
+        "line": 177,
+        "text": "figma.skipInvisibleInstanceChildren = true;"
+      },
+      {
+        "line": 178,
+        "text": ""
+      },
+      {
+        "line": 179,
+        "text": "const frame = figma.currentPage.findOne(n => n.name === \"Existing Screen\");"
+      },
+      {
+        "line": 180,
+        "text": ""
+      },
+      {
+        "line": 181,
+        "text": "// boundVariables can live on any scene node, enumerating every scene type"
+      },
+      {
+        "line": 182,
+        "text": "// just to feed findAllWithCriteria is roughly the same as findAll(() => true)"
+      },
+      {
+        "line": 183,
+        "text": "// and is much noisier in script output."
+      },
+      {
+        "line": 184,
+        "text": "const uniqueIds = new Set("
+      },
+      {
+        "line": 185,
+        "text": "  frame.findAll(() => true).flatMap(n =>"
+      },
+      {
+        "line": 186,
+        "text": "    Object.values(n.boundVariables ?? {})"
+      },
+      {
+        "line": 187,
+        "text": "      .flatMap(b => Array.isArray(b) ? b : [b])"
+      },
+      {
+        "line": 188,
+        "text": "      .map(b => b?.id)"
+      },
+      {
+        "line": 189,
+        "text": "      .filter(Boolean)"
+      },
+      {
+        "line": 190,
+        "text": "  )"
+      },
+      {
+        "line": 191,
+        "text": ");"
+      },
+      {
+        "line": 192,
+        "text": "const variables = await Promise.all("
+      },
+      {
+        "line": 193,
+        "text": "  [...uniqueIds].map(id => figma.variables.getVariableByIdAsync(id))"
+      },
+      {
+        "line": 194,
+        "text": ");"
+      },
+      {
+        "line": 195,
+        "text": "return variables"
+      },
+      {
+        "line": 196,
+        "text": "  .filter(Boolean)"
+      },
+      {
+        "line": 197,
+        "text": "  .map(v => ({ name: v.name, id: v.id, key: v.key, type: v.resolvedType, remote: v.remote }));"
+      },
+      {
+        "line": 198,
+        "text": "```"
+      },
+      {
+        "line": 199,
+        "text": ""
+      },
+      {
+        "line": 200,
+        "text": "For library variables (remote = true), import them by key with `figma.variables.importVariableByKeyAsync(key)`. For local variables, use `figma.variables.getVariableByIdAsync(id)` directly."
+      },
+      {
+        "line": 201,
+        "text": ""
+      },
+      {
+        "line": 202,
+        "text": "See [variable-patterns.md](../figma-use/references/variable-patterns.md) for binding patterns."
+      },
+      {
+        "line": 203,
+        "text": ""
+      },
+      {
+        "line": 204,
+        "text": "#### 2c: Discover styles (text styles, effect styles)"
+      },
+      {
+        "line": 205,
+        "text": ""
+      },
+      {
+        "line": 206,
+        "text": "Search for styles using `search_design_system` with `includeStyles: true` and terms like \"heading\", \"body\", \"shadow\", \"elevation\". Or inspect what an existing screen uses:"
+      },
+      {
+        "line": 207,
+        "text": ""
+      },
+      {
+        "line": 208,
+        "text": "```js"
+      },
+      {
+        "line": 209,
+        "text": "// Read-only discovery, skip invisible instance interiors for speed."
+      },
+      {
+        "line": 210,
+        "text": "figma.skipInvisibleInstanceChildren = true;"
+      },
+      {
+        "line": 211,
+        "text": ""
+      },
+      {
+        "line": 212,
+        "text": "const frame = figma.currentPage.findOne(n => n.name === \"Existing Screen\");"
+      },
+      {
+        "line": 213,
+        "text": "const styles = { text: new Map(), effect: new Map() };"
+      },
+      {
+        "line": 214,
+        "text": ""
+      },
+      {
+        "line": 215,
+        "text": "for (const node of frame.findAll(() => true)) {"
+      },
+      {
+        "line": 216,
+        "text": "  // textStyleId is on TEXT and TEXT_PATH; effectStyleId is on most scene"
+      },
+      {
+        "line": 217,
+        "text": "  // shape/container types. Use `in` guards to handle both without an"
+      },
+      {
+        "line": 218,
+        "text": "  // exhaustive type list."
+      },
+      {
+        "line": 219,
+        "text": "  if ('textStyleId' in node && node.textStyleId) {"
+      },
+      {
+        "line": 220,
+        "text": "    const s = figma.getStyleById(node.textStyleId);"
+      },
+      {
+        "line": 221,
+        "text": "    if (s) styles.text.set(s.id, { name: s.name, id: s.id, key: s.key });"
+      },
+      {
+        "line": 222,
+        "text": "  }"
+      },
+      {
+        "line": 223,
+        "text": "  if ('effectStyleId' in node && node.effectStyleId) {"
+      },
+      {
+        "line": 224,
+        "text": "    const s = figma.getStyleById(node.effectStyleId);"
+      },
+      {
+        "line": 225,
+        "text": "    if (s) styles.effect.set(s.id, { name: s.name, id: s.id, key: s.key });"
+      },
+      {
+        "line": 226,
+        "text": "  }"
+      },
+      {
+        "line": 227,
+        "text": "}"
+      },
+      {
+        "line": 228,
+        "text": ""
+      },
+      {
+        "line": 229,
+        "text": "return {"
+      },
+      {
+        "line": 230,
+        "text": "  textStyles: [...styles.text.values()],"
+      },
+      {
+        "line": 231,
+        "text": "  effectStyles: [...styles.effect.values()]"
+      },
+      {
+        "line": 232,
+        "text": "};"
+      },
+      {
+        "line": 233,
+        "text": "```"
+      },
+      {
+        "line": 234,
+        "text": ""
+      },
+      {
+        "line": 235,
+        "text": "Import library styles with `figma.importStyleByKeyAsync(key)`, then apply with `node.textStyleId = style.id` or `node.effectStyleId = style.id`."
+      },
+      {
+        "line": 236,
+        "text": ""
+      },
+      {
+        "line": 237,
+        "text": "See [text-style-patterns.md](../figma-use/references/text-style-patterns.md) and [effect-style-patterns.md](../figma-use/references/effect-style-patterns.md) for details."
+      },
+      {
+        "line": 238,
+        "text": ""
+      },
+      {
+        "line": 239,
+        "text": "### Step 3: Create the Wrapper Frame First"
+      },
+      {
+        "line": 240,
+        "text": ""
+      },
+      {
+        "line": 241,
+        "text": "**Do NOT build sections as top-level page children and reparent them later**: moving nodes across `use_figma` calls with `appendChild()` silently fails and produces orphaned frames. Instead, create the wrapper first, then build each section directly inside it."
+      },
+      {
+        "line": 242,
+        "text": ""
+      },
+      {
+        "line": 243,
+        "text": "Create the wrapper in its own `use_figma` call. Position it away from existing content and return its ID:"
+      },
+      {
+        "line": 244,
+        "text": ""
+      },
+      {
+        "line": 245,
+        "text": "```js"
+      },
+      {
+        "line": 246,
+        "text": "// Find clear space"
+      },
+      {
+        "line": 247,
+        "text": "let maxX = 0;"
+      },
+      {
+        "line": 248,
+        "text": "for (const child of figma.currentPage.children) {"
+      },
+      {
+        "line": 249,
+        "text": "  maxX = Math.max(maxX, child.x + child.width);"
+      },
+      {
+        "line": 250,
+        "text": "}"
+      },
+      {
+        "line": 251,
+        "text": ""
+      },
+      {
+        "line": 252,
+        "text": "const wrapper = figma.createAutoLayout(\"VERTICAL\");"
+      },
+      {
+        "line": 253,
+        "text": ""
+      },
+      {
+        "line": 254,
+        "text": "// --- Size the wrapper based on container type ---"
+      },
+      {
+        "line": 255,
+        "text": "// Full page:       wrapper.resize(1440, 100); wrapper.name = \"Homepage\";"
+      },
+      {
+        "line": 256,
+        "text": "// Modal/dialog:    wrapper.resize(640, 100);  wrapper.name = \"Settings Modal\";"
+      },
+      {
+        "line": 257,
+        "text": "// Drawer/sidebar:  wrapper.resize(360, 100);  wrapper.name = \"Navigation Drawer\";"
+      },
+      {
+        "line": 258,
+        "text": "// Panel:           wrapper.resize(400, 100);  wrapper.name = \"Details Panel\";"
+      },
+      {
+        "line": 259,
+        "text": "// Adapt width to match the source code's actual dimensions."
+      },
+      {
+        "line": 260,
+        "text": ""
+      },
+      {
+        "line": 261,
+        "text": "wrapper.name = \"VIEW_NAME\";"
+      },
+      {
+        "line": 262,
+        "text": "wrapper.primaryAxisAlignItems = \"CENTER\";"
+      },
+      {
+        "line": 263,
+        "text": "wrapper.counterAxisAlignItems = \"CENTER\";"
+      },
+      {
+        "line": 264,
+        "text": "wrapper.resize(WIDTH, 100);"
+      },
+      {
+        "line": 265,
+        "text": "wrapper.layoutSizingHorizontal = \"FIXED\";"
+      },
+      {
+        "line": 266,
+        "text": "wrapper.x = maxX + 200;"
+      },
+      {
+        "line": 267,
+        "text": "wrapper.y = 0;"
+      },
+      {
+        "line": 268,
+        "text": ""
+      },
+      {
+        "line": 269,
+        "text": "return { success: true, wrapperId: wrapper.id };"
+      },
+      {
+        "line": 270,
+        "text": "```"
+      },
+      {
+        "line": 271,
+        "text": ""
+      },
+      {
+        "line": 272,
+        "text": "### Step 4: Build Each Section Inside the Wrapper"
+      },
+      {
+        "line": 273,
+        "text": ""
+      },
+      {
+        "line": 274,
+        "text": "**This is the most important step.** Build one section at a time, each in its own `use_figma` call. At the start of each script, fetch the wrapper by ID and append new content directly to it."
+      },
+      {
+        "line": 275,
+        "text": ""
+      },
+      {
+        "line": 276,
+        "text": "```js"
+      },
+      {
+        "line": 277,
+        "text": "const createdNodeIds = [];"
+      },
+      {
+        "line": 278,
+        "text": ""
+      },
+      {
+        "line": 279,
+        "text": "// Resolve the wrapper and import every design system dependency in parallel."
+      },
+      {
+        "line": 280,
+        "text": "// Sequential awaits here serialize N independent IPC round-trips at the top"
+      },
+      {
+        "line": 281,
+        "text": "// of every section build; one Promise.all is dramatically faster."
+      },
+      {
+        "line": 282,
+        "text": "const [wrapper, buttonSet, bgColorVar, spacingVar, shadowStyle] = await Promise.all(["
+      },
+      {
+        "line": 283,
+        "text": "  figma.getNodeByIdAsync(\"WRAPPER_ID_FROM_STEP_3\"),"
+      },
+      {
+        "line": 284,
+        "text": "  figma.importComponentSetByKeyAsync(\"BUTTON_SET_KEY\"),"
+      },
+      {
+        "line": 285,
+        "text": "  figma.variables.importVariableByKeyAsync(\"BG_COLOR_VAR_KEY\"),"
+      },
+      {
+        "line": 286,
+        "text": "  figma.variables.importVariableByKeyAsync(\"SPACING_VAR_KEY\"),"
+      },
+      {
+        "line": 287,
+        "text": "  figma.importStyleByKeyAsync(\"SHADOW_STYLE_KEY\"),"
+      },
+      {
+        "line": 288,
+        "text": "]);"
+      },
+      {
+        "line": 289,
+        "text": "const primaryButton = buttonSet.children.find(c =>"
+      },
+      {
+        "line": 290,
+        "text": "  c.type === \"COMPONENT\" && c.name.includes(\"variant=primary\")"
+      },
+      {
+        "line": 291,
+        "text": ") || buttonSet.defaultVariant;"
+      },
+      {
+        "line": 292,
+        "text": ""
+      },
+      {
+        "line": 293,
+        "text": "// Build section frame with variable bindings (not hardcoded values)"
+      },
+      {
+        "line": 294,
+        "text": "const section = figma.createAutoLayout();"
+      },
+      {
+        "line": 295,
+        "text": "section.name = \"Header\";"
+      },
+      {
+        "line": 296,
+        "text": "section.setBoundVariable(\"paddingLeft\", spacingVar);"
+      },
+      {
+        "line": 297,
+        "text": "section.setBoundVariable(\"paddingRight\", spacingVar);"
+      },
+      {
+        "line": 298,
+        "text": "const bgPaint = figma.variables.setBoundVariableForPaint("
+      },
+      {
+        "line": 299,
+        "text": "  { type: 'SOLID', color: { r: 0, g: 0, b: 0 } }, 'color', bgColorVar"
+      },
+      {
+        "line": 300,
+        "text": ");"
+      },
+      {
+        "line": 301,
+        "text": "section.fills = [bgPaint];"
+      },
+      {
+        "line": 302,
+        "text": ""
+      },
+      {
+        "line": 303,
+        "text": "// Apply the effect style imported above"
+      },
+      {
+        "line": 304,
+        "text": "section.effectStyleId = shadowStyle.id;"
+      },
+      {
+        "line": 305,
+        "text": ""
+      },
+      {
+        "line": 306,
+        "text": "// Create component instances inside the section"
+      },
+      {
+        "line": 307,
+        "text": "const btnInstance = primaryButton.createInstance();"
+      },
+      {
+        "line": 308,
+        "text": "section.appendChild(btnInstance);"
+      },
+      {
+        "line": 309,
+        "text": "createdNodeIds.push(btnInstance.id);"
+      },
+      {
+        "line": 310,
+        "text": ""
+      },
+      {
+        "line": 311,
+        "text": "// Append section to wrapper"
+      },
+      {
+        "line": 312,
+        "text": "wrapper.appendChild(section);"
+      },
+      {
+        "line": 313,
+        "text": "section.layoutSizingHorizontal = \"FILL\"; // AFTER appending"
+      },
+      {
+        "line": 314,
+        "text": ""
+      },
+      {
+        "line": 315,
+        "text": "createdNodeIds.push(section.id);"
+      },
+      {
+        "line": 316,
+        "text": "return { success: true, createdNodeIds };"
+      },
+      {
+        "line": 317,
+        "text": "```"
+      },
+      {
+        "line": 318,
+        "text": ""
+      },
+      {
+        "line": 319,
+        "text": "After each section, validate with `get_screenshot` before moving on. Look closely for cropped/clipped text (line heights cutting off content) and overlapping elements, these are the most common issues and easy to miss at a glance."
+      },
+      {
+        "line": 320,
+        "text": ""
+      },
+      {
+        "line": 321,
+        "text": "#### Override instance text with setProperties()"
+      },
+      {
+        "line": 322,
+        "text": ""
+      },
+      {
+        "line": 323,
+        "text": "Component instances ship with placeholder text (\"Title\", \"Heading\", \"Button\"). Use the component property keys you discovered in Step 2 to override them with `setProperties()`: this is more reliable than direct `node.characters` manipulation. See [component-patterns.md](../figma-use/references/component-patterns.md#overriding-text-in-a-component-instance) for the full pattern."
+      },
+      {
+        "line": 324,
+        "text": ""
+      },
+      {
+        "line": 325,
+        "text": "For nested instances that expose their own TEXT properties, call `setProperties()` on the nested instance:"
+      },
+      {
+        "line": 326,
+        "text": ""
+      },
+      {
+        "line": 327,
+        "text": "```js"
+      },
+      {
+        "line": 328,
+        "text": "// Use the type-indexed criteria for the type filter, then narrow by name."
+      },
+      {
+        "line": 329,
+        "text": "const nestedHeading = cardInstance"
+      },
+      {
+        "line": 330,
+        "text": "  .findAllWithCriteria({ types: [\"INSTANCE\"] })"
+      },
+      {
+        "line": 331,
+        "text": "  .find(n => n.name === \"Text Heading\");"
+      },
+      {
+        "line": 332,
+        "text": "if (nestedHeading) {"
+      },
+      {
+        "line": 333,
+        "text": "  nestedHeading.setProperties({ \"Text#2104:5\": \"Actual heading from source code\" });"
+      },
+      {
+        "line": 334,
+        "text": "}"
+      },
+      {
+        "line": 335,
+        "text": "```"
+      },
+      {
+        "line": 336,
+        "text": ""
+      },
+      {
+        "line": 337,
+        "text": "Only fall back to direct `node.characters` for text that is NOT managed by any component property."
+      },
+      {
+        "line": 338,
+        "text": ""
+      },
+      {
+        "line": 339,
+        "text": "#### Read source code defaults carefully"
+      },
+      {
+        "line": 340,
+        "text": ""
+      },
+      {
+        "line": 341,
+        "text": "When translating code components to Figma instances, check the component's default prop values in the source code, not just what's explicitly passed. For example, `<Button size=\"small\">Register</Button>` with no variant prop. Check the component definition to find `variant = \"primary\"` as the default. Selecting the wrong variant (e.g., Neutral instead of Primary) produces a visually incorrect result that's easy to miss."
+      },
+      {
+        "line": 342,
+        "text": ""
+      },
+      {
+        "line": 343,
+        "text": "#### What to build manually vs. import from design system"
+      },
+      {
+        "line": 344,
+        "text": ""
+      },
+      {
+        "line": 345,
+        "text": "| Build manually | Import from design system |"
+      },
+      {
+        "line": 346,
+        "text": "|----------------|--------------------------|"
+      },
+      {
+        "line": 347,
+        "text": "| Wrapper frame | **Components**: buttons, cards, inputs, nav, etc. |"
+      },
+      {
+        "line": 348,
+        "text": "| Section container frames | **Variables**: colors (fills, strokes), spacing (padding, gap), radii |"
+      },
+      {
+        "line": 349,
+        "text": "| Layout grids (rows, columns) | **Text styles**: heading, body, caption, etc. |"
+      },
+      {
+        "line": 350,
+        "text": "| | **Effect styles**: shadows, blurs, etc. |"
+      },
+      {
+        "line": 351,
+        "text": ""
+      },
+      {
+        "line": 352,
+        "text": "**Never hardcode hex colors or pixel spacing** when a design system variable exists. Use `setBoundVariable` for spacing/radii and `setBoundVariableForPaint` for colors. Apply text styles with `node.textStyleId` and effect styles with `node.effectStyleId`."
+      },
+      {
+        "line": 353,
+        "text": ""
+      },
+      {
+        "line": 354,
+        "text": "### Step 5: Validate the Full View and Transfer Images"
+      },
+      {
+        "line": 355,
+        "text": ""
+      },
+      {
+        "line": 356,
+        "text": "After composing all sections, call `get_screenshot` on the wrapper frame and compare against the source. Fix any issues with targeted `use_figma` calls, don't rebuild the entire view."
+      },
+      {
+        "line": 357,
+        "text": ""
+      },
+      {
+        "line": 358,
+        "text": "**Screenshot individual sections, not just the full view.** A full-view screenshot at reduced resolution hides text truncation, wrong colors, and placeholder text that hasn't been overridden. Take a screenshot of each section by node ID to catch:"
+      },
+      {
+        "line": 359,
+        "text": "- **Cropped/clipped text**: line heights or frame sizing cutting off descenders, ascenders, or entire lines"
+      },
+      {
+        "line": 360,
+        "text": "- **Overlapping content**: elements stacking on top of each other due to incorrect sizing or missing auto-layout"
+      },
+      {
+        "line": 361,
+        "text": "- Placeholder text still showing (\"Title\", \"Heading\", \"Button\")"
+      },
+      {
+        "line": 362,
+        "text": "- Truncated content from layout sizing bugs"
+      },
+      {
+        "line": 363,
+        "text": "- Wrong component variants (e.g., Neutral vs Primary button)"
+      },
+      {
+        "line": 364,
+        "text": "- **Blank image placeholders**: if images are missing, you need to transfer them from the `generate_figma_design` capture (see below)"
+      },
+      {
+        "line": 365,
+        "text": ""
+      },
+      {
+        "line": 366,
+        "text": "#### Transfer images from the generate_figma_design capture"
+      },
+      {
+        "line": 367,
+        "text": ""
+      },
+      {
+        "line": 368,
+        "text": "If you ran `generate_figma_design` in parallel (mandatory when the source contains images), transfer the captured images into your design system output:"
+      },
+      {
+        "line": 369,
+        "text": ""
+      },
+      {
+        "line": 370,
+        "text": "1. Find all image nodes in the capture output by searching for fills with `type === \"IMAGE\"`:"
+      },
+      {
+        "line": 371,
+        "text": "   ```js"
+      },
+      {
+        "line": 372,
+        "text": "   // Read-only image inventory, skip invisible instance interiors for speed."
+      },
+      {
+        "line": 373,
+        "text": "   figma.skipInvisibleInstanceChildren = true;"
+      },
+      {
+        "line": 374,
+        "text": ""
+      },
+      {
+        "line": 375,
+        "text": "   const capture = await figma.getNodeByIdAsync(\"CAPTURE_NODE_ID\");"
+      },
+      {
+        "line": 376,
+        "text": "   const imageNodes = capture.findAll(() => true).flatMap(n => {"
+      },
+      {
+        "line": 377,
+        "text": "     if (!Array.isArray(n.fills)) return [];"
+      },
+      {
+        "line": 378,
+        "text": "     const imageFill = n.fills.find(f => f.type === \"IMAGE\");"
+      },
+      {
+        "line": 379,
+        "text": "     return imageFill ? [{ name: n.name, id: n.id, imageHash: imageFill.imageHash }] : [];"
+      },
+      {
+        "line": 380,
+        "text": "   });"
+      },
+      {
+        "line": 381,
+        "text": "   return imageNodes;"
+      },
+      {
+        "line": 382,
+        "text": "   ```"
+      },
+      {
+        "line": 383,
+        "text": "2. Match each captured image to the corresponding frame in your use_figma output (by position, name, or order)."
+      },
+      {
+        "line": 384,
+        "text": "3. Apply the image hash to the target frame:"
+      },
+      {
+        "line": 385,
+        "text": "   ```js"
+      },
+      {
+        "line": 386,
+        "text": "   targetFrame.fills = [{ type: \"IMAGE\", imageHash: \"hash_from_capture\", scaleMode: \"FILL\" }];"
+      },
+      {
+        "line": 387,
+        "text": "   ```"
+      },
+      {
+        "line": 388,
+        "text": "4. Delete the `generate_figma_design` capture output after all images are transferred."
+      },
+      {
+        "line": 389,
+        "text": ""
+      },
+      {
+        "line": 390,
+        "text": "### Step 6: Updating an Existing View"
+      },
+      {
+        "line": 391,
+        "text": ""
+      },
+      {
+        "line": 392,
+        "text": "When updating rather than creating from scratch:"
+      },
+      {
+        "line": 393,
+        "text": ""
+      },
+      {
+        "line": 394,
+        "text": "1. Use `get_metadata` to inspect the existing screen structure."
+      },
+      {
+        "line": 395,
+        "text": "2. Identify which sections need updating and which can stay."
+      },
+      {
+        "line": 396,
+        "text": "3. For each section that needs changes:"
+      },
+      {
+        "line": 397,
+        "text": "   - Locate the existing nodes by ID or name"
+      },
+      {
+        "line": 398,
+        "text": "   - Swap component instances if the design system component changed"
+      },
+      {
+        "line": 399,
+        "text": "   - Update text content, variant properties, or layout as needed"
+      },
+      {
+        "line": 400,
+        "text": "   - Remove deprecated sections"
+      },
+      {
+        "line": 401,
+        "text": "   - Add new sections"
+      },
+      {
+        "line": 402,
+        "text": "4. Validate with `get_screenshot` after each modification."
+      },
+      {
+        "line": 403,
+        "text": ""
+      },
+      {
+        "line": 404,
+        "text": "```js"
+      },
+      {
+        "line": 405,
+        "text": "// Example: Swap a button variant in an existing screen."
+      },
+      {
+        "line": 406,
+        "text": "// Batch the node lookup and component-set import in parallel. They are"
+      },
+      {
+        "line": 407,
+        "text": "// independent and awaiting them sequentially serializes two IPC round-trips."
+      },
+      {
+        "line": 408,
+        "text": "const [existingButton, buttonSet] = await Promise.all(["
+      },
+      {
+        "line": 409,
+        "text": "  figma.getNodeByIdAsync(\"EXISTING_BUTTON_INSTANCE_ID\"),"
+      },
+      {
+        "line": 410,
+        "text": "  figma.importComponentSetByKeyAsync(\"BUTTON_SET_KEY\"),"
+      },
+      {
+        "line": 411,
+        "text": "]);"
+      },
+      {
+        "line": 412,
+        "text": "if (existingButton && existingButton.type === \"INSTANCE\") {"
+      },
+      {
+        "line": 413,
+        "text": "  const newVariant = buttonSet.children.find(c =>"
+      },
+      {
+        "line": 414,
+        "text": "    c.name.includes(\"variant=primary\") && c.name.includes(\"size=lg\")"
+      },
+      {
+        "line": 415,
+        "text": "  ) || buttonSet.defaultVariant;"
+      },
+      {
+        "line": 416,
+        "text": "  existingButton.swapComponent(newVariant);"
+      },
+      {
+        "line": 417,
+        "text": "}"
+      },
+      {
+        "line": 418,
+        "text": "return { success: true, mutatedNodeIds: [existingButton.id] };"
+      },
+      {
+        "line": 419,
+        "text": "```"
+      },
+      {
+        "line": 420,
+        "text": ""
+      },
+      {
+        "line": 421,
+        "text": "## Reference Docs"
+      },
+      {
+        "line": 422,
+        "text": ""
+      },
+      {
+        "line": 423,
+        "text": "For detailed API patterns and gotchas, load these from the [figma-use](../figma-use/SKILL.md) references as needed:"
+      },
+      {
+        "line": 424,
+        "text": ""
+      },
+      {
+        "line": 425,
+        "text": "- [component-patterns.md](../figma-use/references/component-patterns.md): importing by key, finding variants, setProperties, text overrides, working with instances"
+      },
+      {
+        "line": 426,
+        "text": "- [variable-patterns.md](../figma-use/references/variable-patterns.md): creating/binding variables, importing library variables, scopes, aliasing, discovering existing variables"
+      },
+      {
+        "line": 427,
+        "text": "- [text-style-patterns.md](../figma-use/references/text-style-patterns.md): creating/applying text styles, importing library text styles, type ramps"
+      },
+      {
+        "line": 428,
+        "text": "- [effect-style-patterns.md](../figma-use/references/effect-style-patterns.md): creating/applying effect styles (shadows), importing library effect styles"
+      },
+      {
+        "line": 429,
+        "text": "- [gotchas.md](../figma-use/references/gotchas.md): layout pitfalls (HUG/FILL interactions, counterAxisAlignItems, sizing order), paint/color issues, page context resets"
+      },
+      {
+        "line": 430,
+        "text": ""
+      },
+      {
+        "line": 431,
+        "text": "## Error Recovery"
+      },
+      {
+        "line": 432,
+        "text": ""
+      },
+      {
+        "line": 433,
+        "text": "Follow the error recovery process from [figma-use](../figma-use/SKILL.md#6-error-recovery--self-correction):"
+      },
+      {
+        "line": 434,
+        "text": ""
+      },
+      {
+        "line": 435,
+        "text": "1. **STOP** on error, do not retry immediately."
+      },
+      {
+        "line": 436,
+        "text": "2. **Read the error message carefully** to understand what went wrong."
+      },
+      {
+        "line": 437,
+        "text": "3. If the error is unclear, call `get_metadata` or `get_screenshot` to inspect the current file state."
+      },
+      {
+        "line": 438,
+        "text": "4. **Fix the script** based on the error message."
+      },
+      {
+        "line": 439,
+        "text": "5. **Retry** the corrected script. This is safe because failed scripts are atomic (nothing is created if a script errors)."
+      },
+      {
+        "line": 440,
+        "text": ""
+      },
+      {
+        "line": 441,
+        "text": "Because this skill works incrementally (one section per call), errors are naturally scoped to a single section. Previous sections from successful calls remain intact."
+      },
+      {
+        "line": 442,
+        "text": ""
+      },
+      {
+        "line": 443,
+        "text": "## Best Practices"
+      },
+      {
+        "line": 444,
+        "text": ""
+      },
+      {
+        "line": 445,
+        "text": "- **Always search before building.** The design system likely has the component, variable, or style you need. Manual construction and hardcoded values should be the exception, not the rule."
+      },
+      {
+        "line": 446,
+        "text": "- **Search broadly.** Try synonyms and partial terms. A \"NavigationPill\" might be found under \"pill\", \"nav\", \"tab\", or \"chip\". For variables, search \"color\", \"spacing\", \"radius\", etc."
+      },
+      {
+        "line": 447,
+        "text": "- **Prefer design system tokens over hardcoded values.** Use variable bindings for colors, spacing, and radii. Use text styles for typography. Use effect styles for shadows. This keeps the screen linked to the design system."
+      },
+      {
+        "line": 448,
+        "text": "- **Prefer component instances over manual builds.** Instances stay linked to the source component and update automatically when the design system evolves."
+      },
+      {
+        "line": 449,
+        "text": "- **Work section by section.** Never build more than one major section per `use_figma` call."
+      },
+      {
+        "line": 450,
+        "text": "- **Return node IDs from every call.** You'll need them to compose sections and for error recovery."
+      },
+      {
+        "line": 451,
+        "text": "- **Validate visually after each section.** Use `get_screenshot` to catch issues early."
+      },
+      {
+        "line": 452,
+        "text": "- **Match existing conventions.** If the file already has screens, match their naming, sizing, and layout patterns."
+      }
+    ],
+    "repo": "figma/mcp-server-guide",
+    "repo_reference": "https://github.com/figma/mcp-server-guide/tree/main/skills/figma-generate-design",
+    "repo_revision": "unknown",
+    "revision_status": "repository snapshot acquired; catalog source-to-package path unresolved",
+    "sha256": "c5ba6654bd859bbf8a9e04a129366eeb169d53abd4c3813410dd640f4d9bf400",
+    "snapshot_path": "sources/catalog-skills/figma-generate-design/SKILL.md",
+    "source_id": "aiuxplayground:catalog-content:figma-generate-design"
+  }
+}

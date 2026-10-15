@@ -1,0 +1,861 @@
+{
+  "schema": "skill-ir/1.0",
+  "identity": {
+    "slug": "madebymustafa--design-taste--taste-code-review",
+    "title": "taste-code-review",
+    "catalog_category": "creative-candidate"
+  },
+  "source": {
+    "source_id": "madebymustafa/design-taste@c4a6bff0871eb4b15371b0e7d2751628b0ed4608",
+    "snapshot_path": "source/skills/taste-code-review/SKILL.md",
+    "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad",
+    "bytes": 3858,
+    "repo_reference": "https://github.com/madebymustafa/design-taste",
+    "repo_revision": "c4a6bff0871eb4b15371b0e7d2751628b0ed4608",
+    "revision_status": "github_commit_pinned",
+    "catalog_metadata": {
+      "slug": "madebymustafa--design-taste--taste-code-review",
+      "title": "taste-code-review",
+      "category": "creative-candidate",
+      "github_url": "https://github.com/madebymustafa/design-taste"
+    },
+    "source_kind": "repository_skill_file",
+    "path_base": "candidate_package_root"
+  },
+  "license": {
+    "value": "MIT",
+    "status": "See preserved repository license files and inventory interpretation; no legal approval inferred."
+  },
+  "frontmatter": {
+    "status": "present",
+    "line_start": 1,
+    "line_end": 11,
+    "fields": {
+      "name": "taste-code-review",
+      "description": "|",
+      "triggers": ""
+    },
+    "raw": "name: taste-code-review\ndescription: |\n  Structured review of agent-generated code: a fixed pass order (behavior → structure → taste → security → performance → accessibility), severity-ranked findings, diff discipline, and a review checklist that stops \"it works\" from being the bar. Use when auditing any generated or changed code. Stack on the design-taste core skill.\ntriggers:\n  - \"code review\"\n  - \"review my code\"\n  - \"pull request\"\n  - \"code audit\"\n  - \"pr review\"\n  - \"generated code\""
+  },
+  "line_count": 56,
+  "ontology": {
+    "triggers": [
+      {
+        "text": "Structured review of agent-generated code: a fixed pass order (behavior → structure → taste → security → performance → accessibility), severity-ranked findings, diff discipline, and a review checklist that stops \"it works\" from being the bar. Use when auditing any generated or changed code. Stack on the design-taste core skill.",
+        "evidence": {
+          "line_start": 4,
+          "line_end": 4,
+          "text": "  Structured review of agent-generated code: a fixed pass order (behavior → structure → taste → security → performance → accessibility), severity-ranked findings, diff discipline, and a review checklist that stops \"it works\" from being the bar. Use when auditing any generated or changed code. Stack on the design-taste core skill.",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        }
+      }
+    ],
+    "workflows": [
+      {
+        "section": "1. THE PASS ORDER (Fix In This Order, Never Reversed)",
+        "start_line": 18,
+        "items": [
+          {
+            "text": "**Behavior** — does it do the thing, including edge cases (empty states, error paths, repeated clicks, offline)? A feature that works for the happy path only is a bug wearing a feature.",
+            "line": 20
+          },
+          {
+            "text": "**Structure** — is the code where it belongs? (File/component boundaries, one responsibility per unit, no 400-line function, imports clean, no dead code.)",
+            "line": 21
+          },
+          {
+            "text": "**Taste** — naming, duplication, consistency with the codebase's conventions. Code that reads like poetry nobody asked for is worse than code that reads like a bus schedule — but a bus schedule with descriptive stops is best.",
+            "line": 22
+          },
+          {
+            "text": "**Security** — injection (HTML/URL/SQL), secrets in code or logs, authz on every mutation, untrusted input boundaries.",
+            "line": 23
+          },
+          {
+            "text": "**Performance** — obvious algorithmic waste, N+1 queries, work repeated per render, giant payloads in the critical path.",
+            "line": 24
+          },
+          {
+            "text": "**Accessibility** — keyboard path, focus states, contrast, semantics, screen-reader names (the taste-accessibility checklist applies to code too).",
+            "line": 25
+          }
+        ],
+        "classification": "ordered_or_bulleted_source_structure_inferred"
+      },
+      {
+        "section": "2. FINDINGS (Severity-Ranked, Written To Be Acted On)",
+        "start_line": 29,
+        "items": [
+          {
+            "text": "Every finding gets: **severity** (blocker / should-fix / nit), **location** (file:line), **the problem in one sentence**, **the fix in one sentence**. A review with no location or no fix is a complaint, not a review.",
+            "line": 31
+          },
+          {
+            "text": "Blockers: wrong behavior, security holes, data loss, breaking the design system (see taste-code-craft).",
+            "line": 32
+          },
+          {
+            "text": "Should-fix: duplication, dead code, naming drift, missing edge handling, performance landmines.",
+            "line": 33
+          },
+          {
+            "text": "Nits: formatting, naming opinions — flagged but never blocking.",
+            "line": 34
+          },
+          {
+            "text": "**Never exceed ~10 findings on a diff that deserves fewer.** If everything's a blocker, the pass order was skipped, not the review.",
+            "line": 35
+          }
+        ],
+        "classification": "ordered_or_bulleted_source_structure_inferred"
+      },
+      {
+        "section": "3. DIFF DISCIPLINE (The Review Starts Before the Code)",
+        "start_line": 37,
+        "items": [
+          {
+            "text": "Review the smallest logical change: a PR that mixes a rename with a feature with a bugfix is three PRs wearing a trench coat — reject the packaging, keep the code.",
+            "line": 39
+          },
+          {
+            "text": "Read the diff as a series of decisions, not a stream of changes: \"why does this exist\" beats \"what did it do\".",
+            "line": 40
+          },
+          {
+            "text": "Generated code gets the same bar as written code — an agent that generated the code is not excused from reviewing it.",
+            "line": 41
+          },
+          {
+            "text": "Review the tests too: a test that only asserts the happy path is a marketing document, not a test.",
+            "line": 42
+          }
+        ],
+        "classification": "ordered_or_bulleted_source_structure_inferred"
+      },
+      {
+        "section": "5. CHECKLIST (Fail the Review If…)",
+        "start_line": 48,
+        "items": [
+          {
+            "text": "[ ] Findings not ordered by severity or missing locations.",
+            "line": 50
+          },
+          {
+            "text": "[ ] No edge-case pass (empty/error/repeat/offline) recorded.",
+            "line": 51
+          },
+          {
+            "text": "[ ] Security pass skipped because \"it's just a landing page\".",
+            "line": 52
+          },
+          {
+            "text": "[ ] No check that the code matches the repo's existing conventions.",
+            "line": 53
+          },
+          {
+            "text": "[ ] Tests absent or happy-path-only for changed behavior.",
+            "line": 54
+          },
+          {
+            "text": "[ ] A generated-code diff reviewed with a lower bar than a human one.",
+            "line": 55
+          },
+          {
+            "text": "[ ] The review says \"looks good\" without the passes behind it.",
+            "line": 56
+          }
+        ],
+        "classification": "ordered_or_bulleted_source_structure_inferred"
+      }
+    ],
+    "actions": [
+      {
+        "text": "- \"code review\"",
+        "evidence": {
+          "line_start": 6,
+          "line_end": 6,
+          "text": "  - \"code review\"",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        }
+      },
+      {
+        "text": "- \"review my code\"",
+        "evidence": {
+          "line_start": 7,
+          "line_end": 7,
+          "text": "  - \"review my code\"",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        }
+      },
+      {
+        "text": "- \"pr review\"",
+        "evidence": {
+          "line_start": 10,
+          "line_end": 10,
+          "text": "  - \"pr review\"",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        }
+      },
+      {
+        "text": "- Every finding gets: **severity** (blocker / should-fix / nit), **location** (file:line), **the problem in one sentence**, **the fix in one sentence**. A review with no location or no fix is a complaint, not a review.",
+        "evidence": {
+          "line_start": 31,
+          "line_end": 31,
+          "text": "- Every finding gets: **severity** (blocker / should-fix / nit), **location** (file:line), **the problem in one sentence**, **the fix in one sentence**. A review with no location or no fix is a complaint, not a review.",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        }
+      },
+      {
+        "text": "- **Never exceed ~10 findings on a diff that deserves fewer.** If everything's a blocker, the pass order was skipped, not the review.",
+        "evidence": {
+          "line_start": 35,
+          "line_end": 35,
+          "text": "- **Never exceed ~10 findings on a diff that deserves fewer.** If everything's a blocker, the pass order was skipped, not the review.",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        }
+      },
+      {
+        "text": "- Review the smallest logical change: a PR that mixes a rename with a feature with a bugfix is three PRs wearing a trench coat — reject the packaging, keep the code.",
+        "evidence": {
+          "line_start": 39,
+          "line_end": 39,
+          "text": "- Review the smallest logical change: a PR that mixes a rename with a feature with a bugfix is three PRs wearing a trench coat — reject the packaging, keep the code.",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        }
+      },
+      {
+        "text": "- Read the diff as a series of decisions, not a stream of changes: \"why does this exist\" beats \"what did it do\".",
+        "evidence": {
+          "line_start": 40,
+          "line_end": 40,
+          "text": "- Read the diff as a series of decisions, not a stream of changes: \"why does this exist\" beats \"what did it do\".",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        }
+      },
+      {
+        "text": "- Review the tests too: a test that only asserts the happy path is a marketing document, not a test.",
+        "evidence": {
+          "line_start": 42,
+          "line_end": 42,
+          "text": "- Review the tests too: a test that only asserts the happy path is a marketing document, not a test.",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        }
+      },
+      {
+        "text": "- [ ] No check that the code matches the repo's existing conventions.",
+        "evidence": {
+          "line_start": 53,
+          "line_end": 53,
+          "text": "- [ ] No check that the code matches the repo's existing conventions.",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        }
+      },
+      {
+        "text": "- [ ] The review says \"looks good\" without the passes behind it.",
+        "evidence": {
+          "line_start": 56,
+          "line_end": 56,
+          "text": "- [ ] The review says \"looks good\" without the passes behind it.",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        }
+      }
+    ],
+    "routes": [],
+    "effects": [
+      {
+        "text": "- Review the smallest logical change: a PR that mixes a rename with a feature with a bugfix is three PRs wearing a trench coat — reject the packaging, keep the code.",
+        "verb": "rename",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 39,
+          "line_end": 39,
+          "text": "- Review the smallest logical change: a PR that mixes a rename with a feature with a bugfix is three PRs wearing a trench coat — reject the packaging, keep the code.",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        },
+        "classification": "declared_instruction_or_claim"
+      }
+    ],
+    "command_examples": [],
+    "template_commands": [],
+    "package_path_candidates": [],
+    "references": [],
+    "external_urls": [],
+    "constraints": [
+      {
+        "text": "## 1. THE PASS ORDER (Fix In This Order, Never Reversed)",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 18,
+          "line_end": 18,
+          "text": "## 1. THE PASS ORDER (Fix In This Order, Never Reversed)",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        }
+      },
+      {
+        "text": "1. **Behavior** — does it do the thing, including edge cases (empty states, error paths, repeated clicks, offline)? A feature that works for the happy path only is a bug wearing a feature.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 20,
+          "line_end": 20,
+          "text": "1. **Behavior** — does it do the thing, including edge cases (empty states, error paths, repeated clicks, offline)? A feature that works for the happy path only is a bug wearing a feature.",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        }
+      },
+      {
+        "text": "- Nits: formatting, naming opinions — flagged but never blocking.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 34,
+          "line_end": 34,
+          "text": "- Nits: formatting, naming opinions — flagged but never blocking.",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        }
+      },
+      {
+        "text": "- **Never exceed ~10 findings on a diff that deserves fewer.** If everything's a blocker, the pass order was skipped, not the review.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 35,
+          "line_end": 35,
+          "text": "- **Never exceed ~10 findings on a diff that deserves fewer.** If everything's a blocker, the pass order was skipped, not the review.",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        }
+      },
+      {
+        "text": "- Review the tests too: a test that only asserts the happy path is a marketing document, not a test.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 42,
+          "line_end": 42,
+          "text": "- Review the tests too: a test that only asserts the happy path is a marketing document, not a test.",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        }
+      },
+      {
+        "text": "- [ ] Tests absent or happy-path-only for changed behavior.",
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "evidence": {
+          "line_start": 54,
+          "line_end": 54,
+          "text": "- [ ] Tests absent or happy-path-only for changed behavior.",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        }
+      }
+    ],
+    "invariants": [
+      {
+        "text": "## 1. THE PASS ORDER (Fix In This Order, Never Reversed)",
+        "evidence": {
+          "line_start": 18,
+          "line_end": 18,
+          "text": "## 1. THE PASS ORDER (Fix In This Order, Never Reversed)",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "1. **Behavior** — does it do the thing, including edge cases (empty states, error paths, repeated clicks, offline)? A feature that works for the happy path only is a bug wearing a feature.",
+        "evidence": {
+          "line_start": 20,
+          "line_end": 20,
+          "text": "1. **Behavior** — does it do the thing, including edge cases (empty states, error paths, repeated clicks, offline)? A feature that works for the happy path only is a bug wearing a feature.",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "- Nits: formatting, naming opinions — flagged but never blocking.",
+        "evidence": {
+          "line_start": 34,
+          "line_end": 34,
+          "text": "- Nits: formatting, naming opinions — flagged but never blocking.",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "- **Never exceed ~10 findings on a diff that deserves fewer.** If everything's a blocker, the pass order was skipped, not the review.",
+        "evidence": {
+          "line_start": 35,
+          "line_end": 35,
+          "text": "- **Never exceed ~10 findings on a diff that deserves fewer.** If everything's a blocker, the pass order was skipped, not the review.",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "- Review the tests too: a test that only asserts the happy path is a marketing document, not a test.",
+        "evidence": {
+          "line_start": 42,
+          "line_end": 42,
+          "text": "- Review the tests too: a test that only asserts the happy path is a marketing document, not a test.",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      },
+      {
+        "text": "- [ ] Tests absent or happy-path-only for changed behavior.",
+        "evidence": {
+          "line_start": 54,
+          "line_end": 54,
+          "text": "- [ ] Tests absent or happy-path-only for changed behavior.",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        },
+        "modality": "constraint_or_invariant_candidate"
+      }
+    ],
+    "inputs": [
+      {
+        "text": "- \"pull request\"",
+        "evidence": {
+          "line_start": 8,
+          "line_end": 8,
+          "text": "  - \"pull request\"",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        },
+        "status": "input_candidate"
+      },
+      {
+        "text": "4. **Security** — injection (HTML/URL/SQL), secrets in code or logs, authz on every mutation, untrusted input boundaries.",
+        "evidence": {
+          "line_start": 23,
+          "line_end": 23,
+          "text": "4. **Security** — injection (HTML/URL/SQL), secrets in code or logs, authz on every mutation, untrusted input boundaries.",
+          "source_file": "source/skills/taste-code-review/SKILL.md",
+          "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad"
+        },
+        "status": "input_candidate"
+      }
+    ],
+    "outputs": [],
+    "recovery": [],
+    "headings": [
+      {
+        "level": 1,
+        "title": "taste-code-review",
+        "line": 14,
+        "bullets": []
+      },
+      {
+        "level": 2,
+        "title": "1. THE PASS ORDER (Fix In This Order, Never Reversed)",
+        "line": 18,
+        "bullets": [
+          {
+            "text": "**Behavior** — does it do the thing, including edge cases (empty states, error paths, repeated clicks, offline)? A feature that works for the happy path only is a bug wearing a feature.",
+            "line": 20
+          },
+          {
+            "text": "**Structure** — is the code where it belongs? (File/component boundaries, one responsibility per unit, no 400-line function, imports clean, no dead code.)",
+            "line": 21
+          },
+          {
+            "text": "**Taste** — naming, duplication, consistency with the codebase's conventions. Code that reads like poetry nobody asked for is worse than code that reads like a bus schedule — but a bus schedule with descriptive stops is best.",
+            "line": 22
+          },
+          {
+            "text": "**Security** — injection (HTML/URL/SQL), secrets in code or logs, authz on every mutation, untrusted input boundaries.",
+            "line": 23
+          },
+          {
+            "text": "**Performance** — obvious algorithmic waste, N+1 queries, work repeated per render, giant payloads in the critical path.",
+            "line": 24
+          },
+          {
+            "text": "**Accessibility** — keyboard path, focus states, contrast, semantics, screen-reader names (the taste-accessibility checklist applies to code too).",
+            "line": 25
+          }
+        ]
+      },
+      {
+        "level": 2,
+        "title": "2. FINDINGS (Severity-Ranked, Written To Be Acted On)",
+        "line": 29,
+        "bullets": [
+          {
+            "text": "Every finding gets: **severity** (blocker / should-fix / nit), **location** (file:line), **the problem in one sentence**, **the fix in one sentence**. A review with no location or no fix is a complaint, not a review.",
+            "line": 31
+          },
+          {
+            "text": "Blockers: wrong behavior, security holes, data loss, breaking the design system (see taste-code-craft).",
+            "line": 32
+          },
+          {
+            "text": "Should-fix: duplication, dead code, naming drift, missing edge handling, performance landmines.",
+            "line": 33
+          },
+          {
+            "text": "Nits: formatting, naming opinions — flagged but never blocking.",
+            "line": 34
+          },
+          {
+            "text": "**Never exceed ~10 findings on a diff that deserves fewer.** If everything's a blocker, the pass order was skipped, not the review.",
+            "line": 35
+          }
+        ]
+      },
+      {
+        "level": 2,
+        "title": "3. DIFF DISCIPLINE (The Review Starts Before the Code)",
+        "line": 37,
+        "bullets": [
+          {
+            "text": "Review the smallest logical change: a PR that mixes a rename with a feature with a bugfix is three PRs wearing a trench coat — reject the packaging, keep the code.",
+            "line": 39
+          },
+          {
+            "text": "Read the diff as a series of decisions, not a stream of changes: \"why does this exist\" beats \"what did it do\".",
+            "line": 40
+          },
+          {
+            "text": "Generated code gets the same bar as written code — an agent that generated the code is not excused from reviewing it.",
+            "line": 41
+          },
+          {
+            "text": "Review the tests too: a test that only asserts the happy path is a marketing document, not a test.",
+            "line": 42
+          }
+        ]
+      },
+      {
+        "level": 2,
+        "title": "4. THE FINAL QUESTION",
+        "line": 44,
+        "bullets": []
+      },
+      {
+        "level": 2,
+        "title": "5. CHECKLIST (Fail the Review If…)",
+        "line": 48,
+        "bullets": [
+          {
+            "text": "[ ] Findings not ordered by severity or missing locations.",
+            "line": 50
+          },
+          {
+            "text": "[ ] No edge-case pass (empty/error/repeat/offline) recorded.",
+            "line": 51
+          },
+          {
+            "text": "[ ] Security pass skipped because \"it's just a landing page\".",
+            "line": 52
+          },
+          {
+            "text": "[ ] No check that the code matches the repo's existing conventions.",
+            "line": 53
+          },
+          {
+            "text": "[ ] Tests absent or happy-path-only for changed behavior.",
+            "line": 54
+          },
+          {
+            "text": "[ ] A generated-code diff reviewed with a lower bar than a human one.",
+            "line": 55
+          },
+          {
+            "text": "[ ] The review says \"looks good\" without the passes behind it.",
+            "line": 56
+          }
+        ]
+      }
+    ],
+    "template_status": "source_not_executed; fenced commands remain example-only only when surrounding prose says so, otherwise context-unknown; live XML template commands are not executable evidence"
+  },
+  "package": {
+    "resolved_files": [
+      {
+        "path": "LICENSE",
+        "source_file": "source/LICENSE",
+        "sha256": "7a0f09be6768f60fd7c01ecab6af369614c224061ffc76792ef06881493bb4a2",
+        "bytes": 1063
+      },
+      {
+        "path": "README.md",
+        "source_file": "source/README.md",
+        "sha256": "434f11a1a53cbc0c0b9e60509d57a16a079759edcd6e29e1c3db6c43e3e7585b",
+        "bytes": 8932
+      },
+      {
+        "path": "docs/CONTRIBUTING.md",
+        "source_file": "source/docs/CONTRIBUTING.md",
+        "sha256": "3fe928d31df326ee31aba4a7f3d1b52f24494f3f4ef71f3eb86be066bbdb8f25",
+        "bytes": 2215
+      },
+      {
+        "path": "docs/INSTALL.md",
+        "source_file": "source/docs/INSTALL.md",
+        "sha256": "4a3d4dc9b8242dd8e1030b08f3e071969b361776e090a3fc99947ce4fcb1f80b",
+        "bytes": 1357
+      },
+      {
+        "path": "examples/after.html",
+        "source_file": "source/examples/after.html",
+        "sha256": "96a9fc7112edc9e97c4deb2d011ca9d1c97faa7103b96227a3ec68feda20ff2d",
+        "bytes": 15160
+      },
+      {
+        "path": "examples/before.html",
+        "source_file": "source/examples/before.html",
+        "sha256": "d0ea8b8e76cf91cfc18647938333220911fd787a367779c1b7c85ff055722ba7",
+        "bytes": 10905
+      },
+      {
+        "path": "examples/brutalist-industrial.html",
+        "source_file": "source/examples/brutalist-industrial.html",
+        "sha256": "ec19e0fa5c1f0a46c763a0e5794b5e0a435f5d1328904e681f66f43b24dd3cd9",
+        "bytes": 13559
+      },
+      {
+        "path": "examples/cinematic-motion.html",
+        "source_file": "source/examples/cinematic-motion.html",
+        "sha256": "664fcb0943138667dc072e9448eaa455f0a0ff429631dd38e69779723ed82921",
+        "bytes": 46020
+      },
+      {
+        "path": "examples/corporate-trust.html",
+        "source_file": "source/examples/corporate-trust.html",
+        "sha256": "40ebb48ec0762b3eeb55159a8a5832976be448dc66591ab23d476ff9b3361962",
+        "bytes": 17164
+      },
+      {
+        "path": "examples/dark-tech.html",
+        "source_file": "source/examples/dark-tech.html",
+        "sha256": "02ecacaa3c96fa6bd10dc5bc0905d3245ec8dbc76a320ec7854c3e7ce2001c03",
+        "bytes": 14518
+      },
+      {
+        "path": "examples/japanese-minimal.html",
+        "source_file": "source/examples/japanese-minimal.html",
+        "sha256": "8ba16ad151c61b71de3419d798fc4a2885b92b2bd85043ceb2d32be4607153ec",
+        "bytes": 15283
+      },
+      {
+        "path": "examples/neo-brutalism.html",
+        "source_file": "source/examples/neo-brutalism.html",
+        "sha256": "98700443ad3b9eb1a8093044c56af9023c368e15e41d77e898496929581646fa",
+        "bytes": 14668
+      },
+      {
+        "path": "examples/playful-color.html",
+        "source_file": "source/examples/playful-color.html",
+        "sha256": "2ff6b3872bef20c0879c2d9043c5604fd8e6bc2adc1d1316925feb58d95510a2",
+        "bytes": 15292
+      },
+      {
+        "path": "examples/quiet-luxury.html",
+        "source_file": "source/examples/quiet-luxury.html",
+        "sha256": "b1f01023d6d39462585ccbd5203a64b4fc424846f4c45fef726238913608cf49",
+        "bytes": 14725
+      },
+      {
+        "path": "examples/retro-print.html",
+        "source_file": "source/examples/retro-print.html",
+        "sha256": "b19638c631365ffb635562941508994a664b42fdf309603747d06b7a2ded4144",
+        "bytes": 15107
+      },
+      {
+        "path": "scripts/capture-screenshots.mjs",
+        "source_file": "source/scripts/capture-screenshots.mjs",
+        "sha256": "a74feefab187bdc375e8aa4e039f7ff737ba40b909cde39dc8de391552be7476",
+        "bytes": 5724
+      },
+      {
+        "path": "scripts/install.sh",
+        "source_file": "source/scripts/install.sh",
+        "sha256": "7c5cd911982d2c6b23ccf0f5c2c8724a6ce0050ea6e696358b99463e5c1c904a",
+        "bytes": 1494
+      },
+      {
+        "path": "scripts/validate.sh",
+        "source_file": "source/scripts/validate.sh",
+        "sha256": "b34aab295eb729cde0af78af10a8712312dfbe3793b6972a2657147ae0ee3c1d",
+        "bytes": 2114
+      },
+      {
+        "path": "skills/brutalist-industrial/SKILL.md",
+        "source_file": "source/skills/brutalist-industrial/SKILL.md",
+        "sha256": "7e16d97e74a303d62d572ad02c155d65dccd478fcf3372416765585b12ed0702",
+        "bytes": 3856
+      },
+      {
+        "path": "skills/cinematic-motion/SKILL.md",
+        "source_file": "source/skills/cinematic-motion/SKILL.md",
+        "sha256": "b5e4b30e362c14e319f3c14eb725ce6b35d1f733c3314a1b5d0b592d39664fed",
+        "bytes": 7766
+      },
+      {
+        "path": "skills/corporate-trust/SKILL.md",
+        "source_file": "source/skills/corporate-trust/SKILL.md",
+        "sha256": "4b692ddc70c655486fdafda1271d9d068f24f9d2f137d19e1e4ea953a8f7f13b",
+        "bytes": 4425
+      },
+      {
+        "path": "skills/dark-tech/SKILL.md",
+        "source_file": "source/skills/dark-tech/SKILL.md",
+        "sha256": "6b856e651ba2a90a8bfe901ec206aa9ea262904eecf6454bf6f073e06ebee3e4",
+        "bytes": 4213
+      },
+      {
+        "path": "skills/design-taste/SKILL.md",
+        "source_file": "source/skills/design-taste/SKILL.md",
+        "sha256": "c848bbddfdea89962da7b90faf53e033e9b2a8c1944f5dc98dbd78aeb758489f",
+        "bytes": 6939
+      },
+      {
+        "path": "skills/editorial-minimal/SKILL.md",
+        "source_file": "source/skills/editorial-minimal/SKILL.md",
+        "sha256": "fd6c52053a992de985d5053278994784088f20bf9e76e1224ad9c75cdd8e3676",
+        "bytes": 3540
+      },
+      {
+        "path": "skills/japanese-minimal/SKILL.md",
+        "source_file": "source/skills/japanese-minimal/SKILL.md",
+        "sha256": "7b96ba5a48afd7d4e69f79f589f95e4fa6874384db0762c6d90b5cad0e1a6465",
+        "bytes": 3843
+      },
+      {
+        "path": "skills/neo-brutalism/SKILL.md",
+        "source_file": "source/skills/neo-brutalism/SKILL.md",
+        "sha256": "bc71fa3bba394f4a314b244003eabfad4a705caaee407a277f721267b14deb2e",
+        "bytes": 4132
+      },
+      {
+        "path": "skills/playful-color/SKILL.md",
+        "source_file": "source/skills/playful-color/SKILL.md",
+        "sha256": "4e0b86bd1842d2cd300d6b22d3d069b48070c10a704a027453c88f6d5a21cdab",
+        "bytes": 3830
+      },
+      {
+        "path": "skills/quiet-luxury/SKILL.md",
+        "source_file": "source/skills/quiet-luxury/SKILL.md",
+        "sha256": "3f439a21dbb284554449563c05cb2da6fab9b156bd08a2ab5168b4c5cc781468",
+        "bytes": 3863
+      },
+      {
+        "path": "skills/retro-print/SKILL.md",
+        "source_file": "source/skills/retro-print/SKILL.md",
+        "sha256": "9036bd4daf53dd27a7e2c05d9c1d158a6a8aa0e67a2ea5d49f6f8b7b34ff1731",
+        "bytes": 3984
+      },
+      {
+        "path": "skills/taste-accessibility/SKILL.md",
+        "source_file": "source/skills/taste-accessibility/SKILL.md",
+        "sha256": "4d293f850d91330f98812ec6a36110ddbd9d2337f58719d32e9731a4ea519558",
+        "bytes": 5522
+      },
+      {
+        "path": "skills/taste-brand-identity/SKILL.md",
+        "source_file": "source/skills/taste-brand-identity/SKILL.md",
+        "sha256": "f21fd39579be578597f4ed73b10837c7a6ddfbabeee003d131a85c9d52171b8a",
+        "bytes": 4414
+      },
+      {
+        "path": "skills/taste-code-craft/SKILL.md",
+        "source_file": "source/skills/taste-code-craft/SKILL.md",
+        "sha256": "e03ebe7c3b60ed43937405106c6632901beecd278f8b1bfa3d84bf17252f38dc",
+        "bytes": 4706
+      },
+      {
+        "path": "skills/taste-code-review/SKILL.md",
+        "source_file": "source/skills/taste-code-review/SKILL.md",
+        "sha256": "7a647e00feb492427300c93f911425dca6f22e5e9a4cf4b023468791154671ad",
+        "bytes": 3858
+      },
+      {
+        "path": "skills/taste-color/SKILL.md",
+        "source_file": "source/skills/taste-color/SKILL.md",
+        "sha256": "e56ad74bef333f3d328a752f840f4e70240f3519f3a56dc585b26d2395be9482",
+        "bytes": 4280
+      },
+      {
+        "path": "skills/taste-design-review/SKILL.md",
+        "source_file": "source/skills/taste-design-review/SKILL.md",
+        "sha256": "9082d8464ad0f5aafd8aace266a4369e9690f95c72a4f8267272a730a5012056",
+        "bytes": 5263
+      },
+      {
+        "path": "skills/taste-design-system/SKILL.md",
+        "source_file": "source/skills/taste-design-system/SKILL.md",
+        "sha256": "e8962e5db14e5714e8d592dda94fbf5dda026abe40b944fea01b5b96b21ab463",
+        "bytes": 5289
+      },
+      {
+        "path": "skills/taste-gsap/SKILL.md",
+        "source_file": "source/skills/taste-gsap/SKILL.md",
+        "sha256": "648b1b14375061b643fa1f45a2f65ac12edd0bd6c9a489f24f60cd21f547ef5f",
+        "bytes": 6119
+      },
+      {
+        "path": "skills/taste-landing-page/SKILL.md",
+        "source_file": "source/skills/taste-landing-page/SKILL.md",
+        "sha256": "1df0cf49cff462ecc9139aa179d01f0e3e62824e1ca1ef13bc40f71e114b5a62",
+        "bytes": 5482
+      },
+      {
+        "path": "skills/taste-motion/SKILL.md",
+        "source_file": "source/skills/taste-motion/SKILL.md",
+        "sha256": "c8b4f6ae093ebee73b2ac401dbbbb8f80dba18a407ee938c1616e812fddd5d18",
+        "bytes": 4949
+      },
+      {
+        "path": "skills/taste-typography/SKILL.md",
+        "source_file": "source/skills/taste-typography/SKILL.md",
+        "sha256": "8c9ce32d56237ade84985868db6cc5753082987a9cd1e67d0e2bbb8bc2e3e648",
+        "bytes": 4788
+      },
+      {
+        "path": "skills/taste-ux-copy/SKILL.md",
+        "source_file": "source/skills/taste-ux-copy/SKILL.md",
+        "sha256": "7a17e03e158ace46461e1ce046f79e2e1c0d63c65f8155f4ff2fa0161be6b40f",
+        "bytes": 4972
+      },
+      {
+        "path": "skills/taste-web-performance/SKILL.md",
+        "source_file": "source/skills/taste-web-performance/SKILL.md",
+        "sha256": "1d2a07263d33ce98cc708a2d056eadb1636e9a78d9ad04a93896630bf6ec5213",
+        "bytes": 4237
+      }
+    ],
+    "unresolved_references": [],
+    "bundle_scope": "Acquired repository text sources; membership does not imply runtime dependency of this individual method.",
+    "reference_resolution_ref": "inventory.json",
+    "scripts_analysis_ref": "script-analysis.json"
+  },
+  "qualification": {
+    "structural": "static_parser_candidates",
+    "behavioral": "not_run",
+    "integration": "not_run",
+    "activation": "inactive"
+  }
+}

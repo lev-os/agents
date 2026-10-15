@@ -1,0 +1,2487 @@
+{
+  "frontmatter": {
+    "fields": {
+      "description": "Guide for implementing smooth, native-feeling animations using React's View Transition API (`<ViewTransition>` component, `addTransitionType`, and CSS view transition pseudo-elements). Use this skill whenever the user wants to add page transitions, animate route changes, create shared element animations, animate enter/exit of components, animate list reorder, implement directional (forward/back) navigation animations, or integrate view transitions in Next.js. Also use when the user mentions view transitions, `startViewTransition`, `ViewTransition`, transition types, or asks about animating between UI states in React without third-party animation libraries.",
+      "license": "MIT",
+      "metadata": "",
+      "name": "vercel-react-view-transitions"
+    },
+    "line_end": 7,
+    "line_start": 1,
+    "raw": "name: vercel-react-view-transitions\ndescription: Guide for implementing smooth, native-feeling animations using React's View Transition API (`<ViewTransition>` component, `addTransitionType`, and CSS view transition pseudo-elements). Use this skill whenever the user wants to add page transitions, animate route changes, create shared element animations, animate enter/exit of components, animate list reorder, implement directional (forward/back) navigation animations, or integrate view transitions in Next.js. Also use when the user mentions view transitions, `startViewTransition`, `ViewTransition`, transition types, or asks about animating between UI states in React without third-party animation libraries.\nlicense: MIT\nmetadata:\n  author: vercel\n  version: \"1.0.0\"",
+    "status": "present"
+  },
+  "identity": {
+    "catalog_category": "visual-design",
+    "slug": "vercel-react-view-transitions",
+    "title": "Vercel React View Transitions"
+  },
+  "license": {
+    "status": "not stated in captured catalog source",
+    "value": null
+  },
+  "line_count": 320,
+  "ontology": {
+    "actions": [
+      {
+        "evidence": {
+          "line_end": 45,
+          "line_start": 45,
+          "text": "- **Next.js:** Do **not** install `react@canary`: the App Router already bundles React canary internally. `ViewTransition` works out of the box. `npm ls react` may show a stable-looking version; this is expected."
+        },
+        "text": "- **Next.js:** Do **not** install `react@canary`: the App Router already bundles React canary internally. `ViewTransition` works out of the box. `npm ls react` may show a stable-looking version; this is expected."
+      },
+      {
+        "evidence": {
+          "line_end": 46,
+          "line_start": 46,
+          "text": "- **Without Next.js:** Install `react@canary react-dom@canary` (`ViewTransition` is not in stable React)."
+        },
+        "text": "- **Without Next.js:** Install `react@canary react-dom@canary` (`ViewTransition` is not in stable React)."
+      },
+      {
+        "evidence": {
+          "line_end": 203,
+          "line_start": 203,
+          "text": "- Only one VT with a given `name` can be mounted at a time. Use unique names (`photo-${id}`). Watch for reusable components: if a component with a named VT is rendered in both a modal/popover *and* a page, both mount simultaneously and break the morph. Either make the name conditional (via a prop) or move the named VT out of the shared component into the specific consumer."
+        },
+        "text": "- Only one VT with a given `name` can be mounted at a time. Use unique names (`photo-${id}`). Watch for reusable components: if a component with a named VT is rendered in both a modal/popover *and* a page, both mount simultaneously and break the morph. Either make the name conditional (via a prop) or move the named VT out of the shared component into the specific consumer."
+      },
+      {
+        "evidence": {
+          "line_end": 205,
+          "line_start": 205,
+          "text": "- Never use a fade-out exit on pages with shared morphs. Use a directional slide instead."
+        },
+        "text": "- Never use a fade-out exit on pages with shared morphs. Use a directional slide instead."
+      },
+      {
+        "evidence": {
+          "line_end": 315,
+          "line_start": 315,
+          "text": "- **`references/css-recipes.md`**: Ready-to-use CSS animation recipes."
+        },
+        "text": "- **`references/css-recipes.md`**: Ready-to-use CSS animation recipes."
+      }
+    ],
+    "command_examples": [],
+    "constraints": [
+      {
+        "evidence": {
+          "line_end": 16,
+          "line_start": 16,
+          "text": "Every `<ViewTransition>` should communicate a spatial relationship or continuity. If you can't articulate what it communicates, don't add it."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Every `<ViewTransition>` should communicate a spatial relationship or continuity. If you can't articulate what it communicates, don't add it."
+      },
+      {
+        "evidence": {
+          "line_end": 28,
+          "line_start": 28,
+          "text": "This is an implementation order, not a \"pick one\" list. Implement every pattern that fits the app. Only skip a pattern if the app has no use case for it."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "This is an implementation order, not a \"pick one\" list. Implement every pattern that fits the app. Only skip a pattern if the app has no use case for it."
+      },
+      {
+        "evidence": {
+          "line_end": 53,
+          "line_start": 53,
+          "text": "When adding view transitions to an existing app, **follow `references/implementation.md` step by step.** Start with the audit, do not skip it. Copy the CSS recipes from `references/css-recipes.md` into the global stylesheet, do not write your own animation CSS."
+        },
+        "kind": "prohibited_operation",
+        "modality": "prohibited",
+        "text": "When adding view transitions to an existing app, **follow `references/implementation.md` step by step.** Start with the audit, do not skip it. Copy the CSS recipes from `references/css-recipes.md` into the global stylesheet, do not write your own animation CSS.",
+        "verb": "write"
+      },
+      {
+        "evidence": {
+          "line_end": 69,
+          "line_start": 69,
+          "text": "React auto-assigns a unique `view-transition-name` and calls `document.startViewTransition` behind the scenes. Never call `startViewTransition` yourself."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "React auto-assigns a unique `view-transition-name` and calls `document.startViewTransition` behind the scenes. Never call `startViewTransition` yourself."
+      },
+      {
+        "evidence": {
+          "line_end": 80,
+          "line_start": 80,
+          "text": "Only `startTransition`, `useDeferredValue`, or `Suspense` activate VTs. Regular `setState` does not animate."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Only `startTransition`, `useDeferredValue`, or `Suspense` activate VTs. Regular `setState` does not animate."
+      },
+      {
+        "evidence": {
+          "line_end": 84,
+          "line_start": 84,
+          "text": "`<ViewTransition>` only activates enter/exit if it appears **before any DOM nodes**:"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "`<ViewTransition>` only activates enter/exit if it appears **before any DOM nodes**:"
+      },
+      {
+        "evidence": {
+          "line_end": 150,
+          "line_start": 150,
+          "text": "`enter` and `exit` don't have to be symmetric. For example, fade in but slide out directionally:"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "`enter` and `exit` don't have to be symmetric. For example, fade in but slide out directionally:"
+      },
+      {
+        "evidence": {
+          "line_end": 203,
+          "line_start": 203,
+          "text": "- Only one VT with a given `name` can be mounted at a time. Use unique names (`photo-${id}`). Watch for reusable components: if a component with a named VT is rendered in both a modal/popover *and* a page, both mount simultaneously and break the morph. Either make the name conditional (via a prop) or move the named VT out of the shared component into the specific consumer."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- Only one VT with a given `name` can be mounted at a time. Use unique names (`photo-${id}`). Watch for reusable components: if a component with a named VT is rendered in both a modal/popover *and* a page, both mount simultaneously and break the morph. Either make the name conditional (via a prop) or move the named VT out of the shared component into the specific consumer."
+      },
+      {
+        "evidence": {
+          "line_end": 205,
+          "line_start": 205,
+          "text": "- Never use a fade-out exit on pages with shared morphs. Use a directional slide instead."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- Never use a fade-out exit on pages with shared morphs. Use a directional slide instead."
+      },
+      {
+        "evidence": {
+          "line_end": 231,
+          "line_start": 231,
+          "text": "Shared elements and list identity are independent concerns, don't confuse one for the other. When a list item contains a shared element (e.g., an image that morphs into a detail view), use two nested `<ViewTransition>` boundaries:"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Shared elements and list identity are independent concerns, don't confuse one for the other. When a list item contains a shared element (e.g., an image that morphs into a detail view), use two nested `<ViewTransition>` boundaries:"
+      },
+      {
+        "evidence": {
+          "line_end": 280,
+          "line_start": 280,
+          "text": "Every VT matching the trigger fires simultaneously in a single `document.startViewTransition`. VTs in **different** transitions (navigation vs later Suspense resolve) don't compete."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Every VT matching the trigger fires simultaneously in a single `document.startViewTransition`. VTs in **different** transitions (navigation vs later Suspense resolve) don't compete."
+      },
+      {
+        "evidence": {
+          "line_end": 284,
+          "line_start": 284,
+          "text": "Without it, every VT fires the browser cross-fade on **every** transition. Suspense resolves, `useDeferredValue` updates, background revalidations. Always use `default=\"none\"` and explicitly enable only desired triggers."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Without it, every VT fires the browser cross-fade on **every** transition. Suspense resolves, `useDeferredValue` updates, background revalidations. Always use `default=\"none\"` and explicitly enable only desired triggers."
+      },
+      {
+        "evidence": {
+          "line_end": 291,
+          "line_start": 291,
+          "text": "They coexist because they fire at different moments. `default=\"none\"` on both prevents cross-interference. Always pair `enter` with `exit`. Place directional VTs in page components, not layouts."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "They coexist because they fire at different moments. `default=\"none\"` on both prevents cross-interference. Always pair `enter` with `exit`. Place directional VTs in page components, not layouts."
+      },
+      {
+        "evidence": {
+          "line_end": 295,
+          "line_start": 295,
+          "text": "When a parent VT exits, nested VTs inside it do **not** fire their own enter/exit, only the outermost VT animates. Per-item staggered animations during page navigation are not possible today. See [react#36135](https://github.com/facebook/react/pull/36135) for an experimental opt-in fix."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "When a parent VT exits, nested VTs inside it do **not** fire their own enter/exit, only the outermost VT animates. Per-item staggered animations during page navigation are not possible today. See [react#36135](https://github.com/facebook/react/pull/36135) for an experimental opt-in fix."
+      },
+      {
+        "evidence": {
+          "line_end": 307,
+          "line_start": 307,
+          "text": "Always add the reduced motion CSS from `references/css-recipes.md` to your global stylesheet."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Always add the reduced motion CSS from `references/css-recipes.md` to your global stylesheet."
+      }
+    ],
+    "effects": [
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: Guide for implementing smooth, native-feeling animations using React's View Transition API (`<ViewTransition>` component, `addTransitionType`, and CSS view transition pseudo-elements). Use this skill whenever the user wants to add page transitions, animate route changes, create shared element animations, animate enter/exit of components, animate list reorder, implement directional (forward/back) navigation animations, or integrate view transitions in Next.js. Also use when the user mentions view transitions, `startViewTransition`, `ViewTransition`, transition types, or asks about animating between UI states in React without third-party animation libraries."
+        },
+        "modality": "unspecified",
+        "text": "description: Guide for implementing smooth, native-feeling animations using React's View Transition API (`<ViewTransition>` component, `addTransitionType`, and CSS view transition pseudo-elements). Use this skill whenever the user wants to add page transitions, animate route changes, create shared element animations, animate enter/exit of components, animate list reorder, implement directional (forward/back) navigation animations, or integrate view transitions in Next.js. Also use when the user mentions view transitions, `startViewTransition`, `ViewTransition`, transition types, or asks about animating between UI states in React without third-party animation libraries.",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 45,
+          "line_start": 45,
+          "text": "- **Next.js:** Do **not** install `react@canary`: the App Router already bundles React canary internally. `ViewTransition` works out of the box. `npm ls react` may show a stable-looking version; this is expected."
+        },
+        "modality": "unspecified",
+        "text": "- **Next.js:** Do **not** install `react@canary`: the App Router already bundles React canary internally. `ViewTransition` works out of the box. `npm ls react` may show a stable-looking version; this is expected.",
+        "verb": "install"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 46,
+          "line_start": 46,
+          "text": "- **Without Next.js:** Install `react@canary react-dom@canary` (`ViewTransition` is not in stable React)."
+        },
+        "modality": "unspecified",
+        "text": "- **Without Next.js:** Install `react@canary react-dom@canary` (`ViewTransition` is not in stable React).",
+        "verb": "install"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 53,
+          "line_start": 53,
+          "text": "When adding view transitions to an existing app, **follow `references/implementation.md` step by step.** Start with the audit, do not skip it. Copy the CSS recipes from `references/css-recipes.md` into the global stylesheet, do not write your own animation CSS."
+        },
+        "modality": "conditional",
+        "text": "When adding view transitions to an existing app, **follow `references/implementation.md` step by step.** Start with the audit, do not skip it. Copy the CSS recipes from `references/css-recipes.md` into the global stylesheet, do not write your own animation CSS.",
+        "verb": "copy"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 203,
+          "line_start": 203,
+          "text": "- Only one VT with a given `name` can be mounted at a time. Use unique names (`photo-${id}`). Watch for reusable components: if a component with a named VT is rendered in both a modal/popover *and* a page, both mount simultaneously and break the morph. Either make the name conditional (via a prop) or move the named VT out of the shared component into the specific consumer."
+        },
+        "modality": "conditional",
+        "text": "- Only one VT with a given `name` can be mounted at a time. Use unique names (`photo-${id}`). Watch for reusable components: if a component with a named VT is rendered in both a modal/popover *and* a page, both mount simultaneously and break the morph. Either make the name conditional (via a prop) or move the named VT out of the shared component into the specific consumer.",
+        "verb": "move"
+      }
+    ],
+    "external_urls": [
+      {
+        "evidence": {
+          "line_end": 295,
+          "line_start": 295,
+          "text": "When a parent VT exits, nested VTs inside it do **not** fire their own enter/exit, only the outermost VT animates. Per-item staggered animations during page navigation are not possible today. See [react#36135](https://github.com/facebook/react/pull/36135) for an experimental opt-in fix."
+        },
+        "url": "https://github.com/facebook/react/pull/36135"
+      }
+    ],
+    "headings": [
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 10,
+        "title": "React View Transitions"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 14,
+        "title": "When to Animate"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 30,
+        "title": "Choosing Animation Style"
+      },
+      {
+        "bullets": [
+          {
+            "line": 45,
+            "text": "**Next.js:** Do **not** install `react@canary`: the App Router already bundles React canary internally. `ViewTransition` works out of the box. `npm ls react` may show a stable-looking version; this is expected."
+          },
+          {
+            "line": 46,
+            "text": "**Without Next.js:** Install `react@canary react-dom@canary` (`ViewTransition` is not in stable React)."
+          },
+          {
+            "line": 47,
+            "text": "Browser support: Chromium 111+, Firefox 144+, Safari 18.2+. Graceful degradation on unsupported browsers."
+          }
+        ],
+        "level": 2,
+        "line": 43,
+        "title": "Availability"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 51,
+        "title": "Implementation Workflow"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 57,
+        "title": "Core Concepts"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 59,
+        "title": "The `<ViewTransition>` Component"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 71,
+        "title": "Animation Triggers"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 82,
+        "title": "Critical Placement Rule"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 102,
+        "title": "Styling with View Transition Classes"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 104,
+        "title": "Props"
+      },
+      {
+        "bullets": [
+          {
+            "line": 116,
+            "text": "`::view-transition-old(.class)`: outgoing snapshot"
+          },
+          {
+            "line": 117,
+            "text": "`::view-transition-new(.class)`: incoming snapshot"
+          },
+          {
+            "line": 118,
+            "text": "`::view-transition-group(.class)`: container"
+          },
+          {
+            "line": 119,
+            "text": "`::view-transition-image-pair(.class)`: old + new pair"
+          }
+        ],
+        "level": 3,
+        "line": 114,
+        "title": "CSS Pseudo-Elements"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 125,
+        "title": "Transition Types"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 178,
+        "title": "`router.back()` and Browser Back Button"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 182,
+        "title": "Types and Suspense"
+      },
+      {
+        "bullets": [
+          {
+            "line": 203,
+            "text": "Only one VT with a given `name` can be mounted at a time. Use unique names (`photo-${id}`). Watch for reusable components: if a component with a named VT is rendered in both a modal/popover *and* a page, both mount simultaneously and break the morph. Either make the name conditional (via a prop) or move the named VT out of the shared component into the specific consumer."
+          },
+          {
+            "line": 204,
+            "text": "`share` takes precedence over `enter`/`exit`. Think through each navigation path: when no matching pair forms (e.g., the target page doesn't have the same name), `enter`/`exit` fires instead. Consider whether the element needs a fallback animation for those paths."
+          },
+          {
+            "line": 205,
+            "text": "Never use a fade-out exit on pages with shared morphs. Use a directional slide instead."
+          }
+        ],
+        "level": 2,
+        "line": 188,
+        "title": "Shared Element Transitions"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 209,
+        "title": "Common Patterns"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 211,
+        "title": "Enter/Exit"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 219,
+        "title": "List Reorder"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 229,
+        "title": "Composing Shared Elements with List Identity"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 248,
+        "title": "Force Re-Enter with `key`"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 258,
+        "title": "Suspense Fallback to Content"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 278,
+        "title": "How Multiple VTs Interact"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 282,
+        "title": "Use `default=\"none\"` Liberally"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 286,
+        "title": "Two Patterns Coexist"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 293,
+        "title": "Nested VT Limitation"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 299,
+        "title": "Next.js Integration"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 305,
+        "title": "Accessibility"
+      },
+      {
+        "bullets": [
+          {
+            "line": 313,
+            "text": "**`references/implementation.md`**: Step-by-step implementation workflow."
+          },
+          {
+            "line": 314,
+            "text": "**`references/patterns.md`**: Patterns, animation timing, events API, troubleshooting."
+          },
+          {
+            "line": 315,
+            "text": "**`references/css-recipes.md`**: Ready-to-use CSS animation recipes."
+          },
+          {
+            "line": 316,
+            "text": "**`references/nextjs.md`**: Next.js App Router patterns and Server Component details."
+          }
+        ],
+        "level": 2,
+        "line": 311,
+        "title": "Reference Files"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 318,
+        "title": "Full Compiled Document"
+      }
+    ],
+    "inputs": [
+      {
+        "evidence": {
+          "line_end": 203,
+          "line_start": 203,
+          "text": "- Only one VT with a given `name` can be mounted at a time. Use unique names (`photo-${id}`). Watch for reusable components: if a component with a named VT is rendered in both a modal/popover *and* a page, both mount simultaneously and break the morph. Either make the name conditional (via a prop) or move the named VT out of the shared component into the specific consumer."
+        },
+        "status": "input_candidate",
+        "text": "- Only one VT with a given `name` can be mounted at a time. Use unique names (`photo-${id}`). Watch for reusable components: if a component with a named VT is rendered in both a modal/popover *and* a page, both mount simultaneously and break the morph. Either make the name conditional (via a prop) or move the named VT out of the shared component into the specific consumer."
+      }
+    ],
+    "invariants": [
+      {
+        "evidence": {
+          "line_end": 16,
+          "line_start": 16,
+          "text": "Every `<ViewTransition>` should communicate a spatial relationship or continuity. If you can't articulate what it communicates, don't add it."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Every `<ViewTransition>` should communicate a spatial relationship or continuity. If you can't articulate what it communicates, don't add it."
+      },
+      {
+        "evidence": {
+          "line_end": 28,
+          "line_start": 28,
+          "text": "This is an implementation order, not a \"pick one\" list. Implement every pattern that fits the app. Only skip a pattern if the app has no use case for it."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "This is an implementation order, not a \"pick one\" list. Implement every pattern that fits the app. Only skip a pattern if the app has no use case for it."
+      },
+      {
+        "evidence": {
+          "line_end": 53,
+          "line_start": 53,
+          "text": "When adding view transitions to an existing app, **follow `references/implementation.md` step by step.** Start with the audit, do not skip it. Copy the CSS recipes from `references/css-recipes.md` into the global stylesheet, do not write your own animation CSS."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "When adding view transitions to an existing app, **follow `references/implementation.md` step by step.** Start with the audit, do not skip it. Copy the CSS recipes from `references/css-recipes.md` into the global stylesheet, do not write your own animation CSS."
+      },
+      {
+        "evidence": {
+          "line_end": 69,
+          "line_start": 69,
+          "text": "React auto-assigns a unique `view-transition-name` and calls `document.startViewTransition` behind the scenes. Never call `startViewTransition` yourself."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "React auto-assigns a unique `view-transition-name` and calls `document.startViewTransition` behind the scenes. Never call `startViewTransition` yourself."
+      },
+      {
+        "evidence": {
+          "line_end": 80,
+          "line_start": 80,
+          "text": "Only `startTransition`, `useDeferredValue`, or `Suspense` activate VTs. Regular `setState` does not animate."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Only `startTransition`, `useDeferredValue`, or `Suspense` activate VTs. Regular `setState` does not animate."
+      },
+      {
+        "evidence": {
+          "line_end": 84,
+          "line_start": 84,
+          "text": "`<ViewTransition>` only activates enter/exit if it appears **before any DOM nodes**:"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "`<ViewTransition>` only activates enter/exit if it appears **before any DOM nodes**:"
+      },
+      {
+        "evidence": {
+          "line_end": 150,
+          "line_start": 150,
+          "text": "`enter` and `exit` don't have to be symmetric. For example, fade in but slide out directionally:"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "`enter` and `exit` don't have to be symmetric. For example, fade in but slide out directionally:"
+      },
+      {
+        "evidence": {
+          "line_end": 203,
+          "line_start": 203,
+          "text": "- Only one VT with a given `name` can be mounted at a time. Use unique names (`photo-${id}`). Watch for reusable components: if a component with a named VT is rendered in both a modal/popover *and* a page, both mount simultaneously and break the morph. Either make the name conditional (via a prop) or move the named VT out of the shared component into the specific consumer."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- Only one VT with a given `name` can be mounted at a time. Use unique names (`photo-${id}`). Watch for reusable components: if a component with a named VT is rendered in both a modal/popover *and* a page, both mount simultaneously and break the morph. Either make the name conditional (via a prop) or move the named VT out of the shared component into the specific consumer."
+      },
+      {
+        "evidence": {
+          "line_end": 205,
+          "line_start": 205,
+          "text": "- Never use a fade-out exit on pages with shared morphs. Use a directional slide instead."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- Never use a fade-out exit on pages with shared morphs. Use a directional slide instead."
+      },
+      {
+        "evidence": {
+          "line_end": 231,
+          "line_start": 231,
+          "text": "Shared elements and list identity are independent concerns, don't confuse one for the other. When a list item contains a shared element (e.g., an image that morphs into a detail view), use two nested `<ViewTransition>` boundaries:"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Shared elements and list identity are independent concerns, don't confuse one for the other. When a list item contains a shared element (e.g., an image that morphs into a detail view), use two nested `<ViewTransition>` boundaries:"
+      },
+      {
+        "evidence": {
+          "line_end": 280,
+          "line_start": 280,
+          "text": "Every VT matching the trigger fires simultaneously in a single `document.startViewTransition`. VTs in **different** transitions (navigation vs later Suspense resolve) don't compete."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Every VT matching the trigger fires simultaneously in a single `document.startViewTransition`. VTs in **different** transitions (navigation vs later Suspense resolve) don't compete."
+      },
+      {
+        "evidence": {
+          "line_end": 284,
+          "line_start": 284,
+          "text": "Without it, every VT fires the browser cross-fade on **every** transition. Suspense resolves, `useDeferredValue` updates, background revalidations. Always use `default=\"none\"` and explicitly enable only desired triggers."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Without it, every VT fires the browser cross-fade on **every** transition. Suspense resolves, `useDeferredValue` updates, background revalidations. Always use `default=\"none\"` and explicitly enable only desired triggers."
+      },
+      {
+        "evidence": {
+          "line_end": 291,
+          "line_start": 291,
+          "text": "They coexist because they fire at different moments. `default=\"none\"` on both prevents cross-interference. Always pair `enter` with `exit`. Place directional VTs in page components, not layouts."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "They coexist because they fire at different moments. `default=\"none\"` on both prevents cross-interference. Always pair `enter` with `exit`. Place directional VTs in page components, not layouts."
+      },
+      {
+        "evidence": {
+          "line_end": 295,
+          "line_start": 295,
+          "text": "When a parent VT exits, nested VTs inside it do **not** fire their own enter/exit, only the outermost VT animates. Per-item staggered animations during page navigation are not possible today. See [react#36135](https://github.com/facebook/react/pull/36135) for an experimental opt-in fix."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "When a parent VT exits, nested VTs inside it do **not** fire their own enter/exit, only the outermost VT animates. Per-item staggered animations during page navigation are not possible today. See [react#36135](https://github.com/facebook/react/pull/36135) for an experimental opt-in fix."
+      },
+      {
+        "evidence": {
+          "line_end": 307,
+          "line_start": 307,
+          "text": "Always add the reduced motion CSS from `references/css-recipes.md` to your global stylesheet."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Always add the reduced motion CSS from `references/css-recipes.md` to your global stylesheet."
+      }
+    ],
+    "outputs": [],
+    "package_path_candidates": [
+      {
+        "evidence": {
+          "line_end": 53,
+          "line_start": 53,
+          "text": "When adding view transitions to an existing app, **follow `references/implementation.md` step by step.** Start with the audit, do not skip it. Copy the CSS recipes from `references/css-recipes.md` into the global stylesheet, do not write your own animation CSS."
+        },
+        "path": "references/implementation.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 53,
+          "line_start": 53,
+          "text": "When adding view transitions to an existing app, **follow `references/implementation.md` step by step.** Start with the audit, do not skip it. Copy the CSS recipes from `references/css-recipes.md` into the global stylesheet, do not write your own animation CSS."
+        },
+        "path": "references/css-recipes.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 121,
+          "line_start": 121,
+          "text": "See `references/css-recipes.md` for ready-to-use animation recipes."
+        },
+        "path": "references/css-recipes.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 274,
+          "line_start": 274,
+          "text": "For more patterns, see `references/patterns.md`."
+        },
+        "path": "references/patterns.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 301,
+          "line_start": 301,
+          "text": "For Next.js setup (`experimental.viewTransition` flag, `transitionTypes` prop on `next/link`, App Router patterns, Server Components), see `references/nextjs.md`."
+        },
+        "path": "references/nextjs.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 307,
+          "line_start": 307,
+          "text": "Always add the reduced motion CSS from `references/css-recipes.md` to your global stylesheet."
+        },
+        "path": "references/css-recipes.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 313,
+          "line_start": 313,
+          "text": "- **`references/implementation.md`**: Step-by-step implementation workflow."
+        },
+        "path": "references/implementation.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 314,
+          "line_start": 314,
+          "text": "- **`references/patterns.md`**: Patterns, animation timing, events API, troubleshooting."
+        },
+        "path": "references/patterns.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 315,
+          "line_start": 315,
+          "text": "- **`references/css-recipes.md`**: Ready-to-use CSS animation recipes."
+        },
+        "path": "references/css-recipes.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 316,
+          "line_start": 316,
+          "text": "- **`references/nextjs.md`**: Next.js App Router patterns and Server Component details."
+        },
+        "path": "references/nextjs.md",
+        "status": "candidate_package_path"
+      }
+    ],
+    "recovery": [
+      {
+        "evidence": {
+          "line_end": 204,
+          "line_start": 204,
+          "text": "- `share` takes precedence over `enter`/`exit`. Think through each navigation path: when no matching pair forms (e.g., the target page doesn't have the same name), `enter`/`exit` fires instead. Consider whether the element needs a fallback animation for those paths."
+        },
+        "status": "recovery_candidate",
+        "text": "- `share` takes precedence over `enter`/`exit`. Think through each navigation path: when no matching pair forms (e.g., the target page doesn't have the same name), `enter`/`exit` fires instead. Consider whether the element needs a fallback animation for those paths."
+      },
+      {
+        "evidence": {
+          "line_end": 258,
+          "line_start": 258,
+          "text": "### Suspense Fallback to Content"
+        },
+        "status": "recovery_candidate",
+        "text": "### Suspense Fallback to Content"
+      }
+    ],
+    "references": [
+      {
+        "evidence": {
+          "line_end": 295,
+          "line_start": 295,
+          "text": "When a parent VT exits, nested VTs inside it do **not** fire their own enter/exit, only the outermost VT animates. Per-item staggered animations during page navigation are not possible today. See [react#36135](https://github.com/facebook/react/pull/36135) for an experimental opt-in fix."
+        },
+        "reference": "https://github.com/facebook/react/pull/36135"
+      }
+    ],
+    "routes": [
+      {
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: Guide for implementing smooth, native-feeling animations using React's View Transition API (`<ViewTransition>` component, `addTransitionType`, and CSS view transition pseudo-elements). Use this skill whenever the user wants to add page transitions, animate route changes, create shared element animations, animate enter/exit of components, animate list reorder, implement directional (forward/back) navigation animations, or integrate view transitions in Next.js. Also use when the user mentions view transitions, `startViewTransition`, `ViewTransition`, transition types, or asks about animating between UI states in React without third-party animation libraries."
+        },
+        "text": "description: Guide for implementing smooth, native-feeling animations using React's View Transition API (`<ViewTransition>` component, `addTransitionType`, and CSS view transition pseudo-elements). Use this skill whenever the user wants to add page transitions, animate route changes, create shared element animations, animate enter/exit of components, animate list reorder, implement directional (forward/back) navigation animations, or integrate view transitions in Next.js. Also use when the user mentions view transitions, `startViewTransition`, `ViewTransition`, transition types, or asks about animating between UI states in React without third-party animation libraries."
+      },
+      {
+        "evidence": {
+          "line_end": 26,
+          "line_start": 26,
+          "text": "| 5 | **Route change** (layout-level) | \"Going to a new place\" |"
+        },
+        "text": "| 5 | **Route change** (layout-level) | \"Going to a new place\" |"
+      },
+      {
+        "evidence": {
+          "line_end": 39,
+          "line_start": 39,
+          "text": "Reserve directional slides for hierarchical navigation (list \u2192 detail) and ordered sequences (prev/next photo, carousel, paginated results). For ordered sequences, the direction communicates position: \"next\" slides from right, \"previous\" from left. Lateral/unordered navigation (tab-to-tab) should not use directional slides. It falsely implies spatial depth."
+        },
+        "text": "Reserve directional slides for hierarchical navigation (list \u2192 detail) and ordered sequences (prev/next photo, carousel, paginated results). For ordered sequences, the direction communicates position: \"next\" slides from right, \"previous\" from left. Lateral/unordered navigation (tab-to-tab) should not use directional slides. It falsely implies spatial depth."
+      },
+      {
+        "evidence": {
+          "line_end": 184,
+          "line_start": 184,
+          "text": "Types are available during navigation but **not** during subsequent Suspense reveals (separate transitions, no type). Use type maps for page-level enter/exit; use simple string props for Suspense reveals."
+        },
+        "text": "Types are available during navigation but **not** during subsequent Suspense reveals (separate transitions, no type). Use type maps for page-level enter/exit; use simple string props for Suspense reveals."
+      },
+      {
+        "evidence": {
+          "line_end": 231,
+          "line_start": 231,
+          "text": "Shared elements and list identity are independent concerns, don't confuse one for the other. When a list item contains a shared element (e.g., an image that morphs into a detail view), use two nested `<ViewTransition>` boundaries:"
+        },
+        "text": "Shared elements and list identity are independent concerns, don't confuse one for the other. When a list item contains a shared element (e.g., an image that morphs into a detail view), use two nested `<ViewTransition>` boundaries:"
+      },
+      {
+        "evidence": {
+          "line_end": 246,
+          "line_start": 246,
+          "text": "The outer VT handles list reorder/enter animations. The inner VT handles the cross-route shared element morph. Missing either layer means that animation silently doesn't happen."
+        },
+        "text": "The outer VT handles list reorder/enter animations. The inner VT handles the cross-route shared element morph. Missing either layer means that animation silently doesn't happen."
+      }
+    ],
+    "template_commands": [],
+    "template_status": "source_not_executed; fenced commands remain example-only only when surrounding prose says so, otherwise context-unknown; live XML template commands are not executable evidence",
+    "triggers": [
+      {
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: Guide for implementing smooth, native-feeling animations using React's View Transition API (`<ViewTransition>` component, `addTransitionType`, and CSS view transition pseudo-elements). Use this skill whenever the user wants to add page transitions, animate route changes, create shared element animations, animate enter/exit of components, animate list reorder, implement directional (forward/back) navigation animations, or integrate view transitions in Next.js. Also use when the user mentions view transitions, `startViewTransition`, `ViewTransition`, transition types, or asks about animating between UI states in React without third-party animation libraries."
+        },
+        "text": "description: Guide for implementing smooth, native-feeling animations using React's View Transition API (`<ViewTransition>` component, `addTransitionType`, and CSS view transition pseudo-elements). Use this skill whenever the user wants to add page transitions, animate route changes, create shared element animations, animate enter/exit of components, animate list reorder, implement directional (forward/back) navigation animations, or integrate view transitions in Next.js. Also use when the user mentions view transitions, `startViewTransition`, `ViewTransition`, transition types, or asks about animating between UI states in React without third-party animation libraries."
+      },
+      {
+        "evidence": {
+          "line_end": 12,
+          "line_start": 12,
+          "text": "Animate between UI states using the browser's native `document.startViewTransition`. Declare *what* with `<ViewTransition>`, trigger *when* with `startTransition` / `useDeferredValue` / `Suspense`, control *how* with CSS classes. Unsupported browsers skip animations gracefully."
+        },
+        "text": "Animate between UI states using the browser's native `document.startViewTransition`. Declare *what* with `<ViewTransition>`, trigger *when* with `startTransition` / `useDeferredValue` / `Suspense`, control *how* with CSS classes. Unsupported browsers skip animations gracefully."
+      },
+      {
+        "evidence": {
+          "line_end": 73,
+          "line_start": 73,
+          "text": "| Trigger | When it fires |"
+        },
+        "text": "| Trigger | When it fires |"
+      },
+      {
+        "evidence": {
+          "line_end": 180,
+          "line_start": 180,
+          "text": "`router.back()` and the browser's back/forward buttons do **not** trigger view transitions (`popstate` is synchronous, incompatible with `startViewTransition`). Use `router.push()` with an explicit URL instead."
+        },
+        "text": "`router.back()` and the browser's back/forward buttons do **not** trigger view transitions (`popstate` is synchronous, incompatible with `startViewTransition`). Use `router.push()` with an explicit URL instead."
+      },
+      {
+        "evidence": {
+          "line_end": 227,
+          "line_start": 227,
+          "text": "Trigger inside `startTransition`. Avoid wrapper `<div>`s between list and VT."
+        },
+        "text": "Trigger inside `startTransition`. Avoid wrapper `<div>`s between list and VT."
+      },
+      {
+        "evidence": {
+          "line_end": 280,
+          "line_start": 280,
+          "text": "Every VT matching the trigger fires simultaneously in a single `document.startViewTransition`. VTs in **different** transitions (navigation vs later Suspense resolve) don't compete."
+        },
+        "text": "Every VT matching the trigger fires simultaneously in a single `document.startViewTransition`. VTs in **different** transitions (navigation vs later Suspense resolve) don't compete."
+      }
+    ],
+    "workflows": [
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 45,
+            "text": "**Next.js:** Do **not** install `react@canary`: the App Router already bundles React canary internally. `ViewTransition` works out of the box. `npm ls react` may show a stable-looking version; this is expected."
+          },
+          {
+            "line": 46,
+            "text": "**Without Next.js:** Install `react@canary react-dom@canary` (`ViewTransition` is not in stable React)."
+          },
+          {
+            "line": 47,
+            "text": "Browser support: Chromium 111+, Firefox 144+, Safari 18.2+. Graceful degradation on unsupported browsers."
+          }
+        ],
+        "section": "Availability",
+        "start_line": 43
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 116,
+            "text": "`::view-transition-old(.class)`: outgoing snapshot"
+          },
+          {
+            "line": 117,
+            "text": "`::view-transition-new(.class)`: incoming snapshot"
+          },
+          {
+            "line": 118,
+            "text": "`::view-transition-group(.class)`: container"
+          },
+          {
+            "line": 119,
+            "text": "`::view-transition-image-pair(.class)`: old + new pair"
+          }
+        ],
+        "section": "CSS Pseudo-Elements",
+        "start_line": 114
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 203,
+            "text": "Only one VT with a given `name` can be mounted at a time. Use unique names (`photo-${id}`). Watch for reusable components: if a component with a named VT is rendered in both a modal/popover *and* a page, both mount simultaneously and break the morph. Either make the name conditional (via a prop) or move the named VT out of the shared component into the specific consumer."
+          },
+          {
+            "line": 204,
+            "text": "`share` takes precedence over `enter`/`exit`. Think through each navigation path: when no matching pair forms (e.g., the target page doesn't have the same name), `enter`/`exit` fires instead. Consider whether the element needs a fallback animation for those paths."
+          },
+          {
+            "line": 205,
+            "text": "Never use a fade-out exit on pages with shared morphs. Use a directional slide instead."
+          }
+        ],
+        "section": "Shared Element Transitions",
+        "start_line": 188
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 313,
+            "text": "**`references/implementation.md`**: Step-by-step implementation workflow."
+          },
+          {
+            "line": 314,
+            "text": "**`references/patterns.md`**: Patterns, animation timing, events API, troubleshooting."
+          },
+          {
+            "line": 315,
+            "text": "**`references/css-recipes.md`**: Ready-to-use CSS animation recipes."
+          },
+          {
+            "line": 316,
+            "text": "**`references/nextjs.md`**: Next.js App Router patterns and Server Component details."
+          }
+        ],
+        "section": "Reference Files",
+        "start_line": 311
+      }
+    ]
+  },
+  "package": {
+    "reference_resolution": [
+      {
+        "commit": "unknown",
+        "path": "agent-skills-HEAD/skills/react-view-transitions/references/implementation.md",
+        "reference": "references/implementation.md",
+        "repo": "vercel-labs/agent-skills",
+        "sha256": "87687de5fa2f775a6b5134ee02863ebede9ee6bc42ea8ed99bd53aa5325e78f4",
+        "snapshot_path": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/87687de5fa2f775a6b5134ee02863ebede9ee6bc42ea8ed99bd53aa5325e78f4.md",
+        "source_line": 53,
+        "source_text": "When adding view transitions to an existing app, **follow `references/implementation.md` step by step.** Start with the audit, do not skip it. Copy the CSS recipes from `references/css-recipes.md` into the global stylesheet, do not write your own animation CSS.",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "agent-skills-HEAD/skills/react-view-transitions/references/css-recipes.md",
+        "reference": "references/css-recipes.md",
+        "repo": "vercel-labs/agent-skills",
+        "sha256": "f4a5b92a7aad6befd2779e498ab04311277f179b240d2170f0a68a1444024d51",
+        "snapshot_path": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/f4a5b92a7aad6befd2779e498ab04311277f179b240d2170f0a68a1444024d51.md",
+        "source_line": 53,
+        "source_text": "When adding view transitions to an existing app, **follow `references/implementation.md` step by step.** Start with the audit, do not skip it. Copy the CSS recipes from `references/css-recipes.md` into the global stylesheet, do not write your own animation CSS.",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "agent-skills-HEAD/skills/react-view-transitions/references/css-recipes.md",
+        "reference": "references/css-recipes.md",
+        "repo": "vercel-labs/agent-skills",
+        "sha256": "f4a5b92a7aad6befd2779e498ab04311277f179b240d2170f0a68a1444024d51",
+        "snapshot_path": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/f4a5b92a7aad6befd2779e498ab04311277f179b240d2170f0a68a1444024d51.md",
+        "source_line": 121,
+        "source_text": "See `references/css-recipes.md` for ready-to-use animation recipes.",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "agent-skills-HEAD/skills/react-view-transitions/references/patterns.md",
+        "reference": "references/patterns.md",
+        "repo": "vercel-labs/agent-skills",
+        "sha256": "da24d7f37c7e6b8ecbcf05525ef613d8f5be94655c233d6fa62833c8a746604f",
+        "snapshot_path": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/da24d7f37c7e6b8ecbcf05525ef613d8f5be94655c233d6fa62833c8a746604f.md",
+        "source_line": 274,
+        "source_text": "For more patterns, see `references/patterns.md`.",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "agent-skills-HEAD/skills/react-view-transitions/references/nextjs.md",
+        "reference": "references/nextjs.md",
+        "repo": "vercel-labs/agent-skills",
+        "sha256": "f926a645d5e4c62fcc2d5832be0f3ad048f2ee1d17f8476324e2bc407e4b3a07",
+        "snapshot_path": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/f926a645d5e4c62fcc2d5832be0f3ad048f2ee1d17f8476324e2bc407e4b3a07.md",
+        "source_line": 301,
+        "source_text": "For Next.js setup (`experimental.viewTransition` flag, `transitionTypes` prop on `next/link`, App Router patterns, Server Components), see `references/nextjs.md`.",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "agent-skills-HEAD/skills/react-view-transitions/references/css-recipes.md",
+        "reference": "references/css-recipes.md",
+        "repo": "vercel-labs/agent-skills",
+        "sha256": "f4a5b92a7aad6befd2779e498ab04311277f179b240d2170f0a68a1444024d51",
+        "snapshot_path": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/f4a5b92a7aad6befd2779e498ab04311277f179b240d2170f0a68a1444024d51.md",
+        "source_line": 307,
+        "source_text": "Always add the reduced motion CSS from `references/css-recipes.md` to your global stylesheet.",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "agent-skills-HEAD/skills/react-view-transitions/references/implementation.md",
+        "reference": "references/implementation.md",
+        "repo": "vercel-labs/agent-skills",
+        "sha256": "87687de5fa2f775a6b5134ee02863ebede9ee6bc42ea8ed99bd53aa5325e78f4",
+        "snapshot_path": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/87687de5fa2f775a6b5134ee02863ebede9ee6bc42ea8ed99bd53aa5325e78f4.md",
+        "source_line": 313,
+        "source_text": "- **`references/implementation.md`**: Step-by-step implementation workflow.",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "agent-skills-HEAD/skills/react-view-transitions/references/patterns.md",
+        "reference": "references/patterns.md",
+        "repo": "vercel-labs/agent-skills",
+        "sha256": "da24d7f37c7e6b8ecbcf05525ef613d8f5be94655c233d6fa62833c8a746604f",
+        "snapshot_path": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/da24d7f37c7e6b8ecbcf05525ef613d8f5be94655c233d6fa62833c8a746604f.md",
+        "source_line": 314,
+        "source_text": "- **`references/patterns.md`**: Patterns, animation timing, events API, troubleshooting.",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "agent-skills-HEAD/skills/react-view-transitions/references/css-recipes.md",
+        "reference": "references/css-recipes.md",
+        "repo": "vercel-labs/agent-skills",
+        "sha256": "f4a5b92a7aad6befd2779e498ab04311277f179b240d2170f0a68a1444024d51",
+        "snapshot_path": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/f4a5b92a7aad6befd2779e498ab04311277f179b240d2170f0a68a1444024d51.md",
+        "source_line": 315,
+        "source_text": "- **`references/css-recipes.md`**: Ready-to-use CSS animation recipes.",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "agent-skills-HEAD/skills/react-view-transitions/references/nextjs.md",
+        "reference": "references/nextjs.md",
+        "repo": "vercel-labs/agent-skills",
+        "sha256": "f926a645d5e4c62fcc2d5832be0f3ad048f2ee1d17f8476324e2bc407e4b3a07",
+        "snapshot_path": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/f926a645d5e4c62fcc2d5832be0f3ad048f2ee1d17f8476324e2bc407e4b3a07.md",
+        "source_line": 316,
+        "source_text": "- **`references/nextjs.md`**: Next.js App Router patterns and Server Component details.",
+        "status": "resolved"
+      }
+    ],
+    "resolved_files": [
+      {
+        "bytes": 58993,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/83fd29aec273cf4318a4f428ed2725f2cd3b6adbd76640e495c31f0a2521c702.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-view-transitions/AGENTS.md",
+        "sha256": "83fd29aec273cf4318a4f428ed2725f2cd3b6adbd76640e495c31f0a2521c702",
+        "text": true
+      },
+      {
+        "bytes": 2231,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/aba31b4ac31c1b13d2a8054179604abd4498b0d7324746635ff0e3b0aea9d608.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-view-transitions/README.md",
+        "sha256": "aba31b4ac31c1b13d2a8054179604abd4498b0d7324746635ff0e3b0aea9d608",
+        "text": true
+      },
+      {
+        "bytes": 14407,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/1520343c8814c972fee001cac6d6185976d6eb3f4edcac33afe95c10f3b3228b.md",
+        "kind": "skill",
+        "path": "agent-skills-HEAD/skills/react-view-transitions/SKILL.md",
+        "sha256": "1520343c8814c972fee001cac6d6185976d6eb3f4edcac33afe95c10f3b3228b",
+        "text": true
+      },
+      {
+        "bytes": 852,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/b1a5ae09f3904dc83dab79f518d033bd98f1e2f55caabfdb5beeeaaf0ca5e4c2.json",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-view-transitions/metadata.json",
+        "sha256": "b1a5ae09f3904dc83dab79f518d033bd98f1e2f55caabfdb5beeeaaf0ca5e4c2",
+        "text": true
+      },
+      {
+        "bytes": 8337,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/f4a5b92a7aad6befd2779e498ab04311277f179b240d2170f0a68a1444024d51.md",
+        "kind": "reference",
+        "path": "agent-skills-HEAD/skills/react-view-transitions/references/css-recipes.md",
+        "sha256": "f4a5b92a7aad6befd2779e498ab04311277f179b240d2170f0a68a1444024d51",
+        "text": true
+      },
+      {
+        "bytes": 9280,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/87687de5fa2f775a6b5134ee02863ebede9ee6bc42ea8ed99bd53aa5325e78f4.md",
+        "kind": "reference",
+        "path": "agent-skills-HEAD/skills/react-view-transitions/references/implementation.md",
+        "sha256": "87687de5fa2f775a6b5134ee02863ebede9ee6bc42ea8ed99bd53aa5325e78f4",
+        "text": true
+      },
+      {
+        "bytes": 10700,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/f926a645d5e4c62fcc2d5832be0f3ad048f2ee1d17f8476324e2bc407e4b3a07.md",
+        "kind": "reference",
+        "path": "agent-skills-HEAD/skills/react-view-transitions/references/nextjs.md",
+        "sha256": "f926a645d5e4c62fcc2d5832be0f3ad048f2ee1d17f8476324e2bc407e4b3a07",
+        "text": true
+      },
+      {
+        "bytes": 11941,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/da24d7f37c7e6b8ecbcf05525ef613d8f5be94655c233d6fa62833c8a746604f.md",
+        "kind": "reference",
+        "path": "agent-skills-HEAD/skills/react-view-transitions/references/patterns.md",
+        "sha256": "da24d7f37c7e6b8ecbcf05525ef613d8f5be94655c233d6fa62833c8a746604f",
+        "text": true
+      },
+      {
+        "bytes": 4940,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/aa6811d276dcf06dcc9aba90d1e11e1d0a29146604bf7c89a9e93a6fa8883c7a.md",
+        "kind": "reference",
+        "path": "agent-skills-HEAD/skills/react-view-transitions/references/troubleshooting.md",
+        "sha256": "aa6811d276dcf06dcc9aba90d1e11e1d0a29146604bf7c89a9e93a6fa8883c7a",
+        "text": true
+      }
+    ],
+    "scripts": [],
+    "unresolved_references": []
+  },
+  "schema": "skill-ir/1.0",
+  "source": {
+    "bytes": 12426,
+    "catalog_metadata": {
+      "bundle_offset": 4543992,
+      "category": "visual-design",
+      "content_binding": "P$",
+      "description": "Implement view transitions in React and Next.js: shared element transitions, page animations, and motion that feels native on the web.",
+      "github_url": "https://github.com/vercel-labs/agent-skills/tree/main/skills/react-view-transitions",
+      "slug": "vercel-react-view-transitions",
+      "source": "vercel",
+      "source_label": "Vercel",
+      "stars_reported": 28,
+      "template_expressions": [],
+      "title": "Vercel React View Transitions"
+    },
+    "line_table": [
+      {
+        "line": 1,
+        "text": "---"
+      },
+      {
+        "line": 2,
+        "text": "name: vercel-react-view-transitions"
+      },
+      {
+        "line": 3,
+        "text": "description: Guide for implementing smooth, native-feeling animations using React's View Transition API (`<ViewTransition>` component, `addTransitionType`, and CSS view transition pseudo-elements). Use this skill whenever the user wants to add page transitions, animate route changes, create shared element animations, animate enter/exit of components, animate list reorder, implement directional (forward/back) navigation animations, or integrate view transitions in Next.js. Also use when the user mentions view transitions, `startViewTransition`, `ViewTransition`, transition types, or asks about animating between UI states in React without third-party animation libraries."
+      },
+      {
+        "line": 4,
+        "text": "license: MIT"
+      },
+      {
+        "line": 5,
+        "text": "metadata:"
+      },
+      {
+        "line": 6,
+        "text": "  author: vercel"
+      },
+      {
+        "line": 7,
+        "text": "  version: \"1.0.0\""
+      },
+      {
+        "line": 8,
+        "text": "---"
+      },
+      {
+        "line": 9,
+        "text": ""
+      },
+      {
+        "line": 10,
+        "text": "# React View Transitions"
+      },
+      {
+        "line": 11,
+        "text": ""
+      },
+      {
+        "line": 12,
+        "text": "Animate between UI states using the browser's native `document.startViewTransition`. Declare *what* with `<ViewTransition>`, trigger *when* with `startTransition` / `useDeferredValue` / `Suspense`, control *how* with CSS classes. Unsupported browsers skip animations gracefully."
+      },
+      {
+        "line": 13,
+        "text": ""
+      },
+      {
+        "line": 14,
+        "text": "## When to Animate"
+      },
+      {
+        "line": 15,
+        "text": ""
+      },
+      {
+        "line": 16,
+        "text": "Every `<ViewTransition>` should communicate a spatial relationship or continuity. If you can't articulate what it communicates, don't add it."
+      },
+      {
+        "line": 17,
+        "text": ""
+      },
+      {
+        "line": 18,
+        "text": "Implement **all** applicable patterns from this list, in this order:"
+      },
+      {
+        "line": 19,
+        "text": ""
+      },
+      {
+        "line": 20,
+        "text": "| Priority | Pattern | What it communicates |"
+      },
+      {
+        "line": 21,
+        "text": "|----------|---------|---------------------|"
+      },
+      {
+        "line": 22,
+        "text": "| 1 | **Shared element** (`name`) | \"Same thing, going deeper\" |"
+      },
+      {
+        "line": 23,
+        "text": "| 2 | **Suspense reveal** | \"Data loaded\" |"
+      },
+      {
+        "line": 24,
+        "text": "| 3 | **List identity** (per-item `key`) | \"Same items, new arrangement\" |"
+      },
+      {
+        "line": 25,
+        "text": "| 4 | **State change** (`enter`/`exit`) | \"Something appeared/disappeared\" |"
+      },
+      {
+        "line": 26,
+        "text": "| 5 | **Route change** (layout-level) | \"Going to a new place\" |"
+      },
+      {
+        "line": 27,
+        "text": ""
+      },
+      {
+        "line": 28,
+        "text": "This is an implementation order, not a \"pick one\" list. Implement every pattern that fits the app. Only skip a pattern if the app has no use case for it."
+      },
+      {
+        "line": 29,
+        "text": ""
+      },
+      {
+        "line": 30,
+        "text": "### Choosing Animation Style"
+      },
+      {
+        "line": 31,
+        "text": ""
+      },
+      {
+        "line": 32,
+        "text": "| Context | Animation | Why |"
+      },
+      {
+        "line": 33,
+        "text": "|---------|-----------|-----|"
+      },
+      {
+        "line": 34,
+        "text": "| Hierarchical navigation (list \u2192 detail) | Type-keyed `nav-forward` / `nav-back` | Communicates spatial depth |"
+      },
+      {
+        "line": 35,
+        "text": "| Lateral navigation (tab-to-tab) | Bare `<ViewTransition>` (fade) or `default=\"none\"` | No depth to communicate |"
+      },
+      {
+        "line": 36,
+        "text": "| Suspense reveal | `enter`/`exit` string props | Content arriving |"
+      },
+      {
+        "line": 37,
+        "text": "| Revalidation / background refresh | `default=\"none\"` | Silent, no animation needed |"
+      },
+      {
+        "line": 38,
+        "text": ""
+      },
+      {
+        "line": 39,
+        "text": "Reserve directional slides for hierarchical navigation (list \u2192 detail) and ordered sequences (prev/next photo, carousel, paginated results). For ordered sequences, the direction communicates position: \"next\" slides from right, \"previous\" from left. Lateral/unordered navigation (tab-to-tab) should not use directional slides. It falsely implies spatial depth."
+      },
+      {
+        "line": 40,
+        "text": ""
+      },
+      {
+        "line": 41,
+        "text": "---"
+      },
+      {
+        "line": 42,
+        "text": ""
+      },
+      {
+        "line": 43,
+        "text": "## Availability"
+      },
+      {
+        "line": 44,
+        "text": ""
+      },
+      {
+        "line": 45,
+        "text": "- **Next.js:** Do **not** install `react@canary`: the App Router already bundles React canary internally. `ViewTransition` works out of the box. `npm ls react` may show a stable-looking version; this is expected."
+      },
+      {
+        "line": 46,
+        "text": "- **Without Next.js:** Install `react@canary react-dom@canary` (`ViewTransition` is not in stable React)."
+      },
+      {
+        "line": 47,
+        "text": "- Browser support: Chromium 111+, Firefox 144+, Safari 18.2+. Graceful degradation on unsupported browsers."
+      },
+      {
+        "line": 48,
+        "text": ""
+      },
+      {
+        "line": 49,
+        "text": "---"
+      },
+      {
+        "line": 50,
+        "text": ""
+      },
+      {
+        "line": 51,
+        "text": "## Implementation Workflow"
+      },
+      {
+        "line": 52,
+        "text": ""
+      },
+      {
+        "line": 53,
+        "text": "When adding view transitions to an existing app, **follow `references/implementation.md` step by step.** Start with the audit, do not skip it. Copy the CSS recipes from `references/css-recipes.md` into the global stylesheet, do not write your own animation CSS."
+      },
+      {
+        "line": 54,
+        "text": ""
+      },
+      {
+        "line": 55,
+        "text": "---"
+      },
+      {
+        "line": 56,
+        "text": ""
+      },
+      {
+        "line": 57,
+        "text": "## Core Concepts"
+      },
+      {
+        "line": 58,
+        "text": ""
+      },
+      {
+        "line": 59,
+        "text": "### The `<ViewTransition>` Component"
+      },
+      {
+        "line": 60,
+        "text": ""
+      },
+      {
+        "line": 61,
+        "text": "```jsx"
+      },
+      {
+        "line": 62,
+        "text": "import { ViewTransition } from 'react';"
+      },
+      {
+        "line": 63,
+        "text": ""
+      },
+      {
+        "line": 64,
+        "text": "<ViewTransition>"
+      },
+      {
+        "line": 65,
+        "text": "  <Component />"
+      },
+      {
+        "line": 66,
+        "text": "</ViewTransition>"
+      },
+      {
+        "line": 67,
+        "text": "```"
+      },
+      {
+        "line": 68,
+        "text": ""
+      },
+      {
+        "line": 69,
+        "text": "React auto-assigns a unique `view-transition-name` and calls `document.startViewTransition` behind the scenes. Never call `startViewTransition` yourself."
+      },
+      {
+        "line": 70,
+        "text": ""
+      },
+      {
+        "line": 71,
+        "text": "### Animation Triggers"
+      },
+      {
+        "line": 72,
+        "text": ""
+      },
+      {
+        "line": 73,
+        "text": "| Trigger | When it fires |"
+      },
+      {
+        "line": 74,
+        "text": "|---------|--------------|"
+      },
+      {
+        "line": 75,
+        "text": "| **enter** | `<ViewTransition>` first inserted during a Transition |"
+      },
+      {
+        "line": 76,
+        "text": "| **exit** | `<ViewTransition>` first removed during a Transition |"
+      },
+      {
+        "line": 77,
+        "text": "| **update** | DOM mutations inside a `<ViewTransition>`. With nested VTs, mutation applies to the innermost one |"
+      },
+      {
+        "line": 78,
+        "text": "| **share** | Named VT unmounts and another with same `name` mounts in the same Transition |"
+      },
+      {
+        "line": 79,
+        "text": ""
+      },
+      {
+        "line": 80,
+        "text": "Only `startTransition`, `useDeferredValue`, or `Suspense` activate VTs. Regular `setState` does not animate."
+      },
+      {
+        "line": 81,
+        "text": ""
+      },
+      {
+        "line": 82,
+        "text": "### Critical Placement Rule"
+      },
+      {
+        "line": 83,
+        "text": ""
+      },
+      {
+        "line": 84,
+        "text": "`<ViewTransition>` only activates enter/exit if it appears **before any DOM nodes**:"
+      },
+      {
+        "line": 85,
+        "text": ""
+      },
+      {
+        "line": 86,
+        "text": "```jsx"
+      },
+      {
+        "line": 87,
+        "text": "// Works"
+      },
+      {
+        "line": 88,
+        "text": "<ViewTransition enter=\"auto\" exit=\"auto\">"
+      },
+      {
+        "line": 89,
+        "text": "  <div>Content</div>"
+      },
+      {
+        "line": 90,
+        "text": "</ViewTransition>"
+      },
+      {
+        "line": 91,
+        "text": ""
+      },
+      {
+        "line": 92,
+        "text": "// Broken, div wraps the VT, suppressing enter/exit"
+      },
+      {
+        "line": 93,
+        "text": "<div>"
+      },
+      {
+        "line": 94,
+        "text": "  <ViewTransition enter=\"auto\" exit=\"auto\">"
+      },
+      {
+        "line": 95,
+        "text": "    <div>Content</div>"
+      },
+      {
+        "line": 96,
+        "text": "  </ViewTransition>"
+      },
+      {
+        "line": 97,
+        "text": "</div>"
+      },
+      {
+        "line": 98,
+        "text": "```"
+      },
+      {
+        "line": 99,
+        "text": ""
+      },
+      {
+        "line": 100,
+        "text": "---"
+      },
+      {
+        "line": 101,
+        "text": ""
+      },
+      {
+        "line": 102,
+        "text": "## Styling with View Transition Classes"
+      },
+      {
+        "line": 103,
+        "text": ""
+      },
+      {
+        "line": 104,
+        "text": "### Props"
+      },
+      {
+        "line": 105,
+        "text": ""
+      },
+      {
+        "line": 106,
+        "text": "Values: `\"auto\"` (browser cross-fade), `\"none\"` (disabled), `\"class-name\"` (custom CSS), or `{ [type]: value }` for type-specific animations."
+      },
+      {
+        "line": 107,
+        "text": ""
+      },
+      {
+        "line": 108,
+        "text": "```jsx"
+      },
+      {
+        "line": 109,
+        "text": "<ViewTransition default=\"none\" enter=\"slide-in\" exit=\"slide-out\" share=\"morph\" />"
+      },
+      {
+        "line": 110,
+        "text": "```"
+      },
+      {
+        "line": 111,
+        "text": ""
+      },
+      {
+        "line": 112,
+        "text": "If `default` is `\"none\"`, all triggers are off unless explicitly listed."
+      },
+      {
+        "line": 113,
+        "text": ""
+      },
+      {
+        "line": 114,
+        "text": "### CSS Pseudo-Elements"
+      },
+      {
+        "line": 115,
+        "text": ""
+      },
+      {
+        "line": 116,
+        "text": "- `::view-transition-old(.class)`: outgoing snapshot"
+      },
+      {
+        "line": 117,
+        "text": "- `::view-transition-new(.class)`: incoming snapshot"
+      },
+      {
+        "line": 118,
+        "text": "- `::view-transition-group(.class)`: container"
+      },
+      {
+        "line": 119,
+        "text": "- `::view-transition-image-pair(.class)`: old + new pair"
+      },
+      {
+        "line": 120,
+        "text": ""
+      },
+      {
+        "line": 121,
+        "text": "See `references/css-recipes.md` for ready-to-use animation recipes."
+      },
+      {
+        "line": 122,
+        "text": ""
+      },
+      {
+        "line": 123,
+        "text": "---"
+      },
+      {
+        "line": 124,
+        "text": ""
+      },
+      {
+        "line": 125,
+        "text": "## Transition Types"
+      },
+      {
+        "line": 126,
+        "text": ""
+      },
+      {
+        "line": 127,
+        "text": "Tag transitions with `addTransitionType` so VTs can pick different animations based on context. Call it multiple times to stack types, different VTs in the tree react to different types:"
+      },
+      {
+        "line": 128,
+        "text": ""
+      },
+      {
+        "line": 129,
+        "text": "```jsx"
+      },
+      {
+        "line": 130,
+        "text": "startTransition(() => {"
+      },
+      {
+        "line": 131,
+        "text": "  addTransitionType('nav-forward');"
+      },
+      {
+        "line": 132,
+        "text": "  addTransitionType('select-item');"
+      },
+      {
+        "line": 133,
+        "text": "  router.push('/detail/1');"
+      },
+      {
+        "line": 134,
+        "text": "});"
+      },
+      {
+        "line": 135,
+        "text": "```"
+      },
+      {
+        "line": 136,
+        "text": ""
+      },
+      {
+        "line": 137,
+        "text": "Pass an object to map types to CSS classes. Works on `enter`, `exit`, **and** `share`:"
+      },
+      {
+        "line": 138,
+        "text": ""
+      },
+      {
+        "line": 139,
+        "text": "```jsx"
+      },
+      {
+        "line": 140,
+        "text": "<ViewTransition"
+      },
+      {
+        "line": 141,
+        "text": "  enter={{ 'nav-forward': 'slide-from-right', 'nav-back': 'slide-from-left', default: 'none' }}"
+      },
+      {
+        "line": 142,
+        "text": "  exit={{ 'nav-forward': 'slide-to-left', 'nav-back': 'slide-to-right', default: 'none' }}"
+      },
+      {
+        "line": 143,
+        "text": "  share={{ 'nav-forward': 'morph-forward', 'nav-back': 'morph-back', default: 'morph' }}"
+      },
+      {
+        "line": 144,
+        "text": "  default=\"none\""
+      },
+      {
+        "line": 145,
+        "text": ">"
+      },
+      {
+        "line": 146,
+        "text": "  <Page />"
+      },
+      {
+        "line": 147,
+        "text": "</ViewTransition>"
+      },
+      {
+        "line": 148,
+        "text": "```"
+      },
+      {
+        "line": 149,
+        "text": ""
+      },
+      {
+        "line": 150,
+        "text": "`enter` and `exit` don't have to be symmetric. For example, fade in but slide out directionally:"
+      },
+      {
+        "line": 151,
+        "text": ""
+      },
+      {
+        "line": 152,
+        "text": "```jsx"
+      },
+      {
+        "line": 153,
+        "text": "<ViewTransition"
+      },
+      {
+        "line": 154,
+        "text": "  enter={{ 'nav-forward': 'fade-in', 'nav-back': 'fade-in', default: 'none' }}"
+      },
+      {
+        "line": 155,
+        "text": "  exit={{ 'nav-forward': 'nav-forward', 'nav-back': 'nav-back', default: 'none' }}"
+      },
+      {
+        "line": 156,
+        "text": "  default=\"none\""
+      },
+      {
+        "line": 157,
+        "text": ">"
+      },
+      {
+        "line": 158,
+        "text": "```"
+      },
+      {
+        "line": 159,
+        "text": ""
+      },
+      {
+        "line": 160,
+        "text": "**TypeScript:** `ViewTransitionClassPerType` requires a `default` key in the object."
+      },
+      {
+        "line": 161,
+        "text": ""
+      },
+      {
+        "line": 162,
+        "text": "For apps with multiple pages, extract the type-keyed VT into a reusable wrapper:"
+      },
+      {
+        "line": 163,
+        "text": ""
+      },
+      {
+        "line": 164,
+        "text": "```jsx"
+      },
+      {
+        "line": 165,
+        "text": "export function DirectionalTransition({ children }: { children: React.ReactNode }) {"
+      },
+      {
+        "line": 166,
+        "text": "  return ("
+      },
+      {
+        "line": 167,
+        "text": "    <ViewTransition"
+      },
+      {
+        "line": 168,
+        "text": "      enter={{ 'nav-forward': 'nav-forward', 'nav-back': 'nav-back', default: 'none' }}"
+      },
+      {
+        "line": 169,
+        "text": "      exit={{ 'nav-forward': 'nav-forward', 'nav-back': 'nav-back', default: 'none' }}"
+      },
+      {
+        "line": 170,
+        "text": "      default=\"none\""
+      },
+      {
+        "line": 171,
+        "text": "    >"
+      },
+      {
+        "line": 172,
+        "text": "      {children}"
+      },
+      {
+        "line": 173,
+        "text": "    </ViewTransition>"
+      },
+      {
+        "line": 174,
+        "text": "  );"
+      },
+      {
+        "line": 175,
+        "text": "}"
+      },
+      {
+        "line": 176,
+        "text": "```"
+      },
+      {
+        "line": 177,
+        "text": ""
+      },
+      {
+        "line": 178,
+        "text": "### `router.back()` and Browser Back Button"
+      },
+      {
+        "line": 179,
+        "text": ""
+      },
+      {
+        "line": 180,
+        "text": "`router.back()` and the browser's back/forward buttons do **not** trigger view transitions (`popstate` is synchronous, incompatible with `startViewTransition`). Use `router.push()` with an explicit URL instead."
+      },
+      {
+        "line": 181,
+        "text": ""
+      },
+      {
+        "line": 182,
+        "text": "### Types and Suspense"
+      },
+      {
+        "line": 183,
+        "text": ""
+      },
+      {
+        "line": 184,
+        "text": "Types are available during navigation but **not** during subsequent Suspense reveals (separate transitions, no type). Use type maps for page-level enter/exit; use simple string props for Suspense reveals."
+      },
+      {
+        "line": 185,
+        "text": ""
+      },
+      {
+        "line": 186,
+        "text": "---"
+      },
+      {
+        "line": 187,
+        "text": ""
+      },
+      {
+        "line": 188,
+        "text": "## Shared Element Transitions"
+      },
+      {
+        "line": 189,
+        "text": ""
+      },
+      {
+        "line": 190,
+        "text": "Same `name` on two VTs, one unmounting, one mounting, creates a shared element morph:"
+      },
+      {
+        "line": 191,
+        "text": ""
+      },
+      {
+        "line": 192,
+        "text": "```jsx"
+      },
+      {
+        "line": 193,
+        "text": "<ViewTransition name=\"hero-image\">"
+      },
+      {
+        "line": 194,
+        "text": "  <img src=\"/thumb.jpg\" onClick={() => startTransition(() => onSelect())} />"
+      },
+      {
+        "line": 195,
+        "text": "</ViewTransition>"
+      },
+      {
+        "line": 196,
+        "text": ""
+      },
+      {
+        "line": 197,
+        "text": "// On the other view, same name"
+      },
+      {
+        "line": 198,
+        "text": "<ViewTransition name=\"hero-image\">"
+      },
+      {
+        "line": 199,
+        "text": "  <img src=\"/full.jpg\" />"
+      },
+      {
+        "line": 200,
+        "text": "</ViewTransition>"
+      },
+      {
+        "line": 201,
+        "text": "```"
+      },
+      {
+        "line": 202,
+        "text": ""
+      },
+      {
+        "line": 203,
+        "text": "- Only one VT with a given `name` can be mounted at a time. Use unique names (`photo-${id}`). Watch for reusable components: if a component with a named VT is rendered in both a modal/popover *and* a page, both mount simultaneously and break the morph. Either make the name conditional (via a prop) or move the named VT out of the shared component into the specific consumer."
+      },
+      {
+        "line": 204,
+        "text": "- `share` takes precedence over `enter`/`exit`. Think through each navigation path: when no matching pair forms (e.g., the target page doesn't have the same name), `enter`/`exit` fires instead. Consider whether the element needs a fallback animation for those paths."
+      },
+      {
+        "line": 205,
+        "text": "- Never use a fade-out exit on pages with shared morphs. Use a directional slide instead."
+      },
+      {
+        "line": 206,
+        "text": ""
+      },
+      {
+        "line": 207,
+        "text": "---"
+      },
+      {
+        "line": 208,
+        "text": ""
+      },
+      {
+        "line": 209,
+        "text": "## Common Patterns"
+      },
+      {
+        "line": 210,
+        "text": ""
+      },
+      {
+        "line": 211,
+        "text": "### Enter/Exit"
+      },
+      {
+        "line": 212,
+        "text": ""
+      },
+      {
+        "line": 213,
+        "text": "```jsx"
+      },
+      {
+        "line": 214,
+        "text": "{show && ("
+      },
+      {
+        "line": 215,
+        "text": "  <ViewTransition enter=\"fade-in\" exit=\"fade-out\"><Panel /></ViewTransition>"
+      },
+      {
+        "line": 216,
+        "text": ")}"
+      },
+      {
+        "line": 217,
+        "text": "```"
+      },
+      {
+        "line": 218,
+        "text": ""
+      },
+      {
+        "line": 219,
+        "text": "### List Reorder"
+      },
+      {
+        "line": 220,
+        "text": ""
+      },
+      {
+        "line": 221,
+        "text": "```jsx"
+      },
+      {
+        "line": 222,
+        "text": "{items.map(item => ("
+      },
+      {
+        "line": 223,
+        "text": "  <ViewTransition key={item.id}><ItemCard item={item} /></ViewTransition>"
+      },
+      {
+        "line": 224,
+        "text": "))}"
+      },
+      {
+        "line": 225,
+        "text": "```"
+      },
+      {
+        "line": 226,
+        "text": ""
+      },
+      {
+        "line": 227,
+        "text": "Trigger inside `startTransition`. Avoid wrapper `<div>`s between list and VT."
+      },
+      {
+        "line": 228,
+        "text": ""
+      },
+      {
+        "line": 229,
+        "text": "### Composing Shared Elements with List Identity"
+      },
+      {
+        "line": 230,
+        "text": ""
+      },
+      {
+        "line": 231,
+        "text": "Shared elements and list identity are independent concerns, don't confuse one for the other. When a list item contains a shared element (e.g., an image that morphs into a detail view), use two nested `<ViewTransition>` boundaries:"
+      },
+      {
+        "line": 232,
+        "text": ""
+      },
+      {
+        "line": 233,
+        "text": "```jsx"
+      },
+      {
+        "line": 234,
+        "text": "{items.map(item => ("
+      },
+      {
+        "line": 235,
+        "text": "  <ViewTransition key={item.id}>                                      {/* list identity */}"
+      },
+      {
+        "line": 236,
+        "text": "    <Link href={`/items/${item.id}`}>"
+      },
+      {
+        "line": 237,
+        "text": "      <ViewTransition name={`item-image-${item.id}`} share=\"morph\">   {/* shared element */}"
+      },
+      {
+        "line": 238,
+        "text": "        <Image src={item.image} />"
+      },
+      {
+        "line": 239,
+        "text": "      </ViewTransition>"
+      },
+      {
+        "line": 240,
+        "text": "      <p>{item.name}</p>"
+      },
+      {
+        "line": 241,
+        "text": "    </Link>"
+      },
+      {
+        "line": 242,
+        "text": "  </ViewTransition>"
+      },
+      {
+        "line": 243,
+        "text": "))}"
+      },
+      {
+        "line": 244,
+        "text": "```"
+      },
+      {
+        "line": 245,
+        "text": ""
+      },
+      {
+        "line": 246,
+        "text": "The outer VT handles list reorder/enter animations. The inner VT handles the cross-route shared element morph. Missing either layer means that animation silently doesn't happen."
+      },
+      {
+        "line": 247,
+        "text": ""
+      },
+      {
+        "line": 248,
+        "text": "### Force Re-Enter with `key`"
+      },
+      {
+        "line": 249,
+        "text": ""
+      },
+      {
+        "line": 250,
+        "text": "```jsx"
+      },
+      {
+        "line": 251,
+        "text": "<ViewTransition key={searchParams.toString()} enter=\"slide-up\" default=\"none\">"
+      },
+      {
+        "line": 252,
+        "text": "  <ResultsGrid />"
+      },
+      {
+        "line": 253,
+        "text": "</ViewTransition>"
+      },
+      {
+        "line": 254,
+        "text": "```"
+      },
+      {
+        "line": 255,
+        "text": ""
+      },
+      {
+        "line": 256,
+        "text": "**Caution:** If wrapping `<Suspense>`, changing `key` remounts the boundary and refetches."
+      },
+      {
+        "line": 257,
+        "text": ""
+      },
+      {
+        "line": 258,
+        "text": "### Suspense Fallback to Content"
+      },
+      {
+        "line": 259,
+        "text": ""
+      },
+      {
+        "line": 260,
+        "text": "Simple cross-fade:"
+      },
+      {
+        "line": 261,
+        "text": "```jsx"
+      },
+      {
+        "line": 262,
+        "text": "<ViewTransition>"
+      },
+      {
+        "line": 263,
+        "text": "  <Suspense fallback={<Skeleton />}><Content /></Suspense>"
+      },
+      {
+        "line": 264,
+        "text": "</ViewTransition>"
+      },
+      {
+        "line": 265,
+        "text": "```"
+      },
+      {
+        "line": 266,
+        "text": ""
+      },
+      {
+        "line": 267,
+        "text": "Directional reveal:"
+      },
+      {
+        "line": 268,
+        "text": "```jsx"
+      },
+      {
+        "line": 269,
+        "text": "<Suspense fallback={<ViewTransition exit=\"slide-down\"><Skeleton /></ViewTransition>}>"
+      },
+      {
+        "line": 270,
+        "text": "  <ViewTransition enter=\"slide-up\" default=\"none\"><Content /></ViewTransition>"
+      },
+      {
+        "line": 271,
+        "text": "</Suspense>"
+      },
+      {
+        "line": 272,
+        "text": "```"
+      },
+      {
+        "line": 273,
+        "text": ""
+      },
+      {
+        "line": 274,
+        "text": "For more patterns, see `references/patterns.md`."
+      },
+      {
+        "line": 275,
+        "text": ""
+      },
+      {
+        "line": 276,
+        "text": "---"
+      },
+      {
+        "line": 277,
+        "text": ""
+      },
+      {
+        "line": 278,
+        "text": "## How Multiple VTs Interact"
+      },
+      {
+        "line": 279,
+        "text": ""
+      },
+      {
+        "line": 280,
+        "text": "Every VT matching the trigger fires simultaneously in a single `document.startViewTransition`. VTs in **different** transitions (navigation vs later Suspense resolve) don't compete."
+      },
+      {
+        "line": 281,
+        "text": ""
+      },
+      {
+        "line": 282,
+        "text": "### Use `default=\"none\"` Liberally"
+      },
+      {
+        "line": 283,
+        "text": ""
+      },
+      {
+        "line": 284,
+        "text": "Without it, every VT fires the browser cross-fade on **every** transition. Suspense resolves, `useDeferredValue` updates, background revalidations. Always use `default=\"none\"` and explicitly enable only desired triggers."
+      },
+      {
+        "line": 285,
+        "text": ""
+      },
+      {
+        "line": 286,
+        "text": "### Two Patterns Coexist"
+      },
+      {
+        "line": 287,
+        "text": ""
+      },
+      {
+        "line": 288,
+        "text": "**Pattern A. Directional slides:** Type-keyed VT on each page, fires during navigation."
+      },
+      {
+        "line": 289,
+        "text": "**Pattern B. Suspense reveals:** Simple string props, fires when data loads (no type)."
+      },
+      {
+        "line": 290,
+        "text": ""
+      },
+      {
+        "line": 291,
+        "text": "They coexist because they fire at different moments. `default=\"none\"` on both prevents cross-interference. Always pair `enter` with `exit`. Place directional VTs in page components, not layouts."
+      },
+      {
+        "line": 292,
+        "text": ""
+      },
+      {
+        "line": 293,
+        "text": "### Nested VT Limitation"
+      },
+      {
+        "line": 294,
+        "text": ""
+      },
+      {
+        "line": 295,
+        "text": "When a parent VT exits, nested VTs inside it do **not** fire their own enter/exit, only the outermost VT animates. Per-item staggered animations during page navigation are not possible today. See [react#36135](https://github.com/facebook/react/pull/36135) for an experimental opt-in fix."
+      },
+      {
+        "line": 296,
+        "text": ""
+      },
+      {
+        "line": 297,
+        "text": "---"
+      },
+      {
+        "line": 298,
+        "text": ""
+      },
+      {
+        "line": 299,
+        "text": "## Next.js Integration"
+      },
+      {
+        "line": 300,
+        "text": ""
+      },
+      {
+        "line": 301,
+        "text": "For Next.js setup (`experimental.viewTransition` flag, `transitionTypes` prop on `next/link`, App Router patterns, Server Components), see `references/nextjs.md`."
+      },
+      {
+        "line": 302,
+        "text": ""
+      },
+      {
+        "line": 303,
+        "text": "---"
+      },
+      {
+        "line": 304,
+        "text": ""
+      },
+      {
+        "line": 305,
+        "text": "## Accessibility"
+      },
+      {
+        "line": 306,
+        "text": ""
+      },
+      {
+        "line": 307,
+        "text": "Always add the reduced motion CSS from `references/css-recipes.md` to your global stylesheet."
+      },
+      {
+        "line": 308,
+        "text": ""
+      },
+      {
+        "line": 309,
+        "text": "---"
+      },
+      {
+        "line": 310,
+        "text": ""
+      },
+      {
+        "line": 311,
+        "text": "## Reference Files"
+      },
+      {
+        "line": 312,
+        "text": ""
+      },
+      {
+        "line": 313,
+        "text": "- **`references/implementation.md`**: Step-by-step implementation workflow."
+      },
+      {
+        "line": 314,
+        "text": "- **`references/patterns.md`**: Patterns, animation timing, events API, troubleshooting."
+      },
+      {
+        "line": 315,
+        "text": "- **`references/css-recipes.md`**: Ready-to-use CSS animation recipes."
+      },
+      {
+        "line": 316,
+        "text": "- **`references/nextjs.md`**: Next.js App Router patterns and Server Component details."
+      },
+      {
+        "line": 317,
+        "text": ""
+      },
+      {
+        "line": 318,
+        "text": "## Full Compiled Document"
+      },
+      {
+        "line": 319,
+        "text": ""
+      },
+      {
+        "line": 320,
+        "text": "For the complete guide with all reference files expanded: `AGENTS.md`"
+      }
+    ],
+    "matched_upstream_skill_path": "agent-skills-HEAD/skills/react-view-transitions/SKILL.md",
+    "repo": "vercel-labs/agent-skills",
+    "repo_reference": "https://github.com/vercel-labs/agent-skills/tree/main/skills/react-view-transitions",
+    "repo_revision": "unknown",
+    "revision_status": "archive-digest-pinned upstream package matched by catalog_slug_package_map",
+    "sha256": "44f13235374fff1bc5510f79f8047c42055144e156456c3ac2bd90e98719241f",
+    "snapshot_path": "sources/catalog-skills/vercel-react-view-transitions/SKILL.md",
+    "source_id": "aiuxplayground:catalog-content:vercel-react-view-transitions"
+  }
+}

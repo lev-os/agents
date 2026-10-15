@@ -1,0 +1,2792 @@
+{
+  "frontmatter": {
+    "fields": {
+      "description": "Apple's approach to interface design and fluid, physical motion, translated for the web. Use when building or reviewing gesture-driven UI, spring animations, drag/swipe/sheet interactions, momentum and interruptible transitions, translucent materials and depth, typography (optical sizing, tracking, leading), reduced-motion, or the design foundations (feedback, spatial consistency, restraint) behind Apple-style interfaces.",
+      "name": "apple-design"
+    },
+    "line_end": 3,
+    "line_start": 1,
+    "raw": "name: apple-design\ndescription: Apple's approach to interface design and fluid, physical motion, translated for the web. Use when building or reviewing gesture-driven UI, spring animations, drag/swipe/sheet interactions, momentum and interruptible transitions, translucent materials and depth, typography (optical sizing, tracking, leading), reduced-motion, or the design foundations (feedback, spatial consistency, restraint) behind Apple-style interfaces.",
+    "status": "present"
+  },
+  "identity": {
+    "catalog_category": "ui-design",
+    "slug": "apple-design",
+    "title": "Apple Design"
+  },
+  "license": {
+    "status": "not stated in captured catalog source",
+    "value": null
+  },
+  "line_count": 282,
+  "ontology": {
+    "actions": [
+      {
+        "evidence": {
+          "line_end": 42,
+          "line_start": 42,
+          "text": "- Use Pointer Events with `setPointerCapture` so tracking continues even when the pointer leaves the element's bounds."
+        },
+        "text": "- Use Pointer Events with `setPointerCapture` so tracking continues even when the pointer leaves the element's bounds."
+      },
+      {
+        "evidence": {
+          "line_end": 60,
+          "line_start": 60,
+          "text": "- **Always animate from the *presentation* (current) value, never the target value.** On interrupt, read the element's live on-screen transform and start the new animation from there. Starting from the logical/target value causes a visible jump."
+        },
+        "text": "- **Always animate from the *presentation* (current) value, never the target value.** On interrupt, read the element's live on-screen transform and start the new animation from there. Starting from the logical/target value causes a visible jump."
+      },
+      {
+        "evidence": {
+          "line_end": 62,
+          "line_start": 62,
+          "text": "- **When a gesture reverses, blend velocity \u2014 don't hard-cut it.** Replacing one animation with another at a reversal creates a velocity discontinuity, a \"brick wall.\" Spring libraries that carry velocity through a re-target avoid it. (This is what iOS's *additive animations* do natively; on the web, choose a spring library that re-targets from the current velocity.)"
+        },
+        "text": "- **When a gesture reverses, blend velocity \u2014 don't hard-cut it.** Replacing one animation with another at a reversal creates a velocity discontinuity, a \"brick wall.\" Spring libraries that carry velocity through a re-target avoid it. (This is what iOS's *additive animations* do natively; on the web, choose a spring library that re-targets from the current velocity.)"
+      },
+      {
+        "evidence": {
+          "line_end": 139,
+          "line_start": 139,
+          "text": "- **Mirror the easing on reversible transitions** so the outbound path matches the return path (use inverse cubic-b\u00e9zier control points for the two directions)."
+        },
+        "text": "- **Mirror the easing on reversible transitions** so the outbound path matches the return path (use inverse cubic-b\u00e9zier control points for the two directions)."
+      },
+      {
+        "evidence": {
+          "line_end": 177,
+          "line_start": 177,
+          "text": "- **Bigger surfaces should read as thicker:** stronger blur + a deeper shadow than small chips. Consider context-aware shadow \u2014 heavier over busy/text content for separation, lighter over plain backgrounds."
+        },
+        "text": "- **Bigger surfaces should read as thicker:** stronger blur + a deeper shadow than small chips. Consider context-aware shadow \u2014 heavier over busy/text content for separation, lighter over plain backgrounds."
+      },
+      {
+        "evidence": {
+          "line_end": 179,
+          "line_start": 179,
+          "text": "- **Vibrancy keeps text legible over changing backgrounds.** Over blurred/translucent surfaces, don't use flat gray text \u2014 use higher-contrast, slightly heavier weight, and a small letter-spacing bump. Put color on a solid layer, not the translucent foreground."
+        },
+        "text": "- **Vibrancy keeps text legible over changing backgrounds.** Over blurred/translucent surfaces, don't use flat gray text \u2014 use higher-contrast, slightly heavier weight, and a small letter-spacing bump. Put color on a solid layer, not the translucent foreground."
+      },
+      {
+        "evidence": {
+          "line_end": 222,
+          "line_start": 222,
+          "text": "- **Tracking (letter-spacing) is size-specific \u2014 never one value for all sizes.** Large display text wants *negative* tracking (letters read too far apart as they grow); small text wants slightly *positive* tracking for legibility. A fixed `letter-spacing` is wrong somewhere. Tighten headings, leave body near `0`."
+        },
+        "text": "- **Tracking (letter-spacing) is size-specific \u2014 never one value for all sizes.** Large display text wants *negative* tracking (letters read too far apart as they grow); small text wants slightly *positive* tracking for legibility. A fixed `letter-spacing` is wrong somewhere. Tighten headings, leave body near `0`."
+      },
+      {
+        "evidence": {
+          "line_end": 223,
+          "line_start": 223,
+          "text": "- **Leading (line-height) tracks size inversely.** Tight on large headings, looser on body copy. Increase it for scripts with tall ascenders/descenders; tighten it for dense, information-heavy UI."
+        },
+        "text": "- **Leading (line-height) tracks size inversely.** Tight on large headings, looser on body copy. Increase it for scripts with tall ascenders/descenders; tighten it for dense, information-heavy UI."
+      },
+      {
+        "evidence": {
+          "line_end": 244,
+          "line_start": 244,
+          "text": "2. **Agency.** Keep people in control: offer choices, don't force a single path. Back it with forgiveness \u2014 easy undo for slips, a confirmation dialog only for genuinely destructive, irreversible actions (use sparingly; overusing it trains people to click through)."
+        },
+        "text": "2. **Agency.** Keep people in control: offer choices, don't force a single path. Back it with forgiveness \u2014 easy undo for slips, a confirmation dialog only for genuinely destructive, irreversible actions (use sparingly; overusing it trains people to click through)."
+      },
+      {
+        "evidence": {
+          "line_end": 245,
+          "line_start": 245,
+          "text": "3. **Responsibility.** Act in the user's interest. Privacy: ask at the right moment, only for what's needed, transparently. Safety: anticipate misuse and harm \u2014 especially with AI (an allergy-aware recipe app must not suggest a harmful ingredient). Add previews, confirmations, disclaimers; cut a feature whose risk outweighs its value."
+        },
+        "text": "3. **Responsibility.** Act in the user's interest. Privacy: ask at the right moment, only for what's needed, transparently. Safety: anticipate misuse and harm \u2014 especially with AI (an allergy-aware recipe app must not suggest a harmful ingredient). Add previews, confirmations, disclaimers; cut a feature whose risk outweighs its value."
+      },
+      {
+        "evidence": {
+          "line_end": 246,
+          "line_start": 246,
+          "text": "4. **Familiarity.** Build on what people already know. Use metaphors that are neither too literal nor too abstract (a trash can means delete), and honor their physics. Be consistent: things that look the same must behave the same and live in the same place (close is always top-left on macOS) so people can predict what happens next. Only break a familiar pattern if you can prove it's better \u2014 then test it, don't assume."
+        },
+        "text": "4. **Familiarity.** Build on what people already know. Use metaphors that are neither too literal nor too abstract (a trash can means delete), and honor their physics. Be consistent: things that look the same must behave the same and live in the same place (close is always top-left on macOS) so people can predict what happens next. Only break a familiar pattern if you can prove it's better \u2014 then test it, don't assume."
+      },
+      {
+        "evidence": {
+          "line_end": 247,
+          "line_start": 247,
+          "text": "5. **Flexibility.** Design for different contexts, devices, and the full range of abilities. Adapt to the platform (iPhone = quick touch; desktop = deep workflows with precise pointer control) and to the situation. Design inclusively (age, language, expertise, accessibility). When no single layout fits everyone, let people personalize \u2014 rearrange controls, hide what they don't use."
+        },
+        "text": "5. **Flexibility.** Design for different contexts, devices, and the full range of abilities. Adapt to the platform (iPhone = quick touch; desktop = deep workflows with precise pointer control) and to the situation. Design inclusively (age, language, expertise, accessibility). When no single layout fits everyone, let people personalize \u2014 rearrange controls, hide what they don't use."
+      },
+      {
+        "evidence": {
+          "line_end": 248,
+          "line_start": 248,
+          "text": "6. **Simplicity \u2014 not minimalism.** Strip the unnecessary so the core purpose shines; burying everything in one place looks minimal but isn't simple. Be concise (plain language, no jargon, fewer steps) and clear (use hierarchy \u2014 order, spacing, contrast \u2014 so the most important thing is the most obvious). Every element earns its place; sometimes *adding* context simplifies (a video scrubber that shows time remaining). Show the common path first, advanced options one level deeper."
+        },
+        "text": "6. **Simplicity \u2014 not minimalism.** Strip the unnecessary so the core purpose shines; burying everything in one place looks minimal but isn't simple. Be concise (plain language, no jargon, fewer steps) and clear (use hierarchy \u2014 order, spacing, contrast \u2014 so the most important thing is the most obvious). Every element earns its place; sometimes *adding* context simplifies (a video scrubber that shows time remaining). Show the common path first, advanced options one level deeper."
+      },
+      {
+        "evidence": {
+          "line_end": 249,
+          "line_start": 249,
+          "text": "7. **Craft.** Uncompromising attention to detail builds trust. Beautiful typography, colors that adapt to light/dark, clear iconography, and responsive animations that give immediate, natural feedback. Nothing is random \u2014 every spacing, timing, and alignment value is a deliberate choice you can defend. Jittery scroll, misaligned icons, and layouts that break on rotation read as carelessness. Craft needs iteration and longevity \u2014 keep evolving the design as features and hardware change."
+        },
+        "text": "7. **Craft.** Uncompromising attention to detail builds trust. Beautiful typography, colors that adapt to light/dark, clear iconography, and responsive animations that give immediate, natural feedback. Nothing is random \u2014 every spacing, timing, and alignment value is a deliberate choice you can defend. Jittery scroll, misaligned icons, and layouts that break on rotation read as carelessness. Craft needs iteration and longevity \u2014 keep evolving the design as features and hardware change."
+      },
+      {
+        "evidence": {
+          "line_end": 254,
+          "line_start": 254,
+          "text": "- **Feedback comes in four kinds:** status, completion, warning, error. Confirm meaningful actions, expose ongoing status, warn before problems, validate inline (not on submit)."
+        },
+        "text": "- **Feedback comes in four kinds:** status, completion, warning, error. Confirm meaningful actions, expose ongoing status, warn before problems, validate inline (not on submit)."
+      },
+      {
+        "evidence": {
+          "line_end": 263,
+          "line_start": 263,
+          "text": "- **Test with real people in real context**, and review motion with fresh eyes \u2014 play it in slow motion / frame-by-frame to catch what's invisible at full speed."
+        },
+        "text": "- **Test with real people in real context**, and review motion with fresh eyes \u2014 play it in slow motion / frame-by-frame to catch what's invisible at full speed."
+      }
+    ],
+    "command_examples": [],
+    "constraints": [
+      {
+        "evidence": {
+          "line_end": 26,
+          "line_start": 26,
+          "text": "- **Feedback must be continuous *during* the interaction, not just at the end.** For a drag, slider, or drawer, update the UI 1:1 with the pointer the whole way through \u2014 never animate only when the gesture completes."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Feedback must be continuous *during* the interaction, not just at the end.** For a drag, slider, or drawer, update the UI 1:1 with the pointer the whole way through \u2014 never animate only when the gesture completes."
+      },
+      {
+        "evidence": {
+          "line_end": 59,
+          "line_start": 59,
+          "text": "- **Never lock out input during a transition.**"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Never lock out input during a transition.**"
+      },
+      {
+        "evidence": {
+          "line_end": 60,
+          "line_start": 60,
+          "text": "- **Always animate from the *presentation* (current) value, never the target value.** On interrupt, read the element's live on-screen transform and start the new animation from there. Starting from the logical/target value causes a visible jump."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Always animate from the *presentation* (current) value, never the target value.** On interrupt, read the element's live on-screen transform and start the new animation from there. Starting from the logical/target value causes a visible jump."
+      },
+      {
+        "evidence": {
+          "line_end": 62,
+          "line_start": 62,
+          "text": "- **When a gesture reverses, blend velocity \u2014 don't hard-cut it.** Replacing one animation with another at a reversal creates a velocity discontinuity, a \"brick wall.\" Spring libraries that carry velocity through a re-target avoid it. (This is what iOS's *additive animations* do natively; on the web, choose a spring library that re-targets from the current velocity.)"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **When a gesture reverses, blend velocity \u2014 don't hard-cut it.** Replacing one animation with another at a reversal creates a velocity discontinuity, a \"brick wall.\" Spring libraries that carry velocity through a re-target avoid it. (This is what iOS's *additive animations* do natively; on the web, choose a spring library that re-targets from the current velocity.)"
+      },
+      {
+        "evidence": {
+          "line_end": 78,
+          "line_start": 78,
+          "text": "- Add bounce (**damping ~`0.8`**) **only when the gesture itself carried momentum** (a flick, a throw, a drag release). Overshoot on a menu that just faded in feels wrong; overshoot on a card you flicked feels right."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- Add bounce (**damping ~`0.8`**) **only when the gesture itself carried momentum** (a flick, a throw, a drag release). Overshoot on a menu that just faded in feels wrong; overshoot on a card you flicked feels right."
+      },
+      {
+        "evidence": {
+          "line_end": 116,
+          "line_start": 116,
+          "text": "Don't snap to the nearest boundary from the *release point*. Use velocity to **project the resting position** \u2014 exactly like scroll deceleration \u2014 then snap to the target nearest that projected point. This is what makes a flick feel like it throws the element."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Don't snap to the nearest boundary from the *release point*. Use velocity to **project the resting position** \u2014 exactly like scroll deceleration \u2014 then snap to the target nearest that projected point. This is what makes a flick feel like it throws the element."
+      },
+      {
+        "evidence": {
+          "line_end": 160,
+          "line_start": 160,
+          "text": "- **Detect all plausible gestures in parallel from the first move**, then confidently cancel the losers once intent is clear. Avoid recognizers that only report a *final* state (`swipeleft`-type events) \u2014 they throw away the continuous tracking you need for feedback."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Detect all plausible gestures in parallel from the first move**, then confidently cancel the losers once intent is clear. Avoid recognizers that only report a *final* state (`swipeleft`-type events) \u2014 they throw away the continuous tracking you need for feedback."
+      },
+      {
+        "evidence": {
+          "line_end": 161,
+          "line_start": 161,
+          "text": "- **Minimize disambiguation delays.** Double-tap detection unavoidably delays single taps; only pay that cost where double-tap truly exists."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Minimize disambiguation delays.** Double-tap detection unavoidably delays single taps; only pay that cost where double-tap truly exists."
+      },
+      {
+        "evidence": {
+          "line_end": 169,
+          "line_start": 169,
+          "text": "- `requestAnimationFrame` is the web's display-synced clock (Apple uses `CADisplayLink`). Animate only compositor-friendly properties \u2014 `transform` and `opacity` \u2014 and hint with `will-change` where motion is imminent."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- `requestAnimationFrame` is the web's display-synced clock (Apple uses `CADisplayLink`). Animate only compositor-friendly properties \u2014 `transform` and `opacity` \u2014 and hint with `will-change` where motion is imminent."
+      },
+      {
+        "evidence": {
+          "line_end": 176,
+          "line_start": 176,
+          "text": "- **Material weight encodes hierarchy:** darker/heavier materials separate structural regions (sidebars); lighter materials draw attention to interactive elements (buttons). **Never stack a light translucent surface on another** \u2014 legibility collapses."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Material weight encodes hierarchy:** darker/heavier materials separate structural regions (sidebars); lighter materials draw attention to interactive elements (buttons). **Never stack a light translucent surface on another** \u2014 legibility collapses."
+      },
+      {
+        "evidence": {
+          "line_end": 179,
+          "line_start": 179,
+          "text": "- **Vibrancy keeps text legible over changing backgrounds.** Over blurred/translucent surfaces, don't use flat gray text \u2014 use higher-contrast, slightly heavier weight, and a small letter-spacing bump. Put color on a solid layer, not the translucent foreground."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Vibrancy keeps text legible over changing backgrounds.** Over blurred/translucent surfaces, don't use flat gray text \u2014 use higher-contrast, slightly heavier weight, and a small letter-spacing bump. Put color on a solid layer, not the translucent foreground."
+      },
+      {
+        "evidence": {
+          "line_end": 180,
+          "line_start": 180,
+          "text": "- **Scroll edge effects, not hard dividers.** Instead of a 1px border under a sticky header, fade a small blur/gradient mask where content meets floating chrome \u2014 only where floating UI actually overlaps content."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Scroll edge effects, not hard dividers.** Instead of a 1px border under a sticky header, fade a small blur/gradient mask where content meets floating chrome \u2014 only where floating UI actually overlaps content."
+      },
+      {
+        "evidence": {
+          "line_end": 181,
+          "line_start": 181,
+          "text": "- **Materialize, don't just fade.** For glass/blur surfaces, animate blur radius and scale together on enter/exit, so the surface reads as a real material arriving rather than a plain opacity fade."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Materialize, don't just fade.** For glass/blur surfaces, animate blur radius and scale together on enter/exit, so the surface reads as a real material arriving rather than a plain opacity fade."
+      },
+      {
+        "evidence": {
+          "line_end": 196,
+          "line_start": 196,
+          "text": "2. **Harmony** \u2014 the visual, the sound, and the haptic must fire on the **same frame**. Latency between them destroys the illusion. Don't let a CSS transition lag the audio/haptic (Vibration API)."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "2. **Harmony** \u2014 the visual, the sound, and the haptic must fire on the **same frame**. Latency between them destroys the illusion. Don't let a CSS transition lag the audio/haptic (Vibration API)."
+      },
+      {
+        "evidence": {
+          "line_end": 197,
+          "line_start": 197,
+          "text": "3. **Utility** \u2014 add feedback only where it earns its place. Reserve haptics/sound for meaningful moments (success, error, commit, snap). Over-feedback trains users to ignore all of it."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "3. **Utility** \u2014 add feedback only where it earns its place. Reserve haptics/sound for meaningful moments (success, error, commit, snap). Over-feedback trains users to ignore all of it."
+      },
+      {
+        "evidence": {
+          "line_end": 222,
+          "line_start": 222,
+          "text": "- **Tracking (letter-spacing) is size-specific \u2014 never one value for all sizes.** Large display text wants *negative* tracking (letters read too far apart as they grow); small text wants slightly *positive* tracking for legibility. A fixed `letter-spacing` is wrong somewhere. Tighten headings, leave body near `0`."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Tracking (letter-spacing) is size-specific \u2014 never one value for all sizes.** Large display text wants *negative* tracking (letters read too far apart as they grow); small text wants slightly *positive* tracking for legibility. A fixed `letter-spacing` is wrong somewhere. Tighten headings, leave body near `0`."
+      },
+      {
+        "evidence": {
+          "line_end": 226,
+          "line_start": 226,
+          "text": "- **Default to the platform's system font** before a custom face; it already ships optical sizing, tracking tables, and legibility tuning. Override only with a reason."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Default to the platform's system font** before a custom face; it already ships optical sizing, tracking tables, and legibility tuning. Override only with a reason."
+      },
+      {
+        "evidence": {
+          "line_end": 243,
+          "line_start": 243,
+          "text": "1. **Purpose.** Make with intention; decide what *not* to build. Every feature asks for the user's time, attention, and trust \u2014 spend that budget only where it pays off."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "1. **Purpose.** Make with intention; decide what *not* to build. Every feature asks for the user's time, attention, and trust \u2014 spend that budget only where it pays off."
+      },
+      {
+        "evidence": {
+          "line_end": 244,
+          "line_start": 244,
+          "text": "2. **Agency.** Keep people in control: offer choices, don't force a single path. Back it with forgiveness \u2014 easy undo for slips, a confirmation dialog only for genuinely destructive, irreversible actions (use sparingly; overusing it trains people to click through)."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "2. **Agency.** Keep people in control: offer choices, don't force a single path. Back it with forgiveness \u2014 easy undo for slips, a confirmation dialog only for genuinely destructive, irreversible actions (use sparingly; overusing it trains people to click through)."
+      },
+      {
+        "evidence": {
+          "line_end": 245,
+          "line_start": 245,
+          "text": "3. **Responsibility.** Act in the user's interest. Privacy: ask at the right moment, only for what's needed, transparently. Safety: anticipate misuse and harm \u2014 especially with AI (an allergy-aware recipe app must not suggest a harmful ingredient). Add previews, confirmations, disclaimers; cut a feature whose risk outweighs its value."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "3. **Responsibility.** Act in the user's interest. Privacy: ask at the right moment, only for what's needed, transparently. Safety: anticipate misuse and harm \u2014 especially with AI (an allergy-aware recipe app must not suggest a harmful ingredient). Add previews, confirmations, disclaimers; cut a feature whose risk outweighs its value."
+      },
+      {
+        "evidence": {
+          "line_end": 246,
+          "line_start": 246,
+          "text": "4. **Familiarity.** Build on what people already know. Use metaphors that are neither too literal nor too abstract (a trash can means delete), and honor their physics. Be consistent: things that look the same must behave the same and live in the same place (close is always top-left on macOS) so people can predict what happens next. Only break a familiar pattern if you can prove it's better \u2014 then test it, don't assume."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "4. **Familiarity.** Build on what people already know. Use metaphors that are neither too literal nor too abstract (a trash can means delete), and honor their physics. Be consistent: things that look the same must behave the same and live in the same place (close is always top-left on macOS) so people can predict what happens next. Only break a familiar pattern if you can prove it's better \u2014 then test it, don't assume."
+      },
+      {
+        "evidence": {
+          "line_end": 247,
+          "line_start": 247,
+          "text": "5. **Flexibility.** Design for different contexts, devices, and the full range of abilities. Adapt to the platform (iPhone = quick touch; desktop = deep workflows with precise pointer control) and to the situation. Design inclusively (age, language, expertise, accessibility). When no single layout fits everyone, let people personalize \u2014 rearrange controls, hide what they don't use."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "5. **Flexibility.** Design for different contexts, devices, and the full range of abilities. Adapt to the platform (iPhone = quick touch; desktop = deep workflows with precise pointer control) and to the situation. Design inclusively (age, language, expertise, accessibility). When no single layout fits everyone, let people personalize \u2014 rearrange controls, hide what they don't use."
+      },
+      {
+        "evidence": {
+          "line_end": 255,
+          "line_start": 255,
+          "text": "- **Wayfinding.** Every screen should answer: Where am I? Where can I go? What's there? How do I get out? Never trap the user."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Wayfinding.** Every screen should answer: Where am I? Where can I go? What's there? How do I get out? Never trap the user."
+      },
+      {
+        "evidence": {
+          "line_end": 278,
+          "line_start": 278,
+          "text": "| Feedback | On pointer-down, continuous | never only at the end |"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "| Feedback | On pointer-down, continuous | never only at the end |"
+      },
+      {
+        "evidence": {
+          "line_end": 279,
+          "line_start": 279,
+          "text": "| Boundary | Rubber-band, don't hard-stop | progressive resistance |"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "| Boundary | Rubber-band, don't hard-stop | progressive resistance |"
+      },
+      {
+        "evidence": {
+          "line_end": 281,
+          "line_start": 281,
+          "text": "| Type tracking | Size-specific, never fixed | tighten large text (`-0.02em`), body near `0` |"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "| Type tracking | Size-specific, never fixed | tighten large text (`-0.02em`), body near `0` |"
+      }
+    ],
+    "effects": [
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 14,
+          "line_start": 14,
+          "text": "> \"When we align the interface to the way we think and move, something magical happens \u2014 it stops feeling like a computer and starts feeling like a seamless extension of us.\""
+        },
+        "modality": "conditional",
+        "text": "> \"When we align the interface to the way we think and move, something magical happens \u2014 it stops feeling like a computer and starts feeling like a seamless extension of us.\"",
+        "verb": "move"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 16,
+          "line_start": 16,
+          "text": "An interface is fluid when it behaves like the physical world: things respond instantly, move continuously, carry momentum, resist at boundaries, and can be redirected mid-motion. Everything below is a way to get closer to that."
+        },
+        "modality": "conditional",
+        "text": "An interface is fluid when it behaves like the physical world: things respond instantly, move continuously, carry momentum, resist at boundaries, and can be redirected mid-motion. Everything below is a way to get closer to that.",
+        "verb": "move"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 38,
+          "line_start": 38,
+          "text": "> \"Touch and content should move together.\""
+        },
+        "modality": "unspecified",
+        "text": "> \"Touch and content should move together.\"",
+        "verb": "move"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 84,
+          "line_start": 84,
+          "text": "| Move / reposition (e.g. PiP) | `1.0` | `0.4` |"
+        },
+        "modality": "unspecified",
+        "text": "| Move / reposition (e.g. PiP) | `1.0` | `0.4` |",
+        "verb": "move"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 158,
+          "line_start": 158,
+          "text": "- **Tap:** highlight on touch-*down* (instant), commit on touch-*up*. Add ~10px of hysteresis/hit padding around the target, and allow cancel-by-dragging-away and back."
+        },
+        "modality": "unspecified",
+        "text": "- **Tap:** highlight on touch-*down* (instant), commit on touch-*up*. Add ~10px of hysteresis/hit padding around the target, and allow cancel-by-dragging-away and back.",
+        "verb": "commit"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 160,
+          "line_start": 160,
+          "text": "- **Detect all plausible gestures in parallel from the first move**, then confidently cancel the losers once intent is clear. Avoid recognizers that only report a *final* state (`swipeleft`-type events) \u2014 they throw away the continuous tracking you need for feedback."
+        },
+        "modality": "unspecified",
+        "text": "- **Detect all plausible gestures in parallel from the first move**, then confidently cancel the losers once intent is clear. Avoid recognizers that only report a *final* state (`swipeleft`-type events) \u2014 they throw away the continuous tracking you need for feedback.",
+        "verb": "move"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 197,
+          "line_start": 197,
+          "text": "3. **Utility** \u2014 add feedback only where it earns its place. Reserve haptics/sound for meaningful moments (success, error, commit, snap). Over-feedback trains users to ignore all of it."
+        },
+        "modality": "unspecified",
+        "text": "3. **Utility** \u2014 add feedback only where it earns its place. Reserve haptics/sound for meaningful moments (success, error, commit, snap). Over-feedback trains users to ignore all of it.",
+        "verb": "commit"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 223,
+          "line_start": 223,
+          "text": "- **Leading (line-height) tracks size inversely.** Tight on large headings, looser on body copy. Increase it for scripts with tall ascenders/descenders; tighten it for dense, information-heavy UI."
+        },
+        "modality": "unspecified",
+        "text": "- **Leading (line-height) tracks size inversely.** Tight on large headings, looser on body copy. Increase it for scripts with tall ascenders/descenders; tighten it for dense, information-heavy UI.",
+        "verb": "copy"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 246,
+          "line_start": 246,
+          "text": "4. **Familiarity.** Build on what people already know. Use metaphors that are neither too literal nor too abstract (a trash can means delete), and honor their physics. Be consistent: things that look the same must behave the same and live in the same place (close is always top-left on macOS) so people can predict what happens next. Only break a familiar pattern if you can prove it's better \u2014 then test it, don't assume."
+        },
+        "modality": "permitted",
+        "text": "4. **Familiarity.** Build on what people already know. Use metaphors that are neither too literal nor too abstract (a trash can means delete), and honor their physics. Be consistent: things that look the same must behave the same and live in the same place (close is always top-left on macOS) so people can predict what happens next. Only break a familiar pattern if you can prove it's better \u2014 then test it, don't assume.",
+        "verb": "delete"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 254,
+          "line_start": 254,
+          "text": "- **Feedback comes in four kinds:** status, completion, warning, error. Confirm meaningful actions, expose ongoing status, warn before problems, validate inline (not on submit)."
+        },
+        "modality": "unspecified",
+        "text": "- **Feedback comes in four kinds:** status, completion, warning, error. Confirm meaningful actions, expose ongoing status, warn before problems, validate inline (not on submit).",
+        "verb": "submit"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 276,
+          "line_start": 276,
+          "text": "| Decide reverse vs. commit | Use velocity **sign**, not position | at release |"
+        },
+        "modality": "unspecified",
+        "text": "| Decide reverse vs. commit | Use velocity **sign**, not position | at release |",
+        "verb": "commit"
+      }
+    ],
+    "external_urls": [],
+    "headings": [
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 6,
+        "title": "Apple Design"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 12,
+        "title": "The Core Idea"
+      },
+      {
+        "bullets": [
+          {
+            "line": 24,
+            "text": "**Respond on pointer-down, not on release.** Highlight a button the instant it's pressed. Waiting for `click`/touch-up to show feedback feels dead."
+          },
+          {
+            "line": 25,
+            "text": "**Be vigilant about every latency.** Audit debounces, artificial timers, transition waits, and the ~300ms tap delay. Anything on the input path that isn't essential is a regression."
+          },
+          {
+            "line": 26,
+            "text": "**Feedback must be continuous *during* the interaction, not just at the end.** For a drag, slider, or drawer, update the UI 1:1 with the pointer the whole way through \u2014 never animate only when the gesture completes."
+          }
+        ],
+        "level": 2,
+        "line": 20,
+        "title": "1. Response \u2014 kill latency"
+      },
+      {
+        "bullets": [
+          {
+            "line": 42,
+            "text": "Use Pointer Events with `setPointerCapture` so tracking continues even when the pointer leaves the element's bounds."
+          },
+          {
+            "line": 43,
+            "text": "Track a short **velocity/position history** (last few `pointermove` events), not just the current point \u2014 you'll need velocity at release."
+          }
+        ],
+        "level": 2,
+        "line": 36,
+        "title": "2. Direct manipulation \u2014 1:1 tracking"
+      },
+      {
+        "bullets": [
+          {
+            "line": 59,
+            "text": "**Never lock out input during a transition.**"
+          },
+          {
+            "line": 60,
+            "text": "**Always animate from the *presentation* (current) value, never the target value.** On interrupt, read the element's live on-screen transform and start the new animation from there. Starting from the logical/target value causes a visible jump."
+          },
+          {
+            "line": 61,
+            "text": "**Avoid CSS transitions and `@keyframes` for anything gesture-driven** \u2014 they can't be smoothly grabbed and reversed mid-flight. Springs animate from the current value by default, which is exactly what interruption needs."
+          },
+          {
+            "line": 62,
+            "text": "**When a gesture reverses, blend velocity \u2014 don't hard-cut it.** Replacing one animation with another at a reversal creates a velocity discontinuity, a \"brick wall.\" Spring libraries that carry velocity through a re-target avoid it. (This is what iOS's *additive animations* do natively; on the web, choose a spring library that re-targets from the current velocity.)"
+          },
+          {
+            "line": 63,
+            "text": "**Decompose 2D motion into independent X and Y springs.** A single spring on a 2D distance desyncs when X and Y have different velocities."
+          }
+        ],
+        "level": 2,
+        "line": 53,
+        "title": "3. Interruptibility \u2014 the single most important principle"
+      },
+      {
+        "bullets": [
+          {
+            "line": 73,
+            "text": "**Damping ratio** \u2014 controls overshoot. `1.0` = critically damped, no bounce, smooth settle. `< 1.0` = overshoots and oscillates. Lower = bouncier."
+          },
+          {
+            "line": 74,
+            "text": "**Response** \u2014 how quickly the value reaches the target, in seconds. Lower = snappier. **This is not \"duration\"** \u2014 a spring has no fixed duration; its settle time emerges from the parameters."
+          },
+          {
+            "line": 77,
+            "text": "Start most UI at **damping `1.0`** (critically damped) \u2014 graceful and non-distracting."
+          },
+          {
+            "line": 78,
+            "text": "Add bounce (**damping ~`0.8`**) **only when the gesture itself carried momentum** (a flick, a throw, a drag release). Overshoot on a menu that just faded in feels wrong; overshoot on a card you flicked feels right."
+          }
+        ],
+        "level": 2,
+        "line": 65,
+        "title": "4. Behavior over animation \u2014 use springs"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 100,
+        "title": "5. Velocity handoff \u2014 the seam between drag and animation"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 112,
+        "title": "6. Momentum projection \u2014 animate to where the gesture is *going*"
+      },
+      {
+        "bullets": [
+          {
+            "line": 137,
+            "text": "**Enter and exit along the same path.** A panel that slides in from the right must dismiss to the right. In-from-right / out-the-bottom feels disconnected and confusing."
+          },
+          {
+            "line": 138,
+            "text": "**Anchor interactions to their source.** A menu, popover, or sheet should originate from the element that triggered it \u2014 set `transform-origin` to the trigger, so the spatial relationship between button and content is obvious. (This is the same origin-awareness point as popovers scaling from their trigger, not their center.)"
+          },
+          {
+            "line": 139,
+            "text": "**Mirror the easing on reversible transitions** so the outbound path matches the return path (use inverse cubic-b\u00e9zier control points for the two directions)."
+          }
+        ],
+        "level": 2,
+        "line": 133,
+        "title": "7. Spatial consistency \u2014 symmetric paths, anchored origins"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 141,
+        "title": "8. Hint in the direction of the gesture"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 145,
+        "title": "9. Rubber-banding \u2014 soft boundaries"
+      },
+      {
+        "bullets": [
+          {
+            "line": 158,
+            "text": "**Tap:** highlight on touch-*down* (instant), commit on touch-*up*. Add ~10px of hysteresis/hit padding around the target, and allow cancel-by-dragging-away and back."
+          },
+          {
+            "line": 159,
+            "text": "**Drag/swipe:** require a small movement threshold (hysteresis, ~10px) before committing to a direction, then track 1:1."
+          },
+          {
+            "line": 160,
+            "text": "**Detect all plausible gestures in parallel from the first move**, then confidently cancel the losers once intent is clear. Avoid recognizers that only report a *final* state (`swipeleft`-type events) \u2014 they throw away the continuous tracking you need for feedback."
+          },
+          {
+            "line": 161,
+            "text": "**Minimize disambiguation delays.** Double-tap detection unavoidably delays single taps; only pay that cost where double-tap truly exists."
+          }
+        ],
+        "level": 2,
+        "line": 156,
+        "title": "10. Gesture design details (the \"feel\" checklist)"
+      },
+      {
+        "bullets": [
+          {
+            "line": 167,
+            "text": "Keep the per-frame positional change below the perception threshold to avoid strobing."
+          },
+          {
+            "line": 168,
+            "text": "For very fast motion, a subtle **motion blur / stretch** encodes speed and reads better than a hard sharp streak."
+          },
+          {
+            "line": 169,
+            "text": "`requestAnimationFrame` is the web's display-synced clock (Apple uses `CADisplayLink`). Animate only compositor-friendly properties \u2014 `transform` and `opacity` \u2014 and hint with `will-change` where motion is imminent."
+          }
+        ],
+        "level": 2,
+        "line": 163,
+        "title": "11. Frame-level smoothness"
+      },
+      {
+        "bullets": [
+          {
+            "line": 175,
+            "text": "**Build nav/toolbars/sheets as translucent layers** (`backdrop-filter: blur()` + a semi-transparent background) with content scrolling underneath \u2014 not opaque bars that consume a fixed strip."
+          },
+          {
+            "line": 176,
+            "text": "**Material weight encodes hierarchy:** darker/heavier materials separate structural regions (sidebars); lighter materials draw attention to interactive elements (buttons). **Never stack a light translucent surface on another** \u2014 legibility collapses."
+          },
+          {
+            "line": 177,
+            "text": "**Bigger surfaces should read as thicker:** stronger blur + a deeper shadow than small chips. Consider context-aware shadow \u2014 heavier over busy/text content for separation, lighter over plain backgrounds."
+          },
+          {
+            "line": 178,
+            "text": "**Dim to focus, separate to keep flow.** A modal task pairs the surface with a dimming scrim and pushes the background back/down. A parallel, non-blocking panel uses translucency and offset *without* a scrim so the flow isn't broken. For stacked sheets, progressively dim and push back each parent layer."
+          },
+          {
+            "line": 179,
+            "text": "**Vibrancy keeps text legible over changing backgrounds.** Over blurred/translucent surfaces, don't use flat gray text \u2014 use higher-contrast, slightly heavier weight, and a small letter-spacing bump. Put color on a solid layer, not the translucent foreground."
+          },
+          {
+            "line": 180,
+            "text": "**Scroll edge effects, not hard dividers.** Instead of a 1px border under a sticky header, fade a small blur/gradient mask where content meets floating chrome \u2014 only where floating UI actually overlaps content."
+          },
+          {
+            "line": 181,
+            "text": "**Materialize, don't just fade.** For glass/blur surfaces, animate blur radius and scale together on enter/exit, so the surface reads as a real material arriving rather than a plain opacity fade."
+          }
+        ],
+        "level": 2,
+        "line": 171,
+        "title": "12. Materials & depth \u2014 translucency conveys hierarchy"
+      },
+      {
+        "bullets": [
+          {
+            "line": 195,
+            "text": "**Causality** \u2014 it must be obvious what caused the feedback. Trigger it on the actual causal event (the toggle flipping, the item snapping home), and match its character to the action's physicality."
+          },
+          {
+            "line": 196,
+            "text": "**Harmony** \u2014 the visual, the sound, and the haptic must fire on the **same frame**. Latency between them destroys the illusion. Don't let a CSS transition lag the audio/haptic (Vibration API)."
+          },
+          {
+            "line": 197,
+            "text": "**Utility** \u2014 add feedback only where it earns its place. Reserve haptics/sound for meaningful moments (success, error, commit, snap). Over-feedback trains users to ignore all of it."
+          }
+        ],
+        "level": 2,
+        "line": 191,
+        "title": "13. Multimodal feedback \u2014 motion + sound + haptics"
+      },
+      {
+        "bullets": [
+          {
+            "line": 203,
+            "text": "**`prefers-reduced-motion: reduce`** \u2014 replace slides/springs/parallax with short opacity **cross-fades or static transitions**. Drop elastic/overshoot. Keep opacity/color changes that aid comprehension."
+          },
+          {
+            "line": 204,
+            "text": "**`prefers-reduced-transparency: reduce`** \u2014 make translucent surfaces frostier/solid: raise background opacity, drop the blur."
+          },
+          {
+            "line": 205,
+            "text": "**`prefers-contrast: more`** \u2014 near-solid backgrounds with a defined, contrasting border."
+          }
+        ],
+        "level": 2,
+        "line": 199,
+        "title": "14. Reduced motion & accessibility"
+      },
+      {
+        "bullets": [
+          {
+            "line": 222,
+            "text": "**Tracking (letter-spacing) is size-specific \u2014 never one value for all sizes.** Large display text wants *negative* tracking (letters read too far apart as they grow); small text wants slightly *positive* tracking for legibility. A fixed `letter-spacing` is wrong somewhere. Tighten headings, leave body near `0`."
+          },
+          {
+            "line": 223,
+            "text": "**Leading (line-height) tracks size inversely.** Tight on large headings, looser on body copy. Increase it for scripts with tall ascenders/descenders; tighten it for dense, information-heavy UI."
+          },
+          {
+            "line": 224,
+            "text": "**Build hierarchy from weight + size + leading as a set,** not size alone. Emphasize with weight \u2014 it adds presence without taking more space."
+          },
+          {
+            "line": 225,
+            "text": "**Respect the user's text-size setting** (Dynamic Type). Scale layout *with* the text \u2014 spacing in `rem`/`em`, not fixed px \u2014 so a larger font doesn't break the layout."
+          },
+          {
+            "line": 226,
+            "text": "**Default to the platform's system font** before a custom face; it already ships optical sizing, tracking tables, and legibility tuning. Override only with a reason."
+          }
+        ],
+        "level": 2,
+        "line": 218,
+        "title": "15. Typography \u2014 optical sizing, tracking, leading"
+      },
+      {
+        "bullets": [
+          {
+            "line": 243,
+            "text": "**Purpose.** Make with intention; decide what *not* to build. Every feature asks for the user's time, attention, and trust \u2014 spend that budget only where it pays off."
+          },
+          {
+            "line": 244,
+            "text": "**Agency.** Keep people in control: offer choices, don't force a single path. Back it with forgiveness \u2014 easy undo for slips, a confirmation dialog only for genuinely destructive, irreversible actions (use sparingly; overusing it trains people to click through)."
+          },
+          {
+            "line": 245,
+            "text": "**Responsibility.** Act in the user's interest. Privacy: ask at the right moment, only for what's needed, transparently. Safety: anticipate misuse and harm \u2014 especially with AI (an allergy-aware recipe app must not suggest a harmful ingredient). Add previews, confirmations, disclaimers; cut a feature whose risk outweighs its value."
+          },
+          {
+            "line": 246,
+            "text": "**Familiarity.** Build on what people already know. Use metaphors that are neither too literal nor too abstract (a trash can means delete), and honor their physics. Be consistent: things that look the same must behave the same and live in the same place (close is always top-left on macOS) so people can predict what happens next. Only break a familiar pattern if you can prove it's better \u2014 then test it, don't assume."
+          },
+          {
+            "line": 247,
+            "text": "**Flexibility.** Design for different contexts, devices, and the full range of abilities. Adapt to the platform (iPhone = quick touch; desktop = deep workflows with precise pointer control) and to the situation. Design inclusively (age, language, expertise, accessibility). When no single layout fits everyone, let people personalize \u2014 rearrange controls, hide what they don't use."
+          },
+          {
+            "line": 248,
+            "text": "**Simplicity \u2014 not minimalism.** Strip the unnecessary so the core purpose shines; burying everything in one place looks minimal but isn't simple. Be concise (plain language, no jargon, fewer steps) and clear (use hierarchy \u2014 order, spacing, contrast \u2014 so the most important thing is the most obvious). Every element earns its place; sometimes *adding* context simplifies (a video scrubber that shows time remaining). Show the common path first, advanced options one level deeper."
+          },
+          {
+            "line": 249,
+            "text": "**Craft.** Uncompromising attention to detail builds trust. Beautiful typography, colors that adapt to light/dark, clear iconography, and responsive animations that give immediate, natural feedback. Nothing is random \u2014 every spacing, timing, and alignment value is a deliberate choice you can defend. Jittery scroll, misaligned icons, and layouts that break on rotation read as carelessness. Craft needs iteration and longevity \u2014 keep evolving the design as features and hardware change."
+          },
+          {
+            "line": 250,
+            "text": "**Delight.** The result of getting the other seven right, not confetti tacked on top. Decide the emotion you want people to feel (calm, confident, excited) and reinforce it in every decision."
+          },
+          {
+            "line": 254,
+            "text": "**Feedback comes in four kinds:** status, completion, warning, error. Confirm meaningful actions, expose ongoing status, warn before problems, validate inline (not on submit)."
+          },
+          {
+            "line": 255,
+            "text": "**Wayfinding.** Every screen should answer: Where am I? Where can I go? What's there? How do I get out? Never trap the user."
+          },
+          {
+            "line": 256,
+            "text": "**Grouping & mapping.** Proximity implies relationship; place a control near what it affects and arrange controls to mirror what they change. If you need a label to explain a control, the mapping is weak."
+          },
+          {
+            "line": 257,
+            "text": "**Direct, specific labels beat safe generic ones.** Name nav items for their contents (\"Progress\", \"Library\"), not vague umbrellas (\"Home\"). Specificity creates predictability."
+          }
+        ],
+        "level": 2,
+        "line": 239,
+        "title": "16. Design foundations \u2014 the eight principles"
+      },
+      {
+        "bullets": [
+          {
+            "line": 261,
+            "text": "**Prototype interactively \u2014 an interactive demo is worth \"a million static designs.\"** You discover the interface by building and playing with it; a working prototype also sets a concrete bar that prevents a mediocre final implementation."
+          },
+          {
+            "line": 262,
+            "text": "**Design interaction and visuals together.** \"You shouldn't be able to tell where one ends and the other begins.\" Motion is not a layer added after the pixels."
+          },
+          {
+            "line": 263,
+            "text": "**Test with real people in real context**, and review motion with fresh eyes \u2014 play it in slow motion / frame-by-frame to catch what's invisible at full speed."
+          }
+        ],
+        "level": 2,
+        "line": 259,
+        "title": "17. Process"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 265,
+        "title": "Quick Reference"
+      }
+    ],
+    "inputs": [
+      {
+        "evidence": {
+          "line_end": 25,
+          "line_start": 25,
+          "text": "- **Be vigilant about every latency.** Audit debounces, artificial timers, transition waits, and the ~300ms tap delay. Anything on the input path that isn't essential is a regression."
+        },
+        "status": "input_candidate",
+        "text": "- **Be vigilant about every latency.** Audit debounces, artificial timers, transition waits, and the ~300ms tap delay. Anything on the input path that isn't essential is a regression."
+      },
+      {
+        "evidence": {
+          "line_end": 59,
+          "line_start": 59,
+          "text": "- **Never lock out input during a transition.**"
+        },
+        "status": "input_candidate",
+        "text": "- **Never lock out input during a transition.**"
+      },
+      {
+        "evidence": {
+          "line_end": 69,
+          "line_start": 69,
+          "text": "A pre-scripted, fixed-duration animation can't respond to new input. A spring can \u2014 new input just changes the target, and the motion stays continuous. Reach for springs for anything a user can touch."
+        },
+        "status": "input_candidate",
+        "text": "A pre-scripted, fixed-duration animation can't respond to new input. A spring can \u2014 new input just changes the target, and the motion stays continuous. Reach for springs for anything a user can touch."
+      },
+      {
+        "evidence": {
+          "line_end": 114,
+          "line_start": 114,
+          "text": "> \"Take a small input and make a big output.\""
+        },
+        "status": "input_candidate",
+        "text": "> \"Take a small input and make a big output.\""
+      }
+    ],
+    "invariants": [
+      {
+        "evidence": {
+          "line_end": 26,
+          "line_start": 26,
+          "text": "- **Feedback must be continuous *during* the interaction, not just at the end.** For a drag, slider, or drawer, update the UI 1:1 with the pointer the whole way through \u2014 never animate only when the gesture completes."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Feedback must be continuous *during* the interaction, not just at the end.** For a drag, slider, or drawer, update the UI 1:1 with the pointer the whole way through \u2014 never animate only when the gesture completes."
+      },
+      {
+        "evidence": {
+          "line_end": 59,
+          "line_start": 59,
+          "text": "- **Never lock out input during a transition.**"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Never lock out input during a transition.**"
+      },
+      {
+        "evidence": {
+          "line_end": 60,
+          "line_start": 60,
+          "text": "- **Always animate from the *presentation* (current) value, never the target value.** On interrupt, read the element's live on-screen transform and start the new animation from there. Starting from the logical/target value causes a visible jump."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Always animate from the *presentation* (current) value, never the target value.** On interrupt, read the element's live on-screen transform and start the new animation from there. Starting from the logical/target value causes a visible jump."
+      },
+      {
+        "evidence": {
+          "line_end": 62,
+          "line_start": 62,
+          "text": "- **When a gesture reverses, blend velocity \u2014 don't hard-cut it.** Replacing one animation with another at a reversal creates a velocity discontinuity, a \"brick wall.\" Spring libraries that carry velocity through a re-target avoid it. (This is what iOS's *additive animations* do natively; on the web, choose a spring library that re-targets from the current velocity.)"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **When a gesture reverses, blend velocity \u2014 don't hard-cut it.** Replacing one animation with another at a reversal creates a velocity discontinuity, a \"brick wall.\" Spring libraries that carry velocity through a re-target avoid it. (This is what iOS's *additive animations* do natively; on the web, choose a spring library that re-targets from the current velocity.)"
+      },
+      {
+        "evidence": {
+          "line_end": 78,
+          "line_start": 78,
+          "text": "- Add bounce (**damping ~`0.8`**) **only when the gesture itself carried momentum** (a flick, a throw, a drag release). Overshoot on a menu that just faded in feels wrong; overshoot on a card you flicked feels right."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- Add bounce (**damping ~`0.8`**) **only when the gesture itself carried momentum** (a flick, a throw, a drag release). Overshoot on a menu that just faded in feels wrong; overshoot on a card you flicked feels right."
+      },
+      {
+        "evidence": {
+          "line_end": 116,
+          "line_start": 116,
+          "text": "Don't snap to the nearest boundary from the *release point*. Use velocity to **project the resting position** \u2014 exactly like scroll deceleration \u2014 then snap to the target nearest that projected point. This is what makes a flick feel like it throws the element."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Don't snap to the nearest boundary from the *release point*. Use velocity to **project the resting position** \u2014 exactly like scroll deceleration \u2014 then snap to the target nearest that projected point. This is what makes a flick feel like it throws the element."
+      },
+      {
+        "evidence": {
+          "line_end": 160,
+          "line_start": 160,
+          "text": "- **Detect all plausible gestures in parallel from the first move**, then confidently cancel the losers once intent is clear. Avoid recognizers that only report a *final* state (`swipeleft`-type events) \u2014 they throw away the continuous tracking you need for feedback."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Detect all plausible gestures in parallel from the first move**, then confidently cancel the losers once intent is clear. Avoid recognizers that only report a *final* state (`swipeleft`-type events) \u2014 they throw away the continuous tracking you need for feedback."
+      },
+      {
+        "evidence": {
+          "line_end": 161,
+          "line_start": 161,
+          "text": "- **Minimize disambiguation delays.** Double-tap detection unavoidably delays single taps; only pay that cost where double-tap truly exists."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Minimize disambiguation delays.** Double-tap detection unavoidably delays single taps; only pay that cost where double-tap truly exists."
+      },
+      {
+        "evidence": {
+          "line_end": 169,
+          "line_start": 169,
+          "text": "- `requestAnimationFrame` is the web's display-synced clock (Apple uses `CADisplayLink`). Animate only compositor-friendly properties \u2014 `transform` and `opacity` \u2014 and hint with `will-change` where motion is imminent."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- `requestAnimationFrame` is the web's display-synced clock (Apple uses `CADisplayLink`). Animate only compositor-friendly properties \u2014 `transform` and `opacity` \u2014 and hint with `will-change` where motion is imminent."
+      },
+      {
+        "evidence": {
+          "line_end": 176,
+          "line_start": 176,
+          "text": "- **Material weight encodes hierarchy:** darker/heavier materials separate structural regions (sidebars); lighter materials draw attention to interactive elements (buttons). **Never stack a light translucent surface on another** \u2014 legibility collapses."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Material weight encodes hierarchy:** darker/heavier materials separate structural regions (sidebars); lighter materials draw attention to interactive elements (buttons). **Never stack a light translucent surface on another** \u2014 legibility collapses."
+      },
+      {
+        "evidence": {
+          "line_end": 179,
+          "line_start": 179,
+          "text": "- **Vibrancy keeps text legible over changing backgrounds.** Over blurred/translucent surfaces, don't use flat gray text \u2014 use higher-contrast, slightly heavier weight, and a small letter-spacing bump. Put color on a solid layer, not the translucent foreground."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Vibrancy keeps text legible over changing backgrounds.** Over blurred/translucent surfaces, don't use flat gray text \u2014 use higher-contrast, slightly heavier weight, and a small letter-spacing bump. Put color on a solid layer, not the translucent foreground."
+      },
+      {
+        "evidence": {
+          "line_end": 180,
+          "line_start": 180,
+          "text": "- **Scroll edge effects, not hard dividers.** Instead of a 1px border under a sticky header, fade a small blur/gradient mask where content meets floating chrome \u2014 only where floating UI actually overlaps content."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Scroll edge effects, not hard dividers.** Instead of a 1px border under a sticky header, fade a small blur/gradient mask where content meets floating chrome \u2014 only where floating UI actually overlaps content."
+      },
+      {
+        "evidence": {
+          "line_end": 181,
+          "line_start": 181,
+          "text": "- **Materialize, don't just fade.** For glass/blur surfaces, animate blur radius and scale together on enter/exit, so the surface reads as a real material arriving rather than a plain opacity fade."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Materialize, don't just fade.** For glass/blur surfaces, animate blur radius and scale together on enter/exit, so the surface reads as a real material arriving rather than a plain opacity fade."
+      },
+      {
+        "evidence": {
+          "line_end": 196,
+          "line_start": 196,
+          "text": "2. **Harmony** \u2014 the visual, the sound, and the haptic must fire on the **same frame**. Latency between them destroys the illusion. Don't let a CSS transition lag the audio/haptic (Vibration API)."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "2. **Harmony** \u2014 the visual, the sound, and the haptic must fire on the **same frame**. Latency between them destroys the illusion. Don't let a CSS transition lag the audio/haptic (Vibration API)."
+      },
+      {
+        "evidence": {
+          "line_end": 197,
+          "line_start": 197,
+          "text": "3. **Utility** \u2014 add feedback only where it earns its place. Reserve haptics/sound for meaningful moments (success, error, commit, snap). Over-feedback trains users to ignore all of it."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "3. **Utility** \u2014 add feedback only where it earns its place. Reserve haptics/sound for meaningful moments (success, error, commit, snap). Over-feedback trains users to ignore all of it."
+      },
+      {
+        "evidence": {
+          "line_end": 222,
+          "line_start": 222,
+          "text": "- **Tracking (letter-spacing) is size-specific \u2014 never one value for all sizes.** Large display text wants *negative* tracking (letters read too far apart as they grow); small text wants slightly *positive* tracking for legibility. A fixed `letter-spacing` is wrong somewhere. Tighten headings, leave body near `0`."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Tracking (letter-spacing) is size-specific \u2014 never one value for all sizes.** Large display text wants *negative* tracking (letters read too far apart as they grow); small text wants slightly *positive* tracking for legibility. A fixed `letter-spacing` is wrong somewhere. Tighten headings, leave body near `0`."
+      },
+      {
+        "evidence": {
+          "line_end": 226,
+          "line_start": 226,
+          "text": "- **Default to the platform's system font** before a custom face; it already ships optical sizing, tracking tables, and legibility tuning. Override only with a reason."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Default to the platform's system font** before a custom face; it already ships optical sizing, tracking tables, and legibility tuning. Override only with a reason."
+      },
+      {
+        "evidence": {
+          "line_end": 243,
+          "line_start": 243,
+          "text": "1. **Purpose.** Make with intention; decide what *not* to build. Every feature asks for the user's time, attention, and trust \u2014 spend that budget only where it pays off."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "1. **Purpose.** Make with intention; decide what *not* to build. Every feature asks for the user's time, attention, and trust \u2014 spend that budget only where it pays off."
+      },
+      {
+        "evidence": {
+          "line_end": 244,
+          "line_start": 244,
+          "text": "2. **Agency.** Keep people in control: offer choices, don't force a single path. Back it with forgiveness \u2014 easy undo for slips, a confirmation dialog only for genuinely destructive, irreversible actions (use sparingly; overusing it trains people to click through)."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "2. **Agency.** Keep people in control: offer choices, don't force a single path. Back it with forgiveness \u2014 easy undo for slips, a confirmation dialog only for genuinely destructive, irreversible actions (use sparingly; overusing it trains people to click through)."
+      },
+      {
+        "evidence": {
+          "line_end": 245,
+          "line_start": 245,
+          "text": "3. **Responsibility.** Act in the user's interest. Privacy: ask at the right moment, only for what's needed, transparently. Safety: anticipate misuse and harm \u2014 especially with AI (an allergy-aware recipe app must not suggest a harmful ingredient). Add previews, confirmations, disclaimers; cut a feature whose risk outweighs its value."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "3. **Responsibility.** Act in the user's interest. Privacy: ask at the right moment, only for what's needed, transparently. Safety: anticipate misuse and harm \u2014 especially with AI (an allergy-aware recipe app must not suggest a harmful ingredient). Add previews, confirmations, disclaimers; cut a feature whose risk outweighs its value."
+      },
+      {
+        "evidence": {
+          "line_end": 246,
+          "line_start": 246,
+          "text": "4. **Familiarity.** Build on what people already know. Use metaphors that are neither too literal nor too abstract (a trash can means delete), and honor their physics. Be consistent: things that look the same must behave the same and live in the same place (close is always top-left on macOS) so people can predict what happens next. Only break a familiar pattern if you can prove it's better \u2014 then test it, don't assume."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "4. **Familiarity.** Build on what people already know. Use metaphors that are neither too literal nor too abstract (a trash can means delete), and honor their physics. Be consistent: things that look the same must behave the same and live in the same place (close is always top-left on macOS) so people can predict what happens next. Only break a familiar pattern if you can prove it's better \u2014 then test it, don't assume."
+      },
+      {
+        "evidence": {
+          "line_end": 247,
+          "line_start": 247,
+          "text": "5. **Flexibility.** Design for different contexts, devices, and the full range of abilities. Adapt to the platform (iPhone = quick touch; desktop = deep workflows with precise pointer control) and to the situation. Design inclusively (age, language, expertise, accessibility). When no single layout fits everyone, let people personalize \u2014 rearrange controls, hide what they don't use."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "5. **Flexibility.** Design for different contexts, devices, and the full range of abilities. Adapt to the platform (iPhone = quick touch; desktop = deep workflows with precise pointer control) and to the situation. Design inclusively (age, language, expertise, accessibility). When no single layout fits everyone, let people personalize \u2014 rearrange controls, hide what they don't use."
+      },
+      {
+        "evidence": {
+          "line_end": 255,
+          "line_start": 255,
+          "text": "- **Wayfinding.** Every screen should answer: Where am I? Where can I go? What's there? How do I get out? Never trap the user."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Wayfinding.** Every screen should answer: Where am I? Where can I go? What's there? How do I get out? Never trap the user."
+      },
+      {
+        "evidence": {
+          "line_end": 278,
+          "line_start": 278,
+          "text": "| Feedback | On pointer-down, continuous | never only at the end |"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "| Feedback | On pointer-down, continuous | never only at the end |"
+      },
+      {
+        "evidence": {
+          "line_end": 279,
+          "line_start": 279,
+          "text": "| Boundary | Rubber-band, don't hard-stop | progressive resistance |"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "| Boundary | Rubber-band, don't hard-stop | progressive resistance |"
+      },
+      {
+        "evidence": {
+          "line_end": 281,
+          "line_start": 281,
+          "text": "| Type tracking | Size-specific, never fixed | tighten large text (`-0.02em`), body near `0` |"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "| Type tracking | Size-specific, never fixed | tighten large text (`-0.02em`), body near `0` |"
+      }
+    ],
+    "outputs": [
+      {
+        "evidence": {
+          "line_end": 114,
+          "line_start": 114,
+          "text": "> \"Take a small input and make a big output.\""
+        },
+        "status": "output_candidate",
+        "text": "> \"Take a small input and make a big output.\""
+      },
+      {
+        "evidence": {
+          "line_end": 139,
+          "line_start": 139,
+          "text": "- **Mirror the easing on reversible transitions** so the outbound path matches the return path (use inverse cubic-b\u00e9zier control points for the two directions)."
+        },
+        "status": "output_candidate",
+        "text": "- **Mirror the easing on reversible transitions** so the outbound path matches the return path (use inverse cubic-b\u00e9zier control points for the two directions)."
+      },
+      {
+        "evidence": {
+          "line_end": 160,
+          "line_start": 160,
+          "text": "- **Detect all plausible gestures in parallel from the first move**, then confidently cancel the losers once intent is clear. Avoid recognizers that only report a *final* state (`swipeleft`-type events) \u2014 they throw away the continuous tracking you need for feedback."
+        },
+        "status": "output_candidate",
+        "text": "- **Detect all plausible gestures in parallel from the first move**, then confidently cancel the losers once intent is clear. Avoid recognizers that only report a *final* state (`swipeleft`-type events) \u2014 they throw away the continuous tracking you need for feedback."
+      },
+      {
+        "evidence": {
+          "line_end": 250,
+          "line_start": 250,
+          "text": "8. **Delight.** The result of getting the other seven right, not confetti tacked on top. Decide the emotion you want people to feel (calm, confident, excited) and reinforce it in every decision."
+        },
+        "status": "output_candidate",
+        "text": "8. **Delight.** The result of getting the other seven right, not confetti tacked on top. Decide the emotion you want people to feel (calm, confident, excited) and reinforce it in every decision."
+      }
+    ],
+    "package_path_candidates": [],
+    "recovery": [
+      {
+        "evidence": {
+          "line_end": 8,
+          "line_start": 8,
+          "text": "How Apple builds interfaces that stop feeling like a computer and start feeling like an extension of you. This knowledge comes from Apple's WWDC design talks \u2014 chiefly *Designing Fluid Interfaces* (WWDC 2018) \u2014 distilled and translated into the web platform (CSS, Pointer Events, `requestAnimationFrame`, spring libraries like Motion/Framer Motion)."
+        },
+        "status": "recovery_candidate",
+        "text": "How Apple builds interfaces that stop feeling like a computer and start feeling like an extension of you. This knowledge comes from Apple's WWDC design talks \u2014 chiefly *Designing Fluid Interfaces* (WWDC 2018) \u2014 distilled and translated into the web platform (CSS, Pointer Events, `requestAnimationFrame`, spring libraries like Motion/Framer Motion)."
+      },
+      {
+        "evidence": {
+          "line_end": 147,
+          "line_start": 147,
+          "text": "At an edge, resist progressively instead of stopping hard. A hard stop reads as \"frozen\"; continuous resistance reads as \"responsive, but there's nothing more here.\" Apply damping that increases the further past the boundary the user drags."
+        },
+        "status": "recovery_candidate",
+        "text": "At an edge, resist progressively instead of stopping hard. A hard stop reads as \"frozen\"; continuous resistance reads as \"responsive, but there's nothing more here.\" Apply damping that increases the further past the boundary the user drags."
+      },
+      {
+        "evidence": {
+          "line_end": 279,
+          "line_start": 279,
+          "text": "| Boundary | Rubber-band, don't hard-stop | progressive resistance |"
+        },
+        "status": "recovery_candidate",
+        "text": "| Boundary | Rubber-band, don't hard-stop | progressive resistance |"
+      }
+    ],
+    "references": [],
+    "routes": [
+      {
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: Apple's approach to interface design and fluid, physical motion, translated for the web. Use when building or reviewing gesture-driven UI, spring animations, drag/swipe/sheet interactions, momentum and interruptible transitions, translucent materials and depth, typography (optical sizing, tracking, leading), reduced-motion, or the design foundations (feedback, spatial consistency, restraint) behind Apple-style interfaces."
+        },
+        "text": "description: Apple's approach to interface design and fluid, physical motion, translated for the web. Use when building or reviewing gesture-driven UI, spring animations, drag/swipe/sheet interactions, momentum and interruptible transitions, translucent materials and depth, typography (optical sizing, tracking, leading), reduced-motion, or the design foundations (feedback, spatial consistency, restraint) behind Apple-style interfaces."
+      },
+      {
+        "evidence": {
+          "line_end": 246,
+          "line_start": 246,
+          "text": "4. **Familiarity.** Build on what people already know. Use metaphors that are neither too literal nor too abstract (a trash can means delete), and honor their physics. Be consistent: things that look the same must behave the same and live in the same place (close is always top-left on macOS) so people can predict what happens next. Only break a familiar pattern if you can prove it's better \u2014 then test it, don't assume."
+        },
+        "text": "4. **Familiarity.** Build on what people already know. Use metaphors that are neither too literal nor too abstract (a trash can means delete), and honor their physics. Be consistent: things that look the same must behave the same and live in the same place (close is always top-left on macOS) so people can predict what happens next. Only break a familiar pattern if you can prove it's better \u2014 then test it, don't assume."
+      },
+      {
+        "evidence": {
+          "line_end": 247,
+          "line_start": 247,
+          "text": "5. **Flexibility.** Design for different contexts, devices, and the full range of abilities. Adapt to the platform (iPhone = quick touch; desktop = deep workflows with precise pointer control) and to the situation. Design inclusively (age, language, expertise, accessibility). When no single layout fits everyone, let people personalize \u2014 rearrange controls, hide what they don't use."
+        },
+        "text": "5. **Flexibility.** Design for different contexts, devices, and the full range of abilities. Adapt to the platform (iPhone = quick touch; desktop = deep workflows with precise pointer control) and to the situation. Design inclusively (age, language, expertise, accessibility). When no single layout fits everyone, let people personalize \u2014 rearrange controls, hide what they don't use."
+      }
+    ],
+    "template_commands": [],
+    "template_status": "source_not_executed; fenced commands remain example-only only when surrounding prose says so, otherwise context-unknown; live XML template commands are not executable evidence",
+    "triggers": [
+      {
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: Apple's approach to interface design and fluid, physical motion, translated for the web. Use when building or reviewing gesture-driven UI, spring animations, drag/swipe/sheet interactions, momentum and interruptible transitions, translucent materials and depth, typography (optical sizing, tracking, leading), reduced-motion, or the design foundations (feedback, spatial consistency, restraint) behind Apple-style interfaces."
+        },
+        "text": "description: Apple's approach to interface design and fluid, physical motion, translated for the web. Use when building or reviewing gesture-driven UI, spring animations, drag/swipe/sheet interactions, momentum and interruptible transitions, translucent materials and depth, typography (optical sizing, tracking, leading), reduced-motion, or the design foundations (feedback, spatial consistency, restraint) behind Apple-style interfaces."
+      },
+      {
+        "evidence": {
+          "line_end": 138,
+          "line_start": 138,
+          "text": "- **Anchor interactions to their source.** A menu, popover, or sheet should originate from the element that triggered it \u2014 set `transform-origin` to the trigger, so the spatial relationship between button and content is obvious. (This is the same origin-awareness point as popovers scaling from their trigger, not their center.)"
+        },
+        "text": "- **Anchor interactions to their source.** A menu, popover, or sheet should originate from the element that triggered it \u2014 set `transform-origin` to the trigger, so the spatial relationship between button and content is obvious. (This is the same origin-awareness point as popovers scaling from their trigger, not their center.)"
+      },
+      {
+        "evidence": {
+          "line_end": 195,
+          "line_start": 195,
+          "text": "1. **Causality** \u2014 it must be obvious what caused the feedback. Trigger it on the actual causal event (the toggle flipping, the item snapping home), and match its character to the action's physicality."
+        },
+        "text": "1. **Causality** \u2014 it must be obvious what caused the feedback. Trigger it on the actual causal event (the toggle flipping, the item snapping home), and match its character to the action's physicality."
+      }
+    ],
+    "workflows": [
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 24,
+            "text": "**Respond on pointer-down, not on release.** Highlight a button the instant it's pressed. Waiting for `click`/touch-up to show feedback feels dead."
+          },
+          {
+            "line": 25,
+            "text": "**Be vigilant about every latency.** Audit debounces, artificial timers, transition waits, and the ~300ms tap delay. Anything on the input path that isn't essential is a regression."
+          },
+          {
+            "line": 26,
+            "text": "**Feedback must be continuous *during* the interaction, not just at the end.** For a drag, slider, or drawer, update the UI 1:1 with the pointer the whole way through \u2014 never animate only when the gesture completes."
+          }
+        ],
+        "section": "1. Response \u2014 kill latency",
+        "start_line": 20
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 42,
+            "text": "Use Pointer Events with `setPointerCapture` so tracking continues even when the pointer leaves the element's bounds."
+          },
+          {
+            "line": 43,
+            "text": "Track a short **velocity/position history** (last few `pointermove` events), not just the current point \u2014 you'll need velocity at release."
+          }
+        ],
+        "section": "2. Direct manipulation \u2014 1:1 tracking",
+        "start_line": 36
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 59,
+            "text": "**Never lock out input during a transition.**"
+          },
+          {
+            "line": 60,
+            "text": "**Always animate from the *presentation* (current) value, never the target value.** On interrupt, read the element's live on-screen transform and start the new animation from there. Starting from the logical/target value causes a visible jump."
+          },
+          {
+            "line": 61,
+            "text": "**Avoid CSS transitions and `@keyframes` for anything gesture-driven** \u2014 they can't be smoothly grabbed and reversed mid-flight. Springs animate from the current value by default, which is exactly what interruption needs."
+          },
+          {
+            "line": 62,
+            "text": "**When a gesture reverses, blend velocity \u2014 don't hard-cut it.** Replacing one animation with another at a reversal creates a velocity discontinuity, a \"brick wall.\" Spring libraries that carry velocity through a re-target avoid it. (This is what iOS's *additive animations* do natively; on the web, choose a spring library that re-targets from the current velocity.)"
+          },
+          {
+            "line": 63,
+            "text": "**Decompose 2D motion into independent X and Y springs.** A single spring on a 2D distance desyncs when X and Y have different velocities."
+          }
+        ],
+        "section": "3. Interruptibility \u2014 the single most important principle",
+        "start_line": 53
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 73,
+            "text": "**Damping ratio** \u2014 controls overshoot. `1.0` = critically damped, no bounce, smooth settle. `< 1.0` = overshoots and oscillates. Lower = bouncier."
+          },
+          {
+            "line": 74,
+            "text": "**Response** \u2014 how quickly the value reaches the target, in seconds. Lower = snappier. **This is not \"duration\"** \u2014 a spring has no fixed duration; its settle time emerges from the parameters."
+          },
+          {
+            "line": 77,
+            "text": "Start most UI at **damping `1.0`** (critically damped) \u2014 graceful and non-distracting."
+          },
+          {
+            "line": 78,
+            "text": "Add bounce (**damping ~`0.8`**) **only when the gesture itself carried momentum** (a flick, a throw, a drag release). Overshoot on a menu that just faded in feels wrong; overshoot on a card you flicked feels right."
+          }
+        ],
+        "section": "4. Behavior over animation \u2014 use springs",
+        "start_line": 65
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 137,
+            "text": "**Enter and exit along the same path.** A panel that slides in from the right must dismiss to the right. In-from-right / out-the-bottom feels disconnected and confusing."
+          },
+          {
+            "line": 138,
+            "text": "**Anchor interactions to their source.** A menu, popover, or sheet should originate from the element that triggered it \u2014 set `transform-origin` to the trigger, so the spatial relationship between button and content is obvious. (This is the same origin-awareness point as popovers scaling from their trigger, not their center.)"
+          },
+          {
+            "line": 139,
+            "text": "**Mirror the easing on reversible transitions** so the outbound path matches the return path (use inverse cubic-b\u00e9zier control points for the two directions)."
+          }
+        ],
+        "section": "7. Spatial consistency \u2014 symmetric paths, anchored origins",
+        "start_line": 133
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 158,
+            "text": "**Tap:** highlight on touch-*down* (instant), commit on touch-*up*. Add ~10px of hysteresis/hit padding around the target, and allow cancel-by-dragging-away and back."
+          },
+          {
+            "line": 159,
+            "text": "**Drag/swipe:** require a small movement threshold (hysteresis, ~10px) before committing to a direction, then track 1:1."
+          },
+          {
+            "line": 160,
+            "text": "**Detect all plausible gestures in parallel from the first move**, then confidently cancel the losers once intent is clear. Avoid recognizers that only report a *final* state (`swipeleft`-type events) \u2014 they throw away the continuous tracking you need for feedback."
+          },
+          {
+            "line": 161,
+            "text": "**Minimize disambiguation delays.** Double-tap detection unavoidably delays single taps; only pay that cost where double-tap truly exists."
+          }
+        ],
+        "section": "10. Gesture design details (the \"feel\" checklist)",
+        "start_line": 156
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 167,
+            "text": "Keep the per-frame positional change below the perception threshold to avoid strobing."
+          },
+          {
+            "line": 168,
+            "text": "For very fast motion, a subtle **motion blur / stretch** encodes speed and reads better than a hard sharp streak."
+          },
+          {
+            "line": 169,
+            "text": "`requestAnimationFrame` is the web's display-synced clock (Apple uses `CADisplayLink`). Animate only compositor-friendly properties \u2014 `transform` and `opacity` \u2014 and hint with `will-change` where motion is imminent."
+          }
+        ],
+        "section": "11. Frame-level smoothness",
+        "start_line": 163
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 175,
+            "text": "**Build nav/toolbars/sheets as translucent layers** (`backdrop-filter: blur()` + a semi-transparent background) with content scrolling underneath \u2014 not opaque bars that consume a fixed strip."
+          },
+          {
+            "line": 176,
+            "text": "**Material weight encodes hierarchy:** darker/heavier materials separate structural regions (sidebars); lighter materials draw attention to interactive elements (buttons). **Never stack a light translucent surface on another** \u2014 legibility collapses."
+          },
+          {
+            "line": 177,
+            "text": "**Bigger surfaces should read as thicker:** stronger blur + a deeper shadow than small chips. Consider context-aware shadow \u2014 heavier over busy/text content for separation, lighter over plain backgrounds."
+          },
+          {
+            "line": 178,
+            "text": "**Dim to focus, separate to keep flow.** A modal task pairs the surface with a dimming scrim and pushes the background back/down. A parallel, non-blocking panel uses translucency and offset *without* a scrim so the flow isn't broken. For stacked sheets, progressively dim and push back each parent layer."
+          },
+          {
+            "line": 179,
+            "text": "**Vibrancy keeps text legible over changing backgrounds.** Over blurred/translucent surfaces, don't use flat gray text \u2014 use higher-contrast, slightly heavier weight, and a small letter-spacing bump. Put color on a solid layer, not the translucent foreground."
+          },
+          {
+            "line": 180,
+            "text": "**Scroll edge effects, not hard dividers.** Instead of a 1px border under a sticky header, fade a small blur/gradient mask where content meets floating chrome \u2014 only where floating UI actually overlaps content."
+          },
+          {
+            "line": 181,
+            "text": "**Materialize, don't just fade.** For glass/blur surfaces, animate blur radius and scale together on enter/exit, so the surface reads as a real material arriving rather than a plain opacity fade."
+          }
+        ],
+        "section": "12. Materials & depth \u2014 translucency conveys hierarchy",
+        "start_line": 171
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 195,
+            "text": "**Causality** \u2014 it must be obvious what caused the feedback. Trigger it on the actual causal event (the toggle flipping, the item snapping home), and match its character to the action's physicality."
+          },
+          {
+            "line": 196,
+            "text": "**Harmony** \u2014 the visual, the sound, and the haptic must fire on the **same frame**. Latency between them destroys the illusion. Don't let a CSS transition lag the audio/haptic (Vibration API)."
+          },
+          {
+            "line": 197,
+            "text": "**Utility** \u2014 add feedback only where it earns its place. Reserve haptics/sound for meaningful moments (success, error, commit, snap). Over-feedback trains users to ignore all of it."
+          }
+        ],
+        "section": "13. Multimodal feedback \u2014 motion + sound + haptics",
+        "start_line": 191
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 203,
+            "text": "**`prefers-reduced-motion: reduce`** \u2014 replace slides/springs/parallax with short opacity **cross-fades or static transitions**. Drop elastic/overshoot. Keep opacity/color changes that aid comprehension."
+          },
+          {
+            "line": 204,
+            "text": "**`prefers-reduced-transparency: reduce`** \u2014 make translucent surfaces frostier/solid: raise background opacity, drop the blur."
+          },
+          {
+            "line": 205,
+            "text": "**`prefers-contrast: more`** \u2014 near-solid backgrounds with a defined, contrasting border."
+          }
+        ],
+        "section": "14. Reduced motion & accessibility",
+        "start_line": 199
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 222,
+            "text": "**Tracking (letter-spacing) is size-specific \u2014 never one value for all sizes.** Large display text wants *negative* tracking (letters read too far apart as they grow); small text wants slightly *positive* tracking for legibility. A fixed `letter-spacing` is wrong somewhere. Tighten headings, leave body near `0`."
+          },
+          {
+            "line": 223,
+            "text": "**Leading (line-height) tracks size inversely.** Tight on large headings, looser on body copy. Increase it for scripts with tall ascenders/descenders; tighten it for dense, information-heavy UI."
+          },
+          {
+            "line": 224,
+            "text": "**Build hierarchy from weight + size + leading as a set,** not size alone. Emphasize with weight \u2014 it adds presence without taking more space."
+          },
+          {
+            "line": 225,
+            "text": "**Respect the user's text-size setting** (Dynamic Type). Scale layout *with* the text \u2014 spacing in `rem`/`em`, not fixed px \u2014 so a larger font doesn't break the layout."
+          },
+          {
+            "line": 226,
+            "text": "**Default to the platform's system font** before a custom face; it already ships optical sizing, tracking tables, and legibility tuning. Override only with a reason."
+          }
+        ],
+        "section": "15. Typography \u2014 optical sizing, tracking, leading",
+        "start_line": 218
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 243,
+            "text": "**Purpose.** Make with intention; decide what *not* to build. Every feature asks for the user's time, attention, and trust \u2014 spend that budget only where it pays off."
+          },
+          {
+            "line": 244,
+            "text": "**Agency.** Keep people in control: offer choices, don't force a single path. Back it with forgiveness \u2014 easy undo for slips, a confirmation dialog only for genuinely destructive, irreversible actions (use sparingly; overusing it trains people to click through)."
+          },
+          {
+            "line": 245,
+            "text": "**Responsibility.** Act in the user's interest. Privacy: ask at the right moment, only for what's needed, transparently. Safety: anticipate misuse and harm \u2014 especially with AI (an allergy-aware recipe app must not suggest a harmful ingredient). Add previews, confirmations, disclaimers; cut a feature whose risk outweighs its value."
+          },
+          {
+            "line": 246,
+            "text": "**Familiarity.** Build on what people already know. Use metaphors that are neither too literal nor too abstract (a trash can means delete), and honor their physics. Be consistent: things that look the same must behave the same and live in the same place (close is always top-left on macOS) so people can predict what happens next. Only break a familiar pattern if you can prove it's better \u2014 then test it, don't assume."
+          },
+          {
+            "line": 247,
+            "text": "**Flexibility.** Design for different contexts, devices, and the full range of abilities. Adapt to the platform (iPhone = quick touch; desktop = deep workflows with precise pointer control) and to the situation. Design inclusively (age, language, expertise, accessibility). When no single layout fits everyone, let people personalize \u2014 rearrange controls, hide what they don't use."
+          },
+          {
+            "line": 248,
+            "text": "**Simplicity \u2014 not minimalism.** Strip the unnecessary so the core purpose shines; burying everything in one place looks minimal but isn't simple. Be concise (plain language, no jargon, fewer steps) and clear (use hierarchy \u2014 order, spacing, contrast \u2014 so the most important thing is the most obvious). Every element earns its place; sometimes *adding* context simplifies (a video scrubber that shows time remaining). Show the common path first, advanced options one level deeper."
+          },
+          {
+            "line": 249,
+            "text": "**Craft.** Uncompromising attention to detail builds trust. Beautiful typography, colors that adapt to light/dark, clear iconography, and responsive animations that give immediate, natural feedback. Nothing is random \u2014 every spacing, timing, and alignment value is a deliberate choice you can defend. Jittery scroll, misaligned icons, and layouts that break on rotation read as carelessness. Craft needs iteration and longevity \u2014 keep evolving the design as features and hardware change."
+          },
+          {
+            "line": 250,
+            "text": "**Delight.** The result of getting the other seven right, not confetti tacked on top. Decide the emotion you want people to feel (calm, confident, excited) and reinforce it in every decision."
+          },
+          {
+            "line": 254,
+            "text": "**Feedback comes in four kinds:** status, completion, warning, error. Confirm meaningful actions, expose ongoing status, warn before problems, validate inline (not on submit)."
+          },
+          {
+            "line": 255,
+            "text": "**Wayfinding.** Every screen should answer: Where am I? Where can I go? What's there? How do I get out? Never trap the user."
+          },
+          {
+            "line": 256,
+            "text": "**Grouping & mapping.** Proximity implies relationship; place a control near what it affects and arrange controls to mirror what they change. If you need a label to explain a control, the mapping is weak."
+          },
+          {
+            "line": 257,
+            "text": "**Direct, specific labels beat safe generic ones.** Name nav items for their contents (\"Progress\", \"Library\"), not vague umbrellas (\"Home\"). Specificity creates predictability."
+          }
+        ],
+        "section": "16. Design foundations \u2014 the eight principles",
+        "start_line": 239
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 261,
+            "text": "**Prototype interactively \u2014 an interactive demo is worth \"a million static designs.\"** You discover the interface by building and playing with it; a working prototype also sets a concrete bar that prevents a mediocre final implementation."
+          },
+          {
+            "line": 262,
+            "text": "**Design interaction and visuals together.** \"You shouldn't be able to tell where one ends and the other begins.\" Motion is not a layer added after the pixels."
+          },
+          {
+            "line": 263,
+            "text": "**Test with real people in real context**, and review motion with fresh eyes \u2014 play it in slow motion / frame-by-frame to catch what's invisible at full speed."
+          }
+        ],
+        "section": "17. Process",
+        "start_line": 259
+      }
+    ]
+  },
+  "package": {
+    "reference_resolution": [],
+    "resolved_files": [
+      {
+        "bytes": 23036,
+        "content_snapshot": "sources/upstream/emilkowalski-skills-unknown/content-by-sha256/77bb63b7043bb93aca2ff4ab040c249484eef35682bb6ff7163433c31d30adc7.md",
+        "kind": "skill",
+        "path": "skills-HEAD/skills/apple-design/SKILL.md",
+        "sha256": "77bb63b7043bb93aca2ff4ab040c249484eef35682bb6ff7163433c31d30adc7",
+        "text": true
+      }
+    ],
+    "scripts": [],
+    "unresolved_references": []
+  },
+  "schema": "skill-ir/1.0",
+  "source": {
+    "bytes": 22715,
+    "catalog_metadata": {
+      "bundle_offset": 4547203,
+      "category": "ui-design",
+      "content_binding": "F$",
+      "description": "Apple's fluid interface approach for the web: gesture-driven UI, spring motion, interruptible transitions, translucent materials, depth, and restrained typography.",
+      "github_url": "https://github.com/emilkowalski/skills/tree/main/skills/apple-design",
+      "slug": "apple-design",
+      "source": "community",
+      "source_label": "Emil Kowalski",
+      "stars_reported": 1500,
+      "template_expressions": [],
+      "title": "Apple Design"
+    },
+    "line_table": [
+      {
+        "line": 1,
+        "text": "---"
+      },
+      {
+        "line": 2,
+        "text": "name: apple-design"
+      },
+      {
+        "line": 3,
+        "text": "description: Apple's approach to interface design and fluid, physical motion, translated for the web. Use when building or reviewing gesture-driven UI, spring animations, drag/swipe/sheet interactions, momentum and interruptible transitions, translucent materials and depth, typography (optical sizing, tracking, leading), reduced-motion, or the design foundations (feedback, spatial consistency, restraint) behind Apple-style interfaces."
+      },
+      {
+        "line": 4,
+        "text": "---"
+      },
+      {
+        "line": 5,
+        "text": ""
+      },
+      {
+        "line": 6,
+        "text": "# Apple Design"
+      },
+      {
+        "line": 7,
+        "text": ""
+      },
+      {
+        "line": 8,
+        "text": "How Apple builds interfaces that stop feeling like a computer and start feeling like an extension of you. This knowledge comes from Apple's WWDC design talks \u2014 chiefly *Designing Fluid Interfaces* (WWDC 2018) \u2014 distilled and translated into the web platform (CSS, Pointer Events, `requestAnimationFrame`, spring libraries like Motion/Framer Motion)."
+      },
+      {
+        "line": 9,
+        "text": ""
+      },
+      {
+        "line": 10,
+        "text": "The through-line: **an interface feels alive when motion starts from the current on-screen value, inherits the user's velocity, projects momentum forward, and can be grabbed and reversed at any instant.** Springs are the tool that makes all of this natural, because they are inherently interruptible and velocity-aware."
+      },
+      {
+        "line": 11,
+        "text": ""
+      },
+      {
+        "line": 12,
+        "text": "## The Core Idea"
+      },
+      {
+        "line": 13,
+        "text": ""
+      },
+      {
+        "line": 14,
+        "text": "> \"When we align the interface to the way we think and move, something magical happens \u2014 it stops feeling like a computer and starts feeling like a seamless extension of us.\""
+      },
+      {
+        "line": 15,
+        "text": ""
+      },
+      {
+        "line": 16,
+        "text": "An interface is fluid when it behaves like the physical world: things respond instantly, move continuously, carry momentum, resist at boundaries, and can be redirected mid-motion. Everything below is a way to get closer to that."
+      },
+      {
+        "line": 17,
+        "text": ""
+      },
+      {
+        "line": 18,
+        "text": "Apple frames design as serving four human needs: **safety/predictability, understanding, achievement, and joy.** Every rule here serves one of them."
+      },
+      {
+        "line": 19,
+        "text": ""
+      },
+      {
+        "line": 20,
+        "text": "## 1. Response \u2014 kill latency"
+      },
+      {
+        "line": 21,
+        "text": ""
+      },
+      {
+        "line": 22,
+        "text": "The moment lag appears, the feeling of directness \"falls off a cliff.\" Response is the foundation everything else is built on."
+      },
+      {
+        "line": 23,
+        "text": ""
+      },
+      {
+        "line": 24,
+        "text": "- **Respond on pointer-down, not on release.** Highlight a button the instant it's pressed. Waiting for `click`/touch-up to show feedback feels dead."
+      },
+      {
+        "line": 25,
+        "text": "- **Be vigilant about every latency.** Audit debounces, artificial timers, transition waits, and the ~300ms tap delay. Anything on the input path that isn't essential is a regression."
+      },
+      {
+        "line": 26,
+        "text": "- **Feedback must be continuous *during* the interaction, not just at the end.** For a drag, slider, or drawer, update the UI 1:1 with the pointer the whole way through \u2014 never animate only when the gesture completes."
+      },
+      {
+        "line": 27,
+        "text": ""
+      },
+      {
+        "line": 28,
+        "text": "```css"
+      },
+      {
+        "line": 29,
+        "text": "/* Feedback lives on the press, and it's instant */"
+      },
+      {
+        "line": 30,
+        "text": ".button:active {"
+      },
+      {
+        "line": 31,
+        "text": "  transform: scale(0.97);"
+      },
+      {
+        "line": 32,
+        "text": "  transition: transform 100ms ease-out;"
+      },
+      {
+        "line": 33,
+        "text": "}"
+      },
+      {
+        "line": 34,
+        "text": "```"
+      },
+      {
+        "line": 35,
+        "text": ""
+      },
+      {
+        "line": 36,
+        "text": "## 2. Direct manipulation \u2014 1:1 tracking"
+      },
+      {
+        "line": 37,
+        "text": ""
+      },
+      {
+        "line": 38,
+        "text": "> \"Touch and content should move together.\""
+      },
+      {
+        "line": 39,
+        "text": ""
+      },
+      {
+        "line": 40,
+        "text": "When the user drags something, it must stay glued to the finger \u2014 and respect the offset from *where they grabbed it*. Snapping to the element's center on grab breaks the illusion immediately."
+      },
+      {
+        "line": 41,
+        "text": ""
+      },
+      {
+        "line": 42,
+        "text": "- Use Pointer Events with `setPointerCapture` so tracking continues even when the pointer leaves the element's bounds."
+      },
+      {
+        "line": 43,
+        "text": "- Track a short **velocity/position history** (last few `pointermove` events), not just the current point \u2014 you'll need velocity at release."
+      },
+      {
+        "line": 44,
+        "text": ""
+      },
+      {
+        "line": 45,
+        "text": "```js"
+      },
+      {
+        "line": 46,
+        "text": "el.addEventListener('pointerdown', (e) => {"
+      },
+      {
+        "line": 47,
+        "text": "  el.setPointerCapture(e.pointerId);"
+      },
+      {
+        "line": 48,
+        "text": "  const grabOffset = e.clientY - el.getBoundingClientRect().top; // respect where they grabbed"
+      },
+      {
+        "line": 49,
+        "text": "  // ...track position + timestamp history for velocity"
+      },
+      {
+        "line": 50,
+        "text": "});"
+      },
+      {
+        "line": 51,
+        "text": "```"
+      },
+      {
+        "line": 52,
+        "text": ""
+      },
+      {
+        "line": 53,
+        "text": "## 3. Interruptibility \u2014 the single most important principle"
+      },
+      {
+        "line": 54,
+        "text": ""
+      },
+      {
+        "line": 55,
+        "text": "> \"The thought and the gesture happen in parallel.\""
+      },
+      {
+        "line": 56,
+        "text": ""
+      },
+      {
+        "line": 57,
+        "text": "Every animation must be interruptible and redirectable at any moment. A user must be able to grab a moving element mid-flight and reverse it without waiting for the animation to finish. A closing modal the user grabs again should follow the finger \u2014 not finish closing first, then reopen."
+      },
+      {
+        "line": 58,
+        "text": ""
+      },
+      {
+        "line": 59,
+        "text": "- **Never lock out input during a transition.**"
+      },
+      {
+        "line": 60,
+        "text": "- **Always animate from the *presentation* (current) value, never the target value.** On interrupt, read the element's live on-screen transform and start the new animation from there. Starting from the logical/target value causes a visible jump."
+      },
+      {
+        "line": 61,
+        "text": "- **Avoid CSS transitions and `@keyframes` for anything gesture-driven** \u2014 they can't be smoothly grabbed and reversed mid-flight. Springs animate from the current value by default, which is exactly what interruption needs."
+      },
+      {
+        "line": 62,
+        "text": "- **When a gesture reverses, blend velocity \u2014 don't hard-cut it.** Replacing one animation with another at a reversal creates a velocity discontinuity, a \"brick wall.\" Spring libraries that carry velocity through a re-target avoid it. (This is what iOS's *additive animations* do natively; on the web, choose a spring library that re-targets from the current velocity.)"
+      },
+      {
+        "line": 63,
+        "text": "- **Decompose 2D motion into independent X and Y springs.** A single spring on a 2D distance desyncs when X and Y have different velocities."
+      },
+      {
+        "line": 64,
+        "text": ""
+      },
+      {
+        "line": 65,
+        "text": "## 4. Behavior over animation \u2014 use springs"
+      },
+      {
+        "line": 66,
+        "text": ""
+      },
+      {
+        "line": 67,
+        "text": "> \"Think of animation as a conversation between you and the object, not something prescribed by the interface.\""
+      },
+      {
+        "line": 68,
+        "text": ""
+      },
+      {
+        "line": 69,
+        "text": "A pre-scripted, fixed-duration animation can't respond to new input. A spring can \u2014 new input just changes the target, and the motion stays continuous. Reach for springs for anything a user can touch."
+      },
+      {
+        "line": 70,
+        "text": ""
+      },
+      {
+        "line": 71,
+        "text": "Apple deliberately replaced the physics triplet (mass/stiffness/damping) with two designer-friendly parameters. Think in these:"
+      },
+      {
+        "line": 72,
+        "text": ""
+      },
+      {
+        "line": 73,
+        "text": "- **Damping ratio** \u2014 controls overshoot. `1.0` = critically damped, no bounce, smooth settle. `< 1.0` = overshoots and oscillates. Lower = bouncier."
+      },
+      {
+        "line": 74,
+        "text": "- **Response** \u2014 how quickly the value reaches the target, in seconds. Lower = snappier. **This is not \"duration\"** \u2014 a spring has no fixed duration; its settle time emerges from the parameters."
+      },
+      {
+        "line": 75,
+        "text": ""
+      },
+      {
+        "line": 76,
+        "text": "**Defaults:**"
+      },
+      {
+        "line": 77,
+        "text": "- Start most UI at **damping `1.0`** (critically damped) \u2014 graceful and non-distracting."
+      },
+      {
+        "line": 78,
+        "text": "- Add bounce (**damping ~`0.8`**) **only when the gesture itself carried momentum** (a flick, a throw, a drag release). Overshoot on a menu that just faded in feels wrong; overshoot on a card you flicked feels right."
+      },
+      {
+        "line": 79,
+        "text": ""
+      },
+      {
+        "line": 80,
+        "text": "**Concrete values Apple ships:**"
+      },
+      {
+        "line": 81,
+        "text": ""
+      },
+      {
+        "line": 82,
+        "text": "| Interaction | Damping | Response |"
+      },
+      {
+        "line": 83,
+        "text": "| --- | --- | --- |"
+      },
+      {
+        "line": 84,
+        "text": "| Move / reposition (e.g. PiP) | `1.0` | `0.4` |"
+      },
+      {
+        "line": 85,
+        "text": "| Rotation | `0.8` | `0.4` |"
+      },
+      {
+        "line": 86,
+        "text": "| Drawer / sheet | `0.8` | `0.3` |"
+      },
+      {
+        "line": 87,
+        "text": ""
+      },
+      {
+        "line": 88,
+        "text": "**Web mapping (Motion / Framer Motion):** the `bounce` + `duration` spring API maps closely to Apple's damping + response. A safe house style is `damping: 1.0` springs everywhere by default; reserve bounce for momentum-driven, physical interactions."
+      },
+      {
+        "line": 89,
+        "text": ""
+      },
+      {
+        "line": 90,
+        "text": "```js"
+      },
+      {
+        "line": 91,
+        "text": "import { animate } from 'motion';"
+      },
+      {
+        "line": 92,
+        "text": ""
+      },
+      {
+        "line": 93,
+        "text": "// Critically damped default (no overshoot)"
+      },
+      {
+        "line": 94,
+        "text": "animate(el, { y: 0 }, { type: 'spring', bounce: 0, duration: 0.4 });"
+      },
+      {
+        "line": 95,
+        "text": ""
+      },
+      {
+        "line": 96,
+        "text": "// Momentum interaction \u2014 a little bounce, only because a flick preceded it"
+      },
+      {
+        "line": 97,
+        "text": "animate(el, { y: target }, { type: 'spring', bounce: 0.2, duration: 0.4 });"
+      },
+      {
+        "line": 98,
+        "text": "```"
+      },
+      {
+        "line": 99,
+        "text": ""
+      },
+      {
+        "line": 100,
+        "text": "## 5. Velocity handoff \u2014 the seam between drag and animation"
+      },
+      {
+        "line": 101,
+        "text": ""
+      },
+      {
+        "line": 102,
+        "text": "When a gesture ends, the animation must **continue at the finger's exact velocity**, so there's no visible seam between dragging and animating. This is the detail that most separates \"fluid\" from \"fine.\""
+      },
+      {
+        "line": 103,
+        "text": ""
+      },
+      {
+        "line": 104,
+        "text": "Pass the pointer's release velocity as the spring's initial velocity. Some spring APIs want **relative** velocity \u2014 normalize it by the remaining distance to the target:"
+      },
+      {
+        "line": 105,
+        "text": ""
+      },
+      {
+        "line": 106,
+        "text": "```"
+      },
+      {
+        "line": 107,
+        "text": "relativeVelocity = gestureVelocity / (targetValue \u2212 currentValue)"
+      },
+      {
+        "line": 108,
+        "text": "```"
+      },
+      {
+        "line": 109,
+        "text": ""
+      },
+      {
+        "line": 110,
+        "text": "Example: element at `y=50`, target `y=150` (100px to go), finger moving 50px/s \u2192 initial spring velocity = `50 / 100 = 0.5`. Framer Motion / Motion take absolute px/s velocity directly (`velocity` option), so you usually hand it the raw value."
+      },
+      {
+        "line": 111,
+        "text": ""
+      },
+      {
+        "line": 112,
+        "text": "## 6. Momentum projection \u2014 animate to where the gesture is *going*"
+      },
+      {
+        "line": 113,
+        "text": ""
+      },
+      {
+        "line": 114,
+        "text": "> \"Take a small input and make a big output.\""
+      },
+      {
+        "line": 115,
+        "text": ""
+      },
+      {
+        "line": 116,
+        "text": "Don't snap to the nearest boundary from the *release point*. Use velocity to **project the resting position** \u2014 exactly like scroll deceleration \u2014 then snap to the target nearest that projected point. This is what makes a flick feel like it throws the element."
+      },
+      {
+        "line": 117,
+        "text": ""
+      },
+      {
+        "line": 118,
+        "text": "Apple's exact projection function (from the *Designing Fluid Interfaces* sample code):"
+      },
+      {
+        "line": 119,
+        "text": ""
+      },
+      {
+        "line": 120,
+        "text": "```js"
+      },
+      {
+        "line": 121,
+        "text": "// decelerationRate \u2248 0.998 for normal scroll feel; 0.99 for snappier"
+      },
+      {
+        "line": 122,
+        "text": "function project(initialVelocity /* px/s */, decelerationRate = 0.998) {"
+      },
+      {
+        "line": 123,
+        "text": "  return (initialVelocity / 1000) * decelerationRate / (1 - decelerationRate);"
+      },
+      {
+        "line": 124,
+        "text": "}"
+      },
+      {
+        "line": 125,
+        "text": ""
+      },
+      {
+        "line": 126,
+        "text": "const projectedEndpoint = currentPosition + project(releaseVelocity);"
+      },
+      {
+        "line": 127,
+        "text": "const target = nearestSnapPoint(projectedEndpoint);   // choose target from the projection"
+      },
+      {
+        "line": 128,
+        "text": "animateSpringTo(target, { velocity: releaseVelocity }); // then hand off velocity (\u00a75)"
+      },
+      {
+        "line": 129,
+        "text": "```"
+      },
+      {
+        "line": 130,
+        "text": ""
+      },
+      {
+        "line": 131,
+        "text": "Note: the physics-textbook `v\u00b2/(2\u00b7decel)` is *not* what Apple ships \u2014 use the exponential-decay form above. This is the standard behavior in good bottom-sheets and carousels (Vaul, Embla)."
+      },
+      {
+        "line": 132,
+        "text": ""
+      },
+      {
+        "line": 133,
+        "text": "## 7. Spatial consistency \u2014 symmetric paths, anchored origins"
+      },
+      {
+        "line": 134,
+        "text": ""
+      },
+      {
+        "line": 135,
+        "text": "> \"If something disappears one way, we expect it to emerge from where it came.\""
+      },
+      {
+        "line": 136,
+        "text": ""
+      },
+      {
+        "line": 137,
+        "text": "- **Enter and exit along the same path.** A panel that slides in from the right must dismiss to the right. In-from-right / out-the-bottom feels disconnected and confusing."
+      },
+      {
+        "line": 138,
+        "text": "- **Anchor interactions to their source.** A menu, popover, or sheet should originate from the element that triggered it \u2014 set `transform-origin` to the trigger, so the spatial relationship between button and content is obvious. (This is the same origin-awareness point as popovers scaling from their trigger, not their center.)"
+      },
+      {
+        "line": 139,
+        "text": "- **Mirror the easing on reversible transitions** so the outbound path matches the return path (use inverse cubic-b\u00e9zier control points for the two directions)."
+      },
+      {
+        "line": 140,
+        "text": ""
+      },
+      {
+        "line": 141,
+        "text": "## 8. Hint in the direction of the gesture"
+      },
+      {
+        "line": 142,
+        "text": ""
+      },
+      {
+        "line": 143,
+        "text": "Humans predict a final state from a trajectory. Intermediate motion should telegraph where things are going \u2014 Control Center modules \"grow up and out toward your finger.\" Make the in-between frames point at the outcome, not just interpolate blindly to it."
+      },
+      {
+        "line": 144,
+        "text": ""
+      },
+      {
+        "line": 145,
+        "text": "## 9. Rubber-banding \u2014 soft boundaries"
+      },
+      {
+        "line": 146,
+        "text": ""
+      },
+      {
+        "line": 147,
+        "text": "At an edge, resist progressively instead of stopping hard. A hard stop reads as \"frozen\"; continuous resistance reads as \"responsive, but there's nothing more here.\" Apply damping that increases the further past the boundary the user drags."
+      },
+      {
+        "line": 148,
+        "text": ""
+      },
+      {
+        "line": 149,
+        "text": "```js"
+      },
+      {
+        "line": 150,
+        "text": "// The further past the bound, the less the element follows \u2014 real things slow before they stop"
+      },
+      {
+        "line": 151,
+        "text": "function rubberband(overshoot, dimension, constant = 0.55) {"
+      },
+      {
+        "line": 152,
+        "text": "  return (overshoot * dimension * constant) / (dimension + constant * Math.abs(overshoot));"
+      },
+      {
+        "line": 153,
+        "text": "}"
+      },
+      {
+        "line": 154,
+        "text": "```"
+      },
+      {
+        "line": 155,
+        "text": ""
+      },
+      {
+        "line": 156,
+        "text": "## 10. Gesture design details (the \"feel\" checklist)"
+      },
+      {
+        "line": 157,
+        "text": ""
+      },
+      {
+        "line": 158,
+        "text": "- **Tap:** highlight on touch-*down* (instant), commit on touch-*up*. Add ~10px of hysteresis/hit padding around the target, and allow cancel-by-dragging-away and back."
+      },
+      {
+        "line": 159,
+        "text": "- **Drag/swipe:** require a small movement threshold (hysteresis, ~10px) before committing to a direction, then track 1:1."
+      },
+      {
+        "line": 160,
+        "text": "- **Detect all plausible gestures in parallel from the first move**, then confidently cancel the losers once intent is clear. Avoid recognizers that only report a *final* state (`swipeleft`-type events) \u2014 they throw away the continuous tracking you need for feedback."
+      },
+      {
+        "line": 161,
+        "text": "- **Minimize disambiguation delays.** Double-tap detection unavoidably delays single taps; only pay that cost where double-tap truly exists."
+      },
+      {
+        "line": 162,
+        "text": ""
+      },
+      {
+        "line": 163,
+        "text": "## 11. Frame-level smoothness"
+      },
+      {
+        "line": 164,
+        "text": ""
+      },
+      {
+        "line": 165,
+        "text": "Smoothness is about *what's in the frames*, not just the frame rate."
+      },
+      {
+        "line": 166,
+        "text": ""
+      },
+      {
+        "line": 167,
+        "text": "- Keep the per-frame positional change below the perception threshold to avoid strobing."
+      },
+      {
+        "line": 168,
+        "text": "- For very fast motion, a subtle **motion blur / stretch** encodes speed and reads better than a hard sharp streak."
+      },
+      {
+        "line": 169,
+        "text": "- `requestAnimationFrame` is the web's display-synced clock (Apple uses `CADisplayLink`). Animate only compositor-friendly properties \u2014 `transform` and `opacity` \u2014 and hint with `will-change` where motion is imminent."
+      },
+      {
+        "line": 170,
+        "text": ""
+      },
+      {
+        "line": 171,
+        "text": "## 12. Materials & depth \u2014 translucency conveys hierarchy"
+      },
+      {
+        "line": 172,
+        "text": ""
+      },
+      {
+        "line": 173,
+        "text": "Apple uses translucent materials as a floating functional layer that brings structure without stealing focus. On the web, approximate with `backdrop-filter`."
+      },
+      {
+        "line": 174,
+        "text": ""
+      },
+      {
+        "line": 175,
+        "text": "- **Build nav/toolbars/sheets as translucent layers** (`backdrop-filter: blur()` + a semi-transparent background) with content scrolling underneath \u2014 not opaque bars that consume a fixed strip."
+      },
+      {
+        "line": 176,
+        "text": "- **Material weight encodes hierarchy:** darker/heavier materials separate structural regions (sidebars); lighter materials draw attention to interactive elements (buttons). **Never stack a light translucent surface on another** \u2014 legibility collapses."
+      },
+      {
+        "line": 177,
+        "text": "- **Bigger surfaces should read as thicker:** stronger blur + a deeper shadow than small chips. Consider context-aware shadow \u2014 heavier over busy/text content for separation, lighter over plain backgrounds."
+      },
+      {
+        "line": 178,
+        "text": "- **Dim to focus, separate to keep flow.** A modal task pairs the surface with a dimming scrim and pushes the background back/down. A parallel, non-blocking panel uses translucency and offset *without* a scrim so the flow isn't broken. For stacked sheets, progressively dim and push back each parent layer."
+      },
+      {
+        "line": 179,
+        "text": "- **Vibrancy keeps text legible over changing backgrounds.** Over blurred/translucent surfaces, don't use flat gray text \u2014 use higher-contrast, slightly heavier weight, and a small letter-spacing bump. Put color on a solid layer, not the translucent foreground."
+      },
+      {
+        "line": 180,
+        "text": "- **Scroll edge effects, not hard dividers.** Instead of a 1px border under a sticky header, fade a small blur/gradient mask where content meets floating chrome \u2014 only where floating UI actually overlaps content."
+      },
+      {
+        "line": 181,
+        "text": "- **Materialize, don't just fade.** For glass/blur surfaces, animate blur radius and scale together on enter/exit, so the surface reads as a real material arriving rather than a plain opacity fade."
+      },
+      {
+        "line": 182,
+        "text": ""
+      },
+      {
+        "line": 183,
+        "text": "```css"
+      },
+      {
+        "line": 184,
+        "text": ".toolbar {"
+      },
+      {
+        "line": 185,
+        "text": "  background: rgba(255, 255, 255, 0.6);"
+      },
+      {
+        "line": 186,
+        "text": "  backdrop-filter: blur(20px) saturate(180%);"
+      },
+      {
+        "line": 187,
+        "text": "  border-top: 1px solid rgba(255, 255, 255, 0.4); /* bright top edge = light catching the material */"
+      },
+      {
+        "line": 188,
+        "text": "}"
+      },
+      {
+        "line": 189,
+        "text": "```"
+      },
+      {
+        "line": 190,
+        "text": ""
+      },
+      {
+        "line": 191,
+        "text": "## 13. Multimodal feedback \u2014 motion + sound + haptics"
+      },
+      {
+        "line": 192,
+        "text": ""
+      },
+      {
+        "line": 193,
+        "text": "Three rules for combining senses (from *Designing Audio-Haptic Experiences*):"
+      },
+      {
+        "line": 194,
+        "text": ""
+      },
+      {
+        "line": 195,
+        "text": "1. **Causality** \u2014 it must be obvious what caused the feedback. Trigger it on the actual causal event (the toggle flipping, the item snapping home), and match its character to the action's physicality."
+      },
+      {
+        "line": 196,
+        "text": "2. **Harmony** \u2014 the visual, the sound, and the haptic must fire on the **same frame**. Latency between them destroys the illusion. Don't let a CSS transition lag the audio/haptic (Vibration API)."
+      },
+      {
+        "line": 197,
+        "text": "3. **Utility** \u2014 add feedback only where it earns its place. Reserve haptics/sound for meaningful moments (success, error, commit, snap). Over-feedback trains users to ignore all of it."
+      },
+      {
+        "line": 198,
+        "text": ""
+      },
+      {
+        "line": 199,
+        "text": "## 14. Reduced motion & accessibility"
+      },
+      {
+        "line": 200,
+        "text": ""
+      },
+      {
+        "line": 201,
+        "text": "Reduced motion doesn't mean *no* feedback \u2014 it means a gentler, non-vestibular equivalent. Respond to three independent signals and bake them into your components:"
+      },
+      {
+        "line": 202,
+        "text": ""
+      },
+      {
+        "line": 203,
+        "text": "- **`prefers-reduced-motion: reduce`** \u2014 replace slides/springs/parallax with short opacity **cross-fades or static transitions**. Drop elastic/overshoot. Keep opacity/color changes that aid comprehension."
+      },
+      {
+        "line": 204,
+        "text": "- **`prefers-reduced-transparency: reduce`** \u2014 make translucent surfaces frostier/solid: raise background opacity, drop the blur."
+      },
+      {
+        "line": 205,
+        "text": "- **`prefers-contrast: more`** \u2014 near-solid backgrounds with a defined, contrasting border."
+      },
+      {
+        "line": 206,
+        "text": ""
+      },
+      {
+        "line": 207,
+        "text": "Also: avoid full-viewport moving backgrounds, slow looping oscillations (near 0.2 Hz / one cycle per 5s), and abrupt brightness jumps (ease dark\u2194light theme changes). Make large moving objects semi-transparent while they travel, and fade big surfaces out during a large reposition and back in once settled."
+      },
+      {
+        "line": 208,
+        "text": ""
+      },
+      {
+        "line": 209,
+        "text": "```css"
+      },
+      {
+        "line": 210,
+        "text": "@media (prefers-reduced-motion: reduce) {"
+      },
+      {
+        "line": 211,
+        "text": "  .sheet { transition: opacity 200ms ease; transform: none !important; }"
+      },
+      {
+        "line": 212,
+        "text": "}"
+      },
+      {
+        "line": 213,
+        "text": "@media (prefers-reduced-transparency: reduce) {"
+      },
+      {
+        "line": 214,
+        "text": "  .toolbar { background: white; backdrop-filter: none; }"
+      },
+      {
+        "line": 215,
+        "text": "}"
+      },
+      {
+        "line": 216,
+        "text": "```"
+      },
+      {
+        "line": 217,
+        "text": ""
+      },
+      {
+        "line": 218,
+        "text": "## 15. Typography \u2014 optical sizing, tracking, leading"
+      },
+      {
+        "line": 219,
+        "text": ""
+      },
+      {
+        "line": 220,
+        "text": "Apple designs type to change shape with size; the same discipline applies on the web. (From *The Details of UI Typography*, WWDC 2020.)"
+      },
+      {
+        "line": 221,
+        "text": ""
+      },
+      {
+        "line": 222,
+        "text": "- **Tracking (letter-spacing) is size-specific \u2014 never one value for all sizes.** Large display text wants *negative* tracking (letters read too far apart as they grow); small text wants slightly *positive* tracking for legibility. A fixed `letter-spacing` is wrong somewhere. Tighten headings, leave body near `0`."
+      },
+      {
+        "line": 223,
+        "text": "- **Leading (line-height) tracks size inversely.** Tight on large headings, looser on body copy. Increase it for scripts with tall ascenders/descenders; tighten it for dense, information-heavy UI."
+      },
+      {
+        "line": 224,
+        "text": "- **Build hierarchy from weight + size + leading as a set,** not size alone. Emphasize with weight \u2014 it adds presence without taking more space."
+      },
+      {
+        "line": 225,
+        "text": "- **Respect the user's text-size setting** (Dynamic Type). Scale layout *with* the text \u2014 spacing in `rem`/`em`, not fixed px \u2014 so a larger font doesn't break the layout."
+      },
+      {
+        "line": 226,
+        "text": "- **Default to the platform's system font** before a custom face; it already ships optical sizing, tracking tables, and legibility tuning. Override only with a reason."
+      },
+      {
+        "line": 227,
+        "text": ""
+      },
+      {
+        "line": 228,
+        "text": "```css"
+      },
+      {
+        "line": 229,
+        "text": ":root { font: 100%/1.5 system-ui, sans-serif; } /* body: system font, comfortable leading */"
+      },
+      {
+        "line": 230,
+        "text": ""
+      },
+      {
+        "line": 231,
+        "text": ".display {"
+      },
+      {
+        "line": 232,
+        "text": "  font-size: clamp(2rem, 5vw, 4rem);"
+      },
+      {
+        "line": 233,
+        "text": "  line-height: 1.05;        /* tight leading for large text */"
+      },
+      {
+        "line": 234,
+        "text": "  letter-spacing: -0.02em;  /* negative tracking as it grows */"
+      },
+      {
+        "line": 235,
+        "text": "  font-optical-sizing: auto;"
+      },
+      {
+        "line": 236,
+        "text": "}"
+      },
+      {
+        "line": 237,
+        "text": "```"
+      },
+      {
+        "line": 238,
+        "text": ""
+      },
+      {
+        "line": 239,
+        "text": "## 16. Design foundations \u2014 the eight principles"
+      },
+      {
+        "line": 240,
+        "text": ""
+      },
+      {
+        "line": 241,
+        "text": "The motion and craft above serve Apple's eight design principles (*Principles of Great Design*, WWDC 2026). Use these as the names you reason with:"
+      },
+      {
+        "line": 242,
+        "text": ""
+      },
+      {
+        "line": 243,
+        "text": "1. **Purpose.** Make with intention; decide what *not* to build. Every feature asks for the user's time, attention, and trust \u2014 spend that budget only where it pays off."
+      },
+      {
+        "line": 244,
+        "text": "2. **Agency.** Keep people in control: offer choices, don't force a single path. Back it with forgiveness \u2014 easy undo for slips, a confirmation dialog only for genuinely destructive, irreversible actions (use sparingly; overusing it trains people to click through)."
+      },
+      {
+        "line": 245,
+        "text": "3. **Responsibility.** Act in the user's interest. Privacy: ask at the right moment, only for what's needed, transparently. Safety: anticipate misuse and harm \u2014 especially with AI (an allergy-aware recipe app must not suggest a harmful ingredient). Add previews, confirmations, disclaimers; cut a feature whose risk outweighs its value."
+      },
+      {
+        "line": 246,
+        "text": "4. **Familiarity.** Build on what people already know. Use metaphors that are neither too literal nor too abstract (a trash can means delete), and honor their physics. Be consistent: things that look the same must behave the same and live in the same place (close is always top-left on macOS) so people can predict what happens next. Only break a familiar pattern if you can prove it's better \u2014 then test it, don't assume."
+      },
+      {
+        "line": 247,
+        "text": "5. **Flexibility.** Design for different contexts, devices, and the full range of abilities. Adapt to the platform (iPhone = quick touch; desktop = deep workflows with precise pointer control) and to the situation. Design inclusively (age, language, expertise, accessibility). When no single layout fits everyone, let people personalize \u2014 rearrange controls, hide what they don't use."
+      },
+      {
+        "line": 248,
+        "text": "6. **Simplicity \u2014 not minimalism.** Strip the unnecessary so the core purpose shines; burying everything in one place looks minimal but isn't simple. Be concise (plain language, no jargon, fewer steps) and clear (use hierarchy \u2014 order, spacing, contrast \u2014 so the most important thing is the most obvious). Every element earns its place; sometimes *adding* context simplifies (a video scrubber that shows time remaining). Show the common path first, advanced options one level deeper."
+      },
+      {
+        "line": 249,
+        "text": "7. **Craft.** Uncompromising attention to detail builds trust. Beautiful typography, colors that adapt to light/dark, clear iconography, and responsive animations that give immediate, natural feedback. Nothing is random \u2014 every spacing, timing, and alignment value is a deliberate choice you can defend. Jittery scroll, misaligned icons, and layouts that break on rotation read as carelessness. Craft needs iteration and longevity \u2014 keep evolving the design as features and hardware change."
+      },
+      {
+        "line": 250,
+        "text": "8. **Delight.** The result of getting the other seven right, not confetti tacked on top. Decide the emotion you want people to feel (calm, confident, excited) and reinforce it in every decision."
+      },
+      {
+        "line": 251,
+        "text": ""
+      },
+      {
+        "line": 252,
+        "text": "Tactical rules that serve these:"
+      },
+      {
+        "line": 253,
+        "text": ""
+      },
+      {
+        "line": 254,
+        "text": "- **Feedback comes in four kinds:** status, completion, warning, error. Confirm meaningful actions, expose ongoing status, warn before problems, validate inline (not on submit)."
+      },
+      {
+        "line": 255,
+        "text": "- **Wayfinding.** Every screen should answer: Where am I? Where can I go? What's there? How do I get out? Never trap the user."
+      },
+      {
+        "line": 256,
+        "text": "- **Grouping & mapping.** Proximity implies relationship; place a control near what it affects and arrange controls to mirror what they change. If you need a label to explain a control, the mapping is weak."
+      },
+      {
+        "line": 257,
+        "text": "- **Direct, specific labels beat safe generic ones.** Name nav items for their contents (\"Progress\", \"Library\"), not vague umbrellas (\"Home\"). Specificity creates predictability."
+      },
+      {
+        "line": 258,
+        "text": ""
+      },
+      {
+        "line": 259,
+        "text": "## 17. Process"
+      },
+      {
+        "line": 260,
+        "text": ""
+      },
+      {
+        "line": 261,
+        "text": "- **Prototype interactively \u2014 an interactive demo is worth \"a million static designs.\"** You discover the interface by building and playing with it; a working prototype also sets a concrete bar that prevents a mediocre final implementation."
+      },
+      {
+        "line": 262,
+        "text": "- **Design interaction and visuals together.** \"You shouldn't be able to tell where one ends and the other begins.\" Motion is not a layer added after the pixels."
+      },
+      {
+        "line": 263,
+        "text": "- **Test with real people in real context**, and review motion with fresh eyes \u2014 play it in slow motion / frame-by-frame to catch what's invisible at full speed."
+      },
+      {
+        "line": 264,
+        "text": ""
+      },
+      {
+        "line": 265,
+        "text": "## Quick Reference"
+      },
+      {
+        "line": 266,
+        "text": ""
+      },
+      {
+        "line": 267,
+        "text": "| Need | Technique | Concrete value |"
+      },
+      {
+        "line": 268,
+        "text": "| --- | --- | --- |"
+      },
+      {
+        "line": 269,
+        "text": "| Default UI spring | Critically damped, no overshoot | `damping 1.0`, `response 0.3\u20130.4` |"
+      },
+      {
+        "line": 270,
+        "text": "| Momentum / flick spring | Under-damped, slight bounce | `damping ~0.8`, `response 0.3\u20130.4` |"
+      },
+      {
+        "line": 271,
+        "text": "| Gesture \u2192 spring velocity | Hand off release velocity | `gestureVelocity / (target \u2212 current)` if normalized |"
+      },
+      {
+        "line": 272,
+        "text": "| Flick landing point | Project momentum | `current + (v/1000)\u00b7d/(1\u2212d)`, `d \u2248 0.998` |"
+      },
+      {
+        "line": 273,
+        "text": "| Interrupt cleanly | Start from presentation (live) value | read the on-screen transform |"
+      },
+      {
+        "line": 274,
+        "text": "| Avoid reversal \"brick wall\" | Carry velocity through re-target | spring that blends velocity |"
+      },
+      {
+        "line": 275,
+        "text": "| Reversible transition | Mirror the easing curve | inverse cubic-b\u00e9zier |"
+      },
+      {
+        "line": 276,
+        "text": "| Decide reverse vs. commit | Use velocity **sign**, not position | at release |"
+      },
+      {
+        "line": 277,
+        "text": "| 1:1 drag | Pointer Events + capture | respect the grab offset |"
+      },
+      {
+        "line": 278,
+        "text": "| Feedback | On pointer-down, continuous | never only at the end |"
+      },
+      {
+        "line": 279,
+        "text": "| Boundary | Rubber-band, don't hard-stop | progressive resistance |"
+      },
+      {
+        "line": 280,
+        "text": "| Translucent chrome | `backdrop-filter` layer | content scrolls under |"
+      },
+      {
+        "line": 281,
+        "text": "| Type tracking | Size-specific, never fixed | tighten large text (`-0.02em`), body near `0` |"
+      },
+      {
+        "line": 282,
+        "text": "| Reduced motion | Cross-fade, not slide/spring | `@media (prefers-reduced-motion)` |"
+      }
+    ],
+    "matched_upstream_skill_path": "skills-HEAD/skills/apple-design/SKILL.md",
+    "repo": "emilkowalski/skills",
+    "repo_reference": "https://github.com/emilkowalski/skills/tree/main/skills/apple-design",
+    "repo_revision": "unknown",
+    "revision_status": "archive-digest-pinned upstream package matched by catalog_slug_package_map",
+    "sha256": "11840b24a11d7f94f39c6aaab074750ae4e4de4ef54ee4b1dd97e16ebd485e61",
+    "snapshot_path": "sources/catalog-skills/apple-design/SKILL.md",
+    "source_id": "aiuxplayground:catalog-content:apple-design"
+  }
+}

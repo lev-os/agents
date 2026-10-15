@@ -1,0 +1,2505 @@
+{
+  "frontmatter": {
+    "fields": {
+      "description": "React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements.",
+      "license": "MIT",
+      "metadata": "",
+      "name": "vercel-react-best-practices"
+    },
+    "line_end": 7,
+    "line_start": 1,
+    "raw": "name: vercel-react-best-practices\ndescription: React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements.\nlicense: MIT\nmetadata:\n  author: vercel\n  version: \"1.0.0\"",
+    "status": "present"
+  },
+  "identity": {
+    "catalog_category": "engineering",
+    "slug": "vercel-react-best-practices",
+    "title": "Vercel React Best Practices"
+  },
+  "license": {
+    "status": "not stated in captured catalog source",
+    "value": null
+  },
+  "line_count": 149,
+  "ontology": {
+    "actions": [
+      {
+        "evidence": {
+          "line_end": 40,
+          "line_start": 40,
+          "text": "- `async-cheap-condition-before-await` - Check cheap sync conditions before awaiting flags or remote values"
+        },
+        "text": "- `async-cheap-condition-before-await` - Check cheap sync conditions before awaiting flags or remote values"
+      },
+      {
+        "evidence": {
+          "line_end": 42,
+          "line_start": 42,
+          "text": "- `async-parallel` - Use Promise.all() for independent operations"
+        },
+        "text": "- `async-parallel` - Use Promise.all() for independent operations"
+      },
+      {
+        "evidence": {
+          "line_end": 43,
+          "line_start": 43,
+          "text": "- `async-dependencies` - Use better-all for partial dependencies"
+        },
+        "text": "- `async-dependencies` - Use better-all for partial dependencies"
+      },
+      {
+        "evidence": {
+          "line_end": 45,
+          "line_start": 45,
+          "text": "- `async-suspense-boundaries` - Use Suspense to stream content"
+        },
+        "text": "- `async-suspense-boundaries` - Use Suspense to stream content"
+      },
+      {
+        "evidence": {
+          "line_end": 51,
+          "line_start": 51,
+          "text": "- `bundle-dynamic-imports` - Use next/dynamic for heavy components"
+        },
+        "text": "- `bundle-dynamic-imports` - Use next/dynamic for heavy components"
+      },
+      {
+        "evidence": {
+          "line_end": 59,
+          "line_start": 59,
+          "text": "- `server-cache-react` - Use React.cache() for per-request deduplication"
+        },
+        "text": "- `server-cache-react` - Use React.cache() for per-request deduplication"
+      },
+      {
+        "evidence": {
+          "line_end": 60,
+          "line_start": 60,
+          "text": "- `server-cache-lru` - Use LRU cache for cross-request caching"
+        },
+        "text": "- `server-cache-lru` - Use LRU cache for cross-request caching"
+      },
+      {
+        "evidence": {
+          "line_end": 67,
+          "line_start": 67,
+          "text": "- `server-after-nonblocking` - Use after() for non-blocking operations"
+        },
+        "text": "- `server-after-nonblocking` - Use after() for non-blocking operations"
+      },
+      {
+        "evidence": {
+          "line_end": 71,
+          "line_start": 71,
+          "text": "- `client-swr-dedup` - Use SWR for automatic request deduplication"
+        },
+        "text": "- `client-swr-dedup` - Use SWR for automatic request deduplication"
+      },
+      {
+        "evidence": {
+          "line_end": 73,
+          "line_start": 73,
+          "text": "- `client-passive-event-listeners` - Use passive listeners for scroll"
+        },
+        "text": "- `client-passive-event-listeners` - Use passive listeners for scroll"
+      },
+      {
+        "evidence": {
+          "line_end": 81,
+          "line_start": 81,
+          "text": "- `rerender-dependencies` - Use primitive dependencies in effects"
+        },
+        "text": "- `rerender-dependencies` - Use primitive dependencies in effects"
+      },
+      {
+        "evidence": {
+          "line_end": 84,
+          "line_start": 84,
+          "text": "- `rerender-functional-setstate` - Use functional setState for stable callbacks"
+        },
+        "text": "- `rerender-functional-setstate` - Use functional setState for stable callbacks"
+      },
+      {
+        "evidence": {
+          "line_end": 89,
+          "line_start": 89,
+          "text": "- `rerender-transitions` - Use startTransition for non-urgent updates"
+        },
+        "text": "- `rerender-transitions` - Use startTransition for non-urgent updates"
+      },
+      {
+        "evidence": {
+          "line_end": 90,
+          "line_start": 90,
+          "text": "- `rerender-use-deferred-value` - Defer expensive renders to keep input responsive"
+        },
+        "text": "- `rerender-use-deferred-value` - Defer expensive renders to keep input responsive"
+      },
+      {
+        "evidence": {
+          "line_end": 91,
+          "line_start": 91,
+          "text": "- `rerender-use-ref-transient-values` - Use refs for transient frequent values"
+        },
+        "text": "- `rerender-use-ref-transient-values` - Use refs for transient frequent values"
+      },
+      {
+        "evidence": {
+          "line_end": 97,
+          "line_start": 97,
+          "text": "- `rendering-content-visibility` - Use content-visibility for long lists"
+        },
+        "text": "- `rendering-content-visibility` - Use content-visibility for long lists"
+      },
+      {
+        "evidence": {
+          "line_end": 100,
+          "line_start": 100,
+          "text": "- `rendering-hydration-no-flicker` - Use inline script for client-only data"
+        },
+        "text": "- `rendering-hydration-no-flicker` - Use inline script for client-only data"
+      },
+      {
+        "evidence": {
+          "line_end": 102,
+          "line_start": 102,
+          "text": "- `rendering-activity` - Use Activity component for show/hide"
+        },
+        "text": "- `rendering-activity` - Use Activity component for show/hide"
+      },
+      {
+        "evidence": {
+          "line_end": 103,
+          "line_start": 103,
+          "text": "- `rendering-conditional-render` - Use ternary, not && for conditionals"
+        },
+        "text": "- `rendering-conditional-render` - Use ternary, not && for conditionals"
+      },
+      {
+        "evidence": {
+          "line_end": 105,
+          "line_start": 105,
+          "text": "- `rendering-resource-hints` - Use React DOM resource hints for preloading"
+        },
+        "text": "- `rendering-resource-hints` - Use React DOM resource hints for preloading"
+      },
+      {
+        "evidence": {
+          "line_end": 106,
+          "line_start": 106,
+          "text": "- `rendering-script-defer-async` - Use defer or async on script tags"
+        },
+        "text": "- `rendering-script-defer-async` - Use defer or async on script tags"
+      },
+      {
+        "evidence": {
+          "line_end": 111,
+          "line_start": 111,
+          "text": "- `js-index-maps` - Build Map for repeated lookups"
+        },
+        "text": "- `js-index-maps` - Build Map for repeated lookups"
+      },
+      {
+        "evidence": {
+          "line_end": 113,
+          "line_start": 113,
+          "text": "- `js-cache-function-results` - Cache function results in module-level Map"
+        },
+        "text": "- `js-cache-function-results` - Cache function results in module-level Map"
+      },
+      {
+        "evidence": {
+          "line_end": 115,
+          "line_start": 115,
+          "text": "- `js-combine-iterations` - Combine multiple filter/map into one loop"
+        },
+        "text": "- `js-combine-iterations` - Combine multiple filter/map into one loop"
+      },
+      {
+        "evidence": {
+          "line_end": 116,
+          "line_start": 116,
+          "text": "- `js-length-check-first` - Check array length before expensive comparison"
+        },
+        "text": "- `js-length-check-first` - Check array length before expensive comparison"
+      },
+      {
+        "evidence": {
+          "line_end": 119,
+          "line_start": 119,
+          "text": "- `js-min-max-loop` - Use loop for min/max instead of sort"
+        },
+        "text": "- `js-min-max-loop` - Use loop for min/max instead of sort"
+      },
+      {
+        "evidence": {
+          "line_end": 120,
+          "line_start": 120,
+          "text": "- `js-set-map-lookups` - Use Set/Map for O(1) lookups"
+        },
+        "text": "- `js-set-map-lookups` - Use Set/Map for O(1) lookups"
+      },
+      {
+        "evidence": {
+          "line_end": 121,
+          "line_start": 121,
+          "text": "- `js-tosorted-immutable` - Use toSorted() for immutability"
+        },
+        "text": "- `js-tosorted-immutable` - Use toSorted() for immutability"
+      },
+      {
+        "evidence": {
+          "line_end": 122,
+          "line_start": 122,
+          "text": "- `js-flatmap-filter` - Use flatMap to map and filter in one pass"
+        },
+        "text": "- `js-flatmap-filter` - Use flatMap to map and filter in one pass"
+      },
+      {
+        "evidence": {
+          "line_end": 130,
+          "line_start": 130,
+          "text": "- `advanced-use-latest` - useLatest for stable callback refs"
+        },
+        "text": "- `advanced-use-latest` - useLatest for stable callback refs"
+      }
+    ],
+    "command_examples": [],
+    "constraints": [
+      {
+        "evidence": {
+          "line_end": 53,
+          "line_start": 53,
+          "text": "- `bundle-conditional` - Load modules only when feature is activated"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- `bundle-conditional` - Load modules only when feature is activated"
+      },
+      {
+        "evidence": {
+          "line_end": 78,
+          "line_start": 78,
+          "text": "- `rerender-defer-reads` - Don't subscribe to state only used in callbacks"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- `rerender-defer-reads` - Don't subscribe to state only used in callbacks"
+      },
+      {
+        "evidence": {
+          "line_end": 92,
+          "line_start": 92,
+          "text": "- `rerender-no-inline-components` - Don't define components inside components"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- `rerender-no-inline-components` - Don't define components inside components"
+      },
+      {
+        "evidence": {
+          "line_end": 100,
+          "line_start": 100,
+          "text": "- `rendering-hydration-no-flicker` - Use inline script for client-only data"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- `rendering-hydration-no-flicker` - Use inline script for client-only data"
+      },
+      {
+        "evidence": {
+          "line_end": 127,
+          "line_start": 127,
+          "text": "- `advanced-effect-event-deps` - Don't put `useEffectEvent` results in effect deps"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- `advanced-effect-event-deps` - Don't put `useEffectEvent` results in effect deps"
+      }
+    ],
+    "effects": [
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 41,
+          "line_start": 41,
+          "text": "- `async-defer-await` - Move await into branches where actually used"
+        },
+        "modality": "unspecified",
+        "text": "- `async-defer-await` - Move await into branches where actually used",
+        "verb": "move"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 88,
+          "line_start": 88,
+          "text": "- `rerender-move-effect-to-event` - Put interaction logic in event handlers"
+        },
+        "modality": "unspecified",
+        "text": "- `rerender-move-effect-to-event` - Put interaction logic in event handlers",
+        "verb": "move"
+      }
+    ],
+    "external_urls": [],
+    "headings": [
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 10,
+        "title": "Vercel React Best Practices"
+      },
+      {
+        "bullets": [
+          {
+            "line": 17,
+            "text": "Writing new React components or Next.js pages"
+          },
+          {
+            "line": 18,
+            "text": "Implementing data fetching (client or server-side)"
+          },
+          {
+            "line": 19,
+            "text": "Reviewing code for performance issues"
+          },
+          {
+            "line": 20,
+            "text": "Refactoring existing React/Next.js code"
+          },
+          {
+            "line": 21,
+            "text": "Optimizing bundle size or load times"
+          }
+        ],
+        "level": 2,
+        "line": 14,
+        "title": "When to Apply"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 23,
+        "title": "Rule Categories by Priority"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 36,
+        "title": "Quick Reference"
+      },
+      {
+        "bullets": [
+          {
+            "line": 40,
+            "text": "`async-cheap-condition-before-await` - Check cheap sync conditions before awaiting flags or remote values"
+          },
+          {
+            "line": 41,
+            "text": "`async-defer-await` - Move await into branches where actually used"
+          },
+          {
+            "line": 42,
+            "text": "`async-parallel` - Use Promise.all() for independent operations"
+          },
+          {
+            "line": 43,
+            "text": "`async-dependencies` - Use better-all for partial dependencies"
+          },
+          {
+            "line": 44,
+            "text": "`async-api-routes` - Start promises early, await late in API routes"
+          },
+          {
+            "line": 45,
+            "text": "`async-suspense-boundaries` - Use Suspense to stream content"
+          }
+        ],
+        "level": 3,
+        "line": 38,
+        "title": "1. Eliminating Waterfalls (CRITICAL)"
+      },
+      {
+        "bullets": [
+          {
+            "line": 49,
+            "text": "`bundle-barrel-imports` - Import directly, avoid barrel files"
+          },
+          {
+            "line": 50,
+            "text": "`bundle-analyzable-paths` - Prefer statically analyzable import and file-system paths to avoid broad bundles and traces"
+          },
+          {
+            "line": 51,
+            "text": "`bundle-dynamic-imports` - Use next/dynamic for heavy components"
+          },
+          {
+            "line": 52,
+            "text": "`bundle-defer-third-party` - Load analytics/logging after hydration"
+          },
+          {
+            "line": 53,
+            "text": "`bundle-conditional` - Load modules only when feature is activated"
+          },
+          {
+            "line": 54,
+            "text": "`bundle-preload` - Preload on hover/focus for perceived speed"
+          }
+        ],
+        "level": 3,
+        "line": 47,
+        "title": "2. Bundle Size Optimization (CRITICAL)"
+      },
+      {
+        "bullets": [
+          {
+            "line": 58,
+            "text": "`server-auth-actions` - Authenticate server actions like API routes"
+          },
+          {
+            "line": 59,
+            "text": "`server-cache-react` - Use React.cache() for per-request deduplication"
+          },
+          {
+            "line": 60,
+            "text": "`server-cache-lru` - Use LRU cache for cross-request caching"
+          },
+          {
+            "line": 61,
+            "text": "`server-dedup-props` - Avoid duplicate serialization in RSC props"
+          },
+          {
+            "line": 62,
+            "text": "`server-hoist-static-io` - Hoist static I/O (fonts, logos) to module level"
+          },
+          {
+            "line": 63,
+            "text": "`server-no-shared-module-state` - Avoid module-level mutable request state in RSC/SSR"
+          },
+          {
+            "line": 64,
+            "text": "`server-serialization` - Minimize data passed to client components"
+          },
+          {
+            "line": 65,
+            "text": "`server-parallel-fetching` - Restructure components to parallelize fetches"
+          },
+          {
+            "line": 66,
+            "text": "`server-parallel-nested-fetching` - Chain nested fetches per item in Promise.all"
+          },
+          {
+            "line": 67,
+            "text": "`server-after-nonblocking` - Use after() for non-blocking operations"
+          }
+        ],
+        "level": 3,
+        "line": 56,
+        "title": "3. Server-Side Performance (HIGH)"
+      },
+      {
+        "bullets": [
+          {
+            "line": 71,
+            "text": "`client-swr-dedup` - Use SWR for automatic request deduplication"
+          },
+          {
+            "line": 72,
+            "text": "`client-event-listeners` - Deduplicate global event listeners"
+          },
+          {
+            "line": 73,
+            "text": "`client-passive-event-listeners` - Use passive listeners for scroll"
+          },
+          {
+            "line": 74,
+            "text": "`client-localstorage-schema` - Version and minimize localStorage data"
+          }
+        ],
+        "level": 3,
+        "line": 69,
+        "title": "4. Client-Side Data Fetching (MEDIUM-HIGH)"
+      },
+      {
+        "bullets": [
+          {
+            "line": 78,
+            "text": "`rerender-defer-reads` - Don't subscribe to state only used in callbacks"
+          },
+          {
+            "line": 79,
+            "text": "`rerender-memo` - Extract expensive work into memoized components"
+          },
+          {
+            "line": 80,
+            "text": "`rerender-memo-with-default-value` - Hoist default non-primitive props"
+          },
+          {
+            "line": 81,
+            "text": "`rerender-dependencies` - Use primitive dependencies in effects"
+          },
+          {
+            "line": 82,
+            "text": "`rerender-derived-state` - Subscribe to derived booleans, not raw values"
+          },
+          {
+            "line": 83,
+            "text": "`rerender-derived-state-no-effect` - Derive state during render, not effects"
+          },
+          {
+            "line": 84,
+            "text": "`rerender-functional-setstate` - Use functional setState for stable callbacks"
+          },
+          {
+            "line": 85,
+            "text": "`rerender-lazy-state-init` - Pass function to useState for expensive values"
+          },
+          {
+            "line": 86,
+            "text": "`rerender-simple-expression-in-memo` - Avoid memo for simple primitives"
+          },
+          {
+            "line": 87,
+            "text": "`rerender-split-combined-hooks` - Split hooks with independent dependencies"
+          },
+          {
+            "line": 88,
+            "text": "`rerender-move-effect-to-event` - Put interaction logic in event handlers"
+          },
+          {
+            "line": 89,
+            "text": "`rerender-transitions` - Use startTransition for non-urgent updates"
+          },
+          {
+            "line": 90,
+            "text": "`rerender-use-deferred-value` - Defer expensive renders to keep input responsive"
+          },
+          {
+            "line": 91,
+            "text": "`rerender-use-ref-transient-values` - Use refs for transient frequent values"
+          },
+          {
+            "line": 92,
+            "text": "`rerender-no-inline-components` - Don't define components inside components"
+          }
+        ],
+        "level": 3,
+        "line": 76,
+        "title": "5. Re-render Optimization (MEDIUM)"
+      },
+      {
+        "bullets": [
+          {
+            "line": 96,
+            "text": "`rendering-animate-svg-wrapper` - Animate div wrapper, not SVG element"
+          },
+          {
+            "line": 97,
+            "text": "`rendering-content-visibility` - Use content-visibility for long lists"
+          },
+          {
+            "line": 98,
+            "text": "`rendering-hoist-jsx` - Extract static JSX outside components"
+          },
+          {
+            "line": 99,
+            "text": "`rendering-svg-precision` - Reduce SVG coordinate precision"
+          },
+          {
+            "line": 100,
+            "text": "`rendering-hydration-no-flicker` - Use inline script for client-only data"
+          },
+          {
+            "line": 101,
+            "text": "`rendering-hydration-suppress-warning` - Suppress expected mismatches"
+          },
+          {
+            "line": 102,
+            "text": "`rendering-activity` - Use Activity component for show/hide"
+          },
+          {
+            "line": 103,
+            "text": "`rendering-conditional-render` - Use ternary, not && for conditionals"
+          },
+          {
+            "line": 104,
+            "text": "`rendering-usetransition-loading` - Prefer useTransition for loading state"
+          },
+          {
+            "line": 105,
+            "text": "`rendering-resource-hints` - Use React DOM resource hints for preloading"
+          },
+          {
+            "line": 106,
+            "text": "`rendering-script-defer-async` - Use defer or async on script tags"
+          }
+        ],
+        "level": 3,
+        "line": 94,
+        "title": "6. Rendering Performance (MEDIUM)"
+      },
+      {
+        "bullets": [
+          {
+            "line": 110,
+            "text": "`js-batch-dom-css` - Group CSS changes via classes or cssText"
+          },
+          {
+            "line": 111,
+            "text": "`js-index-maps` - Build Map for repeated lookups"
+          },
+          {
+            "line": 112,
+            "text": "`js-cache-property-access` - Cache object properties in loops"
+          },
+          {
+            "line": 113,
+            "text": "`js-cache-function-results` - Cache function results in module-level Map"
+          },
+          {
+            "line": 114,
+            "text": "`js-cache-storage` - Cache localStorage/sessionStorage reads"
+          },
+          {
+            "line": 115,
+            "text": "`js-combine-iterations` - Combine multiple filter/map into one loop"
+          },
+          {
+            "line": 116,
+            "text": "`js-length-check-first` - Check array length before expensive comparison"
+          },
+          {
+            "line": 117,
+            "text": "`js-early-exit` - Return early from functions"
+          },
+          {
+            "line": 118,
+            "text": "`js-hoist-regexp` - Hoist RegExp creation outside loops"
+          },
+          {
+            "line": 119,
+            "text": "`js-min-max-loop` - Use loop for min/max instead of sort"
+          },
+          {
+            "line": 120,
+            "text": "`js-set-map-lookups` - Use Set/Map for O(1) lookups"
+          },
+          {
+            "line": 121,
+            "text": "`js-tosorted-immutable` - Use toSorted() for immutability"
+          },
+          {
+            "line": 122,
+            "text": "`js-flatmap-filter` - Use flatMap to map and filter in one pass"
+          },
+          {
+            "line": 123,
+            "text": "`js-request-idle-callback` - Defer non-critical work to browser idle time"
+          }
+        ],
+        "level": 3,
+        "line": 108,
+        "title": "7. JavaScript Performance (LOW-MEDIUM)"
+      },
+      {
+        "bullets": [
+          {
+            "line": 127,
+            "text": "`advanced-effect-event-deps` - Don't put `useEffectEvent` results in effect deps"
+          },
+          {
+            "line": 128,
+            "text": "`advanced-event-handler-refs` - Store event handlers in refs"
+          },
+          {
+            "line": 129,
+            "text": "`advanced-init-once` - Initialize app once per app load"
+          },
+          {
+            "line": 130,
+            "text": "`advanced-use-latest` - useLatest for stable callback refs"
+          }
+        ],
+        "level": 3,
+        "line": 125,
+        "title": "8. Advanced Patterns (LOW)"
+      },
+      {
+        "bullets": [
+          {
+            "line": 142,
+            "text": "Brief explanation of why it matters"
+          },
+          {
+            "line": 143,
+            "text": "Incorrect code example with explanation"
+          },
+          {
+            "line": 144,
+            "text": "Correct code example with explanation"
+          },
+          {
+            "line": 145,
+            "text": "Additional context and references"
+          }
+        ],
+        "level": 2,
+        "line": 132,
+        "title": "How to Use"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 147,
+        "title": "Full Compiled Document"
+      }
+    ],
+    "inputs": [
+      {
+        "evidence": {
+          "line_end": 59,
+          "line_start": 59,
+          "text": "- `server-cache-react` - Use React.cache() for per-request deduplication"
+        },
+        "status": "input_candidate",
+        "text": "- `server-cache-react` - Use React.cache() for per-request deduplication"
+      },
+      {
+        "evidence": {
+          "line_end": 60,
+          "line_start": 60,
+          "text": "- `server-cache-lru` - Use LRU cache for cross-request caching"
+        },
+        "status": "input_candidate",
+        "text": "- `server-cache-lru` - Use LRU cache for cross-request caching"
+      },
+      {
+        "evidence": {
+          "line_end": 63,
+          "line_start": 63,
+          "text": "- `server-no-shared-module-state` - Avoid module-level mutable request state in RSC/SSR"
+        },
+        "status": "input_candidate",
+        "text": "- `server-no-shared-module-state` - Avoid module-level mutable request state in RSC/SSR"
+      },
+      {
+        "evidence": {
+          "line_end": 71,
+          "line_start": 71,
+          "text": "- `client-swr-dedup` - Use SWR for automatic request deduplication"
+        },
+        "status": "input_candidate",
+        "text": "- `client-swr-dedup` - Use SWR for automatic request deduplication"
+      },
+      {
+        "evidence": {
+          "line_end": 90,
+          "line_start": 90,
+          "text": "- `rerender-use-deferred-value` - Defer expensive renders to keep input responsive"
+        },
+        "status": "input_candidate",
+        "text": "- `rerender-use-deferred-value` - Defer expensive renders to keep input responsive"
+      },
+      {
+        "evidence": {
+          "line_end": 123,
+          "line_start": 123,
+          "text": "- `js-request-idle-callback` - Defer non-critical work to browser idle time"
+        },
+        "status": "input_candidate",
+        "text": "- `js-request-idle-callback` - Defer non-critical work to browser idle time"
+      }
+    ],
+    "invariants": [
+      {
+        "evidence": {
+          "line_end": 53,
+          "line_start": 53,
+          "text": "- `bundle-conditional` - Load modules only when feature is activated"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- `bundle-conditional` - Load modules only when feature is activated"
+      },
+      {
+        "evidence": {
+          "line_end": 78,
+          "line_start": 78,
+          "text": "- `rerender-defer-reads` - Don't subscribe to state only used in callbacks"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- `rerender-defer-reads` - Don't subscribe to state only used in callbacks"
+      },
+      {
+        "evidence": {
+          "line_end": 92,
+          "line_start": 92,
+          "text": "- `rerender-no-inline-components` - Don't define components inside components"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- `rerender-no-inline-components` - Don't define components inside components"
+      },
+      {
+        "evidence": {
+          "line_end": 100,
+          "line_start": 100,
+          "text": "- `rendering-hydration-no-flicker` - Use inline script for client-only data"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- `rendering-hydration-no-flicker` - Use inline script for client-only data"
+      },
+      {
+        "evidence": {
+          "line_end": 127,
+          "line_start": 127,
+          "text": "- `advanced-effect-event-deps` - Don't put `useEffectEvent` results in effect deps"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- `advanced-effect-event-deps` - Don't put `useEffectEvent` results in effect deps"
+      }
+    ],
+    "outputs": [
+      {
+        "evidence": {
+          "line_end": 117,
+          "line_start": 117,
+          "text": "- `js-early-exit` - Return early from functions"
+        },
+        "status": "output_candidate",
+        "text": "- `js-early-exit` - Return early from functions"
+      }
+    ],
+    "package_path_candidates": [],
+    "recovery": [],
+    "references": [],
+    "routes": [],
+    "template_commands": [],
+    "template_status": "source_not_executed; fenced commands remain example-only only when surrounding prose says so, otherwise context-unknown; live XML template commands are not executable evidence",
+    "triggers": [],
+    "workflows": [
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 17,
+            "text": "Writing new React components or Next.js pages"
+          },
+          {
+            "line": 18,
+            "text": "Implementing data fetching (client or server-side)"
+          },
+          {
+            "line": 19,
+            "text": "Reviewing code for performance issues"
+          },
+          {
+            "line": 20,
+            "text": "Refactoring existing React/Next.js code"
+          },
+          {
+            "line": 21,
+            "text": "Optimizing bundle size or load times"
+          }
+        ],
+        "section": "When to Apply",
+        "start_line": 14
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 40,
+            "text": "`async-cheap-condition-before-await` - Check cheap sync conditions before awaiting flags or remote values"
+          },
+          {
+            "line": 41,
+            "text": "`async-defer-await` - Move await into branches where actually used"
+          },
+          {
+            "line": 42,
+            "text": "`async-parallel` - Use Promise.all() for independent operations"
+          },
+          {
+            "line": 43,
+            "text": "`async-dependencies` - Use better-all for partial dependencies"
+          },
+          {
+            "line": 44,
+            "text": "`async-api-routes` - Start promises early, await late in API routes"
+          },
+          {
+            "line": 45,
+            "text": "`async-suspense-boundaries` - Use Suspense to stream content"
+          }
+        ],
+        "section": "1. Eliminating Waterfalls (CRITICAL)",
+        "start_line": 38
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 49,
+            "text": "`bundle-barrel-imports` - Import directly, avoid barrel files"
+          },
+          {
+            "line": 50,
+            "text": "`bundle-analyzable-paths` - Prefer statically analyzable import and file-system paths to avoid broad bundles and traces"
+          },
+          {
+            "line": 51,
+            "text": "`bundle-dynamic-imports` - Use next/dynamic for heavy components"
+          },
+          {
+            "line": 52,
+            "text": "`bundle-defer-third-party` - Load analytics/logging after hydration"
+          },
+          {
+            "line": 53,
+            "text": "`bundle-conditional` - Load modules only when feature is activated"
+          },
+          {
+            "line": 54,
+            "text": "`bundle-preload` - Preload on hover/focus for perceived speed"
+          }
+        ],
+        "section": "2. Bundle Size Optimization (CRITICAL)",
+        "start_line": 47
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 58,
+            "text": "`server-auth-actions` - Authenticate server actions like API routes"
+          },
+          {
+            "line": 59,
+            "text": "`server-cache-react` - Use React.cache() for per-request deduplication"
+          },
+          {
+            "line": 60,
+            "text": "`server-cache-lru` - Use LRU cache for cross-request caching"
+          },
+          {
+            "line": 61,
+            "text": "`server-dedup-props` - Avoid duplicate serialization in RSC props"
+          },
+          {
+            "line": 62,
+            "text": "`server-hoist-static-io` - Hoist static I/O (fonts, logos) to module level"
+          },
+          {
+            "line": 63,
+            "text": "`server-no-shared-module-state` - Avoid module-level mutable request state in RSC/SSR"
+          },
+          {
+            "line": 64,
+            "text": "`server-serialization` - Minimize data passed to client components"
+          },
+          {
+            "line": 65,
+            "text": "`server-parallel-fetching` - Restructure components to parallelize fetches"
+          },
+          {
+            "line": 66,
+            "text": "`server-parallel-nested-fetching` - Chain nested fetches per item in Promise.all"
+          },
+          {
+            "line": 67,
+            "text": "`server-after-nonblocking` - Use after() for non-blocking operations"
+          }
+        ],
+        "section": "3. Server-Side Performance (HIGH)",
+        "start_line": 56
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 71,
+            "text": "`client-swr-dedup` - Use SWR for automatic request deduplication"
+          },
+          {
+            "line": 72,
+            "text": "`client-event-listeners` - Deduplicate global event listeners"
+          },
+          {
+            "line": 73,
+            "text": "`client-passive-event-listeners` - Use passive listeners for scroll"
+          },
+          {
+            "line": 74,
+            "text": "`client-localstorage-schema` - Version and minimize localStorage data"
+          }
+        ],
+        "section": "4. Client-Side Data Fetching (MEDIUM-HIGH)",
+        "start_line": 69
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 78,
+            "text": "`rerender-defer-reads` - Don't subscribe to state only used in callbacks"
+          },
+          {
+            "line": 79,
+            "text": "`rerender-memo` - Extract expensive work into memoized components"
+          },
+          {
+            "line": 80,
+            "text": "`rerender-memo-with-default-value` - Hoist default non-primitive props"
+          },
+          {
+            "line": 81,
+            "text": "`rerender-dependencies` - Use primitive dependencies in effects"
+          },
+          {
+            "line": 82,
+            "text": "`rerender-derived-state` - Subscribe to derived booleans, not raw values"
+          },
+          {
+            "line": 83,
+            "text": "`rerender-derived-state-no-effect` - Derive state during render, not effects"
+          },
+          {
+            "line": 84,
+            "text": "`rerender-functional-setstate` - Use functional setState for stable callbacks"
+          },
+          {
+            "line": 85,
+            "text": "`rerender-lazy-state-init` - Pass function to useState for expensive values"
+          },
+          {
+            "line": 86,
+            "text": "`rerender-simple-expression-in-memo` - Avoid memo for simple primitives"
+          },
+          {
+            "line": 87,
+            "text": "`rerender-split-combined-hooks` - Split hooks with independent dependencies"
+          },
+          {
+            "line": 88,
+            "text": "`rerender-move-effect-to-event` - Put interaction logic in event handlers"
+          },
+          {
+            "line": 89,
+            "text": "`rerender-transitions` - Use startTransition for non-urgent updates"
+          },
+          {
+            "line": 90,
+            "text": "`rerender-use-deferred-value` - Defer expensive renders to keep input responsive"
+          },
+          {
+            "line": 91,
+            "text": "`rerender-use-ref-transient-values` - Use refs for transient frequent values"
+          },
+          {
+            "line": 92,
+            "text": "`rerender-no-inline-components` - Don't define components inside components"
+          }
+        ],
+        "section": "5. Re-render Optimization (MEDIUM)",
+        "start_line": 76
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 96,
+            "text": "`rendering-animate-svg-wrapper` - Animate div wrapper, not SVG element"
+          },
+          {
+            "line": 97,
+            "text": "`rendering-content-visibility` - Use content-visibility for long lists"
+          },
+          {
+            "line": 98,
+            "text": "`rendering-hoist-jsx` - Extract static JSX outside components"
+          },
+          {
+            "line": 99,
+            "text": "`rendering-svg-precision` - Reduce SVG coordinate precision"
+          },
+          {
+            "line": 100,
+            "text": "`rendering-hydration-no-flicker` - Use inline script for client-only data"
+          },
+          {
+            "line": 101,
+            "text": "`rendering-hydration-suppress-warning` - Suppress expected mismatches"
+          },
+          {
+            "line": 102,
+            "text": "`rendering-activity` - Use Activity component for show/hide"
+          },
+          {
+            "line": 103,
+            "text": "`rendering-conditional-render` - Use ternary, not && for conditionals"
+          },
+          {
+            "line": 104,
+            "text": "`rendering-usetransition-loading` - Prefer useTransition for loading state"
+          },
+          {
+            "line": 105,
+            "text": "`rendering-resource-hints` - Use React DOM resource hints for preloading"
+          },
+          {
+            "line": 106,
+            "text": "`rendering-script-defer-async` - Use defer or async on script tags"
+          }
+        ],
+        "section": "6. Rendering Performance (MEDIUM)",
+        "start_line": 94
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 110,
+            "text": "`js-batch-dom-css` - Group CSS changes via classes or cssText"
+          },
+          {
+            "line": 111,
+            "text": "`js-index-maps` - Build Map for repeated lookups"
+          },
+          {
+            "line": 112,
+            "text": "`js-cache-property-access` - Cache object properties in loops"
+          },
+          {
+            "line": 113,
+            "text": "`js-cache-function-results` - Cache function results in module-level Map"
+          },
+          {
+            "line": 114,
+            "text": "`js-cache-storage` - Cache localStorage/sessionStorage reads"
+          },
+          {
+            "line": 115,
+            "text": "`js-combine-iterations` - Combine multiple filter/map into one loop"
+          },
+          {
+            "line": 116,
+            "text": "`js-length-check-first` - Check array length before expensive comparison"
+          },
+          {
+            "line": 117,
+            "text": "`js-early-exit` - Return early from functions"
+          },
+          {
+            "line": 118,
+            "text": "`js-hoist-regexp` - Hoist RegExp creation outside loops"
+          },
+          {
+            "line": 119,
+            "text": "`js-min-max-loop` - Use loop for min/max instead of sort"
+          },
+          {
+            "line": 120,
+            "text": "`js-set-map-lookups` - Use Set/Map for O(1) lookups"
+          },
+          {
+            "line": 121,
+            "text": "`js-tosorted-immutable` - Use toSorted() for immutability"
+          },
+          {
+            "line": 122,
+            "text": "`js-flatmap-filter` - Use flatMap to map and filter in one pass"
+          },
+          {
+            "line": 123,
+            "text": "`js-request-idle-callback` - Defer non-critical work to browser idle time"
+          }
+        ],
+        "section": "7. JavaScript Performance (LOW-MEDIUM)",
+        "start_line": 108
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 127,
+            "text": "`advanced-effect-event-deps` - Don't put `useEffectEvent` results in effect deps"
+          },
+          {
+            "line": 128,
+            "text": "`advanced-event-handler-refs` - Store event handlers in refs"
+          },
+          {
+            "line": 129,
+            "text": "`advanced-init-once` - Initialize app once per app load"
+          },
+          {
+            "line": 130,
+            "text": "`advanced-use-latest` - useLatest for stable callback refs"
+          }
+        ],
+        "section": "8. Advanced Patterns (LOW)",
+        "start_line": 125
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 142,
+            "text": "Brief explanation of why it matters"
+          },
+          {
+            "line": 143,
+            "text": "Incorrect code example with explanation"
+          },
+          {
+            "line": 144,
+            "text": "Correct code example with explanation"
+          },
+          {
+            "line": 145,
+            "text": "Additional context and references"
+          }
+        ],
+        "section": "How to Use",
+        "start_line": 132
+      }
+    ]
+  },
+  "package": {
+    "reference_resolution": [],
+    "resolved_files": [
+      {
+        "bytes": 108261,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/fc93e7421177bbf869cce892bc60a6c83a4517d974bc3bf65c4e2c1e58a6ccf6.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/AGENTS.md",
+        "sha256": "fc93e7421177bbf869cce892bc60a6c83a4517d974bc3bf65c4e2c1e58a6ccf6",
+        "text": true
+      },
+      {
+        "bytes": 3360,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/9eafb2123d3b8b2aef41fba0db2648a3f4f49996f8c7c8bb2c86263befd8b48a.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/README.md",
+        "sha256": "9eafb2123d3b8b2aef41fba0db2648a3f4f49996f8c7c8bb2c86263befd8b48a",
+        "text": true
+      },
+      {
+        "bytes": 7251,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/71ed7794962fa6e803ee83030517b5b93a9f70fbfeb431ec4535c5480a8d8355.md",
+        "kind": "skill",
+        "path": "agent-skills-HEAD/skills/react-best-practices/SKILL.md",
+        "sha256": "71ed7794962fa6e803ee83030517b5b93a9f70fbfeb431ec4535c5480a8d8355",
+        "text": true
+      },
+      {
+        "bytes": 921,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/c4e18bac3290fbe1b471a605867d4df68b03144ea26b8befdbe8f9d8fd124354.json",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/metadata.json",
+        "sha256": "c4e18bac3290fbe1b471a605867d4df68b03144ea26b8befdbe8f9d8fd124354",
+        "text": true
+      },
+      {
+        "bytes": 1554,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/01c59969e4e867f0708c8f8ef9c6d87fab9a07d0586244f429ff84013db8a115.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/_sections.md",
+        "sha256": "01c59969e4e867f0708c8f8ef9c6d87fab9a07d0586244f429ff84013db8a115",
+        "text": true
+      },
+      {
+        "bytes": 631,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/99df2a3ea088c6c22de2484ddc7e964d0e9923846f44c63380343ecc64455442.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/_template.md",
+        "sha256": "99df2a3ea088c6c22de2484ddc7e964d0e9923846f44c63380343ecc64455442",
+        "text": true
+      },
+      {
+        "bytes": 1802,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/55ed8f9f27a1bff803d6fa55828176207714b02123cbb97ddb8a90d88024a723.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/advanced-effect-event-deps.md",
+        "sha256": "55ed8f9f27a1bff803d6fa55828176207714b02123cbb97ddb8a90d88024a723",
+        "text": true
+      },
+      {
+        "bytes": 1483,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/a3097edeecfb2ff6851cd66ed8cdf0617c3c88180504bee824aa6e75a215bbbc.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/advanced-event-handler-refs.md",
+        "sha256": "a3097edeecfb2ff6851cd66ed8cdf0617c3c88180504bee824aa6e75a215bbbc",
+        "text": true
+      },
+      {
+        "bytes": 958,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/3e4dc22173eb0e2b6dcf583e3babd862b8696328f8f59aee7c4d746c5bc05f6c.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/advanced-init-once.md",
+        "sha256": "3e4dc22173eb0e2b6dcf583e3babd862b8696328f8f59aee7c4d746c5bc05f6c",
+        "text": true
+      },
+      {
+        "bytes": 1072,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/8a3f64dfe5a77d1564248faf17fe662ae75b55d497a243cb30b38eb07ccbbf9a.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/advanced-use-latest.md",
+        "sha256": "8a3f64dfe5a77d1564248faf17fe662ae75b55d497a243cb30b38eb07ccbbf9a",
+        "text": true
+      },
+      {
+        "bytes": 1125,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/523338540d73427dc14c0cbb19f2741ebccdf8b105a7b2c1b33d2905cf237a42.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/async-api-routes.md",
+        "sha256": "523338540d73427dc14c0cbb19f2741ebccdf8b105a7b2c1b33d2905cf237a42",
+        "text": true
+      },
+      {
+        "bytes": 1220,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/03107c1f70a293cd58a8abc5474c5548e20ea4efdf01b6d45aae7ad0ac1cb32c.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/async-cheap-condition-before-await.md",
+        "sha256": "03107c1f70a293cd58a8abc5474c5548e20ea4efdf01b6d45aae7ad0ac1cb32c",
+        "text": true
+      },
+      {
+        "bytes": 2208,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/f3c142d090615abdcc99d31c123be37b31f0f1ed8d9ec9f7789a3bc6883ae0fb.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/async-defer-await.md",
+        "sha256": "f3c142d090615abdcc99d31c123be37b31f0f1ed8d9ec9f7789a3bc6883ae0fb",
+        "text": true
+      },
+      {
+        "bytes": 1293,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/16ef469f877e30c6b8e1e1b4bc3e527312fa3c6318cb785a4eca186ea236131a.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/async-dependencies.md",
+        "sha256": "16ef469f877e30c6b8e1e1b4bc3e527312fa3c6318cb785a4eca186ea236131a",
+        "text": true
+      },
+      {
+        "bytes": 654,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/6d2f841896279e976dfcdc1ac89e70771ac188baadfd43c096b5706cb838b961.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/async-parallel.md",
+        "sha256": "6d2f841896279e976dfcdc1ac89e70771ac188baadfd43c096b5706cb838b961",
+        "text": true
+      },
+      {
+        "bytes": 2510,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/de05fedac2eb7ae563b887b5a424464ec3dfaf84e5b7797467ebe2a796ac8afc.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/async-suspense-boundaries.md",
+        "sha256": "de05fedac2eb7ae563b887b5a424464ec3dfaf84e5b7797467ebe2a796ac8afc",
+        "text": true
+      },
+      {
+        "bytes": 2382,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/62090b5c815fd71bf1133dce754f51abc16a9456d0ccd025fd627de27726e92a.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/bundle-analyzable-paths.md",
+        "sha256": "62090b5c815fd71bf1133dce754f51abc16a9456d0ccd025fd627de27726e92a",
+        "text": true
+      },
+      {
+        "bytes": 2795,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/e648f6d54525f07a691357040ca5bff6ea3424788a91ff63812adb29622a671b.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/bundle-barrel-imports.md",
+        "sha256": "e648f6d54525f07a691357040ca5bff6ea3424788a91ff63812adb29622a671b",
+        "text": true
+      },
+      {
+        "bytes": 949,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/09c8259c3efb04fc0abb8e412ccbda217c222ae8118516283e571c995fe3a7d4.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/bundle-conditional.md",
+        "sha256": "09c8259c3efb04fc0abb8e412ccbda217c222ae8118516283e571c995fe3a7d4",
+        "text": true
+      },
+      {
+        "bytes": 920,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/3719fb47b191e8db4fe22686ec88448ad5af9e6838585425abbe103d0b642e37.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/bundle-defer-third-party.md",
+        "sha256": "3719fb47b191e8db4fe22686ec88448ad5af9e6838585425abbe103d0b642e37",
+        "text": true
+      },
+      {
+        "bytes": 791,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/401817a7369f315fc5a68a1095742ff7d53d0461906880dc9d64a41495ee1986.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/bundle-dynamic-imports.md",
+        "sha256": "401817a7369f315fc5a68a1095742ff7d53d0461906880dc9d64a41495ee1986",
+        "text": true
+      },
+      {
+        "bytes": 1149,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/d1f7cc28da7cd5ab249acd287edc5b761afcfb194e9cb62cd44c5f3543db2de2.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/bundle-preload.md",
+        "sha256": "d1f7cc28da7cd5ab249acd287edc5b761afcfb194e9cb62cd44c5f3543db2de2",
+        "text": true
+      },
+      {
+        "bytes": 1969,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/242a873349febc1ce685e85617994784dbab92c2eaa68aed7fed5a83e7680e93.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/client-event-listeners.md",
+        "sha256": "242a873349febc1ce685e85617994784dbab92c2eaa68aed7fed5a83e7680e93",
+        "text": true
+      },
+      {
+        "bytes": 1950,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/0fb7cdf9dc93fdf22f87e3669f953fb9d4ac9b0be42eec4a29fe9a2560610b88.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/client-localstorage-schema.md",
+        "sha256": "0fb7cdf9dc93fdf22f87e3669f953fb9d4ac9b0be42eec4a29fe9a2560610b88",
+        "text": true
+      },
+      {
+        "bytes": 1644,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/1f35016f9053de69e884ee9be00654e37979c2ca85f5e57764dc2626ff7acb4b.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/client-passive-event-listeners.md",
+        "sha256": "1f35016f9053de69e884ee9be00654e37979c2ca85f5e57764dc2626ff7acb4b",
+        "text": true
+      },
+      {
+        "bytes": 1159,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/644652c39c6cc00de8d1c77a7273612e868dc3f7edda30764164c12ec0f764a3.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/client-swr-dedup.md",
+        "sha256": "644652c39c6cc00de8d1c77a7273612e868dc3f7edda30764164c12ec0f764a3",
+        "text": true
+      },
+      {
+        "bytes": 3266,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/480b891b9eaf96e929dc1e964274a4828e3a78009b7d00ccd965a0d425215959.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/js-batch-dom-css.md",
+        "sha256": "480b891b9eaf96e929dc1e964274a4828e3a78009b7d00ccd965a0d425215959",
+        "text": true
+      },
+      {
+        "bytes": 1949,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/3daaa11d24f4295cb6be8bc6f407f2ce83cc7b5bd1f0e68891ea8ab835721dc7.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/js-cache-function-results.md",
+        "sha256": "3daaa11d24f4295cb6be8bc6f407f2ce83cc7b5bd1f0e68891ea8ab835721dc7",
+        "text": true
+      },
+      {
+        "bytes": 532,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/73e47431e74878a927061bf0ddc7cd91a7556cb35d2573f3421e82300d9ae311.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/js-cache-property-access.md",
+        "sha256": "73e47431e74878a927061bf0ddc7cd91a7556cb35d2573f3421e82300d9ae311",
+        "text": true
+      },
+      {
+        "bytes": 1651,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/11b826b0433898c1ece2d3547010d8e77db9fb240185748c45db91493de9b6cc.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/js-cache-storage.md",
+        "sha256": "11b826b0433898c1ece2d3547010d8e77db9fb240185748c45db91493de9b6cc",
+        "text": true
+      },
+      {
+        "bytes": 753,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/71add08aeeb43091d4ff4c0b2842cce8b4bdef8ad3e732cc034bb5a84827e746.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/js-combine-iterations.md",
+        "sha256": "71add08aeeb43091d4ff4c0b2842cce8b4bdef8ad3e732cc034bb5a84827e746",
+        "text": true
+      },
+      {
+        "bytes": 1133,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/925ce5ce87f3347186ca62212f29cc6baa2b8c85a96d2720ad07c3d0abf781c0.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/js-early-exit.md",
+        "sha256": "925ce5ce87f3347186ca62212f29cc6baa2b8c85a96d2720ad07c3d0abf781c0",
+        "text": true
+      },
+      {
+        "bytes": 1411,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/9e5b166a41914d975bef7635467f8fb32cd98b5c3126c0bc6f163490812fb5f0.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/js-flatmap-filter.md",
+        "sha256": "9e5b166a41914d975bef7635467f8fb32cd98b5c3126c0bc6f163490812fb5f0",
+        "text": true
+      },
+      {
+        "bytes": 1028,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/f9e9aef2f7c2307dd7310f283df85dcada45fc43e9bb941b0c3aa414dec21ec4.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/js-hoist-regexp.md",
+        "sha256": "f9e9aef2f7c2307dd7310f283df85dcada45fc43e9bb941b0c3aa414dec21ec4",
+        "text": true
+      },
+      {
+        "bytes": 837,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/5df1bdc2cfabb2c98abd55d26762e5c18189535c2e686184f426082e62920391.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/js-index-maps.md",
+        "sha256": "5df1bdc2cfabb2c98abd55d26762e5c18189535c2e686184f426082e62920391",
+        "text": true
+      },
+      {
+        "bytes": 1747,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/8b54a311c826b299272f29187fc58bc55772a04c4a72eeb29456ee96dc9fc624.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/js-length-check-first.md",
+        "sha256": "8b54a311c826b299272f29187fc58bc55772a04c4a72eeb29456ee96dc9fc624",
+        "text": true
+      },
+      {
+        "bytes": 2290,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/87dfb67e2f39df6ad8bcfb5b78c5fb364d3c07554ad188a202408d99f3763421.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/js-min-max-loop.md",
+        "sha256": "87dfb67e2f39df6ad8bcfb5b78c5fb364d3c07554ad188a202408d99f3763421",
+        "text": true
+      },
+      {
+        "bytes": 2647,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/ee08f83905b4011abbc33d594033157d77561b5bbd9b36b04f0f409581ffec32.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/js-request-idle-callback.md",
+        "sha256": "ee08f83905b4011abbc33d594033157d77561b5bbd9b36b04f0f409581ffec32",
+        "text": true
+      },
+      {
+        "bytes": 532,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/a7fd781a6ba9ad49065961b6f9a90ef486bf6b648390e1a08704025f98e1642b.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/js-set-map-lookups.md",
+        "sha256": "a7fd781a6ba9ad49065961b6f9a90ef486bf6b648390e1a08704025f98e1642b",
+        "text": true
+      },
+      {
+        "bytes": 1782,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/d0a5e1b0fec48a0a81397957e2f068e224329f7c42cb5feeed8aae6fa64025e8.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/js-tosorted-immutable.md",
+        "sha256": "d0a5e1b0fec48a0a81397957e2f068e224329f7c42cb5feeed8aae6fa64025e8",
+        "text": true
+      },
+      {
+        "bytes": 564,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/1e5e7eaf3555e61d6a2e900089c676527d26259501db5594f59544b6c664f85a.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rendering-activity.md",
+        "sha256": "1e5e7eaf3555e61d6a2e900089c676527d26259501db5594f59544b6c664f85a",
+        "text": true
+      },
+      {
+        "bytes": 1185,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/9c6ae0ca7a51434e803887c64cded760956579a1452ccb80a461a03f9c937c77.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rendering-animate-svg-wrapper.md",
+        "sha256": "9c6ae0ca7a51434e803887c64cded760956579a1452ccb80a461a03f9c937c77",
+        "text": true
+      },
+      {
+        "bytes": 980,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/2ec2fa23c4148285144687050c52369adba3da2fbe3d486f8d3e0aad8f06f2bc.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rendering-conditional-render.md",
+        "sha256": "2ec2fa23c4148285144687050c52369adba3da2fbe3d486f8d3e0aad8f06f2bc",
+        "text": true
+      },
+      {
+        "bytes": 815,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/64eee6d5b916fe74df33363994b27fc7f71bea3bcedc7ee04bda23107ca3e6e4.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rendering-content-visibility.md",
+        "sha256": "64eee6d5b916fe74df33363994b27fc7f71bea3bcedc7ee04bda23107ca3e6e4",
+        "text": true
+      },
+      {
+        "bytes": 1039,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/93b229560fae92005ed9a2a829064607b39b2e984e92d221d05b2d41df2b7c0e.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rendering-hoist-jsx.md",
+        "sha256": "93b229560fae92005ed9a2a829064607b39b2e984e92d221d05b2d41df2b7c0e",
+        "text": true
+      },
+      {
+        "bytes": 2308,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/dc7ab358c67c177bca6e6f360fbc935ebe4efa928c0ba3ebd3f9f3d9e2000ca3.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rendering-hydration-no-flicker.md",
+        "sha256": "dc7ab358c67c177bca6e6f360fbc935ebe4efa928c0ba3ebd3f9f3d9e2000ca3",
+        "text": true
+      },
+      {
+        "bytes": 872,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/915bacb934e2927d84b37a3f3d225a47b309ac8f9e494ed2bcb66ce07c5676a2.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rendering-hydration-suppress-warning.md",
+        "sha256": "915bacb934e2927d84b37a3f3d225a47b309ac8f9e494ed2bcb66ce07c5676a2",
+        "text": true
+      },
+      {
+        "bytes": 2549,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/351b1095d641717b930f1b2253282b7120af3023bc74e06c17675168d4286864.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rendering-resource-hints.md",
+        "sha256": "351b1095d641717b930f1b2253282b7120af3023bc74e06c17675168d4286864",
+        "text": true
+      },
+      {
+        "bytes": 1868,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/4cea07b7875ba7fc2c7465ff23b63a2bb334f90aaf2d9293d38d67b05fdb32ab.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rendering-script-defer-async.md",
+        "sha256": "4cea07b7875ba7fc2c7465ff23b63a2bb334f90aaf2d9293d38d67b05fdb32ab",
+        "text": true
+      },
+      {
+        "bytes": 588,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/ed468533f6e95f622859c884b122cf21f9f593ed6bb3d500a54de4b9f9bcb9fb.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rendering-svg-precision.md",
+        "sha256": "ed468533f6e95f622859c884b122cf21f9f593ed6bb3d500a54de4b9f9bcb9fb",
+        "text": true
+      },
+      {
+        "bytes": 2074,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/3a1249c3f13026b6f54ab5712c388df219d6af01b12aa542749acd99a46f4bc1.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rendering-usetransition-loading.md",
+        "sha256": "3a1249c3f13026b6f54ab5712c388df219d6af01b12aa542749acd99a46f4bc1",
+        "text": true
+      },
+      {
+        "bytes": 973,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/234050a77faf50cb306be10a9e15bd4421134ab5907e75f13e6d78e2bd262dc9.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rerender-defer-reads.md",
+        "sha256": "234050a77faf50cb306be10a9e15bd4421134ab5907e75f13e6d78e2bd262dc9",
+        "text": true
+      },
+      {
+        "bytes": 824,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/17eb5830956fb56486fd3cfc7431f5849d39751730c05ad9e77dd4f0c27169c5.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rerender-dependencies.md",
+        "sha256": "17eb5830956fb56486fd3cfc7431f5849d39751730c05ad9e77dd4f0c27169c5",
+        "text": true
+      },
+      {
+        "bytes": 1201,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/cb11ec76f50aa7b6847269f02d79b120c889a30d9ecd2c1d578f75144419c77a.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rerender-derived-state-no-effect.md",
+        "sha256": "cb11ec76f50aa7b6847269f02d79b120c889a30d9ecd2c1d578f75144419c77a",
+        "text": true
+      },
+      {
+        "bytes": 728,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/1c326bb67b01fb084eb00c8911b0a7cff54681c2315b629f88e49b64eaa6481d.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rerender-derived-state.md",
+        "sha256": "1c326bb67b01fb084eb00c8911b0a7cff54681c2315b629f88e49b64eaa6481d",
+        "text": true
+      },
+      {
+        "bytes": 2968,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/5e68df6b2ae8058e67f476ff1ac67bde159f5a9d18df439e46eabcdeb7b52e58.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rerender-functional-setstate.md",
+        "sha256": "5e68df6b2ae8058e67f476ff1ac67bde159f5a9d18df439e46eabcdeb7b52e58",
+        "text": true
+      },
+      {
+        "bytes": 2016,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/4ae844740f266fc8cbf050701230286624a2440ec5be67b9a63d9edc3c580573.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rerender-lazy-state-init.md",
+        "sha256": "4ae844740f266fc8cbf050701230286624a2440ec5be67b9a63d9edc3c580573",
+        "text": true
+      },
+      {
+        "bytes": 1173,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/81c47476564ad8a79fc68fc442734255ca7d6829424359464503fda0a9f9a0dd.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rerender-memo-with-default-value.md",
+        "sha256": "81c47476564ad8a79fc68fc442734255ca7d6829424359464503fda0a9f9a0dd",
+        "text": true
+      },
+      {
+        "bytes": 1148,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/1f258990c2f27ff6256b3cc5c43300631bb3f0d81f749aed08d07fcdcc131dd1.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rerender-memo.md",
+        "sha256": "1f258990c2f27ff6256b3cc5c43300631bb3f0d81f749aed08d07fcdcc131dd1",
+        "text": true
+      },
+      {
+        "bytes": 1268,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/abc2cbf167bee056743023351e96806a411d3398da8802093620aecf0721f029.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rerender-move-effect-to-event.md",
+        "sha256": "abc2cbf167bee056743023351e96806a411d3398da8802093620aecf0721f029",
+        "text": true
+      },
+      {
+        "bytes": 2135,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/1cc32907a770272524ba682eef9e7efdd8ad4533b6f89b718a1fcd7d1d0eb6a3.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rerender-no-inline-components.md",
+        "sha256": "1cc32907a770272524ba682eef9e7efdd8ad4533b6f89b718a1fcd7d1d0eb6a3",
+        "text": true
+      },
+      {
+        "bytes": 1018,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/5bdcf2d1558ba5204e643c887b7b4060f89630969425651eb68e96427d97f800.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rerender-simple-expression-in-memo.md",
+        "sha256": "5bdcf2d1558ba5204e643c887b7b4060f89630969425651eb68e96427d97f800",
+        "text": true
+      },
+      {
+        "bytes": 1844,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/6f45d703343484ef9acef9388397f3642966ae6a5a258899a0cf1f9977cfbf6c.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rerender-split-combined-hooks.md",
+        "sha256": "6f45d703343484ef9acef9388397f3642966ae6a5a258899a0cf1f9977cfbf6c",
+        "text": true
+      },
+      {
+        "bytes": 1055,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/60f4033909a62df5e5b8c601494f9e50a562e2f8c1c2d81eac24f38142265f1c.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rerender-transitions.md",
+        "sha256": "60f4033909a62df5e5b8c601494f9e50a562e2f8c1c2d81eac24f38142265f1c",
+        "text": true
+      },
+      {
+        "bytes": 1846,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/8c3579576a61a949884167745dcfaf1d5426ba305cc61fd0a79602d70fda4909.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rerender-use-deferred-value.md",
+        "sha256": "8c3579576a61a949884167745dcfaf1d5426ba305cc61fd0a79602d70fda4909",
+        "text": true
+      },
+      {
+        "bytes": 1742,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/f1a649af9d1d0b5c762f6c9c4c1c70c90d7df82aa10296ee87aadb78c1b76c54.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/rerender-use-ref-transient-values.md",
+        "sha256": "f1a649af9d1d0b5c762f6c9c4c1c70c90d7df82aa10296ee87aadb78c1b76c54",
+        "text": true
+      },
+      {
+        "bytes": 2012,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/d0b8d24a3db9f0f65f9e2bddbf230b0e03a5f60e1229d93a4a18f5e7a991c7c2.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/server-after-nonblocking.md",
+        "sha256": "d0b8d24a3db9f0f65f9e2bddbf230b0e03a5f60e1229d93a4a18f5e7a991c7c2",
+        "text": true
+      },
+      {
+        "bytes": 2649,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/a2ca8aa102839251c7971ec784560fab943c20b36fe6f80365d4110c13260c23.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/server-auth-actions.md",
+        "sha256": "a2ca8aa102839251c7971ec784560fab943c20b36fe6f80365d4110c13260c23",
+        "text": true
+      },
+      {
+        "bytes": 1353,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/1924b64561841923b88a657085097a0aeba3e0ba2d5470b9f5c15cc10d6ae70f.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/server-cache-lru.md",
+        "sha256": "1924b64561841923b88a657085097a0aeba3e0ba2d5470b9f5c15cc10d6ae70f",
+        "text": true
+      },
+      {
+        "bytes": 2228,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/fddeea6c870bb3da4134b61d54b7d09b83d2603f929b7547cd3dc1dc269edd5c.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/server-cache-react.md",
+        "sha256": "fddeea6c870bb3da4134b61d54b7d09b83d2603f929b7547cd3dc1dc269edd5c",
+        "text": true
+      },
+      {
+        "bytes": 2060,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/c2747424cdac46be62f835f245a0aa887b0090b416d28e2ac8676702645eeb37.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/server-dedup-props.md",
+        "sha256": "c2747424cdac46be62f835f245a0aa887b0090b416d28e2ac8676702645eeb37",
+        "text": true
+      },
+      {
+        "bytes": 4423,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/5abea4dd882b13661bd5f7dfb93f9e547d5f08176c61c448ade91b210ed5d49f.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/server-hoist-static-io.md",
+        "sha256": "5abea4dd882b13661bd5f7dfb93f9e547d5f08176c61c448ade91b210ed5d49f",
+        "text": true
+      },
+      {
+        "bytes": 1766,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/4d869bf1cd2f1632e5ca4c0e64b1cf0e71c5f5a0f940bc8a22174d205e735ed7.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/server-no-shared-module-state.md",
+        "sha256": "4d869bf1cd2f1632e5ca4c0e64b1cf0e71c5f5a0f940bc8a22174d205e735ed7",
+        "text": true
+      },
+      {
+        "bytes": 1554,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/569a2e9fc04f9606686cd75c5894ef8781b502786a7fffe241396846c7733472.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/server-parallel-fetching.md",
+        "sha256": "569a2e9fc04f9606686cd75c5894ef8781b502786a7fffe241396846c7733472",
+        "text": true
+      },
+      {
+        "bytes": 992,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/ad5d9656984d4a959997a2367bf59cc6632297b4634a1dd13a087939d83f30b3.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/server-parallel-nested-fetching.md",
+        "sha256": "ad5d9656984d4a959997a2367bf59cc6632297b4634a1dd13a087939d83f30b3",
+        "text": true
+      },
+      {
+        "bytes": 996,
+        "content_snapshot": "sources/upstream/vercel-labs-agent-skills-unknown/content-by-sha256/f4c7d68b29c82381baad059c4a7f09e868e71ec9c3115a26ad3ae7d24c0dfe1f.md",
+        "kind": "package_file",
+        "path": "agent-skills-HEAD/skills/react-best-practices/rules/server-serialization.md",
+        "sha256": "f4c7d68b29c82381baad059c4a7f09e868e71ec9c3115a26ad3ae7d24c0dfe1f",
+        "text": true
+      }
+    ],
+    "scripts": [],
+    "unresolved_references": []
+  },
+  "schema": "skill-ir/1.0",
+  "source": {
+    "bytes": 7251,
+    "catalog_metadata": {
+      "bundle_offset": 4541728,
+      "category": "engineering",
+      "content_binding": "S$",
+      "description": "Dense React and Next.js best practices: performance, data fetching, server components, patterns, and opinionated reviews with good/bad examples.",
+      "github_url": "https://github.com/vercel-labs/agent-skills/tree/main/skills/react-best-practices",
+      "slug": "vercel-react-best-practices",
+      "source": "vercel",
+      "source_label": "Vercel",
+      "stars_reported": 28,
+      "template_expressions": [],
+      "title": "Vercel React Best Practices"
+    },
+    "line_table": [
+      {
+        "line": 1,
+        "text": "---"
+      },
+      {
+        "line": 2,
+        "text": "name: vercel-react-best-practices"
+      },
+      {
+        "line": 3,
+        "text": "description: React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements."
+      },
+      {
+        "line": 4,
+        "text": "license: MIT"
+      },
+      {
+        "line": 5,
+        "text": "metadata:"
+      },
+      {
+        "line": 6,
+        "text": "  author: vercel"
+      },
+      {
+        "line": 7,
+        "text": "  version: \"1.0.0\""
+      },
+      {
+        "line": 8,
+        "text": "---"
+      },
+      {
+        "line": 9,
+        "text": ""
+      },
+      {
+        "line": 10,
+        "text": "# Vercel React Best Practices"
+      },
+      {
+        "line": 11,
+        "text": ""
+      },
+      {
+        "line": 12,
+        "text": "Comprehensive performance optimization guide for React and Next.js applications, maintained by Vercel. Contains 70 rules across 8 categories, prioritized by impact to guide automated refactoring and code generation."
+      },
+      {
+        "line": 13,
+        "text": ""
+      },
+      {
+        "line": 14,
+        "text": "## When to Apply"
+      },
+      {
+        "line": 15,
+        "text": ""
+      },
+      {
+        "line": 16,
+        "text": "Reference these guidelines when:"
+      },
+      {
+        "line": 17,
+        "text": "- Writing new React components or Next.js pages"
+      },
+      {
+        "line": 18,
+        "text": "- Implementing data fetching (client or server-side)"
+      },
+      {
+        "line": 19,
+        "text": "- Reviewing code for performance issues"
+      },
+      {
+        "line": 20,
+        "text": "- Refactoring existing React/Next.js code"
+      },
+      {
+        "line": 21,
+        "text": "- Optimizing bundle size or load times"
+      },
+      {
+        "line": 22,
+        "text": ""
+      },
+      {
+        "line": 23,
+        "text": "## Rule Categories by Priority"
+      },
+      {
+        "line": 24,
+        "text": ""
+      },
+      {
+        "line": 25,
+        "text": "| Priority | Category | Impact | Prefix |"
+      },
+      {
+        "line": 26,
+        "text": "|----------|----------|--------|--------|"
+      },
+      {
+        "line": 27,
+        "text": "| 1 | Eliminating Waterfalls | CRITICAL | `async-` |"
+      },
+      {
+        "line": 28,
+        "text": "| 2 | Bundle Size Optimization | CRITICAL | `bundle-` |"
+      },
+      {
+        "line": 29,
+        "text": "| 3 | Server-Side Performance | HIGH | `server-` |"
+      },
+      {
+        "line": 30,
+        "text": "| 4 | Client-Side Data Fetching | MEDIUM-HIGH | `client-` |"
+      },
+      {
+        "line": 31,
+        "text": "| 5 | Re-render Optimization | MEDIUM | `rerender-` |"
+      },
+      {
+        "line": 32,
+        "text": "| 6 | Rendering Performance | MEDIUM | `rendering-` |"
+      },
+      {
+        "line": 33,
+        "text": "| 7 | JavaScript Performance | LOW-MEDIUM | `js-` |"
+      },
+      {
+        "line": 34,
+        "text": "| 8 | Advanced Patterns | LOW | `advanced-` |"
+      },
+      {
+        "line": 35,
+        "text": ""
+      },
+      {
+        "line": 36,
+        "text": "## Quick Reference"
+      },
+      {
+        "line": 37,
+        "text": ""
+      },
+      {
+        "line": 38,
+        "text": "### 1. Eliminating Waterfalls (CRITICAL)"
+      },
+      {
+        "line": 39,
+        "text": ""
+      },
+      {
+        "line": 40,
+        "text": "- `async-cheap-condition-before-await` - Check cheap sync conditions before awaiting flags or remote values"
+      },
+      {
+        "line": 41,
+        "text": "- `async-defer-await` - Move await into branches where actually used"
+      },
+      {
+        "line": 42,
+        "text": "- `async-parallel` - Use Promise.all() for independent operations"
+      },
+      {
+        "line": 43,
+        "text": "- `async-dependencies` - Use better-all for partial dependencies"
+      },
+      {
+        "line": 44,
+        "text": "- `async-api-routes` - Start promises early, await late in API routes"
+      },
+      {
+        "line": 45,
+        "text": "- `async-suspense-boundaries` - Use Suspense to stream content"
+      },
+      {
+        "line": 46,
+        "text": ""
+      },
+      {
+        "line": 47,
+        "text": "### 2. Bundle Size Optimization (CRITICAL)"
+      },
+      {
+        "line": 48,
+        "text": ""
+      },
+      {
+        "line": 49,
+        "text": "- `bundle-barrel-imports` - Import directly, avoid barrel files"
+      },
+      {
+        "line": 50,
+        "text": "- `bundle-analyzable-paths` - Prefer statically analyzable import and file-system paths to avoid broad bundles and traces"
+      },
+      {
+        "line": 51,
+        "text": "- `bundle-dynamic-imports` - Use next/dynamic for heavy components"
+      },
+      {
+        "line": 52,
+        "text": "- `bundle-defer-third-party` - Load analytics/logging after hydration"
+      },
+      {
+        "line": 53,
+        "text": "- `bundle-conditional` - Load modules only when feature is activated"
+      },
+      {
+        "line": 54,
+        "text": "- `bundle-preload` - Preload on hover/focus for perceived speed"
+      },
+      {
+        "line": 55,
+        "text": ""
+      },
+      {
+        "line": 56,
+        "text": "### 3. Server-Side Performance (HIGH)"
+      },
+      {
+        "line": 57,
+        "text": ""
+      },
+      {
+        "line": 58,
+        "text": "- `server-auth-actions` - Authenticate server actions like API routes"
+      },
+      {
+        "line": 59,
+        "text": "- `server-cache-react` - Use React.cache() for per-request deduplication"
+      },
+      {
+        "line": 60,
+        "text": "- `server-cache-lru` - Use LRU cache for cross-request caching"
+      },
+      {
+        "line": 61,
+        "text": "- `server-dedup-props` - Avoid duplicate serialization in RSC props"
+      },
+      {
+        "line": 62,
+        "text": "- `server-hoist-static-io` - Hoist static I/O (fonts, logos) to module level"
+      },
+      {
+        "line": 63,
+        "text": "- `server-no-shared-module-state` - Avoid module-level mutable request state in RSC/SSR"
+      },
+      {
+        "line": 64,
+        "text": "- `server-serialization` - Minimize data passed to client components"
+      },
+      {
+        "line": 65,
+        "text": "- `server-parallel-fetching` - Restructure components to parallelize fetches"
+      },
+      {
+        "line": 66,
+        "text": "- `server-parallel-nested-fetching` - Chain nested fetches per item in Promise.all"
+      },
+      {
+        "line": 67,
+        "text": "- `server-after-nonblocking` - Use after() for non-blocking operations"
+      },
+      {
+        "line": 68,
+        "text": ""
+      },
+      {
+        "line": 69,
+        "text": "### 4. Client-Side Data Fetching (MEDIUM-HIGH)"
+      },
+      {
+        "line": 70,
+        "text": ""
+      },
+      {
+        "line": 71,
+        "text": "- `client-swr-dedup` - Use SWR for automatic request deduplication"
+      },
+      {
+        "line": 72,
+        "text": "- `client-event-listeners` - Deduplicate global event listeners"
+      },
+      {
+        "line": 73,
+        "text": "- `client-passive-event-listeners` - Use passive listeners for scroll"
+      },
+      {
+        "line": 74,
+        "text": "- `client-localstorage-schema` - Version and minimize localStorage data"
+      },
+      {
+        "line": 75,
+        "text": ""
+      },
+      {
+        "line": 76,
+        "text": "### 5. Re-render Optimization (MEDIUM)"
+      },
+      {
+        "line": 77,
+        "text": ""
+      },
+      {
+        "line": 78,
+        "text": "- `rerender-defer-reads` - Don't subscribe to state only used in callbacks"
+      },
+      {
+        "line": 79,
+        "text": "- `rerender-memo` - Extract expensive work into memoized components"
+      },
+      {
+        "line": 80,
+        "text": "- `rerender-memo-with-default-value` - Hoist default non-primitive props"
+      },
+      {
+        "line": 81,
+        "text": "- `rerender-dependencies` - Use primitive dependencies in effects"
+      },
+      {
+        "line": 82,
+        "text": "- `rerender-derived-state` - Subscribe to derived booleans, not raw values"
+      },
+      {
+        "line": 83,
+        "text": "- `rerender-derived-state-no-effect` - Derive state during render, not effects"
+      },
+      {
+        "line": 84,
+        "text": "- `rerender-functional-setstate` - Use functional setState for stable callbacks"
+      },
+      {
+        "line": 85,
+        "text": "- `rerender-lazy-state-init` - Pass function to useState for expensive values"
+      },
+      {
+        "line": 86,
+        "text": "- `rerender-simple-expression-in-memo` - Avoid memo for simple primitives"
+      },
+      {
+        "line": 87,
+        "text": "- `rerender-split-combined-hooks` - Split hooks with independent dependencies"
+      },
+      {
+        "line": 88,
+        "text": "- `rerender-move-effect-to-event` - Put interaction logic in event handlers"
+      },
+      {
+        "line": 89,
+        "text": "- `rerender-transitions` - Use startTransition for non-urgent updates"
+      },
+      {
+        "line": 90,
+        "text": "- `rerender-use-deferred-value` - Defer expensive renders to keep input responsive"
+      },
+      {
+        "line": 91,
+        "text": "- `rerender-use-ref-transient-values` - Use refs for transient frequent values"
+      },
+      {
+        "line": 92,
+        "text": "- `rerender-no-inline-components` - Don't define components inside components"
+      },
+      {
+        "line": 93,
+        "text": ""
+      },
+      {
+        "line": 94,
+        "text": "### 6. Rendering Performance (MEDIUM)"
+      },
+      {
+        "line": 95,
+        "text": ""
+      },
+      {
+        "line": 96,
+        "text": "- `rendering-animate-svg-wrapper` - Animate div wrapper, not SVG element"
+      },
+      {
+        "line": 97,
+        "text": "- `rendering-content-visibility` - Use content-visibility for long lists"
+      },
+      {
+        "line": 98,
+        "text": "- `rendering-hoist-jsx` - Extract static JSX outside components"
+      },
+      {
+        "line": 99,
+        "text": "- `rendering-svg-precision` - Reduce SVG coordinate precision"
+      },
+      {
+        "line": 100,
+        "text": "- `rendering-hydration-no-flicker` - Use inline script for client-only data"
+      },
+      {
+        "line": 101,
+        "text": "- `rendering-hydration-suppress-warning` - Suppress expected mismatches"
+      },
+      {
+        "line": 102,
+        "text": "- `rendering-activity` - Use Activity component for show/hide"
+      },
+      {
+        "line": 103,
+        "text": "- `rendering-conditional-render` - Use ternary, not && for conditionals"
+      },
+      {
+        "line": 104,
+        "text": "- `rendering-usetransition-loading` - Prefer useTransition for loading state"
+      },
+      {
+        "line": 105,
+        "text": "- `rendering-resource-hints` - Use React DOM resource hints for preloading"
+      },
+      {
+        "line": 106,
+        "text": "- `rendering-script-defer-async` - Use defer or async on script tags"
+      },
+      {
+        "line": 107,
+        "text": ""
+      },
+      {
+        "line": 108,
+        "text": "### 7. JavaScript Performance (LOW-MEDIUM)"
+      },
+      {
+        "line": 109,
+        "text": ""
+      },
+      {
+        "line": 110,
+        "text": "- `js-batch-dom-css` - Group CSS changes via classes or cssText"
+      },
+      {
+        "line": 111,
+        "text": "- `js-index-maps` - Build Map for repeated lookups"
+      },
+      {
+        "line": 112,
+        "text": "- `js-cache-property-access` - Cache object properties in loops"
+      },
+      {
+        "line": 113,
+        "text": "- `js-cache-function-results` - Cache function results in module-level Map"
+      },
+      {
+        "line": 114,
+        "text": "- `js-cache-storage` - Cache localStorage/sessionStorage reads"
+      },
+      {
+        "line": 115,
+        "text": "- `js-combine-iterations` - Combine multiple filter/map into one loop"
+      },
+      {
+        "line": 116,
+        "text": "- `js-length-check-first` - Check array length before expensive comparison"
+      },
+      {
+        "line": 117,
+        "text": "- `js-early-exit` - Return early from functions"
+      },
+      {
+        "line": 118,
+        "text": "- `js-hoist-regexp` - Hoist RegExp creation outside loops"
+      },
+      {
+        "line": 119,
+        "text": "- `js-min-max-loop` - Use loop for min/max instead of sort"
+      },
+      {
+        "line": 120,
+        "text": "- `js-set-map-lookups` - Use Set/Map for O(1) lookups"
+      },
+      {
+        "line": 121,
+        "text": "- `js-tosorted-immutable` - Use toSorted() for immutability"
+      },
+      {
+        "line": 122,
+        "text": "- `js-flatmap-filter` - Use flatMap to map and filter in one pass"
+      },
+      {
+        "line": 123,
+        "text": "- `js-request-idle-callback` - Defer non-critical work to browser idle time"
+      },
+      {
+        "line": 124,
+        "text": ""
+      },
+      {
+        "line": 125,
+        "text": "### 8. Advanced Patterns (LOW)"
+      },
+      {
+        "line": 126,
+        "text": ""
+      },
+      {
+        "line": 127,
+        "text": "- `advanced-effect-event-deps` - Don't put `useEffectEvent` results in effect deps"
+      },
+      {
+        "line": 128,
+        "text": "- `advanced-event-handler-refs` - Store event handlers in refs"
+      },
+      {
+        "line": 129,
+        "text": "- `advanced-init-once` - Initialize app once per app load"
+      },
+      {
+        "line": 130,
+        "text": "- `advanced-use-latest` - useLatest for stable callback refs"
+      },
+      {
+        "line": 131,
+        "text": ""
+      },
+      {
+        "line": 132,
+        "text": "## How to Use"
+      },
+      {
+        "line": 133,
+        "text": ""
+      },
+      {
+        "line": 134,
+        "text": "Read individual rule files for detailed explanations and code examples:"
+      },
+      {
+        "line": 135,
+        "text": ""
+      },
+      {
+        "line": 136,
+        "text": "```"
+      },
+      {
+        "line": 137,
+        "text": "rules/async-parallel.md"
+      },
+      {
+        "line": 138,
+        "text": "rules/bundle-barrel-imports.md"
+      },
+      {
+        "line": 139,
+        "text": "```"
+      },
+      {
+        "line": 140,
+        "text": ""
+      },
+      {
+        "line": 141,
+        "text": "Each rule file contains:"
+      },
+      {
+        "line": 142,
+        "text": "- Brief explanation of why it matters"
+      },
+      {
+        "line": 143,
+        "text": "- Incorrect code example with explanation"
+      },
+      {
+        "line": 144,
+        "text": "- Correct code example with explanation"
+      },
+      {
+        "line": 145,
+        "text": "- Additional context and references"
+      },
+      {
+        "line": 146,
+        "text": ""
+      },
+      {
+        "line": 147,
+        "text": "## Full Compiled Document"
+      },
+      {
+        "line": 148,
+        "text": ""
+      },
+      {
+        "line": 149,
+        "text": "For the complete guide with all rules expanded: `AGENTS.md`"
+      }
+    ],
+    "matched_upstream_skill_path": "agent-skills-HEAD/skills/react-best-practices/SKILL.md",
+    "repo": "vercel-labs/agent-skills",
+    "repo_reference": "https://github.com/vercel-labs/agent-skills/tree/main/skills/react-best-practices",
+    "repo_revision": "unknown",
+    "revision_status": "archive-digest-pinned upstream package matched by exact_content_hash_match",
+    "sha256": "71ed7794962fa6e803ee83030517b5b93a9f70fbfeb431ec4535c5480a8d8355",
+    "snapshot_path": "sources/catalog-skills/vercel-react-best-practices/SKILL.md",
+    "source_id": "aiuxplayground:catalog-content:vercel-react-best-practices"
+  }
+}

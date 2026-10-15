@@ -42,7 +42,7 @@ Request arrives
 |
 +-- Visual design / .pen file / design sweep?
 |   -> Use Pencil MCP tools (batch_design, get_screenshot, style guides)
-|      Ref: skillsdb://design-ux/pencil for character/illustration work
+|      Ref: skillsdb://creative/pencil for character/illustration work
 |
 +-- CLI / agentic UX patterns?
 |   -> Load Phase 0.5 lev-ref patterns (below)

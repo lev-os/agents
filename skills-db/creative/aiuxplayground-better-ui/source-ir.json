@@ -1,0 +1,1464 @@
+{
+  "frontmatter": {
+    "fields": {
+      "description": "Design engineering principles for making interfaces feel polished. Use when building UI components, reviewing frontend code, implementing animations, hover states, shadows, borders, micro-interactions, enter/exit animations, choosing or reviewing icons, or any visual detail work. Triggers on UI polish, design details, \"make it feel better\", \"feels off\", stagger animations, border radius, optical alignment, image outlines, box shadows, icons, icon stroke weight, icon states, motion restraint.",
+      "name": "better-ui"
+    },
+    "line_end": 3,
+    "line_start": 1,
+    "raw": "name: better-ui\ndescription: Design engineering principles for making interfaces feel polished. Use when building UI components, reviewing frontend code, implementing animations, hover states, shadows, borders, micro-interactions, enter/exit animations, choosing or reviewing icons, or any visual detail work. Triggers on UI polish, design details, \"make it feel better\", \"feels off\", stagger animations, border radius, optical alignment, image outlines, box shadows, icons, icon stroke weight, icon states, motion restraint.",
+    "status": "present"
+  },
+  "identity": {
+    "catalog_category": "ui-design",
+    "slug": "better-ui",
+    "title": "Better UI"
+  },
+  "license": {
+    "status": "not stated in captured catalog source",
+    "value": null
+  },
+  "line_count": 141,
+  "ontology": {
+    "actions": [
+      {
+        "evidence": {
+          "line_end": 138,
+          "line_start": 138,
+          "text": "1. **Verification**: list the exact checks run and their observed results. Walk every relevant state and inspect motion at 10% speed when animation is involved. If a check was not run, state what still needs verification."
+        },
+        "text": "1. **Verification**: list the exact checks run and their observed results. Walk every relevant state and inspect motion at 10% speed when animation is involved. If a check was not run, state what still needs verification."
+      }
+    ],
+    "command_examples": [],
+    "constraints": [
+      {
+        "evidence": {
+          "line_end": 12,
+          "line_start": 12,
+          "text": "Preserve the project's component library, tokens, and density. Match its established motion language except where a principle below prescribes an exact interaction pattern."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Preserve the project's component library, tokens, and density. Match its established motion language except where a principle below prescribes an exact interaction pattern."
+      },
+      {
+        "evidence": {
+          "line_end": 37,
+          "line_start": 37,
+          "text": "For buttons, cards, and containers whose border exists only to create depth, prefer layered transparent `box-shadow` values. Keep borders that communicate structure or state: dividers, layout separators, and selected or focus states."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "For buttons, cards, and containers whose border exists only to create depth, prefer layered transparent `box-shadow` values. Keep borders that communicate structure or state: dividers, layout separators, and selected or focus states."
+      },
+      {
+        "evidence": {
+          "line_end": 45,
+          "line_start": 45,
+          "text": "For an infrequent staged entrance where sequence helps communicate hierarchy, break content into semantic chunks and stagger them by ~100ms instead of animating one container. Do not stagger routine, high-frequency interactions."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "For an infrequent staged entrance where sequence helps communicate hierarchy, break content into semantic chunks and stagger them by ~100ms instead of animating one container. Do not stagger routine, high-frequency interactions."
+      },
+      {
+        "evidence": {
+          "line_end": 53,
+          "line_start": 53,
+          "text": "Animate icons with `opacity`, `scale`, and `blur` instead of toggling visibility. Use exactly these values: scale from `0.25` to `1`, opacity from `0` to `1`, blur from `4px` to `0px`. If the project has `motion` or `framer-motion` in `package.json`, match that package's import path (or the established nearby imports when both exist) and use `transition: { type: \"spring\", duration: 0.3, bounce: 0 }`; bounce must always be `0`. If no motion library is installed, keep both icons in the DOM (one absolute-positioned) and cross-fade with CSS transitions using `cubic-bezier(0.2, 0, 0, 1)`; this gives both enter and exit animations without any dependency."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Animate icons with `opacity`, `scale`, and `blur` instead of toggling visibility. Use exactly these values: scale from `0.25` to `1`, opacity from `0` to `1`, blur from `4px` to `0px`. If the project has `motion` or `framer-motion` in `package.json`, match that package's import path (or the established nearby imports when both exist) and use `transition: { type: \"spring\", duration: 0.3, bounce: 0 }`; bounce must always be `0`. If no motion library is installed, keep both icons in the DOM (one absolute-positioned) and cross-fade with CSS transitions using `cubic-bezier(0.2, 0, 0, 1)`; this gives both enter and exit animations without any dependency."
+      },
+      {
+        "evidence": {
+          "line_end": 57,
+          "line_start": 57,
+          "text": "Add a subtle `1px` outline with low opacity to images for consistent depth. The color must be pure black in light mode (`oklch(0 0 0 / 0.1)`) and pure white in dark mode (`oklch(1 0 0 / 0.1)`), never a near-black like slate, zinc, or any tinted neutral. A tinted outline picks up the surface color underneath it and reads as dirt on the image edge."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Add a subtle `1px` outline with low opacity to images for consistent depth. The color must be pure black in light mode (`oklch(0 0 0 / 0.1)`) and pure white in dark mode (`oklch(1 0 0 / 0.1)`), never a near-black like slate, zinc, or any tinted neutral. A tinted outline picks up the surface color underneath it and reads as dirt on the image edge."
+      },
+      {
+        "evidence": {
+          "line_end": 61,
+          "line_start": 61,
+          "text": "A subtle `scale(0.96)` on click gives buttons tactile feedback. Always use `0.96`. Never use a value smaller than `0.95`: anything below feels exaggerated. Add a `static` prop to disable it when motion would be distracting."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "A subtle `scale(0.96)` on click gives buttons tactile feedback. Always use `0.96`. Never use a value smaller than `0.95`: anything below feels exaggerated. Add a `static` prop to disable it when motion would be distracting."
+      },
+      {
+        "evidence": {
+          "line_end": 67,
+          "line_start": 67,
+          "text": "### 11. Never Use `transition: all`"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "### 11. Never Use `transition: all`"
+      },
+      {
+        "evidence": {
+          "line_end": 69,
+          "line_start": 69,
+          "text": "Always specify exact properties: `transition-property: scale, opacity`. Tailwind's `transition-transform` covers `transform, translate, scale, rotate`."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Always specify exact properties: `transition-property: scale, opacity`. Tailwind's `transition-transform` covers `transform, translate, scale, rotate`."
+      },
+      {
+        "evidence": {
+          "line_end": 73,
+          "line_start": 73,
+          "text": "Only for `transform`, `opacity`, `filter`, the properties the GPU can composite. Never use `will-change: all`. Only add when you notice first-frame stutter."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Only for `transform`, `opacity`, `filter`, the properties the GPU can composite. Never use `will-change: all`. Only add when you notice first-frame stutter."
+      },
+      {
+        "evidence": {
+          "line_end": 77,
+          "line_start": 77,
+          "text": "An icon next to text carries the text's optical weight: `1.5px` stroke beside regular (400) text, `2px` beside semibold (600). One stroke weight per icon set; never mix libraries on one surface."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "An icon next to text carries the text's optical weight: `1.5px` stroke beside regular (400) text, `2px` beside semibold (600). One stroke weight per icon set; never mix libraries on one surface."
+      },
+      {
+        "evidence": {
+          "line_end": 81,
+          "line_start": 81,
+          "text": "Icons use `currentColor` and get their states (hover, selected, disabled) from CSS color and opacity, never from separate assets. Outline variant is the default; fill variant marks the active state."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Icons use `currentColor` and get their states (hover, selected, disabled) from CSS color and opacity, never from separate assets. Outline variant is the default; fill variant marks the active state."
+      },
+      {
+        "evidence": {
+          "line_end": 85,
+          "line_start": 85,
+          "text": "No custom animation on high-frequency interactions: the attention cost repeats on every trigger. Motion is never the only feedback channel; every animated state change also needs a static cue (color, icon, label)."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "No custom animation on high-frequency interactions: the attention cost repeats on every trigger. Motion is never the only feedback channel; every animated state change also needs a static cue (color, icon, label)."
+      },
+      {
+        "evidence": {
+          "line_end": 93,
+          "line_start": 93,
+          "text": "| Border used only to fake elevation | Use layered `box-shadow` with transparency; keep structural and state borders |"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "| Border used only to fake elevation | Use layered `box-shadow` with transparency; keep structural and state borders |"
+      },
+      {
+        "evidence": {
+          "line_end": 95,
+          "line_start": 95,
+          "text": "| Stateful icon or toggle animates its default state on page load | Add `initial={false}` to that `AnimatePresence`; preserve intentional page entrances |"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "| Stateful icon or toggle animates its default state on page load | Add `initial={false}` to that `AnimatePresence`; preserve intentional page entrances |"
+      },
+      {
+        "evidence": {
+          "line_end": 100,
+          "line_start": 100,
+          "text": "| Filled icons everywhere | Outline as default, fill only for the active state |"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "| Filled icons everywhere | Outline as default, fill only for the active state |"
+      },
+      {
+        "evidence": {
+          "line_end": 105,
+          "line_start": 105,
+          "text": "Use this format only when the user asks for a standalone UI-polish review. When `better-interface` orchestrates the review, provide domain evidence and findings to that skill and let its output format, severity scale, consolidation rules, cap, and verdict take precedence."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Use this format only when the user asks for a standalone UI-polish review. When `better-interface` orchestrates the review, provide domain evidence and findings to that skill and let its output format, severity scale, consolidation rules, cap, and verdict take precedence."
+      },
+      {
+        "evidence": {
+          "line_end": 111,
+          "line_start": 111,
+          "text": "Group all confirmed findings by principle. Use a markdown table with **Severity**, **Location**, **Before**, **After**, and **Why** columns. Never use separate \"Before:\" / \"After:\" lines."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Group all confirmed findings by principle. Use a markdown table with **Severity**, **Location**, **Before**, **After**, and **Why** columns. Never use separate \"Before:\" / \"After:\" lines."
+      },
+      {
+        "evidence": {
+          "line_end": 139,
+          "line_start": 139,
+          "text": "2. **Verdict**: `Block` if any `HIGH` finding remains, `Needs changes` if only `MEDIUM` or `LOW` findings remain, and `Approve` only when no actionable findings remain."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "2. **Verdict**: `Block` if any `HIGH` finding remains, `Needs changes` if only `MEDIUM` or `LOW` findings remain, and `Approve` only when no actionable findings remain."
+      }
+    ],
+    "effects": [
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 37,
+          "line_start": 37,
+          "text": "For buttons, cards, and containers whose border exists only to create depth, prefer layered transparent `box-shadow` values. Keep borders that communicate structure or state: dividers, layout separators, and selected or focus states."
+        },
+        "modality": "unspecified",
+        "text": "For buttons, cards, and containers whose border exists only to create depth, prefer layered transparent `box-shadow` values. Keep borders that communicate structure or state: dividers, layout separators, and selected or focus states.",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 41,
+          "line_start": 41,
+          "text": "Use CSS transitions for interactive state changes: they can be interrupted mid-animation. Reserve keyframes for staged sequences that run once."
+        },
+        "modality": "unspecified",
+        "text": "Use CSS transitions for interactive state changes: they can be interrupted mid-animation. Reserve keyframes for staged sequences that run once.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 138,
+          "line_start": 138,
+          "text": "1. **Verification**: list the exact checks run and their observed results. Walk every relevant state and inspect motion at 10% speed when animation is involved. If a check was not run, state what still needs verification."
+        },
+        "modality": "unspecified",
+        "text": "1. **Verification**: list the exact checks run and their observed results. Walk every relevant state and inspect motion at 10% speed when animation is involved. If a check was not run, state what still needs verification.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 138,
+          "line_start": 138,
+          "text": "1. **Verification**: list the exact checks run and their observed results. Walk every relevant state and inspect motion at 10% speed when animation is involved. If a check was not run, state what still needs verification."
+        },
+        "modality": "conditional",
+        "text": "1. **Verification**: list the exact checks run and their observed results. Walk every relevant state and inspect motion at 10% speed when animation is involved. If a check was not run, state what still needs verification.",
+        "verb": "run"
+      }
+    ],
+    "external_urls": [],
+    "headings": [
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 6,
+        "title": "Details that make interfaces feel better"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 16,
+        "title": "Quick Reference"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 25,
+        "title": "Core Principles"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 27,
+        "title": "1. Concentric Border Radius"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 31,
+        "title": "2. Optical Over Geometric Alignment"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 35,
+        "title": "3. Shadows for Elevation, Borders for Structure"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 39,
+        "title": "4. Interruptible Animations"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 43,
+        "title": "5. Split and Stagger Enter Animations"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 47,
+        "title": "6. Subtle Exit Animations"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 51,
+        "title": "7. Contextual Icon Animations"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 55,
+        "title": "8. Image Outlines"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 59,
+        "title": "9. Scale on Press"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 63,
+        "title": "10. Skip Animation on Page Load"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 67,
+        "title": "11. Never Use `transition: all`"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 71,
+        "title": "12. Use `will-change` Sparingly"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 75,
+        "title": "13. Match Icon Stroke to Text Weight"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 79,
+        "title": "14. One SVG, Recolored per State"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 83,
+        "title": "15. Motion Restraint"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 87,
+        "title": "Common Mistakes"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 103,
+        "title": "Review Output Format"
+      },
+      {
+        "bullets": [
+          {
+            "line": 113,
+            "text": "**Severity**: `HIGH` makes an interaction misleading, unresponsive, or repeatedly disruptive; `MEDIUM` creates a noticeable craft or consistency problem; `LOW` is isolated polish."
+          },
+          {
+            "line": 114,
+            "text": "**Location**: cite `path/to/file:line`. If the artifact has no source files, cite the exact screen and component instead."
+          },
+          {
+            "line": 115,
+            "text": "**Before / After**: show the current implementation and an actionable replacement."
+          },
+          {
+            "line": 116,
+            "text": "**Why**: name the violated principle and explain how it affects the interface."
+          }
+        ],
+        "level": 3,
+        "line": 109,
+        "title": "Findings"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 120,
+        "title": "Example"
+      },
+      {
+        "bullets": [],
+        "level": 4,
+        "line": 122,
+        "title": "Concentric border radius"
+      },
+      {
+        "bullets": [],
+        "level": 4,
+        "line": 128,
+        "title": "Scale on press"
+      },
+      {
+        "bullets": [
+          {
+            "line": 138,
+            "text": "**Verification**: list the exact checks run and their observed results. Walk every relevant state and inspect motion at 10% speed when animation is involved. If a check was not run, state what still needs verification."
+          },
+          {
+            "line": 139,
+            "text": "**Verdict**: `Block` if any `HIGH` finding remains, `Needs changes` if only `MEDIUM` or `LOW` findings remain, and `Approve` only when no actionable findings remain."
+          }
+        ],
+        "level": 3,
+        "line": 134,
+        "title": "Verification and Verdict"
+      }
+    ],
+    "inputs": [],
+    "invariants": [
+      {
+        "evidence": {
+          "line_end": 12,
+          "line_start": 12,
+          "text": "Preserve the project's component library, tokens, and density. Match its established motion language except where a principle below prescribes an exact interaction pattern."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Preserve the project's component library, tokens, and density. Match its established motion language except where a principle below prescribes an exact interaction pattern."
+      },
+      {
+        "evidence": {
+          "line_end": 37,
+          "line_start": 37,
+          "text": "For buttons, cards, and containers whose border exists only to create depth, prefer layered transparent `box-shadow` values. Keep borders that communicate structure or state: dividers, layout separators, and selected or focus states."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "For buttons, cards, and containers whose border exists only to create depth, prefer layered transparent `box-shadow` values. Keep borders that communicate structure or state: dividers, layout separators, and selected or focus states."
+      },
+      {
+        "evidence": {
+          "line_end": 45,
+          "line_start": 45,
+          "text": "For an infrequent staged entrance where sequence helps communicate hierarchy, break content into semantic chunks and stagger them by ~100ms instead of animating one container. Do not stagger routine, high-frequency interactions."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "For an infrequent staged entrance where sequence helps communicate hierarchy, break content into semantic chunks and stagger them by ~100ms instead of animating one container. Do not stagger routine, high-frequency interactions."
+      },
+      {
+        "evidence": {
+          "line_end": 53,
+          "line_start": 53,
+          "text": "Animate icons with `opacity`, `scale`, and `blur` instead of toggling visibility. Use exactly these values: scale from `0.25` to `1`, opacity from `0` to `1`, blur from `4px` to `0px`. If the project has `motion` or `framer-motion` in `package.json`, match that package's import path (or the established nearby imports when both exist) and use `transition: { type: \"spring\", duration: 0.3, bounce: 0 }`; bounce must always be `0`. If no motion library is installed, keep both icons in the DOM (one absolute-positioned) and cross-fade with CSS transitions using `cubic-bezier(0.2, 0, 0, 1)`; this gives both enter and exit animations without any dependency."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Animate icons with `opacity`, `scale`, and `blur` instead of toggling visibility. Use exactly these values: scale from `0.25` to `1`, opacity from `0` to `1`, blur from `4px` to `0px`. If the project has `motion` or `framer-motion` in `package.json`, match that package's import path (or the established nearby imports when both exist) and use `transition: { type: \"spring\", duration: 0.3, bounce: 0 }`; bounce must always be `0`. If no motion library is installed, keep both icons in the DOM (one absolute-positioned) and cross-fade with CSS transitions using `cubic-bezier(0.2, 0, 0, 1)`; this gives both enter and exit animations without any dependency."
+      },
+      {
+        "evidence": {
+          "line_end": 57,
+          "line_start": 57,
+          "text": "Add a subtle `1px` outline with low opacity to images for consistent depth. The color must be pure black in light mode (`oklch(0 0 0 / 0.1)`) and pure white in dark mode (`oklch(1 0 0 / 0.1)`), never a near-black like slate, zinc, or any tinted neutral. A tinted outline picks up the surface color underneath it and reads as dirt on the image edge."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Add a subtle `1px` outline with low opacity to images for consistent depth. The color must be pure black in light mode (`oklch(0 0 0 / 0.1)`) and pure white in dark mode (`oklch(1 0 0 / 0.1)`), never a near-black like slate, zinc, or any tinted neutral. A tinted outline picks up the surface color underneath it and reads as dirt on the image edge."
+      },
+      {
+        "evidence": {
+          "line_end": 61,
+          "line_start": 61,
+          "text": "A subtle `scale(0.96)` on click gives buttons tactile feedback. Always use `0.96`. Never use a value smaller than `0.95`: anything below feels exaggerated. Add a `static` prop to disable it when motion would be distracting."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "A subtle `scale(0.96)` on click gives buttons tactile feedback. Always use `0.96`. Never use a value smaller than `0.95`: anything below feels exaggerated. Add a `static` prop to disable it when motion would be distracting."
+      },
+      {
+        "evidence": {
+          "line_end": 67,
+          "line_start": 67,
+          "text": "### 11. Never Use `transition: all`"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "### 11. Never Use `transition: all`"
+      },
+      {
+        "evidence": {
+          "line_end": 69,
+          "line_start": 69,
+          "text": "Always specify exact properties: `transition-property: scale, opacity`. Tailwind's `transition-transform` covers `transform, translate, scale, rotate`."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Always specify exact properties: `transition-property: scale, opacity`. Tailwind's `transition-transform` covers `transform, translate, scale, rotate`."
+      },
+      {
+        "evidence": {
+          "line_end": 73,
+          "line_start": 73,
+          "text": "Only for `transform`, `opacity`, `filter`, the properties the GPU can composite. Never use `will-change: all`. Only add when you notice first-frame stutter."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Only for `transform`, `opacity`, `filter`, the properties the GPU can composite. Never use `will-change: all`. Only add when you notice first-frame stutter."
+      },
+      {
+        "evidence": {
+          "line_end": 77,
+          "line_start": 77,
+          "text": "An icon next to text carries the text's optical weight: `1.5px` stroke beside regular (400) text, `2px` beside semibold (600). One stroke weight per icon set; never mix libraries on one surface."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "An icon next to text carries the text's optical weight: `1.5px` stroke beside regular (400) text, `2px` beside semibold (600). One stroke weight per icon set; never mix libraries on one surface."
+      },
+      {
+        "evidence": {
+          "line_end": 81,
+          "line_start": 81,
+          "text": "Icons use `currentColor` and get their states (hover, selected, disabled) from CSS color and opacity, never from separate assets. Outline variant is the default; fill variant marks the active state."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Icons use `currentColor` and get their states (hover, selected, disabled) from CSS color and opacity, never from separate assets. Outline variant is the default; fill variant marks the active state."
+      },
+      {
+        "evidence": {
+          "line_end": 85,
+          "line_start": 85,
+          "text": "No custom animation on high-frequency interactions: the attention cost repeats on every trigger. Motion is never the only feedback channel; every animated state change also needs a static cue (color, icon, label)."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "No custom animation on high-frequency interactions: the attention cost repeats on every trigger. Motion is never the only feedback channel; every animated state change also needs a static cue (color, icon, label)."
+      },
+      {
+        "evidence": {
+          "line_end": 93,
+          "line_start": 93,
+          "text": "| Border used only to fake elevation | Use layered `box-shadow` with transparency; keep structural and state borders |"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "| Border used only to fake elevation | Use layered `box-shadow` with transparency; keep structural and state borders |"
+      },
+      {
+        "evidence": {
+          "line_end": 95,
+          "line_start": 95,
+          "text": "| Stateful icon or toggle animates its default state on page load | Add `initial={false}` to that `AnimatePresence`; preserve intentional page entrances |"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "| Stateful icon or toggle animates its default state on page load | Add `initial={false}` to that `AnimatePresence`; preserve intentional page entrances |"
+      },
+      {
+        "evidence": {
+          "line_end": 100,
+          "line_start": 100,
+          "text": "| Filled icons everywhere | Outline as default, fill only for the active state |"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "| Filled icons everywhere | Outline as default, fill only for the active state |"
+      },
+      {
+        "evidence": {
+          "line_end": 105,
+          "line_start": 105,
+          "text": "Use this format only when the user asks for a standalone UI-polish review. When `better-interface` orchestrates the review, provide domain evidence and findings to that skill and let its output format, severity scale, consolidation rules, cap, and verdict take precedence."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Use this format only when the user asks for a standalone UI-polish review. When `better-interface` orchestrates the review, provide domain evidence and findings to that skill and let its output format, severity scale, consolidation rules, cap, and verdict take precedence."
+      },
+      {
+        "evidence": {
+          "line_end": 111,
+          "line_start": 111,
+          "text": "Group all confirmed findings by principle. Use a markdown table with **Severity**, **Location**, **Before**, **After**, and **Why** columns. Never use separate \"Before:\" / \"After:\" lines."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Group all confirmed findings by principle. Use a markdown table with **Severity**, **Location**, **Before**, **After**, and **Why** columns. Never use separate \"Before:\" / \"After:\" lines."
+      },
+      {
+        "evidence": {
+          "line_end": 139,
+          "line_start": 139,
+          "text": "2. **Verdict**: `Block` if any `HIGH` finding remains, `Needs changes` if only `MEDIUM` or `LOW` findings remain, and `Approve` only when no actionable findings remain."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "2. **Verdict**: `Block` if any `HIGH` finding remains, `Needs changes` if only `MEDIUM` or `LOW` findings remain, and `Approve` only when no actionable findings remain."
+      }
+    ],
+    "outputs": [
+      {
+        "evidence": {
+          "line_end": 103,
+          "line_start": 103,
+          "text": "## Review Output Format"
+        },
+        "status": "output_candidate",
+        "text": "## Review Output Format"
+      },
+      {
+        "evidence": {
+          "line_end": 105,
+          "line_start": 105,
+          "text": "Use this format only when the user asks for a standalone UI-polish review. When `better-interface` orchestrates the review, provide domain evidence and findings to that skill and let its output format, severity scale, consolidation rules, cap, and verdict take precedence."
+        },
+        "status": "output_candidate",
+        "text": "Use this format only when the user asks for a standalone UI-polish review. When `better-interface` orchestrates the review, provide domain evidence and findings to that skill and let its output format, severity scale, consolidation rules, cap, and verdict take precedence."
+      },
+      {
+        "evidence": {
+          "line_end": 141,
+          "line_start": 141,
+          "text": "When there are no findings, omit the tables, state \"No actionable UI-polish findings\", report verification, and end with `Approve`."
+        },
+        "status": "output_candidate",
+        "text": "When there are no findings, omit the tables, state \"No actionable UI-polish findings\", report verification, and end with `Approve`."
+      }
+    ],
+    "package_path_candidates": [],
+    "recovery": [
+      {
+        "evidence": {
+          "line_end": 12,
+          "line_start": 12,
+          "text": "Preserve the project's component library, tokens, and density. Match its established motion language except where a principle below prescribes an exact interaction pattern."
+        },
+        "status": "recovery_candidate",
+        "text": "Preserve the project's component library, tokens, and density. Match its established motion language except where a principle below prescribes an exact interaction pattern."
+      },
+      {
+        "evidence": {
+          "line_end": 33,
+          "line_start": 33,
+          "text": "When geometric centering looks off, align optically. Buttons with icons, play triangles, and asymmetric icons all need manual adjustment."
+        },
+        "status": "recovery_candidate",
+        "text": "When geometric centering looks off, align optically. Buttons with icons, play triangles, and asymmetric icons all need manual adjustment."
+      },
+      {
+        "evidence": {
+          "line_end": 95,
+          "line_start": 95,
+          "text": "| Stateful icon or toggle animates its default state on page load | Add `initial={false}` to that `AnimatePresence`; preserve intentional page entrances |"
+        },
+        "status": "recovery_candidate",
+        "text": "| Stateful icon or toggle animates its default state on page load | Add `initial={false}` to that `AnimatePresence`; preserve intentional page entrances |"
+      }
+    ],
+    "references": [
+      {
+        "evidence": {
+          "line_end": 20,
+          "line_start": 20,
+          "text": "| [Surfaces](surfaces.md) | Border radius, optical alignment, shadows, image outlines |"
+        },
+        "reference": "surfaces.md"
+      },
+      {
+        "evidence": {
+          "line_end": 21,
+          "line_start": 21,
+          "text": "| [Animations](animations.md) | Interruptible animations, enter/exit transitions, icon animations, scale on press, motion restraint |"
+        },
+        "reference": "animations.md"
+      },
+      {
+        "evidence": {
+          "line_end": 22,
+          "line_start": 22,
+          "text": "| [Icons](icons.md) | Icon stroke weight, states via `currentColor`, outline vs fill, sizing, RTL flipping |"
+        },
+        "reference": "icons.md"
+      },
+      {
+        "evidence": {
+          "line_end": 23,
+          "line_start": 23,
+          "text": "| [Performance](performance.md) | Transition specificity, `will-change` usage |"
+        },
+        "reference": "performance.md"
+      }
+    ],
+    "routes": [
+      {
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: Design engineering principles for making interfaces feel polished. Use when building UI components, reviewing frontend code, implementing animations, hover states, shadows, borders, micro-interactions, enter/exit animations, choosing or reviewing icons, or any visual detail work. Triggers on UI polish, design details, \"make it feel better\", \"feels off\", stagger animations, border radius, optical alignment, image outlines, box shadows, icons, icon stroke weight, icon states, motion restraint."
+        },
+        "text": "description: Design engineering principles for making interfaces feel polished. Use when building UI components, reviewing frontend code, implementing animations, hover states, shadows, borders, micro-interactions, enter/exit animations, choosing or reviewing icons, or any visual detail work. Triggers on UI polish, design details, \"make it feel better\", \"feels off\", stagger animations, border radius, optical alignment, image outlines, box shadows, icons, icon stroke weight, icon states, motion restraint."
+      },
+      {
+        "evidence": {
+          "line_end": 18,
+          "line_start": 18,
+          "text": "| Category | When to Use |"
+        },
+        "text": "| Category | When to Use |"
+      },
+      {
+        "evidence": {
+          "line_end": 53,
+          "line_start": 53,
+          "text": "Animate icons with `opacity`, `scale`, and `blur` instead of toggling visibility. Use exactly these values: scale from `0.25` to `1`, opacity from `0` to `1`, blur from `4px` to `0px`. If the project has `motion` or `framer-motion` in `package.json`, match that package's import path (or the established nearby imports when both exist) and use `transition: { type: \"spring\", duration: 0.3, bounce: 0 }`; bounce must always be `0`. If no motion library is installed, keep both icons in the DOM (one absolute-positioned) and cross-fade with CSS transitions using `cubic-bezier(0.2, 0, 0, 1)`; this gives both enter and exit animations without any dependency."
+        },
+        "text": "Animate icons with `opacity`, `scale`, and `blur` instead of toggling visibility. Use exactly these values: scale from `0.25` to `1`, opacity from `0` to `1`, blur from `4px` to `0px`. If the project has `motion` or `framer-motion` in `package.json`, match that package's import path (or the established nearby imports when both exist) and use `transition: { type: \"spring\", duration: 0.3, bounce: 0 }`; bounce must always be `0`. If no motion library is installed, keep both icons in the DOM (one absolute-positioned) and cross-fade with CSS transitions using `cubic-bezier(0.2, 0, 0, 1)`; this gives both enter and exit animations without any dependency."
+      },
+      {
+        "evidence": {
+          "line_end": 73,
+          "line_start": 73,
+          "text": "Only for `transform`, `opacity`, `filter`, the properties the GPU can composite. Never use `will-change: all`. Only add when you notice first-frame stutter."
+        },
+        "text": "Only for `transform`, `opacity`, `filter`, the properties the GPU can composite. Never use `will-change: all`. Only add when you notice first-frame stutter."
+      }
+    ],
+    "template_commands": [],
+    "template_status": "source_not_executed; fenced commands remain example-only only when surrounding prose says so, otherwise context-unknown; live XML template commands are not executable evidence",
+    "triggers": [
+      {
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: Design engineering principles for making interfaces feel polished. Use when building UI components, reviewing frontend code, implementing animations, hover states, shadows, borders, micro-interactions, enter/exit animations, choosing or reviewing icons, or any visual detail work. Triggers on UI polish, design details, \"make it feel better\", \"feels off\", stagger animations, border radius, optical alignment, image outlines, box shadows, icons, icon stroke weight, icon states, motion restraint."
+        },
+        "text": "description: Design engineering principles for making interfaces feel polished. Use when building UI components, reviewing frontend code, implementing animations, hover states, shadows, borders, micro-interactions, enter/exit animations, choosing or reviewing icons, or any visual detail work. Triggers on UI polish, design details, \"make it feel better\", \"feels off\", stagger animations, border radius, optical alignment, image outlines, box shadows, icons, icon stroke weight, icon states, motion restraint."
+      },
+      {
+        "evidence": {
+          "line_end": 18,
+          "line_start": 18,
+          "text": "| Category | When to Use |"
+        },
+        "text": "| Category | When to Use |"
+      },
+      {
+        "evidence": {
+          "line_end": 85,
+          "line_start": 85,
+          "text": "No custom animation on high-frequency interactions: the attention cost repeats on every trigger. Motion is never the only feedback channel; every animated state change also needs a static cue (color, icon, label)."
+        },
+        "text": "No custom animation on high-frequency interactions: the attention cost repeats on every trigger. Motion is never the only feedback channel; every animated state change also needs a static cue (color, icon, label)."
+      }
+    ],
+    "workflows": [
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 113,
+            "text": "**Severity**: `HIGH` makes an interaction misleading, unresponsive, or repeatedly disruptive; `MEDIUM` creates a noticeable craft or consistency problem; `LOW` is isolated polish."
+          },
+          {
+            "line": 114,
+            "text": "**Location**: cite `path/to/file:line`. If the artifact has no source files, cite the exact screen and component instead."
+          },
+          {
+            "line": 115,
+            "text": "**Before / After**: show the current implementation and an actionable replacement."
+          },
+          {
+            "line": 116,
+            "text": "**Why**: name the violated principle and explain how it affects the interface."
+          }
+        ],
+        "section": "Findings",
+        "start_line": 109
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 138,
+            "text": "**Verification**: list the exact checks run and their observed results. Walk every relevant state and inspect motion at 10% speed when animation is involved. If a check was not run, state what still needs verification."
+          },
+          {
+            "line": 139,
+            "text": "**Verdict**: `Block` if any `HIGH` finding remains, `Needs changes` if only `MEDIUM` or `LOW` findings remain, and `Approve` only when no actionable findings remain."
+          }
+        ],
+        "section": "Verification and Verdict",
+        "start_line": 134
+      }
+    ]
+  },
+  "package": {
+    "reference_resolution": [],
+    "resolved_files": [
+      {
+        "bytes": 7152,
+        "content_snapshot": "sources/upstream/jakubkrehel-skills-unknown/content-by-sha256/2482b7b89d851a3128d36edf5367f3223e113a4ef421b7358c7e6de3f2c83faf.md",
+        "kind": "skill",
+        "path": "skills-HEAD/skills/better-ui/SKILL.md",
+        "sha256": "2482b7b89d851a3128d36edf5367f3223e113a4ef421b7358c7e6de3f2c83faf",
+        "text": true
+      },
+      {
+        "bytes": 113,
+        "content_snapshot": "sources/upstream/jakubkrehel-skills-unknown/content-by-sha256/799e0b58bded32edf5c217f97e08c364660ec24234978b2e3f7dee1868bea871.yaml",
+        "kind": "package_file",
+        "path": "skills-HEAD/skills/better-ui/agents/openai.yaml",
+        "sha256": "799e0b58bded32edf5c217f97e08c364660ec24234978b2e3f7dee1868bea871",
+        "text": true
+      },
+      {
+        "bytes": 7033,
+        "content_snapshot": "sources/upstream/jakubkrehel-skills-unknown/content-by-sha256/5d2d9e4cefab494b6dd0683e7d2d9bc90788df9c536449c0828c241de965e846.md",
+        "kind": "package_file",
+        "path": "skills-HEAD/skills/better-ui/animations.md",
+        "sha256": "5d2d9e4cefab494b6dd0683e7d2d9bc90788df9c536449c0828c241de965e846",
+        "text": true
+      },
+      {
+        "bytes": 3807,
+        "content_snapshot": "sources/upstream/jakubkrehel-skills-unknown/content-by-sha256/8db1b33d6c80a097218a530cb9749dff4b0a2b992236047a2e88661af5e930ea.md",
+        "kind": "package_file",
+        "path": "skills-HEAD/skills/better-ui/enter-exit.md",
+        "sha256": "8db1b33d6c80a097218a530cb9749dff4b0a2b992236047a2e88661af5e930ea",
+        "text": true
+      },
+      {
+        "bytes": 4061,
+        "content_snapshot": "sources/upstream/jakubkrehel-skills-unknown/content-by-sha256/60098242d33133a35a675719c447129b8931aecfbf05d58a6e2aa01e7894694e.md",
+        "kind": "package_file",
+        "path": "skills-HEAD/skills/better-ui/icon-transitions.md",
+        "sha256": "60098242d33133a35a675719c447129b8931aecfbf05d58a6e2aa01e7894694e",
+        "text": true
+      },
+      {
+        "bytes": 4267,
+        "content_snapshot": "sources/upstream/jakubkrehel-skills-unknown/content-by-sha256/74cc78322874df4e2286bb0f5835d68114f74be1c94f993c94f6af692f44733b.md",
+        "kind": "package_file",
+        "path": "skills-HEAD/skills/better-ui/icons.md",
+        "sha256": "74cc78322874df4e2286bb0f5835d68114f74be1c94f993c94f6af692f44733b",
+        "text": true
+      },
+      {
+        "bytes": 2928,
+        "content_snapshot": "sources/upstream/jakubkrehel-skills-unknown/content-by-sha256/e4bc3c90d6e0281d295e2e7e39d545fb9abd8a67667b0c10e589eda8115e5b1e.md",
+        "kind": "package_file",
+        "path": "skills-HEAD/skills/better-ui/performance.md",
+        "sha256": "e4bc3c90d6e0281d295e2e7e39d545fb9abd8a67667b0c10e589eda8115e5b1e",
+        "text": true
+      },
+      {
+        "bytes": 6268,
+        "content_snapshot": "sources/upstream/jakubkrehel-skills-unknown/content-by-sha256/5508a7caf07ae8de616e7d83e282d4a08c026dd7a2d3cf54979609e4e0301048.md",
+        "kind": "package_file",
+        "path": "skills-HEAD/skills/better-ui/surfaces.md",
+        "sha256": "5508a7caf07ae8de616e7d83e282d4a08c026dd7a2d3cf54979609e4e0301048",
+        "text": true
+      }
+    ],
+    "scripts": [],
+    "unresolved_references": []
+  },
+  "schema": "skill-ir/1.0",
+  "source": {
+    "bytes": 9638,
+    "catalog_metadata": {
+      "bundle_offset": 4548579,
+      "category": "ui-design",
+      "content_binding": "G$",
+      "description": "Design-engineering polish for interfaces: surfaces, shadows, icons, micro-interactions, and motion restraint that make UI feel intentional.",
+      "github_url": "https://github.com/jakubkrehel/skills/tree/main/skills/better-ui",
+      "slug": "better-ui",
+      "source": "community",
+      "source_label": "Jakub Krehel",
+      "stars_reported": null,
+      "template_expressions": [],
+      "title": "Better UI"
+    },
+    "line_table": [
+      {
+        "line": 1,
+        "text": "---"
+      },
+      {
+        "line": 2,
+        "text": "name: better-ui"
+      },
+      {
+        "line": 3,
+        "text": "description: Design engineering principles for making interfaces feel polished. Use when building UI components, reviewing frontend code, implementing animations, hover states, shadows, borders, micro-interactions, enter/exit animations, choosing or reviewing icons, or any visual detail work. Triggers on UI polish, design details, \"make it feel better\", \"feels off\", stagger animations, border radius, optical alignment, image outlines, box shadows, icons, icon stroke weight, icon states, motion restraint."
+      },
+      {
+        "line": 4,
+        "text": "---"
+      },
+      {
+        "line": 5,
+        "text": ""
+      },
+      {
+        "line": 6,
+        "text": "# Details that make interfaces feel better"
+      },
+      {
+        "line": 7,
+        "text": ""
+      },
+      {
+        "line": 8,
+        "text": "Great interfaces rarely come from a single thing. It's usually a collection of small details that compound into a great experience. Apply these principles when building or reviewing UI code."
+      },
+      {
+        "line": 9,
+        "text": ""
+      },
+      {
+        "line": 10,
+        "text": "When reviewing, slow the interface down: replay motion at 10% speed in the browser's Animations panel and walk every state: hover, focus, active, loading, empty. What feels off at 10% speed is what's subtly wrong at full speed."
+      },
+      {
+        "line": 11,
+        "text": ""
+      },
+      {
+        "line": 12,
+        "text": "Preserve the project's component library, tokens, and density. Match its established motion language except where a principle below prescribes an exact interaction pattern."
+      },
+      {
+        "line": 13,
+        "text": ""
+      },
+      {
+        "line": 14,
+        "text": "Typography (text wrapping, font rendering, tabular numbers, spacing) is covered by the `better-typography` skill; use that for anything text-related. Accessibility (hit areas, focus states, keyboard support, ARIA, reduced motion) is covered by the `better-accessibility` skill. Layout structure (grouping, spacing between sections, breakpoints, spatial RTL) is covered by the `better-layout` skill."
+      },
+      {
+        "line": 15,
+        "text": ""
+      },
+      {
+        "line": 16,
+        "text": "## Quick Reference"
+      },
+      {
+        "line": 17,
+        "text": ""
+      },
+      {
+        "line": 18,
+        "text": "| Category | When to Use |"
+      },
+      {
+        "line": 19,
+        "text": "| --- | --- |"
+      },
+      {
+        "line": 20,
+        "text": "| [Surfaces](surfaces.md) | Border radius, optical alignment, shadows, image outlines |"
+      },
+      {
+        "line": 21,
+        "text": "| [Animations](animations.md) | Interruptible animations, enter/exit transitions, icon animations, scale on press, motion restraint |"
+      },
+      {
+        "line": 22,
+        "text": "| [Icons](icons.md) | Icon stroke weight, states via `currentColor`, outline vs fill, sizing, RTL flipping |"
+      },
+      {
+        "line": 23,
+        "text": "| [Performance](performance.md) | Transition specificity, `will-change` usage |"
+      },
+      {
+        "line": 24,
+        "text": ""
+      },
+      {
+        "line": 25,
+        "text": "## Core Principles"
+      },
+      {
+        "line": 26,
+        "text": ""
+      },
+      {
+        "line": 27,
+        "text": "### 1. Concentric Border Radius"
+      },
+      {
+        "line": 28,
+        "text": ""
+      },
+      {
+        "line": 29,
+        "text": "Outer radius = inner radius + padding. Mismatched radii on nested elements is the most common thing that makes interfaces feel off."
+      },
+      {
+        "line": 30,
+        "text": ""
+      },
+      {
+        "line": 31,
+        "text": "### 2. Optical Over Geometric Alignment"
+      },
+      {
+        "line": 32,
+        "text": ""
+      },
+      {
+        "line": 33,
+        "text": "When geometric centering looks off, align optically. Buttons with icons, play triangles, and asymmetric icons all need manual adjustment."
+      },
+      {
+        "line": 34,
+        "text": ""
+      },
+      {
+        "line": 35,
+        "text": "### 3. Shadows for Elevation, Borders for Structure"
+      },
+      {
+        "line": 36,
+        "text": ""
+      },
+      {
+        "line": 37,
+        "text": "For buttons, cards, and containers whose border exists only to create depth, prefer layered transparent `box-shadow` values. Keep borders that communicate structure or state: dividers, layout separators, and selected or focus states."
+      },
+      {
+        "line": 38,
+        "text": ""
+      },
+      {
+        "line": 39,
+        "text": "### 4. Interruptible Animations"
+      },
+      {
+        "line": 40,
+        "text": ""
+      },
+      {
+        "line": 41,
+        "text": "Use CSS transitions for interactive state changes: they can be interrupted mid-animation. Reserve keyframes for staged sequences that run once."
+      },
+      {
+        "line": 42,
+        "text": ""
+      },
+      {
+        "line": 43,
+        "text": "### 5. Split and Stagger Enter Animations"
+      },
+      {
+        "line": 44,
+        "text": ""
+      },
+      {
+        "line": 45,
+        "text": "For an infrequent staged entrance where sequence helps communicate hierarchy, break content into semantic chunks and stagger them by ~100ms instead of animating one container. Do not stagger routine, high-frequency interactions."
+      },
+      {
+        "line": 46,
+        "text": ""
+      },
+      {
+        "line": 47,
+        "text": "### 6. Subtle Exit Animations"
+      },
+      {
+        "line": 48,
+        "text": ""
+      },
+      {
+        "line": 49,
+        "text": "Use a small fixed `translateY` instead of full height. Exits should be softer than enters. Use `ease-out` for both enter and exit transitions."
+      },
+      {
+        "line": 50,
+        "text": ""
+      },
+      {
+        "line": 51,
+        "text": "### 7. Contextual Icon Animations"
+      },
+      {
+        "line": 52,
+        "text": ""
+      },
+      {
+        "line": 53,
+        "text": "Animate icons with `opacity`, `scale`, and `blur` instead of toggling visibility. Use exactly these values: scale from `0.25` to `1`, opacity from `0` to `1`, blur from `4px` to `0px`. If the project has `motion` or `framer-motion` in `package.json`, match that package's import path (or the established nearby imports when both exist) and use `transition: { type: \"spring\", duration: 0.3, bounce: 0 }`; bounce must always be `0`. If no motion library is installed, keep both icons in the DOM (one absolute-positioned) and cross-fade with CSS transitions using `cubic-bezier(0.2, 0, 0, 1)`; this gives both enter and exit animations without any dependency."
+      },
+      {
+        "line": 54,
+        "text": ""
+      },
+      {
+        "line": 55,
+        "text": "### 8. Image Outlines"
+      },
+      {
+        "line": 56,
+        "text": ""
+      },
+      {
+        "line": 57,
+        "text": "Add a subtle `1px` outline with low opacity to images for consistent depth. The color must be pure black in light mode (`oklch(0 0 0 / 0.1)`) and pure white in dark mode (`oklch(1 0 0 / 0.1)`), never a near-black like slate, zinc, or any tinted neutral. A tinted outline picks up the surface color underneath it and reads as dirt on the image edge."
+      },
+      {
+        "line": 58,
+        "text": ""
+      },
+      {
+        "line": 59,
+        "text": "### 9. Scale on Press"
+      },
+      {
+        "line": 60,
+        "text": ""
+      },
+      {
+        "line": 61,
+        "text": "A subtle `scale(0.96)` on click gives buttons tactile feedback. Always use `0.96`. Never use a value smaller than `0.95`: anything below feels exaggerated. Add a `static` prop to disable it when motion would be distracting."
+      },
+      {
+        "line": 62,
+        "text": ""
+      },
+      {
+        "line": 63,
+        "text": "### 10. Skip Animation on Page Load"
+      },
+      {
+        "line": 64,
+        "text": ""
+      },
+      {
+        "line": 65,
+        "text": "Use `initial={false}` on `AnimatePresence` to prevent enter animations on first render. Verify it doesn't break intentional entrance animations."
+      },
+      {
+        "line": 66,
+        "text": ""
+      },
+      {
+        "line": 67,
+        "text": "### 11. Never Use `transition: all`"
+      },
+      {
+        "line": 68,
+        "text": ""
+      },
+      {
+        "line": 69,
+        "text": "Always specify exact properties: `transition-property: scale, opacity`. Tailwind's `transition-transform` covers `transform, translate, scale, rotate`."
+      },
+      {
+        "line": 70,
+        "text": ""
+      },
+      {
+        "line": 71,
+        "text": "### 12. Use `will-change` Sparingly"
+      },
+      {
+        "line": 72,
+        "text": ""
+      },
+      {
+        "line": 73,
+        "text": "Only for `transform`, `opacity`, `filter`, the properties the GPU can composite. Never use `will-change: all`. Only add when you notice first-frame stutter."
+      },
+      {
+        "line": 74,
+        "text": ""
+      },
+      {
+        "line": 75,
+        "text": "### 13. Match Icon Stroke to Text Weight"
+      },
+      {
+        "line": 76,
+        "text": ""
+      },
+      {
+        "line": 77,
+        "text": "An icon next to text carries the text's optical weight: `1.5px` stroke beside regular (400) text, `2px` beside semibold (600). One stroke weight per icon set; never mix libraries on one surface."
+      },
+      {
+        "line": 78,
+        "text": ""
+      },
+      {
+        "line": 79,
+        "text": "### 14. One SVG, Recolored per State"
+      },
+      {
+        "line": 80,
+        "text": ""
+      },
+      {
+        "line": 81,
+        "text": "Icons use `currentColor` and get their states (hover, selected, disabled) from CSS color and opacity, never from separate assets. Outline variant is the default; fill variant marks the active state."
+      },
+      {
+        "line": 82,
+        "text": ""
+      },
+      {
+        "line": 83,
+        "text": "### 15. Motion Restraint"
+      },
+      {
+        "line": 84,
+        "text": ""
+      },
+      {
+        "line": 85,
+        "text": "No custom animation on high-frequency interactions: the attention cost repeats on every trigger. Motion is never the only feedback channel; every animated state change also needs a static cue (color, icon, label)."
+      },
+      {
+        "line": 86,
+        "text": ""
+      },
+      {
+        "line": 87,
+        "text": "## Common Mistakes"
+      },
+      {
+        "line": 88,
+        "text": ""
+      },
+      {
+        "line": 89,
+        "text": "| Mistake | Fix |"
+      },
+      {
+        "line": 90,
+        "text": "| --- | --- |"
+      },
+      {
+        "line": 91,
+        "text": "| Same border radius on closely nested parent and child | Calculate `outerRadius = innerRadius + padding` |"
+      },
+      {
+        "line": 92,
+        "text": "| Icons look off-center | Adjust optically with padding or fix SVG directly |"
+      },
+      {
+        "line": 93,
+        "text": "| Border used only to fake elevation | Use layered `box-shadow` with transparency; keep structural and state borders |"
+      },
+      {
+        "line": 94,
+        "text": "| Jarring staged entrance or contextual exit | Stagger infrequent entrances and keep context-preserving exits subtle |"
+      },
+      {
+        "line": 95,
+        "text": "| Stateful icon or toggle animates its default state on page load | Add `initial={false}` to that `AnimatePresence`; preserve intentional page entrances |"
+      },
+      {
+        "line": 96,
+        "text": "| `transition: all` on elements | Specify exact properties |"
+      },
+      {
+        "line": 97,
+        "text": "| First-frame animation stutter | Add `will-change: transform` (sparingly) |"
+      },
+      {
+        "line": 98,
+        "text": "| Hairline icon beside bold text | Match the stroke width to the text weight |"
+      },
+      {
+        "line": 99,
+        "text": "| Separate icon assets per state | One `currentColor` SVG, states via CSS |"
+      },
+      {
+        "line": 100,
+        "text": "| Filled icons everywhere | Outline as default, fill only for the active state |"
+      },
+      {
+        "line": 101,
+        "text": "| Entrance animation on every hover or keystroke | Instant feedback or \u2264150ms opacity/color transition |"
+      },
+      {
+        "line": 102,
+        "text": ""
+      },
+      {
+        "line": 103,
+        "text": "## Review Output Format"
+      },
+      {
+        "line": 104,
+        "text": ""
+      },
+      {
+        "line": 105,
+        "text": "Use this format only when the user asks for a standalone UI-polish review. When `better-interface` orchestrates the review, provide domain evidence and findings to that skill and let its output format, severity scale, consolidation rules, cap, and verdict take precedence."
+      },
+      {
+        "line": 106,
+        "text": ""
+      },
+      {
+        "line": 107,
+        "text": "Present the standalone review in two parts."
+      },
+      {
+        "line": 108,
+        "text": ""
+      },
+      {
+        "line": 109,
+        "text": "### Findings"
+      },
+      {
+        "line": 110,
+        "text": ""
+      },
+      {
+        "line": 111,
+        "text": "Group all confirmed findings by principle. Use a markdown table with **Severity**, **Location**, **Before**, **After**, and **Why** columns. Never use separate \"Before:\" / \"After:\" lines."
+      },
+      {
+        "line": 112,
+        "text": ""
+      },
+      {
+        "line": 113,
+        "text": "- **Severity**: `HIGH` makes an interaction misleading, unresponsive, or repeatedly disruptive; `MEDIUM` creates a noticeable craft or consistency problem; `LOW` is isolated polish."
+      },
+      {
+        "line": 114,
+        "text": "- **Location**: cite `path/to/file:line`. If the artifact has no source files, cite the exact screen and component instead."
+      },
+      {
+        "line": 115,
+        "text": "- **Before / After**: show the current implementation and an actionable replacement."
+      },
+      {
+        "line": 116,
+        "text": "- **Why**: name the violated principle and explain how it affects the interface."
+      },
+      {
+        "line": 117,
+        "text": ""
+      },
+      {
+        "line": 118,
+        "text": "Consolidate a repeated systemic issue into one row and list every affected location. Omit principles with no findings."
+      },
+      {
+        "line": 119,
+        "text": ""
+      },
+      {
+        "line": 120,
+        "text": "### Example"
+      },
+      {
+        "line": 121,
+        "text": ""
+      },
+      {
+        "line": 122,
+        "text": "#### Concentric border radius"
+      },
+      {
+        "line": 123,
+        "text": "| Severity | Location | Before | After | Why |"
+      },
+      {
+        "line": 124,
+        "text": "| --- | --- | --- | --- | --- |"
+      },
+      {
+        "line": 125,
+        "text": "| LOW | `src/Card.tsx:28` | `rounded-xl` on card + `rounded-xl` on inner button (`p-2`) | `rounded-2xl` on card (`8 + 8 = 16`), `rounded-lg` on inner button | Nested corners should be concentric |"
+      },
+      {
+        "line": 126,
+        "text": "| LOW | `src/card.css:11` | `border-radius: 16px` on both nested surfaces | Outer `24px`, inner `16px` with `8px` padding | Equal nested radii make the inner surface look pinched |"
+      },
+      {
+        "line": 127,
+        "text": ""
+      },
+      {
+        "line": 128,
+        "text": "#### Scale on press"
+      },
+      {
+        "line": 129,
+        "text": "| Severity | Location | Before | After | Why |"
+      },
+      {
+        "line": 130,
+        "text": "| --- | --- | --- | --- | --- |"
+      },
+      {
+        "line": 131,
+        "text": "| LOW | `src/Button.tsx:19` | `<button className=\"...\">` | Add `active:scale-[0.96] transition-transform` | Press feedback makes the control feel responsive |"
+      },
+      {
+        "line": 132,
+        "text": "| MEDIUM | `src/button.css:24` | `scale(0.9)` on press | Raise to `scale(0.96)` | Anything below `0.95` feels exaggerated |"
+      },
+      {
+        "line": 133,
+        "text": ""
+      },
+      {
+        "line": 134,
+        "text": "### Verification and Verdict"
+      },
+      {
+        "line": 135,
+        "text": ""
+      },
+      {
+        "line": 136,
+        "text": "After the findings:"
+      },
+      {
+        "line": 137,
+        "text": ""
+      },
+      {
+        "line": 138,
+        "text": "1. **Verification**: list the exact checks run and their observed results. Walk every relevant state and inspect motion at 10% speed when animation is involved. If a check was not run, state what still needs verification."
+      },
+      {
+        "line": 139,
+        "text": "2. **Verdict**: `Block` if any `HIGH` finding remains, `Needs changes` if only `MEDIUM` or `LOW` findings remain, and `Approve` only when no actionable findings remain."
+      },
+      {
+        "line": 140,
+        "text": ""
+      },
+      {
+        "line": 141,
+        "text": "When there are no findings, omit the tables, state \"No actionable UI-polish findings\", report verification, and end with `Approve`."
+      }
+    ],
+    "matched_upstream_skill_path": "skills-HEAD/skills/better-ui/SKILL.md",
+    "repo": "jakubkrehel/skills",
+    "repo_reference": "https://github.com/jakubkrehel/skills/tree/main/skills/better-ui",
+    "repo_revision": "unknown",
+    "revision_status": "archive-digest-pinned upstream package matched by catalog_slug_package_map",
+    "sha256": "d0ad037f2f5bdf510ad78c501745cfb96804951925339da5a834684a0f2d1b19",
+    "snapshot_path": "sources/catalog-skills/better-ui/SKILL.md",
+    "source_id": "aiuxplayground:catalog-content:better-ui"
+  }
+}

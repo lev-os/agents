@@ -1,0 +1,1476 @@
+{
+  "executed": false,
+  "records": [
+    {
+      "path": "esbuild.js",
+      "language": "javascript",
+      "line_count": 125,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "esbuild",
+          "line": 1
+        },
+        {
+          "module": "fs",
+          "line": 85
+        },
+        {
+          "module": "path",
+          "line": 86
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [
+        {
+          "kind": "environment_access",
+          "symbol": "\\bprocess\\.env\\b",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 65,
+            "line_end": 65,
+            "text": "\t\t  'process.env.NODE_ENV': production ? '\"production\"' : '\"development\"',"
+          }
+        },
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 91,
+            "line_end": 91,
+            "text": "\t\tfs.mkdirSync(path.dirname(destPath), { recursive: true });"
+          }
+        },
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 95,
+            "line_end": 95,
+            "text": "\t\t\tfs.mkdirSync(dest, { recursive: true });"
+          }
+        },
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 100,
+            "line_end": 100,
+            "text": "\t\t\t\tentry.isDirectory() ? copyDir(srcPath, destPath) : fs.copyFileSync(srcPath, destPath);"
+          }
+        }
+      ],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "79a6119b651cf00d8ff180935441d0e0930b499062a82335324ff744aef26d27",
+      "source_file": "source/esbuild.js"
+    },
+    {
+      "path": "src/extension.ts",
+      "language": "typescript",
+      "line_count": 1931,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "vscode",
+          "line": 3
+        },
+        {
+          "module": "./services/customAgentService",
+          "line": 4
+        },
+        {
+          "module": "./providers/chatSidebarProvider",
+          "line": 5
+        },
+        {
+          "module": "./services/logger",
+          "line": 6
+        },
+        {
+          "module": "path",
+          "line": 7
+        },
+        {
+          "module": "https",
+          "line": 183
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 43,
+            "line_end": 43,
+            "text": "\t\tawait vscode.workspace.fs.writeFile(filePath, buffer);"
+          }
+        },
+        {
+          "kind": "network_request",
+          "symbol": "\\b(?:fetch|https?\\.request|axios\\.(?:get|post|put)|got\\.(?:get|post))\\s*\\(",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 198,
+            "line_end": 198,
+            "text": "\t\tconst req = https.request(options, (res: any) => {"
+          }
+        },
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 1183,
+            "line_end": 1183,
+            "text": "\t\t\tawait vscode.workspace.fs.writeFile(defaultCssPath, Buffer.from(defaultCssContent, 'utf8'));"
+          }
+        },
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 1202,
+            "line_end": 1202,
+            "text": "\t\t\t\tawait vscode.workspace.fs.writeFile(designMdcPath, Buffer.from(updatedContent, 'utf8'));"
+          }
+        },
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 1206,
+            "line_end": 1206,
+            "text": "\t\t\tawait vscode.workspace.fs.writeFile(designMdcPath, Buffer.from(designRuleMdcContent, 'utf8'));"
+          }
+        },
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 1216,
+            "line_end": 1216,
+            "text": "\t\t\t\tawait vscode.workspace.fs.writeFile(claudeMdPath, Buffer.from(updatedContent, 'utf8'));"
+          }
+        },
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 1220,
+            "line_end": 1220,
+            "text": "\t\t\tawait vscode.workspace.fs.writeFile(claudeMdPath, Buffer.from(designRuleContent, 'utf8'));"
+          }
+        },
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 1230,
+            "line_end": 1230,
+            "text": "\t\t\t\tawait vscode.workspace.fs.writeFile(windsurfRulesPath, Buffer.from(updatedContent, 'utf8'));"
+          }
+        },
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 1234,
+            "line_end": 1234,
+            "text": "\t\t\tawait vscode.workspace.fs.writeFile(windsurfRulesPath, Buffer.from(designRuleContent, 'utf8'));"
+          }
+        }
+      ],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "a1ba603e2df77609c490a53746128a89d2fc8dd3bcb2650d114f8588b1612e3d",
+      "source_file": "source/src/extension.ts"
+    },
+    {
+      "path": "src/providers/chatSidebarProvider.ts",
+      "language": "typescript",
+      "line_count": 343,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "vscode",
+          "line": 1
+        },
+        {
+          "module": "../services/claudeCodeService",
+          "line": 2
+        },
+        {
+          "module": "../services/chatMessageService",
+          "line": 3
+        },
+        {
+          "module": "../templates/webviewTemplate",
+          "line": 4
+        },
+        {
+          "module": "../types/context",
+          "line": 5
+        },
+        {
+          "module": "../types/agent",
+          "line": 6
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "75ac251f97fff8f99c10877d8b381144a837b732815a540c03359bebfcc3562e",
+      "source_file": "source/src/providers/chatSidebarProvider.ts"
+    },
+    {
+      "path": "src/providers/claudeApiProvider.ts",
+      "language": "typescript",
+      "line_count": 452,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "vscode",
+          "line": 1
+        },
+        {
+          "module": "path",
+          "line": 2
+        },
+        {
+          "module": "fs",
+          "line": 3
+        },
+        {
+          "module": "os",
+          "line": 4
+        },
+        {
+          "module": "./llmProvider",
+          "line": 5
+        },
+        {
+          "module": "../services/logger",
+          "line": 6
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [
+        {
+          "kind": "environment_access",
+          "symbol": "\\bprocess\\.env\\b",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 48,
+            "line_end": 48,
+            "text": "            process.env.ANTHROPIC_API_KEY = apiKey;"
+          }
+        },
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 130,
+            "line_end": 130,
+            "text": "                    fs.mkdirSync(superdesignDir, { recursive: true });"
+          }
+        },
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 141,
+            "line_end": 141,
+            "text": "                    fs.mkdirSync(tempDir, { recursive: true });"
+          }
+        },
+        {
+          "kind": "environment_access",
+          "symbol": "\\bprocess\\.env\\b",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 396,
+            "line_end": 396,
+            "text": "            process.env.ANTHROPIC_API_KEY = apiKey;"
+          }
+        }
+      ],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "015d0a525879d57a25e6607e62d9205ab1b5af8ca20143b67c70fafbbee84b7e",
+      "source_file": "source/src/providers/claudeApiProvider.ts"
+    },
+    {
+      "path": "src/providers/claudeCodeProvider.ts",
+      "language": "typescript",
+      "line_count": 528,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "vscode",
+          "line": 1
+        },
+        {
+          "module": "path",
+          "line": 2
+        },
+        {
+          "module": "fs",
+          "line": 3
+        },
+        {
+          "module": "os",
+          "line": 4
+        },
+        {
+          "module": "child_process",
+          "line": 5
+        },
+        {
+          "module": "./llmProvider",
+          "line": 6
+        },
+        {
+          "module": "../services/logger",
+          "line": 7
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 56,
+            "line_end": 56,
+            "text": "                    fs.mkdirSync(superdesignDir, { recursive: true });"
+          }
+        },
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 66,
+            "line_end": 66,
+            "text": "                    fs.mkdirSync(tempDir, { recursive: true });"
+          }
+        },
+        {
+          "kind": "download_or_publish_candidate",
+          "symbol": "\\b(?:download|install|publish|upload)\\b",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 105,
+            "line_end": 105,
+            "text": "- Official: Visit https://claude.ai/download"
+          }
+        },
+        {
+          "kind": "download_or_publish_candidate",
+          "symbol": "\\b(?:download|install|publish|upload)\\b",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 106,
+            "line_end": 106,
+            "text": "- npm: npm install -g @anthropic-ai/claude-cli"
+          }
+        },
+        {
+          "kind": "process_spawn",
+          "symbol": "\\b(?:exec|execSync|spawn|spawnSync|fork)\\s*\\(",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 117,
+            "line_end": 117,
+            "text": "            const child = spawn(this.claudeCodePath, args, { "
+          }
+        },
+        {
+          "kind": "process_spawn",
+          "symbol": "\\b(?:exec|execSync|spawn|spawnSync|fork)\\s*\\(",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 336,
+            "line_end": 336,
+            "text": "            const child = spawn(this.claudeCodePath, args, {"
+          }
+        },
+        {
+          "kind": "environment_access",
+          "symbol": "\\bprocess\\.env\\b",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 339,
+            "line_end": 339,
+            "text": "                env: { ...process.env },"
+          }
+        },
+        {
+          "kind": "process_spawn",
+          "symbol": "\\b(?:exec|execSync|spawn|spawnSync|fork)\\s*\\(",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 502,
+            "line_end": 502,
+            "text": "                const testChild = spawn(name, ['--version'], { stdio: 'pipe', shell: true, timeout: 5000 });"
+          }
+        }
+      ],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "367ee6b7c04a97b732307f2e673cf3f6702aaadb6ecbc8372cff0a8c9c99f5c8",
+      "source_file": "source/src/providers/claudeCodeProvider.ts"
+    },
+    {
+      "path": "src/providers/llmProvider.ts",
+      "language": "typescript",
+      "line_count": 82,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "vscode",
+          "line": 1
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "0ccf98be363ff10e9cbedb22c23588a119b9522a19c6a092eb922f5a0b74d7a5",
+      "source_file": "source/src/providers/llmProvider.ts"
+    },
+    {
+      "path": "src/providers/llmProviderFactory.ts",
+      "language": "typescript",
+      "line_count": 189,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "vscode",
+          "line": 1
+        },
+        {
+          "module": "./llmProvider",
+          "line": 2
+        },
+        {
+          "module": "./claudeApiProvider",
+          "line": 3
+        },
+        {
+          "module": "./claudeCodeProvider",
+          "line": 4
+        },
+        {
+          "module": "../services/logger",
+          "line": 5
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [
+        {
+          "kind": "download_or_publish_candidate",
+          "symbol": "\\b(?:download|install|publish|upload)\\b",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 139,
+            "line_end": 139,
+            "text": "                        errorMessage = 'Claude Code binary is not available. Please install claude-code CLI tool.';"
+          }
+        }
+      ],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "4ee2f51eff31fb4528eda88413e6a09807134d3dd0067c996ecfb5179ee6a8c2",
+      "source_file": "source/src/providers/llmProviderFactory.ts"
+    },
+    {
+      "path": "src/services/chatMessageService.ts",
+      "language": "typescript",
+      "line_count": 462,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "vscode",
+          "line": 1
+        },
+        {
+          "module": "./claudeCodeService",
+          "line": 2
+        },
+        {
+          "module": "../types/agent",
+          "line": 3
+        },
+        {
+          "module": "ai",
+          "line": 4
+        },
+        {
+          "module": "./logger",
+          "line": 5
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "d22567841788876d9dea9149685e80d6495f5cf77fe9a40199a7e952c77692ef",
+      "source_file": "source/src/services/chatMessageService.ts"
+    },
+    {
+      "path": "src/services/claudeCodeService.ts",
+      "language": "typescript",
+      "line_count": 119,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "vscode",
+          "line": 1
+        },
+        {
+          "module": "./logger",
+          "line": 2
+        },
+        {
+          "module": "../providers/llmProviderFactory",
+          "line": 3
+        },
+        {
+          "module": "../providers/llmProvider",
+          "line": 4
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "ff12904ca45ae174dd98eba137e4823805f851cc18e63984799a840b9aef2023",
+      "source_file": "source/src/services/claudeCodeService.ts"
+    },
+    {
+      "path": "src/services/customAgentService.ts",
+      "language": "typescript",
+      "line_count": 998,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "ai",
+          "line": 1
+        },
+        {
+          "module": "@ai-sdk/openai",
+          "line": 2
+        },
+        {
+          "module": "@ai-sdk/anthropic",
+          "line": 3
+        },
+        {
+          "module": "@openrouter/ai-sdk-provider",
+          "line": 4
+        },
+        {
+          "module": "vscode",
+          "line": 5
+        },
+        {
+          "module": "path",
+          "line": 6
+        },
+        {
+          "module": "fs",
+          "line": 7
+        },
+        {
+          "module": "os",
+          "line": 8
+        },
+        {
+          "module": "../types/agent",
+          "line": 9
+        },
+        {
+          "module": "./claudeCodeService",
+          "line": 10
+        },
+        {
+          "module": "../tools/read-tool",
+          "line": 11
+        },
+        {
+          "module": "../tools/write-tool",
+          "line": 12
+        },
+        {
+          "module": "../tools/bash-tool",
+          "line": 13
+        },
+        {
+          "module": "../tools/edit-tool",
+          "line": 14
+        },
+        {
+          "module": "../tools/glob-tool",
+          "line": 15
+        },
+        {
+          "module": "../tools/grep-tool",
+          "line": 16
+        },
+        {
+          "module": "../tools/theme-tool",
+          "line": 17
+        },
+        {
+          "module": "../tools/ls-tool",
+          "line": 18
+        },
+        {
+          "module": "../tools/multiedit-tool",
+          "line": 19
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 47,
+            "line_end": 47,
+            "text": "                    fs.mkdirSync(superdesignDir, { recursive: true });"
+          }
+        },
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 61,
+            "line_end": 61,
+            "text": "                    fs.mkdirSync(tempDir, { recursive: true });"
+          }
+        }
+      ],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "cd30a57a4b14e509b51a2e9cb4c0565190ad11efd0a877ac81fdf5dd9e24c159",
+      "source_file": "source/src/services/customAgentService.ts"
+    },
+    {
+      "path": "src/services/logger.ts",
+      "language": "typescript",
+      "line_count": 80,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "vscode",
+          "line": 1
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "75b14c3d72849b9f1bd8795e4a77385fd56f1e084518a26b747afbaac7c4bb96",
+      "source_file": "source/src/services/logger.ts"
+    },
+    {
+      "path": "src/templates/webviewTemplate.ts",
+      "language": "typescript",
+      "line_count": 81,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "vscode",
+          "line": 1
+        },
+        {
+          "module": "../types/context",
+          "line": 2
+        },
+        {
+          "module": "fs",
+          "line": 27
+        },
+        {
+          "module": "path",
+          "line": 28
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "5e7299f9dce3bb84696cda400819f0a35548beabc3913efd7d9180c459b2555e",
+      "source_file": "source/src/templates/webviewTemplate.ts"
+    },
+    {
+      "path": "src/tools/bash-tool.ts",
+      "language": "typescript",
+      "line_count": 263,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "zod",
+          "line": 1
+        },
+        {
+          "module": "ai",
+          "line": 2
+        },
+        {
+          "module": "child_process",
+          "line": 3
+        },
+        {
+          "module": "fs",
+          "line": 4
+        },
+        {
+          "module": "path",
+          "line": 5
+        },
+        {
+          "module": "os",
+          "line": 6
+        },
+        {
+          "module": "../types/agent",
+          "line": 7
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [
+        {
+          "kind": "download_or_publish_candidate",
+          "symbol": "\\b(?:download|install|publish|upload)\\b",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 18,
+            "line_end": 18,
+            "text": "  command: z.string().describe('Shell command to execute (e.g., \"npm install\", \"ls -la\", \"git status\")'),"
+          }
+        },
+        {
+          "kind": "process_spawn",
+          "symbol": "\\b(?:exec|execSync|spawn|spawnSync|fork)\\s*\\(",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 85,
+            "line_end": 85,
+            "text": "  const child: ChildProcess = spawn(shell, shellArgs, {"
+          }
+        },
+        {
+          "kind": "process_spawn",
+          "symbol": "\\b(?:exec|execSync|spawn|spawnSync|fork)\\s*\\(",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 114,
+            "line_end": 114,
+            "text": "          spawn('taskkill', ['/pid', child.pid.toString(), '/f', '/t']);"
+          }
+        },
+        {
+          "kind": "environment_access",
+          "symbol": "\\bprocess\\.env\\b",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 194,
+            "line_end": 194,
+            "text": "        ...process.env,"
+          }
+        }
+      ],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "895eb0fddee1919ee7ce7038241fb1d76d46a60a6999798e5039475e1d953440",
+      "source_file": "source/src/tools/bash-tool.ts"
+    },
+    {
+      "path": "src/tools/edit-tool.ts",
+      "language": "typescript",
+      "line_count": 197,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "zod",
+          "line": 1
+        },
+        {
+          "module": "ai",
+          "line": 2
+        },
+        {
+          "module": "fs",
+          "line": 3
+        },
+        {
+          "module": "path",
+          "line": 4
+        },
+        {
+          "module": "../types/agent",
+          "line": 5
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 164,
+            "line_end": 164,
+            "text": "            fs.mkdirSync(dirName, { recursive: true });"
+          }
+        },
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 170,
+            "line_end": 170,
+            "text": "        fs.writeFileSync(absolutePath, editResult.newContent, 'utf8');"
+          }
+        }
+      ],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "5bcee2a615daf5f8e01a09b75efd4c3e6dbe7ec746e57f5dde7a129c7ba0e8b5",
+      "source_file": "source/src/tools/edit-tool.ts"
+    },
+    {
+      "path": "src/tools/glob-tool.ts",
+      "language": "typescript",
+      "line_count": 294,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "zod",
+          "line": 1
+        },
+        {
+          "module": "ai",
+          "line": 2
+        },
+        {
+          "module": "fs",
+          "line": 3
+        },
+        {
+          "module": "path",
+          "line": 4
+        },
+        {
+          "module": "../types/agent",
+          "line": 5
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "edb34a8a5b02ef2639fea4bd74b85ffd850a12533ea82f0051bf0b0e87751fbf",
+      "source_file": "source/src/tools/glob-tool.ts"
+    },
+    {
+      "path": "src/tools/grep-tool.ts",
+      "language": "typescript",
+      "line_count": 315,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "zod",
+          "line": 1
+        },
+        {
+          "module": "ai",
+          "line": 2
+        },
+        {
+          "module": "fs",
+          "line": 3
+        },
+        {
+          "module": "path",
+          "line": 4
+        },
+        {
+          "module": "../types/agent",
+          "line": 5
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [
+        {
+          "kind": "process_spawn",
+          "symbol": "\\b(?:exec|execSync|spawn|spawnSync|fork)\\s*\\(",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 167,
+            "line_end": 167,
+            "text": "      while ((match = regex.exec(line)) !== null) {"
+          }
+        }
+      ],
+      "dynamic_behavior_unresolved": [
+        {
+          "line": 167,
+          "text": "while ((match = regex.exec(line)) !== null) {",
+          "status": "dynamic_behavior_not_resolved"
+        }
+      ],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "5c40621fa331deabe179adb9905c0fee8441c167712c617734c2ea20604eddda",
+      "source_file": "source/src/tools/grep-tool.ts"
+    },
+    {
+      "path": "src/tools/ls-tool.ts",
+      "language": "typescript",
+      "line_count": 227,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "zod",
+          "line": 1
+        },
+        {
+          "module": "ai",
+          "line": 2
+        },
+        {
+          "module": "fs",
+          "line": 3
+        },
+        {
+          "module": "path",
+          "line": 4
+        },
+        {
+          "module": "../types/agent",
+          "line": 5
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "d612a449388aae831ec91356d36adfffd3619c4e3acd296f781f8c6189d8123f",
+      "source_file": "source/src/tools/ls-tool.ts"
+    },
+    {
+      "path": "src/tools/multiedit-tool.ts",
+      "language": "typescript",
+      "line_count": 183,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "zod",
+          "line": 1
+        },
+        {
+          "module": "ai",
+          "line": 2
+        },
+        {
+          "module": "fs",
+          "line": 3
+        },
+        {
+          "module": "path",
+          "line": 4
+        },
+        {
+          "module": "../types/agent",
+          "line": 5
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 156,
+            "line_end": 156,
+            "text": "        fs.writeFileSync(absolutePath, currentContent, 'utf8');"
+          }
+        }
+      ],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "6890ad7870b86dbd9c74eab5713f5d9171b0e377d49103c60bec4e6a74e7c47a",
+      "source_file": "source/src/tools/multiedit-tool.ts"
+    },
+    {
+      "path": "src/tools/read-tool.ts",
+      "language": "typescript",
+      "line_count": 301,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "fs",
+          "line": 1
+        },
+        {
+          "module": "path",
+          "line": 2
+        },
+        {
+          "module": "mime-types",
+          "line": 3
+        },
+        {
+          "module": "ai",
+          "line": 4
+        },
+        {
+          "module": "zod",
+          "line": 5
+        },
+        {
+          "module": "../types/agent",
+          "line": 6
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "b5f1b68acf66e46420c1c10c33332891e7f16672371182e34287fb2abbca1efc",
+      "source_file": "source/src/tools/read-tool.ts"
+    },
+    {
+      "path": "src/tools/theme-tool.ts",
+      "language": "typescript",
+      "line_count": 90,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "fs",
+          "line": 1
+        },
+        {
+          "module": "path",
+          "line": 2
+        },
+        {
+          "module": "ai",
+          "line": 3
+        },
+        {
+          "module": "zod",
+          "line": 4
+        },
+        {
+          "module": "../types/agent",
+          "line": 5
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 65,
+            "line_end": 65,
+            "text": "              fs.mkdirSync(dirPath, { recursive: true });"
+          }
+        },
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 71,
+            "line_end": 71,
+            "text": "          fs.writeFileSync(resolvedPath, cssSheet, 'utf8');"
+          }
+        }
+      ],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "b7f8cdcba5b25255fed8e835e3c3e1dc14a289f65df108e054df19a0c61effbd",
+      "source_file": "source/src/tools/theme-tool.ts"
+    },
+    {
+      "path": "src/tools/tool-utils.ts",
+      "language": "typescript",
+      "line_count": 181,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "path",
+          "line": 1
+        },
+        {
+          "module": "../types/agent",
+          "line": 2
+        },
+        {
+          "module": "fs",
+          "line": 137
+        },
+        {
+          "module": "fs",
+          "line": 157
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "1d9d2232f5db36fb8a9235d61924d2f0f9a8aefc9b50da8c47553d95b324833a",
+      "source_file": "source/src/tools/tool-utils.ts"
+    },
+    {
+      "path": "src/tools/write-tool.ts",
+      "language": "typescript",
+      "line_count": 101,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "fs",
+          "line": 1
+        },
+        {
+          "module": "path",
+          "line": 2
+        },
+        {
+          "module": "ai",
+          "line": 3
+        },
+        {
+          "module": "zod",
+          "line": 4
+        },
+        {
+          "module": "../types/agent",
+          "line": 5
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 65,
+            "line_end": 65,
+            "text": "          fs.mkdirSync(dirName, { recursive: true });"
+          }
+        },
+        {
+          "kind": "filesystem_mutation",
+          "symbol": "\\b(?:fs|fsPromises|promises)\\.(?:writeFile|appendFile|mkdir|rm|unlink|rename|copyFile)",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 74,
+            "line_end": 74,
+            "text": "        fs.writeFileSync(absolutePath, content, 'utf8');"
+          }
+        }
+      ],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "5dba167c26481923a03b11e376f14cb632a672ec0c496f8bf783670f24630f86",
+      "source_file": "source/src/tools/write-tool.ts"
+    },
+    {
+      "path": "src/types/agent.ts",
+      "language": "typescript",
+      "line_count": 22,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "vscode",
+          "line": 1
+        },
+        {
+          "module": "ai",
+          "line": 2
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "c009d9724aac0ac279eb2884ba6b4cf16036676ed1432bbf92bf4670c318e747",
+      "source_file": "source/src/types/agent.ts"
+    },
+    {
+      "path": "src/types/context.ts",
+      "language": "typescript",
+      "line_count": 46,
+      "status": "line_scanned_no_execution",
+      "imports": [],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "c57c049a3f21cd453a507288048c54d6151217148a9745130bc01a566bd03065",
+      "source_file": "source/src/types/context.ts"
+    },
+    {
+      "path": "src/webview/hooks/useChat.ts",
+      "language": "typescript",
+      "line_count": 440,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "react",
+          "line": 1
+        },
+        {
+          "module": "ai",
+          "line": 2
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "d7ffdf282a38fc4be36b0ddd66089f0ee94edb4a9b2a365c04e065ba3104c38d",
+      "source_file": "source/src/webview/hooks/useChat.ts"
+    },
+    {
+      "path": "src/webview/hooks/useFirstTimeUser.ts",
+      "language": "typescript",
+      "line_count": 55,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "react",
+          "line": 1
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "f6c09963d01696f88e3347bd105c5dfe490b20e2fc36755cc9a062474bc4479d",
+      "source_file": "source/src/webview/hooks/useFirstTimeUser.ts"
+    },
+    {
+      "path": "src/webview/types.d.ts",
+      "language": "typescript",
+      "line_count": 49,
+      "status": "line_scanned_no_execution",
+      "imports": [],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "09518822c21180dad13da5b08250d3e7ec8acf437ecd83d1181764126111732e",
+      "source_file": "source/src/webview/types.d.ts"
+    },
+    {
+      "path": "src/webview/types/canvas.types.ts",
+      "language": "typescript",
+      "line_count": 179,
+      "status": "line_scanned_no_execution",
+      "imports": [],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "0b440a8fb2227921d62823efa9ef03b20cff68ad45bbf1f16c51c15396d93272",
+      "source_file": "source/src/webview/types/canvas.types.ts"
+    },
+    {
+      "path": "src/webview/utils/gridLayout.ts",
+      "language": "typescript",
+      "line_count": 466,
+      "status": "line_scanned_no_execution",
+      "imports": [
+        {
+          "module": "../types/canvas.types",
+          "line": 1
+        }
+      ],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [],
+      "dynamic_behavior_unresolved": [],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "ef0cda492c2e966802f57ff65765a9de17fc94f2d3d31d6d20b0ecf0c249e498",
+      "source_file": "source/src/webview/utils/gridLayout.ts"
+    },
+    {
+      "path": "src/webview/utils/themeParser.ts",
+      "language": "typescript",
+      "line_count": 356,
+      "status": "line_scanned_no_execution",
+      "imports": [],
+      "calls": [],
+      "commands": [],
+      "effect_candidates": [
+        {
+          "kind": "process_spawn",
+          "symbol": "\\b(?:exec|execSync|spawn|spawnSync|fork)\\s*\\(",
+          "method": "source_pattern_inferred",
+          "evidence": {
+            "line_start": 94,
+            "line_end": 94,
+            "text": "  while ((match = variableRegex.exec(cssBlock)) !== null) {"
+          }
+        }
+      ],
+      "dynamic_behavior_unresolved": [
+        {
+          "line": 94,
+          "text": "while ((match = variableRegex.exec(cssBlock)) !== null) {",
+          "status": "dynamic_behavior_not_resolved"
+        }
+      ],
+      "executed": false,
+      "caveat": "Static source scan only; paths, imports, runtime branches, aliases and dynamically constructed commands may change actual effects.",
+      "repository": "superdesigndev/superdesign",
+      "repo_revision": "49e2b9dd9615c6dae936b326b1ddb85d4f1d6f19",
+      "sha256": "fed3959fd61e868800d332646671c0e2ec9fcacaf65f60ed2247b15b0ec6a0c9",
+      "source_file": "source/src/webview/utils/themeParser.ts"
+    }
+  ]
+}

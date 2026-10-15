@@ -1,0 +1,4323 @@
+{
+  "frontmatter": {
+    "fields": {
+      "allowed-tools": "Bash(npx shadcn@latest *), Bash(pnpm dlx shadcn@latest *), Bash(bunx --bun shadcn@latest *)",
+      "description": "Manages shadcn components and projects, adding, searching, fixing, debugging, styling, and composing UI. Provides project context, component docs, and usage examples. Applies when working with shadcn/ui, component registries, presets, --preset codes, or any project with a components.json file. Also triggers for \"shadcn init\", \"create an app with --preset\", or \"switch to --preset\".",
+      "name": "shadcn",
+      "user-invocable": "false"
+    },
+    "line_end": 5,
+    "line_start": 1,
+    "raw": "name: shadcn\ndescription: Manages shadcn components and projects, adding, searching, fixing, debugging, styling, and composing UI. Provides project context, component docs, and usage examples. Applies when working with shadcn/ui, component registries, presets, --preset codes, or any project with a components.json file. Also triggers for \"shadcn init\", \"create an app with --preset\", or \"switch to --preset\".\nuser-invocable: false\nallowed-tools: Bash(npx shadcn@latest *), Bash(pnpm dlx shadcn@latest *), Bash(bunx --bun shadcn@latest *)",
+    "status": "present"
+  },
+  "identity": {
+    "catalog_category": "design-systems",
+    "slug": "shadcn",
+    "title": "shadcn/ui"
+  },
+  "license": {
+    "status": "not stated in captured catalog source",
+    "value": null
+  },
+  "line_count": 267,
+  "ontology": {
+    "actions": [
+      {
+        "evidence": {
+          "line_end": 24,
+          "line_start": 24,
+          "text": "1. **Use existing components first.** Use `npx shadcn@latest search` to check registries before writing custom UI. Check community registries too."
+        },
+        "text": "1. **Use existing components first.** Use `npx shadcn@latest search` to check registries before writing custom UI. Check community registries too."
+      },
+      {
+        "evidence": {
+          "line_end": 26,
+          "line_start": 26,
+          "text": "3. **Use built-in variants before custom styles.** `variant=\"outline\"`, `size=\"sm\"`, etc."
+        },
+        "text": "3. **Use built-in variants before custom styles.** `variant=\"outline\"`, `size=\"sm\"`, etc."
+      },
+      {
+        "evidence": {
+          "line_end": 27,
+          "line_start": 27,
+          "text": "4. **Use semantic colors.** `bg-primary`, `text-muted-foreground`: never raw values like `bg-blue-500`."
+        },
+        "text": "4. **Use semantic colors.** `bg-primary`, `text-muted-foreground`: never raw values like `bg-blue-500`."
+      },
+      {
+        "evidence": {
+          "line_end": 36,
+          "line_start": 36,
+          "text": "- **No `space-x-*` or `space-y-*`.** Use `flex` with `gap-*`. For vertical stacks, `flex flex-col gap-*`."
+        },
+        "text": "- **No `space-x-*` or `space-y-*`.** Use `flex` with `gap-*`. For vertical stacks, `flex flex-col gap-*`."
+      },
+      {
+        "evidence": {
+          "line_end": 37,
+          "line_start": 37,
+          "text": "- **Use `size-*` when width and height are equal.** `size-10` not `w-10 h-10`."
+        },
+        "text": "- **Use `size-*` when width and height are equal.** `size-10` not `w-10 h-10`."
+      },
+      {
+        "evidence": {
+          "line_end": 38,
+          "line_start": 38,
+          "text": "- **Use `truncate` shorthand.** Not `overflow-hidden text-ellipsis whitespace-nowrap`."
+        },
+        "text": "- **Use `truncate` shorthand.** Not `overflow-hidden text-ellipsis whitespace-nowrap`."
+      },
+      {
+        "evidence": {
+          "line_end": 39,
+          "line_start": 39,
+          "text": "- **No manual `dark:` color overrides.** Use semantic tokens (`bg-background`, `text-muted-foreground`)."
+        },
+        "text": "- **No manual `dark:` color overrides.** Use semantic tokens (`bg-background`, `text-muted-foreground`)."
+      },
+      {
+        "evidence": {
+          "line_end": 45,
+          "line_start": 45,
+          "text": "- **Forms use `FieldGroup` + `Field`.** Never use raw `div` with `space-y-*` or `grid gap-*` for form layout."
+        },
+        "text": "- **Forms use `FieldGroup` + `Field`.** Never use raw `div` with `space-y-*` or `grid gap-*` for form layout."
+      },
+      {
+        "evidence": {
+          "line_end": 47,
+          "line_start": 47,
+          "text": "- **Buttons inside inputs use `InputGroup` + `InputGroupAddon`.**"
+        },
+        "text": "- **Buttons inside inputs use `InputGroup` + `InputGroupAddon`.**"
+      },
+      {
+        "evidence": {
+          "line_end": 48,
+          "line_start": 48,
+          "text": "- **Option sets (2-7 choices) use `ToggleGroup`.** Don't loop `Button` with manual active state."
+        },
+        "text": "- **Option sets (2-7 choices) use `ToggleGroup`.** Don't loop `Button` with manual active state."
+      },
+      {
+        "evidence": {
+          "line_end": 49,
+          "line_start": 49,
+          "text": "- **`FieldSet` + `FieldLegend` for grouping related checkboxes/radios.** Don't use a `div` with a heading."
+        },
+        "text": "- **`FieldSet` + `FieldLegend` for grouping related checkboxes/radios.** Don't use a `div` with a heading."
+      },
+      {
+        "evidence": {
+          "line_end": 55,
+          "line_start": 55,
+          "text": "- **Use `asChild` (radix) or `render` (base) for custom triggers.** Check `base` field from `npx shadcn@latest info`. \u2192 [base-vs-radix.md](./rules/base-vs-radix.md)"
+        },
+        "text": "- **Use `asChild` (radix) or `render` (base) for custom triggers.** Check `base` field from `npx shadcn@latest info`. \u2192 [base-vs-radix.md](./rules/base-vs-radix.md)"
+      },
+      {
+        "evidence": {
+          "line_end": 56,
+          "line_start": 56,
+          "text": "- **Dialog, Sheet, and Drawer always need a Title.** `DialogTitle`, `SheetTitle`, `DrawerTitle` required for accessibility. Use `className=\"sr-only\"` if visually hidden."
+        },
+        "text": "- **Dialog, Sheet, and Drawer always need a Title.** `DialogTitle`, `SheetTitle`, `DrawerTitle` required for accessibility. Use `className=\"sr-only\"` if visually hidden."
+      },
+      {
+        "evidence": {
+          "line_end": 57,
+          "line_start": 57,
+          "text": "- **Use full Card composition.** `CardHeader`/`CardTitle`/`CardDescription`/`CardContent`/`CardFooter`. Don't dump everything in `CardContent`."
+        },
+        "text": "- **Use full Card composition.** `CardHeader`/`CardTitle`/`CardDescription`/`CardContent`/`CardFooter`. Don't dump everything in `CardContent`."
+      },
+      {
+        "evidence": {
+          "line_end": 64,
+          "line_start": 64,
+          "text": "- **Use existing components before custom markup.** Check if a component exists before writing a styled `div`."
+        },
+        "text": "- **Use existing components before custom markup.** Check if a component exists before writing a styled `div`."
+      },
+      {
+        "evidence": {
+          "line_end": 65,
+          "line_start": 65,
+          "text": "- **Callouts use `Alert`.** Don't build custom styled divs."
+        },
+        "text": "- **Callouts use `Alert`.** Don't build custom styled divs."
+      },
+      {
+        "evidence": {
+          "line_end": 66,
+          "line_start": 66,
+          "text": "- **Empty states use `Empty`.** Don't build custom empty state markup."
+        },
+        "text": "- **Empty states use `Empty`.** Don't build custom empty state markup."
+      },
+      {
+        "evidence": {
+          "line_end": 67,
+          "line_start": 67,
+          "text": "- **Toast via `sonner`.** Use `toast()` from `sonner`."
+        },
+        "text": "- **Toast via `sonner`.** Use `toast()` from `sonner`."
+      },
+      {
+        "evidence": {
+          "line_end": 68,
+          "line_start": 68,
+          "text": "- **Use `Separator`** instead of `<hr>` or `<div className=\"border-t\">`."
+        },
+        "text": "- **Use `Separator`** instead of `<hr>` or `<div className=\"border-t\">`."
+      },
+      {
+        "evidence": {
+          "line_end": 69,
+          "line_start": 69,
+          "text": "- **Use `Skeleton`** for loading placeholders. No custom `animate-pulse` divs."
+        },
+        "text": "- **Use `Skeleton`** for loading placeholders. No custom `animate-pulse` divs."
+      },
+      {
+        "evidence": {
+          "line_end": 70,
+          "line_start": 70,
+          "text": "- **Use `Badge`** instead of custom styled spans."
+        },
+        "text": "- **Use `Badge`** instead of custom styled spans."
+      },
+      {
+        "evidence": {
+          "line_end": 74,
+          "line_start": 74,
+          "text": "- **Icons in `Button` use `data-icon`.** `data-icon=\"inline-start\"` or `data-icon=\"inline-end\"` on the icon."
+        },
+        "text": "- **Icons in `Button` use `data-icon`.** `data-icon=\"inline-start\"` or `data-icon=\"inline-end\"` on the icon."
+      },
+      {
+        "evidence": {
+          "line_end": 80,
+          "line_start": 80,
+          "text": "- **Never decode preset codes or build preset URLs manually.** Use `npx shadcn@latest preset decode <code>`, `preset url <code>`, or `preset open <code>`. For project-aware preset detection, use `npx shadcn@latest preset resolve`."
+        },
+        "text": "- **Never decode preset codes or build preset URLs manually.** Use `npx shadcn@latest preset decode <code>`, `preset url <code>`, or `preset open <code>`. For project-aware preset detection, use `npx shadcn@latest preset resolve`."
+      },
+      {
+        "evidence": {
+          "line_end": 81,
+          "line_start": 81,
+          "text": "- **Apply preset codes directly with the CLI.** Use `npx shadcn@latest apply <code>` for existing projects, or `npx shadcn@latest init --preset <code>` when initializing."
+        },
+        "text": "- **Apply preset codes directly with the CLI.** Use `npx shadcn@latest apply <code>` for existing projects, or `npx shadcn@latest init --preset <code>` when initializing."
+      },
+      {
+        "evidence": {
+          "line_end": 144,
+          "line_start": 144,
+          "text": "- **`aliases`** \u2192 use the actual alias prefix for imports (e.g. `@/`, `~/`), never hardcode."
+        },
+        "text": "- **`aliases`** \u2192 use the actual alias prefix for imports (e.g. `@/`, `~/`), never hardcode."
+      },
+      {
+        "evidence": {
+          "line_end": 145,
+          "line_start": 145,
+          "text": "- **`isRSC`** \u2192 when `true`, components using `useState`, `useEffect`, event handlers, or browser APIs need `\"use client\"` at the top of the file. Always reference this field when advising on the directive."
+        },
+        "text": "- **`isRSC`** \u2192 when `true`, components using `useState`, `useEffect`, event handlers, or browser APIs need `\"use client\"` at the top of the file. Always reference this field when advising on the directive."
+      },
+      {
+        "evidence": {
+          "line_end": 150,
+          "line_start": 150,
+          "text": "- **`iconLibrary`** \u2192 determines icon imports. Use `lucide-react` for `lucide`, `@tabler/icons-react` for `tabler`, etc. Never assume `lucide-react`."
+        },
+        "text": "- **`iconLibrary`** \u2192 determines icon imports. Use `lucide-react` for `lucide`, `@tabler/icons-react` for `tabler`, etc. Never assume `lucide-react`."
+      },
+      {
+        "evidence": {
+          "line_end": 153,
+          "line_start": 153,
+          "text": "- **`packageManager`** \u2192 use this for any non-shadcn dependency installs (e.g. `pnpm add date-fns` vs `npm install date-fns`)."
+        },
+        "text": "- **`packageManager`** \u2192 use this for any non-shadcn dependency installs (e.g. `pnpm add date-fns` vs `npm install date-fns`)."
+      },
+      {
+        "evidence": {
+          "line_end": 154,
+          "line_start": 154,
+          "text": "- **`preset`** \u2192 resolved preset code and values for the current project. Use `npx shadcn@latest preset resolve --json` when you only need preset information."
+        },
+        "text": "- **`preset`** \u2192 resolved preset code and values for the current project. Use `npx shadcn@latest preset resolve --json` when you only need preset information."
+      },
+      {
+        "evidence": {
+          "line_end": 170,
+          "line_start": 170,
+          "text": "1. **Get project context**: already injected above. Run `npx shadcn@latest info` again if you need to refresh."
+        },
+        "text": "1. **Get project context**: already injected above. Run `npx shadcn@latest info` again if you need to refresh."
+      },
+      {
+        "evidence": {
+          "line_end": 171,
+          "line_start": 171,
+          "text": "2. **Check installed components first**: before running `add`, always check the `components` list from project context or list the `resolvedPaths.ui` directory. Don't import components that haven't been added, and don't re-add ones already installed."
+        },
+        "text": "2. **Check installed components first**: before running `add`, always check the `components` list from project context or list the `resolvedPaths.ui` directory. Don't import components that haven't been added, and don't re-add ones already installed."
+      },
+      {
+        "evidence": {
+          "line_end": 173,
+          "line_start": 173,
+          "text": "4. **Get docs and examples**: run `npx shadcn@latest docs <component>` to get URLs, then fetch them. Use `npx shadcn@latest view` to browse registry items you haven't installed. To preview changes to installed components, use `npx shadcn@latest add --diff`."
+        },
+        "text": "4. **Get docs and examples**: run `npx shadcn@latest docs <component>` to get URLs, then fetch them. Use `npx shadcn@latest view` to browse registry items you haven't installed. To preview changes to installed components, use `npx shadcn@latest add --diff`."
+      },
+      {
+        "evidence": {
+          "line_end": 174,
+          "line_start": 174,
+          "text": "5. **Install or update**: `npx shadcn@latest add`. When updating existing components, use `--dry-run` and `--diff` to preview changes first (see [Updating Components](#updating-components) below)."
+        },
+        "text": "5. **Install or update**: `npx shadcn@latest add`. When updating existing components, use `--dry-run` and `--diff` to preview changes first (see [Updating Components](#updating-components) below)."
+      },
+      {
+        "evidence": {
+          "line_end": 175,
+          "line_start": 175,
+          "text": "6. **Fix imports in third-party components**: After adding components from community registries (e.g. `@bundui`, `@magicui`), check the added non-UI files for hardcoded import paths like `@/components/ui/...`. These won't match the project's actual aliases. Use `npx shadcn@latest info` to get the correct `ui` alias (e.g. `@workspace/ui/components`) and rewrite the imports accordingly. The CLI rewrites imports for its own UI files, but third-party registry components may use default paths that don't match the project."
+        },
+        "text": "6. **Fix imports in third-party components**: After adding components from community registries (e.g. `@bundui`, `@magicui`), check the added non-UI files for hardcoded import paths like `@/components/ui/...`. These won't match the project's actual aliases. Use `npx shadcn@latest info` to get the correct `ui` alias (e.g. `@workspace/ui/components`) and rewrite the imports accordingly. The CLI rewrites imports for its own UI files, but third-party registry components may use default paths that don't match the project."
+      },
+      {
+        "evidence": {
+          "line_end": 176,
+          "line_start": 176,
+          "text": "7. **Review added components**: After adding a component or block from any registry, **always read the added files and verify they are correct**. Check for missing sub-components (e.g. `SelectItem` without `SelectGroup`), missing imports, incorrect composition, or violations of the [Critical Rules](#critical-rules). Also replace any icon imports with the project's `iconLibrary` from the project context (e.g. if the registry item uses `lucide-react` but the project uses `hugeicons`, swap the imports and icon names accordingly). Fix all issues before moving on."
+        },
+        "text": "7. **Review added components**: After adding a component or block from any registry, **always read the added files and verify they are correct**. Check for missing sub-components (e.g. `SelectItem` without `SelectGroup`), missing imports, incorrect composition, or violations of the [Critical Rules](#critical-rules). Also replace any icon imports with the project's `iconLibrary` from the project context (e.g. if the registry item uses `lucide-react` but the project uses `hugeicons`, swap the imports and icon names accordingly). Fix all issues before moving on."
+      },
+      {
+        "evidence": {
+          "line_end": 177,
+          "line_start": 177,
+          "text": "8. **Registry must be explicit**: When the user asks to add a block or component, **do not guess the registry**. If no registry is specified (e.g. user says \"add a login block\" without specifying `@shadcn`, `@tailark`, `owner/repo`, etc.), ask which registry to use. Never default to a registry on behalf of the user."
+        },
+        "text": "8. **Registry must be explicit**: When the user asks to add a block or component, **do not guess the registry**. If no registry is specified (e.g. user says \"add a login block\" without specifying `@shadcn`, `@tailark`, `owner/repo`, etc.), ask which registry to use. Never default to a registry on behalf of the user."
+      },
+      {
+        "evidence": {
+          "line_end": 178,
+          "line_start": 178,
+          "text": "9. **Switching presets**: Ask the user first: **overwrite**, **partial**, **merge**, or **skip**?"
+        },
+        "text": "9. **Switching presets**: Ask the user first: **overwrite**, **partial**, **merge**, or **skip**?"
+      },
+      {
+        "evidence": {
+          "line_end": 179,
+          "line_start": 179,
+          "text": "   - **Inspect current preset**: `npx shadcn@latest preset resolve`. Use `--json` when you need structured values."
+        },
+        "text": "- **Inspect current preset**: `npx shadcn@latest preset resolve`. Use `--json` when you need structured values."
+      },
+      {
+        "evidence": {
+          "line_end": 180,
+          "line_start": 180,
+          "text": "   - **Inspect incoming preset**: `npx shadcn@latest preset decode <code>`. Use `preset url <code>` or `preset open <code>` to share or open the preset builder."
+        },
+        "text": "- **Inspect incoming preset**: `npx shadcn@latest preset decode <code>`. Use `preset url <code>` or `preset open <code>` to share or open the preset builder."
+      },
+      {
+        "evidence": {
+          "line_end": 183,
+          "line_start": 183,
+          "text": "   - **Merge**: `npx shadcn@latest init --preset <code> --force --no-reinstall`, then run `npx shadcn@latest info` to list installed components, then for each installed component use `--dry-run` and `--diff` to [smart merge](#updating-components) it individually."
+        },
+        "text": "- **Merge**: `npx shadcn@latest init --preset <code> --force --no-reinstall`, then run `npx shadcn@latest info` to list installed components, then for each installed component use `--dry-run` and `--diff` to [smart merge](#updating-components) it individually."
+      },
+      {
+        "evidence": {
+          "line_end": 185,
+          "line_start": 185,
+          "text": "   - **Important**: Always run preset commands inside the user's project directory. `apply` only works in an existing project with a `components.json` file. The CLI automatically preserves the current base (`base` vs `radix`) from `components.json`. If you must use a scratch/temp directory (e.g. for `--dry-run` comparisons), pass `--base <current-base>` explicitly, preset codes do not encode the base."
+        },
+        "text": "- **Important**: Always run preset commands inside the user's project directory. `apply` only works in an existing project with a `components.json` file. The CLI automatically preserves the current base (`base` vs `radix`) from `components.json`. If you must use a scratch/temp directory (e.g. for `--dry-run` comparisons), pass `--base <current-base>` explicitly, preset codes do not encode the base."
+      },
+      {
+        "evidence": {
+          "line_end": 191,
+          "line_start": 191,
+          "text": "1. Run `npx shadcn@latest add <component> --dry-run` to see all files that would be affected."
+        },
+        "text": "1. Run `npx shadcn@latest add <component> --dry-run` to see all files that would be affected."
+      },
+      {
+        "evidence": {
+          "line_end": 192,
+          "line_start": 192,
+          "text": "2. For each file, run `npx shadcn@latest add <component> --diff <file>` to see what changed upstream vs local."
+        },
+        "text": "2. For each file, run `npx shadcn@latest add <component> --diff <file>` to see what changed upstream vs local."
+      },
+      {
+        "evidence": {
+          "line_end": 195,
+          "line_start": 195,
+          "text": "   - Has local changes \u2192 read the local file, analyze the diff, and apply upstream updates while preserving local modifications."
+        },
+        "text": "- Has local changes \u2192 read the local file, analyze the diff, and apply upstream updates while preserving local modifications."
+      },
+      {
+        "evidence": {
+          "line_end": 196,
+          "line_start": 196,
+          "text": "   - User says \"just update everything\" \u2192 use `--overwrite`, but confirm first."
+        },
+        "text": "- User says \"just update everything\" \u2192 use `--overwrite`, but confirm first."
+      },
+      {
+        "evidence": {
+          "line_end": 197,
+          "line_start": 197,
+          "text": "4. **Never use `--overwrite` without the user's explicit approval.**"
+        },
+        "text": "4. **Never use `--overwrite` without the user's explicit approval.**"
+      },
+      {
+        "evidence": {
+          "line_end": 264,
+          "line_start": 264,
+          "text": "- [rules/base-vs-radix.md](./rules/base-vs-radix.md): asChild vs render, Select, ToggleGroup, Slider, Accordion"
+        },
+        "text": "- [rules/base-vs-radix.md](./rules/base-vs-radix.md): asChild vs render, Select, ToggleGroup, Slider, Accordion"
+      }
+    ],
+    "command_examples": [
+      {
+        "evidence": {
+          "line_end": 163,
+          "line_start": 163,
+          "text": "npx shadcn@latest docs button dialog select"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 203,
+          "line_start": 203,
+          "text": "npx shadcn@latest init --name my-app --preset base-nova"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 204,
+          "line_start": 204,
+          "text": "npx shadcn@latest init --name my-app --preset a2r6bw --template vite"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 207,
+          "line_start": 207,
+          "text": "npx shadcn@latest init --name my-app --preset base-nova --monorepo"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 208,
+          "line_start": 208,
+          "text": "npx shadcn@latest init --name my-app --preset base-nova --template next --monorepo"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 211,
+          "line_start": 211,
+          "text": "npx shadcn@latest init --preset base-nova"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 212,
+          "line_start": 212,
+          "text": "npx shadcn@latest init --defaults  # shortcut: --template=next --preset=nova (base style implied)"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 215,
+          "line_start": 215,
+          "text": "npx shadcn@latest apply a2r6bw"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 216,
+          "line_start": 216,
+          "text": "npx shadcn@latest apply a2r6bw --only theme"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 217,
+          "line_start": 217,
+          "text": "npx shadcn@latest apply a2r6bw --only font"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 218,
+          "line_start": 218,
+          "text": "npx shadcn@latest apply a2r6bw --only theme,font"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 221,
+          "line_start": 221,
+          "text": "npx shadcn@latest preset decode a2r6bw"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 222,
+          "line_start": 222,
+          "text": "npx shadcn@latest preset url a2r6bw"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 223,
+          "line_start": 223,
+          "text": "npx shadcn@latest preset open a2r6bw"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 224,
+          "line_start": 224,
+          "text": "npx shadcn@latest preset resolve"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 225,
+          "line_start": 225,
+          "text": "npx shadcn@latest preset resolve --json"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 228,
+          "line_start": 228,
+          "text": "npx shadcn@latest add button card dialog"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 229,
+          "line_start": 229,
+          "text": "npx shadcn@latest add @magicui/shimmer-button"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 230,
+          "line_start": 230,
+          "text": "npx shadcn@latest add owner/repo/item"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 231,
+          "line_start": 231,
+          "text": "npx shadcn@latest add --all"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 234,
+          "line_start": 234,
+          "text": "npx shadcn@latest add button --dry-run"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 235,
+          "line_start": 235,
+          "text": "npx shadcn@latest add button --diff button.tsx"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 236,
+          "line_start": 236,
+          "text": "npx shadcn@latest add @acme/form --view button.tsx"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 237,
+          "line_start": 237,
+          "text": "npx shadcn@latest add owner/repo/item --dry-run"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 240,
+          "line_start": 240,
+          "text": "npx shadcn@latest search @shadcn -q \"sidebar\""
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 241,
+          "line_start": 241,
+          "text": "npx shadcn@latest search @tailark -q \"stats\""
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 242,
+          "line_start": 242,
+          "text": "npx shadcn@latest search owner/repo -q \"login\""
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 243,
+          "line_start": 243,
+          "text": "npx shadcn@latest search                          # all configured registries"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 244,
+          "line_start": 244,
+          "text": "npx shadcn@latest search @shadcn -q \"menu\" -t ui  # filter by item type"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 247,
+          "line_start": 247,
+          "text": "npx shadcn@latest docs button dialog select"
+        },
+        "kind": "fenced_command",
+        "status": "example_only"
+      },
+      {
+        "evidence": {
+          "line_end": 250,
+          "line_start": 250,
+          "text": "npx shadcn@latest view @shadcn/button"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      },
+      {
+        "evidence": {
+          "line_end": 251,
+          "line_start": 251,
+          "text": "npx shadcn@latest view owner/repo/item"
+        },
+        "kind": "fenced_command",
+        "status": "fenced_command_context_unknown"
+      }
+    ],
+    "constraints": [
+      {
+        "evidence": {
+          "line_end": 25,
+          "line_start": 25,
+          "text": "2. **Compose, don't reinvent.** Settings page = Tabs + Card + form controls. Dashboard = Sidebar + Card + Chart + Table."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "2. **Compose, don't reinvent.** Settings page = Tabs + Card + form controls. Dashboard = Sidebar + Card + Chart + Table."
+      },
+      {
+        "evidence": {
+          "line_end": 27,
+          "line_start": 27,
+          "text": "4. **Use semantic colors.** `bg-primary`, `text-muted-foreground`: never raw values like `bg-blue-500`."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "4. **Use semantic colors.** `bg-primary`, `text-muted-foreground`: never raw values like `bg-blue-500`."
+      },
+      {
+        "evidence": {
+          "line_end": 31,
+          "line_start": 31,
+          "text": "These rules are **always enforced**. Each links to a file with Incorrect/Correct code pairs."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "These rules are **always enforced**. Each links to a file with Incorrect/Correct code pairs."
+      },
+      {
+        "evidence": {
+          "line_end": 35,
+          "line_start": 35,
+          "text": "- **`className` for layout, not styling.** Never override component colors or typography."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **`className` for layout, not styling.** Never override component colors or typography."
+      },
+      {
+        "evidence": {
+          "line_end": 40,
+          "line_start": 40,
+          "text": "- **Use `cn()` for conditional classes.** Don't write manual template literal ternaries."
+        },
+        "kind": "prohibited_operation",
+        "modality": "prohibited",
+        "text": "- **Use `cn()` for conditional classes.** Don't write manual template literal ternaries.",
+        "verb": "write"
+      },
+      {
+        "evidence": {
+          "line_end": 45,
+          "line_start": 45,
+          "text": "- **Forms use `FieldGroup` + `Field`.** Never use raw `div` with `space-y-*` or `grid gap-*` for form layout."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Forms use `FieldGroup` + `Field`.** Never use raw `div` with `space-y-*` or `grid gap-*` for form layout."
+      },
+      {
+        "evidence": {
+          "line_end": 46,
+          "line_start": 46,
+          "text": "- **`InputGroup` uses `InputGroupInput`/`InputGroupTextarea`.** Never raw `Input`/`Textarea` inside `InputGroup`."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **`InputGroup` uses `InputGroupInput`/`InputGroupTextarea`.** Never raw `Input`/`Textarea` inside `InputGroup`."
+      },
+      {
+        "evidence": {
+          "line_end": 48,
+          "line_start": 48,
+          "text": "- **Option sets (2-7 choices) use `ToggleGroup`.** Don't loop `Button` with manual active state."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Option sets (2-7 choices) use `ToggleGroup`.** Don't loop `Button` with manual active state."
+      },
+      {
+        "evidence": {
+          "line_end": 49,
+          "line_start": 49,
+          "text": "- **`FieldSet` + `FieldLegend` for grouping related checkboxes/radios.** Don't use a `div` with a heading."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **`FieldSet` + `FieldLegend` for grouping related checkboxes/radios.** Don't use a `div` with a heading."
+      },
+      {
+        "evidence": {
+          "line_end": 54,
+          "line_start": 54,
+          "text": "- **Items always inside their Group.** `SelectItem` \u2192 `SelectGroup`. `DropdownMenuItem` \u2192 `DropdownMenuGroup`. `CommandItem` \u2192 `CommandGroup`."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Items always inside their Group.** `SelectItem` \u2192 `SelectGroup`. `DropdownMenuItem` \u2192 `DropdownMenuGroup`. `CommandItem` \u2192 `CommandGroup`."
+      },
+      {
+        "evidence": {
+          "line_end": 56,
+          "line_start": 56,
+          "text": "- **Dialog, Sheet, and Drawer always need a Title.** `DialogTitle`, `SheetTitle`, `DrawerTitle` required for accessibility. Use `className=\"sr-only\"` if visually hidden."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Dialog, Sheet, and Drawer always need a Title.** `DialogTitle`, `SheetTitle`, `DrawerTitle` required for accessibility. Use `className=\"sr-only\"` if visually hidden."
+      },
+      {
+        "evidence": {
+          "line_end": 57,
+          "line_start": 57,
+          "text": "- **Use full Card composition.** `CardHeader`/`CardTitle`/`CardDescription`/`CardContent`/`CardFooter`. Don't dump everything in `CardContent`."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Use full Card composition.** `CardHeader`/`CardTitle`/`CardDescription`/`CardContent`/`CardFooter`. Don't dump everything in `CardContent`."
+      },
+      {
+        "evidence": {
+          "line_end": 59,
+          "line_start": 59,
+          "text": "- **`TabsTrigger` must be inside `TabsList`.** Never render triggers directly in `Tabs`."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **`TabsTrigger` must be inside `TabsList`.** Never render triggers directly in `Tabs`."
+      },
+      {
+        "evidence": {
+          "line_end": 60,
+          "line_start": 60,
+          "text": "- **`Avatar` always needs `AvatarFallback`.** For when the image fails to load."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **`Avatar` always needs `AvatarFallback`.** For when the image fails to load."
+      },
+      {
+        "evidence": {
+          "line_end": 65,
+          "line_start": 65,
+          "text": "- **Callouts use `Alert`.** Don't build custom styled divs."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Callouts use `Alert`.** Don't build custom styled divs."
+      },
+      {
+        "evidence": {
+          "line_end": 66,
+          "line_start": 66,
+          "text": "- **Empty states use `Empty`.** Don't build custom empty state markup."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Empty states use `Empty`.** Don't build custom empty state markup."
+      },
+      {
+        "evidence": {
+          "line_end": 80,
+          "line_start": 80,
+          "text": "- **Never decode preset codes or build preset URLs manually.** Use `npx shadcn@latest preset decode <code>`, `preset url <code>`, or `preset open <code>`. For project-aware preset detection, use `npx shadcn@latest preset resolve`."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Never decode preset codes or build preset URLs manually.** Use `npx shadcn@latest preset decode <code>`, `preset url <code>`, or `preset open <code>`. For project-aware preset detection, use `npx shadcn@latest preset resolve`."
+      },
+      {
+        "evidence": {
+          "line_end": 144,
+          "line_start": 144,
+          "text": "- **`aliases`** \u2192 use the actual alias prefix for imports (e.g. `@/`, `~/`), never hardcode."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **`aliases`** \u2192 use the actual alias prefix for imports (e.g. `@/`, `~/`), never hardcode."
+      },
+      {
+        "evidence": {
+          "line_end": 145,
+          "line_start": 145,
+          "text": "- **`isRSC`** \u2192 when `true`, components using `useState`, `useEffect`, event handlers, or browser APIs need `\"use client\"` at the top of the file. Always reference this field when advising on the directive."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **`isRSC`** \u2192 when `true`, components using `useState`, `useEffect`, event handlers, or browser APIs need `\"use client\"` at the top of the file. Always reference this field when advising on the directive."
+      },
+      {
+        "evidence": {
+          "line_end": 147,
+          "line_start": 147,
+          "text": "- **`tailwindCssFile`** \u2192 the global CSS file where custom CSS variables are defined. Always edit this file, never create a new one."
+        },
+        "kind": "prohibited_operation",
+        "modality": "prohibited",
+        "text": "- **`tailwindCssFile`** \u2192 the global CSS file where custom CSS variables are defined. Always edit this file, never create a new one.",
+        "verb": "create"
+      },
+      {
+        "evidence": {
+          "line_end": 150,
+          "line_start": 150,
+          "text": "- **`iconLibrary`** \u2192 determines icon imports. Use `lucide-react` for `lucide`, `@tabler/icons-react` for `tabler`, etc. Never assume `lucide-react`."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **`iconLibrary`** \u2192 determines icon imports. Use `lucide-react` for `lucide`, `@tabler/icons-react` for `tabler`, etc. Never assume `lucide-react`."
+      },
+      {
+        "evidence": {
+          "line_end": 154,
+          "line_start": 154,
+          "text": "- **`preset`** \u2192 resolved preset code and values for the current project. Use `npx shadcn@latest preset resolve --json` when you only need preset information."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **`preset`** \u2192 resolved preset code and values for the current project. Use `npx shadcn@latest preset resolve --json` when you only need preset information."
+      },
+      {
+        "evidence": {
+          "line_end": 166,
+          "line_start": 166,
+          "text": "**When creating, fixing, debugging, or using a component, always run `npx shadcn@latest docs` and fetch the URLs first.** This ensures you're working with the correct API and usage patterns rather than guessing."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "**When creating, fixing, debugging, or using a component, always run `npx shadcn@latest docs` and fetch the URLs first.** This ensures you're working with the correct API and usage patterns rather than guessing."
+      },
+      {
+        "evidence": {
+          "line_end": 171,
+          "line_start": 171,
+          "text": "2. **Check installed components first**: before running `add`, always check the `components` list from project context or list the `resolvedPaths.ui` directory. Don't import components that haven't been added, and don't re-add ones already installed."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "2. **Check installed components first**: before running `add`, always check the `components` list from project context or list the `resolvedPaths.ui` directory. Don't import components that haven't been added, and don't re-add ones already installed."
+      },
+      {
+        "evidence": {
+          "line_end": 175,
+          "line_start": 175,
+          "text": "6. **Fix imports in third-party components**: After adding components from community registries (e.g. `@bundui`, `@magicui`), check the added non-UI files for hardcoded import paths like `@/components/ui/...`. These won't match the project's actual aliases. Use `npx shadcn@latest info` to get the correct `ui` alias (e.g. `@workspace/ui/components`) and rewrite the imports accordingly. The CLI rewrites imports for its own UI files, but third-party registry components may use default paths that don't match the project."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "6. **Fix imports in third-party components**: After adding components from community registries (e.g. `@bundui`, `@magicui`), check the added non-UI files for hardcoded import paths like `@/components/ui/...`. These won't match the project's actual aliases. Use `npx shadcn@latest info` to get the correct `ui` alias (e.g. `@workspace/ui/components`) and rewrite the imports accordingly. The CLI rewrites imports for its own UI files, but third-party registry components may use default paths that don't match the project."
+      },
+      {
+        "evidence": {
+          "line_end": 176,
+          "line_start": 176,
+          "text": "7. **Review added components**: After adding a component or block from any registry, **always read the added files and verify they are correct**. Check for missing sub-components (e.g. `SelectItem` without `SelectGroup`), missing imports, incorrect composition, or violations of the [Critical Rules](#critical-rules). Also replace any icon imports with the project's `iconLibrary` from the project context (e.g. if the registry item uses `lucide-react` but the project uses `hugeicons`, swap the imports and icon names accordingly). Fix all issues before moving on."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "7. **Review added components**: After adding a component or block from any registry, **always read the added files and verify they are correct**. Check for missing sub-components (e.g. `SelectItem` without `SelectGroup`), missing imports, incorrect composition, or violations of the [Critical Rules](#critical-rules). Also replace any icon imports with the project's `iconLibrary` from the project context (e.g. if the registry item uses `lucide-react` but the project uses `hugeicons`, swap the imports and icon names accordingly). Fix all issues before moving on."
+      },
+      {
+        "evidence": {
+          "line_end": 177,
+          "line_start": 177,
+          "text": "8. **Registry must be explicit**: When the user asks to add a block or component, **do not guess the registry**. If no registry is specified (e.g. user says \"add a login block\" without specifying `@shadcn`, `@tailark`, `owner/repo`, etc.), ask which registry to use. Never default to a registry on behalf of the user."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "8. **Registry must be explicit**: When the user asks to add a block or component, **do not guess the registry**. If no registry is specified (e.g. user says \"add a login block\" without specifying `@shadcn`, `@tailark`, `owner/repo`, etc.), ask which registry to use. Never default to a registry on behalf of the user."
+      },
+      {
+        "evidence": {
+          "line_end": 182,
+          "line_start": 182,
+          "text": "   - **Partial**: `npx shadcn@latest apply <code> --only theme,font`. Updates only the selected preset parts without reinstalling UI components. Supported values are `theme` and `font`; comma-separated combinations are allowed. `icon` is intentionally not supported, because icon changes may require full component reinstall and transforms."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Partial**: `npx shadcn@latest apply <code> --only theme,font`. Updates only the selected preset parts without reinstalling UI components. Supported values are `theme` and `font`; comma-separated combinations are allowed. `icon` is intentionally not supported, because icon changes may require full component reinstall and transforms."
+      },
+      {
+        "evidence": {
+          "line_end": 184,
+          "line_start": 184,
+          "text": "   - **Skip**: `npx shadcn@latest init --preset <code> --force --no-reinstall`. Only updates config and CSS, leaves components as-is."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Skip**: `npx shadcn@latest init --preset <code> --force --no-reinstall`. Only updates config and CSS, leaves components as-is."
+      },
+      {
+        "evidence": {
+          "line_end": 185,
+          "line_start": 185,
+          "text": "   - **Important**: Always run preset commands inside the user's project directory. `apply` only works in an existing project with a `components.json` file. The CLI automatically preserves the current base (`base` vs `radix`) from `components.json`. If you must use a scratch/temp directory (e.g. for `--dry-run` comparisons), pass `--base <current-base>` explicitly, preset codes do not encode the base."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Important**: Always run preset commands inside the user's project directory. `apply` only works in an existing project with a `components.json` file. The CLI automatically preserves the current base (`base` vs `radix`) from `components.json`. If you must use a scratch/temp directory (e.g. for `--dry-run` comparisons), pass `--base <current-base>` explicitly, preset codes do not encode the base."
+      },
+      {
+        "evidence": {
+          "line_end": 189,
+          "line_start": 189,
+          "text": "When the user asks to update a component from upstream while keeping their local changes, use `--dry-run` and `--diff` to intelligently merge. **NEVER fetch raw files from GitHub manually, always use the CLI.**"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "When the user asks to update a component from upstream while keeping their local changes, use `--dry-run` and `--diff` to intelligently merge. **NEVER fetch raw files from GitHub manually, always use the CLI.**"
+      },
+      {
+        "evidence": {
+          "line_end": 197,
+          "line_start": 197,
+          "text": "4. **Never use `--overwrite` without the user's explicit approval.**"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "4. **Never use `--overwrite` without the user's explicit approval.**"
+      }
+    ],
+    "effects": [
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: Manages shadcn components and projects, adding, searching, fixing, debugging, styling, and composing UI. Provides project context, component docs, and usage examples. Applies when working with shadcn/ui, component registries, presets, --preset codes, or any project with a components.json file. Also triggers for \"shadcn init\", \"create an app with --preset\", or \"switch to --preset\"."
+        },
+        "modality": "conditional",
+        "text": "description: Manages shadcn components and projects, adding, searching, fixing, debugging, styling, and composing UI. Provides project context, component docs, and usage examples. Applies when working with shadcn/ui, component registries, presets, --preset codes, or any project with a components.json file. Also triggers for \"shadcn init\", \"create an app with --preset\", or \"switch to --preset\".",
+        "verb": "create"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 12,
+          "line_start": 12,
+          "text": "> **IMPORTANT:** Run all CLI commands using the project's package runner: `npx shadcn@latest`, `pnpm dlx shadcn@latest`, or `bunx --bun shadcn@latest`: based on the project's `packageManager`. Examples below use `npx shadcn@latest` but substitute the correct runner for the project."
+        },
+        "modality": "unspecified",
+        "text": "> **IMPORTANT:** Run all CLI commands using the project's package runner: `npx shadcn@latest`, `pnpm dlx shadcn@latest`, or `bunx --bun shadcn@latest`: based on the project's `packageManager`. Examples below use `npx shadcn@latest` but substitute the correct runner for the project.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 80,
+          "line_start": 80,
+          "text": "- **Never decode preset codes or build preset URLs manually.** Use `npx shadcn@latest preset decode <code>`, `preset url <code>`, or `preset open <code>`. For project-aware preset detection, use `npx shadcn@latest preset resolve`."
+        },
+        "modality": "unspecified",
+        "text": "- **Never decode preset codes or build preset URLs manually.** Use `npx shadcn@latest preset decode <code>`, `preset url <code>`, or `preset open <code>`. For project-aware preset detection, use `npx shadcn@latest preset resolve`.",
+        "verb": "open"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 147,
+          "line_start": 147,
+          "text": "- **`tailwindCssFile`** \u2192 the global CSS file where custom CSS variables are defined. Always edit this file, never create a new one."
+        },
+        "modality": "required",
+        "text": "- **`tailwindCssFile`** \u2192 the global CSS file where custom CSS variables are defined. Always edit this file, never create a new one.",
+        "verb": "edit"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 153,
+          "line_start": 153,
+          "text": "- **`packageManager`** \u2192 use this for any non-shadcn dependency installs (e.g. `pnpm add date-fns` vs `npm install date-fns`)."
+        },
+        "modality": "unspecified",
+        "text": "- **`packageManager`** \u2192 use this for any non-shadcn dependency installs (e.g. `pnpm add date-fns` vs `npm install date-fns`).",
+        "verb": "install"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 160,
+          "line_start": 160,
+          "text": "Run `npx shadcn@latest docs <component>` to get the URLs for a component's documentation, examples, and API reference. Fetch these URLs to get the actual content."
+        },
+        "modality": "unspecified",
+        "text": "Run `npx shadcn@latest docs <component>` to get the URLs for a component's documentation, examples, and API reference. Fetch these URLs to get the actual content.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 166,
+          "line_start": 166,
+          "text": "**When creating, fixing, debugging, or using a component, always run `npx shadcn@latest docs` and fetch the URLs first.** This ensures you're working with the correct API and usage patterns rather than guessing."
+        },
+        "modality": "required",
+        "text": "**When creating, fixing, debugging, or using a component, always run `npx shadcn@latest docs` and fetch the URLs first.** This ensures you're working with the correct API and usage patterns rather than guessing.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 170,
+          "line_start": 170,
+          "text": "1. **Get project context**: already injected above. Run `npx shadcn@latest info` again if you need to refresh."
+        },
+        "modality": "unspecified",
+        "text": "1. **Get project context**: already injected above. Run `npx shadcn@latest info` again if you need to refresh.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 173,
+          "line_start": 173,
+          "text": "4. **Get docs and examples**: run `npx shadcn@latest docs <component>` to get URLs, then fetch them. Use `npx shadcn@latest view` to browse registry items you haven't installed. To preview changes to installed components, use `npx shadcn@latest add --diff`."
+        },
+        "modality": "unspecified",
+        "text": "4. **Get docs and examples**: run `npx shadcn@latest docs <component>` to get URLs, then fetch them. Use `npx shadcn@latest view` to browse registry items you haven't installed. To preview changes to installed components, use `npx shadcn@latest add --diff`.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 174,
+          "line_start": 174,
+          "text": "5. **Install or update**: `npx shadcn@latest add`. When updating existing components, use `--dry-run` and `--diff` to preview changes first (see [Updating Components](#updating-components) below)."
+        },
+        "modality": "unspecified",
+        "text": "5. **Install or update**: `npx shadcn@latest add`. When updating existing components, use `--dry-run` and `--diff` to preview changes first (see [Updating Components](#updating-components) below).",
+        "verb": "install"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 174,
+          "line_start": 174,
+          "text": "5. **Install or update**: `npx shadcn@latest add`. When updating existing components, use `--dry-run` and `--diff` to preview changes first (see [Updating Components](#updating-components) below)."
+        },
+        "modality": "conditional",
+        "text": "5. **Install or update**: `npx shadcn@latest add`. When updating existing components, use `--dry-run` and `--diff` to preview changes first (see [Updating Components](#updating-components) below).",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 178,
+          "line_start": 178,
+          "text": "9. **Switching presets**: Ask the user first: **overwrite**, **partial**, **merge**, or **skip**?"
+        },
+        "modality": "unspecified",
+        "text": "9. **Switching presets**: Ask the user first: **overwrite**, **partial**, **merge**, or **skip**?",
+        "verb": "overwrite"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 180,
+          "line_start": 180,
+          "text": "   - **Inspect incoming preset**: `npx shadcn@latest preset decode <code>`. Use `preset url <code>` or `preset open <code>` to share or open the preset builder."
+        },
+        "modality": "unspecified",
+        "text": "- **Inspect incoming preset**: `npx shadcn@latest preset decode <code>`. Use `preset url <code>` or `preset open <code>` to share or open the preset builder.",
+        "verb": "open"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 180,
+          "line_start": 180,
+          "text": "   - **Inspect incoming preset**: `npx shadcn@latest preset decode <code>`. Use `preset url <code>` or `preset open <code>` to share or open the preset builder."
+        },
+        "modality": "unspecified",
+        "text": "- **Inspect incoming preset**: `npx shadcn@latest preset decode <code>`. Use `preset url <code>` or `preset open <code>` to share or open the preset builder.",
+        "verb": "open"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 181,
+          "line_start": 181,
+          "text": "   - **Overwrite**: `npx shadcn@latest apply <code>`. Overwrites detected components, fonts, and CSS variables."
+        },
+        "modality": "unspecified",
+        "text": "- **Overwrite**: `npx shadcn@latest apply <code>`. Overwrites detected components, fonts, and CSS variables.",
+        "verb": "overwrite"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 183,
+          "line_start": 183,
+          "text": "   - **Merge**: `npx shadcn@latest init --preset <code> --force --no-reinstall`, then run `npx shadcn@latest info` to list installed components, then for each installed component use `--dry-run` and `--diff` to [smart merge](#updating-components) it individually."
+        },
+        "modality": "unspecified",
+        "text": "- **Merge**: `npx shadcn@latest init --preset <code> --force --no-reinstall`, then run `npx shadcn@latest info` to list installed components, then for each installed component use `--dry-run` and `--diff` to [smart merge](#updating-components) it individually.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 183,
+          "line_start": 183,
+          "text": "   - **Merge**: `npx shadcn@latest init --preset <code> --force --no-reinstall`, then run `npx shadcn@latest info` to list installed components, then for each installed component use `--dry-run` and `--diff` to [smart merge](#updating-components) it individually."
+        },
+        "modality": "unspecified",
+        "text": "- **Merge**: `npx shadcn@latest init --preset <code> --force --no-reinstall`, then run `npx shadcn@latest info` to list installed components, then for each installed component use `--dry-run` and `--diff` to [smart merge](#updating-components) it individually.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 185,
+          "line_start": 185,
+          "text": "   - **Important**: Always run preset commands inside the user's project directory. `apply` only works in an existing project with a `components.json` file. The CLI automatically preserves the current base (`base` vs `radix`) from `components.json`. If you must use a scratch/temp directory (e.g. for `--dry-run` comparisons), pass `--base <current-base>` explicitly, preset codes do not encode the base."
+        },
+        "modality": "required",
+        "text": "- **Important**: Always run preset commands inside the user's project directory. `apply` only works in an existing project with a `components.json` file. The CLI automatically preserves the current base (`base` vs `radix`) from `components.json`. If you must use a scratch/temp directory (e.g. for `--dry-run` comparisons), pass `--base <current-base>` explicitly, preset codes do not encode the base.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 185,
+          "line_start": 185,
+          "text": "   - **Important**: Always run preset commands inside the user's project directory. `apply` only works in an existing project with a `components.json` file. The CLI automatically preserves the current base (`base` vs `radix`) from `components.json`. If you must use a scratch/temp directory (e.g. for `--dry-run` comparisons), pass `--base <current-base>` explicitly, preset codes do not encode the base."
+        },
+        "modality": "conditional",
+        "text": "- **Important**: Always run preset commands inside the user's project directory. `apply` only works in an existing project with a `components.json` file. The CLI automatically preserves the current base (`base` vs `radix`) from `components.json`. If you must use a scratch/temp directory (e.g. for `--dry-run` comparisons), pass `--base <current-base>` explicitly, preset codes do not encode the base.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 189,
+          "line_start": 189,
+          "text": "When the user asks to update a component from upstream while keeping their local changes, use `--dry-run` and `--diff` to intelligently merge. **NEVER fetch raw files from GitHub manually, always use the CLI.**"
+        },
+        "modality": "conditional",
+        "text": "When the user asks to update a component from upstream while keeping their local changes, use `--dry-run` and `--diff` to intelligently merge. **NEVER fetch raw files from GitHub manually, always use the CLI.**",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 191,
+          "line_start": 191,
+          "text": "1. Run `npx shadcn@latest add <component> --dry-run` to see all files that would be affected."
+        },
+        "modality": "unspecified",
+        "text": "1. Run `npx shadcn@latest add <component> --dry-run` to see all files that would be affected.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 191,
+          "line_start": 191,
+          "text": "1. Run `npx shadcn@latest add <component> --dry-run` to see all files that would be affected."
+        },
+        "modality": "unspecified",
+        "text": "1. Run `npx shadcn@latest add <component> --dry-run` to see all files that would be affected.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 192,
+          "line_start": 192,
+          "text": "2. For each file, run `npx shadcn@latest add <component> --diff <file>` to see what changed upstream vs local."
+        },
+        "modality": "unspecified",
+        "text": "2. For each file, run `npx shadcn@latest add <component> --diff <file>` to see what changed upstream vs local.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 194,
+          "line_start": 194,
+          "text": "   - No local changes \u2192 safe to overwrite."
+        },
+        "modality": "unspecified",
+        "text": "- No local changes \u2192 safe to overwrite.",
+        "verb": "overwrite"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 196,
+          "line_start": 196,
+          "text": "   - User says \"just update everything\" \u2192 use `--overwrite`, but confirm first."
+        },
+        "modality": "unspecified",
+        "text": "- User says \"just update everything\" \u2192 use `--overwrite`, but confirm first.",
+        "verb": "overwrite"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 197,
+          "line_start": 197,
+          "text": "4. **Never use `--overwrite` without the user's explicit approval.**"
+        },
+        "modality": "unspecified",
+        "text": "4. **Never use `--overwrite` without the user's explicit approval.**",
+        "verb": "overwrite"
+      }
+    ],
+    "external_urls": [
+      {
+        "evidence": {
+          "line_end": 256,
+          "line_start": 256,
+          "text": "**Preset codes:** Version-prefixed base62 strings (e.g. `a2r6bw` or `b0`), from [ui.shadcn.com](https://ui.shadcn.com)."
+        },
+        "url": "https://ui.shadcn.com"
+      }
+    ],
+    "headings": [
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 8,
+        "title": "shadcn/ui"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 14,
+        "title": "Current Project Context"
+      },
+      {
+        "bullets": [
+          {
+            "line": 24,
+            "text": "**Use existing components first.** Use `npx shadcn@latest search` to check registries before writing custom UI. Check community registries too."
+          },
+          {
+            "line": 25,
+            "text": "**Compose, don't reinvent.** Settings page = Tabs + Card + form controls. Dashboard = Sidebar + Card + Chart + Table."
+          },
+          {
+            "line": 26,
+            "text": "**Use built-in variants before custom styles.** `variant=\"outline\"`, `size=\"sm\"`, etc."
+          },
+          {
+            "line": 27,
+            "text": "**Use semantic colors.** `bg-primary`, `text-muted-foreground`: never raw values like `bg-blue-500`."
+          }
+        ],
+        "level": 2,
+        "line": 22,
+        "title": "Principles"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 29,
+        "title": "Critical Rules"
+      },
+      {
+        "bullets": [
+          {
+            "line": 35,
+            "text": "**`className` for layout, not styling.** Never override component colors or typography."
+          },
+          {
+            "line": 36,
+            "text": "**No `space-x-*` or `space-y-*`.** Use `flex` with `gap-*`. For vertical stacks, `flex flex-col gap-*`."
+          },
+          {
+            "line": 37,
+            "text": "**Use `size-*` when width and height are equal.** `size-10` not `w-10 h-10`."
+          },
+          {
+            "line": 38,
+            "text": "**Use `truncate` shorthand.** Not `overflow-hidden text-ellipsis whitespace-nowrap`."
+          },
+          {
+            "line": 39,
+            "text": "**No manual `dark:` color overrides.** Use semantic tokens (`bg-background`, `text-muted-foreground`)."
+          },
+          {
+            "line": 40,
+            "text": "**Use `cn()` for conditional classes.** Don't write manual template literal ternaries."
+          },
+          {
+            "line": 41,
+            "text": "**No manual `z-index` on overlay components.** Dialog, Sheet, Popover, etc. handle their own stacking."
+          }
+        ],
+        "level": 3,
+        "line": 33,
+        "title": "Styling & Tailwind \u2192 [styling.md](./rules/styling.md)"
+      },
+      {
+        "bullets": [
+          {
+            "line": 45,
+            "text": "**Forms use `FieldGroup` + `Field`.** Never use raw `div` with `space-y-*` or `grid gap-*` for form layout."
+          },
+          {
+            "line": 46,
+            "text": "**`InputGroup` uses `InputGroupInput`/`InputGroupTextarea`.** Never raw `Input`/`Textarea` inside `InputGroup`."
+          },
+          {
+            "line": 47,
+            "text": "**Buttons inside inputs use `InputGroup` + `InputGroupAddon`.**"
+          },
+          {
+            "line": 48,
+            "text": "**Option sets (2-7 choices) use `ToggleGroup`.** Don't loop `Button` with manual active state."
+          },
+          {
+            "line": 49,
+            "text": "**`FieldSet` + `FieldLegend` for grouping related checkboxes/radios.** Don't use a `div` with a heading."
+          },
+          {
+            "line": 50,
+            "text": "**Field validation uses `data-invalid` + `aria-invalid`.** `data-invalid` on `Field`, `aria-invalid` on the control. For disabled: `data-disabled` on `Field`, `disabled` on the control."
+          }
+        ],
+        "level": 3,
+        "line": 43,
+        "title": "Forms & Inputs \u2192 [forms.md](./rules/forms.md)"
+      },
+      {
+        "bullets": [
+          {
+            "line": 54,
+            "text": "**Items always inside their Group.** `SelectItem` \u2192 `SelectGroup`. `DropdownMenuItem` \u2192 `DropdownMenuGroup`. `CommandItem` \u2192 `CommandGroup`."
+          },
+          {
+            "line": 55,
+            "text": "**Use `asChild` (radix) or `render` (base) for custom triggers.** Check `base` field from `npx shadcn@latest info`. \u2192 [base-vs-radix.md](./rules/base-vs-radix.md)"
+          },
+          {
+            "line": 56,
+            "text": "**Dialog, Sheet, and Drawer always need a Title.** `DialogTitle`, `SheetTitle`, `DrawerTitle` required for accessibility. Use `className=\"sr-only\"` if visually hidden."
+          },
+          {
+            "line": 57,
+            "text": "**Use full Card composition.** `CardHeader`/`CardTitle`/`CardDescription`/`CardContent`/`CardFooter`. Don't dump everything in `CardContent`."
+          },
+          {
+            "line": 58,
+            "text": "**Button has no `isPending`/`isLoading`.** Compose with `Spinner` + `data-icon` + `disabled`."
+          },
+          {
+            "line": 59,
+            "text": "**`TabsTrigger` must be inside `TabsList`.** Never render triggers directly in `Tabs`."
+          },
+          {
+            "line": 60,
+            "text": "**`Avatar` always needs `AvatarFallback`.** For when the image fails to load."
+          }
+        ],
+        "level": 3,
+        "line": 52,
+        "title": "Component Structure \u2192 [composition.md](./rules/composition.md)"
+      },
+      {
+        "bullets": [
+          {
+            "line": 64,
+            "text": "**Use existing components before custom markup.** Check if a component exists before writing a styled `div`."
+          },
+          {
+            "line": 65,
+            "text": "**Callouts use `Alert`.** Don't build custom styled divs."
+          },
+          {
+            "line": 66,
+            "text": "**Empty states use `Empty`.** Don't build custom empty state markup."
+          },
+          {
+            "line": 67,
+            "text": "**Toast via `sonner`.** Use `toast()` from `sonner`."
+          },
+          {
+            "line": 68,
+            "text": "**Use `Separator`** instead of `<hr>` or `<div className=\"border-t\">`."
+          },
+          {
+            "line": 69,
+            "text": "**Use `Skeleton`** for loading placeholders. No custom `animate-pulse` divs."
+          },
+          {
+            "line": 70,
+            "text": "**Use `Badge`** instead of custom styled spans."
+          }
+        ],
+        "level": 3,
+        "line": 62,
+        "title": "Use Components, Not Custom Markup \u2192 [composition.md](./rules/composition.md)"
+      },
+      {
+        "bullets": [
+          {
+            "line": 74,
+            "text": "**Icons in `Button` use `data-icon`.** `data-icon=\"inline-start\"` or `data-icon=\"inline-end\"` on the icon."
+          },
+          {
+            "line": 75,
+            "text": "**No sizing classes on icons inside components.** Components handle icon sizing via CSS. No `size-4` or `w-4 h-4`."
+          },
+          {
+            "line": 76,
+            "text": "**Pass icons as objects, not string keys.** `icon={CheckIcon}`, not a string lookup."
+          }
+        ],
+        "level": 3,
+        "line": 72,
+        "title": "Icons \u2192 [icons.md](./rules/icons.md)"
+      },
+      {
+        "bullets": [
+          {
+            "line": 80,
+            "text": "**Never decode preset codes or build preset URLs manually.** Use `npx shadcn@latest preset decode <code>`, `preset url <code>`, or `preset open <code>`. For project-aware preset detection, use `npx shadcn@latest preset resolve`."
+          },
+          {
+            "line": 81,
+            "text": "**Apply preset codes directly with the CLI.** Use `npx shadcn@latest apply <code>` for existing projects, or `npx shadcn@latest init --preset <code>` when initializing."
+          }
+        ],
+        "level": 3,
+        "line": 78,
+        "title": "CLI"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 83,
+        "title": "Key Patterns"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 122,
+        "title": "Component Selection"
+      },
+      {
+        "bullets": [
+          {
+            "line": 144,
+            "text": "**`aliases`** \u2192 use the actual alias prefix for imports (e.g. `@/`, `~/`), never hardcode."
+          },
+          {
+            "line": 145,
+            "text": "**`isRSC`** \u2192 when `true`, components using `useState`, `useEffect`, event handlers, or browser APIs need `\"use client\"` at the top of the file. Always reference this field when advising on the directive."
+          },
+          {
+            "line": 146,
+            "text": "**`tailwindVersion`** \u2192 `\"v4\"` uses `@theme inline` blocks; `\"v3\"` uses `tailwind.config.js`."
+          },
+          {
+            "line": 147,
+            "text": "**`tailwindCssFile`** \u2192 the global CSS file where custom CSS variables are defined. Always edit this file, never create a new one."
+          },
+          {
+            "line": 148,
+            "text": "**`style`** \u2192 component visual treatment (e.g. `nova`, `vega`)."
+          },
+          {
+            "line": 149,
+            "text": "**`base`** \u2192 primitive library (`radix` or `base`). Affects component APIs and available props."
+          },
+          {
+            "line": 150,
+            "text": "**`iconLibrary`** \u2192 determines icon imports. Use `lucide-react` for `lucide`, `@tabler/icons-react` for `tabler`, etc. Never assume `lucide-react`."
+          },
+          {
+            "line": 151,
+            "text": "**`resolvedPaths`** \u2192 exact file-system destinations for components, utils, hooks, etc."
+          },
+          {
+            "line": 152,
+            "text": "**`framework`** \u2192 routing and file conventions (e.g. Next.js App Router vs Vite SPA)."
+          },
+          {
+            "line": 153,
+            "text": "**`packageManager`** \u2192 use this for any non-shadcn dependency installs (e.g. `pnpm add date-fns` vs `npm install date-fns`)."
+          },
+          {
+            "line": 154,
+            "text": "**`preset`** \u2192 resolved preset code and values for the current project. Use `npx shadcn@latest preset resolve --json` when you only need preset information."
+          }
+        ],
+        "level": 2,
+        "line": 140,
+        "title": "Key Fields"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 158,
+        "title": "Component Docs, Examples, and Usage"
+      },
+      {
+        "bullets": [
+          {
+            "line": 170,
+            "text": "**Get project context**: already injected above. Run `npx shadcn@latest info` again if you need to refresh."
+          },
+          {
+            "line": 171,
+            "text": "**Check installed components first**: before running `add`, always check the `components` list from project context or list the `resolvedPaths.ui` directory. Don't import components that haven't been added, and don't re-add ones already installed."
+          },
+          {
+            "line": 172,
+            "text": "**Find components**: `npx shadcn@latest search`."
+          },
+          {
+            "line": 173,
+            "text": "**Get docs and examples**: run `npx shadcn@latest docs <component>` to get URLs, then fetch them. Use `npx shadcn@latest view` to browse registry items you haven't installed. To preview changes to installed components, use `npx shadcn@latest add --diff`."
+          },
+          {
+            "line": 174,
+            "text": "**Install or update**: `npx shadcn@latest add`. When updating existing components, use `--dry-run` and `--diff` to preview changes first (see [Updating Components](#updating-components) below)."
+          },
+          {
+            "line": 175,
+            "text": "**Fix imports in third-party components**: After adding components from community registries (e.g. `@bundui`, `@magicui`), check the added non-UI files for hardcoded import paths like `@/components/ui/...`. These won't match the project's actual aliases. Use `npx shadcn@latest info` to get the correct `ui` alias (e.g. `@workspace/ui/components`) and rewrite the imports accordingly. The CLI rewrites imports for its own UI files, but third-party registry components may use default paths that don't match the project."
+          },
+          {
+            "line": 176,
+            "text": "**Review added components**: After adding a component or block from any registry, **always read the added files and verify they are correct**. Check for missing sub-components (e.g. `SelectItem` without `SelectGroup`), missing imports, incorrect composition, or violations of the [Critical Rules](#critical-rules). Also replace any icon imports with the project's `iconLibrary` from the project context (e.g. if the registry item uses `lucide-react` but the project uses `hugeicons`, swap the imports and icon names accordingly). Fix all issues before moving on."
+          },
+          {
+            "line": 177,
+            "text": "**Registry must be explicit**: When the user asks to add a block or component, **do not guess the registry**. If no registry is specified (e.g. user says \"add a login block\" without specifying `@shadcn`, `@tailark`, `owner/repo`, etc.), ask which registry to use. Never default to a registry on behalf of the user."
+          },
+          {
+            "line": 178,
+            "text": "**Switching presets**: Ask the user first: **overwrite**, **partial**, **merge**, or **skip**?"
+          },
+          {
+            "line": 179,
+            "text": "**Inspect current preset**: `npx shadcn@latest preset resolve`. Use `--json` when you need structured values."
+          },
+          {
+            "line": 180,
+            "text": "**Inspect incoming preset**: `npx shadcn@latest preset decode <code>`. Use `preset url <code>` or `preset open <code>` to share or open the preset builder."
+          },
+          {
+            "line": 181,
+            "text": "**Overwrite**: `npx shadcn@latest apply <code>`. Overwrites detected components, fonts, and CSS variables."
+          },
+          {
+            "line": 182,
+            "text": "**Partial**: `npx shadcn@latest apply <code> --only theme,font`. Updates only the selected preset parts without reinstalling UI components. Supported values are `theme` and `font`; comma-separated combinations are allowed. `icon` is intentionally not supported, because icon changes may require full component reinstall and transforms."
+          },
+          {
+            "line": 183,
+            "text": "**Merge**: `npx shadcn@latest init --preset <code> --force --no-reinstall`, then run `npx shadcn@latest info` to list installed components, then for each installed component use `--dry-run` and `--diff` to [smart merge](#updating-components) it individually."
+          },
+          {
+            "line": 184,
+            "text": "**Skip**: `npx shadcn@latest init --preset <code> --force --no-reinstall`. Only updates config and CSS, leaves components as-is."
+          },
+          {
+            "line": 185,
+            "text": "**Important**: Always run preset commands inside the user's project directory. `apply` only works in an existing project with a `components.json` file. The CLI automatically preserves the current base (`base` vs `radix`) from `components.json`. If you must use a scratch/temp directory (e.g. for `--dry-run` comparisons), pass `--base <current-base>` explicitly, preset codes do not encode the base."
+          }
+        ],
+        "level": 2,
+        "line": 168,
+        "title": "Workflow"
+      },
+      {
+        "bullets": [
+          {
+            "line": 191,
+            "text": "Run `npx shadcn@latest add <component> --dry-run` to see all files that would be affected."
+          },
+          {
+            "line": 192,
+            "text": "For each file, run `npx shadcn@latest add <component> --diff <file>` to see what changed upstream vs local."
+          },
+          {
+            "line": 193,
+            "text": "Decide per file based on the diff:"
+          },
+          {
+            "line": 194,
+            "text": "No local changes \u2192 safe to overwrite."
+          },
+          {
+            "line": 195,
+            "text": "Has local changes \u2192 read the local file, analyze the diff, and apply upstream updates while preserving local modifications."
+          },
+          {
+            "line": 196,
+            "text": "User says \"just update everything\" \u2192 use `--overwrite`, but confirm first."
+          },
+          {
+            "line": 197,
+            "text": "**Never use `--overwrite` without the user's explicit approval.**"
+          }
+        ],
+        "level": 2,
+        "line": 187,
+        "title": "Updating Components"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 199,
+        "title": "Quick Reference"
+      },
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 202,
+        "title": "Create a new project."
+      },
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 206,
+        "title": "Create a monorepo project."
+      },
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 210,
+        "title": "Initialize existing project."
+      },
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 214,
+        "title": "Apply a preset to an existing project."
+      },
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 220,
+        "title": "Inspect preset codes and project preset state."
+      },
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 227,
+        "title": "Add components."
+      },
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 233,
+        "title": "Preview changes before adding/updating."
+      },
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 239,
+        "title": "Search registries."
+      },
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 246,
+        "title": "Get component docs and example URLs."
+      },
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 249,
+        "title": "View registry item details (for items not yet installed)."
+      },
+      {
+        "bullets": [
+          {
+            "line": 260,
+            "text": "[rules/forms.md](./rules/forms.md): FieldGroup, Field, InputGroup, ToggleGroup, FieldSet, validation states"
+          },
+          {
+            "line": 261,
+            "text": "[rules/composition.md](./rules/composition.md): Groups, overlays, Card, Tabs, Avatar, Alert, Empty, Toast, Separator, Skeleton, Badge, Button loading"
+          },
+          {
+            "line": 262,
+            "text": "[rules/icons.md](./rules/icons.md): data-icon, icon sizing, passing icons as objects"
+          },
+          {
+            "line": 263,
+            "text": "[rules/styling.md](./rules/styling.md): Semantic colors, variants, className, spacing, size, truncate, dark mode, cn(), z-index"
+          },
+          {
+            "line": 264,
+            "text": "[rules/base-vs-radix.md](./rules/base-vs-radix.md): asChild vs render, Select, ToggleGroup, Slider, Accordion"
+          },
+          {
+            "line": 265,
+            "text": "[cli.md](./cli.md): Commands, flags, presets, templates"
+          },
+          {
+            "line": 266,
+            "text": "[registry.md](./registry.md): Authoring source registries, `include`, item definitions, dependencies, GitHub registry rules"
+          },
+          {
+            "line": 267,
+            "text": "[customization.md](./customization.md): Theming, CSS variables, extending components"
+          }
+        ],
+        "level": 2,
+        "line": 258,
+        "title": "Detailed References"
+      }
+    ],
+    "inputs": [
+      {
+        "evidence": {
+          "line_end": 43,
+          "line_start": 43,
+          "text": "### Forms & Inputs \u2192 [forms.md](./rules/forms.md)"
+        },
+        "status": "input_candidate",
+        "text": "### Forms & Inputs \u2192 [forms.md](./rules/forms.md)"
+      },
+      {
+        "evidence": {
+          "line_end": 46,
+          "line_start": 46,
+          "text": "- **`InputGroup` uses `InputGroupInput`/`InputGroupTextarea`.** Never raw `Input`/`Textarea` inside `InputGroup`."
+        },
+        "status": "input_candidate",
+        "text": "- **`InputGroup` uses `InputGroupInput`/`InputGroupTextarea`.** Never raw `Input`/`Textarea` inside `InputGroup`."
+      },
+      {
+        "evidence": {
+          "line_end": 47,
+          "line_start": 47,
+          "text": "- **Buttons inside inputs use `InputGroup` + `InputGroupAddon`.**"
+        },
+        "status": "input_candidate",
+        "text": "- **Buttons inside inputs use `InputGroup` + `InputGroupAddon`.**"
+      },
+      {
+        "evidence": {
+          "line_end": 127,
+          "line_start": 127,
+          "text": "| Form inputs                | `Input`, `Select`, `Combobox`, `Switch`, `Checkbox`, `RadioGroup`, `Textarea`, `InputOTP`, `Slider` |"
+        },
+        "status": "input_candidate",
+        "text": "| Form inputs                | `Input`, `Select`, `Combobox`, `Switch`, `Checkbox`, `RadioGroup`, `Textarea`, `InputOTP`, `Slider` |"
+      }
+    ],
+    "invariants": [
+      {
+        "evidence": {
+          "line_end": 25,
+          "line_start": 25,
+          "text": "2. **Compose, don't reinvent.** Settings page = Tabs + Card + form controls. Dashboard = Sidebar + Card + Chart + Table."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "2. **Compose, don't reinvent.** Settings page = Tabs + Card + form controls. Dashboard = Sidebar + Card + Chart + Table."
+      },
+      {
+        "evidence": {
+          "line_end": 27,
+          "line_start": 27,
+          "text": "4. **Use semantic colors.** `bg-primary`, `text-muted-foreground`: never raw values like `bg-blue-500`."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "4. **Use semantic colors.** `bg-primary`, `text-muted-foreground`: never raw values like `bg-blue-500`."
+      },
+      {
+        "evidence": {
+          "line_end": 31,
+          "line_start": 31,
+          "text": "These rules are **always enforced**. Each links to a file with Incorrect/Correct code pairs."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "These rules are **always enforced**. Each links to a file with Incorrect/Correct code pairs."
+      },
+      {
+        "evidence": {
+          "line_end": 35,
+          "line_start": 35,
+          "text": "- **`className` for layout, not styling.** Never override component colors or typography."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **`className` for layout, not styling.** Never override component colors or typography."
+      },
+      {
+        "evidence": {
+          "line_end": 40,
+          "line_start": 40,
+          "text": "- **Use `cn()` for conditional classes.** Don't write manual template literal ternaries."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Use `cn()` for conditional classes.** Don't write manual template literal ternaries."
+      },
+      {
+        "evidence": {
+          "line_end": 45,
+          "line_start": 45,
+          "text": "- **Forms use `FieldGroup` + `Field`.** Never use raw `div` with `space-y-*` or `grid gap-*` for form layout."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Forms use `FieldGroup` + `Field`.** Never use raw `div` with `space-y-*` or `grid gap-*` for form layout."
+      },
+      {
+        "evidence": {
+          "line_end": 46,
+          "line_start": 46,
+          "text": "- **`InputGroup` uses `InputGroupInput`/`InputGroupTextarea`.** Never raw `Input`/`Textarea` inside `InputGroup`."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **`InputGroup` uses `InputGroupInput`/`InputGroupTextarea`.** Never raw `Input`/`Textarea` inside `InputGroup`."
+      },
+      {
+        "evidence": {
+          "line_end": 48,
+          "line_start": 48,
+          "text": "- **Option sets (2-7 choices) use `ToggleGroup`.** Don't loop `Button` with manual active state."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Option sets (2-7 choices) use `ToggleGroup`.** Don't loop `Button` with manual active state."
+      },
+      {
+        "evidence": {
+          "line_end": 49,
+          "line_start": 49,
+          "text": "- **`FieldSet` + `FieldLegend` for grouping related checkboxes/radios.** Don't use a `div` with a heading."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **`FieldSet` + `FieldLegend` for grouping related checkboxes/radios.** Don't use a `div` with a heading."
+      },
+      {
+        "evidence": {
+          "line_end": 54,
+          "line_start": 54,
+          "text": "- **Items always inside their Group.** `SelectItem` \u2192 `SelectGroup`. `DropdownMenuItem` \u2192 `DropdownMenuGroup`. `CommandItem` \u2192 `CommandGroup`."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Items always inside their Group.** `SelectItem` \u2192 `SelectGroup`. `DropdownMenuItem` \u2192 `DropdownMenuGroup`. `CommandItem` \u2192 `CommandGroup`."
+      },
+      {
+        "evidence": {
+          "line_end": 56,
+          "line_start": 56,
+          "text": "- **Dialog, Sheet, and Drawer always need a Title.** `DialogTitle`, `SheetTitle`, `DrawerTitle` required for accessibility. Use `className=\"sr-only\"` if visually hidden."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Dialog, Sheet, and Drawer always need a Title.** `DialogTitle`, `SheetTitle`, `DrawerTitle` required for accessibility. Use `className=\"sr-only\"` if visually hidden."
+      },
+      {
+        "evidence": {
+          "line_end": 57,
+          "line_start": 57,
+          "text": "- **Use full Card composition.** `CardHeader`/`CardTitle`/`CardDescription`/`CardContent`/`CardFooter`. Don't dump everything in `CardContent`."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Use full Card composition.** `CardHeader`/`CardTitle`/`CardDescription`/`CardContent`/`CardFooter`. Don't dump everything in `CardContent`."
+      },
+      {
+        "evidence": {
+          "line_end": 59,
+          "line_start": 59,
+          "text": "- **`TabsTrigger` must be inside `TabsList`.** Never render triggers directly in `Tabs`."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **`TabsTrigger` must be inside `TabsList`.** Never render triggers directly in `Tabs`."
+      },
+      {
+        "evidence": {
+          "line_end": 60,
+          "line_start": 60,
+          "text": "- **`Avatar` always needs `AvatarFallback`.** For when the image fails to load."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **`Avatar` always needs `AvatarFallback`.** For when the image fails to load."
+      },
+      {
+        "evidence": {
+          "line_end": 65,
+          "line_start": 65,
+          "text": "- **Callouts use `Alert`.** Don't build custom styled divs."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Callouts use `Alert`.** Don't build custom styled divs."
+      },
+      {
+        "evidence": {
+          "line_end": 66,
+          "line_start": 66,
+          "text": "- **Empty states use `Empty`.** Don't build custom empty state markup."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Empty states use `Empty`.** Don't build custom empty state markup."
+      },
+      {
+        "evidence": {
+          "line_end": 80,
+          "line_start": 80,
+          "text": "- **Never decode preset codes or build preset URLs manually.** Use `npx shadcn@latest preset decode <code>`, `preset url <code>`, or `preset open <code>`. For project-aware preset detection, use `npx shadcn@latest preset resolve`."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Never decode preset codes or build preset URLs manually.** Use `npx shadcn@latest preset decode <code>`, `preset url <code>`, or `preset open <code>`. For project-aware preset detection, use `npx shadcn@latest preset resolve`."
+      },
+      {
+        "evidence": {
+          "line_end": 144,
+          "line_start": 144,
+          "text": "- **`aliases`** \u2192 use the actual alias prefix for imports (e.g. `@/`, `~/`), never hardcode."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **`aliases`** \u2192 use the actual alias prefix for imports (e.g. `@/`, `~/`), never hardcode."
+      },
+      {
+        "evidence": {
+          "line_end": 145,
+          "line_start": 145,
+          "text": "- **`isRSC`** \u2192 when `true`, components using `useState`, `useEffect`, event handlers, or browser APIs need `\"use client\"` at the top of the file. Always reference this field when advising on the directive."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **`isRSC`** \u2192 when `true`, components using `useState`, `useEffect`, event handlers, or browser APIs need `\"use client\"` at the top of the file. Always reference this field when advising on the directive."
+      },
+      {
+        "evidence": {
+          "line_end": 147,
+          "line_start": 147,
+          "text": "- **`tailwindCssFile`** \u2192 the global CSS file where custom CSS variables are defined. Always edit this file, never create a new one."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **`tailwindCssFile`** \u2192 the global CSS file where custom CSS variables are defined. Always edit this file, never create a new one."
+      },
+      {
+        "evidence": {
+          "line_end": 150,
+          "line_start": 150,
+          "text": "- **`iconLibrary`** \u2192 determines icon imports. Use `lucide-react` for `lucide`, `@tabler/icons-react` for `tabler`, etc. Never assume `lucide-react`."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **`iconLibrary`** \u2192 determines icon imports. Use `lucide-react` for `lucide`, `@tabler/icons-react` for `tabler`, etc. Never assume `lucide-react`."
+      },
+      {
+        "evidence": {
+          "line_end": 154,
+          "line_start": 154,
+          "text": "- **`preset`** \u2192 resolved preset code and values for the current project. Use `npx shadcn@latest preset resolve --json` when you only need preset information."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **`preset`** \u2192 resolved preset code and values for the current project. Use `npx shadcn@latest preset resolve --json` when you only need preset information."
+      },
+      {
+        "evidence": {
+          "line_end": 166,
+          "line_start": 166,
+          "text": "**When creating, fixing, debugging, or using a component, always run `npx shadcn@latest docs` and fetch the URLs first.** This ensures you're working with the correct API and usage patterns rather than guessing."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "**When creating, fixing, debugging, or using a component, always run `npx shadcn@latest docs` and fetch the URLs first.** This ensures you're working with the correct API and usage patterns rather than guessing."
+      },
+      {
+        "evidence": {
+          "line_end": 171,
+          "line_start": 171,
+          "text": "2. **Check installed components first**: before running `add`, always check the `components` list from project context or list the `resolvedPaths.ui` directory. Don't import components that haven't been added, and don't re-add ones already installed."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "2. **Check installed components first**: before running `add`, always check the `components` list from project context or list the `resolvedPaths.ui` directory. Don't import components that haven't been added, and don't re-add ones already installed."
+      },
+      {
+        "evidence": {
+          "line_end": 175,
+          "line_start": 175,
+          "text": "6. **Fix imports in third-party components**: After adding components from community registries (e.g. `@bundui`, `@magicui`), check the added non-UI files for hardcoded import paths like `@/components/ui/...`. These won't match the project's actual aliases. Use `npx shadcn@latest info` to get the correct `ui` alias (e.g. `@workspace/ui/components`) and rewrite the imports accordingly. The CLI rewrites imports for its own UI files, but third-party registry components may use default paths that don't match the project."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "6. **Fix imports in third-party components**: After adding components from community registries (e.g. `@bundui`, `@magicui`), check the added non-UI files for hardcoded import paths like `@/components/ui/...`. These won't match the project's actual aliases. Use `npx shadcn@latest info` to get the correct `ui` alias (e.g. `@workspace/ui/components`) and rewrite the imports accordingly. The CLI rewrites imports for its own UI files, but third-party registry components may use default paths that don't match the project."
+      },
+      {
+        "evidence": {
+          "line_end": 176,
+          "line_start": 176,
+          "text": "7. **Review added components**: After adding a component or block from any registry, **always read the added files and verify they are correct**. Check for missing sub-components (e.g. `SelectItem` without `SelectGroup`), missing imports, incorrect composition, or violations of the [Critical Rules](#critical-rules). Also replace any icon imports with the project's `iconLibrary` from the project context (e.g. if the registry item uses `lucide-react` but the project uses `hugeicons`, swap the imports and icon names accordingly). Fix all issues before moving on."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "7. **Review added components**: After adding a component or block from any registry, **always read the added files and verify they are correct**. Check for missing sub-components (e.g. `SelectItem` without `SelectGroup`), missing imports, incorrect composition, or violations of the [Critical Rules](#critical-rules). Also replace any icon imports with the project's `iconLibrary` from the project context (e.g. if the registry item uses `lucide-react` but the project uses `hugeicons`, swap the imports and icon names accordingly). Fix all issues before moving on."
+      },
+      {
+        "evidence": {
+          "line_end": 177,
+          "line_start": 177,
+          "text": "8. **Registry must be explicit**: When the user asks to add a block or component, **do not guess the registry**. If no registry is specified (e.g. user says \"add a login block\" without specifying `@shadcn`, `@tailark`, `owner/repo`, etc.), ask which registry to use. Never default to a registry on behalf of the user."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "8. **Registry must be explicit**: When the user asks to add a block or component, **do not guess the registry**. If no registry is specified (e.g. user says \"add a login block\" without specifying `@shadcn`, `@tailark`, `owner/repo`, etc.), ask which registry to use. Never default to a registry on behalf of the user."
+      },
+      {
+        "evidence": {
+          "line_end": 182,
+          "line_start": 182,
+          "text": "   - **Partial**: `npx shadcn@latest apply <code> --only theme,font`. Updates only the selected preset parts without reinstalling UI components. Supported values are `theme` and `font`; comma-separated combinations are allowed. `icon` is intentionally not supported, because icon changes may require full component reinstall and transforms."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Partial**: `npx shadcn@latest apply <code> --only theme,font`. Updates only the selected preset parts without reinstalling UI components. Supported values are `theme` and `font`; comma-separated combinations are allowed. `icon` is intentionally not supported, because icon changes may require full component reinstall and transforms."
+      },
+      {
+        "evidence": {
+          "line_end": 184,
+          "line_start": 184,
+          "text": "   - **Skip**: `npx shadcn@latest init --preset <code> --force --no-reinstall`. Only updates config and CSS, leaves components as-is."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Skip**: `npx shadcn@latest init --preset <code> --force --no-reinstall`. Only updates config and CSS, leaves components as-is."
+      },
+      {
+        "evidence": {
+          "line_end": 185,
+          "line_start": 185,
+          "text": "   - **Important**: Always run preset commands inside the user's project directory. `apply` only works in an existing project with a `components.json` file. The CLI automatically preserves the current base (`base` vs `radix`) from `components.json`. If you must use a scratch/temp directory (e.g. for `--dry-run` comparisons), pass `--base <current-base>` explicitly, preset codes do not encode the base."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Important**: Always run preset commands inside the user's project directory. `apply` only works in an existing project with a `components.json` file. The CLI automatically preserves the current base (`base` vs `radix`) from `components.json`. If you must use a scratch/temp directory (e.g. for `--dry-run` comparisons), pass `--base <current-base>` explicitly, preset codes do not encode the base."
+      },
+      {
+        "evidence": {
+          "line_end": 189,
+          "line_start": 189,
+          "text": "When the user asks to update a component from upstream while keeping their local changes, use `--dry-run` and `--diff` to intelligently merge. **NEVER fetch raw files from GitHub manually, always use the CLI.**"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "When the user asks to update a component from upstream while keeping their local changes, use `--dry-run` and `--diff` to intelligently merge. **NEVER fetch raw files from GitHub manually, always use the CLI.**"
+      },
+      {
+        "evidence": {
+          "line_end": 197,
+          "line_start": 197,
+          "text": "4. **Never use `--overwrite` without the user's explicit approval.**"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "4. **Never use `--overwrite` without the user's explicit approval.**"
+      }
+    ],
+    "outputs": [],
+    "package_path_candidates": [
+      {
+        "evidence": {
+          "line_end": 33,
+          "line_start": 33,
+          "text": "### Styling & Tailwind \u2192 [styling.md](./rules/styling.md)"
+        },
+        "path": "./rules/styling.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 43,
+          "line_start": 43,
+          "text": "### Forms & Inputs \u2192 [forms.md](./rules/forms.md)"
+        },
+        "path": "./rules/forms.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 52,
+          "line_start": 52,
+          "text": "### Component Structure \u2192 [composition.md](./rules/composition.md)"
+        },
+        "path": "./rules/composition.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 55,
+          "line_start": 55,
+          "text": "- **Use `asChild` (radix) or `render` (base) for custom triggers.** Check `base` field from `npx shadcn@latest info`. \u2192 [base-vs-radix.md](./rules/base-vs-radix.md)"
+        },
+        "path": "./rules/base-vs-radix.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 62,
+          "line_start": 62,
+          "text": "### Use Components, Not Custom Markup \u2192 [composition.md](./rules/composition.md)"
+        },
+        "path": "./rules/composition.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 72,
+          "line_start": 72,
+          "text": "### Icons \u2192 [icons.md](./rules/icons.md)"
+        },
+        "path": "./rules/icons.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 156,
+          "line_start": 156,
+          "text": "See [cli.md, `info` command](./cli.md) for the full field reference."
+        },
+        "path": "./cli.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 260,
+          "line_start": 260,
+          "text": "- [rules/forms.md](./rules/forms.md): FieldGroup, Field, InputGroup, ToggleGroup, FieldSet, validation states"
+        },
+        "path": "./rules/forms.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 261,
+          "line_start": 261,
+          "text": "- [rules/composition.md](./rules/composition.md): Groups, overlays, Card, Tabs, Avatar, Alert, Empty, Toast, Separator, Skeleton, Badge, Button loading"
+        },
+        "path": "./rules/composition.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 262,
+          "line_start": 262,
+          "text": "- [rules/icons.md](./rules/icons.md): data-icon, icon sizing, passing icons as objects"
+        },
+        "path": "./rules/icons.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 263,
+          "line_start": 263,
+          "text": "- [rules/styling.md](./rules/styling.md): Semantic colors, variants, className, spacing, size, truncate, dark mode, cn(), z-index"
+        },
+        "path": "./rules/styling.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 264,
+          "line_start": 264,
+          "text": "- [rules/base-vs-radix.md](./rules/base-vs-radix.md): asChild vs render, Select, ToggleGroup, Slider, Accordion"
+        },
+        "path": "./rules/base-vs-radix.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 265,
+          "line_start": 265,
+          "text": "- [cli.md](./cli.md): Commands, flags, presets, templates"
+        },
+        "path": "./cli.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 266,
+          "line_start": 266,
+          "text": "- [registry.md](./registry.md): Authoring source registries, `include`, item definitions, dependencies, GitHub registry rules"
+        },
+        "path": "./registry.md",
+        "status": "candidate_package_path"
+      },
+      {
+        "evidence": {
+          "line_end": 267,
+          "line_start": 267,
+          "text": "- [customization.md](./customization.md): Theming, CSS variables, extending components"
+        },
+        "path": "./customization.md",
+        "status": "candidate_package_path"
+      }
+    ],
+    "recovery": [
+      {
+        "evidence": {
+          "line_end": 39,
+          "line_start": 39,
+          "text": "- **No manual `dark:` color overrides.** Use semantic tokens (`bg-background`, `text-muted-foreground`)."
+        },
+        "status": "recovery_candidate",
+        "text": "- **No manual `dark:` color overrides.** Use semantic tokens (`bg-background`, `text-muted-foreground`)."
+      },
+      {
+        "evidence": {
+          "line_end": 40,
+          "line_start": 40,
+          "text": "- **Use `cn()` for conditional classes.** Don't write manual template literal ternaries."
+        },
+        "status": "recovery_candidate",
+        "text": "- **Use `cn()` for conditional classes.** Don't write manual template literal ternaries."
+      },
+      {
+        "evidence": {
+          "line_end": 41,
+          "line_start": 41,
+          "text": "- **No manual `z-index` on overlay components.** Dialog, Sheet, Popover, etc. handle their own stacking."
+        },
+        "status": "recovery_candidate",
+        "text": "- **No manual `z-index` on overlay components.** Dialog, Sheet, Popover, etc. handle their own stacking."
+      },
+      {
+        "evidence": {
+          "line_end": 48,
+          "line_start": 48,
+          "text": "- **Option sets (2-7 choices) use `ToggleGroup`.** Don't loop `Button` with manual active state."
+        },
+        "status": "recovery_candidate",
+        "text": "- **Option sets (2-7 choices) use `ToggleGroup`.** Don't loop `Button` with manual active state."
+      }
+    ],
+    "references": [
+      {
+        "evidence": {
+          "line_end": 33,
+          "line_start": 33,
+          "text": "### Styling & Tailwind \u2192 [styling.md](./rules/styling.md)"
+        },
+        "reference": "./rules/styling.md"
+      },
+      {
+        "evidence": {
+          "line_end": 43,
+          "line_start": 43,
+          "text": "### Forms & Inputs \u2192 [forms.md](./rules/forms.md)"
+        },
+        "reference": "./rules/forms.md"
+      },
+      {
+        "evidence": {
+          "line_end": 52,
+          "line_start": 52,
+          "text": "### Component Structure \u2192 [composition.md](./rules/composition.md)"
+        },
+        "reference": "./rules/composition.md"
+      },
+      {
+        "evidence": {
+          "line_end": 55,
+          "line_start": 55,
+          "text": "- **Use `asChild` (radix) or `render` (base) for custom triggers.** Check `base` field from `npx shadcn@latest info`. \u2192 [base-vs-radix.md](./rules/base-vs-radix.md)"
+        },
+        "reference": "./rules/base-vs-radix.md"
+      },
+      {
+        "evidence": {
+          "line_end": 62,
+          "line_start": 62,
+          "text": "### Use Components, Not Custom Markup \u2192 [composition.md](./rules/composition.md)"
+        },
+        "reference": "./rules/composition.md"
+      },
+      {
+        "evidence": {
+          "line_end": 72,
+          "line_start": 72,
+          "text": "### Icons \u2192 [icons.md](./rules/icons.md)"
+        },
+        "reference": "./rules/icons.md"
+      },
+      {
+        "evidence": {
+          "line_end": 156,
+          "line_start": 156,
+          "text": "See [cli.md, `info` command](./cli.md) for the full field reference."
+        },
+        "reference": "./cli.md"
+      },
+      {
+        "evidence": {
+          "line_end": 174,
+          "line_start": 174,
+          "text": "5. **Install or update**: `npx shadcn@latest add`. When updating existing components, use `--dry-run` and `--diff` to preview changes first (see [Updating Components](#updating-components) below)."
+        },
+        "reference": "#updating-components"
+      },
+      {
+        "evidence": {
+          "line_end": 176,
+          "line_start": 176,
+          "text": "7. **Review added components**: After adding a component or block from any registry, **always read the added files and verify they are correct**. Check for missing sub-components (e.g. `SelectItem` without `SelectGroup`), missing imports, incorrect composition, or violations of the [Critical Rules](#critical-rules). Also replace any icon imports with the project's `iconLibrary` from the project context (e.g. if the registry item uses `lucide-react` but the project uses `hugeicons`, swap the imports and icon names accordingly). Fix all issues before moving on."
+        },
+        "reference": "#critical-rules"
+      },
+      {
+        "evidence": {
+          "line_end": 183,
+          "line_start": 183,
+          "text": "   - **Merge**: `npx shadcn@latest init --preset <code> --force --no-reinstall`, then run `npx shadcn@latest info` to list installed components, then for each installed component use `--dry-run` and `--diff` to [smart merge](#updating-components) it individually."
+        },
+        "reference": "#updating-components"
+      },
+      {
+        "evidence": {
+          "line_end": 256,
+          "line_start": 256,
+          "text": "**Preset codes:** Version-prefixed base62 strings (e.g. `a2r6bw` or `b0`), from [ui.shadcn.com](https://ui.shadcn.com)."
+        },
+        "reference": "https://ui.shadcn.com"
+      },
+      {
+        "evidence": {
+          "line_end": 260,
+          "line_start": 260,
+          "text": "- [rules/forms.md](./rules/forms.md): FieldGroup, Field, InputGroup, ToggleGroup, FieldSet, validation states"
+        },
+        "reference": "./rules/forms.md"
+      },
+      {
+        "evidence": {
+          "line_end": 261,
+          "line_start": 261,
+          "text": "- [rules/composition.md](./rules/composition.md): Groups, overlays, Card, Tabs, Avatar, Alert, Empty, Toast, Separator, Skeleton, Badge, Button loading"
+        },
+        "reference": "./rules/composition.md"
+      },
+      {
+        "evidence": {
+          "line_end": 262,
+          "line_start": 262,
+          "text": "- [rules/icons.md](./rules/icons.md): data-icon, icon sizing, passing icons as objects"
+        },
+        "reference": "./rules/icons.md"
+      },
+      {
+        "evidence": {
+          "line_end": 263,
+          "line_start": 263,
+          "text": "- [rules/styling.md](./rules/styling.md): Semantic colors, variants, className, spacing, size, truncate, dark mode, cn(), z-index"
+        },
+        "reference": "./rules/styling.md"
+      },
+      {
+        "evidence": {
+          "line_end": 264,
+          "line_start": 264,
+          "text": "- [rules/base-vs-radix.md](./rules/base-vs-radix.md): asChild vs render, Select, ToggleGroup, Slider, Accordion"
+        },
+        "reference": "./rules/base-vs-radix.md"
+      },
+      {
+        "evidence": {
+          "line_end": 265,
+          "line_start": 265,
+          "text": "- [cli.md](./cli.md): Commands, flags, presets, templates"
+        },
+        "reference": "./cli.md"
+      },
+      {
+        "evidence": {
+          "line_end": 266,
+          "line_start": 266,
+          "text": "- [registry.md](./registry.md): Authoring source registries, `include`, item definitions, dependencies, GitHub registry rules"
+        },
+        "reference": "./registry.md"
+      },
+      {
+        "evidence": {
+          "line_end": 267,
+          "line_start": 267,
+          "text": "- [customization.md](./customization.md): Theming, CSS variables, extending components"
+        },
+        "reference": "./customization.md"
+      }
+    ],
+    "routes": [
+      {
+        "evidence": {
+          "line_end": 49,
+          "line_start": 49,
+          "text": "- **`FieldSet` + `FieldLegend` for grouping related checkboxes/radios.** Don't use a `div` with a heading."
+        },
+        "text": "- **`FieldSet` + `FieldLegend` for grouping related checkboxes/radios.** Don't use a `div` with a heading."
+      },
+      {
+        "evidence": {
+          "line_end": 56,
+          "line_start": 56,
+          "text": "- **Dialog, Sheet, and Drawer always need a Title.** `DialogTitle`, `SheetTitle`, `DrawerTitle` required for accessibility. Use `className=\"sr-only\"` if visually hidden."
+        },
+        "text": "- **Dialog, Sheet, and Drawer always need a Title.** `DialogTitle`, `SheetTitle`, `DrawerTitle` required for accessibility. Use `className=\"sr-only\"` if visually hidden."
+      },
+      {
+        "evidence": {
+          "line_end": 80,
+          "line_start": 80,
+          "text": "- **Never decode preset codes or build preset URLs manually.** Use `npx shadcn@latest preset decode <code>`, `preset url <code>`, or `preset open <code>`. For project-aware preset detection, use `npx shadcn@latest preset resolve`."
+        },
+        "text": "- **Never decode preset codes or build preset URLs manually.** Use `npx shadcn@latest preset decode <code>`, `preset url <code>`, or `preset open <code>`. For project-aware preset detection, use `npx shadcn@latest preset resolve`."
+      },
+      {
+        "evidence": {
+          "line_end": 154,
+          "line_start": 154,
+          "text": "- **`preset`** \u2192 resolved preset code and values for the current project. Use `npx shadcn@latest preset resolve --json` when you only need preset information."
+        },
+        "text": "- **`preset`** \u2192 resolved preset code and values for the current project. Use `npx shadcn@latest preset resolve --json` when you only need preset information."
+      },
+      {
+        "evidence": {
+          "line_end": 174,
+          "line_start": 174,
+          "text": "5. **Install or update**: `npx shadcn@latest add`. When updating existing components, use `--dry-run` and `--diff` to preview changes first (see [Updating Components](#updating-components) below)."
+        },
+        "text": "5. **Install or update**: `npx shadcn@latest add`. When updating existing components, use `--dry-run` and `--diff` to preview changes first (see [Updating Components](#updating-components) below)."
+      },
+      {
+        "evidence": {
+          "line_end": 175,
+          "line_start": 175,
+          "text": "6. **Fix imports in third-party components**: After adding components from community registries (e.g. `@bundui`, `@magicui`), check the added non-UI files for hardcoded import paths like `@/components/ui/...`. These won't match the project's actual aliases. Use `npx shadcn@latest info` to get the correct `ui` alias (e.g. `@workspace/ui/components`) and rewrite the imports accordingly. The CLI rewrites imports for its own UI files, but third-party registry components may use default paths that don't match the project."
+        },
+        "text": "6. **Fix imports in third-party components**: After adding components from community registries (e.g. `@bundui`, `@magicui`), check the added non-UI files for hardcoded import paths like `@/components/ui/...`. These won't match the project's actual aliases. Use `npx shadcn@latest info` to get the correct `ui` alias (e.g. `@workspace/ui/components`) and rewrite the imports accordingly. The CLI rewrites imports for its own UI files, but third-party registry components may use default paths that don't match the project."
+      },
+      {
+        "evidence": {
+          "line_end": 177,
+          "line_start": 177,
+          "text": "8. **Registry must be explicit**: When the user asks to add a block or component, **do not guess the registry**. If no registry is specified (e.g. user says \"add a login block\" without specifying `@shadcn`, `@tailark`, `owner/repo`, etc.), ask which registry to use. Never default to a registry on behalf of the user."
+        },
+        "text": "8. **Registry must be explicit**: When the user asks to add a block or component, **do not guess the registry**. If no registry is specified (e.g. user says \"add a login block\" without specifying `@shadcn`, `@tailark`, `owner/repo`, etc.), ask which registry to use. Never default to a registry on behalf of the user."
+      },
+      {
+        "evidence": {
+          "line_end": 183,
+          "line_start": 183,
+          "text": "   - **Merge**: `npx shadcn@latest init --preset <code> --force --no-reinstall`, then run `npx shadcn@latest info` to list installed components, then for each installed component use `--dry-run` and `--diff` to [smart merge](#updating-components) it individually."
+        },
+        "text": "- **Merge**: `npx shadcn@latest init --preset <code> --force --no-reinstall`, then run `npx shadcn@latest info` to list installed components, then for each installed component use `--dry-run` and `--diff` to [smart merge](#updating-components) it individually."
+      },
+      {
+        "evidence": {
+          "line_end": 189,
+          "line_start": 189,
+          "text": "When the user asks to update a component from upstream while keeping their local changes, use `--dry-run` and `--diff` to intelligently merge. **NEVER fetch raw files from GitHub manually, always use the CLI.**"
+        },
+        "text": "When the user asks to update a component from upstream while keeping their local changes, use `--dry-run` and `--diff` to intelligently merge. **NEVER fetch raw files from GitHub manually, always use the CLI.**"
+      }
+    ],
+    "template_commands": [],
+    "template_status": "source_not_executed; fenced commands remain example-only only when surrounding prose says so, otherwise context-unknown; live XML template commands are not executable evidence",
+    "triggers": [],
+    "workflows": [
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 24,
+            "text": "**Use existing components first.** Use `npx shadcn@latest search` to check registries before writing custom UI. Check community registries too."
+          },
+          {
+            "line": 25,
+            "text": "**Compose, don't reinvent.** Settings page = Tabs + Card + form controls. Dashboard = Sidebar + Card + Chart + Table."
+          },
+          {
+            "line": 26,
+            "text": "**Use built-in variants before custom styles.** `variant=\"outline\"`, `size=\"sm\"`, etc."
+          },
+          {
+            "line": 27,
+            "text": "**Use semantic colors.** `bg-primary`, `text-muted-foreground`: never raw values like `bg-blue-500`."
+          }
+        ],
+        "section": "Principles",
+        "start_line": 22
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 35,
+            "text": "**`className` for layout, not styling.** Never override component colors or typography."
+          },
+          {
+            "line": 36,
+            "text": "**No `space-x-*` or `space-y-*`.** Use `flex` with `gap-*`. For vertical stacks, `flex flex-col gap-*`."
+          },
+          {
+            "line": 37,
+            "text": "**Use `size-*` when width and height are equal.** `size-10` not `w-10 h-10`."
+          },
+          {
+            "line": 38,
+            "text": "**Use `truncate` shorthand.** Not `overflow-hidden text-ellipsis whitespace-nowrap`."
+          },
+          {
+            "line": 39,
+            "text": "**No manual `dark:` color overrides.** Use semantic tokens (`bg-background`, `text-muted-foreground`)."
+          },
+          {
+            "line": 40,
+            "text": "**Use `cn()` for conditional classes.** Don't write manual template literal ternaries."
+          },
+          {
+            "line": 41,
+            "text": "**No manual `z-index` on overlay components.** Dialog, Sheet, Popover, etc. handle their own stacking."
+          }
+        ],
+        "section": "Styling & Tailwind \u2192 [styling.md](./rules/styling.md)",
+        "start_line": 33
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 45,
+            "text": "**Forms use `FieldGroup` + `Field`.** Never use raw `div` with `space-y-*` or `grid gap-*` for form layout."
+          },
+          {
+            "line": 46,
+            "text": "**`InputGroup` uses `InputGroupInput`/`InputGroupTextarea`.** Never raw `Input`/`Textarea` inside `InputGroup`."
+          },
+          {
+            "line": 47,
+            "text": "**Buttons inside inputs use `InputGroup` + `InputGroupAddon`.**"
+          },
+          {
+            "line": 48,
+            "text": "**Option sets (2-7 choices) use `ToggleGroup`.** Don't loop `Button` with manual active state."
+          },
+          {
+            "line": 49,
+            "text": "**`FieldSet` + `FieldLegend` for grouping related checkboxes/radios.** Don't use a `div` with a heading."
+          },
+          {
+            "line": 50,
+            "text": "**Field validation uses `data-invalid` + `aria-invalid`.** `data-invalid` on `Field`, `aria-invalid` on the control. For disabled: `data-disabled` on `Field`, `disabled` on the control."
+          }
+        ],
+        "section": "Forms & Inputs \u2192 [forms.md](./rules/forms.md)",
+        "start_line": 43
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 54,
+            "text": "**Items always inside their Group.** `SelectItem` \u2192 `SelectGroup`. `DropdownMenuItem` \u2192 `DropdownMenuGroup`. `CommandItem` \u2192 `CommandGroup`."
+          },
+          {
+            "line": 55,
+            "text": "**Use `asChild` (radix) or `render` (base) for custom triggers.** Check `base` field from `npx shadcn@latest info`. \u2192 [base-vs-radix.md](./rules/base-vs-radix.md)"
+          },
+          {
+            "line": 56,
+            "text": "**Dialog, Sheet, and Drawer always need a Title.** `DialogTitle`, `SheetTitle`, `DrawerTitle` required for accessibility. Use `className=\"sr-only\"` if visually hidden."
+          },
+          {
+            "line": 57,
+            "text": "**Use full Card composition.** `CardHeader`/`CardTitle`/`CardDescription`/`CardContent`/`CardFooter`. Don't dump everything in `CardContent`."
+          },
+          {
+            "line": 58,
+            "text": "**Button has no `isPending`/`isLoading`.** Compose with `Spinner` + `data-icon` + `disabled`."
+          },
+          {
+            "line": 59,
+            "text": "**`TabsTrigger` must be inside `TabsList`.** Never render triggers directly in `Tabs`."
+          },
+          {
+            "line": 60,
+            "text": "**`Avatar` always needs `AvatarFallback`.** For when the image fails to load."
+          }
+        ],
+        "section": "Component Structure \u2192 [composition.md](./rules/composition.md)",
+        "start_line": 52
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 64,
+            "text": "**Use existing components before custom markup.** Check if a component exists before writing a styled `div`."
+          },
+          {
+            "line": 65,
+            "text": "**Callouts use `Alert`.** Don't build custom styled divs."
+          },
+          {
+            "line": 66,
+            "text": "**Empty states use `Empty`.** Don't build custom empty state markup."
+          },
+          {
+            "line": 67,
+            "text": "**Toast via `sonner`.** Use `toast()` from `sonner`."
+          },
+          {
+            "line": 68,
+            "text": "**Use `Separator`** instead of `<hr>` or `<div className=\"border-t\">`."
+          },
+          {
+            "line": 69,
+            "text": "**Use `Skeleton`** for loading placeholders. No custom `animate-pulse` divs."
+          },
+          {
+            "line": 70,
+            "text": "**Use `Badge`** instead of custom styled spans."
+          }
+        ],
+        "section": "Use Components, Not Custom Markup \u2192 [composition.md](./rules/composition.md)",
+        "start_line": 62
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 74,
+            "text": "**Icons in `Button` use `data-icon`.** `data-icon=\"inline-start\"` or `data-icon=\"inline-end\"` on the icon."
+          },
+          {
+            "line": 75,
+            "text": "**No sizing classes on icons inside components.** Components handle icon sizing via CSS. No `size-4` or `w-4 h-4`."
+          },
+          {
+            "line": 76,
+            "text": "**Pass icons as objects, not string keys.** `icon={CheckIcon}`, not a string lookup."
+          }
+        ],
+        "section": "Icons \u2192 [icons.md](./rules/icons.md)",
+        "start_line": 72
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 80,
+            "text": "**Never decode preset codes or build preset URLs manually.** Use `npx shadcn@latest preset decode <code>`, `preset url <code>`, or `preset open <code>`. For project-aware preset detection, use `npx shadcn@latest preset resolve`."
+          },
+          {
+            "line": 81,
+            "text": "**Apply preset codes directly with the CLI.** Use `npx shadcn@latest apply <code>` for existing projects, or `npx shadcn@latest init --preset <code>` when initializing."
+          }
+        ],
+        "section": "CLI",
+        "start_line": 78
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 144,
+            "text": "**`aliases`** \u2192 use the actual alias prefix for imports (e.g. `@/`, `~/`), never hardcode."
+          },
+          {
+            "line": 145,
+            "text": "**`isRSC`** \u2192 when `true`, components using `useState`, `useEffect`, event handlers, or browser APIs need `\"use client\"` at the top of the file. Always reference this field when advising on the directive."
+          },
+          {
+            "line": 146,
+            "text": "**`tailwindVersion`** \u2192 `\"v4\"` uses `@theme inline` blocks; `\"v3\"` uses `tailwind.config.js`."
+          },
+          {
+            "line": 147,
+            "text": "**`tailwindCssFile`** \u2192 the global CSS file where custom CSS variables are defined. Always edit this file, never create a new one."
+          },
+          {
+            "line": 148,
+            "text": "**`style`** \u2192 component visual treatment (e.g. `nova`, `vega`)."
+          },
+          {
+            "line": 149,
+            "text": "**`base`** \u2192 primitive library (`radix` or `base`). Affects component APIs and available props."
+          },
+          {
+            "line": 150,
+            "text": "**`iconLibrary`** \u2192 determines icon imports. Use `lucide-react` for `lucide`, `@tabler/icons-react` for `tabler`, etc. Never assume `lucide-react`."
+          },
+          {
+            "line": 151,
+            "text": "**`resolvedPaths`** \u2192 exact file-system destinations for components, utils, hooks, etc."
+          },
+          {
+            "line": 152,
+            "text": "**`framework`** \u2192 routing and file conventions (e.g. Next.js App Router vs Vite SPA)."
+          },
+          {
+            "line": 153,
+            "text": "**`packageManager`** \u2192 use this for any non-shadcn dependency installs (e.g. `pnpm add date-fns` vs `npm install date-fns`)."
+          },
+          {
+            "line": 154,
+            "text": "**`preset`** \u2192 resolved preset code and values for the current project. Use `npx shadcn@latest preset resolve --json` when you only need preset information."
+          }
+        ],
+        "section": "Key Fields",
+        "start_line": 140
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 170,
+            "text": "**Get project context**: already injected above. Run `npx shadcn@latest info` again if you need to refresh."
+          },
+          {
+            "line": 171,
+            "text": "**Check installed components first**: before running `add`, always check the `components` list from project context or list the `resolvedPaths.ui` directory. Don't import components that haven't been added, and don't re-add ones already installed."
+          },
+          {
+            "line": 172,
+            "text": "**Find components**: `npx shadcn@latest search`."
+          },
+          {
+            "line": 173,
+            "text": "**Get docs and examples**: run `npx shadcn@latest docs <component>` to get URLs, then fetch them. Use `npx shadcn@latest view` to browse registry items you haven't installed. To preview changes to installed components, use `npx shadcn@latest add --diff`."
+          },
+          {
+            "line": 174,
+            "text": "**Install or update**: `npx shadcn@latest add`. When updating existing components, use `--dry-run` and `--diff` to preview changes first (see [Updating Components](#updating-components) below)."
+          },
+          {
+            "line": 175,
+            "text": "**Fix imports in third-party components**: After adding components from community registries (e.g. `@bundui`, `@magicui`), check the added non-UI files for hardcoded import paths like `@/components/ui/...`. These won't match the project's actual aliases. Use `npx shadcn@latest info` to get the correct `ui` alias (e.g. `@workspace/ui/components`) and rewrite the imports accordingly. The CLI rewrites imports for its own UI files, but third-party registry components may use default paths that don't match the project."
+          },
+          {
+            "line": 176,
+            "text": "**Review added components**: After adding a component or block from any registry, **always read the added files and verify they are correct**. Check for missing sub-components (e.g. `SelectItem` without `SelectGroup`), missing imports, incorrect composition, or violations of the [Critical Rules](#critical-rules). Also replace any icon imports with the project's `iconLibrary` from the project context (e.g. if the registry item uses `lucide-react` but the project uses `hugeicons`, swap the imports and icon names accordingly). Fix all issues before moving on."
+          },
+          {
+            "line": 177,
+            "text": "**Registry must be explicit**: When the user asks to add a block or component, **do not guess the registry**. If no registry is specified (e.g. user says \"add a login block\" without specifying `@shadcn`, `@tailark`, `owner/repo`, etc.), ask which registry to use. Never default to a registry on behalf of the user."
+          },
+          {
+            "line": 178,
+            "text": "**Switching presets**: Ask the user first: **overwrite**, **partial**, **merge**, or **skip**?"
+          },
+          {
+            "line": 179,
+            "text": "**Inspect current preset**: `npx shadcn@latest preset resolve`. Use `--json` when you need structured values."
+          },
+          {
+            "line": 180,
+            "text": "**Inspect incoming preset**: `npx shadcn@latest preset decode <code>`. Use `preset url <code>` or `preset open <code>` to share or open the preset builder."
+          },
+          {
+            "line": 181,
+            "text": "**Overwrite**: `npx shadcn@latest apply <code>`. Overwrites detected components, fonts, and CSS variables."
+          },
+          {
+            "line": 182,
+            "text": "**Partial**: `npx shadcn@latest apply <code> --only theme,font`. Updates only the selected preset parts without reinstalling UI components. Supported values are `theme` and `font`; comma-separated combinations are allowed. `icon` is intentionally not supported, because icon changes may require full component reinstall and transforms."
+          },
+          {
+            "line": 183,
+            "text": "**Merge**: `npx shadcn@latest init --preset <code> --force --no-reinstall`, then run `npx shadcn@latest info` to list installed components, then for each installed component use `--dry-run` and `--diff` to [smart merge](#updating-components) it individually."
+          },
+          {
+            "line": 184,
+            "text": "**Skip**: `npx shadcn@latest init --preset <code> --force --no-reinstall`. Only updates config and CSS, leaves components as-is."
+          },
+          {
+            "line": 185,
+            "text": "**Important**: Always run preset commands inside the user's project directory. `apply` only works in an existing project with a `components.json` file. The CLI automatically preserves the current base (`base` vs `radix`) from `components.json`. If you must use a scratch/temp directory (e.g. for `--dry-run` comparisons), pass `--base <current-base>` explicitly, preset codes do not encode the base."
+          }
+        ],
+        "section": "Workflow",
+        "start_line": 168
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 191,
+            "text": "Run `npx shadcn@latest add <component> --dry-run` to see all files that would be affected."
+          },
+          {
+            "line": 192,
+            "text": "For each file, run `npx shadcn@latest add <component> --diff <file>` to see what changed upstream vs local."
+          },
+          {
+            "line": 193,
+            "text": "Decide per file based on the diff:"
+          },
+          {
+            "line": 194,
+            "text": "No local changes \u2192 safe to overwrite."
+          },
+          {
+            "line": 195,
+            "text": "Has local changes \u2192 read the local file, analyze the diff, and apply upstream updates while preserving local modifications."
+          },
+          {
+            "line": 196,
+            "text": "User says \"just update everything\" \u2192 use `--overwrite`, but confirm first."
+          },
+          {
+            "line": 197,
+            "text": "**Never use `--overwrite` without the user's explicit approval.**"
+          }
+        ],
+        "section": "Updating Components",
+        "start_line": 187
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 260,
+            "text": "[rules/forms.md](./rules/forms.md): FieldGroup, Field, InputGroup, ToggleGroup, FieldSet, validation states"
+          },
+          {
+            "line": 261,
+            "text": "[rules/composition.md](./rules/composition.md): Groups, overlays, Card, Tabs, Avatar, Alert, Empty, Toast, Separator, Skeleton, Badge, Button loading"
+          },
+          {
+            "line": 262,
+            "text": "[rules/icons.md](./rules/icons.md): data-icon, icon sizing, passing icons as objects"
+          },
+          {
+            "line": 263,
+            "text": "[rules/styling.md](./rules/styling.md): Semantic colors, variants, className, spacing, size, truncate, dark mode, cn(), z-index"
+          },
+          {
+            "line": 264,
+            "text": "[rules/base-vs-radix.md](./rules/base-vs-radix.md): asChild vs render, Select, ToggleGroup, Slider, Accordion"
+          },
+          {
+            "line": 265,
+            "text": "[cli.md](./cli.md): Commands, flags, presets, templates"
+          },
+          {
+            "line": 266,
+            "text": "[registry.md](./registry.md): Authoring source registries, `include`, item definitions, dependencies, GitHub registry rules"
+          },
+          {
+            "line": 267,
+            "text": "[customization.md](./customization.md): Theming, CSS variables, extending components"
+          }
+        ],
+        "section": "Detailed References",
+        "start_line": 258
+      }
+    ]
+  },
+  "package": {
+    "reference_resolution": [
+      {
+        "commit": "unknown",
+        "path": "ui-HEAD/skills/shadcn/rules/styling.md",
+        "reference": "./rules/styling.md",
+        "repo": "shadcn/ui",
+        "sha256": "f88fbd72dff862805b786dc7d7e4c74c83030fc278c5b97c993e4e665001798c",
+        "snapshot_path": "sources/upstream/shadcn-ui-unknown/content-by-sha256/f88fbd72dff862805b786dc7d7e4c74c83030fc278c5b97c993e4e665001798c.md",
+        "source_line": 33,
+        "source_text": "### Styling & Tailwind \u2192 [styling.md](./rules/styling.md)",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "ui-HEAD/skills/shadcn/rules/forms.md",
+        "reference": "./rules/forms.md",
+        "repo": "shadcn/ui",
+        "sha256": "29593e14381e34626f8e0e9c15c59f3394b92a0623af6a6ec94585400123853c",
+        "snapshot_path": "sources/upstream/shadcn-ui-unknown/content-by-sha256/29593e14381e34626f8e0e9c15c59f3394b92a0623af6a6ec94585400123853c.md",
+        "source_line": 43,
+        "source_text": "### Forms & Inputs \u2192 [forms.md](./rules/forms.md)",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "ui-HEAD/skills/shadcn/rules/composition.md",
+        "reference": "./rules/composition.md",
+        "repo": "shadcn/ui",
+        "sha256": "f282df828d83a91132a846ddb62eea149a7c7c94822e9ca88cfddf85af01aa41",
+        "snapshot_path": "sources/upstream/shadcn-ui-unknown/content-by-sha256/f282df828d83a91132a846ddb62eea149a7c7c94822e9ca88cfddf85af01aa41.md",
+        "source_line": 52,
+        "source_text": "### Component Structure \u2192 [composition.md](./rules/composition.md)",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "ui-HEAD/skills/shadcn/rules/base-vs-radix.md",
+        "reference": "./rules/base-vs-radix.md",
+        "repo": "shadcn/ui",
+        "sha256": "2b2deb47d004285220c1fc6b38bb2edc2d0ccbcdafd031b0b189d5d8ed0d1ba8",
+        "snapshot_path": "sources/upstream/shadcn-ui-unknown/content-by-sha256/2b2deb47d004285220c1fc6b38bb2edc2d0ccbcdafd031b0b189d5d8ed0d1ba8.md",
+        "source_line": 55,
+        "source_text": "- **Use `asChild` (radix) or `render` (base) for custom triggers.** Check `base` field from `npx shadcn@latest info`. \u2192 [base-vs-radix.md](./rules/base-vs-radix.md)",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "ui-HEAD/skills/shadcn/rules/composition.md",
+        "reference": "./rules/composition.md",
+        "repo": "shadcn/ui",
+        "sha256": "f282df828d83a91132a846ddb62eea149a7c7c94822e9ca88cfddf85af01aa41",
+        "snapshot_path": "sources/upstream/shadcn-ui-unknown/content-by-sha256/f282df828d83a91132a846ddb62eea149a7c7c94822e9ca88cfddf85af01aa41.md",
+        "source_line": 62,
+        "source_text": "### Use Components, Not Custom Markup \u2192 [composition.md](./rules/composition.md)",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "ui-HEAD/skills/shadcn/rules/icons.md",
+        "reference": "./rules/icons.md",
+        "repo": "shadcn/ui",
+        "sha256": "d4a58266648872d9ee07d0c2368843a1cb88b8253b7f528dd7bda9d68b6c2535",
+        "snapshot_path": "sources/upstream/shadcn-ui-unknown/content-by-sha256/d4a58266648872d9ee07d0c2368843a1cb88b8253b7f528dd7bda9d68b6c2535.md",
+        "source_line": 72,
+        "source_text": "### Icons \u2192 [icons.md](./rules/icons.md)",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "ui-HEAD/skills/shadcn/cli.md",
+        "reference": "./cli.md",
+        "repo": "shadcn/ui",
+        "sha256": "a381e35bf36fe7bb851952c13707e01e82434fd7a4a4e53f6df26c6370838904",
+        "snapshot_path": "sources/upstream/shadcn-ui-unknown/content-by-sha256/a381e35bf36fe7bb851952c13707e01e82434fd7a4a4e53f6df26c6370838904.md",
+        "source_line": 156,
+        "source_text": "See [cli.md, `info` command](./cli.md) for the full field reference.",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "ui-HEAD/skills/shadcn/rules/forms.md",
+        "reference": "./rules/forms.md",
+        "repo": "shadcn/ui",
+        "sha256": "29593e14381e34626f8e0e9c15c59f3394b92a0623af6a6ec94585400123853c",
+        "snapshot_path": "sources/upstream/shadcn-ui-unknown/content-by-sha256/29593e14381e34626f8e0e9c15c59f3394b92a0623af6a6ec94585400123853c.md",
+        "source_line": 260,
+        "source_text": "- [rules/forms.md](./rules/forms.md): FieldGroup, Field, InputGroup, ToggleGroup, FieldSet, validation states",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "ui-HEAD/skills/shadcn/rules/composition.md",
+        "reference": "./rules/composition.md",
+        "repo": "shadcn/ui",
+        "sha256": "f282df828d83a91132a846ddb62eea149a7c7c94822e9ca88cfddf85af01aa41",
+        "snapshot_path": "sources/upstream/shadcn-ui-unknown/content-by-sha256/f282df828d83a91132a846ddb62eea149a7c7c94822e9ca88cfddf85af01aa41.md",
+        "source_line": 261,
+        "source_text": "- [rules/composition.md](./rules/composition.md): Groups, overlays, Card, Tabs, Avatar, Alert, Empty, Toast, Separator, Skeleton, Badge, Button loading",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "ui-HEAD/skills/shadcn/rules/icons.md",
+        "reference": "./rules/icons.md",
+        "repo": "shadcn/ui",
+        "sha256": "d4a58266648872d9ee07d0c2368843a1cb88b8253b7f528dd7bda9d68b6c2535",
+        "snapshot_path": "sources/upstream/shadcn-ui-unknown/content-by-sha256/d4a58266648872d9ee07d0c2368843a1cb88b8253b7f528dd7bda9d68b6c2535.md",
+        "source_line": 262,
+        "source_text": "- [rules/icons.md](./rules/icons.md): data-icon, icon sizing, passing icons as objects",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "ui-HEAD/skills/shadcn/rules/styling.md",
+        "reference": "./rules/styling.md",
+        "repo": "shadcn/ui",
+        "sha256": "f88fbd72dff862805b786dc7d7e4c74c83030fc278c5b97c993e4e665001798c",
+        "snapshot_path": "sources/upstream/shadcn-ui-unknown/content-by-sha256/f88fbd72dff862805b786dc7d7e4c74c83030fc278c5b97c993e4e665001798c.md",
+        "source_line": 263,
+        "source_text": "- [rules/styling.md](./rules/styling.md): Semantic colors, variants, className, spacing, size, truncate, dark mode, cn(), z-index",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "ui-HEAD/skills/shadcn/rules/base-vs-radix.md",
+        "reference": "./rules/base-vs-radix.md",
+        "repo": "shadcn/ui",
+        "sha256": "2b2deb47d004285220c1fc6b38bb2edc2d0ccbcdafd031b0b189d5d8ed0d1ba8",
+        "snapshot_path": "sources/upstream/shadcn-ui-unknown/content-by-sha256/2b2deb47d004285220c1fc6b38bb2edc2d0ccbcdafd031b0b189d5d8ed0d1ba8.md",
+        "source_line": 264,
+        "source_text": "- [rules/base-vs-radix.md](./rules/base-vs-radix.md): asChild vs render, Select, ToggleGroup, Slider, Accordion",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "ui-HEAD/skills/shadcn/cli.md",
+        "reference": "./cli.md",
+        "repo": "shadcn/ui",
+        "sha256": "a381e35bf36fe7bb851952c13707e01e82434fd7a4a4e53f6df26c6370838904",
+        "snapshot_path": "sources/upstream/shadcn-ui-unknown/content-by-sha256/a381e35bf36fe7bb851952c13707e01e82434fd7a4a4e53f6df26c6370838904.md",
+        "source_line": 265,
+        "source_text": "- [cli.md](./cli.md): Commands, flags, presets, templates",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "ui-HEAD/skills/shadcn/registry.md",
+        "reference": "./registry.md",
+        "repo": "shadcn/ui",
+        "sha256": "4f239be36bd2b58e17047db1ca80ab7da00e15a8b73242e5e4d50d113c4caa05",
+        "snapshot_path": "sources/upstream/shadcn-ui-unknown/content-by-sha256/4f239be36bd2b58e17047db1ca80ab7da00e15a8b73242e5e4d50d113c4caa05.md",
+        "source_line": 266,
+        "source_text": "- [registry.md](./registry.md): Authoring source registries, `include`, item definitions, dependencies, GitHub registry rules",
+        "status": "resolved"
+      },
+      {
+        "commit": "unknown",
+        "path": "ui-HEAD/skills/shadcn/customization.md",
+        "reference": "./customization.md",
+        "repo": "shadcn/ui",
+        "sha256": "84c1d47168c4b8adb5840e4af30a4e373ae3377c1110478c8974f398dd63f5ba",
+        "snapshot_path": "sources/upstream/shadcn-ui-unknown/content-by-sha256/84c1d47168c4b8adb5840e4af30a4e373ae3377c1110478c8974f398dd63f5ba.md",
+        "source_line": 267,
+        "source_text": "- [customization.md](./customization.md): Theming, CSS variables, extending components",
+        "status": "resolved"
+      }
+    ],
+    "resolved_files": [
+      {
+        "bytes": 19527,
+        "content_snapshot": "sources/upstream/shadcn-ui-unknown/content-by-sha256/deba6c5152d9835892fa7dffeb1fedbb689ddac7e59e14e57ec5eaf9463309e4.md",
+        "kind": "skill",
+        "path": "ui-HEAD/skills/shadcn/SKILL.md",
+        "sha256": "deba6c5152d9835892fa7dffeb1fedbb689ddac7e59e14e57ec5eaf9463309e4",
+        "text": true
+      },
+      {
+        "bytes": 238,
+        "content_snapshot": "sources/upstream/shadcn-ui-unknown/content-by-sha256/35db91b1eef58b2abe01da9b88577de5a44e233b740cd93d692ddeeadd2afe4d.yml",
+        "kind": "package_file",
+        "path": "ui-HEAD/skills/shadcn/agents/openai.yml",
+        "sha256": "35db91b1eef58b2abe01da9b88577de5a44e233b740cd93d692ddeeadd2afe4d",
+        "text": true
+      },
+      {
+        "bytes": 1049,
+        "content_snapshot": "sources/upstream/shadcn-ui-unknown/content-by-sha256/0ecc62d682727f68fc4937eed19960c706714fa084d44f63028d611ae02bf3d7.png",
+        "kind": "package_file",
+        "path": "ui-HEAD/skills/shadcn/assets/shadcn-small.png",
+        "sha256": "0ecc62d682727f68fc4937eed19960c706714fa084d44f63028d611ae02bf3d7",
+        "text": false
+      },
+      {
+        "bytes": 3852,
+        "content_snapshot": "sources/upstream/shadcn-ui-unknown/content-by-sha256/7d60ad6fec4d89a0d44ba5a3c9283d2fea0047af5467f9227040e20d927d39b7.png",
+        "kind": "package_file",
+        "path": "ui-HEAD/skills/shadcn/assets/shadcn.png",
+        "sha256": "7d60ad6fec4d89a0d44ba5a3c9283d2fea0047af5467f9227040e20d927d39b7",
+        "text": false
+      },
+      {
+        "bytes": 17304,
+        "content_snapshot": "sources/upstream/shadcn-ui-unknown/content-by-sha256/a381e35bf36fe7bb851952c13707e01e82434fd7a4a4e53f6df26c6370838904.md",
+        "kind": "package_file",
+        "path": "ui-HEAD/skills/shadcn/cli.md",
+        "sha256": "a381e35bf36fe7bb851952c13707e01e82434fd7a4a4e53f6df26c6370838904",
+        "text": true
+      },
+      {
+        "bytes": 6074,
+        "content_snapshot": "sources/upstream/shadcn-ui-unknown/content-by-sha256/84c1d47168c4b8adb5840e4af30a4e373ae3377c1110478c8974f398dd63f5ba.md",
+        "kind": "package_file",
+        "path": "ui-HEAD/skills/shadcn/customization.md",
+        "sha256": "84c1d47168c4b8adb5840e4af30a4e373ae3377c1110478c8974f398dd63f5ba",
+        "text": true
+      },
+      {
+        "bytes": 6330,
+        "content_snapshot": "sources/upstream/shadcn-ui-unknown/content-by-sha256/58aca2760b0cc5265bb575f76cd8eed344b88544314b8cb2cd53e0b8007dc936.json",
+        "kind": "package_file",
+        "path": "ui-HEAD/skills/shadcn/evals/evals.json",
+        "sha256": "58aca2760b0cc5265bb575f76cd8eed344b88544314b8cb2cd53e0b8007dc936",
+        "text": true
+      },
+      {
+        "bytes": 3510,
+        "content_snapshot": "sources/upstream/shadcn-ui-unknown/content-by-sha256/8d696b4e45b7d0e337367248513bd9acebe8f3bcfd7b748c775e5a337c8f38c8.md",
+        "kind": "package_file",
+        "path": "ui-HEAD/skills/shadcn/mcp.md",
+        "sha256": "8d696b4e45b7d0e337367248513bd9acebe8f3bcfd7b748c775e5a337c8f38c8",
+        "text": true
+      },
+      {
+        "bytes": 8817,
+        "content_snapshot": "sources/upstream/shadcn-ui-unknown/content-by-sha256/4f239be36bd2b58e17047db1ca80ab7da00e15a8b73242e5e4d50d113c4caa05.md",
+        "kind": "package_file",
+        "path": "ui-HEAD/skills/shadcn/registry.md",
+        "sha256": "4f239be36bd2b58e17047db1ca80ab7da00e15a8b73242e5e4d50d113c4caa05",
+        "text": true
+      },
+      {
+        "bytes": 6954,
+        "content_snapshot": "sources/upstream/shadcn-ui-unknown/content-by-sha256/2b2deb47d004285220c1fc6b38bb2edc2d0ccbcdafd031b0b189d5d8ed0d1ba8.md",
+        "kind": "package_file",
+        "path": "ui-HEAD/skills/shadcn/rules/base-vs-radix.md",
+        "sha256": "2b2deb47d004285220c1fc6b38bb2edc2d0ccbcdafd031b0b189d5d8ed0d1ba8",
+        "text": true
+      },
+      {
+        "bytes": 8018,
+        "content_snapshot": "sources/upstream/shadcn-ui-unknown/content-by-sha256/de29c12524a27578a59ecf8c95ea939278c1a3572a3706bfc99f6f92cb770b7b.md",
+        "kind": "package_file",
+        "path": "ui-HEAD/skills/shadcn/rules/chat.md",
+        "sha256": "de29c12524a27578a59ecf8c95ea939278c1a3572a3706bfc99f6f92cb770b7b",
+        "text": true
+      },
+      {
+        "bytes": 4892,
+        "content_snapshot": "sources/upstream/shadcn-ui-unknown/content-by-sha256/f282df828d83a91132a846ddb62eea149a7c7c94822e9ca88cfddf85af01aa41.md",
+        "kind": "package_file",
+        "path": "ui-HEAD/skills/shadcn/rules/composition.md",
+        "sha256": "f282df828d83a91132a846ddb62eea149a7c7c94822e9ca88cfddf85af01aa41",
+        "text": true
+      },
+      {
+        "bytes": 4857,
+        "content_snapshot": "sources/upstream/shadcn-ui-unknown/content-by-sha256/29593e14381e34626f8e0e9c15c59f3394b92a0623af6a6ec94585400123853c.md",
+        "kind": "package_file",
+        "path": "ui-HEAD/skills/shadcn/rules/forms.md",
+        "sha256": "29593e14381e34626f8e0e9c15c59f3394b92a0623af6a6ec94585400123853c",
+        "text": true
+      },
+      {
+        "bytes": 1958,
+        "content_snapshot": "sources/upstream/shadcn-ui-unknown/content-by-sha256/d4a58266648872d9ee07d0c2368843a1cb88b8253b7f528dd7bda9d68b6c2535.md",
+        "kind": "package_file",
+        "path": "ui-HEAD/skills/shadcn/rules/icons.md",
+        "sha256": "d4a58266648872d9ee07d0c2368843a1cb88b8253b7f528dd7bda9d68b6c2535",
+        "text": true
+      },
+      {
+        "bytes": 4675,
+        "content_snapshot": "sources/upstream/shadcn-ui-unknown/content-by-sha256/f88fbd72dff862805b786dc7d7e4c74c83030fc278c5b97c993e4e665001798c.md",
+        "kind": "package_file",
+        "path": "ui-HEAD/skills/shadcn/rules/styling.md",
+        "sha256": "f88fbd72dff862805b786dc7d7e4c74c83030fc278c5b97c993e4e665001798c",
+        "text": true
+      }
+    ],
+    "scripts": [],
+    "unresolved_references": []
+  },
+  "schema": "skill-ir/1.0",
+  "source": {
+    "bytes": 18506,
+    "catalog_metadata": {
+      "bundle_offset": 4395418,
+      "category": "design-systems",
+      "content_binding": "YZ",
+      "description": "Add, search, fix, and compose shadcn/ui components with project-aware CLI context. Covers registries, presets, FieldGroup forms, semantic tokens, and composition rules for Cursor and Claude Code.",
+      "github_url": "https://github.com/shadcn/ui/tree/main/skills/shadcn",
+      "slug": "shadcn",
+      "source": "community",
+      "source_label": "shadcn",
+      "stars_reported": 82,
+      "template_expressions": [],
+      "title": "shadcn/ui"
+    },
+    "line_table": [
+      {
+        "line": 1,
+        "text": "---"
+      },
+      {
+        "line": 2,
+        "text": "name: shadcn"
+      },
+      {
+        "line": 3,
+        "text": "description: Manages shadcn components and projects, adding, searching, fixing, debugging, styling, and composing UI. Provides project context, component docs, and usage examples. Applies when working with shadcn/ui, component registries, presets, --preset codes, or any project with a components.json file. Also triggers for \"shadcn init\", \"create an app with --preset\", or \"switch to --preset\"."
+      },
+      {
+        "line": 4,
+        "text": "user-invocable: false"
+      },
+      {
+        "line": 5,
+        "text": "allowed-tools: Bash(npx shadcn@latest *), Bash(pnpm dlx shadcn@latest *), Bash(bunx --bun shadcn@latest *)"
+      },
+      {
+        "line": 6,
+        "text": "---"
+      },
+      {
+        "line": 7,
+        "text": ""
+      },
+      {
+        "line": 8,
+        "text": "# shadcn/ui"
+      },
+      {
+        "line": 9,
+        "text": ""
+      },
+      {
+        "line": 10,
+        "text": "A framework for building ui, components and design systems. Components are added as source code to the user's project via the CLI."
+      },
+      {
+        "line": 11,
+        "text": ""
+      },
+      {
+        "line": 12,
+        "text": "> **IMPORTANT:** Run all CLI commands using the project's package runner: `npx shadcn@latest`, `pnpm dlx shadcn@latest`, or `bunx --bun shadcn@latest`: based on the project's `packageManager`. Examples below use `npx shadcn@latest` but substitute the correct runner for the project."
+      },
+      {
+        "line": 13,
+        "text": ""
+      },
+      {
+        "line": 14,
+        "text": "## Current Project Context"
+      },
+      {
+        "line": 15,
+        "text": ""
+      },
+      {
+        "line": 16,
+        "text": "```json"
+      },
+      {
+        "line": 17,
+        "text": "!`npx shadcn@latest info --json`"
+      },
+      {
+        "line": 18,
+        "text": "```"
+      },
+      {
+        "line": 19,
+        "text": ""
+      },
+      {
+        "line": 20,
+        "text": "The JSON above contains the project config and installed components. Use `npx shadcn@latest docs <component>` to get documentation and example URLs for any component."
+      },
+      {
+        "line": 21,
+        "text": ""
+      },
+      {
+        "line": 22,
+        "text": "## Principles"
+      },
+      {
+        "line": 23,
+        "text": ""
+      },
+      {
+        "line": 24,
+        "text": "1. **Use existing components first.** Use `npx shadcn@latest search` to check registries before writing custom UI. Check community registries too."
+      },
+      {
+        "line": 25,
+        "text": "2. **Compose, don't reinvent.** Settings page = Tabs + Card + form controls. Dashboard = Sidebar + Card + Chart + Table."
+      },
+      {
+        "line": 26,
+        "text": "3. **Use built-in variants before custom styles.** `variant=\"outline\"`, `size=\"sm\"`, etc."
+      },
+      {
+        "line": 27,
+        "text": "4. **Use semantic colors.** `bg-primary`, `text-muted-foreground`: never raw values like `bg-blue-500`."
+      },
+      {
+        "line": 28,
+        "text": ""
+      },
+      {
+        "line": 29,
+        "text": "## Critical Rules"
+      },
+      {
+        "line": 30,
+        "text": ""
+      },
+      {
+        "line": 31,
+        "text": "These rules are **always enforced**. Each links to a file with Incorrect/Correct code pairs."
+      },
+      {
+        "line": 32,
+        "text": ""
+      },
+      {
+        "line": 33,
+        "text": "### Styling & Tailwind \u2192 [styling.md](./rules/styling.md)"
+      },
+      {
+        "line": 34,
+        "text": ""
+      },
+      {
+        "line": 35,
+        "text": "- **`className` for layout, not styling.** Never override component colors or typography."
+      },
+      {
+        "line": 36,
+        "text": "- **No `space-x-*` or `space-y-*`.** Use `flex` with `gap-*`. For vertical stacks, `flex flex-col gap-*`."
+      },
+      {
+        "line": 37,
+        "text": "- **Use `size-*` when width and height are equal.** `size-10` not `w-10 h-10`."
+      },
+      {
+        "line": 38,
+        "text": "- **Use `truncate` shorthand.** Not `overflow-hidden text-ellipsis whitespace-nowrap`."
+      },
+      {
+        "line": 39,
+        "text": "- **No manual `dark:` color overrides.** Use semantic tokens (`bg-background`, `text-muted-foreground`)."
+      },
+      {
+        "line": 40,
+        "text": "- **Use `cn()` for conditional classes.** Don't write manual template literal ternaries."
+      },
+      {
+        "line": 41,
+        "text": "- **No manual `z-index` on overlay components.** Dialog, Sheet, Popover, etc. handle their own stacking."
+      },
+      {
+        "line": 42,
+        "text": ""
+      },
+      {
+        "line": 43,
+        "text": "### Forms & Inputs \u2192 [forms.md](./rules/forms.md)"
+      },
+      {
+        "line": 44,
+        "text": ""
+      },
+      {
+        "line": 45,
+        "text": "- **Forms use `FieldGroup` + `Field`.** Never use raw `div` with `space-y-*` or `grid gap-*` for form layout."
+      },
+      {
+        "line": 46,
+        "text": "- **`InputGroup` uses `InputGroupInput`/`InputGroupTextarea`.** Never raw `Input`/`Textarea` inside `InputGroup`."
+      },
+      {
+        "line": 47,
+        "text": "- **Buttons inside inputs use `InputGroup` + `InputGroupAddon`.**"
+      },
+      {
+        "line": 48,
+        "text": "- **Option sets (2-7 choices) use `ToggleGroup`.** Don't loop `Button` with manual active state."
+      },
+      {
+        "line": 49,
+        "text": "- **`FieldSet` + `FieldLegend` for grouping related checkboxes/radios.** Don't use a `div` with a heading."
+      },
+      {
+        "line": 50,
+        "text": "- **Field validation uses `data-invalid` + `aria-invalid`.** `data-invalid` on `Field`, `aria-invalid` on the control. For disabled: `data-disabled` on `Field`, `disabled` on the control."
+      },
+      {
+        "line": 51,
+        "text": ""
+      },
+      {
+        "line": 52,
+        "text": "### Component Structure \u2192 [composition.md](./rules/composition.md)"
+      },
+      {
+        "line": 53,
+        "text": ""
+      },
+      {
+        "line": 54,
+        "text": "- **Items always inside their Group.** `SelectItem` \u2192 `SelectGroup`. `DropdownMenuItem` \u2192 `DropdownMenuGroup`. `CommandItem` \u2192 `CommandGroup`."
+      },
+      {
+        "line": 55,
+        "text": "- **Use `asChild` (radix) or `render` (base) for custom triggers.** Check `base` field from `npx shadcn@latest info`. \u2192 [base-vs-radix.md](./rules/base-vs-radix.md)"
+      },
+      {
+        "line": 56,
+        "text": "- **Dialog, Sheet, and Drawer always need a Title.** `DialogTitle`, `SheetTitle`, `DrawerTitle` required for accessibility. Use `className=\"sr-only\"` if visually hidden."
+      },
+      {
+        "line": 57,
+        "text": "- **Use full Card composition.** `CardHeader`/`CardTitle`/`CardDescription`/`CardContent`/`CardFooter`. Don't dump everything in `CardContent`."
+      },
+      {
+        "line": 58,
+        "text": "- **Button has no `isPending`/`isLoading`.** Compose with `Spinner` + `data-icon` + `disabled`."
+      },
+      {
+        "line": 59,
+        "text": "- **`TabsTrigger` must be inside `TabsList`.** Never render triggers directly in `Tabs`."
+      },
+      {
+        "line": 60,
+        "text": "- **`Avatar` always needs `AvatarFallback`.** For when the image fails to load."
+      },
+      {
+        "line": 61,
+        "text": ""
+      },
+      {
+        "line": 62,
+        "text": "### Use Components, Not Custom Markup \u2192 [composition.md](./rules/composition.md)"
+      },
+      {
+        "line": 63,
+        "text": ""
+      },
+      {
+        "line": 64,
+        "text": "- **Use existing components before custom markup.** Check if a component exists before writing a styled `div`."
+      },
+      {
+        "line": 65,
+        "text": "- **Callouts use `Alert`.** Don't build custom styled divs."
+      },
+      {
+        "line": 66,
+        "text": "- **Empty states use `Empty`.** Don't build custom empty state markup."
+      },
+      {
+        "line": 67,
+        "text": "- **Toast via `sonner`.** Use `toast()` from `sonner`."
+      },
+      {
+        "line": 68,
+        "text": "- **Use `Separator`** instead of `<hr>` or `<div className=\"border-t\">`."
+      },
+      {
+        "line": 69,
+        "text": "- **Use `Skeleton`** for loading placeholders. No custom `animate-pulse` divs."
+      },
+      {
+        "line": 70,
+        "text": "- **Use `Badge`** instead of custom styled spans."
+      },
+      {
+        "line": 71,
+        "text": ""
+      },
+      {
+        "line": 72,
+        "text": "### Icons \u2192 [icons.md](./rules/icons.md)"
+      },
+      {
+        "line": 73,
+        "text": ""
+      },
+      {
+        "line": 74,
+        "text": "- **Icons in `Button` use `data-icon`.** `data-icon=\"inline-start\"` or `data-icon=\"inline-end\"` on the icon."
+      },
+      {
+        "line": 75,
+        "text": "- **No sizing classes on icons inside components.** Components handle icon sizing via CSS. No `size-4` or `w-4 h-4`."
+      },
+      {
+        "line": 76,
+        "text": "- **Pass icons as objects, not string keys.** `icon={CheckIcon}`, not a string lookup."
+      },
+      {
+        "line": 77,
+        "text": ""
+      },
+      {
+        "line": 78,
+        "text": "### CLI"
+      },
+      {
+        "line": 79,
+        "text": ""
+      },
+      {
+        "line": 80,
+        "text": "- **Never decode preset codes or build preset URLs manually.** Use `npx shadcn@latest preset decode <code>`, `preset url <code>`, or `preset open <code>`. For project-aware preset detection, use `npx shadcn@latest preset resolve`."
+      },
+      {
+        "line": 81,
+        "text": "- **Apply preset codes directly with the CLI.** Use `npx shadcn@latest apply <code>` for existing projects, or `npx shadcn@latest init --preset <code>` when initializing."
+      },
+      {
+        "line": 82,
+        "text": ""
+      },
+      {
+        "line": 83,
+        "text": "## Key Patterns"
+      },
+      {
+        "line": 84,
+        "text": ""
+      },
+      {
+        "line": 85,
+        "text": "These are the most common patterns that differentiate correct shadcn/ui code. For edge cases, see the linked rule files above."
+      },
+      {
+        "line": 86,
+        "text": ""
+      },
+      {
+        "line": 87,
+        "text": "```tsx"
+      },
+      {
+        "line": 88,
+        "text": "// Form layout: FieldGroup + Field, not div + Label."
+      },
+      {
+        "line": 89,
+        "text": "<FieldGroup>"
+      },
+      {
+        "line": 90,
+        "text": "  <Field>"
+      },
+      {
+        "line": 91,
+        "text": "    <FieldLabel htmlFor=\"email\">Email</FieldLabel>"
+      },
+      {
+        "line": 92,
+        "text": "    <Input id=\"email\" />"
+      },
+      {
+        "line": 93,
+        "text": "  </Field>"
+      },
+      {
+        "line": 94,
+        "text": "</FieldGroup>"
+      },
+      {
+        "line": 95,
+        "text": ""
+      },
+      {
+        "line": 96,
+        "text": "// Validation: data-invalid on Field, aria-invalid on the control."
+      },
+      {
+        "line": 97,
+        "text": "<Field data-invalid>"
+      },
+      {
+        "line": 98,
+        "text": "  <FieldLabel>Email</FieldLabel>"
+      },
+      {
+        "line": 99,
+        "text": "  <Input aria-invalid />"
+      },
+      {
+        "line": 100,
+        "text": "  <FieldDescription>Invalid email.</FieldDescription>"
+      },
+      {
+        "line": 101,
+        "text": "</Field>"
+      },
+      {
+        "line": 102,
+        "text": ""
+      },
+      {
+        "line": 103,
+        "text": "// Icons in buttons: data-icon, no sizing classes."
+      },
+      {
+        "line": 104,
+        "text": "<Button>"
+      },
+      {
+        "line": 105,
+        "text": "  <SearchIcon data-icon=\"inline-start\" />"
+      },
+      {
+        "line": 106,
+        "text": "  Search"
+      },
+      {
+        "line": 107,
+        "text": "</Button>"
+      },
+      {
+        "line": 108,
+        "text": ""
+      },
+      {
+        "line": 109,
+        "text": "// Spacing: gap-*, not space-y-*."
+      },
+      {
+        "line": 110,
+        "text": "<div className=\"flex flex-col gap-4\">  // correct"
+      },
+      {
+        "line": 111,
+        "text": "<div className=\"space-y-4\">           // wrong"
+      },
+      {
+        "line": 112,
+        "text": ""
+      },
+      {
+        "line": 113,
+        "text": "// Equal dimensions: size-*, not w-* h-*."
+      },
+      {
+        "line": 114,
+        "text": "<Avatar className=\"size-10\">   // correct"
+      },
+      {
+        "line": 115,
+        "text": "<Avatar className=\"w-10 h-10\"> // wrong"
+      },
+      {
+        "line": 116,
+        "text": ""
+      },
+      {
+        "line": 117,
+        "text": "// Status colors: Badge variants or semantic tokens, not raw colors."
+      },
+      {
+        "line": 118,
+        "text": "<Badge variant=\"secondary\">+20.1%</Badge>    // correct"
+      },
+      {
+        "line": 119,
+        "text": "<span className=\"text-emerald-600\">+20.1%</span> // wrong"
+      },
+      {
+        "line": 120,
+        "text": "```"
+      },
+      {
+        "line": 121,
+        "text": ""
+      },
+      {
+        "line": 122,
+        "text": "## Component Selection"
+      },
+      {
+        "line": 123,
+        "text": ""
+      },
+      {
+        "line": 124,
+        "text": "| Need                       | Use                                                                                                 |"
+      },
+      {
+        "line": 125,
+        "text": "| -------------------------- | --------------------------------------------------------------------------------------------------- |"
+      },
+      {
+        "line": 126,
+        "text": "| Button/action              | `Button` with appropriate variant                                                                   |"
+      },
+      {
+        "line": 127,
+        "text": "| Form inputs                | `Input`, `Select`, `Combobox`, `Switch`, `Checkbox`, `RadioGroup`, `Textarea`, `InputOTP`, `Slider` |"
+      },
+      {
+        "line": 128,
+        "text": "| Toggle between 2-5 options | `ToggleGroup` + `ToggleGroupItem`                                                                   |"
+      },
+      {
+        "line": 129,
+        "text": "| Data display               | `Table`, `Card`, `Badge`, `Avatar`                                                                  |"
+      },
+      {
+        "line": 130,
+        "text": "| Navigation                 | `Sidebar`, `NavigationMenu`, `Breadcrumb`, `Tabs`, `Pagination`                                     |"
+      },
+      {
+        "line": 131,
+        "text": "| Overlays                   | `Dialog` (modal), `Sheet` (side panel), `Drawer` (bottom sheet), `AlertDialog` (confirmation)       |"
+      },
+      {
+        "line": 132,
+        "text": "| Feedback                   | `sonner` (toast), `Alert`, `Progress`, `Skeleton`, `Spinner`                                        |"
+      },
+      {
+        "line": 133,
+        "text": "| Command palette            | `Command` inside `Dialog`                                                                           |"
+      },
+      {
+        "line": 134,
+        "text": "| Charts                     | `Chart` (wraps Recharts)                                                                            |"
+      },
+      {
+        "line": 135,
+        "text": "| Layout                     | `Card`, `Separator`, `Resizable`, `ScrollArea`, `Accordion`, `Collapsible`                          |"
+      },
+      {
+        "line": 136,
+        "text": "| Empty states               | `Empty`                                                                                             |"
+      },
+      {
+        "line": 137,
+        "text": "| Menus                      | `DropdownMenu`, `ContextMenu`, `Menubar`                                                            |"
+      },
+      {
+        "line": 138,
+        "text": "| Tooltips/info              | `Tooltip`, `HoverCard`, `Popover`                                                                   |"
+      },
+      {
+        "line": 139,
+        "text": ""
+      },
+      {
+        "line": 140,
+        "text": "## Key Fields"
+      },
+      {
+        "line": 141,
+        "text": ""
+      },
+      {
+        "line": 142,
+        "text": "The injected project context contains these key fields:"
+      },
+      {
+        "line": 143,
+        "text": ""
+      },
+      {
+        "line": 144,
+        "text": "- **`aliases`** \u2192 use the actual alias prefix for imports (e.g. `@/`, `~/`), never hardcode."
+      },
+      {
+        "line": 145,
+        "text": "- **`isRSC`** \u2192 when `true`, components using `useState`, `useEffect`, event handlers, or browser APIs need `\"use client\"` at the top of the file. Always reference this field when advising on the directive."
+      },
+      {
+        "line": 146,
+        "text": "- **`tailwindVersion`** \u2192 `\"v4\"` uses `@theme inline` blocks; `\"v3\"` uses `tailwind.config.js`."
+      },
+      {
+        "line": 147,
+        "text": "- **`tailwindCssFile`** \u2192 the global CSS file where custom CSS variables are defined. Always edit this file, never create a new one."
+      },
+      {
+        "line": 148,
+        "text": "- **`style`** \u2192 component visual treatment (e.g. `nova`, `vega`)."
+      },
+      {
+        "line": 149,
+        "text": "- **`base`** \u2192 primitive library (`radix` or `base`). Affects component APIs and available props."
+      },
+      {
+        "line": 150,
+        "text": "- **`iconLibrary`** \u2192 determines icon imports. Use `lucide-react` for `lucide`, `@tabler/icons-react` for `tabler`, etc. Never assume `lucide-react`."
+      },
+      {
+        "line": 151,
+        "text": "- **`resolvedPaths`** \u2192 exact file-system destinations for components, utils, hooks, etc."
+      },
+      {
+        "line": 152,
+        "text": "- **`framework`** \u2192 routing and file conventions (e.g. Next.js App Router vs Vite SPA)."
+      },
+      {
+        "line": 153,
+        "text": "- **`packageManager`** \u2192 use this for any non-shadcn dependency installs (e.g. `pnpm add date-fns` vs `npm install date-fns`)."
+      },
+      {
+        "line": 154,
+        "text": "- **`preset`** \u2192 resolved preset code and values for the current project. Use `npx shadcn@latest preset resolve --json` when you only need preset information."
+      },
+      {
+        "line": 155,
+        "text": ""
+      },
+      {
+        "line": 156,
+        "text": "See [cli.md, `info` command](./cli.md) for the full field reference."
+      },
+      {
+        "line": 157,
+        "text": ""
+      },
+      {
+        "line": 158,
+        "text": "## Component Docs, Examples, and Usage"
+      },
+      {
+        "line": 159,
+        "text": ""
+      },
+      {
+        "line": 160,
+        "text": "Run `npx shadcn@latest docs <component>` to get the URLs for a component's documentation, examples, and API reference. Fetch these URLs to get the actual content."
+      },
+      {
+        "line": 161,
+        "text": ""
+      },
+      {
+        "line": 162,
+        "text": "```bash"
+      },
+      {
+        "line": 163,
+        "text": "npx shadcn@latest docs button dialog select"
+      },
+      {
+        "line": 164,
+        "text": "```"
+      },
+      {
+        "line": 165,
+        "text": ""
+      },
+      {
+        "line": 166,
+        "text": "**When creating, fixing, debugging, or using a component, always run `npx shadcn@latest docs` and fetch the URLs first.** This ensures you're working with the correct API and usage patterns rather than guessing."
+      },
+      {
+        "line": 167,
+        "text": ""
+      },
+      {
+        "line": 168,
+        "text": "## Workflow"
+      },
+      {
+        "line": 169,
+        "text": ""
+      },
+      {
+        "line": 170,
+        "text": "1. **Get project context**: already injected above. Run `npx shadcn@latest info` again if you need to refresh."
+      },
+      {
+        "line": 171,
+        "text": "2. **Check installed components first**: before running `add`, always check the `components` list from project context or list the `resolvedPaths.ui` directory. Don't import components that haven't been added, and don't re-add ones already installed."
+      },
+      {
+        "line": 172,
+        "text": "3. **Find components**: `npx shadcn@latest search`."
+      },
+      {
+        "line": 173,
+        "text": "4. **Get docs and examples**: run `npx shadcn@latest docs <component>` to get URLs, then fetch them. Use `npx shadcn@latest view` to browse registry items you haven't installed. To preview changes to installed components, use `npx shadcn@latest add --diff`."
+      },
+      {
+        "line": 174,
+        "text": "5. **Install or update**: `npx shadcn@latest add`. When updating existing components, use `--dry-run` and `--diff` to preview changes first (see [Updating Components](#updating-components) below)."
+      },
+      {
+        "line": 175,
+        "text": "6. **Fix imports in third-party components**: After adding components from community registries (e.g. `@bundui`, `@magicui`), check the added non-UI files for hardcoded import paths like `@/components/ui/...`. These won't match the project's actual aliases. Use `npx shadcn@latest info` to get the correct `ui` alias (e.g. `@workspace/ui/components`) and rewrite the imports accordingly. The CLI rewrites imports for its own UI files, but third-party registry components may use default paths that don't match the project."
+      },
+      {
+        "line": 176,
+        "text": "7. **Review added components**: After adding a component or block from any registry, **always read the added files and verify they are correct**. Check for missing sub-components (e.g. `SelectItem` without `SelectGroup`), missing imports, incorrect composition, or violations of the [Critical Rules](#critical-rules). Also replace any icon imports with the project's `iconLibrary` from the project context (e.g. if the registry item uses `lucide-react` but the project uses `hugeicons`, swap the imports and icon names accordingly). Fix all issues before moving on."
+      },
+      {
+        "line": 177,
+        "text": "8. **Registry must be explicit**: When the user asks to add a block or component, **do not guess the registry**. If no registry is specified (e.g. user says \"add a login block\" without specifying `@shadcn`, `@tailark`, `owner/repo`, etc.), ask which registry to use. Never default to a registry on behalf of the user."
+      },
+      {
+        "line": 178,
+        "text": "9. **Switching presets**: Ask the user first: **overwrite**, **partial**, **merge**, or **skip**?"
+      },
+      {
+        "line": 179,
+        "text": "   - **Inspect current preset**: `npx shadcn@latest preset resolve`. Use `--json` when you need structured values."
+      },
+      {
+        "line": 180,
+        "text": "   - **Inspect incoming preset**: `npx shadcn@latest preset decode <code>`. Use `preset url <code>` or `preset open <code>` to share or open the preset builder."
+      },
+      {
+        "line": 181,
+        "text": "   - **Overwrite**: `npx shadcn@latest apply <code>`. Overwrites detected components, fonts, and CSS variables."
+      },
+      {
+        "line": 182,
+        "text": "   - **Partial**: `npx shadcn@latest apply <code> --only theme,font`. Updates only the selected preset parts without reinstalling UI components. Supported values are `theme` and `font`; comma-separated combinations are allowed. `icon` is intentionally not supported, because icon changes may require full component reinstall and transforms."
+      },
+      {
+        "line": 183,
+        "text": "   - **Merge**: `npx shadcn@latest init --preset <code> --force --no-reinstall`, then run `npx shadcn@latest info` to list installed components, then for each installed component use `--dry-run` and `--diff` to [smart merge](#updating-components) it individually."
+      },
+      {
+        "line": 184,
+        "text": "   - **Skip**: `npx shadcn@latest init --preset <code> --force --no-reinstall`. Only updates config and CSS, leaves components as-is."
+      },
+      {
+        "line": 185,
+        "text": "   - **Important**: Always run preset commands inside the user's project directory. `apply` only works in an existing project with a `components.json` file. The CLI automatically preserves the current base (`base` vs `radix`) from `components.json`. If you must use a scratch/temp directory (e.g. for `--dry-run` comparisons), pass `--base <current-base>` explicitly, preset codes do not encode the base."
+      },
+      {
+        "line": 186,
+        "text": ""
+      },
+      {
+        "line": 187,
+        "text": "## Updating Components"
+      },
+      {
+        "line": 188,
+        "text": ""
+      },
+      {
+        "line": 189,
+        "text": "When the user asks to update a component from upstream while keeping their local changes, use `--dry-run` and `--diff` to intelligently merge. **NEVER fetch raw files from GitHub manually, always use the CLI.**"
+      },
+      {
+        "line": 190,
+        "text": ""
+      },
+      {
+        "line": 191,
+        "text": "1. Run `npx shadcn@latest add <component> --dry-run` to see all files that would be affected."
+      },
+      {
+        "line": 192,
+        "text": "2. For each file, run `npx shadcn@latest add <component> --diff <file>` to see what changed upstream vs local."
+      },
+      {
+        "line": 193,
+        "text": "3. Decide per file based on the diff:"
+      },
+      {
+        "line": 194,
+        "text": "   - No local changes \u2192 safe to overwrite."
+      },
+      {
+        "line": 195,
+        "text": "   - Has local changes \u2192 read the local file, analyze the diff, and apply upstream updates while preserving local modifications."
+      },
+      {
+        "line": 196,
+        "text": "   - User says \"just update everything\" \u2192 use `--overwrite`, but confirm first."
+      },
+      {
+        "line": 197,
+        "text": "4. **Never use `--overwrite` without the user's explicit approval.**"
+      },
+      {
+        "line": 198,
+        "text": ""
+      },
+      {
+        "line": 199,
+        "text": "## Quick Reference"
+      },
+      {
+        "line": 200,
+        "text": ""
+      },
+      {
+        "line": 201,
+        "text": "```bash"
+      },
+      {
+        "line": 202,
+        "text": "# Create a new project."
+      },
+      {
+        "line": 203,
+        "text": "npx shadcn@latest init --name my-app --preset base-nova"
+      },
+      {
+        "line": 204,
+        "text": "npx shadcn@latest init --name my-app --preset a2r6bw --template vite"
+      },
+      {
+        "line": 205,
+        "text": ""
+      },
+      {
+        "line": 206,
+        "text": "# Create a monorepo project."
+      },
+      {
+        "line": 207,
+        "text": "npx shadcn@latest init --name my-app --preset base-nova --monorepo"
+      },
+      {
+        "line": 208,
+        "text": "npx shadcn@latest init --name my-app --preset base-nova --template next --monorepo"
+      },
+      {
+        "line": 209,
+        "text": ""
+      },
+      {
+        "line": 210,
+        "text": "# Initialize existing project."
+      },
+      {
+        "line": 211,
+        "text": "npx shadcn@latest init --preset base-nova"
+      },
+      {
+        "line": 212,
+        "text": "npx shadcn@latest init --defaults  # shortcut: --template=next --preset=nova (base style implied)"
+      },
+      {
+        "line": 213,
+        "text": ""
+      },
+      {
+        "line": 214,
+        "text": "# Apply a preset to an existing project."
+      },
+      {
+        "line": 215,
+        "text": "npx shadcn@latest apply a2r6bw"
+      },
+      {
+        "line": 216,
+        "text": "npx shadcn@latest apply a2r6bw --only theme"
+      },
+      {
+        "line": 217,
+        "text": "npx shadcn@latest apply a2r6bw --only font"
+      },
+      {
+        "line": 218,
+        "text": "npx shadcn@latest apply a2r6bw --only theme,font"
+      },
+      {
+        "line": 219,
+        "text": ""
+      },
+      {
+        "line": 220,
+        "text": "# Inspect preset codes and project preset state."
+      },
+      {
+        "line": 221,
+        "text": "npx shadcn@latest preset decode a2r6bw"
+      },
+      {
+        "line": 222,
+        "text": "npx shadcn@latest preset url a2r6bw"
+      },
+      {
+        "line": 223,
+        "text": "npx shadcn@latest preset open a2r6bw"
+      },
+      {
+        "line": 224,
+        "text": "npx shadcn@latest preset resolve"
+      },
+      {
+        "line": 225,
+        "text": "npx shadcn@latest preset resolve --json"
+      },
+      {
+        "line": 226,
+        "text": ""
+      },
+      {
+        "line": 227,
+        "text": "# Add components."
+      },
+      {
+        "line": 228,
+        "text": "npx shadcn@latest add button card dialog"
+      },
+      {
+        "line": 229,
+        "text": "npx shadcn@latest add @magicui/shimmer-button"
+      },
+      {
+        "line": 230,
+        "text": "npx shadcn@latest add owner/repo/item"
+      },
+      {
+        "line": 231,
+        "text": "npx shadcn@latest add --all"
+      },
+      {
+        "line": 232,
+        "text": ""
+      },
+      {
+        "line": 233,
+        "text": "# Preview changes before adding/updating."
+      },
+      {
+        "line": 234,
+        "text": "npx shadcn@latest add button --dry-run"
+      },
+      {
+        "line": 235,
+        "text": "npx shadcn@latest add button --diff button.tsx"
+      },
+      {
+        "line": 236,
+        "text": "npx shadcn@latest add @acme/form --view button.tsx"
+      },
+      {
+        "line": 237,
+        "text": "npx shadcn@latest add owner/repo/item --dry-run"
+      },
+      {
+        "line": 238,
+        "text": ""
+      },
+      {
+        "line": 239,
+        "text": "# Search registries."
+      },
+      {
+        "line": 240,
+        "text": "npx shadcn@latest search @shadcn -q \"sidebar\""
+      },
+      {
+        "line": 241,
+        "text": "npx shadcn@latest search @tailark -q \"stats\""
+      },
+      {
+        "line": 242,
+        "text": "npx shadcn@latest search owner/repo -q \"login\""
+      },
+      {
+        "line": 243,
+        "text": "npx shadcn@latest search                          # all configured registries"
+      },
+      {
+        "line": 244,
+        "text": "npx shadcn@latest search @shadcn -q \"menu\" -t ui  # filter by item type"
+      },
+      {
+        "line": 245,
+        "text": ""
+      },
+      {
+        "line": 246,
+        "text": "# Get component docs and example URLs."
+      },
+      {
+        "line": 247,
+        "text": "npx shadcn@latest docs button dialog select"
+      },
+      {
+        "line": 248,
+        "text": ""
+      },
+      {
+        "line": 249,
+        "text": "# View registry item details (for items not yet installed)."
+      },
+      {
+        "line": 250,
+        "text": "npx shadcn@latest view @shadcn/button"
+      },
+      {
+        "line": 251,
+        "text": "npx shadcn@latest view owner/repo/item"
+      },
+      {
+        "line": 252,
+        "text": "```"
+      },
+      {
+        "line": 253,
+        "text": ""
+      },
+      {
+        "line": 254,
+        "text": "**Named presets:** `nova`, `vega`, `maia`, `lyra`, `mira`, `luma`"
+      },
+      {
+        "line": 255,
+        "text": "**Templates:** `next`, `vite`, `start`, `react-router`, `astro` (all support `--monorepo`) and `laravel` (not supported for monorepo)"
+      },
+      {
+        "line": 256,
+        "text": "**Preset codes:** Version-prefixed base62 strings (e.g. `a2r6bw` or `b0`), from [ui.shadcn.com](https://ui.shadcn.com)."
+      },
+      {
+        "line": 257,
+        "text": ""
+      },
+      {
+        "line": 258,
+        "text": "## Detailed References"
+      },
+      {
+        "line": 259,
+        "text": ""
+      },
+      {
+        "line": 260,
+        "text": "- [rules/forms.md](./rules/forms.md): FieldGroup, Field, InputGroup, ToggleGroup, FieldSet, validation states"
+      },
+      {
+        "line": 261,
+        "text": "- [rules/composition.md](./rules/composition.md): Groups, overlays, Card, Tabs, Avatar, Alert, Empty, Toast, Separator, Skeleton, Badge, Button loading"
+      },
+      {
+        "line": 262,
+        "text": "- [rules/icons.md](./rules/icons.md): data-icon, icon sizing, passing icons as objects"
+      },
+      {
+        "line": 263,
+        "text": "- [rules/styling.md](./rules/styling.md): Semantic colors, variants, className, spacing, size, truncate, dark mode, cn(), z-index"
+      },
+      {
+        "line": 264,
+        "text": "- [rules/base-vs-radix.md](./rules/base-vs-radix.md): asChild vs render, Select, ToggleGroup, Slider, Accordion"
+      },
+      {
+        "line": 265,
+        "text": "- [cli.md](./cli.md): Commands, flags, presets, templates"
+      },
+      {
+        "line": 266,
+        "text": "- [registry.md](./registry.md): Authoring source registries, `include`, item definitions, dependencies, GitHub registry rules"
+      },
+      {
+        "line": 267,
+        "text": "- [customization.md](./customization.md): Theming, CSS variables, extending components"
+      }
+    ],
+    "matched_upstream_skill_path": "ui-HEAD/skills/shadcn/SKILL.md",
+    "repo": "shadcn/ui",
+    "repo_reference": "https://github.com/shadcn/ui/tree/main/skills/shadcn",
+    "repo_revision": "unknown",
+    "revision_status": "archive-digest-pinned upstream package matched by catalog_slug_package_map",
+    "sha256": "02a831d507ad3aefbf1cb6363400c4583c81b8cadd7ce241dae3f7b0b6916470",
+    "snapshot_path": "sources/catalog-skills/shadcn/SKILL.md",
+    "source_id": "aiuxplayground:catalog-content:shadcn"
+  }
+}

@@ -1,0 +1,832 @@
+{
+  "frontmatter": {
+    "fields": {
+      "description": "Audit a Figma layout against a 4/8pt spacing system and flag or snap off-grid padding, gaps, and margins. Use in Figma Agent or Figma Make when spacing looks inconsistent, before developer handoff, or when asked to check, align, or standardize spacing.",
+      "name": "spacing-audit"
+    },
+    "line_end": 3,
+    "line_start": 1,
+    "raw": "name: spacing-audit\ndescription: Audit a Figma layout against a 4/8pt spacing system and flag or snap off-grid padding, gaps, and margins. Use in Figma Agent or Figma Make when spacing looks inconsistent, before developer handoff, or when asked to check, align, or standardize spacing.",
+    "status": "present"
+  },
+  "identity": {
+    "catalog_category": "design-systems",
+    "slug": "spacing-audit",
+    "title": "Spacing Audit"
+  },
+  "license": {
+    "status": "not stated in captured catalog source",
+    "value": null
+  },
+  "line_count": 57,
+  "ontology": {
+    "actions": [
+      {
+        "evidence": {
+          "line_end": 32,
+          "line_start": 32,
+          "text": "2. For each spacing value, compare it against the allowed scale."
+        },
+        "text": "2. For each spacing value, compare it against the allowed scale."
+      },
+      {
+        "evidence": {
+          "line_end": 33,
+          "line_start": 33,
+          "text": "3. For each off-grid value, choose the nearest allowed step. When exactly between two steps, round to the one closer to the surrounding rhythm of that group."
+        },
+        "text": "3. For each off-grid value, choose the nearest allowed step. When exactly between two steps, round to the one closer to the surrounding rhythm of that group."
+      },
+      {
+        "evidence": {
+          "line_end": 34,
+          "line_start": 34,
+          "text": "4. Prefer consistency within a group over per-element correctness. If three cards use 14, 16, 16, align all three to 16."
+        },
+        "text": "4. Prefer consistency within a group over per-element correctness. If three cards use 14, 16, 16, align all three to 16."
+      },
+      {
+        "evidence": {
+          "line_end": 42,
+          "line_start": 42,
+          "text": "- When a whole group is uniformly off-grid on purpose (e.g. a deliberate 6pt system), flag it once and ask before mass-changing."
+        },
+        "text": "- When a whole group is uniformly off-grid on purpose (e.g. a deliberate 6pt system), flag it once and ask before mass-changing."
+      }
+    ],
+    "command_examples": [],
+    "constraints": [
+      {
+        "evidence": {
+          "line_end": 12,
+          "line_start": 12,
+          "text": "Base unit is 8. Use 4 only as a half-step for tight, component-internal spacing."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Base unit is 8. Use 4 only as a half-step for tight, component-internal spacing."
+      },
+      {
+        "evidence": {
+          "line_end": 38,
+          "line_start": 38,
+          "text": "- Do not change layout structure, sizing behavior (hug/fill), content, or styling. Only adjust spacing values."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- Do not change layout structure, sizing behavior (hug/fill), content, or styling. Only adjust spacing values."
+      },
+      {
+        "evidence": {
+          "line_end": 39,
+          "line_start": 39,
+          "text": "- Preserve intentional exceptions and do not flag them: 1px borders and hairlines, optical alignment offsets, values driven by hug/fill, and spacing set by a variable or token."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- Preserve intentional exceptions and do not flag them: 1px borders and hairlines, optical alignment offsets, values driven by hug/fill, and spacing set by a variable or token."
+      },
+      {
+        "evidence": {
+          "line_end": 50,
+          "line_start": 50,
+          "text": "2. Apply the fixes only after showing the summary."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "2. Apply the fixes only after showing the summary."
+      },
+      {
+        "evidence": {
+          "line_end": 53,
+          "line_start": 53,
+          "text": "## Do not"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "## Do not"
+      },
+      {
+        "evidence": {
+          "line_end": 55,
+          "line_start": 55,
+          "text": "- Do not resize elements or reflow content to hit a number."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- Do not resize elements or reflow content to hit a number."
+      },
+      {
+        "evidence": {
+          "line_end": 56,
+          "line_start": 56,
+          "text": "- Do not invent a new scale. Stick to the 4/8pt steps above."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- Do not invent a new scale. Stick to the 4/8pt steps above."
+      },
+      {
+        "evidence": {
+          "line_end": 57,
+          "line_start": 57,
+          "text": "- Do not touch corner radius, stroke, or type unless the user explicitly asks."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- Do not touch corner radius, stroke, or type unless the user explicitly asks."
+      }
+    ],
+    "effects": [],
+    "external_urls": [],
+    "headings": [
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 6,
+        "title": "Spacing Audit"
+      },
+      {
+        "bullets": [
+          {
+            "line": 16,
+            "text": "8, 16, 24, 32, 48, 64: structural spacing (section gaps, card padding, layout margins)."
+          },
+          {
+            "line": 17,
+            "text": "4, 12, 20: fine spacing inside a component (icon-to-label, chip padding, tight stacks)."
+          },
+          {
+            "line": 18,
+            "text": "Anything not a multiple of 4 is off-grid and should be flagged."
+          },
+          {
+            "line": 19,
+            "text": "A multiple of 4 that is not a multiple of 8 at the layout level (e.g. section gap of 20 or 28) should be flagged as \"consider 8pt step\" but is not a hard error."
+          }
+        ],
+        "level": 2,
+        "line": 10,
+        "title": "The scale"
+      },
+      {
+        "bullets": [
+          {
+            "line": 24,
+            "text": "Padding inside frames (top, right, bottom, left)."
+          },
+          {
+            "line": 25,
+            "text": "Item spacing / gap between children."
+          },
+          {
+            "line": 26,
+            "text": "Gaps between sections and between grouped blocks."
+          },
+          {
+            "line": 27,
+            "text": "Margins around content within a frame."
+          }
+        ],
+        "level": 2,
+        "line": 21,
+        "title": "What to check"
+      },
+      {
+        "bullets": [
+          {
+            "line": 31,
+            "text": "Walk the selected frame (or the whole page if nothing is selected) top-down."
+          },
+          {
+            "line": 32,
+            "text": "For each spacing value, compare it against the allowed scale."
+          },
+          {
+            "line": 33,
+            "text": "For each off-grid value, choose the nearest allowed step. When exactly between two steps, round to the one closer to the surrounding rhythm of that group."
+          },
+          {
+            "line": 34,
+            "text": "Prefer consistency within a group over per-element correctness. If three cards use 14, 16, 16, align all three to 16."
+          }
+        ],
+        "level": 2,
+        "line": 29,
+        "title": "How to audit"
+      },
+      {
+        "bullets": [
+          {
+            "line": 38,
+            "text": "Do not change layout structure, sizing behavior (hug/fill), content, or styling. Only adjust spacing values."
+          },
+          {
+            "line": 39,
+            "text": "Preserve intentional exceptions and do not flag them: 1px borders and hairlines, optical alignment offsets, values driven by hug/fill, and spacing set by a variable or token."
+          },
+          {
+            "line": 40,
+            "text": "If spacing is already bound to a variable or token, leave it and note it instead of overwriting."
+          },
+          {
+            "line": 41,
+            "text": "Round icon-to-label and other fine gaps to 4 or 8, not to larger steps."
+          },
+          {
+            "line": 42,
+            "text": "When a whole group is uniformly off-grid on purpose (e.g. a deliberate 6pt system), flag it once and ask before mass-changing."
+          }
+        ],
+        "level": 2,
+        "line": 36,
+        "title": "Rules"
+      },
+      {
+        "bullets": [
+          {
+            "line": 46,
+            "text": "Return an audit summary first, before changing anything:"
+          },
+          {
+            "line": 47,
+            "text": "Total elements checked."
+          },
+          {
+            "line": 48,
+            "text": "A before / after list of every off-grid value, grouped by frame, in the form `Card padding: 14 -> 16`."
+          },
+          {
+            "line": 49,
+            "text": "Any values you left untouched, with the reason (token, hairline, optical)."
+          },
+          {
+            "line": 50,
+            "text": "Apply the fixes only after showing the summary."
+          },
+          {
+            "line": 51,
+            "text": "End with a one-line rhythm note: the dominant step the layout now uses (e.g. \"layout now on an 8pt rhythm, fine spacing on 4pt\")."
+          }
+        ],
+        "level": 2,
+        "line": 44,
+        "title": "Output"
+      },
+      {
+        "bullets": [
+          {
+            "line": 55,
+            "text": "Do not resize elements or reflow content to hit a number."
+          },
+          {
+            "line": 56,
+            "text": "Do not invent a new scale. Stick to the 4/8pt steps above."
+          },
+          {
+            "line": 57,
+            "text": "Do not touch corner radius, stroke, or type unless the user explicitly asks."
+          }
+        ],
+        "level": 2,
+        "line": 53,
+        "title": "Do not"
+      }
+    ],
+    "inputs": [],
+    "invariants": [
+      {
+        "evidence": {
+          "line_end": 12,
+          "line_start": 12,
+          "text": "Base unit is 8. Use 4 only as a half-step for tight, component-internal spacing."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Base unit is 8. Use 4 only as a half-step for tight, component-internal spacing."
+      },
+      {
+        "evidence": {
+          "line_end": 38,
+          "line_start": 38,
+          "text": "- Do not change layout structure, sizing behavior (hug/fill), content, or styling. Only adjust spacing values."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- Do not change layout structure, sizing behavior (hug/fill), content, or styling. Only adjust spacing values."
+      },
+      {
+        "evidence": {
+          "line_end": 39,
+          "line_start": 39,
+          "text": "- Preserve intentional exceptions and do not flag them: 1px borders and hairlines, optical alignment offsets, values driven by hug/fill, and spacing set by a variable or token."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- Preserve intentional exceptions and do not flag them: 1px borders and hairlines, optical alignment offsets, values driven by hug/fill, and spacing set by a variable or token."
+      },
+      {
+        "evidence": {
+          "line_end": 50,
+          "line_start": 50,
+          "text": "2. Apply the fixes only after showing the summary."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "2. Apply the fixes only after showing the summary."
+      },
+      {
+        "evidence": {
+          "line_end": 53,
+          "line_start": 53,
+          "text": "## Do not"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "## Do not"
+      },
+      {
+        "evidence": {
+          "line_end": 55,
+          "line_start": 55,
+          "text": "- Do not resize elements or reflow content to hit a number."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- Do not resize elements or reflow content to hit a number."
+      },
+      {
+        "evidence": {
+          "line_end": 56,
+          "line_start": 56,
+          "text": "- Do not invent a new scale. Stick to the 4/8pt steps above."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- Do not invent a new scale. Stick to the 4/8pt steps above."
+      },
+      {
+        "evidence": {
+          "line_end": 57,
+          "line_start": 57,
+          "text": "- Do not touch corner radius, stroke, or type unless the user explicitly asks."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- Do not touch corner radius, stroke, or type unless the user explicitly asks."
+      }
+    ],
+    "outputs": [
+      {
+        "evidence": {
+          "line_end": 8,
+          "line_start": 8,
+          "text": "Check a layout against a 4/8pt spacing scale, report every value that is off the grid, and snap it to the nearest correct step. The goal is consistent, predictable rhythm that is easy to hand off and maintain."
+        },
+        "status": "output_candidate",
+        "text": "Check a layout against a 4/8pt spacing scale, report every value that is off the grid, and snap it to the nearest correct step. The goal is consistent, predictable rhythm that is easy to hand off and maintain."
+      },
+      {
+        "evidence": {
+          "line_end": 44,
+          "line_start": 44,
+          "text": "## Output"
+        },
+        "status": "output_candidate",
+        "text": "## Output"
+      },
+      {
+        "evidence": {
+          "line_end": 46,
+          "line_start": 46,
+          "text": "1. Return an audit summary first, before changing anything:"
+        },
+        "status": "output_candidate",
+        "text": "1. Return an audit summary first, before changing anything:"
+      }
+    ],
+    "package_path_candidates": [],
+    "recovery": [
+      {
+        "evidence": {
+          "line_end": 39,
+          "line_start": 39,
+          "text": "- Preserve intentional exceptions and do not flag them: 1px borders and hairlines, optical alignment offsets, values driven by hug/fill, and spacing set by a variable or token."
+        },
+        "status": "recovery_candidate",
+        "text": "- Preserve intentional exceptions and do not flag them: 1px borders and hairlines, optical alignment offsets, values driven by hug/fill, and spacing set by a variable or token."
+      }
+    ],
+    "references": [],
+    "routes": [
+      {
+        "evidence": {
+          "line_end": 33,
+          "line_start": 33,
+          "text": "3. For each off-grid value, choose the nearest allowed step. When exactly between two steps, round to the one closer to the surrounding rhythm of that group."
+        },
+        "text": "3. For each off-grid value, choose the nearest allowed step. When exactly between two steps, round to the one closer to the surrounding rhythm of that group."
+      }
+    ],
+    "template_commands": [],
+    "template_status": "source_not_executed; fenced commands remain example-only only when surrounding prose says so, otherwise context-unknown; live XML template commands are not executable evidence",
+    "triggers": [],
+    "workflows": [
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 16,
+            "text": "8, 16, 24, 32, 48, 64: structural spacing (section gaps, card padding, layout margins)."
+          },
+          {
+            "line": 17,
+            "text": "4, 12, 20: fine spacing inside a component (icon-to-label, chip padding, tight stacks)."
+          },
+          {
+            "line": 18,
+            "text": "Anything not a multiple of 4 is off-grid and should be flagged."
+          },
+          {
+            "line": 19,
+            "text": "A multiple of 4 that is not a multiple of 8 at the layout level (e.g. section gap of 20 or 28) should be flagged as \"consider 8pt step\" but is not a hard error."
+          }
+        ],
+        "section": "The scale",
+        "start_line": 10
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 24,
+            "text": "Padding inside frames (top, right, bottom, left)."
+          },
+          {
+            "line": 25,
+            "text": "Item spacing / gap between children."
+          },
+          {
+            "line": 26,
+            "text": "Gaps between sections and between grouped blocks."
+          },
+          {
+            "line": 27,
+            "text": "Margins around content within a frame."
+          }
+        ],
+        "section": "What to check",
+        "start_line": 21
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 31,
+            "text": "Walk the selected frame (or the whole page if nothing is selected) top-down."
+          },
+          {
+            "line": 32,
+            "text": "For each spacing value, compare it against the allowed scale."
+          },
+          {
+            "line": 33,
+            "text": "For each off-grid value, choose the nearest allowed step. When exactly between two steps, round to the one closer to the surrounding rhythm of that group."
+          },
+          {
+            "line": 34,
+            "text": "Prefer consistency within a group over per-element correctness. If three cards use 14, 16, 16, align all three to 16."
+          }
+        ],
+        "section": "How to audit",
+        "start_line": 29
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 38,
+            "text": "Do not change layout structure, sizing behavior (hug/fill), content, or styling. Only adjust spacing values."
+          },
+          {
+            "line": 39,
+            "text": "Preserve intentional exceptions and do not flag them: 1px borders and hairlines, optical alignment offsets, values driven by hug/fill, and spacing set by a variable or token."
+          },
+          {
+            "line": 40,
+            "text": "If spacing is already bound to a variable or token, leave it and note it instead of overwriting."
+          },
+          {
+            "line": 41,
+            "text": "Round icon-to-label and other fine gaps to 4 or 8, not to larger steps."
+          },
+          {
+            "line": 42,
+            "text": "When a whole group is uniformly off-grid on purpose (e.g. a deliberate 6pt system), flag it once and ask before mass-changing."
+          }
+        ],
+        "section": "Rules",
+        "start_line": 36
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 46,
+            "text": "Return an audit summary first, before changing anything:"
+          },
+          {
+            "line": 47,
+            "text": "Total elements checked."
+          },
+          {
+            "line": 48,
+            "text": "A before / after list of every off-grid value, grouped by frame, in the form `Card padding: 14 -> 16`."
+          },
+          {
+            "line": 49,
+            "text": "Any values you left untouched, with the reason (token, hairline, optical)."
+          },
+          {
+            "line": 50,
+            "text": "Apply the fixes only after showing the summary."
+          },
+          {
+            "line": 51,
+            "text": "End with a one-line rhythm note: the dominant step the layout now uses (e.g. \"layout now on an 8pt rhythm, fine spacing on 4pt\")."
+          }
+        ],
+        "section": "Output",
+        "start_line": 44
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 55,
+            "text": "Do not resize elements or reflow content to hit a number."
+          },
+          {
+            "line": 56,
+            "text": "Do not invent a new scale. Stick to the 4/8pt steps above."
+          },
+          {
+            "line": 57,
+            "text": "Do not touch corner radius, stroke, or type unless the user explicitly asks."
+          }
+        ],
+        "section": "Do not",
+        "start_line": 53
+      }
+    ]
+  },
+  "package": {
+    "resolved_files": [],
+    "unresolved_references": []
+  },
+  "schema": "skill-ir/1.0",
+  "source": {
+    "bytes": 3082,
+    "catalog_metadata": {
+      "bundle_offset": 4518198,
+      "category": "design-systems",
+      "content_binding": "JB",
+      "description": "Audits a Figma layout against a 4/8pt spacing scale, reports off-grid padding and gaps, then snaps values to the nearest step. Use before handoff or when rhythm looks inconsistent.",
+      "github_url": "https://www.figma.com/community/skill/70410/spacing-audit",
+      "slug": "spacing-audit",
+      "source": "community",
+      "source_label": "Tran Mau Tri Tam",
+      "stars_reported": null,
+      "template_expressions": [],
+      "title": "Spacing Audit"
+    },
+    "line_table": [
+      {
+        "line": 1,
+        "text": "---"
+      },
+      {
+        "line": 2,
+        "text": "name: spacing-audit"
+      },
+      {
+        "line": 3,
+        "text": "description: Audit a Figma layout against a 4/8pt spacing system and flag or snap off-grid padding, gaps, and margins. Use in Figma Agent or Figma Make when spacing looks inconsistent, before developer handoff, or when asked to check, align, or standardize spacing."
+      },
+      {
+        "line": 4,
+        "text": "---"
+      },
+      {
+        "line": 5,
+        "text": ""
+      },
+      {
+        "line": 6,
+        "text": "# Spacing Audit"
+      },
+      {
+        "line": 7,
+        "text": ""
+      },
+      {
+        "line": 8,
+        "text": "Check a layout against a 4/8pt spacing scale, report every value that is off the grid, and snap it to the nearest correct step. The goal is consistent, predictable rhythm that is easy to hand off and maintain."
+      },
+      {
+        "line": 9,
+        "text": ""
+      },
+      {
+        "line": 10,
+        "text": "## The scale"
+      },
+      {
+        "line": 11,
+        "text": ""
+      },
+      {
+        "line": 12,
+        "text": "Base unit is 8. Use 4 only as a half-step for tight, component-internal spacing."
+      },
+      {
+        "line": 13,
+        "text": ""
+      },
+      {
+        "line": 14,
+        "text": "Allowed values: 0, 4, 8, 12, 16, 24, 32, 40, 48, 56, 64, 80, 96."
+      },
+      {
+        "line": 15,
+        "text": ""
+      },
+      {
+        "line": 16,
+        "text": "- 8, 16, 24, 32, 48, 64: structural spacing (section gaps, card padding, layout margins)."
+      },
+      {
+        "line": 17,
+        "text": "- 4, 12, 20: fine spacing inside a component (icon-to-label, chip padding, tight stacks)."
+      },
+      {
+        "line": 18,
+        "text": "- Anything not a multiple of 4 is off-grid and should be flagged."
+      },
+      {
+        "line": 19,
+        "text": "- A multiple of 4 that is not a multiple of 8 at the layout level (e.g. section gap of 20 or 28) should be flagged as \"consider 8pt step\" but is not a hard error."
+      },
+      {
+        "line": 20,
+        "text": ""
+      },
+      {
+        "line": 21,
+        "text": "## What to check"
+      },
+      {
+        "line": 22,
+        "text": ""
+      },
+      {
+        "line": 23,
+        "text": "Inspect auto-layout frames and spacing between elements:"
+      },
+      {
+        "line": 24,
+        "text": "- Padding inside frames (top, right, bottom, left)."
+      },
+      {
+        "line": 25,
+        "text": "- Item spacing / gap between children."
+      },
+      {
+        "line": 26,
+        "text": "- Gaps between sections and between grouped blocks."
+      },
+      {
+        "line": 27,
+        "text": "- Margins around content within a frame."
+      },
+      {
+        "line": 28,
+        "text": ""
+      },
+      {
+        "line": 29,
+        "text": "## How to audit"
+      },
+      {
+        "line": 30,
+        "text": ""
+      },
+      {
+        "line": 31,
+        "text": "1. Walk the selected frame (or the whole page if nothing is selected) top-down."
+      },
+      {
+        "line": 32,
+        "text": "2. For each spacing value, compare it against the allowed scale."
+      },
+      {
+        "line": 33,
+        "text": "3. For each off-grid value, choose the nearest allowed step. When exactly between two steps, round to the one closer to the surrounding rhythm of that group."
+      },
+      {
+        "line": 34,
+        "text": "4. Prefer consistency within a group over per-element correctness. If three cards use 14, 16, 16, align all three to 16."
+      },
+      {
+        "line": 35,
+        "text": ""
+      },
+      {
+        "line": 36,
+        "text": "## Rules"
+      },
+      {
+        "line": 37,
+        "text": ""
+      },
+      {
+        "line": 38,
+        "text": "- Do not change layout structure, sizing behavior (hug/fill), content, or styling. Only adjust spacing values."
+      },
+      {
+        "line": 39,
+        "text": "- Preserve intentional exceptions and do not flag them: 1px borders and hairlines, optical alignment offsets, values driven by hug/fill, and spacing set by a variable or token."
+      },
+      {
+        "line": 40,
+        "text": "- If spacing is already bound to a variable or token, leave it and note it instead of overwriting."
+      },
+      {
+        "line": 41,
+        "text": "- Round icon-to-label and other fine gaps to 4 or 8, not to larger steps."
+      },
+      {
+        "line": 42,
+        "text": "- When a whole group is uniformly off-grid on purpose (e.g. a deliberate 6pt system), flag it once and ask before mass-changing."
+      },
+      {
+        "line": 43,
+        "text": ""
+      },
+      {
+        "line": 44,
+        "text": "## Output"
+      },
+      {
+        "line": 45,
+        "text": ""
+      },
+      {
+        "line": 46,
+        "text": "1. Return an audit summary first, before changing anything:"
+      },
+      {
+        "line": 47,
+        "text": "   - Total elements checked."
+      },
+      {
+        "line": 48,
+        "text": "   - A before / after list of every off-grid value, grouped by frame, in the form `Card padding: 14 -> 16`."
+      },
+      {
+        "line": 49,
+        "text": "   - Any values you left untouched, with the reason (token, hairline, optical)."
+      },
+      {
+        "line": 50,
+        "text": "2. Apply the fixes only after showing the summary."
+      },
+      {
+        "line": 51,
+        "text": "3. End with a one-line rhythm note: the dominant step the layout now uses (e.g. \"layout now on an 8pt rhythm, fine spacing on 4pt\")."
+      },
+      {
+        "line": 52,
+        "text": ""
+      },
+      {
+        "line": 53,
+        "text": "## Do not"
+      },
+      {
+        "line": 54,
+        "text": ""
+      },
+      {
+        "line": 55,
+        "text": "- Do not resize elements or reflow content to hit a number."
+      },
+      {
+        "line": 56,
+        "text": "- Do not invent a new scale. Stick to the 4/8pt steps above."
+      },
+      {
+        "line": 57,
+        "text": "- Do not touch corner radius, stroke, or type unless the user explicitly asks."
+      }
+    ],
+    "repo_reference": "https://www.figma.com/community/skill/70410/spacing-audit",
+    "repo_revision": null,
+    "revision_status": "catalog-bundle-snapshot-pinned; upstream repository commit not established",
+    "sha256": "94710777ed641372d456db021e22cb6a848e6b16d272ca96ff7f99b3b24f8448",
+    "snapshot_path": "sources/catalog-skills/spacing-audit/SKILL.md",
+    "source_id": "aiuxplayground:catalog-content:spacing-audit"
+  }
+}
