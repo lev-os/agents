@@ -26,11 +26,19 @@ This handoff serves two roles at once:
 
 Update the handoff during the session, not only at the end.
 
+Patch rather than regenerate: add each new span as checkpoints, decisions, and
+timeline rows, and mark a corrected entry superseded with its correcting source
+while leaving the original text. Keep each fact tied to its original source;
+when a later summary or reference disagrees with it, re-read the original and
+record the conflict. Mark a claim no source supports `[unsupported]`, and flag
+the decisions and next steps that depend on it.
+
 Use uncertainty markers whenever needed:
 - `[tbd]`
 - `[unknown]`
 - `[theory]`
 - `[maybe: ..., confidence: ##%]`
+- `[unsupported: <claim>; searched <scope>]`
 
 Good:
 - "Checkpoint 3 captured the user pivot and linked the affected files."
@@ -283,6 +291,18 @@ States: `loaded` (read, not changed) · `captured` (researched, findings recorde
 
 <!-- OPTIONAL — skip if no daemons, builds, or long-running tasks -->
 
+### Evidence Anchors
+
+<!-- Required when any exist. Copy identifiers verbatim; prose around them may be summarized. -->
+
+| Kind | Exact value | State | Retrieval pointer |
+|------|-------------|-------|-------------------|
+| id · url · path · error · failed check · source revision · unresolved need · large observation | {verbatim} | ok · failed · unresolved · empty · malformed · truncated · missing | {path:lines, key path, digest, or command} |
+
+For a large observation, keep the full output at the pointer and record a
+bounded excerpt plus what it omits. Empty, malformed, truncated, and missing
+are distinct states; none shows the content does not exist.
+
 ### Active Blockers
 
 <!--
@@ -439,3 +459,5 @@ Explain what information is missing or uncertain and what to load first to raise
 - [ ] Next-agent system prompt included
 - [ ] Context confidence score included
 - [ ] Handoff is sufficient for cold-start continuation
+- [ ] Cold-start recall check passed: recall, artifact, continuation, and decision questions answered from this handoff alone match the original sources and current artifact state
+- [ ] Exact IDs, paths, errors, failed checks, source revisions, and unresolved needs appear in Evidence Anchors
