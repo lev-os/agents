@@ -24,10 +24,12 @@ Apply every check to each tool in scope and record its evidence beside it.
    fetch the rest.
 4. **Actionable errors** — each error names the failing input, the value
    received, the expected form with a valid example, and whether retry is safe.
-   Separate input rejection, where nothing happened and a corrected retry is
-   safe, from an ambiguous mutation outcome such as a timeout after a write,
-   where the effect may exist; expose a lookup key (resource ID, idempotency
-   key or query) so the caller can check before acting again.
+   Separate input rejection, where the response shows nothing ran and a
+   corrected retry is safe, from an ambiguous mutation outcome such as a timeout
+   after a write, where the effect may exist. A known failure with null or
+   unknown execution metadata is not evidence that nothing ran; report it as
+   unknown. Expose a lookup key (resource ID, idempotency key or query) so the
+   caller can check before acting again.
 5. **Names** — refer to each tool by the exact name the host exposes, including
    any prefix that host adds; keep parameter and field names consistent across
    the catalog. A tool name alone does not establish an executable, subcommand
