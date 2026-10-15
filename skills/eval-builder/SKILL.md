@@ -59,6 +59,11 @@ Forbidden:
 - LLMs produce work, typed observations, candidate evaluators, attacks, and
   semantic review. They never score, certify, seal, or finalize themselves.
 
+Check validity before quality: deterministic schema, scope, required-evidence,
+and safety checks run first, and an artifact that fails them fails regardless
+of any favorable quality observation. Report validity failures and quality
+observations separately.
+
 Pack refs and inline FlowMind definitions normally combine. Compile both once
 into immutable execution requirements. Deduplicate identical evaluator id plus
 digest; required wins for identical definitions; any conflicting definition
@@ -130,6 +135,22 @@ Keep product repair and evaluator repair in different attempts. An agent may
 propose both, but the same attempt must not modify both and then certify the
 result. Protect holdout answers from the authoring worker and compare both
 failure directions; a lucky sample is not calibration.
+
+When the selected evaluator includes an LLM judge and its design or calibration
+is the requested outcome, the calibration set includes:
+
+- blinded position swaps: each pairwise case runs in both orders with candidate
+  identities hidden; an order-dependent preference is a TIE observation;
+- an identical-output TIE control: the same output in both positions must
+  yield TIE;
+- length and authority bias checks: padded or confidently worded variants of
+  the weaker output must not beat the stronger output on the stated criterion;
+- known-bad controls: subjects that must fail, judged beside known-good ones.
+
+A failed control is evaluator repair, not a product finding. Controls yield
+typed observations; deterministic code computes their results. Ordinary tasks
+need none of them; a general evaluator-authoring or calibration framework and
+its inline scope stay deferred.
 
 Only call a candidate `admission_ready` when a real, current-generation
 evaluator-fitness `EvalDecision` and its evidence refs exist. Otherwise return
