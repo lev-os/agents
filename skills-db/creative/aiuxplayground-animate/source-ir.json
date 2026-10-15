@@ -1,0 +1,1951 @@
+{
+  "frontmatter": {
+    "fields": {
+      "description": "Build an animation from scratch, making the decisions in the order that determines whether it feels right \u2014 should it animate at all, what purpose, which tool, which properties, which curve and duration, how it interrupts, how it exits. Writes the implementation. Use when asked to animate something, add motion, make a component feel alive, or build a transition. For critiquing existing motion use review-animations; for auditing a whole codebase use improve-animations.",
+      "name": "animate"
+    },
+    "line_end": 3,
+    "line_start": 1,
+    "raw": "name: animate\ndescription: Build an animation from scratch, making the decisions in the order that determines whether it feels right \u2014 should it animate at all, what purpose, which tool, which properties, which curve and duration, how it interrupts, how it exits. Writes the implementation. Use when asked to animate something, add motion, make a component feel alive, or build a transition. For critiquing existing motion use review-animations; for auditing a whole codebase use improve-animations.",
+    "status": "present"
+  },
+  "identity": {
+    "catalog_category": "visual-design",
+    "slug": "animate",
+    "title": "Animate"
+  },
+  "license": {
+    "status": "not stated in captured catalog source",
+    "value": null
+  },
+  "line_count": 199,
+  "ontology": {
+    "actions": [
+      {
+        "evidence": {
+          "line_end": 23,
+          "line_start": 23,
+          "text": "1. **Run the sequence in order.** Steps 1 and 2 gate everything. Don't reach for a curve before you know whether it animates at all."
+        },
+        "text": "1. **Run the sequence in order.** Steps 1 and 2 gate everything. Don't reach for a curve before you know whether it animates at all."
+      },
+      {
+        "evidence": {
+          "line_end": 25,
+          "line_start": 25,
+          "text": "3. **Extend the codebase's tokens, don't fork them.** If `--ease-out` or a duration scale already exists, use it. Adding a parallel system is a defect."
+        },
+        "text": "3. **Extend the codebase's tokens, don't fork them.** If `--ease-out` or a duration scale already exists, use it. Adding a parallel system is a defect."
+      },
+      {
+        "evidence": {
+          "line_end": 26,
+          "line_start": 26,
+          "text": "4. **Reduced motion and hover gating ship with the animation**, not as a follow-up."
+        },
+        "text": "4. **Reduced motion and hover gating ship with the animation**, not as a follow-up."
+      },
+      {
+        "evidence": {
+          "line_end": 77,
+          "line_start": 77,
+          "text": "- **`transform` and `opacity` only.** They skip layout and paint and run on the GPU. `width`/`height`/`margin`/`padding`/`top`/`left` trigger all three. (`clip-path` is the sanctioned fourth \u2014 see RECIPES.md. `height` is tolerated only for accordions, where there's no transform equivalent.)"
+        },
+        "text": "- **`transform` and `opacity` only.** They skip layout and paint and run on the GPU. `width`/`height`/`margin`/`padding`/`top`/`left` trigger all three. (`clip-path` is the sanctioned fourth \u2014 see RECIPES.md. `height` is tolerated only for accordions, where there's no transform equivalent.)"
+      },
+      {
+        "evidence": {
+          "line_end": 81,
+          "line_start": 81,
+          "text": "- **In Motion, use the full transform string.** `x`/`y`/`scale` shorthands are not hardware-accelerated and drop frames under load:"
+        },
+        "text": "- **In Motion, use the full transform string.** `x`/`y`/`scale` shorthands are not hardware-accelerated and drop frames under load:"
+      },
+      {
+        "evidence": {
+          "line_end": 193,
+          "line_start": 193,
+          "text": "- **What to feel-check** \u2014 if the result depends on feel you can't judge from code (a crossfade, a spring's bounce, the opacity/height balance in an entering list), say so and point at the check: play it at 2\u20135\u00d7 duration or in the DevTools animation inspector, step it frame by frame, test gestures on a real device, and look again the next day with fresh eyes."
+        },
+        "text": "- **What to feel-check** \u2014 if the result depends on feel you can't judge from code (a crossfade, a spring's bounce, the opacity/height balance in an entering list), say so and point at the check: play it at 2\u20135\u00d7 duration or in the DevTools animation inspector, step it frame by frame, test gestures on a real device, and look again the next day with fresh eyes."
+      }
+    ],
+    "command_examples": [],
+    "constraints": [
+      {
+        "evidence": {
+          "line_end": 19,
+          "line_start": 19,
+          "text": "Never present motion options as a menu. Make the call, state the reasoning in one line, write the code."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Never present motion options as a menu. Make the call, state the reasoning in one line, write the code."
+      },
+      {
+        "evidence": {
+          "line_end": 23,
+          "line_start": 23,
+          "text": "1. **Run the sequence in order.** Steps 1 and 2 gate everything. Don't reach for a curve before you know whether it animates at all."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "1. **Run the sequence in order.** Steps 1 and 2 gate everything. Don't reach for a curve before you know whether it animates at all."
+      },
+      {
+        "evidence": {
+          "line_end": 24,
+          "line_start": 24,
+          "text": "2. **No approximated values.** Every curve, duration, and spring config comes from the tables below. Never invent `cubic-bezier(0.4, 0, 0.2, 1)` because it looks familiar."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "2. **No approximated values.** Every curve, duration, and spring config comes from the tables below. Never invent `cubic-bezier(0.4, 0, 0.2, 1)` because it looks familiar."
+      },
+      {
+        "evidence": {
+          "line_end": 25,
+          "line_start": 25,
+          "text": "3. **Extend the codebase's tokens, don't fork them.** If `--ease-out` or a duration scale already exists, use it. Adding a parallel system is a defect."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "3. **Extend the codebase's tokens, don't fork them.** If `--ease-out` or a duration scale already exists, use it. Adding a parallel system is a defect."
+      },
+      {
+        "evidence": {
+          "line_end": 27,
+          "line_start": 27,
+          "text": "5. **Cheapest tool that works.** Don't install a motion library for a fade."
+        },
+        "kind": "prohibited_operation",
+        "modality": "prohibited",
+        "text": "5. **Cheapest tool that works.** Don't install a motion library for a fade.",
+        "verb": "install"
+      },
+      {
+        "evidence": {
+          "line_end": 36,
+          "line_start": 36,
+          "text": "| Tens of times/day (hover effects, list navigation) | Near-imperceptible only \u2014 fast and subtle, or nothing |"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "| Tens of times/day (hover effects, list navigation) | Near-imperceptible only \u2014 fast and subtle, or nothing |"
+      },
+      {
+        "evidence": {
+          "line_end": 42,
+          "line_start": 42,
+          "text": "If the request fails this gate, say so plainly and don't write the animation. Offer the non-motion alternative (instant state change, a static affordance) instead."
+        },
+        "kind": "prohibited_operation",
+        "modality": "prohibited",
+        "text": "If the request fails this gate, say so plainly and don't write the animation. Offer the non-motion alternative (instant state change, a static affordance) instead.",
+        "verb": "write"
+      },
+      {
+        "evidence": {
+          "line_end": 52,
+          "line_start": 52,
+          "text": "- **Explanation** \u2014 demonstrating how something works (marketing/onboarding only)"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Explanation** \u2014 demonstrating how something works (marketing/onboarding only)"
+      },
+      {
+        "evidence": {
+          "line_end": 53,
+          "line_start": 53,
+          "text": "- **Delight** \u2014 allowed *only* at the rare/first-time tier"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Delight** \u2014 allowed *only* at the rare/first-time tier"
+      },
+      {
+        "evidence": {
+          "line_end": 55,
+          "line_start": 55,
+          "text": "Can't name it? Don't build it. \"It looks cool\" on a frequently-seen element is a reason to stop."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Can't name it? Don't build it. \"It looks cool\" on a frequently-seen element is a reason to stop."
+      },
+      {
+        "evidence": {
+          "line_end": 57,
+          "line_start": 57,
+          "text": "Also check **function**: data the user is reading or acting on should not move for style. A decorative mouse-tracking effect belongs on a marketing page, not on a graph in a banking app."
+        },
+        "kind": "prohibited_operation",
+        "modality": "prohibited",
+        "text": "Also check **function**: data the user is reading or acting on should not move for style. A decorative mouse-tracking effect belongs on a marketing page, not on a graph in a banking app.",
+        "verb": "move"
+      },
+      {
+        "evidence": {
+          "line_end": 77,
+          "line_start": 77,
+          "text": "- **`transform` and `opacity` only.** They skip layout and paint and run on the GPU. `width`/`height`/`margin`/`padding`/`top`/`left` trigger all three. (`clip-path` is the sanctioned fourth \u2014 see RECIPES.md. `height` is tolerated only for accordions, where there's no transform equivalent.)"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **`transform` and `opacity` only.** They skip layout and paint and run on the GPU. `width`/`height`/`margin`/`padding`/`top`/`left` trigger all three. (`clip-path` is the sanctioned fourth \u2014 see RECIPES.md. `height` is tolerated only for accordions, where there's no transform equivalent.)"
+      },
+      {
+        "evidence": {
+          "line_end": 78,
+          "line_start": 78,
+          "text": "- **Never `scale(0)`.** Start from `scale(0.9\u20130.97)` + `opacity: 0`. Nothing in the real world appears from nothing."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Never `scale(0)`.** Start from `scale(0.9\u20130.97)` + `opacity: 0`. Nothing in the real world appears from nothing."
+      },
+      {
+        "evidence": {
+          "line_end": 88,
+          "line_start": 88,
+          "text": "- **Never drive a child's transform from a CSS variable on the parent** \u2014 it recalculates styles for every child. Set `transform` on the element directly."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "- **Never drive a child's transform from a CSS variable on the parent** \u2014 it recalculates styles for every child. Set `transform` on the element directly."
+      },
+      {
+        "evidence": {
+          "line_end": 102,
+          "line_start": 102,
+          "text": "**Never `ease-in` on UI.** It starts slow, delaying the exact moment the user is watching. `ease-out` at 200ms *feels* faster than `ease-in` at 200ms."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "**Never `ease-in` on UI.** It starts slow, delaying the exact moment the user is watching. `ease-out` at 200ms *feels* faster than `ease-in` at 200ms."
+      },
+      {
+        "evidence": {
+          "line_end": 112,
+          "line_start": 112,
+          "text": "Need a curve that isn't here? Take it from [easing.dev](https://easing.dev/) or [easings.co](https://easings.co/). Don't hand-roll one."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Need a curve that isn't here? Take it from [easing.dev](https://easing.dev/) or [easings.co](https://easings.co/). Don't hand-roll one."
+      },
+      {
+        "evidence": {
+          "line_end": 167,
+          "line_start": 167,
+          "text": "## Never Ship"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "## Never Ship"
+      },
+      {
+        "evidence": {
+          "line_end": 171,
+          "line_start": 171,
+          "text": "| Never | Instead |"
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "| Never | Instead |"
+      },
+      {
+        "evidence": {
+          "line_end": 195,
+          "line_start": 195,
+          "text": "Don't pad this into a report. The code is the deliverable."
+        },
+        "kind": "invariant_or_constraint_candidate",
+        "modality": "unspecified",
+        "text": "Don't pad this into a report. The code is the deliverable."
+      }
+    ],
+    "effects": [
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 12,
+          "line_start": 12,
+          "text": "You are a senior design engineer building the animation yourself. The bar is Emil Kowalski's animation philosophy \u2014 the same bar `review-animations` enforces. Write it so it passes that review the first time."
+        },
+        "modality": "unspecified",
+        "text": "You are a senior design engineer building the animation yourself. The bar is Emil Kowalski's animation philosophy \u2014 the same bar `review-animations` enforces. Write it so it passes that review the first time.",
+        "verb": "write"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 19,
+          "line_start": 19,
+          "text": "Never present motion options as a menu. Make the call, state the reasoning in one line, write the code."
+        },
+        "modality": "unspecified",
+        "text": "Never present motion options as a menu. Make the call, state the reasoning in one line, write the code.",
+        "verb": "write"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 23,
+          "line_start": 23,
+          "text": "1. **Run the sequence in order.** Steps 1 and 2 gate everything. Don't reach for a curve before you know whether it animates at all."
+        },
+        "modality": "unspecified",
+        "text": "1. **Run the sequence in order.** Steps 1 and 2 gate everything. Don't reach for a curve before you know whether it animates at all.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 40,
+          "line_start": 40,
+          "text": "**Keyboard-initiated actions are a disqualifier, not a judgment call.** Raycast has no open/close animation \u2014 that is correct for something opened hundreds of times a day."
+        },
+        "modality": "unspecified",
+        "text": "**Keyboard-initiated actions are a disqualifier, not a judgment call.** Raycast has no open/close animation \u2014 that is correct for something opened hundreds of times a day.",
+        "verb": "open"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 71,
+          "line_start": 71,
+          "text": "CSS animations beat JS under load \u2014 they run off the main thread, while `requestAnimationFrame`-based animation drops frames while the browser loads, scripts, or paints. Use CSS for predetermined motion, JS for dynamic and interruptible motion."
+        },
+        "modality": "unspecified",
+        "text": "CSS animations beat JS under load \u2014 they run off the main thread, while `requestAnimationFrame`-based animation drops frames while the browser loads, scripts, or paints. Use CSS for predetermined motion, JS for dynamic and interruptible motion.",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 77,
+          "line_start": 77,
+          "text": "- **`transform` and `opacity` only.** They skip layout and paint and run on the GPU. `width`/`height`/`margin`/`padding`/`top`/`left` trigger all three. (`clip-path` is the sanctioned fourth \u2014 see RECIPES.md. `height` is tolerated only for accordions, where there's no transform equivalent.)"
+        },
+        "modality": "unspecified",
+        "text": "- **`transform` and `opacity` only.** They skip layout and paint and run on the GPU. `width`/`height`/`margin`/`padding`/`top`/`left` trigger all three. (`clip-path` is the sanctioned fourth \u2014 see RECIPES.md. `height` is tolerated only for accordions, where there's no transform equivalent.)",
+        "verb": "run"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 161,
+          "line_start": 161,
+          "text": "Reduced motion means **fewer and gentler** animations, not zero \u2014 keep transitions that aid comprehension, remove movement and position changes."
+        },
+        "modality": "unspecified",
+        "text": "Reduced motion means **fewer and gentler** animations, not zero \u2014 keep transitions that aid comprehension, remove movement and position changes.",
+        "verb": "remove"
+      },
+      {
+        "classification": "declared_instruction_or_claim",
+        "evidence": {
+          "line_end": 189,
+          "line_start": 189,
+          "text": "Write the code. Then, in at most a few lines:"
+        },
+        "modality": "unspecified",
+        "text": "Write the code. Then, in at most a few lines:",
+        "verb": "write"
+      }
+    ],
+    "external_urls": [
+      {
+        "evidence": {
+          "line_end": 112,
+          "line_start": 112,
+          "text": "Need a curve that isn't here? Take it from [easing.dev](https://easing.dev/) or [easings.co](https://easings.co/). Don't hand-roll one."
+        },
+        "url": "https://easing.dev/"
+      },
+      {
+        "evidence": {
+          "line_end": 112,
+          "line_start": 112,
+          "text": "Need a curve that isn't here? Take it from [easing.dev](https://easing.dev/) or [easings.co](https://easings.co/). Don't hand-roll one."
+        },
+        "url": "https://easings.co/"
+      }
+    ],
+    "headings": [
+      {
+        "bullets": [],
+        "level": 1,
+        "line": 6,
+        "title": "Building Animations"
+      },
+      {
+        "bullets": [
+          {
+            "line": 16,
+            "text": "**Animating something that shouldn't animate.** The gate below exists to produce zero lines of code sometimes. That's a success, not a dodge."
+          },
+          {
+            "line": 17,
+            "text": "**Animating the right thing with the wrong ingredients** \u2014 `ease-in` on an entrance, `scale(0)`, keyframes on a toast, a duration that makes a dropdown feel sluggish."
+          }
+        ],
+        "level": 2,
+        "line": 10,
+        "title": "Operating Posture"
+      },
+      {
+        "bullets": [
+          {
+            "line": 23,
+            "text": "**Run the sequence in order.** Steps 1 and 2 gate everything. Don't reach for a curve before you know whether it animates at all."
+          },
+          {
+            "line": 24,
+            "text": "**No approximated values.** Every curve, duration, and spring config comes from the tables below. Never invent `cubic-bezier(0.4, 0, 0.2, 1)` because it looks familiar."
+          },
+          {
+            "line": 25,
+            "text": "**Extend the codebase's tokens, don't fork them.** If `--ease-out` or a duration scale already exists, use it. Adding a parallel system is a defect."
+          },
+          {
+            "line": 26,
+            "text": "**Reduced motion and hover gating ship with the animation**, not as a follow-up."
+          },
+          {
+            "line": 27,
+            "text": "**Cheapest tool that works.** Don't install a motion library for a fade."
+          }
+        ],
+        "level": 2,
+        "line": 21,
+        "title": "Hard Rules"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 29,
+        "title": "The Build Sequence"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 31,
+        "title": "1. Should this animate at all?"
+      },
+      {
+        "bullets": [
+          {
+            "line": 48,
+            "text": "**Feedback** \u2014 confirming the interface heard the user"
+          },
+          {
+            "line": 49,
+            "text": "**Spatial consistency** \u2014 showing where something came from or went"
+          },
+          {
+            "line": 50,
+            "text": "**State indication** \u2014 making a state change legible"
+          },
+          {
+            "line": 51,
+            "text": "**Preventing a jarring change** \u2014 bridging content that would otherwise teleport"
+          },
+          {
+            "line": 52,
+            "text": "**Explanation** \u2014 demonstrating how something works (marketing/onboarding only)"
+          },
+          {
+            "line": 53,
+            "text": "**Delight** \u2014 allowed *only* at the rare/first-time tier"
+          }
+        ],
+        "level": 3,
+        "line": 44,
+        "title": "2. What is the purpose?"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 59,
+        "title": "3. Pick the tool \u2014 cheapest that works"
+      },
+      {
+        "bullets": [
+          {
+            "line": 77,
+            "text": "**`transform` and `opacity` only.** They skip layout and paint and run on the GPU. `width`/`height`/`margin`/`padding`/`top`/`left` trigger all three. (`clip-path` is the sanctioned fourth \u2014 see RECIPES.md. `height` is tolerated only for accordions, where there's no transform equivalent.)"
+          },
+          {
+            "line": 78,
+            "text": "**Never `scale(0)`.** Start from `scale(0.9\u20130.97)` + `opacity: 0`. Nothing in the real world appears from nothing."
+          },
+          {
+            "line": 79,
+            "text": "**`transform-origin` at the trigger** for popovers, dropdowns, menus, tooltips \u2014 `var(--transform-origin)` in Base UI. **Modals are exempt**; they're not anchored to a trigger, so they stay centered."
+          },
+          {
+            "line": 80,
+            "text": "**Percentages in `translate()`** are relative to the element's own size \u2014 `translateY(100%)` moves by its own height whatever the content. Prefer over hardcoded pixels."
+          },
+          {
+            "line": 81,
+            "text": "**In Motion, use the full transform string.** `x`/`y`/`scale` shorthands are not hardware-accelerated and drop frames under load:"
+          },
+          {
+            "line": 88,
+            "text": "**Never drive a child's transform from a CSS variable on the parent** \u2014 it recalculates styles for every child. Set `transform` on the element directly."
+          }
+        ],
+        "level": 3,
+        "line": 75,
+        "title": "4. Pick the properties"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 90,
+        "title": "5. Easing and duration \u2014 or a spring"
+      },
+      {
+        "bullets": [
+          {
+            "line": 137,
+            "text": "**Transitions, not keyframes, for anything triggered rapidly** \u2014 toasts, toggles, anything a user can fire twice in a second. Transitions retarget from the current value; keyframes restart from zero."
+          },
+          {
+            "line": 138,
+            "text": "**Springs for gestures**, because they carry velocity through an interruption."
+          },
+          {
+            "line": 139,
+            "text": "**Exit the way it entered.** A toast that slides in from the bottom leaves through the bottom. Symmetric paths are what make swipe-to-dismiss feel obvious."
+          },
+          {
+            "line": 140,
+            "text": "**Asymmetric timing where the user is deciding.** Slow on the deliberate phase (a hold-to-confirm press: 2s linear), snappy on the system response (release: 200ms ease-out)."
+          }
+        ],
+        "level": 3,
+        "line": 135,
+        "title": "6. Interruption and exit"
+      },
+      {
+        "bullets": [],
+        "level": 3,
+        "line": 142,
+        "title": "7. Reduced motion and pointer gating"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 163,
+        "title": "Recipes"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 167,
+        "title": "Never Ship"
+      },
+      {
+        "bullets": [
+          {
+            "line": 191,
+            "text": "**The gate result** \u2014 frequency tier and the named purpose. If something in the request was rejected, say which and why."
+          },
+          {
+            "line": 192,
+            "text": "**The ingredients** \u2014 tool, properties, curve, duration or spring config, in one line each."
+          },
+          {
+            "line": 193,
+            "text": "**What to feel-check** \u2014 if the result depends on feel you can't judge from code (a crossfade, a spring's bounce, the opacity/height balance in an entering list), say so and point at the check: play it at 2\u20135\u00d7 duration or in the DevTools animation inspector, step it frame by frame, test gestures on a real device, and look again the next day with fresh eyes."
+          }
+        ],
+        "level": 2,
+        "line": 187,
+        "title": "Output"
+      },
+      {
+        "bullets": [],
+        "level": 2,
+        "line": 197,
+        "title": "Tone"
+      }
+    ],
+    "inputs": [
+      {
+        "evidence": {
+          "line_end": 8,
+          "line_start": 8,
+          "text": "A construction skill. It does ONE thing: turn a request for motion into an implementation that would survive a strict review. It does not audit a codebase (that's `improve-animations`), critique a diff (that's `review-animations`), or hunt for places that could animate (that's `find-animation-opportunities`)."
+        },
+        "status": "input_candidate",
+        "text": "A construction skill. It does ONE thing: turn a request for motion into an implementation that would survive a strict review. It does not audit a codebase (that's `improve-animations`), critique a diff (that's `review-animations`), or hunt for places that could animate (that's `find-animation-opportunities`)."
+      },
+      {
+        "evidence": {
+          "line_end": 42,
+          "line_start": 42,
+          "text": "If the request fails this gate, say so plainly and don't write the animation. Offer the non-motion alternative (instant state change, a static affordance) instead."
+        },
+        "status": "input_candidate",
+        "text": "If the request fails this gate, say so plainly and don't write the animation. Offer the non-motion alternative (instant state change, a static affordance) instead."
+      },
+      {
+        "evidence": {
+          "line_end": 165,
+          "line_start": 165,
+          "text": "For ready-to-build implementations of the common cases \u2014 button press, dropdown, tooltip, modal, drawer, toast, accordion, stagger, hold-to-confirm, tab indicator, scroll reveal, drag-to-dismiss \u2014 see [RECIPES.md](RECIPES.md). Load it whenever the request matches one of those components; start from the recipe rather than from a blank file."
+        },
+        "status": "input_candidate",
+        "text": "For ready-to-build implementations of the common cases \u2014 button press, dropdown, tooltip, modal, drawer, toast, accordion, stagger, hold-to-confirm, tab indicator, scroll reveal, drag-to-dismiss \u2014 see [RECIPES.md](RECIPES.md). Load it whenever the request matches one of those components; start from the recipe rather than from a blank file."
+      },
+      {
+        "evidence": {
+          "line_end": 191,
+          "line_start": 191,
+          "text": "- **The gate result** \u2014 frequency tier and the named purpose. If something in the request was rejected, say which and why."
+        },
+        "status": "input_candidate",
+        "text": "- **The gate result** \u2014 frequency tier and the named purpose. If something in the request was rejected, say which and why."
+      }
+    ],
+    "invariants": [
+      {
+        "evidence": {
+          "line_end": 19,
+          "line_start": 19,
+          "text": "Never present motion options as a menu. Make the call, state the reasoning in one line, write the code."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Never present motion options as a menu. Make the call, state the reasoning in one line, write the code."
+      },
+      {
+        "evidence": {
+          "line_end": 23,
+          "line_start": 23,
+          "text": "1. **Run the sequence in order.** Steps 1 and 2 gate everything. Don't reach for a curve before you know whether it animates at all."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "1. **Run the sequence in order.** Steps 1 and 2 gate everything. Don't reach for a curve before you know whether it animates at all."
+      },
+      {
+        "evidence": {
+          "line_end": 24,
+          "line_start": 24,
+          "text": "2. **No approximated values.** Every curve, duration, and spring config comes from the tables below. Never invent `cubic-bezier(0.4, 0, 0.2, 1)` because it looks familiar."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "2. **No approximated values.** Every curve, duration, and spring config comes from the tables below. Never invent `cubic-bezier(0.4, 0, 0.2, 1)` because it looks familiar."
+      },
+      {
+        "evidence": {
+          "line_end": 25,
+          "line_start": 25,
+          "text": "3. **Extend the codebase's tokens, don't fork them.** If `--ease-out` or a duration scale already exists, use it. Adding a parallel system is a defect."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "3. **Extend the codebase's tokens, don't fork them.** If `--ease-out` or a duration scale already exists, use it. Adding a parallel system is a defect."
+      },
+      {
+        "evidence": {
+          "line_end": 27,
+          "line_start": 27,
+          "text": "5. **Cheapest tool that works.** Don't install a motion library for a fade."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "5. **Cheapest tool that works.** Don't install a motion library for a fade."
+      },
+      {
+        "evidence": {
+          "line_end": 36,
+          "line_start": 36,
+          "text": "| Tens of times/day (hover effects, list navigation) | Near-imperceptible only \u2014 fast and subtle, or nothing |"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "| Tens of times/day (hover effects, list navigation) | Near-imperceptible only \u2014 fast and subtle, or nothing |"
+      },
+      {
+        "evidence": {
+          "line_end": 42,
+          "line_start": 42,
+          "text": "If the request fails this gate, say so plainly and don't write the animation. Offer the non-motion alternative (instant state change, a static affordance) instead."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "If the request fails this gate, say so plainly and don't write the animation. Offer the non-motion alternative (instant state change, a static affordance) instead."
+      },
+      {
+        "evidence": {
+          "line_end": 52,
+          "line_start": 52,
+          "text": "- **Explanation** \u2014 demonstrating how something works (marketing/onboarding only)"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Explanation** \u2014 demonstrating how something works (marketing/onboarding only)"
+      },
+      {
+        "evidence": {
+          "line_end": 53,
+          "line_start": 53,
+          "text": "- **Delight** \u2014 allowed *only* at the rare/first-time tier"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Delight** \u2014 allowed *only* at the rare/first-time tier"
+      },
+      {
+        "evidence": {
+          "line_end": 55,
+          "line_start": 55,
+          "text": "Can't name it? Don't build it. \"It looks cool\" on a frequently-seen element is a reason to stop."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Can't name it? Don't build it. \"It looks cool\" on a frequently-seen element is a reason to stop."
+      },
+      {
+        "evidence": {
+          "line_end": 77,
+          "line_start": 77,
+          "text": "- **`transform` and `opacity` only.** They skip layout and paint and run on the GPU. `width`/`height`/`margin`/`padding`/`top`/`left` trigger all three. (`clip-path` is the sanctioned fourth \u2014 see RECIPES.md. `height` is tolerated only for accordions, where there's no transform equivalent.)"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **`transform` and `opacity` only.** They skip layout and paint and run on the GPU. `width`/`height`/`margin`/`padding`/`top`/`left` trigger all three. (`clip-path` is the sanctioned fourth \u2014 see RECIPES.md. `height` is tolerated only for accordions, where there's no transform equivalent.)"
+      },
+      {
+        "evidence": {
+          "line_end": 78,
+          "line_start": 78,
+          "text": "- **Never `scale(0)`.** Start from `scale(0.9\u20130.97)` + `opacity: 0`. Nothing in the real world appears from nothing."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Never `scale(0)`.** Start from `scale(0.9\u20130.97)` + `opacity: 0`. Nothing in the real world appears from nothing."
+      },
+      {
+        "evidence": {
+          "line_end": 88,
+          "line_start": 88,
+          "text": "- **Never drive a child's transform from a CSS variable on the parent** \u2014 it recalculates styles for every child. Set `transform` on the element directly."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "- **Never drive a child's transform from a CSS variable on the parent** \u2014 it recalculates styles for every child. Set `transform` on the element directly."
+      },
+      {
+        "evidence": {
+          "line_end": 102,
+          "line_start": 102,
+          "text": "**Never `ease-in` on UI.** It starts slow, delaying the exact moment the user is watching. `ease-out` at 200ms *feels* faster than `ease-in` at 200ms."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "**Never `ease-in` on UI.** It starts slow, delaying the exact moment the user is watching. `ease-out` at 200ms *feels* faster than `ease-in` at 200ms."
+      },
+      {
+        "evidence": {
+          "line_end": 112,
+          "line_start": 112,
+          "text": "Need a curve that isn't here? Take it from [easing.dev](https://easing.dev/) or [easings.co](https://easings.co/). Don't hand-roll one."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Need a curve that isn't here? Take it from [easing.dev](https://easing.dev/) or [easings.co](https://easings.co/). Don't hand-roll one."
+      },
+      {
+        "evidence": {
+          "line_end": 167,
+          "line_start": 167,
+          "text": "## Never Ship"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "## Never Ship"
+      },
+      {
+        "evidence": {
+          "line_end": 171,
+          "line_start": 171,
+          "text": "| Never | Instead |"
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "| Never | Instead |"
+      },
+      {
+        "evidence": {
+          "line_end": 195,
+          "line_start": 195,
+          "text": "Don't pad this into a report. The code is the deliverable."
+        },
+        "modality": "constraint_or_invariant_candidate",
+        "text": "Don't pad this into a report. The code is the deliverable."
+      }
+    ],
+    "outputs": [
+      {
+        "evidence": {
+          "line_end": 16,
+          "line_start": 16,
+          "text": "1. **Animating something that shouldn't animate.** The gate below exists to produce zero lines of code sometimes. That's a success, not a dodge."
+        },
+        "status": "output_candidate",
+        "text": "1. **Animating something that shouldn't animate.** The gate below exists to produce zero lines of code sometimes. That's a success, not a dodge."
+      },
+      {
+        "evidence": {
+          "line_end": 187,
+          "line_start": 187,
+          "text": "## Output"
+        },
+        "status": "output_candidate",
+        "text": "## Output"
+      },
+      {
+        "evidence": {
+          "line_end": 191,
+          "line_start": 191,
+          "text": "- **The gate result** \u2014 frequency tier and the named purpose. If something in the request was rejected, say which and why."
+        },
+        "status": "output_candidate",
+        "text": "- **The gate result** \u2014 frequency tier and the named purpose. If something in the request was rejected, say which and why."
+      },
+      {
+        "evidence": {
+          "line_end": 193,
+          "line_start": 193,
+          "text": "- **What to feel-check** \u2014 if the result depends on feel you can't judge from code (a crossfade, a spring's bounce, the opacity/height balance in an entering list), say so and point at the check: play it at 2\u20135\u00d7 duration or in the DevTools animation inspector, step it frame by frame, test gestures on a real device, and look again the next day with fresh eyes."
+        },
+        "status": "output_candidate",
+        "text": "- **What to feel-check** \u2014 if the result depends on feel you can't judge from code (a crossfade, a spring's bounce, the opacity/height balance in an entering list), say so and point at the check: play it at 2\u20135\u00d7 duration or in the DevTools animation inspector, step it frame by frame, test gestures on a real device, and look again the next day with fresh eyes."
+      },
+      {
+        "evidence": {
+          "line_end": 195,
+          "line_start": 195,
+          "text": "Don't pad this into a report. The code is the deliverable."
+        },
+        "status": "output_candidate",
+        "text": "Don't pad this into a report. The code is the deliverable."
+      }
+    ],
+    "package_path_candidates": [],
+    "recovery": [
+      {
+        "evidence": {
+          "line_end": 35,
+          "line_start": 35,
+          "text": "| 100+ times/day (keyboard shortcuts, command palette toggle) | **No animation. Ever.** Stop here. |"
+        },
+        "status": "recovery_candidate",
+        "text": "| 100+ times/day (keyboard shortcuts, command palette toggle) | **No animation. Ever.** Stop here. |"
+      },
+      {
+        "evidence": {
+          "line_end": 42,
+          "line_start": 42,
+          "text": "If the request fails this gate, say so plainly and don't write the animation. Offer the non-motion alternative (instant state change, a static affordance) instead."
+        },
+        "status": "recovery_candidate",
+        "text": "If the request fails this gate, say so plainly and don't write the animation. Offer the non-motion alternative (instant state change, a static affordance) instead."
+      },
+      {
+        "evidence": {
+          "line_end": 55,
+          "line_start": 55,
+          "text": "Can't name it? Don't build it. \"It looks cool\" on a frequently-seen element is a reason to stop."
+        },
+        "status": "recovery_candidate",
+        "text": "Can't name it? Don't build it. \"It looks cool\" on a frequently-seen element is a reason to stop."
+      },
+      {
+        "evidence": {
+          "line_end": 61,
+          "line_start": 61,
+          "text": "Walk down; stop at the first that fits."
+        },
+        "status": "recovery_candidate",
+        "text": "Walk down; stop at the first that fits."
+      },
+      {
+        "evidence": {
+          "line_end": 73,
+          "line_start": 73,
+          "text": "If the task needs a *component* rather than an animation \u2014 a toast, a drawer, a command menu, a dropdown \u2014 stop and invoke `pick-ui-library`. Hand-rolling those is how you end up with a `<div>` dropdown and no focus management."
+        },
+        "status": "recovery_candidate",
+        "text": "If the task needs a *component* rather than an animation \u2014 a toast, a drawer, a command menu, a dropdown \u2014 stop and invoke `pick-ui-library`. Hand-rolling those is how you end up with a `<div>` dropdown and no focus management."
+      }
+    ],
+    "references": [
+      {
+        "evidence": {
+          "line_end": 112,
+          "line_start": 112,
+          "text": "Need a curve that isn't here? Take it from [easing.dev](https://easing.dev/) or [easings.co](https://easings.co/). Don't hand-roll one."
+        },
+        "reference": "https://easing.dev/"
+      },
+      {
+        "evidence": {
+          "line_end": 112,
+          "line_start": 112,
+          "text": "Need a curve that isn't here? Take it from [easing.dev](https://easing.dev/) or [easings.co](https://easings.co/). Don't hand-roll one."
+        },
+        "reference": "https://easings.co/"
+      },
+      {
+        "evidence": {
+          "line_end": 165,
+          "line_start": 165,
+          "text": "For ready-to-build implementations of the common cases \u2014 button press, dropdown, tooltip, modal, drawer, toast, accordion, stagger, hold-to-confirm, tab indicator, scroll reveal, drag-to-dismiss \u2014 see [RECIPES.md](RECIPES.md). Load it whenever the request matches one of those components; start from the recipe rather than from a blank file."
+        },
+        "reference": "RECIPES.md"
+      }
+    ],
+    "routes": [
+      {
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: Build an animation from scratch, making the decisions in the order that determines whether it feels right \u2014 should it animate at all, what purpose, which tool, which properties, which curve and duration, how it interrupts, how it exits. Writes the implementation. Use when asked to animate something, add motion, make a component feel alive, or build a transition. For critiquing existing motion use review-animations; for auditing a whole codebase use improve-animations."
+        },
+        "text": "description: Build an animation from scratch, making the decisions in the order that determines whether it feels right \u2014 should it animate at all, what purpose, which tool, which properties, which curve and duration, how it interrupts, how it exits. Writes the implementation. Use when asked to animate something, add motion, make a component feel alive, or build a transition. For critiquing existing motion use review-animations; for auditing a whole codebase use improve-animations."
+      },
+      {
+        "evidence": {
+          "line_end": 51,
+          "line_start": 51,
+          "text": "- **Preventing a jarring change** \u2014 bridging content that would otherwise teleport"
+        },
+        "text": "- **Preventing a jarring change** \u2014 bridging content that would otherwise teleport"
+      }
+    ],
+    "template_commands": [],
+    "template_status": "source_not_executed; fenced commands remain example-only only when surrounding prose says so, otherwise context-unknown; live XML template commands are not executable evidence",
+    "triggers": [
+      {
+        "evidence": {
+          "line_end": 3,
+          "line_start": 3,
+          "text": "description: Build an animation from scratch, making the decisions in the order that determines whether it feels right \u2014 should it animate at all, what purpose, which tool, which properties, which curve and duration, how it interrupts, how it exits. Writes the implementation. Use when asked to animate something, add motion, make a component feel alive, or build a transition. For critiquing existing motion use review-animations; for auditing a whole codebase use improve-animations."
+        },
+        "text": "description: Build an animation from scratch, making the decisions in the order that determines whether it feels right \u2014 should it animate at all, what purpose, which tool, which properties, which curve and duration, how it interrupts, how it exits. Writes the implementation. Use when asked to animate something, add motion, make a component feel alive, or build a transition. For critiquing existing motion use review-animations; for auditing a whole codebase use improve-animations."
+      },
+      {
+        "evidence": {
+          "line_end": 77,
+          "line_start": 77,
+          "text": "- **`transform` and `opacity` only.** They skip layout and paint and run on the GPU. `width`/`height`/`margin`/`padding`/`top`/`left` trigger all three. (`clip-path` is the sanctioned fourth \u2014 see RECIPES.md. `height` is tolerated only for accordions, where there's no transform equivalent.)"
+        },
+        "text": "- **`transform` and `opacity` only.** They skip layout and paint and run on the GPU. `width`/`height`/`margin`/`padding`/`top`/`left` trigger all three. (`clip-path` is the sanctioned fourth \u2014 see RECIPES.md. `height` is tolerated only for accordions, where there's no transform equivalent.)"
+      },
+      {
+        "evidence": {
+          "line_end": 79,
+          "line_start": 79,
+          "text": "- **`transform-origin` at the trigger** for popovers, dropdowns, menus, tooltips \u2014 `var(--transform-origin)` in Base UI. **Modals are exempt**; they're not anchored to a trigger, so they stay centered."
+        },
+        "text": "- **`transform-origin` at the trigger** for popovers, dropdowns, menus, tooltips \u2014 `var(--transform-origin)` in Base UI. **Modals are exempt**; they're not anchored to a trigger, so they stay centered."
+      },
+      {
+        "evidence": {
+          "line_end": 179,
+          "line_start": 179,
+          "text": "| `transform-origin: center` on a trigger-anchored popover | `var(--transform-origin)` (modals exempt) |"
+        },
+        "text": "| `transform-origin: center` on a trigger-anchored popover | `var(--transform-origin)` (modals exempt) |"
+      }
+    ],
+    "workflows": [
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 16,
+            "text": "**Animating something that shouldn't animate.** The gate below exists to produce zero lines of code sometimes. That's a success, not a dodge."
+          },
+          {
+            "line": 17,
+            "text": "**Animating the right thing with the wrong ingredients** \u2014 `ease-in` on an entrance, `scale(0)`, keyframes on a toast, a duration that makes a dropdown feel sluggish."
+          }
+        ],
+        "section": "Operating Posture",
+        "start_line": 10
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 23,
+            "text": "**Run the sequence in order.** Steps 1 and 2 gate everything. Don't reach for a curve before you know whether it animates at all."
+          },
+          {
+            "line": 24,
+            "text": "**No approximated values.** Every curve, duration, and spring config comes from the tables below. Never invent `cubic-bezier(0.4, 0, 0.2, 1)` because it looks familiar."
+          },
+          {
+            "line": 25,
+            "text": "**Extend the codebase's tokens, don't fork them.** If `--ease-out` or a duration scale already exists, use it. Adding a parallel system is a defect."
+          },
+          {
+            "line": 26,
+            "text": "**Reduced motion and hover gating ship with the animation**, not as a follow-up."
+          },
+          {
+            "line": 27,
+            "text": "**Cheapest tool that works.** Don't install a motion library for a fade."
+          }
+        ],
+        "section": "Hard Rules",
+        "start_line": 21
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 48,
+            "text": "**Feedback** \u2014 confirming the interface heard the user"
+          },
+          {
+            "line": 49,
+            "text": "**Spatial consistency** \u2014 showing where something came from or went"
+          },
+          {
+            "line": 50,
+            "text": "**State indication** \u2014 making a state change legible"
+          },
+          {
+            "line": 51,
+            "text": "**Preventing a jarring change** \u2014 bridging content that would otherwise teleport"
+          },
+          {
+            "line": 52,
+            "text": "**Explanation** \u2014 demonstrating how something works (marketing/onboarding only)"
+          },
+          {
+            "line": 53,
+            "text": "**Delight** \u2014 allowed *only* at the rare/first-time tier"
+          }
+        ],
+        "section": "2. What is the purpose?",
+        "start_line": 44
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 77,
+            "text": "**`transform` and `opacity` only.** They skip layout and paint and run on the GPU. `width`/`height`/`margin`/`padding`/`top`/`left` trigger all three. (`clip-path` is the sanctioned fourth \u2014 see RECIPES.md. `height` is tolerated only for accordions, where there's no transform equivalent.)"
+          },
+          {
+            "line": 78,
+            "text": "**Never `scale(0)`.** Start from `scale(0.9\u20130.97)` + `opacity: 0`. Nothing in the real world appears from nothing."
+          },
+          {
+            "line": 79,
+            "text": "**`transform-origin` at the trigger** for popovers, dropdowns, menus, tooltips \u2014 `var(--transform-origin)` in Base UI. **Modals are exempt**; they're not anchored to a trigger, so they stay centered."
+          },
+          {
+            "line": 80,
+            "text": "**Percentages in `translate()`** are relative to the element's own size \u2014 `translateY(100%)` moves by its own height whatever the content. Prefer over hardcoded pixels."
+          },
+          {
+            "line": 81,
+            "text": "**In Motion, use the full transform string.** `x`/`y`/`scale` shorthands are not hardware-accelerated and drop frames under load:"
+          },
+          {
+            "line": 88,
+            "text": "**Never drive a child's transform from a CSS variable on the parent** \u2014 it recalculates styles for every child. Set `transform` on the element directly."
+          }
+        ],
+        "section": "4. Pick the properties",
+        "start_line": 75
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 137,
+            "text": "**Transitions, not keyframes, for anything triggered rapidly** \u2014 toasts, toggles, anything a user can fire twice in a second. Transitions retarget from the current value; keyframes restart from zero."
+          },
+          {
+            "line": 138,
+            "text": "**Springs for gestures**, because they carry velocity through an interruption."
+          },
+          {
+            "line": 139,
+            "text": "**Exit the way it entered.** A toast that slides in from the bottom leaves through the bottom. Symmetric paths are what make swipe-to-dismiss feel obvious."
+          },
+          {
+            "line": 140,
+            "text": "**Asymmetric timing where the user is deciding.** Slow on the deliberate phase (a hold-to-confirm press: 2s linear), snappy on the system response (release: 200ms ease-out)."
+          }
+        ],
+        "section": "6. Interruption and exit",
+        "start_line": 135
+      },
+      {
+        "classification": "ordered_or_bulleted_source_structure_inferred",
+        "items": [
+          {
+            "line": 191,
+            "text": "**The gate result** \u2014 frequency tier and the named purpose. If something in the request was rejected, say which and why."
+          },
+          {
+            "line": 192,
+            "text": "**The ingredients** \u2014 tool, properties, curve, duration or spring config, in one line each."
+          },
+          {
+            "line": 193,
+            "text": "**What to feel-check** \u2014 if the result depends on feel you can't judge from code (a crossfade, a spring's bounce, the opacity/height balance in an entering list), say so and point at the check: play it at 2\u20135\u00d7 duration or in the DevTools animation inspector, step it frame by frame, test gestures on a real device, and look again the next day with fresh eyes."
+          }
+        ],
+        "section": "Output",
+        "start_line": 187
+      }
+    ]
+  },
+  "package": {
+    "reference_resolution": [],
+    "resolved_files": [
+      {
+        "bytes": 7957,
+        "content_snapshot": "sources/upstream/emilkowalski-skills-unknown/content-by-sha256/21ff63d84391db8d96ecdf9170095f55a42c836ccc36fd3269c4772bab031ba2.md",
+        "kind": "package_file",
+        "path": "skills-HEAD/skills/animate/RECIPES.md",
+        "sha256": "21ff63d84391db8d96ecdf9170095f55a42c836ccc36fd3269c4772bab031ba2",
+        "text": true
+      },
+      {
+        "bytes": 11860,
+        "content_snapshot": "sources/upstream/emilkowalski-skills-unknown/content-by-sha256/b8ede161270458e6ae2e45e8a1985373515d4c63de5568ddb0f9012d7634356c.md",
+        "kind": "skill",
+        "path": "skills-HEAD/skills/animate/SKILL.md",
+        "sha256": "b8ede161270458e6ae2e45e8a1985373515d4c63de5568ddb0f9012d7634356c",
+        "text": true
+      }
+    ],
+    "scripts": [],
+    "unresolved_references": []
+  },
+  "schema": "skill-ir/1.0",
+  "source": {
+    "bytes": 11527,
+    "catalog_metadata": {
+      "bundle_offset": 4547675,
+      "category": "visual-design",
+      "content_binding": "U$",
+      "description": "Build animations from scratch in the order that determines craft: whether to animate, purpose, tool, properties, curve, duration, interruptibility, and exit.",
+      "github_url": "https://github.com/emilkowalski/skills/tree/main/skills/animate",
+      "slug": "animate",
+      "source": "community",
+      "source_label": "Emil Kowalski",
+      "stars_reported": 1500,
+      "template_expressions": [],
+      "title": "Animate"
+    },
+    "line_table": [
+      {
+        "line": 1,
+        "text": "---"
+      },
+      {
+        "line": 2,
+        "text": "name: animate"
+      },
+      {
+        "line": 3,
+        "text": "description: Build an animation from scratch, making the decisions in the order that determines whether it feels right \u2014 should it animate at all, what purpose, which tool, which properties, which curve and duration, how it interrupts, how it exits. Writes the implementation. Use when asked to animate something, add motion, make a component feel alive, or build a transition. For critiquing existing motion use review-animations; for auditing a whole codebase use improve-animations."
+      },
+      {
+        "line": 4,
+        "text": "---"
+      },
+      {
+        "line": 5,
+        "text": ""
+      },
+      {
+        "line": 6,
+        "text": "# Building Animations"
+      },
+      {
+        "line": 7,
+        "text": ""
+      },
+      {
+        "line": 8,
+        "text": "A construction skill. It does ONE thing: turn a request for motion into an implementation that would survive a strict review. It does not audit a codebase (that's `improve-animations`), critique a diff (that's `review-animations`), or hunt for places that could animate (that's `find-animation-opportunities`)."
+      },
+      {
+        "line": 9,
+        "text": ""
+      },
+      {
+        "line": 10,
+        "text": "## Operating Posture"
+      },
+      {
+        "line": 11,
+        "text": ""
+      },
+      {
+        "line": 12,
+        "text": "You are a senior design engineer building the animation yourself. The bar is Emil Kowalski's animation philosophy \u2014 the same bar `review-animations` enforces. Write it so it passes that review the first time."
+      },
+      {
+        "line": 13,
+        "text": ""
+      },
+      {
+        "line": 14,
+        "text": "Two failure modes, and the first is worse:"
+      },
+      {
+        "line": 15,
+        "text": ""
+      },
+      {
+        "line": 16,
+        "text": "1. **Animating something that shouldn't animate.** The gate below exists to produce zero lines of code sometimes. That's a success, not a dodge."
+      },
+      {
+        "line": 17,
+        "text": "2. **Animating the right thing with the wrong ingredients** \u2014 `ease-in` on an entrance, `scale(0)`, keyframes on a toast, a duration that makes a dropdown feel sluggish."
+      },
+      {
+        "line": 18,
+        "text": ""
+      },
+      {
+        "line": 19,
+        "text": "Never present motion options as a menu. Make the call, state the reasoning in one line, write the code."
+      },
+      {
+        "line": 20,
+        "text": ""
+      },
+      {
+        "line": 21,
+        "text": "## Hard Rules"
+      },
+      {
+        "line": 22,
+        "text": ""
+      },
+      {
+        "line": 23,
+        "text": "1. **Run the sequence in order.** Steps 1 and 2 gate everything. Don't reach for a curve before you know whether it animates at all."
+      },
+      {
+        "line": 24,
+        "text": "2. **No approximated values.** Every curve, duration, and spring config comes from the tables below. Never invent `cubic-bezier(0.4, 0, 0.2, 1)` because it looks familiar."
+      },
+      {
+        "line": 25,
+        "text": "3. **Extend the codebase's tokens, don't fork them.** If `--ease-out` or a duration scale already exists, use it. Adding a parallel system is a defect."
+      },
+      {
+        "line": 26,
+        "text": "4. **Reduced motion and hover gating ship with the animation**, not as a follow-up."
+      },
+      {
+        "line": 27,
+        "text": "5. **Cheapest tool that works.** Don't install a motion library for a fade."
+      },
+      {
+        "line": 28,
+        "text": ""
+      },
+      {
+        "line": 29,
+        "text": "## The Build Sequence"
+      },
+      {
+        "line": 30,
+        "text": ""
+      },
+      {
+        "line": 31,
+        "text": "### 1. Should this animate at all?"
+      },
+      {
+        "line": 32,
+        "text": ""
+      },
+      {
+        "line": 33,
+        "text": "| Frequency | Decision |"
+      },
+      {
+        "line": 34,
+        "text": "| --- | --- |"
+      },
+      {
+        "line": 35,
+        "text": "| 100+ times/day (keyboard shortcuts, command palette toggle) | **No animation. Ever.** Stop here. |"
+      },
+      {
+        "line": 36,
+        "text": "| Tens of times/day (hover effects, list navigation) | Near-imperceptible only \u2014 fast and subtle, or nothing |"
+      },
+      {
+        "line": 37,
+        "text": "| Occasional (modals, drawers, toasts) | Standard animation |"
+      },
+      {
+        "line": 38,
+        "text": "| Rare / first-time (onboarding, success, celebration) | The delight budget lives here |"
+      },
+      {
+        "line": 39,
+        "text": ""
+      },
+      {
+        "line": 40,
+        "text": "**Keyboard-initiated actions are a disqualifier, not a judgment call.** Raycast has no open/close animation \u2014 that is correct for something opened hundreds of times a day."
+      },
+      {
+        "line": 41,
+        "text": ""
+      },
+      {
+        "line": 42,
+        "text": "If the request fails this gate, say so plainly and don't write the animation. Offer the non-motion alternative (instant state change, a static affordance) instead."
+      },
+      {
+        "line": 43,
+        "text": ""
+      },
+      {
+        "line": 44,
+        "text": "### 2. What is the purpose?"
+      },
+      {
+        "line": 45,
+        "text": ""
+      },
+      {
+        "line": 46,
+        "text": "Name it in one of these words before continuing:"
+      },
+      {
+        "line": 47,
+        "text": ""
+      },
+      {
+        "line": 48,
+        "text": "- **Feedback** \u2014 confirming the interface heard the user"
+      },
+      {
+        "line": 49,
+        "text": "- **Spatial consistency** \u2014 showing where something came from or went"
+      },
+      {
+        "line": 50,
+        "text": "- **State indication** \u2014 making a state change legible"
+      },
+      {
+        "line": 51,
+        "text": "- **Preventing a jarring change** \u2014 bridging content that would otherwise teleport"
+      },
+      {
+        "line": 52,
+        "text": "- **Explanation** \u2014 demonstrating how something works (marketing/onboarding only)"
+      },
+      {
+        "line": 53,
+        "text": "- **Delight** \u2014 allowed *only* at the rare/first-time tier"
+      },
+      {
+        "line": 54,
+        "text": ""
+      },
+      {
+        "line": 55,
+        "text": "Can't name it? Don't build it. \"It looks cool\" on a frequently-seen element is a reason to stop."
+      },
+      {
+        "line": 56,
+        "text": ""
+      },
+      {
+        "line": 57,
+        "text": "Also check **function**: data the user is reading or acting on should not move for style. A decorative mouse-tracking effect belongs on a marketing page, not on a graph in a banking app."
+      },
+      {
+        "line": 58,
+        "text": ""
+      },
+      {
+        "line": 59,
+        "text": "### 3. Pick the tool \u2014 cheapest that works"
+      },
+      {
+        "line": 60,
+        "text": ""
+      },
+      {
+        "line": 61,
+        "text": "Walk down; stop at the first that fits."
+      },
+      {
+        "line": 62,
+        "text": ""
+      },
+      {
+        "line": 63,
+        "text": "| Need | Tool |"
+      },
+      {
+        "line": 64,
+        "text": "| --- | --- |"
+      },
+      {
+        "line": 65,
+        "text": "| Hover, press, color, a state toggle you control with a class or attribute | **CSS transition** |"
+      },
+      {
+        "line": 66,
+        "text": "| Entry animation on mount, no JS state | **CSS `@starting-style`** |"
+      },
+      {
+        "line": 67,
+        "text": "| Predetermined motion that must stay smooth while the page is busy loading | **CSS animation** (runs off the main thread) |"
+      },
+      {
+        "line": 68,
+        "text": "| Programmatic control with CSS performance, no library | **WAAPI** (`element.animate()`) |"
+      },
+      {
+        "line": 69,
+        "text": "| Springs, layout animations, exit animations, gesture-driven values | **Motion** (`motion.dev`) |"
+      },
+      {
+        "line": 70,
+        "text": ""
+      },
+      {
+        "line": 71,
+        "text": "CSS animations beat JS under load \u2014 they run off the main thread, while `requestAnimationFrame`-based animation drops frames while the browser loads, scripts, or paints. Use CSS for predetermined motion, JS for dynamic and interruptible motion."
+      },
+      {
+        "line": 72,
+        "text": ""
+      },
+      {
+        "line": 73,
+        "text": "If the task needs a *component* rather than an animation \u2014 a toast, a drawer, a command menu, a dropdown \u2014 stop and invoke `pick-ui-library`. Hand-rolling those is how you end up with a `<div>` dropdown and no focus management."
+      },
+      {
+        "line": 74,
+        "text": ""
+      },
+      {
+        "line": 75,
+        "text": "### 4. Pick the properties"
+      },
+      {
+        "line": 76,
+        "text": ""
+      },
+      {
+        "line": 77,
+        "text": "- **`transform` and `opacity` only.** They skip layout and paint and run on the GPU. `width`/`height`/`margin`/`padding`/`top`/`left` trigger all three. (`clip-path` is the sanctioned fourth \u2014 see RECIPES.md. `height` is tolerated only for accordions, where there's no transform equivalent.)"
+      },
+      {
+        "line": 78,
+        "text": "- **Never `scale(0)`.** Start from `scale(0.9\u20130.97)` + `opacity: 0`. Nothing in the real world appears from nothing."
+      },
+      {
+        "line": 79,
+        "text": "- **`transform-origin` at the trigger** for popovers, dropdowns, menus, tooltips \u2014 `var(--transform-origin)` in Base UI. **Modals are exempt**; they're not anchored to a trigger, so they stay centered."
+      },
+      {
+        "line": 80,
+        "text": "- **Percentages in `translate()`** are relative to the element's own size \u2014 `translateY(100%)` moves by its own height whatever the content. Prefer over hardcoded pixels."
+      },
+      {
+        "line": 81,
+        "text": "- **In Motion, use the full transform string.** `x`/`y`/`scale` shorthands are not hardware-accelerated and drop frames under load:"
+      },
+      {
+        "line": 82,
+        "text": ""
+      },
+      {
+        "line": 83,
+        "text": "```jsx"
+      },
+      {
+        "line": 84,
+        "text": "<motion.div animate={{ x: 100 }} />                          // drops frames under load"
+      },
+      {
+        "line": 85,
+        "text": "<motion.div animate={{ transform: \"translateX(100px)\" }} />  // hardware accelerated"
+      },
+      {
+        "line": 86,
+        "text": "```"
+      },
+      {
+        "line": 87,
+        "text": ""
+      },
+      {
+        "line": 88,
+        "text": "- **Never drive a child's transform from a CSS variable on the parent** \u2014 it recalculates styles for every child. Set `transform` on the element directly."
+      },
+      {
+        "line": 89,
+        "text": ""
+      },
+      {
+        "line": 90,
+        "text": "### 5. Easing and duration \u2014 or a spring"
+      },
+      {
+        "line": 91,
+        "text": ""
+      },
+      {
+        "line": 92,
+        "text": "**Easing**, in decision order:"
+      },
+      {
+        "line": 93,
+        "text": ""
+      },
+      {
+        "line": 94,
+        "text": "| Situation | Easing |"
+      },
+      {
+        "line": 95,
+        "text": "| --- | --- |"
+      },
+      {
+        "line": 96,
+        "text": "| Entering or exiting | `ease-out` |"
+      },
+      {
+        "line": 97,
+        "text": "| Moving / morphing on screen | `ease-in-out` |"
+      },
+      {
+        "line": 98,
+        "text": "| Hover / color change | `ease` |"
+      },
+      {
+        "line": 99,
+        "text": "| Constant motion (marquee, progress) | `linear` |"
+      },
+      {
+        "line": 100,
+        "text": "| Default | `ease-out` |"
+      },
+      {
+        "line": 101,
+        "text": ""
+      },
+      {
+        "line": 102,
+        "text": "**Never `ease-in` on UI.** It starts slow, delaying the exact moment the user is watching. `ease-out` at 200ms *feels* faster than `ease-in` at 200ms."
+      },
+      {
+        "line": 103,
+        "text": ""
+      },
+      {
+        "line": 104,
+        "text": "Built-in CSS easings are too weak. Use these:"
+      },
+      {
+        "line": 105,
+        "text": ""
+      },
+      {
+        "line": 106,
+        "text": "```css"
+      },
+      {
+        "line": 107,
+        "text": "--ease-out: cubic-bezier(0.23, 1, 0.32, 1);        /* strong ease-out for UI */"
+      },
+      {
+        "line": 108,
+        "text": "--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);    /* strong ease-in-out for on-screen movement */"
+      },
+      {
+        "line": 109,
+        "text": "--ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);     /* iOS-like drawer curve (Ionic) */"
+      },
+      {
+        "line": 110,
+        "text": "```"
+      },
+      {
+        "line": 111,
+        "text": ""
+      },
+      {
+        "line": 112,
+        "text": "Need a curve that isn't here? Take it from [easing.dev](https://easing.dev/) or [easings.co](https://easings.co/). Don't hand-roll one."
+      },
+      {
+        "line": 113,
+        "text": ""
+      },
+      {
+        "line": 114,
+        "text": "**Duration:**"
+      },
+      {
+        "line": 115,
+        "text": ""
+      },
+      {
+        "line": 116,
+        "text": "| Element | Duration |"
+      },
+      {
+        "line": 117,
+        "text": "| --- | --- |"
+      },
+      {
+        "line": 118,
+        "text": "| Button press feedback | 100\u2013160ms |"
+      },
+      {
+        "line": 119,
+        "text": "| Tooltips, small popovers | 125\u2013200ms |"
+      },
+      {
+        "line": 120,
+        "text": "| Dropdowns, selects | 150\u2013250ms |"
+      },
+      {
+        "line": 121,
+        "text": "| Modals, drawers | 200\u2013500ms |"
+      },
+      {
+        "line": 122,
+        "text": "| Marketing / explanatory | Can be longer |"
+      },
+      {
+        "line": 123,
+        "text": ""
+      },
+      {
+        "line": 124,
+        "text": "**UI animations stay under 300ms.** A 180ms dropdown feels more responsive than a 400ms one."
+      },
+      {
+        "line": 125,
+        "text": ""
+      },
+      {
+        "line": 126,
+        "text": "**Reach for a spring instead** when the motion is drag with momentum, an element that should feel alive, a gesture the user can interrupt or reverse, or decorative mouse-tracking:"
+      },
+      {
+        "line": 127,
+        "text": ""
+      },
+      {
+        "line": 128,
+        "text": "```js"
+      },
+      {
+        "line": 129,
+        "text": "{ type: \"spring\", duration: 0.5, bounce: 0.2 }        // Apple-style \u2014 easier to reason about"
+      },
+      {
+        "line": 130,
+        "text": "{ type: \"spring\", mass: 1, stiffness: 100, damping: 10 }  // traditional physics \u2014 more control"
+      },
+      {
+        "line": 131,
+        "text": "```"
+      },
+      {
+        "line": 132,
+        "text": ""
+      },
+      {
+        "line": 133,
+        "text": "Keep bounce at 0.1\u20130.3, and avoid bounce in most UI \u2014 reserve it for drag-to-dismiss and playful interactions."
+      },
+      {
+        "line": 134,
+        "text": ""
+      },
+      {
+        "line": 135,
+        "text": "### 6. Interruption and exit"
+      },
+      {
+        "line": 136,
+        "text": ""
+      },
+      {
+        "line": 137,
+        "text": "- **Transitions, not keyframes, for anything triggered rapidly** \u2014 toasts, toggles, anything a user can fire twice in a second. Transitions retarget from the current value; keyframes restart from zero."
+      },
+      {
+        "line": 138,
+        "text": "- **Springs for gestures**, because they carry velocity through an interruption."
+      },
+      {
+        "line": 139,
+        "text": "- **Exit the way it entered.** A toast that slides in from the bottom leaves through the bottom. Symmetric paths are what make swipe-to-dismiss feel obvious."
+      },
+      {
+        "line": 140,
+        "text": "- **Asymmetric timing where the user is deciding.** Slow on the deliberate phase (a hold-to-confirm press: 2s linear), snappy on the system response (release: 200ms ease-out)."
+      },
+      {
+        "line": 141,
+        "text": ""
+      },
+      {
+        "line": 142,
+        "text": "### 7. Reduced motion and pointer gating"
+      },
+      {
+        "line": 143,
+        "text": ""
+      },
+      {
+        "line": 144,
+        "text": "Ships with the animation, every time."
+      },
+      {
+        "line": 145,
+        "text": ""
+      },
+      {
+        "line": 146,
+        "text": "```css"
+      },
+      {
+        "line": 147,
+        "text": "@media (prefers-reduced-motion: reduce) {"
+      },
+      {
+        "line": 148,
+        "text": "  .element { animation: fade 0.2s ease; } /* keep opacity/color, drop transform-based motion */"
+      },
+      {
+        "line": 149,
+        "text": "}"
+      },
+      {
+        "line": 150,
+        "text": ""
+      },
+      {
+        "line": 151,
+        "text": "@media (hover: hover) and (pointer: fine) {"
+      },
+      {
+        "line": 152,
+        "text": "  .element:hover { transform: scale(1.05); } /* touch fires false hovers on tap */"
+      },
+      {
+        "line": 153,
+        "text": "}"
+      },
+      {
+        "line": 154,
+        "text": "```"
+      },
+      {
+        "line": 155,
+        "text": ""
+      },
+      {
+        "line": 156,
+        "text": "```jsx"
+      },
+      {
+        "line": 157,
+        "text": "const reduce = useReducedMotion();"
+      },
+      {
+        "line": 158,
+        "text": "const closedX = reduce ? 0 : '-100%';"
+      },
+      {
+        "line": 159,
+        "text": "```"
+      },
+      {
+        "line": 160,
+        "text": ""
+      },
+      {
+        "line": 161,
+        "text": "Reduced motion means **fewer and gentler** animations, not zero \u2014 keep transitions that aid comprehension, remove movement and position changes."
+      },
+      {
+        "line": 162,
+        "text": ""
+      },
+      {
+        "line": 163,
+        "text": "## Recipes"
+      },
+      {
+        "line": 164,
+        "text": ""
+      },
+      {
+        "line": 165,
+        "text": "For ready-to-build implementations of the common cases \u2014 button press, dropdown, tooltip, modal, drawer, toast, accordion, stagger, hold-to-confirm, tab indicator, scroll reveal, drag-to-dismiss \u2014 see [RECIPES.md](RECIPES.md). Load it whenever the request matches one of those components; start from the recipe rather than from a blank file."
+      },
+      {
+        "line": 166,
+        "text": ""
+      },
+      {
+        "line": 167,
+        "text": "## Never Ship"
+      },
+      {
+        "line": 168,
+        "text": ""
+      },
+      {
+        "line": 169,
+        "text": "Self-check before you finish. Each of these is an automatic block in `review-animations`:"
+      },
+      {
+        "line": 170,
+        "text": ""
+      },
+      {
+        "line": 171,
+        "text": "| Never | Instead |"
+      },
+      {
+        "line": 172,
+        "text": "| --- | --- |"
+      },
+      {
+        "line": 173,
+        "text": "| `transition: all` | Name the exact properties |"
+      },
+      {
+        "line": 174,
+        "text": "| `transform: scale(0)` entrance | `scale(0.95)` + `opacity: 0` |"
+      },
+      {
+        "line": 175,
+        "text": "| `ease-in` on a UI element | `ease-out` or a strong custom curve |"
+      },
+      {
+        "line": 176,
+        "text": "| Built-in `ease-out` on a deliberate animation | `cubic-bezier(0.23, 1, 0.32, 1)` |"
+      },
+      {
+        "line": 177,
+        "text": "| Animation on a keyboard shortcut or 100+/day action | No animation |"
+      },
+      {
+        "line": 178,
+        "text": "| UI duration over 300ms with no reason | 150\u2013250ms |"
+      },
+      {
+        "line": 179,
+        "text": "| `transform-origin: center` on a trigger-anchored popover | `var(--transform-origin)` (modals exempt) |"
+      },
+      {
+        "line": 180,
+        "text": "| Keyframes on toasts, toggles, rapidly-triggered elements | CSS transitions |"
+      },
+      {
+        "line": 181,
+        "text": "| Animating `width`/`height`/`margin`/`padding`/`top`/`left` | `transform` / `opacity` |"
+      },
+      {
+        "line": 182,
+        "text": "| Motion `x`/`y`/`scale` props under load | Full `transform` string |"
+      },
+      {
+        "line": 183,
+        "text": "| Ungated `:hover` motion | `@media (hover: hover) and (pointer: fine)` |"
+      },
+      {
+        "line": 184,
+        "text": "| Missing `prefers-reduced-motion` | Gentler variant, not zero |"
+      },
+      {
+        "line": 185,
+        "text": "| Everything entering at once | 30\u201380ms stagger |"
+      },
+      {
+        "line": 186,
+        "text": ""
+      },
+      {
+        "line": 187,
+        "text": "## Output"
+      },
+      {
+        "line": 188,
+        "text": ""
+      },
+      {
+        "line": 189,
+        "text": "Write the code. Then, in at most a few lines:"
+      },
+      {
+        "line": 190,
+        "text": ""
+      },
+      {
+        "line": 191,
+        "text": "- **The gate result** \u2014 frequency tier and the named purpose. If something in the request was rejected, say which and why."
+      },
+      {
+        "line": 192,
+        "text": "- **The ingredients** \u2014 tool, properties, curve, duration or spring config, in one line each."
+      },
+      {
+        "line": 193,
+        "text": "- **What to feel-check** \u2014 if the result depends on feel you can't judge from code (a crossfade, a spring's bounce, the opacity/height balance in an entering list), say so and point at the check: play it at 2\u20135\u00d7 duration or in the DevTools animation inspector, step it frame by frame, test gestures on a real device, and look again the next day with fresh eyes."
+      },
+      {
+        "line": 194,
+        "text": ""
+      },
+      {
+        "line": 195,
+        "text": "Don't pad this into a report. The code is the deliverable."
+      },
+      {
+        "line": 196,
+        "text": ""
+      },
+      {
+        "line": 197,
+        "text": "## Tone"
+      },
+      {
+        "line": 198,
+        "text": ""
+      },
+      {
+        "line": 199,
+        "text": "Opinionated and brief. When the honest answer is \"this shouldn't animate,\" give it \u2014 that answer is the reason this skill exists. When feel genuinely can't be settled from code, say so instead of guessing at a value."
+      }
+    ],
+    "matched_upstream_skill_path": "skills-HEAD/skills/animate/SKILL.md",
+    "repo": "emilkowalski/skills",
+    "repo_reference": "https://github.com/emilkowalski/skills/tree/main/skills/animate",
+    "repo_revision": "unknown",
+    "revision_status": "archive-digest-pinned upstream package matched by catalog_slug_package_map",
+    "sha256": "2a99870e61971553c0af3185a194c0e557f33aaa81e0422ca2fcec52195a4341",
+    "snapshot_path": "sources/catalog-skills/animate/SKILL.md",
+    "source_id": "aiuxplayground:catalog-content:animate"
+  }
+}
