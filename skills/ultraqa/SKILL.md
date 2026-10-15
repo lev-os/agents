@@ -100,7 +100,9 @@ The matrix must include normal-path coverage plus adversarial dynamic e2e scenar
    Goal: [goal type and behavior]
    Scenario matrix: [rows, commands, failures, evidence]
    Output: [test/build/e2e/harness output]
-   Provide root cause, safety implications, and specific fix recommendations.
+   Provide root cause, safety implications, and specific fix recommendations. A hash
+   difference shows only different bytes; state chronology, actor, mechanism or cause
+   only with its own evidence, otherwise as a hypothesis with its falsifying check.
    ```
 
 6. **REQUEST REPAIR**
@@ -166,7 +168,7 @@ Every terminal UltraQA result must include this report shape:
 - `[exit code] command` — purpose, duration/timeout, key output evidence
 
 ## Failures found
-- Scenario ID, failure signal, root cause, user impact, safety impact
+- Scenario ID, failure signal, evidenced root cause or labeled hypothesis, user impact, safety impact
 
 ## Fixes applied
 - Repair request, effect owner, files changed, revision re-observed, rationale, linked failing scenario(s), regression evidence
