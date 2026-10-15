@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "name": "motion-graphics",
+    "description": "Use when creating or revising code-rendered motion graphics, product films, UI animation loops, launch videos, explainers, kinetic typography, logo stings, or edits combining supplied footage with animated graphics.",
+    "skill_type": "leaf",
+    "source": "local"
+  },
+  "permissions": {
+    "allowed_tools": [
+      "unrestricted"
+    ],
+    "requests_bash": true,
+    "requests_write": true,
+    "requests_network": true,
+    "requests_env": false
+  },
+  "surfaces": {
+    "urls": [],
+    "shell_commands": [
+      "node tools/footage.mjs scan <their clips or folder>   # shots, motion, which way the camera goes, light; a sheet per clip",
+      "node <skill>/scripts/ref-sheet.mjs <local files\u2026> --out <brand>-video/refs/analysis",
+      "node <skill>/scripts/new-project.mjs <brand>-video --name \"<Brand>\" --format 16:9 --bpm <bpm> --lang <en|es|\u2026>",
+      "node tools/capture.mjs sheet <t0> <t1> 24 --query only=<scene>     # 24 frames from t0 to t1 \u2192 out/sheet.png",
+      "node tools/capture.mjs still <t> <t> \u2026                             # full-size frames at a list of times \u2192 out/stills/",
+      "node audio/score.mjs --report        # the WAV + per-bus level per scene",
+      "node tools/audio-check.mjs           # loudness, true peak, balance, energy arc, uniqueness + out/qa/music-audio.png",
+      "node tools/capture.mjs review        # out/review/: a frame per beat, the phone view (360 px wide), strips through fast moves",
+      "node tools/render.mjs --draft        # half size, no motion blur, with sound: the timing, the sync by ear if the user listens",
+      "node tools/render.mjs                # full quality \u2192 out/<slug>.mp4, -web.mp4, covers, QA",
+      "node tools/render.mjs --range 12-18  # after a fix: re-render only the chunks that changed"
+    ],
+    "env_vars": [],
+    "file_paths": [
+      "~70"
+    ]
+  },
+  "risk_signals": {
+    "has_eval": false,
+    "has_base64": false,
+    "has_obfuscation": false,
+    "has_exfil_pattern": false,
+    "has_prompt_injection": false
+  },
+  "complexity": {
+    "line_count": 542,
+    "code_block_count": 7,
+    "reference_file_count": 0,
+    "decision_tree_depth": 1
+  },
+  "verdict": {
+    "risk_score": 10,
+    "risk_level": "safe",
+    "flags": [
+      "unrestricted_tool_access"
+    ]
+  }
+}
