@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "task": "Harden the staged motion-graphics local runtime for a skills-first global installation.",
+  "status": "source patch complete; F7 has a named residual",
+  "source": {
+    "upstream_commit": "7f0c3714dc81bea52644a5287c6350345009e579",
+    "archive": "motion-graphics/provenance/upstream-7f0c371.tar.gz",
+    "archive_sha256": "57277edcb8f58fd157f0bab1952799c1270c9d7c67dda4b1a457fb3ec521ea7a",
+    "archive_members": 86,
+    "archive_modified": false
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "status": "addressed at the source boundary",
+      "disposition": "The local server uses resolveAssetFile. It rejects malformed escapes, encoded traversal, backslashes, dotfiles, credential names, unapproved types, and symlinks. It serves only index.html and approved files under js/, css/, and assets/. JSON, SRT, and VTT are allowed only below canonical assets/footage/. The server binds to 127.0.0.1 and sets no-store, nosniff, and a restrictive CSP.",
+      "regression": "The runnable check covers sibling-prefix traversal, malformed escapes, outside symlinks, dotfiles, credential names, disallowed JSON/SRT paths, and allowed footage JSON/SRT/VTT."
+    },
+    {
+      "id": "F2",
+      "status": "addressed by retiring the unsafe route",
+      "disposition": "ui-shot is now a fail-closed host-CUA/connector routing message. Its browser helper and broad cache/profile cleanup were removed. Capture uses one unique temporary profile per run and deletes only that profile."
+    },
+    {
+      "id": "F3",
+      "status": "addressed at the template boundary",
+      "disposition": "engine.el writes text with textContent. The raw HTML and SVG string insertion helpers are gone. The ring and lockup icons are built with DOM and SVG nodes; contact text stays text. Website collection no longer imports SVG or page data. The capture CSP restricts page resources to the local origin and data/blob assets."
+    },
+    {
+      "id": "F4",
+      "status": "addressed at the exposed collector routes",
+      "disposition": "site-kit and ui-shot fail closed with the approved CUA/connector route. ref-sheet accepts local files only and rejects URL collection. The deleted network helper removed arbitrary navigation, downloads, and the DNS/fetch split. Browser page connections are restricted to the same local origin by CSP.",
+      "residual": "No OS-level network sandbox or browser egress probe was run. This patch does not claim one."
+    },
+    {
+      "id": "F5",
+      "status": "addressed by removing the downloader route",
+      "disposition": "The network helper was deleted. No yt-dlp, FxEmbed fallback, Google Fonts fetch, ambient downloader configuration, or downloader environment path remains in the active scripts."
+    },
+    {
+      "id": "F6",
+      "status": "addressed",
+      "disposition": "Sound comparison now reads only explicit audio or print files supplied with --against. It rejects directories. QA comparison is opt-in. --list also requires explicit files; --suggest uses --against. No sibling project scan remains.",
+      "regression": "The runnable check creates a sibling project with a print file and proves neighbours(root) returns an empty list without explicit inputs."
+    },
+    {
+      "id": "F7",
+      "status": "partially addressed; residual recorded",
+      "disposition": "new-project rejects unexpected destination contents, rejects symlink destinations, and no longer supports --force. Its doctor runs the trusted packaged capture.mjs. capture doctor uses dependency defaults and does not import the project timeline. The scaffold regression confirms production.json is copied and the explicit Markdown option still copies its notes. No destination module runs during scaffolding or doctor.",
+      "residual": "Explicit project commands such as plan-check, export-timeline, and render still import project ESM. Removing that execution would change their current contract and is outside the settled scaffold/doctor fix."
+    },
+    {
+      "id": "F8",
+      "status": "addressed in source; browser lifecycle not runtime-tested",
+      "disposition": "openPage records the server/process/profile before CDP setup and closes them on every startup error. launch kills the owned browser and removes its exact temporary profile on startup failure. Normal close and process exit clean only owned resources. Chrome DevTools address is explicitly loopback.",
+      "regression": "The runnable check proves profile cleanup removes the owned directory and preserves another live profile.",
+      "residual": "No browser was started, so CDP readiness and OS process cleanup were not exercised."
+    },
+    {
+      "id": "F9",
+      "status": "addressed",
+      "disposition": "The shared safeLanguage/languageFromQuery helpers validate language path labels in new-project, score output naming, capture query handling, render, cutdown, and browser i18n before they form output/cache labels.",
+      "regression": "The runnable check covers valid regional/script tags and rejects traversal, slash, whitespace, empty, overlong, and encoded traversal values."
+    },
+    {
+      "id": "F10",
+      "status": "partially addressed within runtime scope",
+      "disposition": "The scaffold now creates production.json with direction, story, and sound fields. plan-check reads direction.energy from production.json and falls back to README.md. External website collection routes to approved host CUA/connectors. Markdown notes are skipped by default and --markdown-notes is the explicit opt-in. Skill instructions and references were outside this worker edit scope and remain unchanged."
+    }
+  ],
+  "changed_files": {
+    "modified": [
+      "motion-graphics/scripts/new-project.mjs",
+      "motion-graphics/scripts/site-kit.mjs",
+      "motion-graphics/scripts/ui-shot.mjs",
+      "motion-graphics/scripts/ref-sheet.mjs",
+      "motion-graphics/assets/template/audio/score.mjs",
+      "motion-graphics/assets/template/js/engine.js",
+      "motion-graphics/assets/template/js/i18n.js",
+      "motion-graphics/assets/template/js/kit.js",
+      "motion-graphics/assets/template/js/scenes/lockup.js",
+      "motion-graphics/assets/template/tools/audio-check.mjs",
+      "motion-graphics/assets/template/tools/capture.mjs",
+      "motion-graphics/assets/template/tools/cutdown.mjs",
+      "motion-graphics/assets/template/tools/qa.mjs",
+      "motion-graphics/assets/template/tools/render.mjs",
+      "motion-graphics/assets/template/tools/sound-print.mjs",
+      "motion-graphics/assets/template/tools/plan-check.mjs"
+    ],
+    "added": [
+      "motion-graphics/assets/template/js/lang.mjs",
+      "motion-graphics/assets/template/tools/runtime-safety.mjs",
+      "motion-graphics/scripts/runtime-regression.test.mjs",
+      "motion-graphics/assets/template/production.json"
+    ],
+    "removed": [
+      "motion-graphics/scripts/lib/net.mjs",
+      "motion-graphics/scripts/lib/browser.mjs",
+      "motion-graphics/scripts/lib/page.mjs"
+    ],
+    "unchanged_by_scope": [
+      "motion-graphics/SKILL.md",
+      "motion-graphics/references/**",
+      "motion-graphics/provenance/**"
+    ]
+  },
+  "cli_changes": [
+    "new-project.mjs <fresh-dir> [--name Brand] [--format ...] [--fps n] [--bpm n] [--lang tag] [--markdown-notes]; unexpected contents and --force are rejected.",
+    "site-kit.mjs and ui-shot.mjs fail closed and direct website collection to approved host CUA/connectors.",
+    "ref-sheet.mjs accepts local media files only; URL and old downloader options are rejected.",
+    "sound-print.mjs, audio-check.mjs, and qa.mjs compare only files explicitly passed through --against; sound-print --list requires file paths and --suggest accepts --against."
+  ],
+  "preserved_capabilities": [
+    "Local frame capture, stills, sheets, review, determinism checks, chunk rendering, and final video rendering remain in the template.",
+    "The procedural audio synth, score writing, local audio/video analysis, sound fingerprints, QA, and cutdown tools remain.",
+    "ref-sheet continues to analyze supplied local media; externally collected media must first be saved through approved host tools.",
+    "Project scaffolding remains available for a fresh destination; Markdown note templates require --markdown-notes."
+  ],
+  "checks": [
+    {
+      "command": "node --check on all 19 changed JavaScript files under scripts/ and assets/template",
+      "result": "passed"
+    },
+    {
+      "command": "node scripts/runtime-regression.test.mjs",
+      "result": "passed: regressions cover path containment and scoped asset types, owned profile cleanup, language labels, default production.json scaffolding, explicit Markdown opt-in, JSON energy consumption with README fallback, and explicit-only sound comparison"
+    },
+    {
+      "command": "rg -n 'lib/(net|browser|page)|fetchLink|yt-dlp|fxtwitter|syndication|fonts.googleapis' scripts assets/template/tools",
+      "result": "zero matches"
+    },
+    {
+      "command": "rg -n 'innerHTML|outerHTML|insertAdjacentHTML|svgEl(' assets/template/js",
+      "result": "zero matches"
+    },
+    {
+      "command": "shasum -a 256 provenance/upstream-7f0c371.tar.gz; tar -tzf provenance/upstream-7f0c371.tar.gz | wc -l",
+      "result": "SHA-256 57277edcb8f58fd157f0bab1952799c1270c9d7c67dda4b1a457fb3ec521ea7a; 86 archive members"
+    }
+  ],
+  "not_run": [
+    "No global skill installation.",
+    "No network, browser, CUA, or connector execution.",
+    "No video render or ffmpeg media analysis."
+  ],
+  "limitations": [
+    "The report and checks establish source-level boundaries and pure helper behavior. They do not establish OS-level network containment, browser behavior, provider behavior, or visual/audio acceptance.",
+    "F7 remains partial for explicit project commands that intentionally import project ESM; see its residual above.",
+    "The scaffold regression runs the dependency-only doctor, which checks ffmpeg/ffprobe versions and browser-path presence but does not launch a browser."
+  ],
+  "root_final_repair": {
+    "kit": "KIT.json default; preserve curated source/license and earlier rows, preserve legacy Markdown text, opt-in --markdown-notes",
+    "regression": "Added actual CLI test using tiny synthetic audio; failed before repair on unexpected KIT.md, passed after repair with metadata persistence."
+  }
+}
