@@ -35,6 +35,24 @@ rows whose `route_state` is not `done` or `rejected`; retained ledger rows and
 source messages preserve history. A missing, failed, or conflicting destination
 keeps the row active. Leave future implementation work with its owning artifact.
 
+## Source Lineage
+
+Carry each row's original source identity in `source_refs`: the exact turn,
+path, URL, ID, or revision it came from, not a later summary of it. When a
+later reference, summary, or projection disagrees with that source, re-read the
+original; it stands unless an explicit ruling supersedes it, recorded in
+`relationships`. A source, destination, or receipt this session cannot read is
+`unknown`: report it with the scope attempted, and keep the row's historical
+`route_state` and settled decisions. A missing receipt does not show an
+artifact is unreadable, and unproved implementation does not undo capture
+routing. Quarantine only a derived claim that new evidence contradicts or its
+cited source lacks: keep that claim `blocked` with the claim and searched scope
+in `blocker`, and reopen only rows or routes proven to depend on it. A `done`
+row changes only when new evidence invalidates its own transition. History is
+append-only: add the new source span and its delta; earlier rows and summaries
+stay as written. Keep exact IDs, URLs, paths, error text, failed checks, source
+revisions, and unresolved needs verbatim.
+
 ## Structured Data Projection
 
 For YAML/JSON, gauge byte size and structure before loading content into agent
@@ -44,6 +62,12 @@ directly when it fits the current question; for a large record, emit a bounded
 projection with source path, selected keys/row IDs, and omitted scope. Keep
 unknown fields intact when patching; use the owner writer or a layout-preserving
 editor rather than rewriting the whole document from a partial projection.
+
+Treat a large log, tool output, or transcript the same way: keep the full
+observation at a retrievable location and carry its exact pointer (path with
+line range, key path, or digest) beside the bounded projection. Report an empty,
+malformed, truncated, or missing source as that state; none of them shows the
+content does not exist.
 
 This is a development stopgap using available tools, not a new public CLI.
 Human-facing prose belongs in Markdown; YAML holds machine declarations and

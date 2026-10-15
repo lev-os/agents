@@ -358,6 +358,23 @@ permissions explicitly (`omo --permission-preset workspace|read-only`,
 (`omo --list-models`, `omp models --json`). Syntax and caveats:
 [references/pi.md](references/pi.md).
 
+## Stage Output Admission
+
+Admit each stage's output before a dependent worker, reviewer, or caller
+consumes it. Admission is stage-local: check the output against that stage's
+frozen packet and record its premises (packet digest, hard refs, source
+revisions), run identity (provider session ID, profile, process handle, exit
+status), actual artifacts by path and digest or diff, and each check replayed
+from the controller shell with its result. Hand downstream only that record and
+the artifacts it names. Child prose, a final summary, or a self-reported pass
+stays a claim until checked. Judge artifacts against the stage's frozen output
+contract: a missing, malformed, or truncated required payload blocks admission
+under that name; a contract-valid empty artifact, such as zero-byte stderr or a
+zero-findings result, is admitted and recorded as empty. A premise later found false invalidates every
+stage that consumed it; re-admit or rerun those stages from the corrected source.
+Admission only makes output consumable; acceptance stays with Monitor, Verify,
+And Land.
+
 ## SDD
 
 SDD uses one coder role and one independent reviewer role. The controller owns
@@ -390,7 +407,8 @@ lifecycle, session, or public-contract work.
 Give the reviewer a frozen packet: objective, completed and remaining slices,
 batch boundary, acceptance, risk triggers, changed files/diffstat, important
 diffs, verifier commands/results, runtime/e2e status, known concerns, and one
-review question. Ask for new blocking evidence, not generic commentary.
+review question. Build it from admitted stage output only. Ask for new blocking
+evidence, not generic commentary.
 
 Reviewer verdicts are `APPROVED`, `NEEDS_CHANGES`, `BLOCKED`, or `NO_RESULT`.
 Fix concrete findings with the coder or directly when surgical. Do not create
