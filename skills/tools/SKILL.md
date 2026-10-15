@@ -1,6 +1,6 @@
 ---
 name: tools
-description: Use when a task needs GitHub gh, Notion ntn, Slack CLI/API, explicit Exa transport, AgentMail, Herdr pane transport, terminal-agent coordination, or REA (rea) to reverse engineer or decompile shipped apps and binaries.
+description: Use when a task needs GitHub gh, Notion ntn, Slack CLI/API, explicit Exa transport, AgentMail, Excalidraw diagrams, Herdr pane transport, or terminal-agent coordination.
 ---
 
 # Tools
@@ -16,9 +16,9 @@ file, so nested references remain valid if the skill is installed elsewhere.
 - Notion: read `references/notion/notion.md`; use `ntn`.
 - Slack CLI/app work: read `references/slack/slack-cli.md`; API method work also reads `references/slack/slack-api.md`.
 - General research: route to the research skill. Explicit Exa transport or API work: read `references/exa/exa.md`; use `references/exa/scripts/exa.sh` for direct search, contents, or answer calls.
-- AgentMail: read `references/agentmail/agentmail.md`; load `references/agentmail/references/cli-and-monitoring.md` for mailbox operations and `references/agentmail/references/suntiq-auth.md` only for SuntiQ identity work.
+- AgentMail: read `references/agentmail/agentmail.md`; load `references/agentmail/references/cli-and-monitoring.md` for mailbox operations and `references/agentmail/references/suntiq-auth.md` only for Suntiq identity work.
+- Excalidraw diagrams: read `references/excalidraw.md`; use the installed `mcporter` CLI with the hosted Excalidraw+ MCP endpoint.
 - Optional terminal transport: read `references/herdr.md` when the task selects Herdr or asks for pane/session operations. Herdr may inspect or coordinate a pane; the selected agent or controller owns implementation and lifecycle evidence independently.
-- Reverse engineering: read `references/rea.md` for REA CLI analysis of shipped apps, binaries, ASARs or archives. It routes to the retained upstream skill and distinguishes static inspection, decompilation and target execution. Use codebase tools for ordinary source-repository questions.
 
 Inspect live CLI help before an unfamiliar command. Preserve the user's mutation boundary.
 
@@ -38,6 +38,6 @@ operations; they do not grant permission to mutate external systems.
 ## Inventory
 
 Managed here: GitHub (`gh`), Notion (`ntn`), Slack CLI and Web API, Exa/web
-research, AgentMail, REA (`rea`), and optional Herdr pane transport. OMP, Codex, and other
-agents can run without Herdr. Optional app plugins require their own connector
-or a future reference added here.
+research, AgentMail, Excalidraw+ through `mcporter`, and optional Herdr pane
+transport. OMP, Codex, and other agents can run without Herdr. Optional app
+plugins require their own connector or a future reference added here.
