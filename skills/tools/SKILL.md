@@ -1,6 +1,6 @@
 ---
 name: tools
-description: REA reverse engineering, MCP-to-CLI integration; GitHub, gh, issues, pull requests; Notion, ntn, pages, databases; Slack, chat, messaging, Block Kit; Exa, web search, semantic search, contents; AgentMail, email, inboxes, OTP; Herdr, terminal panes, agent sessions; Excalidraw diagrams, mcporter; computer use, macOS GUI, desktop automation, background clicks, drag, canvas; add tool, install skill, absorb integration.
+description: Atlassian, Rovo, Robo, Teamwork Graph, TWG, Jira, Confluence; REA reverse engineering, MCP-to-CLI integration; GitHub, gh, issues, pull requests; Notion, ntn, pages, databases; Slack, chat, messaging, Block Kit; Exa, web search, semantic search, contents; AgentMail, email, inboxes, OTP; Herdr, terminal panes, agent sessions; Excalidraw diagrams, mcporter; computer use, macOS GUI, desktop automation, background clicks, drag, canvas; add tool, install skill, absorb integration.
 ---
 
 # Tools
@@ -13,6 +13,7 @@ instructions only; existing leaves keep their operations.
 
 | Tool / request | Read this leaf or reference | Runtime / setup |
 |---|---|---|
+| Atlassian connection, Teamwork Graph / TWG, Rovo / Robo, Jira and Confluence | [Teamwork Graph](references/twg/SKILL.md) | Host `twg`; [setup and login](references/twg/INSTALL.md) |
 | GitHub repositories, issues, pull requests, Actions, API | [GitHub](references/github/SKILL.md) | Host `gh`; [setup](references/github/INSTALL.md) |
 | Notion pages, databases, API, workers, uploads | [Notion](references/notion/SKILL.md) | Host `ntn`; [setup](references/notion/INSTALL.md) |
 | Slack CLI, teams, apps, authentication, deployment | [Slack CLI branch](references/slack/SKILL.md#cli) | Optional host Slack CLI; [setup](references/slack/INSTALL.md) |
@@ -30,6 +31,10 @@ instructions only; existing leaves keep their operations.
 Resolve the target project from the task before running a command. Use that
 project's root as `cwd`; use the current workspace when no target project is
 named.
+
+Requests such as "use the TWG skill" or "connect to Atlassian" select the
+Teamwork Graph leaf. "Robo" is a discovery alias for Atlassian Rovo. Explicit
+Rovo Dev coding-agent requests remain distinct from TWG Rovo search.
 
 Load only the branch selected by the contents table. Paths are relative to
 this file, so nested references remain valid if the skill is installed
