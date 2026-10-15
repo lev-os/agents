@@ -27,7 +27,10 @@ READINESS_ROOT = Path(
     "/Users/jean-patricksmith/.local/state/lev/skills-db-progressive-discovery/20261014T055617Z/s06-readiness"
 )
 RUN_ROOT = Path(
-    "/Users/jean-patricksmith/.local/state/lev/skills-db-progressive-discovery/20261014T055617Z/s06-writer"
+    os.environ.get(
+        "S06_CONTROLLER_RUN_ROOT",
+        "/Users/jean-patricksmith/.local/state/lev/skills-db-progressive-discovery/20261014T055617Z/s06-writer",
+    )
 )
 BUDGET_FILE = READINESS_ROOT / "frozen-budget-only.json"
 EXPECTED_BUDGET_SHA256 = "b62097524f02e3bae375c99de758550eaec294066fe8dd3594f68c4783792453"
@@ -438,7 +441,7 @@ class ScriptedSkillsController:
             self._turn_id = turn_value["id"]
             self._serve_requests()
         except (AdmissionError, ProtocolError, BrokenPipeError, EOFError, OSError, TimeoutError) as error:
-            self.failed = type(error).__name__ + ": " + str(error)
+            self.failed = self.failed or (type(error).__name__ + ": " + str(error))
             self.meter.abort(self.failed)
         finally:
             self._cleanup_owned_processes()
@@ -558,14 +561,44 @@ class ScriptedSkillsController:
         self._send_frame({"method": method, "id": request_id, "params": params})
         while True:
             frame = self._next_frame()
-            if frame.get("id") == request_id and ("result" in frame or "error" in frame):
+            incoming_kind = self._classify_incoming(frame, expected_response_id=request_id)
+            if incoming_kind == "response":
                 if "error" in frame:
                     raise ProtocolError(f"peer rejected {method}: {frame['error']}")
                 result = frame.get("result")
                 if not isinstance(result, dict):
                     raise ProtocolError(f"peer returned non-object result for {method}")
                 return result
+            if incoming_kind == "request":
+                self._serve_tool_request(frame, allow_dispatch=False)
+                if self.failed is not None:
+                    raise ProtocolError(self.failed)
+                continue
             self._observe_incoming(frame)
+
+    @classmethod
+    def _classify_incoming(
+        cls,
+        frame: dict[str, Any],
+        *,
+        expected_response_id: int | None = None,
+    ) -> str:
+        """Classify a method-bearing frame before testing client response IDs."""
+        method = frame.get("method")
+        if "method" in frame and (
+            (isinstance(method, str) and method in cls.SERVER_REQUEST_METHODS)
+            or "id" in frame
+        ):
+            return "request"
+        response_id = frame.get("id")
+        if (
+            expected_response_id is not None
+            and type(response_id) is int
+            and response_id == expected_response_id
+            and ("result" in frame or "error" in frame)
+        ):
+            return "response"
+        return "notification"
 
     @staticmethod
     def _require_keys(value: dict[str, Any], required: set[str], label: str) -> None:
@@ -615,10 +648,7 @@ class ScriptedSkillsController:
                 if frame.get("method") == "item/tool/call" and isinstance(frame.get("params"), dict):
                     record.update({key: frame["params"].get(key) for key in ("callId", "threadId", "turnId", "tool")})
                 self.protocol_in.append(record)
-                if (
-                    isinstance(frame.get("method"), str)
-                    and frame["method"] in self.SERVER_REQUEST_METHODS
-                ) or ("method" in frame and "id" in frame):
+                if self._classify_incoming(frame) == "request":
                     if self._terminal_frame_seen:
                         raise ProtocolError("tool callback arrived after a terminal turn frame")
                     future = executor.submit(self._serve_tool_request, frame)
@@ -695,7 +725,7 @@ class ScriptedSkillsController:
             and self._terminal_fact_error is None
         )
 
-    def _serve_tool_request(self, frame: dict[str, Any]) -> None:
+    def _serve_tool_request(self, frame: dict[str, Any], *, allow_dispatch: bool = True) -> None:
         request_id = frame.get("id")
         params = frame.get("params")
         call_id = params.get("callId") if isinstance(params, dict) else None
@@ -703,6 +733,7 @@ class ScriptedSkillsController:
         started = self.clock()
         callback_record: dict[str, Any] = {
             "request_id": request_id,
+            "request_method": frame.get("method"),
             "call_id": call_id,
             "thread_id": params.get("threadId") if isinstance(params, dict) else None,
             "turn_id": params.get("turnId") if isinstance(params, dict) else None,
@@ -726,6 +757,8 @@ class ScriptedSkillsController:
             if frame["method"] != "item/tool/call":
                 raise ProtocolError("unsupported server request method")
             envelope_valid = True
+            if not allow_dispatch:
+                raise ProtocolError("server request arrived while a client response was pending")
             tool_result, transfer = self._dispatch_callback(params)
             reservation_token = transfer.get("reservation_token") if transfer is not None else None
             items = tool_result["contentItems"]
