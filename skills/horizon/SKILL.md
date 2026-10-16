@@ -1,6 +1,6 @@
 ---
 name: horizon
-description: Use when the operator explicitly invokes /horizon or skill://horizon for an experimental long-horizon launch brief over aligned Lev intent; without that explicit request, planning, maps, and packets stay with lev-plan.
+description: Use when the operator explicitly invokes /horizon or skill://horizon for a long-horizon planning brief, or when lev-plan loads the method as its conditional planning reference.
 ---
 
 # /horizon - Long-Horizon Launch Brief (Experiment)
@@ -11,8 +11,11 @@ named review blocking conditions, bounded repair, and a resume point. The brief
 is progressive: core blocks always, long-run blocks only when the run needs
 them, and later branches stay open until their stage.
 
-It runs beside `skill://lev-plan` and its `propose` alias and replaces neither;
-`skill://poc` stays the proof lane. The method is adapted from Muratcan's
+It is also the method reference for long-horizon work inside `skill://lev-plan`.
+When loaded there, apply the brief to the existing plan and selected mode;
+continue in lev-plan without another invocation or a repeated shaping route.
+Direct `/horizon` remains available. `skill://poc` stays the proof lane.
+The method is adapted from Muratcan's
 `long-horizon-prompting` (MIT); OMX is a later secondary review/state
 reference, not a source of the method. See [NOTICE](NOTICE.md).
 
@@ -39,7 +42,8 @@ Size the run before writing:
 
 - **bounded**: one coherent outcome in one stage or a short sequential chain.
   Core blocks only, plus Worker Contracts when a stage is delegated; no
-  portfolio, effort floor, or contamination block.
+  portfolio or effort floor. Add contamination guards if result independence
+  matters, even for a short run.
 - **long**: multi-stage or multi-session. Add the resume frontier; add an
   effort floor only when early abandonment is a real risk.
 - **parallel search**: two or more independent approach families are genuinely
@@ -48,8 +52,11 @@ Size the run before writing:
 Read [worker contracts and long-run blocks](references/task-brief.md) before
 writing stages whenever any stage is delegated to a worker, including in a
 bounded sequential chain, and whenever the run needs a portfolio, solvability,
-effort, or contamination block. A delegated bounded run takes only the Worker
-Contracts and per-spawn guidance from it.
+effort, or contamination block, or a pre-launch review of a long or parallel
+brief. Score every long or parallel brief before launch; fix every applicable
+0 or 1 and mark inapplicable dimensions with a reason. A delegated bounded run
+takes Worker Contracts and per-spawn guidance, plus any applicable contamination
+guard; it does not need the full long-run score.
 
 ## Workflow
 
@@ -70,8 +77,8 @@ steps:
     validation: "Each predictable near miss is excluded by name and mapped to a row, an invalid_proof entry, or the review checklist; terms settle the empty, trivial, duplicate, and boundary cases the predicate must survive."
 
   - id: stage_checks
-    action: Split the work into stages that each end in a named artifact stating its premises and conclusion locally. For each failure a stage can introduce, choose proof credible for that claim - a command check with a known-bad input where a command decides it; otherwise review from the diff, or named independent evidence or human review with its acceptance owner - and name the stage that waits on it.
-    validation: "Every check is named after the failure it rules out and maps to one ledger row ID; command checks exist only where a command decides the claim, each naming an input on which it must go red; every other row names its reviewer or acceptance owner or is listed as unresolved proof; no stage starts before its input rows are satisfied."
+    action: Split the work into stages that each end in a named artifact stating its premises and conclusion locally. For each failure a stage can introduce, choose proof credible for that claim - a command check with a known-bad input where a command decides it; otherwise review from the diff, or named independent evidence or human review with its acceptance owner - and name the stage that waits on it. Assign a check owner to run each command check against its known-bad control before that check can justify acceptance; planning names the run and required evidence, and authorized execution collects it.
+    validation: "Every check is named after the failure it rules out and maps to one ledger row ID; command checks exist only where a command decides the claim, each naming a known-bad control, check owner and sensitivity evidence required before acceptance; every other row names its reviewer or acceptance owner or is listed as unresolved proof; no stage starts before its input rows are satisfied."
 
   - id: set_review
     action: Write the checklist, named blocking conditions, and bounded repair from Review and Repair.
@@ -111,6 +118,9 @@ Start every list here, then add the problem's own near misses:
 - evidence produced before the last edit to the artifact it describes
 - agreement among workers offered as proof
 
+When a counterexample or impossibility result is an allowed outcome, require
+its complete certificate; an unverified candidate does not satisfy that branch.
+
 ## Review and Repair
 
 The reviewer works in fresh context, did not build the artifact, and hunts the
@@ -132,6 +142,9 @@ Each blocking finding becomes a **recall** to the responsible stage: failed row
 IDs, the evidence, a narrowed scope, acceptance (those rows satisfied), and a
 retry cap. Give the reviser the same context the reviewer had. Repair edits the
 existing slice's rows or dependencies; a review cycle authorizes no new task.
+The reviser needs capability and task-specific prompt support comparable to the
+reviewer, as well as the same relevant evidence. If that support is unavailable,
+hold the repair and report the gap; a stronger audit alone does not repair it.
 At the cap, stop with the exact gap and route it: a decision to `/interview`,
 a missing contract as a `code_blocker`, anything else to the operator.
 
