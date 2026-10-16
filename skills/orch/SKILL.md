@@ -89,6 +89,14 @@ Do not enter the execution loop in discovery mode.
 
 ## Execute the verified loop
 
+For an authorized multi-stage or multi-session delivery effort, load
+[long-horizon planning and execution](../lev-plan/references/long-horizon.md)
+before the first slice. Reuse its plan, Horizon completion contract, bound
+tracker and evidence; run the loop below for each ready unit. A request only
+to plan, review or map leaves dispatch closed. Load the same reference on
+resume or a changed dependency; continue ready work only within the existing
+effect scope and budget.
+
 For each dependency-ready, fully read, authorized branch, perform THREE distinct
 operations and record the observed result of each:
 1. Execute work or collect the existing completed worker.
