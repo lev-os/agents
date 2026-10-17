@@ -39,6 +39,7 @@ class PublicLevSkillsCliTest(unittest.TestCase):
         self.repo.mkdir()
         self.script = self.repo / "lev-skills.sh"
         shutil.copy2(SOURCE, self.script)
+        shutil.copy2(ROOT / "lev-skills-qmd.mjs", self.repo / "lev-skills-qmd.mjs")
         self.invocations: list[list[str]] = []
         self.cache_dir = self.output / "cache"
         self.guard_dir = self.output / "guard"
@@ -59,6 +60,8 @@ sys.dont_write_bytecode = sys_dont_write_bytecode
 allowed = Path(os.environ["SDB_CHARACTERIZATION_OUTPUT"]).resolve()
 def permitted(path):
     if isinstance(path, int):
+        return
+    if str(path) == "/dev/null":
         return
     candidate = Path(path)
     normalized = str(candidate).replace("\\\\", "/")
@@ -83,6 +86,8 @@ def audit(event, args):
     elif event == "os.exec":
         target = Path(args[0]).resolve()
         exec_argv = [str(value) for value in args[1]] if len(args) > 1 and isinstance(args[1], (list, tuple)) else []
+        qmd_node = os.environ.get("SDB_TEST_QMD_NODE")
+        qmd_node_ok = qmd_node and target == Path(qmd_node).resolve()
         explicit_producer = len(exec_argv) > 2 and (
             (exec_argv[2] == "inventory" and "--rebuild" in exec_argv[3:])
             or exec_argv[2] == "refresh"
@@ -93,7 +98,7 @@ def audit(event, args):
             and len(exec_argv) > 1
             and Path(exec_argv[1]).resolve().is_relative_to(allowed)
         )
-        if target != Path("/usr/bin/python3").resolve() or not explicit_producer:
+        if target != Path("/usr/bin/python3").resolve() and not qmd_node_ok or (target == Path("/usr/bin/python3").resolve() and not explicit_producer):
             raise PermissionError("CLI fixture guard blocked non-producer exec: " + str(args[0]))
     elif event == "subprocess.Popen":
         command = args[1]
@@ -101,6 +106,7 @@ def audit(event, args):
             raise PermissionError("CLI fixture guard blocked non-list subprocess")
         seed = os.environ.get("SDB_TEST_SEED")
         qmd = os.environ.get("SDB_TEST_QMD")
+        qmd_node = os.environ.get("SDB_TEST_QMD_NODE")
         seed_ok = (
             seed
             and len(command) > 1
@@ -110,7 +116,8 @@ def audit(event, args):
         path_head = os.environ.get("PATH", "").split(os.pathsep)[0]
         qmd_path = Path(path_head) / "qmd" if path_head else Path()
         qmd_ok = qmd and str(command[0]) == "qmd" and qmd_path.resolve() == Path(qmd).resolve()
-        if not (seed_ok or qmd_ok):
+        qmd_node_ok = qmd_node and Path(command[0]).resolve() == Path(qmd_node).resolve()
+        if not (seed_ok or qmd_ok or qmd_node_ok):
             raise PermissionError("CLI fixture guard blocked unapproved subprocess: " + str(command))
     elif event in {"os.system", "socket.connect", "sqlite3.connect"}:
         raise PermissionError("CLI fixture guard blocked incidental effect: " + event)
@@ -154,7 +161,7 @@ sys.addaudithook(audit)
         source = ROOT / "skills-taxonomy.json"
         self.assertEqual(
             file_digest(source),
-            "5213d1b7f35ca20243ece0ddbf660585a6ac41ef91e6e932c4edae12d34997e3",
+            "251228998480c5985cc424d5152bb87b3e2e55a0dafd517b0f4e6123f1f8e1e7",
             "the accepted taxonomy is a read-only S04 regression input",
         )
         destination = self.repo / "skills-taxonomy.json"
@@ -588,20 +595,93 @@ sys.addaudithook(audit)
         self.write_skill("refresh-positive", description="needle refresh")
         qmd_dir = self.repo / "fakebin"
         qmd_dir.mkdir()
-        qmd = qmd_dir / "qmd"
+        qmd_node = qmd_dir / "node"
         qmd_marker = qmd_dir / "effect.marker"
-        qmd.write_text(
+        qmd_requests = qmd_dir / "requests.jsonl"
+        refresh_response = qmd_dir / "refresh-response.json"
+        qmd_node.write_text(
             "#!/usr/bin/python3\n"
             "from pathlib import Path\n"
-            "import sys\n"
-            "with Path(__file__).with_name('effect.marker').open('a') as handle:\n"
-            "    handle.write(' '.join(sys.argv[1:]) + '\\n')\n",
+            "import json, os, sys\n"
+            "if sys.argv[1:] == ['--version']:\n"
+            "    print('v24.3.0')\n"
+            "    raise SystemExit(0)\n"
+            "request = json.loads(sys.argv[2])\n"
+            "with Path(os.environ['SDB_TEST_QMD_REQUESTS']).open('a') as handle:\n"
+            "    handle.write(json.dumps(request) + '\\n')\n"
+            "with Path(os.environ['SDB_TEST_QMD_MARKER']).open('a') as handle:\n"
+            "    handle.write(request['operation'] + '\\n')\n"
+            "if request['operation'] == 'inspect':\n"
+            "    config = json.loads(Path(request['configPath']).read_text())\n"
+            "    names = ['skills-db','skills-db-bundle-docs','skills-db-archive','skills-db-backlog','skills-db-workshop']\n"
+            "    collections = {name: ({'path':config['collections'][name].get('path'),'pattern':config['collections'][name].get('pattern')} if name in config['collections'] else None) for name in names}\n"
+            "    model = config.get('models',{}).get('embed')\n"
+            "    cached = Path(os.environ['XDG_CACHE_HOME']) / 'qmd/models/hf_fixture_qmd_embedding.gguf'\n"
+            "    model_path = str(cached) if model == 'hf:fixture/qmd/embedding.gguf' and cached.is_file() else (model if isinstance(model,str) and Path(model).is_file() else None)\n"
+            "    print(json.dumps({'status':'inspected','collections':collections,'embedModel':model,'embedModelPath':model_path}))\n"
+            "elif request.get('operation') == 'integrity':\n"
+            "    count = request['expectedDocuments']\n"
+            "    print(json.dumps({'status':'integrity_checked','model':request['model'],'fingerprint':'abcdef','expectedDocuments':count,'actualDocuments':count,'missingPaths':0,'extraPaths':0,'staleBodies':0,'pendingEmbeddingHashes':0,'missingVectorIds':0}))\n"
+            "else:\n"
+            "    print(Path(os.environ['SDB_TEST_QMD_RESPONSE']).read_text())\n",
             encoding="utf-8",
         )
-        qmd.chmod(0o755)
+        qmd_node.chmod(0o755)
+
+        collection_paths = {
+            "skills-db": self.repo / "skills-db",
+            "skills-db-bundle-docs": self.repo / "skills-db/creative/roundtable-marvkr--better-design/source/.agents/skills",
+            "skills-db-archive": self.repo / "skills-db/.archive",
+            "skills-db-backlog": self.repo / "skills-db/_todo",
+            "skills-db-workshop": self.repo / "skills-db/_workshop",
+        }
+        for path in collection_paths.values():
+            path.mkdir(parents=True, exist_ok=True)
+        qmd_config_dir = self.output / "qmd-config"
+        qmd_config_dir.mkdir()
+        qmd_config = {
+            "collections": {
+                name: {"path": str(path), "pattern": "**/*.md", "includeByDefault": name in {"skills-db", "skills-db-bundle-docs"}}
+                for name, path in collection_paths.items()
+            },
+            "models": {"embed": "hf:fixture/qmd/embedding.gguf"},
+        }
+        (qmd_config_dir / "index.yml").write_text(json.dumps(qmd_config), encoding="utf-8")
+        qmd_prefix = self.output / "qmd-prefix"
+        qmd_package = qmd_prefix / "lib/node_modules/@tobilu/qmd/dist"
+        qmd_package.mkdir(parents=True)
+        (qmd_package / "index.js").write_text("export {};\n", encoding="utf-8")
+        xdg_cache_home = self.output / "xdg-cache"
+        qmd_models = xdg_cache_home / "qmd/models"
+        qmd_models.mkdir(parents=True)
+        (qmd_models / "hf_fixture_qmd_embedding.gguf").write_bytes(b"GGUFfixture")
+        qmd_index = self.output / "qmd-index.sqlite"
+        qmd_index.write_bytes(b"isolated qmd index")
+        refresh_collections = [
+            "skills-db", "skills-db-bundle-docs", "skills-db-archive", "skills-db-backlog", "skills-db-workshop"
+        ]
+        refresh_response.write_text(json.dumps({
+            "status": "complete",
+            "updatedCollections": refresh_collections,
+            "embedCollections": refresh_collections,
+            "force": False,
+            "update": {"collections": 5, "indexed": 0, "updated": 0, "unchanged": 1, "removed": 0, "skipped": 0},
+            "embeds": [
+                {"collection": name, "force": False, "docsProcessed": 0, "chunksEmbedded": 0, "errors": 0}
+                for name in refresh_collections
+            ],
+        }), encoding="utf-8")
         qmd_env = {
             "PATH": str(qmd_dir) + os.pathsep + os.environ.get("PATH", ""),
-            "SDB_TEST_QMD": str(qmd),
+            "QMD_NODE": str(qmd_node),
+            "QMD_PREFIX": str(qmd_prefix),
+            "QMD_CONFIG_DIR": str(qmd_config_dir),
+            "XDG_CACHE_HOME": str(xdg_cache_home),
+            "INDEX_PATH": str(qmd_index),
+            "SDB_TEST_QMD_NODE": str(qmd_node),
+            "SDB_TEST_QMD_MARKER": str(qmd_marker),
+            "SDB_TEST_QMD_REQUESTS": str(qmd_requests),
+            "SDB_TEST_QMD_RESPONSE": str(refresh_response),
         }
         state.write_bytes(b"{broken state\n")
         refresh_failure_before = self.canonical_bytes()
@@ -620,7 +700,12 @@ sys.addaudithook(audit)
             0,
             f"isolated qmd producer positive control failed:\n{result.stdout}\n{result.stderr}",
         )
-        self.assertEqual(qmd_marker.read_text().splitlines(), ["update", "embed -f"])
+        self.assertEqual(qmd_marker.read_text().splitlines(), ["inspect", "refresh", "integrity"])
+        requests = [json.loads(line) for line in qmd_requests.read_text().splitlines()]
+        refresh_request = next(request for request in requests if request["operation"] == "refresh")
+        self.assertEqual(refresh_request["collections"], refresh_collections)
+        self.assertEqual(refresh_request["embedCollections"], refresh_collections)
+        self.assertFalse(refresh_request["force"])
         self.assertTrue((self.repo / "skills-inventory.snapshot.json").is_file())
 
     def test_validated_reads_and_no_cache_variants_do_not_write_canonical_or_cache_files(self):

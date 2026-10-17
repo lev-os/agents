@@ -11,6 +11,9 @@ import os
 import posixpath
 import random
 import re
+import selectors
+import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -35,6 +38,22 @@ CACHE_TTL_SECONDS = int(os.environ.get("LEV_SKILLS_CACHE_TTL", "300"))
 CACHE_BG_REFRESH_AFTER = int(os.environ.get("LEV_SKILLS_BG_REFRESH_AFTER", "60"))
 DISCOVERY_CACHE_VERSION = 5
 RESULT_CACHE_ENVELOPE_VERSION = 2
+QMD_QUERY_COLLECTIONS = ("skills-db", "skills-db-bundle-docs")
+QMD_REFRESH_COLLECTIONS = (
+    "skills-db",
+    "skills-db-bundle-docs",
+    "skills-db-archive",
+    "skills-db-backlog",
+    "skills-db-workshop",
+)
+QMD_CANDIDATE_LIMIT = 50
+QMD_MAX_QUERY_BYTES = 8192
+QMD_QUERY_TIMEOUT_SECONDS = 45.0
+QMD_TOTAL_QUERY_TIMEOUT_SECONDS = 180.0
+QMD_REFRESH_TIMEOUT_SECONDS = 1200.0
+QMD_MAX_OUTPUT_BYTES = 16 * 1024 * 1024
+QMD_MAX_MANIFEST_BYTES = 2 * 1024 * 1024
+QMD_INTEGRITY_TIMEOUT_SECONDS = 90.0
 # Match Python's default conversion ceiling and stay bounded if that guard is disabled.
 MAX_CLI_INTEGER_DIGITS = 4300
 SOURCE_SNAPSHOT_VERSION = 2
@@ -158,8 +177,8 @@ def usage() -> int:
                 "",
                 "USAGE",
                 '  lev-skills "query" [--json] [--category=...] [--limit=N] [--no-cache]',
-                '  lev-skills discover --query TEXT [--query TEXT ...] [--tags CSV] [--namespace skills-db|skills|_repos]',
-                '  lev-skills discover|find "query" [--json] [--category=...] [--limit=N] [--no-cache]',
+                '  lev-skills discover --query TEXT [--query TEXT ...] [--tags CSV] [--namespace skills-db|skills|_repos] [--backend lexical|qmd]',
+                '  lev-skills discover|find "query" [--backend lexical|qmd] [--json] [--category=...] [--limit=N] [--no-cache]',
                 '  lev-skills pick "query" [--json] [--category=...] [--namespace skills-db|skills|_repos] [--rotation=eligible,experimental] [--no-cache]',
                 "  lev-skills tree [--view subjects|collections] [--depth N] [--json]",
                 "  lev-skills browse --node NODE_ID [--limit N] [--json]",
@@ -179,11 +198,12 @@ def usage() -> int:
                 f"  inventory --rebuild writes a source-bound manifest to {SKILLS_INVENTORY_FILE}",
                 "  catalog skills are read from skills-db/<category>/ and _repos/<category>/<repo>/",
                 "  hidden catalog buckets (.archive, _todo, _workshop) are excluded from normal ranking",
-                "  qmd is only touched by explicit refresh; discover does not query qmd",
+                "  lexical discovery is the default; QMD discovery searches only approved skills-db collections",
                 "",
                 "OPTIONS",
                 "  --category=NAME   Scope discovery to a specific domain/category",
-                "  --namespace=NAME  Scope lexical discovery to skills-db, skills, or _repos",
+                "  --namespace=NAME  Scope lexical discovery to skills-db, skills, or _repos; QMD supports skills-db only",
+                "  --backend=NAME    Select lexical (default) or QMD retrieval for discover/find",
                 "  --all             Accepted for compatibility; all visible inventory is already searched by default",
                 "  --primary-only    Accepted for compatibility; currently equivalent to default inventory search",
                 "  --rotation=MODE   pick filter: eligible, experimental, pinned, or all",
@@ -670,6 +690,154 @@ def set_cached_result(key: str, data: dict, request: dict) -> None:
             json.dump(document, handle, ensure_ascii=False, sort_keys=True, allow_nan=False)
     except (OSError, TypeError, ValueError):
         return
+
+
+class QmdBackendError(RuntimeError):
+    pass
+
+
+def run_bounded_process(
+    cmd: list[str],
+    *,
+    timeout: float,
+    max_output_bytes: int = QMD_MAX_OUTPUT_BYTES,
+    max_input_bytes: int = QMD_MAX_MANIFEST_BYTES,
+    cwd: Path | None = None,
+    input_text: str | None = None,
+) -> subprocess.CompletedProcess[str]:
+    """Run one child with a wall-clock limit, process-group cleanup, and bounded output."""
+    input_bytes = input_text.encode("utf-8") if input_text is not None else b""
+    if len(input_bytes) > max_input_bytes:
+        raise QmdBackendError(f"QMD process input exceeded {max_input_bytes} bytes")
+    process = subprocess.Popen(
+        cmd,
+        cwd=str(cwd or ROOT),
+        stdin=subprocess.PIPE if input_text is not None else subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=False,
+        start_new_session=(os.name == "posix"),
+    )
+    selector = selectors.DefaultSelector()
+    output = {"stdout": bytearray(), "stderr": bytearray()}
+    pipes = {
+        process.stdout: "stdout",
+        process.stderr: "stderr",
+    }
+    if process.stdin is not None:
+        pipes[process.stdin] = "stdin"
+        os.set_blocking(process.stdin.fileno(), False)
+    for pipe, name in pipes.items():
+        if pipe is None:
+            continue
+        if name != "stdin":
+            os.set_blocking(pipe.fileno(), False)
+            selector.register(pipe, selectors.EVENT_READ, name)
+    input_offset = 0
+    if process.stdin is not None:
+        selector.register(process.stdin, selectors.EVENT_WRITE, "stdin")
+    deadline = time.monotonic() + timeout
+    total_output = 0
+    failure = None
+
+    try:
+        while selector.get_map():
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                failure = "timed out"
+                break
+            events = selector.select(min(remaining, 0.25))
+            if not events and process.poll() is not None:
+                for key in list(selector.get_map().values()):
+                    if key.data == "stdin":
+                        selector.unregister(key.fileobj)
+                        key.fileobj.close()
+                continue
+            for key, _ in events:
+                name = key.data
+                pipe = key.fileobj
+                if name == "stdin":
+                    if input_offset >= len(input_bytes):
+                        selector.unregister(pipe)
+                        pipe.close()
+                        continue
+                    try:
+                        input_offset += os.write(pipe.fileno(), input_bytes[input_offset : input_offset + 65536])
+                    except BrokenPipeError:
+                        selector.unregister(pipe)
+                        pipe.close()
+                    continue
+                chunk = os.read(pipe.fileno(), 65536)
+                if not chunk:
+                    selector.unregister(pipe)
+                    pipe.close()
+                    continue
+                total_output += len(chunk)
+                if total_output > max_output_bytes:
+                    failure = f"output exceeded {max_output_bytes} bytes"
+                    break
+                output[name].extend(chunk)
+            if failure:
+                break
+    except BaseException:
+        _cleanup_bounded_process(process)
+        raise
+    finally:
+        selector.close()
+
+    if failure:
+        _cleanup_bounded_process(process)
+        raise QmdBackendError(f"QMD process {failure}")
+
+    try:
+        process.wait(timeout=max(0.0, deadline - time.monotonic()))
+    except subprocess.TimeoutExpired as error:
+        _cleanup_bounded_process(process)
+        raise QmdBackendError("QMD process timed out") from error
+    if os.name == "posix":
+        try:
+            os.killpg(process.pid, 0)
+        except ProcessLookupError:
+            pass
+        else:
+            _terminate_process_group(process)
+    return subprocess.CompletedProcess(
+        cmd,
+        process.returncode,
+        output["stdout"].decode("utf-8", errors="replace"),
+        output["stderr"].decode("utf-8", errors="replace"),
+    )
+
+
+def _cleanup_bounded_process(process: subprocess.Popen) -> None:
+    """Stop the owned process group even when its leader already exited."""
+    _terminate_process_group(process)
+    try:
+        process.wait(timeout=2)
+    except subprocess.TimeoutExpired:
+        try:
+            process.kill()
+        except OSError:
+            pass
+        process.wait()
+    if process.stdin is not None and not process.stdin.closed:
+        process.stdin.close()
+    for pipe in (process.stdout, process.stderr):
+        if pipe is not None and not pipe.closed:
+            pipe.close()
+
+
+def _terminate_process_group(process: subprocess.Popen) -> None:
+    try:
+        if os.name == "posix":
+            os.killpg(process.pid, signal.SIGKILL)
+        else:
+            process.kill()
+    except (ProcessLookupError, PermissionError, OSError):
+        try:
+            process.kill()
+        except OSError:
+            pass
 
 
 def run_command(cmd: list[str], *, timeout: float = 15.0) -> subprocess.CompletedProcess[str]:
@@ -1742,6 +1910,26 @@ def _taxonomy_error(message: str) -> RuntimeError:
     return RuntimeError(f"taxonomy configuration is invalid: {message}")
 
 
+def observed_skills_db_collections() -> set[str]:
+    """Return the current top-level source collections, excluding disposed trash."""
+    if not SKILLS_DB_DIR.exists():
+        return set()
+    if not SKILLS_DB_DIR.is_dir():
+        raise _taxonomy_error(f"skills-db source root is not a directory: {SKILLS_DB_DIR}")
+    names = set()
+    try:
+        for entry in SKILLS_DB_DIR.iterdir():
+            if entry.name == ".trash":
+                continue
+            if entry.is_symlink():
+                raise _taxonomy_error(f"skills-db collection root is a symlink: {entry.name}")
+            if entry.is_dir():
+                names.add(entry.name)
+    except OSError as error:
+        raise _taxonomy_error(f"cannot inspect skills-db source collections: {error}") from error
+    return names
+
+
 def validate_taxonomy_config(config: object) -> dict:
     if not isinstance(config, dict):
         raise _taxonomy_error("document must be an object")
@@ -1862,6 +2050,9 @@ def validate_taxonomy_config(config: object) -> dict:
             not isinstance(item, dict)
             or set(item) != {"namespace", "name", "policy", "node_id"}
             or any(not isinstance(item.get(key), str) or not item[key] for key in ("namespace", "name", "policy", "node_id"))
+            or item.get("name") in {".", ".."}
+            or "/" in item.get("name", "")
+            or "\\" in item.get("name", "")
         ):
             raise _taxonomy_error("each source collection needs namespace, name, policy, and node_id strings")
         if item["namespace"] not in namespaces or item["policy"] not in {"regular", "administrative"}:
@@ -1878,22 +2069,20 @@ def validate_taxonomy_config(config: object) -> dict:
             raise _taxonomy_error(f"duplicate source collection: {key}")
         collections[key] = item
     corpus_collections = [item for item in collection_values if item["namespace"] == "skills-db"]
-    expected_corpus_collections = {
-        "apple", "architecture", "ai-agents", "convex", "convex-extras", "design-ux", "dev", "devops",
-        "engineering", "experimental", "formatting", "geo", "legal", "lev", "marketing", "other",
-        "planning", "sdk", "security", "testing", "thinking", "tools", "video", "workflow",
-        ".archive", "_todo", "_workshop",
-    }
+    administrative_collections = {".archive", "_todo", "_workshop"}
+    declared_corpus_names = {item["name"] for item in corpus_collections}
+    actual_corpus_names = observed_skills_db_collections()
     if (
-        len(corpus_collections) != 27
-        or {item["name"] for item in corpus_collections} != expected_corpus_collections
-        or sum(item["policy"] == "regular" for item in corpus_collections) != 24
-        or sum(item["policy"] == "administrative" for item in corpus_collections) != 3
+        not administrative_collections <= declared_corpus_names
         or {item["name"] for item in corpus_collections if item["policy"] == "administrative"}
-        != {".archive", "_todo", "_workshop"}
+        != administrative_collections
         or next((item["policy"] for item in corpus_collections if item["name"] == "other"), None) != "regular"
     ):
-        raise _taxonomy_error("skills-db must retain 24 regular and three declared administrative collections")
+        raise _taxonomy_error("skills-db must retain the three administrative collections and regular other collection")
+    missing_corpus_declarations = actual_corpus_names - declared_corpus_names
+    if missing_corpus_declarations:
+        missing_names = ", ".join(sorted(missing_corpus_declarations))
+        raise _taxonomy_error(f"observed skills-db collections are undeclared: {missing_names}")
     collection_node_ids = {item["node_id"] for item in collection_values}
     if {node["id"] for node in node_values if node["view_kind"] == "source_collection"} != collection_node_ids:
         raise _taxonomy_error("source collection nodes must match source_collections exactly")
@@ -3512,13 +3701,13 @@ def _option_value(args: list[str], index: int, flag: str) -> tuple[str, int]:
     return value, next_index
 
 
-def _normalized_query_group(group: dict, index: int) -> dict:
+def _normalized_query_group(group: dict, index: int, *, max_tokens: int = 32) -> dict:
     query = group["query"]
     tokens = tokenize(query)
     if not tokens:
         raise CliRequestError("invalid_request", "query groups must contain at least one searchable term")
-    if len(tokens) > 32:
-        raise CliRequestError("invalid_request", "query groups may contain at most 32 searchable terms")
+    if len(tokens) > max_tokens:
+        raise CliRequestError("invalid_request", f"query groups may contain at most {max_tokens} searchable terms")
     return {
         "id": f"group-{index + 1}",
         "kind": group["kind"],
@@ -3536,6 +3725,7 @@ def parse_discovery_request(args: list[str]) -> dict:
     tags_raw: str | None = None
     category: str | None = None
     namespace: str | None = None
+    backend = "lexical"
     limit = 30
     no_cache = False
     seen: set[str] = set()
@@ -3547,7 +3737,7 @@ def parse_discovery_request(args: list[str]) -> dict:
             positional.append(arg)
             i += 1
             continue
-        if flag in {"--query", "--tags", "--category", "--namespace", "--limit"}:
+        if flag in {"--query", "--tags", "--category", "--namespace", "--limit", "--backend"}:
             if flag != "--query" and flag in seen:
                 raise CliRequestError("invalid_request", f"{flag} may be supplied only once")
             value, i = _option_value(args, i, flag)
@@ -3559,6 +3749,8 @@ def parse_discovery_request(args: list[str]) -> dict:
                 category = value
             elif flag == "--namespace":
                 namespace = value
+            elif flag == "--backend":
+                backend = value.lower()
             else:
                 limit = max(1, _parse_cli_integer(value, "--limit", signed=True))
             seen.add(flag)
@@ -3578,6 +3770,10 @@ def parse_discovery_request(args: list[str]) -> dict:
 
     if namespace is not None and namespace not in {"skills-db", "skills", "_repos"}:
         raise CliRequestError("invalid_request", f"unsupported namespace: {namespace}")
+    if backend not in {"lexical", "qmd"}:
+        raise CliRequestError("invalid_request", f"unsupported discovery backend: {backend}")
+    if backend == "qmd" and namespace not in {None, "skills-db"}:
+        raise CliRequestError("unsupported_namespace", "the QMD backend supports only the skills-db namespace")
     if query_values and positional:
         raise CliRequestError("invalid_request", "positional query text cannot be combined with --query")
     if not query_values and positional:
@@ -3587,8 +3783,21 @@ def parse_discovery_request(args: list[str]) -> dict:
         if len(positional) != 1:
             raise CliRequestError("invalid_request", "discovery accepts one quoted positional query")
         query_values = [positional[0]]
+    if backend == "qmd" and limit > QMD_CANDIDATE_LIMIT:
+        raise CliRequestError(
+            "invalid_request",
+            f"the QMD backend supports --limit up to {QMD_CANDIDATE_LIMIT}",
+        )
     if any(not value.strip() for value in query_values):
         raise CliRequestError("invalid_request", "query values must be non-empty")
+    if backend == "qmd" and any(
+        len(value.encode("utf-8")) > QMD_MAX_QUERY_BYTES
+        for value in [*query_values, *([tags_raw] if tags_raw is not None else [])]
+    ):
+        raise CliRequestError(
+            "invalid_request",
+            f"QMD query text may not exceed {QMD_MAX_QUERY_BYTES} UTF-8 bytes per group",
+        )
 
     groups: list[dict] = []
     for value in query_values:
@@ -3618,7 +3827,11 @@ def parse_discovery_request(args: list[str]) -> dict:
         raise CliRequestError("invalid_request", "discover requires a query or --tags")
     if len(groups) > 8:
         raise CliRequestError("invalid_request", "discovery accepts at most 8 supplied query or tags groups")
-    normalized_groups = [_normalized_query_group(group, index) for index, group in enumerate(groups)]
+    max_tokens = 256 if backend == "qmd" else 32
+    normalized_groups = [
+        _normalized_query_group(group, index, max_tokens=max_tokens)
+        for index, group in enumerate(groups)
+    ]
     return {
         "json": json_mode,
         "groups": normalized_groups,
@@ -3626,6 +3839,7 @@ def parse_discovery_request(args: list[str]) -> dict:
         "normalized_tags": normalized_tags,
         "category": category,
         "namespace": namespace,
+        "backend": backend,
         "limit": limit,
         "no_cache": no_cache,
         "all_collections": True,
@@ -4151,6 +4365,603 @@ def _tree_node(
     return value
 
 
+def qmd_config_path() -> Path:
+    if os.environ.get("QMD_CONFIG_DIR"):
+        directory = Path(os.environ["QMD_CONFIG_DIR"]).expanduser()
+    elif os.environ.get("XDG_CONFIG_HOME"):
+        directory = Path(os.environ["XDG_CONFIG_HOME"]).expanduser() / "qmd"
+    else:
+        directory = Path.home() / ".config" / "qmd"
+    return directory / "index.yml"
+
+
+def qmd_database_path() -> Path:
+    if os.environ.get("INDEX_PATH"):
+        return Path(os.environ["INDEX_PATH"]).expanduser().resolve()
+    cache_root = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")).expanduser()
+    return (cache_root / "qmd" / "index.sqlite").resolve()
+
+
+def approved_qmd_collection_paths() -> dict[str, Path]:
+    return {
+        "skills-db": SKILLS_DB_DIR,
+        "skills-db-bundle-docs": SKILLS_DB_DIR / "creative/roundtable-marvkr--better-design/source/.agents/skills",
+        "skills-db-archive": SKILLS_DB_DIR / ".archive",
+        "skills-db-backlog": SKILLS_DB_DIR / "_todo",
+        "skills-db-workshop": SKILLS_DB_DIR / "_workshop",
+    }
+
+
+def preflight_qmd(*, refresh: bool = False) -> tuple[Path, dict, dict[str, Path], str]:
+    config_path = qmd_config_path()
+    package_root = qmd_package_root()
+    node = qmd_node_executable()
+    bridge = ROOT / "lev-skills-qmd.mjs"
+    if not bridge.is_file():
+        raise QmdBackendError(f"QMD SDK bridge is missing: {bridge}")
+    inspect_request = {"operation": "inspect", "configPath": str(config_path)}
+    try:
+        inspect_result = run_bounded_process(
+            [node, str(bridge), json.dumps(inspect_request, separators=(",", ":"))],
+            cwd=ROOT,
+            timeout=10,
+            max_output_bytes=1024 * 1024,
+        )
+    except (OSError, QmdBackendError) as error:
+        raise QmdBackendError(f"cannot inspect QMD configuration: {error}") from error
+    inspected = parse_qmd_json(inspect_result.stdout)
+    if inspect_result.returncode != 0:
+        detail = inspected.get("error") if isinstance(inspected, dict) else None
+        raise QmdBackendError(detail if isinstance(detail, str) else "QMD configuration inspection failed")
+    if not isinstance(inspected, dict) or inspected.get("status") != "inspected":
+        raise QmdBackendError("QMD configuration inspection returned an invalid response")
+    config = {
+        "collections": inspected.get("collections"),
+    }
+    if not isinstance(config, dict) or not isinstance(config.get("collections"), dict):
+        raise QmdBackendError("QMD configuration must declare its existing collections")
+
+    expected_paths = approved_qmd_collection_paths()
+    roots = {}
+    for name in QMD_REFRESH_COLLECTIONS:
+        collection = config["collections"].get(name)
+        if not isinstance(collection, dict):
+            raise QmdBackendError(f"approved QMD collection is missing: {name}")
+        configured_path = collection.get("path")
+        if not isinstance(configured_path, str) or not configured_path:
+            raise QmdBackendError(f"QMD collection {name} has no source path")
+        try:
+            actual_path = Path(configured_path).expanduser().resolve(strict=True)
+            expected_path = expected_paths[name].resolve(strict=True)
+        except OSError as error:
+            raise QmdBackendError(f"QMD collection {name} has an unavailable source path: {error}") from error
+        if actual_path != expected_path or not actual_path.is_dir():
+            raise QmdBackendError(f"QMD collection {name} is outside its approved skills-db source root")
+        if collection.get("pattern") != "**/*.md":
+            raise QmdBackendError(f"QMD collection {name} must use the approved Markdown pattern")
+        roots[name] = actual_path
+
+    embed_model = inspected.get("embedModel")
+    if not isinstance(embed_model, str) or not embed_model:
+        raise QmdBackendError("QMD embedding model is not configured")
+    resolved_model_path = inspected.get("embedModelPath")
+    if not isinstance(resolved_model_path, str) or not resolved_model_path:
+        raise QmdBackendError(f"configured QMD embedding model is not cached: {embed_model}; no download was attempted")
+    model_path = Path(resolved_model_path).expanduser()
+    try:
+        with model_path.open("rb") as handle:
+            if model_path.stat().st_size <= 4 or handle.read(4) != b"GGUF":
+                raise QmdBackendError(f"configured QMD embedding model is not a valid GGUF file: {model_path}")
+    except OSError as error:
+        raise QmdBackendError(f"configured QMD embedding model is unavailable: {model_path}: {error}") from error
+    return config_path, config, roots, embed_model
+
+
+def _qmd_expected_manifest(records: list[dict], roots: dict[str, Path]) -> list[dict]:
+    """Map current canonical Markdown occurrences to their exact QMD collection paths."""
+    output = []
+    seen_ids = set()
+    seen_paths = set()
+    corpus_root = roots.get("skills-db")
+    if corpus_root is None:
+        raise QmdBackendError("approved QMD integrity scope is missing the skills-db root")
+    special_roots = (
+        "skills-db-bundle-docs",
+        "skills-db-archive",
+        "skills-db-backlog",
+        "skills-db-workshop",
+    )
+    for record in records:
+        if not isinstance(record, dict) or record.get("base") != "skills-db":
+            continue
+        source = record.get("source") if isinstance(record.get("source"), dict) else None
+        relative_path = source.get("relative_path") if source is not None else record.get("relative_path")
+        path_value = record.get("path")
+        source_digest = (source.get("sha256") if source is not None else record.get("sha256")) or record.get("digest")
+        if not isinstance(relative_path, str) or not relative_path.lower().endswith(".md"):
+            continue
+        relative_parts = relative_path.split("/")
+        if any(part in {"", ".", ".."} for part in relative_parts):
+            raise QmdBackendError(f"canonical Markdown path is not normalized: {relative_path}")
+        if ".trash" in relative_parts:
+            continue
+        if not isinstance(path_value, (str, Path)):
+            raise QmdBackendError(f"canonical Markdown source has no file path: {relative_path}")
+        try:
+            file_path = Path(path_value).resolve(strict=True)
+        except OSError as error:
+            raise QmdBackendError(f"canonical Markdown source is unavailable: {relative_path}: {error}") from error
+        if not file_path.is_file() or file_path.suffix.lower() != ".md":
+            raise QmdBackendError(f"canonical Markdown source is not a Markdown file: {relative_path}")
+        if not isinstance(source_digest, str) or not re.fullmatch(r"[a-f0-9]{64}", source_digest):
+            raise QmdBackendError(f"canonical Markdown source has no valid raw-byte digest: {relative_path}")
+        try:
+            source_relative = file_path.relative_to(corpus_root).as_posix()
+        except ValueError as error:
+            raise QmdBackendError(f"canonical Markdown source is outside skills-db: {relative_path}") from error
+        if source_relative != relative_path:
+            raise QmdBackendError(f"canonical Markdown source path changed: {relative_path}")
+
+        collection_name = "skills-db"
+        collection_path = None
+        for special_name in special_roots:
+            special_root = roots.get(special_name)
+            if special_root is None:
+                continue
+            try:
+                collection_path = file_path.relative_to(special_root).as_posix()
+            except ValueError:
+                continue
+            collection_name = special_name
+            break
+        if collection_path is None:
+            try:
+                collection_path = file_path.relative_to(corpus_root).as_posix()
+            except ValueError as error:
+                raise QmdBackendError(f"canonical Markdown source has no approved QMD collection: {relative_path}") from error
+        if collection_path in {"", "."} or any(part in {"", ".", ".."} for part in collection_path.split("/")):
+            raise QmdBackendError(f"canonical QMD collection path is not normalized: {collection_path}")
+
+        source_id = record.get("source_id") or record.get("occurrence_key") or f"skills-db/{relative_path}"
+        if source_id != f"skills-db/{relative_path}" or source_id in seen_ids:
+            raise QmdBackendError(f"canonical source identity is missing or duplicated: {source_id}")
+        key = (collection_name, collection_path)
+        if key in seen_paths:
+            raise QmdBackendError(f"canonical QMD occurrence is duplicated: {collection_name}/{collection_path}")
+        seen_ids.add(source_id)
+        seen_paths.add(key)
+        output.append({
+            "source_id": source_id,
+            "source_relative_path": relative_path,
+            "file_path": str(file_path),
+            "source_sha256": source_digest,
+            "collection": collection_name,
+            "path": collection_path,
+        })
+    output.sort(key=lambda item: (item["collection"], item["path"], item["source_id"]))
+    return output
+
+
+def qmd_index_integrity_guard(
+    *,
+    config_path: Path,
+    roots: dict[str, Path],
+    model: str,
+    records: list[dict],
+) -> dict:
+    db_path = qmd_database_path()
+    if not db_path.is_file():
+        raise QmdBackendError(f"QMD index is unavailable: {db_path}")
+    manifest = _qmd_expected_manifest(records, roots)
+    request = {
+        "operation": "integrity",
+        "dbPath": str(db_path),
+        "configPath": str(config_path),
+        "collections": list(QMD_REFRESH_COLLECTIONS),
+        "roots": {name: str(roots[name]) for name in QMD_REFRESH_COLLECTIONS},
+        "model": model,
+        "expectedDocuments": len(manifest),
+    }
+    node = qmd_node_executable()
+    bridge = ROOT / "lev-skills-qmd.mjs"
+    try:
+        result = run_bounded_process(
+            [node, str(bridge), json.dumps(request, separators=(",", ":"))],
+            cwd=ROOT,
+            timeout=QMD_INTEGRITY_TIMEOUT_SECONDS,
+            max_output_bytes=1024 * 1024,
+            max_input_bytes=QMD_MAX_MANIFEST_BYTES,
+            input_text=json.dumps({"documents": manifest}, separators=(",", ":")),
+        )
+    except (OSError, QmdBackendError) as error:
+        raise QmdBackendError(f"QMD index integrity check failed: {error}") from error
+    response = parse_qmd_json(result.stdout)
+    if not isinstance(response, dict):
+        raise QmdBackendError("QMD index integrity check returned malformed JSON")
+    if result.returncode != 0 or response.get("status") != "integrity_checked":
+        detail = response.get("error") if isinstance(response.get("error"), str) else "invalid integrity response"
+        code = response.get("code") if isinstance(response.get("code"), str) else "qmd_index_integrity"
+        raise QmdBackendError(f"{code}: {detail}")
+    if (
+        response.get("expectedDocuments") != len(manifest)
+        or response.get("actualDocuments") != len(manifest)
+        or response.get("missingPaths") != 0
+        or response.get("extraPaths") != 0
+        or response.get("staleBodies") != 0
+        or response.get("pendingEmbeddingHashes") != 0
+        or response.get("missingVectorIds") != 0
+        or response.get("model") != model
+        or not isinstance(response.get("fingerprint"), str)
+        or not re.fullmatch(r"[a-f0-9]{6,64}", response["fingerprint"])
+    ):
+        raise QmdBackendError("qmd_index_integrity: QMD index does not cover the current canonical manifest")
+    return response
+
+
+def qmd_node_executable() -> str:
+    candidates = []
+    diagnostics = []
+    if os.environ.get("QMD_NODE"):
+        candidates.append(os.environ["QMD_NODE"])
+    candidates.extend(("/opt/homebrew/opt/node@24/bin/node", "/usr/local/opt/node@24/bin/node"))
+    node_on_path = shutil.which("node")
+    if node_on_path:
+        candidates.append(node_on_path)
+    for candidate in candidates:
+        if not Path(candidate).is_file() or not os.access(candidate, os.X_OK):
+            continue
+        try:
+            result = run_bounded_process([candidate, "--version"], timeout=5, max_output_bytes=1024)
+        except (OSError, QmdBackendError) as error:
+            diagnostics.append(str(error))
+            continue
+        version_match = re.match(r"v?(\d+)\.", result.stdout.strip())
+        if result.returncode == 0 and version_match and int(version_match.group(1)) == 24:
+            return candidate
+        diagnostics.append(f"{candidate} reported {result.stdout.strip() or result.returncode}")
+    detail = "; ".join(diagnostics[-3:])
+    suffix = f": {detail}" if detail else ""
+    raise QmdBackendError(f"QMD refresh requires the installed Node 24 runtime{suffix}")
+
+
+def qmd_package_root() -> Path:
+    prefix = Path(os.environ.get("QMD_PREFIX", Path.home() / ".local" / "share" / "qmd" / "npm")).expanduser()
+    package = prefix / "lib" / "node_modules" / "@tobilu" / "qmd"
+    if not (package / "dist" / "index.js").is_file():
+        raise QmdBackendError(f"installed QMD SDK is unavailable: {package}")
+    return package
+
+
+def parse_qmd_json(raw: str) -> object:
+    try:
+        return json.loads(raw, object_pairs_hook=_unique_json_object, parse_constant=_reject_json_constant)
+    except (ValueError, TypeError, json.JSONDecodeError) as error:
+        raise QmdBackendError(f"QMD returned malformed JSON: {error}") from error
+
+
+def _qmd_result_path(raw_path: object, roots: dict[str, Path]) -> Path:
+    if not isinstance(raw_path, str) or not raw_path or len(raw_path) > 4096:
+        raise QmdBackendError("QMD returned a missing or invalid source path")
+    if raw_path.startswith("qmd://") or "\x00" in raw_path:
+        raise QmdBackendError("QMD did not resolve a result to an on-disk source path")
+    candidate = Path(raw_path)
+    if not candidate.is_absolute():
+        if ".." in candidate.parts:
+            raise QmdBackendError("QMD returned a traversal path")
+        candidate = ROOT / candidate
+    try:
+        resolved = candidate.resolve(strict=True)
+    except OSError as error:
+        raise QmdBackendError(f"QMD returned a missing source path: {raw_path}") from error
+    if not any(resolved.is_relative_to(root) for root in roots.values()):
+        raise QmdBackendError(f"QMD returned a path outside the approved skills-db collections: {raw_path}")
+    if not resolved.is_file():
+        raise QmdBackendError(f"QMD returned a non-file source path: {raw_path}")
+    return resolved
+
+
+def _qmd_source_row(path: Path, rows_by_file_identity: dict) -> dict:
+    try:
+        stat = path.stat()
+    except OSError as error:
+        raise QmdBackendError(f"QMD result source is unreadable: {path}: {error}") from error
+    candidates = rows_by_file_identity.get((stat.st_dev, stat.st_ino), [])
+    if len(candidates) != 1:
+        raise QmdBackendError(f"QMD returned an unknown or ambiguous canonical source: {path}")
+    return candidates[0]
+
+
+def _qmd_fingerprints(
+    group: dict,
+    *,
+    category: str | None,
+    revision: str,
+    limit: int,
+) -> tuple[str, str]:
+    predicate = digest_json(
+        {
+            "backend": "qmd", "tokens": sorted(set(group["tokens"])),
+            "category": normalize_name(category) if category else None,
+            "namespace": "skills-db", "visibility": "legacy_discovery_visible", "revision": revision,
+        }
+    )
+    request = digest_json(
+        {
+            "backend": "qmd", "normalized_phrase": group["normalized"],
+            "ordered_tokens": group["tokens"], "category": normalize_name(category) if category else None,
+            "namespace": "skills-db", "visibility": "legacy_discovery_visible", "revision": revision,
+            "limit": limit, "candidate_limit": QMD_CANDIDATE_LIMIT,
+            "order": "qmd_score_desc_name_asc_path_key_asc",
+        }
+    )
+    return predicate, request
+
+
+def _qmd_query_results(
+    group: dict,
+    *,
+    request: dict,
+    rows: list[dict],
+    roots: dict[str, Path],
+    deadline: float,
+    output_remaining: int,
+) -> tuple[list[dict], int]:
+    qmd = shutil.which("qmd")
+    if not qmd:
+        raise QmdBackendError("QMD launcher is not available in PATH")
+    query_text = " ".join(group["tokens"])
+    query_document = f"lex: {query_text}\nvec: {query_text}"
+    command = [
+        qmd, "--index", "index", "query", query_document,
+        "--format", "json", "--full-path", "--full", "--no-rerank",
+        "--candidate-limit", str(QMD_CANDIDATE_LIMIT), "--n", str(QMD_CANDIDATE_LIMIT),
+    ]
+    for collection in roots:
+        command.extend(("--collection", collection))
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise QmdBackendError("QMD query exceeded its total time limit")
+    try:
+        result = run_bounded_process(
+            command,
+            cwd=ROOT,
+            timeout=min(QMD_QUERY_TIMEOUT_SECONDS, remaining),
+            max_output_bytes=max(0, output_remaining),
+        )
+    except (OSError, QmdBackendError) as error:
+        raise QmdBackendError(str(error)) from error
+    if result.returncode != 0:
+        detail = result.stderr.strip().splitlines()[-1][:400] if result.stderr.strip() else "no diagnostic output"
+        raise QmdBackendError(f"QMD query failed with exit status {result.returncode}: {detail}")
+    raw_results = parse_qmd_json(result.stdout)
+    if not isinstance(raw_results, list):
+        raise QmdBackendError("QMD returned a non-array result")
+
+    rows_by_identity = defaultdict(list)
+    for row in rows:
+        if row.get("base") != "skills-db" or row.get("doc_type", "skill") not in {"skill", "markdown"}:
+            continue
+        try:
+            stat = Path(row["path"]).stat()
+        except OSError as error:
+            raise QmdBackendError(f"canonical source disappeared during QMD retrieval: {row.get('path')}") from error
+        rows_by_identity[(stat.st_dev, stat.st_ino)].append(row)
+
+    eligible_rows = filtered_inventory(
+        rows,
+        category=request["category"],
+        namespace="skills-db",
+        include_hidden=False,
+    )
+    eligible_by_id = {
+        row["source_id"]: row
+        for row in eligible_rows
+        if row.get("doc_type", "skill") in {"skill", "markdown"}
+    }
+    found = {}
+    for raw in raw_results:
+        if not isinstance(raw, dict):
+            raise QmdBackendError("QMD returned a malformed result row")
+        score = raw.get("score")
+        try:
+            score_value = float(score) if not isinstance(score, bool) and isinstance(score, (int, float)) else math.nan
+        except (OverflowError, ValueError, TypeError):
+            score_value = math.nan
+        if not math.isfinite(score_value) or not 0 < score_value <= 1:
+            raise QmdBackendError("QMD returned an invalid, negative, or non-finite score")
+        path = _qmd_result_path(raw.get("file"), roots)
+        row = _qmd_source_row(path, rows_by_identity)
+        try:
+            source_bytes = path.read_bytes()
+        except OSError as error:
+            raise QmdBackendError(f"QMD result source is unreadable: {path}: {error}") from error
+        if hashlib.sha256(source_bytes).hexdigest() != row.get("digest"):
+            raise QmdBackendError(f"canonical source changed during QMD retrieval: {path}")
+        indexed_body = raw.get("body")
+        if not isinstance(indexed_body, str):
+            raise QmdBackendError(f"QMD returned no full indexed body for freshness validation: {path}")
+        if indexed_body != source_bytes.decode("utf-8", errors="replace"):
+            raise QmdBackendError(f"QMD indexed content is stale for canonical source: {path}")
+        source_id = row.get("source_id")
+        if source_id not in eligible_by_id:
+            continue
+        row = eligible_by_id[source_id]
+        lexical_score, matched_terms = score_row(row, group["query"], group["tokens"])
+        match = {
+            "source_id": source_id,
+            "path": row["path"],
+            "path_key": row["path_key"],
+            "skill_name": row["name"],
+            "score": score_value,
+            "adjusted_score": score_value,
+            "backend_score": score_value,
+            "retrieval_backend": "qmd",
+            "category": row["category"],
+            "surface": row["surface"],
+            "lifecycle": row["lifecycle"],
+            "rotation_role": row["rotation_role"],
+            "usage_count": row["usage_count"],
+            "usage_tier": row["usage_tier"],
+            "skill_uri": row["skill_uri"],
+            "lane": row["lane"],
+            "graph_id": row["graph_id"],
+            "graph_degree": row["graph_degree"],
+            "intent_tags": row["intent_tags"],
+            "matched_terms": matched_terms,
+            "local_path": row["path"],
+            "doc_type": row.get("doc_type", "skill"),
+            "source": "inventory",
+            "anomaly": row.get("anomaly", ""),
+            "lexical_score": lexical_score,
+        }
+        prior = found.get(source_id)
+        if prior is None or match["adjusted_score"] > prior["adjusted_score"]:
+            found[source_id] = match
+    matches = sorted(
+        found.values(),
+        key=lambda item: (-item["adjusted_score"], item["skill_name"].lower(), item["path_key"]),
+    )
+    return matches, len(result.stdout.encode("utf-8")) + len(result.stderr.encode("utf-8"))
+
+
+def cmd_discover_qmd(request: dict, rows: list[dict], snapshot: dict) -> int:
+    try:
+        config_path, _, roots, embed_model = preflight_qmd(refresh=False)
+        qmd_index_integrity_guard(
+            config_path=config_path,
+            roots=roots,
+            model=embed_model,
+            records=rows,
+        )
+        active_roots = {name: roots[name] for name in QMD_QUERY_COLLECTIONS}
+        revision = snapshot["revision"]
+        deadline = time.monotonic() + QMD_TOTAL_QUERY_TIMEOUT_SECONDS
+        output_remaining = QMD_MAX_OUTPUT_BYTES
+        outcomes = []
+        evaluated = {}
+        union = {}
+        for group in request["groups"]:
+            predicate, ranking_request = _qmd_fingerprints(
+                group,
+                category=request["category"],
+                revision=revision,
+                limit=request["limit"],
+            )
+            duplicate = evaluated.get(ranking_request)
+            if duplicate:
+                prior, raw_matches = duplicate
+                outcome = {
+                    "id": group["id"], "kind": group["kind"], "raw": group["raw"],
+                    "normalized": group["normalized"], "tokens": group["tokens"],
+                    "status": prior["status"], "total": prior["total"],
+                    "predicate_fingerprint": predicate, "request_fingerprint": ranking_request,
+                    "duplicate_of": prior["id"], "evaluated": False,
+                    "evaluation_origin": "mapped_duplicate", "backend": "qmd",
+                }
+            else:
+                raw_matches, consumed_bytes = _qmd_query_results(
+                    group,
+                    request=request,
+                    rows=rows,
+                    roots=active_roots,
+                    deadline=deadline,
+                    output_remaining=output_remaining,
+                )
+                output_remaining -= consumed_bytes
+                if output_remaining < 0:
+                    raise QmdBackendError("QMD queries exceeded the total output limit")
+                outcome = {
+                    "id": group["id"], "kind": group["kind"], "raw": group["raw"],
+                    "normalized": group["normalized"], "tokens": group["tokens"],
+                    "status": "ok" if raw_matches else "empty", "total": len(raw_matches),
+                    "predicate_fingerprint": predicate, "request_fingerprint": ranking_request,
+                    "duplicate_of": None, "evaluated": True,
+                    "evaluation_origin": "qmd_query", "backend": "qmd", "total_exact": False,
+                }
+                evaluated[ranking_request] = (outcome, raw_matches)
+            outcomes.append(outcome)
+            for match in raw_matches:
+                source_id = match["source_id"]
+                entry = union.setdefault(
+                    source_id,
+                    {"best": dict(match), "matched_groups": [], "group_scores": {}, "group_matches": {}, "matched_terms": set()},
+                )
+                if match["adjusted_score"] > entry["best"]["adjusted_score"]:
+                    entry["best"] = dict(match)
+                if group["id"] not in entry["matched_groups"]:
+                    entry["matched_groups"].append(group["id"])
+                entry["group_scores"][group["id"]] = match["adjusted_score"]
+                entry["group_matches"][group["id"]] = {
+                    "score": match["adjusted_score"], "matched_terms": match["matched_terms"]
+                }
+                entry["matched_terms"].update(match["matched_terms"])
+
+        union_matches = []
+        for value in union.values():
+            match = dict(value["best"])
+            match["matched_groups"] = value["matched_groups"]
+            match["group_scores"] = value["group_scores"]
+            match["group_matches"] = value["group_matches"]
+            match["matched_terms"] = sorted(value["matched_terms"])
+            union_matches.append(match)
+        union_matches.sort(key=lambda item: (-item["adjusted_score"], item["skill_name"].lower(), item["path_key"]))
+        total = len(union_matches)
+        rows_by_id, bundles, _ = _descriptor_indexes(rows, snapshot)
+        selected = [
+            _with_source_descriptor(match, revision=revision, rows_by_id=rows_by_id, bundles=bundles)
+            for match in union_matches[: request["limit"]]
+        ]
+        normalized_request = {
+            "mode": "discover", "backend": "qmd",
+            "queries": [
+                {"raw": group["raw"], "normalized_phrase": group["normalized"], "ordered_tokens": group["tokens"]}
+                for group in request["groups"] if group["kind"] == "query"
+            ],
+            "tags_raw": request["tags_raw"], "normalized_tags": request["normalized_tags"],
+            "category": normalize_name(request["category"]) if request["category"] else None,
+            "namespace": "skills-db", "visibility": "legacy_discovery_visible", "revision": revision,
+            "limit": request["limit"], "candidate_limit": QMD_CANDIDATE_LIMIT,
+            "order": "qmd_score_desc_name_asc_path_key_asc",
+        }
+        legacy_query = request["groups"][0]["raw"] if len(request["groups"]) == 1 and request["groups"][0]["kind"] == "query" else None
+        payload = {
+            "schema_version": "lev.skills.discover.v1", "status": "ok" if total else "empty",
+            "evaluation_origin": "qmd_query", "backend": "qmd", "total_exact": False,
+            "candidate_limit": QMD_CANDIDATE_LIMIT,
+            "query": legacy_query, "category_filter": [request["category"]] if request["category"] else [],
+            "source_of_truth": str(SKILLS_INVENTORY_FILE), "index_revision": revision,
+            "normalized_request": normalized_request, "breadcrumbs": [], "total": total,
+            "returned_count": len(selected), "limit": request["limit"], "next_cursor": None,
+            "diagnostics": [], "next_actions": ["Open returned source paths directly; get is optional."],
+            "query_groups": outcomes, "matches": selected,
+            "_cache": {"hit": False, "bypassed": True},
+        }
+        if request["json"]:
+            print(json.dumps(payload, indent=2, ensure_ascii=False, allow_nan=False))
+            return 0
+        return print_discover_text(payload)
+    except QmdBackendError as error:
+        message = str(error)
+        code = "qmd_backend_error"
+        if "timed out" in message or "time limit" in message:
+            code = "qmd_timeout"
+        elif "model" in message.lower():
+            code = "qmd_model_unavailable"
+        elif "index is unavailable" in message.lower():
+            code = "qmd_index_unavailable"
+        elif "stale qmd index" in message.lower() or "stale_qmd_index" in message.lower():
+            code = "stale_qmd_index"
+        elif "index integrity" in message.lower() or "qmd_index_integrity" in message.lower():
+            code = "qmd_index_integrity"
+        elif "stale" in message.lower() or "changed during" in message.lower():
+            code = "stale_qmd_index"
+        elif "outside" in message.lower() or "traversal" in message.lower() or "unknown or ambiguous" in message.lower():
+            code = "qmd_untrusted_source"
+        elif "failed with exit status" in message:
+            code = "qmd_engine_failed"
+        return emit_cli_error(code, message, json_mode=request["json"])
+
+
 def cmd_discover(args: list[str]) -> int:
     json_mode = "--json" in args
     try:
@@ -4186,6 +4997,9 @@ def cmd_discover(args: list[str]) -> int:
             json_mode=request["json"],
             extra={"query_groups": group_outcomes, "matches": []},
         )
+
+    if request["backend"] == "qmd":
+        return cmd_discover_qmd(request, rows, snapshot)
 
     revision = snapshot["revision"]
     rows_by_id, bundles, _ = _descriptor_indexes(rows, snapshot)
@@ -4775,36 +5589,98 @@ def cmd_inventory(args: list[str]) -> int:
 
 
 def cmd_refresh(args: list[str]) -> int:
-    """Refresh qmd indexes and rebuild inventory."""
-
-    repo_local = "--repo-local" in args
+    """Refresh only the approved skills-db QMD collections and rebuild after success."""
+    if any(arg != "--repo-local" for arg in args) or args.count("--repo-local") > 1:
+        print("error: refresh accepts only one optional --repo-local flag", file=sys.stderr)
+        return 1
     try:
-        preflight_inventory_inputs()
-        if repo_local:
-            result = subprocess.run(
-                ["git", "rev-parse", "--show-toplevel"],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            if result.returncode != 0:
-                print("warning: not in a git repo, skipping repo-local qmd refresh", file=sys.stderr)
-            else:
-                print("Refreshing qmd index for repo-local workflow")
-                subprocess.run(["qmd", "update"], timeout=180, check=False)
-        else:
-            print("Refreshing full qmd index...")
-            subprocess.run(["qmd", "update"], timeout=180, check=False)
-            print("Done. Running embed pass...")
-            subprocess.run(["qmd", "embed", "-f"], timeout=600, check=False)
+        inventory_preflight = preflight_inventory_inputs()
+        source_records = inventory_preflight[5]
+        config_path, _, roots, embed_model = preflight_qmd(refresh=True)
+        qmd_package_root()
+        node = qmd_node_executable()
+        db_path = qmd_database_path()
+        if not db_path.is_file():
+            raise QmdBackendError(f"QMD index is unavailable: {db_path}")
+        bridge = ROOT / "lev-skills-qmd.mjs"
+        if not bridge.is_file():
+            raise QmdBackendError(f"QMD SDK bridge is missing: {bridge}")
+        request = {
+            "operation": "refresh",
+            "dbPath": str(db_path),
+            "configPath": str(config_path),
+            "collections": list(QMD_REFRESH_COLLECTIONS),
+            "embedCollections": list(QMD_REFRESH_COLLECTIONS),
+            "force": False,
+            "maxDocsPerBatch": 50,
+            "maxBatchBytes": 16 * 1024 * 1024,
+        }
+        result = run_bounded_process(
+            [node, str(bridge), json.dumps(request, separators=(",", ":"))],
+            cwd=ROOT,
+            timeout=QMD_REFRESH_TIMEOUT_SECONDS,
+            max_output_bytes=2 * 1024 * 1024,
+        )
+        response = parse_qmd_json(result.stdout)
+        if not isinstance(response, dict):
+            raise QmdBackendError("QMD SDK bridge returned a malformed response")
+        if result.returncode != 0:
+            detail = response.get("error") if isinstance(response.get("error"), str) else f"exit status {result.returncode}"
+            raise QmdBackendError(f"QMD SDK refresh failed: {detail}")
+        update = response.get("update")
+        embeds = response.get("embeds")
+        if (
+            response.get("status") != "complete"
+            or response.get("updatedCollections") != list(QMD_REFRESH_COLLECTIONS)
+            or response.get("embedCollections") != list(QMD_REFRESH_COLLECTIONS)
+            or response.get("force") is not False
+            or not isinstance(update, dict)
+            or update.get("collections") != len(QMD_REFRESH_COLLECTIONS)
+            or update.get("skipped") != 0
+            or not isinstance(embeds, list)
+            or len(embeds) != len(QMD_REFRESH_COLLECTIONS)
+        ):
+            raise QmdBackendError("QMD SDK refresh returned partial or unscoped work")
+        numeric_update_fields = ("indexed", "updated", "unchanged", "removed")
+        if any(
+            not isinstance(update.get(field), int)
+            or isinstance(update.get(field), bool)
+            or update[field] < 0
+            for field in numeric_update_fields
+        ):
+            raise QmdBackendError("QMD SDK refresh returned invalid update counts")
+        for expected, embed in zip(QMD_REFRESH_COLLECTIONS, embeds):
+            if (
+                not isinstance(embed, dict)
+                or embed.get("collection") != expected
+                or embed.get("force") is not False
+                or embed.get("errors") != 0
+                or any(
+                    not isinstance(embed.get(field), int)
+                    or isinstance(embed.get(field), bool)
+                    or embed[field] < 0
+                    for field in ("docsProcessed", "chunksEmbedded")
+                )
+            ):
+                raise QmdBackendError(f"QMD embedding did not complete for approved collection {expected}")
+        qmd_index_integrity_guard(
+            config_path=config_path,
+            roots=roots,
+            model=embed_model,
+            records=source_records,
+        )
         build_inventory(force_rebuild=True)
+        print(f"QMD refreshed for {len(QMD_REFRESH_COLLECTIONS)} approved skills-db collections.")
         print(f"Inventory rebuilt at {SKILLS_INVENTORY_FILE}")
         return 0
-    except subprocess.TimeoutExpired:
-        print("error: refresh timed out", file=sys.stderr)
+    except QmdBackendError as error:
+        print(f"error: {error}", file=sys.stderr)
         return 1
-    except FileNotFoundError:
-        print("error: qmd not found in PATH", file=sys.stderr)
+    except FileNotFoundError as error:
+        print(f"error: required QMD runtime file is missing: {error}", file=sys.stderr)
+        return 1
+    except OSError as error:
+        print(f"error: QMD refresh could not complete: {error}", file=sys.stderr)
         return 1
     except RuntimeError as error:
         print(f"error: {error}", file=sys.stderr)
