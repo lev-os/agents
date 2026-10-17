@@ -118,11 +118,6 @@ steps:
     validation: "Every material intent has an intent_id and source_ref; an existing plan or task is reused when present; one operator outcome, its boundaries, and a relevant verifier can be named."
     on_failure: "Route conversation-only work to /capture; unresolved product or architecture framing to /interview."
 
-  - id: bind_standards
-    action: Read the coding standards and boundary rules through the Standards and boundaries section of [Project Context](../lev/references/project-context.md), and list the ones this plan must respect.
-    validation: "The plan or emitted task names each applicable rule with path:line, or says none applies."
-    on_failure: "Hold the plan until the standards list exists."
-
   - id: select_mode
     action: Apply Which Stage, then select compile, deepen, review, lifecycle, map, or emit from the command. A lifecycle request performs only its FSM operation and then route_forward.
     validation: "Exactly one mode is selected; broad work has a plan source before map or emit; a direct bounded slice records plan_not_required with its rationale."
