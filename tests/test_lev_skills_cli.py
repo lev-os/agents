@@ -616,9 +616,14 @@ sys.addaudithook(audit)
             "    names = ['skills-db','skills-db-bundle-docs','skills-db-archive','skills-db-backlog','skills-db-workshop']\n"
             "    collections = {name: ({'path':config['collections'][name].get('path'),'pattern':config['collections'][name].get('pattern')} if name in config['collections'] else None) for name in names}\n"
             "    model = config.get('models',{}).get('embed')\n"
-            "    cached = Path(os.environ['XDG_CACHE_HOME']) / 'qmd/models/hf_fixture_qmd_embedding.gguf'\n"
-            "    model_path = str(cached) if model == 'hf:fixture/qmd/embedding.gguf' and cached.is_file() else (model if isinstance(model,str) and Path(model).is_file() else None)\n"
-            "    print(json.dumps({'status':'inspected','collections':collections,'embedModel':model,'embedModelPath':model_path}))\n"
+            "    model_files = {'embed':'hf_fixture_qmd_embedding.gguf','generate':'hf_fixture_qmd_generate.gguf','rerank':'hf_fixture_qmd_rerank.gguf'}\n"
+            "    models = {}\n"
+            "    for kind, uri in config.get('models',{}).items():\n"
+            "        cached = Path(os.environ['XDG_CACHE_HOME']) / 'qmd/models' / model_files[kind]\n"
+            "        stat = cached.stat()\n"
+            "        models[kind] = {'uri':uri,'path':str(cached.resolve()),'sizeBytes':stat.st_size,'mtimeMs':stat.st_mtime*1000,'dev':stat.st_dev,'ino':stat.st_ino}\n"
+            "    model_path = models['embed']['path']\n"
+            "    print(json.dumps({'status':'inspected','collections':collections,'embedModel':model,'embedModelPath':model_path,'models':models}))\n"
             "elif request.get('operation') == 'integrity':\n"
             "    count = request['expectedDocuments']\n"
             "    print(json.dumps({'status':'integrity_checked','model':request['model'],'fingerprint':'abcdef','expectedDocuments':count,'actualDocuments':count,'missingPaths':0,'extraPaths':0,'staleBodies':0,'pendingEmbeddingHashes':0,'missingVectorIds':0}))\n"
@@ -644,7 +649,11 @@ sys.addaudithook(audit)
                 name: {"path": str(path), "pattern": "**/*.md", "includeByDefault": name in {"skills-db", "skills-db-bundle-docs"}}
                 for name, path in collection_paths.items()
             },
-            "models": {"embed": "hf:fixture/qmd/embedding.gguf"},
+            "models": {
+                "embed": "hf:fixture/qmd/embedding.gguf",
+                "generate": "hf:fixture/qmd/generate.gguf",
+                "rerank": "hf:fixture/qmd/rerank.gguf",
+            },
         }
         (qmd_config_dir / "index.yml").write_text(json.dumps(qmd_config), encoding="utf-8")
         qmd_prefix = self.output / "qmd-prefix"
@@ -654,7 +663,12 @@ sys.addaudithook(audit)
         xdg_cache_home = self.output / "xdg-cache"
         qmd_models = xdg_cache_home / "qmd/models"
         qmd_models.mkdir(parents=True)
-        (qmd_models / "hf_fixture_qmd_embedding.gguf").write_bytes(b"GGUFfixture")
+        for filename in (
+            "hf_fixture_qmd_embedding.gguf",
+            "hf_fixture_qmd_generate.gguf",
+            "hf_fixture_qmd_rerank.gguf",
+        ):
+            (qmd_models / filename).write_bytes(b"GGUFfixture")
         qmd_index = self.output / "qmd-index.sqlite"
         qmd_index.write_bytes(b"isolated qmd index")
         refresh_collections = [

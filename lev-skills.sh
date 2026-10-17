@@ -39,6 +39,7 @@ CACHE_BG_REFRESH_AFTER = int(os.environ.get("LEV_SKILLS_BG_REFRESH_AFTER", "60")
 DISCOVERY_CACHE_VERSION = 5
 RESULT_CACHE_ENVELOPE_VERSION = 2
 QMD_QUERY_COLLECTIONS = ("skills-db", "skills-db-bundle-docs")
+QMD_MODEL_KINDS = ("embed", "generate", "rerank")
 QMD_REFRESH_COLLECTIONS = (
     "skills-db",
     "skills-db-bundle-docs",
@@ -4412,11 +4413,14 @@ def preflight_qmd(*, refresh: bool = False) -> tuple[Path, dict, dict[str, Path]
     inspected = parse_qmd_json(inspect_result.stdout)
     if inspect_result.returncode != 0:
         detail = inspected.get("error") if isinstance(inspected, dict) else None
-        raise QmdBackendError(detail if isinstance(detail, str) else "QMD configuration inspection failed")
+        code = inspected.get("code") if isinstance(inspected, dict) else None
+        prefix = f"{code}: " if isinstance(code, str) else ""
+        raise QmdBackendError(prefix + (detail if isinstance(detail, str) else "QMD configuration inspection failed"))
     if not isinstance(inspected, dict) or inspected.get("status") != "inspected":
         raise QmdBackendError("QMD configuration inspection returned an invalid response")
     config = {
         "collections": inspected.get("collections"),
+        "models": inspected.get("models"),
     }
     if not isinstance(config, dict) or not isinstance(config.get("collections"), dict):
         raise QmdBackendError("QMD configuration must declare its existing collections")
@@ -4441,19 +4445,41 @@ def preflight_qmd(*, refresh: bool = False) -> tuple[Path, dict, dict[str, Path]
             raise QmdBackendError(f"QMD collection {name} must use the approved Markdown pattern")
         roots[name] = actual_path
 
-    embed_model = inspected.get("embedModel")
-    if not isinstance(embed_model, str) or not embed_model:
-        raise QmdBackendError("QMD embedding model is not configured")
-    resolved_model_path = inspected.get("embedModelPath")
-    if not isinstance(resolved_model_path, str) or not resolved_model_path:
-        raise QmdBackendError(f"configured QMD embedding model is not cached: {embed_model}; no download was attempted")
-    model_path = Path(resolved_model_path).expanduser()
-    try:
-        with model_path.open("rb") as handle:
-            if model_path.stat().st_size <= 4 or handle.read(4) != b"GGUF":
-                raise QmdBackendError(f"configured QMD embedding model is not a valid GGUF file: {model_path}")
-    except OSError as error:
-        raise QmdBackendError(f"configured QMD embedding model is unavailable: {model_path}: {error}") from error
+    model_specs = config.get("models")
+    if not isinstance(model_specs, dict):
+        raise QmdBackendError("qmd_model_unavailable: QMD did not resolve all configured cached model identities")
+    for kind in QMD_MODEL_KINDS:
+        model = model_specs.get(kind)
+        if (
+            not isinstance(model, dict)
+            or not isinstance(model.get("uri"), str)
+            or not model["uri"]
+            or not isinstance(model.get("path"), str)
+            or not Path(model["path"]).is_absolute()
+        ):
+            raise QmdBackendError(f"qmd_model_unavailable: configured QMD {kind} model is not cached")
+        model_path = Path(model["path"]).expanduser()
+        try:
+            actual = model_path.resolve(strict=True)
+            stats = actual.stat()
+            with actual.open("rb") as handle:
+                valid_header = handle.read(4) == b"GGUF"
+        except OSError as error:
+            raise QmdBackendError(f"qmd_model_unavailable: configured QMD {kind} model is unavailable: {error}") from error
+        if (
+            not actual.is_file()
+            or not valid_header
+            or str(actual) != model["path"]
+            or stats.st_size != model.get("sizeBytes")
+            or not isinstance(model.get("mtimeMs"), (int, float))
+            or abs(stats.st_mtime_ns / 1_000_000 - model["mtimeMs"]) > 0.001
+            or stats.st_dev != model.get("dev")
+            or stats.st_ino != model.get("ino")
+        ):
+            raise QmdBackendError(f"qmd_model_unavailable: configured QMD {kind} model changed after inspection")
+    embed_model = model_specs["embed"]["uri"]
+    if inspected.get("embedModel") != embed_model or inspected.get("embedModelPath") != model_specs["embed"]["path"]:
+        raise QmdBackendError("qmd_model_unavailable: embedding model identity changed during preflight")
     return config_path, config, roots, embed_model
 
 
@@ -4703,39 +4729,55 @@ def _qmd_query_results(
     request: dict,
     rows: list[dict],
     roots: dict[str, Path],
+    models: dict,
     deadline: float,
     output_remaining: int,
 ) -> tuple[list[dict], int]:
-    qmd = shutil.which("qmd")
-    if not qmd:
-        raise QmdBackendError("QMD launcher is not available in PATH")
-    query_text = " ".join(group["tokens"])
-    query_document = f"lex: {query_text}\nvec: {query_text}"
-    command = [
-        qmd, "--index", "index", "query", query_document,
-        "--format", "json", "--full-path", "--full", "--no-rerank",
-        "--candidate-limit", str(QMD_CANDIDATE_LIMIT), "--n", str(QMD_CANDIDATE_LIMIT),
-    ]
-    for collection in roots:
-        command.extend(("--collection", collection))
+    query_text = group.get("raw")
+    if not isinstance(query_text, str) or not query_text.strip():
+        raise QmdBackendError("QMD query is missing or exceeds its input limit")
+    try:
+        query_size = len(query_text.encode("utf-8"))
+    except UnicodeEncodeError as error:
+        raise QmdBackendError("QMD query is not valid UTF-8 text") from error
+    if query_size > QMD_MAX_QUERY_BYTES:
+        raise QmdBackendError("QMD query is missing or exceeds its input limit")
+    node = qmd_node_executable()
+    bridge = ROOT / "lev-skills-qmd.mjs"
+    query_roots = {name: str(roots[name]) for name in QMD_QUERY_COLLECTIONS}
+    query_request = {
+        "operation": "query",
+        "dbPath": str(qmd_database_path()),
+        "configPath": str(qmd_config_path()),
+        "query": query_text,
+        "collections": list(QMD_QUERY_COLLECTIONS),
+        "roots": query_roots,
+        "models": models,
+        "limit": QMD_CANDIDATE_LIMIT,
+        "candidateLimit": QMD_CANDIDATE_LIMIT,
+    }
     remaining = deadline - time.monotonic()
     if remaining <= 0:
         raise QmdBackendError("QMD query exceeded its total time limit")
     try:
         result = run_bounded_process(
-            command,
+            [node, str(bridge), json.dumps(query_request, separators=(",", ":"))],
             cwd=ROOT,
             timeout=min(QMD_QUERY_TIMEOUT_SECONDS, remaining),
             max_output_bytes=max(0, output_remaining),
         )
     except (OSError, QmdBackendError) as error:
         raise QmdBackendError(str(error)) from error
-    if result.returncode != 0:
-        detail = result.stderr.strip().splitlines()[-1][:400] if result.stderr.strip() else "no diagnostic output"
-        raise QmdBackendError(f"QMD query failed with exit status {result.returncode}: {detail}")
-    raw_results = parse_qmd_json(result.stdout)
+    response = parse_qmd_json(result.stdout)
+    if not isinstance(response, dict):
+        raise QmdBackendError("QMD query bridge returned malformed JSON")
+    if result.returncode != 0 or response.get("status") != "queried":
+        code = response.get("code") if isinstance(response.get("code"), str) else "qmd_backend_error"
+        detail = response.get("error") if isinstance(response.get("error"), str) else "invalid query response"
+        raise QmdBackendError(f"{code}: {detail}")
+    raw_results = response.get("results")
     if not isinstance(raw_results, list):
-        raise QmdBackendError("QMD returned a non-array result")
+        raise QmdBackendError("QMD query bridge returned a non-array result")
 
     rows_by_identity = defaultdict(list)
     for row in rows:
@@ -4826,7 +4868,7 @@ def _qmd_query_results(
 
 def cmd_discover_qmd(request: dict, rows: list[dict], snapshot: dict) -> int:
     try:
-        config_path, _, roots, embed_model = preflight_qmd(refresh=False)
+        config_path, qmd_config, roots, embed_model = preflight_qmd(refresh=False)
         qmd_index_integrity_guard(
             config_path=config_path,
             roots=roots,
@@ -4864,6 +4906,7 @@ def cmd_discover_qmd(request: dict, rows: list[dict], snapshot: dict) -> int:
                     request=request,
                     rows=rows,
                     roots=active_roots,
+                    models=qmd_config["models"],
                     deadline=deadline,
                     output_remaining=output_remaining,
                 )
@@ -4943,7 +4986,19 @@ def cmd_discover_qmd(request: dict, rows: list[dict], snapshot: dict) -> int:
     except QmdBackendError as error:
         message = str(error)
         code = "qmd_backend_error"
-        if "timed out" in message or "time limit" in message:
+        explicit_codes = (
+            "qmd_engine_failed",
+            "qmd_model_unavailable",
+            "qmd_index_unavailable",
+            "qmd_index_integrity",
+            "qmd_untrusted_source",
+            "stale_qmd_index",
+            "qmd_timeout",
+        )
+        explicit = next((candidate for candidate in explicit_codes if candidate in message), None)
+        if explicit:
+            code = explicit
+        elif "timed out" in message or "time limit" in message:
             code = "qmd_timeout"
         elif "model" in message.lower():
             code = "qmd_model_unavailable"
