@@ -91,8 +91,8 @@ only budgets already binding on the work.
 
 ## Standards and boundaries
 
-Read the project's coding standards and boundary rules at three points: when
-you plan, before you execute or brief a worker, and when you review. Use the
+Check the project's coding standards and boundary rules at gates, not while
+planning: before you execute or brief a worker, and when you review. Use the
 project's own list first: when its top instruction file (`AGENTS.md`) has a
 "Where to read first" table or a standards row, read the files it names.
 Otherwise look in each of these
