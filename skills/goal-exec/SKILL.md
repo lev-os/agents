@@ -166,8 +166,8 @@ Completion: audit every accepted requirement against current evidence before
 marking the entire goal complete. No silent scope reduction or fixture-only claims.
 ```
 
-Source coding standards from the nearest project instructions, DNA/rules,
-docs, and `.lev/validation-gates.yaml`. Model selection belongs to the selected
+Source coding standards and boundary rules through the Standards and boundaries section of [Project Context](../lev/references/project-context.md),
+plus `.lev/validation-gates.yaml`, and name the applicable ones in the goal prompt. Model selection belongs to the selected
 project execution profile or FlowMind binding. The goal may name a model only
 for an explicit current-run user override.
 

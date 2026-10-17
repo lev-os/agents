@@ -49,7 +49,8 @@ Adapt response depth accordingly. Penthouse gets 1-page summaries. Engine room g
 
 ## 8-Step Decision Flow
 
-Execute this procedure for every architectural analysis:
+Execute this procedure for every architectural analysis. In a project, first read
+the coding standards and boundary rules through the Standards and boundaries section of [Project Context](../lev/references/project-context.md).
 
 ```
 1. CLASSIFY    Level (strategic/integrative/tactical)

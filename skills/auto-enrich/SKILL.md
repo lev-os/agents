@@ -119,6 +119,7 @@ steps:
     action: Bind the run to Lev state before dispatch
     instruction: |
       Resolve the repository root, named planning artifacts, compiled intent, operator outcomes, active workstream, and allowed planning write scope.
+      Read the coding standards and boundary rules through the Standards and boundaries section of [Project Context](../lev/references/project-context.md); enrichment may not drop or weaken one.
       Resolve source capture/design refs and their source-fidelity table before
       enrichment. Auto-enrich may improve a faithful artifact; it may not invent
       the fidelity baseline that capture omitted.

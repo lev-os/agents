@@ -153,6 +153,10 @@ steps:
     validation: "Claim, scope boundary, expected evidence, and stop condition are visible."
     on_failure: "Ask one narrowing question or route to /interview."
 
+  - id: bind_standards
+    action: Read the coding standards and boundary rules through the Standards and boundaries section of [Project Context](../lev/references/project-context.md); name the ones a production path must keep.
+    validation: "The proof names each applicable rule with path:line, or says none applies."
+
   - id: load_prior_art
     action: Search existing chats, workstreams, workshop notes, repo docs, and relevant external sources.
     validation: "Prior-art result names what is new, repeated, stale, or already decided."

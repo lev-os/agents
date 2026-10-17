@@ -89,6 +89,27 @@ it does not redefine runtime levels.
 These levels order relevance; they do not create a numeric token budget. Honor
 only budgets already binding on the work.
 
+## Standards and boundaries
+
+Read the project's coding standards and boundary rules at three points: when
+you plan, before you execute or brief a worker, and when you review. Use the
+project's own router first: when its root instruction file names a standards
+row or a reading table, read what it names. Otherwise look in each of these
+project-owned roots that exists, and skip a root that does not:
+
+- `.lev/`: config breadcrumbs, rulings in `pm/decisions/`, and record and naming
+  standards in `pm/designs/`.
+- `docs/`: `README.md`, `ARCHITECTURE.md`, and the spec for the touched module.
+- `dna/` (Lev IR): `index.yaml`, architecture boundaries and the import
+  allowlist, `standards/`, `vernacular.yaml`, and gates.
+- Coding standards: the nearest `AGENTS.md` or `CLAUDE.md` for each touched
+  module, and the lint, format and type configs.
+
+Write a short standards list into the plan, the worker brief or the review:
+each file read and each rule that applies, with path:line, or "none applies".
+Name the check behind a rule when one exists; a rule with no check is guidance,
+not a gate. A review fails a change that breaks a listed rule.
+
 ## Conformance cases
 
 | Case | Expected behavior |

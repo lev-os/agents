@@ -20,7 +20,8 @@ The method is adapted from Muratcan's
 reference, not a source of the method. See [NOTICE](NOTICE.md).
 
 For non-trivial project work, load [Project Context](../lev/references/project-context.md)
-before project-specific lookup.
+before project-specific lookup. Apply its Standards and boundaries section before
+the brief, and carry the applicable rules into the transition packet.
 
 ## Fit Check
 
