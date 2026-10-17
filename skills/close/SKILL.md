@@ -66,6 +66,11 @@ steps:
     validation: "Every acceptance item and applicable proof gate is pass, fail, blocked, or explicitly not-tested with residual risk."
     on_failure: "Route failed criteria back to /exec."
 
+  - id: standards_review
+    action: Check the change against the coding standards and boundary rules from the Standards and boundaries section of [Project Context](../lev/references/project-context.md).
+    validation: "Each applicable rule is pass or fail with path:line, or the review says none applies."
+    on_failure: "Route the broken rule back to /exec."
+
   - id: proof_gate_verdict
     action: Seal the proof gates required by the active domain contract before acceptance.
     validation: "Applicable SDLC Pentagon, UltraQA, cleanup, and ai-slop-cleaner results or domain-specific equivalents are recorded; inapplicable gates have an N/A rationale, and residual risks are explicit."

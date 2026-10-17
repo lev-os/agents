@@ -67,6 +67,7 @@ The matrix must include normal-path coverage plus adversarial dynamic e2e scenar
 1. **PLAN ADVERSARIAL QA**
    - Restate the goal, success criteria, safety bounds, and stop condition.
    - Inspect repository context enough to identify runnable surfaces, test commands, state files, and cleanup paths.
+   - In a project, read the coding standards and boundary rules through the Standards and boundaries section of [Project Context](../lev/references/project-context.md); a broken rule is a finding.
    - Build or update the required scenario matrix before running commands.
 
 2. **RUN BASELINE VERIFICATION**

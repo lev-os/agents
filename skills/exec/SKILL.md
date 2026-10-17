@@ -223,8 +223,9 @@ an empty selected diff is reported as nothing to review, not a quality pass.
 Resolve the explicit source plan/spec first, then linked issue/commit references
 and matching local artifacts. If lookup finds no source, ask where it lives
 when interaction is available; if none exists or cannot be supplied, report Spec: unavailable;
-do not infer requirements from the implementation. Load applicable repository
-standards and compare only the selected diff and necessary context.
+do not infer requirements from the implementation. Load the standards and boundary rules through
+the Standards and boundaries section of [Project Context](../lev/references/project-context.md), and compare only the selected diff and
+necessary context. A change that breaks a listed rule fails review.
 
 Build the verdict and next action in this order:
 

@@ -64,6 +64,8 @@ Before every launch:
 2. Read the nearest `AGENTS.md`/`CLAUDE.md` and relevant project `.lev` state:
    config, workstream, task `dna.yaml` and `execution.yaml`, FlowMind graph,
    exec profile, rules index, and validation gates when present.
+   Read the coding standards and boundary rules through the Standards and boundaries section of [Project Context](../lev/references/project-context.md), and put
+   the applicable ones in the context packet's constraints.
    When those fields are present, apply the Claim-to-verifier handoff below;
    keep the existing task/proposal owner and do not recreate the contract.
 3. Freeze a context packet containing the outcome, absolute hard refs, current
