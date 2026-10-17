@@ -13,6 +13,8 @@ const approvedCollections = [
   "skills-db-backlog",
   "skills-db-workshop",
 ];
+const approvedQueryCollections = ["skills-db", "skills-db-bundle-docs"];
+const modelKinds = ["embed", "generate", "rerank"];
 
 function fail(message, details = {}) {
   process.stdout.write(`${JSON.stringify({ status: "error", error: message, ...details })}\n`);
@@ -26,6 +28,55 @@ function seedOfficialRuntimeEnvironment() {
   process.env.LLAMA_LOG_LEVEL = process.env.LLAMA_LOG_LEVEL || "error";
   process.env.GGML_LOG_LEVEL = process.env.GGML_LOG_LEVEL || "error";
   process.env.GGML_BACKEND_SILENT = process.env.GGML_BACKEND_SILENT || "1";
+}
+
+async function resolveConfiguredModels(config, qmdLlm, resolveModelFile) {
+  const uris = {
+    embed: qmdLlm.resolveEmbedModel(config.models),
+    generate: qmdLlm.resolveGenerateModel(config.models),
+    rerank: qmdLlm.resolveRerankModel(config.models),
+  };
+  const models = {};
+  for (const kind of modelKinds) {
+    const uri = uris[kind];
+    if (typeof uri !== "string" || !uri) {
+      throw integrityError("qmd_model_unavailable", `configured QMD ${kind} model URI is missing`);
+    }
+    let resolved;
+    try {
+      resolved = await resolveModelFile(uri, {
+        directory: qmdLlm.DEFAULT_MODEL_CACHE_DIR,
+        download: false,
+        cli: false,
+      });
+    } catch (error) {
+      throw integrityError(
+        "qmd_model_unavailable",
+        `configured QMD ${kind} model is not cached: ${String(error?.message || error).slice(0, 220)}`,
+      );
+    }
+    if (typeof resolved !== "string" || !existsSync(resolved)) {
+      throw integrityError("qmd_model_unavailable", `configured QMD ${kind} model is not cached: ${uri}`);
+    }
+    const path = realpathSync(resolved);
+    const stats = statSync(path);
+    const inspection = qmdLlm.inspectGgufFile(path);
+    if (!stats.isFile() || !inspection?.valid) {
+      throw integrityError(
+        "qmd_model_unavailable",
+        `configured QMD ${kind} model is not a valid cached GGUF: ${inspection?.details || path}`,
+      );
+    }
+    models[kind] = {
+      uri,
+      path,
+      sizeBytes: stats.size,
+      mtimeMs: stats.mtimeMs,
+      dev: stats.dev,
+      ino: stats.ino,
+    };
+  }
+  return models;
 }
 
 function integrityError(code, message) {
@@ -219,19 +270,37 @@ async function verifyIndexIntegrity(request, manifest) {
         }
       }
 
-      const incompleteHashes = db.prepare(`
-        WITH expected_hashes AS (
-          SELECT DISTINCT hash FROM documents
-          WHERE active = 1 AND collection IN (${params})
-        )
-        SELECT h.hash, COUNT(cv.seq) AS chunks, MAX(cv.total_chunks) AS expected_chunks
-        FROM expected_hashes h
-        LEFT JOIN content_vectors cv
-          ON cv.hash = h.hash AND cv.model = ? AND cv.embed_fingerprint = ?
-        GROUP BY h.hash
-      `).all(...approvedCollections, effectiveModel, fingerprint).filter((row) =>
-        !row.expected_chunks || row.chunks < row.expected_chunks
-      );
+      const ownedActiveHashes = new Set();
+      for (const row of db.prepare(`
+        SELECT DISTINCT hash FROM documents
+        WHERE active = 1 AND collection IN (${params})
+      `).iterate(...approvedCollections)) {
+        if (typeof row.hash !== "string" || row.hash.length === 0) {
+          throw integrityError("qmd_index_integrity", "QMD active document has an invalid content hash");
+        }
+        ownedActiveHashes.add(row.hash);
+      }
+      const metadataByHash = new Map();
+      const requiredVectorIds = new Set();
+      for (const row of db.prepare(`
+        SELECT hash, seq, total_chunks
+        FROM content_vectors
+        WHERE model = ? AND embed_fingerprint = ?
+      `).iterate(effectiveModel, fingerprint)) {
+        if (!ownedActiveHashes.has(row.hash)) continue;
+        const metadata = metadataByHash.get(row.hash) || { chunks: 0, expectedChunks: 0 };
+        metadata.chunks++;
+        metadata.expectedChunks = Math.max(metadata.expectedChunks, Number(row.total_chunks) || 0);
+        metadataByHash.set(row.hash, metadata);
+        requiredVectorIds.add(`${row.hash}_${row.seq}`);
+      }
+      let pendingEmbeddingHashes = 0;
+      for (const hash of ownedActiveHashes) {
+        const metadata = metadataByHash.get(hash);
+        if (!metadata || !metadata.expectedChunks || metadata.chunks < metadata.expectedChunks) {
+          pendingEmbeddingHashes++;
+        }
+      }
       const vectorKeys = new Set();
       for (const row of db.prepare("SELECT hash_seq FROM vectors_vec").iterate()) {
         if (typeof row.hash_seq !== "string") {
@@ -242,16 +311,9 @@ async function verifyIndexIntegrity(request, manifest) {
           throw integrityError("qmd_index_integrity", "QMD vector ID scan exceeded its safety bound");
         }
       }
-      const requiredVectors = db.prepare(`
-        SELECT DISTINCT cv.hash, cv.seq
-        FROM content_vectors cv
-        JOIN (SELECT DISTINCT hash FROM documents WHERE active = 1 AND collection IN (${params})) h
-          ON h.hash = cv.hash
-        WHERE cv.model = ? AND cv.embed_fingerprint = ?
-      `).iterate(...approvedCollections, effectiveModel, fingerprint);
       let missingVectorIds = 0;
-      for (const row of requiredVectors) {
-        if (!vectorKeys.has(`${row.hash}_${row.seq}`)) missingVectorIds++;
+      for (const vectorId of requiredVectorIds) {
+        if (!vectorKeys.has(vectorId)) missingVectorIds++;
       }
 
       return {
@@ -260,7 +322,7 @@ async function verifyIndexIntegrity(request, manifest) {
         missingPaths,
         extraPaths,
         staleBodies,
-        pendingEmbeddingHashes: incompleteHashes.length,
+        pendingEmbeddingHashes,
         missingVectorIds,
         diagnostics,
       };
@@ -294,6 +356,356 @@ function relativePath(root, file) {
   return relativeValue.split(sep).join("/");
 }
 
+export function buildReadOnlyHybridStore({ db, cacheDb, llm, models, qmdStore }) {
+  if (!db || !cacheDb || !llm || !models || !qmdStore) {
+    throw integrityError("qmd_backend_error", "read-only QMD store dependencies are incomplete");
+  }
+  const failStage = (stage, error) =>
+    integrityError("qmd_engine_failed", "QMD " + stage + " failed: " + String(error?.message || error).slice(0, 250));
+  const vectorTable = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='vectors_vec'").get();
+  const dimensionMatch = vectorTable?.sql?.match(/float\[(\d+)\]/);
+  const vectorDimension = dimensionMatch ? Number(dimensionMatch[1]) : null;
+  if (vectorTable && (!Number.isSafeInteger(vectorDimension) || vectorDimension <= 0)) {
+    throw integrityError("qmd_index_integrity", "QMD vector table has no valid embedding dimension");
+  }
+
+  const nativeExpand = llm.expandQuery.bind(llm);
+  llm.expandQuery = async (...args) => {
+    let swallowedFailure;
+    const originalConsoleError = console.error;
+    console.error = (...values) => {
+      if (values[0] === "Structured query expansion failed:") {
+        swallowedFailure = values[1] || new Error("QMD expansion failure was swallowed");
+      }
+      originalConsoleError(...values);
+    };
+    let expanded;
+    try {
+      expanded = await nativeExpand(...args);
+    } catch (error) {
+      throw failStage("query expansion", error);
+    } finally {
+      console.error = originalConsoleError;
+    }
+    if (swallowedFailure) throw failStage("query expansion", swallowedFailure);
+    if (
+      !Array.isArray(expanded) ||
+      expanded.length === 0 ||
+      expanded.some((item) =>
+        !item ||
+        !["lex", "vec", "hyde"].includes(item.type) ||
+        typeof item.text !== "string" ||
+        item.text.trim().length === 0
+      )
+    ) {
+      throw integrityError("qmd_engine_failed", "QMD query expansion returned empty or malformed variants");
+    }
+    return expanded;
+  };
+
+  const nativeEmbedBatch = llm.embedBatch.bind(llm);
+  llm.embedBatch = async (texts, ...args) => {
+    let embeddings;
+    try {
+      embeddings = await nativeEmbedBatch(texts, ...args);
+    } catch (error) {
+      throw failStage("query embedding", error);
+    }
+    if (
+      !Array.isArray(embeddings) ||
+      embeddings.length !== texts.length ||
+      embeddings.some((item) =>
+        !item ||
+        item.model !== llm.embedModelName ||
+        !Array.isArray(item.embedding) ||
+        item.embedding.length === 0 ||
+        (vectorDimension !== null && item.embedding.length !== vectorDimension) ||
+        item.embedding.some((value) => typeof value !== "number" || !Number.isFinite(value))
+      )
+    ) {
+      throw integrityError("qmd_engine_failed", "QMD query embedding returned missing, incomplete, non-finite, or wrong-model vectors");
+    }
+    return embeddings;
+  };
+
+  const nativeRerank = llm.rerank.bind(llm);
+  llm.rerank = async (query, documents, ...args) => {
+    let response;
+    try {
+      response = await nativeRerank(query, documents, ...args);
+    } catch (error) {
+      throw failStage("reranking", error);
+    }
+    const expectedFiles = new Set(documents.map((document) => document.file));
+    const actualFiles = new Set();
+    if (
+      !response ||
+      response.model !== llm.rerankModelName ||
+      !Array.isArray(response.results) ||
+      response.results.length !== expectedFiles.size
+    ) {
+      throw integrityError("qmd_engine_failed", "QMD reranking returned a fallback or incomplete result");
+    }
+    for (const item of response.results) {
+      if (
+        !item ||
+        typeof item.file !== "string" ||
+        !expectedFiles.has(item.file) ||
+        actualFiles.has(item.file) ||
+        typeof item.score !== "number" ||
+        !Number.isFinite(item.score)
+      ) {
+        throw integrityError("qmd_engine_failed", "QMD reranking returned an invalid or incomplete score");
+      }
+      actualFiles.add(item.file);
+    }
+    if (actualFiles.size !== expectedFiles.size) {
+      throw integrityError("qmd_engine_failed", "QMD reranking omitted candidate files");
+    }
+    return response;
+  };
+
+  return {
+    db,
+    llm,
+    searchFTS: (query, limit, collection) => qmdStore.searchFTS(db, query, limit, collection),
+    searchVec: (query, model, limit, collection, session, embedding) =>
+      qmdStore.searchVec(db, query, model, limit, collection, session, embedding, llm),
+    expandQuery: async (query) => {
+      const expanded = await qmdStore.expandQuery(query, models.generate.uri, cacheDb, llm);
+      if (
+        !Array.isArray(expanded) ||
+        expanded.length === 0 ||
+        expanded.some((item) =>
+          !item ||
+          !["lex", "vec", "hyde"].includes(item.type) ||
+          typeof item.query !== "string" ||
+          item.query.trim().length === 0
+        )
+      ) {
+        throw integrityError("qmd_engine_failed", "QMD query expansion returned empty or malformed variants");
+      }
+      return expanded;
+    },
+    invalidateExpansionCache: (query) =>
+      qmdStore.deleteExpansionCacheEntry(cacheDb, query, models.generate.uri),
+    rerank: async (query, documents, _model, intent) => {
+      const results = await qmdStore.rerank(query, documents, models.rerank.uri, cacheDb, intent, llm);
+      const expectedFiles = new Set(documents.map((document) => document.file));
+      const seenFiles = new Set();
+      if (!Array.isArray(results) || results.length !== expectedFiles.size) {
+        throw integrityError("qmd_engine_failed", "QMD reranking omitted candidate results");
+      }
+      for (const item of results) {
+        if (
+          !item ||
+          !expectedFiles.has(item.file) ||
+          seenFiles.has(item.file) ||
+          typeof item.score !== "number" ||
+          !Number.isFinite(item.score)
+        ) {
+          throw integrityError("qmd_engine_failed", "QMD reranking returned invalid or incomplete results");
+        }
+        seenFiles.add(item.file);
+      }
+      return results;
+    },
+    getContextForFile: (filepath) => qmdStore.getContextForFile(db, filepath),
+  };
+}
+
+async function queryReadOnlyHybrid(request) {
+  if (
+    typeof request.dbPath !== "string" ||
+    typeof request.configPath !== "string" ||
+    typeof request.query !== "string" ||
+    Buffer.byteLength(request.query, "utf8") === 0 ||
+    Buffer.byteLength(request.query, "utf8") > 8192 ||
+    JSON.stringify(request.collections) !== JSON.stringify(approvedQueryCollections) ||
+    request.limit !== 50 ||
+    request.candidateLimit !== 50 ||
+    !request.roots ||
+    !request.models
+  ) {
+    throw integrityError("qmd_backend_error", "QMD query request is malformed or unscoped");
+  }
+
+  const packageRoot = join(
+    process.env.QMD_PREFIX || join(process.env.HOME || "", ".local", "share", "qmd", "npm"),
+    "lib", "node_modules", "@tobilu", "qmd",
+  );
+  const require = createRequire(join(packageRoot, "package.json"));
+  const packageJson = require(join(packageRoot, "package.json"));
+  if (packageJson.version !== "2.8.3") {
+    throw integrityError("qmd_backend_error", "unsupported QMD SDK version: " + packageJson.version);
+  }
+  const yaml = require("yaml");
+  const Database = require("better-sqlite3");
+  const sqliteVec = require("sqlite-vec");
+  const config = yaml.parse(readFileSync(request.configPath, "utf8"));
+  if (!config || typeof config !== "object" || !config.collections || typeof config.collections !== "object") {
+    throw integrityError("qmd_backend_error", "QMD configuration is malformed");
+  }
+  const roots = {};
+  for (const name of approvedQueryCollections) {
+    const item = config.collections[name];
+    if (!item || typeof item.path !== "string" || item.pattern !== "**/*.md") {
+      throw integrityError("qmd_backend_error", "QMD query collection is invalid: " + name);
+    }
+    try {
+      const configuredRoot = realpathSync(item.path);
+      if (configuredRoot !== realpathSync(request.roots[name])) {
+        throw integrityError("qmd_backend_error", "QMD query collection changed: " + name);
+      }
+      roots[name] = configuredRoot;
+    } catch (error) {
+      if (error?.code === "qmd_backend_error") throw error;
+      throw integrityError("qmd_backend_error", "QMD query collection is unavailable: " + name);
+    }
+  }
+
+  const qmdLlm = await import(pathToFileURL(join(packageRoot, "dist", "llm.js")).href);
+  const qmdStore = await import(pathToFileURL(join(packageRoot, "dist", "store.js")).href);
+  const nodeLlamaEntry = join(packageRoot, "node_modules", "node-llama-cpp", "dist", "index.js");
+  const { resolveModelFile } = await import(pathToFileURL(nodeLlamaEntry).href);
+  for (const name of ["hybridQuery", "searchFTS", "searchVec", "expandQuery", "deleteExpansionCacheEntry", "rerank", "getContextForFile", "parseVirtualPath"]) {
+    if (typeof qmdStore[name] !== "function") {
+      throw integrityError("qmd_backend_error", "installed QMD SDK lacks required query export: " + name);
+    }
+  }
+  const models = await resolveConfiguredModels(config, qmdLlm, resolveModelFile);
+  for (const kind of modelKinds) {
+    const expected = request.models[kind];
+    const actual = models[kind];
+    if (
+      !expected ||
+      expected.uri !== actual.uri ||
+      expected.path !== actual.path ||
+      expected.sizeBytes !== actual.sizeBytes ||
+      expected.mtimeMs !== actual.mtimeMs ||
+      expected.dev !== actual.dev ||
+      expected.ino !== actual.ino
+    ) {
+      throw integrityError("qmd_model_unavailable", "configured QMD " + kind + " model identity changed after preflight");
+    }
+  }
+  const modelByUri = new Map(Object.values(models).map((model) => [model.uri, model]));
+
+  let db;
+  let cacheDb;
+  let llm;
+  let results;
+  let failure;
+  try {
+    db = new Database(request.dbPath, { readonly: true, fileMustExist: true });
+    sqliteVec.load(db);
+    db.pragma("query_only = ON");
+    cacheDb = new Database(":memory:");
+    cacheDb.exec("CREATE TABLE llm_cache (hash TEXT PRIMARY KEY, result TEXT NOT NULL, created_at TEXT NOT NULL)");
+
+    const LlamaCpp = qmdLlm.LlamaCpp;
+    if (typeof LlamaCpp !== "function") {
+      throw integrityError("qmd_backend_error", "installed QMD SDK lacks LlamaCpp");
+    }
+    llm = new LlamaCpp({
+      embedModel: models.embed.uri,
+      generateModel: models.generate.uri,
+      rerankModel: models.rerank.uri,
+      modelCacheDir: qmdLlm.DEFAULT_MODEL_CACHE_DIR,
+      inactivityTimeoutMs: 0,
+      disposeModelsOnInactivity: false,
+    });
+    const ensureLlamaWithoutBuild = llm.ensureLlama.bind(llm);
+    llm.ensureLlama = async () => ensureLlamaWithoutBuild(false);
+    llm.resolveModel = async (uri) => {
+      const pinned = modelByUri.get(uri);
+      if (!pinned) {
+        throw integrityError("qmd_model_unavailable", "QMD requested an unvalidated model URI: " + String(uri));
+      }
+      let stats;
+      try {
+        stats = statSync(pinned.path);
+      } catch {
+        throw integrityError("qmd_model_unavailable", "prevalidated QMD model disappeared: " + pinned.uri);
+      }
+      if (
+        !stats.isFile() ||
+        realpathSync(pinned.path) !== pinned.path ||
+        stats.size !== pinned.sizeBytes ||
+        stats.mtimeMs !== pinned.mtimeMs ||
+        stats.dev !== pinned.dev ||
+        stats.ino !== pinned.ino ||
+        !qmdLlm.inspectGgufFile(pinned.path)?.valid
+      ) {
+        throw integrityError("qmd_model_unavailable", "prevalidated QMD model changed before inference: " + pinned.uri);
+      }
+      return pinned.path;
+    };
+
+    const store = buildReadOnlyHybridStore({ db, cacheDb, llm, models, qmdStore });
+    const nativeResults = await qmdStore.hybridQuery(store, request.query, {
+      collection: approvedQueryCollections,
+      limit: request.limit,
+      candidateLimit: request.candidateLimit,
+    });
+    if (!Array.isArray(nativeResults)) {
+      throw integrityError("qmd_backend_error", "QMD hybrid query returned a non-array result");
+    }
+    results = nativeResults.map((result) => {
+      if (
+        !result ||
+        typeof result.file !== "string" ||
+        typeof result.body !== "string" ||
+        typeof result.title !== "string" ||
+        typeof result.score !== "number" ||
+        !Number.isFinite(result.score) ||
+        result.score <= 0 ||
+        result.score > 1
+      ) {
+        throw integrityError("qmd_backend_error", "QMD hybrid query returned an invalid candidate");
+      }
+      const parsed = qmdStore.parseVirtualPath(result.file);
+      if (
+        !parsed ||
+        parsed.indexName ||
+        !approvedQueryCollections.includes(parsed.collectionName) ||
+        !parsed.path ||
+        parsed.path.split("/").some((part) => !part || part === "." || part === "..")
+      ) {
+        throw integrityError("qmd_untrusted_source", "QMD returned an invalid virtual source path");
+      }
+      const root = roots[parsed.collectionName];
+      let candidate;
+      try {
+        candidate = realpathSync(resolve(root, parsed.path));
+      } catch {
+        throw integrityError("qmd_untrusted_source", "QMD source path does not exist: " + parsed.collectionName + "/" + parsed.path);
+      }
+      const mapped = relativePath(root, candidate);
+      if (mapped !== parsed.path || !statSync(candidate).isFile()) {
+        throw integrityError("qmd_untrusted_source", "QMD source path escaped its collection: " + parsed.collectionName + "/" + parsed.path);
+      }
+      return { file: candidate, score: result.score, body: result.body, title: result.title };
+    });
+  } catch (error) {
+    failure = error;
+  } finally {
+    for (const [name, cleanup] of [
+      ["QMD model disposal", () => llm?.dispose()],
+      ["QMD memory cache close", () => cacheDb?.close()],
+      ["QMD read-only index close", () => db?.close()],
+    ]) {
+      try {
+        await cleanup();
+      } catch (error) {
+        failure = failure || integrityError("qmd_backend_error", name + " failed: " + String(error?.message || error).slice(0, 250));
+      }
+    }
+  }
+  if (failure) throw failure;
+  return results;
+}
+
 async function main() {
   let request;
   try {
@@ -312,6 +724,20 @@ async function main() {
   );
   if (!existsSync(request.configPath)) {
     fail("QMD configuration is missing");
+    return;
+  }
+
+  if (request.operation === "query") {
+    seedOfficialRuntimeEnvironment();
+    try {
+      const results = await queryReadOnlyHybrid(request);
+      process.stdout.write(JSON.stringify({ status: "queried", results }) + "\n");
+    } catch (error) {
+      const code = ["qmd_engine_failed", "qmd_model_unavailable", "qmd_untrusted_source"].includes(error?.code)
+        ? error.code
+        : "qmd_backend_error";
+      fail(String(error?.message || error).slice(0, 800), { code });
+    }
     return;
   }
 
@@ -355,27 +781,18 @@ async function main() {
       const qmdLlm = await import(pathToFileURL(join(packageRoot, "dist", "llm.js")).href);
       const nodeLlamaEntry = join(packageRoot, "node_modules", "node-llama-cpp", "dist", "index.js");
       const { resolveModelFile } = await import(pathToFileURL(nodeLlamaEntry).href);
-      const embedModel = qmdLlm.resolveEmbedModel(config.models);
-      stage = "resolve cached model identity";
-      const embedModelPath = await resolveModelFile(embedModel, {
-        directory: qmdLlm.DEFAULT_MODEL_CACHE_DIR,
-        download: false,
-        cli: false,
-      });
-      stage = "inspect cached GGUF";
-      const modelInspection = qmdLlm.inspectGgufFile(embedModelPath);
-      if (!modelInspection.valid) {
-        fail(`configured QMD embedding model is invalid: ${modelInspection.details || embedModelPath}`);
-        return;
-      }
+      stage = "resolve exact cached model identities";
+      const models = await resolveConfiguredModels(config, qmdLlm, resolveModelFile);
       process.stdout.write(`${JSON.stringify({
         status: "inspected",
         collections,
-        embedModel,
-        embedModelPath,
+        embedModel: models.embed.uri,
+        embedModelPath: models.embed.path,
+        models,
       })}\n`);
     } catch (error) {
-      fail(`cannot inspect QMD configuration during ${stage}: ${String(error?.message || error).slice(0, 400)}`);
+      const code = typeof error?.code === "string" ? error.code : "qmd_backend_error";
+      fail(`cannot inspect QMD configuration during ${stage}: ${String(error?.message || error).slice(0, 400)}`, { code });
     }
     return;
   }
@@ -481,4 +898,6 @@ async function main() {
   })}\n`);
 }
 
-await main();
+if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
+  await main();
+}
