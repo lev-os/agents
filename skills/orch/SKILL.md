@@ -53,7 +53,9 @@ call. If more graph work remains afterward, the graph result is partial.
 
 ## Establish the control plan BEFORE any job effects
 
-Read the project instructions and required report schema. Read the capability
+Read the project instructions and required report schema. Read the coding
+standards and boundary rules through the Standards and boundaries section of [Project Context](../lev/references/project-context.md),
+and put the applicable ones in every worker brief. Read the capability
 information. List every managed branch and read its full instructions/results,
 including continuation pages. An inventory is not the instructions. A failed
 read conveys no permission: retry once with the documented default/cursor;

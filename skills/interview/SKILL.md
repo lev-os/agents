@@ -97,6 +97,7 @@ steps:
     instruction: |
       Before each orientation or branch question, inspect the local workspace when the answer may be discoverable.
       Search code, docs, designs, proposals, workstreams, validation gates, and existing task artifacts as relevant.
+      Read the coding standards and boundary rules through the Standards and boundaries section of [Project Context](../lev/references/project-context.md); a design must not break them silently.
       Pull one useful artifact fact, one implementation/doc fact, and one constraint or gate when available.
       If lookup resolves the ambiguity dimension or branch, update state and move to the next unresolved dimension or branch without asking.
       If lookup cannot resolve it, ask the smallest human judgment question that remains.
