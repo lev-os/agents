@@ -1,6 +1,7 @@
 import importlib.machinery
 import importlib.util
 import json
+import os
 import shutil
 import tempfile
 import unittest
@@ -9,7 +10,8 @@ from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
-LOADER = importlib.machinery.SourceFileLoader("lev_skills", str(ROOT / "lev-skills.sh"))
+SOURCE = Path(os.environ.get("LEV_SKILLS_TEST_SOURCE", ROOT / "lev-skills.sh")).resolve()
+LOADER = importlib.machinery.SourceFileLoader("lev_skills", str(SOURCE))
 SPEC = importlib.util.spec_from_loader(LOADER.name, LOADER)
 LEV_SKILLS = importlib.util.module_from_spec(SPEC)
 LOADER.exec_module(LEV_SKILLS)
@@ -292,12 +294,16 @@ class TaxonomyProjectionTest(unittest.TestCase):
         ):
             self.assertIn(label, labels)
         collections = [item for item in config["source_collections"] if item["namespace"] == "skills-db"]
-        self.assertEqual(27, len(collections))
-        self.assertEqual(24, sum(item["policy"] == "regular" for item in collections))
+        self.assertGreaterEqual(len(collections), 27)
+        self.assertEqual(len(collections) - 3, sum(item["policy"] == "regular" for item in collections))
         self.assertEqual(3, sum(item["policy"] == "administrative" for item in collections))
         policy_by_name = {item["name"]: item["policy"] for item in collections}
         self.assertEqual("regular", policy_by_name["other"])
+        self.assertEqual("regular", policy_by_name["creative"])
         self.assertEqual("administrative", policy_by_name["_workshop"])
+        collection_ids = {item["name"]: item["node_id"] for item in collections}
+        self.assertEqual("source.collection.skills-db.design-ux", collection_ids["design-ux"])
+        self.assertEqual("source.collection.skills-db.video", collection_ids["video"])
         other = LEV_SKILLS.project_taxonomy_row(self.row("other/record.txt", "other"), self.taxonomy_state)
         other_memberships = {labels_by_id[item["node_id"]]: item for item in other["memberships"]}
         self.assertIn("Uncategorized / unresolved", other_memberships)
@@ -756,6 +762,40 @@ class IsolatedProjectionIntegrationTest(unittest.TestCase):
                     atomic_write.assert_not_called()
                     self.assertFalse((root / "skills-inventory.jsonl").exists())
                     self.assertFalse((root / "skills-inventory.snapshot.json").exists())
+
+    def test_taxonomy_accepts_dynamic_regular_collections_and_keeps_admin_and_historical_ids(self):
+        config = json.loads((ROOT / "skills-taxonomy.json").read_text())
+        corpus = {item["name"]: item for item in config["source_collections"] if item["namespace"] == "skills-db"}
+        self.assertEqual(corpus["creative"]["policy"], "regular")
+        self.assertEqual(corpus["video"]["node_id"], "source.collection.skills-db.video")
+        self.assertEqual(corpus["design-ux"]["node_id"], "source.collection.skills-db.design-ux")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            self.make_fixture(root)
+            (root / "skills-db/creative").mkdir()
+            self.assertFalse((root / "skills-db/video").exists(), "declared empty historical collections stay valid")
+            with self.bindings(root):
+                validated = LEV_SKILLS.validate_taxonomy_config(config)
+                self.assertEqual(validated["source_collections"], config["source_collections"])
+
+                bad_admin = json.loads(json.dumps(config))
+                next(item for item in bad_admin["source_collections"] if item["name"] == ".archive")["policy"] = "regular"
+                with self.assertRaisesRegex(RuntimeError, "administrative collections"):
+                    LEV_SKILLS.validate_taxonomy_config(bad_admin)
+
+                undeclared = json.loads(json.dumps(config))
+                undeclared["source_collections"] = [
+                    item for item in undeclared["source_collections"]
+                    if not (item["namespace"] == "skills-db" and item["name"] == "creative")
+                ]
+                with self.assertRaisesRegex(RuntimeError, "undeclared: creative"):
+                    LEV_SKILLS.validate_taxonomy_config(undeclared)
+
+                unsafe_path = json.loads(json.dumps(config))
+                next(item for item in unsafe_path["source_collections"] if item["name"] == "creative")["name"] = "../creative"
+                with self.assertRaisesRegex(RuntimeError, "source collection"):
+                    LEV_SKILLS.validate_taxonomy_config(unsafe_path)
 
 
 if __name__ == "__main__":
