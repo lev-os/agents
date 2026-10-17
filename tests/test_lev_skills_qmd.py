@@ -868,6 +868,45 @@ sys.addaudithook(audit)
             )
         self.assert_pid_exited(int(overflow_pid.read_text()))
 
+    def test_qmd_child_deadline_uses_group_cap_and_remaining_aggregate_budget(self):
+        runner = self.load_product_module()
+        runner.qmd_node_executable = lambda: "/opt/homebrew/opt/node@24/bin/node"
+        calls = []
+
+        def bounded_process(command, **kwargs):
+            calls.append(kwargs)
+            return subprocess.CompletedProcess(
+                command,
+                0,
+                json.dumps({"status": "queried", "results": []}),
+                "",
+            )
+
+        runner.run_bounded_process = bounded_process
+        self.assertEqual(runner.QMD_QUERY_TIMEOUT_SECONDS, 90.0)
+        query_roots = {
+            "skills-db": self.repo / "skills-db",
+            "skills-db-bundle-docs": self.repo / "skills-db/creative/roundtable-marvkr--better-design/source/.agents/skills",
+        }
+        arguments = {
+            "group": {"raw": "deadline probe"},
+            "request": {"category": None, "limit": 10},
+            "rows": [],
+            "roots": query_roots,
+            "models": {},
+            "output_remaining": 1024,
+        }
+
+        short_deadline = time.monotonic() + 1.0
+        time.sleep(0.15)
+        runner._qmd_query_results(**arguments, deadline=short_deadline)
+        aggregate_clamped_timeout = calls[-1]["timeout"]
+        self.assertGreater(aggregate_clamped_timeout, 0)
+        self.assertLess(aggregate_clamped_timeout, 0.9)
+
+        runner._qmd_query_results(**arguments, deadline=time.monotonic() + 120.0)
+        self.assertEqual(calls[-1]["timeout"], 90.0)
+
     def test_sdk_close_failure_returns_one_error_without_complete_status(self):
         runner = self.load_product_module()
         package_root = self.qmd_prefix / "lib/node_modules/@tobilu/qmd"
