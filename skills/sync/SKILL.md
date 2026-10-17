@@ -1,29 +1,29 @@
 ---
 name: sync
-description: "Checkpoint sync: one bounded script run commits, merge-pulls and pushes the current checkout and its dirty submodules, with a Lore commit message per repository. Landing on main needs explicit --main."
+description: "Checkpoint sync: one bounded script run commits, merge-pulls and pushes the current checkout and its dirty submodules, with a Lore commit message per repository. Paths after -- limit each commit to the files this session wrote. Landing on main needs explicit --main."
 ---
 
 # Sync
 
-Git here is a checkpoint mechanism, not a pull-request workflow. A sync is **total** inside its boundary and **bounded** in time.
+Git here is a checkpoint mechanism, not a pull-request workflow. A sync takes **its own paths** inside its boundary and is **bounded** in time.
 
 `scripts/sync.sh` does every git operation of a sync in one run. The run stops itself when its **budget** is spent (300 seconds). Your part is the commit messages and the report. A whole sync is two snippets.
 
 ## Steps
 
-1. **Plan.** Run this from anywhere in the checkout. Add the mode flag from [Modes](#modes) when the user asked for one.
+1. **Plan.** Run this from anywhere in the checkout. Add the mode flag from [Modes](#modes) when the user asked for one. After `--`, name the paths this session wrote ([Which paths](#which-paths)).
 
    ```bash
-   ~/.agents/skills/sync/scripts/sync.sh plan
+   ~/.agents/skills/sync/scripts/sync.sh plan -- <path>...
    ```
 
-   It only reads. It lists each dirty repository, submodules first and the checkout last, with its changed paths. Then it prints the run snippet with one empty message block per repository.
-   Done when: you hold a key for every dirty repository, or the output says nothing is dirty.
+   It only reads. It lists each dirty repository, submodules first and the checkout last, with its changed paths and, under `takes:`, the ones the run will commit. Then it prints the run snippet: your paths, and one empty message block for each repository the run commits in.
+   Done when: you hold a key for every block, or the output says nothing is dirty.
 
 2. **Write the messages and run.** Fill every block of the printed snippet with a [Lore message](#lore-messages). Run the snippet as one command, with a tool timeout of 310000 ms so the run ends inside the call.
 
    ```bash
-   ~/.agents/skills/sync/scripts/sync.sh run <<'MSG'
+   ~/.agents/skills/sync/scripts/sync.sh run -- services/telemetry-ingest/src/j1939.ts .lev/pm/handoffs/today.md <<'MSG'
    == services/telemetry-ingest
    Decode the J1939 engine hours so the fleet page stops showing zero
 
@@ -50,7 +50,7 @@ Every git write of a sync goes through the script. The sync needs no other git c
 
 ## Modes
 
-The boundary is fixed by the mode, and inside it everything dirty is taken. The user saying "sync" has already answered "which files?": all of them.
+The mode fixes the repositories; the paths fix the files ([Which paths](#which-paths)).
 
 | The user says | Flag on `plan` and `run` | What the run covers |
 |---|---|---|
@@ -61,9 +61,21 @@ The boundary is fixed by the mode, and inside it everything dirty is taken. The 
 
 Plain "sync" on a feature branch leaves `main` alone. All pulls are merges (`git pull --no-rebase`); the script never rebases, never force-pushes and never opens a pull request.
 
+## Which paths
+
+Sessions in one checkout share one git index. A commit that takes everything dirty also takes the files another session staged or is still editing.
+
+| The run names | Each commit takes | Everything else |
+|---|---|---|
+| `-- <path>...`, absolute or relative to the current directory | Those paths, plus the pointer of each submodule the run committed in. A named directory or submodule names everything in it. | Stays as it was. Other sessions' staged, unstaged and untracked paths are not touched. |
+| `-- .` | Everything dirty, staged paths included | Nothing is left. |
+| no paths | Everything dirty, as a total checkpoint | The run stops with exit 64, before any change, when a path is staged already: in a shared checkout that path may be another session's. |
+
+Name your paths whenever another session may work in the same checkout. Take them from your own edits this session (created, changed, deleted), not from the plan output, which lists other sessions' files too.
+
 ## Lore messages
 
-Each repository gets one commit that holds everything dirty in it. Sync is the one place a whole-repository commit is right, because the user asked for a total checkpoint.
+Each repository gets one commit: the named paths in it, or everything dirty in it when the run names no paths.
 
 ```
 <intent line: why these changes exist, not what changed>
@@ -104,8 +116,8 @@ When the budget is spent, the script prints the step it was in and the state so 
 | 0 | Done | Report. |
 | 2 | Merge conflict. The merge is left in place. | Write the brief in [references/conflict-brief.md](references/conflict-brief.md) and stop. |
 | 3 | Untracked files over the limit. Nothing was committed in that repository. | Show the user the largest paths the script printed. Ask: ignore them, or raise the limit. |
-| 4 | A commit, pull or push failed with no conflict | Read the git or hook message above the `STOPPED` line. Fix the cause, then use the one retry. |
-| 64 | A message or an argument is wrong. Nothing was changed. | Fix the block the script names and run again. This run does not use up the one retry. |
+| 4 | A commit, pull or push failed with no conflict | Read the git or hook message above the `STOPPED` line. Fix the cause, then use the one retry. When it says paths are staged, see [Troubleshooting](#troubleshooting). |
+| 64 | A message, an argument or a named path is wrong, or a run with no paths found paths staged already. Nothing was changed. | Fix the block or the path the script names. For staged paths, name this session's paths after `--`. Run again; this run does not use up the one retry. |
 | 75 | Another sync holds this checkout | See [Troubleshooting](#troubleshooting). |
 | 124 | Budget spent | See [Troubleshooting](#troubleshooting). |
 
@@ -113,11 +125,13 @@ When the budget is spent, the script prints the step it was in and the state so 
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Exit 75, or two sessions synced one checkout at the same time and the commits look tangled | A dual sync: two sessions, for example a forked chat, ran sync together | Stop it with the command the script printed (`kill -TERM -- -<pid>`), then sync again. The new run takes everything that is dirty, merge-pulls and pushes. |
+| Exit 75, or two sessions synced one checkout at the same time and the commits look tangled | A dual sync: two sessions, for example a forked chat, ran sync together | Stop it with the command the script printed (`kill -TERM -- -<pid>`), then sync again with this session's paths. The new run takes them, merge-pulls and pushes. |
 | Exit 124 during a push | A push hook hangs or runs a long check | The commit is safe in the local branch. Sync again. If it stops at the same step, tell the user which hook; raise `SYNC_BUDGET` only on the user's word. |
 | The chat shows a sync with no result for many minutes | The session stopped, not the sync. A run cannot outlive its budget. | Run `plan`. It shows what is still dirty and whether a lock is left. |
 | Exit 4 and the hook names a wrong Node or pnpm version | The shell found an old Node first | Put the project's Node first in `PATH` in the same snippet, then sync again. |
 | Exit 4 at `git add`, and `index.lock` exists | A stopped git left its lock | Check that no git runs (`pgrep -fl git`). Remove `.git/index.lock`. Sync again. |
 | `plan` notes a sync lock, and no sync runs | A stopped run left it | Nothing. The next run takes over a lock whose process is gone. |
 | "N paths became dirty during the run" | Another session wrote during the sync | Sync again to take them. |
+| "N dirty paths are left as they were" | The run took only the paths named after `--` | Nothing. Their owners commit them. |
+| Exit 4 at a merge-pull, and the message says paths are staged | origin moved, and git refuses a merge while any path is staged; other sessions' staged paths stay staged | The commit is safe in the local branch. Sync again after those paths are committed. Never unstage or commit another session's paths to force the merge. |
 | "WARNING detached HEAD" on a submodule | The submodule is not on a branch, so its commit was not pushed | Check out its branch in the submodule and sync again, so the parent points at a pushed commit. |
