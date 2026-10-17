@@ -93,8 +93,9 @@ only budgets already binding on the work.
 
 Read the project's coding standards and boundary rules at three points: when
 you plan, before you execute or brief a worker, and when you review. Use the
-project's own router first: when its root instruction file names a standards
-row or a reading table, read what it names. Otherwise look in each of these
+project's own list first: when its top instruction file (`AGENTS.md`) has a
+"Where to read first" table or a standards row, read the files it names.
+Otherwise look in each of these
 project-owned roots that exists, and skip a root that does not:
 
 - `.lev/`: config breadcrumbs, rulings in `pm/decisions/`, and record and naming
