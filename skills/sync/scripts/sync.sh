@@ -8,8 +8,7 @@
 # directory. Each commit then takes only those paths, plus the pointer of a submodule the
 # run committed in; every other path stays as it was, staged or not. A named directory or
 # submodule names everything in it, and -- . names everything. With no paths, a run takes
-# everything dirty, but stops before any change when a path is staged already: in a
-# checkout that other sessions share, a staged path may be another session's.
+# every staged, unstaged and untracked non-ignored change, including other sessions' work.
 #
 # Messages on stdin, one block per repo key (keys come from `plan`):
 #   == <key>
@@ -21,7 +20,7 @@
 # Bounds: SYNC_BUDGET seconds for the whole run (default 300), SYNC_MAX_ADD_MB of new
 # untracked files per repo (default 100), one sync per checkout (lock in the git dir).
 # Exit: 0 done · 2 merge conflict · 3 untracked files over the limit · 4 pull or push failed
-#       64 bad message, usage or path, or a path staged before a run with no paths
+#       64 bad message, usage or path
 #       75 another sync holds the lock · 124 budget spent
 set -u
 
@@ -177,7 +176,7 @@ if [ "$MODE" = plan ]; then
     echo "Nothing dirty. Run it anyway to merge-pull and push:"
     echo "  $0 run$FLAGS </dev/null"; exit 0
   fi
-  : > "$TMP/blocks"; staged=0
+  : > "$TMP/blocks"
   while IFS=$'\t' read -r key dir; do
     cd "$dir" || continue
     echo; echo "== $key   $(git symbolic-ref -q --short HEAD || echo DETACHED) -> $(git rev-parse -q --abbrev-ref '@{u}' 2>/dev/null || echo 'no upstream')   $(git status --porcelain | wc -l | tr -d ' ') dirty"
@@ -186,8 +185,6 @@ if [ "$MODE" = plan ]; then
     git ls-files -z -o --exclude-standard > "$TMP/new"
     kb=$(untracked_kb "$TMP/new"); [ "$kb" -gt $((MAX_ADD_MB * 1024)) ] && { echo "OVER LIMIT: $((kb / 1024)) MB untracked (limit $MAX_ADD_MB MB):"; largest_untracked "$TMP/new"; }
     if [ "$NAMED" = 0 ]; then
-      n=$(git diff --cached --name-only --ignore-submodules=dirty | wc -l | tr -d ' ')
-      [ "$n" = 0 ] || { echo "STAGED: $n paths are staged already, maybe by another session. A run with no paths stops; name the paths this session wrote after --."; staged=1; }
       echo "$key" >> "$TMP/blocks"
     elif [ -s "$(keyfile "$key").spec" ] && [ -n "$(with_spec "$(keyfile "$key").spec" git status --porcelain)" ]; then
       echo "takes:"; with_spec "$(keyfile "$key").spec" git status --short | head -40
@@ -198,7 +195,7 @@ if [ "$MODE" = plan ]; then
   done < "$TMP/repos"
   echo; echo "---- fill each block, then run this one snippet ----"
   printf '%s run%s' "$0" "$FLAGS"
-  if [ "$NAMED" = 1 ]; then printf ' --'; printf ' %q' "$@"; elif [ "$staged" = 1 ]; then printf ' -- <path>...'; fi
+  if [ "$NAMED" = 1 ]; then printf ' --'; printf ' %q' "$@"; fi
   echo " <<'MSG'"
   while IFS= read -r key; do
     printf '== %s\n<intent line: why these changes exist>\n\nConfidence: <low|medium|high>\nScope-risk: <narrow|moderate|broad>\n' "$key"
@@ -225,20 +222,6 @@ if [ ! -t 0 ]; then
   [ "$bad" = 0 ] || die 64 "fix the messages; nothing was changed"
 fi
 
-# 2. With no paths named, the run takes everything dirty. It stops when a path is staged
-#    already: in a checkout that other sessions share, a staged path may be another session's.
-#    A merge in progress is exempt, because git concludes a merge only as a whole.
-if [ "$NAMED" = 0 ]; then
-  { dirty_repos "$TOP" ""; main_dirty; } | while IFS=$'\t' read -r key dir; do
-    git -C "$dir" rev-parse -q --verify MERGE_HEAD >/dev/null && continue
-    git -C "$dir" diff --cached --name-only --ignore-submodules=dirty | sed "s|^|  $key: |"
-  done > "$TMP/staged"
-  if [ -s "$TMP/staged" ]; then
-    echo "staged already:" >&2; head -20 "$TMP/staged" >&2
-    die 64 "$(wc -l < "$TMP/staged" | tr -d ' ') paths are staged already, maybe by another session, and a run with no paths would commit them. Name the paths this session wrote after --, as in: $0 run$FLAGS -- <path>... (-- . takes everything). Nothing was changed"
-  fi
-fi
-
 # 3. One sync per checkout.
 if ! mkdir "$LOCK" 2>/dev/null; then
   opid=$(cat "$LOCK/pid" 2>/dev/null)
@@ -261,8 +244,8 @@ message_for() { # key, NUL list of the paths the commit takes -> path of the com
   echo "$f"
 }
 
-# Commit what a spec file names and nothing else: every other staged path stays staged, and
-# every other untracked file stays untracked. Returns 1 when the spec names no change.
+# A default run stages the whole working tree; an explicit spec takes only its paths.
+# Return 1 when there is nothing to commit after staging.
 commit_named() { # key, spec file
   local key="$1" kb base
   with_spec "$2" git ls-files -z -o --exclude-standard > "$TMP/new"
@@ -270,6 +253,18 @@ commit_named() { # key, spec file
   if [ "$kb" -gt $((MAX_ADD_MB * 1024)) ]; then
     echo "largest untracked paths in $key:" >&2; largest_untracked "$TMP/new" >&2
     die 3 "$key: $((kb / 1024)) MB of untracked files, over the $MAX_ADD_MB MB limit. Ignore them, or raise SYNC_MAX_ADD_MB."
+  fi
+  if [ "$NAMED" = 0 ]; then
+    if [ -n "$(git diff --name-only --diff-filter=U)" ]; then
+      die 2 "$key: unresolved merge conflicts remain. Resolve them before syncing; nothing was staged."
+    fi
+    git add -- . || die 4 "$key: git add failed (a stale index.lock? See Troubleshooting)"
+    git diff --cached -z --name-only --no-renames > "$TMP/take"
+    if [ ! -s "$TMP/take" ] && ! git rev-parse -q --verify MERGE_HEAD >/dev/null; then return 1; fi
+    git commit -q -F "$(message_for "$key" "$TMP/take")" ||
+      die 4 "$key: the commit was refused. Fix what the hook names."
+    note "$key: committed $(git rev-parse --short HEAD) on $br"
+    return 0
   fi
   if [ -s "$TMP/new" ]; then
     git add --pathspec-from-file="$(literal "$TMP/new")" --pathspec-file-nul ||
