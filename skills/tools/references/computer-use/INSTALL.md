@@ -2,126 +2,103 @@
 
 ## Contents
 
-- [Check prerequisites](#check-prerequisites)
-- [Connect the bundled bridge](#connect-the-bundled-bridge)
-- [Verify](#verify)
-- [Recover and remove](#recover-and-remove)
+- [open-computer-use (default)](#open-computer-use-default)
+- [Codex engine (second choice)](#codex-engine-second-choice)
+- [Remove](#remove)
 
-## Check prerequisites
+## open-computer-use (default)
 
-The bridge source and its executable entrypoint are bundled under `upstream/`.
-It has no runtime npm dependencies: neither npm package installation nor a
-marketplace is needed to run it. These dependencies remain host-installed:
-
-| Dependency | Requirement / setup |
+| Need | Check |
 |---|---|
-| macOS | Upstream runtime declares 14.4 or later; upstream verified arm64. Other architectures remain unverified. |
-| Node.js | 22.14.0 or later. Check `node --version`; install a compatible version using the host's existing Node manager or [official Node downloads](https://nodejs.org/en/download). |
-| ChatGPT or Codex | Supply your own installed app and working Computer Use runtime. Enable Computer Use through that app; this leaf does not download or redistribute OpenAI binaries. |
-| Signed Codex launcher | Executable bundled at `/Applications/ChatGPT.app/Contents/Resources/codex` or `/Applications/Codex.app/Contents/Resources/codex`; upstream also supports a custom launcher path. |
-| Computer Use client | Existing executable under the Codex data directory; see check below. |
-| macOS permissions | Accessibility and Screen Recording for the installed OpenAI runtime. Grant them through macOS System Settings for the task's host. |
-| MCP host | Claude Code or another compatible stdio MCP host. The command below is verified against local Claude CLI help; real host integration remains untested. |
+| macOS 14.0 or later | `sw_vers -productVersion` |
+| Node.js 18 or later on `PATH` | `node --version`. With nvm, the CLI lives in that Node version's global folder; switching the default Node version hides it until you install it again |
+| The CLI | `open-computer-use --version` (1.1.2 tested 2026-10-20) |
 
-Bind `CU_LEAF_ROOT` to the absolute directory containing this leaf's `SKILL.md`.
-For the normal Tools installation:
+Install, then grant permissions:
 
-```bash
-CU_LEAF_ROOT="$HOME/.agents/skills/tools/references/computer-use"
-node --version
-claude --version
-test -f "$CU_LEAF_ROOT/upstream/bin/computer-use-mcp-bridge.mjs"
-test -x "${COMPUTER_USE_CLIENT_PATH:-${CODEX_HOME:-$HOME/.codex}/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient}"
+```sh
+npm i -g open-computer-use        # no dependencies; postinstall only prints help
+open-computer-use doctor          # opens onboarding when a permission is missing
+open-computer-use doctor --json   # must show "allGranted":true
 ```
 
-Check the launcher selected by `COMPUTER_USE_CODEX_LAUNCHER_PATH`, when present,
-or one of the two default paths above. These checks establish file/runtime
-availability; they do not prove macOS permissions or server connectivity.
+The user grants **Accessibility** and **Screen Recording** to "Open Computer
+Use" in System Settings, Privacy & Security. The permission app is notarized
+with a fixed Developer ID (`com.ifuryst.opencomputeruse`, team J9P29FA5BX), so
+the grants stay across updates. It has no Dock icon and adds no login item.
+Do not run `ocu locked-use enable`.
 
-## Connect the bundled bridge
+Verify (Calculator 12 × 12; tested from a T3 Code agent shell, 2026-10-20):
 
-Only run registration when the user requests host connection. The unchanged
-bridge automatically accepts every upstream elicitation and launches the client
-with an unrestricted profile. App text and screenshots return to the MCP host
-and can reach its configured model provider. The current leaf install copies
-source and instructions only.
+```sh
+open -g -a Calculator
+open-computer-use call get_app_state --args '{"app":"Calculator"}'
+# click All Clear, 1, 2, Multiply, 1, 2, Equals by element_index in one --calls run,
+# then read state: the input view text must be 144
+```
 
-Inspect live help and existing configuration before registering; preserve any
-existing server with the same name:
+The CLI needs no registration. MCP registration is optional; it gives the model
+tools and inline screenshots: `claude mcp add --scope user --transport stdio
+open-computer-use -- open-computer-use mcp`. Ask the user first: a user-scope
+server starts with every Claude session.
 
-```bash
-claude mcp add --help
-claude mcp list
+## Codex engine (second choice)
+
+The `upstream/` folder holds songkeys/claude-codex-computer-use unchanged
+(`UPSTREAM.md`). It runs OpenAI's own client from the user's ChatGPT or Codex
+app. It needs:
+
+| Need | Check |
+|---|---|
+| Node.js 22.14.0 or later | `node --version` |
+| ChatGPT or Codex app with Computer Use turned on | The signed launcher at `/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex` or `/Applications/Codex.app/Contents/Resources/codex`, or `COMPUTER_USE_CODEX_LAUNCHER_PATH` |
+| The Computer Use client | `test -x "${CODEX_HOME:-$HOME/.codex}/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient"` |
+| A host app that may send Apple Events | See below |
+
+### The host app must declare `NSAppleEventsUsageDescription`
+
+macOS charges the client's Apple Events to the app that started the agent (the
+responsible app). An app without `NSAppleEventsUsageDescription` in its
+`Info.plist` is refused with no prompt. Every call then returns
+`bootstrapTimedOut`, and the system log shows `errAEEventNotPermitted`. A TCC
+reset does not help.
+
+Check a host:
+
+```sh
+/usr/libexec/PlistBuddy -c "Print :NSAppleEventsUsageDescription" "/Applications/<App>.app/Contents/Info.plist"
+```
+
+Checked 2026-10-20: iTerm, Ghostty, Warp, ChatGPT and Claude declare it. T3 Code
+(Beta) and Terminal do not (Terminal is Apple's own app; untested). T3 Lev adds
+it in its build (`leviathan/apps/lev/t3-lev/build.yaml`, step "make it its own
+app").
+
+Register it only from a host that declares the string, and only when the user
+asks:
+
+```sh
+CU_LEAF_ROOT="$HOME/.agents/skills/tools/references/computer-use"
 claude mcp add --scope user --transport stdio computer-use -- node "$CU_LEAF_ROOT/upstream/bin/computer-use-mcp-bridge.mjs"
 ```
 
-`--scope user` connects all Claude projects for this account. Use `--scope local`
-from the named project root for project-only local setup. Start a fresh Claude
-session and inspect `/mcp`. MCP-only registration does not load instructions:
-read this Tools leaf explicitly or load it through the Tools router.
+Its startup code accepts every app-access request on its own and runs the client
+with an unrestricted profile. That acceptance does not authorize a new task,
+private-data access or a change other people can see.
 
-For another stdio MCP host, use command `node` with one argument: the absolute
-path to `upstream/bin/computer-use-mcp-bridge.mjs`. Inspect that host's actual
-configuration contract before writing it. This leaf is distributed through
-Tools and Lev's skills; see the [worker/FlowMind loading contract](../../../lev/references/tool-skills.md).
+Offline check, with no real app access:
 
-## Verify
-
-Offline checks use only the bundled fake service and do not control real apps:
-
-```bash
-cd "$CU_LEAF_ROOT"
-shasum -a 256 -c UPSTREAM.sha256
-node --test upstream/test/bridge.test.mjs
+```sh
+cd "$CU_LEAF_ROOT" && shasum -a 256 -c UPSTREAM.sha256 && node --test upstream/test/bridge.test.mjs
 ```
 
-When real runtime testing is requested, run:
+Real check: `node "$CU_LEAF_ROOT/upstream/scripts/real-smoke-test.mjs"` (lists
+apps, reads Calculator). For other failures, read `upstream/README.md`.
 
-```bash
-node "$CU_LEAF_ROOT/upstream/scripts/real-smoke-test.mjs"
-```
+## Remove
 
-This connects to the installed service, calls `list_apps` and reads Calculator
-state plus a screenshot. It is a real app-access test. Then ask Claude to
-compute `12 × 12` in Calculator and verify `144` in fresh state. Test drag/canvas
-work on a disposable target and headless `claude -p` separately; arithmetic
-alone does not prove either.
-
-## Recover and remove
-
-Use `upstream/README.md` for missing-client, signed-launcher, version mismatch,
-idle-release and stopped-session diagnostics. Preserve the existing 60-second
-idle timeout unless the task calls for another value. Do not use the fake-test
-direct-launch override to bypass the real signed-launcher path.
-
-### `bootstrapTimedOut` from a host app that cannot send Apple Events
-
-Every call returns `bootstrapTimedOut`, and the system log shows
-`SkyComputerUseService ... is not permitted to send this AppleEvent ...
-errAEEventNotPermitted`. macOS charges the client's Apple Events to the app
-that launched it (the "responsible" app). An app with no
-`NSAppleEventsUsageDescription` in its `Info.plist` (T3 Code (Beta), checked
-2026-10-20) is refused silently, with no prompt, so a TCC reset does not help.
-
-Fix: host the bridge in an app that declares the usage string (Ghostty or
-iTerm), and call it from the agent through that host:
-
-1. Add a keep-alive entry `computer-use-gui` to `~/.mcporter/mcporter.json`
-   (command `node`, argument `upstream/bin/computer-use-mcp-bridge.mjs`, env
-   `COMPUTER_USE_CODEX_LAUNCHER_PATH` set to the signed launcher, for example
-   `/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex`, and
-   `"lifecycle": "keep-alive"`).
-2. Start the mcporter daemon from Ghostty, never from the agent's own shell:
-   `open -na Ghostty --args -e ~/.mcporter/start-computer-use-daemon.sh`
-   (the script runs `mcporter daemon start`).
-3. Call tools as `mcporter call computer-use-gui.<tool> --args '<json>'`.
-   Verified by `list_apps`, then sending a Discord message with three
-   attachments and reading it back.
-
-After a reboot or `mcporter daemon stop`, repeat step 2.
-
-If an action stops or its result is uncertain, read fresh state before retrying;
-respect an explicit user stop. Read `claude mcp remove --help`, then remove only
-the registered scope/name (`claude mcp remove --scope user computer-use` for
-the user-scoped example). Restart the affected Claude session. Preserve the
-installed OpenAI app/runtime and unrelated servers.
+- open-computer-use: `npm rm -g open-computer-use`. Remove its MCP entry if you
+  added one (`claude mcp remove --scope user open-computer-use`). The macOS
+  grants stay in System Settings until the user removes them.
+- Codex engine: `claude mcp remove --scope user computer-use`. Keep the user's
+  ChatGPT or Codex app as it is.

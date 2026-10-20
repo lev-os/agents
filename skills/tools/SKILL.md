@@ -21,7 +21,7 @@ instructions only; existing leaves keep their operations.
 | Explicit Exa search, contents, answers, API | [Exa](references/exa/SKILL.md) | Bundled shell transport; [setup](references/exa/INSTALL.md) |
 | AgentMail inboxes, messages, drafts, OTP, monitoring | [AgentMail](references/agentmail/SKILL.md) | Host `agentmail` or API; [setup](references/agentmail/INSTALL.md) |
 | Herdr pane inspection and authorized agent coordination | [Herdr](references/herdr/SKILL.md) | Optional host `herdr`; [setup](references/herdr/INSTALL.md) |
-| macOS GUI, background clicks, drag and canvas work | [Computer use](references/computer-use/SKILL.md) | Bundled bridge; [local setup](references/computer-use/INSTALL.md) |
+| macOS GUI, background clicks, drag and canvas work | [Computer use](references/computer-use/SKILL.md) | open-computer-use CLI (npm), any host app; Codex engine second; [local setup](references/computer-use/INSTALL.md) |
 | Excalidraw diagrams through the hosted Excalidraw+ MCP | [Excalidraw](references/excalidraw.md) | Host `mcporter`; hosted MCP endpoint |
 | Add a tool, install a leaf, absorb an integration | [Add a tool](references/add-tool.md) | Skill workflow; intake/qualification belongs to `skill-builder` |
 | REA apps, binaries, archives and decompilation | [REA](references/rea.md) | Existing CLI or MCP through `mcporter` |
