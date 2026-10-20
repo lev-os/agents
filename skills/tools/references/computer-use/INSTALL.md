@@ -94,6 +94,32 @@ idle-release and stopped-session diagnostics. Preserve the existing 60-second
 idle timeout unless the task calls for another value. Do not use the fake-test
 direct-launch override to bypass the real signed-launcher path.
 
+### `bootstrapTimedOut` from a host app that cannot send Apple Events
+
+Every call returns `bootstrapTimedOut`, and the system log shows
+`SkyComputerUseService ... is not permitted to send this AppleEvent ...
+errAEEventNotPermitted`. macOS charges the client's Apple Events to the app
+that launched it (the "responsible" app). An app with no
+`NSAppleEventsUsageDescription` in its `Info.plist` (T3 Code (Beta), checked
+2026-10-20) is refused silently, with no prompt, so a TCC reset does not help.
+
+Fix: host the bridge in an app that declares the usage string (Ghostty or
+iTerm), and call it from the agent through that host:
+
+1. Add a keep-alive entry `computer-use-gui` to `~/.mcporter/mcporter.json`
+   (command `node`, argument `upstream/bin/computer-use-mcp-bridge.mjs`, env
+   `COMPUTER_USE_CODEX_LAUNCHER_PATH` set to the signed launcher, for example
+   `/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex`, and
+   `"lifecycle": "keep-alive"`).
+2. Start the mcporter daemon from Ghostty, never from the agent's own shell:
+   `open -na Ghostty --args -e ~/.mcporter/start-computer-use-daemon.sh`
+   (the script runs `mcporter daemon start`).
+3. Call tools as `mcporter call computer-use-gui.<tool> --args '<json>'`.
+   Verified by `list_apps`, then sending a Discord message with three
+   attachments and reading it back.
+
+After a reboot or `mcporter daemon stop`, repeat step 2.
+
 If an action stops or its result is uncertain, read fresh state before retrying;
 respect an explicit user stop. Read `claude mcp remove --help`, then remove only
 the registered scope/name (`claude mcp remove --scope user computer-use` for
