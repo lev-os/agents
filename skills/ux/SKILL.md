@@ -1,6 +1,6 @@
 ---
 name: ux
-description: "Routes UX/product design runs, user research/persona synthesis, wireframes, flows, IA, pencil visuals, and agentic CLI UX. Infers full run vs research vs CDO-backed persona mode from context, asking one question only when ambiguous."
+description: "Use when designing UX/product flows, researching users or personas, conducting Agentic user research with day-in-the-life simulations, creating wireframes or IA, working with Pencil visuals, or designing agentic CLI UX."
 skill_type: hub
 category: design-ux
 related_skills:
@@ -9,6 +9,7 @@ related_skills:
   - lev-research
 hub_routes:
   craft: "product quality audit, onboarding audit, activation metrics, ux --craft"
+  agentic-research: "Agentic user research, day-in-the-life simulation, shared-world persona journeys across ticks"
   ux-pipeline: "wireframe, flow, IA, journey, interaction, JTBD, task graph"
   ux-research: "user research, synthetic research, personas, study design, persona matrix"
   cdo-persona-insights: "cdo insights, deliberation artifacts, persona base, synthesis-informed research"
@@ -28,10 +29,29 @@ Routes to specialist sub-skills or runs the built-in 8-step UX pipeline.
 
 Full design runs load the same reference at Problem Framing for principles/brand, Task Decomposition for onboarding/activation, and Interaction Models/Components for states, performance, feedback and tokens. Reuse current artifacts and components. Completion requires evidence or an explicit gap for each relevant obligation; synthetic agreement is a hypothesis, not observed user proof.
 
+## Agentic user research route
+
+For **Agentic user research**, day-in-the-life simulations, or persona journeys
+that affect shared projects across rounds, select `agentic-research` before
+generic multi-agent, research, or CLI UX inference. Load
+[references/agentic-user-research.md](references/agentic-user-research.md) only
+for this method. Reuse Persona Detection, then follow that reference instead
+of the one-shot Persona Fanout and static persona-by-model matrix.
+
+Each tick collects one next decision per person against the same world version.
+Wait for all responses, validate them, and apply their effects together under
+recorded product rules before the next tick. Preserve each person's private
+knowledge and history. A request to document this method changes instructions
+only; running an experiment requires an execution request.
+
 ## Hub Decision Tree
 
 ```
 Request arrives
+|
++-- Agentic user research / day-in-the-life / shared-world persona simulation?
+|   -> Load: references/agentic-user-research.md
+|      Persona Detection, then synchronized decision ticks and journey analysis
 |
 +-- Product quality / craft audit / onboarding / activation?
 |   -> Load: references/product-craft.md (12-rule scorecard)
@@ -124,6 +144,12 @@ Treat the user's message (including any `/ux ...` text) as the input.
 - First run the **Intent Resolver** below. Do not default to AUTO until context
   has been inspected.
 
+- If the request selects Agentic user research or describes day-in-the-life
+  persona simulations with shared world state across rounds, set mode to
+  `agentic-research` and follow its route. Generic parsing below must not
+  overwrite this selection, including when the request also says `multi-agent`,
+  `persona`, `full`, or `continue`. Resume its recorded checkpoint when asked.
+
 - If the input or nearby context contains `cdo`, `$cdo`, `CDO insights`,
   `persona base`, `deliberation`, `synthesis`, `multi-agent`, or paths under
   `tmp/cdo-*`, set mode to `cdo-research` unless the user explicitly asks for
@@ -160,7 +186,7 @@ Treat the user's message (including any `/ux ...` text) as the input.
 - If inference confidence is below `0.75`, ask exactly one clarifying question:
   `Should I run the full UX pipeline, an interactive run that interviews you step by step, user research/personas only, persona base from CDO insights, or spike/wireframes only?`
 
-- In any non-auto mode except `spike`, `continue`, or explicit `step N`, use
+- In any non-auto mode except `agentic-research`, `spike`, `continue`, or explicit `step N`, use
   the persona-first sequence:
   - Step 1: Persona Detection.
   - Step 2: Persona Fanout.
@@ -175,7 +201,7 @@ Before Phase -1, compile a small routing record:
 
 ```yaml
 ux_intent:
-  inferred_mode: full | auto | interactive | research | cdo-research | spike | continue | step
+  inferred_mode: full | auto | interactive | research | cdo-research | agentic-research | spike | continue | step
   confidence: 0.0
   evidence:
     - "explicit token, nearby context, artifact path, user correction, or prior run"
@@ -195,6 +221,10 @@ Context signals to inspect:
 
 Routing rules:
 
+- `agentic-research`: run Persona Detection, then load the Agentic user research
+  reference for study setup, synchronized ticks, breadth/depth, and findings.
+  Its own artifact list replaces the generic full-pipeline output list. Existing
+  persona-count and matrix-size advice applies to static studies, not this mode.
 - `research`: run Step 1 Persona Detection, Step 2 Persona Fanout, Problem
   Framing, Synthetic User Research, then write `summary.md` and
   `constraint_bundle.yaml` if the signal is strong enough. Do not continue into
@@ -215,7 +245,7 @@ English. "Let's do research first" means `research`; "base personas on CDO" mean
 
 ## Persona Detection Gate
 
-In `full`, `interactive`, `research`, and `cdo-research` modes, persona
+In `full`, `interactive`, `research`, `cdo-research`, and `agentic-research` modes, persona
 detection is the first step unless the user explicitly bypasses it.
 
 Naming rule: in non-auto mode this is Step 1. Step 2 is Persona Fanout. Problem
@@ -368,6 +398,10 @@ matrix and ask before substituting single-model synthetic responses. Do not
 pretend a multi-agent run occurred.
 
 ## Output Location
+
+For `agentic-research`, use the locations and artifacts in its reference:
+Markdown study/findings in `RUN_DIR`, runtime JSON in host-local XDG storage.
+The generic artifact list below applies to the other modes.
 
 Create a run folder:
 
@@ -563,6 +597,10 @@ Rules:
 - Keep scope boundaries crisp.
 
 ## Synthetic User Research
+
+This section is the static persona-by-model method. For longitudinal Agentic
+user research, use its route and reference instead; its ten-person tick
+experiments do not use the static matrix or its sizing guidance.
 
 **Depends on**: `problem_spec.yaml` must exist.
 **Reference**: Load `references/study-construction.md` for methodology.
