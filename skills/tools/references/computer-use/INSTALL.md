@@ -1,5 +1,10 @@
 # Local installation
 
+Agents use `scripts/cu.mjs` (SKILL.md). Its default engine, Codex's `cua_repl`,
+needs only the ChatGPT app with Computer Use turned on; nothing else to
+install. The sections below set up open-computer-use (the fallback engine,
+`CU_ENGINE=ocu`) and the songkeys package.
+
 ## Contents
 
 - [open-computer-use (default)](#open-computer-use-default)
