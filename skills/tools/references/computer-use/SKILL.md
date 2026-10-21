@@ -45,10 +45,10 @@ var shot = async (app, name) => {
   return file;
 };
 
-var calc = await cua.getApp("Calculator");
+var calc = await cua.getApp("Calculator", { initialState: false }); // no auto-printed tree
 var tree = await calc.getAXState({ emit: false });   // controls, with element numbers
 // act by element number from the tree, then read again to check the result
-nodeRepl.write({ tree: String(JSON.stringify(tree)).slice(0, 2000), shot: await shot(calc, "calculator") });
+nodeRepl.write(JSON.stringify({ tree: String(tree).slice(0, 2000), shot: await shot(calc, "calculator") }));
 ```
 
 - API: `cua.listApps`, `cua.getApp(app, { initialState })`, `app.getAXState`,
@@ -56,8 +56,10 @@ nodeRepl.write({ tree: String(JSON.stringify(tree)).slice(0, 2000), shot: await 
   `app.click`, `app.typeText`, `app.pressKey`, `app.setValue`, `app.scroll`,
   `app.drag`, `app.performSecondaryAction`. Full list:
   `$(npm root -g)/open-computer-use/skills/open-computer-use/references/usage.md`.
-- Pass `{ emit: false }` to keep a result out of the printed output; print
-  with `nodeRepl.write(value)`.
+- `cua.getApp` prints the app's full tree unless you pass
+  `{ initialState: false }`. Pass `{ emit: false }` to other calls to keep
+  their result out of the output. Print with `nodeRepl.write(JSON.stringify(value))`; an object passed
+  without `JSON.stringify` prints as JavaScript, not JSON.
 - Output: with `--json`, block 0 is always a fixed 1.3 KB API summary; your
   output is in the blocks after it. Read those only.
 - `ocu repl` keeps one session open between calls, if a task needs several
