@@ -1,83 +1,131 @@
 ---
 name: computer-use
-description: Use when working with macOS GUI apps, desktop automation, background clicks, drag or canvas tasks. Default engine is open-computer-use (npm CLI and MCP server); the Codex engine from songkeys/claude-codex-computer-use is the second choice.
+description: Use when working with macOS GUI apps, desktop automation, background clicks, drag or canvas tasks. Agents run JavaScript in one open session through scripts/cu.mjs (code mode, no MCP registration); the engine is OpenAI's Codex Computer Use when the ChatGPT app is installed, else open-computer-use.
 ---
 
 # Computer use
 
 ## Contents
 
-- [Install, permissions, verify, and the Codex engine](INSTALL.md)
-- The engine's own skill, installed with the package: `$(npm root -g)/open-computer-use/skills/open-computer-use/SKILL.md`, with `references/usage.md` and `references/troubleshooting.md` beside it. Read it before the first app action in a session.
-- [Codex engine provenance](UPSTREAM.md) and [Codex engine runtime notes](upstream/README.md)
+- [Install, permissions, verify](INSTALL.md)
+- `scripts/cu.mjs` (the session) and `scripts/cu-helpers.js` (helpers loaded into it)
+- Codex engine documentation, written on the first call of a session:
+  `$TMPDIR/cu-session/codex-computer-use.md` (full API and OpenAI's
+  confirmation policy). open-computer-use's own skill:
+  `$(npm root -g)/open-computer-use/skills/open-computer-use/SKILL.md`.
+- [songkeys package provenance](UPSTREAM.md) and [its runtime notes](upstream/README.md)
 
 ## Which engine
 
-| Engine | Use it when | Host app |
-|---|---|---|
-| open-computer-use (default) | Always, unless it fails on the task | Any: T3 Code, T3 Lev, Ghostty, iTerm, Terminal, Warp, `claude -p`. Its own hidden app "Open Computer Use" holds Accessibility and Screen Recording |
-| Codex engine (`upstream/`) | open-computer-use cannot do the task, and you need OpenAI's own engine | Only an app that declares `NSAppleEventsUsageDescription`: T3 Lev, ChatGPT, Claude, iTerm, Ghostty, Warp. Never T3 Code (Beta): every call ends in `bootstrapTimedOut`. See INSTALL.md |
+`cu.mjs` picks the engine when its session starts; `$CU engine` prints it.
 
-JP chose open-computer-use on 2026-10-20 because it is maintained
-(`leviathan/.lev/pm/decisions/20261020-computer-use-open-computer-use.yaml`).
-It is an independent rebuild of Codex's computer use with the same tool names,
-not OpenAI's engine.
+| Engine | When | Notes |
+|---|---|---|
+| `codex` (default) | The ChatGPT app with Codex Computer Use is installed (`~/.codex/plugins/cache/openai-bundled/unified-computer-use/*/.mcp.json`) | OpenAI's own engine through Codex's `cua_repl`, the same one Codex uses. Works from T3 Code and any terminal (tested 2026-10-21). Reads are fast (Calculator 0.25 s, Discord about 2 s). Its sandbox cannot write files; `cu` saves screenshots and `save()` output for it |
+| `ocu` | No ChatGPT app, or `CU_ENGINE=ocu` | open-computer-use 1.1.2 (`npm i -g open-computer-use`), MIT, maintained. Reads are slower (Discord about 6 s). JP's decision of 2026-10-20 (`leviathan/.lev/pm/decisions/20261020-computer-use-open-computer-use.yaml`) added it |
+
+Both engines approve app access for the session on their own (Codex asks
+"Allow Computer Use to use Discord?"; `cu` accepts and logs it to
+`$TMPDIR/cu-session/approvals.log`). The rules below decide what you may do.
 
 ## Before the first call
 
-`open-computer-use doctor --json` must show `"allGranted":true`. If not, run
-`open-computer-use doctor` and ask the user to grant both permissions to "Open
-Computer Use".
+- Codex engine: nothing to set up when Codex Computer Use already works in the
+  ChatGPT app.
+- open-computer-use: `open-computer-use doctor --json` must show
+  `"allGranted":true`. If not, run `open-computer-use doctor` and ask the user
+  to grant Accessibility and Screen Recording to "Open Computer Use".
 
-## Code mode (main path)
+## Code mode with one open session (main path)
 
-Write one script against the `cua` API, run it with `ocu js`, and print only
-what you need. The script keeps intermediate state out of your context.
-Element numbers stay valid inside one script run.
+Run JavaScript in one session that stays open between your shell calls, so
+variables carry over: bind an app once, read a window once, then filter the
+text as often as you need.
 
-```js
-// /tmp/ocu-task.mjs   run: ocu js --json --file /tmp/ocu-task.mjs
-var fs = await import("node:fs");
-fs.mkdirSync("/tmp/ocu-shots", { recursive: true });
-var shot = async (app, name) => {
-  var file = `/tmp/ocu-shots/${name}-${Date.now()}.png`;
-  fs.writeFileSync(file, await app.getScreenshot({ emit: false }));
-  return file;
-};
-
-var calc = await cua.getApp("Calculator", { initialState: false }); // no auto-printed tree
-var tree = await calc.getAXState({ emit: false });   // controls, with element numbers
-// act by element number from the tree, then read again to check the result
-nodeRepl.write(JSON.stringify({ tree: String(tree).slice(0, 2000), shot: await shot(calc, "calculator") }));
+```sh
+CU=~/.agents/skills/tools/references/computer-use/scripts/cu.mjs
+$CU js 'var d = await cua.getApp("Discord"); nodeRepl.write("ok")'   # prints the window's tree once
+$CU js 'var t = await tree(d); nodeRepl.write(grep(t, /heading/).slice(0, 5).join("\n"))'
+$CU js 'nodeRepl.write(t.length)'          # t is still there
+$CU js --file /tmp/step.js                 # or a file; or `-` for stdin
+$CU reset                                  # drop all variables;  $CU stop  ends the session
 ```
 
-- API: `cua.listApps`, `cua.getApp(app, { initialState })`, `app.getAXState`,
-  `app.getScreenshot`, `app.getAXStateAndScreenshot`, `app.query`,
-  `app.click`, `app.typeText`, `app.pressKey`, `app.setValue`, `app.scroll`,
-  `app.drag`, `app.performSecondaryAction`. Full list:
-  `$(npm root -g)/open-computer-use/skills/open-computer-use/references/usage.md`.
-- `cua.getApp` prints the app's full tree unless you pass
-  `{ initialState: false }`. Pass `{ emit: false }` to other calls to keep
-  their result out of the output. Print with `nodeRepl.write(JSON.stringify(value))`; an object passed
-  without `JSON.stringify` prints as JavaScript, not JSON.
-- Output: with `--json`, block 0 is always a fixed 1.3 KB API summary; your
-  output is in the blocks after it. Read those only.
-- `ocu repl` keeps one session open between calls, if a task needs several
-  turns with the same element numbers.
+- The session starts on the first call and ends after 10 idle minutes. No
+  window, no login item.
+- Use `var` (or a function declaration) for anything you want in the next
+  call; `let` and `const` stay inside one call.
+- Print only what you need with `nodeRepl.write(...)`; use `JSON.stringify`
+  for objects. An error prints and the session stays open.
+- Do the whole loop inside one call when you can (scroll, read, collect,
+  dedupe). Each call costs you a model turn.
+- One call may run 110 s, then it stops with a message. Keep loops bounded
+  (`max`) and split long work into several calls.
+- `getAXState()` without `disableDiffing: true` returns only what changed
+  since the last read (Codex engine). Use `tree(app)`, which always reads the
+  whole tree.
+- The tree often holds more than the screen shows. Check one read before you
+  scroll.
+
+### Helpers loaded in every session
+
+| Helper | What it does |
+|---|---|
+| `await tree(app, opts)` | The whole accessibility tree as text |
+| `grep(text, /re/)` | Trimmed lines that match |
+| `idx(line)` | The element number at the start of a tree line |
+| `await scrollCollect(app, target, /keep/, { dir, pages, max, until })` | Moves through a list and gathers unique lines matching `keep`, oldest first. `target` null presses Page Up/Down `pages` times (chat apps often ignore scroll events); a `target` regex scrolls that element. Stops at `max` rounds, when `until(lines)` is true, or when nothing new appears. Use it instead of writing your own loop |
+| `await waitFor(app, /re/, { timeout })` | Rereads until the tree matches (page loads); returns the tree |
+| `await openUrl("Brave Browser", url)` | Opens the URL in a new tab of the browser's front window (the user's running profile) with macOS `open`, and binds the app. Much faster than typing in the address bar |
+| `await closeTab(app)` | Closes the front tab (Cmd+W) |
+| `await shot(app, name)` | Saves a screenshot to its own file under `/tmp/ocu-shots/` and prints or returns the path |
+| `await save(name, text)` | Writes long results to `/tmp/ocu-out/<name>` and returns the path |
+
+### The `cua` API (both engines)
+
+`cua.getApp(nameOrBundleId)` binds a native app and prints its tree (on the
+`ocu` engine, pass `{ initialState: false }` to skip that). On an app:
+`getAXState({ emit, disableDiffing })`, `getScreenshot()`,
+`click(elementNumber | [x, y])`, `scroll(elementNumber, "up"|"down", pages)`,
+`pressKey("super+w")`, `typeText(text)` (needs a focused text field),
+`setValue(elementNumber, value)`, `performSecondaryAction(elementNumber, action)`,
+`drag([x, y], [x, y])`. Codex adds `paste(text)` and `selectText(...)`; `ocu`
+adds `query({ text, role })`. Pass `{ emit: false }` to keep a result out of
+the output. Element numbers change after a scroll, a click or a page load;
+read the tree again.
+
+### Recipes
+
+Read a chat history (newest at the bottom). First look at a few lines to find
+the pattern of one message (`grep(t, /container|heading/).slice(-20)`), then:
+
+```js
+var app = await cua.getApp("Slack");
+var msgs = await scrollCollect(app, null, /<pattern of one message>/, { max: 25,
+  until: (l) => l.length >= 100 });
+nodeRepl.write(msgs.slice(-100).join("\n"));
+```
+
+Read web pages in the user's browser, then close the tab:
+
+```js
+var b = await openUrl("Brave Browser", "https://example.com");
+var page = await waitFor(b, /Example Domain/);
+nodeRepl.write(grep(page, / (link|heading|text) /).slice(0, 40).join("\n"));
+await closeTab(b);
+```
 
 ### Screenshots
 
-- `getScreenshot` returns PNG bytes (a Buffer). Save each one to its own file
-  under `/tmp/ocu-shots/` and print the path, never the bytes.
-- Open the file with your file-reading tool only when the control list does
-  not answer the question (layout, images, canvas, color). The host then shows
-  the picture to you. Base64 in shell output reaches you as text only.
-- Tested 2026-10-20: a Calculator screenshot saved in 0.43 s (PNG 460 × 816),
-  then opened and read as 12×12 = 144.
+- `await shot(app, "name")` saves one file per shot under `/tmp/ocu-shots/`
+  and gives you the path. Never print the bytes.
+- Open the file with your file-reading tool only when the tree does not answer
+  the question (layout, images, canvas, color). The host then shows you the
+  picture. Base64 in shell output reaches you as text only.
 
-## One-off calls
+## One-off calls (open-computer-use CLI)
 
-For a quick read or one action, the CLI needs no script:
+For a quick read or one action with no session:
 
 ```sh
 open-computer-use call --sleep 0.3 --calls '[
@@ -87,43 +135,28 @@ open-computer-use call --sleep 0.3 --calls '[
 ]'
 ```
 
-- Output is JSON. One call prints `{"content":[...],"isError":false}`. A
-  `--calls` run prints a list of `{"tool","result"}`. Each separate CLI call is
-  a new session, so element numbers do not carry over between calls.
-- Screenshots come back as base64 text in that JSON. Use code mode when you
-  need to see one.
-- Find a control without a full tree or screenshot:
-  `open-computer-use call query --args '{"app":"Discord","text":"Send"}'`.
-- Long text (chat history, documents): add `"text_limit":1000` or `"max"` to
-  `get_app_state`.
+Output is JSON. Each CLI call is a new session, so element numbers do not
+carry over. Screenshots come back as base64 text; use the session to see one.
 
-`type_text` needs a focused text field. For buttons (Calculator keys, toolbar
-items), click by `element_index`.
+## Known limits
 
-## Known limits (tested 2026-10-20 from a T3 Code agent shell, version 1.1.2)
-
-- Speed: `get_app_state` about 0.4 s for Calculator and 4.4 s for Discord; each
-  click about 2 s, because every action returns fresh state.
-- One window at a time: `get_app_state` reads only the app's front window or
-  tab, and there is no window argument (upstream issue #83). Switch with the
-  app's own UI first, for example click the tab or the Window menu item, then
-  read again.
-- `set_value` can report success without a change (#83). Read state again to
-  check.
-- `drag` does nothing by default (#53). A real drag needs
-  `OPEN_COMPUTER_USE_ALLOW_GLOBAL_POINTER_FALLBACKS=1`, which moves the user's
-  pointer. Ask first.
-- No approval prompt for each app (#15). The rules below replace it.
-- Nothing works while the screen is locked: native calls fail with
-  `NSPOSIXErrorDomain Code=2 "No such file or directory"` and `doctor` shows
-  `session=locked` (seen 2026-10-20). Tell the user and wait; plain JavaScript
-  in `ocu js` still runs. "Locked Use" (`ocu locked-use enable`) would allow
-  it, but it installs a system authorization component and needs an admin
-  password. Do not enable it without the user.
+- Locked screen: nothing works while the Mac is locked (`ocu` native calls
+  fail with `NSPOSIXErrorDomain Code=2`; `doctor` shows `session=locked`).
+  Tell the user and wait. Do not enable `ocu locked-use`: its own docs call
+  it unproven research that changes the macOS unlock rule.
+- `ocu` engine (version 1.1.2): reads only the app's front window or tab
+  (issue #83; switch with the app's own UI first); `setValue` can report
+  success without a change; `drag` does nothing unless
+  `OPEN_COMPUTER_USE_ALLOW_GLOBAL_POINTER_FALLBACKS=1`, which moves the
+  user's pointer (ask first); scroll events do not move Discord's message
+  list (Page keys do). `cu` turns off its read after every action
+  (`OPEN_COMPUTER_USE_ACTION_READ_BACK=0`: 0.1 s instead of about 6 s).
+- Codex engine: its sandbox cannot write files (use `shot` and `save`); it
+  needs the ChatGPT app and its Computer Use permissions.
 
 ## Rules
 
-From Codex's computer-use rules and the engine's own skill:
+From OpenAI's computer-use confirmation policy and open-computer-use's skill:
 
 - The desktop is the user's real session. Do not open password managers,
   private content or sensitive apps unless the task asks for it.
