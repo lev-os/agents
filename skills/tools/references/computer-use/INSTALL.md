@@ -7,11 +7,11 @@ install. The sections below set up open-computer-use (the fallback engine,
 
 ## Contents
 
-- [open-computer-use (default)](#open-computer-use-default)
-- [Codex engine (second choice)](#codex-engine-second-choice)
+- [open-computer-use (fallback engine)](#open-computer-use-fallback-engine)
+- [songkeys MCP package (optional)](#songkeys-mcp-package-optional)
 - [Remove](#remove)
 
-## open-computer-use (default)
+## open-computer-use (fallback engine)
 
 | Need | Check |
 |---|---|
@@ -47,7 +47,7 @@ tools and inline screenshots: `claude mcp add --scope user --transport stdio
 open-computer-use -- open-computer-use mcp`. Ask the user first: a user-scope
 server starts with every Claude session.
 
-## Codex engine (second choice)
+## songkeys MCP package (optional)
 
 The `upstream/` folder holds songkeys/claude-codex-computer-use unchanged
 (`UPSTREAM.md`). It runs OpenAI's own client from the user's ChatGPT or Codex
