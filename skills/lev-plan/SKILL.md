@@ -181,7 +181,7 @@ steps:
   - id: prove_requirements
     when: mode is emit and semantic readiness is ready
     action: Read references/execution-packet.md, write the slice's requirements list with its three passes (think, write, prove), then run every check once on today's tree.
-    validation: "Every row is one sentence that a check or the review agent can answer; at least one check is red today when the slice adds or fixes behaviour."
+    validation: "Every row is a prompt (often one sentence, never forced) that a check or the review agent can answer; at least one check is red today when the slice adds or fixes behaviour."
     on_failure: "Sharpen a row nothing can prove, or route its open question to /interview."
 
   - id: emit_slice
