@@ -17,6 +17,14 @@ packet with the plan recorded as not required; non-coding
 work can use a sufficient plan directly with its domain execution owner.
 </goal>
 
+**Design from intent** (JP 2026-10-28). Read captures, decisions and designs as
+evidence of an intent, not as the answer; the same idea is often said several
+ways. Name the intent they share, then propose what should happen from first
+principles. An explicit ruling still stands; a better ideal becomes a new
+decision that supersedes it. Every design answer includes "What experts would
+do:" with one line for each domain that fits (`- {domain}: {what they would do}`),
+two to four domains, naming real practice (a tool, a standard, a book) where you can.
+
 ## Entity Reconciliation
 
 After authorized material progress, reconcile touched and causally affected
@@ -401,6 +409,10 @@ unblocks, and the failure mode if wrong. Plain prose, no field labels.
 | a | ... | ... | ... |
 | b | ... | ... | ... |
 | c | ... | ... | ... |
+
+**What experts would do**
+- {domain}: {what they would do}
+- {domain}: {what they would do}
 
 **Options**
 `a` {researched_option_a} -> {design_consequence}

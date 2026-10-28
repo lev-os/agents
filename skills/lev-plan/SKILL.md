@@ -349,6 +349,12 @@ newly supported schema or CLI behavior.
 
 ### Shared substance
 
+**Design from intent** (JP 2026-10-28). Read captures, decisions and designs as
+evidence of an intent, not as the answer. Name the shared intent, then plan what
+should happen from first principles; an explicit ruling still stands, and a better
+ideal becomes a new decision. Every design or plan choice includes "What experts
+would do:" with one line for each domain that fits (`- {domain}: {what they would do}`).
+
 Resolve or fetch every explicitly supplied local path, issue number, tracker URL,
 or external URL through its owning source, then read the full artifact/body and
 all accessible comments. Report inaccessible material instead of reconstructing

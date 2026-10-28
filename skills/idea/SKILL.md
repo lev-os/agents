@@ -60,6 +60,11 @@ the actual question; do not invent meaningless alternatives to fill five slots.
 Use the project's required choice count when it differs. Explain the recommended
 path briefly and give a human example when the choices are abstract.
 
+Design from intent (JP 2026-10-28): treat earlier captures and decisions as
+evidence of what the user means, not as the answer, and shape what should happen
+from first principles. With the choices, add "What experts would do:" with one
+line for each domain that fits (`- {domain}: {what they would do}`).
+
 - `3` selects that path.
 - `1,2,5` or `2 and 4` combines the compatible parts; expose conflicts before choosing for the user.
 - `3, but focused on X` changes the selected approach and preserves X.
