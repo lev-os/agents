@@ -9,6 +9,10 @@ Save the work, merge upstream without losing intent, and push the current branch
 The assistant runs Git directly. Do not require or create a custom sync shell
 script, runner, lock service, or exit-code protocol.
 
+Routine sync is not a PR or release workflow. Create or require a pull request only when the user explicitly asks. Work in the current checkout; do not create a worktree to synchronize shared multi-agent work. When the current branch is main, the sync request already authorizes pushing main. `--main` is needed only to also land a different starting branch on main.
+
+Incoming commits from the user's other machines are shared work. Inspect the incoming changes and resolve conflicts, but do not impose a separate audit or full code-review prerequisite on routine sync. Run checks relevant to the changes you resolve and keep normal hooks enabled. Report unrelated or pre-existing CI failures separately; they do not by themselves prohibit a synchronization push. A checkpoint never certifies release readiness.
+
 ## Scope and modes
 
 | Request | Meaning |
@@ -29,7 +33,7 @@ changes, or invent an upstream to make a sync succeed.
 1. **Inspect current state.** Check the repository, branch, upstream, dirty paths,
    submodules and any merge already in progress. Use `git status --short`,
    `git branch -vv`, `git remote -v` and submodule status as needed. Inspect
-   incoming commits and apply relevant repository review requirements. Reuse a
+   incoming commits and preserve their intent. Do not invent a PR, release approval or full-review gate. Reuse a
    pending merge; do not start competing syncs.
 2. **Checkpoint the authorized scope.** Work through dirty submodules before
    their parent. Write one truthful Lore message per repository. Stage explicit
