@@ -1,7 +1,31 @@
 ---
 name: pr-triage
-description: Use when triaging a scoped set of pull requests across repositories by integrating each repository locally, reviewing the whole result with two models and an architect, fixing concrete findings, verifying, and reporting repository status.
+description: Use when triaging a scoped set of pull requests as a merge train - gate each PR for readiness, bounce what is not ready, merge what is ready into one integration branch, then review the whole result once with two models and an architect, fix blocking findings, verify, and report.
 ---
+
+## Merge train rules (JP, 2026-10-30; these override anything below)
+
+1. **Gate each PR, do not review it.** Per PR, check only: its own CI failures,
+   conflicts, scope and direction against the ticket and settled decisions, and
+   glaring defects in the diff. No model review per PR.
+2. **Not ready: bounce it.** Comment on the PR and its ticket with the exact
+   blocking items, and message the author. Do not merge it. Do not fix it for
+   the author beyond small discrepancies.
+3. **Ready: fix small discrepancies and merge it** into the integration branch
+   (merge commit, never rebase). Small means mechanical: a guard list entry, a
+   doc line, a spelling, a stale test literal, a merge conflict with clear intent.
+4. **After the whole train is merged, review once.** One round on the combined
+   result: one Claude Opus review (a single agent at medium effort) and one
+   Codex review (xhigh). No multi-agent review workflows, skeptic panels or
+   planted-failure sweeps unless the user asks for them.
+5. **Fix blocking findings on the integration branch** (high severity, or a
+   medium correctness or security defect) with focused checks. Everything else
+   becomes an issue linked to its PR or ticket. Never start a second review round.
+6. **Run the full gates once** on the final integration SHA.
+7. **New work found during triage is not part of the train.** A follow-up PR or
+   feature goes to its own thread and enters a later train through the gate.
+8. **Update every PR and ticket** with its outcome: merged, merged with
+   follow-up issues, or bounced with the blocking items.
 
 # PR triage
 
@@ -150,14 +174,10 @@ Existing PR CI and earlier green tests do not verify the new integrated tree.
 Never weaken, skip or delete assertions to obtain green, invent visual baselines,
 or bless snapshots without trustworthy expected behavior and required authority.
 
-Record the final SHA and verify that the tested source tree is unchanged. After any later fix,
-invalidate affected earlier evidence and rerun impacted checks; rerun the full
-relevant set when impact cannot be bounded. Refresh the two model lanes on
-changed code and interactions, binding accepted evidence to the final SHA via
-an explicit follow-up and previous review provenance. Rerun architect analysis
-when boundaries or design premises change. A material integration/scope change
-requires whole-result review again. Follow Coder's stopping rules instead of
-looping indefinitely for approval.
+Record the final SHA and verify that the tested source tree is unchanged. After a
+fix, rerun the focused checks it affects and the full gates once at the end. Do
+not start a second model review round: one round per train is the maximum.
+Report review findings you did not fix as issues with the PR or ticket link.
 
 ## Report each repository
 
