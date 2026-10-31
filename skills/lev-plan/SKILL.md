@@ -129,7 +129,7 @@ steps:
     on_failure: "Route missing capture fidelity to /capture or ask one decision question; a shallow broad plan is needs_plan. Do not draft around missing intent."
 
   - id: inspect_current_state
-    action: Identify the owning code areas, then inspect only what this run needs - current code, docs, plans, dependencies, dirty work, external authority, the source capture/design/plan, workstream, existing task, verifier evidence, and the applicable entries from the project's rules index.
+    action: Run `lev find "<3-6 topic words>" --type plan --type design --type decision --type idea --json` first when `lev` is installed (a `superseded` card is history; open its superseder; plan and design types return no cards until indexed, so also `rg` `.lev/pm/plans` and `.lev/pm/designs`; if `lev` fails, say so in one line and `rg` over `.lev`). Then identify the owning code areas and inspect only what this run needs - current code, docs, plans, dependencies, dirty work, external authority, the source capture/design/plan, workstream, existing task, verifier evidence, and the applicable entries from the project's rules index.
     validation: "Current-state claims are observed or labeled stale/assumed; load-bearing claims cite exact refs."
     on_failure: "Route to /prior-art or keep the claim unknown; mark stale or missing authority as an open decision."
 

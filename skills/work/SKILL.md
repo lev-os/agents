@@ -160,7 +160,7 @@ details.
 ```yaml
 steps:
   - id: resolve_workstream
-    action: Identify the active workstream or route to /ws.
+    action: Identify the active workstream (`lev find "<3-6 topic words>" --type workstream --status active --json` when `lev` is installed) or route to /ws.
     validation: "A workstream id is known, or /ws is the next skill."
     on_failure: "Do not write. Route to /ws find|resume or create a workstream."
 

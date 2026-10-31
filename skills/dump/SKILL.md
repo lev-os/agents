@@ -12,6 +12,10 @@ output_template: hud
 the shared lifecycle ledger, then takes the obvious next lifecycle action only
 when the ledger proves the row is durable and write-authorized.
 
+Before routing or writing, run capture's `lev find` step (owning workstream,
+then settled decisions) for each topic, and cite a found decision instead of
+asking its question again.
+
 Use capture's patch-and-route protocol: reconcile each material row against
 prior art, update its existing home, and clear it from the active queue only
 after checking the destination. Retain source history and use capture's
@@ -55,7 +59,7 @@ steps:
     on_failure: "Do not route. Show the full ledger only for --full, audit, or debug."
 
   - id: probe_prior_art
-    action: Search existing work per topic before creating new artifacts.
+    action: Run `lev find` per topic, then search existing work, before creating new artifacts.
     validation: "Each new proposal has no better existing home."
     on_failure: "Route to /prior-art and stop proposal creation for that topic."
 
