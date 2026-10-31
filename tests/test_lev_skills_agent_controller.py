@@ -286,6 +286,18 @@ class S06ControllerTest(unittest.TestCase):
     def tearDown(self) -> None:
         self.fixture.tearDown()
 
+    def make_scripted_controller(self, *args: Any, **kwargs: Any) -> ScriptedSkillsController:
+        # This test fixture copies the accepted current public wrapper into a
+        # temporary repo. Keep its explicit pin separate from the historical
+        # default pin used by direct ScriptedSkillsController callers.
+        kwargs.setdefault("scripted_cli_sha256", "1ebaeb7e054d54f3ca8de97a68cbcd2c89d81ddbe845cd3649199ebdc7a71f23")
+        return ScriptedSkillsController(*args, **kwargs)
+
+    def test_historical_default_cli_pin_is_preserved_and_rejects_current_copy(self) -> None:
+        self.assertEqual(controller_module.EXPECTED_CLI_SHA256, "349b185c118d8e0c4dc63172c0aad5341bf01a31022d0a214c9c6760e0affc88")
+        with self.assertRaisesRegex(RuntimeError, "differs from the admitted read-only source"):
+            ScriptedSkillsController(self.fixture)
+
     def write_peer(self, source: str, name: str = "peer.py") -> Path:
         path = self.fixture.output / name
         path.write_text(source, encoding="utf-8")
@@ -306,7 +318,7 @@ class S06ControllerTest(unittest.TestCase):
 
     def test_connected_rpc_real_cli_and_received_complete_bundle_bytes(self) -> None:
         peer = self.write_peer(POSITIVE_PEER)
-        controller = ScriptedSkillsController(self.fixture, lane="positive")
+        controller = self.make_scripted_controller(self.fixture, lane="positive")
         instruction = "Use only the attached read-only skills-db tools.\n" + ("i" * 1_048_576)
         original_write = controller_module._write_pipe
         short_writes: list[tuple[int, int]] = []
@@ -388,7 +400,7 @@ class S06ControllerTest(unittest.TestCase):
     def test_clean_eof_without_matching_completed_turn_is_incomplete(self) -> None:
         prefix = POSITIVE_PEER.split('thread_id, turn_id = "thread-fixture-1", "turn-fixture-1"', 1)[0]
         peer = self.write_peer(prefix + "\nsys.exit(0)\n", "peer-early-exit.py")
-        controller = ScriptedSkillsController(self.fixture, lane="early-eof")
+        controller = self.make_scripted_controller(self.fixture, lane="early-eof")
         observation = controller.run_scripted_peer(peer, task_text="task", instruction_text="instructions")
         self.assertEqual(observation["terminal"]["peer_exit_code"], 0)
         self.assertTrue(observation["terminal"]["stdout_eof_observed"])
@@ -399,7 +411,7 @@ class S06ControllerTest(unittest.TestCase):
 
     def test_terminal_frames_require_matching_well_formed_completed_status(self) -> None:
         def make_controller() -> ScriptedSkillsController:
-            controller = ScriptedSkillsController(self.fixture, lane="terminal-shape")
+            controller = self.make_scripted_controller(self.fixture, lane="terminal-shape")
             controller._thread_id = "thread-fixture-1"
             controller._turn_id = "turn-fixture-1"
             return controller
@@ -452,7 +464,7 @@ class S06ControllerTest(unittest.TestCase):
                 peer = self.write_peer(prefix + '\nsend(' + repr(frame) + ')\n'
                                        + 'send({"method":"turn/completed","params":{"threadId":thread_id,"turn":turn_value("completed")}})\n',
                                        'peer-invalid-envelope.py')
-                candidate = ScriptedSkillsController(self.fixture, lane="invalid-envelope")
+                candidate = self.make_scripted_controller(self.fixture, lane="invalid-envelope")
                 dispatch_calls: list[dict[str, Any]] = []
                 dispatch = candidate._dispatch_callback
                 def track_dispatch(request_params: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any] | None]:
@@ -494,7 +506,7 @@ class S06ControllerTest(unittest.TestCase):
                         + '"turn":turn_value("completed")}})\n',
                         f"peer-missing-id-{phase}-{index}.py",
                     )
-                    candidate = ScriptedSkillsController(self.fixture, lane="missing-id-matrix")
+                    candidate = self.make_scripted_controller(self.fixture, lane="missing-id-matrix")
                     dispatch_calls: list[dict[str, Any]] = []
 
                     def record_forbidden_dispatch(request_params: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any] | None]:
@@ -532,7 +544,7 @@ class S06ControllerTest(unittest.TestCase):
             + '"status":"completed","error":None,"startedAt":1,"completedAt":2,"durationMs":1}}})\n',
             "peer-method-matching-client-id.py",
         )
-        candidate = ScriptedSkillsController(self.fixture, lane="method-id-collision")
+        candidate = self.make_scripted_controller(self.fixture, lane="method-id-collision")
         dispatch_calls: list[dict[str, Any]] = []
 
         def record_forbidden_dispatch(request_params: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any] | None]:
@@ -563,7 +575,7 @@ class S06ControllerTest(unittest.TestCase):
             + '"turn":turn_value("completed")}})\n',
             "peer-request-during-client-wait.py",
         )
-        candidate = ScriptedSkillsController(self.fixture, lane="request-during-client-wait")
+        candidate = self.make_scripted_controller(self.fixture, lane="request-during-client-wait")
         dispatch_calls: list[dict[str, Any]] = []
 
         def record_forbidden_dispatch(request_params: dict[str, Any]) -> None:
@@ -592,7 +604,7 @@ class S06ControllerTest(unittest.TestCase):
                                        + 'text_result(read_replies({' + repr(request_id) + '})[' + repr(request_id) + '])\n'
                                        + 'send({"method":"turn/completed","params":{"threadId":thread_id,"turn":turn_value("completed")}})\n',
                                        'peer-valid-envelope.py')
-                candidate = ScriptedSkillsController(self.fixture, lane="valid-envelope")
+                candidate = self.make_scripted_controller(self.fixture, lane="valid-envelope")
                 observation = candidate.run_scripted_peer(peer, task_text="t", instruction_text="i")
                 self.assertEqual(observation["terminal"]["state"], "completed")
                 self.assertEqual(len(candidate.cli_runs), 1)
@@ -601,7 +613,7 @@ class S06ControllerTest(unittest.TestCase):
     def test_unread_peer_stdin_write_stops_at_active_deadline(self) -> None:
         peer = self.write_peer(NONREADING_PEER, "peer-nonreading.py")
         limits = replace(DEFAULT_LIMITS, wall_seconds=0.25)
-        controller = ScriptedSkillsController(self.fixture, meter=CampaignMeter(limits), lane="write-block")
+        controller = self.make_scripted_controller(self.fixture, meter=CampaignMeter(limits), lane="write-block")
         instruction = "x" * 1_048_576
         started = time.monotonic()
         observation = controller.run_scripted_peer(peer, task_text="t", instruction_text=instruction)
@@ -617,7 +629,7 @@ class S06ControllerTest(unittest.TestCase):
 
     def test_initial_input_over_cap_fails_before_peer_spawn(self) -> None:
         peer = self.write_peer("raise SystemExit(0)\n")
-        controller = ScriptedSkillsController(self.fixture)
+        controller = self.make_scripted_controller(self.fixture)
         with self.assertRaises(AdmissionError):
             controller.run_scripted_peer(
                 peer,
@@ -629,10 +641,10 @@ class S06ControllerTest(unittest.TestCase):
         self.assertEqual(controller.meter.denials[0]["kind"], "initial_text")
 
     def test_evidence_identity_is_unique_even_for_repeated_lane_names(self) -> None:
-        first = ScriptedSkillsController(self.fixture, lane="same-lane")
+        first = self.make_scripted_controller(self.fixture, lane="same-lane")
         first_path = first.write_evidence()
         first_bytes = first_path.read_bytes()
-        second = ScriptedSkillsController(self.fixture, lane="same-lane")
+        second = self.make_scripted_controller(self.fixture, lane="same-lane")
         second_path = second.write_evidence()
         self.assertNotEqual(first_path, second_path)
         self.assertEqual(first_path.read_bytes(), first_bytes)
@@ -698,7 +710,7 @@ class S06ControllerTest(unittest.TestCase):
         self.assertEqual(equality.context_bytes, DEFAULT_LIMITS.context_bytes)
 
     def test_concurrent_identical_source_spans_reserve_before_delivery(self) -> None:
-        controller = ScriptedSkillsController(self.fixture, lane="span-race")
+        controller = self.make_scripted_controller(self.fixture, lane="span-race")
         controller.meter.begin("task", "instructions")
         controller._thread_id = "thread-fixture-1"
         controller._turn_id = "turn-fixture-1"
@@ -736,7 +748,7 @@ class S06ControllerTest(unittest.TestCase):
 
     def test_source_digest_change_and_descriptor_escape_are_rejected(self) -> None:
         peer = self.write_peer(POSITIVE_PEER, "peer-digest.py")
-        controller = ScriptedSkillsController(self.fixture, lane="digest")
+        controller = self.make_scripted_controller(self.fixture, lane="digest")
         result: dict[str, Any] = {}
         def run_controller() -> None:
             try:
@@ -783,7 +795,7 @@ class S06ControllerTest(unittest.TestCase):
     def test_gapped_source_span_is_received_but_never_gets_full_bundle_credit(self) -> None:
         end = len(self.source.read_bytes()) - 1
         peer = self.write_peer(POSITIVE_PEER.replace("GAP_END", str(end)), "peer-gap.py")
-        controller = ScriptedSkillsController(self.fixture, lane="gap")
+        controller = self.make_scripted_controller(self.fixture, lane="gap")
         observation = controller.run_scripted_peer(peer, task_text="read a partial span", instruction_text="fixture only")
         transfer = observation["source_transfers"][0]
         self.assertEqual(transfer["start_byte"], 1)
@@ -803,7 +815,7 @@ class S06ControllerTest(unittest.TestCase):
         self.assertFalse(cached["query_groups"][0]["evaluated"])
         self.assertEqual(cached["query_groups"][0]["evaluation_origin"], "cache")
 
-        controller = ScriptedSkillsController(self.fixture)
+        controller = self.make_scripted_controller(self.fixture)
         cached_observation = {
             "record": {
                 "exit_code": 0,
@@ -835,7 +847,7 @@ class S06ControllerTest(unittest.TestCase):
         self.assertEqual(controller.query_observations, {})
 
     def test_failed_real_cli_result_does_not_earn_predicate_credit(self) -> None:
-        controller = ScriptedSkillsController(self.fixture)
+        controller = self.make_scripted_controller(self.fixture)
         too_many_terms = " ".join(["needle"] * 33)
         failure = self.fixture.run_cli(["discover", "--query", too_many_terms, "--namespace", "skills-db", "--json", "--no-cache"])
         self.assertEqual(failure.returncode, 1)
@@ -857,7 +869,7 @@ class S06ControllerTest(unittest.TestCase):
         peer = self.write_peer(DEADLINE_PEER, "peer-deadline.py")
         limits = replace(DEFAULT_LIMITS, wall_seconds=0.2)
         meter = CampaignMeter(limits)
-        controller = ScriptedSkillsController(self.fixture, meter=meter, lane="deadline")
+        controller = self.make_scripted_controller(self.fixture, meter=meter, lane="deadline")
         started = time.monotonic()
         observation = controller.run_scripted_peer(peer, task_text="wait", instruction_text="fixture only")
         elapsed = time.monotonic() - started
@@ -877,7 +889,7 @@ class S06ControllerTest(unittest.TestCase):
         clock = lambda: now[0]
         meter = CampaignMeter(replace(DEFAULT_LIMITS, wall_seconds=1), clock)
         meter.begin("task", "instructions", started_at=10.0)
-        controller = ScriptedSkillsController(self.fixture, meter=meter, clock=clock)
+        controller = self.make_scripted_controller(self.fixture, meter=meter, clock=clock)
         controller._thread_id = "thread-fixture-1"
         controller._turn_id = "turn-fixture-1"
         now[0] = 11.0
@@ -890,7 +902,7 @@ class S06ControllerTest(unittest.TestCase):
         self.assertEqual(controller.cli_runs, [])
         self.assertEqual(meter.admitted_calls, 0)
         with self.assertRaises(ProtocolError):
-            ScriptedSkillsController(self.fixture).run_scripted_peer(
+            self.make_scripted_controller(self.fixture).run_scripted_peer(
                 self.write_peer("raise SystemExit(0)\n", "peer-native.py"),
                 task_text="task",
                 instruction_text="instructions",
@@ -899,7 +911,7 @@ class S06ControllerTest(unittest.TestCase):
 
     def test_broken_pipe_preserves_terminal_failure_and_charges_attempt(self) -> None:
         peer = self.write_peer(BROKEN_PIPE_PEER, "peer-broken.py")
-        controller = ScriptedSkillsController(self.fixture, lane="broken-pipe")
+        controller = self.make_scripted_controller(self.fixture, lane="broken-pipe")
         observation = controller.run_scripted_peer(peer, task_text="query", instruction_text="fixture")
         self.assertEqual(observation["budget"]["admitted_calls"], 1)
         self.assertTrue(observation["terminal"]["failure"] is not None)

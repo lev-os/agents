@@ -1,7 +1,7 @@
-"""Test-local, scripted app-server bridge for the S06 skills-db slice.
+"""Read-only skills-db CLI callbacks for fixture and current-public profiles.
 
-This module only admits ``scripted_fixture`` runs. It is deliberately not a
-native Codex adapter or an evaluation verdict surface.
+Scripted peer evidence stays labelled ``scripted_fixture``. The public profile
+supplies data callbacks only; it is not an agent runtime or an evaluation verdict.
 """
 
 from __future__ import annotations
@@ -10,6 +10,7 @@ from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import asdict, dataclass
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import queue
@@ -35,6 +36,14 @@ RUN_ROOT = Path(
 BUDGET_FILE = READINESS_ROOT / "frozen-budget-only.json"
 EXPECTED_BUDGET_SHA256 = "b62097524f02e3bae375c99de758550eaec294066fe8dd3594f68c4783792453"
 EXPECTED_CLI_SHA256 = "349b185c118d8e0c4dc63172c0aad5341bf01a31022d0a214c9c6760e0affc88"
+CURRENT_PUBLIC_CLI_SHA256 = "7569fdfd69c934a9a8fad738722a298fb8c7528e7f47e65f60195a4b69a628bb"
+CURRENT_PUBLIC_WRAPPER_SHA256 = "d5c39669e92a306831c15c3821914400fc843dfbdd57551ae4c6b401719e0732"
+CURRENT_PUBLIC_QMD_BRIDGE_SHA256 = "6bb5e921ffa05a6b03e357d18680b32c52b5de13e0ca8b06cf325da073c3835f"
+CURRENT_PUBLIC_INVENTORY_SHA256 = "57ad3d538370f1e488bd896de67e19f45fde9c3724a34d25745a1c14c3e6e01c"
+CURRENT_PUBLIC_SNAPSHOT_SHA256 = "ed2625f0238d933d516c5117e5cad1a41e7f4e50210700c40faa5ac1a25161dd"
+CURRENT_PUBLIC_CATALOG_REVISION = "1491a25bf860e73f4da749f6c83de08b766c8b503d80f422445489b7cd80fb11"
+MAX_CLI_STDOUT_BYTES = 2_097_152
+MAX_CLI_STDERR_BYTES = 65_536
 
 
 class AdmissionError(RuntimeError):
@@ -81,6 +90,136 @@ def frozen_limits() -> BudgetLimits:
     return limits
 
 
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+@dataclass(frozen=True)
+class SkillsCliProfile:
+    """An explicit read-only CLI identity; the fixture and public profiles stay distinct."""
+
+    mode: str
+    repo_root: Path
+    executable: Path
+    executable_sha256: str
+    wrapper_path: Path
+    wrapper_sha256: str
+    qmd_bridge_path: Path
+    qmd_bridge_sha256: str
+    inventory_path: Path
+    inventory_sha256: str
+    snapshot_path: Path
+    snapshot_sha256: str
+    catalog_revision: str
+    runtime_root: Path
+    backend: str
+
+    @classmethod
+    def current_public(cls, *, backend: str, runtime_root: Path) -> "SkillsCliProfile":
+        root = Path(os.environ.get("AGENTS_HOME", str(Path.home() / ".agents"))).expanduser().resolve()
+        return cls(
+            mode="current_public",
+            repo_root=root,
+            executable=Path.home() / ".local/bin/lev-skills",
+            executable_sha256=CURRENT_PUBLIC_CLI_SHA256,
+            wrapper_path=root / "lev-skills.sh",
+            wrapper_sha256=CURRENT_PUBLIC_WRAPPER_SHA256,
+            qmd_bridge_path=root / "lev-skills-qmd.mjs",
+            qmd_bridge_sha256=CURRENT_PUBLIC_QMD_BRIDGE_SHA256,
+            inventory_path=root / "skills-inventory.jsonl",
+            inventory_sha256=CURRENT_PUBLIC_INVENTORY_SHA256,
+            snapshot_path=root / "skills-inventory.snapshot.json",
+            snapshot_sha256=CURRENT_PUBLIC_SNAPSHOT_SHA256,
+            catalog_revision=CURRENT_PUBLIC_CATALOG_REVISION,
+            runtime_root=runtime_root,
+            backend=backend,
+        )
+
+    @classmethod
+    def offline_test(
+        cls,
+        *,
+        repo_root: Path,
+        executable: Path,
+        wrapper_path: Path,
+        qmd_bridge_path: Path,
+        inventory_path: Path,
+        snapshot_path: Path,
+        runtime_root: Path,
+        backend: str = "qmd",
+        catalog_revision: str = "offline-test-revision",
+    ) -> "SkillsCliProfile":
+        """Build a clearly labelled profile for local deterministic controls only."""
+        return cls(
+            mode="offline_test",
+            repo_root=repo_root,
+            executable=executable,
+            executable_sha256=_sha256_file(executable),
+            wrapper_path=wrapper_path,
+            wrapper_sha256=_sha256_file(wrapper_path),
+            qmd_bridge_path=qmd_bridge_path,
+            qmd_bridge_sha256=_sha256_file(qmd_bridge_path),
+            inventory_path=inventory_path,
+            inventory_sha256=_sha256_file(inventory_path),
+            snapshot_path=snapshot_path,
+            snapshot_sha256=_sha256_file(snapshot_path),
+            catalog_revision=catalog_revision,
+            runtime_root=runtime_root,
+            backend=backend,
+        )
+
+    def verify(self) -> dict[str, Any]:
+        if self.backend not in {"qmd", "lexical"}:
+            raise RuntimeError("discover backend must be explicit: qmd or lexical")
+        if self.mode == "current_public":
+            root = Path(os.environ.get("AGENTS_HOME", str(Path.home() / ".agents"))).expanduser().resolve()
+            expected = (
+                (self.repo_root, root),
+                (self.executable, Path.home() / ".local/bin/lev-skills"),
+                (self.wrapper_path, root / "lev-skills.sh"),
+                (self.qmd_bridge_path, root / "lev-skills-qmd.mjs"),
+                (self.inventory_path, root / "skills-inventory.jsonl"),
+                (self.snapshot_path, root / "skills-inventory.snapshot.json"),
+            )
+            if any(actual != wanted for actual, wanted in expected):
+                raise RuntimeError("current public CLI profile paths differ from the admitted paths")
+            pins = (
+                (self.executable, CURRENT_PUBLIC_CLI_SHA256),
+                (self.wrapper_path, CURRENT_PUBLIC_WRAPPER_SHA256),
+                (self.qmd_bridge_path, CURRENT_PUBLIC_QMD_BRIDGE_SHA256),
+                (self.inventory_path, CURRENT_PUBLIC_INVENTORY_SHA256),
+                (self.snapshot_path, CURRENT_PUBLIC_SNAPSHOT_SHA256),
+            )
+            if self.catalog_revision != CURRENT_PUBLIC_CATALOG_REVISION:
+                raise RuntimeError("current public catalog revision differs from the admitted revision")
+        elif self.mode == "offline_test":
+            pins = (
+                (self.executable, self.executable_sha256),
+                (self.wrapper_path, self.wrapper_sha256),
+                (self.qmd_bridge_path, self.qmd_bridge_sha256),
+                (self.inventory_path, self.inventory_sha256),
+                (self.snapshot_path, self.snapshot_sha256),
+            )
+        else:
+            raise RuntimeError("unknown skills CLI profile mode")
+        checked = {}
+        for path, expected_sha256 in pins:
+            actual = _sha256_file(path)
+            if actual != expected_sha256:
+                raise RuntimeError(f"skills CLI profile pin changed: {path}")
+            checked[str(path)] = actual
+        return {
+            "mode": self.mode,
+            "backend": self.backend,
+            "catalog_revision": self.catalog_revision,
+            "pins": checked,
+        }
+
+
 class CampaignMeter:
     """Atomic, non-refundable counters shared by every lane in a campaign."""
 
@@ -89,6 +228,7 @@ class CampaignMeter:
         self.clock = clock
         self.lock = threading.Lock()
         self.deadline: float | None = None
+        self.admitted_at: float | None = None
         self.attempted_calls = 0
         self.admitted_calls = 0
         self.context_bytes = 0
@@ -104,15 +244,28 @@ class CampaignMeter:
     def begin(self, task_text: str, instruction_text: str, *, started_at: float | None = None) -> None:
         if not isinstance(task_text, str) or not isinstance(instruction_text, str):
             raise TypeError("initial task and instruction must be text")
-        started = self.clock() if started_at is None else started_at
+        now = self.clock()
+        started = now if started_at is None else started_at
+        if isinstance(started, bool) or not isinstance(started, (int, float)) or not math.isfinite(float(started)):
+            raise AdmissionError("campaign admission origin must be finite")
+        if not math.isfinite(float(now)) or started > now:
+            raise AdmissionError("campaign admission origin cannot be in the future")
+        if not math.isfinite(float(self.limits.wall_seconds)) or self.limits.wall_seconds <= 0:
+            raise AdmissionError("campaign wall limit must be finite and positive")
         task_bytes = len(task_text.encode("utf-8"))
         instruction_bytes = len(instruction_text.encode("utf-8"))
         requested = task_bytes + instruction_bytes
         with self.lock:
             if self.deadline is None:
+                if now - started >= self.limits.wall_seconds:
+                    raise AdmissionError("campaign admission origin is stale")
+                self.admitted_at = float(started)
                 self.deadline = started + self.limits.wall_seconds
-            elif self.clock() >= self.deadline:
-                raise AdmissionError("active deadline elapsed before lane admission")
+            else:
+                if started_at is not None and started != self.admitted_at:
+                    raise AdmissionError("campaign admission origin cannot be reset")
+                if self.clock() >= self.deadline:
+                    raise AdmissionError("active deadline elapsed before lane admission")
             if self.context_bytes + requested > self.limits.context_bytes:
                 self.denials.append({"kind": "initial_text", "bytes": requested})
                 raise AdmissionError("initial task and instruction exceed the context cap")
@@ -124,6 +277,8 @@ class CampaignMeter:
         with self.lock:
             if self.deadline is None:
                 raise AdmissionError("campaign has not been admitted")
+            if not math.isfinite(float(self.deadline)):
+                raise AdmissionError("campaign deadline is not finite")
             if self.aborted:
                 raise AdmissionError("campaign aborted: " + (self.abort_reason or "unspecified"))
             if self.clock() >= self.deadline:
@@ -251,8 +406,16 @@ def _within(path: Path, root: Path) -> bool:
         return False
 
 
+def _pid_is_alive(pid: int) -> bool:
+    try:
+        os.kill(pid, 0)
+        return True
+    except (ProcessLookupError, PermissionError, OSError):
+        return False
+
+
 class ScriptedSkillsController:
-    """One local fixture controller owning one scripted stdio process group."""
+    """Shared source and CLI callbacks with distinct fixture and public profiles."""
 
     SERVER_REQUEST_METHODS = frozenset(
         {
@@ -276,21 +439,34 @@ class ScriptedSkillsController:
 
     def __init__(
         self,
-        fixture: Any,
+        fixture: Any | None = None,
         *,
+        scripted_cli_sha256: str = EXPECTED_CLI_SHA256,
+        public_profile: SkillsCliProfile | None = None,
         meter: CampaignMeter | None = None,
         lane: str = "scripted",
         clock: Callable[[], float] = time.monotonic,
     ):
+        if (fixture is None) == (public_profile is None):
+            raise TypeError("select exactly one scripted fixture or public CLI profile")
         self.fixture = fixture
+        self.scripted_cli_sha256 = scripted_cli_sha256
+        self.public_profile = public_profile
         self.clock = clock
         self.meter = meter or CampaignMeter(frozen_limits(), clock)
         self.lane = lane
-        self.approved_root = (Path(fixture.repo) / "skills-db").resolve()
-        self.fixture_root = Path(fixture.output).resolve()
-        self.cli_sha256 = hashlib.sha256(Path(fixture.script).read_bytes()).hexdigest()
-        if self.cli_sha256 != EXPECTED_CLI_SHA256:
-            raise RuntimeError("copied skills-db CLI differs from the admitted read-only source")
+        if public_profile is None:
+            self.approved_root = (Path(fixture.repo) / "skills-db").resolve()
+            self.fixture_root = Path(fixture.output).resolve()
+            self.cli_sha256 = hashlib.sha256(Path(fixture.script).read_bytes()).hexdigest()
+            if self.cli_sha256 != scripted_cli_sha256:
+                raise RuntimeError("copied skills-db CLI differs from the admitted read-only source")
+            self.profile_observation = {"mode": "scripted_fixture", "cli_sha256": self.cli_sha256, "profile_pin": scripted_cli_sha256}
+        else:
+            self.profile_observation = public_profile.verify()
+            self.approved_root = (public_profile.repo_root / "skills-db").resolve()
+            self.fixture_root = public_profile.runtime_root.resolve()
+            self.cli_sha256 = public_profile.executable_sha256
         self.proc: subprocess.Popen[bytes] | None = None
         self._frames: queue.Queue[Any] = queue.Queue()
         self._reader: threading.Thread | None = None
@@ -300,8 +476,15 @@ class ScriptedSkillsController:
         self._cli_lock = threading.Lock()
         self._active_tools: dict[int, subprocess.Popen[bytes]] = {}
         self._active_tools_lock = threading.Lock()
+        self._owned_processes: dict[int, dict[str, int]] = {}
+        self._owned_groups: dict[int, dict[str, Any]] = {}
+        self._last_process_scan = 0.0
+        self._process_tracking_error: str | None = None
+        self._cancel_started: float | None = None
+        self._cancel_signals: set[tuple[str, int]] = set()
         self._callback_futures: set[Future[Any]] = set()
         self._callback_futures_lock = threading.Lock()
+        self._source_state_lock = threading.RLock()
         self._request_id = 0
         self.run_id: str | None = None
         self._evidence_path: Path | None = None
@@ -850,20 +1033,36 @@ class ScriptedSkillsController:
                 raise ProtocolError("invalid tree request")
             argv = ["tree", "--view", view, "--depth", str(depth), "--json"]
         elif tool == "browse":
-            self._exact_keys(args, {"node_id", "limit"})
-            node_id, limit = args["node_id"], args["limit"]
+            allowed = {"node_id", "limit", "cursor"} if self.public_profile else {"node_id", "limit"}
+            required = {"node_id"} if self.public_profile else {"node_id", "limit"}
+            self._exact_keys(args, required, allowed=allowed)
+            node_id = args["node_id"]
+            limit = args.get("limit", 1 if self.public_profile else None)
             if not isinstance(node_id, str) or node_id not in self.tree_nodes:
                 raise ProtocolError("browse node must have been observed from tree")
-            if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 100:
+            if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= (20 if self.public_profile else 100):
                 raise ProtocolError("invalid browse limit")
-            argv = ["browse", "--node", node_id, "--limit", str(limit), "--json"]
+            argv = ["browse", "--node", node_id, "--limit", str(limit)]
+            cursor = args.get("cursor")
+            if cursor is not None:
+                if not self.public_profile or not isinstance(cursor, str) or not cursor or len(cursor.encode("utf-8")) > 4096:
+                    raise ProtocolError("browse cursor is invalid")
+                argv.extend(["--cursor", cursor])
+            argv.append("--json")
         elif tool == "discover":
-            self._exact_keys(args, {"query"})
+            self._exact_keys(args, {"query"}, allowed={"query", "limit"} if self.public_profile else {"query"})
             query = args["query"]
             if not isinstance(query, str) or not query.strip() or "\x00" in query or len(query.encode("utf-8")) > 4096:
                 raise ProtocolError("query must be non-empty UTF-8 text up to 4096 bytes")
-            # Every query is uncached; the value is a single argv element.
-            argv = ["discover", "--query", query, "--namespace", "skills-db", "--json", "--no-cache", "--limit=20"]
+            # Every query is uncached; the backend and value are explicit single argv elements.
+            argv = ["discover", "--query", query, "--namespace", "skills-db"]
+            if self.public_profile:
+                limit = args.get("limit", 5)
+                if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 20:
+                    raise ProtocolError("discover limit must be an integer from 1 to 20")
+                argv.extend([f"--backend={self.public_profile.backend}", "--limit", str(limit), "--json", "--no-cache"])
+            else:
+                argv.extend(["--json", "--no-cache", "--limit=20"])
         else:
             self._exact_keys(args, {"source_id"})
             source_id = args["source_id"]
@@ -873,16 +1072,19 @@ class ScriptedSkillsController:
 
         observation = self._run_cli(argv)
         payload = observation["payload"]
-        if tool == "tree":
-            self._register_tree_nodes(payload.get("items", []))
-        elif tool == "discover":
-            self._record_query_outcomes(observation, payload)
-        if tool in {"browse", "discover", "get"}:
-            descriptors = payload.get("items", []) if tool != "discover" else payload.get("matches", [])
-            if not isinstance(descriptors, list):
-                raise SourceError("CLI descriptor collection is malformed")
-            for descriptor in descriptors:
-                self._register_descriptor(descriptor)
+        if self.public_profile and payload.get("index_revision") != self.public_profile.catalog_revision:
+            raise SourceError("public CLI result does not match the admitted catalog revision")
+        with self._source_state_lock:
+            if tool == "tree":
+                self._register_tree_nodes(payload.get("items", []))
+            elif tool == "discover":
+                self._record_query_outcomes(observation, payload)
+            if tool in {"browse", "discover", "get"}:
+                descriptors = payload.get("items", []) if tool != "discover" else payload.get("matches", [])
+                if not isinstance(descriptors, list):
+                    raise SourceError("CLI descriptor collection is malformed")
+                for descriptor in descriptors:
+                    self._register_descriptor(descriptor)
         if tool == "get":
             for descriptor in payload.get("items", []):
                 delivery = descriptor.get("content_delivery", {}) if isinstance(descriptor, dict) else {}
@@ -891,33 +1093,59 @@ class ScriptedSkillsController:
         return payload
 
     @staticmethod
-    def _exact_keys(value: dict[str, Any], expected: set[str]) -> None:
-        if set(value) != expected:
+    def _exact_keys(
+        value: dict[str, Any],
+        expected: set[str],
+        *,
+        allowed: set[str] | None = None,
+    ) -> None:
+        actual = set(value) if isinstance(value, dict) else set()
+        if not isinstance(value, dict) or not expected <= actual or (actual != expected and (allowed is None or not actual <= allowed)):
             raise ProtocolError("tool arguments contain missing or unsupported fields")
 
     def _run_cli(self, argv: list[str]) -> dict[str, Any]:
         if not argv or argv[0] not in self.CLI_COMMANDS:
             raise ProtocolError("CLI argv is outside the fixed read-only command set")
-        if hashlib.sha256(Path(self.fixture.script).read_bytes()).hexdigest() != EXPECTED_CLI_SHA256:
-            raise ProtocolError("copied skills-db CLI changed after controller admission")
+        if self.public_profile is None:
+            if hashlib.sha256(Path(self.fixture.script).read_bytes()).hexdigest() != self.scripted_cli_sha256:
+                raise ProtocolError("copied skills-db CLI changed after controller admission")
+        else:
+            for path, expected in (
+                (self.public_profile.executable, self.public_profile.executable_sha256),
+                (self.public_profile.wrapper_path, self.public_profile.wrapper_sha256),
+                (self.public_profile.qmd_bridge_path, self.public_profile.qmd_bridge_sha256),
+            ):
+                try:
+                    if _sha256_file(path) != expected:
+                        raise ProtocolError("admitted public CLI source changed after controller admission")
+                except OSError as error:
+                    raise ProtocolError("admitted public CLI source is unavailable") from error
         if any(not isinstance(arg, str) or "\x00" in arg for arg in argv):
             raise ProtocolError("CLI argv contains an invalid argument")
         self.meter.ensure_active()
-        started = self.clock()
-        command = [sys.executable, str(Path(self.fixture.script).resolve()), *argv]
-        env = self.fixture.env({
-            "PYTHONDONTWRITEBYTECODE": "1",
-            "XDG_CACHE_HOME": str(self.fixture_root / "xdg-cache"),
-            "XDG_CONFIG_HOME": str(self.fixture_root / "xdg-config"),
-        })
+        admitted = self.clock()
+        if self.public_profile is None:
+            command = [sys.executable, str(Path(self.fixture.script).resolve()), *argv]
+            env = self.fixture.env({
+                "PYTHONDONTWRITEBYTECODE": "1",
+                "XDG_CACHE_HOME": str(self.fixture_root / "xdg-cache"),
+                "XDG_CONFIG_HOME": str(self.fixture_root / "xdg-config"),
+            })
+            cwd = str(self.fixture.repo)
+        else:
+            command = [str(self.public_profile.executable), *argv]
+            env = dict(os.environ)
+            env["PYTHONDONTWRITEBYTECODE"] = "1"
+            env["LEV_CACHE_DIR"] = str(self.fixture_root / "cache")
+            cwd = str(self.public_profile.repo_root)
         proc: subprocess.Popen[bytes] | None = None
-        record: dict[str, Any] = {"argv": list(argv), "started_monotonic": started, "pid": None, "exit_code": None}
+        record: dict[str, Any] = {"argv": list(argv), "profile_mode": self.profile_observation.get("mode"), "admitted_monotonic": admitted, "started_monotonic": None, "pid": None, "exit_code": None}
         try:
             with self._active_tools_lock:
                 self.meter.ensure_active()
                 proc = subprocess.Popen(
                     command,
-                    cwd=str(self.fixture.repo),
+                    cwd=cwd,
                     env=env,
                     stdin=subprocess.DEVNULL,
                     stdout=subprocess.PIPE,
@@ -926,18 +1154,22 @@ class ScriptedSkillsController:
                     start_new_session=True,
                     close_fds=True,
                 )
+                record["started_monotonic"] = self.clock()
                 record["pid"] = proc.pid
                 self._active_tools[proc.pid] = proc
-            while True:
-                self.meter.ensure_active()
-                remaining = self._remaining()
                 try:
-                    stdout, stderr = proc.communicate(timeout=min(0.05, remaining))
-                    break
-                except subprocess.TimeoutExpired:
-                    continue
+                    pgid = os.getpgid(proc.pid)
+                    sid = os.getsid(proc.pid)
+                except OSError:
+                    pgid = sid = proc.pid
+                self._owned_processes[proc.pid] = {"pid": proc.pid, "ppid": os.getpid(), "pgid": pgid, "sid": sid, "owner_root": proc.pid}
+                self._owned_groups.setdefault(pgid, {"pgid": pgid, "sid": sid, "members": set()})["members"].add(proc.pid)
+            self._track_owned_descendants(force=True)
+            stdout, stderr = self._collect_cli_output(proc)
             self.meter.ensure_active()
             record["exit_code"] = proc.returncode
+            record["finished_monotonic"] = self.clock()
+            record["stdout_bytes"] = len(stdout)
             record["stderr_bytes"] = len(stderr)
             if proc.returncode != 0:
                 raise ProtocolError(f"read-only CLI exited {proc.returncode}: {stderr.decode('utf-8', errors='replace')[:512]}")
@@ -951,46 +1183,186 @@ class ScriptedSkillsController:
             record["status"] = payload.get("status")
             record["timed_out"] = False
             return {"payload": payload, "record": record}
+        except AdmissionError:
+            if not self.meter.aborted:
+                self.meter.abort("active_deadline")
+            self.terminate_active_tools("active_deadline", stop_started=self.clock(), wait=True)
+            raise
         finally:
-            record["finished_monotonic"] = self.clock()
-            record["duration_ms"] = max(0, int((record["finished_monotonic"] - started) * 1000))
-            self.cli_runs.append(record)
             if proc is not None:
                 self._terminate_tool_group(proc)
+                if record.get("exit_code") is None:
+                    record["exit_code"] = proc.poll()
+                record.setdefault("finished_monotonic", self.clock())
+                if proc.stdout is not None:
+                    proc.stdout.close()
+                if proc.stderr is not None:
+                    proc.stderr.close()
                 with self._active_tools_lock:
                     self._active_tools.pop(proc.pid, None)
+            else:
+                record.setdefault("finished_monotonic", self.clock())
+            record["duration_ms"] = max(0, int((record["finished_monotonic"] - (record["started_monotonic"] or admitted)) * 1000))
+            self.cli_runs.append(record)
+
+    def _collect_cli_output(self, proc: subprocess.Popen[bytes]) -> tuple[bytes, bytes]:
+        if proc.stdout is None or proc.stderr is None:
+            raise ProtocolError("read-only CLI pipes were not created")
+        selector = selectors.DefaultSelector()
+        outputs = {"stdout": bytearray(), "stderr": bytearray()}
+        limits = {"stdout": MAX_CLI_STDOUT_BYTES, "stderr": MAX_CLI_STDERR_BYTES}
+        for stream, name in ((proc.stdout, "stdout"), (proc.stderr, "stderr")):
+            os.set_blocking(stream.fileno(), False)
+            selector.register(stream, selectors.EVENT_READ, name)
+        try:
+            while selector.get_map():
+                self.meter.ensure_active()
+                self._track_owned_descendants()
+                ready = selector.select(timeout=min(0.05, self._remaining()))
+                for key, _ in ready:
+                    chunk = os.read(key.fd, 16_384)
+                    if not chunk:
+                        selector.unregister(key.fileobj)
+                        continue
+                    name = key.data
+                    target = outputs[name]
+                    remaining = limits[name] - len(target)
+                    if len(chunk) > remaining:
+                        raise ProtocolError(f"read-only CLI {name} exceeded its bounded output size")
+                    target.extend(chunk)
+            while proc.poll() is None:
+                self.meter.ensure_active()
+                try:
+                    proc.wait(timeout=min(0.05, self._remaining()))
+                except subprocess.TimeoutExpired:
+                    continue
+            return bytes(outputs["stdout"]), bytes(outputs["stderr"])
+        finally:
+            selector.close()
 
     def _terminate_tool_group(self, proc: subprocess.Popen[bytes]) -> None:
-        term_deadline = self.clock() + self.meter.limits.term_grace_seconds
-        self._signal_group(proc, signal.SIGTERM)
-        while self.clock() < term_deadline:
-            try:
-                os.killpg(proc.pid, 0)
-            except (ProcessLookupError, PermissionError, OSError):
-                break
-            time.sleep(min(0.01, max(0.0, term_deadline - self.clock())))
-        try:
-            os.killpg(proc.pid, 0)
-            group_alive = True
-        except (ProcessLookupError, PermissionError, OSError):
-            group_alive = False
-        if group_alive:
-            self._signal_group(proc, signal.SIGKILL)
-        teardown_deadline = self.clock() + self.meter.limits.teardown_seconds
-        while group_alive and self.clock() < teardown_deadline:
-            try:
-                os.killpg(proc.pid, 0)
-            except (ProcessLookupError, PermissionError, OSError):
-                group_alive = False
-                break
-            time.sleep(min(0.01, max(0.0, teardown_deadline - self.clock())))
-        if group_alive:
-            self.meter.abort("owned CLI process group survived TERM and KILL")
+        if self.meter.aborted:
+            self.terminate_active_tools(self.meter.abort_reason or "campaign_cancelled", stop_started=self._cancel_started, wait=True)
+            return
+        self._track_owned_descendants(force=True)
+        groups = {pgid for pid, item in self._owned_processes.items() if item.get("owner_root") == proc.pid for pgid in [item["pgid"]]}
+        alive = {pgid for pgid in groups if self._group_alive_id(pgid)}
+        if not alive:
+            return
+        started = self.clock()
+        for pgid in alive:
+            self._signal_owned_group(pgid, signal.SIGTERM)
+        term_deadline = started + self.meter.limits.term_grace_seconds
+        while alive and self.clock() < term_deadline:
+            self._track_owned_descendants()
+            alive = {pgid for pgid in groups if self._group_alive_id(pgid)}
+            if alive:
+                time.sleep(min(0.01, max(0.0, term_deadline - self.clock())))
+        for pgid in alive:
+            self._signal_owned_group(pgid, signal.SIGKILL)
+        cleanup_deadline = started + self.meter.limits.teardown_seconds
+        while alive and self.clock() < cleanup_deadline:
+            alive = {pgid for pgid in groups if self._group_alive_id(pgid)}
+            if alive:
+                time.sleep(min(0.01, max(0.0, cleanup_deadline - self.clock())))
+        if alive:
+            self.meter.abort("owned CLI process groups survived the shared teardown bound")
         if proc.poll() is None:
             try:
-                proc.wait(timeout=max(0.0, teardown_deadline - self.clock()))
+                proc.wait(timeout=max(0.0, cleanup_deadline - self.clock()))
             except subprocess.TimeoutExpired:
-                self.meter.abort("owned CLI process survived TERM and KILL")
+                self.meter.abort("owned CLI process survived the shared teardown bound")
+
+    @staticmethod
+    def _group_alive(proc: subprocess.Popen[bytes]) -> bool:
+        return ScriptedSkillsController._group_alive_id(proc.pid)
+
+    @staticmethod
+    def _group_alive_id(pgid: int) -> bool:
+        try:
+            os.killpg(pgid, 0)
+            return True
+        except (ProcessLookupError, PermissionError, OSError):
+            return False
+
+    @staticmethod
+    def _signal_owned_group(pgid: int, sig: int) -> None:
+        try:
+            os.killpg(pgid, sig)
+        except (ProcessLookupError, PermissionError, OSError):
+            pass
+
+    def terminate_active_tools(
+        self,
+        reason: str = "campaign_cancelled",
+        *,
+        stop_started: float | None = None,
+        wait: bool = True,
+    ) -> dict[str, Any]:
+        """Escalate all registered owned process groups on one shared clock."""
+        self.meter.abort(reason)
+        now = self.clock()
+        if self._cancel_started is None:
+            candidate = now if stop_started is None else stop_started
+            if isinstance(candidate, bool) or not isinstance(candidate, (int, float)) or not math.isfinite(float(candidate)) or candidate > now:
+                candidate = now
+            self._cancel_started = float(candidate)
+        cancel_at = self._cancel_started
+        current_public = self.public_profile is not None and self.public_profile.mode == "current_public"
+        first_escalation = self.meter.limits.term_grace_seconds
+        kill_at = first_escalation * 2 if current_public else first_escalation
+        self._track_owned_descendants(force=True)
+        with self._active_tools_lock:
+            processes = list(self._active_tools.values())
+
+        def signal_phase() -> None:
+            self._track_owned_descendants()
+            elapsed = self.clock() - cancel_at
+            groups = set(self._owned_groups)
+            if current_public and elapsed < first_escalation:
+                for proc in processes:
+                    marker = ("sigint", proc.pid)
+                    if marker not in self._cancel_signals:
+                        try:
+                            proc.send_signal(signal.SIGINT)
+                        except (ProcessLookupError, PermissionError, OSError):
+                            pass
+                        self._cancel_signals.add(marker)
+                return
+            sig = signal.SIGTERM if elapsed < kill_at else signal.SIGKILL
+            marker_name = "term" if sig == signal.SIGTERM else "kill"
+            for pgid in groups:
+                marker = (marker_name, pgid)
+                if marker not in self._cancel_signals:
+                    self._signal_owned_group(pgid, sig)
+                    self._cancel_signals.add(marker)
+
+        if wait:
+            finish_at = cancel_at + self.meter.limits.teardown_seconds
+            while self.clock() < finish_at:
+                signal_phase()
+                groups_alive = any(self._group_alive_id(pgid) for pgid in self._owned_groups)
+                pids_alive = any(_pid_is_alive(pid) for pid in self._owned_processes)
+                if not groups_alive and not pids_alive:
+                    break
+                time.sleep(min(0.01, max(0.0, finish_at - self.clock())))
+        else:
+            signal_phase()
+        signal_phase()
+        survivor_groups = [pgid for pgid in self._owned_groups if self._group_alive_id(pgid)]
+        survivor_pids = [pid for pid in self._owned_processes if _pid_is_alive(pid)]
+        if survivor_groups or survivor_pids:
+            self.meter.abort("owned descendants survived the shared teardown bound")
+        return {
+            "reason": reason,
+            "terminated_pids": sorted(self._owned_processes),
+            "owned_processes": [dict(value) for value in self._owned_processes.values()],
+            "owned_groups": [dict(value, members=sorted(value["members"])) for value in self._owned_groups.values()],
+            "survivor_pids": survivor_pids,
+            "survivor_groups": survivor_groups,
+            "tracking_error": self._process_tracking_error,
+            "nested_qmd_cleanup": "tracked_and_verified" if current_public and not survivor_groups and not survivor_pids and self._process_tracking_error is None else "unverified" if current_public else "not_applicable",
+        }
 
     def _remaining(self) -> float:
         self.meter.ensure_active()
@@ -1004,6 +1376,58 @@ class ScriptedSkillsController:
             os.killpg(proc.pid, sig)
         except (ProcessLookupError, PermissionError, OSError):
             pass
+
+    @staticmethod
+    def _read_process_table() -> dict[int, dict[str, int]]:
+        result = subprocess.run(
+            ["ps", "-axo", "pid=,ppid=,pgid=,sid="],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            check=False,
+            timeout=0.2,
+        )
+        if result.returncode != 0:
+            raise RuntimeError("ps could not provide owned process identities")
+        rows = {}
+        for line in result.stdout.splitlines():
+            try:
+                pid, ppid, pgid, sid = (int(item) for item in line.split())
+            except (ValueError, TypeError):
+                continue
+            rows[pid] = {"pid": pid, "ppid": ppid, "pgid": pgid, "sid": sid}
+        return rows
+
+    def _track_owned_descendants(self, *, force: bool = False) -> None:
+        now = self.clock()
+        if not force and now - self._last_process_scan < 0.1:
+            return
+        self._last_process_scan = now
+        with self._active_tools_lock:
+            roots = set(self._active_tools)
+        if not roots:
+            return
+        try:
+            table = self._read_process_table()
+        except (OSError, subprocess.SubprocessError, RuntimeError) as error:
+            self._process_tracking_error = str(error)[:256]
+            return
+        owners = {pid: pid for pid in roots}
+        changed = True
+        while changed:
+            changed = False
+            for pid, identity in table.items():
+                if pid not in owners and identity["ppid"] in owners:
+                    owners[pid] = owners[identity["ppid"]]
+                    changed = True
+        for pid, owner_root in owners.items():
+            identity = table.get(pid) or self._owned_processes.get(pid)
+            if identity is None:
+                continue
+            self._owned_processes[pid] = {**identity, "owner_root": owner_root}
+            pgid = identity["pgid"]
+            group = self._owned_groups.setdefault(pgid, {"pgid": pgid, "sid": identity["sid"], "members": set()})
+            group["members"].add(pid)
 
     def _register_tree_nodes(self, items: list[Any]) -> None:
         for item in items:
@@ -1066,6 +1490,8 @@ class ScriptedSkillsController:
             raise SourceError("descriptor digest is not lower-case SHA-256")
         if not isinstance(revision, str) or not revision:
             raise SourceError("descriptor omitted index revision")
+        if self.public_profile and revision != self.public_profile.catalog_revision:
+            raise SourceError("descriptor does not match the admitted public catalog revision")
         source_path = Path(path_value)
         real_path = Path(real_value)
         try:
@@ -1098,7 +1524,8 @@ class ScriptedSkillsController:
 
     def _read_source(self, tool: str, args: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
         source_id = args.get("source_id")
-        descriptor = self.descriptors.get(source_id) if isinstance(source_id, str) else None
+        with self._source_state_lock:
+            descriptor = self.descriptors.get(source_id) if isinstance(source_id, str) else None
         if descriptor is None:
             raise SourceError("source reads require an ID from a real returned descriptor")
         if tool == "read_path":
@@ -1127,23 +1554,27 @@ class ScriptedSkillsController:
             end,
         )
         try:
-            try:
-                current = self._run_cli(["get", source_id, "--json"])["payload"]
-            except ProtocolError as error:
-                raise SourceError("source ID is no longer admitted by the current CLI index") from error
-            current_items = current.get("items")
-            if (
-                current.get("status") != "ok"
-                or not isinstance(current_items, list)
-                or len(current_items) != 1
-                or not isinstance(current_items[0], dict)
-                or current_items[0].get("content_delivery") != {"mode": "descriptor_only", "content_loaded": False}
-            ):
-                raise SourceError("current CLI get did not return one descriptor-only source")
-            current_descriptor = self._validate_descriptor(current_items[0])
-            if current_descriptor != descriptor:
-                changed = {key: [descriptor.get(key), current_descriptor.get(key)] for key in descriptor if descriptor.get(key) != current_descriptor.get(key)}
-                raise SourceError("source ID/index/path/digest changed after descriptor admission: " + _json_text(changed))
+            if self.public_profile is None:
+                try:
+                    current = self._run_cli(["get", source_id, "--json"])["payload"]
+                except ProtocolError as error:
+                    raise SourceError("source ID is no longer admitted by the current CLI index") from error
+                current_items = current.get("items")
+                if (
+                    current.get("status") != "ok"
+                    or not isinstance(current_items, list)
+                    or len(current_items) != 1
+                    or not isinstance(current_items[0], dict)
+                    or current_items[0].get("content_delivery") != {"mode": "descriptor_only", "content_loaded": False}
+                ):
+                    raise SourceError("current CLI get did not return one descriptor-only source")
+                current_descriptor = self._validate_descriptor(current_items[0])
+                if current_descriptor != descriptor:
+                    changed = {key: [descriptor.get(key), current_descriptor.get(key)] for key in descriptor if descriptor.get(key) != current_descriptor.get(key)}
+                    raise SourceError("source ID/index/path/digest changed after descriptor admission: " + _json_text(changed))
+            # In the public profile, source ID and index revision are bound to
+            # the admitted current catalog. The path and digest are checked
+            # again below. An internal get would be an extra corpus request.
             raw = path.read_bytes()
             digest = hashlib.sha256(raw).hexdigest()
             if len(raw) != file_size or digest != descriptor["digest"]:
