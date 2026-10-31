@@ -7,6 +7,7 @@ skill_type: router
 # Research
 
 Use `lev find` or native retrieval for local code, documents, tasks and sessions.
+Before an external search, run `lev find "<3-6 topic words>" --json` for internal prior art in `.lev` and `dna`.
 For external research, select one method, print its route, and follow its stages.
 Only this root is the research entry point; child methods load conditionally.
 

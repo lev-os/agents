@@ -20,6 +20,22 @@ Recognize a brain dump as deep capture. Preserve source wording in the existing
 owning capture when one fits; patch changed rows instead of creating another
 capture for the same topic. Break the source into rows before enrichment.
 
+Before routing or writing, run `lev find` when `lev` is installed. Find the
+workstream that owns the topic and whether the matter is already settled:
+
+```bash
+lev find "<3-6 topic words>" --type workstream --status active --json
+lev find "<3-6 topic words>" --type decision --json
+```
+
+Each card in `result.data.results` has `id`, `type`, `title`, `status`,
+`snippet`, `path`, and `line`. A `superseded` card is history: open the record
+that superseded it. Record each card that settles, supersedes, or conflicts with
+a row (`id` and `path`) in that row's `relationships`. A found decision answers
+its question: cite it, and never ask that question again. If `lev` is missing or
+the call fails, say so in one line and `rg` over `.lev` and `dna`. `lev find`
+skips source code (use codebase-memory or `rg`) and chat history (use `cass`).
+
 Probe prior art for each material row before editing its destination. When the
 active workflow authorizes delegation, use a small read-only agent fanout and
 reconcile its findings centrally. Decide whether the row updates, supersedes,
@@ -119,7 +135,7 @@ steps:
     on_failure: "Unknown state stays in memory and becomes the first output bucket."
 
   - id: prior_art_probe
-    action: For every material row, probe existing work and decide update, supersession, duplicate, or conflict before writing canon.
+    action: For every material row, run `lev find` (see Patch, Route, and Clear), probe existing work, and decide update, supersession, duplicate, or conflict before writing canon.
     validation: "An existing home and reconciliation basis are recorded, or the searched scope and missing prior art are explicit; conflicts are resolved or blocked."
     on_failure: "Route to /prior-art before proposing new artifacts."
 

@@ -105,6 +105,7 @@ steps:
     instruction: |
       Before each orientation or branch question, inspect the local workspace when the answer may be discoverable.
       Search code, docs, designs, proposals, workstreams, validation gates, and existing task artifacts as relevant.
+      When `lev` is installed, run `lev find "<3-6 topic words>" --type decision --json` before each question. A decision that answers it is cited, not asked; a `superseded` card is history, so open its superseder. If `lev` fails, say so in one line and `rg` over `.lev` and `dna`.
       Pull one useful artifact fact, one implementation/doc fact, and one constraint or gate when available.
       If lookup resolves the ambiguity dimension or branch, update state and move to the next unresolved dimension or branch without asking.
       If lookup cannot resolve it, ask the smallest human judgment question that remains.
