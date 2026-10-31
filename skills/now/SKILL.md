@@ -1,12 +1,12 @@
 ---
 name: now
-description: "Compose evidence-backed sales pages, lessons, technical explainers, feedback surfaces, dashboards, and document collections as one deterministic RenderSpec component graph, then render, QA, publish, or attach the HTML."
+description: "Compose evidence-backed sales pages, lessons, technical explainers, feedback surfaces, dashboards, and document collections as one deterministic RenderSpec component graph, then render, QA, publish, or attach the HTML. With --genui, write a freeform themed page, iterate, and save it as a template whose input is a typed contract."
 allowed-tools: Read Write Bash Glob Grep
 ---
 
 # /now — Composable Deterministic Pages
 
-For ordinary pages, build one canonical RenderSpec component graph and render it to single-file HTML with lev.now. The live `--showcase` reference adapter below uses Lev UI components without compiling through RenderSpec. Fonts and optional diagram/chart runtimes may load from configured CDNs. Never route content to a separate lesson, brief, reader, sales, or feedback schema. Those are recipes assembled from the same components.
+For ordinary pages, build one canonical RenderSpec component graph and render it to single-file HTML with lev.now. The live `--showcase` reference adapter below uses Lev UI components without compiling through RenderSpec. Fonts and optional diagram/chart runtimes may load from configured CDNs. Never route content to a separate lesson, brief, reader, sales, or feedback schema. Those are recipes assembled from the same components. The one exception is the opt-in `--genui` route below.
 
 ## Commands
 
@@ -18,6 +18,38 @@ For ordinary pages, build one canonical RenderSpec component graph and render it
 | `/now attach <topic> --path <path>` | Compose, publish, and link to a handle path |
 | `/now render <file.json>` | Render an existing RenderSpec deterministically |
 | `/now reader <dir> [-o out]` | Materialize Markdown files, compile them into ordinary document/navigation components, and render compatibility paths |
+| `/now --genui <topic>` | Write a freeform HTML page in the lev.now shell (no RenderSpec), iterate on it, and on request save it as a template |
+| `/now --genui --template <name> <data>` | Render a saved template with new data, checked against its contract |
+
+## GenUI route (`--genui`)
+
+Use `--genui` only when the user asks for it. The page skips RenderSpec: you write the body HTML, and the CLI puts it in the lev.now page shell (theme preset, fonts, light/dark toggle, nav and footer). Run every command from the project root; files live under `.lev/now/genui/`.
+
+Before composing, run `genui list` and show any saved choices. If the user supplies `--template <name>`, read that template's contract and go straight to step 5; the choice is already made. Otherwise generate a new page, unless the user asks to reuse a saved layout.
+
+1. **Generate.** Pick a lower-kebab slug. Write the page body to `.lev/now/genui/drafts/<slug>/source.html`. Style it with the theme variables (`var(--color-accent)`, `--color-accent-text`, `--color-surface-alt`, `--color-border`, `--color-text`, `--color-text-muted`, `--font-display`, `--font-mono`) inside one `<style>` block with page-specific class names, so light and dark modes both work. Leave about 5.5rem of top space for the fixed nav. Then render and open:
+   ```bash
+   npx tsx plugins/now/src/cli.ts genui render <slug> --title "<title>" --theme <preset>
+   open -a "Brave Browser" .lev/now/<slug>.html
+   ```
+2. **Iterate.** Edit the saved `source.html` in place for each change the user asks for; do not start over. Re-run the original `genui render <slug>` command with the same `--title` and `--theme` arguments. Once the draft has a contract, its title and theme come from that contract.
+3. **Make it a template** (only when the user says so). Turn the content that should change into slots in the same `source.html`: `{{field}}` for one value, `{{#each list}}…{{/each}}` with `{{.}}` (list of values) or `{{column}}` (list of rows) inside. Put slots only in element text, such as `<h1>{{headline}}</h1>`. A slot inside a tag or any attribute, a comment, `<script>`, `<style>`, `<title>` or `<textarea>`, or right after a literal `<` is refused before anything is written. Keep links and other attributes fixed in the template. Write beside it:
+   - `contract.json`: `{ "title": "...", "theme": "<preset>", "fields": { "<name>": { "type": "string" | "number" | "boolean" } | { "type": "list", "items": "string" | { "<column>": "string" | "number" | "boolean" } } } }`
+   - `data.json`: the current page's values, which must pass the contract.
+
+   Re-render to check that the page looks the same, then promote. A name that already exists is refused; ask the user for a new name, never delete the old template.
+   ```bash
+   npx tsx plugins/now/src/cli.ts genui render <slug>
+   npx tsx plugins/now/src/cli.ts genui promote <slug> <template-name>
+   ```
+4. **Choose a template.** `genui list` prints every saved template with its fields as JSON. Show the user the names and fields, and let them pick one.
+5. **Render with new data.** Write the user's data as JSON that matches the contract. Do not invent values the user did not give; ask for missing fields. The CLI checks the data before it writes anything.
+   ```bash
+   npx tsx plugins/now/src/cli.ts genui list
+   npx tsx plugins/now/src/cli.ts genui use <template-name> --data <data.json> --output .lev/now/<page>.html
+   ```
+
+Every value is HTML-escaped. A contract is data only and never runs code. `sh plugins/now/examples/genui/demo.sh` shows the whole path in a scratch project.
 
 ## Showcase route
 
