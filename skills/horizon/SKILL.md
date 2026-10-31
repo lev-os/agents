@@ -63,7 +63,7 @@ guard; it does not need the full long-run score.
 ```yaml
 steps:
   - id: bind_source
-    action: Resolve the workstream, capture/design/plan/task refs, and any existing plan or task; freeze the intent in lev-plan's transition packet; list every material intent ID with its source ref, including later branches that are still unresolved.
+    action: Run `lev find "<3-6 topic words>" --type plan --type design --type decision --type idea --json` first when `lev` is installed (a `superseded` card is history; plan and design types return no cards until indexed, so also `rg` `.lev/pm/plans` and `.lev/pm/designs`; if `lev` fails, say so in one line and `rg` over `.lev`). Resolve the workstream, capture/design/plan/task refs, and any existing plan or task; freeze the intent in lev-plan's transition packet; list every material intent ID with its source ref, including later branches that are still unresolved.
     validation: "Every material intent has an intent_id and source_ref in the Fidelity and route table; an existing plan or task is reused; unresolved later branches are open rows, neither resolved nor dropped."
     on_failure: "Route per Fit Check; do not draft around missing intent."
 

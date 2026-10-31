@@ -7,7 +7,7 @@ description: Use when you need an evidence-first provenance report from `cass`, 
 
 Find the existing evidence first, then summarize what it means. This skill is narrower than `lev-research`: it is for provenance, lineage, decision history, and "what already exists?" questions.
 
-If the repo itself is unfamiliar, orient graph-first (tool 0 below) so the prior-art sweep starts from real project structure instead of guesses.
+If the repo itself is unfamiliar, orient graph-first (tool 2 below) so the prior-art sweep starts from real project structure instead of guesses.
 
 ## 1. Frame the search
 
@@ -19,24 +19,20 @@ If the repo itself is unfamiliar, orient graph-first (tool 0 below) so the prior
 
 **On failure:** Ask for the missing repo path or clarify whether this is a project-specific or global hunt.
 
-## 2. Use agent tools first, CLI second
+## 2. `lev find` first for records, agent tools for code, `cass` for sessions
 
-**Principle:** Agent-native tools (Grep, Glob, Read, SemanticSearch) are instant. CLI tools (`lev find`, `cass`) have startup and backend costs. **Always prefer agent tools over CLI for prior-art searches unless the question is genuinely cross-domain and local fused retrieval would add signal.**
+**Principle:** `lev find` searches the project's records under `.lev/` (decisions, captures, workstreams, ideas, tasks, plans, designs, reports, handoffs) and the Lev IR under `dna/`. A cold call takes about half a second, so run it first. It does not search source code or chat history.
 
 **Tool priority order:**
-0. **codebase-memory MCP** (if available) — for CODE prior art, use
-   `search_graph`/`search_code`/`trace_path`/`get_architecture` first; the
+1. **`lev find`** — records and Lev IR. Query with 3 to 6 topic words; `a|b` means either; an id such as `M340` matches only itself. Always pass `--json`.
+2. **codebase-memory MCP** (if available) — for CODE prior art, use
+   `search_graph`/`search_code`/`trace_path`/`get_architecture`; the
    graph knows symbols, callers, and structure Grep can't rank. If the MCP
    server is not connected this session, note that gap and continue with Grep.
-1. **Grep** — exact keyword/pattern search across the repo (instant)
-2. **Glob** — find files by name pattern (instant)
-3. **SemanticSearch** — meaning-based code/doc search (fast)
-4. **Read** — open files directly when you know the path (instant)
-5. **cass** — session history search (5-10s, reasonable)
-6. **`lev find`** — multi-backend fusion search (bd + qmd + ck; ~20s including cold start — **use only if agent tools found nothing**)
+3. **Grep / Glob / SemanticSearch / Read** — exact patterns, file names, meaning-based search, and files whose path you know (instant)
+4. **cass** — session history (5-10s)
 
-Count a tool, MCP server, or `lev find` backend as available only after it
-answers in this session. A missing tool or failed backend is a recorded search
+Count a tool or MCP server as available only after it answers in this session. A missing tool or failed backend is a recorded search
 gap, not evidence that no prior art exists.
 
 **Gitignored intake caveat:** Grep/rg respect `.gitignore`, so
@@ -45,22 +41,22 @@ hunt should cover intake clones, pass explicit paths (e.g.
 `rg <q> workshop/intake/<repo>`) or `--no-ignore` — do not conclude "no prior
 art" from a default sweep alone.
 
-**NEVER use `lev get` or `lev gather` for prior-art.** They are removed. `lev find` is the only local fused retrieval surface.
+`lev get` and `lev gather` are removed. `lev find` is the local record search.
 
 **Session cache (in-process):** Before running a tool again, check whether this session already ran the **same** query + scope. Reuse prior results instead of re-fetching.
 
-**Workspace cache (behavioral):**
-- If you need CLI health context, run `lev find --status --backends --json` at most **once per workspace per session**.
-- Cache that result mentally/in-session and reuse it when deciding whether to trust `lev find` or fall back to direct reads.
-- Prefer `--workspace <project-root>` when searching a specific repo; widen to global memory/sessions only after the project pass is thin.
+**`lev find` filters** (run from the project root; each card in `result.data.results` has `id`, `type`, `title`, `status`, `snippet`, `path`, `line`):
+- `--type decision` (repeatable) and `--exclude-type capture` narrow by record type. Today `decision`, `workstream`, `idea`, `task` and `lev_ir` return cards; `plan`, `design`, `capture`, `handoff` and `report` return none until indexed, so `rg` `.lev/pm` for those.
+- `--status active` filters the record's own status (not a health check). A card with status `superseded` is history: open the record that superseded it.
+- `--workstream <id>` keeps one workstream's records; `--limit <n>` caps the cards.
+- Read the file at each card's `path` before you cite it.
 
 **Burst budget (defaults):**
-- Grep/Glob/SemanticSearch: unlimited — these are instant
+- `lev find`, Grep/Glob/SemanticSearch: run as often as the question needs; vary the topic words and the `--type` filter instead of repeating one query
 - `cass`: at least **three** distinct query bands total across the task, but **no duplicate** band in the same session
-- `lev find`: at most **one** query call, only if agent tools returned nothing useful. Use `--json`; prefer `--workspace` and `--scope` or `--collection` when you already know the lane.
 - Diagrams (`~/.agents/diagrams`): at most **one** filename sweep + **one** content sweep per user question
 
-**On failure:** If agent tools find nothing, note it and synthesize from what you have. Do not spawn CLI processes hoping for better results.
+**On failure:** If `lev` is not installed or the call fails, say so in one line and `rg` over `.lev` and `dna`. If every tool finds nothing, note it and synthesize from what you have.
 
 ## 3. Search `cass` for session history
 
@@ -90,7 +86,7 @@ Expand only promising hits with `cass expand ... --json`.
 
 **Action:** Search the repo surfaces that usually hold durable evidence.
 
-**Instruction:** Use **Grep** and **Glob** as primary search tools. These are instant and don't spawn processes.
+**Instruction:** Use **Grep** and **Glob** for files that `lev find` does not index. These are instant and don't spawn processes.
 
 **Step 1 — File discovery (Glob):**
 ```
@@ -130,15 +126,14 @@ SemanticSearch: query="<full question>" target_directories=["docs/"]
 - `docs/decisions/`
 - `.lev/pm/`
 
-**CLI fallback (last resort only):**
-
-If agent tools found nothing and you believe `lev find`'s multi-backend fusion would add value, run it with project-local bias first:
+**Records first:**
 
 ```bash
-timeout 25 lev find "<query>" --workspace "<project-root>" --json 2>/dev/null || echo '{"timeout": true}'
+lev find "<3-6 topic words>" --json
+lev find "<3-6 topic words>" --type decision --type design --json
 ```
 
-If the repo-scoped call is thin and the question truly needs outside-world/current information, switch to `lev-research` / `lev timetravel` instead of inventing more local search bursts.
+If the project call is thin and the question truly needs outside-world/current information, switch to `lev-research` / `lev timetravel` instead of inventing more local search bursts.
 
 If `.lev` is missing, keep crawling the repo's remaining markdown, docs, and exported reports instead of stopping.
 
@@ -206,8 +201,6 @@ Trace each claim to its original source, not to a later summary, handoff, or rep
 - Do not replace `lev-research`; use this skill when the question is specifically about prior art, provenance, lineage, or decision history.
 - Do not treat search hits as proof until you have read the underlying file, expanded the session hit, or inspected the diagram.
 - Do not stop after one search angle. Rephrase the question, then search again.
-- **NEVER spawn `lev get` or `lev gather` calls.** They are removed. Use agent-native tools as primary and `lev find` as the single fused local fallback.
-- If you must use `lev find`, wrap it with `timeout 25`, limit it to one query call per session, and bias it to the current workspace first.
 - Do not assume `qmd` collections are healthy; they are accelerators, not a reason to stop.
 
 ### Search Exclusions (avoid getting lost in the woods)

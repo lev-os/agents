@@ -22,6 +22,9 @@ flags, source refs, workstream, and authorization unchanged.
 `--full` and the `emit`, `apply`, `edit`, and `patch` authorizations keep their
 meaning there.
 
+`lev-plan` runs `lev find` first for existing plans, designs, decisions and
+ideas on the topic; pass the topic words along.
+
 The forward happens once and in one direction. `lev-plan` answers the caller
 directly, and its verdict, output, and next route are final: a `needs_plan` or
 `needs_interview` result continues inside `lev-plan` or its named route, never

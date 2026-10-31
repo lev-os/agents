@@ -49,7 +49,7 @@ Adapt response depth accordingly. Penthouse gets 1-page summaries. Engine room g
 
 ## 8-Step Decision Flow
 
-Execute this procedure for every architectural analysis:
+Execute this procedure for every architectural analysis. Before step 1, when `lev` is installed, run `lev find "<3-6 topic words>" --type decision --type design --json`; an existing decision or design is cited, and a `superseded` card is history. Design type returns no cards until indexed, so also `rg` `.lev/pm/designs`.
 
 ```
 1. CLASSIFY    Level (strategic/integrative/tactical)
