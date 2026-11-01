@@ -29,11 +29,29 @@ Create, schedule, and run typed tick loops with constraint engineering disciplin
 
 ## Tick Execution Model
 
+**A tick is a scheduler pass, not one action (JP 2026-10-31).** Each tick reads
+the tracked state, evaluates every action type's guard, and starts ALL ready,
+independent actions at once (1-n actions per tick). Sequencing is optional: an
+action waits only when its guard names a prerequisite or it would edit the same
+files as a running action. The loop defines:
+
+```yaml
+scheduler:
+  interval: 10m                  # how often the scheduler pass runs
+  max_live_delegates: 6          # cap on concurrent workers, not on actions per tick
+  silent_when: "no action ready and no state changed"   # no message to the user
+actions:                          # replaces one-type-per-tick selection
+  <action>: {guard: "<condition over state.json>", do: "<what starts>"}
+```
+
+Weighted or round-robin selection (below) still works for content loops that
+want variety; for delivery loops, use guards over state.
+
 **Every tick parallelizes all independent work:**
 - Dispatch flowminds, tasks, exec items simultaneously via Agent tool
 - Use haiku subagents for small/research items (parallel_safe)
 - Use direct execution for serial/dependent items
-- Max 3 parallel exec agents per tick (C1 bounded)
+- Concurrency is bounded by `max_live_delegates` (C1 bounded), not by a per-tick action count
 - Each agent reports: DONE | NEEDS_CONTEXT | BLOCKED
 
 **Self-learning:** Loop rescheduling when new data arrives mid-tick.
@@ -234,7 +252,7 @@ You are executing a [{tick_type}] tick for loop [{loop_id}].
 {What exists now. Word counts, file paths, quality scores.}
 
 ## Task
-{Specific work for this tick type. ONE actionable item.}
+{Specific work for this action. One item per worker; a tick may start many workers.}
 
 ## Reference
 {A file that shows what "good" looks like for this type of work.}
@@ -536,7 +554,7 @@ tick_types:
 ## Anti-Patterns
 
 - **Self-validation** — worker NEVER validates its own output
-- **Unbounded ticks** — one actionable item per tick maximum
+- **Unbounded workers** — one item per worker; start more workers, not bigger ones
 - **Skipping validation** — always run generated flowmind between creative ticks
 - **No state persistence** — state.json must be written after every tick
 - **Static prompts** — prompts are generated from current state, not templates
