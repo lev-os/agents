@@ -9,6 +9,7 @@ Write Gate live in [`../SKILL.md`](../SKILL.md); this file adds no step.
 
 - [Packet Location and Timing](#packet-location-and-timing): where the one packet goes and when it is written
 - [Requirements Ledger](#requirements-ledger): the single `requirements:` list, its three passes, and row shape
+- [Ready: a definition of done plus admitted checks](#ready-a-definition-of-done-plus-admitted-checks): the pre-flight before launch
 - [Checks and False-Green Evidence](#checks-and-false-green-evidence): `check:` rules, fixtures, `invalid_proof`, red checks
 - [Flow and Launch](#flow-and-launch): what the eval gate reads, where the flow is named, launch instructions
 - [Emitted Task Shape](#emitted-task-shape): required fields of `dna.yaml` and `execution.yaml`, `lifecycle_stage` values
@@ -78,6 +79,36 @@ requirements:
 - When the list outgrows `dna.yaml`, move rows to `evals/<name>.yaml` in the
   task folder under the same `requirements:` key. That file holds overflow
   rows of the one ledger; it defines no evaluator.
+
+## Ready: a definition of done plus admitted checks
+
+A task is ready to launch (a pre-flight before a long or costly run) when it
+has a definition of done and its checks are admitted. The definition of done is
+the `type: acceptance` rows. A check is admitted when it passed the blind loop
+in `skill://eval-builder` (section "Admit a rule before you trust it";
+`.lev/pm/decisions/20261031-rule-admission-loop.yaml`):
+
+- An agent that sees only the row's `text`, never its `check:`, writes inputs
+  with the right answer for each.
+- The check runs on them. Each miss goes back to you with a review agent's note.
+- Repair the check, then run a fresh blind round. Admit it when a round finds
+  no miss.
+- A check you tested only on your own examples is not admitted. In the spike,
+  16 of 16 passed their author's examples; 0 were right on every blind input.
+- A row the review agent answers (no `check:`) needs no admission.
+- No flow or code runs this yet. Record the rounds in the row's
+  `invalid_proof` or the plan's proof section. Hold a task whose checks are
+  not admitted as `needs_review`, not `blocked`.
+- The words for rule, claim, scenario and ready are not settled. Use the task's
+  own words.
+
+Worked example: the row "No module outside core/poly imports @lev-os/poly
+internals" first had one regex check. It passed both of its author's examples.
+Blind inputs found a dynamic `import()` into poly's built files and a relative
+path into `core/poly` that the regex missed. After the review note (read every
+module specifier and resolve it against poly's exports map) it was right on 6
+of 6 inputs, then on 8 of 8 fresh ones; admitted. Evidence:
+`~/.local/state/lev/evidence/foundation-20261030/spike-admission/`.
 
 ## Checks and False-Green Evidence
 
@@ -166,6 +197,8 @@ Emit only when all are true:
 - every material intent ID is covered or explicitly deferred without loss
 - the selected flow exists and validates today, and the packet uses only
   current keys with no inline evaluator definition
+- the task has a definition of done and its `check:` rows are admitted (see
+  Ready, above)
 
 ## Final Output
 
