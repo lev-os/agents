@@ -46,7 +46,8 @@ art" from a default sweep alone.
 **Session cache (in-process):** Before running a tool again, check whether this session already ran the **same** query + scope. Reuse prior results instead of re-fetching.
 
 **`lev find` filters** (run from the project root; each card in `result.data.results` has `id`, `type`, `title`, `status`, `snippet`, `path`, `line`):
-- `--type decision` (repeatable) and `--exclude-type capture` narrow by record type. Today `decision`, `workstream`, `idea`, `task` and `lev_ir` return cards; `plan`, `design`, `capture`, `handoff` and `report` return none until indexed, so `rg` `.lev/pm` for those.
+- `--type decision` (repeatable) and `--exclude-type capture` narrow by record type. Types that return cards: `workstream`, `task`, `idea`, `decision`, `plan`, `design`, `proposal`, `spec`, `capture`, `report`, `handoff`, `flow`, `lev_ir`, `term` (a word-list entry) and `debt_row` (one row of a debt list).
+- Ask for the type that answers the question; a plain search makes every other type compete. What Lev calls a thing: `--type term --type lev_ir --type decision`. Which flow does it: `--type flow`. Is it a known debt: `--type debt_row`. Where did we leave it: `--type handoff`.
 - `--status active` filters the record's own status (not a health check). A card with status `superseded` is history: open the record that superseded it.
 - `--workstream <id>` keeps one workstream's records; `--limit <n>` caps the cards.
 - Read the file at each card's `path` before you cite it.
