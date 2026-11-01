@@ -50,6 +50,7 @@ art" from a default sweep alone.
 - Ask for the type that answers the question; a plain search makes every other type compete. What Lev calls a thing: `--type term --type lev_ir --type decision`. Which flow does it: `--type flow`. Is it a known debt: `--type debt_row`. Where did we leave it: `--type handoff`.
 - `--status active` filters the record's own status (not a health check). A card with status `superseded` is history: open the record that superseded it.
 - `--workstream <id>` keeps one workstream's records; `--limit <n>` caps the cards.
+- Before you write a plan, design or decision for a known workstream, run the prior-art call twice, plain and with `--workstream <that workstream>`. Read the plain call's first 5 cards, then the scoped call's first 5 cards not already shown: an earlier session's record on the same subject is usually in the same workstream (25 of 28 past-session answers; decision 20261101-find-prior-art-workstream-call).
 - Read the file at each card's `path` before you cite it.
 
 **Burst budget (defaults):**
