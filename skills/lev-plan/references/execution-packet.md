@@ -116,9 +116,12 @@ of 6 inputs, then on 8 of 8 fresh ones; admitted. Evidence:
   id; `EvalCommandCase` in `core/eval/src/command-cases.ts`): `command` is the
   program and `argv` its arguments, plus optional `cwd` (inside the project),
   `timeoutMs`, `expectedExit` or `expectedExitCode`, `stdoutContains`,
-  `stderrContains`. A shell line is rejected: a pipe or `&&` becomes separate
-  rows. A search that must find nothing is `git grep` with
-  `expectedExit: nonzero`.
+  `stderrContains`. Output-text matching is leaving the check shape: write a
+  parsed-field comparison with a negative control instead
+  (`.lev/pm/decisions/20261030-output-text-checks.yaml`, ruled 2026-11-01). A
+  shell line is rejected: a pipe or `&&` becomes separate rows. A search that
+  must find nothing is a parser lint or a behaviour test, never a text scan
+  such as `git grep` (`.lev/pm/decisions/20261030-text-scan-checks-hard-cutover.yaml`).
 - A check that needs a known input (a bad file, a sample) points at a fixture
   the packet writes in the task folder under `fixtures/`, named so repo-wide
   scans of that kind skip it (a flow fixture is `<name>.yaml`, never
