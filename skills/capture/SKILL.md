@@ -28,6 +28,14 @@ lev find "<3-6 topic words>" --type workstream --status active --json
 lev find "<3-6 topic words>" --type decision --json
 ```
 
+When a row names a thing, ask for the type of record that answers it:
+
+```bash
+lev find "<the word or idea>" --type term --type lev_ir --type decision --json  # what Lev calls it; retired or not
+lev find "<what it should do>" --type flow --json                              # a flow that already does it
+lev find "<the symptom>" --type debt_row --json                                # a known debt row
+```
+
 Each card in `result.data.results` has `id`, `type`, `title`, `status`,
 `snippet`, `path`, and `line`. A `superseded` card is history: open the record
 that superseded it. Record each card that settles, supersedes, or conflicts with

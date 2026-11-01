@@ -71,7 +71,7 @@ First interpret the requested outcome. Choose one path:
 
 | Path | When | First action |
 |---|---|---|
-| Skill or specific FlowMind | An existing method or verified flow fits the request | Load the matching `skill://<name>` or resolve the concrete flow; follow its contract |
+| Skill or specific FlowMind | An existing method or verified flow fits the request | Load the matching `skill://<name>` or resolve the concrete flow (find it with `lev find "<what it should do>" --type flow --json`); follow its contract |
 | Clarify the route | Missing intent or a decision changes which method applies | Inspect discoverable facts, ask one to three focused questions, then show a numbered 1–n route table |
 | Direct runtime operation | The user needs CLI operation/diagnosis, or no specialized method fits an otherwise clear runtime request | Follow Runtime First Move below |
 
