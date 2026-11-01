@@ -2,7 +2,7 @@
 type: proposal
 created: YYYY-MM-DDTHH:MM:SS
 updated: YYYY-MM-DDTHH:MM:SS
-status: draft | proposed | approved | rejected | superseded
+status: written | routed | settled | parked
 complexity_score: 0-12
 tier: inline | light | full
 confidence: 0.0-1.0

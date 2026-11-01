@@ -2,7 +2,7 @@
 type: validation-report
 created: YYYY-MM-DDTHH:MM:SS
 updated: YYYY-MM-DDTHH:MM:SS
-status: draft | validated | failed | partial
+status: written | routed | settled | parked  # the pass or fail result goes in its own key
 domain: core | product | ux | plugin | platform | research
 confidence: 0.0-1.0
 author: agent-name

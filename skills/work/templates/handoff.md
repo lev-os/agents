@@ -1,5 +1,5 @@
 ---
-status: active | paused | completed | processed  # processed = decisions graduated via handoff-rollup
+status: written | routed | settled | parked  # then processed: the record leaves .lev/pm (definition open, JP 2026-11-01)
 workstream: {slug}
 component: {slug}
 slug: {slug}
@@ -56,7 +56,7 @@ Canonical filename format:
 **Workstream:** {workstream}  
 **Component:** {component}  
 **Session:** {N}  
-**Status:** active | paused | completed
+**Status:** written | routed | settled | parked
 
 One sentence on what is in progress and what happens next.
 
