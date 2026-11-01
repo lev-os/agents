@@ -2,7 +2,7 @@
 id: "dXX"
 title: "Decision Title"
 type: decision
-status: accepted | proposed | superseded | rejected
+status: draft | asked | approved | deferred | withdrawn | superseded
 created: YYYY-MM-DDTHH:MM:SS
 updated: YYYY-MM-DDTHH:MM:SS
 tags: [decision, architecture]

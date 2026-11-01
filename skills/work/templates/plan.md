@@ -1,6 +1,6 @@
 ---
 type: plan-impl
-status: draft
+status: crystallizing
 priority: 2
 slug: stable-domain-name
 created_at: YYYY-MM-DD
