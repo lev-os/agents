@@ -2,7 +2,7 @@
 type: design
 created: YYYY-MM-DDTHH:MM:SS
 updated: YYYY-MM-DDTHH:MM:SS
-status: draft | in_review | approved | superseded
+status: captured | crystallizing | crystallized | manifesting | completed | discarded
 domain: core | product | ux | plugin | platform | research
 confidence: 0.0-1.0
 author: agent-name

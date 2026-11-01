@@ -567,7 +567,7 @@ Required frontmatter remains backward-compatible:
 ```yaml
 ---
 type: plan-impl
-status: draft
+status: crystallizing
 priority: 2
 slug: stable-kebab-name
 created_at: YYYY-MM-DD

@@ -5,7 +5,7 @@ entity: "{{ENTITY_ID}}"
 stage: crystallized
 created: "{{DATE}}"
 author: "{{AUTHOR}}"
-status: draft
+status: crystallizing
 ---
 
 # {{TITLE}} — Behavioral Specification

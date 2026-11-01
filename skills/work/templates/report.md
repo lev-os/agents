@@ -2,7 +2,7 @@
 type: report
 created: YYYY-MM-DDTHH:MM:SS
 updated: YYYY-MM-DDTHH:MM:SS
-status: draft | in_progress | complete
+status: written | routed | settled | parked
 scope: codebase | research | audit | analysis | scan
 confidence: 0.0-1.0
 agent: agent-name
