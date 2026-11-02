@@ -1,0 +1,71 @@
+id: 20261102-creative-design-hub
+type: decision
+status: decided
+title: creative is the design hub; ux keeps the UX core; unslop and stageshow are creative packages
+decided_at: 2026-11-02
+decided_by: JP
+workstream_id: skill-consolidation
+
+asked:
+  - at: 2026-11-02
+    words: "ok, just reapply the unslop or move it to ux, or what about creative? i wanted a hub spoke for this that manages all the other design skills, open a new chat about this"
+  - at: 2026-11-02
+    words: |
+      1b, 2 creative routes it, 3 ux should say load creative for xyz because km constantly doing both ux and ui, but yea its core stays actual ux. 4a
+
+      and put stage show in creative as well
+  - at: 2026-11-02
+    words: |
+      3b
+      2 more extensive go go show me results in brave
+      4 record it in .agents
+      1 /dotfiles-sync
+
+reading:
+  - "1b" read as creative is the hub. Option b of the hub question named ux as the hub, but JP's answers 2 and 3 make creative the router and keep ux on its core, so the hub answer follows them. JP was told this reading in the same session and can reverse it.
+  - "km" is a voice slip for "i'm".
+
+rulings:
+  hub:
+    owner: skills/creative/SKILL.md
+    rule: creative routes every design job to one owner (ux, impeccable, unslop, taste-skill, stageshow, motion-graphics, remotion, archify, dataviz, now, pencil, slides, images, share images, package index) and names the tie-breaks where two owners meet.
+    options_considered:
+      a: creative is the hub (chosen)
+      b: ux is the hub
+      c: a new skill named design
+  unslop:
+    owner: skills-db/creative/unslop
+    rule: unslop is its own creative package that creative routes to. Impeccable stays the plain upstream install, so Impeccable updates replace nothing.
+    options_considered:
+      a: keep unslop as a local patch inside Impeccable
+      b: own package routed by creative (chosen)
+      c: move into ux
+  ux:
+    owner: skills/ux/SKILL.md
+    rule: ux owns research, personas, flows, wireframes, information architecture, the craft audit and CLI UX. When work turns to how the screen looks, moves or is shown, ux loads creative and passes its UX artifacts on, because UX and UI work usually come together.
+    options_considered:
+      a: move ux's hub parts into creative; ux keeps its core (chosen, with JP's load-creative rule)
+      b: leave ux as a second hub
+      c: merge ux into creative
+  cleanup:
+    rule: delete the nine empty skills-db/design-ux folders, archive the older Impeccable copy and the duplicate taste skill, fix ux's dead links.
+    chosen: a
+  stageshow:
+    owner: skills-db/creative/stageshow
+    rule: stageshow (benjitaylor/skills, MIT) is a creative package for mock product shots and cursor demos, after the skill-builder security scan.
+  impeccable_helper_agents:
+    rule: leave Impeccable's four helper agents uninstalled; Impeccable uses its built-in fallback.
+    options_considered:
+      a: install for the user account
+      b: leave them out (chosen)
+      c: install per project
+
+commits:
+  - b9d54938 Save the unslop command added to Impeccable 4.4.0 on Oct 31
+  - 7bcefdd8 Update Impeccable to 4.8.0 and keep the unslop command on top
+  - ef6a9d6d Make unslop its own creative package
+  - 9c54cdbd Add stageshow to the creative packages
+  - 3ca47cc0 Make creative the design hub and keep ux on the UX core
+
+evidence:
+  routing: A fresh agent given only the hub file routed 10 of 10 test requests to the expected owner (2026-11-02). Routing only; package behaviour is tested separately.
