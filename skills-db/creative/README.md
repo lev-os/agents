@@ -96,11 +96,9 @@ Creative is a thin router. The packages below live in this directory with their 
 | [aiuxplayground-working-backwards](aiuxplayground-working-backwards/SKILL.md) | Imported source; unaudited |
 | [create-cli](create-cli/SKILL.md) | Existing package |
 | [design-doc-mermaid](design-doc-mermaid/SKILL.md) | Existing package |
-| [frankensuite-website-development](frankensuite-website-development/SKILL.md) | Existing package |
 | [frankentui](frankentui/SKILL.md) | Existing package |
 | [gh-og-share-images](gh-og-share-images/SKILL.md) | Existing package |
 | [impeccable](impeccable/SKILL.md) | Existing package |
-| [interactive-visualization-creator](interactive-visualization-creator/SKILL.md) | Existing package |
 | [manim-video](manim-video/SKILL.md) | Existing package |
 | [metal-shaders](metal-shaders/SKILL.md) | Existing package |
 | [motion-graphics](motion-graphics/SKILL.md) | Existing package |
@@ -122,11 +120,8 @@ Creative is a thin router. The packages below live in this directory with their 
 | [taste-skill](taste-skill/SKILL.md) | Existing package |
 | [tui-glamorous](tui-glamorous/SKILL.md) | Existing package |
 | [tui-inspector](tui-inspector/SKILL.md) | Existing package |
-| [ui-polish](ui-polish/SKILL.md) | Existing package |
 | [ui-ux-pro-max](ui-ux-pro-max/SKILL.md) | Existing package |
-| [ux-audit](ux-audit/SKILL.md) | Existing package |
 | [vfx-spell-effects](vfx-spell-effects/SKILL.md) | Existing package |
-| [video-obs-youtube-music](video-obs-youtube-music/SKILL.md) | Existing package |
 | [visual-explainer](visual-explainer/SKILL.md) | Existing package |
 | [web-design-guidelines](web-design-guidelines/SKILL.md) | Existing package |
 | [web-perf](web-perf/SKILL.md) | Existing package |
