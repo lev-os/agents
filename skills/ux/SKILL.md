@@ -60,7 +60,7 @@ Request arrives
 |
 +-- Product planning (vision, roadmap, data model, export)?
 |   -> Load: lev-design-os
-|      (~/.agents/skills-db/lev/lev-design-os/SKILL.md + references/)
+|      (../../skills-db/lev/lev-design-os/SKILL.md + references/)
 |
 +-- Visual design / .pen file / design sweep?
 |   -> Load creative (../creative/SKILL.md); it routes UI, visual, motion,
@@ -116,7 +116,7 @@ Load from ~/.agents/skills-db/thinking/patterns/{name}/SKILL.md when reasoning d
 
 | Key | Action | Route |
 |-----|--------|-------|
-| (p) | Product design wizard | lev-design-os (`~/.agents/skills-db/lev/lev-design-os/SKILL.md`) |
+| (p) | Product design wizard | lev-design-os (`../../skills-db/lev/lev-design-os/SKILL.md`) |
 | (w) | Run UX pipeline | Persona-first steps + downstream UX phases below |
 | (f) | Full UX run | Step 1 persona detection + Step 2 persona fanout + full downstream pipeline |
 | (i) | Interactive run (interview me) | Same as full, but asks one question at a time with options and a recommendation, and pauses after each step for review |
