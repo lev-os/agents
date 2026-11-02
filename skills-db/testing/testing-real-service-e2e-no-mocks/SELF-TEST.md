@@ -20,16 +20,16 @@
 ## Negative Triggers (MUST NOT activate)
 
 - "Snapshot test this output" (use /testing-golden-artifacts)
-- "Find crashes in this parser" (use /testing-fuzzing)
-- "Oracle problem" (use /testing-metamorphic)
-- "Compare against reference impl" (use /testing-conformance-harnesses)
-- "E2E browser testing" / "Playwright" (use /e2e-testing-for-webapps)
+- "Find crashes in this parser" (use fuzz testing)
+- "Oracle problem" (use metamorphic testing)
+- "Compare against reference impl" (use conformance testing)
+- "E2E browser testing" / "Playwright" (use browser E2E testing)
 - "Unit test this pure function" (standard testing — mocks OK for pure functions)
 
 ## Boundary Cases
 
 - "Integration testing" → Activate (this IS integration testing)
-- "E2E testing" → Activate if testing API/service endpoints; use /e2e-testing-for-webapps if browser-based
+- "E2E testing" → Activate if testing API/service endpoints; use browser E2E testing if browser-based
 - "Test this webhook handler" → Activate (real webhook simulation is core pattern)
 - "Database testing" → Activate
 - "How do I test billing flows?" → Activate (Stripe test mode is core pattern)
