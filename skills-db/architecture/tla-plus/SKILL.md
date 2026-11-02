@@ -276,4 +276,3 @@ steps:
 
 - This skill covers the TLA+ ecosystem, not just the Lamport landing page.
 - It prefers primary sources: Lamport pages, `tlaplus/*` repos, TLAPS docs, Apalache docs, and the official wiki.
-- For Lean-specific proof-feedback loops, use `lean-formal-feedback-loop`.

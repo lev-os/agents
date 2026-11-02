@@ -464,7 +464,7 @@ When replacing an existing mocked test with a real-DB test:
 | Technique | Use INSTEAD when | Use TOGETHER when |
 |-----------|-----------------|-------------------|
 | /testing-golden-artifacts | Output is complex, needs frozen reference | Goldens verify output of mock-free tests |
-| /testing-conformance-harnesses | Testing against a spec, not just correctness | Conformance suite uses real DB harness |
-| /testing-fuzzing | Finding crashes in parsers | Fuzz-found crashes become mock-free regression tests |
-| /testing-metamorphic | Can't compute expected output | MRs validate relations in mock-free integration tests |
-| /e2e-testing-for-webapps | Browser-level testing | E2E flows use same real-DB infrastructure |
+| conformance testing | Testing against a spec, not just correctness | Conformance suite uses real DB harness |
+| fuzz testing | Finding crashes in parsers | Fuzz-found crashes become mock-free regression tests |
+| metamorphic testing | Can't compute expected output | MRs validate relations in mock-free integration tests |
+| browser E2E testing | Browser-level testing | E2E flows use same real-DB infrastructure |

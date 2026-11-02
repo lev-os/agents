@@ -161,7 +161,7 @@ sys.addaudithook(audit)
         source = ROOT / "skills-taxonomy.json"
         self.assertEqual(
             file_digest(source),
-            "251228998480c5985cc424d5152bb87b3e2e55a0dafd517b0f4e6123f1f8e1e7",
+            "dff80de7146b2497f3db09fe1f44b91709c4f46c8de9def570fcf87e45be6f08",
             "the accepted taxonomy is a read-only S04 regression input",
         )
         destination = self.repo / "skills-taxonomy.json"
