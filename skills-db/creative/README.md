@@ -1,6 +1,6 @@
 # Creative packages
 
-Creative is a thin router. The packages below live in this directory with their source resources. UX and Now remain independent top-level skills. Imported source packages keep their recorded license, missing-reference and qualification limits.
+The [creative hub](../../skills/creative/SKILL.md) routes design work to these packages and to the top-level design skills. The packages below live in this directory with their source resources. Imported source packages keep their recorded license, missing-reference and qualification limits.
 
 ## UX, UI, mobile, video and visual packages
 
@@ -34,7 +34,6 @@ Creative is a thin router. The packages below live in this directory with their 
 | [aiuxplayground-design-critique](aiuxplayground-design-critique/SKILL.md) | Imported source; unaudited |
 | [aiuxplayground-design-handoff](aiuxplayground-design-handoff/SKILL.md) | Imported source; unaudited |
 | [aiuxplayground-design-motion-principles](aiuxplayground-design-motion-principles/SKILL.md) | Imported source; unaudited |
-| [aiuxplayground-design-taste-frontend](aiuxplayground-design-taste-frontend/SKILL.md) | Imported source; unaudited |
 | [aiuxplayground-design-workshop-facilitation](aiuxplayground-design-workshop-facilitation/SKILL.md) | Imported source; unaudited |
 | [aiuxplayground-desktop-to-mobile](aiuxplayground-desktop-to-mobile/SKILL.md) | Imported source; unaudited |
 | [aiuxplayground-emil-design-eng](aiuxplayground-emil-design-eng/SKILL.md) | Imported source; unaudited |
@@ -49,7 +48,6 @@ Creative is a thin router. The packages below live in this directory with their 
 | [aiuxplayground-image-to-code](aiuxplayground-image-to-code/SKILL.md) | Imported source; unaudited |
 | [aiuxplayground-imagegen-frontend-mobile](aiuxplayground-imagegen-frontend-mobile/SKILL.md) | Imported source; unaudited |
 | [aiuxplayground-imagegen-frontend-web](aiuxplayground-imagegen-frontend-web/SKILL.md) | Imported source; unaudited |
-| [aiuxplayground-impeccable](aiuxplayground-impeccable/SKILL.md) | Imported source; unaudited |
 | [aiuxplayground-improve-animations](aiuxplayground-improve-animations/SKILL.md) | Imported source; unaudited |
 | [aiuxplayground-industrial-brutalist-ui](aiuxplayground-industrial-brutalist-ui/SKILL.md) | Imported source; unaudited |
 | [aiuxplayground-ios-design](aiuxplayground-ios-design/SKILL.md) | Imported source; unaudited |
@@ -110,6 +108,7 @@ Creative is a thin router. The packages below live in this directory with their 
 | [remotion-best-practices](remotion-best-practices/SKILL.md) | Existing package |
 | [remotion-render](remotion-render/SKILL.md) | Existing package |
 | [scroll-world](scroll-world/SKILL.md) | Existing package |
+| [stageshow](stageshow/SKILL.md) | Imported from benjitaylor/skills at 8020574 (MIT); security scan 2026-11-02 found only lockfile hash false positives; behaviour unqualified |
 | [superdesign-prompt-library](superdesign-prompt-library/SKILL.md) | Existing package |
 | [swift-concurrency](swift-concurrency/SKILL.md) | Existing package |
 | [swift-game-engine](swift-game-engine/SKILL.md) | Existing package |
@@ -124,6 +123,7 @@ Creative is a thin router. The packages below live in this directory with their 
 | [tui-inspector](tui-inspector/SKILL.md) | Existing package |
 | [ui-polish](ui-polish/SKILL.md) | Existing package |
 | [ui-ux-pro-max](ui-ux-pro-max/SKILL.md) | Existing package |
+| [unslop](unslop/SKILL.md) | Adapted from heydamir/unslop at 4652254 (CC BY 4.0); moved out of Impeccable 2026-11-02; uses Impeccable's setup and craft floor |
 | [ux-audit](ux-audit/SKILL.md) | Existing package |
 | [vfx-spell-effects](vfx-spell-effects/SKILL.md) | Existing package |
 | [video-obs-youtube-music](video-obs-youtube-music/SKILL.md) | Existing package |
@@ -145,6 +145,10 @@ Creative is a thin router. The packages below live in this directory with their 
 | [Superdesign historical IDE extension](roundtable-superdesigndev--superdesign/intake.json) | design agent tool |
 | [Cursify cursor component source](roundtable-ui-layouts--cursify/intake.json) | cursor effect component library and docs starter |
 | [UI Layouts component library](roundtable-ui-layouts--ui-layouts/intake.json) | react tailwind motion component library and cli |
+
+## Duplicates archived
+
+`aiuxplayground-impeccable` (an older Impeccable) and `aiuxplayground-design-taste-frontend` (the same skill name as [taste-skill](taste-skill/SKILL.md), 20 diff lines apart) moved to `../.archive/creative-duplicates-20261102/` on 2026-11-02.
 
 ## Exact duplicate merged
 
