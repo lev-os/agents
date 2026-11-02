@@ -1,17 +1,23 @@
+---
+name: unslop
+description: Use when a screen looks vibecoded or AI-made (purple gradients, glows, gradient text, emoji labels, uneven spacing, shouty copy) and needs to become a designed screen, or when the user asks to unslop a page or make an unslop story video.
+license: CC BY 4.0
+---
+
 # Unslop
 
 unslop was created by Damir Sokolovsky ([@heydamir](https://x.com/heydamir)), who started the Unslopping series on X. It is licensed under CC BY 4.0, so keep this credit in any copy or adaptation.
 
-Contents: [Inside Impeccable](#inside-impeccable) · [What good looks like](#what-good-looks-like) · [Run it](#run-it) · [Direction](#direction) · passes [1. Spacing](#1-spacing) to [9. Motion](#9-motion) · [Story video](#story-video) · [Do not](#do-not) · [Checklist](#checklist)
+Contents: [With Impeccable](#with-impeccable) · [What good looks like](#what-good-looks-like) · [Run it](#run-it) · [Direction](#direction) · passes [1. Spacing](#1-spacing) to [9. Motion](#9-motion) · [Story video](#story-video) · [Do not](#do-not) · [Checklist](#checklist)
 
-## Inside Impeccable
+## With Impeccable
 
-This command adapts unslop by Damir Sokolovsky, source https://github.com/heydamir/unslop at commit 4652254, CC BY 4.0 ([license](unslop/LICENSE)). Changes from the source: file paths now point into this skill, and this section maps the method onto Impeccable's setup, modes and craft floor. The method below is otherwise the source text.
+This package adapts unslop by Damir Sokolovsky, source https://github.com/heydamir/unslop at commit 4652254, CC BY 4.0 ([license](LICENSE)). Changes from the source: file paths now point into this package, and this section maps the method onto Impeccable's setup, modes and craft floor. Impeccable is a sibling package at `../impeccable/`; this package routes from the creative hub and stays out of Impeccable so Impeccable updates replace nothing here. The method below is otherwise the source text.
 
-- **Setup still runs first.** Run Setup step 1 (`impeccable context`) before the audit. When the target is local HTML or CSS, also run `impeccable detect --json <target>` once and add its hits to the audit list with their locations.
+- **Setup still runs first.** Run Impeccable's Setup step 1 (`<skill-base-dir>/../impeccable/scripts/impeccable context` with cwd at the user's project) before the audit. When the target is local HTML or CSS, also run `<skill-base-dir>/../impeccable/scripts/impeccable detect --json <target>` once and add its hits to the audit list with their locations.
 - **Mode mapping.** The source's "apps and dashboards" rules are Operate rules. Its "landing page" and hero rules are Persuade rules. For Read and Experience surfaces, apply the passes but take the visual and layout rules from the matching mode guidance.
 - **Precedence.** A pinned brief or a committed DESIGN.md wins over the source's default values (tokens, type families, weight range, accent rules). A violet-to-blue gradient, sparkles or glow is still slop unless the user says it is brand, as the Direction section states.
-- **Craft floor.** Load [craft-floor.md](craft-floor.md) after the direction is confirmed and before the first edit, as Setup step 3 requires. Where the two disagree inside this command, use these resolutions:
+- **Craft floor.** Load Impeccable's [craft-floor.md](../impeccable/reference/craft-floor.md) after the direction is confirmed and before the first edit, as Impeccable's Setup step 3 requires. Where the two disagree inside this package, use these resolutions:
   - Motion: the source rule "never animate large blurs" holds for Operate surfaces. Persuade surfaces may use the craft floor's wider motion palette for their one authored moment.
   - Monospace: use mono for figures, counts, code and meta only. That is the source rule and the craft floor's costume ban together.
   - Stat cards: the source's "label, figure, comparison" card is allowed inside a dashboard. The craft floor's hero-metric ban applies to Persuade heroes.
@@ -36,15 +42,15 @@ Work like a designer doing a redline pass, one layer at a time, across the whole
 - **Text on calm space.** The headline sits on a part of the image or layout that was left empty for it, short and specific, with one primary and one secondary action and nothing stacked under them.
 - **Real product, real material.** Previews look like the real app with plausible data, and objects look like real things with weight, light and shadow.
 
-Which visual styles tend to work, and which fail, is in [unslop/visuals.md](unslop/visuals.md). Finished examples to learn from are in [unslop/refs.md](unslop/refs.md), and code treatments like drawing an image in glyphs are in [unslop/effects.md](unslop/effects.md).
+Which visual styles tend to work, and which fail, is in [unslop/visuals.md](references/visuals.md). Finished examples to learn from are in [unslop/refs.md](references/refs.md), and code treatments like drawing an image in glyphs are in [unslop/effects.md](references/effects.md).
 
 ## Run it
 
 1. **Look at the screen.** Find the files that render it. If you can run the app or open the file in a browser and take a screenshot, do it, so you judge what people see and not only the code.
-   - Only a link to a live site, no code? Save the page with `node <skill-base-dir>/scripts/unslop/snapshot.mjs <url> unslop/original.html` and work on a copy of that file. Add `--dark` or `--light` to match the theme the user sees. It also saves `original.live.png`, a screenshot of the live page, so render the saved copy and compare the two before you start. Animated backgrounds drawn by scripts do not survive, so describe them in the audit from the live page.
+   - Only a link to a live site, no code? Save the page with `node <skill-base-dir>/scripts/snapshot.mjs <url> unslop/original.html` and work on a copy of that file. Add `--dark` or `--light` to match the theme the user sees. It also saves `original.live.png`, a screenshot of the live page, so render the saved copy and compare the two before you start. Animated backgrounds drawn by scripts do not survive, so describe them in the audit from the live page.
    - Only a screenshot? Rebuild the screen as one static HTML file first, matching it closely, and treat that as the original.
    - In both cases the result is a redesigned page in code that the user can hand to whoever owns the real site, so say that in the report.
-2. **Audit.** Go through [unslop/signs.md](unslop/signs.md) and list every sign you find, one line each with where it lives.
+2. **Audit.** Go through [unslop/signs.md](references/signs.md) and list every sign you find, one line each with where it lives.
 3. **Decide how much to change.** Read the audit honestly before planning anything.
    - **Heavy slop**, many signs across color, type, icons and copy. Run the full process below.
    - **Light slop**, a screen that is mostly designed with a few signs left. Polish mode. Fix only what the audit found, take the direction from the existing brand instead of inventing a new one, and keep the palette, type, layout and visual. Bigger ideas, like a moment that is missing or a scene for the hero, go into the report as suggestions, not changes.
@@ -57,7 +63,7 @@ Which visual styles tend to work, and which fail, is in [unslop/visuals.md](unsl
 
 Keep a run quick. Render the screen to check it at most three times. When you generate an image, start it right after the direction is confirmed and keep doing the first passes while it runs, instead of waiting for it.
 
-Exact values for every pass live in [unslop/tokens.md](unslop/tokens.md).
+Exact values for every pass live in [unslop/tokens.md](references/tokens.md).
 
 ## Direction
 
@@ -169,9 +175,9 @@ If the product already has a real brand, like a logo file, a color or a typeface
 - With an image generation tool, the first choice for a landing hero is a scene from the world in the direction, generated wide enough to sit behind the whole hero, with calm empty space where the text goes. It carries the color and the mood, and the chrome stays quiet over it.
 - Under the scene, or as the visual when there is no tool, show the product. Build a preview in code of what the page already promises, with the project's components or careful HTML and plausible data, like the main screen, one key card or the result the product produces. Showing what the copy already claims is not inventing a feature. In a scene hero it rises from the bottom edge and runs past it.
 - The product view carries a moment, not just a plain card. A rendered object inside it, like a payment card on a figure, a rich chart or a small object from the world. These are kinds of objects, so using one that fits is fine.
-- Before this pass, look at the references in [unslop/refs.md](unslop/refs.md). Take qualities from them, like composition, light, restraint and how the moment is placed, never their subject or layout.
+- Before this pass, look at the references in [unslop/refs.md](references/refs.md). Take qualities from them, like composition, light, restraint and how the moment is placed, never their subject or layout.
 - Rendered objects and scenes come from an image generation tool when you have one. If you do not, build what you can in code, write the prompts for the rest and leave empty slots of the right size.
-- How to pick the subject, the prompt recipe and how to place the image are in [unslop/visuals.md](unslop/visuals.md). Read it before this pass.
+- How to pick the subject, the prompt recipe and how to place the image are in [unslop/visuals.md](references/visuals.md). Read it before this pass.
 
 ## 9. Motion
 
@@ -184,7 +190,7 @@ If the product already has a real brand, like a logo file, a color or a typeface
 
 ## Story video
 
-A short video where the screen unslops itself step by step, with red redlines on the slop. Look at [refs/story-dashboard-frames.webp](unslop/refs/story-dashboard-frames.webp) before you build it, eight frames from it in order. That video went viral, and this is how it works:
+A short video where the screen unslops itself step by step, with red redlines on the slop. Look at [refs/story-dashboard-frames.webp](references/refs/story-dashboard-frames.webp) before you build it, eight frames from it in order. That video went viral, and this is how it works:
 
 - **Nothing is swapped, everything morphs.** One page, and each step only changes CSS, so padding, gaps, sizes, colors, radii and shadows tween from the old value to the new one in place. You see the spacing open up, the purple drain out, the corners soften.
 - **A wave.** Elements start a few dozen milliseconds apart from the top left down, so a change runs across the screen instead of everything flipping at once.
@@ -211,7 +217,7 @@ It adds a few minutes, so make it only when the user wants it.
    - `data-slop="Gradient text"` and so on marks the slop for a short first beat, at most five, on the clearest examples that sit apart from each other, with short tags. It is optional, the reference video has none.
 6. **Only the screen and its background.** The video shows the story page as it is, with no extra window, border or shadow around it, so the page's own background fills the frame and the screen is the only box. If the screen sits in a window that grows to desktop proportions, anchor it to the left in the story so it widens to the right instead of gliding sideways. The story page renders 1440 wide and at least 900 tall, so do not size things from `100vh`, and keep `position: fixed` for background layers only.
 7. **Camera.** `<meta name="unslop-frame" content="0 0 960">` sets which part of the page fills the frame, as x, y and width in page pixels. Point x and y at the screen's own top left corner, so the frame starts with the page background around it, and crop close on where the most visible change happens, usually the sidebar or headline and the first cards.
-8. **Render.** `node <skill-base-dir>/scripts/unslop/story.mjs unslop-story/story.html unslop-story.mp4`, square by default, `--wide` for 16:9. It needs Playwright and ffmpeg, so if either is missing, tell the user the one command that installs it. To watch it live first, run it with `--play` instead of the output path, and it loops in a browser window until closed. Pull a few frames with ffmpeg and look at them before you hand it over. Checking the story file and the video does not count toward the render limit of a run.
+8. **Render.** `node <skill-base-dir>/scripts/story.mjs unslop-story/story.html unslop-story.mp4`, square by default, `--wide` for 16:9. It needs Playwright and ffmpeg, so if either is missing, tell the user the one command that installs it. To watch it live first, run it with `--play` instead of the output path, and it loops in a browser window until closed. Pull a few frames with ffmpeg and look at them before you hand it over. Checking the story file and the video does not count toward the render limit of a run.
 9. **The story file is a presentation piece.** The clean result still ships as normal code in the project's own stack, without `.s` classes or story attributes. Every video carries a small `unslop by @heydamir` credit, as the license asks.
 
 ## Do not
