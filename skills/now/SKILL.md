@@ -114,7 +114,7 @@ Recipes may be mixed. A technical lesson can include a sales-quality value propo
 
 ## Visual explainers
 
-For architecture maps and technical flows, read [Archify](../archify/SKILL.md). For interactive charts and visual explanations, read the [visualization package](../../skills-db/creative/interactive-visualization-creator/SKILL.md). Bring the selected output back into the page: inline it in a GenUI `source.html`, or use RenderSpec diagrams, charts, tables and sections. In RenderSpec, use `custom-html` only when the component graph cannot express the required visual.
+For architecture maps and technical flows, read [Archify](../archify/SKILL.md). For interactive charts and visual explanations, read the [visualization package](../../skills-db/creative/visual-explainer/SKILL.md). Bring the selected output back into the page: inline it in a GenUI `source.html`, or use RenderSpec diagrams, charts, tables and sections. In RenderSpec, use `custom-html` only when the component graph cannot express the required visual.
 
 ## Showcase route
 
