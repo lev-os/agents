@@ -52,7 +52,7 @@ contract. Audit existing matches:
 
 ## Validation and handoff
 
-- Follow [proof policy](../../openclaw-testing/SKILL.md#proof-policy).
+- Follow [proof policy](upstream-context/openclaw-testing-SKILL.md#proof-policy).
   Never edit checkout during active Vitest run. Run owner/sibling tests.
 - Removed source greps/plan assertions: exercise owning executable/dry-run.
 - Run targeted format, `git diff --check`; classify changed gate with
