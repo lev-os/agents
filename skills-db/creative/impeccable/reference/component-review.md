@@ -27,10 +27,37 @@ Then run `plan`, `capture` and `serve` again. Unchanged decisions carry over, so
 
 ## Assemble and review
 
-Build the first viewport from the approved plates and plan, and run the hero gate. Human review does not waive its integrity checks. After three failed hero attempts, stop iterating and present the first-viewport review with the current build; the user's eye settles what the readings could not.
+Build the first viewport from the approved plates and plan, and run the hero gate. Human review does not waive its integrity checks. After three failed hero attempts, or three failed responsive attempts before any first viewport is accepted, stop iterating and present the first-viewport review with the current build; the user's eye settles what the readings could not.
 
-Present a second manifest at `.impeccable/review/hero.json`, with `id` and `stage` set to `hero`. Use one page-preview component covering the assembled first viewport, its real HTML entry, and its complete dependency list (local paths only). The reference stays the approved comp. Call the same host review tool, or run `capture`, `serve` and `verify` with this manifest. Needs-work feedback starts another assembly round.
+Present a second manifest at `.impeccable/review/hero.json`. You write this one, and its shape is fixed:
 
-Acceptance closes human review for this build: never request plan, asset or assembly approval again. While the page renders what the user accepted, the hero score, the palette check and every numeric reading are advisories; material vetoes still hold (a missing or unreferenced plate, an SVG illustration, an organic clip, a clipped plate, invented ink, failed rendered presence). When the capture no longer matches the accepted screenshot, restore what the user accepted; until then the readings apply. Complete the rest of the page, responsive behavior, finish checks and documentation with the accepted first viewport as the visual direction. This is first-viewport calibration, not a claim that the user reviewed the rest of the page. Shared stylesheet edits do not reopen approval. Preserve the accepted direction; a later explicit user change is a new task.
+```json
+{
+  "schemaVersion": 2,
+  "stage": "hero",
+  "id": "hero",
+  "title": "First viewport",
+  "comp": {"path": ".impeccable/mocks/comp.png", "width": 1536, "height": 1024},
+  "components": [{
+    "id": "first-viewport",
+    "name": "First viewport",
+    "medium": "HTML / CSS",
+    "note": "Assembled first viewport",
+    "box": {"x": 0, "y": 0, "w": 1, "h": 1},
+    "preview": {"kind": "page", "path": "index.html"},
+    "dependencies": ["styles.css", "assets/plates/sky.png", "fonts/display.woff2"]
+  }]
+}
+```
+
+- `schemaVersion` is 2. Version 3 is the plan review packet and requires stage `components`. `codeRegions` and `specSha256` exist only in version 3 and are refused here. `reviewGroup` is refused too: version 3 rejects it, and any other version accepts it only on a page preview in a `components`-stage manifest, never in a hero manifest.
+- `comp.path` is the `comp` value in `.impeccable/build/spec.json`, and `width` and `height` are that PNG's pixel size.
+- Exactly one component, with `box` exactly `{"x": 0, "y": 0, "w": 1, "h": 1}` and `name`, `medium` and `note` as strings.
+- `preview.path` is the page entry the build gates (`artifact` in `.impeccable/build/state.json`).
+- `dependencies` lists every other file the page loads (stylesheets, scripts, plates, images, fonts) as bare strings. Every path, here and above, is project-relative and plain: no leading `./` or `/`, no `..`, no URL, no `?`, `#`, `%`, `:` or backslash. A request to a file missing from this list, or to another host, fails the capture.
+
+The reference stays the approved comp. Call the same host review tool, or run `capture`, `serve` and `verify` with this manifest. Needs-work feedback starts another assembly round.
+
+Acceptance closes human review for this build: never request plan, asset or assembly approval again. While the page renders what the user accepted, the hero score, the palette check and every numeric reading are advisories; material vetoes still hold (a missing or unreferenced plate, an SVG illustration, an organic clip, a clipped plate, invented ink, failed rendered presence). A text, control or chrome region the accepted screenshot also lacks is settled by the acceptance; a plate it lacks is a question for the user that the gate's reason spells out: do not move off what they accepted on your own, but carry out their answer, including placing the plate. When the capture no longer matches the accepted screenshot, restore what the user accepted; until then the readings apply. Complete the rest of the page, responsive behavior, finish checks and documentation with the accepted first viewport as the visual direction. This is first-viewport calibration, not a claim that the user reviewed the rest of the page. Shared stylesheet edits do not reopen approval. Preserve the accepted direction; a later explicit user change is a new task.
 
 Assembled-page capture executes inline and declared local scripts from the pinned inputs. Network APIs, frames and workers are unavailable; the initial viewport must settle before capture. Keep the real page and declare its scripts rather than removing behavior to pass review.

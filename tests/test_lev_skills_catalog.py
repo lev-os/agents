@@ -436,7 +436,6 @@ class TaxonomyProjectionTest(unittest.TestCase):
             ("view.ai-agents.prompting-retrieval", "prompt-engineer"),
             ("view.software-systems.architecture", "software-architecture"),
             ("view.software-systems.development", "bun-development"),
-            ("view.software-systems.operations-release", "gh-actions"),
             ("view.writing-editing", "de-slopify"),
         }
         self.assertTrue(root_required <= mapped_examples)

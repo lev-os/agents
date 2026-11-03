@@ -1,8 +1,8 @@
 ---
 name: ux
 description: "Use when designing UX/product flows, researching users or personas, conducting Agentic user research with day-in-the-life simulations, creating wireframes or IA, working with Pencil visuals, or designing agentic CLI UX."
-skill_type: hub
-category: design-ux
+skill_type: workflow
+category: creative
 related_skills:
   - work
   - lev-cdo
@@ -13,15 +13,17 @@ hub_routes:
   ux-pipeline: "wireframe, flow, IA, journey, interaction, JTBD, task graph"
   ux-research: "user research, synthetic research, personas, study design, persona matrix"
   cdo-persona-insights: "cdo insights, deliberation artifacts, persona base, synthesis-informed research"
-  design-os: "product design, vision, roadmap, data model, design system, export"
-  pencil-mcp: "visual design, .pen file, mockup, design sweep"
+  design-os: "product design, vision, roadmap, data model, export"
+  creative: "UI build or polish, visual design, design system, .pen visuals, unslop, mock product shots, motion, diagrams, charts, pages"
   agentic-ux: "CLI design, progressive disclosure, prompt steering, CLI-as-prompt"
-  browse: "design skill, find skill, what skills"
+  browse: "find skill, what skills"
 ---
 
-# UX Design Hub
+# UX
 
-Routes to specialist sub-skills or runs the built-in 8-step UX pipeline.
+Owns the UX core: research, personas, flows, wireframes, information architecture, the craft audit and CLI UX. Runs the built-in UX pipeline or one of the routes below.
+
+UX and UI work usually come together. When the work turns to how the screen looks, moves or is shown (UI build or polish, visual direction, a design system, AI-looking UI, mock product shots, motion, diagrams, charts, pages, `.pen` visuals), load [creative](../creative/SKILL.md), the design hub, and follow its route. Pass it the UX artifacts made so far, so the visual work starts from the flows and research, not from a blank brief.
 
 ## Product quality route
 
@@ -44,7 +46,7 @@ recorded product rules before the next tick. Preserve each person's private
 knowledge and history. A request to document this method changes instructions
 only; running an experiment requires an execution request.
 
-## Hub Decision Tree
+## Route
 
 ```
 Request arrives
@@ -57,12 +59,12 @@ Request arrives
 |   -> Load: references/product-craft.md (12-rule scorecard)
 |
 +-- Product planning (vision, roadmap, data model, export)?
-|   -> Load: skill://lev-design-os
-|      (~/.agents/skills/lev-design-os/SKILL.md + references/)
+|   -> Load: lev-design-os
+|      (../../skills-db/lev/lev-design-os/SKILL.md + references/)
 |
 +-- Visual design / .pen file / design sweep?
-|   -> Use Pencil MCP tools (batch_design, get_screenshot, style guides)
-|      Ref: skillsdb://creative/pencil for character/illustration work
+|   -> Load creative (../creative/SKILL.md); it routes UI, visual, motion,
+|      diagram, chart, page and .pen work. Pencil wireframes stay here.
 |
 +-- CLI / agentic UX patterns?
 |   -> Load Phase 0.5 lev-ref patterns (below)
@@ -81,9 +83,10 @@ Request arrives
 |      Continue into research mode or full pipeline depending on context
 |
 +-- "What design skills exist?" / browse?
-|   -> Load `skill://skill-discovery` for this design request.
+|   -> Read creative's route table and package index first.
+|      For a wider search, load `skill://skill-discovery`.
 |      For corpus-only results use `--namespace skills-db`; filter the physical
-|      UX collection with `--category design-ux`. Use returned subject node IDs
+|      design collection with `--category creative`. Use returned subject node IDs
 |      for semantic navigation, never as physical category names.
 |
 +-- Ambiguous?
@@ -94,15 +97,6 @@ Request arrives
        3. Persona base from CDO insights
        4. Spike/wireframes only
 ```
-
-## Skills-DB Design Catalog (skillsdb://design-ux/*)
-
-| Skill | Load when |
-|-------|-----------|
-| design-os | Product vision, roadmap, data model, design tokens, export |
-| superdesign-prompt-library | AI image prompts, style/layout/component prompts |
-| swiftui-* (6 skills) | SwiftUI/iOS/macOS UI work |
-| metal-shaders, vfx-spell-effects | GPU graphics, visual effects |
 
 ## UX Thinking Patterns (scored, from skills-db)
 
@@ -118,19 +112,19 @@ Load from ~/.agents/skills-db/thinking/patterns/{name}/SKILL.md when reasoning d
 | design-systems | 45 | Component architecture |
 | refactoring-ui | 44 | Developer-facing design tactics |
 
-## Hub Shortcuts
+## Shortcuts
 
 | Key | Action | Route |
 |-----|--------|-------|
-| (p) | Product design wizard | skill://lev-design-os |
+| (p) | Product design wizard | lev-design-os (`../../skills-db/lev/lev-design-os/SKILL.md`) |
 | (w) | Run UX pipeline | Persona-first steps + downstream UX phases below |
 | (f) | Full UX run | Step 1 persona detection + Step 2 persona fanout + full downstream pipeline |
 | (i) | Interactive run (interview me) | Same as full, but asks one question at a time with options and a recommendation, and pauses after each step for review |
 | (r) | User research/personas | Step 1 persona detection + Step 2 persona fanout + research synthesis |
 | (d) | CDO-backed persona base | Step 1 persona detection + Step 2 CDO persona fanout + research synthesis |
-| (v) | Visual design / .pen | Pencil MCP tools |
+| (v) | Visual design | [creative](../creative/SKILL.md) hub |
 | (c) | CLI/agentic UX patterns | Phase 0.5 lev-ref |
-| (b) | Browse design skills | `skill://skill-discovery` with the design-UX corpus scope |
+| (b) | Browse design skills | creative's [package index](../../skills-db/creative/README.md), then `skill://skill-discovery` |
 | (k) | Product craft audit | `/ux --craft`: 12-rule scorecard, X/12, top 3 fixes (references/product-craft.md) |
 
 ---
@@ -510,12 +504,12 @@ cat docs/_inbox/lev-ref/SKILL.md
 
 ## Phase 0.6: Skills-DB Enrichment
 
-Route to specialized skills using the Hub Decision Tree above.
+Route to specialized skills using the Route section above.
 
 1. Check hub_routes (frontmatter) for trigger match against request keywords.
    - If match -> load that skill, optionally resume after persona fanout or at the named downstream phase.
 
-2. If no `hub_route` matches, load `skill://skill-discovery` and run or reuse only a completed, applicable campaign for the current UX task. This branch is optional enrichment: use `--namespace skills-db` for corpus-only results and `--category design-ux` only as a physical collection filter. The shared owner supplies query planning, browse/query completion, and source-loading rules; do not replace it with a one-query shortcut. Use returned `matches` and their `skill_name`, `local_path`, `realpath`, `source_id`, `digest`, and `index_revision` fields to present candidates. A descriptor identifies a source; it is not loaded content. After a skill is selected for use, read it in full through the shared owner before treating it as applicable, and preserve unresolved bundle or reference boundaries.
+2. If no `hub_route` matches, load `skill://skill-discovery` and run or reuse only a completed, applicable campaign for the current UX task. This branch is optional enrichment: use `--namespace skills-db` for corpus-only results and `--category creative` only as a physical collection filter. The shared owner supplies query planning, browse/query completion, and source-loading rules; do not replace it with a one-query shortcut. Use returned `matches` and their `skill_name`, `local_path`, `realpath`, `source_id`, `digest`, and `index_revision` fields to present candidates. A descriptor identifies a source; it is not loaded content. After a skill is selected for use, read it in full through the shared owner before treating it as applicable, and preserve unresolved bundle or reference boundaries.
 
 3. If curated scores are available, use them only as a prioritization hint after the source itself is verified:
 

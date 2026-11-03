@@ -1,0 +1,47 @@
+schema_version: 1
+workstream_id: skill-consolidation
+source: user
+captured_at: 2026-10-18T05:05:52.273321+00:00
+message: |-
+  PLEASE IMPLEMENT THIS PLAN:
+  # Add “Agentic user research” to the UX skill
+
+  ## Summary
+
+  Add a method for simulating day-in-the-life journeys through coordinated persona agents. This changes skill instructions only; it does not launch the experiment or build a simulation engine.
+
+  Refined task:
+
+  > Add “Agentic user research” to the UX skill. Use evidence-grounded personas who each choose one next action per synchronized tick. Carry their decisions into shared world state, run repeated short experiments and one longer continuation, and produce traceable failure hypotheses that can be checked against the product.
+
+  ## Current vs Ideal
+
+  The UX skill currently supports persona fanout and a persona-by-model research matrix. These collect reactions but do not define how people affect one another over time.
+
+  The new method preserves each person’s goals, knowledge, unfinished work, and history while shared projects change. For example, three people in one agency can discover how competing edits, missing permissions, or delayed handoffs affect their day.
+
+  ## What top experts in UX research would do
+
+  Start from raw workflow evidence: observed sessions, interviews, support cases, task records, and current product behavior. Label invented persona details and product behavior as assumptions.
+
+  Use agent-based simulation, repeated scenarios, event traces, and targeted product checks. Treat simulated agreement as a hypothesis. Product reproduction and research with actual users provide independent validation.
+
+  ## Implementation Changes
+
+  Update [the UX skill](/Users/jean-patricksmith/.agents/skills/ux/SKILL.md) and add `references/agentic-user-research.md` beside its existing research references.
+
+  - **Routing:** Add the named method before generic multi-agent, research, and CLI UX routing. Load its reference only for this method. Its longitudinal experiment replaces the static research matrix for that run; existing persona-count and matrix-size guidance remains specific to static studies.
+  - **World and personas:** Define the product stimulus, daily agendas, organizations, shared projects, roles, permissions, deadlines, and starting state. Separate shared facts from each person’s private knowledge. Reuse existing persona detection and record evidence sources.
+  - **Tick protocol:** Give ten agents bounded briefs containing persona, visible world state, personal history, available actions, and one-decision limit. The coordinator waits for all responses, validates proposed actions, and applies their effects together using recorded product rules. It then supplies the next state. Preserve valid responses after failure; retry a failed response once, then checkpoint the incomplete tick without applying partial effects.
+  - **Evidence:** Record world versions, decisions, attempted actions, outcomes, conflicts, unfinished work, and elapsed simulation time. Measure coordinator latency separately. Write human-readable findings in Markdown and runtime traces/checkpoints in JSON. Each finding links to its originating decisions and identifies the product or human research check needed.
+
+  Conflicting actions must follow the product’s actual behavior. If that behavior is unknown, record the uncertainty instead of inventing a successful outcome.
+
+  ## Experiment Defaults and Validation
+
+  - **Breadth and depth:** Run ten independent experiments, each with ten people and ten ticks. Select a cohort and checkpoint using documented criteria—coverage, collaboration failures, and unresolved consequences—then continue for fifty additional ticks. With ten active people throughout, this schedules **1,500 persona decisions**.
+  - **Model allocation:** Apply the confirmed mix across scheduled decision calls: **750 Haiku, 450 Sonnet, 285 Opus, and 15 Fable**. Persona identity and memory persist when models change. Record actual model identifiers and assignments; report coordinator and retry calls separately. Resolve availability before execution and report unavailable models without silent substitution.
+  - **Behavior checks:** Verify that the method routes correctly, each agent makes one decision, private knowledge stays private, shared edits affect the next tick, conflicts remain visible, and incomplete ticks resume without duplicate effects. Include a three-person agency scenario and a missing-model case.
+  - **Acceptance:** Review the focused diff, validate links and supported frontmatter, and check experiment arithmetic. Qualify instruction behavior through bounded fresh scenarios before claiming it works. A full experiment remains a separate execution request.
+
+  🧙🏽‍♂️ **[lev://mesh]** No active workstream | ⚡ Planned
