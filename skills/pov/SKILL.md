@@ -88,11 +88,24 @@ Collapse to ONE of:
 3. **Name theater before claiming rigor** — call out which thinking systems actually fired vs which were prompt-stems.
 4. **Unfolding prevents simulation** — compressed turns let the model hallucinate conclusions without doing the generative work. Turn boundaries force real output.
 
+## Multi-agent panel variant
+
+When the user explicitly asks for many independent strategies, perspectives, or subagents, do not merely simulate the requested diversity inside the `/pov` cycle. Run a bounded **strategy panel**, then synthesize it:
+
+1. **Ground the panel first.** Retrieve the current internal context and label huddle estimates, budgets, and uplift claims as hypotheses until verified.
+2. **Assign non-overlapping lenses.** Useful set: product/design partner, operator workflow, investor/deal structure, SCAMPER, Blue Ocean/ERRC, CFO pre-mortem, architecture, JTBD/service design, founder-sales negotiation, and contrarian/opportunity cost.
+3. **Dispatch in concurrency-safe batches.** Give each worker a self-contained brief, require a stance, discovery questions, bounded offer, trade-offs, and explicit no-go condition. Do not let workers mutate the same artifacts.
+4. **List all lenses before the conclusion.** Preserve one short, attributable finding from every requested strategy; do not hide disagreement behind a generic synthesis.
+5. **Synthesize around one decision, not ten ideas.** State: meeting objective, positioning sentence, discovery agenda, smallest paid next step, must-pass gates, prohibited promises, and close script.
+6. **Keep capital and commercial tracks separate.** If a prospect is both investor and customer, do not let exploratory financing substitute for pilot payment, product commitments, exclusivity, data rights, or governance concessions.
+
+Use this variant for strategic alignment; it does not replace factual verification or legal review.
+
 ## Costs & limits
 
-- **Tokens**: ~2000-4000 per full cycle
-- **Time**: 4 turns, no subagent round-trip
-- **Blind-spot risk**: **high** (single model) — do not use for facts under dispute
+- **Tokens**: ~2000-4000 per full cycle; a multi-agent panel is materially more expensive
+- **Time**: 4 turns for the default cycle; panel synthesis adds worker round-trips
+- **Blind-spot risk**: **high** for the default single-model cycle — do not use for facts under dispute
 
 ## vs other skills
 

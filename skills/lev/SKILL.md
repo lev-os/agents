@@ -452,6 +452,10 @@ trace, event, and workstream state before deciding the next route.
 - Use FlowMind commands when the work is a graph/topology/runtime issue.
 - Use `/close` after verified work to checkpoint, learn, and update state.
 
+## Architecture references
+
+- `references/agentic-cms-convergence.md` — concept map for Lev `autowiki` / `cms` / `publisher` / `writer` / `wiggum-marketer` convergence; use before designing content, internal wiki, or agentic CMS flows.
+
 ## Source Map
 
 | Domain | Path |

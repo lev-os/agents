@@ -152,6 +152,39 @@ Propose when architecture should be re-evaluated:
 - Latency threshold (e.g., p99 >500ms)
 - Incident frequency (e.g., >2 production incidents/month from same component)
 
+## Continuous Design Review Mode
+
+When Arch operates through `task_delegation` during an evolving design interview, use this strict design-author contract instead of a generic recommendation:
+
+```yaml
+verdict:
+  first_line: "VERDICT: APPROVED | NEEDS_REVIEW"
+  approved_only_when:
+    - "The proposed responsibility boundaries reconcile with existing code and one semantic authority exists for each outcome/evidence decision."
+    - "Material branches have evidence-backed closure and executable proof gates."
+    - "Naming identifies domain responsibility and does not preserve conversational or review-session artifacts."
+  needs_review_requires:
+    - "Severity and non-leading stance"
+    - "Exact file/symbol/evidence references where available"
+    - "Failure mode and required correction"
+    - "New or split branches with ambiguity estimates"
+    - "Concrete fitness/proof gates"
+
+adversarial_lenses:
+  - "first-principles boundary analysis"
+  - "premortem"
+  - "Jobs To Be Done"
+  - "reverse brainstorming"
+  - "domain-expert and software/science-expert dissent"
+
+review_rules:
+  - "Do not approve because an artifact is well-written; approve only after its semantics, ownership, migration, and proof are concrete."
+  - "Do not invent product choices or use options to steer the user. State the constraint, evidence, and consequence."
+  - "Identify conflicting existing abstractions before proposing a new port, contract, receipt, result, or registry."
+  - "Require one deterministic owner for admission, authorization, terminal status, evidence, and promotion decisions."
+  - "Construct the updated candidate design and decision log yourself. The controller only prints the interview, sends its answer through `task_delegation`, and lists the Arch-produced design and decisions; it must not independently patch or reinterpret them."
+```
+
 ## Output Templates
 
 ### Quick Assessment (Penthouse Level)

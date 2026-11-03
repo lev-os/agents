@@ -73,6 +73,54 @@ on_failure: "Do not ask another broad question. Re-score ambiguity, inspect cont
 
 </operational-contract>
 
+<adversarial-continuous-design-loop>
+
+Use this mode when the user explicitly asks for a non-leading, iterative interview with independent architecture review.
+
+```yaml
+trigger:
+  - "Ask non-leading questions"
+  - "Review each design turn with Arch"
+  - "Continue until branches are exhausted"
+
+turn_protocol:
+  1_lookup: "Gather code, docs, design, plan, and proof evidence before every question. Do not ask what the workspace can answer."
+  2_question: "Ask exactly one open-ended Socratic question about the weakest unresolved branch. Do not offer a/b/c options, a recommendation, or answer frames: they lead the witness."
+  3_question_delegation: "Print the one question, then immediately send that exact question, its evidence, and current Arch state to `task_delegation`. The task delegation prepares the branch context but must not decide unanswered human judgment."
+  4_answer_delegation: "After the human answers, send the complete exchange and evidence to `task_delegation`. Arch is the design author: it constructs the candidate design, decision log, dependency map, ambiguity scores, proof gates, and next unresolved branch."
+  5_report_and_continue: "List the Arch-produced design and its decisions after the task delegation returns. Do not independently apply, patch, or reinterpret the answer in the design artifact. Generate the next interview question from the unresolved branch Arch returns. Preserve no session wording as domain vocabulary."
+  cadence: "If the user requests a pause between steps, wait briefly after task delegation before presenting the next question. Never simulate progress while awaiting a human answer."
+
+closure_gate:
+  - "Every scored topic and list item has ambiguity <5%."
+  - "Overall ambiguity is <10%."
+  - "All material design branches are resolved or explicitly rejected with evidence."
+  - "Proof design has concrete owners, fixtures, commands, and fail-closed assertions."
+  - "Latest independent Arch verdict is APPROVED."
+
+naming_guardrail: "Use DDD, clean-code, and hexagonal vocabulary that names responsibility. Do not turn conversational qualifiers into identifiers (for example, `CanonicalThing`, `FinalPlan`, or `ApprovedAdapter`)."
+reasoning_lenses:
+  - "first principles and systems thinking"
+  - "premortem"
+  - "Jobs To Be Done"
+  - "reverse brainstorming"
+  - "diverse domain and software/science expert dissent"
+```
+
+In this mode the usual a/b/c formatting contract is intentionally overridden. Print the exact interview question before sending it to `task_delegation`. After the human answer, list the Arch-produced candidate design, its decision log, ambiguity/readiness scores, and one next open question. Do not present controller-authored changes or a separate synthesis: Arch is the design author. Use `references/adversarial-continuous-design-loop.md` for the turn-record schema and scoring rubric.
+
+### Immediate-execution correction
+
+When the user says “do it now,” corrects execution timing, or is frustrated that the interview/Arch loop was described rather than run:
+
+1. Do not reply with a workflow explanation, a confirmation, a TODO list, or an instruction-edit report.
+2. Immediately run the active turn: print the one interview question, invoke `task_delegation` with that exact question and evidence, then list the Arch-produced design and decisions.
+3. If no human answer exists yet, task delegation must produce an evidence-backed *provisional* candidate design and clearly identify only the judgments still requiring the human. It must not invent those judgments.
+4. In the user-facing response, show only `Interview`, `Arch Design`, `Arch Decisions`, `Open Human Judgment`, and `Next Interview Question` when applicable. Do not add controller process commentary, implementation plans, or a restatement of the protocol.
+5. Never expand or summarize Arch output as an independent controller synthesis; preserve its assertions and provisional/evidence-backed labels.
+
+</adversarial-continuous-design-loop>
+
 <process-contract>
 
 ```yaml

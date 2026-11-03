@@ -55,6 +55,10 @@ matrix, implementation route, or verdict. Workshop intake treats `spike` and
 disposition must be one of `adopt`, `extract`, `monitor`, or `reject` when the
 proof is part of workshop intake.
 
+For research/workshop intake POCs that combine papers, videos, repos, parity
+matrices, spike sets, and roadmaps, follow the artifact and verification pattern
+in `references/research-intake-proof-artifacts.md`.
+
 ## Mode Selection
 
 Use `--spike` when the unknown is conceptual, architectural, API, feasibility,

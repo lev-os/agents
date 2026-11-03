@@ -99,3 +99,9 @@ MATCH (a)-[:SIMILAR_TO]->(b) RETURN a.name, a.file_path, b.name, b.file_path LIM
 5. Results default to 10 per page — check `has_more` and use `offset`.
 6. Markdown headings are indexed as `Section` nodes; the text under a heading is not ranked.
 7. A subagent does not inherit MCP tools or the conversation. Query in the parent and pass the tier, project, paths and symbols.
+
+## Field notes from Hermes
+
+- [hermes-mcp-install](references/hermes-mcp-install.md)
+- [markdown-skill-catalog-indexing](references/markdown-skill-catalog-indexing.md)
+- [root-router-multi-index](references/root-router-multi-index.md)

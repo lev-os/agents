@@ -456,3 +456,14 @@ Done means the requested behavior is present, controller checks pass, the diff
 is scoped, the provider session and identity binding are recorded, SDD review
 and integration obligations are settled, and residual promotion gates are
 explicit.
+
+## One-off newer model overrides
+
+When the user wants occasional access to a newer Codex/OpenAI model while
+leaving the default intact, use `-m <model>` only for that current dispatch and
+optionally pair it with `-c model_reasoning_effort=<level>`. First verify the
+model is visible in the live provider catalog or model picker. For effort
+tuning, prefer a compact live matrix with CSV/JSONL/report artifacts over
+guessing accepted effort labels. See
+[model overrides](references/model-overrides-and-gpt56.md) for the benchmark
+pattern and provider quirks.

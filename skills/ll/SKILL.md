@@ -339,6 +339,10 @@ Each tick follows this 10-step procedure:
 
 ## Scheduling
 
+### Manual replay of existing script-only cron jobs
+
+When the user asks to rerun an already-scheduled hygiene/autosync/watchdog job by name, use the script-only cron replay recipe in `references/script-cron-replay.md`: list jobs to find the exact id, trigger it through the scheduler, verify scheduler state, and if a `no_agent` script run is asynchronous or silent but the user needs the result now, run the underlying script directly in the job `workdir` and report the concrete stdout/alert.
+
 ### Slice Mode (one tick)
 ```
 /levloop run     # Scan → pick type → execute → checkpoint

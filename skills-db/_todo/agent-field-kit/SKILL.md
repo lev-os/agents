@@ -75,6 +75,11 @@ Use these as focused skills instead of bloating this router:
 2. Keep baseline tool guidance short; load leaf skills only for niche workflows.
 3. Treat Docker smoke tests as the truth surface for remote parity.
 4. Prefer best-effort portability over perfect package-manager coverage in v1.
+5. On VPS/container gateways, identify the service user and HOME before auth/install work; cron, gateway, and SSH users may differ.
+
+## Headless service-user setup
+
+When wiring tools for a VPS, container, gateway, or scheduler, use a single managed env file sourced by shell profiles instead of scattering `PATH` edits. Authenticate browser/cookie-based CLIs under the same HOME that future cron/gateway jobs will use. See [headless-service-user-env.md](references/headless-service-user-env.md) for the exact playbook, verification commands, and cron wrapper pitfall.
 
 ## Remote Access Playbook (from OpenClaw, Wave 6 — oc-04)
 
@@ -114,5 +119,6 @@ Source: `.lev/pm/parity/openclaw.yaml`
 ## Files in This Skill
 
 - `references/tool-bundle.md` — install matrix and per-tool usage guidance
+- `references/headless-service-user-env.md` — VPS/container service-user PATH, auth handoff, and cron wrapper playbook
 - `scripts/install.sh` — portable installer
 - `scripts/smoke-test.sh` — clean-room Docker validation

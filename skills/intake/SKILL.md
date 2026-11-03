@@ -1,6 +1,7 @@
 ---
 name: lev-intake
 description: "Config-driven workshop intake for URLs, repos, media, PDFs, and skill packages. Use when user wants intake, download, or external content analyzed with project playbooks, ending with a brief, routed recommendation, validation plan, and action dashboard."
+# Reference: `references/rdo-parity-matrix.md` captures the required RDO + L3 parity closeout checkpoint for Lev extract-style intake.
 metadata:
   skill_type: workflow
   category: process-intake

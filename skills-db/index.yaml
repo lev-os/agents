@@ -1,0 +1,20 @@
+# Skills DB index configuration
+# Root-level config only: no per-repo registry is required for satellite repos.
+satellites:
+  # Each repo under skills-db/_repos/<domain>/<repo-slug>/ is scanned with these
+  # SKILL.md globs. Domain/category is inferred from <domain>; repo provenance
+  # is inferred from git metadata when present.
+  skill_globs:
+    - "**/skills/**/SKILL.md"
+    - "**/src/skills/**/SKILL.md"
+
+providers:
+  # raw is always forced on by lev-skills, even if this value is changed.
+  raw: true
+  qmd: true
+  graphify: true
+  cbm: true
+
+retrieval:
+  min_passes: 5
+  max_passes: 20
