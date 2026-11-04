@@ -256,6 +256,53 @@ test("write refuses a v2 link T3 cannot open, and keeps a trimmed bracketed one"
   assert.equal(board.items[0].thread_link, escaped);
 });
 
+test("write refuses a thread id with a '/' or a trailing '.', ')' or ',' from a hand-pasted link", () => {
+  const ctx = setup();
+  for (const bad of ["t3-thread://v2/env/abc/def", "t3-thread://v2/env/abc.", "t3-thread://v2/env/abc)", "t3-thread://v2/env/abc,", "t3-thread://v2/env/."]) {
+    const r = run(ctx, "write", "--input", writeItems(ctx, [{ ...ITEMS[0], thread_link: bad }]));
+    assert.equal(r.code, 1, bad);
+    assert.equal(r.err.trim().split("\n").length, 1, bad);
+    assert.match(r.err, /thread_link must be the thread's v2 link/, bad);
+  }
+  assert.equal(existsSync(join(ctx.root, ".lev", "now", "ceo-board.json")), false);
+  for (const good of ["t3-thread://v2/env/a", "t3-thread://v2/env/a.b,c)d"]) {
+    assert.equal(run(ctx, "write", "--input", writeItems(ctx, [{ ...ITEMS[0], thread_link: good }])).code, 0, good);
+  }
+});
+
+test("write says 'nothing written' and leaves no page .tmp file when the page rename fails", () => {
+  const ctx = setup();
+  fakeExplorer(ctx);
+  const now = join(ctx.root, ".lev", "now");
+  const oldBoard = JSON.stringify({ updated: "2026-11-01T00:00:00Z", project: "demo", items: [] });
+  writeFileSync(join(now, "ceo-board.json"), oldBoard);
+  mkdirSync(join(now, "entity-explorer.html"));
+  writeFileSync(join(now, "entity-explorer.html", "keep.txt"), "a folder where the page should be");
+  const r = run(ctx, "write", "--input", writeItems(ctx, ITEMS));
+  assert.equal(r.code, 1);
+  const lines = r.err.trim().split("\n");
+  assert.equal(lines.length, 1, r.err);
+  assert.match(lines[0], /^board: write: nothing written: /);
+  assert.equal(readFileSync(join(now, "ceo-board.json"), "utf8"), oldBoard);
+  assert.deepEqual(readdirSync(now).sort(), ["ceo-board.json", "entity-explorer.html"], "the page .tmp file is gone");
+  assert.deepEqual(readdirSync(join(now, "entity-explorer.html")), ["keep.txt"]);
+  assert.deepEqual(readdirSync(ctx.tmp), []);
+});
+
+// These two run in file order (node:test runs one file's tests one after another): the second fails when afterEach
+// no longer removes the folders setup() made.
+let earlierRoot = null;
+test("setup makes a temp folder for the test", () => {
+  earlierRoot = setup().root;
+  assert.equal(existsSync(earlierRoot), true);
+});
+
+test("afterEach removed the previous test's temp folder", () => {
+  assert.ok(earlierRoot, "the test before this one ran");
+  assert.equal(existsSync(earlierRoot), false);
+  assert.deepEqual(made, []);
+});
+
 test("write builds the page from the new board, then leaves no .tmp file and no scratch folder", () => {
   const ctx = setup();
   fakeExplorer(ctx);

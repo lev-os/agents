@@ -41,8 +41,9 @@ export const THREAD_LINK_PREFIX = "t3-thread://v2/";
 /**
  * T3 opens a v2 link only with both parts: t3-thread://v2/<environment id>/<thread id>. The thread id is kept as
  * written (it may hold percent escapes such as command%3Amcp); a space, a quote or an angle bracket ends a link.
+ * The thread id holds no '/' and does not end in '.', ')' or ',': those come from a link pasted out of prose.
  */
-export const THREAD_LINK = /^t3-thread:\/\/v2\/[^/\s"<>]+\/[^\s"<>]+$/;
+export const THREAD_LINK = /^t3-thread:\/\/v2\/[^/\s"<>]+\/[^/\s"<>]*[^/\s"<>.),]$/;
 /** An ISO 8601 time with its zone: Z or ±hh:mm. */
 const ZONED_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/;
 
@@ -165,7 +166,7 @@ async function write(args) {
       : { rebuilt: false, why: `no ${EXPLORER_BUILD} under ${root}` };
   } catch (e) {
     // The page went in before the board failed: say so, so the CEO node knows the page shows cards the board lacks.
-    return fail(`write: ${pageMoved ? "page written, board not" : "nothing written"}: ${firstLine(e)}`);
+    return fail(`write: ${!pageMoved ? "nothing written" : "page written, board not"}: ${firstLine(e)}`);
   } finally {
     for (const p of [pageTmp, boardTmp, scratch]) rmSync(p, { recursive: true, force: true });
   }
