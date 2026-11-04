@@ -113,7 +113,8 @@ After boot, every turn runs this loop. Each step ends on its done-when. A later 
 5. **Collect and rerun** (§4). Done when a "My rerun" line holds the command and its count.
 6. **Commit and hand off:** one concern by explicit path; refresh the handoff every turn that changes something (§5; `AGENTS.md:67`). Done when `git status --short -- <your paths>` is empty, you hold the sha, and the handoff is staged.
 7. **Continue** in the same turn while authorized ready work remains. A question to JP holds only its own branch; a finished milestone never asks "continue?" (`~/.claude/skills/orch/SKILL.md:124-129`; `~/.claude/skills/goal-exec/references/long-running.md:57-61`). Done when every open branch waits on JP or on a running worker that has a check set.
-8. **Reply** in one type (§7). Done when the reply passes §6.
+8. **Watch every promise.** Each My plan line that waits on something outside this turn (another chat's reply, a CI run, a worker, a person's message) gets a watch before the turn ends, so the next turn starts when it changes, not when JP writes (JP 2026-11-04: "u cant need me to execute a turn in order for u to check a dependency"). Use the first that fits: `t3_thread_wait` or `t3_background_wait` for a chat or task; the Monitor tool for a file, a command or a CI run; the 15-minute check (§4) for anything slower. When it fires, read the delta and reply only when something JP can see changed (§7 Ack). Done when each such line has a watch id under the handoff's `running`.
+9. **Reply** in one type (§7). Done when the reply passes §6.
 
 **Board answers.** When the board waiter exits, the turn starts here, then runs the loop from step 2. A tap is JP's answer: his words are in the answers file, so it gets no capture.
 
@@ -200,7 +201,7 @@ Each rule is stated once in this skill. The ones below come from `AGENTS.md`, `~
 - Map each of JP's phrases to a repo word through the vernacular, or mark it unmapped and ask, in one sentence; his phrasing is intent, never a new term (`AGENTS.md:57`).
 - A status opens with what works and what moved, never with a zero (`.lev/pm/workstreams/lev-genui-dashboard/captures/20261024T013921Z-sitrep-not-zero.yaml:5`).
 - Name each thing in words: never a bare id, a step code or an internal label (`AGENTS.md:66`; memory feedback_no_internal_labels; memory feedback_bead_formatting).
-- Order: what this is for, what changed, decisions made (quoted and dated), decisions waiting on JP, the next action (`AGENTS.md:148`); the reply template (§7) holds this order. When nothing waits on JP, leave out **Your turn**; never write "none" to fill it (`~/.claude/CLAUDE.md:18`).
+- Order: what this is for, what changed, decisions made (quoted and dated), the next action, then decisions waiting on JP (JP 2026-11-04: My plan shows before Your turn); the reply template (§7) holds this order. When nothing waits on JP, leave out **Your turn**; never write "none" to fill it (`~/.claude/CLAUDE.md:18`).
 - Each type has a soft line cap. Cut words, never evidence. Open `file://` URLs in Brave (`~/.claude/CLAUDE.md:1`).
 
 **Working**
@@ -221,7 +222,7 @@ For the CEO node:
 - **Goal and bar:** the CEO handoff's `goal` and its `stages`, one segment per stage; a segment is ✅ only when my rerun verified it. With no goal on disk, leave both lines out.
 - **Order:** the type's own lines first (the answer, the rows, the rerun), then the template's sections in its order, then the mesh line (§8). A type below names only what it adds.
 - **Your turn:** each Decision (below) and each Thread list row that waits on JP. Each names the thing it moves and that thing's stage (`AGENTS.md:151`). Every recommendation carries one expert line per relevant field, naming the source or practice (`~/.claude/CLAUDE.md:13`). An answered item becomes a decision record in the same turn (§5 Decision) and leaves the section.
-- **My plan:** what I do now and next, each with the thing it moves, and when a running worker reports. A live thread that waits on nothing from JP goes here, never as a question.
+- **My plan:** what I do now and next, each with the thing it moves, and when a running worker reports. A line that says I will bring something names its watch (§3 step 8); "I bring it when the chat replies" with no watch is a broken promise. A live thread that waits on nothing from JP goes here, never as a question.
 - **Ready to capture:** keep the list in the CEO handoff under `capture_ready` (a list of `{text, type, source}`; `type` is idea, plan, design, decision, backlog item or task; `source` is JP's words with the date, or the path of the result), so it survives compaction. Show at most 3 items. When JP says "capture", write each item as its typed record (§3 Human node), commit by path, and clear the list.
 
 ### Status report
@@ -234,14 +235,15 @@ For the CEO node:
 🎯 **Goal:** {the handoff's goal}, done when {its check}
 [{one segment per stage}] {k}/{n} milestones verified
 
-**Your turn:**   (blocking first, then oldest; leave the section out when nothing waits on JP)
-1. {the Your turn item shape in §7 Decision}
-
 **Shipped:** since {last report: the CEO handoff's `updated` stamp, UTC}
 - {thing}: {change} · {sha | branch | path:line | link} · check: `{command}` → {count} | not run → can't tell   (at most 5 rows)
 **My rerun** {UTC}: `{command}` → {count or pass}   (one row per rerun this turn, or "nothing to rerun")
 **Held**: {thread or worker}: {why, one line}; countermeasure: {one line}   (only when something is held or stalled)
-**My plan (I do this unless you stop me):** {1-3 actions; the one in progress first, with when it reports}
+**My plan (I do this unless you stop me):** {1-3 actions; the one in progress first, with when it reports and its watch}
+
+**Your turn:**   (blocking first, then oldest; leave the section out when nothing waits on JP)
+1. {the Your turn item shape in §7 Decision}
+
 **Ready to capture (say "capture"):** {1-3 items from the handoff's `capture_ready`}
 ---
 🧙🏽‍♂️ **[lev://mesh]** {workstream_id} | ⚡ {STATUS}: {note} | {stage} {emoji}
@@ -253,15 +255,15 @@ Four of the six state owners are built and pass my rerun; the last two wait on o
 🎯 **Goal:** the six state owners on main, done when `pnpm --dir core/exec exec vitest run machine.test.ts` passes on origin/main
 [✅✅✅✅🟡⬜] 4/6 milestones verified
 
-**Your turn:**
-1. {the Your turn example in §7 Decision, in full}
-
 **Shipped:** since 03:10Z
 - exec and eval owners: landed · main da1f61f85e · check: `pnpm --dir core/exec typecheck` → exit 0
 - machine test: green · core/exec/test/machine.test.ts · check: `pnpm --dir core/exec exec vitest run machine.test.ts` → 56 passed
 - Config owner: built, local only · integration branch · check: not run → can't tell
 **My rerun** 05:38Z: `pnpm --dir core/exec exec vitest run machine.test.ts` → 56 passed
-**My plan (I do this unless you stop me):** Rerun the Config owner; it reports at 05:55Z. Land the last two owners after your answer.
+**My plan (I do this unless you stop me):** Rerun the Config owner; it reports at 05:55Z (15-minute check sch_41). Land the last two owners after your answer.
+
+**Your turn:**
+1. {the Your turn example in §7 Decision, in full}
 ---
 🧙🏽‍♂️ **[lev://mesh]** oss-projection | ⚡ WAITING ON JP: legal material home ruling | crystallizing 🔍
 ```
@@ -304,19 +306,23 @@ queues: 0 · pending questions: 0 (approvals not listed) · scheduled checks: 0
 
 ### Decision
 
-**When:** a ruling that is JP's alone: an outward or destructive act (production, money, a message to a person, a sign-in on his machine; moving or removing a record counts, §5), product taste, or a person (`~/.claude/CLAUDE.md:36`). These are the only reasons to ask. Everything else you decide yourself and say so under **Shipped**: a durable name, a new dependency, a crossed ruling or a stopped gate, two sources that disagree, and any engineering, design or policy question. Pick the recommended choice and log it with its why. Never ask about a spike: finish it and decide from what it shows; JP's answer to a spike's open questions is "I don't know" (`.lev/pm/workstreams/lev-genui-dashboard/captures/20261018T015437Z-finish-the-spikes-stop-speaking-in-code.yaml:8`). Grep every workstream's captures and the decisions folder first, so it is asked once; drop what JP says to ignore (memory feedback_never_reask_answered). A ruling for JP is one Your turn item: what it is, why it matters, my recommendation with the why, my default (`~/.claude/CLAUDE.md:12`). Three choices only when he asks for options. Log it to `.lev/pm/decisions/<date>-<slug>.yaml` in the same turn; the file keeps the choices (§5).
+**When:** a ruling that is JP's alone: an outward or destructive act (production, money, a message to a person, a sign-in on his machine; moving or removing a record counts, §5), product taste, or a person (`~/.claude/CLAUDE.md:36`). These are the only reasons to ask. Everything else you decide yourself and say so under **Shipped**: a durable name, a new dependency, a crossed ruling or a stopped gate, two sources that disagree, and any engineering, design or policy question. Pick the recommended choice and log it with its why. Never ask about a spike: finish it and decide from what it shows; JP's answer to a spike's open questions is "I don't know" (`.lev/pm/workstreams/lev-genui-dashboard/captures/20261018T015437Z-finish-the-spikes-stop-speaking-in-code.yaml:8`). Grep every workstream's captures and the decisions folder first, so it is asked once; drop what JP says to ignore (memory feedback_never_reask_answered). A ruling for JP is one Your turn item: what it is, why it matters, the choices that fit it, my recommendation, my default (`~/.claude/CLAUDE.md`, Reply template). A yes or no gets only the recommendation; two options get "a vs b"; a/b/c only for a real multiple choice, at most 3, each with its tradeoff. The recommendation is one line, "Recommend {x}: well researched, based on {n} {domain} experts", then the practice or source for each (JP 2026-11-04: "very powerful 1 liner"). Log it to `.lev/pm/decisions/<date>-<slug>.yaml` in the same turn; the file keeps the choices (§5).
 
 ```text
 **Your turn:**
-1. {the question in plain words, no codes}: {why it matters, one sentence}. I recommend {x} because {why, with path:line}. With no answer, I {default}.
-   Experts: {field}: {source or practice} · {field}: {source or practice}
+1. **{the question in plain words, no codes}.** {why it matters, one sentence}.
+   a. {option}: {tradeoff}   (only for a real choice; "a vs b" for two)
+   b. {option}: {tradeoff}
+   Recommend {x}: well researched, based on {n} {domain} experts ({field}: {source or practice}; {field}: {source or practice}). With no answer, I {default}.
    Searched first: {n} captures, {m} decisions (`grep -ril '{term}' .lev/pm/workstreams/*/captures .lev/pm/decisions`) → none | found {path}; this is new because {reason}. Logged: `.lev/pm/decisions/{date}-{slug}.yaml`.
 ```
 
 ```text
 **Your turn:**
-1. Where the legal material lives: the private repo for Josh must not carry files he may not see. I recommend a submodule history, because it takes the force-push out of the plan; Josh clones leviathan, never inits the legal submodule, and sees no contract. With no answer, I keep the release held on this item.
-   Experts: release engineering: never rewrite shared history to remove a file (Git documentation on history rewriting) · legal operations: keep restricted material in a store with its own access list.
+1. **Where the legal material lives.** The private repo for Josh must not carry files he may not see.
+   a. A submodule history: no force-push; Josh clones leviathan, never inits the legal submodule, and sees no contract.
+   b. Rewrite history to remove the files: one repo, but a force-push on shared history.
+   Recommend a: well researched, based on 2 experts (release engineering: never rewrite shared history to remove a file, Git documentation on history rewriting; legal operations: keep restricted material in a store with its own access list). With no answer, I keep the release held on this item.
    Searched first: 155 captures, 554 decisions (`grep -ril 'legal' .lev/pm/workstreams/*/captures .lev/pm/decisions`) → none. Logged: `.lev/pm/decisions/20261030-legal-material-home.yaml`.
 ```
 
