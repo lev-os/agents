@@ -60,9 +60,7 @@ Started an Opus worker on the state loader test · opus 5.5 high · task 9f2c ·
 First problem seen: targets/machine.ts exports no fixture; the brief has the worker add one.
 Nothing lands until I rerun `pnpm --dir core/state exec vitest run loader.machine.test.ts` myself. Recorded: capture `.lev/pm/workstreams/oss-projection/captures/20261030T054500Z-loader-go.yaml`, handoff `.lev/pm/handoffs/20261030-private-release-josh.yaml`.
 
-**Doing now:** the loader worker; I read its first report at 06:00Z.
-
-**Next:** Brief the install runbook slice on one Opus worker, after the loader lands.
+**My plan (I do this unless you stop me):** Read the loader worker's first report at 06:00Z. Brief the install runbook slice on one Opus worker, after the loader lands.
 ---
 🧙🏽‍♂️ **[lev://mesh]** oss-projection | ⚡ ACTIVE: loader slice running | manifesting 🔨
 ```
