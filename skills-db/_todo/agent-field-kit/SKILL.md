@@ -75,6 +75,46 @@ Use these as focused skills instead of bloating this router:
 2. Keep baseline tool guidance short; load leaf skills only for niche workflows.
 3. Treat Docker smoke tests as the truth surface for remote parity.
 4. Prefer best-effort portability over perfect package-manager coverage in v1.
+5. On VPS/container gateways, identify the service user and HOME before auth/install work; cron, gateway, and SSH users may differ.
+
+## Headless service-user setup
+
+When wiring tools for a VPS, container, gateway, or scheduler, use a single managed env file sourced by shell profiles instead of scattering `PATH` edits. Authenticate browser/cookie-based CLIs under the same HOME that future cron/gateway jobs will use. See [headless-service-user-env.md](references/headless-service-user-env.md) for the exact playbook, verification commands, and cron wrapper pitfall.
+
+## Remote Access Playbook (from OpenClaw, Wave 6 — oc-04)
+
+When the agent needs to reach a remote machine (air-gapped dev box, team server, cloud VM):
+
+### Option 1: Tailscale (recommended for persistent sessions)
+
+```bash
+brew install tailscale
+sudo tailscale up
+# Assigns stable DNS: hostname.tailnet.name
+ssh user@hostname.tailnet.name
+```
+
+Tailscale handles NAT traversal, MagicDNS, and auth without port forwarding setup.
+
+### Option 2: Docker + SSH
+
+```bash
+docker run -d -p 2222:22 --name agent-box ubuntu:24.04
+ssh -p 2222 user@localhost
+```
+
+Preferred for ephemeral sandboxes — disposable, reproducible, port-forwarded.
+
+### Option 3: Trusted proxy gateway
+
+```bash
+curl -X POST http://gateway.local/register \
+  -d '{"agent_id": "...", "capabilities": ["exec", "flow"]}'
+```
+
+Use when multiple agents share a managed gateway with unified auth.
+
+Source: `.lev/pm/parity/openclaw.yaml`
 
 ## Remote Access Playbook (from OpenClaw, Wave 6 — oc-04)
 
@@ -114,5 +154,6 @@ Source: `.lev/pm/parity/openclaw.yaml`
 ## Files in This Skill
 
 - `references/tool-bundle.md` — install matrix and per-tool usage guidance
+- `references/headless-service-user-env.md` — VPS/container service-user PATH, auth handoff, and cron wrapper playbook
 - `scripts/install.sh` — portable installer
 - `scripts/smoke-test.sh` — clean-room Docker validation

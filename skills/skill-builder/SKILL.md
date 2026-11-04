@@ -676,3 +676,7 @@ Load `references/techniques.yaml` when `author_refactor` or `--audit` needs
 concrete examples of prolepsis, positioned validation or procedural chains.
 Validate that pointer and the referenced example before relying on it; the
 reference is reusable detail, not a hidden runtime dependency.
+
+## Field notes from Hermes
+
+- [satellite-skill-catalogs](references/satellite-skill-catalogs.md)

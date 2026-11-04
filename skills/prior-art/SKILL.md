@@ -197,6 +197,34 @@ Trace each claim to its original source, not to a later summary, handoff, or rep
 
 **On failure:** Quarantine claims the inspected originals do not support: name each as unsupported with the scope searched, keep it out of `Verified`, and withdraw every conclusion or next step that depended on it.
 
+## Archive normalization completeness audits
+
+When the question is whether a normalized archive contains enough source text for semantic comparison, audit the lineage and the transformation—not just the normalized row count.
+
+- Follow state/receipt pointers to the exact raw archive and fingerprint before searching for alternatives.
+- Count rows and unique source IDs separately; distinguish repeated file references from duplicate content.
+- Check whether file objects carry bodies or only title/name fallbacks, and inspect the normalizer for excerpt limits.
+- Inspect ZIP members in place and compare normalized IDs, raw file references, and downloaded member IDs in both directions.
+- Separate receipt scope (for example, one channel) from workspace scope, including DMs and other channels.
+- For meeting/huddle artifacts, distinguish exported AI notes from actual transcripts or recordings. A transcript URL does not prove the transcript exists locally.
+- Return exact paths, exact object/file counts, and the strongest completeness limitation before suggesting downstream comparison.
+
+Use `references/archive-normalization-completeness.md` for the full checklist, Slack huddle caveats, and reporting contract.
+
+## Deep framework / runtime surface audits
+
+When the question is whether an external framework is doing something comparable to Lev's abstract hooks, MCP projection, agent CLI config, or capability contracts, do **not** reduce the answer to a small feature-count matrix. First inspect the framework's actual extension/config primitives:
+
+- declarative specs or YAML/JSON config loaders
+- abstract capability/base-class methods
+- hook phases and wrap/error variants
+- MCP local/native/client/server surfaces
+- toolset/provider-native/deferred-loading behavior
+- CLI/process/config projection vs framework-owned runtime commands
+- policy/evidence/result envelope concepts
+
+Use `references/runtime-capability-surface-audits.md` for the checklist and the Pydantic AI 2.0 lesson. Prefer a grouped surface map with evidence paths over a toy row count.
+
 ## Guardrails
 
 - Return the report inline. Save a file only when the user or the invoked workflow authorizes saving; then human-facing prose goes in Markdown, configuration and machine declarations in YAML, and runtime state in JSON.

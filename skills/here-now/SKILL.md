@@ -27,6 +27,14 @@ For repo-pinned/project-local installs, run the same command without `-g`.
 
 Outputs the live URL (e.g. `https://bright-canvas-a7k2.here.now/`).
 
+## Privacy gate for internal material
+
+Before publishing task queues, operational dashboards, customer information, or other internal material, establish whether the destination provides **access control** or merely an unlisted URL. Run `./scripts/publish.sh --help` rather than assuming a privacy flag exists.
+
+- If the publisher exposes only an externally reachable URL, ask the user to explicitly approve that exposure before publishing internal content.
+- Do not treat an unlisted slug as private or access-controlled.
+- If external sharing is not approved, keep the rendered artifact local, send it as a file, or use the requested internal destination instead.
+
 Under the hood this is a three-step flow: create/update -> upload files -> finalize. A site is not live until finalize succeeds.
 
 Without an API key this creates an **anonymous site** that expires in 24 hours.
@@ -96,12 +104,30 @@ Before creating or updating sites, you may check this file to find prior slugs.
 Treat `.herenow/state.json` as internal cache only.
 Never present this local file path as a URL, and never use it as source of truth for auth mode, expiry, or claim URL.
 
+**Repo hygiene:** because the state file is written relative to the current working directory, publishing from inside a git checkout can leave an untracked `.herenow/` directory. If the repo should remain clean, either run the publish command from a neutral scratch directory or remove unneeded `.herenow/state.json` after recording the `publish_result.*` lines. Never commit `.herenow/state.json`; it may contain anonymous claim tokens.
+
+## Internal review bundles
+
+For publishing an evidence-backed review reader from internal operational or product material, use [references/internal-review-bundles.md](references/internal-review-bundles.md). It covers source-of-truth labeling, evidence caveats, approval, and post-publish QA.
+
+## Live publish QA
+
+When the user asks to render, QA, republish, verify, or otherwise ship a page/report, do not stop at producing a URL. Follow the live QA pattern in [references/live-publish-qa.md](references/live-publish-qa.md): publish, open the deployed `siteUrl`, confirm the expected updated content appears, check the browser console, and use a visual pass for design/report pages.
+
+Minimum verification evidence before finalizing:
+
+- Browser-loaded live `siteUrl`, not just local files.
+- Expected title/heading/nav/section from the latest update is present.
+- Browser console has no material JavaScript errors, or errors are reported explicitly.
+- For visual pages, a screenshot/vision pass confirms no obvious layout breakage.
+
 ## What to tell the user
 
 - Always share the `siteUrl` from the current script run.
 - Read and follow `publish_result.*` lines from script stderr to determine auth mode.
 - When `publish_result.auth_mode=authenticated`: tell the user the site is **permanent** and saved to their account. No claim URL is needed.
 - When `publish_result.auth_mode=anonymous`: tell the user the site **expires in 24 hours**. Share the claim URL (if `publish_result.claim_url` is non-empty and starts with `https://`) so they can keep it permanently. Warn that claim tokens are only returned once and cannot be recovered.
+- Include concrete QA evidence in the final reply when QA was requested: live URL loaded, content/section verified, console status, and visual/layout status.
 - Never tell the user to inspect `.herenow/state.json` for claim URLs or auth status.
 
 ## Limits

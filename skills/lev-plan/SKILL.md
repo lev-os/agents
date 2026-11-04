@@ -712,3 +712,10 @@ directly. Planning approval is not execution authority.
 - "The harness or receipt is missing, so implementation is blocked."
 - "Every slice is held, but the map is still approved."
 - "No current contract declares that evaluator, so the packet can define it inline or drop the claim."
+
+## Field notes from Hermes
+
+- [plan-first-sdlc-discovery](references/plan-first-sdlc-discovery.md)
+- [sdlc-adapter-convergence-planning](references/sdlc-adapter-convergence-planning.md)
+- [sparse-taxonomy-gate-shaping](references/sparse-taxonomy-gate-shaping.md)
+- [substrate-first-follow-up-planning](references/substrate-first-follow-up-planning.md)

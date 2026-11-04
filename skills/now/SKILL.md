@@ -187,3 +187,14 @@ python3 scripts/feedback-answers.py .lev/now/{slug}.json          # read the cur
 ## Report
 
 After non-published output, give the local HTML path, a brief mapping from requirements to the page's parts, and the QA evidence: the views and images you read, the measured values, the fixes, and the gaps you could not check. For published output, report only the published URL.
+
+## Field notes from Hermes
+
+- [audit-plan-publish-pages](references/audit-plan-publish-pages.md)
+- [integration-dry-run-status-pages](references/integration-dry-run-status-pages.md)
+- [markdown-analysis-pages](references/markdown-analysis-pages.md)
+- [parity-gap-implementation-pages](references/parity-gap-implementation-pages.md)
+- [renderspec-validation-debugging](references/renderspec-validation-debugging.md)
+- [research-intake-publish-pages](references/research-intake-publish-pages.md)
+- [research-reference-sidecar-publish](references/research-reference-sidecar-publish.md)
+- [slack-pass2-pass3-readonly-pages](references/slack-pass2-pass3-readonly-pages.md)

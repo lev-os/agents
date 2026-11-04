@@ -78,3 +78,7 @@ requirements and current evidence live in [qualification](references/evaluation.
 
 Load [tool catalog](references/tool-catalog.md) only when inspecting capability
 availability. Catalog discovery does not authorize changing provider order.
+
+## Field notes from Hermes
+
+- [ai-agent-notifications-billing](references/ai-agent-notifications-billing.md)

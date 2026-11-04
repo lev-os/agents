@@ -128,6 +128,16 @@ If the user asks "what would you edit", "show me", "audit", "plan", "pass2",
 and proposed changes only. Write artifacts only when the user explicitly asks
 to apply, edit, patch, emit, or create a durable capture.
 
+## Source / wiki intake capture
+
+When capturing source material into a wiki, hybrid brain, or company knowledge base:
+
+- Preserve raw source/provenance first, then analyze or summarize. Keep generated synthesis separate from immutable source receipts.
+- Classify the destination by workspace/company and record type before writing durable pages.
+- Do not turn facets such as strategy, ops, decisions, meetings, GTM, sales, or clients into top-level folders by default. Treat them first as page types, tags/facets, structured records, report sections, review-queue items, or source receipts.
+- Only create durable folder structure when the repo-local router or user explicitly defines that surface.
+- Draft conversation is not wiki truth until the user accepts the artifact or explicitly says to add it to the wiki/brain.
+
 ## Protocol
 
 ```yaml
@@ -276,6 +286,35 @@ delta; `--full`, audit, and debug may render the complete table.
 No route can advance if a row has `current_location: memory` without a blocker
 or planned destination. This prevents hidden in-chat state from being mistaken
 for durable work.
+
+## Analysis Extension Captures
+
+When the user asks to capture and extend an analysis thread, do not leave the improvement only in chat or only in an ignored/raw workshop artifact. Create a readable analysis companion, cross-link it from the nearest roadmap/analysis docs, and write a durable `.lev/pm/workstreams/<ws>/captures/YYYYMMDD-*.yaml` ledger with compiled intent, route state, QA seed, blockers, fidelity, and next route. If the user requested a numbered structure such as "10 must / 10 must-not", verify section presence and counts before closing.
+
+See `references/analysis-extension-capture-pattern.md` for the detailed pattern and verification checklist.
+
+## Repository rename inventory captures
+
+When asked to assess or record a repository rename, build a durable YAML ledger *before* changing names. Inventory structural identifiers separately from active prose, historical evidence, external identity, Office/binary artifacts, and ignored/runtime material. A raw hit count is discovery evidence, not a list of approved substitutions.
+
+If the requested target spelling conflicts with an existing repository canonical name or partially completed migration, make the spelling decision a blocking, explicit ledger gate. Do not make a second structural rename, rewrite source evidence, or globally replace external URLs/IDs until the operator confirms the target.
+
+Validate the YAML and inspect the Git delta; until the gate is resolved, the ledger should be the only repository mutation. See [references/repository-rename-ledger.md](references/repository-rename-ledger.md) for the schema, bucket definitions, and verification steps.
+
+## Secret-backed runtime handoffs
+
+When an operational handoff involves credentials injected into an agent/container environment, capture **four separate contracts**: host secret-variable names, the consumer tool's expected names/format, a child-process-only activation mapping, and the durable encrypted-cache/keyring location used by later scheduled runs. Never capture values or raw environment files.
+
+Verification must distinguish:
+
+1. non-empty host-variable names (without printing values),
+2. successful activation/import under the intended user and `HOME`,
+3. non-secret cache/workspace discovery, and
+4. a later bounded operational proof plus its heartbeat.
+
+A successful activation alone is not evidence that a future export or cron run works. If host and consumer variable names differ, document the scoped aliasing explicitly; do not create persistent aliases in repo files, profiles, or cron arguments. Keep unrelated credential namespaces separate in the capture.
+
+See [references/secret-backed-runtime-handoff.md](references/secret-backed-runtime-handoff.md) for the reusable protocol and a Slackdump-specific example.
 
 ## Durable Artifact
 
