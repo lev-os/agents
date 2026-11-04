@@ -21,7 +21,7 @@ Before adding test, answer:
 4. Export, flag, wrapper, injection hook with no production caller needed?
    Move proof to real boundary instead.
 
-- Use [boundary and cost guide](../../../docs/help/testing/writing-tests.md).
+- Use [boundary and cost guide](references/upstream-context/writing-tests.md).
 - Regressions must fail pre-fix for intended reason, pass after repair; report
   unavailable baseline proof.
 - One owner regression covers bug; never replay at every crossed layer.
@@ -51,7 +51,7 @@ Before adding test, answer:
 - Before audit edit: read [candidate evidence and workflow](references/audit.md#candidate-evidence);
   inspect full owners/callers/history; record remaining proof before deletion.
 - Delete obsolete production seams with tests; never optimize for deletion counts.
-- Follow [proof policy](../openclaw-testing/SKILL.md#proof-policy); preserve active
+- Follow [proof policy](references/upstream-context/openclaw-testing-SKILL.md#proof-policy); preserve active
   Vitest checkouts; run owner/sibling proof + changed checks; then autoreview.
 - Report causes, retained contracts, proof/cost, production versus test LOC,
   follow-ups. Commit/push/land only with task authority.

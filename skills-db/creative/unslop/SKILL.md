@@ -1,6 +1,6 @@
 ---
 name: unslop
-description: Use when a screen looks vibecoded or AI-made (purple gradients, glows, gradient text, emoji labels, uneven spacing, shouty copy) and needs to become a designed screen, or when the user asks to unslop a page or make an unslop story video.
+description: Reference for Impeccable when a screen looks vibecoded or AI-made (purple gradients, glows, gradient text, emoji labels, uneven spacing, shouty copy). The creative hub sends that job to Impeccable; load this package for its list of AI tells or to make an unslop story video.
 license: CC BY 4.0
 ---
 
@@ -12,7 +12,7 @@ Contents: [With Impeccable](#with-impeccable) · [What good looks like](#what-go
 
 ## With Impeccable
 
-This package adapts unslop by Damir Sokolovsky, source https://github.com/heydamir/unslop at commit 4652254, CC BY 4.0 ([license](LICENSE)). Changes from the source: file paths now point into this package, and this section maps the method onto Impeccable's setup, modes and craft floor. Impeccable is a sibling package at `../impeccable/`; this package routes from the creative hub and stays out of Impeccable so Impeccable updates replace nothing here. The method below is otherwise the source text.
+This package adapts unslop by Damir Sokolovsky, source https://github.com/heydamir/unslop at commit 4652254, CC BY 4.0 ([license](LICENSE)). Changes from the source: file paths now point into this package, and this section maps the method onto Impeccable's setup, modes and craft floor. Impeccable is a sibling package at `../impeccable/`; the creative hub sends AI-looking screens to Impeccable, which loads this package for its signs list and story video (JP 2026-11-03, after Impeccable alone won the 2026-11-02 trial). This package stays out of Impeccable so Impeccable updates replace nothing here. The method below is otherwise the source text.
 
 - **Setup still runs first.** Run Impeccable's Setup step 1 (`<skill-base-dir>/../impeccable/scripts/impeccable context` with cwd at the user's project) before the audit. When the target is local HTML or CSS, also run `<skill-base-dir>/../impeccable/scripts/impeccable detect --json <target>` once and add its hits to the audit list with their locations.
 - **Mode mapping.** The source's "apps and dashboards" rules are Operate rules. Its "landing page" and hero rules are Persuade rules. For Read and Experience surfaces, apply the passes but take the visual and layout rules from the matching mode guidance.
