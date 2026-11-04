@@ -24,8 +24,8 @@ Done when every thread updated in the window and every checkout with commits in 
 2. **Count.** Count the messages and the worker updates after the start; with a window, also the threads updated and the commits per checkout. Done when the counts sit in the "What happened" line with the positions read.
 3. **Answer first.** JP's last question gets its answer in the first line.
 4. **Fold.** Fold worker updates into 3 to 6 events, oldest first, each with a sha, a path:line or a link. Updates bury replies when listed one by one (JP 2026-10-06, `.lev/pm/workstreams/agent-runtime-convergence/captures/20261006T234702Z-explain-missed-messages-updates-bury-replies.yaml`).
-5. **Decisions.** Quote each decision made with its date and file. Decisions that wait on JP go first in Next steps, each in the Decision shape (`SKILL.md` §7 Decision).
-6. **Progress.** One segment per stage from the handoff's `stages` key. A stage is ✅ only when your rerun verified it (`~/.claude/skills/explain/SKILL.md:203-215`).
+5. **Decisions.** Quote each decision made with its date and file. Decisions that wait on JP go under **Open items for you**, each in the Open item shape (`SKILL.md` §7 Decision).
+6. **Progress.** The template's milestone bar: one segment per stage from the handoff's `stages` key. A stage is ✅ only when your rerun verified it (`~/.claude/skills/explain/SKILL.md:203-215`).
 7. **Coverage.** Name the positions read and every item not read.
 
 Done when every item after the start is either in a bullet or named under "Not read".
@@ -39,24 +39,20 @@ The private release for Josh is sequenced and the loader slice runs; one ruling 
 - The six-owner foundation landed on main · da1f61f85e
 - The loader worker started; evidence folder named · handoff 20261030-private-release-josh.yaml
 - The lev-ceo skill home was decided: a global skill · .lev/pm/decisions/20261030-lev-ceo-skill-home.yaml (a)
-**Decisions**: made: lev-ceo skill home · 2026-10-30 · a · waiting on you: 1, first in Next steps
-**Progress**: [✅ 🟡 ⬜ ⬜ ⬜ ⬜] 1/6 verified by my rerun
+**Decisions**: made: lev-ceo skill home · 2026-10-30 · a · waiting on you: 1, under Open items
 **Not read**: the loader worker's full log
 
-**🪄 Next steps:**
+🎯 **Goal:** Josh installs Lev from the private repo, done when the install runbook passes on a clean machine
+[✅🟡⬜⬜⬜⬜] 1/6 milestones verified
 
-## 1 · Where the legal material lives 📜
-The private repo for Josh must not carry files he may not see.
-Searched first: 155 captures, 554 decisions (`grep -ril 'legal' .lev/pm/workstreams/*/captures .lev/pm/decisions`) → none.
-- a. A submodule history: no rewrite.
-- b. Leviathan history: a force-push, on your word.
-- c. Nowhere that matters: close the item.
+**Doing now:** the loader worker; it reports at 06:00Z.
 
-I recommend (a): it takes the force-push out of the plan. Example: Josh clones leviathan and never sees a contract. Logged: `.lev/pm/decisions/20261030-legal-material-home.yaml`. (L2)
+**Open items for you:**
+1. Where the legal material lives: the private repo for Josh must not carry files he may not see. I recommend a submodule history, because it takes the force-push out of the plan; Josh clones leviathan and never sees a contract. With no answer, I keep the release held on this item.
+   Experts: release engineering: never rewrite shared history to remove a file (Git documentation on history rewriting).
+   Logged: `.lev/pm/decisions/20261030-legal-material-home.yaml`.
 
-## 2 · Read the loader worker's first report at 06:00Z ⏱️ (L1)
-## 3. All: 1 -> 2
-## 4. ⬅️ **Back** - Return to lev > mesh
+**Next:** Read the loader worker's first report at 06:00Z.
 ---
 🧙🏽‍♂️ **[lev://mesh]** oss-projection | ⚡ WAITING ON JP: legal material home ruling | crystallizing 🔍
 ```
