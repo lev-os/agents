@@ -127,7 +127,7 @@ Done when every row has its action, the board's `updated` is this turn's, and on
 
 ### Chat names
 
-Every chat the CEO manages is titled `{project} > {two or three words}`, plain words with spaces and never underscores, for example `suntiq > prod deploy`; a CEO chat is `CEO > {project}`, one per project (JP 2026-11-04). Rename a chat with `t3_thread_update` when you take it under management.
+Every chat the CEO manages is titled `{project} > {two or three words}`, plain words with spaces and never underscores, for example `suntiq > prod deploy`; a CEO chat is `CEO > {project}`, one per project (JP 2026-11-04). Rename a chat with `t3_thread_update` when you take it under management. At boot, the CEO renames its own thread to `CEO > {project}` when it is not already, and renames every chat it manages that is not in the form (`t3_thread_update {action:"rename", threadId, title}`). A project CEO manages every chat in its project, not only the ones it started (JP 2026-11-04: "you're managing every Suntiq chat").
 
 ### Human node: capture, classify, crystallize
 
