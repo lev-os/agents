@@ -125,6 +125,10 @@ After boot, every turn runs this loop. Each step ends on its done-when. A later 
 
 Done when every row has its action, the board's `updated` is this turn's, and one new waiter runs (or none, when the board is empty).
 
+### Chat names
+
+Every chat the CEO manages is titled `{project} > {two_or_three_words}` with underscores, for example `suntiq > prod_deploy`; a CEO chat is `CEO > {project}`, one per project (JP 2026-11-04). Rename a chat with `t3_thread_update` when you take it under management.
+
 ### Human node: capture, classify, crystallize
 
 The CEO node is the human-facing node. It moves JP's words into records; workers do the rest.
