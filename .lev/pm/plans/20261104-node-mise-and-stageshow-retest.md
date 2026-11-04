@@ -23,7 +23,7 @@ State: disk: this file; confidence medium; blocker none.
 Every S1, S2, S3 and S4 row passed after its last edit. Open for JP, not blocking this goal:
 - Hub routing for mock product shots, now that the retest favours Impeccable (decision `20261103-creative-hub-after-trial`, mock_product_shots).
 - After the next T3 restart: move the old Homebrew global tools (`/opt/homebrew/lib/node_modules`, this Mac and MacBook) to the Trash.
-- MacBook: `sudo chown -R` on `~/Library/pnpm`; move `~/.nvm` to the Trash after 2026-11-11; decide on birdclaw (keeps Homebrew `node` unlinked).
+- MacBook: `sudo chown -R` on `~/Library/pnpm` done by JP 2026-11-03 (checked: owner jean-patricksmith, 0 files owned by anyone else); move `~/.nvm` to the Trash after 2026-11-11 (T3 scheduled task "MacBook ~/.nvm to Trash on 2026-11-11", Wednesdays 10:00); birdclaw: JP 2026-11-03 "yea stay outta there". Homebrew `node` stays installed and unlinked; birdclaw calls it by full path.
 - `~/.zshenv` on this Mac holds two plain-text tokens (not in chezmoi).
 
 ### Findings (S0, this Mac, 2026-11-04)
