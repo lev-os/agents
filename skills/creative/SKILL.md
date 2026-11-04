@@ -20,9 +20,9 @@ by path; the full list is the [package index](../../skills-db/creative/README.md
 | --- | --- | --- |
 | Research, personas, journeys, flows, wireframes, page structure, onboarding audit, CLI UX | ux | [ux](../ux/SKILL.md) |
 | Build, review, polish or harden product UI; design systems and DESIGN.md; native screens | impeccable | [impeccable](../impeccable/SKILL.md) |
-| A screen that looks vibecoded or AI-made, made into a designed screen | unslop | [unslop](../../skills-db/creative/unslop/SKILL.md) |
+| A screen that looks vibecoded or AI-made, made into a designed screen | impeccable | [impeccable](../impeccable/SKILL.md), plus the unslop [signs list](../../skills-db/creative/unslop/references/signs.md); for a before-and-after video, the [unslop story video](../../skills-db/creative/unslop/SKILL.md#story-video) |
 | A new landing page or portfolio with a strong visual direction | taste-skill | [taste-skill](../taste-skill/SKILL.md) |
-| Mock product UI for marketing: hero stills, feature cards, cursor demos, bento grids | stageshow | [stageshow](../../skills-db/creative/stageshow/SKILL.md) |
+| Mock product UI for marketing: hero stills, feature cards, cursor demos, bento grids | stageshow and impeccable, both | Two variants: one from [stageshow](../../skills-db/creative/stageshow/SKILL.md), one from [impeccable](../impeccable/SKILL.md). Show them side by side; the user picks |
 | Product films, launch videos, explainers, logo stings, kinetic type | motion-graphics | [motion-graphics](../motion-graphics/SKILL.md) |
 | Video in React code | remotion | [remotion-best-practices](../../skills-db/creative/remotion-best-practices/SKILL.md) |
 | Architecture, workflow, sequence, data-flow or state diagrams | archify | [archify](../archify/SKILL.md) |
@@ -38,11 +38,12 @@ by path; the full list is the [package index](../../skills-db/creative/README.md
 
 - **Landing page.** taste-skill sets the direction for a new page. impeccable
   owns an existing product's page, using its persuade mode.
-- **Slop.** unslop owns AI-looking screens. AI-looking code goes to
+- **Slop.** impeccable owns AI-looking screens and uses the unslop signs list as
+  its checklist. AI-looking code goes to
   `ai-slop-cleaner`, AI-sounding prose goes to `writing`; neither is design.
 - **Animation.** Motion inside a screen (hover, transitions, micro-interactions)
   is impeccable `animate`. A film or a loop someone watches is motion-graphics.
-  A mock product demo with a cursor is stageshow.
+  A mock product demo with a cursor runs both variants.
 - **Audit.** A product-quality or onboarding scorecard is ux `--craft`. A visual
   and code audit of screens is impeccable `audit` or `critique`.
 - **Page versus chart versus diagram.** now owns the page; it loads dataviz for

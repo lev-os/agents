@@ -106,7 +106,7 @@ The [creative hub](../../skills/creative/SKILL.md) routes design work to these p
 | [remotion-best-practices](remotion-best-practices/SKILL.md) | Existing package |
 | [remotion-render](remotion-render/SKILL.md) | Existing package |
 | [scroll-world](scroll-world/SKILL.md) | Existing package |
-| [stageshow](stageshow/SKILL.md) | Imported from benjitaylor/skills at 8020574 (MIT); security scan 2026-11-02 found only lockfile hash false positives; behaviour unqualified |
+| [stageshow](stageshow/SKILL.md) | Imported from benjitaylor/skills at 8020574 (MIT); security scan 2026-11-02 found only lockfile hash false positives; local change: realistic content by default (2026-11-03); one of two variants for mock product shots, beside Impeccable |
 | [superdesign-prompt-library](superdesign-prompt-library/SKILL.md) | Existing package |
 | [swift-concurrency](swift-concurrency/SKILL.md) | Existing package |
 | [swift-game-engine](swift-game-engine/SKILL.md) | Existing package |
@@ -120,7 +120,7 @@ The [creative hub](../../skills/creative/SKILL.md) routes design work to these p
 | [tui-glamorous](tui-glamorous/SKILL.md) | Existing package |
 | [tui-inspector](tui-inspector/SKILL.md) | Existing package |
 | [ui-ux-pro-max](ui-ux-pro-max/SKILL.md) | Existing package |
-| [unslop](unslop/SKILL.md) | Adapted from heydamir/unslop at 4652254 (CC BY 4.0); moved out of Impeccable 2026-11-02; uses Impeccable's setup and craft floor |
+| [unslop](unslop/SKILL.md) | Adapted from heydamir/unslop at 4652254 (CC BY 4.0); moved out of Impeccable 2026-11-02; since 2026-11-03 a reference Impeccable loads for its signs list and story video |
 | [vfx-spell-effects](vfx-spell-effects/SKILL.md) | Existing package |
 | [visual-explainer](visual-explainer/SKILL.md) | Existing package |
 | [web-design-guidelines](web-design-guidelines/SKILL.md) | Existing package |
