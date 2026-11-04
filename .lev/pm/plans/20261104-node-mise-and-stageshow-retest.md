@@ -24,7 +24,7 @@ Every S1, S2, S3 and S4 row passed after its last edit. Open for JP, not blockin
 - Hub routing for mock product shots, now that the retest favours Impeccable (decision `20261103-creative-hub-after-trial`, mock_product_shots).
 - After the next T3 restart: move the old Homebrew global tools (`/opt/homebrew/lib/node_modules`, this Mac and MacBook) to the Trash.
 - MacBook: `sudo chown -R` on `~/Library/pnpm` done by JP 2026-11-03 (checked: owner jean-patricksmith, 0 files owned by anyone else); move `~/.nvm` to the Trash after 2026-11-11 (T3 scheduled task "MacBook ~/.nvm to Trash on 2026-11-11", Wednesdays 10:00); birdclaw: JP 2026-11-03 "yea stay outta there". Homebrew `node` stays installed and unlinked; birdclaw calls it by full path.
-- `~/.zshenv` on this Mac holds two plain-text tokens (not in chezmoi).
+- `~/.zshenv` on this Mac holds two plain-text X login tokens (not in chezmoi); the MacBook never had them. JP 2026-11-03 "remove the tokens on both machines": the command guard blocks the edit, so JP runs the delete line. JP 2026-11-04 "2b" (stop relying on bird): `LAST30DAYS_HOST=grok-bot` in `~/.config/last30days/.env` on both Macs (official sources only: X API, then xAI, then xurl; doctor reports "will use: xai"); the MacBook's xAI key copied into that file; xurl 1.3.4 installed on both and added to chezmoi `dot_default-npm-packages` (27bf492b). Waits on JP: an X developer app with credits and a spending limit, then its bearer token.
 
 ### Findings (S0, this Mac, 2026-11-04)
 - `node` = Homebrew 26.12.1; also Homebrew `node@24` (for qmd) and an unused Homebrew `nvm`; `~/.nvm` absent; `.zshrc` sources a missing `~/.nvm/nvm.sh`.
