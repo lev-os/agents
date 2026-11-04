@@ -11,7 +11,8 @@
  *         (the explorer build that plugins/now exports), then renames the page and <root>/.lev/now/ceo-board.json
  *         into place together, `updated` from the clock. A thread_link is T3's v2 link (t3-thread://v2/<environment
  *         id>/<thread id>); the angle brackets t3_thread_list wraps it in are dropped. A new project name warns on
- *         stderr. Any error: one line on stderr (one per validation error), exit 1, nothing written.
+ *         stderr. Any error: one line on stderr (one per validation error), exit 1, nothing written; when the page
+ *         went in and the board rename failed, the line says "page written, board not".
  * answers Reads the answers file, keeps page_id "ceo-board", keeps the newest `at` per item over the whole file, and
  *         reports only winners past --since (a line count, or an ISO 8601 time with Z or ±hh:mm). Each is matched
  *         against the items (by choice id, else by label). Prints {answers_file, lines, rows, skipped}; `lines` is
@@ -37,6 +38,11 @@ const EXPLORER_BUILD = "plugins/now/scripts/build-entity-explorer.ts";
 const USAGE = "usage: board.mjs write --input <items.json> [--project <name>] [--server <url>] | answers --since <ISO time with zone | lines> [--items <items.json>] | check   (each takes [--root <dir>])";
 /** The one link form the board stores: T3's own v2 link, as t3_thread_list returns it. */
 export const THREAD_LINK_PREFIX = "t3-thread://v2/";
+/**
+ * T3 opens a v2 link only with both parts: t3-thread://v2/<environment id>/<thread id>. The thread id is kept as
+ * written (it may hold percent escapes such as command%3Amcp); a space, a quote or an angle bracket ends a link.
+ */
+export const THREAD_LINK = /^t3-thread:\/\/v2\/[^/\s"<>]+\/[^\s"<>]+$/;
 /** An ISO 8601 time with its zone: Z or ±hh:mm. */
 const ZONED_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/;
 
@@ -54,7 +60,7 @@ const boardPath = (root) => join(root, ".lev", "now", "ceo-board.json");
 
 const ISO = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?)?$/;
 const text = (v) => typeof v === "string" && v.trim() !== "";
-/** t3_thread_list returns `<t3-thread://v2/...>`; the board keeps the link inside the brackets. */
+/** t3_thread_list returns `<t3-thread://v2/...>`; the board keeps the link inside one pair of brackets. */
 export const bareLink = (v) => (typeof v === "string" && /^<.*>$/.test(v.trim()) ? v.trim().slice(1, -1) : v);
 const firstLine = (e) => String(e?.message ?? e).split("\n")[0];
 
@@ -86,7 +92,7 @@ export function validateItems(items) {
       errors.push(`${at}: since must be an ISO date, e.g. 2026-11-04T04:00:00Z`);
     }
     const link = bareLink(item.thread_link);
-    if (link !== undefined && link !== null && !(typeof link === "string" && link.startsWith(THREAD_LINK_PREFIX) && link.length > THREAD_LINK_PREFIX.length)) {
+    if (link !== undefined && link !== null && !(typeof link === "string" && THREAD_LINK.test(link))) {
       errors.push(`${at}: thread_link must be the thread's v2 link from t3_thread_list (${THREAD_LINK_PREFIX}<environment id>/<thread id>), or be absent`);
     }
   });
@@ -145,19 +151,21 @@ async function write(args) {
   const pageTmp = `${pageFile}.${process.pid}.tmp`;
   const boardTmp = `${file}.${process.pid}.tmp`;
   let page;
+  let pageMoved = false;
   try {
     const draft = join(scratch, "ceo-board.json");
     writeFileSync(draft, json, "utf8");
     const built = await buildExplorer(root, draft);
     if (built) writeFileSync(pageTmp, built.html, "utf8");
     writeFileSync(boardTmp, json, "utf8");
-    if (built) renameSync(pageTmp, pageFile);
+    if (built) { renameSync(pageTmp, pageFile); pageMoved = true; }
     renameSync(boardTmp, file);
     page = built
       ? { rebuilt: true, html: pageFile, bytes: built.html.length, board_cards: built.board_cards, board_note: built.board_note }
       : { rebuilt: false, why: `no ${EXPLORER_BUILD} under ${root}` };
   } catch (e) {
-    return fail(`write: nothing written: ${firstLine(e)}`);
+    // The page went in before the board failed: say so, so the CEO node knows the page shows cards the board lacks.
+    return fail(`write: ${pageMoved ? "page written, board not" : "nothing written"}: ${firstLine(e)}`);
   } finally {
     for (const p of [pageTmp, boardTmp, scratch]) rmSync(p, { recursive: true, force: true });
   }

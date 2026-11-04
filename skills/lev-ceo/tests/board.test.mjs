@@ -1,26 +1,34 @@
 // Run: node --test ~/.agents/skills/lev-ceo/tests/*.test.mjs   (Node 24 reads a bare folder as a file name)
-// Every case runs the board command line in a temp folder, with XDG_STATE_HOME pointed at a temp folder,
-// so the real answers file and the real board are never read or written.
+// Every case runs the board command line in a temp folder, with XDG_STATE_HOME and TMPDIR pointed inside it,
+// so the real answers file and the real board are never read or written. afterEach removes each folder setup() made.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { test } from "node:test";
+import { afterEach, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
 const SCRIPT = join(dirname(fileURLToPath(import.meta.url)), "..", "scripts", "board.mjs");
 
+const made = [];
+afterEach(() => { for (const root of made.splice(0)) rmSync(root, { recursive: true, force: true }); });
+
 function setup() {
   const root = mkdtempSync(join(tmpdir(), "board-test-"));
+  made.push(root);
   mkdirSync(join(root, ".lev", "now"), { recursive: true });
   const state = join(root, "state");
-  return { root, state, answers: join(state, "lev", "ceo-board", "answers.jsonl") };
+  const tmp = join(root, "tmp");
+  mkdirSync(tmp);
+  return { root, state, tmp, answers: join(state, "lev", "ceo-board", "answers.jsonl") };
 }
 
+const childEnv = (ctx) => ({ ...process.env, XDG_STATE_HOME: ctx.state, TMPDIR: ctx.tmp });
+
 function run(ctx, ...args) {
-  const r = spawnSync(process.execPath, [SCRIPT, ...args, "--root", ctx.root], { encoding: "utf8", env: { ...process.env, XDG_STATE_HOME: ctx.state } });
+  const r = spawnSync(process.execPath, [SCRIPT, ...args, "--root", ctx.root], { encoding: "utf8", env: childEnv(ctx) });
   return { code: r.status, out: r.stdout, err: r.stderr, json: r.status === 0 && r.stdout ? JSON.parse(r.stdout) : null };
 }
 
@@ -115,7 +123,7 @@ async function freePort(keepOpen) {
 async function runAsync(ctx, ...args) {
   const { spawn } = await import("node:child_process");
   return new Promise((done) => {
-    const child = spawn(process.execPath, [SCRIPT, ...args, "--root", ctx.root], { env: { ...process.env, XDG_STATE_HOME: ctx.state } });
+    const child = spawn(process.execPath, [SCRIPT, ...args, "--root", ctx.root], { env: childEnv(ctx) });
     let out = "";
     child.stdout.on("data", (d) => { out += d; });
     child.on("close", (code) => done({ code, json: code === 0 ? JSON.parse(out) : null }));
@@ -209,4 +217,103 @@ test("answers --since takes only a line count or an ISO time with a zone", () =>
     assert.match(r.err, /ISO 8601 time with a zone/, bad);
   }
   for (const good of ["2026-11-04T04:15:00Z", "2026-11-04T04:15:00.5+05:30", "0"]) assert.equal(run(ctx, "answers", "--since", good, "--items", items).code, 0, good);
+});
+
+/**
+ * A stand-in explorer build: a fake tsx whose tsImport is a plain import, and a build that draws the ids of the
+ * board file it is handed. The page then shows which board it was built from.
+ */
+function fakeExplorer(ctx) {
+  const now = join(ctx.root, "plugins", "now");
+  const api = join(now, "node_modules", "tsx", "esm");
+  mkdirSync(api, { recursive: true });
+  mkdirSync(join(now, "scripts"), { recursive: true });
+  writeFileSync(join(now, "package.json"), JSON.stringify({ name: "now", type: "module" }));
+  writeFileSync(join(now, "node_modules", "tsx", "package.json"), JSON.stringify({ name: "tsx", type: "module", exports: { "./esm/api": "./esm/api.mjs" } }));
+  writeFileSync(join(api, "api.mjs"), "export const tsImport = (url) => import(url);\n");
+  writeFileSync(join(now, "scripts", "build-entity-explorer.ts"), [
+    'import { readFileSync } from "node:fs";',
+    'export const resolveProject = (_name, root) => ({ root, name: "demo" });',
+    'export const collectEntityExplorerData = ({ boardPath }) => ({ waits: { board: JSON.parse(readFileSync(boardPath, "utf8")), board_note: null } });',
+    'export const buildEntityExplorerHtml = (data) => `<p>cards: ${data.waits.board.items.map((i) => i.id).join(",")}</p>`;',
+    "",
+  ].join("\n"));
+}
+
+test("write refuses a v2 link T3 cannot open, and keeps a trimmed bracketed one", () => {
+  const ctx = setup();
+  for (const bad of ["t3-thread://v2/env", "t3-thread://v2/env/", "t3-thread://v2//abc", "t3-thread://v2/env/a b", 't3-thread://v2/env/a"b', "<<t3-thread://v2/env/abc>>"]) {
+    const r = run(ctx, "write", "--input", writeItems(ctx, [{ ...ITEMS[0], thread_link: bad }]));
+    assert.equal(r.code, 1, bad);
+    assert.equal(r.err.trim().split("\n").length, 1, bad);
+    assert.match(r.err, /thread_link must be the thread's v2 link/, bad);
+  }
+  assert.equal(existsSync(join(ctx.root, ".lev", "now", "ceo-board.json")), false);
+  const escaped = "t3-thread://v2/f4c99082/thread:delegated-task:command%3Amcp-1";
+  const ok = run(ctx, "write", "--input", writeItems(ctx, [{ ...ITEMS[0], thread_link: `  <${escaped}>  ` }]));
+  assert.equal(ok.code, 0, ok.err);
+  const board = JSON.parse(readFileSync(join(ctx.root, ".lev", "now", "ceo-board.json"), "utf8"));
+  assert.equal(board.items[0].thread_link, escaped);
+});
+
+test("write builds the page from the new board, then leaves no .tmp file and no scratch folder", () => {
+  const ctx = setup();
+  fakeExplorer(ctx);
+  const now = join(ctx.root, ".lev", "now");
+  writeFileSync(join(now, "ceo-board.json"), JSON.stringify({ updated: "2026-11-01T00:00:00Z", project: "demo", items: [{ id: "old-card" }] }));
+  writeFileSync(join(now, "entity-explorer.html"), "old page");
+  const r = run(ctx, "write", "--input", writeItems(ctx, ITEMS));
+  assert.equal(r.code, 0, r.err);
+  assert.equal(r.json.page.rebuilt, true);
+  assert.equal(r.json.page.board_cards, 2);
+  assert.equal(readFileSync(join(now, "entity-explorer.html"), "utf8"), "<p>cards: node-plan,agent37-box</p>");
+  assert.deepEqual(JSON.parse(readFileSync(join(now, "ceo-board.json"), "utf8")).items.map((i) => i.id), ["node-plan", "agent37-box"]);
+  assert.deepEqual(readdirSync(now).sort(), ["ceo-board.json", "entity-explorer.html"]);
+  assert.deepEqual(readdirSync(ctx.tmp), [], "the scratch folder in the temp folder is gone");
+});
+
+test("write says 'page written, board not' when only the board rename fails, and leaves no .tmp file", () => {
+  const ctx = setup();
+  fakeExplorer(ctx);
+  const now = join(ctx.root, ".lev", "now");
+  mkdirSync(join(now, "ceo-board.json"));
+  writeFileSync(join(now, "ceo-board.json", "keep.txt"), "a folder where the board should be");
+  const r = run(ctx, "write", "--input", writeItems(ctx, ITEMS));
+  assert.equal(r.code, 1);
+  const lines = r.err.trim().split("\n");
+  assert.equal(lines.length, 1, r.err);
+  assert.match(lines[0], /^board: write: page written, board not: /);
+  assert.equal(readFileSync(join(now, "entity-explorer.html"), "utf8"), "<p>cards: node-plan,agent37-box</p>");
+  assert.deepEqual(readdirSync(now).sort(), ["ceo-board.json", "entity-explorer.html"]);
+  assert.deepEqual(readdirSync(join(now, "ceo-board.json")), ["keep.txt"]);
+  assert.deepEqual(readdirSync(ctx.tmp), []);
+});
+
+test("answers counts a bad line as skipped only past the cut", () => {
+  const ctx = setup();
+  const items = writeItems(ctx, ITEMS);
+  mkdirSync(dirname(ctx.answers), { recursive: true });
+  writeFileSync(ctx.answers, ["not json, before the cut", JSON.stringify(tap("node-plan", "go", "Go", "2026-11-04T04:00:00Z")), "not json, past the cut", ""].join("\n"));
+  const r = run(ctx, "answers", "--since", "2", "--items", items);
+  assert.equal(r.code, 0, r.err);
+  assert.equal(r.json.lines, 3);
+  assert.equal(r.json.skipped, 1);
+  assert.equal(run(ctx, "answers", "--since", "0", "--items", items).json.skipped, 2);
+});
+
+test("answers breaks a tie on at by line: the later line wins", () => {
+  const ctx = setup();
+  const items = writeItems(ctx, ITEMS);
+  writeAnswers(ctx, [tap("node-plan", "go", "Go", "2026-11-04T04:00:00Z"), tap("node-plan", "hold", "Hold", "2026-11-04T04:00:00Z")]);
+  const r = run(ctx, "answers", "--since", "0", "--items", items);
+  assert.deepEqual(r.json.rows.map((row) => [row.item_id, row.choice]), [["node-plan", "hold"]]);
+});
+
+test("an error no command catches prints one line and exits 1", () => {
+  const ctx = setup();
+  mkdirSync(ctx.answers, { recursive: true }); // the answers file is a folder: reading it throws EISDIR
+  const r = run(ctx, "answers", "--since", "0", "--items", writeItems(ctx, ITEMS));
+  assert.equal(r.code, 1);
+  assert.equal(r.err.trim().split("\n").length, 1, r.err);
+  assert.match(r.err, /^board: EISDIR/);
 });
