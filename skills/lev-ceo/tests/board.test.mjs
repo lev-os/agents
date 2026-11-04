@@ -1,9 +1,9 @@
-// Run: node --test ~/.agents/skills/lev-ceo/tests/
+// Run: node --test ~/.agents/skills/lev-ceo/tests/*.test.mjs   (Node 24 reads a bare folder as a file name)
 // Every case runs the board command line in a temp folder, with XDG_STATE_HOME pointed at a temp folder,
 // so the real answers file and the real board are never read or written.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -25,7 +25,7 @@ function run(ctx, ...args) {
 }
 
 const ITEMS = [
-  { id: "node-plan", title: "Go on the Node plan", thread_link: "t3-thread://v1/abc", what: "Go or hold.", choices: [{ id: "go", label: "Go" }, { id: "hold", label: "Hold" }], recommended: "go", since: "2026-11-04T00:09:00Z" },
+  { id: "node-plan", title: "Go on the Node plan", thread_link: "t3-thread://v2/env-1/abc", what: "Go or hold.", choices: [{ id: "go", label: "Go" }, { id: "hold", label: "Hold" }], recommended: "go", since: "2026-11-04T00:09:00Z" },
   { id: "agent37-box", title: "An Agent37 box", what: "Yes or no.", choices: [{ id: "yes", label: "Yes" }, { id: "no", label: "No" }] },
 ];
 
@@ -138,4 +138,75 @@ test("check runs with no server, and sees one when it listens", async () => {
   const live = await runAsync(ctx, "check");
   open.server.close();
   assert.equal(live.json.server.listening, true);
+});
+
+test("write refuses a v1 thread link with one line, and keeps a v2 link without the list's angle brackets", () => {
+  const ctx = setup();
+  const v1 = run(ctx, "write", "--input", writeItems(ctx, [{ ...ITEMS[0], thread_link: "t3-thread://v1/abc" }]));
+  assert.equal(v1.code, 1);
+  assert.equal(v1.err.trim().split("\n").length, 1);
+  assert.match(v1.err, /node-plan.*thread_link must be the thread's v2 link/);
+  assert.equal(existsSync(join(ctx.root, ".lev", "now", "ceo-board.json")), false);
+
+  const listed = "<t3-thread://v2/f4c99082/mcp:2a6d20df>";
+  const ok = run(ctx, "write", "--input", writeItems(ctx, [{ ...ITEMS[0], thread_link: listed }]));
+  assert.equal(ok.code, 0, ok.err);
+  const board = JSON.parse(readFileSync(join(ctx.root, ".lev", "now", "ceo-board.json"), "utf8"));
+  assert.equal(board.items[0].thread_link, "t3-thread://v2/f4c99082/mcp:2a6d20df");
+});
+
+test("write with an explorer build but no tsx changes nothing and says so in one line", () => {
+  const ctx = setup();
+  mkdirSync(join(ctx.root, "plugins", "now", "scripts"), { recursive: true });
+  writeFileSync(join(ctx.root, "plugins", "now", "scripts", "build-entity-explorer.ts"), "export {};\n");
+  const now = join(ctx.root, ".lev", "now");
+  const oldBoard = JSON.stringify({ updated: "2026-11-01T00:00:00Z", project: "demo", items: [] });
+  writeFileSync(join(now, "ceo-board.json"), oldBoard);
+  writeFileSync(join(now, "entity-explorer.html"), "old page");
+  const r = run(ctx, "write", "--input", writeItems(ctx, ITEMS));
+  assert.equal(r.code, 1);
+  assert.deepEqual(r.err.trim().split("\n"), ["board: write: nothing written: tsx not found under plugins/now: run pnpm install"]);
+  assert.equal(readFileSync(join(now, "ceo-board.json"), "utf8"), oldBoard);
+  assert.equal(readFileSync(join(now, "entity-explorer.html"), "utf8"), "old page");
+  assert.deepEqual(readdirSync(now).sort(), ["ceo-board.json", "entity-explorer.html"]);
+});
+
+test("write warns when --project names a new board owner", () => {
+  const ctx = setup();
+  writeFileSync(join(ctx.root, ".lev", "now", "ceo-board.json"), JSON.stringify({ project: "alpha", items: [] }));
+  const r = run(ctx, "write", "--input", writeItems(ctx, ITEMS), "--project", "beta");
+  assert.equal(r.code, 0, r.err);
+  assert.match(r.err, /board owner changes from alpha to beta/);
+  const same = run(ctx, "write", "--input", writeItems(ctx, ITEMS), "--project", "beta");
+  assert.equal(same.err, "");
+});
+
+test("answers --since <lines> dedupes over the whole file: an older tap past the cut loses to a newer one before it", () => {
+  const ctx = setup();
+  const items = writeItems(ctx, ITEMS);
+  const filler = Array.from({ length: 8 }, (_, i) => tap("agent37-box", "yes", "Yes", `2026-11-04T03:0${i}:00Z`));
+  writeAnswers(ctx, [
+    ...filler,                                               // lines 1-8
+    tap("node-plan", "hold", "Hold", "2026-11-04T04:20:00Z"), // line 9: newer, before the cut
+    tap("agent37-box", "no", "No", "2026-11-04T04:30:00Z"),   // line 10
+    tap("node-plan", "go", "Go", "2026-11-04T04:10:00Z"),     // line 11: older, past the cut
+  ]);
+  const r = run(ctx, "answers", "--since", "10", "--items", items);
+  assert.equal(r.code, 0, r.err);
+  assert.equal(r.json.lines, 11);
+  assert.deepEqual(r.json.rows, []);
+  const all = run(ctx, "answers", "--since", "9", "--items", items);
+  assert.deepEqual(all.json.rows.map((row) => [row.item_id, row.choice]), [["agent37-box", "no"]]);
+});
+
+test("answers --since takes only a line count or an ISO time with a zone", () => {
+  const ctx = setup();
+  const items = writeItems(ctx, ITEMS);
+  for (const bad of ["2026-11-04T04:15:00", "2026-11-04", "yesterday", "Nov 4 2026 04:15 GMT"]) {
+    const r = run(ctx, "answers", "--since", bad, "--items", items);
+    assert.equal(r.code, 1, bad);
+    assert.equal(r.err.trim().split("\n").length, 1, bad);
+    assert.match(r.err, /ISO 8601 time with a zone/, bad);
+  }
+  for (const good of ["2026-11-04T04:15:00Z", "2026-11-04T04:15:00.5+05:30", "0"]) assert.equal(run(ctx, "answers", "--since", good, "--items", items).code, 0, good);
 });

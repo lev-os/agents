@@ -4,13 +4,16 @@
  *
  * Usage (run in the project checkout, or pass --root):
  *   node ~/.agents/skills/lev-ceo/scripts/board.mjs write --input <items.json> [--project <name>] [--server <url>] [--root <dir>]
- *   node ~/.agents/skills/lev-ceo/scripts/board.mjs answers --since <ISO time | line count> [--items <items.json>] [--root <dir>]
+ *   node ~/.agents/skills/lev-ceo/scripts/board.mjs answers --since <ISO time with zone | line count> [--items <items.json>] [--root <dir>]
  *   node ~/.agents/skills/lev-ceo/scripts/board.mjs check [--root <dir>]
  *
- * write   Validates the items, writes <root>/.lev/now/ceo-board.json with `updated` from the clock, then rebuilds
- *         <root>/.lev/now/entity-explorer.html in this process through the explorer build that plugins/now exports.
- *         Any validation error: one line per error on stderr, exit 1, nothing written.
- * answers Reads the answers file, keeps page_id "ceo-board", keeps the newest `at` per item, and matches each choice
+ * write   Validates the items, builds <root>/.lev/now/entity-explorer.html from the new board in this process
+ *         (the explorer build that plugins/now exports), then renames the page and <root>/.lev/now/ceo-board.json
+ *         into place together, `updated` from the clock. A thread_link is T3's v2 link (t3-thread://v2/<environment
+ *         id>/<thread id>); the angle brackets t3_thread_list wraps it in are dropped. A new project name warns on
+ *         stderr. Any error: one line on stderr (one per validation error), exit 1, nothing written.
+ * answers Reads the answers file, keeps page_id "ceo-board", keeps the newest `at` per item over the whole file, and
+ *         reports only winners past --since (a line count, or an ISO 8601 time with Z or ±hh:mm). Each is matched
  *         against the items (by choice id, else by label). Prints {answers_file, lines, rows, skipped}; `lines` is
  *         the --after value for the next waiter (plugins/now/scripts/answers-wait.mjs). Exit 0.
  * check   Prints whether anything listens on the board's server port (the `server` key, else 3456; with no host
@@ -21,17 +24,21 @@
  * plugins/now/src/dev-server.ts answersFilePath). Decision: .lev/pm/decisions/20261104-ceo-board-return-channel.yaml.
  */
 
-import { existsSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, realpathSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { connect } from "node:net";
-import { homedir, networkInterfaces } from "node:os";
+import { homedir, networkInterfaces, tmpdir } from "node:os";
 import { basename, isAbsolute, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 export const PAGE_ID = "ceo-board";
 export const DEFAULT_PORT = 3456;
 const EXPLORER_BUILD = "plugins/now/scripts/build-entity-explorer.ts";
-const USAGE = "usage: board.mjs write --input <items.json> [--project <name>] [--server <url>] | answers --since <ISO | lines> [--items <items.json>] | check   (each takes [--root <dir>])";
+const USAGE = "usage: board.mjs write --input <items.json> [--project <name>] [--server <url>] | answers --since <ISO time with zone | lines> [--items <items.json>] | check   (each takes [--root <dir>])";
+/** The one link form the board stores: T3's own v2 link, as t3_thread_list returns it. */
+export const THREAD_LINK_PREFIX = "t3-thread://v2/";
+/** An ISO 8601 time with its zone: Z or ±hh:mm. */
+const ZONED_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/;
 
 // ---- paths
 
@@ -47,6 +54,9 @@ const boardPath = (root) => join(root, ".lev", "now", "ceo-board.json");
 
 const ISO = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?)?$/;
 const text = (v) => typeof v === "string" && v.trim() !== "";
+/** t3_thread_list returns `<t3-thread://v2/...>`; the board keeps the link inside the brackets. */
+export const bareLink = (v) => (typeof v === "string" && /^<.*>$/.test(v.trim()) ? v.trim().slice(1, -1) : v);
+const firstLine = (e) => String(e?.message ?? e).split("\n")[0];
 
 /** Every error in the items, one string each; an empty list means the items are valid. */
 export function validateItems(items) {
@@ -75,8 +85,9 @@ export function validateItems(items) {
     if (item.since !== undefined && item.since !== null && !(typeof item.since === "string" && ISO.test(item.since) && !Number.isNaN(Date.parse(item.since)))) {
       errors.push(`${at}: since must be an ISO date, e.g. 2026-11-04T04:00:00Z`);
     }
-    if (item.thread_link !== undefined && item.thread_link !== null && !(typeof item.thread_link === "string" && /^(https?:|t3-thread:)/.test(item.thread_link))) {
-      errors.push(`${at}: thread_link must start with t3-thread: or https:, or be absent (the explorer drops any other link)`);
+    const link = bareLink(item.thread_link);
+    if (link !== undefined && link !== null && !(typeof link === "string" && link.startsWith(THREAD_LINK_PREFIX) && link.length > THREAD_LINK_PREFIX.length)) {
+      errors.push(`${at}: thread_link must be the thread's v2 link from t3_thread_list (${THREAD_LINK_PREFIX}<environment id>/<thread id>), or be absent`);
     }
   });
   return errors;
@@ -85,38 +96,40 @@ export function validateItems(items) {
 /** The board file body: the old file's `server` key carries over unless a new one is given. */
 export function boardDocument({ items, project, server, now }) {
   const keep = (it) => ({
-    id: it.id, title: it.title, ...(it.thread_link ? { thread_link: it.thread_link } : {}), what: it.what,
+    id: it.id, title: it.title, ...(it.thread_link ? { thread_link: bareLink(it.thread_link) } : {}), what: it.what,
     choices: it.choices.map((c) => ({ id: c.id, label: c.label })),
     ...(it.recommended ? { recommended: it.recommended } : {}), ...(it.since ? { since: it.since } : {}),
   });
   return { updated: now, project, ...(server ? { server } : {}), items: items.map(keep) };
 }
 
-/** Rebuild the explorer page in this process; returns a summary, or why it was not rebuilt. */
-export async function rebuildExplorer(root) {
+/**
+ * Build the explorer page in this process from the board file given, and return its HTML without writing it.
+ * null when the --root folder has no explorer build; throws one-line errors otherwise.
+ */
+export async function buildExplorer(root, boardFile) {
   const build = join(root, EXPLORER_BUILD);
-  if (!existsSync(build)) return { rebuilt: false, why: `no ${EXPLORER_BUILD} under ${root}` };
+  if (!existsSync(build)) return null;
   const require = createRequire(join(root, "plugins", "now", "package.json"));
-  const { tsImport } = await import(pathToFileURL(require.resolve("tsx/esm/api")).href);
+  let api;
+  try { api = require.resolve("tsx/esm/api"); } catch { throw new Error("tsx not found under plugins/now: run pnpm install"); }
+  const { tsImport } = await import(pathToFileURL(api).href);
   const mod = await tsImport(pathToFileURL(build).href, import.meta.url);
   const { root: projectRoot, name } = mod.resolveProject(undefined, root);
-  const data = mod.collectEntityExplorerData({ projectRoot, projectName: name });
-  const out = join(root, ".lev", "now", "entity-explorer.html");
-  const html = mod.buildEntityExplorerHtml(data);
-  writeFileSync(out, html, "utf8");
-  return { rebuilt: true, html: out, bytes: html.length, board_cards: data.waits.board?.items.length ?? 0, board_note: data.waits.board_note };
+  const data = mod.collectEntityExplorerData({ projectRoot, projectName: name, boardPath: boardFile });
+  return { html: mod.buildEntityExplorerHtml(data), board_cards: data.waits.board?.items.length ?? 0, board_note: data.waits.board_note };
 }
 
 async function write(args) {
   const root = args.root;
-  if (!args.input) return fail("write needs --input <items.json>");
+  if (!args.input) return fail("write needs --input <items.json>", { usage: true });
   let input;
-  try { input = JSON.parse(readFileSync(resolve(args.input), "utf8")); } catch (e) { return fail(`cannot read --input: ${e.message}`, 1); }
+  try { input = JSON.parse(readFileSync(resolve(args.input), "utf8")); } catch (e) { return fail(`cannot read --input: ${firstLine(e)}`); }
   const items = Array.isArray(input) ? input : input?.items;
   const errors = validateItems(items);
   if (errors.length) { for (const e of errors) process.stderr.write(`board write: ${e}\n`); process.exitCode = 1; return; }
   const file = boardPath(root);
-  if (!existsSync(join(root, ".lev", "now"))) return fail(`no .lev/now folder under ${root}`, 1);
+  if (!existsSync(join(root, ".lev", "now"))) return fail(`no .lev/now folder under ${root}`);
   let old = {};
   try { if (existsSync(file)) old = JSON.parse(readFileSync(file, "utf8")); } catch { old = {}; }
   const doc = boardDocument({
@@ -124,8 +137,31 @@ async function write(args) {
     project: args.project ?? (typeof input?.project === "string" ? input.project : undefined) ?? (text(old.project) ? old.project : basename(root)),
     server: args.server ?? input?.server ?? old.server,
   });
-  writeFileSync(file, `${JSON.stringify(doc, null, 2)}\n`, "utf8");
-  const page = await rebuildExplorer(root);
+  const json = `${JSON.stringify(doc, null, 2)}\n`;
+  // The page is built from a draft board first; the page and the board then rename into place together,
+  // so a failed build leaves the old board beside the old page.
+  const scratch = mkdtempSync(join(tmpdir(), "ceo-board-"));
+  const pageFile = join(root, ".lev", "now", "entity-explorer.html");
+  const pageTmp = `${pageFile}.${process.pid}.tmp`;
+  const boardTmp = `${file}.${process.pid}.tmp`;
+  let page;
+  try {
+    const draft = join(scratch, "ceo-board.json");
+    writeFileSync(draft, json, "utf8");
+    const built = await buildExplorer(root, draft);
+    if (built) writeFileSync(pageTmp, built.html, "utf8");
+    writeFileSync(boardTmp, json, "utf8");
+    if (built) renameSync(pageTmp, pageFile);
+    renameSync(boardTmp, file);
+    page = built
+      ? { rebuilt: true, html: pageFile, bytes: built.html.length, board_cards: built.board_cards, board_note: built.board_note }
+      : { rebuilt: false, why: `no ${EXPLORER_BUILD} under ${root}` };
+  } catch (e) {
+    return fail(`write: nothing written: ${firstLine(e)}`);
+  } finally {
+    for (const p of [pageTmp, boardTmp, scratch]) rmSync(p, { recursive: true, force: true });
+  }
+  if (text(old.project) && old.project !== doc.project) process.stderr.write(`board write: board owner changes from ${old.project} to ${doc.project}\n`);
   print({ board: file, items: doc.items.length, updated: doc.updated, project: doc.project, page });
 }
 
@@ -142,7 +178,9 @@ export function completeLines(file) {
 const norm = (s) => (typeof s === "string" ? s.trim().toLowerCase() : "");
 
 /**
- * The newest answer per board item after `since`, each matched against the board items.
+ * The newest answer per board item over every line, reported only when that winner is past `since` (its line
+ * index at or after a line count, or its `at` after a time), each matched against the board items. Dedupe runs over
+ * the whole file because `at` is the phone's clock: a newer row may sit before a line cut and an older one after it.
  * status: fresh (matches a choice id or label, or a note on a known item), stale (names no current choice),
  * unknown_item (the item is not on the board), cleared (choice and note both null).
  */
@@ -153,16 +191,16 @@ export function readAnswers({ lines, since, items }) {
   const newest = new Map();
   let skipped = 0;
   lines.forEach((line, index) => {
-    if (index < afterLine || !line.trim()) return;
+    if (!line.trim()) return;
     let row;
-    try { row = JSON.parse(line); } catch { skipped++; return; }
+    try { row = JSON.parse(line); } catch { if (index >= afterLine) skipped++; return; }
     if (row?.page_id !== PAGE_ID || !text(row.item_id)) return;
     const at = Date.parse(row.at);
-    if (!Number.isNaN(afterTime) && !(at > afterTime)) return;
     const held = newest.get(row.item_id);
     if (!held || !(Date.parse(held.row.at) > at)) newest.set(row.item_id, { row, index });
   });
-  const rows = [...newest.values()].sort((a, b) => a.index - b.index).map(({ row }) => {
+  const past = ({ row, index }) => index >= afterLine && (Number.isNaN(afterTime) || Date.parse(row.at) > afterTime);
+  const rows = [...newest.values()].filter(past).sort((a, b) => a.index - b.index).map(({ row }) => {
     const base = { item_id: row.item_id, choice: row.choice ?? null, label: row.label ?? null, note: row.note ?? null, at: row.at ?? null };
     const item = byItem.get(row.item_id);
     if (!item) return { ...base, status: "unknown_item" };
@@ -176,9 +214,11 @@ export function readAnswers({ lines, since, items }) {
 }
 
 function answers(args) {
-  if (args.since === undefined) return fail("answers needs --since <ISO time | line count>");
+  if (args.since === undefined) return fail("answers needs --since <ISO time with zone | line count>", { usage: true });
   const since = /^\d+$/.test(args.since) ? Number(args.since) : args.since;
-  if (typeof since === "string" && Number.isNaN(Date.parse(since))) return fail("--since must be a line count or an ISO time");
+  if (typeof since === "string" && !(ZONED_TIME.test(since) && !Number.isNaN(Date.parse(since)))) {
+    return fail(`answers: --since '${since}' must be a line count or an ISO 8601 time with a zone, e.g. 2026-11-04T04:15:00Z`);
+  }
   const itemsFile = args.items ? resolve(args.items) : boardPath(args.root);
   let items = [];
   try { const doc = JSON.parse(readFileSync(itemsFile, "utf8")); items = Array.isArray(doc) ? doc : doc.items ?? []; }
@@ -237,9 +277,10 @@ async function check(args) {
 
 function print(value) { process.stdout.write(`${JSON.stringify(value, null, 2)}\n`); }
 
-function fail(message, code = 1) {
-  process.stderr.write(`board: ${message}\n${USAGE}\n`);
-  process.exitCode = code;
+/** One line on stderr, exit 1; a usage error adds the usage line. */
+function fail(message, { usage = false } = {}) {
+  process.stderr.write(`board: ${message}\n${usage ? `${USAGE}\n` : ""}`);
+  process.exitCode = 1;
 }
 
 function parseArgs(argv) {
@@ -258,13 +299,15 @@ function parseArgs(argv) {
 
 async function main(argv) {
   const args = parseArgs(argv);
-  if (args.error) return fail(args.error);
+  if (args.error) return fail(args.error, { usage: true });
   if (args.command === "write") return write(args);
   if (args.command === "answers") return answers(args);
   if (args.command === "check") return check(args);
   if (args.command === "--help" || args.command === "-h") return void process.stdout.write(`${USAGE}\n`);
-  return fail(`unknown command '${args.command ?? ""}'`);
+  return fail(`unknown command '${args.command ?? ""}'`, { usage: true });
 }
 
 // realpath: ~/.claude/skills is a link to ~/.agents/skills, and Node names the main module by its real path.
-if (process.argv[1] && existsSync(process.argv[1]) && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) await main(process.argv.slice(2));
+if (process.argv[1] && existsSync(process.argv[1]) && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+  await main(process.argv.slice(2)).catch((e) => fail(firstLine(e)));
+}
