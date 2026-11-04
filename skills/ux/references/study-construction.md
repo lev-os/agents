@@ -39,7 +39,7 @@ Not every study needs the same psychological dimensions. Pick the axes that matt
 
 ## 3. Construct Personas
 
-Reuse Product Craft's workflow test: role, daily workflow, frustration, current workaround and resulting time/money/risk cost. State whether each comes from observed users, supplied evidence or a synthetic hypothesis. A demographic label alone is not a workflow persona.
+Reuse Product Craft's workflow test: role, daily workflow, frustration, current workaround and resulting time/money/risk cost. Tag each one `observed`, `supplied` or `synthetic` in `persona_source_map.yaml`, following the anecdote-grounding step in SKILL.md 1b.1. A demographic label alone is not a workflow persona.
 
 
 Each persona is a **coherent worldview**, not a list of traits. The prompt injection should read like a person describing themselves, not a psych profile.
@@ -47,7 +47,7 @@ Each persona is a **coherent worldview**, not a list of traits. The prompt injec
 **Construction process:**
 
 1. Start with the user segments from `for_whom` in problem_spec
-2. For each segment, ask: what beliefs, constraints, and experiences shape how this person would react?
+2. For each segment, ask: what beliefs, constraints, and experiences shape how this person would react? Answer from that segment's quotes in `anecdotes.json`, and borrow their own words.
 3. Write the persona as a first-person worldview (200-400 words)
 4. Include: what they care about, what they're afraid of, what they've been burned by, what they're optimizing for
 5. Do NOT include: instructions to the model about how to respond. The persona IS the instruction.

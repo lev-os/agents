@@ -116,6 +116,41 @@ Use when multiple agents share a managed gateway with unified auth.
 
 Source: `.lev/pm/parity/openclaw.yaml`
 
+## Remote Access Playbook (from OpenClaw, Wave 6 — oc-04)
+
+When the agent needs to reach a remote machine (air-gapped dev box, team server, cloud VM):
+
+### Option 1: Tailscale (recommended for persistent sessions)
+
+```bash
+brew install tailscale
+sudo tailscale up
+# Assigns stable DNS: hostname.tailnet.name
+ssh user@hostname.tailnet.name
+```
+
+Tailscale handles NAT traversal, MagicDNS, and auth without port forwarding setup.
+
+### Option 2: Docker + SSH
+
+```bash
+docker run -d -p 2222:22 --name agent-box ubuntu:24.04
+ssh -p 2222 user@localhost
+```
+
+Preferred for ephemeral sandboxes — disposable, reproducible, port-forwarded.
+
+### Option 3: Trusted proxy gateway
+
+```bash
+curl -X POST http://gateway.local/register \
+  -d '{"agent_id": "...", "capabilities": ["exec", "flow"]}'
+```
+
+Use when multiple agents share a managed gateway with unified auth.
+
+Source: `.lev/pm/parity/openclaw.yaml`
+
 ## Files in This Skill
 
 - `references/tool-bundle.md` — install matrix and per-tool usage guidance

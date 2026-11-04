@@ -421,7 +421,8 @@ Artifacts (expected):
 - `persona_fanout.md` (required after `persona_detection.yaml` in non-auto
   research/full/cdo-research)
 
-- `persona_source_map.yaml` (only in `research` or `cdo-research`)
+- `persona_source_map.yaml` and `anecdotes.json` (required whenever Synthetic
+  User Research runs, and in `research` or `cdo-research`)
 
 - `routed_skills.json`
 
@@ -611,6 +612,16 @@ Analyze problem_spec. Reason about:
 
 - What's the stimulus? Problem statement? Feature concept? Wireframe? Could be all three across rounds.
 
+**Ground personas in real anecdotes (required, before construction).** Persona evidence comes from real people found with research tools; model recall supplies only `synthetic` hypotheses. For each segment, collect verbatim first-person quotes from forums, reviews, comments, support tickets and interview notes:
+
+- Route searches through the research skill (`~/.agents/skills/research/SKILL.md`, capabilities in `references/tool-catalog.md`). Order: user-supplied notes, connected MCP servers, `lev research` direct adapters (`lev research adapters --json`; e.g. Exa, Hacker News, Grok, ScrapeCreators), WebSearch/WebFetch, then Monid.
+- Monid: state a cost ceiling in `study_design.yaml` before the first paid run. `monid discover` and `monid inspect` are free; read the endpoint price with `monid inspect` before each `monid run`, record each spend, and stop at the ceiling.
+- Keep each quote verbatim with its URL and date. Strip usernames, names, emails and other PII.
+- Discard quotes that read as vendor or seller marketing or as AI-written; record the discard count per reason. Seller posts often echo the draft copy and fake agreement.
+- Write `anecdotes.json`: one entry per quote with id, segment, quote, URL, date and route.
+
+**Source map (required).** Tag every persona trait `observed` (anecdote id + URL), `supplied` (from the user) or `synthetic` (hypothesis) in `persona_source_map.yaml`. Each persona needs at least 5 observed quotes. Below that, keep the persona, set `grounding: low`, and report the gap in the results.
+
 Construct personas using axiom explorer's `map-elements` output format as a scaffold (load `~/.agents/skills-db/thinking/axioms/skills/map-elements.md` for format reference) — but only the dimensions that matter. A developer tool study doesn't need political compass. A healthcare app might need ANS state.
 
 Write `study_design.yaml`:
@@ -622,6 +633,7 @@ study:
     content: "{from problem_spec}"
   personas:
     - id: "{descriptive-id}"
+      grounding: high | low # low = fewer than 5 observed quotes
       description: "{who this person is, grounded in the problem}"
       key_dimensions:
         - "{dimension}: {value + reasoning}"
@@ -630,6 +642,10 @@ study:
   matrix:
     models: ["{model-ids — reasoning: why these models}"]
     cli_runners: ["{cli names — reasoning: why these CLIs}"]
+  anecdotes:
+    monid_cost_ceiling_usd: "{stated before the first paid run}"
+    monid_spent_usd: "{sum of recorded runs}"
+    discarded: { marketing: 0, ai_written: 0 }
   rationale: "{why these personas, why this matrix, what signal are we looking for}"
 ```
 
@@ -681,6 +697,8 @@ After collecting results, evaluate whether the pipeline should continue:
 - **gate_decision: reframe** — Step 0b concerns diverge significantly from `problem_spec.yaml`, OR personas surfaced a better problem. Go back to Problem Framing and revise `problem_spec.yaml`.
 - **gate_decision: abort** — ALL personas across ALL models say "just build and iterate" or equivalent. OR convergence is below useful threshold (too much noise, no clear signal). Recommend a different approach: rapid prototyping, traditional user interviews, design sprint, or just-build-it.
 
+- **Grounding cap** — when most personas have `grounding: low` or most traits are `synthetic`, `proceed` carries low confidence at most; name the grounding gap.
+
 A pipeline that can't recommend against itself isn't honest. If the research says this tool is wrong for this problem, say so and stop.
 
 Append `gate_decision` to `user_and_agent_research.md`. If `abort`, write `summary.md` with the recommendation to NOT continue the pipeline, and why.
@@ -688,6 +706,10 @@ Append `gate_decision` to `user_and_agent_research.md`. If `abort`, write `summa
 ### Artifacts
 
 - `study_design.yaml` (study design with personas, matrix, rationale)
+
+- `anecdotes.json` (verbatim quotes with URL, date and route; discard counts)
+
+- `persona_source_map.yaml` (every persona trait tagged observed, supplied or synthetic)
 
 - `user_and_agent_research.md` (results, convergence/divergence analysis, gate decision, JTBD integration notes)
 
