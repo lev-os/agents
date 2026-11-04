@@ -361,6 +361,7 @@ rules:
   - "The three parts are content placeholders, not literal XML tags. Omit question titles, Question/Decision labels, progress lines and HUDs from ordinary question turns; retain interview metadata in durable state."
   - "Completed design output uses: Direction, Breakdown, Open decisions, and next actions. It does not ask another a/b/c question."
   - "Recommended must explain why the option is recommended, not just restate the option."
+  - "Every recommendation carries well-researched expert opinions: one line per relevant field, naming the source or practice it rests on (JP 2026-11-04: 'i want well researched, expert opinions for each recommendation')."
   - "Each a/b/c answer gets its own mini-block with a consequence after ->."
   - "Orientation a/b/c choices are answer frames, not final design-branch alternatives."
   - "Design a/b/c choices are researched branch options."
@@ -388,6 +389,9 @@ on_failure: "Rewrite using the orientation or design template. Remove progress b
 
 **Recommended**
 `{a|b|c}` because {why_this_answer_frame_best_reduces_ambiguity}
+
+**Expert opinions**
+- {field}: {what_a_top_expert_would_say} ({source_or_practice})
 </orientation-template>
 
 <design-template>
@@ -404,6 +408,9 @@ on_failure: "Rewrite using the orientation or design template. Remove progress b
 
 **Recommended**
 `{a|b|c}` because {why_recommended}
+
+**Expert opinions**
+- {field}: {what_a_top_expert_would_say} ({source_or_practice})
 </design-template>
 
 <design-result>

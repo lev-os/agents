@@ -53,6 +53,12 @@ What was decided?
 - Option A
 - Option B
 
+## Expert Opinions
+
+Well-researched expert opinions for each recommendation (JP 2026-11-04: "i want well researched, expert opinions for each recommendation"): one line per relevant field, naming the source or practice.
+
+- Field: opinion (source)
+
 ## Consequences
 
 - Consequence 1

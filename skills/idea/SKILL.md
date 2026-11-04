@@ -91,6 +91,8 @@ complete; a predetermined question count is not the completion condition.
 
 **My recommendation:** {Number and short reason.}
 
+**Expert opinions:** {field}: {what_a_top_expert_would_say} ({source_or_practice}); one line per relevant field. JP 2026-11-04: "i want well researched, expert opinions for each recommendation".
+
 Choose one, combine a few, change an option, or tell me your own path.
 </wizard-question>
 

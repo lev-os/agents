@@ -260,6 +260,7 @@ Use XML sections directly in the skill body for reusable output templates and se
 ## {Decision Title}
 
 Recommended: {option} — {reason}
+Expert opinions: {field}: {what_a_top_expert_would_say} ({source_or_practice}); one line per relevant field. JP 2026-11-04: "i want well researched, expert opinions for each recommendation".
 
 a. {option_a}
 b. {option_b}

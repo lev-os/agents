@@ -156,6 +156,8 @@ List the specs this design informs or depends on.
 
 ## Recommendation
 
+Give well-researched expert opinions for each recommendation (JP 2026-11-04: "i want well researched, expert opinions for each recommendation"): one line per relevant field, naming the source or practice.
+
 State the preferred design direction and why.
 
 ## Design-to-Propose Handoff
