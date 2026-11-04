@@ -22,7 +22,7 @@ by path; the full list is the [package index](../../skills-db/creative/README.md
 | Build, review, polish or harden product UI; design systems and DESIGN.md; native screens | impeccable | [impeccable](../impeccable/SKILL.md) |
 | A screen that looks vibecoded or AI-made, made into a designed screen | impeccable | [impeccable](../impeccable/SKILL.md), plus the unslop [signs list](../../skills-db/creative/unslop/references/signs.md); for a before-and-after video, the [unslop story video](../../skills-db/creative/unslop/SKILL.md#story-video) |
 | A new landing page or portfolio with a strong visual direction | taste-skill | [taste-skill](../taste-skill/SKILL.md) |
-| Mock product UI for marketing: hero stills, feature cards, cursor demos, bento grids | stageshow and impeccable, both | Two variants: one from [stageshow](../../skills-db/creative/stageshow/SKILL.md), one from [impeccable](../impeccable/SKILL.md). Show them side by side; the user picks |
+| Heroes and marketing visuals: hero stills and films, feature cards, cursor demos, bento grids | stageshow and impeccable, both | Run both at the same time: one variant from [stageshow](../../skills-db/creative/stageshow/SKILL.md), one from [impeccable](../impeccable/SKILL.md). Show them side by side; the user picks. No grading between them |
 | Product films, launch videos, explainers, logo stings, kinetic type | motion-graphics | [motion-graphics](../motion-graphics/SKILL.md) |
 | Video in React code | remotion | [remotion-best-practices](../../skills-db/creative/remotion-best-practices/SKILL.md) |
 | Architecture, workflow, sequence, data-flow or state diagrams | archify | [archify](../archify/SKILL.md) |
@@ -44,6 +44,10 @@ by path; the full list is the [package index](../../skills-db/creative/README.md
 - **Animation.** Motion inside a screen (hover, transitions, micro-interactions)
   is impeccable `animate`. A film or a loop someone watches is motion-graphics.
   A mock product demo with a cursor runs both variants.
+- **Marketing or product UI.** When impeccable is loaded for a hero or other
+  marketing visual, stageshow runs beside it as the second variant. When
+  impeccable works on the product's own screens (app UI, chrome, settings,
+  dashboards), it runs alone.
 - **Audit.** A product-quality or onboarding scorecard is ux `--craft`. A visual
   and code audit of screens is impeccable `audit` or `critique`.
 - **Page versus chart versus diagram.** now owns the page; it loads dataviz for
