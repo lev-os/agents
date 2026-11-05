@@ -51,6 +51,7 @@ art" from a default sweep alone.
 - `--status active` filters the record's own status (not a health check). A card with status `superseded` is history: open the record that superseded it.
 - `--workstream <id>` keeps one workstream's records; `--limit <n>` caps the cards.
 - Before you write a plan, design or decision for a known workstream, run the prior-art call twice, plain and with `--workstream <that workstream>`. Read the plain call's first 5 cards, then the scoped call's first 5 cards not already shown: an earlier session's record on the same subject is usually in the same workstream (25 of 28 past-session answers; decision 20261101-find-prior-art-workstream-call).
+- Before you write an idea that names no workstream, run the prior-art call, then the same query with `--type idea` alone. Read the plain call's first 5 cards, then the idea call's first 5 cards not already shown: the ideas an idea builds on are the ones other ideas cite, and a four-type search buries them under longer plans and designs (14 of 17 development misses; decision 20261105-find-idea-writer-call).
 - Read the file at each card's `path` before you cite it.
 
 **Burst budget (defaults):**

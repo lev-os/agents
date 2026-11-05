@@ -129,10 +129,14 @@ steps:
       Use the supplied topic or the active conversation. For a named existing
       idea, resolve and read its record before asking. Search bounded prior art
       when an existing idea or answer may already be present. Before creating an
-      idea, run `lev find "<3-6 topic words>" --type idea --json`, then
-      `--type design`, when `lev` is installed. Design type returns no cards until
-      indexed, so also `rg` `.lev/pm/designs` (if `lev` fails, say so in one line
-      and `rg` over `.lev`). If the topic is
+      idea, when `lev` is installed, run `lev find "<3-6 topic words>" --type plan
+      --type design --type decision --type idea --json`, then the same query with
+      `--type idea` alone. Read the first call's first 5 cards, then the second
+      call's first 5 cards not already shown (decision
+      20261105-find-idea-writer-call). If the idea names a workstream, the second
+      call is the same first call with `--workstream <its id>` instead (decision
+      20261101-find-prior-art-workstream-call). If `lev` fails, say so in one line
+      and `rg` over `.lev`. If the topic is
       absent, ask a wizard question offering concrete starting directions.
       Follow the project's Lev context and workstream rules before artifact writes.
     validation: "The current subject, source basis, and existing-record status are known, or the opening question names the missing subject."
