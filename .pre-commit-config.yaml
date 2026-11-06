@@ -17,3 +17,13 @@ repos:
         name: check hardcoded paths
         entry: bash scripts/check-hardcoded-paths.sh
         language: system
+
+  # Removed third-party skill packages must not come back
+  - repo: local
+    hooks:
+      - id: check-removed-packages
+        name: check removed skill packages
+        entry: bash scripts/check-removed-packages.sh
+        language: system
+        pass_filenames: false
+        always_run: true

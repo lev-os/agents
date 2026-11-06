@@ -94,8 +94,6 @@ The [creative hub](../../skills/creative/SKILL.md) routes design work to these p
 | [aiuxplayground-working-backwards](aiuxplayground-working-backwards/SKILL.md) | Imported source; unaudited |
 | [create-cli](create-cli/SKILL.md) | Existing package |
 | [design-doc-mermaid](design-doc-mermaid/SKILL.md) | Existing package |
-| [frankentui](frankentui/SKILL.md) | Existing package |
-| [gh-og-share-images](gh-og-share-images/SKILL.md) | Existing package |
 | [impeccable](impeccable/SKILL.md) | Existing package |
 | [manim-video](manim-video/SKILL.md) | Existing package |
 | [metal-shaders](metal-shaders/SKILL.md) | Existing package |

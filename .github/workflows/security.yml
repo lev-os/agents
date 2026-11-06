@@ -44,3 +44,11 @@ jobs:
             exit 1
           fi
           echo "No hardcoded paths found."
+
+  removed-packages:
+    name: Removed skill package check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check that removed skill packages stay removed
+        run: bash scripts/check-removed-packages.sh
