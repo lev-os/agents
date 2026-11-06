@@ -7,8 +7,8 @@ The HUD displays observations and records rather than owning their identity.
 1. Resolve the project owner and its current schema and template. In Leviathan,
    read `core/workstream/config.yaml` and `.lev/pm/ideas/_template/`;
    `.lev/pm/ideas/<id>/idea.yaml` is the declared home. Discover current read
-   commands through `lev entity idea --help` (resolve) and the old `lev idea --help`
-   (list and show, for one release). On resume, resolve the current record by
+   commands through `lev entity idea --help` (list, show and resolve; the old
+   `lev idea` is gone). On resume, resolve the current record by
    its slug and read it before drafting, even when the request points at an
    archived source. Direct authoring requires active write scope when the owner
    has no write operation.
