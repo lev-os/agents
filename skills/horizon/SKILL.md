@@ -184,7 +184,7 @@ the outer loop reloads state from the ledger and runtime JSON instead of chat.
   review is a row without `check:` whose sentence names the evidence and the
   acceptance owner.
 - **Proof is not launch.** Proof is rows and their `check:`. Launch is
-  `lev task validate <task>`, then `lev sdlc exec <task> --flow <flow>`, with
+  `lev entity task validate <task>`, then `lev sdlc exec <task> --flow <flow>`, with
   the flow chosen under lev-plan's Proof and Evaluator Selection; `topology`
   stays a slice classification.
 - **core/eval decides; Exec acts.** Verdict ownership is unchanged: core/eval
@@ -282,7 +282,7 @@ Frontier: last passing stage {id} at {evidence_ref}; open rows {ids}; next unit 
 
 Proof: commands {row_ids}; review-answered {row_ids}; independent or human {row_id: owner}; unresolved {none | row_ids}
 Packet: {preview from the packet reference, unvalidated and unemitted | not requested}; emission via lev-plan Emit
-Launch: `lev task validate {task}`, then `lev sdlc exec {task} --flow {selected_flow}` | none until Emit
+Launch: `lev entity task validate {task}`, then `lev sdlc exec {task} --flow {selected_flow}` | none until Emit
 Next: {lev-plan emit {slice_id} | /exec | skill://poc | /interview | resume {unit}}
 </horizon-brief>
 

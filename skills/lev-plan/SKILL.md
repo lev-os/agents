@@ -191,7 +191,7 @@ steps:
 
   - id: validate_structure
     when: mode is emit
-    action: Run `lev task validate <task-id|task-path> --json`; it validates every `check:` through core/eval. Report deterministic failures separately.
+    action: Run `lev entity task validate <task-id|task-path> --json`; it validates every `check:` through core/eval. Report deterministic failures separately.
     on_failure: "Keep the task proposed; do not offer /exec."
 
   - id: compare_source
@@ -485,7 +485,7 @@ post-execution outputs. Promotion gates and administrative holds must be shown
 separately from implementation readiness.
 
 Do not average weak dimensions into a passing score. Rejudge after every plan
-or task rewrite. A green schema check, `lev task validate`, or existing verifier
+or task rewrite. A green schema check, `lev entity task validate`, or existing verifier
 is not semantic approval.
 
 ## Code, LLM, and Human Authority

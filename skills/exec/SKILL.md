@@ -163,7 +163,7 @@ When a task has `dna.yaml` and `execution.yaml`, execution readiness is enforced
 by Lev SDK, not prose:
 
 1. Resolve the task path.
-2. Run `lev task validate <task-id|task-path>` before dispatch.
+2. Run `lev entity task validate <task-id|task-path>` before dispatch.
 3. Prefer `plugins/sdlc/flows/exec-adversarial-readiness.flow.yaml` for claim-backed tasks.
 4. Review order: source-design claim coverage -> verifier adequacy -> declared gate output -> write scope -> code quality.
 5. If `proof_gates.pentagon.lfd.required` is true, verify the LFD target,
@@ -311,7 +311,7 @@ steps:
     on_failure: "Route to /work, /ws, or /lev-plan before executing."
 
   - id: validate_task
-    action: Run `lev task validate <task-id|task-path>`.
+    action: Run `lev entity task validate <task-id|task-path>`.
     validation: "Task validation exits 0, or failures are captured as proposal work."
     on_failure: "Do not dispatch. Route to /lev-plan with diagnostics."
 

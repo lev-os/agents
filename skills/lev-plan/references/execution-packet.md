@@ -75,7 +75,7 @@ requirements:
 - A claim type (`behavior_change`, `architecture_boundary`, `no_regression`,
   ...) is for a claim a plan or design states; its slice lists it in
   `claim_coverage` and `verifier_contract.proves_claims`, and
-  `lev task validate` names any trace fields its type needs.
+  `lev entity task validate` names any trace fields its type needs.
 - When the list outgrows `dna.yaml`, move rows to `evals/<name>.yaml` in the
   task folder under the same `requirements:` key. That file holds overflow
   rows of the one ledger; it defines no evaluator.
@@ -145,7 +145,7 @@ The packet does not select the flow; the launch does.
   The current eval gate reads that flow's node packs and this task's
   `requirements:`, so the packet needs no flow or evaluator field.
 - **Launch instructions.** State them in the final output with the flow passed
-  explicitly: `lev task validate <task>`, then
+  explicitly: `lev entity task validate <task>`, then
   `lev sdlc exec <task> --flow <flow>`. Planning writes the instructions; Exec
   runs them.
 - **Unresolved binding.** When no current flow fits, or recording the
@@ -215,7 +215,7 @@ Source: {plan_ref_or_capture_ref}; fidelity {score}; slice covers {intent_ids}
 Code and rules: {owner_paths}; {rules_index_refs}
 First slice: {slice_id}; write scope {paths}
 Proof: local {check}; integration {check_or_na}; field {check_or_na}
-Launch: `lev task validate {task}`, then `lev sdlc exec {task} --flow {selected_flow}`; route `skill://exec`
+Launch: `lev entity task validate {task}`, then `lev sdlc exec {task} --flow {selected_flow}`; route `skill://exec`
 Open decisions: {none_or_decisions}
 Next: {run_exec|repair|interview}
 </final-proposal>

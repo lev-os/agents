@@ -290,7 +290,7 @@ Observed current surfaces:
 | Show command registry | `$LEV --help` |
 | Route workflow stage | `$LEV work --help` |
 | Dispatch agent work | `$LEV exec --help` |
-| Validate task contract | `$LEV task --help`, then `$LEV task validate <task-id|task-path>` |
+| Validate task contract | `$LEV entity task --help`, then `$LEV entity task validate <task-id|task-path>` |
 | General validation | `$LEV validate <path>`; note that `$LEV validate --help` currently runs validation against cwd |
 | Runtime health | `$LEV doctor --help` currently runs doctor; `$LEV health --help` is discoverable but root-router unimplemented |
 | FlowMind work | `$LEV flowmind --help`, `$LEV flowmind-debug --help` |
