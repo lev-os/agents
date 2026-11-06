@@ -227,10 +227,11 @@ write, or handoff; an ordinary question does not need an administrative table.
 | {User's material goal or constraint} | {Operational interpretation} | {Preserved, approved narrowing, or gap} | {Disk, memory, or both} | {Resolved ref or none} | {Existing owner or unresolved} | {Exact gap or none} | {Evidence, assumption, or unknown} |
 
 Keep the source wording and its material relationships. On a preservation gap,
-retain the original and repair the interpretation before advancing. Derive stage
-from owner evidence; do not write it into the idea record. A saved file is not
-a lifecycle proof. Keep the current seven stages; classification is a supporting
-operation, and completion belongs to its verifier.
+retain the original and repair the interpretation before advancing. The idea
+record stores `status`, its state as a goal: shaping, pursuing, paused, reached
+or dropped. A new idea starts at shaping; a later move follows the idea type's
+declared lifecycle. A saved file is not proof the goal is reached;
+classification is a supporting operation, and completion belongs to its verifier.
 
 <wizard-synthesis>
 🧙‍♂️ **The idea taking shape: {Title}**

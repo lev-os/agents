@@ -34,8 +34,9 @@ The HUD displays observations and records rather than owning their identity.
    A missing or ambiguous target keeps its original value and an explicit gap;
    an old implementation claim does not establish current implementation.
 6. Validate the filled record against its owner schema and read it through the
-   existing reader. Omit stored lifecycle stage. Keep readback and unresolved
-   revision values null. Check source coverage and link destinations before
+   existing reader. Store `status`, the idea's state as a goal: one of shaping,
+   pursuing, paused, reached or dropped; a new idea starts at shaping. Keep
+   readback and unresolved revision values null. Check source coverage and link destinations before
    claiming recovery complete. A missing target is a remaining gap, not a reason
    to fabricate an entity or an available plugin.
 
