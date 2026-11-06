@@ -37,6 +37,21 @@ Examples use a POSIX shell. In PowerShell, quote every ref (`'@s8f3k2p9:e1'`), b
 2. Run `agent-desktop skills get platform`. It loads the skill for the OS the binary runs on (macOS, Windows or Linux).
 3. For flags and syntax, run `agent-desktop <command> --help`. This skill does not repeat flag lists.
 
+## Wake the screen first
+
+A Mac with its display asleep returns `APP_UNRESPONSIVE` "CoreGraphics returned no active displays" on `screenshot`, and `list-displays` may still show the display. Snapshots can still work. Wake the display before any GUI task, and keep it awake while you work (JP 2026-11-06):
+
+```
+caffeinate -u -t 5                 # declare user activity: wakes the display now
+caffeinate -d -u -t 2400           # run in the background: keeps the display awake 40 minutes
+agent-desktop list-displays        # check: one display with bounds
+agent-desktop screenshot --app "Brave Browser" /tmp/x.png   # check: ok, not APP_UNRESPONSIVE
+```
+
+- The display falls asleep again after a few minutes without the background `caffeinate -d`. Start it once per task as a background shell, never as a loop.
+- A Python Quartz cursor nudge needs the `pyobjc` Quartz module, which the system Python lacks. `caffeinate -u` is enough.
+- A locked screen (login window) stays locked. Wake does not unlock it, and you never type a password. Tell JP.
+
 ## The loop
 
 Use `find` when you know the role or exact name. Otherwise map the app first and drill into one region.
