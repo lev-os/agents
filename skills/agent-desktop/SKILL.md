@@ -50,6 +50,7 @@ agent-desktop screenshot --app "Brave Browser" /tmp/x.png   # check: ok, not APP
 
 - The display falls asleep again after a few minutes without the background `caffeinate -d`. Start it once per task as a background shell, never as a loop.
 - A Python Quartz cursor nudge needs the `pyobjc` Quartz module, which the system Python lacks. `caffeinate -u` is enough.
+- Discord (Electron): `set-value` and `type` fill the composer on screen but Discord does not register them, so Enter sends nothing. Use the clipboard: `pbcopy < msg.txt`, then osascript System Events: activate Discord, cmd+a, delete (key code 51), cmd+v, key code 36. Clear the clipboard after (JP 2026-11-06, sent to Sunny this way).
 - A locked screen (login window) stays locked. Wake does not unlock it, and you never type a password. Tell JP.
 
 ## The loop
