@@ -23,7 +23,14 @@ hub_routes:
 
 Owns the UX core: research, personas, flows, wireframes, information architecture, the craft audit and CLI UX. Runs the built-in UX pipeline or one of the routes below.
 
-UX and UI work usually come together. When the work turns to how the screen looks, moves or is shown (UI build or polish, visual direction, a design system, AI-looking UI, mock product shots, motion, diagrams, charts, pages, `.pen` visuals), load [creative](../creative/SKILL.md), the design hub, and follow its route. Pass it the UX artifacts made so far, so the visual work starts from the flows and research, not from a blank brief.
+UX and UI work usually come together. When the work turns to how the screen looks, moves or is shown (UI build or polish, visual direction, a design system, AI-looking UI, mock product shots, motion, diagrams, charts, pages, `.pen` visuals), load [creative](../creative/SKILL.md), the design hub, and follow its route. Pass it the UX artifacts made so far, `prior_art.md` first, so the visual work starts from the product's real screens, its principles and the research, not from a blank brief.
+
+## Every run starts from prior art and runs at full size
+
+These two rules bind every mode and route below, `spike`, `agentic-research` and creative hand-offs included.
+
+1. **Prior art first.** In an existing product, new UX work extends the product's own principles, insights and screens. Before Step 1, run [Prior Art](#phase-0-prior-art) to its completion criterion and write `prior_art.md`. Every later artifact cites it: each choice either extends a prior principle or names the one it supersedes and why.
+2. **Full size, every step.** Run each step at the size its section declares: every persona, every tick, every experiment, every model call, every artifact. A smaller form needs the user's explicit approval before launch, quoted verbatim in the run's step ledger. Without that quote, the full size is the plan. Keep a **step ledger** (`step_ledger.md` in `RUN_DIR`): one row per pipeline step with its declared size, the size actually run, the evidence path, and status (done, running, blocked). A step is done when its row shows the declared size and an evidence path; report the ledger with every status update.
 
 ## Product quality route
 
@@ -240,7 +247,8 @@ English. "Let's do research first" means `research`; "base personas on CDO" mean
 ## Persona Detection Gate
 
 In `full`, `interactive`, `research`, `cdo-research`, and `agentic-research` modes, persona
-detection is the first step unless the user explicitly bypasses it.
+detection is the first step after [Prior Art](#phase-0-prior-art) unless the user explicitly bypasses it.
+Personas start from the users, roles and feedback that `prior_art.md` records.
 
 Naming rule: in non-auto mode this is Step 1. Step 2 is Persona Fanout. Problem
 framing happens after fanout synthesis. In AUTO mode, keep the existing pipeline
@@ -461,21 +469,20 @@ mkdir -p "$RUN_DIR"
 printf '%s\n' "$USER_MSG" > "$RUN_DIR/request.txt"
 ```
 
-## Phase 0: Prior Art (Fast)
+## Phase 0: Prior Art
 
-1. If `bd` exists and `.beads/` exists:
+Required before Step 1 in every mode. The product already has users, screens, principles and an owner who has judged earlier designs; this phase recovers all of it.
 
-- `bd list --status=open | rg -n "ux|design|wireframe|ia|flow" -i || true`
+1. **Prior UX runs.** List every run under `.lev/ux/` (and the project's other design folders) and read each one whose subject touches this request: its summary, constraint bundle, personas, findings, wireframes and the verdicts on them.
+2. **Principles and the design system.** Read the product's design principles, `DESIGN.md` files, design-language or design-system runs, craft audits, the component kit and its Storybook, and the tokens. Note where docs and code disagree; code wins.
+3. **The owner's judgement.** Search decisions, handoffs, reviews and chat captures for the owner's words on look, density, layout, flows and earlier mockups. Quote them verbatim with file:line and date.
+4. **Real screens.** Collect screenshots of the live product for the surfaces this run touches: existing captures, visual-test baselines, Storybook renders, or a run of the app when the project allows it. For a redesign, capture the current screen.
+5. **Current behaviour.** Read the code paths behind those screens enough to state what each does today, with file:line.
+6. **Open work.** Check the tracker (`bd list --status=open` when `.beads/` exists) and other active design work on the same surfaces.
 
-2. Scan local UX artifacts:
+Write `prior_art.md` in `RUN_DIR`: a table of every source read (path, what it decided or shows, extend / supersede / conflict), the owner's verbatim feedback, the principles this run must keep, the real screenshots by path, and the gaps (sources that should exist and do not).
 
-- `ls -t .lev/ux 2>/dev/null | head -n 10 || true`
-
-3. Scan UI code quickly (keep it cheap):
-
-- `rg -n "struct\\s+.*View\\b|SwiftUI|Navigation(Stack|SplitView)|TabView" apps packages extensions 2>/dev/null | head -n 50 || true`
-
-If you find relevant prior art, cite paths in `summary.md` and either extend it or explicitly supersede it.
+Completion: every prior run on these surfaces is cited with extend, supersede or conflict; the owner's feedback is quoted; at least one real screenshot of each touched surface is referenced, or its absence is recorded as a gap with the reason.
 
 ## Phase 0.5: Agentic UX Patterns (lev-ref)
 

@@ -19,7 +19,8 @@ execution procedure; it does not provide a simulation engine or a new CLI.
 
 ## Prepare the study
 
-1. Read the supplied product stimulus and existing problem framing. Start from
+1. Read `prior_art.md` (required, see the skill's Prior Art phase), the supplied
+   product stimulus and existing problem framing. Start from
    raw evidence where available: observed workflows, interviews, support cases,
    task records, and current product behavior. Reuse Persona Detection to create
    ten distinct people. Record each person's role, authority, daily agenda,
@@ -87,8 +88,9 @@ experiments. Record the scenario variation/seed so these are independent starts,
 not ten continuations of one world. Retain scenarios and seeds for comparison.
 
 Default depth: select one ten-person cohort and its checkpoint, then run **fifty
-additional ticks = 500 scheduled decisions**. Total: **1,500**. An explicit
-smaller rehearsal can override these sizes; record its coverage limits.
+additional ticks = 500 scheduled decisions**. Total: **1,500**. These sizes are
+the plan. A smaller rehearsal runs only after the user approves it explicitly;
+quote that approval in the step ledger and record its coverage limits.
 
 Allocate models across scheduled persona decision calls, not people or ticks:
 

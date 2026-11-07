@@ -55,7 +55,10 @@ by path; the full list is the [package index](../../skills-db/creative/README.md
 
 ## Keep
 
-Keep the user's brief, authority and product evidence. Produce the requested
+Keep the user's brief, authority and product evidence. In an existing product, start from its real screens,
+its design principles and the owner's recorded feedback (the UX run's
+`prior_art.md` when one exists), and extend them; name each one you replace
+and why. Produce the requested
 artifact, not only a report. Keep each package's license, credit and source
 status. A package listed here is routed, not qualified: imported packages stay
 unaudited until checked. Run no installer or outside change without its own
