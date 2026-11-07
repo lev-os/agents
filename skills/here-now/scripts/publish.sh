@@ -17,6 +17,8 @@ TTL=""
 CLIENT=""
 TARGET=""
 HANDLE_PATH=""
+JOBS="${HERENOW_UPLOAD_JOBS:-6}"
+RETRIES="${HERENOW_UPLOAD_RETRIES:-5}"
 
 usage() {
   cat <<'USAGE'
@@ -34,6 +36,8 @@ Options:
   --base-url <url>        API base (default: https://here.now)
   --allow-nonherenow-base-url
                          Allow auth requests to non-default API base URL
+  --jobs <n>              Uploads at a time (default 6, or $HERENOW_UPLOAD_JOBS)
+  --retries <n>           Tries per file before it counts as failed (default 5, or $HERENOW_UPLOAD_RETRIES)
 USAGE
   exit 1
 }
@@ -68,6 +72,8 @@ while [[ $# -gt 0 ]]; do
     --handle-path)  HANDLE_PATH="$2"; shift 2 ;;
     --base-url)     BASE_URL="$2"; shift 2 ;;
     --allow-nonherenow-base-url) ALLOW_NON_HERENOW_BASE_URL=1; shift ;;
+    --jobs)         JOBS="$2"; shift 2 ;;
+    --retries)      RETRIES="$2"; shift 2 ;;
     --help|-h)      usage ;;
     -*)             die "unknown option: $1" ;;
     *)              [[ -z "$TARGET" ]] && TARGET="$1" || die "unexpected argument: $1"; shift ;;
@@ -150,19 +156,23 @@ if [[ -f "$TARGET" ]]; then
   FILE_MAP=$("$JQ_BIN" -n --arg p "$bn" --arg a "$(cd "$(dirname "$TARGET")" && pwd)/$(basename "$TARGET")" \
     '{($p):$a}')
 elif [[ -d "$TARGET" ]]; then
-  FILE_MAP="{}"
+  # One JSON line per file, then one jq pass. The old loop re-parsed the whole list once per file, which slowed
+  # a 2,000-file folder down quadratically.
+  TARGET="${TARGET%/}"
+  TARGET_ABS="$(cd "$TARGET" && pwd)"
+  MANIFEST_NDJSON="$(mktemp)"
   while IFS= read -r -d '' f; do
     rel="${f#$TARGET/}"
-    [[ "$rel" == ".DS_Store" ]] && continue
     [[ "$(basename "$rel")" == ".DS_Store" ]] && continue
     sz=$(wc -c < "$f" | tr -d ' ')
     ct=$(guess_content_type "$f")
     h=$(compute_sha256 "$f")
-    abs=$(cd "$(dirname "$f")" && pwd)/$(basename "$f")
-    FILES_JSON=$(echo "$FILES_JSON" | "$JQ_BIN" --arg p "$rel" --argjson s "$sz" --arg c "$ct" --arg h "$h" \
-      '. + [{"path":$p,"size":$s,"contentType":$c,"hash":$h}]')
-    FILE_MAP=$(echo "$FILE_MAP" | "$JQ_BIN" --arg p "$rel" --arg a "$abs" '. + {($p):$a}')
+    "$JQ_BIN" -cn --arg p "$rel" --argjson s "$sz" --arg c "$ct" --arg h "$h" --arg a "$TARGET_ABS/$rel" \
+      '{path:$p,size:$s,contentType:$c,hash:$h,abs:$a}' >> "$MANIFEST_NDJSON"
   done < <(find "$TARGET" -type f -print0 | sort -z)
+  FILES_JSON=$("$JQ_BIN" -s '[.[] | del(.abs)]' "$MANIFEST_NDJSON")
+  FILE_MAP=$("$JQ_BIN" -s 'map({(.path): .abs}) | add // {}' "$MANIFEST_NDJSON")
+  rm -f "$MANIFEST_NDJSON"
 else
   die "not a file or directory: $TARGET"
 fi
@@ -249,40 +259,73 @@ if [[ "$SKIPPED_COUNT" -gt 0 ]]; then
 else
   echo "uploading $UPLOAD_COUNT files..." >&2
 fi
-upload_errors=0
+# One job line per file: path, url, content type, local file (tab-separated). One jq pass, not three per file.
+UPLOAD_JOBS_FILE="$(mktemp)"
+UPLOAD_RESULTS="$(mktemp)"
+if [[ -f "$TARGET" && ! -d "$TARGET" ]]; then
+  SINGLE_FILE="$(cd "$(dirname "$TARGET")" && pwd)/$(basename "$TARGET")"
+  echo "$RESPONSE" | "$JQ_BIN" -r --arg f "$SINGLE_FILE" \
+    '.upload.uploads[] | [.path, .url, (.headers["Content-Type"] // ""), $f] | @tsv' > "$UPLOAD_JOBS_FILE"
+else
+  echo "$RESPONSE" | "$JQ_BIN" -r --argjson map "$FILE_MAP" \
+    '.upload.uploads[] | [.path, .url, (.headers["Content-Type"] // ""), ($map[.path] // "")] | @tsv' > "$UPLOAD_JOBS_FILE"
+fi
 
-for i in $(seq 0 $((UPLOAD_COUNT - 1))); do
-  upload_path=$(echo "$RESPONSE" | "$JQ_BIN" -r ".upload.uploads[$i].path")
-  upload_url=$(echo "$RESPONSE" | "$JQ_BIN" -r ".upload.uploads[$i].url")
-  upload_ct=$(echo "$RESPONSE" | "$JQ_BIN" -r ".upload.uploads[$i].headers[\"Content-Type\"] // empty")
-
-  if [[ -f "$TARGET" && ! -d "$TARGET" ]]; then
-    local_file="$TARGET"
-  else
-    local_file=$(echo "$FILE_MAP" | "$JQ_BIN" -r --arg p "$upload_path" '.[$p]')
+# Uploads one job line, retrying with backoff. The time limit grows with the file: 60 s plus 1 s per 100 KB.
+# Results go to a file, so failures are counted after the parallel run (the old counter lived in a subshell).
+upload_one() {
+  local line="$1" path url ct file size max code attempt=1
+  IFS=$'\t' read -r path url ct file <<< "$line"
+  if [[ -z "$file" || ! -f "$file" ]]; then
+    printf 'fail\t%s\tmissing local file\n' "$path" >> "$UPLOAD_RESULTS"
+    return 0
   fi
+  size=$(wc -c < "$file" | tr -d ' ')
+  max=$(( 60 + size / 102400 ))
+  while :; do
+    if [[ -n "$ct" ]]; then
+      code=$(curl -sS -o /dev/null -w "%{http_code}" --connect-timeout 20 --max-time "$max" -X PUT "$url" \
+        -H "Content-Type: $ct" --data-binary "@$file" 2>/dev/null) || code="000"
+    else
+      code=$(curl -sS -o /dev/null -w "%{http_code}" --connect-timeout 20 --max-time "$max" -X PUT "$url" \
+        --data-binary "@$file" 2>/dev/null) || code="000"
+    fi
+    if [[ "$code" -ge 200 && "$code" -lt 300 ]]; then
+      printf 'ok\t%s\n' "$path" >> "$UPLOAD_RESULTS"
+      return 0
+    fi
+    # A 4xx other than 408 or 429 will not get better with another try.
+    if [[ "$attempt" -ge "$UPLOAD_RETRIES" ]] || [[ "$code" -ge 400 && "$code" -lt 500 && "$code" -ne 408 && "$code" -ne 429 ]]; then
+      printf 'fail\t%s\tHTTP %s after %s tries\n' "$path" "$code" "$attempt" >> "$UPLOAD_RESULTS"
+      return 0
+    fi
+    sleep $(( attempt * attempt ))
+    attempt=$(( attempt + 1 ))
+  done
+}
+export -f upload_one
+export UPLOAD_RESULTS
+export UPLOAD_RETRIES="$RETRIES"
 
-  if [[ ! -f "$local_file" ]]; then
-    echo "warning: missing local file for $upload_path" >&2
-    upload_errors=$((upload_errors + 1))
-    continue
-  fi
+if [[ "$UPLOAD_COUNT" -gt 0 ]]; then
+  echo "  ($JOBS at a time, up to $RETRIES tries per file)" >&2
+  tr '\n' '\0' < "$UPLOAD_JOBS_FILE" | xargs -0 -n 1 -P "$JOBS" bash -c 'upload_one "$1"' _ &  # -n 1, not -I: BSD -I caps an argument at 255 bytes
+  uploader=$!
+  while kill -0 "$uploader" 2>/dev/null; do
+    sleep 5
+    echo "  uploaded $(wc -l < "$UPLOAD_RESULTS" | tr -d ' ') of $UPLOAD_COUNT" >&2
+  done
+  wait "$uploader" || true
+fi
 
-  ct_args=()
-  [[ -n "$upload_ct" ]] && ct_args=(-H "Content-Type: $upload_ct")
-
-  http_code=$(curl -sS -o /dev/null -w "%{http_code}" -X PUT "$upload_url" \
-    "${ct_args[@]+"${ct_args[@]}"}" \
-    --data-binary "@$local_file")
-
-  if [[ "$http_code" -lt 200 || "$http_code" -ge 300 ]]; then
-    echo "warning: upload failed for $upload_path (HTTP $http_code)" >&2
-    upload_errors=$((upload_errors + 1))
-  fi
-done &
-wait
-
-[[ "$upload_errors" -eq 0 ]] || die "$upload_errors file(s) failed to upload"
+upload_errors=$(grep -c '^fail' "$UPLOAD_RESULTS" || true)
+uploaded=$(grep -c '^ok' "$UPLOAD_RESULTS" || true)
+if [[ "$upload_errors" -gt 0 || "$uploaded" -ne "$UPLOAD_COUNT" ]]; then
+  grep '^fail' "$UPLOAD_RESULTS" | cut -f2- | sed 's/^/  failed: /' >&2 || true
+  rm -f "$UPLOAD_JOBS_FILE" "$UPLOAD_RESULTS"
+  die "$upload_errors file(s) failed and $uploaded of $UPLOAD_COUNT uploaded, so nothing was finalized. Run the same command again to retry"
+fi
+rm -f "$UPLOAD_JOBS_FILE" "$UPLOAD_RESULTS"
 
 # Step 3: Finalize
 echo "finalizing..." >&2
