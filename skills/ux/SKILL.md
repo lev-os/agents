@@ -29,7 +29,7 @@ UX and UI work usually come together. When the work turns to how the screen look
 
 These two rules bind every mode and route below, `spike`, `agentic-research` and creative hand-offs included.
 
-1. **Prior art first.** In an existing product, new UX work extends the product's own principles, insights and screens. Before Step 1, run [Prior Art](#phase-0-prior-art) to its completion criterion and write `prior_art.md`. Every later artifact cites it: each choice either extends a prior principle or names the one it supersedes and why.
+1. **Prior art first.** In an existing product, new UX work starts from the current UI state and what is in `.lev/ux`, and extends them. Before Step 1, run [Prior Art](#phase-0-prior-art) to its completion criterion and write `prior_art.md`. Every later artifact cites it: each choice either extends a prior principle or names the one it supersedes and why.
 2. **Full size, every step.** Run each step at the size its section declares: every persona, every tick, every experiment, every model call, every artifact. A smaller form needs the user's explicit approval before launch, quoted verbatim in the run's step ledger. Without that quote, the full size is the plan. Keep a **step ledger** (`step_ledger.md` in `RUN_DIR`): one row per pipeline step with its declared size, the size actually run, the evidence path, and status (done, running, blocked). A step is done when its row shows the declared size and an evidence path; report the ledger with every status update.
 
 ## Product quality route
@@ -471,18 +471,18 @@ printf '%s\n' "$USER_MSG" > "$RUN_DIR/request.txt"
 
 ## Phase 0: Prior Art
 
-Required before Step 1 in every mode. Prior art is two things: **the existing UI state** and **the previous UX**. New work starts from both and extends them.
+Required before Step 1 in every mode. UX prior art is **the current UI state** plus **what is in `.lev/ux`**. A run starts from both, never from a blank page.
 
-1. **Existing UI state.** What the product shows today on the surfaces this run touches: the screens and components in code, their Storybook stories, and captures already on disk. Read them; take a new screenshot only for a surface you will redesign and have no image of.
-2. **Previous UX.** Every earlier UX run, design and mockup on these surfaces, **failed attempts first**: what was tried, what the owner rejected, and the owner's words on it. Include the chat history of this work (the current and recent sessions, decision records, handoffs): every correction the owner gave is prior art.
+1. **Current UI state.** What the product shows today on the surfaces this run touches: the screens and components in code and their Storybook stories, with paths. Use captures already on disk; take a new screenshot only for a surface you will redesign and have no image of.
+2. **`.lev/ux`.** Every earlier run on these surfaces: its findings, wireframes and mockups, and the owner's verdict on each, rejected attempts included.
 
 Write `prior_art.md` in `RUN_DIR`:
-- the existing UI state per surface (what it is, where it lives in code or Storybook);
-- previous attempts as a dated list: attempt, outcome, the owner's verdict quoted, the lesson;
+- the current UI state per surface (what it is, where it lives in code or Storybook);
+- the earlier `.lev/ux` attempts as a dated list: attempt, outcome, the owner's verdict quoted, the lesson;
 - the rules this run keeps, each with its source;
 - for each planned change: extend, or supersede with the reason.
 
-Completion: every earlier attempt on these surfaces and every owner correction in the recent chat history is listed with its lesson, and the existing UI state of each touched surface is named. Nothing new is designed until this is written.
+Completion: every `.lev/ux` run on these surfaces is listed with its lesson, and the current UI state of each touched surface is named with its code or Storybook path. Nothing new is designed until this is written.
 
 ## Phase 0.5: Agentic UX Patterns (lev-ref)
 
