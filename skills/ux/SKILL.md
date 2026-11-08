@@ -603,6 +603,7 @@ Rules:
 This section is the static persona-by-model method. For longitudinal Agentic
 user research, use its route and reference instead; its ten-person tick
 experiments do not use the static matrix or its sizing guidance.
+Both follow [Synthetic users suggest ideas to test](references/agentic-user-research.md#synthetic-users-suggest-ideas-to-test) (Nielsen Norman Group): persona output is an idea to test until real users or the product confirm it.
 
 **Depends on**: `problem_spec.yaml` must exist.
 **Reference**: Load `references/study-construction.md` for methodology.

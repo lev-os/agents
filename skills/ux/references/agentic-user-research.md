@@ -7,6 +7,7 @@ execution procedure; it does not provide a simulation engine or a new CLI.
 
 ## Contents
 
+- [Synthetic users suggest ideas to test](#synthetic-users-suggest-ideas-to-test)
 - [Prepare the study](#prepare-the-study)
 - [Save study state](#save-study-state)
 - [Allocate models and experiments](#allocate-models-and-experiments)
@@ -16,6 +17,47 @@ execution procedure; it does not provide a simulation engine or a new CLI.
 - [Keep evidence and analyze journeys](#keep-evidence-and-analyze-journeys)
 - [Apply the judgment checks](#apply-the-judgment-checks)
 - [Verify the method](#verify-the-method)
+
+## Synthetic users suggest ideas to test
+
+This is the evidence rule for every synthetic persona in this skill, static or
+agentic. It follows Nielsen Norman Group's research on AI-generated users:
+
+- Rosala and Moran, "Synthetic Users: If, When, and How to Use AI-Generated
+  'Research'" (NN/g, 2024-06-21, nngroup.com/articles/synthetic-users/):
+  synthetic users help with desk research, piloting a study and generating
+  hypotheses; they are sycophantic ("every idea is often seen as a good one"),
+  flat, care about everything equally, and "cannot produce behavioral data".
+- Budiu, "Evaluating AI-Simulated Behavior" (NN/g, 2025-08-15,
+  nngroup.com/articles/ai-simulations-studies/): personas grounded in real
+  interview data model people better than personas built from a description.
+- Banawa, "Synthetic Users vs. Human Respondents: Same Conclusion, Less
+  Variation" (NN/g, 2026-10-16, nngroup.com/articles/synthetic-users-vs-human-respondents/):
+  synthetic answers show mode collapse (they keep the common answer and drop the
+  long tail); "treat synthetic findings as a starting point rather than as
+  evidence"; "when the tail of responses matters, you need human participants".
+
+Apply it this way:
+
+1. **Ideas, not facts.** Every persona output is an idea to test: a decision,
+   a break, or a suggestion. Label it synthetic in every artifact. It becomes
+   evidence only after a product reproduction or a check with real users, named
+   per finding.
+2. **Ground in real people.** Build each persona from prior art, observed
+   anecdotes and supplied facts, cited per field; mark the rest synthetic.
+3. **Independent calls.** Each persona decides in its own model call with only
+   its own brief, so one model's assumption is not repeated as agreement.
+   Agreement across personas is still one model family's view; report it as
+   such.
+4. **Personas suggest ideas.** Each persona decision may carry one suggestion:
+   what the person wishes the product did at that moment, in their words. Keep
+   suggestions in an ideas ledger (person, experiment, tick, suggestion, the
+   break it answers, how often it recurs, the real-user check). A suggestion
+   shapes the next round's stimulus; it never proves demand.
+5. **Counter the known biases.** Look for sycophancy (praise for every
+   concept), equal weighting of needs, and missing long-tail behaviour; ask
+   personas to rank and to name what they would skip, and record what the
+   simulation cannot show.
 
 ## Prepare the study
 
@@ -132,7 +174,7 @@ available models, and the requested mix is distinguishable from actual usage.
    steering anyone's choice or advancing the world while responses are pending.
 3. **Validate decisions.** Each response identifies its person, input world
    version, one chosen action and target, brief reason, expected outcome, and
-   relevant unknowns. Reject multiple actions, stale input, or use of private
+   relevant unknowns, plus at most one suggestion (see [Synthetic users suggest ideas to test](#synthetic-users-suggest-ideas-to-test)). Reject multiple actions, stale input, or use of private
    information outside the brief. A plausible attempt at a forbidden action
    remains a valid decision: product rules determine its denied outcome.
 4. **Resolve and commit together.** Once all responses are valid, determine
@@ -200,7 +242,7 @@ recovery, and unfinished work. For each failure hypothesis, record its source
 experiment/tick/person, world before/after, expected versus observed simulated
 outcome, competing explanations, supporting evidence, and the smallest product
 reproduction or real-user research check that could confirm or falsify it.
-Separate coordination/provider errors from UX findings. Report scheduled,
+Write the ideas ledger beside the findings. Separate coordination/provider errors from UX findings. Report scheduled,
 completed, denied, failed, retried, and unresolved calls with actual model shares.
 
 Completion: every finding links to raw decisions and world transitions, states
