@@ -471,18 +471,18 @@ printf '%s\n' "$USER_MSG" > "$RUN_DIR/request.txt"
 
 ## Phase 0: Prior Art
 
-Required before Step 1 in every mode. The product already has users, screens, principles and an owner who has judged earlier designs; this phase recovers all of it.
+Required before Step 1 in every mode. Prior art is two things: **the existing UI state** and **the previous UX**. New work starts from both and extends them.
 
-1. **Prior UX runs.** List every run under `.lev/ux/` (and the project's other design folders) and read each one whose subject touches this request: its summary, constraint bundle, personas, findings, wireframes and the verdicts on them.
-2. **Principles and the design system.** Read the product's design principles, `DESIGN.md` files, design-language or design-system runs, craft audits, the component kit and its Storybook, and the tokens. Note where docs and code disagree; code wins.
-3. **The owner's judgement.** Search decisions, handoffs, reviews and chat captures for the owner's words on look, density, layout, flows and earlier mockups. Quote them verbatim with file:line and date.
-4. **Real screens.** Collect screenshots of the live product for the surfaces this run touches: existing captures, visual-test baselines, Storybook renders, or a run of the app when the project allows it. For a redesign, capture the current screen.
-5. **Current behaviour.** Read the code paths behind those screens enough to state what each does today, with file:line.
-6. **Open work.** Check the tracker (`bd list --status=open` when `.beads/` exists) and other active design work on the same surfaces.
+1. **Existing UI state.** What the product shows today on the surfaces this run touches: the screens and components in code, their Storybook stories, and captures already on disk. Read them; take a new screenshot only for a surface you will redesign and have no image of.
+2. **Previous UX.** Every earlier UX run, design and mockup on these surfaces, **failed attempts first**: what was tried, what the owner rejected, and the owner's words on it. Include the chat history of this work (the current and recent sessions, decision records, handoffs): every correction the owner gave is prior art.
 
-Write `prior_art.md` in `RUN_DIR`: a table of every source read (path, what it decided or shows, extend / supersede / conflict), the owner's verbatim feedback, the principles this run must keep, the real screenshots by path, and the gaps (sources that should exist and do not).
+Write `prior_art.md` in `RUN_DIR`:
+- the existing UI state per surface (what it is, where it lives in code or Storybook);
+- previous attempts as a dated list: attempt, outcome, the owner's verdict quoted, the lesson;
+- the rules this run keeps, each with its source;
+- for each planned change: extend, or supersede with the reason.
 
-Completion: every prior run on these surfaces is cited with extend, supersede or conflict; the owner's feedback is quoted; at least one real screenshot of each touched surface is referenced, or its absence is recorded as a gap with the reason.
+Completion: every earlier attempt on these surfaces and every owner correction in the recent chat history is listed with its lesson, and the existing UI state of each touched surface is named. Nothing new is designed until this is written.
 
 ## Phase 0.5: Agentic UX Patterns (lev-ref)
 
