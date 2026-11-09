@@ -1,6 +1,6 @@
 ---
 name: tools
-description: Atlassian, Rovo, Robo, Teamwork Graph, TWG, Jira, Confluence; REA reverse engineering, MCP-to-CLI integration; GitHub, gh, issues, pull requests; Notion, ntn, pages, databases; Slack, chat, messaging, Block Kit; Exa, web search, semantic search, contents; AgentMail, email, inboxes, OTP; Herdr, terminal panes, agent sessions; Excalidraw diagrams, mcporter; computer use, macOS GUI, desktop automation, background clicks, drag, canvas; add tool, install skill, absorb integration.
+description: Atlassian, Rovo, Robo, Teamwork Graph, TWG, Jira, Confluence; REA reverse engineering, MCP-to-CLI integration; GitHub, gh, issues, pull requests; Notion, ntn, pages, databases; Slack, chat, messaging, Block Kit; Exa, web search, semantic search, contents; AgentMail, email, inboxes, OTP; Herdr, terminal panes, agent sessions; T3 Code, t3 CLI, T3 threads, chats; Excalidraw diagrams, mcporter; computer use, macOS GUI, desktop automation, background clicks, drag, canvas; add tool, install skill, absorb integration.
 ---
 
 # Tools
@@ -22,6 +22,7 @@ instructions only; existing leaves keep their operations.
 | AgentMail inboxes, messages, drafts, OTP, monitoring | [AgentMail](references/agentmail/SKILL.md) | Host `agentmail` or API; [setup](references/agentmail/INSTALL.md) |
 | Herdr pane inspection and authorized agent coordination | [Herdr](references/herdr/SKILL.md) | Optional host `herdr`; [setup](references/herdr/INSTALL.md) |
 | macOS GUI, background clicks, drag and canvas work | [Computer use](references/computer-use/SKILL.md) | `cu` code session: Codex's engine (ChatGPT app) by default, open-computer-use CLI (npm) as fallback; any host app; [local setup](references/computer-use/INSTALL.md) |
+| T3 Code threads (chats) from outside T3: list, read, message, start | [T3 Code](references/t3.md) | Host `t3` (`~/.t3/bin/t3`), installed by the T3 Code desktop app |
 | Excalidraw diagrams through the hosted Excalidraw+ MCP | [Excalidraw](references/excalidraw.md) | Host `mcporter`; hosted MCP endpoint |
 | Add a tool, install a leaf, absorb an integration | [Add a tool](references/add-tool.md) | Skill workflow; intake/qualification belongs to `skill-builder` |
 | REA apps, binaries, archives and decompilation | [REA](references/rea.md) | Existing CLI or MCP through `mcporter` |
