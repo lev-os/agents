@@ -103,7 +103,13 @@ Use one isolated integration branch and worktree per repository, based on the
 pinned target SHA. Reuse only an integration whose ownership and exact scope
 are verified; never repurpose an unrelated worktree. Keep repository paths,
 branch names, base/head SHAs and merge provenance in the evidence. Do not create
-a worktree per PR or model. Reviewers share an immutable snapshot read-only.
+a worktree per PR or model. Reviewers share an immutable snapshot read-only and
+make no worktree, clone or code index of their own.
+
+Create the integration worktree under a persistent folder beside the repository
+(`<repo>/.worktrees/` or `<repo>-worktrees/`). A temp path (`/tmp`,
+`/private/tmp`, `/var/folders`, an agent scratchpad) is never a worktree root:
+macOS deletes temp folders and git keeps a ghost entry.
 
 Merge the scoped changes first in dependency order. Resolve mechanical conflicts
 only when intent is clear; escalate conflicts that change behavior or design.
@@ -197,6 +203,24 @@ Lead with results and decisions. Give a compact report with evidence links:
   Name remaining authorization/decisions without treating local containment as
   remote closure or local green as permission to publish.
 
+- **Teardown:** each worktree this train made, with its path, branch and state:
+  removed, or kept with the decision that releases it.
+
+## Tear down the worktree
+
+The train ends when the integration branch is merged, published or abandoned.
+In that same turn, for each worktree this train made:
+
+1. Confirm it is clean and its commits are on the integration branch.
+2. Run `git worktree remove <path>`, then `git worktree prune`.
+3. Delete any code index made for that path
+   (`codebase-memory-mcp cli delete_project --project <name>`).
+
+A worktree that waits for a decision stays. Report its path, its branch and the
+decision that releases it. Teardown is done when every worktree this train made
+is removed or reported as kept.
+
 Mark completion only when the requested scope, both model reviews, architect
-assessment, fixes and final checks have adequate evidence. Otherwise report the
-partial result and precise blocker. Preserve local artifacts for the next step.
+assessment, fixes, final checks and teardown have adequate evidence. Otherwise
+report the partial result and precise blocker. Preserve evidence artifacts
+(packets, logs, reports) for the next step.
