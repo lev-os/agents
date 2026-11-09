@@ -474,7 +474,7 @@ printf '%s\n' "$USER_MSG" > "$RUN_DIR/request.txt"
 Required before Step 1 in every mode. UX prior art is **the current UI state** plus **what is in `.lev/ux`**. A run starts from both, never from a blank page.
 
 1. **Current UI state.** What the product shows today on the surfaces this run touches: the screens and components in code and their Storybook stories, with paths. Use captures already on disk; take a new screenshot only for a surface you will redesign and have no image of.
-2. **`.lev/ux`.** Every earlier run on these surfaces: its findings, wireframes and mockups, and the owner's verdict on each, rejected attempts included.
+2. **`.lev/ux`.** Everything in `.lev/ux` on these surfaces, this run's own folder included: earlier passes, study plans, study rounds with their raw results, syntheses, specs, wireframes, mockups, review pages, and the owner's verdict on each. A rejected attempt is still prior art: keep what the owner did not reject and build on it. Mark a source superseded only when the work that replaces it exists on disk.
 
 Write `prior_art.md` in `RUN_DIR`:
 - the current UI state per surface (what it is, where it lives in code or Storybook);
@@ -482,7 +482,7 @@ Write `prior_art.md` in `RUN_DIR`:
 - the rules this run keeps, each with its source;
 - for each planned change: extend, or supersede with the reason.
 
-Completion: every `.lev/ux` run on these surfaces is listed with its lesson, and the current UI state of each touched surface is named with its code or Storybook path. Nothing new is designed until this is written.
+Completion: every file in `.lev/ux` on these surfaces is accounted for in `prior_art.md`, as used (what it gives this run) or not relevant (why), and the current UI state of each touched surface is named with its code or Storybook path. Nothing new is designed until this is written.
 
 ## Phase 0.5: Agentic UX Patterns (lev-ref)
 
