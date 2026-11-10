@@ -259,23 +259,28 @@ if [[ "$SKIPPED_COUNT" -gt 0 ]]; then
 else
   echo "uploading $UPLOAD_COUNT files..." >&2
 fi
-# One job line per file: path, url, content type, local file (tab-separated). One jq pass, not three per file.
+# Each job is base64-encoded JSON so empty headers and special characters survive xargs.
 UPLOAD_JOBS_FILE="$(mktemp)"
 UPLOAD_RESULTS="$(mktemp)"
 if [[ -f "$TARGET" && ! -d "$TARGET" ]]; then
   SINGLE_FILE="$(cd "$(dirname "$TARGET")" && pwd)/$(basename "$TARGET")"
   echo "$RESPONSE" | "$JQ_BIN" -r --arg f "$SINGLE_FILE" \
-    '.upload.uploads[] | [.path, .url, (.headers["Content-Type"] // ""), $f] | @tsv' > "$UPLOAD_JOBS_FILE"
+    '.upload.uploads[] | {path: .path, url: .url, contentType: (.headers["Content-Type"] // ""), file: $f} | @base64' > "$UPLOAD_JOBS_FILE"
 else
   echo "$RESPONSE" | "$JQ_BIN" -r --argjson map "$FILE_MAP" \
-    '.upload.uploads[] | [.path, .url, (.headers["Content-Type"] // ""), ($map[.path] // "")] | @tsv' > "$UPLOAD_JOBS_FILE"
+    '.upload.uploads[] | {path: .path, url: .url, contentType: (.headers["Content-Type"] // ""), file: ($map[.path] // "")} | @base64' > "$UPLOAD_JOBS_FILE"
 fi
 
 # Uploads one job line, retrying with backoff. The time limit grows with the file: 60 s plus 1 s per 100 KB.
 # Results go to a file, so failures are counted after the parallel run (the old counter lived in a subshell).
 upload_one() {
   local line="$1" path url ct file size max code attempt=1
-  IFS=$'\t' read -r path url ct file <<< "$line"
+  {
+    IFS= read -r -d '' path
+    IFS= read -r -d '' url
+    IFS= read -r -d '' ct
+    IFS= read -r -d '' file
+  } < <(printf '%s' "$line" | "$JQ_BIN" -Rjr '@base64d | fromjson | .path, "\u0000", .url, "\u0000", .contentType, "\u0000", .file, "\u0000"')
   if [[ -z "$file" || ! -f "$file" ]]; then
     printf 'fail\t%s\tmissing local file\n' "$path" >> "$UPLOAD_RESULTS"
     return 0
@@ -304,7 +309,7 @@ upload_one() {
   done
 }
 export -f upload_one
-export UPLOAD_RESULTS
+export UPLOAD_RESULTS JQ_BIN
 export UPLOAD_RETRIES="$RETRIES"
 
 if [[ "$UPLOAD_COUNT" -gt 0 ]]; then
