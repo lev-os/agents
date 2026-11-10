@@ -133,7 +133,13 @@ A working showcase proves its inspected behavior, not every product integration.
 
 ## Visual QA gate
 
-Every `/now` render passes this gate before you report it, on both routes. Follow the routine and probe in [references/genui-craft.md](references/genui-craft.md#visual-qa-routine): every distinct view and state, light and dark, 1440 and 390 wide (plus 1024, 900 and 768 for layout changes), measured, then read image by image. A screenshot you have not read is not evidence. When a check cannot run, say which one and why, and keep it as a gap.
+Every `/now` render passes this gate before you report it, on both routes. Follow the routine and probe in [references/genui-craft.md](references/genui-craft.md#visual-qa-routine): every distinct view and state, light and dark, 1440 and 390 wide (plus 1024, 900 and 768 for layout changes), measured, then read image by image. A screenshot nobody has read is not evidence. When a check cannot run, say which one and why, and keep it as a gap.
+
+**A QA worker runs the gate.** The agent that wrote the page hands the routine to a worker on a small model: Claude Sonnet (a subagent with `model: sonnet`), or Sol 6.1 on Codex (`gpt-6.1-sol`). Capturing, measuring and reading screenshots is the costly part of the gate and it follows a fixed list, so the large models (Opus, Fable, Astra) write and fix the page and leave the gate to the worker (JP 2026-11-09). An author that already runs on a small model runs the gate itself.
+
+- **Brief:** the rendered page path, the views and states to cover, a fresh temp QA directory, and the routine in [references/genui-craft.md](references/genui-craft.md#visual-qa-routine). The worker writes only inside the QA directory.
+- **The worker returns:** one line for each image it read, the measured values, each defect with its section or selector and what is wrong, and each gap.
+- **The author:** fixes `source.html`, re-renders, and sends the worker the changed views again. The author opens an image only to settle a defect the worker's line leaves unclear.
 
 Authored graphs, GenUI drafts, RenderSpec JSON, and rendered HTML stay with the project in `.lev/now/`. Run commands from the target project root (resolve the renderer executable separately when it belongs to another checkout). QA screenshots and manifests go to a fresh system-temp directory via `LEV_NOW_QA_DIR`, including the probe, watch/refresh and other browser screenshot tools. Never place QA screenshots in `.lev/tmp/now`. Retain QA evidence only when needed, through the existing XDG artifact route with a project/task reference. The built-in screenshot pass is a quick width check for any rendered HTML; it does not switch themes:
 
@@ -186,7 +192,7 @@ python3 scripts/feedback-answers.py .lev/now/{slug}.json          # read the cur
 
 ## Report
 
-After non-published output, give the local HTML path, a brief mapping from requirements to the page's parts, and the QA evidence: the views and images you read, the measured values, the fixes, and the gaps you could not check. For published output, report only the published URL.
+After non-published output, give the local HTML path, a brief mapping from requirements to the page's parts, and the QA evidence: which model ran the gate, the views and images it read, the measured values, the fixes, and the gaps you could not check. For published output, report only the published URL.
 
 ## Field notes from Hermes
 

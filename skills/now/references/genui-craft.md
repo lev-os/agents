@@ -54,7 +54,7 @@ Real `<button>` elements, a visible `:focus-visible` ring, ARIA tabs with arrow 
 
 ## Visual QA routine
 
-Run it on every GenUI render, before you report. A PNG on disk is not an inspection.
+Run it on every GenUI render, before you report. A PNG on disk is not an inspection. A QA worker on a small model runs steps 1 to 4 and 6, and the page's author does the fix in step 5 ([who runs the gate](../SKILL.md#visual-qa-gate)).
 
 1. **List the views.** Every distinct view and state the page has: each tab, route, dialog, selected or expanded state, the state after each primary action, and empty or error states you designed. For a collection, list every item. When you inspect only some, name the rest as not viewed.
 2. **Capture.** Light and dark at 1440 and 390 wide for each view. Add 1024, 900 and 768 when the layout changes between them. Write captures to a fresh temp directory, never into the project. Use the probe below.
