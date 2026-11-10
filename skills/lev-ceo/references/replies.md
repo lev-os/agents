@@ -57,6 +57,14 @@ Cause: {one line | can't tell; what I looked at}
 Countermeasure: {what I do now}
 ```
 
+## Queue head
+
+When: the queue has a head (`SKILL.md` §9 step 2). The head chat fills the template from its card: `goal` gives Goal, `state` gives the answer line, and `ask`, `recommend` and `ifNoAnswer` give the one For you item. Every chat gets this same shape. The last line above the mesh line:
+
+```text
+Queue: {left} left: {short title}, {short title}, … (at most 6 titles, then "+{n}")
+```
+
 ## Catch-up
 
 When: "catch me up", any ask with a time window. The method and the shape are in `references/catch-up.md`.
