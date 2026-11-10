@@ -133,6 +133,18 @@ test("next picks priority, then addedAt, and the presented head stays the head",
   assert.deepEqual(q(["show"]).items.map((it) => it.id), ["new2", "low", "urgent"]);
 });
 
+test("a watch item never becomes the head and is not counted as left", () => {
+  openQueue();
+  put(item("w", { kind: "watch", priority: 1 }), { now: at(0) });
+  put(item("a", { priority: 3 }), { now: at(1) });
+  const first = q(["next"], { now: at(2) });
+  assert.equal(first.item.id, "a");
+  assert.equal(first.left, 0);
+  q(["resolve", "--item", "a", "--to", "done", "--note", "answered"], { now: at(3) });
+  assert.equal(q(["next"], { now: at(4) }).item, null, "only a watch item is left: no head");
+  assert.deepEqual(q(["show"]).items.map((it) => it.id), ["w"], "show still lists the watch item");
+});
+
 test("next on an empty queue returns no item and writes nothing", () => {
   const { path } = openQueue();
   assert.deepEqual(q(["next"]), { item: null, left: 0, leftTitles: [] });

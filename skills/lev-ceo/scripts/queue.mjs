@@ -19,7 +19,8 @@
  * queue folders, for tests).
  *
  * Queue order: the presented item first (it stays the head until resolved), then pending by priority
- * (1 first) then addedAt, then waiting, then done and dropped.
+ * (1 first) then addedAt, then waiting, then done and dropped. A watch item is never the head and never
+ * counted in `left`: refresh reads its chat and puts it again as attention when it needs JP.
  * Moves: pending -> presented (by next); presented -> done | waiting | dropped | pending;
  *        waiting -> pending | done | dropped.
  * JSON on stdout. Exit 0 ok, exit 2 bad input (the reason on stderr).
@@ -112,11 +113,14 @@ export function ordered(items) {
   return [...items].sort((a, b) => (RANK[a.status] ?? 4) - (RANK[b.status] ?? 4) || byPriority(a, b));
 }
 
-/** The head: the presented item, else the first pending one; null when the queue has none. */
+/** A watch item is for the refresh pass, never for JP: refresh reads its chat and puts it again as attention when it needs him. */
+const forJp = (item) => item.kind !== "watch";
+
+/** The head: the presented item, else the first pending item that is not a watch item; null when the queue has none. */
 export function head(items) {
-  const presented = items.filter((item) => item.status === "presented").sort(byPriority);
+  const presented = items.filter((item) => item.status === "presented" && forJp(item)).sort(byPriority);
   if (presented.length > 0) return presented[0];
-  return items.filter((item) => item.status === "pending").sort(byPriority)[0] ?? null;
+  return items.filter((item) => item.status === "pending" && forJp(item)).sort(byPriority)[0] ?? null;
 }
 
 function validateItem(item) {
@@ -232,7 +236,7 @@ function next(dir, queue, { now }) {
     item.updatedAt = now;
     logEvent(dir, { at: now, item: item.id, from: "pending", to: "presented", note: "head of the queue" });
   }
-  const rest = ordered(queue.items).filter((other) => other !== item && (other.status === "pending" || other.status === "waiting"));
+  const rest = ordered(queue.items).filter((other) => other !== item && forJp(other) && (other.status === "pending" || other.status === "waiting"));
   return { out: { item, left: rest.length, leftTitles: rest.map((other) => other.title) }, changed };
 }
 
