@@ -5,7 +5,7 @@
  * It builds a saved thread list in a temporary folder (ten chats, each failing a different part of the
  * test, plus three that are ready), gives a fresh `claude -p` agent only SKILL.md and those files, and
  * compares the chats it would settle with the script's `settle` list. The agent gets no scripts folder,
- * so it must apply the six parts from the skill's words.
+ * so it must apply the seven parts from the skill's words.
  *
  * Usage: node ~/.agents/skills/lev-ceo/tests/fresh-agent-settle.mjs [--model <id>] [--keep]
  * Exit 0: the two lists match. Exit 1: they differ. Exit 2: the agent gave no list. It calls a model once.
@@ -42,7 +42,7 @@ const threads = {
   currentThreadId: "mcp:ceo",
   threads: [
     chat("mcp:ceo", "CEO > demo", { status: "running", updatedAt: ago(0) }),
-    chat("mcp:landed", "demo > groups build"),
+    chat("mcp:landed", "demo > groups build", { updatedAt: ago(0.1) }),
     chat("mcp:accepted", "demo > cold caller"),
     chat("mcp:worktree", "demo > phone icons"),
     chat("mcp:task", "demo > design skills hub"),
@@ -70,7 +70,7 @@ const waits = {
   "mcp:theirs": quiet, "mcp:both": quiet,
 };
 const inMain = { landed: { repo, commit: landed, into: "main" } };
-const row = (thread_id, title, proof, over = {}) => ({ thread_id, title, state: "accepted", worktree: null, proof, left: [], ...over });
+const row = (thread_id, title, proof, over = {}) => ({ thread_id, title, state: "accepted", worktree: null, proof, left: [], for_jp: [], ...over });
 const mine = {
   id: "20261110-ceo-demo",
   type: "handoff",
@@ -82,7 +82,7 @@ const mine = {
     row("mcp:worktree", "demo > phone icons", inMain, { worktree: join(dir, "worktrees", "phone-icons") }),
     row("mcp:task", "demo > design skills hub", inMain),
     row("mcp:branch", "demo > test caller", { landed: { repo, commit: unlanded, into: "main" } }),
-    row("mcp:fresh", "demo > teams tests", inMain),
+    row("mcp:fresh", "demo > teams tests", inMain, { for_jp: [{ what: "lost drafts on a team switch need their own look" }] }),
     row("mcp:running", "demo > phone alerts", inMain, { state: "running" }),
     row("mcp:question", "demo > fast feedback", inMain),
     row("mcp:queued", "demo > daemon role", inMain),

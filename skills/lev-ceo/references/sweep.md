@@ -32,7 +32,7 @@ Every chat a CEO starts or adopts is titled `{project} > {two or three words}`, 
 ## Words
 
 - **stale:** `updatedAt` older than 1 hour while the status is `running` or `waiting`, or older than 1 day while it is `interrupted`. An interrupted chat is not a failure: read its new messages before you call it stuck.
-- **idle:** finished, unsettled, empty queue, `updatedAt` older than 2 hours. Idle makes a settle candidate; the settle script decides (`SKILL.md` §4).
+- **finished:** status `completed`, unsettled, empty queue. Finished makes a settle candidate, whatever its age; the settle script decides from the final report (`SKILL.md` §4). "Done" in the chat list is not a status: read the report.
 
 ## Scopes
 

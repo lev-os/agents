@@ -40,7 +40,7 @@ before(() => {
 after(() => rmSync(dir, { recursive: true, force: true }));
 
 const thread = (id, over = {}) => ({ threadId: id, title: `chat ${id}`, status: "completed", updatedAt: HOURS_AGO(3), ...over });
-const worker = (id, over = {}) => ({ thread_id: id, title: `chat ${id}`, proof: { landed: { repo, commit: landed, into: "main" } }, left: [], ...over });
+const worker = (id, over = {}) => ({ thread_id: id, title: `chat ${id}`, proof: { landed: { repo, commit: landed, into: "main" } }, left: [], for_jp: [], ...over });
 const calm = (...ids) => Object.fromEntries(ids.map((id) => [id, { questions: 0, queued: 0 }]));
 
 function run(input) {
@@ -130,12 +130,24 @@ test("a pending question, a queued message or unread waits each hold the chat", 
   assert.match(reasonsFor(run({ threads: [thread("f")], handoffs, waits: {} }), "f"), /waits not read/);
 });
 
-test("a running chat and a chat active in the last 2 hours are held", () => {
+test("a running chat is held; a chat that ended minutes ago is not held for its idle time", () => {
   const handoffs = [{ id: "ceo-one", workers: [worker("g"), worker("h")] }];
-  const out = run({ threads: [thread("g", { status: "running" }), thread("h", { updatedAt: HOURS_AGO(0.5) })], handoffs });
-  assert.deepEqual(ids(out.settle), []);
+  const out = run({ threads: [thread("g", { status: "running" }), thread("h", { updatedAt: HOURS_AGO(0.05) })], handoffs });
   assert.match(reasonsFor(out, "g"), /not finished: status running/);
-  assert.match(reasonsFor(out, "h"), /not quiet/);
+  assert.deepEqual(ids(out.settle), ["h"]);
+});
+
+// Known bad, 2026-11-11: about 20 chats showed "Done" in T3 while their reports held questions JP had never seen.
+// JP: "its not about time idle its about 'work done' and 'any insights/questions i should nkow about'".
+test("known bad: a done chat is held until each insight and question for JP says where he was told", () => {
+  const out = (for_jp) => run({ threads: [thread("q")], handoffs: [{ id: "ceo-one", workers: [worker("q", { for_jp })] }] });
+
+  assert.match(reasonsFor(out(undefined), "q"), /report not read for JP/);
+  assert.match(reasonsFor(out([{ what: "should the menu stay open when a call drops?" }]), "q"), /not told to JP: should the menu stay open/);
+  assert.match(reasonsFor(out(["only one cloud build is left"]), "q"), /not told to JP: only one cloud build is left/);
+
+  assert.deepEqual(ids(out([]).settle), ["q"]);
+  assert.deepEqual(ids(out([{ what: "only one cloud build is left", told: "CEO > leviathan reply 2026-11-11T08:13Z" }]).settle), ["q"]);
 });
 
 test("with --owner, another CEO's ready chat goes under ask_owner; the CEO's own chat is never listed", () => {
@@ -179,7 +191,7 @@ test("the command reads its files, prints JSON and exits 0; a missing file exits
 const LEV_ROOT = process.env.LEV_ROOT ?? join(homedir(), "digital", "leviathan");
 test("a YAML handoff is read with the checkout's yaml library", { skip: !existsSync(join(LEV_ROOT, "node_modules", "yaml")) && "no Lev checkout with yaml installed" }, () => {
   const handoff = join(dir, "20261110-ceo-test.yaml");
-  writeFileSync(handoff, `id: ceo-yaml\ntype: handoff\nworkers:\n  - thread_id: "y"\n    title: yaml chat\n    proof: {accepted: {at: '${HOURS_AGO(5)}', check: "node --test: 12 pass"}}\n    left: []\n`);
+  writeFileSync(handoff, `id: ceo-yaml\ntype: handoff\nworkers:\n  - thread_id: "y"\n    title: yaml chat\n    proof: {accepted: {at: '${HOURS_AGO(5)}', check: "node --test: 12 pass"}}\n    left: []\n    for_jp: []\n`);
   const threads = join(dir, "y-threads.json");
   writeFileSync(threads, JSON.stringify([thread("y")]));
   const waits = join(dir, "y-waits.json");

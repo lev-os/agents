@@ -2,12 +2,14 @@
 /**
  * Ready to settle: which worker chats a CEO may settle now, and why each other chat must wait.
  *
- * A chat is ready when all seven parts hold (the seventh: JP 2026-11-11, "its not 'is it idle' is IS THE ... WORK DONE"):
+ * A chat is ready when all seven parts hold. Idle time is not one of them (JP 2026-11-11: "its not about time idle
+ * its about 'work done' and 'any insights/questions i should nkow about'"):
  *   left      the owner listed what the final report left undone (`left:` on the worker row, [] when
  *             nothing) and each leftover is fixed (`fixed: <sha>`) or tracked (`record: <path>#<id>`)
+ *   for_jp    the owner listed the insights and questions in the final report that JP should know
+ *             (`for_jp:` on the row, [] when none) and each says where JP was told (`told: <reply UTC or record>`)
  *   owner     exactly one CEO handoff lists it under `workers:` with `thread_id`
  *   finished  its last turn ended (completed, failed, cancelled, interrupted or rolled_back)
- *   quiet     nothing happened in it for 2 hours
  *   no waits  no pending question and no queued message (counts the CEO read this turn)
  *   no task   no enabled scheduled task is bound to it
  *   proof     its work landed (`git merge-base --is-ancestor`) or the owner accepted it on a rerun
@@ -15,7 +17,7 @@
  * Usage (run in the project checkout, or pass --root):
  *   node ~/.agents/skills/lev-ceo/scripts/settle.mjs --threads <file> --tasks <file> --waits <file>
  *        [--handoff <file> ...] [--owner <handoff id>] [--self <thread id>] [--now <ISO time>]
- *        [--quiet-hours <n>] [--root <dir>] [--text]
+ *        [--root <dir>] [--text]
  *
  * --threads  the `t3_thread_list` result (settled:false), or a list of rows with
  *            threadId, title, status, updatedAt
@@ -111,8 +113,21 @@ function leftProblems(worker) {
   return problems;
 }
 
+/** Why the row's `for_jp` list does not let the chat settle; [] when JP was told all of it. */
+function toldProblems(worker) {
+  const list = worker.for_jp;
+  if (!Array.isArray(list)) return ["report not read for JP: the row has no `for_jp` list of insights and questions (use [] when there are none)"];
+  const problems = [];
+  for (const item of list) {
+    const entry = item && typeof item === "object" ? item : { what: item }; // a bare string was never told
+    const what = String(entry.what ?? "").trim() || "an entry with no `what`";
+    if (!String(entry.told ?? "").trim()) problems.push(`not told to JP: ${what}`);
+  }
+  return problems;
+}
+
 /** Decide every unsettled chat. Pure but for the git call in `proofOf`. */
-export function decide({ threads, tasks, waits, handoffs, owner, self, now, quietHours = 2, root = process.cwd() }) {
+export function decide({ threads, tasks, waits, handoffs, owner, self, now, root = process.cwd() }) {
   const byThread = claims(handoffs);
   const out = { now: new Date(now).toISOString(), settle: [], ask_owner: [], hold: [] };
   for (const thread of threads) {
@@ -128,9 +143,6 @@ export function decide({ threads, tasks, waits, handoffs, owner, self, now, quie
 
     if (!ENDED.has(thread.status)) reasons.push(`not finished: status ${thread.status}`);
 
-    const idle = (new Date(now) - new Date(thread.updatedAt)) / 3_600_000;
-    if (!(idle >= quietHours)) reasons.push(`not quiet: last activity ${Math.max(idle, 0).toFixed(1)} hours ago, needs ${quietHours}`);
-
     const wait = waits[id];
     if (!wait) reasons.push("waits not read: no pending-question and queue counts for it");
     else {
@@ -145,6 +157,7 @@ export function decide({ threads, tasks, waits, handoffs, owner, self, now, quie
       const proof = proofOf(claimed[0].worker, root);
       if (!proof.ok) reasons.push(proof.why);
       reasons.push(...leftProblems(claimed[0].worker));
+      reasons.push(...toldProblems(claimed[0].worker));
     }
 
     if (reasons.length > 0) {
@@ -175,7 +188,6 @@ function main(argv) {
       owner: { type: "string" },
       self: { type: "string" },
       now: { type: "string" },
-      "quiet-hours": { type: "string" },
       root: { type: "string" },
       text: { type: "boolean" },
     },
@@ -193,7 +205,6 @@ function main(argv) {
     owner: values.owner,
     self: values.self ?? (Array.isArray(listing) ? undefined : listing.currentThreadId),
     now: values.now ?? new Date().toISOString(),
-    quietHours: values["quiet-hours"] ? Number(values["quiet-hours"]) : 2,
     root,
   });
   if (!values.text) return console.log(JSON.stringify(result, null, 2));

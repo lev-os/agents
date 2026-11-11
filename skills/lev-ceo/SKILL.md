@@ -112,15 +112,16 @@ workers:
    - fixed: `{what: "<plain words>", fixed: <sha>}` after you saw the commit;
    - tracked: `{what: "<plain words>", record: "<path>#<row id or key>"}`, where the record is a debt row, a backlog item, a plan step or an open question to JP. A note in the handoff does not count (`AGENTS.md` section 3: debt is a row);
    - a report that left nothing: `left: []`.
-6. Reply with the Result (`references/replies.md`). It names the leftovers and their records.
+6. **List what JP must know.** From the same report, every question it asks JP or the CEO, and every insight that changes a plan, costs money, touches production or affects a person, is one entry under `for_jp:`. Tell JP each one in the reply, then write where: `{what: "<plain words>", told: "<this chat's title> reply <UTC>"}`. A report with nothing for JP: `for_jp: []`.
+7. Reply with the Result (`references/replies.md`). It names the leftovers and their records, and what JP must know.
 
-Done when the reply names the rerun command, its count and the commit, and the row holds the proof and the `left` list.
+Done when the reply names the rerun command, its count and the commit, and the row holds the proof, the `left` list and the `for_jp` list.
 
 **The work is done, or the chat is not.** JP 2026-11-11: "chats often have remaining risks/questions and didn't finish teh work. its not "is it idle" is IS THE FUCKING WORK DONE". A finished, quiet chat with an accepted proof can still hold unfinished work: on 2026-11-11 a CEO asked for 17 such chats to be settled without one leftover list. `completed` and idle say the turn ended; only the `left` list says what the work still owes.
 
 ## 4. Settle
 
-Settle a worker chat when the script says it is ready. Ready means all seven: one owner, finished, quiet for 2 hours, no pending question or queued message, no enabled scheduled task bound to it, work that landed or was accepted on your rerun, and a `left` list in which every leftover is fixed or points at its record (§3, Collect and rerun step 5). A row with no `left` list is held: nobody read what the chat left.
+Settle a worker chat when the script says it is ready. Ready means all seven: one owner, finished, no pending question or queued message, no enabled scheduled task bound to it, work that landed or was accepted on your rerun, a `left` list in which every leftover is fixed or points at its record (§3, Collect and rerun step 5), and a `for_jp` list in which every insight and question says where JP was told (step 6). A row with no `left` or `for_jp` list is held: nobody read the report. Idle time is not a test (JP 2026-11-11: "its not about time idle its about "work done" and "any insights/questions i should nkow about"", `.lev/pm/decisions/20261111-settle-on-work-done-and-what-jp-must-know-not-idle-time.yaml`).
 
 1. **Save three reads** as JSON under `~/.local/state/lev/ceo/settle/`:
    - `threads.json`: the rows of `t3_thread_list {settled:false, includeSubagents:false, limit:50}`. Each row needs `threadId`, `title`, `status` and `updatedAt`.
