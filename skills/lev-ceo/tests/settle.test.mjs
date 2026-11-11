@@ -40,7 +40,7 @@ before(() => {
 after(() => rmSync(dir, { recursive: true, force: true }));
 
 const thread = (id, over = {}) => ({ threadId: id, title: `chat ${id}`, status: "completed", updatedAt: HOURS_AGO(3), ...over });
-const worker = (id, over = {}) => ({ thread_id: id, title: `chat ${id}`, proof: { landed: { repo, commit: landed, into: "main" } }, ...over });
+const worker = (id, over = {}) => ({ thread_id: id, title: `chat ${id}`, proof: { landed: { repo, commit: landed, into: "main" } }, left: [], ...over });
 const calm = (...ids) => Object.fromEntries(ids.map((id) => [id, { questions: 0, queued: 0 }]));
 
 function run(input) {
@@ -71,6 +71,20 @@ test("known bad: an enabled scheduled task bound to the chat holds it; with the 
 
   const elsewhere = run({ ...input, tasks: [{ ...task, boundThreadId: "another chat" }] });
   assert.deepEqual(ids(elsewhere.settle), ["hub"]);
+});
+
+// Known bad, 2026-11-11: a CEO asked for 17 finished, quiet, accepted chats to be settled and had read no leftover of any.
+test("known bad: a finished, quiet, accepted chat is held until its leftovers are listed and each is fixed or tracked", () => {
+  const out = (left) => run({ threads: [thread("w")], handoffs: [{ id: "ceo-one", workers: [worker("w", { left })] }] });
+
+  assert.match(reasonsFor(out(undefined), "w"), /leftovers not read/);
+  assert.match(reasonsFor(out(null), "w"), /leftovers not read/);
+  assert.match(reasonsFor(out([{ what: "four review claims still fail" }]), "w"), /leftover with no record: four review claims still fail/);
+  assert.match(reasonsFor(out(["no test moves a design by a verb"]), "w"), /leftover with no record: no test moves a design by a verb/);
+  assert.match(reasonsFor(out([{ what: "a folder list is stale", record: ".lev/pm/handoffs/x-ceo.yaml#turn_0645z" }]), "w"), /tracked only in a handoff/);
+
+  assert.deepEqual(ids(out([]).settle), ["w"]);
+  assert.deepEqual(ids(out([{ what: "four review claims still fail", record: ".lev/pm/reports/debt.yaml#M826" }, { what: "three test titles said send", fixed: "d759b46ea2" }]).settle), ["w"]);
 });
 
 test("work that is still on its branch holds the chat", () => {
@@ -165,7 +179,7 @@ test("the command reads its files, prints JSON and exits 0; a missing file exits
 const LEV_ROOT = process.env.LEV_ROOT ?? join(homedir(), "digital", "leviathan");
 test("a YAML handoff is read with the checkout's yaml library", { skip: !existsSync(join(LEV_ROOT, "node_modules", "yaml")) && "no Lev checkout with yaml installed" }, () => {
   const handoff = join(dir, "20261110-ceo-test.yaml");
-  writeFileSync(handoff, `id: ceo-yaml\ntype: handoff\nworkers:\n  - thread_id: "y"\n    title: yaml chat\n    proof: {accepted: {at: '${HOURS_AGO(5)}', check: "node --test: 12 pass"}}\n`);
+  writeFileSync(handoff, `id: ceo-yaml\ntype: handoff\nworkers:\n  - thread_id: "y"\n    title: yaml chat\n    proof: {accepted: {at: '${HOURS_AGO(5)}', check: "node --test: 12 pass"}}\n    left: []\n`);
   const threads = join(dir, "y-threads.json");
   writeFileSync(threads, JSON.stringify([thread("y")]));
   const waits = join(dir, "y-waits.json");

@@ -70,7 +70,7 @@ const waits = {
   "mcp:theirs": quiet, "mcp:both": quiet,
 };
 const inMain = { landed: { repo, commit: landed, into: "main" } };
-const row = (thread_id, title, proof, over = {}) => ({ thread_id, title, state: "accepted", worktree: null, proof, ...over });
+const row = (thread_id, title, proof, over = {}) => ({ thread_id, title, state: "accepted", worktree: null, proof, left: [], ...over });
 const mine = {
   id: "20261110-ceo-demo",
   type: "handoff",

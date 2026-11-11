@@ -91,6 +91,7 @@ workers:
     check: "lev check --source .lev/eval/suites/groups-expectations.eval.yaml --json"
     worktree: null                   # the path, when you made one
     proof: null                      # set by Collect and rerun
+    left: null                       # set by Collect and rerun: what the report left undone; [] when nothing
 ```
 
 **Ready.** A slice is ready when its scope, its owner and a check that can fail are known. A slice that is not ready gets a My plan line that names the missing piece.
@@ -107,13 +108,19 @@ workers:
    - work that reached a shared branch: `proof: {landed: {repo: ., commit: <sha>, into: origin/main}}`
    - anything else: `proof: {accepted: {at: '<UTC>', check: "<command>: <count>"}}`
 4. A failed rerun: the row stays `reported`; send the worker the failure, or narrow the brief.
-5. Reply with the Result (`references/replies.md`).
+5. **List what the report left.** Read the whole final report, not its first lines. Every item it names as not done, not tested, not run, could not check, failed, weaker, a risk, an open question or "left for you" is one entry under `left:`. A review's failed claim is a leftover of the work it reviewed. Then give each entry one way out, in the same turn:
+   - fixed: `{what: "<plain words>", fixed: <sha>}` after you saw the commit;
+   - tracked: `{what: "<plain words>", record: "<path>#<row id or key>"}`, where the record is a debt row, a backlog item, a plan step or an open question to JP. A note in the handoff does not count (`AGENTS.md` section 3: debt is a row);
+   - a report that left nothing: `left: []`.
+6. Reply with the Result (`references/replies.md`). It names the leftovers and their records.
 
-Done when the reply names the rerun command, its count and the commit, and the row holds the proof.
+Done when the reply names the rerun command, its count and the commit, and the row holds the proof and the `left` list.
+
+**The work is done, or the chat is not.** JP 2026-11-11: "chats often have remaining risks/questions and didn't finish teh work. its not "is it idle" is IS THE FUCKING WORK DONE". A finished, quiet chat with an accepted proof can still hold unfinished work: on 2026-11-11 a CEO asked for 17 such chats to be settled without one leftover list. `completed` and idle say the turn ended; only the `left` list says what the work still owes.
 
 ## 4. Settle
 
-Settle a worker chat when the script says it is ready. Ready means all six: one owner, finished, quiet for 2 hours, no pending question or queued message, no enabled scheduled task bound to it, and work that landed or was accepted on your rerun.
+Settle a worker chat when the script says it is ready. Ready means all seven: one owner, finished, quiet for 2 hours, no pending question or queued message, no enabled scheduled task bound to it, work that landed or was accepted on your rerun, and a `left` list in which every leftover is fixed or points at its record (§3, Collect and rerun step 5). A row with no `left` list is held: nobody read what the chat left.
 
 1. **Save three reads** as JSON under `~/.local/state/lev/ceo/settle/`:
    - `threads.json`: the rows of `t3_thread_list {settled:false, includeSubagents:false, limit:50}`. Each row needs `threadId`, `title`, `status` and `updatedAt`.
@@ -126,7 +133,7 @@ Settle a worker chat when the script says it is ready. Ready means all six: one 
    3. `t3_thread_organize {action:"settle", threadId}`. Always pass `threadId`; with none, the call settles this chat.
    4. Set the row to `state: settled` with `settled_at`.
 4. **Each `hold` row** keeps its chat open; its `reasons` say what is missing. An enabled scheduled task is the one you fix first: delete the task when its job is done, or move it (make it again with `schedule_task` bound to this chat, then delete the old one), then run the script again. A task that runs in a settled chat reopens the chat.
-5. **Each `ask_owner` row** is another CEO's ready chat: settle it when that CEO or JP asks. A CEO with no T3 tools sends its list to the project's T3 CEO.
+5. **Each `ask_owner` row** is another CEO's ready chat: settle it when that CEO or JP asks. A CEO with no T3 tools sends its list to the project's T3 CEO; the list names each chat's leftovers and their records, not only its id.
 6. **Report** each settled chat by its link under Shipped. `unsettle` undoes a settle.
 
 A chat with "no owner" is JP's: settle it on his word only. Done when a second run lists no `settle` row you own and `git worktree list` shows none of the removed paths.

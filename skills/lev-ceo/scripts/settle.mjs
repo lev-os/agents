@@ -2,7 +2,9 @@
 /**
  * Ready to settle: which worker chats a CEO may settle now, and why each other chat must wait.
  *
- * A chat is ready when all six parts hold:
+ * A chat is ready when all seven parts hold (the seventh: JP 2026-11-11, "its not 'is it idle' is IS THE ... WORK DONE"):
+ *   left      the owner listed what the final report left undone (`left:` on the worker row, [] when
+ *             nothing) and each leftover is fixed (`fixed: <sha>`) or tracked (`record: <path>#<id>`)
  *   owner     exactly one CEO handoff lists it under `workers:` with `thread_id`
  *   finished  its last turn ended (completed, failed, cancelled, interrupted or rolled_back)
  *   quiet     nothing happened in it for 2 hours
@@ -93,6 +95,22 @@ function proofOf(worker, root) {
   return { ok: false, why: "no proof: work neither landed nor accepted on a rerun" };
 }
 
+/** Why the row's `left` list does not let the chat settle; [] when every leftover has a way out. */
+function leftProblems(worker) {
+  const left = worker.left;
+  if (!Array.isArray(left)) return ["leftovers not read: the row has no `left` list (use [] when the report left nothing)"];
+  const problems = [];
+  for (const item of left) {
+    const entry = item && typeof item === "object" ? item : { what: item }; // a bare string has no way out
+    const what = String(entry.what ?? "").trim() || "an entry with no `what`";
+    const fixed = String(entry.fixed ?? "").trim();
+    const record = String(entry.record ?? "").trim();
+    if (!fixed && !record) problems.push(`leftover with no record: ${what}`);
+    else if (record && /handoffs\//.test(record)) problems.push(`leftover tracked only in a handoff: ${what}`);
+  }
+  return problems;
+}
+
 /** Decide every unsettled chat. Pure but for the git call in `proofOf`. */
 export function decide({ threads, tasks, waits, handoffs, owner, self, now, quietHours = 2, root = process.cwd() }) {
   const byThread = claims(handoffs);
@@ -126,6 +144,7 @@ export function decide({ threads, tasks, waits, handoffs, owner, self, now, quie
     if (claimed.length === 1) {
       const proof = proofOf(claimed[0].worker, root);
       if (!proof.ok) reasons.push(proof.why);
+      reasons.push(...leftProblems(claimed[0].worker));
     }
 
     if (reasons.length > 0) {
