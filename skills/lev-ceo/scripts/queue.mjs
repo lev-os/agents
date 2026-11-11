@@ -21,7 +21,7 @@
  * Queue order: the presented item first (it stays the head until resolved), then pending by priority
  * (1 first) then addedAt, then waiting, then done and dropped. A watch item is never the head and never
  * counted in `left`: refresh reads its chat and puts it again as attention when it needs JP.
- * Moves: pending -> presented (by next); presented -> done | waiting | dropped | pending;
+ * Moves: pending -> presented (by next), done | dropped (refresh: answered in its own chat); presented -> done | waiting | dropped | pending;
  *        waiting -> pending | done | dropped.
  * JSON on stdout. Exit 0 ok, exit 2 bad input (the reason on stderr).
  */
@@ -35,7 +35,8 @@ export const KINDS = ["attention", "settle", "watch"];
 export const STATUSES = ["pending", "presented", "waiting", "done", "dropped"];
 const CLOSED = new Set(["done", "dropped"]);
 const MOVES = {
-  pending: ["presented"],
+  // done or dropped straight from pending: JP answered in the item's own chat, or the ask went away, before the CEO showed it.
+  pending: ["presented", "done", "dropped"],
   presented: ["done", "waiting", "dropped", "pending"],
   waiting: ["pending", "done", "dropped"],
   done: [],

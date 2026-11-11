@@ -154,7 +154,7 @@ test("next on an empty queue returns no item and writes nothing", () => {
 test("resolve: allowed moves set their stamps; other moves are refused", () => {
   openQueue();
   put(item("a"));
-  assert.match(q(["resolve", "--item", "a", "--to", "done", "--note", "x"], { status: 2 }), /pending -> done/);
+  assert.match(q(["resolve", "--item", "a", "--to", "waiting", "--note", "x"], { status: 2 }), /pending -> waiting/);
   q(["next"], { now: at(1) });
   const done = q(["resolve", "--item", "a", "--to", "done", "--note", "merged PR"], { now: at(2) }).item;
   assert.equal(done.doneAt, at(2));
@@ -172,6 +172,23 @@ test("resolve: allowed moves set their stamps; other moves are refused", () => {
   assert.match(q(["resolve", "--item", "nope", "--to", "done", "--note", "x"], { status: 2 }), /no item/);
   assert.match(q(["resolve", "--item", "b", "--to", "presented", "--note", "x"], { status: 2 }), /--to must be/);
   assert.match(q(["resolve", "--item", "b", "--to", "done"], { status: 2 }), /--note/);
+});
+
+test("resolve: refresh closes a pending item that JP answered in its own chat, and the head moves on", () => {
+  openQueue();
+  put(item("head", { priority: 1 }));
+  put(item("answered", { priority: 2 }));
+  put(item("gone", { priority: 3 }));
+  put(item("last", { priority: 3 }));
+  q(["next"], { now: at(1) });
+  const done = q(["resolve", "--item", "answered", "--to", "done", "--note", "JP said yea in the chat"], { now: at(2) }).item;
+  assert.equal(done.status, "done");
+  assert.equal(done.doneAt, at(2));
+  assert.equal(done.presentedAt, undefined, "it was never shown here");
+  assert.equal(q(["resolve", "--item", "gone", "--to", "dropped", "--note", "ask withdrawn"], { now: at(3) }).item.status, "dropped");
+  const next = q(["next"], { now: at(4) });
+  assert.equal(next.item.id, "head", "the presented head stays");
+  assert.deepEqual(next.leftTitles, ["chat last"]);
 });
 
 test("due: both due at first, then after three quarters of 60 and 180 minutes", () => {
