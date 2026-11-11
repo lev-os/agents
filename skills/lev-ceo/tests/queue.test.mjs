@@ -174,17 +174,19 @@ test("resolve: allowed moves set their stamps; other moves are refused", () => {
   assert.match(q(["resolve", "--item", "b", "--to", "done"], { status: 2 }), /--note/);
 });
 
-test("due: both due at first, then at 60 and 180 minutes after ran", () => {
+test("due: both due at first, then after three quarters of 60 and 180 minutes", () => {
   openQueue();
   assert.deepEqual(q(["due"]), { refresh: true, hygiene: true });
   assert.deepEqual(q(["ran", "--kind", "refresh"]), { lastRefreshAt: T0 });
   assert.deepEqual(q(["ran", "--kind", "hygiene"]), { lastHygieneAt: T0 });
-  assert.deepEqual(q(["due"], { now: at(59) }), { refresh: false, hygiene: false });
-  assert.deepEqual(q(["due"], { now: at(60) }), { refresh: true, hygiene: false });
-  q(["ran", "--kind", "refresh"], { now: at(60) });
-  assert.deepEqual(q(["due"], { now: at(119) }), { refresh: false, hygiene: false });
-  q(["ran", "--kind", "refresh"], { now: at(120) });
-  assert.deepEqual(q(["due"], { now: at(179) }), { refresh: false, hygiene: false });
+  assert.deepEqual(q(["due"], { now: at(44) }), { refresh: false, hygiene: false });
+  assert.deepEqual(q(["due"], { now: at(45) }), { refresh: true, hygiene: false });
+  // The hourly timer fires a minute before the last pass's stamp is an hour old: still due.
+  q(["ran", "--kind", "refresh"], { now: at(61) });
+  assert.deepEqual(q(["due"], { now: at(120) }), { refresh: true, hygiene: false });
+  q(["ran", "--kind", "refresh"], { now: at(121) });
+  assert.deepEqual(q(["due"], { now: at(134) }), { refresh: false, hygiene: false });
+  assert.deepEqual(q(["due"], { now: at(135) }), { refresh: false, hygiene: true });
   assert.deepEqual(q(["due"], { now: at(180) }), { refresh: true, hygiene: true });
   assert.match(q(["ran", "--kind", "other"], { status: 2 }), /--kind/);
 });

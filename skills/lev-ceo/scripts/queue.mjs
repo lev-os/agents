@@ -264,9 +264,15 @@ function resolveItem(dir, queue, { id, to, note, now }) {
   return { item };
 }
 
+/**
+ * Due once three quarters of the interval have passed. `ran` is stamped when a pass ends, and the timer
+ * fires on the hour, so a full-interval test skipped every other tick (observed 2026-11-11: ran 00:37:07,
+ * next tick 01:36:16, 59 minutes, not due). The timer still fires once per interval, so nothing runs twice.
+ */
+const DUE_SHARE = 0.75;
 function isDue(last, everyMin, now) {
   if (!last) return true;
-  return Date.parse(now) - Date.parse(last) >= everyMin * 60_000;
+  return Date.parse(now) - Date.parse(last) >= everyMin * 60_000 * DUE_SHARE;
 }
 
 function due(queue, { now }) {
