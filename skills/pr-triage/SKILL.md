@@ -1,6 +1,6 @@
 ---
 name: pr-triage
-description: Use when triaging a scoped set of pull requests as a merge train - gate each PR for readiness, bounce what is not ready, merge what is ready into one integration branch, then review the whole result once with two models and an architect, fix blocking findings, verify, and report.
+description: Use when triaging a scoped set of pull requests as a merge train - gate each PR for readiness, bounce what is not ready, merge what is ready into one integration branch, then review the whole result once, sized by a complexity router (no agent for a small or stacked train, up to two models and an architect for a large one), fix blocking findings, verify, and report.
 ---
 
 ## Merge train rules (JP, 2026-10-30; these override anything below)
@@ -26,6 +26,38 @@ description: Use when triaging a scoped set of pull requests as a merge train - 
    feature goes to its own thread and enters a later train through the gate.
 8. **Update every PR and ticket** with its outcome: merged, merged with
    follow-up issues, or bounced with the blocking items.
+
+## Complexity router (JP, 2026-11-12; sizes rule 4)
+
+JP: "i dont need a shit load of subagents if the pr is small / stacked be smart".
+The controller gates every PR itself; a gate never starts an agent. Agents are
+spent only on the one combined review, sized by the train's tier.
+
+1. **One unit per stack.** PRs whose heads are ancestors of another scoped head
+   are one unit: gate them in order, merge in order, size the unit once by its
+   top head against the target. A PR already contained in the target costs
+   nothing: record the proof and skip it.
+2. **Tier each unit** from its diff against the target (`git diff --shortstat`,
+   files and packages touched). The highest matching row wins.
+
+   | Tier | When | Review spend |
+   |---|---|---|
+   | T0 trivial | ≤50 changed lines; only tests, docs, words or fixtures | none of its own |
+   | T1 small | ≤400 changed lines; one package; no wire contract, auth, security, migration or new boundary | none of its own |
+   | T2 medium | ≤1500 changed lines, or 2 to 4 packages | counts toward the combined review |
+   | T3 large or risky | >1500 lines; or a wire contract, auth, security, data migration, new role or moved boundary | counts toward the combined review, with `arch` Review Mode at full depth |
+
+3. **The train's tier is its highest unit.** The one combined review is:
+   - T0 or T1 only: **no review agent**. The controller reads the combined diff
+     itself against the `pr-review` criteria and `arch`'s Review Mode questions,
+     and the full gates (rule 6) are the proof.
+   - T2: **one** review agent, Claude Opus at medium effort.
+   - T3: the **two** of rule 4 (Opus medium and Codex xhigh), with the
+     architecture assessment inside them.
+   Never more than two review agents per train, and never one per PR. The user
+   can ask for more; record that ask.
+4. **Report the router.** The report lists each unit, its stack members, its
+   size, its tier with the row that set it, and the review spend it caused.
 
 # PR triage
 
@@ -124,7 +156,9 @@ complete source snapshot, relevant callers/runtime paths and tests, existing
 check evidence and known uncertainty. A truncated packet is not whole-result
 coverage; report missing context rather than guessing. Record the packet digest.
 
-Through Coder, launch two independent read-only reviews of this same result:
+The complexity router sets how many of these run: none for a T0 or T1 train,
+Opus alone for T2, both for T3. Through Coder, launch the reviews the tier
+calls for, each independent and read-only, on this same result:
 
 - Claude **Opus 5.5, Medium**.
 - Codex **6.1 Sol, Extra High** (`xhigh` reasoning).
@@ -220,7 +254,7 @@ A worktree that waits for a decision stays. Report its path, its branch and the
 decision that releases it. Teardown is done when every worktree this train made
 is removed or reported as kept.
 
-Mark completion only when the requested scope, both model reviews, architect
+Mark completion only when the requested scope, the reviews the tier called for, architect
 assessment, fixes, final checks and teardown have adequate evidence. Otherwise
 report the partial result and precise blocker. Preserve evidence artifacts
 (packets, logs, reports) for the next step.
