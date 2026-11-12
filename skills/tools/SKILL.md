@@ -1,6 +1,6 @@
 ---
 name: tools
-description: Atlassian, Rovo, Robo, Teamwork Graph, TWG, Jira, Confluence; REA reverse engineering, MCP-to-CLI integration; GitHub, gh, issues, pull requests; Notion, ntn, pages, databases; Slack, chat, messaging, Block Kit; Exa, web search, semantic search, contents; AgentMail, email, inboxes, OTP; Herdr, terminal panes, agent sessions; T3 Code, t3 CLI, T3 threads, chats; BrowserSkill, bsk, logged-in browser, Brave, browser profile; Excalidraw diagrams, mcporter; computer use, macOS GUI, desktop automation, background clicks, drag, canvas; add tool, install skill, absorb integration.
+description: Atlassian, Rovo, Robo, Teamwork Graph, TWG, Jira, Confluence; REA reverse engineering, MCP-to-CLI integration; GitHub, gh, issues, pull requests; Notion, ntn, pages, databases; Slack, chat, messaging, Block Kit; Exa, web search, semantic search, contents; AgentMail, email, inboxes, OTP; Monid, agent tools gateway, data endpoints; RouterGrowth, growth data, lead search, contact enrichment, SEO SERP; Herdr, terminal panes, agent sessions; T3 Code, t3 CLI, T3 threads, chats; BrowserSkill, bsk, logged-in browser, Brave, browser profile; Excalidraw diagrams, mcporter; computer use, macOS GUI, desktop automation, background clicks, drag, canvas; add tool, install skill, absorb integration.
 ---
 
 # Tools
@@ -19,6 +19,8 @@ instructions only; existing leaves keep their operations.
 | Slack CLI, teams, apps, authentication, deployment | [Slack CLI branch](references/slack/SKILL.md#cli) | Optional host Slack CLI; [setup](references/slack/INSTALL.md) |
 | Slack methods, OAuth scopes, pagination, rate limits | [Slack API branch](references/slack/SKILL.md#web-api) | HTTP/SDK or host CLI; [setup](references/slack/INSTALL.md) |
 | Explicit Exa search, contents, answers, API | [Exa](references/exa/SKILL.md) | Bundled shell transport; [setup](references/exa/INSTALL.md) |
+| Monid gateway: discover, inspect and run paid data endpoints | [Monid](references/monid/SKILL.md) | Host `monid` (npm `@monid-ai/cli`); [setup](references/monid/INSTALL.md) |
+| RouterGrowth leads, enrichment, SEO SERP, social search, LinkedIn, web scrape | [RouterGrowth](references/routergrowth/SKILL.md) | MCP, REST or host `routergrowth`; [setup](references/routergrowth/INSTALL.md) |
 | AgentMail inboxes, messages, drafts, OTP, monitoring | [AgentMail](references/agentmail/SKILL.md) | Host `agentmail` or API; [setup](references/agentmail/INSTALL.md) |
 | Herdr pane inspection and authorized agent coordination | [Herdr](references/herdr/SKILL.md) | Optional host `herdr`; [setup](references/herdr/INSTALL.md) |
 | macOS GUI, background clicks, drag and canvas work | [Computer use](references/computer-use/SKILL.md) | `cu` code session: Codex's engine (ChatGPT app) by default, open-computer-use CLI (npm) as fallback; any host app; [local setup](references/computer-use/INSTALL.md) |
