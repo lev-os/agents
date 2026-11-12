@@ -94,7 +94,7 @@ Routes, in order for each PR (stacks bottom first):
 | decide | Merge when the gate has no reason, the review is complete, it has no critical or major finding and the lead recommends approve. Otherwise reply. | none |
 | merge | `gh pr merge <n> --merge` (a merge commit) on the reviewed head (`--match-head-commit`). | none |
 | issues | For each linked issue: on merge, a comment with the merge commit (GitHub closes a closing reference); when not merged, a comment that links the PR reply. | none |
-| reply | Post `comment-draft.json` once per head, as the team bot. Drop a finding already posted on an earlier head. | none |
+| reply | `lev openqodex watch-bounce` without `--dry-run` posts the reply itself: once per author head (`state.json`, else a GitHub comment with the head marker, says a head is done; a forced repost is refused), with `gh api` and the body on stdin, as the user `--post_as` names. Drop a finding already posted on an earlier head. | none |
 | lens | Only for a PR that is not merged: the PR Lens page, one self-contained file, encrypted (AES-GCM), on here.now. The key is only in the link after `#k=`. | pi |
 | clean | Remove review worktrees with no running action (`git worktree remove`, then `git worktree prune`); settle the loop's own idle workers; clear a stale lock; drop closed PRs from the state; keep `state.json.prev`. | none |
 
@@ -122,12 +122,15 @@ Watch-mode rules:
   becomes a reason in its reply.
 - **One review per author head.** State in `~/.local/state/lev/pr-watch/state.json`,
   keyed `<owner/name>#<n>`, holds the heads already reviewed, linted and
-  commented. Write it as a temp file, then rename; keep `state.json.prev`.
+  commented, the comment's id and URL, and the page slug and key. Write it as a
+  temp file, then rename; keep `state.json.prev` with the page keys taken out.
 - **Freeze, then check freshness.** A head that moved after the freeze is stale:
   no page, no draft, no comment. The next scan reviews the new head.
 - **The PR Lens page is private by its key.** All four watched repos are
   private, so the comment is visible to repo members only; anyone with the link
-  can open the page. Never print or log the key or the here.now credential.
+  can open the page. Never print or log the key or the here.now credential. The
+  key lives only in the posted comment and in `state.json` (mode 0600); the
+  draft masks it. `plugins/openqodex/scripts/check-no-leak.ts` checks that.
 - **Authority.** JP's rulings of 2026-11-12 authorize, for the loop's repos, the
   sync push, the merge of what passes, the issue comments and the reply, as the
   team bot. Anything else still needs the session's own authorization.
