@@ -16,9 +16,11 @@ its next lifecycle owner. `/dump` is `capture --deep`.
 
 ## Patch, Route, and Clear
 
-Recognize a brain dump as deep capture. Preserve source wording in the existing
-owning capture when one fits; patch changed rows instead of creating another
-capture for the same topic. Break the source into rows before enrichment.
+Recognize a brain dump as deep capture. Break the source into rows before
+enrichment. Capture is a sort: each row goes to the record of the type Lev
+manages (idea, plan, design, decision, backlog item, task), never to a capture
+file. Update the record that already holds the topic; write a new record only
+when none does (see Where Rows Go).
 
 Before routing or writing, run `lev find` when `lev` is installed. Find the
 workstream that owns the topic and whether the matter is already settled:
@@ -56,12 +58,12 @@ explicit ruling or ask the human before the dependent write; never silently
 append contradictory canon.
 
 Write through the destination's owner, then read back its relevant projection
-and check source fidelity. Only after that check, mark the capture row `done`
-with `next_route: none` and the actual `destination_ref`. Here `done` means
-capture reconciliation, not implemented or shipped. The active queue projects
-rows whose `route_state` is not `done` or `rejected`; retained ledger rows and
-source messages preserve history. A missing, failed, or conflicting destination
-keeps the row active. Leave future implementation work with its owning artifact.
+and check source fidelity. Only after that check, mark the row `done` with
+`next_route: none` and the actual `destination_ref`. Here `done` means the row
+reached its record, not implemented or shipped. The table in the reply lists the
+rows whose `route_state` is not `done` or `rejected`; the records and their git
+history keep the rest. A missing, failed, or conflicting destination keeps the
+row active. Leave future implementation work with its owning artifact.
 
 ## Source Lineage
 
@@ -119,7 +121,7 @@ or evidence changed; do not rewrite every referenced document.
 
 Lifecycle lane: Shape -> Plan
 Entity movement: `memory -> captured | proposed | blocked`
-Workstream: resolve active workstream before writing capture artifacts
+Workstream: resolve the owning workstream before writing records
 Upstream: conversation, `/dump`, `/work`
 Downstream: `/prior-art`, `/interview`, `/lev-plan`, `/propose`, `/exec`
 Router: `/work`
@@ -130,7 +132,7 @@ HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count
 If the user asks "what would you edit", "show me", "audit", "plan", "pass2",
 "recommend", or "how would you", do not mutate canon files. Render the ledger
 and proposed changes only. Write artifacts only when the user explicitly asks
-to apply, edit, patch, emit, or create a durable capture.
+to apply, edit, patch, emit, or record it.
 
 ## Source / wiki intake capture
 
@@ -167,7 +169,7 @@ steps:
     on_failure: "Keep the item captured and route to /interview or /propose before /exec."
 
   - id: write_artifacts
-    action: Patch the existing capture and route each writable row into its owning artifact.
+    action: Write each writable row into its own record (Where Rows Go), updating the record that already holds it.
     validation: "No writable item remains only in conversation memory; each destination is read back before the capture row leaves the active queue."
     on_failure: "List only the unwritten items under In Memory with blocker."
 
@@ -177,7 +179,7 @@ steps:
     on_failure: "Re-capture at higher zoom or route to /interview."
 
   - id: reconcile_capture_ledger
-    action: Update changed ledger rows, clear verified reconciled rows from the active projection, and retain source history.
+    action: Update the changed rows of the ledger in the reply and drop the rows whose record was read back. Write no ledger file; the records and their git history keep the history.
     validation: "Every changed row has the full ledger fields; reconciled rows identify their checked destination; unresolved rows remain active."
     on_failure: "Do not advance routes. Show unresolved ledger rows under In Memory or Blocked."
 
@@ -265,8 +267,9 @@ source decision; agent simplification alone is not approval.
 
 The lifecycle ledger is the core visibility primitive at lifecycle trigger
 points. `/capture`, `/capture --deep`, and `/dump` all build the same ledger
-before claiming route advancement. The default human response renders its
-delta; `--full`, audit, and debug may render the complete table.
+before claiming route advancement. The ledger lives in the reply, never in a
+file: each row's durable home is its own record. The default human response
+renders its delta; `--full`, audit, and debug may render the complete table.
 
 | Field | Meaning |
 |---|---|
@@ -293,7 +296,7 @@ for durable work.
 
 ## Analysis Extension Captures
 
-When the user asks to capture and extend an analysis thread, do not leave the improvement only in chat or only in an ignored/raw workshop artifact. Create a readable analysis companion, cross-link it from the nearest roadmap/analysis docs, and write a durable `.lev/pm/workstreams/<ws>/captures/YYYYMMDD-*.yaml` ledger with compiled intent, route state, QA seed, blockers, fidelity, and next route. If the user requested a numbered structure such as "10 must / 10 must-not", verify section presence and counts before closing.
+When the user asks to capture and extend an analysis thread, do not leave the improvement only in chat or only in an ignored/raw workshop artifact. Create a readable analysis companion, cross-link it from the nearest roadmap/analysis docs, and write each conceptual unit to its own record (Where Rows Go) with compiled intent, route state, QA seed, blockers, and next route. If the user requested a numbered structure such as "10 must / 10 must-not", verify section presence and counts before closing.
 
 See `references/analysis-extension-capture-pattern.md` for the detailed pattern and verification checklist.
 
@@ -320,54 +323,38 @@ A successful activation alone is not evidence that a future export or cron run w
 
 See [references/secret-backed-runtime-handoff.md](references/secret-backed-runtime-handoff.md) for the reusable protocol and a Slackdump-specific example.
 
-## Durable Artifact
+## Where Rows Go
 
-Write capture reports near the workstream:
+Each row goes to the record of its type, where that type lives in the project.
+In Lev:
+
+| Row | Record |
+|---|---|
+| Idea | `.lev/pm/ideas/` |
+| Plan, or broad and multi-slice work | `.lev/pm/plans/` |
+| Design | `.lev/pm/designs/` |
+| Ruling | `.lev/pm/decisions/`, with the user's words and the date; a ruling that changes an earlier one is a new decision with `supersedes`, and the old one gets `superseded_by` in the same commit |
+| "Do later" or "add it to the MVP" | one item in `.lev/pm/roadmap/backlog.yaml` |
+| Task | `lev entity task create` |
+| Known fault | one debt row (`lev find "<the symptom>" --type debt_row --json` first) |
+
+Run `lev find` for each row first and update the record that holds it. In a
+project without Lev, use the project's own record homes and `rg` for prior art.
+Write no file that lists the conversation's items (a capture, sweep or ledger
+file), under any folder name: that ledger lives in the reply. The one file
+called a ledger that you do write is a rename inventory (Repository rename
+inventory captures): it lists repository names, not what was said. A row that
+needs proof carries its QA seed in its destination plan or task:
 
 ```yaml
-path: .lev/pm/workstreams/<ws-id>/captures/YYYYMMDD-capture-sweep.yaml
-schema:
-  date: YYYY-MM-DD
-  workstream: <ws-id>
-  ledger:
-    - intent_id: "<stable row id>"
-      topic: "<summary>"
-      source_refs: []
-      source_intent: "<source-faithful requirement>"
-      compiled_intent: "<agent-operational interpretation>"
-      relationships: []
-      current_location: disk | memory | both | external | unknown
-      artifact_ref: "<path, durable id, or none>"
-      destination_ref: "<path, durable id, memory, or none>"
-      route_state: in_memory | captured | planned | proposed | execution_ready | blocked | done | rejected
-      fidelity: 0.0
-      fidelity_components:
-        detail_preservation: 0.0
-        relationship_preservation: 0.0
-        source_attribution: 0.0
-        neighbor_context: 0.0
-        actionability: 0.0
-      fidelity_note: "<preserved, narrowed, deferred, conflict, or loss note>"
-      plan_required: true | false
-      next_route: "<skill/path/none>"
-      blocker: "<reason or null>"
-  items:
-    - topic: "<summary>"
-      stage: captured | planned | proposed | blocked | executing | rejected
-      fidelity: 0.0
-      route: "<path or skill>"
-      priority: P0 | P1 | P2 | P3
-      unblocks: []
-      qa_seed:
-        proof_required: true | false
-        proof_gate_state: needs_proof_design | needs_proof_gates | needs_runtime_qa | needs_quality_review | needs_close_verdict | proof_blocked | none
-        highest_risk_claim: "<claim or null>"
-        scenario_classes: []
-        owner_local_test_placement: "<module path or null>"
-        shared_testing_boundary: "core/testing is a library/evaluator source, not the home for module-specific tests"
+qa_seed:
+  proof_required: true | false
+  proof_gate_state: needs_proof_design | needs_proof_gates | needs_runtime_qa | needs_quality_review | needs_close_verdict | proof_blocked | none
+  highest_risk_claim: "<claim or null>"
+  scenario_classes: []
+  owner_local_test_placement: "<module path or null>"
+  shared_testing_boundary: "core/testing is a library/evaluator source, not the home for module-specific tests"
 ```
-
-Markdown capture reports are projections only when useful.
 
 ## Output
 
@@ -389,8 +376,6 @@ Still in memory: {count_and_topics_or_none}
 Blocked or decision needed: {count_and_highest_leverage_decision_or_none}
 Ready next: {count_and_route_or_none}
 Next: {one_primary_action}
-
-Ledger: {ledger_artifact_ref}
 </capture-results>
 
 ## Red Flags
@@ -403,6 +388,7 @@ Ledger: {ledger_artifact_ref}
 - "The fidelity score is enough; the user does not need to see the row mapping."
 - "I can route broad work directly to propose; the task slices will preserve the roadmap."
 - "A routed item can stay only in chat memory."
+- "I will keep the rows in a capture file until they are routed."
 - "Copying user prose is the same as compiling intent."
 - "What would you edit means patch it now."
 

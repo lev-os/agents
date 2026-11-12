@@ -6,8 +6,7 @@ Use this when a user asks to "capture this", "extend the analysis", or turn an i
 
 1. Preserve the clarified thesis in a human-readable analysis artifact.
 2. Cross-link the new artifact from the nearest existing roadmap/analysis documents so future readers find the update.
-3. Write a durable `.lev/pm/workstreams/<ws>/captures/YYYYMMDD-*.yaml` capture with:
-   - ledger rows for each conceptual unit,
+3. Write each conceptual unit to its own record (SKILL.md, Where Rows Go), never to a capture file, with:
    - compiled intent rather than raw chat prose,
    - artifact refs to the analysis sections,
    - route state and next route,
@@ -19,7 +18,7 @@ Use this when a user asks to "capture this", "extend the analysis", or turn an i
 ## Verification checklist
 
 - New analysis artifact exists and has the requested sections.
-- Durable capture YAML parses cleanly.
-- Capture includes ledger rows, items, fidelity score, route recommendation, and blockers if any.
+- Each record written parses cleanly and holds its compiled intent, route recommendation, and blockers if any.
+- No capture, sweep or ledger file was written; the ledger is in the reply.
 - Existing roadmap/analysis files point to the new companion artifact.
-- Final response distinguishes durable captures from ignored/raw or git-ignored workshop artifacts.
+- Final response distinguishes durable records from ignored/raw or git-ignored workshop artifacts.
