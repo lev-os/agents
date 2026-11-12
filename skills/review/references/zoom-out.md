@@ -21,23 +21,32 @@ Say that you skipped it and why.
 
 The prompt lives in one place, the lens pack; never copy its text into a skill.
 
+Each run gets its own folder, so runs can go in parallel. Run the whole block as one shell call, with ARTIFACT set to
+the artifact's path; it prints the run folder. Keep that path: a later call (reading the answer, cleaning up) names
+it in full.
+
 ```bash
+ARTIFACT=path/to/the/artifact.md
+RUN=$(mktemp -d /tmp/zoom-out.XXXXXX) && echo "$RUN"
 LENS=$HOME/digital/leviathan/workshop/analysis/elephant-goldfish-model/spike2
-node "$LENS/calibration/render-one.mjs" design_lens_zoom_out <artifact.md> /tmp/zoom-out/prompt.txt
-mkdir -p /tmp/zoom-out/seat && cd /tmp/zoom-out/seat
-claude -p --model claude-opus-5-5 --tools "Read,Grep,Glob" \
+node "$LENS/calibration/render-one.mjs" design_lens_zoom_out "$ARTIFACT" "$RUN/prompt.txt"
+mkdir "$RUN/seat" && cd "$RUN/seat" && claude -p --model claude-opus-5-5 --tools "Read,Grep,Glob" \
   --disallowedTools "Bash" "Write" "Edit" "WebFetch" "WebSearch" "Agent" \
-  --setting-sources local --no-session-persistence < /tmp/zoom-out/prompt.txt > /tmp/zoom-out/answer.txt
+  --setting-sources local --no-session-persistence < "$RUN/prompt.txt" > "$RUN/answer.txt"
 ```
 
-- The reader's whole reply is one JSON object: `evidence_refs`, `blockers`, `majors`, `nits`. One code fence around it
-  is fine. Anything else is "could not check".
-- Clean up with `rm -rf /tmp/zoom-out`.
+- The reader's whole reply is one JSON object: `evidence_refs`, `blockers`, `majors`, `nits`; each item has `scope`
+  and `rationale`. One code fence around it is fine.
+- When done, remove that run's folder by its full printed path (for example `rm -rf /tmp/zoom-out.Ab12Cd`).
+- On a host without the `claude` command, skip the lens and say so.
 
 ## Reporting
 
-- Show every blocker and major to the operator, in plain words, next to the part of the artifact it names.
-- No blocker and at least one cited ref: "the zoom-out review found no blocker". Otherwise list the blockers.
-- Majors are advice; they are not counted (version 1 counted them and failed sound designs).
+- In review's report block, copy every item word for word as one finding line: `rationale` is the finding, `scope`
+  (the part of the artifact it names) is the evidence, and the source is `zoom_out`. Then one line:
+  `zoom-out evidence_refs: {the list}`.
+- No blocker and at least one cited ref: add the line "the zoom-out review found no blocker". A reply that is not the
+  JSON object goes in the block whole, with the line "zoom-out: could not check".
+- Only blockers decide that line; majors do not (version 1 counted them and failed sound designs).
 - Never tune the prompt on the artifact you are reviewing. Prompt changes go through a new calibration round
   (`calibration/method.yaml` in the lens folder).
