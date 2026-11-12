@@ -157,7 +157,7 @@ Records are YAML. `AGENTS.md` rule 1 says which record each of JP's asks becomes
 
 - **Handoff** `.lev/pm/handoffs/<YYYYMMDD>-ceo-<project>[-<host>].yaml`, with `ceo` in the name. Keys: `id`, `type: handoff`, `workstream_id`, `status: routed`, `created_at`, `updated`, `session`, `thread` (this chat's link or session id), `goal`, `scope`, `setup`, `workers`, `stages` (each with a done-when), `waiting_on_jp`, `next`, `capture_ready`, `threads` (for each chat read: `{next_position, workstream_id}`). The handoff holds what is true now: a settled worker's row shrinks to one line, and the history stays in git.
 - **Decision** `.lev/pm/decisions/<YYYYMMDD>-<slug>.yaml`: JP's words, the date, and what it changes. An answered For you item becomes one in the same turn. Copy the keys from a recent file.
-- **Ready for capture:** keep the list under `capture_ready` as `{text, type, source}`. When JP says "capture", write each item as the record of its type and clear the list.
+- **I capture next:** keep the list under `capture_ready` as `{text, type, source, target}`. Capture without being asked: run `lev find "<topic>"` for prior art, then update the record that holds the item or write the record of its type. A plain ruling is recorded in the same turn; any other item in the next turn unless JP strikes it. Then clear the list (JP 2026-11-12, the "I capture next" rule of the Reply template in `~/.claude/CLAUDE.md`).
 - **Commit** one concern, by explicit path from your own edit list, through the lev-lore-commit skill.
 - **Keep records.** Remove nothing under `.lev/pm` by hand. A move to an archive folder is JP's call: show the exact move list as one For you item and hold that branch.
 

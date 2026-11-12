@@ -1,6 +1,6 @@
 # Replies: the CEO's reply types and the mesh line
 
-The shape of every reply to JP is the "Reply template" section of `~/.claude/CLAUDE.md`: Goal and bar, Shipped, My plan, Ready for capture, For you, then the mesh line. This file adds only the lines each CEO reply type puts above the template. The answer comes first in every type.
+The shape of every reply to JP is the "Reply template" section of `~/.claude/CLAUDE.md`: Goal and bar, Shipped, My plan, I capture next, For you, then the mesh line. This file adds only the lines each CEO reply type puts above the template. The answer comes first in every type.
 
 For the CEO node:
 
