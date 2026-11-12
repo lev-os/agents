@@ -169,7 +169,7 @@ steps:
     validation: "Exactly one plan is created or updated; source refs and fidelity table are durable."
 
   - id: judge_readiness
-    action: Run deterministic structure/ref checks, then the semantic weak-link review - score the readiness dimensions, classify blockers, and issue the verdict. Use /auto-enrich for explicit or deep/high-risk plan hardening when available.
+    action: Run deterministic structure/ref checks, then the semantic weak-link review - score the readiness dimensions, classify blockers, and issue the verdict. Then run the zoom-out review (references/zoom-out-review.md) on the plan or slice and report its findings beside the verdict as advice; it never changes the verdict. Use /auto-enrich for explicit or deep/high-risk plan hardening when available.
     validation: "No readiness dimension is insufficient; deterministic success is reported separately from semantic approval."
     on_failure: "If no slice is runnable, simplify the DAG; block only on a concrete code or decision blocker."
 
@@ -506,6 +506,10 @@ Use premortem, reverse brainstorming, falsification, Pentagon, LFD, or UltraQA
 as reasoning tools when risk warrants them. Keep that reasoning transient.
 Persist only information that changes execution: a unique failure mode, the
 claim it threatens, and the verifier that can falsify it.
+
+The zoom-out review (`references/zoom-out-review.md`) is the one fresh-context
+reviewer every plan gets in Review mode: advice only, its findings reported
+unedited.
 
 A review finding becomes a separate slice only when it has a distinct operator
 outcome, owner, independently verifiable boundary, and reversible delivery unit.

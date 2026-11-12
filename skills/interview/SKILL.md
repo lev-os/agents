@@ -145,6 +145,8 @@ steps:
       /Users/jean-patricksmith/.agents/skills/work/templates/design.md
       Use it as the artifact skeleton under .lev/pm/designs/.
       Do not create a spec artifact from interview output.
+      After the design artifact is written, run the zoom-out review
+      (~/.agents/skills/lev-plan/references/zoom-out-review.md) on it and show its findings unedited as advice.
     validation: "Design template loaded and target artifact path is under .lev/pm/designs/."
     on_failure: "Stop and load the design template before writing interview artifacts."
 

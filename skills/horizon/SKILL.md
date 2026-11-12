@@ -132,6 +132,11 @@ human review) and its acceptance owner. When neither exists yet, list the proof
 as unresolved rather than manufacturing a weak command to fill the slot. Treat
 fast unanimity as a diversity warning, not corroboration.
 
+Before rendering the brief, run the zoom-out review
+(`~/.agents/skills/lev-plan/references/zoom-out-review.md`) on it. Its findings
+are advice: list them under the review checklist, unedited; a blocker from it
+becomes a blocking condition only when it meets the rule below.
+
 A finding **blocks** only when it shows, with evidence (a failing check, a
 counterexample, a reproduction), that the artifact violates the predicate, a
 ledger row, or a named checklist item. Name each blocking condition in the

@@ -179,6 +179,7 @@ adversarial_lenses:
 
 review_rules:
   - "Do not approve because an artifact is well-written; approve only after its semantics, ownership, migration, and proof are concrete."
+  - "Before handing back a candidate design, run the zoom-out review (~/.agents/skills/lev-plan/references/zoom-out-review.md) on it and list its findings unedited as advice."
   - "Do not invent product choices or use options to steer the user. State the constraint, evidence, and consequence."
   - "Identify conflicting existing abstractions before proposing a new port, contract, receipt, result, or registry."
   - "Require one deterministic owner for admission, authorization, terminal status, evidence, and promotion decisions."
