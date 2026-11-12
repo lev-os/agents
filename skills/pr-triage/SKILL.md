@@ -102,6 +102,8 @@ Review spend in watch mode, per PR, from the router tier:
 
 - PR Lens graph author: pi, `zai/glm-5.3` (the z.ai key, `ZAI_API_KEY`, which must
   be on `child_env.pass` in `~/.config/lev/config.yaml`), read-only tools.
+  A lens `effort` reaches pi as `--thinking`; with none, pi's own default runs and
+  the record says `default`. Every lane records the effort it ran.
 - Lead and synthesis: Codex `gpt-6-astra`, medium effort, on the `codex-print` card
   (`codex exec --json`: the answer comes back whole, never read off the screen).
 - OpenQodex: its pinned scanners only (`openqodex scan`, no model). Its own
