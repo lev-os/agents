@@ -502,8 +502,8 @@ is not semantic approval.
 
 ## Adversarial Review
 
-Use premortem, reverse brainstorming, falsification, Pentagon, LFD, or UltraQA
-as reasoning tools when risk warrants them. Keep that reasoning transient.
+Use `pre_mortem`, `red_team`, `reverse_brainstorm`, `falsification`, `ultraqa`
+(`~/.agents/skills/pov/references/lenses.md`), Pentagon or LFD by plan depth. Keep that reasoning transient.
 Persist only information that changes execution: a unique failure mode, the
 claim it threatens, and the verifier that can falsify it.
 

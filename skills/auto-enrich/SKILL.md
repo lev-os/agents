@@ -332,8 +332,8 @@ a concrete failure mechanism, prevents safe first-slice handoff, and is repairab
 inside the allowed planning artifacts. Otherwise classify it as implementation
 handoff, later hardening, open decision, or style.
 
-Use premortem, jobs-to-be-done, reverse brainstorming, and diverse expert lenses
-privately. Output only unique risks, decisions, falsifiers, and evidence. Do not
+Use `pre_mortem`, `jobs_to_be_done`, `reverse_brainstorm` and `expert_dissent`
+(`~/.agents/skills/pov/references/lenses.md`) privately. Output only unique risks, decisions, falsifiers, and evidence. Do not
 persist personas or named-famous-person simulations. Do not request new tasks,
 types, registries, gates, receipts, or metadata merely to satisfy review prose.
 

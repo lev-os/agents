@@ -89,7 +89,7 @@ steps:
     validation: "Return depends on rows and open blocking findings, never on confidence, effort, or elapsed time; a fresh session can resume from the frontier without the originating chat."
 
   - id: red_team
-    action: Ask a fresh instance for the cheapest way to make the artifact look done without satisfying the predicate; patch each answer the brief would accept with a Does Not Count line or a check.
+    action: A fresh instance applies `red_team` (~/.agents/skills/pov/references/lenses.md) against the predicate; patch each answer the brief would accept with a Does Not Count line or a check.
     validation: "The last pass finds only near misses already excluded or caught."
 
   - id: render_and_route

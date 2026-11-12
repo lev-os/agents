@@ -99,12 +99,7 @@ closure_gate:
   - "Latest independent Arch verdict is APPROVED."
 
 naming_guardrail: "Use DDD, clean-code, and hexagonal vocabulary that names responsibility. Do not turn conversational qualifiers into identifiers (for example, `CanonicalThing`, `FinalPlan`, or `ApprovedAdapter`)."
-reasoning_lenses:
-  - "first principles and systems thinking"
-  - "premortem"
-  - "Jobs To Be Done"
-  - "reverse brainstorming"
-  - "diverse domain and software/science expert dissent"
+reasoning_lenses: "~/.agents/skills/pov/references/lenses.md: first_principles, systems_thinking, pre_mortem, jobs_to_be_done, reverse_brainstorm, expert_dissent"
 ```
 
 In this mode the usual a/b/c formatting contract is intentionally overridden. Print the exact interview question before sending it to `task_delegation`. After the human answer, list the Arch-produced candidate design, its decision log, ambiguity/readiness scores, and one next open question. Do not present controller-authored changes or a separate synthesis: Arch is the design author. Use `references/adversarial-continuous-design-loop.md` for the turn-record schema and scoring rubric.
@@ -284,7 +279,7 @@ steps:
   - id: synthesize_lenses
     action: Think through perspectives silently
     instruction: |
-      Consider systems thinking, first principles, trade-off analysis, Thinking Hats, and other useful lenses internally.
+      Consider lenses from ~/.agents/skills/pov/references/lenses.md internally (e.g. systems_thinking, trade_off).
       Print only one lens tag, such as (systems thinking), near the question title or recommendation.
       Do not print a framework essay unless the user asks for d. Deep dive.
     validation: "Output contains at most one visible lens tag."

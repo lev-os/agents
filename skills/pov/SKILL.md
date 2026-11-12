@@ -46,13 +46,7 @@ Print 20-35 raw POVs. No synthesis. Each item:
 - Framed through a lens (persona or method)
 - Marked `(safe)` | `(wildcard)` | `(tbd)`
 
-**Lenses — pick 6-10 per invocation:**
-
-- `systems_thinking`, `first_principles`, `figure_storming`
-- `10x_dev`, `elon_musk`, `karpathy`, `sam_altman`
-- `buffet_bezos_dimon`, `einstein_turing`
-- `jesus_gandhi_god`
-- `pre_mortem`, `reverse_brainstorm`, `second_order`, `opportunity_cost`
+**Lenses — pick 6-10 per invocation** from [references/lenses.md](references/lenses.md): its Methods and Personas tables.
 
 **Exit gate:** declare Turn 2 is next. Stop.
 

@@ -29,8 +29,8 @@ stories in the source archive are anecdotes, not promises to repeat.
 
 ## Follow the Five-Fold Path
 
-Use these lenses in order to build understanding. Revisit a lens when new
-evidence changes it. A supplied answer satisfies its lens; do not ask again.
+Use these lenses in order to build understanding (all lenses:
+`~/.agents/skills/pov/references/lenses.md`). Revisit a lens when new evidence changes it. A supplied answer satisfies its lens; do not ask again.
 
 | Lens | Question | What it should reveal |
 |---|---|---|

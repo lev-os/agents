@@ -170,12 +170,7 @@ verdict:
     - "New or split branches with ambiguity estimates"
     - "Concrete fitness/proof gates"
 
-adversarial_lenses:
-  - "first-principles boundary analysis"
-  - "premortem"
-  - "Jobs To Be Done"
-  - "reverse brainstorming"
-  - "domain-expert and software/science-expert dissent"
+adversarial_lenses: "~/.agents/skills/pov/references/lenses.md: first_principles (boundaries), pre_mortem, jobs_to_be_done, reverse_brainstorm, expert_dissent"
 
 review_rules:
   - "Do not approve because an artifact is well-written; approve only after its semantics, ownership, migration, and proof are concrete."
@@ -338,13 +333,7 @@ When invoked for code/PR review (via `/review` shim or "review this PR"), use th
 
 ### Adversarial Review (Devil's Advocate)
 
-If the review passes too easily, challenge with:
-
-1. What would a senior engineer critique?
-2. What edge case haven't we tested?
-3. What happens at 10x scale?
-4. How could this break in production?
-5. What did we defer that we'll regret?
+If the review passes too easily, apply `devils_advocate`, `second_order` and `first_principles` from `~/.agents/skills/pov/references/lenses.md`.
 
 ### Specialized Agents (Reference)
 
