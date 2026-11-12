@@ -89,7 +89,7 @@ Routes, in order for each PR (stacks bottom first):
 | Route | Does | Model |
 |---|---|---|
 | sync | In the PR's review worktree, `git merge --no-ff origin/<base>`. Clean: push to the PR branch as the team bot. Conflict: `git merge --abort`, flag `conflict`, and the PR goes to reply. Skip a PR whose last push is under 30 minutes old, a fork, and a stale PR. | none |
-| gate | Draft, conflict, CI failures, no commit for 14 days, scope against the ticket. Each failure is a reason not to merge. | none |
+| gate | Draft, conflict, CI failures, no commit for 14 days, scope against the ticket. Each failure is a reason not to merge. Only green CI merges: CI still running waits (`ci_pending`, no model call); CI that is neither a pass nor a failure is a reason; with no CI the repo's own checks (`--local_checks`) must pass on the head, and with none set, no CI is a reason. | none |
 | review | Size the PR with the complexity router, then `lev openqodex watch-bounce` (flow `plugins/openqodex/flows/watch-bounce.flow.yaml`) on the frozen base and head. Only a new author head is reviewed; a head made by the sync merge is not. | below |
 | decide | Merge when the gate has no reason, the review is complete, it has no critical or major finding and the lead recommends approve. Otherwise reply. | none |
 | merge | `gh pr merge <n> --merge` (a merge commit) on the reviewed head (`--match-head-commit`). | none |
@@ -100,8 +100,12 @@ Routes, in order for each PR (stacks bottom first):
 
 Review spend in watch mode, per PR, from the router tier:
 
-- PR Lens graph author: pi, `zai/glm-5.3` (the z.ai key, `ZAI_API_KEY`), read-only tools.
-- Lead and synthesis: Codex `gpt-6-astra`, medium effort.
+- PR Lens graph author: pi, `zai/glm-5.3` (the z.ai key, `ZAI_API_KEY`, which must
+  be on `child_env.pass` in `~/.config/lev/config.yaml`), read-only tools.
+- Lead and synthesis: Codex `gpt-6-astra`, medium effort, on the `codex-print` card
+  (`codex exec --json`: the answer comes back whole, never read off the screen).
+- OpenQodex: its pinned scanners only (`openqodex scan`, no model). Its own
+  reviewer takes no model or effort from the router, so watch mode never starts it.
 - T0 or T1: Astra alone. T2: Astra and one Codex `gpt-6.1-sol` worker at high
   effort. T3: Astra splits the change across Sol workers, one of them on the
   `arch` Review Mode assessment.

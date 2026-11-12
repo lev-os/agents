@@ -1,6 +1,6 @@
 ---
 name: explain
-description: Use when the user needs a catch-up, concept explanation, goal closeout, current-state refresh, Lev context mapping, or a visual guided lesson.
+description: Use when the user needs a catch-up, concept explanation, goal closeout, current-state refresh, Lev context mapping, or a visual guided lesson. Answers default to an ADHD-friendly visual layout; size tokens (xs, sm, short, md, lg, xl, --size N) set the length.
 ---
 
 # /explain — Inline catch-up
@@ -21,6 +21,8 @@ Restore the user's understanding: what this work is for, what happened, which de
 | `/explain --levify [topic or task]` | Map intent and concepts through the bound project's existing Lev vocabulary, owners and lifecycle |
 | `/explain --teach [topic or task]` | Teach a small, source-backed concept batch with a learning map, visuals and retrieval practice |
 | `/explain --code <path or module>` | Make a guided code tour: several pages from system context down to the code, with diagrams, snippets, patterns and gaps |
+| `/explain <size> […]` | Set the length: `xs`, `sm`/`short`, `md` (default), `lg`/`long`, `xl`/`full`, or `--size <N>` / `<N>w` for about N words; composes with every other pattern |
+| `/explain --plain […]` | Use the prose report layout instead of the default ADHD visual layout |
 
 These are skill invocation patterns, not shell commands. N is a positive integer. A numeric request selects N distinct conversations before grouping related work; do not silently replace conversations with N projects.
 
@@ -35,6 +37,8 @@ decision support, or teaching. Disambiguate overloaded terms before explaining;
 look for conflating domains, representations, layers and lifecycle stages.
 Use domain modeling to separate actors, concepts, relationships and ownership.
 Consolidate genuine aliases after lookup; retain distinctions that change behavior.
+
+Every answer loads [references/adhd.md](references/adhd.md) for its layout and size, unless `--plain` is given; `--plain` still uses its size table.
 
 Flags load their reference leaves, not parallel skills or runtime commands:
 - `--refresh`: read [references/refresh.md](references/refresh.md).
@@ -73,6 +77,8 @@ before advancing and never infer mastery from silence or an attractive graphic.
 ## Explanation modes
 
 `/explain eli5 <topic>` or `/explain --eli5 <topic>` selects ELI5 and must load [references/caveman.md](references/caveman.md). Explicit `/explain caveman <topic>` selects concise mode from the same reference. These are skill patterns, not shell commands. Modes apply to the requested explanation only; normal Explain keeps its existing behavior. ELI5 first builds an accessible concept and a useful example, then trims prose; brevity alone is not comprehension. Preserve exact technical strings and necessary causal details. An ordinary explanation or catch-up does not activate either mode.
+
+ADHD visual mode is the default layout for every answer, these modes included: answer line, one visual, short chunks, one next action ([references/adhd.md](references/adhd.md)). `--plain` selects the prose report under Inline output. A size token (`xs`, `sm`, `short`, `md`, `lg`, `long`, `xl`, `full`, `--size <N>`, `<N>w`) sets the word budget in either layout. A bare number is still a conversation count.
 
 ## Read and explain
 
@@ -238,7 +244,7 @@ This report does not itself update,
 resume, complete or replace the goal; those actions require their own request
 and supported tool. Never mark unfinished work complete to rewrite its prompt.
 
-Default to roughly 300–500 words for one task; use a compact comparison table for multiple tasks, with one entry per selected conversation and short shared explanations for related work. Expand only enough to cover the requested scope. Put decisions requiring attention near the top. Use a small inline diagram only when it makes a dependency easier to understand. Keep evidence and detail beside the claims they qualify.
+By default, use the ADHD visual layout in `references/adhd.md`. The `<report>` layout below is the `--plain` layout. Follow the size token (default `md`, about 300 words for one task); use a compact comparison table for multiple tasks, with one entry per selected conversation and short shared explanations for related work. Expand only enough to cover the requested scope. Put decisions requiring attention near the top. Use a small inline diagram only when it makes a dependency easier to understand. Keep evidence and detail beside the claims they qualify.
 
 <report>
 **Current:** {Plain-English outcome and what needs attention.}
