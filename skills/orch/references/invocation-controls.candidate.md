@@ -113,7 +113,7 @@ or provider requirements.
 | Settled coding slice | skill://propose, then skill://coder or skill://exec | implementation and verification |
 | Prior evidence or external facts | skill://prior-art or skill://research | source-backed findings |
 | Independent deliberation | skill://cdo | evidence, disagreement and synthesis |
-| Proof design or hostile QA | skill://eval-builder, optionally skill://ultraqa | observable checks sized to the claim |
+| Proof design or hostile QA | skill://eval-builder, optionally skill://review (hostile run) | observable checks sized to the claim |
 | Typed loop or flow | skill://ll or skill://flowmind-author | verified loop/flow route |
 | Bounded optimization | skill://codex-autoresearch | logged experiments inside the user's authority |
 | Capture, transfer or acceptance | skill://capture, skill://handoff, skill://close | durable owner-local context |

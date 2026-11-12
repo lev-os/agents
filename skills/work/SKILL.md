@@ -142,7 +142,7 @@ This table applies only when the selected overlay/task declares these gates.
 Non-coding work without an SDLC packet uses its domain acceptance criteria;
 absence of `execution.yaml` alone is not a missing gate or proposal requirement.
 
-QA, Pentagon, UltraQA, and ai-slop-cleaner are lifecycle gate overlays, not
+QA, Pentagon, the hostile run (`skill://review`), and ai-slop-cleaner are lifecycle gate overlays, not
 separate lanes. `/work` routes by missing gate state; lane skills own the
 details.
 
@@ -150,7 +150,7 @@ details.
 |---|---|---|
 | `needs_proof_design` | Highest-risk claim, fail-closed acceptance, or owner-local test placement is unclear | `/interview` or `/lev-plan` according to scope |
 | `needs_proof_gates` | Applicable selected-flow node packs or task requirements, or requirement-row `check:` proof, are missing or unresolved; for a v2 task, absence of `execution.yaml.proof_gates` alone must not trigger repair | `/lev-plan` |
-| `needs_runtime_qa` | Declared baseline, Pentagon, UltraQA, or harness runtime checks still need execution | `/exec` |
+| `needs_runtime_qa` | Declared baseline, Pentagon, hostile-run, or harness runtime checks still need execution | `/exec` |
 | `needs_quality_review` | Cleanup, refactor, fallback, boundary, or AI-slop risk needs ai-slop-cleaner review | `/exec` |
 | `needs_close_verdict` | Work is implemented but proof-gate verdicts or residual risks are not sealed | `/close` |
 | `proof_blocked` | A proof gate fails or cannot run safely | `/lev-plan` for contract repair or `/capture` for follow-up |

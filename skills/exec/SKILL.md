@@ -321,7 +321,7 @@ steps:
     on_failure: "Treat as not execution-ready."
 
   - id: read_proof_gates
-    action: Classify the Pentagon, UltraQA, and ai-slop-cleaner gates that apply to the selected slice from the selected flow's gate nodes and the task's requirement rows and checks. Do not require or create a proof_gates container.
+    action: Classify the Pentagon, hostile-run, and ai-slop-cleaner gates that apply to the selected slice from the selected flow's gate nodes and the task's requirement rows and checks. Do not require or create a proof_gates container.
     validation: "Each applicable proof gate has commands, scenario classes, expected receipts, owner-local test placement, and cleanup policy in its existing owning declaration or a referenced proof instruction."
     on_failure: "Hold an unsupported inline contract; otherwise route to /lev-plan for proof-gate repair before dispatch."
 
@@ -352,7 +352,7 @@ steps:
 
   - id: run_runtime_qa
     action: Execute declared proof gates before final verification.
-    validation: "Baseline verifiers, Pentagon gates, UltraQA runtime scenarios, cleanup, generated-artifact status, and ai-slop-cleaner review pass or produce a blocked verdict."
+    validation: "Baseline verifiers, Pentagon gates, hostile-run scenarios, cleanup, generated-artifact status, and ai-slop-cleaner review pass or produce a blocked verdict."
     on_failure: "Stop the current slice as blocked with diagnostics; do not spin."
 
   - id: final_verify
@@ -368,13 +368,14 @@ steps:
 
 ## QA / Pentagon Runtime Rules
 
-- Treat UltraQA scenario generation as proposal/design input, but runtime
+- Treat hostile-run scenario generation (`skill://review`, attacker stance on
+  running behaviour) as proposal/design input, but runtime
   execution belongs here: commands, exit codes, timeouts, temporary harnesses,
   cleanup, flaky reruns, misleading-output checks, and residual risks.
-- When Exec invokes UltraQA as a method, UltraQA returns observations and
-  repair requests and issues no OMX state commands. Exec applies in-scope
+- When Exec invokes the hostile run, it returns observations and repair
+  requests and issues no host state commands. Exec applies in-scope
   repairs within the current slice or routes them, records state through its
-  bound tracker, and never re-enters Exec from UltraQA output. UltraQA prose
+  bound tracker, and never re-enters Exec from hostile-run output. Hostile-run prose
   never settles completion.
 - Run Pentagon gates from `execution.yaml.proof_gates.pentagon` when present.
   Do not substitute a repo-wide green audit for a feature-local promotion claim.
@@ -493,7 +494,7 @@ docs and carry explicit notes for:
 - "execution_ready means done."
 - "Receipt lookup can wait."
 - "I'll summarize the failure without the command and exit code."
-- "UltraQA is just a scenario list; no runtime cleanup or evidence needed."
+- "The hostile run is just a scenario list; no runtime cleanup or evidence needed."
 - "A green Pentagon audit proves the feature-local claim."
 - "The loss-function harness is gameable, but the worker probably will not notice."
 - "Known-good passed; no need to run known-bad."

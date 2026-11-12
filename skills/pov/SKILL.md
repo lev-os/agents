@@ -46,7 +46,7 @@ Print 20-35 raw POVs. No synthesis. Each item:
 - Framed through a lens (persona or method)
 - Marked `(safe)` | `(wildcard)` | `(tbd)`
 
-**Lenses — pick 6-10 per invocation** from [references/lenses.md](references/lenses.md): its Methods and Personas tables.
+**Lenses — pick 6-10 per invocation** from the review skill's lens list (`~/.agents/skills/review/references/lenses.md`): its Methods and Personas tables.
 
 **Exit gate:** declare Turn 2 is next. Stop.
 
@@ -72,7 +72,7 @@ Collapse to ONE of:
 - **Top-expert recommendation** — name the domain, cite what practitioners in that field would do
 - **Evidence anchors** — link back to Turn 2 convergences
 - **Exit menu** — max 5 next-step options using the follow-up template
-- **Zoom-out review** — one model wrote all the frames, so hand the Turn 3 reduction to a reviewer with no earlier context (`~/.agents/skills/lev-plan/references/zoom-out-review.md`). Show its findings unedited beside the recommendation, as advice.
+- **Zoom-out review** — one model wrote all the frames, so hand the Turn 3 reduction to `skill://review` (lens `zoom_out`, cold reader). Show its findings unedited beside the recommendation, as advice.
 
 **Exit gate:** /pov cycle complete.
 

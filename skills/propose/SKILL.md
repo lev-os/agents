@@ -20,8 +20,7 @@ flags, source refs, workstream, and authorization unchanged.
 | `/propose emit <slice-id>` | Emit | Exactly one `{dna.yaml,execution.yaml}` task packet |
 
 `--full` and the `emit`, `apply`, `edit`, and `patch` authorizations keep their
-meaning there. Review mode runs the zoom-out review
-(`skill://lev-plan/references/zoom-out-review.md`) as advice.
+meaning there. Review mode calls `skill://review` (lens `zoom_out`) as advice.
 
 `lev-plan` runs `lev find` first for existing plans, designs, decisions and
 ideas on the topic; pass the topic words along.

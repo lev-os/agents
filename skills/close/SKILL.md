@@ -73,7 +73,7 @@ steps:
 
   - id: proof_gate_verdict
     action: Seal the proof gates required by the active domain contract before acceptance.
-    validation: "Applicable SDLC Pentagon, UltraQA, cleanup, and ai-slop-cleaner results or domain-specific equivalents are recorded; inapplicable gates have an N/A rationale, and residual risks are explicit."
+    validation: "Applicable SDLC Pentagon, hostile-run (record key `ultraqa`), cleanup, and ai-slop-cleaner results or domain-specific equivalents are recorded; inapplicable gates have an N/A rationale, and residual risks are explicit."
     on_failure: "Do not accept; route to /exec or /propose depending on whether runtime evidence or proof contract is missing."
 
   - id: accept

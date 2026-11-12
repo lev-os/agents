@@ -92,7 +92,7 @@ not separate competing checklists.
 - Owner-local test/probe/fixture placement
 - Required receipt fields
 - Pentagon axes required, or N/A with rationale
-- UltraQA scenario classes required, or N/A with rationale
+- Hostile-run scenario classes required, or N/A with rationale
 - ai-slop-cleaner review gate for cleanup/refactor/fallback/boundary risk
 
 ### Out of Scope

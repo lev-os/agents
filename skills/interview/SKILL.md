@@ -99,7 +99,7 @@ closure_gate:
   - "Latest independent Arch verdict is APPROVED."
 
 naming_guardrail: "Use DDD, clean-code, and hexagonal vocabulary that names responsibility. Do not turn conversational qualifiers into identifiers (for example, `CanonicalThing`, `FinalPlan`, or `ApprovedAdapter`)."
-reasoning_lenses: "~/.agents/skills/pov/references/lenses.md: first_principles, systems_thinking, pre_mortem, jobs_to_be_done, reverse_brainstorm, expert_dissent"
+reasoning_lenses: "~/.agents/skills/review/references/lenses.md: first_principles, systems_thinking, pre_mortem, jobs_to_be_done, reverse_brainstorm, expert_dissent"
 ```
 
 In this mode the usual a/b/c formatting contract is intentionally overridden. Print the exact interview question before sending it to `task_delegation`. After the human answer, list the Arch-produced candidate design, its decision log, ambiguity/readiness scores, and one next open question. Do not present controller-authored changes or a separate synthesis: Arch is the design author. Use `references/adversarial-continuous-design-loop.md` for the turn-record schema and scoring rubric.
@@ -140,8 +140,7 @@ steps:
       /Users/jean-patricksmith/.agents/skills/work/templates/design.md
       Use it as the artifact skeleton under .lev/pm/designs/.
       Do not create a spec artifact from interview output.
-      After the design artifact is written, run the zoom-out review
-      (~/.agents/skills/lev-plan/references/zoom-out-review.md) on it and show its findings unedited as advice.
+      After the design artifact is written, call skill://review (lens zoom_out) on it and show its findings unedited as advice.
     validation: "Design template loaded and target artifact path is under .lev/pm/designs/."
     on_failure: "Stop and load the design template before writing interview artifacts."
 
@@ -248,7 +247,7 @@ steps:
       For non-trivial, runtime, agentic, promotion, cleanup, fallback, or boundary-risk work,
       add proof design to the Proof Design section before handing off to propose.
       Name the promotion decision, highest-risk behavioral claim, fail-closed acceptance,
-      required Pentagon axes, UltraQA scenario classes, owner-local test placement, and
+      required Pentagon axes, hostile-run scenario classes, owner-local test placement, and
       any ai-slop-cleaner review gate.
 
       Keep ownership explicit: module-specific tests, probes, fixtures, and harness suites
@@ -279,7 +278,7 @@ steps:
   - id: synthesize_lenses
     action: Think through perspectives silently
     instruction: |
-      Consider lenses from ~/.agents/skills/pov/references/lenses.md internally (e.g. systems_thinking, trade_off).
+      Consider lenses from ~/.agents/skills/review/references/lenses.md internally (e.g. systems_thinking, trade_off).
       Print only one lens tag, such as (systems thinking), near the question title or recommendation.
       Do not print a framework essay unless the user asks for d. Deep dive.
     validation: "Output contains at most one visible lens tag."

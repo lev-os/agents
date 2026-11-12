@@ -13,8 +13,6 @@ metadata:
     - C4 diagram
     - system design
     - review PR
-    - review this
-    - /review
   tools:
     - Read
     - Grep
@@ -170,11 +168,11 @@ verdict:
     - "New or split branches with ambiguity estimates"
     - "Concrete fitness/proof gates"
 
-adversarial_lenses: "~/.agents/skills/pov/references/lenses.md: first_principles (boundaries), pre_mortem, jobs_to_be_done, reverse_brainstorm, expert_dissent"
+adversarial_lenses: "~/.agents/skills/review/references/lenses.md: first_principles (boundaries), pre_mortem, jobs_to_be_done, reverse_brainstorm, expert_dissent"
 
 review_rules:
   - "Do not approve because an artifact is well-written; approve only after its semantics, ownership, migration, and proof are concrete."
-  - "Before handing back a candidate design, run the zoom-out review (~/.agents/skills/lev-plan/references/zoom-out-review.md) on it and list its findings unedited as advice."
+  - "Before handing back a candidate design, call skill://review (lens zoom_out) on it and list its findings unedited as advice."
   - "Do not invent product choices or use options to steer the user. State the constraint, evidence, and consequence."
   - "Identify conflicting existing abstractions before proposing a new port, contract, receipt, result, or registry."
   - "Require one deterministic owner for admission, authorization, terminal status, evidence, and promotion decisions."
@@ -253,7 +251,7 @@ Resolve every `references/...` path in this skill relative to the directory that
 
 ## Review Mode
 
-When invoked for code/PR review (via `/review` shim or "review this PR"), use this streamlined flow:
+When invoked for code/PR review (routed by `skill://review` when a boundary moves, or "review this PR"), use this streamlined flow:
 
 ### PR Review Protocol
 
@@ -333,7 +331,7 @@ When invoked for code/PR review (via `/review` shim or "review this PR"), use th
 
 ### Adversarial Review (Devil's Advocate)
 
-If the review passes too easily, apply `devils_advocate`, `second_order` and `first_principles` from `~/.agents/skills/pov/references/lenses.md`.
+If the review passes too easily, take the attacker stance with `devils_advocate`, `second_order` and `first_principles` (stance and lenses: `skill://review`).
 
 ### Specialized Agents (Reference)
 

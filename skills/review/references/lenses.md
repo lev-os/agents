@@ -1,28 +1,28 @@
 # Lenses
 
-The one list of thinking and review lenses for every global skill. A skill names the lens ids it uses and keeps its
-own rules about how it uses them; it never copies this list.
+The one list of thinking and review lenses for every global skill. A lens is an angle: the question the reader asks. A
+stance is who the reader is (cold reader or attacker, in the review skill's SKILL.md); a lens never names a stance. A
+skill names the lens ids it uses and keeps its own rules about how it uses them; it never copies this list.
 
-- `use: think`: the author generates with the lens.
+- `use: think`: the author generates with the lens. The review router never dispatches a `think` row.
 - `use: review`: a fresh reader, who did not write the artifact, checks it with the lens.
 - `use: both`: either way.
 
-Calibration: only `zoom_out` is calibrated ([zoom-out-review.md](../../lev-plan/references/zoom-out-review.md)). Every
-other review lens is **uncalibrated, advice**: it reports findings and never decides a verdict.
+Calibration: only `zoom_out` has a calibration round: calibrated on test designs; advice only
+([zoom-out.md](zoom-out.md)). Every other lens is advice.
 
 ## Methods
 
 | id | Question | use | Review checklist |
 |---|---|---|---|
-| `zoom_out` | Does it fix the root problem, in the simplest way, by reusing what exists? | review | Calibrated. Run it as [zoom-out-review.md](../../lev-plan/references/zoom-out-review.md) says; never copy its prompt. |
-| `red_team` | What is the cheapest way to make the artifact look done without meeting its goal? | review | Each cheap path is caught by a check or a "does not count" line; the last pass finds only near misses already caught. |
+| `zoom_out` | Does it fix the root problem, in the simplest way, by reusing what exists? | review | Run it as [zoom-out.md](zoom-out.md) says; never copy its prompt. |
 | `pre_mortem` | It failed six months from now: why? | both | Three failure stories; each names how we would detect it and the mitigation. |
-| `devils_advocate` | What would a hostile senior engineer say? | review | Senior critique; an untested edge case; 10x scale; a production break; a deferral we will regret. |
+| `devils_advocate` | What would a hostile senior engineer say? | review | Senior critique; an untested edge case; 10x scale; a production break; a deferral we will regret. Usually run under the attacker stance. |
 | `first_principles` | Which needs are real, and what is the simplest build from them? | both | Each requirement traces to a need, not a habit; a simpler build was tried and rejected for a stated reason. |
 | `systems_thinking` | Which loops, stocks and delays does this change? | think | |
 | `second_order` | And then what happens? | both | The effect after the first effect; who adapts, and how. |
 | `opportunity_cost` | What do we give up to do this? | think | |
-| `reverse_brainstorm` | How would we make this fail or make it worse? | both | Each way to fail maps to a guard or to an accepted risk. |
+| `reverse_brainstorm` | How would we make this fail or make it worse? | both | Each way to fail maps to a guard or to an accepted risk. Usually run under the attacker stance. |
 | `jobs_to_be_done` | Which job does the user hire this for? | both | The user, the job, the moment they hire it, and what they fire. |
 | `expert_dissent` | Where would a domain expert and a software or science expert disagree with this? | both | One dissent for each field, with its evidence. |
 | `falsification` | Which observation would prove this wrong? | both | Each decisive claim names the observation and the verifier that can show it false. |
@@ -58,24 +58,25 @@ The idea skill's Five-Fold Path. The idea skill owns the table, its order and it
 
 ## Review methods
 
-Full procedures that a skill owns. They are uncalibrated, advice, like the review lenses.
+Full procedures that a skill owns. They are advice, like the lenses.
 
 | id | Owner | What it checks |
 |---|---|---|
 | `adversarial_validation` | cdo debug, T7 | A fresh validator tries to break a fix: the reproduction, edge cases, regressions, cause or symptom. PASS or FAIL only. |
-| `ultraqa` | ultraqa | Hostile scenario matrix run end to end: misleading success, harness errors, cleanup evidence. |
 
-## Which lenses for which artifact
+## Which stance and lenses for which artifact
 
-| Artifact | Skill | Lenses |
-|---|---|---|
-| Plan or slice | lev-plan, propose | `zoom_out`, `red_team`, `pre_mortem`. By plan depth: light = `zoom_out` only; standard = `zoom_out`, `red_team`; deep = all three. |
-| Long brief | horizon | `red_team`, `zoom_out` |
-| Architecture | arch | `zoom_out`, `first_principles`, `second_order`, `devils_advocate` |
-| Design from an interview | interview | `zoom_out`, `jobs_to_be_done`, `pre_mortem` |
-| Design review loop | arch, interview | `first_principles`, `systems_thinking`, `pre_mortem`, `jobs_to_be_done`, `reverse_brainstorm`, `expert_dissent` |
-| Plan enrichment | auto-enrich | `pre_mortem`, `jobs_to_be_done`, `reverse_brainstorm`, `expert_dissent` |
-| pov conclusion | pov | `zoom_out` |
-| Idea | idea | `evolution`, `impact`, `relationships`, `essence`, `paradigm` |
-| Debug fix | cdo | `adversarial_validation` |
-| Running behavior | ultraqa | `ultraqa` |
+"Author" rows are the author's own thinking; no reader runs them.
+
+| Artifact | Caller | Stance | Lenses |
+|---|---|---|---|
+| Plan or slice | lev-plan, propose | Light: cold reader. Standard: cold reader, then attacker. Deep: both, plus `pre_mortem`. | `zoom_out`; deep adds `pre_mortem` |
+| Long brief | horizon | Attacker (its `red_team` step), then cold reader | `zoom_out` |
+| Architecture | arch | Cold reader; attacker when the review passes too easily | `zoom_out`, `first_principles`, `second_order`, `devils_advocate` |
+| Design from an interview | interview | Cold reader | `zoom_out`, `jobs_to_be_done`, `pre_mortem` |
+| Design review loop | arch, interview | Author | `first_principles`, `systems_thinking`, `pre_mortem`, `jobs_to_be_done`, `reverse_brainstorm`, `expert_dissent` |
+| Plan enrichment | auto-enrich | Author, privately | `pre_mortem`, `jobs_to_be_done`, `reverse_brainstorm`, `expert_dissent` |
+| pov conclusion | pov | Cold reader | `zoom_out` |
+| Idea | idea | Author | `evolution`, `impact`, `relationships`, `essence`, `paradigm` |
+| Debug fix | cdo | Attacker | `adversarial_validation` |
+| Running behaviour | exec, close, a direct request | Attacker: [hostile-run.md](hostile-run.md) | none |

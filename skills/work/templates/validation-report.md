@@ -49,7 +49,7 @@ Use when the target has `execution.yaml.proof_gates`.
 | Gate | Status | Evidence | Residual Risk |
 |------|--------|----------|---------------|
 | Pentagon | PASS/FAIL/BLOCKED/N/A | path/command/receipt | none or follow-up |
-| UltraQA | PASS/FAIL/BLOCKED/N/A | scenario matrix / command evidence | none or follow-up |
+| Hostile run | PASS/FAIL/BLOCKED/N/A | scenario matrix / command evidence | none or follow-up |
 | ai-slop-cleaner | PASS/FAIL/BLOCKED/N/A | review notes / static scan / verifier | none or follow-up |
 
 ## Validation Results

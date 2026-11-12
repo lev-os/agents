@@ -89,7 +89,7 @@ steps:
     validation: "Return depends on rows and open blocking findings, never on confidence, effort, or elapsed time; a fresh session can resume from the frontier without the originating chat."
 
   - id: red_team
-    action: A fresh instance applies `red_team` (~/.agents/skills/pov/references/lenses.md) against the predicate; patch each answer the brief would accept with a Does Not Count line or a check.
+    action: A fresh instance takes the attacker stance through `skill://review` against the predicate; patch each answer the brief would accept with a Does Not Count line or a check.
     validation: "The last pass finds only near misses already excluded or caught."
 
   - id: render_and_route
@@ -132,8 +132,7 @@ human review) and its acceptance owner. When neither exists yet, list the proof
 as unresolved rather than manufacturing a weak command to fill the slot. Treat
 fast unanimity as a diversity warning, not corroboration.
 
-Before rendering the brief, run the zoom-out review
-(`~/.agents/skills/lev-plan/references/zoom-out-review.md`) on it. Its findings
+Before rendering the brief, call `skill://review` (lens `zoom_out`) on it. Its findings
 are advice: list them under the review checklist, unedited; a blocker from it
 becomes a blocking condition only when it meets the rule below.
 

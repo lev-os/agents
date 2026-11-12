@@ -213,7 +213,7 @@ fallback, or boundary-risk work. It seeds task `proof_gates`.
 - **Owner-local placement:** Where tests, probes, fixtures, and harness suites live
 - **Shared testing use:** Which `core/testing` helper, audit, runtime wrapper, or gate evaluator is reused
 - **Pentagon axes:** unit, integration, surface_e2e, harness_ratchet, adversarial_eval
-- **UltraQA scenario classes:** normal, malformed, injection, stale state, dirty worktree, hung command, flaky/retry, misleading output
+- **Hostile-run scenario classes:** normal, malformed, injection, stale state, dirty worktree, hung command, flaky/retry, misleading output
 - **ai-slop-cleaner gate:** required when cleanup/refactor/fallback/boundary risk exists
 
 ---
