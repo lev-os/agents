@@ -24,9 +24,13 @@ Before routing or writing, run `lev find` when `lev` is installed. Find the
 workstream that owns the topic and whether the matter is already settled:
 
 ```bash
-lev find "<3-6 topic words>" --type workstream --status active --json
+lev find "<3-6 topic words>" --type workstream --status ephemeral,captured,crystallizing,crystallized,manifesting --json
 lev find "<3-6 topic words>" --type decision --json
 ```
+
+The workstream statuses are the five live stages; no workstream has the status
+`active` since the stages cutover (2026-11-11), so a search for that old status
+finds none.
 
 When a row names a thing, ask for the type of record that answers it:
 
