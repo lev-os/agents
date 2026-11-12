@@ -17,9 +17,11 @@ steps:
     action: >-
       Bind the project and read its standards with ~/.agents/skills/lev/references/project-context.md ("Bind the
       active project" and "Standards and boundaries"). Then look for the project's review runbook, in this order, and
-      stop at the first hit: (1) the top AGENTS.md section on review or proof; (2) a review, audit or proof skill in
-      .agents/skills/ or .claude/skills/; (3) a review ruling in .lev/pm/decisions/. Leviathan answers at (1):
-      .agents/skills/lev-audit/references/review.md, with foundation.md and proof.md beside it.
+      stop at the first hit: (1) the top AGENTS.md sections on review, planning or proof; (2) a review, audit or proof
+      skill in .agents/skills/ or .claude/skills/; (3) a review ruling in .lev/pm/decisions/. Pick the runbook for the
+      artifact type, not the first file. Leviathan answers at (1): code goes to
+      .agents/skills/lev-audit/references/review.md; a plan, a foundation step or a proof goes to foundation.md and
+      proof.md beside it.
     validation: "The first line names the project root or none, and the runbook path or none with the places searched."
 
   - id: route
