@@ -14,12 +14,16 @@ readiness verdict, and never stands in for a check. It can gate only after a rou
 ## When to run it
 
 Once, when the artifact is written and before it leaves its stage; the caller's own line names the point. Skip it for
-a task packet (its checks already decide), for a one-line change, or when the Leviathan repo is not on this machine.
-Say that you skipped it and why.
+a task packet (its checks already decide) or for a one-line change. Say so inside the report block:
+`zoom-out: skipped ({reason})`. When the Leviathan repo, `node` or the `claude` command is not on this machine, the
+lens cannot run: write the same skipped line, and the review skill's general fresh reader asks its question ("Does it
+fix the root problem, in the simplest way, by reusing what exists?") instead, as advice.
 
 ## How
 
-The prompt lives in one place, the lens pack; never copy its text into a skill.
+The prompt lives in one place, the lens pack; never copy its text into a skill. The block below is for this lens
+only: its prompt holds the artifact's text, so its reader reads no file. Any other claude -p reader uses the copy
+folder in the review skill's SKILL.md ("A command-line reader").
 
 Each run gets its own folder, so runs can go in parallel. Run the whole block as one shell call, with ARTIFACT set to
 the artifact's path; it prints the run folder. Keep that path: a later call (reading the answer, cleaning up) names
@@ -32,13 +36,15 @@ LENS=$HOME/digital/leviathan/workshop/analysis/elephant-goldfish-model/spike2
 node "$LENS/calibration/render-one.mjs" design_lens_zoom_out "$ARTIFACT" "$RUN/prompt.txt"
 mkdir "$RUN/seat" && cd "$RUN/seat" && claude -p --model claude-opus-5-5 --tools "Read,Grep,Glob" \
   --disallowedTools "Bash" "Write" "Edit" "WebFetch" "WebSearch" "Agent" \
-  --setting-sources local --no-session-persistence < "$RUN/prompt.txt" > "$RUN/answer.txt"
+  --setting-sources local --no-session-persistence < "$RUN/prompt.txt" > "$RUN/answer.txt" 2> "$RUN/err.txt"; \
+  echo "exit $?"
 ```
 
 - The reader's whole reply is one JSON object: `evidence_refs`, `blockers`, `majors`, `nits`; each item has `scope`
   and `rationale`. One code fence around it is fine.
 - When done, remove that run's folder by its full printed path (for example `rm -rf /tmp/zoom-out.Ab12Cd`).
-- On a host without the `claude` command, skip the lens and say so.
+- A read that fails (exit not 0, a timeout, or an empty answer) follows step 4 of "A command-line reader" in the
+  review skill's SKILL.md. A host without `claude` or `node` cannot run the lens: see "When to run it".
 
 ## Reporting
 

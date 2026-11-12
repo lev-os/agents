@@ -169,8 +169,8 @@ steps:
     validation: "Exactly one plan is created or updated; source refs and fidelity table are durable."
 
   - id: judge_readiness
-    action: Run deterministic structure/ref checks, then the semantic weak-link review - score the readiness dimensions, classify blockers, and issue the verdict. Then call skill://review (lens zoom_out; the attacker stance too at standard or deep depth) on the plan or slice and report its findings beside the verdict as advice; it never changes the verdict. Use /auto-enrich for explicit or deep/high-risk plan hardening when available.
-    validation: "No readiness dimension is insufficient; deterministic success is reported separately from semantic approval."
+    action: Run deterministic structure/ref checks, then the semantic weak-link review - score the readiness dimensions, classify blockers, and issue the verdict. Then load the `review` skill by its name (the Skill tool with `review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md); name in its arguments the plan or slice, lens zoom_out (and the attacker stance at standard or deep depth), and lev-plan as the caller. Put its block under the verdict as advice; it never changes the verdict. Use /auto-enrich for explicit or deep/high-risk plan hardening when available.
+    validation: "No readiness dimension is insufficient; deterministic success is reported separately from semantic approval. The reply holds the review skill's <review-report> block, unedited (a skipped lens is said inside it), or, when the review skill could not be loaded, the line 'review: could not run ({reason})'."
     on_failure: "If no slice is runnable, simplify the DAG; block only on a concrete code or decision blocker."
 
   - id: map_slices
