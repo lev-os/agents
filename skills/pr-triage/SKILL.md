@@ -1,13 +1,23 @@
 ---
 name: pr-triage
-description: Use when triaging a scoped set of pull requests as a merge train - gate each PR for readiness, bounce what is not ready, merge what is ready into one integration branch, then review the whole result once, sized by a complexity router (no agent for a small or stacked train, up to two models and an architect for a large one), fix blocking findings, verify, and report.
+description: Use when triaging a scoped set of pull requests as a merge train - gate each PR for readiness, bounce what is not ready, merge what is ready into one integration branch, then review the whole result once, sized by a complexity router (no agent for a small or stacked train, up to two models and an architect for a large one), fix blocking findings, verify, and report. Also use for watch mode (--mode watch) - keep each open PR current with its target, review each new head sized by the same router, merge what passes, update linked issues, and reply with the reasons and an encrypted PR Lens page when a PR is not merged.
 ---
+
+## Modes
+
+- **Train mode** (the default, `--mode train`): the merge train below.
+- **Watch mode** (`--mode watch`): one pass over open PRs, each on its own; see
+  "Watch mode". It shares the router, the stack rules and the never list.
 
 ## Merge train rules (JP, 2026-10-30; these override anything below)
 
-1. **Gate each PR, do not review it.** Per PR, check only: its own CI failures,
-   conflicts, scope and direction against the ticket and settled decisions, and
-   glaring defects in the diff. No model review per PR.
+1. **Gate each PR, do not review it** (train mode only). Per PR, check only: its
+   own CI failures, conflicts, scope and direction against the ticket and settled
+   decisions, and glaring defects in the diff. No model review per PR in a train.
+   Watch mode reviews each new head: decisions
+   `.lev/pm/decisions/20261112-pr-watch-loop-rulings.yaml` and
+   `.lev/pm/decisions/20261112-pr-watch-merge-or-lens.yaml` (Leviathan repo)
+   supersede this rule for watch mode only.
 2. **Not ready: bounce it.** Comment on the PR and its ticket with the exact
    blocking items, and message the author. Do not merge it. Do not fix it for
    the author beyond small discrepancies.
@@ -58,6 +68,63 @@ spent only on the one combined review, sized by the train's tier.
    can ask for more; record that ask.
 4. **Report the router.** The report lists each unit, its stack members, its
    size, its tier with the row that set it, and the review spend it caused.
+
+## Watch mode (JP, 2026-11-12)
+
+JP: "pr-triage should be able to do it all ... we want to merge what we can,
+update tickets if there's gh issues, reply when we dont wanna merge w/ why. only
+pr lens things that don't get merged". The loop that runs it is
+`.lev/loops/pr-watch/loop.yaml` (Leviathan repo): repos, models, limits and the
+state file. Run it by hand until three clean ticks; no schedule before that.
+
+Flags: `--mode watch --repo <owner/name> [--pr <n>] [--route <r>]
+[--since <last reviewed head>] [--dry-run]`. With no `--pr`, every open PR in
+the repo; with no `--route`, every route in order. `--since` names the last
+head the watch reviewed; the review reads the change since it. `--dry-run`
+plans every route and writes only local files: no push, merge, comment, issue
+edit or publish.
+
+Routes, in order for each PR (stacks bottom first):
+
+| Route | Does | Model |
+|---|---|---|
+| sync | In the PR's review worktree, `git merge --no-ff origin/<base>`. Clean: push to the PR branch as the team bot. Conflict: `git merge --abort`, flag `conflict`, and the PR goes to reply. Skip a PR whose last push is under 30 minutes old, a fork, and a stale PR. | none |
+| gate | Draft, conflict, CI failures, no commit for 14 days, scope against the ticket. Each failure is a reason not to merge. | none |
+| review | Size the PR with the complexity router, then `lev openqodex watch-bounce` (flow `plugins/openqodex/flows/watch-bounce.flow.yaml`) on the frozen base and head. Only a new author head is reviewed; a head made by the sync merge is not. | below |
+| decide | Merge when the gate has no reason, the review is complete, it has no critical or major finding and the lead recommends approve. Otherwise reply. | none |
+| merge | `gh pr merge <n> --merge` (a merge commit) on the reviewed head (`--match-head-commit`). | none |
+| issues | For each linked issue: on merge, a comment with the merge commit (GitHub closes a closing reference); when not merged, a comment that links the PR reply. | none |
+| reply | Post `comment-draft.json` once per head, as the team bot. Drop a finding already posted on an earlier head. | none |
+| lens | Only for a PR that is not merged: the PR Lens page, one self-contained file, encrypted (AES-GCM), on here.now. The key is only in the link after `#k=`. | pi |
+| clean | Remove review worktrees with no running action (`git worktree remove`, then `git worktree prune`); settle the loop's own idle workers; clear a stale lock; drop closed PRs from the state; keep `state.json.prev`. | none |
+
+Review spend in watch mode, per PR, from the router tier:
+
+- PR Lens graph author: pi, `zai/glm-5.3` (the z.ai key, `ZAI_API_KEY`), read-only tools.
+- Lead and synthesis: Codex `gpt-6-astra`, medium effort.
+- T0 or T1: Astra alone. T2: Astra and one Codex `gpt-6.1-sol` worker at high
+  effort. T3: Astra splits the change across Sol workers, one of them on the
+  `arch` Review Mode assessment.
+
+The caller names every model; a missing model or effort stops the run, and a
+model that exec did not report running blocks the lane. Never fall back to
+another model.
+
+Watch-mode rules:
+
+- **A model never resolves a conflict.** A conflict stops that PR's sync and
+  becomes a reason in its reply.
+- **One review per author head.** State in `~/.local/state/lev/pr-watch/state.json`,
+  keyed `<owner/name>#<n>`, holds the heads already reviewed, linted and
+  commented. Write it as a temp file, then rename; keep `state.json.prev`.
+- **Freeze, then check freshness.** A head that moved after the freeze is stale:
+  no page, no draft, no comment. The next scan reviews the new head.
+- **The PR Lens page is private by its key.** All four watched repos are
+  private, so the comment is visible to repo members only; anyone with the link
+  can open the page. Never print or log the key or the here.now credential.
+- **Authority.** JP's rulings of 2026-11-12 authorize, for the loop's repos, the
+  sync push, the merge of what passes, the issue comments and the reply, as the
+  team bot. Anything else still needs the session's own authorization.
 
 # PR triage
 
@@ -115,6 +182,10 @@ dependencies and relevant existing CI. Titles and labels alone do not prove a
 stack. Use ancestry checks such as `git merge-base --is-ancestor` and examine
 the introduced commits and changes relative to the pinned target base.
 
+A PR whose base branch is another open PR's head branch is a stack, even when
+the ancestry check fails (the lower PR was rebased, squashed or force-pushed).
+Order it after that PR and treat both as one unit.
+
 For each PR distinguish: changes absent from the integration, already contained
 in the target, already contained through a selected descendant, or excluded.
 For rewritten/squashed history, verify patch equivalence and surrounding code
@@ -138,8 +209,9 @@ branch names, base/head SHAs and merge provenance in the evidence. Do not create
 a worktree per PR or model. Reviewers share an immutable snapshot read-only and
 make no worktree, clone or code index of their own.
 
-Create the integration worktree under a persistent folder beside the repository
-(`<repo>/.worktrees/` or `<repo>-worktrees/`). A temp path (`/tmp`,
+Create the integration worktree in the repository's own git-ignored
+`<repo>/.worktrees/` folder, never in a folder beside the repository (JP
+2026-11-12). A temp path (`/tmp`,
 `/private/tmp`, `/var/folders`, an agent scratchpad) is never a worktree root:
 macOS deletes temp folders and git keeps a ghost entry.
 
