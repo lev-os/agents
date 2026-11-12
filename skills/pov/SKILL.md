@@ -78,6 +78,7 @@ Collapse to ONE of:
 - **Top-expert recommendation** — name the domain, cite what practitioners in that field would do
 - **Evidence anchors** — link back to Turn 2 convergences
 - **Exit menu** — max 5 next-step options using the follow-up template
+- **Zoom-out review** — one model wrote all the frames, so hand the Turn 3 reduction to a reviewer with no earlier context (`~/.agents/skills/lev-plan/references/zoom-out-review.md`). Show its findings unedited beside the recommendation, as advice.
 
 **Exit gate:** /pov cycle complete.
 
