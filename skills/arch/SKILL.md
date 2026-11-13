@@ -172,7 +172,7 @@ adversarial_lenses: "~/.agents/skills/review/references/lenses.md: first_princip
 
 review_rules:
   - "Do not approve because an artifact is well-written; approve only after its semantics, ownership, migration, and proof are concrete."
-  - "Before handing back a candidate design, load the `review` skill by its name (the Skill tool with `review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md), naming in its arguments the design, lens zoom_out, and arch as the caller; then show the review skill's chat line (its Report section), or, when the review skill could not be loaded, the line 'review: could not run ({reason})', as advice."
+  - "Before handing back a candidate design, load the `review` skill by its name (the Skill tool with `review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md), naming in its arguments the design, lens zoom_out, and arch as the caller; then show the review skill's chat line (its Report section), or, when the review skill could not be loaded, the line 'review: could not run ({reason})', as advice. When review routed you here, skip this load and use the stance and lenses it gave. When review already ran on the same design in this work, cite that run's report file instead of a second run."
   - "Do not invent product choices or use options to steer the user. State the constraint, evidence, and consequence."
   - "Identify conflicting existing abstractions before proposing a new port, contract, receipt, result, or registry."
   - "Require one deterministic owner for admission, authorization, terminal status, evidence, and promotion decisions."

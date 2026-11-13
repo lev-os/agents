@@ -89,7 +89,7 @@ steps:
     validation: "Return depends on rows and open blocking findings, never on confidence, effort, or elapsed time; a fresh session can resume from the frontier without the originating chat."
 
   - id: red_team
-    action: The session loads the `review` skill by its name (the Skill tool with `review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md) with the attacker stance, naming the brief and horizon as the caller in its arguments, and review's fresh reader attacks the predicate; patch each answer the brief would accept with a Does Not Count line or a check, and put that review run's chat line (the review skill's Report section) under the review checklist.
+    action: Load the `review` skill by its name (the Skill tool with `review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md) with the attacker stance, naming the brief and horizon as the caller in its arguments; review's fresh reader attacks the predicate. When review routed you here, skip this load and use the stance and lenses it gave. When review already ran on the same brief in this work, cite that run's report file instead of a second run. Patch each answer the brief would accept with a Does Not Count line or a check, and put that review run's chat line (the review skill's Report section) under the review checklist.
     validation: "The last pass finds only near misses already excluded or caught."
 
   - id: render_and_route

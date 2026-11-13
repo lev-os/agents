@@ -416,7 +416,9 @@ its name (the Skill tool with `review`; a host with no Skill tool opens
 ~/.agents/skills/review/SKILL.md), naming in its arguments the packet, its
 review question as the checklist, and coder as the caller; the reader runs on
 the reviewer profile above. Pair mode's reviewer session has seen earlier
-slices, so only its final integration review loads review.
+slices, so only its final integration review loads review. When review already ran on the same batch in this work, cite that run's report file instead of a second run.
+When a caller launched you as a review's reader lane (pr-triage), you are the
+reader: answer the packet and run no review of your own.
 
 Verdicts, set by the controller from the reader's findings, are `APPROVED`,
 `NEEDS_CHANGES`, `BLOCKED`, or `NO_RESULT`.

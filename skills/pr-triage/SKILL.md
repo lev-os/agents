@@ -245,7 +245,7 @@ tool with `review`; a host with no Skill tool opens
 ~/.agents/skills/review/SKILL.md), naming in its arguments the frozen packet,
 the review criteria and `arch`'s Review Mode as the checklist, and pr-triage as
 the caller. The lanes below are its readers, so review starts no other reader;
-show review's chat line for each lane.
+show review's chat line for each lane. When review already ran on the same result in this work, cite that run's report file instead of a second run.
 
 - Claude **Opus 5.5, Medium**.
 - Codex **6.1 Sol, Extra High** (`xhigh` reasoning).

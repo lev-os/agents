@@ -104,4 +104,7 @@ reviewed hygiene path retains recovery evidence; it has no automatic rollback.
 
 Keep runtime receipts with their owning runtime writer; this skill's JSON is a
 report, not a fabricated receipt. Use one bounded worker and one integrated
-review when warranted. Add no scheduler or new FlowMind for the first skill run.
+review when warranted: load the `review` skill by its name (the Skill tool with
+`review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md),
+naming in its arguments the release change set and release as the caller, and
+show its chat line, or the line 'review: could not run ({reason})'. When review already ran on the same change set in this work, cite that run's report file instead of a second run. Add no scheduler or new FlowMind for the first skill run.

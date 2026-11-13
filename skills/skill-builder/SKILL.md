@@ -283,7 +283,7 @@ that did not write it reads it: load the `review` skill by its name (the Skill
 tool with `review`; a host with no Skill tool opens
 ~/.agents/skills/review/SKILL.md), naming in its arguments the subject, the
 finding form below as the checklist, and skill-builder as the caller, and show
-its chat line beside the audit. The default finding is:
+its chat line beside the audit. When review already ran on the same skill in this work, cite that run's report file instead of a second run. The default finding is:
 
 `source → distinction → consequence → evidence → minimal repair → test`
 

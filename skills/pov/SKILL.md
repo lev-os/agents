@@ -72,7 +72,7 @@ Collapse to ONE of:
 - **Top-expert recommendation** — name the domain, cite what practitioners in that field would do
 - **Evidence anchors** — link back to Turn 2 convergences
 - **Exit menu** — max 5 next-step options using the follow-up template
-- **Zoom-out review** — one model wrote all the frames, so hand the Turn 3 reduction to the `review` skill: load the `review` skill by its name (the Skill tool with `review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md), naming in its arguments the reduction, lens `zoom_out` (cold reader), and pov as the caller. Show the review skill's chat line (its Report section), or, when the review skill could not be loaded, the line 'review: could not run ({reason})' beside the recommendation, as advice.
+- **Zoom-out review** — one model wrote all the frames, so hand the Turn 3 reduction to the `review` skill: load the `review` skill by its name (the Skill tool with `review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md), naming in its arguments the reduction, lens `zoom_out` (cold reader), and pov as the caller. Show the review skill's chat line (its Report section), or, when the review skill could not be loaded, the line 'review: could not run ({reason})' beside the recommendation, as advice. When review already ran on the same reduction in this work, cite that run's report file instead of a second run.
 
 **Exit gate:** /pov cycle complete.
 

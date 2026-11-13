@@ -260,7 +260,7 @@ steps:
       name (the Skill tool with `review`; a host with no Skill tool opens
       ~/.agents/skills/review/SKILL.md), naming in its arguments the enriched
       artifact, lens zoom_out, and auto-enrich as the caller; show its chat line,
-      or the line 'review: could not run ({reason})', as advice.
+      or the line 'review: could not run ({reason})', as advice. When review already ran on the same artifact in this work, cite that run's report file instead of a second run.
     validation: "Latest candidate digest is reviewed, or unverified_revisions is explicit; verdict, disputed-finding dispositions, semantic scores, deterministic preconditions, blocker delta, fidelity baseline/final/lost rows, artifact-size direction, and cycles used are recorded."
     on_failure: "Stop with NEEDS_IMPLEMENTATION_LANE or remaining blockers; never fake approval."
 
