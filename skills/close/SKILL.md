@@ -67,8 +67,8 @@ steps:
     on_failure: "Route failed criteria back to /exec."
 
   - id: standards_review
-    action: Check the change against the coding standards and boundary rules from the Standards and boundaries section of [Project Context](../lev/references/project-context.md).
-    validation: "Each applicable rule is pass or fail with path:line, or the review says none applies."
+    action: Check the change against the coding standards and boundary rules from the Standards and boundaries section of [Project Context](../lev/references/project-context.md). Load the `review` skill by its name (the Skill tool with `review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md), naming in its arguments the change, these rules as the checklist, and close as the caller; review routes to the project's code review runbook when it has one. When the work's proof step already ran review on the same commits, cite that run's report file instead of a second run.
+    validation: "Each applicable rule is pass or fail with path:line, or the review says none applies. The reply holds the review skill's chat line with its report file's path, or, when the review skill could not be loaded, the line 'review: could not run ({reason})'."
     on_failure: "Route the broken rule back to /exec."
 
   - id: proof_gate_verdict

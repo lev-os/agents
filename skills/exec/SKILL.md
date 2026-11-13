@@ -346,8 +346,8 @@ steps:
     on_failure: "Emit <diagnostics-report>."
 
   - id: review_batch
-    action: After declared checks pass, use one integrated checkpoint review for requested behavior, extra behavior, write scope, runtime contracts, interfaces, maintainability, tests, complexity, and correctness risks.
-    validation: "Spec and quality verdicts remain separate in the result, but one reviewer covers both axes unless an explicit high-assurance contract requires role separation."
+    action: After declared checks pass, use one integrated checkpoint review for requested behavior, extra behavior, write scope, runtime contracts, interfaces, maintainability, tests, complexity, and correctness risks. Load the `review` skill by its name (the Skill tool with `review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md), naming in its arguments the batch diff, these axes as the checklist, and exec as the caller; review routes to the project's code review runbook when it has one and supplies the reader, the lenses and the stance.
+    validation: "Spec and quality verdicts remain separate in the result, but one reviewer covers both axes unless an explicit high-assurance contract requires role separation. The verdicts are exec's; the reply holds the review skill's chat line with its report file's path, or, when the review skill could not be loaded, the line 'review: could not run ({reason})'."
     on_failure: "Do not mark verified or launch another reviewer. Fix a concrete in-scope finding once, or stop as needs_propose/blocked when it changes scope, architecture, or acceptance."
 
   - id: run_runtime_qa

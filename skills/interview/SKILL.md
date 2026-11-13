@@ -140,7 +140,7 @@ steps:
       /Users/jean-patricksmith/.agents/skills/work/templates/design.md
       Use it as the artifact skeleton under .lev/pm/designs/.
       Do not create a spec artifact from interview output.
-      After the design artifact is written, call skill://review (lens zoom_out) on it and show its chat line (the review skill's Report section) as advice.
+      After the design artifact is written, load the `review` skill by its name (the Skill tool with `review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md), naming in its arguments the design artifact, lens zoom_out, and interview as the caller; show its chat line (the review skill's Report section), or, when the review skill could not be loaded, the line 'review: could not run ({reason})', as advice.
     validation: "Design template loaded and target artifact path is under .lev/pm/designs/."
     on_failure: "Stop and load the design template before writing interview artifacts."
 

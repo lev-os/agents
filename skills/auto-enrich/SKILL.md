@@ -255,6 +255,12 @@ steps:
       After each patch, recompute plan/source coverage. Architecture quality cannot
       be purchased by dropping a material user requirement, non-goal, relationship,
       decision boundary, or acceptance condition.
+      The companion has seen every repair, so it is not a fresh reader. In
+      standard and deep mode, after the last cycle, load the `review` skill by its
+      name (the Skill tool with `review`; a host with no Skill tool opens
+      ~/.agents/skills/review/SKILL.md), naming in its arguments the enriched
+      artifact, lens zoom_out, and auto-enrich as the caller; show its chat line,
+      or the line 'review: could not run ({reason})', as advice.
     validation: "Latest candidate digest is reviewed, or unverified_revisions is explicit; verdict, disputed-finding dispositions, semantic scores, deterministic preconditions, blocker delta, fidelity baseline/final/lost rows, artifact-size direction, and cycles used are recorded."
     on_failure: "Stop with NEEDS_IMPLEMENTATION_LANE or remaining blockers; never fake approval."
 

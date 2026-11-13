@@ -410,9 +410,16 @@ Give the reviewer a frozen packet: objective, completed and remaining slices,
 batch boundary, acceptance, risk triggers, changed files/diffstat, important
 diffs, verifier commands/results, runtime/e2e status, known concerns, and one
 review question. Build it from admitted stage output only. Ask for new blocking
-evidence, not generic commentary.
+evidence, not generic commentary. In checkpoint mode and for the final
+integration review, the reviewer is a fresh reader: load the `review` skill by
+its name (the Skill tool with `review`; a host with no Skill tool opens
+~/.agents/skills/review/SKILL.md), naming in its arguments the packet, its
+review question as the checklist, and coder as the caller; the reader runs on
+the reviewer profile above. Pair mode's reviewer session has seen earlier
+slices, so only its final integration review loads review.
 
-Reviewer verdicts are `APPROVED`, `NEEDS_CHANGES`, `BLOCKED`, or `NO_RESULT`.
+Verdicts, set by the controller from the reader's findings, are `APPROVED`,
+`NEEDS_CHANGES`, `BLOCKED`, or `NO_RESULT`.
 Fix concrete findings with the coder or directly when surgical. Do not create
 an automatic approval loop. Retry `NO_RESULT` once with a smaller packet, then
 escalate. Stop when the same finding appears twice, two reviewer attempts are

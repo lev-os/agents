@@ -278,7 +278,12 @@ settings. `all` inventories every selected top-level skill and its bundled and
 reachable references, then inspects each with per-file coverage and explicit
 limitations. Prioritize findings by consequence and evidence gap without dropping
 subjects from an exhaustive request. Use deterministic batching for inventory;
-make no automatic subject edits or executions. The default finding is:
+make no automatic subject edits or executions. For one skill or folder, a reader
+that did not write it reads it: load the `review` skill by its name (the Skill
+tool with `review`; a host with no Skill tool opens
+~/.agents/skills/review/SKILL.md), naming in its arguments the subject, the
+finding form below as the checklist, and skill-builder as the caller, and show
+its chat line beside the audit. The default finding is:
 
 `source → distinction → consequence → evidence → minimal repair → test`
 

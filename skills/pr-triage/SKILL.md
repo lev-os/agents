@@ -239,7 +239,13 @@ coverage; report missing context rather than guessing. Record the packet digest.
 
 The complexity router sets how many of these run: none for a T0 or T1 train,
 Opus alone for T2, both for T3. Through Coder, launch the reviews the tier
-calls for, each independent and read-only, on this same result:
+calls for, each independent and read-only, on this same result. Each one is a
+fresh reader of the review skill: load the `review` skill by its name (the Skill
+tool with `review`; a host with no Skill tool opens
+~/.agents/skills/review/SKILL.md), naming in its arguments the frozen packet,
+the review criteria and `arch`'s Review Mode as the checklist, and pr-triage as
+the caller. The lanes below are its readers, so review starts no other reader;
+show review's chat line for each lane.
 
 - Claude **Opus 5.5, Medium**.
 - Codex **6.1 Sol, Extra High** (`xhigh` reasoning).

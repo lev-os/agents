@@ -29,8 +29,8 @@ steps:
 
   - id: route
     action: >-
-      Find the owner in the routing table. When the project runbook covers the domain, it wins: follow it and add only
-      the fresh reader, the lenses and the stance; a closing line it asks for (good to go) goes after the chat
+      Find the owner in the routing table. When the project runbook covers the domain, it wins: follow it, skipping its
+      line that loads review, and add only the fresh reader, the lenses and the stance; a closing line it asks for (good to go) goes after the chat
       line, as the runbook's line. When the owner is the caller, do not call it again; supply only the reader, lenses
       and stance. Else load the owner skill and give the reader its review checklist. With no runbook and no owner,
       say so and use these principles only.
@@ -165,7 +165,9 @@ A stance is who the reader is; a lens is the question the reader asks.
   directly "is it ready?", give the findings and say the decision is the asker's.
 - **No loop.** The domain skill keeps its checklist (lev-plan's readiness dimensions, arch's review contract). Review
   never calls its caller back in the same run, and an owner that review routed to uses the stance and lenses it was
-  given instead of calling review again.
+  given instead of calling review again. A project runbook that loads review (Leviathan's review.md and
+  foundation.md) is a caller too: review follows its checklist, skips its line that loads review, and loads neither
+  the runbook nor itself a second time.
 - **The session never edits a reader's finding.** It does not drop, merge, shorten or re-word one, not even into
   plain words, and not when the user asks for fewer. A finding it thinks is wrong stays, with `(session note: ...)`
   after it; the operator settles it. The chat form is the session's own words and never stands in for the file.
