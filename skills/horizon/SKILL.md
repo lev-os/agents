@@ -77,8 +77,8 @@ steps:
     validation: "Each predictable near miss is excluded by name and mapped to a row, an invalid_proof entry, or the review checklist; terms settle the empty, trivial, duplicate, and boundary cases the predicate must survive."
 
   - id: stage_checks
-    action: Split the work into stages that each end in a named artifact stating its premises and conclusion locally. For each failure a stage can introduce, choose proof credible for that claim - a command check with a known-bad input where a command decides it; otherwise review from the diff, or named independent evidence or human review with its acceptance owner - and name the stage that waits on it. Assign a check owner to run each command check against its known-bad control before that check can justify acceptance; planning names the run and required evidence, and authorized execution collects it.
-    validation: "Every check is named after the failure it rules out and maps to one ledger row ID; command checks exist only where a command decides the claim, each naming a known-bad control, check owner and sensitivity evidence required before acceptance; every other row names its reviewer or acceptance owner or is listed as unresolved proof; no stage starts before its input rows are satisfied."
+    action: Split the work into stages that each end in a named artifact stating its premises and conclusion locally. For each failure a stage can introduce, choose proof credible for that claim - a command check with a known-bad input where a command decides it; otherwise review from the diff, or named independent evidence or human review with its acceptance owner - and name the stage that waits on it. Assign a check owner to run each command check against its known-bad control before that check can justify acceptance; planning names the run and required evidence, and authorized execution collects it. Give each stage a run budget, and freeze the format of every artifact a long run reads before that run starts (Review and Repair).
+    validation: "Every stage names its run budget, and every artifact a long run reads names its frozen format version; every check is named after the failure it rules out and maps to one ledger row ID; command checks exist only where a command decides the claim, each naming a known-bad control, check owner and sensitivity evidence required before acceptance; every other row names its reviewer or acceptance owner or is listed as unresolved proof; no stage starts before its input rows are satisfied."
 
   - id: set_review
     action: Write the checklist, named blocking conditions, and bounded repair from Review and Repair.
@@ -116,6 +116,8 @@ Start every list here, then add the problem's own near misses:
   empty, placeholder, too good to be true) treated as passing
 - a weak or invented command standing in for a claim it cannot decide
 - evidence produced before the last edit to the artifact it describes
+- output of a long run that is read through a format changed after that run
+  started
 - agreement among workers offered as proof
 
 When a counterexample or impossibility result is an allowed outcome, require
@@ -154,6 +156,19 @@ reviewer, as well as the same relevant evidence. If that support is unavailable,
 hold the repair and report the gap; a stronger audit alone does not repair it.
 At the cap, stop with the exact gap and route it: a decision to `/interview`,
 a missing contract as a `code_blocker`, anything else to the operator.
+
+A stage also carries a **run budget**: the worker runs it may spend on builds,
+reviews and repairs together, set when the stage is defined; the owner's rerun
+is counted apart. At the budget, stop, report runs spent against runs left, and
+take the **narrow exit** first: a smaller predicate that holds now, with the
+rest as one open row. A wider exit goes to the operator.
+
+Every choice shown to the operator, and every change of approach, names its
+**size**: worker runs, machine hours, and what stays unproven.
+
+A long run reads only frozen formats. Version the format of each artifact it
+reads and settle that version before the run starts; a later format change
+makes the run's output stale, and the plan then names the rerun and its size.
 
 ## Return, Stops, and Resume
 
@@ -258,9 +273,9 @@ State: {memory|disk:ref}; confidence {low|medium|high}; blocker {none|code_block
 - {near miss}: excluded by {row_id | invalid_proof on row_id | review checklist}
 
 ### Stages
-| Stage | Artifact | Rows (proof) | Rules out | Known-bad input | Waits on |
-|---|---|---|---|---|---|
-| {S1} | {path} | {row_id: command | review | owner} | {failure} | {fixture or n/a} | {none or stage} |
+| Stage | Artifact | Rows (proof) | Rules out | Known-bad input | Waits on | Run budget |
+|---|---|---|---|---|---|---|
+| {S1} | {path; format {version, frozen} when a long run reads it} | {row_id: command | review | owner} | {failure} | {fixture or n/a} | {none or stage} | {n worker runs} |
 
 ### Review
 Checklist: {domain failure modes; circularity analogue; degenerate values}
@@ -270,7 +285,7 @@ Outside-loop proof: {command row_id | independent evidence or human review: row_
 
 ### Repair
 Recall: {stage}; failed rows {ids}; evidence {ref}; narrowed scope {scope}; acceptance {rows satisfied}; cap {n}
-At cap: stop with the exact gap; route {/interview | code_blocker | operator}
+At cap or run budget: stop with the exact gap and runs {spent}/{budget}; narrow exit {smaller predicate + one open row}; route {/interview | code_blocker | operator}
 
 ### Return
 Return when: predicate holds, every stage row is satisfied by its proof with evidence after the last edit, and no blocking finding is open.
@@ -280,7 +295,7 @@ Incomplete only on: explicit user stop, hard budget, or unavailable required evi
 Frontier: last passing stage {id} at {evidence_ref}; open rows {ids}; next unit {one ready coherent unit}
 
 ### Open Branches
-- {later branch}: {intent_id}; open because {reason}; owner {route}
+- {later branch}: {intent_id}; open because {reason}; owner {route}; size {worker runs; machine hours; what stays unproven}
 
 ### Fidelity and Route
 | Intent ID | Source ref | Brief destination | Ledger row | Preservation | Route / blocker |
