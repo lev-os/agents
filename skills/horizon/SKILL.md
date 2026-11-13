@@ -89,12 +89,12 @@ steps:
     validation: "Return depends on rows and open blocking findings, never on confidence, effort, or elapsed time; a fresh session can resume from the frontier without the originating chat."
 
   - id: red_team
-    action: The session loads the `review` skill by its name (the Skill tool with `review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md) with the attacker stance, naming the brief and horizon as the caller in its arguments, and review's fresh reader attacks the predicate; patch each answer the brief would accept with a Does Not Count line or a check, and list that review run's <review-report> block under the review checklist, unedited.
+    action: The session loads the `review` skill by its name (the Skill tool with `review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md) with the attacker stance, naming the brief and horizon as the caller in its arguments, and review's fresh reader attacks the predicate; patch each answer the brief would accept with a Does Not Count line or a check, and put that review run's chat line (the review skill's Report section) under the review checklist.
     validation: "The last pass finds only near misses already excluded or caught."
 
   - id: render_and_route
     action: Render the brief from the template, plus a packet preview when asked, and name the next route. horizon writes no task folder and dispatches nothing.
-    validation: "The brief cites ledger row IDs and carries no second executable ledger; any packet preview is labeled unvalidated and unemitted; every preserved row passes the cold-read recall check; Next names exactly one route, and evidence with no available owner stays unresolved. The review checklist holds each <review-report> block of the review skill (the red_team run and the run before rendering), unedited (a skipped lens is said inside it), or, when the review skill could not be loaded, the line 'review: could not run ({reason})'."
+    validation: "The brief cites ledger row IDs and carries no second executable ledger; any packet preview is labeled unvalidated and unemitted; every preserved row passes the cold-read recall check; Next names exactly one route, and evidence with no available owner stays unresolved. The review checklist holds one chat line of the review skill for each run (the red_team run and the run before rendering), each with its report file's path, or, when the review skill could not be loaded, the line 'review: could not run ({reason})'."
 ```
 
 ## Does Not Count Defaults
@@ -135,7 +135,7 @@ fast unanimity as a diversity warning, not corroboration.
 Before rendering the brief, load the `review` skill by its name (the Skill tool with
 `review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md); name in its
 arguments the brief, lens `zoom_out`, and horizon as the caller. Its findings are advice:
-list its <review-report> block under the review checklist, unedited (or, when the review
+put its chat line (the review skill's Report section) under the review checklist (or, when the review
 skill could not be loaded, the line 'review: could not run ({reason})'); a blocker from it
 becomes a blocking condition only when it meets the rule below.
 
