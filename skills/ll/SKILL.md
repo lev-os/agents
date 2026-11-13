@@ -538,6 +538,10 @@ tick_types:
   - { id: summarize, weight: 10, min_interval: 3 }
 ```
 
+### 5. Field Study Loop
+Watch a skill in real chats for a fixed window after its lab eval. Load
+[references/field-study.md](references/field-study.md) when a skill's owner starts one.
+
 ---
 
 ## Integration Points

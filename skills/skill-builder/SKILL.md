@@ -22,6 +22,7 @@ An explicit skills-first update may precede trials, but must remain unqualified.
 - [Absorb into the owner](#absorb-learn-and-test-in-the-existing-owner)
 - [Intake and install](#workflow-1-intake--install)
 - [Author a skill](#workflow-2-author-from-scratch-tdd)
+- [Field study after the eval](#optional-field-study-after-the-eval)
 - [Extract source material](#workflow-3-extraction-pipeline)
 - [Security scan](#workflow-4-security-scan)
 - [Merge skills](#workflow-5-merge)
@@ -519,6 +520,22 @@ steps:
       - Procedural chains: step IDs create presuppositional sequences
     validation: "Required cases pass within budget or pending failures and evidence gaps are explicit."
     on_failure: "Record the remaining obligation and stop the trial series at its budget."
+```
+
+## Optional: field study after the eval
+
+```yaml
+steps:
+  - id: field_study
+    action: Offer a field study after the eval of a major change in orchestration
+    instruction: |
+      When the change alters the steps, routes or triggers of a skill that sends work to
+      other skills or agents, offer the owner a field study once, after its eval: a fixed
+      window that watches the skill in real chats and scores the eval's measures there.
+      It is optional; start nothing without the owner's yes. On a yes, load
+      ~/.agents/skills/ll/references/field-study.md and follow its "Start a new study" list.
+    validation: "The eval report names the offer and the owner's answer, or states that the change is not a major change in orchestration."
+    on_failure: "Leave it out of the qualification states; the offer never blocks promotion."
 ```
 
 ## Workflow 3: Extraction Pipeline
