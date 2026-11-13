@@ -199,13 +199,23 @@ The block is the record. It goes to one file for each run:
 The operator reads the chat to decide, so the chat holds only what the operator decides on (JP 2026-11-12: "do i
 even need to see it if im not being consulted on the options based on the findings?"). For each run the reply holds:
 
-1. **One chat line:** `review ({stance}, {reader}): {b} blockers, {m} majors, {n} nits; {k} fixed, {j} open; report
-   {path}`. A failed reader, reader=self or a skipped lens is said here in a few words.
+1. **One chat line, word for word:** `review ({stance}, {reader}): {b} blockers, {m} majors, {n} nits; {k} fixed, {j}
+   open; report {path}`. A failed reader, reader=self or a skipped lens is said here in a few words. Put the line in
+   the reply as it is, beside the work it reviewed. This is also so when the reply follows a host's reply template (a
+   reply shape in CLAUDE.md or AGENTS.md): the line goes under the item it reviewed, for example under the commit in
+   a "Shipped" list, and under the verdict when nothing shipped. A report path in another line ("Report: {path}") is
+   not the chat line.
+   ```text
+   **Shipped:**
+   - {commit} {what it does}
+     review ({stance}, {reader}): {b} blockers, {m} majors, {n} nits; {k} fixed, {j} open; report {path}
+   ```
 2. **The findings the operator must rule on.** A finding is the operator's when the caller cannot settle it inside
    its own authority: the fix changes scope, acceptance, cost or an earlier ruling, or it is a blocker or major that
    the caller disagrees with and leaves open. Each one is a question in the caller's decision format: the finding in
    plain words, the choices it opens and a recommendation. A finding that the caller fixed, logged or kept stays in
-   the file.
+   the file. The reply does not list it again, also not in plain words or in a table: the chat line's counts and the
+   report path stand for it.
 
 The operator who asks to see the report gets the block printed whole.
 
@@ -228,3 +238,5 @@ From a baseline seat with no review skill and from the first two evals of this s
 | "The reviewer found 7 more issues, which I left out as you asked." (and no block) | The report file keeps every item; the chat gets the chat form |
 | Pasted five report blocks, 37 findings, into two replies, with nothing for the operator to decide in them (Ulta, 2026-11-12; JP: "thats a fuck load of text to parse") | The block goes to its file; the reply gets one chat line for each run and only the findings the operator must rule on |
 | Wrote `&lt;words&gt;` in the block where the reader wrote `<words>` | Copy < and > as they are |
+| Followed the host's reply template and wrote "Report: `{path}`" under Shipped, with no chat line (v4 lab, 3 of 6 runs, 2026-11-13) | Copy the chat line word for word under the item it reviewed |
+| Wrote the chat line, then listed the other open findings in plain words under it (v4 lab, 2026-11-13) | Only the operator's questions go in the reply; the rest stays in the file |

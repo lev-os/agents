@@ -562,10 +562,9 @@ replacement.
 | `plan-research` | `plan-research-*` | Investigation with knowledge output |
 | `plan-migration` | `plan-migration-*` | Transition between well-defined system shapes |
 
-Required frontmatter remains backward-compatible:
+Required frontmatter remains backward-compatible. These keys go between the `---` lines at the top of the plan file:
 
 ```yaml
----
 type: plan-impl
 status: crystallizing
 priority: 2
@@ -577,7 +576,6 @@ steps:
     validation: "check that can prove the claim"
 acceptance_criteria: []
 gates: []
----
 ```
 
 New or materially updated standard/deep plans should also include:
