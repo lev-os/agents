@@ -88,9 +88,9 @@ Routes, in order for each PR (stacks bottom first):
 
 | Route | Does | Model |
 |---|---|---|
-| sync | In the PR's review worktree, `git merge --no-ff origin/<base>`. Clean: push to the PR branch as the team bot. Conflict: `git merge --abort`, flag `conflict`, and the PR goes to reply. Skip a PR whose last push is under 30 minutes old, a fork, and a stale PR. | none |
+| sync | `lev openqodex watch-sync --repo <owner/name>` (every open PR, stacks bottom first). In the PR's review worktree, `git merge --no-ff origin/<base>` with the trailer `Lev-PR-Watch: sync`. Clean: a plain push to the PR branch as the team bot. Conflict: `git merge --abort`, flag `conflict`, and the PR goes to reply. Skip a PR whose author head is under 30 minutes old, a fork, and a stale PR. | none |
 | gate | Draft, conflict, CI failures, no commit for 14 days, scope against the ticket. Each failure is a reason not to merge. Only green CI merges: CI still running waits (`ci_pending`, no model call); CI that is neither a pass nor a failure is a reason; with no CI the repo's own checks (`--local_checks`) must pass on the head, and with none set, no CI is a reason. | none |
-| review | Size the PR with the complexity router, then `lev openqodex watch-bounce` (flow `plugins/openqodex/flows/watch-bounce.flow.yaml`) on the frozen base and head. Only a new author head is reviewed; a head made by the sync merge is not. | below |
+| review | Size the PR with the complexity router, then `lev openqodex watch-bounce` (flow `plugins/openqodex/flows/watch-bounce.flow.yaml`) on the frozen base and head. Only a new author head is reviewed; a head made by the sync merge is not (`merge_only`, green). | below |
 | decide | Merge when the gate has no reason, the review is complete, it has no critical or major finding and the lead recommends approve. Otherwise reply. | none |
 | merge | `gh pr merge <n> --merge` (a merge commit) on the reviewed head (`--match-head-commit`). | none |
 | issues | For each linked issue: on merge, a comment with the merge commit (GitHub closes a closing reference); when not merged, a comment that links the PR reply. | none |

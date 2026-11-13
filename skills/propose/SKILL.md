@@ -20,7 +20,10 @@ flags, source refs, workstream, and authorization unchanged.
 | `/propose emit <slice-id>` | Emit | Exactly one `{dna.yaml,execution.yaml}` task packet |
 
 `--full` and the `emit`, `apply`, `edit`, and `patch` authorizations keep their
-meaning there. Review mode calls `skill://review` (lens `zoom_out`) as advice.
+meaning there. In Review mode, lev-plan's judge_readiness step loads the `review` skill by its name (the Skill
+tool with `review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md), lens `zoom_out` (and
+the attacker stance at standard or deep depth); its <review-report> block, or, when the review skill could not be
+loaded, the line 'review: could not run ({reason})', goes under the verdict as advice.
 
 `lev-plan` runs `lev find` first for existing plans, designs, decisions and
 ideas on the topic; pass the topic words along.

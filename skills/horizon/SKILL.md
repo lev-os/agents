@@ -89,12 +89,12 @@ steps:
     validation: "Return depends on rows and open blocking findings, never on confidence, effort, or elapsed time; a fresh session can resume from the frontier without the originating chat."
 
   - id: red_team
-    action: A fresh instance takes the attacker stance through `skill://review` against the predicate; patch each answer the brief would accept with a Does Not Count line or a check.
+    action: The session loads the `review` skill by its name (the Skill tool with `review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md) with the attacker stance, naming the brief and horizon as the caller in its arguments, and review's fresh reader attacks the predicate; patch each answer the brief would accept with a Does Not Count line or a check, and list that review run's <review-report> block under the review checklist, unedited.
     validation: "The last pass finds only near misses already excluded or caught."
 
   - id: render_and_route
     action: Render the brief from the template, plus a packet preview when asked, and name the next route. horizon writes no task folder and dispatches nothing.
-    validation: "The brief cites ledger row IDs and carries no second executable ledger; any packet preview is labeled unvalidated and unemitted; every preserved row passes the cold-read recall check; Next names exactly one route, and evidence with no available owner stays unresolved."
+    validation: "The brief cites ledger row IDs and carries no second executable ledger; any packet preview is labeled unvalidated and unemitted; every preserved row passes the cold-read recall check; Next names exactly one route, and evidence with no available owner stays unresolved. The review checklist holds each <review-report> block of the review skill (the red_team run and the run before rendering), unedited (a skipped lens is said inside it), or, when the review skill could not be loaded, the line 'review: could not run ({reason})'."
 ```
 
 ## Does Not Count Defaults
@@ -132,8 +132,11 @@ human review) and its acceptance owner. When neither exists yet, list the proof
 as unresolved rather than manufacturing a weak command to fill the slot. Treat
 fast unanimity as a diversity warning, not corroboration.
 
-Before rendering the brief, call `skill://review` (lens `zoom_out`) on it. Its findings
-are advice: list them under the review checklist, unedited; a blocker from it
+Before rendering the brief, load the `review` skill by its name (the Skill tool with
+`review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md); name in its
+arguments the brief, lens `zoom_out`, and horizon as the caller. Its findings are advice:
+list its <review-report> block under the review checklist, unedited (or, when the review
+skill could not be loaded, the line 'review: could not run ({reason})'); a blocker from it
 becomes a blocking condition only when it meets the rule below.
 
 A finding **blocks** only when it shows, with evidence (a failing check, a
