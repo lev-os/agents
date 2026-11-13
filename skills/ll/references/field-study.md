@@ -13,7 +13,8 @@ First study: `~/digital/leviathan/.lev/loops/review-v3-field-study/` (loop.yaml,
 
 | Part | What it is |
 |---|---|
-| Fingerprint | sha256 of the skill folder, its callers' folders, the files it loads at run time and `~/.claude/CLAUDE.md`. A change inside the window ends the study. |
+| Fingerprint | sha256 of the skill folder, its callers' folders and the files the skill's owner ships that it loads at run time. A change inside the window ends the study. |
+| Environment | The files the skill runs among but does not own: `~/.claude/CLAUDE.md` and the project files it reads (an `AGENTS.md`, a project's runbooks). Each pass records their digest, and the report lists each change with the uses scored before and after it. A change never ends the study. |
 | Lab baseline | The lab eval's result for each measure, from a blind case set scored by a program. |
 | Field measures | For each lab measure: exact by program from real transcripts, or "lab only" (named in the report). |
 | Watch list | The chat stores read, what counts as a request (the denominator: a caller skill loaded, or a request word), and what counts as a use. |
@@ -27,11 +28,14 @@ These go in `.lev/loops/<study id>/study.json`. Copy the first study's file and 
 1. **Hourly sweep, no model call** (`sweep.mjs`). Reads the chat stores changed since the last pass, read-only, and
    writes one row for each chance event (store, chat, file, line). A row is never labelled again; a later use adds
    its own row. Labels: `used`, `used_no_reader`, `should_have` (a caller wrote its record and the skill did not
-   load), `could_have` (a person asked to judge something and the skill did not load), `no_chance`. Eval seats,
-   reader seats and the study's own sessions are not chats. Each pass names the stores it read and the stores it did
-   not read, and writes a heartbeat.
+   load), `could_have` (a person asked to judge something and the skill did not load), `no_chance`. `used_no_reader`
+   is a kind of `used`, and the report also rolls the five labels up to the spec's four. Eval seats, reader seats and
+   the study's own sessions are not chats. A message one chat's agent sends to another chat (a T3 thread send, a
+   delegated task) is an agent's message there, not a person's turn: the sweep matches it to the send by a digest of
+   its text. Each pass names the stores it read and the stores it did not read, and writes a heartbeat.
 2. **Daily study** (`study.mjs`). Samples rows (every `used`, `used_no_reader` and `should_have` row while the money
-   lasts, then the same number from `could_have` and `no_chance`, from a recorded seed). Cuts one excerpt for each row, scans it for secrets (a
+   lasts; then `could_have` and `no_chance` rows, each label with rows up to the reads its agreement needs, then the
+   same number from each, from a recorded seed). Cuts one excerpt for each row, scans it for secrets (a
    hit drops the excerpt and keeps the pointer), and gives it to one cold reader: `claude -p` on Fable, the excerpt in
    its prompt, the Read tool only with every file denied, a config folder without the global instruction file, told
    the text is untrusted data. The reader gets the label definitions, never the program's label. A program compares
@@ -49,7 +53,8 @@ it and score it as planted, or the day fails. Plant rows are never in the score.
 
 - **Frozen scorer.** `freeze.mjs write` records the sha256 of every program, the label rules (`rules.json`, with the
   request word list), the reader prompt and the contract, before pass 1; commit that file. A change is a new scorer
-  generation: the sweep and the study refuse to run (exit 4) until it is reported and frozen again.
+  generation: the sweep and the study refuse to run (exit 4) until it is reported and frozen again (`--note` says why),
+  and the next pass needs a new window (`subject.mjs init --restart`).
 - **Version link.** `subject.mjs init` records the fingerprint. A change ends the study (exit 3). A new window for
   the new version needs `--restart`, within the restart cap.
 - **Not self-scored.** A worker that built neither the skill nor the study writes the programs, a self-test (one
