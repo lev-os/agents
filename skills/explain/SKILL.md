@@ -1,6 +1,6 @@
 ---
 name: explain
-description: Use when the user needs a catch-up, concept explanation, goal closeout, current-state refresh, Lev context mapping, or a visual guided lesson. Answers default to an ADHD-friendly visual layout; size tokens (xs, sm, short, md, lg, xl, --size N) set the length.
+description: Use when the user needs a catch-up, concept explanation, goal closeout, current-state refresh, Lev context mapping, or a visual guided lesson, or says "adhd" or "explain adhd" (a short visual catch-up of the current work). Answers default to an ADHD-friendly visual layout; size tokens (xs, sm, short, md, lg, xl, --size N) set the length.
 ---
 
 # /explain — Inline catch-up
@@ -12,6 +12,7 @@ Restore the user's understanding: what this work is for, what happened, which de
 | Request | Scope |
 |---|---|
 | `/explain` | Current conversation; enough history to explain its purpose and recent developments |
+| `/explain adhd` | Same as `/explain`: the current conversation in the ADHD visual layout. The word "adhd" is a trigger, not a topic |
 | `/explain <topic or task>` | Matching conversations, including relevant continuations |
 | `/explain recent` | Ten most recently updated conversations globally |
 | `/explain N` | N most recently updated conversations globally |
