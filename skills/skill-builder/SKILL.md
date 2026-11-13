@@ -532,9 +532,14 @@ steps:
       When the change alters the steps, routes or triggers of a skill that sends work to
       other skills or agents, offer the owner a field study once, after its eval: a fixed
       window that watches the skill in real chats and scores the eval's measures there.
-      It is optional; start nothing without the owner's yes. On a yes, load
-      ~/.agents/skills/ll/references/field-study.md and follow its "Start a new study" list.
-    validation: "The eval report names the offer and the owner's answer, or states that the change is not a major change in orchestration."
+      Say what a yes buys: a program reads every chat on this machine every hour (read-only,
+      state outside git), and cold model readers cost up to 5 USD a day and 70 USD a study
+      (the first study's limits). Today the study programs serve only the review skill: for
+      any other skill, say that a second study waits on its own programs folder (Leviathan
+      debt row M963) and start nothing. It is optional; start nothing without the owner's
+      yes. On a yes, load ~/.agents/skills/ll/references/field-study.md and follow its
+      "Start a new study" list.
+    validation: "When this step ran, the eval report names the offer and the owner's answer."
     on_failure: "Leave it out of the qualification states; the offer never blocks promotion."
 ```
 

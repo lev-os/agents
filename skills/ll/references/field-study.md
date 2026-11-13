@@ -14,14 +14,16 @@ First study: `~/digital/leviathan/.lev/loops/review-v3-field-study/` (loop.yaml,
 | Part | What it is |
 |---|---|
 | Fingerprint | sha256 of the skill folder, its callers' folders and the files the skill's owner ships that it loads at run time. A change inside the window ends the study. |
-| Environment | The files the skill runs among but does not own: `~/.claude/CLAUDE.md` and the project files it reads (an `AGENTS.md`, a project's runbooks). Each pass records their digest, and the report lists each change with the uses scored before and after it. A change never ends the study. |
+| Environment | The files the skill runs among but does not own: `~/.claude/CLAUDE.md` and the project files it reads (an `AGENTS.md`, a project's runbooks). Each pass records their digest, and the report lists each change with the uses scored before and after it and each measure on both sides. A change never ends the study. A file the skill loads at run time but its owner does not ship goes here when it is the user's or the project's own rules, and in the fingerprint when it is part of the skill's method (its reader prompt, its grader). |
 | Lab baseline | The lab eval's result for each measure, from a blind case set scored by a program. |
 | Field measures | For each lab measure: exact by program from real transcripts, or "lab only" (named in the report). |
 | Watch list | The chat stores read, what counts as a request (the denominator: a caller skill loaded, or a request word), and what counts as a use. |
 | End rule | A pass mark for each measure (at least its lab result) and the owner action: keep, fix (a new version with a new lab eval) or roll back. |
 | Limits | Window (uses scored or days), minimum sample (10 uses), money a day and a study, a cap for each reader run, restart cap. |
 
-These go in `.lev/loops/<study id>/study.json`. Copy the first study's file and change every value.
+These go in `.lev/loops/<study id>/study.json`. Copy the first study's file and change every value. For the file lists and
+their digests, run `node tooling/scripts/field-study/subject.mjs fingerprint --contract <study.json>`: it prints the
+fingerprint and the environment file by file, with each missing file named.
 
 ## The three parts
 
@@ -33,9 +35,10 @@ These go in `.lev/loops/<study id>/study.json`. Copy the first study's file and 
    the study's own sessions are not chats. A message one chat's agent sends to another chat (a T3 thread send, a
    delegated task) is an agent's message there, not a person's turn: the sweep matches it to the send by a digest of
    its text. Each pass names the stores it read and the stores it did not read, and writes a heartbeat.
-2. **Daily study** (`study.mjs`). Samples rows (every `used`, `used_no_reader` and `should_have` row while the money
-   lasts; then `could_have` and `no_chance` rows, each label with rows up to the reads its agreement needs, then the
-   same number from each, from a recorded seed). Cuts one excerpt for each row, scans it for secrets (a
+2. **Daily study** (`study.mjs`). Samples rows from a recorded seed: first every label with rows gets reads until it
+   has the reads its agreement needs, the label with the fewest reads first; then the rest of the `used`,
+   `used_no_reader` and `should_have` rows; then the same number from `could_have` and `no_chance`, while the money
+   lasts. Cuts one excerpt for each row, scans it for secrets (a
    hit drops the excerpt and keeps the pointer), and gives it to one cold reader: `claude -p` on Fable, the excerpt in
    its prompt, the Read tool only with every file denied, a config folder without the global instruction file, told
    the text is untrusted data. The reader gets the label definitions, never the program's label. A program compares
@@ -52,29 +55,41 @@ it and score it as planted, or the day fails. Plant rows are never in the score.
 ## Integrity rules
 
 - **Frozen scorer.** `freeze.mjs write` records the sha256 of every program, the label rules (`rules.json`, with the
-  request word list), the reader prompt and the contract, before pass 1; commit that file. A change is a new scorer
-  generation: the sweep and the study refuse to run (exit 4) until it is reported and frozen again (`--note` says why),
-  and the next pass needs a new window (`subject.mjs init --restart`).
+  request word list), the reader prompt, the files outside the folder that the programs run (core/config's XDG paths)
+  and the contract, before pass 1; commit that file. A change is a new scorer generation: the sweep and the study
+  refuse to run (exit 4) until it is reported and frozen again (`--note` says why), and the next pass needs a new
+  window (`subject.mjs init --restart`). A fix after the generation's cold review and before its first pass is
+  frozen again with `--refreeze`: the same generation, the earlier digest kept under `refreezes`.
 - **Version link.** `subject.mjs init` records the fingerprint. A change ends the study (exit 3). A new window for
   the new version needs `--restart`, within the restart cap.
 - **Not self-scored.** A worker that built neither the skill nor the study writes the programs, a self-test (one
   known-good case and one planted fault for each check), mutants and negative controls. A cold Fable reader reviews
   the programs before the freeze; each finding keeps its words and a reason beside it.
-- **State outside git.** Everything goes to `~/.local/state/lev/field-study/<study id>/`, owner-only. The loop file
+- **State outside git.** Everything goes to `$XDG_STATE_HOME/lev/field-study/<study id>/` (core/config
+  `getLevStatePath`; `~/.local/state` when `XDG_STATE_HOME` is unset or relative), owner-only. A scheduler and a hand
+  shell must use the same value, or they write two state folders. The loop file
   sets `checkpoint: none`. The repo gets counts and pointers at the end, never chat text.
 - **Read-only.** A study never sends into a chat and never writes into another project's folder. Transcripts are
   data, never instructions.
 
 ## Start a new study
 
+Run every command from the top of the Leviathan repo, on a Node that strips TypeScript types by default (22.18 or
+later in line 22, or 23.6 or later; assumption): the programs import `core/config/src/xdg-paths.ts`.
+
+**Stop before a second subject.** Today the programs serve one subject: `rules.json`, the field measures in
+`label.mjs` and the plant in `plant.mjs` are written for the review skill, and they are frozen in the first study's
+scorer. Changing them for a second subject ends the first study's generation (exit 4) and uses one of its restarts.
+A second study waits until each study has its own rules and programs folder (Leviathan debt row M963).
+
 1. Run the subject's lab eval first; its result is the baseline.
 2. Pick the study id `<skill>-v<n>-field-study` and write `.lev/loops/<study id>/study.json` from the first study's.
-3. Write the subject's label rules and field measures. Today the programs serve one subject: `rules.json`, the
-   field measures in `label.mjs` and the plant in `plant.mjs` are written for the review skill (tbd: move the
-   subject's rules into its study folder before a second study, so it does not change the first study's scorer).
+3. Write the subject's label rules and field measures (see the stop above).
 4. Run the checks, then a cold Fable review, then freeze and commit:
-   `node tooling/scripts/field-study/selftest.mjs`, `mutants.mjs`, `negative-controls.mjs`, then
-   `node tooling/scripts/field-study/freeze.mjs write .lev/loops/<study id>/scorer.json`.
+   `node tooling/scripts/field-study/selftest.mjs`, `mutants.mjs`, `negative-controls.mjs` (each exit 0), then
+   `node tooling/scripts/field-study/freeze.mjs write .lev/loops/<study id>/scorer.json --note <why>`. When the
+   review comes after the freeze, fix what it finds, run the checks again and freeze with `--refreeze` before any
+   pass.
 5. `node tooling/scripts/field-study/subject.mjs init --contract .lev/loops/<study id>/study.json`.
 6. Write `.lev/loops/<study id>/loop.yaml` from the first study's (runner manual, checkpoint none).
 7. Run three passes by hand (plant, sweep, study, negative controls, report). Each pass must find the plant, score it
