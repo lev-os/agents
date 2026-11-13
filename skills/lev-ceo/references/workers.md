@@ -27,6 +27,7 @@ End state: {what is true when done; one check that can fail}
 Write: {exact paths}. Keep out of: {paths; files `git status` shows dirty that you did not edit; rulings that stand}
 Refs: {paths}; {decision files}; {the standards that apply}
 Deliverable: {file, numbers or typed contract to return}
+Outputs: every check output, planted change and runner under ~/.local/state/lev/ceo/{topic}/ (a temp folder is cleared at a restart)
 Check: `{exact command}` → done when it exits 0 and {count or assertion}
 Stop when: the check passes | a question needs JP (write it in your report) | {UTC limit}
 Commit: by explicit path, subject says why; push per the project's sync rule
