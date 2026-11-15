@@ -1,14 +1,8 @@
 # Long-Run Blocks and Pre-Launch Score
 
-Load from [the horizon method](horizon.md) whenever any stage is delegated to a worker, including a
-bounded sequential chain, and when a run needs a portfolio, solvability,
-effort, or contamination block or an existing brief is scored before launch. A
-delegated bounded run uses only Worker Contracts and the per-spawn guidance;
-Portfolio, Solvability, Effort, and Contamination stay conditional on the run
-needing them; a bounded run still takes contamination guards when independence
-matters. A long or parallel brief always loads the Pre-Launch Score. Core blocks,
-review, return, and the ledger stay in
-[the horizon method](horizon.md); packet mechanics stay in
+Loaded from [the horizon method](horizon.md); its Run Size section says when
+this file loads and which blocks each run size takes. Core blocks, review,
+return, and the ledger stay in the method; packet mechanics stay in
 [Execution Packet](execution-packet.md).
 
 ## Long-Run Blocks
@@ -29,7 +23,7 @@ Dominance: an elegant reduction that ends at a goal-strength subproblem is not p
 ### Worker Contracts (any delegated stage)
 {stage}: role {one line}; workspace {absolute path}; one bounded deliverable {artifact}; returns {artifacts + report: files written, commands run with results, known problems}; rows {ids}; proof {command row | reviewer | acceptance owner}; uses {earlier artifacts by path}; boundaries {write scope, tools, sources}; stops {done condition and finite run bound}
 Launch a worker only when its input rows pass; verify its output before building on it; re-delegate a narrower recall instead of fixing it yourself.
-Repair support: reviser capability, tools and task-specific prompt support suitable for the findings and comparable to the reviewer; otherwise hold the repair with the exact gap. This grants no model, account or permission change.
+Repair support: {reviser capability, tools and prompt support that meet the method's Review and Repair | the exact gap that holds the repair}
 
 ### Solvability (when framing is warranted; see Filling Notes)
 {Assume a complete solution exists. | Either a complete solution or a complete demonstration of impossibility counts; nothing in between.}
@@ -78,9 +72,7 @@ contamination block into a run that does not need it.
 
 For delegated runs also confirm: each worker contract names rows that
 downstream work waits on; every mechanically decidable part of the predicate is
-a command check; blocking conditions and recall caps are stated; the reviser
-gets as much context as the reviewer; and decisive claims carry credible proof
-from outside the model loop (a command row where a command decides, otherwise
-named independent evidence or human review with its acceptance owner), with
-unresolved proof listed rather than filled by a weak command. Judge a brief
-across several runs, never one.
+a command check; and the brief meets each rule of the method's Review and
+Repair (blocking conditions and recall caps stated, reviser context equal to
+the reviewer's, outside-loop proof for decisive claims or the proof listed as
+unresolved). Judge a brief across several runs, never one.

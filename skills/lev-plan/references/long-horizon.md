@@ -16,15 +16,13 @@ stage exits, open branches and resume frontier in that plan, citing requirement
 IDs rather than creating a second executable ledger.
 
 Each slice names outcome, owner, dependencies, covered intent IDs, allowed
-effects, artifact, proof and stop condition. For every command check, name its
-known-bad control, the owner that will run it and the sensitivity evidence
-required before accepting the check. Human or external-owner claims retain
-their named acceptance owner; missing proof remains unresolved.
+effects, artifact, proof and stop condition. The proof of each stage check
+(its known-bad control, check owner and sensitivity evidence, or its named
+acceptance owner) follows the method's `stage_checks` step.
 
 Use [Lev's rolling-horizon procedure](../../lev/references/recursive.md) when
 projecting the route: detail ready near work and keep later dependencies and
-uncertainties visible. [Worker contracts](horizon-long-run-blocks.md)
-are required for any delegated stage. Keep later slices in the map until their
+uncertainties visible. Keep later slices in the map until their
 inputs and decisions support an executable packet. Planning-only Compile,
 Deepen, Review and Map requests stop at their requested artifact.
 
@@ -51,7 +49,7 @@ between skills:
    named acceptance owners answer their rows. Accept only after the required
    current evidence passes. A dispatch, preview or worker report is not acceptance.
 4. **Repair or advance.** Recall blocking failures to their responsible stage
-   with failed row IDs, evidence, narrowed scope, acceptance and retry cap.
+   as the method's [Review and Repair](horizon.md#review-and-repair) says.
    Preserve failed attempts. Invalidate affected downstream acceptance after a
    changed or failed input; unrelated ready branches can continue. Update the
    bound tracker through its owner and the plan's evidence/resume projection.
@@ -66,14 +64,14 @@ points to that state; it is not a second changing tracker.
 
 ## Return and resume
 
-Completing a slice advances the frontier; it does not complete the effort.
-Return complete only when the whole predicate and all required rows have fresh
-accepted evidence and no blocking finding remains. A branch's repair cap,
-missing authority or unavailable evidence holds that branch and its affected
-consumers; continue independent authorized ready work. Return the whole effort
-at a global user stop or exhausted budget, the selected mode's boundary, or
-when no eligible work remains. If any required branch is unresolved, label that
-return incomplete with the strongest verified result, exact gaps and owners.
+The return gate and the stops that win over it are the method's
+[Return, Stops, and Resume](horizon.md#return-stops-and-resume). Across slices
+it means: completing a slice advances the frontier; it does not complete the
+effort. A branch's repair cap, missing authority or unavailable evidence holds
+that branch and its affected consumers; continue independent authorized ready
+work. Return the whole effort at a stop the method names, at the selected
+mode's boundary, or when no eligible work remains, and name the owner of each
+gap in an incomplete return.
 Do not turn an unavailable execution surface into a prose claim that the loop ran.
 
 Save the last accepted stage and evidence, exact source/task/worker revisions,

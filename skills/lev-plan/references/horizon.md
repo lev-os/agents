@@ -52,7 +52,7 @@ guard; it does not need the full long-run score.
 ```yaml
 steps:
   - id: bind_source
-    action: Run `lev find "<3-6 topic words>" --type plan --type design --type decision --type idea --json` first when `lev` is installed (a `superseded` card is history; plan and design types return no cards until indexed, so also `rg` `.lev/pm/plans` and `.lev/pm/designs`; if `lev` fails, say so in one line and `rg` over `.lev`). Resolve the workstream, capture/design/plan/task refs, and any existing plan or task; freeze the intent in lev-plan's transition packet; list every material intent ID with its source ref, including later branches that are still unresolved.
+    action: Run the prior-art lookup of lev-plan's `inspect_current_state` step first (the `lev find` call and its fallbacks, in ../SKILL.md, Workflow); when lev-plan already ran it in this work, reuse its cards. Resolve the workstream, capture/design/plan/task refs, and any existing plan or task; freeze the intent in lev-plan's transition packet; list every material intent ID with its source ref, including later branches that are still unresolved.
     validation: "Every material intent has an intent_id and source_ref in the Fidelity and route table; an existing plan or task is reused; unresolved later branches are open rows, neither resolved nor dropped."
     on_failure: "Route as the entry says (direct /horizon: its Fit Check; inside lev-plan: Which Stage and this step's own on_failure there); do not draft around missing intent."
 
@@ -82,7 +82,7 @@ steps:
     validation: "The last pass finds only near misses already excluded or caught."
 
   - id: render_and_route
-    action: Render the brief from the template, plus a packet preview when asked, and name the next route. horizon writes no task folder and dispatches nothing.
+    action: Render the brief from the template, plus a packet preview when asked, and name the next route. The method dispatches nothing (Write Gate).
     validation: "The brief cites ledger row IDs and carries no second executable ledger; any packet preview is labeled unvalidated and unemitted; every preserved row passes the cold-read recall check; Next names exactly one route, and evidence with no available owner stays unresolved. The review checklist holds one chat line of the review skill for each run (the red_team run and the run before rendering; the cited run's line when an earlier run is cited), each with its report file's path, or, when the review skill could not be loaded, the line 'review: could not run ({reason})'. Until then the brief is unreviewed: it stays uncommitted, and no reply calls it finished."
 ```
 
@@ -137,11 +137,13 @@ delays convergence.
 
 Each blocking finding becomes a **recall** to the responsible stage: failed row
 IDs, the evidence, a narrowed scope, acceptance (those rows satisfied), and a
-retry cap. Give the reviser the same context the reviewer had. Repair edits the
-existing slice's rows or dependencies; a review cycle authorizes no new task.
+retry cap. Give the reviser the same context the reviewer had. What a repair
+may edit, and that a review cycle authorizes no new task, is lev-plan's
+[Adversarial Review](../SKILL.md#adversarial-review).
 The reviser needs capability and task-specific prompt support comparable to the
 reviewer, as well as the same relevant evidence. If that support is unavailable,
 hold the repair and report the gap; a stronger audit alone does not repair it.
+Repair support grants no model, account or permission change.
 At the cap, stop with the exact gap and route it: a decision to `/interview`,
 a missing contract as a `code_blocker`, anything else to the operator.
 
@@ -179,59 +181,59 @@ the outer loop reloads state from the ledger and runtime JSON instead of chat.
 
 ## Authority and Formats
 
-- **One ledger.** Requirements and checks live in the task's `dna.yaml`
-  `requirements:` (overflow in `evals/<name>.yaml` under the same key). Before
-  a task exists, the plan's `steps[].validation` and acceptance criteria are
-  the claim source; proposed rows appear once, in the packet preview when one
-  is rendered or else as one sentence per proposed ID in the brief, and
-  lev-plan Emit makes them canonical. The brief otherwise cites IDs.
-- **Existing v2 rows.** The success predicate is the operator's
-  `type: acceptance` row; a stage exit is an acceptance row with `owner_slice`;
-  constraints and checkable exclusions are `type: constraint` rows or
+The brief adds no authority of its own. The plan skill and the packet reference
+hold the rules; this section says only how a brief uses them.
+
+- **One ledger.** The ledger is the task's `requirements:` list
+  ([Requirements Ledger](execution-packet.md#requirements-ledger)); before a
+  task exists, the claim source is the plan, as lev-plan's Iteration planning
+  says. Proposed rows appear once, in the packet preview when one is rendered
+  or else as one sentence per proposed ID in the brief, and lev-plan Emit makes
+  them canonical. The brief otherwise cites IDs.
+- **Brief parts as rows.** Use the row shape of the Requirements Ledger. The
+  success predicate is the operator's acceptance row; a stage exit is a slice's
+  acceptance row; constraints and checkable exclusions are constraint rows or
   `invalid_proof` entries on the row they threaten. A typed check such as
   `no_future_leakage: bool` becomes a row named after the failure whose
   `check:` exit decides it. A claim proven by independent evidence or human
   review is a row without `check:` whose sentence names the evidence and the
   acceptance owner.
-- **Proof is not launch.** Proof is rows and their `check:`. Launch is
-  `lev entity task validate <task>`, then `lev sdlc exec <task> --flow <flow>`, with
-  the flow chosen under lev-plan's Proof and Evaluator Selection; `topology`
-  stays a slice classification.
-- **core/eval decides; Exec acts.** Verdict ownership is unchanged: core/eval
-  decides `check:` rows, Exec performs effects, and horizon states no verdict
-  or effect in advance. Current keys only: when a stage would need
-  `eval_packs`, a proof-gate container, a flow field, an inline evaluator, or a
-  boolean packet field, hold it as a `code_blocker` naming the missing
-  contract.
+- **Proof is not launch.** Proof is rows and their `check:`. The launch
+  commands and the flow choice are in
+  [Flow and Launch](execution-packet.md#flow-and-launch).
+- **Who decides, and holds.** Verdict and effect ownership are lev-plan's
+  [Code, LLM, and Human Authority](../SKILL.md#code-llm-and-human-authority);
+  the brief states no verdict or effect in advance. A stage that would need a
+  key or evaluator outside the current contracts (`eval_packs`, a proof-gate
+  container, a flow field, an inline evaluator, a boolean packet field) is a
+  hold under "Hold, never drop" and holdouts stay with their owner, both in
+  [Proof and Evaluator Selection](../SKILL.md#proof-and-evaluator-selection).
 - **Limits live outside the prose.** Hard budgets, permissions, and stops
   belong to the operator and runtime; the brief restates them for planning.
   One run neither validates nor refutes a brief; trials belong to the eval
   owner.
-- **Holdouts stay out.** Holdout answers, scorer internals, and calibration
-  fixtures never enter the brief or authoring scope; cite the policy by ref.
-- **Formats.** Brief and plans are Markdown, machine declarations current YAML,
-  runtime state the JSON its runtime owns.
 
 When a stage check must become, or be checked against, a requirement row, or
 the operator wants a packet preview, read
 [Execution Packet](execution-packet.md) in the same run
 before writing those checks or the preview. Render the preview from its row
 shape and emitted task shape, labeled preview: not validated, executed, or
-emitted. Task-folder emission stays with lev-plan Emit.
+emitted.
 
 ## Write Gate
 
-Render by default. Persist only into an existing artifact inside authorized
-scope: a broad brief as a section of its plan under `.lev/pm/plans/`, a
-bounded brief in the response or, when authorized, as a light plan. Packet
-previews stay in the response; task folders come only from lev-plan Emit with
-explicit authorization.
+lev-plan's [Write Gate](../SKILL.md#write-gate) applies: render by default, and
+task folders come only from Emit with explicit authorization. A brief persists
+only into an existing artifact inside authorized scope: a broad brief as a
+section of its plan under `.lev/pm/plans/`, a bounded brief in the response or,
+when authorized, as a light plan. Packet previews stay in the response.
 
 ## Brief Template
 
 Render the Markdown inside; do not print the wrapper tags. Delete blocks that
-do not apply; a bounded run keeps the core blocks only. A `lost` fidelity row
-blocks a ready brief, and `narrowed-approved` needs the operator's decision.
+do not apply; a bounded run keeps the core blocks only. The preservation states
+and what `lost` and `narrowed-approved` do are lev-plan's
+[Source Fidelity Gate](../SKILL.md#source-fidelity-gate).
 
 A row counts as `preserved` only when its decision-bearing constraints,
 cross-owner boundaries, and unresolved options appear in the brief or behind an

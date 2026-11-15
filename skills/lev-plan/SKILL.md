@@ -26,13 +26,11 @@ does not implement, dispatch, or pre-create a backlog of task folders.
 For multi-stage or multi-session planning, long autonomous work, or a request
 to use Horizon, read [long-horizon planning](references/long-horizon.md) before
 framing the outcome or judging readiness. It applies
-[the horizon method](references/horizon.md) inside this workflow; the caller
-does not need a separate `/horizon` invocation.
-A planning-only request stops at its selected mode. When the user also authorizes
-delivery, pass the same plan and next ready slice to `skill://orch`, which runs
-the referenced execution loop through the existing owners.
+[the horizon method](references/horizon.md) inside this workflow, so the caller
+needs no separate `/horizon` invocation, and it says how authorized delivery
+runs through `skill://orch`.
 
-Plans, maps, reviews, and specs are Markdown for humans. The task packet keeps
+Plans, briefs, maps, reviews, and specs are Markdown for humans. The task packet keeps
 its established YAML payloads, and runtime state stays in the JSON its runtime
 owns.
 
@@ -79,10 +77,9 @@ HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count
 | Map | `map` or `all slices` | Compact slice map only; never creates task folders |
 | Emit | `emit <slice-id>` | Exactly one `{dna.yaml,execution.yaml}` task packet |
 
-The `propose` alias forwards `/propose` to Review, `/propose map` and
-`/propose all slices` to Map, and `/propose emit <slice-id>` to Emit, with
-arguments, flags, and authorization unchanged. This skill answers the caller
-directly and never routes back to `propose`.
+`/propose` is an alias of this skill: [its file](../propose/SKILL.md) maps each
+`/propose` form to one mode above. This skill answers the caller directly and
+never routes back to `propose`.
 
 Default to review without writing when the user asks what the plan should
 contain, requests an audit, or has not authorized a durable edit.
@@ -435,7 +432,8 @@ today.
   plan or task.
 - **Protected holdouts stay with their owner.** Cite a holdout policy by ref;
   holdout answers, scorer internals, private lint details, and calibration
-  fixtures never enter a plan, map, spec, or packet.
+  fixtures never enter a plan, brief, map, spec, or packet, or the authoring
+  scope.
 
 ## Semantic Readiness
 
