@@ -119,7 +119,7 @@ steps:
     on_failure: "Route conversation-only work to /capture; unresolved product or architecture framing to /interview."
 
   - id: select_mode
-    action: Apply Which Stage, then select compile, deepen, review, lifecycle, map, or emit from the command. A lifecycle request performs only its FSM operation and then route_forward.
+    action: Apply Which Stage, then select compile, deepen, review, lifecycle, map, or emit from the command. A lifecycle request performs only its FSM operation and then route_forward; one that moves a plan to ready or done runs judge_readiness first.
     validation: "Exactly one mode is selected; broad work has a plan source before map or emit; a direct bounded slice records plan_not_required with its rationale."
     on_failure: "Default to review without writing."
 
@@ -166,11 +166,11 @@ steps:
   - id: write_or_patch
     when: mode is compile or deepen
     action: Write one plan under .lev/pm/plans/ only inside authorized scope, preserving unrelated plan history and current dirty work.
-    validation: "Exactly one plan is created or updated; source refs and fidelity table are durable."
+    validation: "Exactly one plan is created or updated; source refs and fidelity table are durable. The plan stays unreviewed and uncommitted until judge_readiness is done."
 
   - id: judge_readiness
-    action: Run deterministic structure/ref checks, then the semantic weak-link review - score the readiness dimensions, classify blockers, and issue the verdict. Then load the `review` skill by its name (the Skill tool with `review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md); name in its arguments the plan or slice, lens zoom_out (and the attacker stance at standard or deep depth), and lev-plan as the caller. Put its chat line (the review skill's Report section) under the verdict as advice; it never changes the verdict. When review routed you here, skip this load and use the stance and lenses it gave. When review already ran on the same plan or slice in this work, cite that run's report file instead of a second run. Use /auto-enrich for explicit or deep/high-risk plan hardening when available.
-    validation: "No readiness dimension is insufficient; deterministic success is reported separately from semantic approval. The reply holds the review skill's chat line with its report file's path, or, when the review skill could not be loaded, the line 'review: could not run ({reason})'."
+    action: Run deterministic structure/ref checks, then the semantic weak-link review - score the readiness dimensions, classify blockers, and issue the verdict. Then load the `review` skill by its name (the Skill tool with `review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md); name in its arguments the plan or slice, lens zoom_out (and the attacker stance at standard or deep depth), and lev-plan as the caller. Put its chat line (the review skill's Report section) under the verdict as advice; it never changes the verdict. When review routed you here, skip this load and use the stance and lenses it gave. When review already ran on the same plan or slice in this work and it has not changed since, cite that run's report file instead of a second run. Use /auto-enrich for explicit or deep/high-risk plan hardening when available.
+    validation: "No readiness dimension is insufficient; deterministic success is reported separately from semantic approval. Done when the reply holds the review skill's chat line for this plan or slice (the cited run's line when an earlier run is cited), with its report file's path, or, when the review skill could not be loaded, the line 'review: could not run ({reason})'. Until then the plan or slice is unreviewed: it stays uncommitted, and no reply calls it finished, ready or done."
     on_failure: "If no slice is runnable, simplify the DAG; block only on a concrete code or decision blocker."
 
   - id: map_slices
