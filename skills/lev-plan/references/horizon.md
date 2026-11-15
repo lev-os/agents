@@ -84,7 +84,7 @@ steps:
     validation: "The last pass finds only near misses already excluded or caught."
 
   - id: render_and_route
-    action: Run the zoom_out read that Review and Repair orders before rendering. Then render the brief from the template, plus a packet preview when asked, and name the next route. The method dispatches nothing (Write Gate).
+    action: Run the zoom_out read that Review and Repair orders before rendering. Then render the brief from the template, plus a packet preview when asked, and name the next route. The method writes no task folder and dispatches nothing.
     validation: "The brief cites ledger row IDs and carries no second executable ledger; any packet preview is labeled unvalidated and unemitted; every preserved row passes the cold-read recall check; Next names exactly one route, and evidence with no available owner stays unresolved. The review checklist holds one chat line of the review skill for each run (the red_team run and the run before rendering; the cited run's line when an earlier run is cited), each with its report file's path, or, when the review skill could not be loaded, the line 'review: could not run ({reason})'. Until then the brief is unreviewed: it stays uncommitted, and no reply calls it finished."
 ```
 
@@ -188,8 +188,9 @@ hold the rules; this section says only how a brief uses them.
 
 - **One ledger.** The ledger is the task's `requirements:` list
   ([Requirements Ledger](execution-packet.md#requirements-ledger)); before a
-  task exists, the claim source is the plan, as lev-plan's Iteration planning
-  says. Proposed rows appear once, in the packet preview when one is rendered
+  task exists, the claim source is the plan's `steps[].validation` and
+  acceptance criteria, as lev-plan's
+  [Iteration planning](../SKILL.md#iteration-planning) says. Proposed rows appear once, in the packet preview when one is rendered
   or else as one sentence per proposed ID in the brief, and lev-plan Emit makes
   them canonical. The brief otherwise cites IDs.
 - **Brief parts as rows.** Use the row shape of the Requirements Ledger. The
@@ -215,8 +216,9 @@ hold the rules; this section says only how a brief uses them.
   belong to the operator and runtime; the brief restates them for planning.
   One run neither validates nor refutes a brief; trials belong to the eval
   owner.
-- **Formats.** The brief is Markdown. The format of every other artifact is in
-  the intro of [lev-plan](../SKILL.md).
+- **Formats.** The brief is Markdown and machine declarations are current
+  YAML. The format of every other artifact is in the intro of
+  [lev-plan](../SKILL.md).
 
 When a stage check must become, or be checked against, a requirement row, or
 the operator wants a packet preview, read
@@ -230,14 +232,17 @@ emitted.
 lev-plan's [Write Gate](../SKILL.md#write-gate) applies. In addition, a brief persists
 only into an existing artifact inside authorized scope: a broad brief as a
 section of its plan under `.lev/pm/plans/`, a bounded brief in the response or,
-when authorized, as a light plan. Packet previews stay in the response.
+when authorized, as a light plan. Packet previews stay in the response; under
+this method task folders come only from lev-plan Emit with explicit
+authorization.
 
 ## Brief Template
 
 Render the Markdown inside; do not print the wrapper tags. Delete blocks that
 do not apply; a bounded run keeps the core blocks only. The preservation states
-and what `lost` and `narrowed-approved` do to a brief are the rules of
-lev-plan's [Source Fidelity Gate](../SKILL.md#source-fidelity-gate).
+and what `lost` does to a brief are the rules of lev-plan's
+[Source Fidelity Gate](../SKILL.md#source-fidelity-gate). In a brief,
+`narrowed-approved` needs the operator's decision.
 
 A row counts as `preserved` only when its decision-bearing constraints,
 cross-owner boundaries, and unresolved options appear in the brief or behind an

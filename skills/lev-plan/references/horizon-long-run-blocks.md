@@ -72,4 +72,4 @@ contamination block into a run that does not need it.
 For delegated runs also confirm: each worker contract names rows that
 downstream work waits on; every mechanically decidable part of the predicate is
 a command check; and the brief meets each rule of the method's Review and
-Repair.
+Repair. Judge a brief across several runs, never one.

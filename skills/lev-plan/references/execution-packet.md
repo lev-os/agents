@@ -11,7 +11,7 @@ Write Gate live in [`../SKILL.md`](../SKILL.md); this file adds no step.
 - [Requirements Ledger](#requirements-ledger): the single `requirements:` list, its three passes, and row shape
 - [Ready: a definition of done plus admitted checks](#ready-a-definition-of-done-plus-admitted-checks): the pre-flight before launch
 - [Checks and False-Green Evidence](#checks-and-false-green-evidence): `check:` rules, fixtures, `invalid_proof`, red checks
-- [Flow and Launch](#flow-and-launch): what the eval gate reads, where the flow is named, launch instructions
+- [Flow and Launch](#flow-and-launch): where the flow is chosen and named, launch instructions
 - [Emitted Task Shape](#emitted-task-shape): required fields of `dna.yaml` and `execution.yaml`, `lifecycle_stage` values
 - [Emission Gate](#emission-gate): conditions that all hold before a packet is written
 - [Final Output](#final-output): the `<final-proposal>` template

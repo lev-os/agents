@@ -28,7 +28,7 @@ acceptance. Otherwise route once:
 | Unresolved product, architecture, or authority decision | `/interview` (`skill://arch` for a technical boundary) |
 | Unknown answer that a prototype would settle | `skill://poc` |
 | Broad, migration, or cross-authority work with no plan | lev-plan Compile with the [plan template](../work/templates/plan.md); the brief cites that plan |
-| Packet preview | Render it in this run through the method's packet reference; no repeated shaping hop |
+| Packet preview | Not a route away: load the method and render it in this run through the method's packet reference; no repeated shaping hop |
 | Slice map or task-folder emission | lev-plan Map or Emit directly, passing the brief; emission stays with Emit |
 
 ## Work Link

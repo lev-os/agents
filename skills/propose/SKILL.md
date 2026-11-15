@@ -21,7 +21,7 @@ topic words, flags, source refs, workstream, and authorization unchanged.
 | `/propose emit <slice-id>` | Emit |
 
 What each mode does, what it writes, and when its result is done are in
-lev-plan's Modes table and workflow; only Emit writes a task.
+lev-plan's Modes table and workflow.
 
 The forward happens once and in one direction. `lev-plan` answers the caller
 directly, and its verdict, output, and next route are final: a `needs_plan` or

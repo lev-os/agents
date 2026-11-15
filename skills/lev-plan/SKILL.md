@@ -93,7 +93,8 @@ HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count
 | Emit | `emit <slice-id>` | Exactly one `{dna.yaml,execution.yaml}` task packet |
 
 `/propose` is an alias of this skill; its own file holds the map from each
-`/propose` form to a mode and the rule that the forward goes one way.
+`/propose` form to a mode. This skill answers the caller directly and never
+routes back to `propose`.
 
 Default to review without writing when the user asks what the plan should
 contain, requests an audit, or has not authorized a durable edit.
@@ -289,8 +290,7 @@ The plan must contain this table for every material capture/design row:
 Rules:
 
 - `lost` blocks planning, a ready brief, mapping, and emission.
-- `narrowed-approved` requires an explicit decision of the source or the
-  operator.
+- `narrowed-approved` requires an explicit source/user decision.
 - Every material relationship and non-goal gets its own coverage, not just goals.
 - Overall fidelity must be at least 0.90 and must not be lower than the source capture.
 - An average cannot hide one missing material row.
