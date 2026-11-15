@@ -1,6 +1,6 @@
 ---
 name: review
-description: "Use when asked to review, look over, check or critique a plan, slice, spec, brief, design, code change, eval pack, page or prose, or asked whether one is ready or sound; when a skill needs a fresh reader, a lens or the attacker (red team) stance; or for a hostile end-to-end QA run (ultraqa) of running behaviour. Not for writing, fixing, changing or explaining something, or only running tests."
+description: "Use when asked to review, look over, check or critique a plan, slice, spec, brief, design, code change, eval pack, page or prose, or asked whether one is ready or sound; when a skill needs a fresh reader, a lens or the attacker (red team) stance; or for a hostile end-to-end QA run (ultraqa) of running behaviour. Not for writing, fixing, changing or explaining something, or only running tests. When another chat's brief makes you the reviewer, you are the reader: follow your brief and leave this file unopened."
 ---
 
 # Review
