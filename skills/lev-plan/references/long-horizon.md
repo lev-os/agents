@@ -10,10 +10,15 @@ Read [the horizon method](horizon.md) as the planning method, including its
 conditional worker-contract and long-run reference when applicable. Apply its
 workflow to the current plan and continue the selected mode; the routing a
 direct `/horizon` call needs is in that command's own entry and is not loaded here.
-Keep one plan, one slice map and the existing requirements ledger. Put the
-completion predicate, excluded near misses, review and bounded repair rules,
-stage exits, open branches and resume frontier in that plan, citing requirement
-IDs rather than creating a second executable ledger.
+Keep one plan, one slice map and the existing requirements ledger (One ledger,
+in the method's Authority section). Put the completion predicate, excluded
+near misses, review and bounded repair rules, stage exits, open branches and
+resume frontier in that plan: "the brief" of the method is that section of the
+plan. A new broad plan starts from the
+[plan template](../../work/templates/plan.md). Synthesize settled decisions and
+ask only about an unresolved choice that changes scope or acceptance. The
+method's review loads follow their own guards: a read of the same unchanged
+text is cited, not run again.
 
 Each slice names outcome, owner, dependencies, covered intent IDs, allowed
 effects, artifact, proof and stop condition. The proof of each stage check
@@ -45,9 +50,8 @@ between skills:
 3. **Execute, verify, accept.** Use [Exec](../../exec/SKILL.md) or the domain
    owner within the permitted scope. Record the actual worker handle and
    artifacts. Run the declared verifier, including known-bad sensitivity checks
-   before relying on command checks. core/eval decides command rows; review and
-   named acceptance owners answer their rows. Accept only after the required
-   current evidence passes. A dispatch, preview or worker report is not acceptance.
+   before relying on command checks. Accept only after each row passes as the
+   method's Return gate says. A dispatch, preview or worker report is not acceptance.
 4. **Repair or advance.** Recall blocking failures to their responsible stage
    as the method's [Review and Repair](horizon.md#review-and-repair) says.
    Preserve failed attempts. Invalidate affected downstream acceptance after a
@@ -69,9 +73,10 @@ The return gate and the stops that win over it are the method's
 it means: completing a slice advances the frontier; it does not complete the
 effort. A branch's repair cap, missing authority or unavailable evidence holds
 that branch and its affected consumers; continue independent authorized ready
-work. Return the whole effort at a stop the method names, at the selected
-mode's boundary, or when no eligible work remains, and name the owner of each
-gap in an incomplete return.
+work. Return the whole effort at a global user stop or exhausted budget, the
+selected mode's boundary, or when no eligible work remains. If any required
+branch is unresolved, label that return incomplete with the strongest verified
+result, exact gaps and owners.
 Do not turn an unavailable execution surface into a prose claim that the loop ran.
 
 Save the last accepted stage and evidence, exact source/task/worker revisions,

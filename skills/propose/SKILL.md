@@ -10,7 +10,8 @@ map, and emit semantics live in `skill://lev-plan`; this file holds no workflow.
 
 ## Forward Once
 
-Load `skill://lev-plan` and run the mode below, passing the caller's arguments,
+Load `skill://lev-plan` (the Skill tool with `lev-plan`; a host with no Skill
+tool opens `../lev-plan/SKILL.md`) and run the mode below, passing the caller's arguments,
 topic words, flags, source refs, workstream, and authorization unchanged.
 
 | Invocation | lev-plan mode |

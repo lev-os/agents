@@ -10,9 +10,11 @@ Two entries load this file. `lev-plan` loads it through
 [long-horizon planning](long-horizon.md), which says how the brief goes into
 the plan. The direct `/horizon` command loads it through
 [its entry](../../horizon/SKILL.md), which holds the Fit Check. `skill://poc`
-stays the proof lane. The method is adapted from Muratcan's
-`long-horizon-prompting` (MIT); OMX is a later secondary review/state
-reference, not a source of the method. See [the notice](horizon-notice.md).
+stays the proof lane. The method is adapted work: see
+[the notice](horizon-notice.md) when you copy or publish it.
+
+The method cites rules of lev-plan by link. A lev-plan caller has them loaded.
+A direct `/horizon` caller reads each cited section when it reaches the link.
 
 ## Contents
 
@@ -42,8 +44,8 @@ Read [worker contracts and long-run blocks](horizon-long-run-blocks.md) before
 writing stages whenever any stage is delegated to a worker, including in a
 bounded sequential chain, and whenever the run needs a portfolio, solvability,
 effort, or contamination block, or a pre-launch review of a long or parallel
-brief. Score every long or parallel brief before launch; fix every applicable
-0 or 1 and mark inapplicable dimensions with a reason. A delegated bounded run
+brief. Score every long or parallel brief before launch with that file's
+Pre-Launch Score. A delegated bounded run
 takes Worker Contracts and per-spawn guidance, plus any applicable contamination
 guard; it does not need the full long-run score.
 
@@ -52,7 +54,7 @@ guard; it does not need the full long-run score.
 ```yaml
 steps:
   - id: bind_source
-    action: Run the prior-art lookup of lev-plan's `inspect_current_state` step first (the `lev find` call and its fallbacks, in ../SKILL.md, Workflow); when lev-plan already ran it in this work, reuse its cards. Resolve the workstream, capture/design/plan/task refs, and any existing plan or task; freeze the intent in lev-plan's transition packet; list every material intent ID with its source ref, including later branches that are still unresolved.
+    action: Run the prior-art lookup of lev-plan's `inspect_current_state` step first (read that step in [lev-plan's Workflow](../SKILL.md#workflow) for the exact `lev find` call and its fallbacks); when lev-plan already ran it in this work, reuse its cards. Resolve the workstream, capture/design/plan/task refs, and any existing plan or task; freeze the intent in lev-plan's transition packet; list every material intent ID with its source ref, including later branches that are still unresolved.
     validation: "Every material intent has an intent_id and source_ref in the Fidelity and route table; an existing plan or task is reused; unresolved later branches are open rows, neither resolved nor dropped."
     on_failure: "Route as the entry says (direct /horizon: its Fit Check; inside lev-plan: Which Stage and this step's own on_failure there); do not draft around missing intent."
 
@@ -82,7 +84,7 @@ steps:
     validation: "The last pass finds only near misses already excluded or caught."
 
   - id: render_and_route
-    action: Render the brief from the template, plus a packet preview when asked, and name the next route. The method dispatches nothing (Write Gate).
+    action: Run the zoom_out read that Review and Repair orders before rendering. Then render the brief from the template, plus a packet preview when asked, and name the next route. The method dispatches nothing (Write Gate).
     validation: "The brief cites ledger row IDs and carries no second executable ledger; any packet preview is labeled unvalidated and unemitted; every preserved row passes the cold-read recall check; Next names exactly one route, and evidence with no available owner stays unresolved. The review checklist holds one chat line of the review skill for each run (the red_team run and the run before rendering; the cited run's line when an earlier run is cited), each with its report file's path, or, when the review skill could not be loaded, the line 'review: could not run ({reason})'. Until then the brief is unreviewed: it stays uncommitted, and no reply calls it finished."
 ```
 
@@ -140,8 +142,8 @@ IDs, the evidence, a narrowed scope, acceptance (those rows satisfied), and a
 retry cap. Give the reviser the same context the reviewer had. What a repair
 may edit, and that a review cycle authorizes no new task, is lev-plan's
 [Adversarial Review](../SKILL.md#adversarial-review).
-The reviser needs capability and task-specific prompt support comparable to the
-reviewer, as well as the same relevant evidence. If that support is unavailable,
+The reviser needs capability, tools and task-specific prompt support suitable
+for the findings and comparable to the reviewer, as well as the same relevant evidence. If that support is unavailable,
 hold the repair and report the gap; a stronger audit alone does not repair it.
 Repair support grants no model, account or permission change.
 At the cap, stop with the exact gap and route it: a decision to `/interview`,
@@ -191,9 +193,10 @@ hold the rules; this section says only how a brief uses them.
   or else as one sentence per proposed ID in the brief, and lev-plan Emit makes
   them canonical. The brief otherwise cites IDs.
 - **Brief parts as rows.** Use the row shape of the Requirements Ledger. The
-  success predicate is the operator's acceptance row; a stage exit is a slice's
-  acceptance row; constraints and checkable exclusions are constraint rows or
-  `invalid_proof` entries on the row they threaten. A typed check such as
+  success predicate is the operator's `type: acceptance` row; a stage exit is
+  an acceptance row with `owner_slice`; constraints and checkable exclusions
+  are `type: constraint` rows or `invalid_proof` entries on the row they
+  threaten. A typed check such as
   `no_future_leakage: bool` becomes a row named after the failure whose
   `check:` exit decides it. A claim proven by independent evidence or human
   review is a row without `check:` whose sentence names the evidence and the
@@ -212,6 +215,8 @@ hold the rules; this section says only how a brief uses them.
   belong to the operator and runtime; the brief restates them for planning.
   One run neither validates nor refutes a brief; trials belong to the eval
   owner.
+- **Formats.** The brief is Markdown. The format of every other artifact is in
+  the intro of [lev-plan](../SKILL.md).
 
 When a stage check must become, or be checked against, a requirement row, or
 the operator wants a packet preview, read
@@ -222,8 +227,7 @@ emitted.
 
 ## Write Gate
 
-lev-plan's [Write Gate](../SKILL.md#write-gate) applies: render by default, and
-task folders come only from Emit with explicit authorization. A brief persists
+lev-plan's [Write Gate](../SKILL.md#write-gate) applies. In addition, a brief persists
 only into an existing artifact inside authorized scope: a broad brief as a
 section of its plan under `.lev/pm/plans/`, a bounded brief in the response or,
 when authorized, as a light plan. Packet previews stay in the response.
@@ -232,8 +236,8 @@ when authorized, as a light plan. Packet previews stay in the response.
 
 Render the Markdown inside; do not print the wrapper tags. Delete blocks that
 do not apply; a bounded run keeps the core blocks only. The preservation states
-and what `lost` and `narrowed-approved` do are lev-plan's
-[Source Fidelity Gate](../SKILL.md#source-fidelity-gate).
+and what `lost` and `narrowed-approved` do to a brief are the rules of
+lev-plan's [Source Fidelity Gate](../SKILL.md#source-fidelity-gate).
 
 A row counts as `preserved` only when its decision-bearing constraints,
 cross-owner boundaries, and unresolved options appear in the brief or behind an

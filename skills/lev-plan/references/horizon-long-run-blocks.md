@@ -46,9 +46,8 @@ External search only for {background}; never for {the answer or its benchmark}.
   existence is plausible; on open or ill-posed questions use the two-sided form
   or a counterexample track, or the run will fabricate.
 - **Floors are permissions.** A floor neither guarantees nor bounds runtime;
-  budgets stay with the operator and runtime, re-injected from outside the
-  loop with verified progress rather than stated once.
-- **Contamination guards** belong wherever result independence matters.
+  the budget is re-injected from outside the loop with verified progress
+  rather than stated once.
 
 ## Pre-Launch Score
 
@@ -73,6 +72,4 @@ contamination block into a run that does not need it.
 For delegated runs also confirm: each worker contract names rows that
 downstream work waits on; every mechanically decidable part of the predicate is
 a command check; and the brief meets each rule of the method's Review and
-Repair (blocking conditions and recall caps stated, reviser context equal to
-the reviewer's, outside-loop proof for decisive claims or the proof listed as
-unresolved). Judge a brief across several runs, never one.
+Repair.

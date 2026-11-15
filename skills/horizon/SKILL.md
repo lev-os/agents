@@ -5,10 +5,12 @@ description: Use when the operator explicitly invokes /horizon or skill://horizo
 
 # /horizon - Long-Horizon Launch Brief (Experiment)
 
-`/horizon` is the direct entry to the horizon method. The method lives in the
-plan skill: load [the horizon method](../lev-plan/references/horizon.md) and
-follow it from Run Size to the rendered brief. This file holds only what a
-direct call needs before the method starts.
+`/horizon` is the direct entry to the horizon method, which lives in the plan
+skill. Run the Fit Check below first. When it passes,
+load [the horizon method](../lev-plan/references/horizon.md) and follow it
+from Run Size to the rendered brief. The method cites rules of the plan skill by link
+(sections of `../lev-plan/SKILL.md` and `execution-packet.md`): on this direct
+call, read each cited section when you reach its link, before you act on it.
 
 For non-trivial project work, load [Project Context](../lev/references/project-context.md)
 before project-specific lookup.

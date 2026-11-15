@@ -43,6 +43,21 @@ use durable `lev://entity/work/plan/<plan-id>`,
 separately as `lev://exec/<flow>`. Load `skill://lev` before introducing
 another URI family.
 
+## Contents
+
+- [Entity Reconciliation](#entity-reconciliation), [Work Link](#work-link): records to update and the lifecycle lane
+- [Modes](#modes), [Which Stage](#which-stage): the six modes and when a plan comes first
+- [Workflow](#workflow): the steps, each with its mode and validation
+- [Alignment Handoff](#alignment-handoff), [Source Fidelity Gate](#source-fidelity-gate): the transition packet and the fidelity table
+- [Plan Depth](#plan-depth), [Plan Contract](#plan-contract): what a light, standard or deep plan holds
+- [Shared Planning and TDD Contract](#shared-planning-and-tdd-contract): iteration planning, shared substance, conditional TDD
+- [Proof and Evaluator Selection](#proof-and-evaluator-selection): choose the proof from current contracts; holds
+- [Semantic Readiness](#semantic-readiness): dimensions, verdicts, blocker classes
+- [Code, LLM, and Human Authority](#code-llm-and-human-authority), [Adversarial Review](#adversarial-review), [Write Gate](#write-gate)
+- [Slice Map](#slice-map), [Auto-Enrich Integration](#auto-enrich-integration)
+- [Plan Types and Files](#plan-types-and-files), [Lifecycle FSM](#lifecycle-fsm), [Operations](#operations): Lifecycle mode
+- [Output](#output), [Next-Step Mini-Router](#next-step-mini-router), [Red Flags](#red-flags), [Field notes from Hermes](#field-notes-from-hermes)
+
 ## Entity Reconciliation
 
 After authorized material progress, reconcile touched and causally affected
@@ -77,9 +92,8 @@ HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count
 | Map | `map` or `all slices` | Compact slice map only; never creates task folders |
 | Emit | `emit <slice-id>` | Exactly one `{dna.yaml,execution.yaml}` task packet |
 
-`/propose` is an alias of this skill: [its file](../propose/SKILL.md) maps each
-`/propose` form to one mode above. This skill answers the caller directly and
-never routes back to `propose`.
+`/propose` is an alias of this skill; its own file holds the map from each
+`/propose` form to a mode and the rule that the forward goes one way.
 
 Default to review without writing when the user asks what the plan should
 contain, requests an audit, or has not authorized a durable edit.
@@ -190,10 +204,12 @@ steps:
   - id: validate_structure
     when: mode is emit
     action: Run `lev entity task validate <task-id|task-path> --json`; it validates every `check:` through core/eval. Report deterministic failures separately.
+    validation: "The command exits 0 and its JSON reports no failed row."
     on_failure: "Keep the task proposed; do not offer /exec."
 
   - id: compare_source
     action: Recompare intent, boundaries, requirements and their proof, dependencies, and freshness with the source.
+    validation: "Each of the five compared items is marked same as the source or repaired, with the source ref."
     on_failure: "Repair and rejudge before offering the next route."
 
   - id: route_forward
@@ -201,8 +217,8 @@ steps:
     validation: "The first executable slice is named and the broad plan, when one exists, remains its source."
 ```
 
-In Emit mode, read [Execution Packet](references/execution-packet.md) before
-`prove_requirements`; also read it to review or repair an existing task packet.
+Also read [Execution Packet](references/execution-packet.md) to review or
+repair an existing task packet.
 It carries the requirements ledger, check rules, flow and launch detail, the
 emitted task shape, and the Emission Gate.
 
@@ -272,8 +288,9 @@ The plan must contain this table for every material capture/design row:
 
 Rules:
 
-- `lost` blocks planning, mapping, and emission.
-- `narrowed-approved` requires an explicit source/user decision.
+- `lost` blocks planning, a ready brief, mapping, and emission.
+- `narrowed-approved` requires an explicit decision of the source or the
+  operator.
 - Every material relationship and non-goal gets its own coverage, not just goals.
 - Overall fidelity must be at least 0.90 and must not be lower than the source capture.
 - An average cannot hide one missing material row.
@@ -609,7 +626,8 @@ Transitions:
 ## Operations
 
 ```bash
-lev loop --json
+lev entity plan list | show | validate | history   # read a plan's state
+lev entity plan transition                         # move a plan along the FSM; --help names its arguments
 bd show <bd_id>
 bd create --title="Implement feature X" --type=task -p 2
 bd close <bd_id> --reason "completed per plan"

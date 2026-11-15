@@ -141,16 +141,16 @@ The packet does not select the flow; the launch does.
 - **`topology` stays a slice classification** (for example
   `single_vertical_slice`). It never names a flow.
 - **Selected current flow.** Choose it under
-  [Proof and Evaluator Selection](../SKILL.md#proof-and-evaluator-selection).
-  The current eval gate reads that flow's node packs and this task's
-  `requirements:`, so the packet needs no flow or evaluator field.
+  [Proof and Evaluator Selection](../SKILL.md#proof-and-evaluator-selection),
+  which says what the eval gate reads; the packet needs no flow or evaluator
+  field.
 - **Launch instructions.** State them in the final output with the flow passed
   explicitly: `lev entity task validate <task>`, then
   `lev sdlc exec <task> --flow <flow>`. Planning writes the instructions; Exec
   runs them.
-- **Unresolved binding.** When no current flow fits, or recording the
-  selection would need a packet key that does not exist, hold the slice
-  instead of choosing a default or adding a key.
+- **Unresolved binding.** When no current flow fits, the slice is a hold under
+  "Hold, never drop" in that section; a default flow is never chosen in its
+  place.
 
 ## Emitted Task Shape
 
