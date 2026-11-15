@@ -6,10 +6,10 @@ adds no mode, command, task field, scheduler or runtime implementation.
 
 ## Plan the whole outcome
 
-Read [Horizon](../../horizon/SKILL.md) as the planning method, including its
+Read [the horizon method](horizon.md) as the planning method, including its
 conditional worker-contract and long-run reference when applicable. Apply its
-workflow to the current plan; when Horizon's Fit Check names lev-plan for work
-already in this workflow, continue the selected mode instead of routing again.
+workflow to the current plan and continue the selected mode; the routing a
+direct `/horizon` call needs is in that command's own entry and is not loaded here.
 Keep one plan, one slice map and the existing requirements ledger. Put the
 completion predicate, excluded near misses, review and bounded repair rules,
 stage exits, open branches and resume frontier in that plan, citing requirement
@@ -23,7 +23,7 @@ their named acceptance owner; missing proof remains unresolved.
 
 Use [Lev's rolling-horizon procedure](../../lev/references/recursive.md) when
 projecting the route: detail ready near work and keep later dependencies and
-uncertainties visible. [Worker contracts](../../horizon/references/task-brief.md)
+uncertainties visible. [Worker contracts](horizon-long-run-blocks.md)
 are required for any delegated stage. Keep later slices in the map until their
 inputs and decisions support an executable packet. Planning-only Compile,
 Deepen, Review and Map requests stop at their requested artifact.

@@ -1,6 +1,6 @@
 # Long-Run Blocks and Pre-Launch Score
 
-Load from `horizon` whenever any stage is delegated to a worker, including a
+Load from [the horizon method](horizon.md) whenever any stage is delegated to a worker, including a
 bounded sequential chain, and when a run needs a portfolio, solvability,
 effort, or contamination block or an existing brief is scored before launch. A
 delegated bounded run uses only Worker Contracts and the per-spawn guidance;
@@ -8,8 +8,8 @@ Portfolio, Solvability, Effort, and Contamination stay conditional on the run
 needing them; a bounded run still takes contamination guards when independence
 matters. A long or parallel brief always loads the Pre-Launch Score. Core blocks,
 review, return, and the ledger stay in
-[`../SKILL.md`](../SKILL.md); packet mechanics stay in
-[Execution Packet](../../lev-plan/references/execution-packet.md).
+[the horizon method](horizon.md); packet mechanics stay in
+[Execution Packet](execution-packet.md).
 
 ## Long-Run Blocks
 

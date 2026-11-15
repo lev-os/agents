@@ -1,6 +1,7 @@
 # Notice
 
-`horizon` adapts material from the `long-horizon-prompting` skill (version
+The horizon method ([horizon.md](horizon.md) and
+[horizon-long-run-blocks.md](horizon-long-run-blocks.md)) adapts material from the `long-horizon-prompting` skill (version
 1.1.0, last updated 2026-10-11) in the Agent Skills for Context Engineering
 collection.
 

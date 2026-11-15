@@ -25,8 +25,9 @@ does not implement, dispatch, or pre-create a backlog of task folders.
 
 For multi-stage or multi-session planning, long autonomous work, or a request
 to use Horizon, read [long-horizon planning](references/long-horizon.md) before
-framing the outcome or judging readiness. It loads Horizon as a method reference
-inside this workflow; the caller does not need a separate `/horizon` invocation.
+framing the outcome or judging readiness. It applies
+[the horizon method](references/horizon.md) inside this workflow; the caller
+does not need a separate `/horizon` invocation.
 A planning-only request stops at its selected mode. When the user also authorizes
 delivery, pass the same plan and next ready slice to `skill://orch`, which runs
 the referenced execution loop through the existing owners.
