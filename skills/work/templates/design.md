@@ -162,7 +162,7 @@ State the preferred design direction and why.
 
 ## Design-to-Propose Handoff
 
-Use this section only when the next step is `/propose`. It should let propose
+Use this section only when the next step is `/lev-plan`. It should let propose
 compile one executable task packet without re-running a planning lane.
 
 - First executable slice:
@@ -176,7 +176,7 @@ compile one executable task packet without re-running a planning lane.
 
 ## Promotion Readiness
 
-- [ ] Ready for `/propose`
+- [ ] Ready for `/lev-plan`
 - [ ] Needs more interview
 - [ ] Needs prototype or runtime receipt
 - [ ] Needs spec follow-up

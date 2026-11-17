@@ -113,7 +113,7 @@ authority. Unknown destinations return to `skill://lev`; paused work routes to
 | Lane | Entity movement | Owns |
 |---|---|---|
 | Shape | `memory -> captured | blocked` | `/capture`, `/prior-art`, `/interview` |
-| Plan | `captured | designed -> planned | proposed | execution_ready` | `/lev-plan` (`/propose` is its compatibility alias), `/capture` |
+| Plan | `captured | designed -> planned | proposed | execution_ready` | `/lev-plan`, `/capture` |
 | Exec | `execution_ready -> executing -> verified | blocked | needs_propose` | `/exec` |
 | Close | `verified -> closed | monitoring | follow_up` | `/close`, `/handoff` |
 | Router | `unknown -> routed` | `/work`, `/ws` |

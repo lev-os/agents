@@ -32,7 +32,7 @@ Lifecycle lane: Shape -> Plan
 Entity movement: `hypothesis | captured | idea -> proven | partial | disproven | monitor | proposal_ready`
 Workstream: resolve the active workstream before writing artifacts or dispatching work
 Upstream: `/capture`, `/interview`, `/design`, workshop intake, `/prior-art`
-Downstream: `/propose`, `/capture`, `/exec`, `/close`, archive
+Downstream: `/lev-plan`, `/capture`, `/exec`, `/close`, archive
 Router: `/work`
 HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count} ✅{done_count} | 🚦poc={verdict}/{score} | ⏭️ {next} | 🔁{loop_state}`
 
@@ -175,7 +175,7 @@ steps:
   - id: score_matrix
     action: Score evidence and route the result.
     validation: "Weighted score, hard blockers, verdict, and lifecycle route are visible."
-    on_failure: "Do not promote to /propose."
+    on_failure: "Do not promote to /lev-plan."
 
   - id: capture_result
     action: Capture the result into the workstream, design, proposal seed, or archive note.
@@ -241,7 +241,7 @@ name one route. Proof completion does not authorize implementation.
 | Result | Next owner |
 |---|---|
 | Supported direction spans multiple outcomes | `skill://lev-plan` |
-| Supported bounded coding slice | `skill://propose` |
+| Supported bounded coding slice | `skill://lev-plan` |
 | Supported non-coding action with sufficient plan, scope, and checks | `skill://exec` with the domain method; proposal optional |
 | Claim or decision needs reframing | `skill://interview` |
 | New insight or rejected hypothesis needs preservation | `skill://capture` |
@@ -273,5 +273,5 @@ The proof is invalid when any of these statements are true:
 
 - `/capture` records proof results and entity movement.
 - `/interview` and `/design` clarify ambiguous proof claims.
-- `/propose` turns proven or aligned results into execution-ready task DNA.
+- `/lev-plan` turns proven or aligned results into execution-ready task DNA.
 - Workshop intake owns adopt, extract, monitor, and reject dispositions.

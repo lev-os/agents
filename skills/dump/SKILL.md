@@ -40,7 +40,7 @@ Lifecycle lane: Shape -> Plan
 Entity movement: `memory -> captured | proposed | execution_ready | blocked`
 Workstream: resolve active workstream before writing capture artifacts
 Upstream: conversation, `/work`
-Downstream: `/capture --deep`, `/prior-art`, `/propose`, `/exec`
+Downstream: `/capture --deep`, `/prior-art`, `/lev-plan`, `/exec`
 Router: `/work`
 HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count} ✅{done_count} | 🚦{gate}={score} | ⏭️ {next} | 🔁{loop_state}`
 
@@ -64,7 +64,7 @@ steps:
     on_failure: "Route to /prior-art and stop proposal creation for that topic."
 
   - id: route_next
-    action: Take the next action for shovel-ready rows: /exec for execution_ready, /propose for aligned captured work, /interview for ambiguous rows.
+    action: Take the next action for shovel-ready rows: /exec for execution_ready, /lev-plan for aligned captured work, /interview for ambiguous rows.
     validation: "No routed item has current_location=memory without artifact_ref, blocker, or explicit write authorization."
     on_failure: "Show the blocked items and missing gate."
 ```
@@ -101,5 +101,5 @@ Details: {ledger_artifact_ref_or_use_--full}
 
 - `/capture --deep` owns inventory, fidelity, durable artifact writes, the canon write gate, and the shared ledger.
 - `/prior-art` avoids duplicate artifacts.
-- `/propose` creates task DNA and execution plans.
+- `/lev-plan` creates task DNA and execution plans.
 - `/exec` handles execution-ready entities.

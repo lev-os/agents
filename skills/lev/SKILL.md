@@ -94,7 +94,7 @@ load [references/recursive.md](references/recursive.md). It defines breadth-firs
 simulation, candidate graph deltas, durable capture, and existing-to-proposed
 visualization. These are skill semantics, not newly implemented CLI flags.
 Auto/recursive defaults to frontier wayfinding plus one useful increment;
-applying proposed effects still requires their existing authority. The current `propose` skill
+applying proposed effects still requires their existing authority. The current `lev-plan` skill
 implements SDLC packet specialization; generic patch-offer routing does not
 silently rename that skill or claim a new runtime API.
 
@@ -120,12 +120,12 @@ until config-driven routing is available; this prose does not enable a plugin.
 | Task domain / missing state | Route |
 |---|---|
 | Coding; architecture or domain boundaries unresolved | `skill://arch` → `skill://interview` if a human decision remains → `skill://lev-plan` for broad work |
-| Coding; decisions settled | `skill://propose` for a selected SDLC execution packet → `skill://exec` |
+| Coding; decisions settled | `skill://lev-plan` for a selected SDLC execution packet → `skill://exec` |
 | Non-coding; broad effort | `skill://lev-plan` → the matching domain skill or `skill://exec` with sufficient scope and acceptance |
 | Non-coding; clear bounded request | Matching domain skill; no mandatory proposal packet or coding loop |
 
 Skip already-satisfied stages. Preserve read-only intent and the current
-workstream. A plan can supply non-coding execution context without `propose`;
+workstream. A plan can supply non-coding execution context without a task packet;
 it still needs a named outcome, permitted effects, acceptance and stop condition.
 SDLC's future default is a Ralph loop over one coherent next chunk, using
 `lev-ralph` worker/reviewer cycles. Runtime adoption is deferred; route through
@@ -145,7 +145,7 @@ currently available authorized methods without claiming Ralph ran.
 | Bounded feasibility or prototype | `skill://poc` | Evidence resolving one uncertainty |
 | Broad implementation route | `skill://lev-plan` | Runbook, delivery DAG, proof and rollback |
 | Harden a planning artifact | `skill://auto-enrich` | Bounded independent review and planning repair |
-| Slice readiness or task emission | `skill://propose` | Review, map or authorized single packet |
+| Slice readiness or task emission | `skill://lev-plan` | Review, map or authorized single packet |
 | Accept verified work | `skill://close` | Acceptance and learnings |
 | Pause or transfer context | `skill://handoff` | Durable continuity and resume pointer |
 | Create or consolidate a skill | `skill://skill-builder` | Skill instructions and behavioral checks |
@@ -279,7 +279,7 @@ $LEV exec --help
 If that wrapper fails because `node`, `tsx`, dependencies, or project root
 resolution are broken, fix only the simple local issue when it is scoped,
 reversible, and verified by the same command. Otherwise emit diagnostics and
-route to `/exec` or `/propose`.
+route to `/exec` or `/lev-plan`.
 
 ## Core Surfaces
 
@@ -331,7 +331,7 @@ steps:
   - id: dry_run
     action: Prefer `--dry-run` or `--json` when the command supports it.
     validation: "Planned command, write scope, and verifier are visible."
-    on_failure: "Route to diagnostics or `/propose`."
+    on_failure: "Route to diagnostics or `/lev-plan`."
 
   - id: execute
     action: Run the smallest command that proves or advances the entity.
@@ -412,7 +412,7 @@ or runtime-health issues:
 - trace: `{trace_ref_or_none}`
 - suspected_layer: `{path|dependency|config|flow|adapter|verifier|implementation|environment}`
 - simplest_next_fix: `{one_action}`
-- route: `{retry|/work|/propose|/exec|blocked}`
+- route: `{retry|/work|/lev-plan|/exec|blocked}`
 </lev-diagnostics-report>
 
 ## Trace and Event Follow-Ups
@@ -446,7 +446,7 @@ trace, event, and workstream state before deciding the next route.
 ## FlowMind and Lifecycle
 
 - Use `/work` for lifecycle routing and HUD discipline.
-- Use `/propose` when the entity is not execution-ready.
+- Use `/lev-plan` when the entity is not execution-ready.
 - Use `/exec` when `dna.yaml` and `execution.yaml` exist with verifier and write
   scope.
 - Use FlowMind commands when the work is a graph/topology/runtime issue.

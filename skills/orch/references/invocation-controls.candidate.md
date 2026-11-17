@@ -110,7 +110,7 @@ or provider requirements.
 | Find or resume a workstream | skill://ws | existing workstream and current scope |
 | Human design choice | skill://interview | researched alternatives and recorded user answer |
 | Broad roadmap | skill://lev-plan | dependency map and first executable unit |
-| Settled coding slice | skill://propose, then skill://coder or skill://exec | implementation and verification |
+| Settled coding slice | skill://lev-plan, then skill://coder or skill://exec | implementation and verification |
 | Prior evidence or external facts | skill://prior-art or skill://research | source-backed findings |
 | Independent deliberation | skill://cdo | evidence, disagreement and synthesis |
 | Proof design or hostile QA | skill://eval-builder, optionally skill://review (hostile run) | observable checks sized to the claim |

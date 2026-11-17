@@ -119,7 +119,7 @@ not a gate. A review fails a change that breaks a listed rule.
 | Child reference base | Resolve an index/package/skill child pointer from its declared owner base and preserve provenance. |
 | Missing configured reference | Report the exact missing or invalid path and preserve it as unresolved; do not silently infer a replacement. |
 | Config absent or no breadcrumb keys | Read applicable existing conventional roots and mark every result `inferred`. |
-| Direct `/propose` invocation | Load this procedure before project lookup; use the target project's rules and plan sources. |
+| Direct `/lev-plan` invocation | Load this procedure before project lookup; use the target project's rules and plan sources. |
 | Project switch | Re-resolve root, config, rules, and selected references; carry no project-specific context across. |
 | Context filtering | Keep authority, invariants, mandatory-reference failures, and unresolved refs; filter only lower-relevance guidance. |
 | Precedence conflict | Follow system, developer, and current-user instructions over local project guidance. |

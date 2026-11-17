@@ -33,7 +33,7 @@ Lifecycle lane: Router
 Entity movement: `unknown | stale | split -> routed | active | paused`
 Workstream: this skill resolves or updates workstream identity
 Upstream: `/work`, any lifecycle skill missing workstream context
-Downstream: `/work`, `/capture`, `/propose`, `/exec`, `/handoff`
+Downstream: `/work`, `/capture`, `/lev-plan`, `/exec`, `/handoff`
 Router: `/work`
 HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count} ✅{done_count} | 🚦{gate}={score} | ⏭️ {next} | 🔁{loop_state}`
 
@@ -115,7 +115,7 @@ table when uncertain; otherwise name the next route. Resume grants no new author
 | Evidence stale or missing | `skill://prior-art` |
 | Material decision open | `skill://interview` |
 | Broad plan absent or incomplete | `skill://lev-plan` |
-| Coding slice needs specification or revision | `skill://propose` |
+| Coding slice needs specification or revision | `skill://lev-plan` |
 | Authorized action ready with current scope and checks | `skill://exec`; non-coding may use its sufficient plan without proposal |
 | Outcome verified, acceptance pending | `skill://close` |
 | Pause or blocker remains | `skill://handoff` |

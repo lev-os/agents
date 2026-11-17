@@ -151,7 +151,7 @@ Every read-only verb ends with a concrete exec menu:
 ### Exec Menu (N of M)
 
 1. [item] → verb: /exec  flow: ralph       effort: S  unblocks: #3,#7
-2. [item] → verb: /propose                  effort: XS unblocks: #5
+2. [item] → verb: /lev-plan                  effort: XS unblocks: #5
 ...
 
 Queue: N more items (bucketed by priority)

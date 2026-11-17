@@ -517,5 +517,5 @@ docs and carry explicit notes for:
 ## Related
 
 - `/work` routes lifecycle state.
-- `/lev-plan` plans and creates execution-ready artifacts; `/propose` is its compatibility alias.
+- `/lev-plan` plans and creates execution-ready artifacts.
 - `/close` seals verified work.

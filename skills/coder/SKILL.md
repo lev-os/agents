@@ -46,7 +46,7 @@ for coder and reviewer. `--fable` changes only the reviewer profile.
 ## Project Context Assembly
 
 Lev guidance is addressable: load `skill://work` to resolve lifecycle state and
-`skill://exec` for `--lev` or any execution-ready task. Load `skill://propose`
+`skill://exec` for `--lev` or any execution-ready task. Load `skill://lev-plan`
 when readiness or proof design is insufficient and `skill://close` only after
 verified execution. These are prompt-level pointers; the corresponding runtime
 flow is `lev://exec/<flow>`.
@@ -85,7 +85,7 @@ task, stop; `--lev` does not permit a transparent raw-CLI fallback.
 
 For Lev tasks, preserve the task's existing `claim_verifier_map` and
 `forbidden_moves` in the packet when present. Those fields belong to the task
-and proposal owners (`skill://propose` owns their readiness contract); Coder
+and proposal owners (`skill://lev-plan` owns their readiness contract); Coder
 reuses them through worker dispatch and checks that the result did not violate
 them. Keep these packet invariants explicit: exact project/workstream and
 identity/session, allowed write scope, hard references, acceptance owner,

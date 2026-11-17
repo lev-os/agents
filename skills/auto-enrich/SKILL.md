@@ -214,7 +214,7 @@ steps:
       `/lev-plan` against the current refs before hardening and use that plan as the
       review candidate. A single bounded vertical outcome may record
       `plan_not_required` and proceed without one. Never route broad design intent
-      directly to `/propose` and expect task slicing to preserve the roadmap.
+      directly to `/lev-plan` and expect task slicing to preserve the roadmap.
     validation: "One named plan exists for broad work, or plan_not_required has a bounded rationale for one simple slice."
     on_failure: "Stop with needs_plan_compilation; do not harden or propose a substitute summary."
 
@@ -267,11 +267,11 @@ steps:
   - id: route_next
     action: Route the enriched planning artifact by domain
     instruction: |
-      For coding work on APPROVED_PLAN or NEEDS_IMPLEMENTATION_LANE, invoke `/propose` in review
+      For coding work on APPROVED_PLAN or NEEDS_IMPLEMENTATION_LANE, invoke `/lev-plan` in review
       mode against the enriched plan for broad work, or the explicitly bounded
       direct source for a plan-not-required slice. Preserve its
       ready|needs_review|blocked verdict. Do not create a proposal document or task
-      backlog. Task materialization requires an explicit later `/propose emit
+      backlog. Task materialization requires an explicit later `/lev-plan emit
       <slice-id>` or equivalent apply authorization. On NEEDS_PLAN_REVISION, do not
       propose.
       For non-coding work, a sufficient plan may hand off directly to its domain
@@ -307,7 +307,7 @@ is needed; otherwise name one route. Readiness never grants execution authority.
 | Source fidelity absent or material intent lost | `skill://capture` |
 | Human decision unresolved | `skill://interview` |
 | Broad plan needs repair | `skill://lev-plan` |
-| Coding plan ready for slice review | `skill://propose` |
+| Coding plan ready for slice review | `skill://lev-plan` |
 | Non-coding plan sufficient | `skill://exec` domain handoff; no mandatory proposal |
 | Feasibility needs a bounded experiment | `skill://poc` |
 | Paused or blocked | `skill://handoff` |
@@ -394,7 +394,7 @@ Lifecycle:
 | "Shell variables stand in for host-produced resolutions" | Durable decisions belong in the Lev design/workstream; shell state is runtime-only. |
 | "I would not patch the plan" | Auto-enrich authorizes minimal planning edits inside its declared write scope, never implementation. |
 | "I repaired or rejected the findings, so the pass is done" | Resume the same reviewer with the changed candidate and counterevidence; host judgment alone does not verify the repair. |
-| "The installed Lev CLI has no verified lev propose command" | Invoke the existing `/propose` skill contract; never invent a CLI surface. |
+| "The installed Lev CLI has no verified lev propose command" | Invoke the existing `/lev-plan` skill contract; never invent a CLI surface. |
 | "Almost approved—one more round; add three task packets so implementation can clarify it" | Implementation uncertainty is NEEDS_IMPLEMENTATION_LANE, never permission to grow tasks during review. |
 | "Applying `/interview` logic is equivalent to loading it" | The host reads and injects the current canonical interview body with its path and digest. |
 | "The Review Contract below is complete, so I do not need to load the arch skill" | The embedded contract supplements, never replaces, the current canonical arch skill. |

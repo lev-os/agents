@@ -184,7 +184,7 @@ host processes. Stop/pause the corresponding owned timer as requested.
 ## Route, recover and learn
 
 Load owner guidance when needed: goal-exec for explicit goals; lev/ws for lifecycle
-and workstreams; interview for human design; lev-plan/propose for planning and
+and workstreams; interview for human design; lev-plan for planning and
 execution preparation; coder/exec for model/session execution; prior-art/research
 for evidence; cdo for deliberation; eval-builder/review for proof; ll/flowmind-author
 for loops/flows; capture/handoff/close for durable continuity. Resolve skill://

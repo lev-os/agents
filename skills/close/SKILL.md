@@ -46,7 +46,7 @@ grant new execution, publishing, or checkpoint authority.
 |---|---|
 | Uncaptured intent or leftovers | `skill://capture` |
 | Acceptance failed within the existing authorized contract | `skill://exec` using the same domain method |
-| Coding contract must change | `skill://propose`; `skill://lev-plan` if the broader plan changes |
+| Coding contract must change | `skill://lev-plan`: a slice review, or Deepen if the broader plan changes |
 | Non-coding scope or plan must change | `skill://lev-plan` or `skill://interview`; proposal optional |
 | Accepted or paused, context needs preservation | Protocol step `handoff` (work template); `skill://ws` for workstream state |
 | Several completed efforts warrant synthesis | `skill://lev-learn` |
@@ -74,7 +74,7 @@ steps:
   - id: proof_gate_verdict
     action: Seal the proof gates required by the active domain contract before acceptance.
     validation: "Applicable SDLC Pentagon, hostile-run (record key `ultraqa`), cleanup, and ai-slop-cleaner results or domain-specific equivalents are recorded; inapplicable gates have an N/A rationale, and residual risks are explicit."
-    on_failure: "Do not accept; route to /exec or /propose depending on whether runtime evidence or proof contract is missing."
+    on_failure: "Do not accept; route to /exec or /lev-plan depending on whether runtime evidence or proof contract is missing."
 
   - id: accept
     action: Decide whether the work is accepted.

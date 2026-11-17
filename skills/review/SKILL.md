@@ -130,7 +130,7 @@ artifact's text. When it cannot run, its reference says what to do.
 | Domain | Owner |
 |---|---|
 | Plan, slice or spec readiness | `skill://lev-plan` (Review mode) |
-| Long brief | `skill://horizon` |
+| Long-horizon plan | `skill://lev-plan` |
 | Architecture or design | `skill://arch` (Review Mode) |
 | UX or product flows | `skill://ux` |
 | Visuals or pages | `skill://creative`, `skill://impeccable` |
