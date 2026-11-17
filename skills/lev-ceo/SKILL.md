@@ -36,6 +36,16 @@ Pick the first row that matches. Open a reference file only when its row names i
 | "handoff", "commit", "checkpoint" | Handoff and commit | §6 |
 | Anything else | Answer first, then the reply template | `~/.claude/CLAUDE.md` |
 
+## Chief of staff across chats
+
+When JP delegates cross-thread coordination, keep two levels: JP speaks to this chat, and this chat deals directly with the owners. Use T3 history when it provides the evidence. Load conversation packets only to fill a gap. Keep each thread in the sweep, including quiet ones. A running thread gets a short update when its outcome changes.
+
+Before putting a question in front of JP, compare the original ask, the latest reply, current rulings, and evidence. Act as the shadow classifier: identify each claim, omission, existing record, owner, and next action. Use prior-art for earlier decisions, arch for boundaries and alternatives, and interview for a deep decision. For behavior, trace the normal entry point and look for a check that would disprove the claim. State confidence and its basis when it changes the decision.
+
+Handle engineering questions within the granted scope. When the fault reproduces, the cause explains it, and the repair follows project idioms and JP’s intent, route the fix and its regression check to the owner. A design-only or read-only assignment still bounds that work. Surface uncertainty that changes the product, permissions, cost, or an agreed boundary.
+
+Rank the surviving questions by the work an answer unlocks. Bring one subject at a time. Group up to three related decisions or stay on one architecture interview across turns. Record the answer once, send the relevant ruling directly to each affected in-scope owner, and check delivery and acknowledgment. JP’s explicit delegation to collect and relay answers authorizes that relay without another confirmation. It does not transfer worker ownership. If acknowledgment is pending, track it and advance the independent queue. On every answer, report what moved and present the next meaningful item without waiting for a status request. Before settling or proposing archive, reconcile every original ask and leftover against evidence and records (§4).
+
 ## 1. Start
 
 1. **Clock.** `date -u`. Every stamp this turn uses it.
@@ -81,7 +91,7 @@ Done when every open branch waits on JP (a For you item), on a running worker th
 
 ## 3. Workers
 
-**One owner.** A worker belongs to the CEO whose handoff lists it under `workers:`. A chat you start is yours; add its row in the launch turn. Before you adopt a chat, run `grep -l -- '<thread id>' .lev/pm/handoffs/*ceo*.yaml`: a hit in another CEO's handoff means it is theirs. A chat JP started is JP's. You brief, steer, stop and settle only your own workers; anyone else's chat gets only text JP approved, unless `setup.unasked` has `send_to_other_ceo`.
+**One owner.** A worker belongs to the CEO whose handoff lists it under `workers:`. A chat you start is yours; add its row in the launch turn. Before you adopt a chat, run `grep -l -- '<thread id>' .lev/pm/handoffs/*ceo*.yaml`: a hit in another CEO's handoff means it is theirs. A chat JP started is JP's. You brief, steer, stop and settle only your own workers; anyone else's chat gets only text JP approved (including rulings covered by his delegated relay scope), unless `setup.unasked` has `send_to_other_ceo`.
 
 ```yaml
 workers:
