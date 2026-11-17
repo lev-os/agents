@@ -1,6 +1,6 @@
 ---
 name: lev-plan
-description: Use when compiling captured or designed intent into a Lev plan (human runbook, migration, architecture plan, multi-slice roadmap), deepening or reviewing a plan, changing plan state under `.lev/pm/plans/`, reviewing slice readiness, rendering a slice map, or emitting one execution-ready Lev task.
+description: Use when compiling captured or designed intent into a Lev plan (human runbook, migration, architecture plan, multi-slice roadmap, long-horizon brief), deepening or reviewing a plan, changing plan state under `.lev/pm/plans/`, reviewing slice readiness, rendering a slice map, or emitting one execution-ready Lev task.
 ---
 
 # /lev-plan - Plan, Slice Map, and Execution Packet
@@ -11,26 +11,19 @@ for:
 
 1. **Alignment handoff**: bind the source and freeze the intent with its
    fidelity.
-2. **Broad plan, when the work needs one**: compile, deepen, or review the
-   human runbook under `.lev/pm/plans/` and manage its FSM.
+2. **The plan, when the work needs one**: compile, deepen, or review the human
+   runbook under `.lev/pm/plans/` and manage its FSM.
 3. **Review or map**: judge readiness and render a compact slice map.
 4. **One execution packet**: write a single just-in-time task packet for a
    selected slice.
 
-A plan preserves the source fidelity table, explains current and target state,
-resolves architecture and ownership, builds a dependency/slice map, and records
-human-readable execution and rollback. It is not merely a frontmatter
-generator: a schema-valid shallow plan is still a failed plan. The workflow
-does not implement, dispatch, or pre-create a backlog of task folders.
+Every plan holds the same eight parts: source, outcome, current to target,
+vertical slices, claims and proof, review and repair, return and resume, risk
+and rollback. Depth sets how much each part holds, never which parts exist. A
+schema-valid shallow plan is still a failed plan. The workflow does not
+implement, dispatch, or pre-create a backlog of task folders.
 
-For multi-stage or multi-session planning, long autonomous work, or a request
-to use Horizon, read [long-horizon planning](references/long-horizon.md) before
-framing the outcome or judging readiness. It applies
-[the horizon method](references/horizon.md) inside this workflow, so the caller
-needs no separate `/horizon` invocation, and it says how authorized delivery
-runs through `skill://orch`.
-
-Plans, briefs, maps, reviews, and specs are Markdown for humans. The task packet keeps
+Plans, maps, reviews, and specs are Markdown for humans. The task packet keeps
 its established YAML payloads, and runtime state stays in the JSON its runtime
 owns.
 
@@ -43,26 +36,25 @@ use durable `lev://entity/work/plan/<plan-id>`,
 separately as `lev://exec/<flow>`. Load `skill://lev` before introducing
 another URI family.
 
-## Contents
+## References
 
-- [Entity Reconciliation](#entity-reconciliation), [Work Link](#work-link): records to update and the lifecycle lane
-- [Modes](#modes), [Which Stage](#which-stage): the six modes and when a plan comes first
-- [Workflow](#workflow): the steps, each with its mode and validation
-- [Alignment Handoff](#alignment-handoff), [Source Fidelity Gate](#source-fidelity-gate): the transition packet and the fidelity table
-- [Plan Depth](#plan-depth), [Plan Contract](#plan-contract): what a light, standard or deep plan holds
-- [Shared Planning and TDD Contract](#shared-planning-and-tdd-contract): iteration planning, shared substance, conditional TDD
-- [Proof and Evaluator Selection](#proof-and-evaluator-selection): choose the proof from current contracts; holds
-- [Semantic Readiness](#semantic-readiness): dimensions, verdicts, blocker classes
-- [Code, LLM, and Human Authority](#code-llm-and-human-authority), [Adversarial Review](#adversarial-review), [Write Gate](#write-gate)
-- [Slice Map](#slice-map), [Auto-Enrich Integration](#auto-enrich-integration)
-- [Plan Types and Files](#plan-types-and-files), [Lifecycle FSM](#lifecycle-fsm), [Operations](#operations): Lifecycle mode
-- [Output](#output), [Next-Step Mini-Router](#next-step-mini-router), [Red Flags](#red-flags), [Field notes from Hermes](#field-notes-from-hermes)
+Read each file when its condition holds, before the step that needs it.
+
+| File | Read when |
+|---|---|
+| [Plan parts](references/plan-parts.md) | Compile, Deepen, or Review of a plan: before `rehydrate_fidelity`. It holds the eight parts, depth, the source table, readiness, and the plan template |
+| [Slices](references/slices.md) | Before `build_topology` or `map_slices`, and for a slice review |
+| [Proof](references/proof.md) | Before `design_proof`, `prove_requirements`, or `judge_readiness`, and whenever a claim, a check, or TDD is in question |
+| [Long-horizon planning](references/long-horizon.md) | The run is long (multi-session or autonomous), a slice goes to a worker, two or more approach families are open, or the user authorizes delivery through `skill://orch` |
+| [Execution Packet](references/execution-packet.md) | Emit mode, a packet preview, or the review or repair of an existing task packet |
+| [Lifecycle](references/lifecycle.md) | Lifecycle mode, or a write of plan frontmatter |
+| [Notice](references/notice.md) | You copy or publish the adapted long-horizon material |
 
 ## Entity Reconciliation
 
 After authorized material progress, reconcile touched and causally affected
 artifacts before routing, handoff, or final response. Track entity ref,
-island/provider locator (a path for file storage), basis/evidence, and the
+provider locator (a path for file storage), basis/evidence, and the
 reason/action due. Update through the verified owning CLI/adapter; use a
 write-authorized skill fallback only when that operation is unavailable.
 Record updated, no_change(reason), or blocked(reason), preserving unresolved
@@ -77,7 +69,7 @@ Lifecycle lane: Plan
 Entity movement: `captured | designed | draft_plan -> planned | needs_interview | needs_review`, then `planned | aligned -> proposed | execution_ready | needs_interview | needs_plan`
 Workstream: resolve the active workstream before plan writes, and the workstream that owns the slice (the `ws` skill) before task writes; the task folder goes under it
 Upstream: `/capture`, `/interview`, `/prior-art`, `.lev/pm/designs/*`, existing plan under `.lev/pm/plans/*`, aligned simple-slice intent
-Downstream: `/auto-enrich`, `/exec` for a ready SDLC packet, `/exec` or domain skill for non-coding, `/interview`, `/capture`, `/lev`
+Downstream: `/auto-enrich`, `/exec` for a ready SDLC packet, `/exec` or domain skill for non-coding, `skill://poc`, `/interview`, `/capture`, `/lev`
 Router: `/work`
 HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count} ✅{done_count} | 🚦{gate}={score} | ⏭️ {next} | 🔁{loop_state}`
 
@@ -92,9 +84,9 @@ HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count
 | Map | `map` or `all slices` | Compact slice map only; never creates task folders |
 | Emit | `emit <slice-id>` | Exactly one `{dna.yaml,execution.yaml}` task packet |
 
-`/propose` is an alias of this skill; its own file holds the map from each
-`/propose` form to a mode. This skill answers the caller directly and never
-routes back to `propose`.
+`/propose` and `/horizon` are aliases of this skill; each one's own file maps
+its forms to a mode. This skill answers the caller directly and never routes
+back to an alias.
 
 Default to review without writing when the user asks what the plan should
 contain, requests an audit, or has not authorized a durable edit.
@@ -120,16 +112,19 @@ Lev work.
   Map and Emit apply only to coding or an overlay that requires a packet.
 - **Open decisions leave first.** Coding with unresolved architecture goes to
   `skill://arch`; an unresolved product or architecture decision goes to
-  `/interview`.
+  `/interview`; an unknown answer that a prototype would settle goes to
+  `skill://poc`.
+- **Aligned intent goes straight to the plan.** Synthesize settled decisions
+  and ask only about an unresolved choice that changes scope or acceptance.
 
 ## Workflow
 
 ```yaml
 steps:
   - id: bind_source
-    action: Resolve workstream, capture/design/plan refs, existing matching plan or task, source digests, and allowed write scope; freeze the aligned intent as the transition packet before broad lookup or writes.
-    validation: "Every material intent has an intent_id and source_ref; an existing plan or task is reused when present; one operator outcome, its boundaries, and a relevant verifier can be named."
-    on_failure: "Route conversation-only work to /capture; unresolved product or architecture framing to /interview."
+    action: Resolve workstream, capture/design/plan refs, existing matching plan or task, source digests, and allowed write scope; freeze the aligned intent as the transition packet before broad lookup or writes. List every material intent ID with its source ref, including later branches that are still unresolved.
+    validation: "Every material intent has an intent_id and source_ref; an existing plan or task is reused when present; one operator outcome, its boundaries, and a relevant verifier can be named; unresolved later branches are open rows, neither resolved nor dropped."
+    on_failure: "Route conversation-only work to /capture; unresolved product or architecture framing to /interview. Do not draft around missing intent."
 
   - id: select_mode
     action: Apply Which Stage, then select compile, deepen, review, lifecycle, map, or emit from the command. A lifecycle request performs only its FSM operation and then route_forward; one that moves a plan to ready or done runs judge_readiness first.
@@ -148,13 +143,19 @@ steps:
 
   - id: choose_depth
     when: mode is compile or deepen
-    action: Select light, standard, or deep from risk and topology; state the selection in the plan.
-    validation: "Depth matches the real blast radius and does not use length as a proxy for rigor."
+    action: Select light, standard, or deep from risk and topology, and say whether the run is long, delegated, or a parallel search (Depth, in Plan parts); state the selection in the plan.
+    validation: "Depth matches the real blast radius and does not use length as a proxy for rigor; a long, delegated, or parallel run has loaded long-horizon planning."
 
   - id: frame_outcome
     when: mode is compile or deepen
-    action: Define operator outcome, observable done state, scope, non-goals, authority boundaries, and human decisions.
-    validation: "A teammate can tell what changes, what stays unchanged, and what done looks like."
+    action: Write the success sentence first - one sentence about the returned result with quantifiers, scope, and the narrowing assumptions it may not make. Work backward from what a complete answer lets the operator do. Then define observable done state, scope, non-goals, authority boundaries, and human decisions.
+    validation: "An adversarial reader can decide from the success sentence alone whether a given result passes; a teammate can tell what changes, what stays unchanged, and what done looks like."
+    on_failure: "Decompose to a smaller sentence, send the decision to /interview, or the unknown to skill://poc."
+
+  - id: exclude_near_misses
+    when: mode is compile or deepen
+    action: Write Does Not Count with the refusal list - every result you would send back from a capable collaborator under pressure - starting from the defaults in Plan parts. Then define each load-bearing term with its degenerate cases.
+    validation: "Each predictable near miss is excluded by name and mapped to a claim, an invalid_proof entry, or the review checklist; terms settle the empty, trivial, duplicate, and boundary cases the success sentence must survive. A light plan may hold one line."
 
   - id: analyze_options
     when: mode is compile or deepen
@@ -163,13 +164,23 @@ steps:
 
   - id: build_topology
     when: mode is compile or deepen
-    action: Build current-to-target map, ownership boundaries, dependencies, slices, critical path, promotion gates, and administrative holds.
-    validation: "Every slice has an outcome, owner, depends_on, proof, status, open decisions, and covered intent_ids; each promotion verifier is satisfiable by that slice plus completed dependencies; a slice with incomplete or blocked dependencies is blocked, not ready or merely promotion-gated."
+    action: Build current-to-target map, ownership boundaries, dependencies, vertical slices, critical path, promotion gates, and administrative holds (Slices). Each slice ends in a named artifact that states its premises and conclusion locally.
+    validation: "Every slice has an outcome, owner, depends_on, artifact, proof, stop condition, status, open decisions, and covered intent_ids; each promotion verifier is satisfiable by that slice plus completed dependencies; a slice with incomplete or blocked dependencies is blocked, not ready or merely promotion-gated; no slice starts before its input claims are satisfied."
 
   - id: design_proof
     when: mode is compile or deepen
-    action: Map each acceptance claim to the smallest relevant local, integration, field, or external-owner verifier, chosen under Proof and Evaluator Selection.
-    validation: "At least 90% of acceptance criteria are concrete/testable; each verifier is attached to the first slice whose scope can satisfy it; every claimed preserved boundary or compatibility form is exercised directly; missing future tests are slice work, not false blockers."
+    action: Write the claims with the three passes of Proof (think, write, prove) - what must hold and what must never hold. For each claim name its proof as a program, an agent, or a person, the smallest relevant local, integration, field, or external-owner verifier chosen under Proof and Evaluator Selection, and its guard against a check that cannot fail.
+    validation: "At least 90% of acceptance criteria are concrete/testable; every claim names program, agent, or person, or is listed as unresolved proof; every program check is named after the failure it rules out and names a known-bad control and a check owner; each verifier is attached to the first slice whose scope can satisfy it; every claimed preserved boundary or compatibility form is exercised directly; missing future tests are slice work, not false blockers."
+
+  - id: set_review_and_repair
+    when: mode is compile or deepen
+    action: Write the review checklist, the named blocking conditions, the recall with its retry cap, and each slice's run budget from Review and Repair in Plan parts.
+    validation: "The plan states which findings block and the evidence each needs; every recall has a finite cap; a standard or deep plan gives each slice a run budget."
+
+  - id: set_return_and_resume
+    when: mode is compile or deepen
+    action: Write the return gate, the incomplete-return exits, and the resume frontier from Return and Resume in Plan parts.
+    validation: "Return depends on claims and open blocking findings, never on confidence, effort, or elapsed time; a fresh session can resume from the frontier without the originating chat."
 
   - id: design_failure_and_rollback
     when: mode is compile or deepen
@@ -178,11 +189,11 @@ steps:
 
   - id: write_or_patch
     when: mode is compile or deepen
-    action: Write one plan under .lev/pm/plans/ only inside authorized scope, preserving unrelated plan history and current dirty work.
+    action: Write one plan under .lev/pm/plans/ only inside authorized scope, from the plan template in Plan parts, preserving unrelated plan history and current dirty work.
     validation: "Exactly one plan is created or updated; source refs and fidelity table are durable. The plan stays unreviewed and uncommitted until judge_readiness is done."
 
   - id: judge_readiness
-    action: Run deterministic structure/ref checks, then the semantic weak-link review - score the readiness dimensions, classify blockers, and issue the verdict. Then load the `review` skill by its name (the Skill tool with `review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md); name in its arguments the plan or slice, lens zoom_out (and the attacker stance at standard or deep depth), and lev-plan as the caller. Put its chat line (the review skill's Report section) under the verdict as advice; it never changes the verdict. When review routed you here, skip this load and use the stance and lenses it gave. When review already ran on the same plan or slice in this work and it has not changed since, cite that run's report file instead of a second run. Use /auto-enrich for explicit or deep/high-risk plan hardening when available.
+    action: Run deterministic structure/ref checks, then the semantic weak-link review - score the readiness dimensions, classify blockers, and issue the verdict. Then load the `review` skill by its name (the Skill tool with `review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md); name in its arguments the plan or slice, lens zoom_out (and the attacker stance at standard or deep depth, where its fresh reader attacks the success sentence), and lev-plan as the caller. Patch each result the plan would wrongly accept with a Does Not Count line or a check. Put its chat line (the review skill's Report section) under the verdict as advice; it never changes the verdict. When review routed you here, skip this load and use the stance and lenses it gave. When review already ran on the same plan or slice in this work and it has not changed since, cite that run's report file instead of a second run. Use /auto-enrich for explicit or deep/high-risk plan hardening when available.
     validation: "No readiness dimension is insufficient; deterministic success is reported separately from semantic approval. Done when the reply holds the review skill's chat line for this plan or slice (the cited run's line when an earlier run is cited), with its report file's path, or, when the review skill could not be loaded, the line 'review: could not run ({reason})'. Until then the plan or slice is unreviewed: it stays uncommitted, and no reply calls it finished, ready or done."
     on_failure: "If no slice is runnable, simplify the DAG; block only on a concrete code or decision blocker."
 
@@ -193,8 +204,8 @@ steps:
 
   - id: prove_requirements
     when: mode is emit and semantic readiness is ready
-    action: Read references/execution-packet.md, write the slice's requirements list with its three passes (think, write, prove), then run every check once on today's tree.
-    validation: "Every row is a prompt (often one sentence, never forced) that a check or the review agent can answer; at least one check is red today when the slice adds or fixes behaviour. A task is ready only with a definition of done and admitted checks (references/execution-packet.md, Ready)."
+    action: Read references/execution-packet.md and references/proof.md, carry the slice's claims into the task's requirements list (writing with the three passes any that the plan lacks), then run every check once on today's tree.
+    validation: "Every row is a prompt (often one sentence, never forced) that a check or the review agent can answer; at least one check is red today when the slice adds or fixes behaviour. A task is ready only with a definition of done and admitted checks (references/proof.md, Admit a check before you trust it)."
     on_failure: "Sharpen a row nothing can prove, or route its open question to /interview."
 
   - id: emit_slice
@@ -209,324 +220,14 @@ steps:
     on_failure: "Keep the task proposed; do not offer /exec."
 
   - id: compare_source
-    action: Recompare intent, boundaries, requirements and their proof, dependencies, and freshness with the source.
-    validation: "Each of the five compared items is marked same as the source or repaired, with the source ref."
+    action: Recompare intent, boundaries, requirements and their proof, dependencies, and freshness with the source. For a written plan, cold-read it in fresh context and confirm that each preserved row's constraints and unknowns are recoverable from the plan or its pointers.
+    validation: "Each of the five compared items is marked same as the source or repaired, with the source ref; every preserved row passes the cold read."
     on_failure: "Repair and rejudge before offering the next route."
 
   - id: route_forward
     action: Name the next stage or route - an approved SDLC plan to map or slice review, a ready slice to emit, a validated packet to /exec, a sufficient non-coding plan to the domain skill or /exec. Outside emit this workflow writes no task folder, and it never dispatches execution.
-    validation: "The first executable slice is named and the broad plan, when one exists, remains its source."
+    validation: "The first executable slice is named and the plan, when one exists, remains its source; Next names exactly one route, and evidence with no available owner stays an unresolved blocker."
 ```
-
-Also read [Execution Packet](references/execution-packet.md) to review or
-repair an existing task packet.
-It carries the requirements ledger, check rules, flow and launch detail, the
-emitted task shape, and the Emission Gate.
-
-## Alignment Handoff
-
-Freeze the aligned intent before broad lookup. Keep this packet internal by
-default; render it only for `--full` or when a missing field explains a
-`needs_review` verdict. If one operator outcome, its boundaries, and a relevant
-verifier cannot be named, route to `/interview`.
-
-<transition-packet>
-## Transition: {plan_slug_or_proposal_id}
-
-Intent: {one_sentence_intent}
-Source: {chat|capture|design|task}; refs {known_refs_or_none}
-Plan: {plan_ref | plan_not_required: one_sentence_rationale}; source fidelity {score_or_unknown}; lost rows {count_or_unknown}
-Requirements: {known_requirements_or_gap}
-Constraints: {write_scope_boundaries_forbidden_moves}
-Open decisions: {none_or_blocking_decisions}
-Recommended slice: {one_vertical_slice_or_gap}
-Proof: {relevant_verifier_or_gap}
-Mode: {compile|deepen|review|lifecycle|map|emit}
-</transition-packet>
-
-Where relevant, establish the product outcome, owning code areas, applicable
-rules/index refs, real-world critical path, observable done state, and smallest
-local/integration/field proof. Identify code areas first, then use the nearest
-project rules index to load only the standards that govern those areas. If an
-item is unknown, expose the gap; if it is irrelevant, say why.
-
-Intake by source:
-
-- **Capture or dump.** Preserve the source ledger identity and artifact
-  reference. Do not duplicate session notes or the full capture row into plan
-  or task canon. If the source lacks compiled intent, return it to `/capture`.
-  If non-trivial source rows lack the visible/durable fidelity components and
-  loss notes, return them to `/capture` before judging readiness.
-- **Design.** A design's `Design-to-Propose Handoff` section is the handoff
-  for a bounded slice; its suggested profile and validation chain are inputs
-  to verify, not settled choices.
-- **Plan.** Load its source-fidelity table, current/target boundary, decisions,
-  dependency DAG, first slice, open decisions, and freshness state. Preserve
-  the plan ref and covered `intent_id` values in every slice record. The plan
-  stays the broad runbook; maps and task packets select execution units without
-  rewriting or shrinking it. A plan that lacks fidelity coverage,
-  current/target evidence, or a coherent slice DAG is `needs_plan`: repair it
-  in Deepen rather than reconstructing it in a map. If auto-enrich revised the
-  plan, require its final digest/fidelity state rather than an older snapshot.
-
-## Source Fidelity Gate
-
-Reuse the five capture components:
-
-```
-fidelity = 0.30*detail_preservation
-         + 0.25*relationship_preservation
-         + 0.20*source_attribution
-         + 0.15*neighbor_context
-         + 0.10*actionability
-```
-
-The plan must contain this table for every material capture/design row:
-
-| Intent ID | Source requirement | Plan destination | Preservation | Fidelity | Note / approval |
-|---|---|---|---|---:|---|
-| `INT-*` | Goal, constraint, non-goal, decision boundary, acceptance, or relationship | Section/slice/decision/deferment | `preserved`, `narrowed-approved`, `deferred-explicit`, `conflict`, `lost` | 0.00-1.00 | What changed and who approved it |
-
-Rules:
-
-- `lost` blocks planning, a ready brief, mapping, and emission.
-- `narrowed-approved` requires an explicit source/user decision.
-- Every material relationship and non-goal gets its own coverage, not just goals.
-- Overall fidelity must be at least 0.90 and must not be lower than the source capture.
-- An average cannot hide one missing material row.
-- For a map or packet, every material source intent ID is covered by a slice,
-  preserved as a plan-level constraint/non-goal, or explicitly deferred with
-  owner approval.
-
-## Plan Depth
-
-| Depth | Use when | Required shape |
-|---|---|---|
-| `light` | One obvious bounded change | Goal, scope, steps, proof; suggest skipping the plan if execution is clearer |
-| `standard` | One feature or coherent multi-step change | Source fidelity, current/target, boundaries, steps, risks, verification |
-| `deep` | Migration, architecture, security, destructive work, 3+ authorities, or multi-slice roadmap | Full contract below, options/tradeoffs, DAG, pre-mortem, rollback, review |
-
-Do not inflate a light plan. Do not compress deep work into a list of activities.
-
-## Plan Contract
-
-Every standard/deep plan includes, adapting headings to the domain:
-
-1. Source context and fidelity table.
-2. Outcome and observable done condition.
-3. Current state with evidence and freshness.
-4. Target state and current-to-target map.
-5. Scope, non-goals, authority, and forbidden moves.
-6. Decision drivers, options, tradeoffs, and rejected alternatives.
-7. Ownership/container/component boundaries where architecture matters.
-8. Dependency and slice DAG with critical path.
-9. Per-slice outcome, proof, status, covered intent IDs, and open decisions.
-10. Acceptance/claim-to-verifier map.
-11. Risks, pre-mortem where required, mitigation, detection, and residual risk.
-12. Rollback and architecture review triggers.
-13. First executable slice and next lifecycle route.
-
-Deep evidence targets, borrowed from demonstrated planning practice:
-
-- At least 80% of load-bearing current-state claims cite exact files, lines, commands,
-  or external authority refs.
-- At least 90% of acceptance criteria are observable/testable.
-- A plan is not complete merely because required headings exist.
-
-## Shared Planning and TDD Contract
-
-The plan and the packet share problem/behavior, domain vocabulary, decisions,
-constraints, acceptance examples, test seams, delivery slices, dependencies,
-evidence and authority. The plan projects the broad runbook; a map or packet
-projects a selected slice for review or execution. Preserve source IDs and
-decisions across both. Use tracer bullets for independently demonstrable
-end-to-end behavior and expand–migrate–contract for wide compatibility changes.
-Reuse existing public test seams; prefactoring needs a concrete scoped reason.
-
-### Iteration planning
-
-Prepare long-running efforts for one coherent unit per future Ralph iteration:
-name the next ready chunk, its acceptance/claim checks, dependencies, permitted
-effects and stopping condition. Prompt: "Do the next bit of work on this effort;
-select ONE ready coherent unit, finish that single thing, record the result and
-remaining frontier, then stop." One thing may be a substantial vertical chunk,
-not the full effort. The outer loop reloads state and chooses whether to
-continue; `lev-ralph` adds a worker/reviewer-fixer cycle within that unit.
-Runtime adoption is deferred: creating a plan or preparing a packet does not
-run the loop, dispatch, or prove Ralph.
-
-Use existing plan `steps[].validation` / acceptance criteria and task
-`claim_verifier_map` as claim sources. Carry each plan claim into a packet as a
-requirement row with its `source_ref` and its proof, preserving stable claim
-references; keep dependencies, scope and stop conditions explicit. Dedicated
-`claim.yaml` and direct runtime ingestion of plan claims are future work, not
-newly supported schema or CLI behavior.
-
-### Shared substance
-
-**Design from intent** (JP 2026-10-28). Read captures, decisions and designs as
-evidence of an intent, not as the answer. Name the shared intent, then plan what
-should happen from first principles; an explicit ruling still stands, and a better
-ideal becomes a new decision. Every design or plan choice includes "What experts
-would do:" with one line for each domain that fits (`- {domain}: {what they would do}`).
-
-Resolve or fetch every explicitly supplied local path, issue number, tracker URL,
-or external URL through its owning source, then read the full artifact/body and
-all accessible comments. Report inaccessible material instead of reconstructing
-it. Preserve settled decisions about changed modules/interfaces, developer
-clarifications, architecture, schemas, API contracts and interactions when
-applicable. Additional notes belong only when they change execution or explain
-a constraint; do not fill irrelevant headings.
-
-Reference current owner paths for executable handoff, with freshness context;
-source advice to omit all paths is superseded by Lev's evidence-backed ownership.
-When a prototype's state machine, reducer, schema or type shape expresses a
-decision more precisely than prose, retain only that decision-rich snippet and
-its prototype provenance, not the whole demo.
-
-When uncertainty needs a prototype, route the question to `skill://poc`. Preserve
-only its explicit question, selected logic/UI branch, stated assumptions, validated
-answer, and provenance in the plan or packet; prototype construction details
-remain owned by `skill://poc`.
-
-For wide mechanical changes that cannot land as independent vertical slices,
-expand alongside the old form, migrate bounded caller batches while preserving
-compatibility, then contract only after every migration dependency is satisfied
-and no old caller remains. If batches cannot stay green independently, explicitly
-plan a shared integration boundary and final integrate-and-verify gate; do not
-promise per-batch green. Branch creation still requires the task's authority.
-A behavior-changing slice at a shared seam must preserve the old caller contract
-immediately or remain unexposed until compatibility proof passes; never put an
-incompatible baseline before a blocked or unavailable expansion slice.
-Prefactoring is justified only by a concrete dependency, with its own scope/check.
-
-Present slice name, genuine blockers and delivered behavior when reviewing the
-breakdown. Ask about granularity or merging/splitting only when unresolved; prior
-approval need not be repeated. A source parent remains unchanged unless that
-mutation is authorized. A map is not task emission or tracker publication.
-
-When a selected slice needs an SDLC spec projection, load and render the
-canonical [`../work/templates/spec.md`](../work/templates/spec.md), which this
-skill owns as a lane. Do not fork the template inline or invent another spec
-format. A spec cites requirement rows by id; the rows stay in the task's
-`dna.yaml`.
-
-### Conditional TDD
-
-When TDD is relevant to a plan step or a packet, read
-[TDD rules](references/execution-packet.md#tdd-rules) before designing its
-proof. They cover test design, the RED-to-GREEN cycle, the single worker
-batch, and the isolated-TDD exception.
-
-## Proof and Evaluator Selection
-
-Planning chooses the proof before anything runs, from contracts that exist
-today.
-
-- **Current contracts only.** The current eval gate reads two inputs: the node
-  packs of the selected FlowMind flow and the task's `requirements:`. Choosing
-  evaluators is therefore choosing the flow: resolve it from the project's
-  current FlowMind contracts (flow files that exist and validate today). A
-  flow or evaluator recalled from memory, a filename, or an older plan is
-  unverified until live help and the current files confirm it.
-- **Record the selection for humans.** Name the selected flow and the proof it
-  supplies in the plan's proof section, in the `Proof:` and `Launch:` lines of
-  the output, and in existing source refs such as a row's `source_ref`. The
-  task packet keeps its current keys and carries its own proof only as
-  requirement rows and their `check:`.
-- **Hold, never drop.** Hold the slice that carries the claim when a source
-  brings an `eval_packs` key or an inline evaluator definition, when no current
-  contract declares the evaluator a claim needs, or when binding the selection
-  would need a packet key that does not exist. A contract hold is a
-  `code_blocker` naming the missing owner contract; an interview hold is a
-  `decision_blocker` routed to `/interview` when choosing the proof is a human
-  decision. A claim weakened to a check that happens to exist is a lost row.
-- **Shared profiles by ref.** Reference shared runtime, standards, evidence,
-  and proof profiles through their existing individual refs. When the
-  repository has DNA standards or boundary laws, load the applicable files
-  before judging readiness and persist only their refs. Do not copy their
-  generic receipt fields, test taxonomies, or review checklists into every
-  plan or task.
-- **Protected holdouts stay with their owner.** Cite a holdout policy by ref;
-  holdout answers, scorer internals, private lint details, and calibration
-  fixtures never enter a plan, brief, map, spec, or packet, or the authoring
-  scope.
-
-## Semantic Readiness
-
-The LLM judges semantic readiness from current intent, source artifacts, code,
-and verifier evidence. Deterministic validation supplies facts and hard
-preconditions; it does not determine plan or slice quality.
-
-Judge each dimension `insufficient`, `sufficient`, or `strong`; use the weakest
-dimension for the verdict:
-
-1. source fidelity, from capture through plan to slices
-2. operator outcome and demonstrability
-3. current-state evidence and freshness risk
-4. scope, non-goal, boundary, and authority clarity
-5. option and tradeoff quality (plans only)
-6. ownership and dependency quality
-7. slice verticality and DAG coherence
-8. verifier relevance
-9. rollback and failure handling (plans only)
-10. cold-start context sufficiency
-11. implementation simplicity
-
-A slice is judged on the nine dimensions not marked plans-only.
-
-Verdicts:
-
-- `ready`: every dimension is at least sufficient, fidelity passes, and no decision
-  blocker remains.
-- `needs_review`: a dimension is insufficient but a focused revision of the
-  named plan or slice can repair it.
-- `needs_interview` (plans): a human product, architecture, authority, or
-  irreversible decision is unresolved.
-- `implementation_handoff` (plans): the next uncertainty requires a spike/runtime
-  proof, not more plan prose.
-- `blocked` (slices): execution depends on an unresolved product, architecture,
-  or authority decision, or on an unavailable code contract.
-
-Classify alleged blockers before issuing the verdict:
-
-- `code_blocker`: required executable, API, schema, or owner contract is unavailable
-- `decision_blocker`: unresolved product, architecture, or authority choice
-- `promotion_gate`: proof required for cutover, merge, release, or certification
-- `administrative_hold`: queue or assignment state
-
-Only the first two may make a slice `blocked`. Missing tests and harnesses are
-slice work. Missing receipts require checking the live dependency; receipts are
-post-execution outputs. Promotion gates and administrative holds must be shown
-separately from implementation readiness.
-
-Do not average weak dimensions into a passing score. Rejudge after every plan
-or task rewrite. A green schema check, `lev entity task validate`, or existing verifier
-is not semantic approval.
-
-## Code, LLM, and Human Authority
-
-- Deterministic code owns schema validation, reference existence, graph cycles,
-  path policy, write-scope enforcement, and reproducible command results.
-- core/eval decides whether a `check:` or evaluator passed; Exec performs
-  effects and collects evidence. Planning authors requirement text and
-  references, and states neither a verdict nor an effect in advance.
-- The LLM owns intent interpretation, slice verticality, semantic readiness,
-  verifier relevance, unnecessary complexity, and stale-context judgment.
-- A human owns unresolved product tradeoffs and explicit approval where policy
-  requires it.
-
-## Adversarial Review
-
-Use `pre_mortem`, `reverse_brainstorm`, `falsification` and the attacker stance
-(`skill://review`), Pentagon or LFD by plan depth. Keep that reasoning transient.
-Persist only information that changes execution: a unique failure mode, the
-claim it threatens, and the verifier that can falsify it.
-
-A review finding becomes a separate slice only when it has a distinct operator
-outcome, owner, independently verifiable boundary, and reversible delivery unit.
-Otherwise repair the existing slice's requirement rows or dependencies. Review
-cycles do not authorize additional task emission.
 
 ## Write Gate
 
@@ -534,129 +235,33 @@ Render review output by default. Write a plan only inside authorized planning
 scope. Write task artifacts only after explicit `emit`, `apply`, `edit`, or
 `patch` authorization, or an approved capture row routed to Emit. `all slices`
 is map authorization, not task-emission authorization. Emit must also pass the
-[Emission Gate](references/execution-packet.md#emission-gate).
-
-## Slice Map
-
-```yaml
-slices:
-  - id: <stable-domain-name>
-    operator_outcome: <observable result>
-    owner: <package or plugin>
-    depends_on: []
-    covers_intent_ids: []
-    proof: <verifier or proof profile>
-    status: <ready|needs_review|blocked>
-    open_decisions: []
-```
-
-The map may show every slice. It must not contain copied task packets, generic
-proof boilerplate, or claims that all slices are execution-ready. A map does
-not dispatch by itself, but every approved map must identify at least one
-executable slice.
-
-## Auto-Enrich Integration
-
-`auto-enrich` works after source fidelity exists. It is a hardener, not a capture
-replacement.
-
-- Existing deep/high-risk plan: enrich the named plan in place, preserving fidelity.
-- Existing design without a plan: enrich decisions, then compile a plan before
-  slicing when work is multi-slice or cross-authority.
-- Raw conversation: run `/capture` first.
-- After every auto-enrich edit, recompute the plan fidelity table; no material row may
-  disappear while architecture quality improves.
-- Approval by an Architect/Critic loop is semantic evidence, not execution authority.
-
-## Plan Types and Files
-
-| Type | Pattern | Purpose |
-|---|---|---|
-| `plan-impl` | `plan-impl-*` | Feature or capability delivery |
-| `plan-bugfix` | `plan-bugfix-*` | Defect investigation and resolution |
-| `plan-chore` | `plan-chore-*` | Maintenance, cleanup, docs, tooling |
-| `plan-research` | `plan-research-*` | Investigation with knowledge output |
-| `plan-migration` | `plan-migration-*` | Transition between well-defined system shapes |
-
-Required frontmatter remains backward-compatible. These keys go between the `---` lines at the top of the plan file:
-
-```yaml
-type: plan-impl
-status: crystallizing
-priority: 2
-slug: stable-kebab-name
-created_at: YYYY-MM-DD
-done_condition: "observable deterministic completion"
-steps:
-  - description: "claim-shaped step"
-    validation: "check that can prove the claim"
-acceptance_criteria: []
-gates: []
-```
-
-New or materially updated standard/deep plans should also include:
-
-```yaml
-plan_depth: standard | deep
-source_refs: []
-fidelity_score: 0.0
-review_state: unreviewed | needs_review | approved | implementation_handoff
-first_slice: stable-slice-id | null
-open_decisions: []
-```
-
-## Lifecycle FSM
-
-```text
-draft -> ready -> in_progress -> needs_validation -> validated -> done -> archived
-                         |              |
-                         +-> blocked    +-> ready on failed validation
-```
-
-Transitions:
-
-- `draft -> ready`: source fidelity and semantic readiness pass; first slice exists.
-- `ready -> in_progress`: an executor claims the plan or an emitted task references it.
-- `in_progress -> needs_validation`: implementation is complete, not merely attempted.
-- `needs_validation -> validated`: fitness functions and acceptance pass.
-- `validated -> done`: move to `_done/` when no remaining plan work exists.
-- `in_progress -> blocked`: concrete code/decision dependency prevents progress.
-- `done -> archived`: historical reference only.
-
-## Operations
-
-```bash
-lev entity plan list | show | validate | history   # read a plan's state
-lev entity plan transition                         # move a plan along the FSM; --help names its arguments
-bd show <bd_id>
-bd create --title="Implement feature X" --type=task -p 2
-bd close <bd_id> --reason "completed per plan"
-```
-
-Update `status` in frontmatter for transitions. On validated completion, move the
-plan to `.lev/pm/plans/_done/`. Do not create a second plan to represent a state
-transition.
+[Emission Gate](references/execution-packet.md#emission-gate). A packet
+preview stays in the response, labeled preview: not validated, executed, or
+emitted. A bounded plan may stay in the response or, when authorized, be saved
+as a light plan.
 
 ## Output
 
 Render the Markdown inside live templates; do not print the XML wrapper tags.
 Plan modes render `<plan-review>`, a slice review renders `<proposal-review>`,
-Map renders `<slice-map>`, and Emit renders `<final-proposal>` from the
-packet reference.
+Map renders `<slice-map>` from [Slices](references/slices.md#slice-map), and
+Emit renders `<final-proposal>` from the packet reference. The plan itself is
+written from the template in [Plan parts](references/plan-parts.md#plan-template).
 
 <plan-review>
 ## Plan: {slug}
 
 Verdict: {ready|needs_review|needs_interview|implementation_handoff}
-Depth: {light|standard|deep}
+Depth: {light|standard|deep}; run {bounded|long|parallel search}
 Source fidelity: {score}; lost rows {count}; narrowed rows {count}
-Outcome: {operator_visible_result}
+Outcome: {success_sentence}
 Current -> target: {one_sentence_transition}
 First slice: {slice_id}; {outcome}; proof {verifier}
+Proof: programs {claim_ids}; agent-answered {claim_ids}; person {claim_id: owner}; unresolved {none | claim_ids}
 Weakest point: {dimension}; {reason}
 Open decisions: {none_or_list}
 Artifact: {plan_ref}
-Next: {/auto-enrich|map|emit <slice-id>|/interview|implementation spike}
+Next: {/auto-enrich|map|emit <slice-id>|/interview|skill://poc|implementation spike|resume {unit}}
 </plan-review>
 
 <proposal-review>
@@ -674,18 +279,6 @@ Open decisions: {none_or_decisions}
 Next: {emit_slice|repair_question|interview}
 </proposal-review>
 
-<slice-map>
-## Slice Map: {proposal_id}
-
-Source state: {current|stale|in_flux}
-Source plan: {plan_ref_or_not_required}; fidelity {score}; coverage {covered}/{total}
-Critical path: {slice_ids}
-Slices: {compact_slice_records}
-Promotion gates: {slice_ids_and_reason}
-Administrative holds: {slice_ids_and_reason}
-Next slice: {one_slice_id_or_design_decision}
-</slice-map>
-
 ## Next-Step Mini-Router
 
 Offer only eligible next items using a numbered `#`, `Route`, `Expected result`
@@ -696,7 +289,7 @@ directly. Planning approval is not execution authority.
 |---|---|---|
 | Decision unresolved | `skill://interview` or `skill://arch` | Resolve product choice or technical boundary before emission |
 | Plan needs hardening | `skill://auto-enrich` | Improve the same plan |
-| Broad plan missing, stale, or incomplete | Compile or Deepen | Repair the source plan before slicing |
+| Plan missing, stale, or incomplete | Compile or Deepen | Repair the source plan before slicing |
 | SDLC slice ready | Map or Emit | Map, or prepare the selected packet |
 | Ready authorized SDLC packet | `skill://exec` | Execute the selected unit |
 | Non-coding plan sufficient | `skill://exec` or selected domain skill | Execute within explicit scope; no SDLC packet |
@@ -721,16 +314,20 @@ directly. Planning approval is not execution authority.
 - "Verifier exists, so the behavior is proven."
 - "Session notes belong in task canon."
 - "The proposal exists, so implementation can start."
-- "The broad plan is optional; the slice map can recover it from chat."
+- "The plan is optional; the slice map can recover it from chat."
 - "A 95% fidelity average is fine even though one material constraint disappeared."
 - "Emit can deepen a shallow migration plan while writing the first task."
 - "The harness or receipt is missing, so implementation is blocked."
 - "Every slice is held, but the map is still approved."
 - "No current contract declares that evaluator, so the packet can define it inline or drop the claim."
+- "It is a light plan, so it needs no success sentence and no proof."
 
 ## Field notes from Hermes
 
-- [plan-first-sdlc-discovery](references/plan-first-sdlc-discovery.md)
-- [sdlc-adapter-convergence-planning](references/sdlc-adapter-convergence-planning.md)
-- [sparse-taxonomy-gate-shaping](references/sparse-taxonomy-gate-shaping.md)
-- [substrate-first-follow-up-planning](references/substrate-first-follow-up-planning.md)
+Each note is one past session's lesson. Read one only when the plan in hand
+matches its case.
+
+- [plan-first-sdlc-discovery](references/plan-first-sdlc-discovery.md): SDLC discovery or execution routing must choose between a plan and a task
+- [sdlc-adapter-convergence-planning](references/sdlc-adapter-convergence-planning.md): a Lev SDLC, task, or workstream migration is planned while core is still settling, or two persistence substrates compete
+- [sparse-taxonomy-gate-shaping](references/sparse-taxonomy-gate-shaping.md): a routing, config, or taxonomy migration is being shaped and no code should start yet; it lists what must and must not be true
+- [substrate-first-follow-up-planning](references/substrate-first-follow-up-planning.md): the user corrects a plan that centered a plugin or component before the platform substrate under it was proven

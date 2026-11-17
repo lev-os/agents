@@ -27,37 +27,42 @@ gates: []
 Use `light`, `standard`, or `deep` from `/lev-plan`. Preserve capture intent IDs
 and source refs; delete unused placeholder rows rather than leaving template text.
 
-This is a human runbook and broad execution source. `/propose` derives a compact
-slice map or one task packet from it; task packets never replace this plan.
+This is a human runbook and broad execution source. `/lev-plan map` derives a
+compact slice map and `/lev-plan emit <slice-id>` one task packet from it; task
+packets never replace this plan.
 
-Adapt detail to `plan_depth`. Light plans may collapse sections. Deep plans must
-retain every material section and the source-fidelity table.
+Every plan keeps all eight parts. A light plan writes each part as one or two
+lines and may join sections; it deletes a section only when the section truly
+cannot apply, and says so in one line. Deep plans retain every section in full.
+What each part must hold is in `/lev-plan`'s Plan parts, Slices, and Proof
+references.
+
+Intent: {one_sentence_intent}
+Run: {bounded|long|parallel search}; limits {user stops, hard budgets, permissions}
+Claims: {task_ref requirements | this plan's claims | proposed rows pending Emit}
+State: {memory|disk:ref}; confidence {low|medium|high}; blocker {none|code_blocker|decision_blocker: reason}
 
 ## Source Context and Fidelity
 
 Sources: capture, design, prior art, current code/docs, external authority.
 
-| Intent ID | Source requirement | Plan destination | Preservation | Fidelity | Note / approval |
-|---|---|---|---|---:|---|
-| `INT-*` | Goal, constraint, non-goal, decision, acceptance, or relationship | Section/slice/decision/deferment | preserved | 1.00 | — |
+| Intent ID | Source requirement | Plan destination | Claim | Preservation | Fidelity | Note / approval |
+|---|---|---|---|---|---:|---|
+| `INT-*` | Goal, constraint, non-goal, decision, acceptance, or relationship | Section/slice/decision/deferment | Claim id or pending | preserved | 1.00 | — |
 
 No material row may be lost. Narrowing requires explicit approval.
 
 ## Outcome
 
-Operator-visible result and why it matters.
+Success sentence: {what must be true of the returned result, with quantifiers, scope, and the narrowing assumptions it may not make}
 
-## Done Condition
+Operator-visible result and why it matters. Observable done condition.
 
-Deterministic or observable completion condition.
+Definitions:
+- {term}: {meaning}; degenerate cases {empty|trivial|duplicate|boundary}
 
-## Current
-
-Evidence-backed current state, authority, freshness, and known uncertainty.
-
-## Ideal
-
-Target state and the minimal transition required.
+Does Not Count:
+- {near miss}: excluded by {claim_id | invalid_proof on claim_id | review checklist}
 
 ## Scope, Non-Goals, and Authority
 
@@ -67,6 +72,14 @@ Target state and the minimal transition required.
 - Forbidden moves
 - Source and consumer ownership boundaries
 
+## Current
+
+Evidence-backed current state, authority, freshness, and known uncertainty.
+
+## Ideal
+
+Target state and the minimal transition required.
+
 ## Decision Drivers and Options
 
 | Option | Benefits | Costs / risks | Invalidated by | Ruling |
@@ -74,7 +87,7 @@ Target state and the minimal transition required.
 | A | | | | |
 | B | | | | |
 
-Chosen approach and explicit tradeoffs.
+Chosen approach and explicit tradeoffs. What experts would do: one line for each domain that fits.
 
 ## Current-to-Target Map
 
@@ -88,15 +101,34 @@ Chosen approach and explicit tradeoffs.
 S1 -> S2 -> S3
 ```
 
-| Slice | Covered intent IDs | Outcome | Owner | Depends on | Proof | Status | Open decisions |
-|---|---|---|---|---|---|---|---|
-| S1 | | | | | | ready | |
+| Slice | Covered intent IDs | Outcome | Owner | Artifact | Depends on | Claims (proof) | Run budget | Status | Open decisions |
+|---|---|---|---|---|---|---|---|---|---|
+| S1 | | | | | | | | ready | |
 
-## Acceptance and Verification
+## Claims and Proof
 
-| Claim / acceptance | Failure mode | Local proof | Integration/field/external proof |
-|---|---|---|---|
-| | | | |
+| Claim | Sentence (must or must never) | Slice | Proof: program, agent, or person | Guard | Source |
+|---|---|---|---|---|---|
+| | | | | known-bad control, red today, or what looks like proof and is not | |
+
+Unresolved proof: {none | claim_ids}
+
+## Review and Repair
+
+Checklist: {domain failure modes; circularity analogue; degenerate values}
+Blocks when: {named condition}; evidence {failing check | counterexample | reproduction}
+Non-blocking: logged; never delays return
+Recall: {slice}; failed claims {ids}; evidence {ref}; narrowed scope {scope}; acceptance {claims satisfied}; cap {n}
+At cap or run budget: stop with the exact gap and runs {spent}/{budget}; narrow exit {smaller sentence + one open claim}; route {/interview | code_blocker | operator}
+
+## Return and Resume
+
+Return when: the success sentence holds, every claim is satisfied by its proof with evidence after the last edit, and no blocking finding is open.
+Incomplete only on: explicit user stop, hard budget, or unavailable required evidence; strongest verified state plus exact gap.
+Frontier: last passing slice {id} at {evidence_ref}; open claims {ids}; next unit {one ready coherent unit}
+
+Open branches:
+- {later branch}: {intent_id}; open because {reason}; owner {route}; size {worker runs; machine hours; what stays unproven}
 
 ## Risks and Pre-Mortem
 
@@ -115,5 +147,8 @@ unit, integration, e2e, and observability test shape.
 
 ## First Executable Slice
 
-Name one vertical, reversible slice and its proof. Route it to `/propose map` or
-`/propose emit <slice-id>` only after plan readiness passes.
+Name one vertical, reversible slice and its proof. Route it to `/lev-plan map` or
+`/lev-plan emit <slice-id>` only after plan readiness passes.
+
+Launch: `lev entity task validate {task}`, then `lev sdlc exec {task} --flow {selected_flow}` | none until Emit
+Next: {lev-plan emit {slice_id} | map | /exec | skill://poc | /interview | resume {unit}}

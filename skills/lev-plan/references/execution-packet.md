@@ -1,21 +1,18 @@
 # Execution Packet
 
-Detail for `lev-plan` Emit mode: what `prove_requirements`, `emit_slice`, and
-`validate_structure` need, plus the TDD rules a plan step or packet follows
-when TDD is relevant. The workflow, readiness verdicts, proof selection, and
-Write Gate live in [`../SKILL.md`](../SKILL.md); this file adds no step.
+Detail for `lev-plan` Emit mode: what `emit_slice` and `validate_structure`
+need. The workflow and the Write Gate live in [`../SKILL.md`](../SKILL.md);
+the claims, their checks, the admission loop, and the TDD rules live in
+[Proof](proof.md). This file adds no step.
 
 ## Contents
 
 - [Packet Location and Timing](#packet-location-and-timing): where the one packet goes and when it is written
-- [Requirements Ledger](#requirements-ledger): the single `requirements:` list, its three passes, and row shape
-- [Ready: a definition of done plus admitted checks](#ready-a-definition-of-done-plus-admitted-checks): the pre-flight before launch
-- [Checks and False-Green Evidence](#checks-and-false-green-evidence): `check:` rules, fixtures, `invalid_proof`, red checks
+- [Requirements Ledger](#requirements-ledger): where the claims are written in the task
 - [Flow and Launch](#flow-and-launch): where the flow is chosen and named, launch instructions
 - [Emitted Task Shape](#emitted-task-shape): required fields of `dna.yaml` and `execution.yaml`, `lifecycle_stage` values
 - [Emission Gate](#emission-gate): conditions that all hold before a packet is written
 - [Final Output](#final-output): the `<final-proposal>` template
-- [TDD Rules](#tdd-rules): test design, the RED-to-GREEN cycle, and batch topology
 
 ## Packet Location and Timing
 
@@ -31,108 +28,14 @@ slices stay in the map until their turn.
 
 ## Requirements Ledger
 
-Everything the task must make true is one `requirements:` list in the task's
-`dna.yaml` (`schema: lev.task.v2`): operator acceptance, slice exits,
-constraints, forbidden moves and source claims are all rows of it. Write it in
-three passes:
+The slice's claims are written as one `requirements:` list in the task's
+`dna.yaml` (`schema: lev.task.v2`). The three passes, the row and `check:`
+shape, and the guards are in [Proof](proof.md); read it before you write a
+row. Carry each plan claim in with its `source_ref` and its stable id.
 
-1. **Think.** For the slice, list what must be true when it is done and what
-   must not be true (regressions, forbidden moves, false-green paths, a second
-   path left behind). This list is scratch work; only its sentences land.
-2. **Write.** Each item becomes one row whose `text` is a plain sentence; a
-   negative idea is written into the sentence ("An invalid flow never exits 0").
-3. **Prove.** For every row ask "how will we prove it?":
-   - a command can show it: give the row a `check:`;
-   - only reading the change can show it (one path, no swallowed error, tests
-     cover both outcomes): leave `check:` off; the review agent answers it from
-     the diff;
-   - nothing can show it: sharpen the sentence until something can, or route
-     the open question to `/interview`.
-
-Row shape (`core/domain/src/task-requirements.ts`; the task reader is
-`core/workstream/src/task-packet.ts`):
-
-```yaml
-schema: lev.task.v2
-requirements:
-  - id: invalid-flow-exits-nonzero    # unique across dna.yaml and evals/
-    type: acceptance                   # acceptance | constraint | a claim type
-    owner_slice: <slice id>            # set when the row is that slice's exit
-    text: An invalid flow makes `lev flowmind validate <file>` exit non-zero.
-    source_ref: <plan#section or path:line>   # when a plan or design states it
-    risk: high                         # optional: high | medium | low
-    invalid_proof: [<evidence that looks like proof and is not>]
-    check:                             # omitted when the review agent answers
-      command: lev                     # the program
-      argv: [flowmind, validate, <known-bad file>]
-      expectedExit: nonzero            # zero | nonzero | any
-      timeoutMs: 120000
-```
-
-- At least one `type: acceptance` row has no `owner_slice`: the operator's
-  acceptance. A slice exit is an acceptance row with `owner_slice`; a
-  constraint or forbidden move is `type: constraint`.
-- A claim type (`behavior_change`, `architecture_boundary`, `no_regression`,
-  ...) is for a claim a plan or design states; its slice lists it in
-  `claim_coverage` and `verifier_contract.proves_claims`, and
-  `lev entity task validate` names any trace fields its type needs.
-- When the list outgrows `dna.yaml`, move rows to `evals/<name>.yaml` in the
-  task folder under the same `requirements:` key. That file holds overflow
-  rows of the one ledger; it defines no evaluator.
-
-## Ready: a definition of done plus admitted checks
-
-A task is ready to launch (a pre-flight before a long or costly run) when it
-has a definition of done and its checks are admitted. The definition of done is
-the `type: acceptance` rows. A check is admitted when it passed the blind loop
-in `skill://eval-builder` (section "Admit a rule before you trust it";
-`.lev/pm/decisions/20261031-rule-admission-loop.yaml`):
-
-- An agent that sees only the row's `text`, never its `check:`, writes inputs
-  with the right answer for each.
-- The check runs on them. Each miss goes back to you with a review agent's note.
-- Repair the check, then run a fresh blind round. Admit it when a round finds
-  no miss.
-- A check you tested only on your own examples is not admitted. In the spike,
-  16 of 16 passed their author's examples; 0 were right on every blind input.
-- A row the review agent answers (no `check:`) needs no admission.
-- No flow or code runs this yet. Record the rounds in the row's
-  `invalid_proof` or the plan's proof section. Hold a task whose checks are
-  not admitted as `needs_review`, not `blocked`.
-- The words for rule, claim, scenario and ready are not settled. Use the task's
-  own words.
-
-Worked example: the row "No module outside core/poly imports @lev-os/poly
-internals" first had one regex check. It passed both of its author's examples.
-Blind inputs found a dynamic `import()` into poly's built files and a relative
-path into `core/poly` that the regex missed. After the review note (read every
-module specifier and resolve it against poly's exports map) it was right on 6
-of 6 inputs, then on 8 of 8 fresh ones; admitted. Evidence:
-`~/.local/state/lev/evidence/foundation-20261030/spike-admission/`.
-
-## Checks and False-Green Evidence
-
-- `check:` is a core/eval command case without `id` (the row id is the case
-  id; `EvalCommandCase` in `core/eval/src/command-cases.ts`): `command` is the
-  program and `argv` its arguments, plus optional `cwd` (inside the project),
-  `timeoutMs`, `expectedExit` or `expectedExitCode`, `stdoutContains`,
-  `stderrContains`. Output-text matching is leaving the check shape: write a
-  parsed-field comparison with a negative control instead
-  (`.lev/pm/decisions/20261030-output-text-checks.yaml`, ruled 2026-11-01). A
-  shell line is rejected: a pipe or `&&` becomes separate rows. A search that
-  must find nothing is a parser lint or a behaviour test, never a text scan
-  such as `git grep` (`.lev/pm/decisions/20261030-text-scan-checks-hard-cutover.yaml`).
-- A check that needs a known input (a bad file, a sample) points at a fixture
-  the packet writes in the task folder under `fixtures/`, named so repo-wide
-  scans of that kind skip it (a flow fixture is `<name>.yaml`, never
-  `<name>.flow.yaml`).
-- Run every check once before emitting. A check for what the slice adds or
-  fixes is red on today's tree; a check already green is a regression guard. A
-  slice whose checks are all green today proves nothing new: add the red check
-  or say why the review agent carries the change.
-- Record each adversarial finding on the requirement row it threatens: the
-  false-green path goes in `invalid_proof`, and the command that falsifies it
-  is the row's `check:` (or the review agent answers the row).
+When the list outgrows `dna.yaml`, move rows to `evals/<name>.yaml` in the
+task folder under the same `requirements:` key. That file holds overflow
+rows of the one ledger; it defines no evaluator.
 
 ## Flow and Launch
 
@@ -141,7 +44,7 @@ The packet does not select the flow; the launch does.
 - **`topology` stays a slice classification** (for example
   `single_vertical_slice`). It never names a flow.
 - **Selected current flow.** Choose it under
-  [Proof and Evaluator Selection](../SKILL.md#proof-and-evaluator-selection),
+  [Proof and Evaluator Selection](proof.md#proof-and-evaluator-selection),
   which says what the eval gate reads; the packet needs no flow or evaluator
   field.
 - **Launch instructions.** State them in the final output with the flow passed
@@ -200,8 +103,8 @@ Emit only when all are true:
 - every material intent ID is covered or explicitly deferred without loss
 - the selected flow exists and validates today, and the packet uses only
   current keys with no inline evaluator definition
-- the task has a definition of done and its `check:` rows are admitted (see
-  Ready, above)
+- the task has a definition of done and its `check:` rows are admitted
+  ([Proof](proof.md#admit-a-check-before-you-trust-it))
 
 ## Final Output
 
@@ -219,49 +122,3 @@ Launch: `lev entity task validate {task}`, then `lev sdlc exec {task} --flow {se
 Open decisions: {none_or_decisions}
 Next: {run_exec|repair|interview}
 </final-proposal>
-
-## TDD Rules
-
-TDD tests describe one logical behavior through the agreed public seam, using
-domain vocabulary and independently derived expected values (spec examples,
-known literals or a separate oracle). Avoid mirroring the implementation in the
-assertion, private-method tests and side-channel checks that bypass the interface.
-Prefer real internal collaborators; isolate external APIs, time/randomness and
-necessary filesystem/database boundaries with existing adapters or test resources.
-Use operation-specific boundary interfaces and injected dependencies where they
-already fit; this is not permission to add abstractions solely for mocking.
-Prefer an isolated test database when database behavior is the claim; otherwise
-state what a boundary fake cannot establish. Each operation fake should expose
-its expected response shape and exercised endpoint without conditional catch-all
-setup, retaining the interface's type checks. Flag call-count/order assertions
-and HOW-named tests when they merely couple to internals; observable protocol
-ordering may itself be a legitimate contract. Check that behavior-preserving
-internal refactoring would leave the test meaningful and green.
-Treat every rule in this TDD section as active in every cycle: check it before
-the first RED and again before selecting each next behavior. Work one behavior
-through RED then GREEN before selecting another; GREEN adds only the current
-cycle's production code needed to pass its test, with no anticipated tests or
-features. A coherent Ralph unit may contain several sequential cycles. Keep
-unrelated refactoring for review and an authorized follow-up; preserve the existing
-frozen-test and isolation contract below.
-
-Before forming a TDD packet, read the relevant `CONTEXT.md` when present and
-applicable ADRs; record their refs and require test names plus public-interface
-vocabulary to match them. Synthesize settled conversation decisions without
-restarting an interview; expose only unresolved
-choices that change scope or acceptance. Describe the user problem, intended
-behavior, actors, exclusions and testing decisions without padding story counts.
-Prefer the highest existing public test seam that actually observes the claim.
-If none exists, propose a new seam at the highest viable public boundary; ask
-only when that seam's tradeoff needs a user decision.
-
-For ordinary TDD, plan and emit one coherent worker-owned batch: the behavioral
-RED-to-GREEN cycle through the agreed public seam, its write scope, and its
-verifier, followed by the declared checks and at most one integrated checkpoint
-review covering spec drift and code quality. The same worker may write the
-failing test and implementation; the controller confirms the failure is
-behavioral and reruns the accepted check. Separate RED, GREEN, spec-review,
-quality-review, or verifier agents are the isolated topology: use it only when
-the user explicitly selects isolated TDD or a high-assurance execution contract
-requires hidden holdouts or enforced role separation. Planning records that
-exception; it does not dispatch agents.

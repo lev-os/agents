@@ -1,7 +1,8 @@
 # Notice
 
-The horizon method ([horizon.md](horizon.md) and
-[horizon-long-run-blocks.md](horizon-long-run-blocks.md)) adapts material from the `long-horizon-prompting` skill (version
+The long-horizon material of the plan skill ([plan-parts.md](plan-parts.md),
+[proof.md](proof.md), [slices.md](slices.md) and
+[long-horizon.md](long-horizon.md)) adapts material from the `long-horizon-prompting` skill (version
 1.1.0, last updated 2026-10-11) in the Agent Skills for Context Engineering
 collection.
 
@@ -15,8 +16,9 @@ and recall, return and effort rules, the red-team pass, and the parallel-search
 policy, rewritten in Lev vocabulary and narrowed to Lev's authority (one
 requirements ledger, core/eval verdicts, Exec effects, runtime-owned budgets).
 The upstream theory body, research claims, and vendor extracts are not
-included. The obligation-by-obligation mapping lives outside the skill in the
-authoring unit's `source-map.json`.
+included. The obligation-by-obligation mapping of the first adaptation is not
+in this skill's folder; the list of where each part went in the merge into the
+plan skill is in Leviathan, `.lev/pm/plans/20261117-one-plan-skill.yaml`.
 
 The upstream license follows in full.
 
