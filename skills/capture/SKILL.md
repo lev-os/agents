@@ -1,11 +1,12 @@
 ---
 name: capture
-description: Use when inventorying conversation state into durable artifacts with an operator-visible source-fidelity table, routing faithful items toward interview, planning, proposal, or execution, or deep-processing a brain dump.
+description: Use when inventorying conversation state into durable artifacts with an operator-visible source-fidelity table, routing faithful items toward interview, planning, proposal, or execution, or deep-processing a brain dump. Also use for "capture codify": save the lesson first, then hand it to learn.
 skill_type: workflow
 category: lifecycle
 output_template: hud
 triggers:
   - capture
+  - capture codify
   - dump
 ---
 
@@ -64,6 +65,16 @@ reached its record, not implemented or shipped. The table in the reply lists the
 rows whose `route_state` is not `done` or `rejected`; the records and their git
 history keep the rest. A missing, failed, or conflicting destination keeps the
 row active. Leave future implementation work with its owning artifact.
+
+## Codify
+
+When the user asks for capture codify, save the material in its project record
+and read it back. Then load `skill://learn` with that reference, the source
+evidence and the behaviour the user wants to change.
+
+- A save or read-back that fails stops here: report the failure and load
+  nothing. The saved record is where a retry of learn starts.
+- Plain capture saves and routes as usual and does not load learn.
 
 ## Source Lineage
 
@@ -398,6 +409,7 @@ Next: {one_primary_action}
 - `/dump` is a focused alias for `/capture --deep`.
 - `/brief` turns conversation context into a lifecycle artifact via `/interview --auto`.
 - `/prior-art` finds existing homes.
+- `/learn` puts a lesson where it changes future work; `capture codify` loads it after the save.
 - `/lev-plan` compiles captured/design intent into a fidelity-checked human runbook and slice DAG.
 - `/propose` turns captured/aligned items into task DNA.
 - `/exec` runs shovel-ready items.
