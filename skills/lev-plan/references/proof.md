@@ -31,18 +31,24 @@ Write it in three passes:
    program, agent, or person (below). When nothing can show it, sharpen the
    sentence until something can, or route the open question to `/interview`.
 
-The plan's Claims and Proof section holds one row for each claim:
+The plan holds one row for each claim in the Claims and Proof table of the
+[plan template](../../work/templates/plan.md): its sentence, its slice, the
+failure it rules out, its proof (program, agent, or person, at the smallest
+relevant level: local, integration, field, or external owner), its guard, and
+its source. The guard of a program claim is its known-bad control and its
+check owner. Any claim may also name what looks like proof and is not; at Emit
+that text becomes the row's `invalid_proof`.
 
-| Claim | Sentence | Slice | Proof | Guard | Source |
-|---|---|---|---|---|---|
-| {id} | {must or must-never sentence} | {slice id, or none for operator acceptance} | {program: command | agent: question | person: owner and evidence | unresolved} | {known-bad control, red today, or what looks like proof and is not} | {intent id or source ref} |
-
-**One list.** Before a task exists, the claims are the plan's rows above and
-its `steps[].validation` and acceptance criteria. At Emit they become the
-task's `requirements:` rows, each with its `source_ref` and stable id, and
-that list is then the one ledger: a plan cites its IDs and keeps no second
-executable list. Dedicated `claim.yaml` and direct runtime ingestion of plan
-claims are future work, not newly supported schema or CLI behavior.
+**One list.** In a plan file the Claims and Proof table is the claim list.
+The frontmatter's `steps[].validation` and `acceptance_criteria` name the same
+claims and add none; in an older plan that has no table, they and a task's
+`claim_verifier_map` are the claim source. At Emit the claims become the
+task's `requirements:` rows, each with its `source_ref` and its proof,
+preserving stable claim references and keeping dependencies, scope and stop
+conditions explicit; that list is then the one ledger, and the plan cites its
+IDs and keeps no second executable list. Dedicated `claim.yaml` and direct
+runtime ingestion of plan claims are future work, not newly supported schema
+or CLI behavior.
 
 **Plan parts as rows.** The success sentence is the operator's
 `type: acceptance` row; a slice exit is an acceptance row with `owner_slice`;
@@ -85,16 +91,14 @@ A check that cannot fail proves nothing. Each program claim carries its guard:
   threatens: the path that looks like proof and is not goes in
   `invalid_proof`, and the command that falsifies it is the row's `check:` (or
   the review agent answers the row).
-- **Evidence after the last edit.** Evidence produced before the last edit to
-  the artifact it describes does not count.
 - **A reader that built none of it.** Agent claims are answered in fresh
-  context by a reader that did not build the artifact; agreement among workers
-  is not proof.
+  context by a reader that did not build the artifact.
 - **The owner's rerun.** The plan's owner reruns every program check and every
   known-bad control once at the final commit; a worker's green report is not
   that rerun.
 
-The near misses of the outcome itself are the plan's Does Not Count list
+Stale evidence, agreement among workers, and the other near misses of the
+outcome are the plan's Does Not Count list
 ([Plan parts](plan-parts.md#does-not-count)).
 
 ## Admit a check before you trust it
@@ -151,8 +155,7 @@ requirements:
 ```
 
 - At least one `type: acceptance` row has no `owner_slice`: the operator's
-  acceptance. A slice exit is an acceptance row with `owner_slice`; a
-  constraint or forbidden move is `type: constraint`.
+  acceptance.
 - A claim type (`behavior_change`, `architecture_boundary`, `no_regression`,
   ...) is for a claim a plan or design states; its slice lists it in
   `claim_coverage` and `verifier_contract.proves_claims`, and

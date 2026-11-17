@@ -1,8 +1,7 @@
 # Long-Horizon Planning and Execution
 
-What a plan adds when the run is long (multi-session or autonomous), when a
-slice goes to a worker, when two or more approach families are open, or when
-the user authorizes delivery. The eight parts of every plan are in
+What a plan adds beyond the eight parts; the References table of
+[`../SKILL.md`](../SKILL.md) says when this file is read. The eight parts of every plan are in
 [Plan parts](plan-parts.md); this file adds no mode, command, task field,
 scheduler or runtime implementation. The material is adapted work: see
 [the notice](notice.md) when you copy or publish it.
@@ -23,7 +22,9 @@ Deepen, Review and Map requests stop at their requested artifact.
 
 | Run | Takes |
 |---|---|
-| Any plan with a delegated slice, bounded chains included | Worker Contracts and the per-spawn spec; Contamination if result independence matters |
+| Any plan with a delegated slice, bounded chains included | Worker Contracts and the per-spawn spec |
+| Any run where result independence matters, short and undelegated runs included | Contamination |
+| Any run whose question may have no solution | Solvability (Filling Notes) |
 | Long | The above when delegated; the full resume frontier; Effort only when early abandonment is a real risk |
 | Parallel search | Portfolio, and the rest as for a long run |
 
@@ -76,18 +77,22 @@ External search only for {background}; never for {the answer or its benchmark}.
 ## Pre-Launch Check
 
 Before launching a long or parallel run, judge the plan's readiness
-([Plan parts](plan-parts.md#readiness)) and add these two lines, each
-`insufficient`, `sufficient`, or `strong`. Mark an inapplicable line with its
-reason instead of forcing a block into a run that does not need it.
+([Plan parts](plan-parts.md#readiness)) and add the two lines below. For this
+launch `sufficient` is not enough on readiness dimensions 2, 4, 8, 12 and 13
+and on these two lines: each must be `strong`, which here means an adversary
+cannot game it. Fix every one that is absent or present but gameable. Mark an
+inapplicable line with its reason instead of forcing a block into a run that
+does not need it.
 
 - **Portfolio**: early independence, idea-keyed registry, blocked-route rule,
   late cross-pollination.
 - **Contamination**: retrieval scope stated where independence matters.
 
 For delegated runs also confirm: each worker contract names claims that
-downstream work waits on, and every part of the success sentence that a
-command can decide is a program claim. Judge a plan across several runs, never
-one.
+downstream work waits on; every part of the success sentence that a
+command can decide is a program claim; and the plan meets each rule of
+[Review and Repair](plan-parts.md#review-and-repair). Judge a plan across
+several runs, never one.
 
 ## Run the authorized effort
 

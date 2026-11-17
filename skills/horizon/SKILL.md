@@ -17,12 +17,12 @@ topic words, flags, source refs, workstream, and authorization unchanged.
 
 | Invocation | lev-plan mode |
 |---|---|
-| `/horizon` with no write authorized | Review; render the plan body of lev-plan's plan template in the response as the brief |
-| `/horizon` with plan writes authorized | Compile, or Deepen when a matching plan exists |
-| A packet preview | Review, with the preview rendered from lev-plan's packet reference, labeled unvalidated and unemitted |
+| `/horizon` | Compile, or Deepen when a matching plan exists. With no write authorized, lev-plan renders the plan in the response |
+| A packet preview | The same, with the preview rendered from lev-plan's packet reference, labeled unvalidated and unemitted |
+| A slice map or a task-folder emission | Map or Emit, passing the plan |
 
-Treat the run as long: read lev-plan's long-horizon planning reference when
-its conditions hold.
+lev-plan sizes the run and routes what is not ready (its Which Stage): what
+`/horizon` called the brief is the plan.
 
 The forward happens once and in one direction. `lev-plan` answers the caller
 directly, and its verdict, output, and next route are final.
@@ -30,7 +30,7 @@ directly, and its verdict, output, and next route are final.
 ## Work Link
 
 Lifecycle lane: Plan (alias of `/lev-plan`)
-Entity movement: performed by `/lev-plan`
+Entity movement: `aligned | planned -> proposed | needs_interview | needs_plan`, performed by `/lev-plan`
 Workstream: resolved by `/lev-plan` before any durable write
 Upstream: any caller of `/horizon`
 Downstream: `/lev-plan`

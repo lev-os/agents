@@ -1,8 +1,8 @@
 # Slices
 
 How `lev-plan` cuts work into vertical slices, for `build_topology`,
-`map_slices`, and a slice review. A plan's stage and a map's slice are one
-thing: a slice. The steps are in [`../SKILL.md`](../SKILL.md).
+`map_slices`, `emit_slice`, and every review. What a long-horizon plan used to
+call a stage is a slice. The steps are in [`../SKILL.md`](../SKILL.md).
 
 ## What a slice is
 
@@ -13,8 +13,8 @@ independently demonstrable end-to-end behavior. One slice is right only when
 the work is already a single behavior path.
 
 Each slice names: outcome, owner, dependencies, covered intent IDs, allowed
-effects, the artifact it ends in, its proof, its stop condition, status, and
-open decisions. The artifact states its premises and conclusion locally. No
+effects, the artifact it ends in, its claims and their proof, its stop
+condition, its run budget, status, and open decisions. The artifact states its premises and conclusion locally. No
 slice starts before its input claims are satisfied. A slice that needs a
 person (a review, a judgment, outside access, a manual check) says so in its
 proof; the others an agent can run with no further decision. When you cannot
@@ -33,13 +33,14 @@ Detail ready near work and keep later dependencies and uncertainties visible
 slices stay in the map until their inputs and decisions support an executable
 packet.
 
-## The slice table
+## The slice record
 
-The plan's Slices section holds one row for each slice:
-
-| Slice | Outcome | Artifact | Claims (proof) | Rules out | Known-bad input | Waits on | Run budget |
-|---|---|---|---|---|---|---|---|
-| {stable-domain-name} | {observable result} | {path; format {version, frozen} when a long run reads it} | {claim_id: program | agent | person} | {failure} | {fixture or n/a} | {none or slice} | {n worker runs, or n/a for a light plan} |
+The plan holds one row for each slice with the fields above, in the
+Dependency and Slice DAG table of the
+[plan template](../../work/templates/plan.md); that table is the one slice
+record. What a slice's checks rule out, and each known-bad input, are in the
+plan's claim rows ([Proof](proof.md)). The Slice Map below is a compact
+projection of the same record for a reader who needs only the route.
 
 A long run reads only frozen formats. Version the format of each artifact it
 reads and settle that version before the run starts; a later format change

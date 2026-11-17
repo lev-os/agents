@@ -14,7 +14,7 @@ are in [`../SKILL.md`](../SKILL.md); this file adds no step. Slices are in
 - [Review and Repair](#review-and-repair): the reviewer, blocking findings, recalls, run budget, auto-enrich
 - [Return and Resume](#return-and-resume): the return gate, the stops that win, the frontier
 - [Readiness](#readiness): dimensions, verdicts, blocker classes
-- [Plan Template](#plan-template): the blocks a plan file holds
+- [Plan Template](#plan-template): where the one plan form is
 
 ## The eight parts
 
@@ -27,7 +27,7 @@ are in [`../SKILL.md`](../SKILL.md); this file adds no step. Slices are in
 | 5 | Claims and proof | The claim-to-proof map: program, agent, or person for each claim, and its guard | [Proof](proof.md) |
 | 6 | Review and repair | Checklist, blocking conditions, recall and cap, run budget | [Review and Repair](#review-and-repair) |
 | 7 | Return and resume | Return gate, stops, frontier, the next lifecycle route | [Return and Resume](#return-and-resume) |
-| 8 | Risk and rollback | Risks, pre-mortem where required, mitigation, detection, residual risk, rollback, architecture review triggers | step `design_failure_and_rollback` |
+| 8 | Risk and rollback | Risks, pre-mortem where required, mitigation, detection, residual risk, rollback, architecture review triggers | the `design_failure_and_rollback` step of [`../SKILL.md`](../SKILL.md) |
 
 Adapt headings to the domain. A plan is not complete merely because required
 headings exist.
@@ -42,7 +42,7 @@ Deep evidence targets, borrowed from demonstrated planning practice:
 
 | Depth | Use when | What each part holds |
 |---|---|---|
-| `light` | One obvious bounded change | Each part in a line or two: goal as the success sentence, scope, steps, one claim with its proof, the stop. Suggest skipping the plan if execution is clearer |
+| `light` | One obvious bounded change | Each part in a line or two: the source ref; the goal as the success sentence with its scope; what changes; the steps as one or more slices; one claim with its proof; what a review must not find; the stop; the way back. Suggest skipping the plan if execution is clearer |
 | `standard` | One feature or coherent multi-step change | Every part in full except options and pre-mortem, which stay short |
 | `deep` | Migration, architecture, security, destructive work, 3+ authorities, or multi-slice roadmap | Every part in full, with options/tradeoffs, DAG, pre-mortem, rollback, review |
 
@@ -57,10 +57,10 @@ Depth is about risk. Apart from it, say how the run goes:
 - **parallel search**: two or more independent approach families are genuinely
   open and the budget covers parallel workers.
 
-Read [long-horizon planning](long-horizon.md) before writing slices when the
-run is long or a parallel search, and whenever any slice is delegated to a
-worker, including in a bounded chain. It holds the worker contracts, the
-long-run blocks, and how authorized delivery runs through `skill://orch`.
+What a long, delegated, or parallel run adds is in
+[long-horizon planning](long-horizon.md); the References table of
+[`../SKILL.md`](../SKILL.md) says when to read it, and it is read before the
+slices are written.
 
 ## Source
 
@@ -130,11 +130,14 @@ fidelity = 0.30*detail_preservation
          + 0.10*actionability
 ```
 
-The plan must contain this table for every material capture/design row:
-
-| Intent ID | Source requirement | Plan destination | Claim | Preservation | Fidelity | Note / approval |
-|---|---|---|---|---|---:|---|
-| `INT-*` | Goal, constraint, non-goal, decision boundary, acceptance, or relationship | Section/slice/decision/deferment | Claim id or pending | `preserved`, `narrowed-approved`, `deferred-explicit`, `conflict`, `lost` | 0.00-1.00 | What changed and who approved it; route or blocker class |
+The plan must contain the Source Context and Fidelity table of the
+[plan template](../../work/templates/plan.md), with one row for every material
+capture/design row: a goal, constraint, non-goal, decision boundary,
+acceptance, or relationship. Each row names its source ref, its destination
+(section, slice, decision, or deferment), its claim id or `pending`, a
+fidelity of 0.00-1.00, what changed and who approved it, and its route or
+blocker class. Its preservation is one of `preserved`, `narrowed-approved`,
+`deferred-explicit`, `conflict`, `lost`.
 
 Rules:
 
@@ -154,9 +157,8 @@ Rules:
 
 ## Outcome
 
-Write the success sentence first: what must be true of the returned result,
-with quantifiers, scope, and the narrowing assumptions it may not make. Every
-part of it that a command can decide becomes a program claim.
+The success sentence is written first (the `frame_outcome` step). Every part
+of it that a command can decide becomes a program claim.
 
 ### Does Not Count
 
@@ -238,12 +240,11 @@ outcome, owner, independently verifiable boundary, and reversible delivery unit.
 Otherwise repair the existing slice's claims or dependencies. Review cycles do
 not authorize additional task emission.
 
-A slice also carries a **run budget**: the worker runs it may spend on builds,
+Every slice carries a **run budget**: the worker runs it may spend on builds,
 reviews and repairs together, set when the slice is defined; the owner's rerun
-is counted apart. At the budget, stop, report runs spent against runs left, and
+is counted apart. A light plan states it in one line for the whole plan. At the budget, stop, report runs spent against runs left, and
 take the **narrow exit** first: a smaller success sentence that holds now, with
-the rest as one open claim. A wider exit goes to the operator. A light plan
-done in one sitting names no budget.
+the rest as one open claim. A wider exit goes to the operator.
 
 Every choice shown to the operator, and every change of approach, names its
 **size**: worker runs, machine hours, and what stays unproven.
@@ -318,11 +319,13 @@ dimension for the verdict:
 12. return and resume (plans only): every persistence instruction has a
     matching return gate; incomplete return only on user stop, hard budget, or
     unavailable evidence
+13. review checklist (plans only): the domain's failure modes, its circularity
+    analogue, and degenerate values are named
 
 A slice is judged on the dimensions not marked plans-only. A long or parallel
-run also takes the two lines of long-horizon planning's
-[Pre-Launch Check](long-horizon.md#pre-launch-check). Fix every `insufficient`
-before launch.
+run also takes long-horizon planning's
+[Pre-Launch Check](long-horizon.md#pre-launch-check), which raises the bar
+for launch above `sufficient`.
 
 Verdicts:
 
@@ -358,4 +361,4 @@ is not semantic approval.
 The one plan form is the [plan template](../../work/templates/plan.md): its
 frontmatter ([Lifecycle](lifecycle.md)) and one section for each part. Read it
 before you write or patch a plan, and before you render a plan in the response
-when no write is authorized. A light plan writes each part as one or two lines.
+when no write is authorized.
