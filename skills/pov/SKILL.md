@@ -1,11 +1,21 @@
 ---
 name: pov
 description: >
-  Single-model forced-framing diversity with inline synthesis. Turn-manager protocol:
-  unfold → synthesize → reduce → conclude. Use for decision synthesis and strategic
-  alignment. Cheaper than /cdo, richer than /think.
+  Point-of-view skill with three modes. Default (shape): zoom out, decompose, design the
+  ideal state from intent and first principles, shown as pictures, without what exists;
+  then, by complexity, a perspective pass for naming or competing views. Interactive:
+  the original turn-manager protocol, unfold → synthesize → reduce → conclude, one turn
+  per reply. Panel: many independent agents. Use for "pov", "zoom out", "decompose",
+  "first principles", "ideal state", naming, decision synthesis and strategic alignment.
 triggers:
   - pov
+  - pov interactive
+  - pov panel
+  - zoom out
+  - decompose
+  - first principles
+  - design from intent
+  - ideal state
   - perspectives
   - synthesize options
   - strategic alignment
@@ -20,7 +30,15 @@ antitriggers:
 
 # /pov — Point-of-View Synthesis
 
-**/pov is a turn manager, not a one-shot.** Each turn produces raw output, declares its successor, and stops. This is **unfolding** — prevents the model from simulating conclusions without doing the generative work.
+## Modes
+
+| The person says | Mode | What runs |
+|---|---|---|
+| `pov`, "zoom out", "decompose", "first principles", "ideal state" | **shape** (default) | [Shape](#shape-mode-default), then the perspective pass when the subject needs it |
+| `pov interactive` | **interactive** | [The 4-turn protocol](#the-4-turn-protocol), one turn per reply, unchanged |
+| `pov panel`, or "many agents", "independent perspectives" | **panel** | [Multi-agent panel variant](#multi-agent-panel-variant) |
+
+JP set the modes on 2026-11-17: "If I say Interactive, then it does the 4 turns. By default, it does this, Zoom out, decompose 1st principles, ideal state. Uh, uses visual explanations, and then Depending on the complexity, it runs the [perspectives] like for naming and for different point perspectives."
 
 ## When to use
 
@@ -28,6 +46,7 @@ antitriggers:
 - Strategic alignment across competing perspectives
 - Terminology lockdown, IR design, vocabulary choice
 - Conflict resolution where framing diversity > model independence
+- What a thing is, where it lives or who owns it: shape first
 
 ## When NOT to use
 
@@ -36,7 +55,31 @@ antitriggers:
 - Single-chain reasoning → `/think`
 - Parallel model comparison → `/tribunal`
 
+## Shape mode (default)
+
+JP's order, in his words (2026-11-15): "decompose, zoom out, design from intent and first principles, look at the structure and pause (plain english words for everything, c1-c4 diagrams) - THEN, you look at prior art, levify it and make decisions". And: "use pov to zoom out and decompose from first principles first, then levify". He asked for this at least 18 times from 2026-10-08 to 2026-11-17 (count of his quoted words in the Leviathan decision records, 2026-11-17).
+
+Do these steps in this order. Do not read the code, the records or prior art before step 6.
+
+1. **Intent.** Say in one sentence what the person wants to be true when it is done. Say it as an outcome, not as a change to code.
+2. **Zoom out.** Name the bigger system this belongs to, and who uses it: a person, a developer, an agent.
+3. **Decompose.** List the capabilities the intent needs. Each one is a verb and a noun in plain words. No package names, no file names, no names that exist in the repo.
+4. **Ideal state from first principles, as pictures.** Draw the capabilities as boxes, with C4 levels (context, then containers) and one sequence diagram for the main path. Show the pictures in the chat beside the words. Show only the ideal. Do not show what exists, and do not shape the boxes to fit it. Name the experts or practice behind each boundary (for example: hexagonal architecture, Cockburn; clean code, Martin; statecharts, Harel).
+5. **Perspective pass, by complexity.** Choose one, and say which in one line:
+   - **Simple** (one clear shape): skip it.
+   - **Naming** (the boxes need names): run the 4 turns below in one reply, on the names only. Name by what a thing does; the most common industry term wins.
+   - **Competing views** (two or more shapes are fair): run the 4 turns below in one reply, on the shapes, and show the winner's picture.
+6. **Pause.** Show the picture and stop. Wait until the person agrees with it or changes it.
+7. **Then levify.** Only now read what exists: the code, the records and prior art (`lev find`). Lay the ideal boxes over it. Show the gap: what to keep, what to move, what to delete, what to build.
+8. **Then decide** on the gap, not on the code as it is.
+
+Failure this mode prevents: starting from an inventory of the current code, so that the design copies what exists (Leviathan 2026-11-15: a state machine plan started from 50 machines in the code and showed no ideal).
+
+**Exit gate:** the picture is shown and the person has answered. When the subject is a pure choice among options already agreed, say so in one line and use the 4 turns.
+
 ## The 4-turn protocol
+
+**/pov is a turn manager, not a one-shot.** Each turn produces raw output, declares its successor, and stops. This is **unfolding** — prevents the model from simulating conclusions without doing the generative work. In interactive mode each turn is its own reply; in shape mode's perspective pass the four turns run in one reply, each under its own heading.
 
 ### Turn 1 — Unfold
 
