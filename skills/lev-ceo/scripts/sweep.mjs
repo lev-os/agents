@@ -35,7 +35,11 @@
  *   scan  --threads <file> [--running <file>] [--projects <file>] [--self <thread id>]
  *           --threads   the result of t3_thread_list {allProjects:true, settled:false, includeSubagents:false,
  *                       limit:100}. Every open top-level chat, in one page: a scan marks each chat that is not
- *                       in the list as settled, so any other list is refused.
+ *                       in the list as settled. The program refuses a list that it can see is another one
+ *                       (empty, one page of many, with settled or worker chats). It cannot see a list
+ *                       that a filter made shorter: the caller gives the whole list. Each field that
+ *                       the program reads has one type (a text, a whole number, true or false); an
+ *                       entry with another type in one of them is refused.
  *           --running   the result of t3_thread_list {allProjects:true, includeSubagents:true,
  *                       statuses:["running","starting","queued","preparing"]}: a chat with a running worker waits.
  *           --projects  the result of t3_project_list {limit:100}: gives each row its project's name.
@@ -53,25 +57,34 @@
  *                             put the questions for JP into the queue of the chat that runs the sweep
  *                             (scripts/queue.mjs, called in this process; it writes in the queue folder,
  *                             ${XDG_STATE_HOME:-~/.local/state}/lev/ceo/queues, and holds the sweep lock).
- *                             Each chat whose choice is `queue` or `unanswered` is one item: its id is the
- *                             chat's id, with `source: "sweep"`, the project, the questions and the cursor
- *                             of the reply. Only items with that mark are touched. The same reply never asks
- *                             twice: a done or dropped item opens again only when the chat has a new reply
- *                             that waits on JP. The queue program has no lock of its own: do not run it
- *                             by hand on this queue while this command runs. An item whose chat does not wait on JP any more, was settled or left
- *                             the index is resolved done. A shown item whose chat moved goes back to
- *                             pending. --title opens the queue when the chat has none. It prints
+ *                             Each chat that waits on JP is one item: its choice is `queue` or `unanswered`,
+ *                             or it is `ask` and its newest reply also holds a question. The item's id is
+ *                             the chat's id, with `source: "sweep"`, the project, the questions and the
+ *                             cursor of the reply. Only items with that mark are touched. The same reply
+ *                             never asks twice: an item that a person closed opens again only when the chat
+ *                             has a new reply that waits on JP. An open item is closed in two cases only:
+ *                             the chat was settled (or left the list), or the label of its newest reply
+ *                             holds no question for JP. Its note starts with "sweep: ", and such an item
+ *                             opens again when the chat is open again with the same reply. No other state
+ *                             closes an item: the sweep's own chat, a chat that is never read, a snooze, a
+ *                             run, a running worker. A shown item whose chat moved goes back to pending.
+ *                             An open item follows its row: the priority, the project, the title.
+ *                             --title opens the queue when the chat has none. It prints
  *                             {queue, project, added, updated, closed, back_to_pending, reopened, open}.
- *                             It reads and plans before it writes; the writes are one call of the queue
- *                             program for each change. A shown item goes back to pending before it gets
- *                             its new fields, so the next run finishes a run that stopped in the middle.
- *                             A snooze, a run or a running worker closes no item. An item is found by
- *                             its id, also when its chat moved to another project.
+ *                             It reads and plans before it writes, and checks each planned item with the
+ *                             queue program's own check before a queue is opened; the writes are one call
+ *                             of the queue program for each change. A shown item goes back to pending
+ *                             before it gets its new fields, so the next run finishes a run that stopped
+ *                             in the middle. An item is found by its id, also when its chat moved to
+ *                             another project. The queue program has no lock of its own: do not run it
+ *                             by hand on this queue while this command runs.
  * scan, merge, sent and show print {scanned_at, project, counts, rows}. They take --project <title> (one
  * project; with none, all projects), --all (also the skipped and the old rows) and --text.
  * Every command takes --now <ISO> (the clock, for tests) and --root <dir> (the state folder, for tests).
- * A command reads and checks all its input before its first write, so a command that ends with exit 2
- * changed nothing. With --project, scan takes the project names of this scan (the --projects file and the
+ * A command reads and checks its input files before its first write: each field that it reads, in each
+ * entry of the T3 lists, each label line and each line of the send log. The tests hold the matrix (each
+ * odd JSON value in each of those fields gives exit 0 or 2, and a value that was taken stops no later
+ * command). Not checked: what an older program or a hand wrote into index.json. With --project, scan takes the project names of this scan (the --projects file and the
  * chats of the list), not the names an earlier scan stored.
  *
  * The cursor of a row is the chat's newest run and its item count when a reader last read its reply. A chat
@@ -102,7 +115,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { parseArgs } from "node:util";
 
-import { InputError as QueueInputError, defaultRoot as defaultQueueRoot, findQueue, main as queueMain } from "./queue.mjs";
+import { InputError as QueueInputError, defaultRoot as defaultQueueRoot, findQueue, main as queueMain, validateItem as checkQueueItem } from "./queue.mjs";
 
 export const DEFAULTS = { idle_min_before_ask: 30, read_if_changed_within_hours: 48, never_read: [] };
 export const ORDER = ["unanswered", "ask", "read", "queue", "not yet", "leave", "skip", "old"];
@@ -161,6 +174,25 @@ const LABEL_FIELDS = [
   ["ready_steps", isTexts, "a list of texts"], ["questions_for_jp", isTexts, "a list of texts"],
   ["last_user_stops", (v) => typeof v === "boolean", "true or false"],
 ];
+const isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
+const orNone = (ok) => (value) => value === null || value === undefined || ok(value);
+const isFlag = (value) => typeof value === "boolean";
+// What an entry of a T3 list may hold in the fields this program reads: [key, the test, the words of the refusal].
+const CHAT_FIELDS = [
+  ["itemCount", (v) => Number.isInteger(v) && v >= 0, "a whole number"],
+  ["latestRunId", orNone(isText), "a text or null"], ["projectId", orNone(isText), "a text or null"], ["title", orNone(isText), "a text or null"],
+  ["link", orNone(isText), "a text or null"], ["status", orNone(isText), "a text or null"], ["model", orNone(isText), "a text or null"],
+  ["relationshipToParent", orNone(isText), "a text or null"], ["parentThreadId", orNone(isText), "a text or null"],
+  ["settled", orNone(isFlag), "true, false or null"], ["snoozed", orNone(isFlag), "true, false or null"],
+];
+const WORKER_FIELDS = [
+  ["relationshipToParent", orNone(isText), "a text or null"], ["parentThreadId", orNone(isText), "a text or null"], ["status", orNone(isText), "a text or null"],
+];
+/** The first field of `entry` that has a wrong type, as words, or null. */
+function wrongField(entry, fields) {
+  for (const [key, ok, words] of fields) if (!ok(entry[key])) return `${key} is not ${words}`;
+  return null;
+}
 const topLevel = (t) => t.relationshipToParent !== "subagent";
 const cursorOf = (t) => `${t.latestRunId || ""}#${t.itemCount}`;
 
@@ -169,9 +201,15 @@ export function checkList(list) {
   const threads = (list && list.threads) || [];
   if (!Array.isArray(threads) || !threads.length) return "the list is empty";
   if (list.nextCursor !== null && list.nextCursor !== undefined) return "the list is one page of many; list again with a limit that holds every open chat";
-  if (threads.some((t) => t === null || typeof t !== "object" || typeof t.threadId !== "string" || !t.threadId)) return "the list holds an entry that is no chat (it has no threadId)";
+  if (threads.some((t) => !isRecord(t) || typeof t.threadId !== "string" || !t.threadId.trim())) return "the list holds an entry that is no chat (it has no threadId)";
   const noTime = threads.find((t) => Number.isNaN(instant(t.updatedAt)));
   if (noTime) return `the chat ${noTime.threadId} has no time of last change (updatedAt) that can be read`;
+  // Every field the program reads has one type. A value of another type is refused here, before any write,
+  // so no command meets it later.
+  for (const t of threads) {
+    const wrong = wrongField(t, CHAT_FIELDS);
+    if (wrong) return `the chat ${t.threadId}: ${wrong}`;
+  }
   if (threads.some((t) => t.settled)) return "the list holds a settled chat; list with settled: false";
   if (threads.some((t) => !topLevel(t))) return "the list holds worker chats; list with includeSubagents: false";
   return null;
@@ -239,7 +277,9 @@ function store(root) {
     settings: existsSync(at("settings.json")) ? { ...DEFAULTS, ...readJson(at("settings.json"), "the settings") } : DEFAULTS,
     load() {
       const index = existsSync(at("index.json")) ? readJson(at("index.json"), "the index") : { version: 2, scanned_at: null, self: null, rows: {} };
-      if (!index.rows || typeof index.rows !== "object") throw new InputError(`the index ${at("index.json")} has no rows`);
+      if (!isRecord(index) || !isRecord(index.rows)) throw new InputError(`the index ${at("index.json")} has no rows`);
+      // The rows are a dictionary by chat id. It has no prototype, so an id such as "__proto__" is a key like any other.
+      index.rows = Object.assign(Object.create(null), index.rows);
       return index;
     },
     save(index) {
@@ -254,7 +294,11 @@ function store(root) {
       writeFileSync(temp, text, { flag: "wx" });   // a new file: never written through a link that is in its place
       renameSync(temp, at(name));
     },
-    projects: () => (existsSync(at("projects.json")) ? readJson(at("projects.json"), "the projects") : {}),
+    /** project id -> its name, as the last scan with --projects stored it. */
+    projects() {
+      const stored = existsSync(at("projects.json")) ? readJson(at("projects.json"), "the projects") : {};
+      return new Map(isRecord(stored) ? Object.entries(stored).filter(([, name]) => isText(name)) : []);
+    },
     /** thread id -> its lines of the send log, oldest first. A line that is no send record is bad input. */
     sends() {
       const by = new Map();
@@ -310,10 +354,12 @@ function withLock(s, now, work) {
 /** Refuses a --project that is not one of `names`. Each command calls it before its first write. */
 function checkProject(project, names) {
   if (!project) return;
-  const known = new Set(names.filter(Boolean).map((name) => name.toLowerCase()));
+  const known = new Set(names.filter((name) => isText(name) && name).map((name) => name.toLowerCase()));
   if (!known.has(project.toLowerCase())) throw new InputError(`no project named "${project}"; the known projects are: ${[...known].sort().join(", ") || "none"}`);
 }
-const projectsOf = (s, index) => [...Object.values(s.projects()), ...Object.values(index.rows).map((r) => r.project)];
+const projectsOf = (s, index) => [...s.projects().values(), ...Object.values(index.rows).map((r) => r.project)];
+/** The name of a row's project as a text, also for a row that an older program wrote. */
+const projectName = (r) => (isText(r.project) ? r.project : "");
 
 /**
  * The rows one reply shows, each with its choice worked out now: all projects, or one; without the skipped
@@ -323,7 +369,7 @@ const projectsOf = (s, index) => [...Object.values(s.projects()), ...Object.valu
 function view(index, s, o, now, sends) {
   const want = o.project ? o.project.toLowerCase() : null;
   const rows = Object.values(index.rows)
-    .filter((r) => !want || (r.project || "").toLowerCase() === want)
+    .filter((r) => !want || projectName(r).toLowerCase() === want)
     .map((r) => {
       const row = { ...r, sends: sends.get(r.threadId) || [] };
       const [choice, why] = choose(row, now, s.settings);
@@ -348,21 +394,34 @@ function scan(s, o, now) {
   const whole = readJson(o.threads, "--threads");
   const refused = checkList(whole);
   if (refused) throw new InputError(`scan refused: ${refused}`);
-  const given = o.projects ? Object.fromEntries((readJson(o.projects, "--projects").projects || []).map((p) => [p.id, p.title])) : null;
+  let given = null;
+  if (o.projects) {
+    const list = readJson(o.projects, "--projects");
+    const entries = isRecord(list) ? list.projects : null;
+    if (!Array.isArray(entries)) throw new InputError(`--projects ${o.projects} holds no list of projects`);
+    const bad = entries.findIndex((p) => !isRecord(p) || !isText(p.id) || !isText(p.title));
+    if (bad >= 0) throw new InputError(`--projects ${o.projects}: entry ${bad + 1} is no project (its id and its title must be texts)`);
+    given = new Map(entries.map((p) => [p.id, p.title]));
+  }
   const names = given || s.projects();
-  const projectOf = (t) => names[t.projectId] || t.projectId || "(no project)";
+  const projectOf = (t) => names.get(t.projectId) || t.projectId || "(no project)";
   const index = s.load();
   // The names of this scan, not the ones an earlier scan stored: after the write, the rows hold these names.
-  checkProject(o.project, [...Object.values(names), ...whole.threads.map(projectOf)]);
+  checkProject(o.project, [...names.values(), ...whole.threads.map(projectOf)]);
   const kids = new Map();
   if (o.running) {
-    for (const k of readJson(o.running, "--running").threads || []) {
+    const list = readJson(o.running, "--running");
+    const entries = isRecord(list) ? list.threads ?? [] : null;
+    if (!Array.isArray(entries)) throw new InputError(`--running ${o.running} holds no list of chats`);
+    entries.forEach((k, at) => {
+      const wrong = isRecord(k) ? wrongField(k, WORKER_FIELDS) : "it is no chat";
+      if (wrong) throw new InputError(`--running ${o.running}: entry ${at + 1}: ${wrong}`);
       if (!topLevel(k) && WAITING.has(k.status)) kids.set(k.parentThreadId, (kids.get(k.parentThreadId) || 0) + 1);
-    }
+    });
   }
   const sends = s.sends();
 
-  if (given) s.put("projects.json", `${JSON.stringify(given, null, 1)}\n`);
+  if (given) s.put("projects.json", `${JSON.stringify(Object.fromEntries(given), null, 1)}\n`);
   index.self = o.self || null;   // the chat this scan names; an earlier scan's chat is a chat like any other
   const never = s.settings.never_read.map((part) => part.toLowerCase());
   const seen = new Set();
@@ -452,7 +511,7 @@ function sent(s, o, now) {
 /**
  * Puts the questions of the index into the queue of the chat that runs the sweep (scripts/queue.mjs, called
  * in this process). One item for each chat that waits on JP; the item's id is the chat's id.
- * It reads and plans first, then writes: a refused run changes no queue.
+ * It reads and plans first, checks each planned item with the queue program's own check, then writes.
  */
 function queue(s, o, now) {
   if (!o.thread) throw new InputError("queue needs --thread <the chat that runs the sweep>");
@@ -461,15 +520,16 @@ function queue(s, o, now) {
   checkProject(o.project, projectsOf(s, index));
   const rows = view(index, s, { project: o.project, all: true }, now, sends).rows;
   const queueRoot = resolve(o["queue-root"] || defaultQueueRoot());
-  const call = (args) => {
+  const asQueue = (work) => {
     try {
-      return queueMain([...args, "--thread", o.thread, "--root", queueRoot, "--now", new Date(now).toISOString()]);
+      return work();
     } catch (error) {
       if (error instanceof QueueInputError) throw new InputError(`queue: ${error.message}`);
       throw error;
     }
   };
-  const exists = findQueue(queueRoot, o.thread) !== null;
+  const call = (args) => asQueue(() => queueMain([...args, "--thread", o.thread, "--root", queueRoot, "--now", new Date(now).toISOString()]));
+  const exists = asQueue(() => findQueue(queueRoot, o.thread)) !== null;
   if (!exists && !o.title) throw new InputError(`no queue for thread ${o.thread} under ${queueRoot}; give --title "<the chat's title>" to open one`);
   const items = exists ? call(["show", "--all"]).items : [];
   const want = o.project ? o.project.toLowerCase() : null;
@@ -483,6 +543,14 @@ function queue(s, o, now) {
   const count = { added: 0, updated: 0, closed: 0, back_to_pending: 0, reopened: 0 };
   const put = (fields, reopen) => steps.push(["put", "--item", JSON.stringify(fields), ...(reopen ? ["--reopen"] : [])]);
   const move = (id, to, note) => steps.push(["resolve", "--item", id, "--to", to, "--note", note]);
+  // The note of an item that this command closed starts with these words, so a later run can tell it from an
+  // item that a person closed.
+  const BY_SWEEP = "sweep: ";
+  const bySweep = (item) => isText(item.outcome) && item.outcome.startsWith(BY_SWEEP);
+  const close = (item, why) => {
+    move(item.id, "done", `${BY_SWEEP}${why}`);
+    count.closed += 1;
+  };
   const backToPending = (item) => {
     if (item.status !== "presented") return;
     move(item.id, "pending", "the chat moved; the card that was shown is out of date");
@@ -493,35 +561,46 @@ function queue(s, o, now) {
     seen.add(r.threadId);
     const row = index.rows[r.threadId];
     const item = own.get(r.threadId);
-    if (r.choice === "queue" || r.choice === "unanswered") {   // the label is of the chat's newest reply, and it waits on JP
+    const fresh = !!row.cursor && row.cursor === row.now_cursor;   // the label is of the chat's newest reply
+    const asks = fresh && r.questions.length > 0;
+    // The chat waits on JP: his message has no reply, or its newest reply holds a question for him. A reply
+    // that also names approved work (`ask`) still holds its question.
+    if (r.choice === "unanswered" || r.choice === "queue" || (r.choice === "ask" && asks)) {
       if (byHand.has(r.threadId)) continue;
       const fields = {
-        // Each field has the type the queue program takes, so no put is refused after an earlier one wrote.
         id: r.threadId, kind: "attention", title: oneLine(r.title).trim() || "(no title)", reason: r.why, priority: r.choice === "unanswered" ? 1 : 2,
-        threadId: r.threadId, link: typeof r.link === "string" ? r.link : null, source: "sweep", project: r.project, questions: r.questions, cursor: row.cursor,
+        threadId: r.threadId, link: isText(r.link) ? r.link : null, source: "sweep", project: projectName(r), questions: r.questions, cursor: row.cursor,
       };
+      const differs = (key) => JSON.stringify(item[key] ?? null) !== JSON.stringify(fields[key] ?? null);
       if (!item) { put(fields); count.added += 1; }
-      else if (item.cursor === row.cursor) { /* the same reply: it does not ask twice, also when the item is done */ }
+      else if (item.cursor === row.cursor) {
+        // The same reply does not ask twice: an item that a person closed stays closed. One that this command
+        // closed (the chat was settled, or left the list) opens again, because nobody answered it.
+        if (closed(item)) { if (bySweep(item)) { put(fields, true); count.reopened += 1; } }
+        else if (["priority", "project", "title", "link", "reason"].some(differs)) { put(fields); count.updated += 1; }   // the row changed, the reply did not
+      }
       else if (closed(item)) { put(fields, true); count.reopened += 1; }
       else { backToPending(item); put(fields); count.updated += 1; }   // the move first: a stop after it leaves the old cursor, and the next run puts the fields
       continue;
     }
     if (!item || closed(item)) continue;
-    // An item is closed only when the chat is gone, or when the label of its newest reply says that it does
-    // not wait on JP. A state that passes does not close it: the question is still open when the state ends.
-    const gone = row.settled || row.self || row.never_read;
-    if (!gone) {
-      if (row.snoozed || row.status === "running" || row.running_children > 0) continue;   // a snooze, a run, a running worker
-      if (row.cursor !== row.now_cursor) { backToPending(item); continue; }   // the chat moved and no reader read it yet
-      if (r.choice === "not yet") continue;   // the clock decides in a few minutes
-    }
-    move(item.id, "done", `the chat does not wait on JP now: ${r.why}`);
-    count.closed += 1;
+    // An open item is closed in two cases only: the chat was settled, or the label of its newest reply holds
+    // no question for JP. A row that holds a question keeps its item whatever its choice is: the sweep's own
+    // chat, a chat that is never read, a snooze, a run, a running worker. The question is still open when
+    // that state ends.
+    if (row.settled) { close(item, "the chat is settled"); continue; }
+    if (!fresh) { backToPending(item); continue; }   // the chat moved and no reader read it yet
+    if (asks || r.choice === "not yet") continue;   // "not yet": the clock decides in a few minutes
+    close(item, `the newest reply holds no question for JP: ${r.why}`);
   }
   for (const item of own.values()) {
     if (seen.has(item.id) || closed(item) || want) continue;   // with --project, a chat that is not in the rows may be another project's
-    move(item.id, "done", "the chat is not in the index");
-    count.closed += 1;
+    close(item, "the chat is not in the index");
+  }
+  // Each planned item is checked with the queue program's own check before a queue is opened or written.
+  for (const step of steps) {
+    if (step[0] !== "put") continue;
+    asQueue(() => checkQueueItem(JSON.parse(step[2])));
   }
 
   const path = exists ? findQueue(queueRoot, o.thread) : call(["open", "--title", o.title]).path;

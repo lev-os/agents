@@ -25,7 +25,7 @@
  *        waiting -> pending | done | dropped.
  * JSON on stdout. Exit 0 ok, exit 2 bad input (the reason on stderr).
  */
-import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -89,6 +89,7 @@ function logEvent(dir, event) {
 /** The folder of this thread's queue, newest first when several match; null when none. */
 export function findQueue(root, threadId) {
   if (!existsSync(root)) return null;
+  if (!statSync(root).isDirectory()) throw new InputError(`the queue root ${root} is not a folder`);
   const hits = [];
   for (const name of readdirSync(root, { withFileTypes: true })) {
     if (!name.isDirectory()) continue;
@@ -124,7 +125,8 @@ export function head(items) {
   return items.filter((item) => item.status === "pending" && forJp(item)).sort(byPriority)[0] ?? null;
 }
 
-function validateItem(item) {
+/** Throws InputError when `item` is not an item that `put` takes. scripts/sweep.mjs checks its items with it before it writes. */
+export function validateItem(item) {
   if (item === null || typeof item !== "object" || Array.isArray(item)) throw new InputError("item: not a JSON object");
   for (const key of ["id", "kind", "title", "reason"]) {
     if (typeof item[key] !== "string" || item[key].trim() === "") throw new InputError(`item: no ${key}`);
