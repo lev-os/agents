@@ -184,7 +184,7 @@ node ~/.agents/skills/lev-ceo/scripts/citations.mjs --root "$(git rev-parse --sh
 node ~/.agents/skills/lev-ceo/tests/fresh-agent-settle.mjs               # a fresh agent with only this file picks the script's chats
 ```
 
-After you edit this skill, run all three. `tests/queue.test.mjs` proves the queue order (priority, then age; the presented head stays), the allowed moves, the two cadences and one event line per change. `tests/sweep.test.mjs` proves the choice for each chat of the all-projects index (`references/sweep.md`, The wider sweep): a chat is asked once, a CEO chat never, a wrong list is refused, `--project` shows one project, no choice is stored, two commands never write at the same time, and the program starts no process (a run under Node's permission system). `scripts/audit-transcripts.mjs` counts what CEO sessions did (ticks that changed nothing, settle orders, repeated questions) from their transcripts.
+After you edit this skill, run all three. `tests/queue.test.mjs` proves the queue order (priority, then age; the presented head stays), the allowed moves, the two cadences and one event line per change. `tests/sweep.test.mjs` proves the choice for each chat of the all-projects index (`references/sweep.md`, The wider sweep): a chat is asked once, a CEO chat never, a wrong list is refused, `--project` shows one project, no choice is stored, a second command that writes is refused while one holds the lock, bad input gives exit 2 before any write, and the program starts no process (a run under Node's permission system). `scripts/audit-transcripts.mjs` counts what CEO sessions did (ticks that changed nothing, settle orders, repeated questions) from their transcripts.
 
 ## 9. Queue
 

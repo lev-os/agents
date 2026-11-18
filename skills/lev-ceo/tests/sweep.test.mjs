@@ -3,7 +3,7 @@
 // against a temp --root.
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
@@ -55,13 +55,15 @@ for (const [name, r, want] of choices) {
 }
 
 // A scan marks each chat that is not in the list as settled, so the list must be every open top-level chat.
-const t = (extra = {}) => ({ threadId: "a", settled: false, relationshipToParent: null, ...extra });
+const t = (extra = {}) => ({ threadId: "a", settled: false, relationshipToParent: null, updatedAt: "2026-11-18T05:00:00Z", ...extra });
 const lists = [
   ["a full list of open top-level chats is taken", { threads: [t(), t({ threadId: "b" })], nextCursor: null }, null],
   ["one page of many is refused", { threads: [t()], nextCursor: 100 }, "page"],
   ["a list that holds a settled chat is refused", { threads: [t({ settled: true })], nextCursor: null }, "settled"],
   ["a list that holds worker chats is refused", { threads: [t({ relationshipToParent: "subagent" })], nextCursor: null }, "worker"],
   ["an empty list is refused", { threads: [], nextCursor: null }, "empty"],
+  ["a list with an entry that is no chat is refused", { threads: [t(), null], nextCursor: null }, "no chat"],
+  ["a list with a chat that has no time of last change is refused", { threads: [t({ updatedAt: undefined })], nextCursor: null }, "time of last change"],
 ];
 for (const [name, list, want] of lists) {
   test(`list: ${name}`, () => {
@@ -248,34 +250,30 @@ test("sent: the time keeps its milliseconds, so a person's message 250 ms before
 test("lock: a command that writes is refused while another one holds the state folder", () => {
   scan();
   const before = stateFiles();
-  mkdirSync(join(root, "lock"));
-  writeFileSync(join(root, "lock", "owner.json"), JSON.stringify({ pid: process.pid, at: T0 }));
+  writeFileSync(join(root, "lock"), JSON.stringify({ pid: process.pid, at: T0 }));
   assert.match(sweep(["scan", "--threads", file("threads.json", THREADS), "--self", "S"], { status: 2 }), /another sweep command holds/);
   assert.match(sweep(["sent", "--thread", "A", "--wording", "x"], { status: 2 }), /another sweep command holds/);
   assert.deepEqual(stateFiles(), before);
   assert.equal(sweep(["show"]).rows.length, 3, "a command that only reads is not held");
 });
 
-test("lock: the lock of a process that is gone is taken over, and a command leaves no lock behind", () => {
-  mkdirSync(join(root, "lock"));
-  writeFileSync(join(root, "lock", "owner.json"), JSON.stringify({ pid: 2147483646, at: T0 }));
-  scan();
-  assert.equal(existsSync(join(root, "lock")), false);
-  assert.match(sweep(["scan", "--threads", file("page.json", { threads: [THREADS.threads[0]], nextCursor: 100 })], { status: 2 }), /scan refused/);
-  assert.equal(existsSync(join(root, "lock")), false, "a refused command gives the lock back");
-});
-
-test("lock: while one command takes a dead lock over, a second one is refused and is told which folder to delete", () => {
+// The third reader (review-step-1-third.json) made a command remove the lock of a live one, through the
+// take-over of a dead lock. So no lock is taken over: the command says its owner is gone and which file to delete.
+test("lock: the lock of a process that is gone is never taken over; the refusal says so and names the file to delete", () => {
   scan();
   const before = stateFiles();
-  mkdirSync(join(root, "lock"));
-  writeFileSync(join(root, "lock", "owner.json"), JSON.stringify({ pid: 2147483646, at: T0 }));
-  mkdirSync(join(root, "lock-takeover"));
+  writeFileSync(join(root, "lock"), JSON.stringify({ pid: 2147483646, at: T0 }));
   const refused = sweep(["scan", "--threads", file("threads.json", THREADS), "--self", "S"], { status: 2 });
-  assert.match(refused, /takes over the lock/);
-  assert.ok(refused.includes(join(root, "lock-takeover")));
+  assert.match(refused, /another sweep command holds/);
+  assert.match(refused, /process 2147483646 .* is gone/);
+  assert.ok(refused.includes(`delete ${join(root, "lock")}`));
   assert.deepEqual(stateFiles(), before);
-  assert.equal(existsSync(join(root, "lock", "owner.json")), true, "the dead lock is left for the command that takes it over");
+  assert.equal(existsSync(join(root, "lock")), true, "the lock stays for a person or an agent to delete");
+  rmSync(join(root, "lock"));
+  scan();
+  assert.equal(existsSync(join(root, "lock")), false, "a command leaves no lock behind");
+  assert.match(sweep(["scan", "--threads", file("page.json", { threads: [THREADS.threads[0]], nextCursor: 100 })], { status: 2 }), /scan refused/);
+  assert.equal(existsSync(join(root, "lock")), false, "a refused command gives the lock back");
 });
 
 test("lock: eight scans at the same time each end with exit 0 or a refusal, and the index is whole", async () => {
@@ -401,6 +399,79 @@ test("merge: a labels file with a bad line is refused with exit 2 and the index 
   const before = readFileSync(join(root, "index.json"), "utf8");
   assert.match(sweep(["merge", "--labels", file("bad.jsonl", label("A") + "\nBAD JSON\n")], { status: 2 }), /line 2 is not JSON/);
   assert.equal(readFileSync(join(root, "index.json"), "utf8"), before);
+});
+
+// Found by the third reader (review-step-1-third.json). Each of these failed before its fix.
+test("scan: a --project that the new project names do not hold is refused before any write", () => {
+  readyA();
+  const before = stateFiles();
+  const renamed = file("projects-2.json", { projects: [{ id: "p1", title: "renamed" }, { id: "p2", title: "suntiq-product" }] });
+  const threads = THREADS.threads.map((c) => (c.threadId === "A" ? { ...c, itemCount: 11 } : c));
+  const refused = sweep(["scan", "--threads", file("threads-2.json", { ...THREADS, threads }), "--projects", renamed, "--project", "leviathan"], { status: 2 });
+  assert.match(refused, /no project named "leviathan"/);
+  assert.deepEqual(stateFiles(), before);
+});
+
+test("choice: the newest send holds the chat, also when an older send is the last line of the log", () => {
+  const sends = [{ at: "2026-11-18T05:00:00Z" }, { at: "2026-11-18T04:00:00Z" }];
+  const r = row(40, { label: "plan_ready", sends, last_user_by: "user", last_user_at: "2026-11-18T04:30:00Z" });
+  assert.equal(choose(r, NOW)[0], "leave", "the person spoke before the 05:00Z send");
+  assert.equal(choose({ ...r, last_user_at: "2026-11-18T05:10:00Z" }, NOW)[0], "ask", "the person spoke after every send");
+});
+
+test("choice: a chat that was read before and changed is read again, however old; only a chat that was never read is old", () => {
+  const days = 5 * 24 * 60;
+  const known = row(days, { cursor: "r1#9", now_cursor: "r1#10", label: "needs_jp", questions: ["Which design?"] });
+  assert.equal(choose(known, NOW)[0], "read", "its recorded question is not hidden behind `old`");
+  assert.equal(choose(row(days, { cursor: null, now_cursor: "r1#10" }), NOW)[0], "old");
+  assert.equal(choose({ ...known, updated_at: "not-a-date" }, NOW)[0], "old", "a time that cannot be read never gives read");
+});
+
+test("bad input: a line that is no label, a list entry that is no chat, a chat with no time, an option with no value, and a folder as a file all give exit 2", () => {
+  scan();
+  const before = stateFiles();
+  for (const line of ["null", "42", "[]", "{}", '"text"']) {
+    assert.match(sweep(["merge", "--labels", file("odd.jsonl", label("A") + "\n" + line + "\n")], { status: 2 }), /line 2 is not a label/, line);
+  }
+  assert.match(sweep(["merge", "--labels", root], { status: 2 }), /cannot read --labels/);
+  assert.match(sweep(["scan", "--threads", file("null.json", { threads: [null], nextCursor: null })], { status: 2 }), /scan refused: .*no chat/);
+  const noTime = THREADS.threads.map((c) => (c.threadId === "A" ? { ...c, updatedAt: "not-a-date" } : c));
+  assert.match(sweep(["scan", "--threads", file("no-time.json", { ...THREADS, threads: noTime })], { status: 2 }), /scan refused: .*time of last change/);
+  assert.match(sweep(["scan", "--threads"], { status: 2 }), /--threads/);
+  assert.deepEqual(stateFiles(), before);
+});
+
+test("an index of the older program loses its stored choices at the next scan or merge", () => {
+  readyA();
+  const path = join(root, "index.json");
+  const index = JSON.parse(readFileSync(path, "utf8"));
+  index.version = 1;
+  Object.assign(index.rows.A, { choice: "ask", why: "cached", idle_min: 120, sends: [{ at: T0 }] });
+  writeFileSync(path, JSON.stringify(index));
+  assert.equal(choiceOf(sweep(["show"]), "A"), "ask", "the stored sends are not used: the log is empty");
+  sweep(["merge", "--labels", file("none.jsonl", "")]);
+  const after = JSON.parse(readFileSync(path, "utf8"));
+  assert.equal(after.version, 2);
+  for (const key of ["choice", "why", "idle_min", "sends"]) assert.equal(key in after.rows.A, false, key);
+});
+
+test("each state file is replaced in one step: a scan and a merge work when the files are read-only", () => {
+  scan();
+  for (const name of ["index.json", "to-read.tsv", "projects.json"]) chmodSync(join(root, name), 0o444);
+  scan();
+  sweep(["merge", "--labels", file("labels.jsonl", label("A") + "\n")]);
+  assert.equal(JSON.parse(readFileSync(join(root, "index.json"), "utf8")).rows.A.label, "plan_ready");
+});
+
+test("sent: a send log that is a link to a file outside the state folder is refused, and that file is not written", () => {
+  readyA();
+  const outside = mkdtempSync(join(tmpdir(), "sweep-outside-"));
+  const target = join(outside, "target.jsonl");
+  writeFileSync(target, "");
+  symlinkSync(target, join(root, "sends.jsonl"));
+  assert.match(sweep(["sent", "--thread", "A", "--wording", "x"], { status: 2 }), /is a link/);
+  assert.equal(readFileSync(target, "utf8"), "");
+  rmSync(outside, { recursive: true, force: true });
 });
 
 test("scan: a tab in a title does not add a column to the list for the reader", () => {

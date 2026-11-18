@@ -57,7 +57,7 @@ A project named in passing is not a switch. On a switch, reply with one line suc
    - `ask` means the reply names approved work that is not done. Send only on JP's word; sending by itself is off (`.lev/pm/decisions/20261117-the-sweep-says-continue-approved-work-or-return-blocked-and-jp-sees-its-choices-before-it-sends-by-itself.yaml`). The wording is: Continue approved work, or return "blocked". After a send, `node ~/.agents/skills/lev-ceo/scripts/sweep.mjs sent --thread <id> --wording "<text>"`: the program then gives that chat no second `ask` until a person speaks in it.
    - A CEO chat (title `CEO > {project}`) is in the index with a mark. It is never chosen `ask`: it runs its own loop. Its questions still go to `queue`.
 
-Run one command that writes (`scan`, `merge`, `sent`) at a time: a second one is refused with exit 2, and you run it again. The program stores no choice: each command works it out from the index, the send log and the clock, so `show` is never out of date.
+Run one command that writes (`scan`, `merge`, `sent`) at a time: a second one is refused with exit 2, and you run it again. A lock is never taken over: when the refusal says that the lock's process is gone, delete the file it names, then run the command again. A chat that was read before and changed is read again however old the change is; only a chat that was never read and stopped more than 48 hours ago is left out as `old`. The program stores no choice: each command works it out from the index, the send log and the clock, so `show` is never out of date.
 
 Close with the counts line that `--text` prints first. A chat's project is its T3 project, not the first word of its title: a chat named `multiplayer > ...` that lives in the leviathan project is a leviathan row.
 
