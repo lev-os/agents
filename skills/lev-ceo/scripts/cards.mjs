@@ -13,8 +13,9 @@
  *                                 `asks_cursor`). Prints {merged, show_again, stale, moved, not_open, answered,
  *                                 no_question}. A card for an older reply (stale) or for no open item
  *                                 (not_open) is not stored. A card that is not the one a page showed for the
- *                                 same reply (show_again) is stored, and the item leaves that page: the next
- *                                 `batch` shows it, and `relay` refuses it until then. A line for a chat that has more items now than at the scan (moved),
+ *                                 same reply (show_again) is stored: the next `batch` shows it, and `relay`
+ *                                 refuses it until then. The same card with its keys in another order is the
+ *                                 same card. A line for a chat that has more items now than at the scan (moved),
  *                                 that a person answered, or whose reply holds no question (`asks: []`) is a
  *                                 report: it holds the card of that reply (`card_hold`), also a card that was
  *                                 stored before and a card that comes later. The hold ends when the item gets
@@ -37,10 +38,11 @@
  *                                 choice letter. A pick is a question number of the page that showed the item
  *                                 (the map of its batch) and a choice letter; the message holds the picks as
  *                                 numbers and letters only, and the questions with the numbers of that page.
- *                                 An item is relayed only when a page showed its card as it is now: the same
- *                                 questions and the same choices, in the same order (the map of its batch).
- *                                 An item that no page showed, or whose card changed after its page, is
- *                                 refused. The note is printed as one line that starts with "Not JP's words".
+ *                                 An item is relayed only when a page showed its card as it is now (see "On a
+ *                                 page" below). An item that no page showed, or whose card changed after its
+ *                                 page, is refused. A question and a choice label are printed character for
+ *                                 character as the page showed them. The note and the title of this chat are
+ *                                 each printed as one line; the note starts with "Not JP's words".
  *                                 With no --sent it writes nothing. After the send, run it again with --sent:
  *                                 it records the words on the item and closes it (--keep-open: a question of
  *                                 the item is still open).
@@ -50,8 +52,21 @@
  * the item gets a new cursor (scripts/sweep.mjs queue), the card is not shown, and `brief` lists the chat again.
  * An item that the sweep made (`source: "sweep"`) with no question (JP's message has no reply) needs no
  * reader: the program writes its card. An item with no cursor gets no card. Two open items of one chat are
- * refused by `brief` and `merge`: a card belongs to a chat. Each text of a card is one line of at most 400
- * characters, and an ask names at most 5 experts.
+ * refused by `brief` and `merge`: a card belongs to a chat.
+ *
+ * A card is the asks of an item and its context. Each text of a card that the page or the relay shows (the
+ * context; of an ask: emoji, ask, why, because, if_no_answer, each expert; of a choice: label, gain, cost)
+ * is one line of at most 400 characters, and an ask names at most 5 experts; the page shows each of them.
+ * `threadId` and `cursor` name the chat and the reply: they are compared as they are and have no limit of
+ * their own. A stored card that `merge` would refuse (an older program or a `put` by hand stored it) is no
+ * card: `batch` does not show it, `relay` refuses it, and `brief` lists its chat for a reader.
+ *
+ * On a page: one function (`pageNumbers`) answers "is the card of this item, as it is now, on a page?" for
+ * `merge`, `batch` and `relay`. The answer is yes when `batch` marked the item for its newest reply and the
+ * map of that batch holds each ask of the card as the page shows it: the context, each text, each choice
+ * with its gain and its cost, the pick, the experts, in the same order. So whatever changed a card after
+ * its page (a `merge`, or a `put` of scripts/queue.mjs), the next `batch` shows the card again, counts it,
+ * and `relay` refuses the item until then. A map that cannot be read holds no card.
  *
  * Limits: scripts/queue.mjs has no lock, so run one command that writes at a time. A command that is
  * stopped between two writes is run again: `merge` and `relay --sent` give the same result (the same words
@@ -80,7 +95,7 @@ const isRecord = (value) => value !== null && typeof value === "object" && !Arra
 const noReply = (item) => ({
   emoji: "⏸️",
   ask: "Your last message in this chat has no reply. Shall this chat tell it to continue?",
-  why: `${item.reason}.`,
+  why: `${oneLine(item.reason).slice(0, MAX_TEXT - 1)}.`,
   choices: [
     { label: "Yes, tell it to continue", gain: "The work goes on with no visit from you", cost: null },
     { label: "No, I go to the chat myself", gain: null, cost: "It waits until you do" },
@@ -96,16 +111,73 @@ const noReply = (item) => ({
 const HOLDS = ["moved", "answered", "no_question"];
 const held = (item) => isRecord(item.card_hold) && HOLDS.includes(item.card_hold.why) && item.card_hold.cursor === (item.cursor ?? null);
 
+/**
+ * True when a stored card is a card: it passes each check that `merge` makes of a reader's card. A card
+ * that an older program or a `put` by hand stored with another shape is no card: a reader writes it again.
+ */
+function isCard(asks, context) {
+  if (!Array.isArray(asks) || asks.length === 0 || !lineOrNull(context)) return false;
+  try {
+    asks.forEach((ask) => checkAsk(ask, "a stored card"));
+    return true;
+  } catch (error) {
+    if (error instanceof InputError) return false;
+    throw error;
+  }
+}
+
 /** The asks to show for an item now, or null: a reader must write them first, or a report holds the card. */
 function asksOf(item) {
   if (held(item)) return null;
   if (!isText(item.cursor)) return null;   // a card belongs to one reply: no cursor, no card
-  if (item.asks_cursor === item.cursor && Array.isArray(item.asks) && item.asks.length > 0) return item.asks;
+  if (item.asks_cursor === item.cursor && isCard(item.asks, item.context)) return item.asks;
   if (Array.isArray(item.questions) && item.questions.length === 0 && item.source === "sweep") return [noReply(item)];
   return null;
 }
-/** True when a page showed the card of the item's newest reply. */
-const onPage = (item) => isRecord(item.shown) && item.shown.cursor === (item.cursor ?? null);
+/** True when `batch` put the item's newest reply on a page. The mark does not say that the card is the same now. */
+const hasPageMark = (item) => isRecord(item.shown) && item.shown.cursor === (item.cursor ?? null) && Number.isInteger(item.shown.batch) && item.shown.batch > 0;
+
+/**
+ * What a page shows of one ask of an item, in the shape of a question of the map of a batch. This is the
+ * one definition of "what JP saw": `batch` writes it to the map, and `pageNumbers` compares with it.
+ */
+const faceOf = (item, ask) => ({
+  context: item.context ?? null, emoji: ask.emoji, ask: ask.ask, why: ask.why ?? null,
+  choices: ask.choices.map((choice, at) => ({ key: KEYS[at], label: choice.label, gain: choice.gain ?? null, cost: choice.cost ?? null, pick: ask.pick === at })),
+  because: ask.because ?? null, experts: ask.experts, if_no_answer: ask.if_no_answer ?? null, yours: ask.yours,
+});
+/** A question of a map, or a face, as one text with its keys in one order: two are the same when the texts are. */
+const faceText = (q) => JSON.stringify([
+  q.context ?? null, q.emoji, q.ask, q.why ?? null,
+  Array.isArray(q.choices) ? q.choices.map((choice) => (isRecord(choice) ? [choice.key, choice.label, choice.gain ?? null, choice.cost ?? null, choice.pick === true] : null)) : null,
+  q.because ?? null, q.experts, q.if_no_answer ?? null, q.yours,
+]);
+
+/**
+ * The one answer to "is the card of this item, as it is now, on a page?": the numbers that JP saw for its
+ * asks, or null. A card is on a page when `batch` marked the item for its newest reply and the map of that
+ * batch holds, for the item, each ask of the card as the page shows it (`faceOf`), in the same order, and
+ * no other. `batch`, `merge` and `relay` all ask this function, so whatever changed a card (a `merge`, a
+ * `put`), the next `batch` shows it and `relay` refuses it until then. A map that cannot be read holds no
+ * card. `batch --again` writes the map again, so the numbers are those of the newest page.
+ */
+function pageNumbers(dir, item, asks = asksOf(item)) {
+  if (asks === null || !hasPageMark(item)) return null;
+  let mine;
+  try {
+    mine = JSON.parse(readFileSync(join(dir, "batches", `batch-${item.shown.batch}.json`), "utf8")).questions.filter((q) => isRecord(q) && q.item === item.id);
+  } catch {
+    return null;
+  }
+  if (mine.length !== asks.length) return null;
+  const numbers = [];
+  for (const [index, ask] of asks.entries()) {
+    const q = mine.find((other) => other.index === index);
+    if (!q || !Number.isInteger(q.n) || faceText(q) !== faceText(faceOf(item, ask))) return null;
+    numbers.push(q.n);
+  }
+  return numbers;
+}
 const forJp = (item) => OPEN.has(item.status) && item.kind !== "watch";
 /** An item that a reader can write a card for: it has a cursor, no card for it, and no report holds it. */
 const needsReader = (item) => isText(item.cursor) && !held(item) && asksOf(item) === null;
@@ -228,7 +300,7 @@ function cardHtml(q) {
   const picked = q.choices.find((choice) => choice.pick);
   return `      <div class="card">
         <div class="q"><div class="e">${esc(q.emoji)}</div><div><div class="n">QUESTION ${q.n}</div><div class="h">${esc(q.ask)}</div></div></div>
-        <div class="from">💬 ${esc(q.title)}${q.context ? ` · ${esc(q.context)}` : ""}</div>${q.yours ? `\n        <div class="act">✋ only you can do this</div>` : ""}${options ? `\n        <div class="opts">\n          ${options}\n        </div>` : ""}${q.why ? `\n        <div class="why"><b>Why it matters:</b> ${esc(q.why)}</div>` : ""}${picked && q.because ? `\n        <div class="why"><b>Why ${picked.key}:</b> ${esc(q.because)}</div>` : ""}${q.experts.length ? `\n        <div class="src">🎓 ${q.experts.slice(0, 3).map(esc).join(" · ")}</div>` : ""}${q.if_no_answer ? `\n        <div class="src">⏳ No answer: ${esc(q.if_no_answer)}</div>` : ""}
+        <div class="from">💬 ${esc(q.title)}${q.context ? ` · ${esc(q.context)}` : ""}</div>${q.yours ? `\n        <div class="act">✋ only you can do this</div>` : ""}${options ? `\n        <div class="opts">\n          ${options}\n        </div>` : ""}${q.why ? `\n        <div class="why"><b>Why it matters:</b> ${esc(q.why)}</div>` : ""}${picked && q.because ? `\n        <div class="why"><b>Why ${picked.key}:</b> ${esc(q.because)}</div>` : ""}${q.experts.length ? `\n        <div class="src">🎓 ${q.experts.map(esc).join(" · ")}</div>` : ""}${q.if_no_answer ? `\n        <div class="src">⏳ No answer: ${esc(q.if_no_answer)}</div>` : ""}
       </div>`;
 }
 
@@ -259,34 +331,11 @@ ${batch.questions.map(cardHtml).join("\n")}
 }
 
 /**
- * The numbers that JP saw for the asks of an item: those of the page of the batch that showed its newest
- * reply (the map file), or null when no page showed it. `batch --again` writes the map again, so the
- * numbers are those of the newest page.
- */
-function shownNumbers(dir, item, asks) {
-  if (!onPage(item)) return null;
-  const file = join(dir, "batches", `batch-${item.shown.batch}.json`);
-  let mine;
-  try {
-    mine = JSON.parse(readFileSync(file, "utf8")).questions.filter((q) => q.item === item.id);
-  } catch (error) {
-    throw new InputError(`relay: cannot read the map of batch ${item.shown.batch} (${file}): ${error.message}`);
-  }
-  const shown = asks.map((_, index) => mine.find((q) => q.index === index));
-  // The page holds the questions and the choices that JP saw. A pick is right only when the card is the same.
-  const same = (q, ask) => isRecord(q) && Number.isInteger(q.n) && q.ask === ask.ask && Array.isArray(q.choices)
-    && q.choices.length === ask.choices.length
-    && q.choices.every((choice, at) => choice.key === KEYS[at] && choice.label === ask.choices[at].label);
-  if (mine.length !== asks.length || !shown.every((q, index) => same(q, asks[index]))) {
-    throw new InputError(`relay: the page of batch ${item.shown.batch} does not hold the questions of the item "${item.id}" as they are now: run batch --again ${item.shown.batch}, show the page, and ask again`);
-  }
-  return shown.map((q) => q.n);
-}
-
-/**
  * The message for the chat that asked. Its form keeps JP's words apart from every other text: his words
  * come first, under their own mark; the picks line holds numbers and letters only; each text of the reader
- * comes after, as one line that starts with a question number or a choice letter.
+ * comes after, as one line that starts with a question number or a choice letter. A question and a choice
+ * label are printed as the page showed them, character for character: a card holds no text with a line
+ * break (`isCard`), so each is one line.
  */
 function relayText(queue, asks, shown, batch, { words, picks, note }) {
   const tokens = (picks || "").split(/[\s,]+/).filter(Boolean);
@@ -309,8 +358,8 @@ function relayText(queue, asks, shown, batch, { words, picks, note }) {
   if (tokens.length > 0) lines.push(`JP's picks, as the chat that relays read them from his words (question number, choice letter): ${tokens.join(" ")}`, "");
   lines.push(`Not JP's words. Your question${many ? "s" : ""} and ${many ? "their" : "its"} choices, as that chat showed them to him:`);
   asks.forEach((ask, index) => {
-    lines.push(`${shown[index]}. ${oneLine(ask.ask)}`);
-    ask.choices.forEach((choice, at) => lines.push(`   ${KEYS[at]}. ${oneLine(choice.label)}`));
+    lines.push(`${shown[index]}. ${ask.ask}`);
+    ask.choices.forEach((choice, at) => lines.push(`   ${KEYS[at]}. ${choice.label}`));
   });
   // The note is one line that starts with its mark, as each text of a reader is: no line of it stands alone.
   if (note && oneLine(note)) lines.push("", `Not JP's words. A note from the chat that relays: ${oneLine(note)}`);
@@ -401,14 +450,12 @@ export function main(argv, env = process.env) {
       else if (card.asks.length === 0) hold(item, card, "no_question");
       else {
         const first = card.asks[0];
-        // A page showed another card for this reply: the item leaves that page, and the next batch shows it.
-        const changed = onPage(item) && JSON.stringify(asksOf(item)) !== JSON.stringify(card.asks);
-        if (changed) out.show_again.push(card.threadId);
+        const stored = { asks: card.asks, asks_cursor: card.cursor, context: card.context };
+        // A page showed this reply, and the card as this merge stores it is not on that page: the next
+        // batch shows it. Merge writes no mark for that: `pageNumbers` gives the same answer to batch and relay.
+        if (hasPageMark(item) && pageNumbers(dir, { ...item, ...stored }) === null) out.show_again.push(card.threadId);
         writes.push([item, {
-          ...(changed ? { shown: null } : {}),
-          asks: card.asks,
-          asks_cursor: card.cursor,
-          context: card.context,
+          ...stored,
           card: {
             ...item.card,
             state: card.context,
@@ -430,7 +477,8 @@ export function main(argv, env = process.env) {
     const noCard = open.filter(needsReader).length;
     const holds = open.filter(held).map((item) => ({ item: item.id, why: item.card_hold.why }));
     const rest = { no_card: noCard, held: holds, no_cursor: noCursor };
-    const ready = open.filter((item) => asksOf(item) !== null && !onPage(item));
+    // Ready: the item has a card, and that card as it is now is on no page.
+    const ready = open.filter((item) => asksOf(item) !== null && pageNumbers(dir, item) === null);
     const groupOf = (item) => item.project || "no project";
     const folder = join(dir, "batches");
     const again = values.again !== undefined;
@@ -439,7 +487,8 @@ export function main(argv, env = process.env) {
     if (again) {
       number = Number(values.again);
       if (!Number.isInteger(number) || number < 1) throw new InputError("batch: --again must be the number of a batch");
-      taken.push(...open.filter((item) => asksOf(item) !== null && onPage(item) && item.shown.batch === number));
+      // The mark, not the card: this command writes the page again for a card that changed after it.
+      taken.push(...open.filter((item) => asksOf(item) !== null && hasPageMark(item) && item.shown.batch === number));
       if (taken.length === 0) throw new InputError(`batch: no open question of batch ${number} is left to show`);
     } else {
       if (ready.length === 0) return { batch: null, questions: [], left: 0, ...rest };
@@ -453,18 +502,14 @@ export function main(argv, env = process.env) {
         if (count >= size) break;
       }
       mkdirSync(folder, { recursive: true });
-      number = readdirSync(folder).filter((name) => /^batch-\d+\.json$/.test(name)).length + 1;
+      // One more than the highest number of a page or a map in the folder: a file that was removed leaves no number to take again.
+      number = 1 + Math.max(0, ...readdirSync(folder).map((name) => Number(/^batch-(\d+)\.(json|html)$/.exec(name)?.[1] ?? 0)));
     }
     const group = groupOf(taken[0]);
     const questions = [];
     for (const item of taken) {
       asksOf(item).forEach((ask, index) => {
-        questions.push({
-          n: questions.length + 1, item: item.id, index, title: item.title, link: item.link ?? null, context: item.context ?? null,
-          emoji: ask.emoji, ask: ask.ask, why: ask.why ?? null,
-          choices: ask.choices.map((choice, at) => ({ key: KEYS[at], label: choice.label, gain: choice.gain ?? null, cost: choice.cost ?? null, pick: ask.pick === at })),
-          because: ask.because ?? null, experts: ask.experts, if_no_answer: ask.if_no_answer ?? null, yours: ask.yours,
-        });
+        questions.push({ n: questions.length + 1, item: item.id, index, title: item.title, link: item.link ?? null, ...faceOf(item, ask) });
       });
     }
     const left = ready.filter((item) => !taken.includes(item)).reduce((sum, item) => sum + asksOf(item).length, 0);
@@ -485,7 +530,7 @@ export function main(argv, env = process.env) {
   if (!OPEN.has(item.status)) throw new InputError(`relay: the item "${values.item}" is ${item.status}`);
   const asks = asksOf(item);
   if (asks === null) throw new InputError(`relay: the item "${values.item}" has no card for its newest reply`);
-  const numbers = shownNumbers(dir, item, asks);
+  const numbers = pageNumbers(dir, item, asks);
   if (numbers === null) throw new InputError(`relay: the item "${values.item}" is on no page for its card as it is now, so JP did not see its questions: run batch, show the page, and ask him`);
   const text = relayText(queue, asks, numbers, item.shown.batch, values);
   if (values.sent) {
