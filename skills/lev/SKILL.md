@@ -6,8 +6,6 @@ category: lifecycle
 sub_skills:
   - work
   - exec
-  - stack
-  - autodev-lev
 ---
 
 # lev - Semantic Router and Runtime CLI
@@ -18,7 +16,7 @@ For any non-trivial direct or routed invocation, load [Project Context](referenc
 
 After authorized material progress, reconcile touched and causally affected
 artifacts before routing, handoff, or final response. Track entity ref,
-island/provider locator (a path for file storage), basis/evidence, and the
+provider locator (the folder or path that stores it), basis/evidence, and the
 reason/action due. Update through the verified owning CLI/adapter; use a
 write-authorized skill fallback only when that operation is unavailable.
 Record updated, no_change(reason), or blocked(reason), preserving unresolved
@@ -147,10 +145,10 @@ currently available authorized methods without claiming Ralph ran.
 | Harden a planning artifact | `skill://auto-enrich` | Bounded independent review and planning repair |
 | Slice readiness or task emission | `skill://lev-plan` | Review, map or authorized single packet |
 | Accept verified work | `skill://close` | Acceptance and learnings |
-| Pause or transfer context | `skill://handoff` | Durable continuity and resume pointer |
+| Pause or transfer context | `skill://close` (or `skill://sync --handoff`) | Durable continuity and resume pointer |
 | Create or consolidate a skill | `skill://skill-builder` | Skill instructions and behavioral checks |
 | Tool integrations, APIs, CLI setup or desktop automation | `skill://tools` | Load one integration leaf, its bundled entrypoint or documented host runtime |
-| Prompt-stack operation | `skill://stack` | Inspect or run the selected stack |
+| Prompt-stack operation | `$LEV stack --help` (plugins/prompt-stack) | Inspect or run the selected stack |
 
 ## Routing Examples
 
@@ -296,7 +294,7 @@ Observed current surfaces:
 | FlowMind work | `$LEV flowmind --help`, `$LEV flowmind-debug --help` |
 | Trace/receipt lookup | `$LEV trace --help`, `$LEV receipt --help` |
 | Broken trace aliases | `$LEV exec-trace --help` and `$LEV exec-receipt --help` currently return `UNIMPLEMENTED_COMMAND_SURFACE` |
-| Prompt stacks | `$LEV stack --help` or `/stack` |
+| Prompt stacks | `$LEV stack --help` |
 
 `lev work` currently supports `auto`, `find`, `review`, and `contract`, plus
 `--dry-run` and `--json`. Use it for routing, not as a substitute for workstream
@@ -462,7 +460,7 @@ trace, event, and workstream state before deciding the next route.
 |---|---|
 | CLI binary | `core/poly/bin/lev` |
 | CLI dispatch | `core/poly/src/surfaces/cli/` |
-| Exec engine | `core/harness/src/` |
+| Exec engine | `core/exec/src/` |
 | Orchestration | `core/orchestration/src/` |
 | FlowMind | `core/flowmind/src/` |
 | SDLC plugin | `plugins/sdlc/` |
