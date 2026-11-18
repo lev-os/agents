@@ -38,6 +38,22 @@ test("slug: lower case, each run of other characters is one dash, trimmed", () =
   assert.equal(slugify("  Lev: groups / build!! "), "lev-groups-build");
 });
 
+test("slug: a long title makes a short slug, and a title with no letter or digit opens a queue named queue", () => {
+  assert.equal(slugify("x".repeat(241)), "x".repeat(60));
+  assert.equal(slugify(`${"ab ".repeat(19)}abc d`), `${"ab-".repeat(19)}abc`, "cut at 60, and no dash at the end");
+  assert.equal(slugify("日本語 > !!"), "");
+  const made = q(["open", "--title", "日本語 > !!"]);
+  assert.equal(basename(made.path), "queue-20261110T2330Z");
+  assert.equal(queueFile(made.path).chat.title, "日本語 > !!");
+});
+
+test("open: a root that the file system refuses is bad input", () => {
+  const out = spawnSync(process.execPath, [SCRIPT, "open", "--title", "CEO > suntiq", "--thread", CEO, "--now", T0, "--root", join(tmpdir(), "d".repeat(300))], { encoding: "utf8" });
+  assert.equal(out.status, 2, out.stderr);
+  assert.match(out.stderr, /open: cannot make the folder/);
+  assert.doesNotMatch(out.stderr, /\n\s+at /);
+});
+
 test("open makes <slug>-<stamp> and reuses it for the same thread", () => {
   const first = openQueue();
   assert.equal(first.created, true);

@@ -89,6 +89,9 @@
  * every value goes to the queue program as one `--name=value` argument. So a chat id or a run id may hold
  * a tab, a line break, or a leading "--" (the round-trip test takes such ids through scan, merge and
  * queue). `show --text` is for the eye only: it prints tabs between columns and is read by no command.
+ * No text becomes the name of a file but one: the title of the chat that runs the sweep names its queue
+ * folder, cut to 60 characters, so the title may have any length. A folder given with --root or
+ * --queue-root that the file system refuses (a part too long, a file in the way) is bad input (exit 2).
  * Not checked: what an older program or a hand wrote into index.json.
  * With --project, scan takes the project names of this scan (the --projects file and the chats of the
  * list), not the names an earlier scan stored.
@@ -179,6 +182,7 @@ const LABEL_FIELDS = [
   ["last_user_at", (v) => v === null || isText(v), "a time as text, or null"], ["stopped_at", (v) => v === null || isText(v), "a time as text, or null"],
   ["ready_steps", isTexts, "a list of texts"], ["questions_for_jp", isTexts, "a list of texts"],
   ["last_user_stops", (v) => typeof v === "boolean", "true or false"],
+  ["last_user_from_other_chat", (v) => typeof v === "boolean", "true or false"],
 ];
 const isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const orNone = (ok) => (value) => value === null || value === undefined || ok(value);
@@ -325,7 +329,12 @@ function store(root) {
  * take-over could remove the lock of a live command.)
  */
 function withLock(s, now, work) {
-  mkdirSync(s.root, { recursive: true });
+  try {
+    mkdirSync(s.root, { recursive: true });
+  } catch (error) {
+    // --root is a path that the file system refuses (a part too long, a file in the way): bad input.
+    throw new InputError(`cannot make the state folder ${s.root}: ${error.code || error.message}`);
+  }
   const lock = s.at("lock");
   let handle;
   try {
@@ -460,7 +469,7 @@ function toReadRows(s) {
   return readFileSync(s.at(TO_READ), "utf8").split("\n").filter(Boolean).map((line) => {
     try {
       const one = JSON.parse(line);
-      if (isRecord(one) && isText(one.threadId) && isText(one.cursor)) return one;
+      if (isRecord(one) && isText(one.threadId) && isText(one.cursor) && Number.isInteger(one.item_count) && isText(one.title)) return one;
     } catch { /* the refusal below */ }
     throw new InputError(`${s.at(TO_READ)} holds a line that this program did not write; run scan again`);
   });

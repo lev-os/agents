@@ -4,6 +4,8 @@
  * lives through a compaction. One queue for each CEO chat. Stdlib only (Node 22+).
  *
  * Where: ${XDG_STATE_HOME:-~/.local/state}/lev/ceo/queues/<chat-slug>-<YYYYMMDDTHHMMZ>/
+ *   (the slug is the title in lower case with dashes, 60 characters at most, or "queue" when the title
+ *   has no letter a to z and no digit)
  *   queue.json    the queue now (schema version 1), written atomically (temp file, then rename)
  *   events.jsonl  one line per change: {at, item, from, to, note}
  *
@@ -48,8 +50,11 @@ const DEFAULT_CADENCE = { refreshEveryMin: 60, hygieneEveryMin: 180 };
 
 export class InputError extends Error {}
 
+// A slug is part of a folder name, so it is short: a title may have any length, a folder name may not.
+// The queue is found by the thread id in queue.json, never by its folder name.
+const SLUG_MAX = 60;
 export function slugify(title) {
-  return String(title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return String(title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+/, "").slice(0, SLUG_MAX).replace(/-+$/, "");
 }
 
 export function stamp(iso) {
@@ -159,11 +164,16 @@ function open({ root, thread, title, now }) {
   if (!title) throw new InputError("open: --title is required");
   const found = findQueue(root, thread);
   if (found) return { path: found, created: false };
-  const slug = slugify(title);
-  if (!slug) throw new InputError(`open: title "${title}" makes an empty slug`);
+  // A title with no letter a to z and no digit (another script, only signs) still gets a folder.
+  const slug = slugify(title) || "queue";
   let dir = join(root, `${slug}-${stamp(now)}`);
   for (let n = 2; existsSync(dir); n += 1) dir = join(root, `${slug}-${stamp(now)}-${n}`);
-  mkdirSync(dir, { recursive: true });
+  try {
+    mkdirSync(dir, { recursive: true });
+  } catch (error) {
+    // The root is a path that the file system refuses (a part too long, a file in the way): bad input, nothing written.
+    throw new InputError(`open: cannot make the folder ${dir}: ${error.code || error.message}`);
+  }
   const queue = {
     version: 1,
     chat: { threadId: thread, title, slug },

@@ -705,6 +705,7 @@ test("merge: a label field of the wrong type is bad input before any write, and 
   const odd = [
     ["stopped_at", { toString: null }], ["last_user_at", 5], ["questions_for_jp", "text"], ["questions_for_jp", [1]],
     ["ready_steps", {}], ["cursor", 7], ["label_reason", []], ["waits_on", 3], ["last_user_by", {}], ["last_user_stops", "yes"],
+    ["last_user_from_other_chat", { unexpected: true }], ["last_user_from_other_chat", "no"],
   ];
   for (const [key, value] of odd) {
     assert.match(sweep(["merge", "--labels", file("odd.jsonl", label("A", { [key]: value }) + "\n")], { status: 2 }), new RegExp(`line 1: ${key} is not`), key);
@@ -981,6 +982,43 @@ test("merge: a line of the reader list that this program did not write is refuse
   assert.doesNotMatch(out, /\n\s+at /, "no stack trace");
   assert.deepEqual(stateFiles(), changed, "the refused merge wrote nothing");
   assert.match(sweep(["brief", "--out", join(root, "labels.jsonl")], { status: 2 }), /did not write/);
+  // Each field of a line has the type that scan writes.
+  for (const line of [{ threadId: "A", cursor: "r1#10", item_count: "wrong type", title: "t" }, { threadId: "A", cursor: "r1#10", item_count: 10, title: 7 }, { threadId: "A", cursor: 5 }, [], "A"]) {
+    writeFileSync(join(root, "to-read.jsonl"), `${JSON.stringify(line)}\n`);
+    assert.match(sweep(["merge", "--labels", file("labels.jsonl", `${label("A")}\n`)], { status: 2 }), /did not write/, JSON.stringify(line));
+  }
+});
+
+// Found by the seventh reader (review-step-1-seventh.json): a text became the name of a folder. The title of
+// the chat that runs the sweep comes from T3 and may have any length; the name of its queue folder may not.
+test("queue: a title of any length opens a queue, and the folder name stays short", () => {
+  for (const title of ["x".repeat(241), "Ü > ".repeat(90), `CEO > ${"all projects ".repeat(8000)}`]) {
+    rmSync(root, { recursive: true, force: true });
+    root = mkdtempSync(join(tmpdir(), "sweep-title-"));
+    base();
+    const out = sweep(["queue", "--thread", "S", `--title=${title}`, "--queue-root", qroot()]);
+    assert.ok(out.added > 0, `title of ${title.length} characters`);
+    const [folder] = readdirSync(qroot());
+    assert.ok(folder.length <= 80, `the folder name has ${folder.length} characters`);
+    assert.equal(JSON.parse(readFileSync(join(qroot(), folder, "queue.json"), "utf8")).chat.title, title, "the queue keeps the whole title");
+    assert.equal(sync().added, 0, "the next run finds the same queue");
+    assert.equal(readdirSync(qroot()).length, 1);
+  }
+});
+
+test("a folder that the file system refuses is bad input: exit 2 with the reason, and no lock stays", () => {
+  base();
+  const long = "d".repeat(300);
+  const before = stateFiles();
+  const out = sweep(["queue", "--thread", "S", "--title", "CEO > all", "--queue-root", join(root, long, "queues")], { status: 2 });
+  assert.match(out, /queue: .*cannot make the folder/);
+  assert.doesNotMatch(out, /\n\s+at /, "no stack trace");
+  assert.deepEqual(stateFiles(), before);
+  assert.equal(existsSync(join(root, "lock")), false);
+  const run = spawnSync(process.execPath, [SCRIPT, "scan", "--threads", file("threads.json", THREADS), "--now", T0, "--root", join(root, long)], { encoding: "utf8" });
+  assert.equal(run.status, 2, run.stderr);
+  assert.match(run.stderr, /cannot make the state folder/);
+  assert.doesNotMatch(run.stderr, /\n\s+at /, "no stack trace");
 });
 
 test("queue: a queue root that is a file is refused with exit 2 and the reason", () => {
