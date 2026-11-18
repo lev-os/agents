@@ -5,30 +5,47 @@
  * (a subagent) reads the chats, and the chat that runs this program sends the relay.
  *
  * Usage: node ~/.agents/skills/lev-ceo/scripts/cards.mjs <command> --thread <this chat's id> [options]
- *   brief --out <cards file>   -> lists the open items with no card for their newest reply in
- *                                 <queue>/cards-to-read.jsonl and prints the brief for one reader
- *                                 (references/card-brief.txt). Exit 2 when no item needs a card.
+ *   brief --out <cards file>   -> lists the open items that a reader can write a card for (a cursor, no card
+ *                                 for it, no report that holds it) in <queue>/cards-to-read.jsonl and prints
+ *                                 the brief for one reader (references/card-brief.txt). Exit 2 when no item
+ *                                 needs a card.
  *   merge --cards <cards file> -> checks every line, then stores each card on its item (`asks`, `context`,
- *                                 `asks_cursor`). Prints {merged, stale, moved, not_open, answered}: a card for an
- *                                 older reply (stale), for a chat that has more items now than at the scan
- *                                 (moved), or for a chat that a person answered is not stored.
- *   batch [--size 5]           -> the next questions for JP: at most --size questions, all of one project,
- *                                 numbered from 1. Writes <queue>/batches/batch-<n>.html (the page to show)
- *                                 and batch-<n>.json (question number -> item, choices), and marks each item
- *                                 as shown for its reply. Prints {batch, group, page, map, questions, left, no_card}.
+ *                                 `asks_cursor`). Prints {merged, stale, moved, not_open, answered, no_question}.
+ *                                 A card for an older reply (stale) or for no open item (not_open) is not
+ *                                 stored. A line for a chat that has more items now than at the scan (moved),
+ *                                 that a person answered, or whose reply holds no question (`asks: []`) is a
+ *                                 report: it holds the card of that reply (`card_hold`), also a card that was
+ *                                 stored before and a card that comes later. The hold ends when the item gets
+ *                                 a new cursor (the next scan).
+ *   batch [--size 5]           -> the next questions for JP, all of one project, numbered from 1: whole items
+ *                                 until --size questions are reached. An item is never cut, so one item that
+ *                                 holds more than --size questions makes a batch alone. Writes
+ *                                 <queue>/batches/batch-<n>.html (the page to show) and batch-<n>.json
+ *                                 (question number -> item, choices), and marks each item as shown for its
+ *                                 reply. Prints {batch, group, page, map, questions, left, no_card, held,
+ *                                 no_cursor}: no_card counts the items for `brief`; held and no_cursor name
+ *                                 the items that get no card, for you to handle by hand.
  *   batch --again <n>          -> writes the page and the map of batch n again, from its items that are still
  *                                 open (an item was closed, or its card was merged again, after the batch).
- *   relay --item <id> --words "<JP's words>" [--picks "1a 2b"] [--note "<text>"] [--sent] [--keep-open]
- *                              -> prints the message for the chat that asked: JP's words unchanged, and every
- *                                 other sentence marked as not his. A pick is a question number of that item
- *                                 and a choice letter. With no --sent it writes nothing. After the send, run it
- *                                 again with --sent: it records the words on the item and closes it
- *                                 (--keep-open: a question of the item is still open).
+ *                                 It marks no item. The questions get new numbers: show the page again.
+ *   relay --item <id> --words "<JP's words>" [--picks "2a 3b"] [--note "<text>"] [--sent] [--keep-open]
+ *                              -> prints the message for the chat that asked. JP's words are unchanged,
+ *                                 between two marks. Every text of a reader comes after them, under the mark
+ *                                 "Not JP's words", each as one line that starts with a question number or a
+ *                                 choice letter. A pick is a question number of the page that showed the item
+ *                                 (the map of its batch) and a choice letter; the message holds the picks as
+ *                                 numbers and letters only, and the questions with the numbers of that page.
+ *                                 A pick for an item that no page showed is refused. With no --sent it writes
+ *                                 nothing. After the send, run it again with --sent: it records the words on
+ *                                 the item and closes it (--keep-open: a question of the item is still open).
  * Every command takes --queue-root <dir> (the folder that holds the queue folders) and --now <ISO>.
  *
  * A card belongs to one reply: it holds the cursor of the item it was written for. When the chat moves,
  * the item gets a new cursor (scripts/sweep.mjs queue), the card is not shown, and `brief` lists the chat again.
- * An item with no question (JP's message has no reply) needs no reader: the program writes its card.
+ * An item that the sweep made (`source: "sweep"`) with no question (JP's message has no reply) needs no
+ * reader: the program writes its card. An item with no cursor gets no card. Two open items of one chat are
+ * refused by `brief` and `merge`: a card belongs to a chat. Each text of a card is one line of at most 400
+ * characters, and an ask names at most 5 experts.
  *
  * Limits: scripts/queue.mjs has no lock, so run one command that writes at a time. A command that is
  * stopped between two writes is run again: `merge` and `relay --sent` give the same result, and `batch`
@@ -47,7 +64,6 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const OPEN = new Set(["pending", "presented", "waiting"]);
 const KEYS = ["a", "b", "c"];
 const isText = (value) => typeof value === "string";
-const textOrNull = (value) => value === null || value === undefined || isText(value);
 const isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 
 /** The card of an item whose chat holds a message of JP with no reply: the sweep found no question in it. */
@@ -62,31 +78,66 @@ const noReply = (item) => ({
   pick: null, because: null, experts: [], if_no_answer: "It stays as it is.", yours: false,
 });
 
-/** The asks to show for an item now, or null when a reader must write them first. */
+/**
+ * A reader's report that holds the card of a reply: the chat has more items than at the scan (`moved`), a
+ * person answered after the reply (`answered`), or the reply holds no question (`no_question`). It stands
+ * for that reply: no card is shown or stored until the item has a new cursor (the next scan).
+ */
+const HOLDS = ["moved", "answered", "no_question"];
+const held = (item) => isRecord(item.card_hold) && HOLDS.includes(item.card_hold.why) && item.card_hold.cursor === (item.cursor ?? null);
+
+/** The asks to show for an item now, or null: a reader must write them first, or a report holds the card. */
 function asksOf(item) {
+  if (held(item)) return null;
   if (isText(item.cursor) && item.asks_cursor === item.cursor && Array.isArray(item.asks) && item.asks.length > 0) return item.asks;
   if (Array.isArray(item.questions) && item.questions.length === 0 && item.source === "sweep") return [noReply(item)];
   return null;
 }
 const forJp = (item) => OPEN.has(item.status) && item.kind !== "watch";
+/** An item that a reader can write a card for: it has a cursor, no card for it, and no report holds it. */
+const needsReader = (item) => isText(item.cursor) && !held(item) && asksOf(item) === null;
+const chatOf = (item) => item.threadId ?? item.id;
+
+/** A card belongs to a chat: two open items of one chat cannot both get it. */
+function checkOneItemEachChat(open) {
+  const first = new Map();
+  for (const item of open) {
+    const other = first.get(chatOf(item));
+    if (other) throw new InputError(`two open items for the chat ${chatOf(item)} (${other.id}, ${item.id}): close one of them with scripts/queue.mjs resolve`);
+    first.set(chatOf(item), item);
+  }
+}
 /** The item count at the end of a cursor (`<run id>#<count>`), or NaN. */
 const countOf = (cursor) => (cursor.includes("#") ? Number(cursor.slice(cursor.lastIndexOf("#") + 1)) : NaN);
+
+// A text of a card is one line. The relay prints the reader's texts beside JP's words, and a line break in
+// one of them would make a line of its own there.
+// Each character that a screen can show as a line break: line feed, vertical tab, form feed, carriage
+// return, next line (U+0085), and the two Unicode separators (U+2028, U+2029).
+const BREAKS = String.fromCharCode(0x0a, 0x0b, 0x0c, 0x0d, 0x85, 0x2028, 0x2029);
+const LINE_BREAK = new RegExp(`[${BREAKS}]`);
+const MAX_TEXT = 400;      // characters in one text of a card: the brief asks the reader for 160 at most
+const MAX_EXPERTS = 5;
+const isLine = (value) => isText(value) && value.length <= MAX_TEXT && !LINE_BREAK.test(value);
+const lineOrNull = (value) => value === null || value === undefined || isLine(value);
+const SPACES = new RegExp(`[\\s${BREAKS}]+`, "g");
+const oneLine = (value) => String(value ?? "").replace(SPACES, " ").trim();
 
 function checkAsk(ask, where) {
   const bad = (what) => new InputError(`${where}: ${what}`);
   if (!isRecord(ask)) throw bad("an ask is not an object");
-  if (!isText(ask.ask) || ask.ask.trim() === "") throw bad("ask must be a text");
-  if (!isText(ask.emoji)) throw bad("emoji must be a text");
-  for (const key of ["why", "because", "if_no_answer"]) if (!textOrNull(ask[key])) throw bad(`${key} must be a text or null`);
+  if (!isLine(ask.ask) || ask.ask.trim() === "") throw bad("ask must be a text of one line (400 characters at most)");
+  if (!isLine(ask.emoji)) throw bad("emoji must be a text of one line (400 characters at most)");
+  for (const key of ["why", "because", "if_no_answer"]) if (!lineOrNull(ask[key])) throw bad(`${key} must be a text of one line (400 characters at most), or null`);
   if (!Array.isArray(ask.choices) || ask.choices.length > KEYS.length) throw bad(`choices must be a list of at most ${KEYS.length}`);
   for (const choice of ask.choices) {
-    if (!isRecord(choice) || !isText(choice.label) || choice.label.trim() === "") throw bad("a choice needs a label that is a text");
-    if (!textOrNull(choice.gain) || !textOrNull(choice.cost)) throw bad("gain and cost of a choice must be a text or null");
+    if (!isRecord(choice) || !isLine(choice.label) || choice.label.trim() === "") throw bad("a choice needs a label that is a text of one line (400 characters at most)");
+    if (!lineOrNull(choice.gain) || !lineOrNull(choice.cost)) throw bad("gain and cost of a choice must be a text of one line (400 characters at most), or null");
   }
   if (ask.pick !== null && ask.pick !== undefined && !(Number.isInteger(ask.pick) && ask.pick >= 0 && ask.pick < ask.choices.length)) {
     throw bad("pick must be null or the position of one of the choices");
   }
-  if (!Array.isArray(ask.experts) || !ask.experts.every(isText)) throw bad("experts must be a list of texts");
+  if (!Array.isArray(ask.experts) || ask.experts.length > MAX_EXPERTS || !ask.experts.every(isLine)) throw bad(`experts must be a list of at most ${MAX_EXPERTS} texts of one line (400 characters at most)`);
   if (typeof ask.yours !== "boolean") throw bad("yours must be true or false");
 }
 
@@ -97,9 +148,8 @@ function checkLine(card, where) {
   if (!isText(card.cursor)) throw bad("cursor must be a text");
   if (card.item_count_now !== null && card.item_count_now !== undefined && !Number.isFinite(card.item_count_now)) throw bad("item_count_now must be a number or null");
   if (typeof card.answered !== "boolean") throw bad("answered must be true or false");
-  if (!isText(card.context)) throw bad("context must be a text");
+  if (!isLine(card.context)) throw bad("context must be a text of one line (400 characters at most)");
   if (!Array.isArray(card.asks)) throw bad("asks must be a list");
-  if (!card.answered && card.asks.length === 0) throw bad("a chat that JP did not answer needs one ask or more");
   card.asks.forEach((ask, index) => checkAsk(ask, `${where}, ask ${index + 1}`));
 }
 
@@ -195,29 +245,60 @@ ${batch.questions.map(cardHtml).join("\n")}
 `;
 }
 
-function relayText(queue, asks, { words, picks, note }) {
-  const chosen = new Map();
-  for (const token of (picks || "").split(/[\s,]+/).filter(Boolean)) {
-    const match = /^(\d+)([a-c])$/.exec(token);
-    const ask = match ? asks[Number(match[1]) - 1] : null;
-    const index = match ? KEYS.indexOf(match[2]) : -1;
-    if (!ask || !ask.choices[index]) throw new InputError(`relay: the pick "${token}" names no question and choice of this item (write a question number and a letter, 1a)`);
-    chosen.set(Number(match[1]) - 1, `${match[2]}. ${ask.choices[index].label}`);
+/**
+ * The numbers that JP saw for the asks of an item: those of the page of the batch that showed its newest
+ * reply (the map file), or null when no page showed it. `batch --again` writes the map again, so the
+ * numbers are those of the newest page.
+ */
+function shownNumbers(dir, item, asks) {
+  if (!(isRecord(item.shown) && item.shown.cursor === (item.cursor ?? null))) return null;
+  const file = join(dir, "batches", `batch-${item.shown.batch}.json`);
+  let mine;
+  try {
+    mine = JSON.parse(readFileSync(file, "utf8")).questions.filter((q) => q.item === item.id);
+  } catch (error) {
+    throw new InputError(`relay: cannot read the map of batch ${item.shown.batch} (${file}): ${error.message}`);
   }
+  const numbers = asks.map((_, index) => mine.find((q) => q.index === index)?.n);
+  if (mine.length !== asks.length || !numbers.every(Number.isInteger)) {
+    throw new InputError(`relay: the page of batch ${item.shown.batch} does not hold the questions of the item "${item.id}" as they are now: run batch --again ${item.shown.batch}, show the page, and ask again`);
+  }
+  return numbers;
+}
+
+/**
+ * The message for the chat that asked. Its form keeps JP's words apart from every other text: his words
+ * come first, under their own mark; the picks line holds numbers and letters only; each text of the reader
+ * comes after, as one line that starts with a question number or a choice letter.
+ */
+function relayText(queue, asks, numbers, batch, { words, picks, note }) {
+  const tokens = (picks || "").split(/[\s,]+/).filter(Boolean);
+  if (tokens.length > 0 && numbers === null) throw new InputError("relay: this item was not shown on a page, so JP saw no question number: run batch and show the page first, or leave --picks out");
+  const shown = numbers ?? asks.map((_, index) => index + 1);
+  for (const token of tokens) {
+    const match = /^(\d+)([a-c])$/.exec(token);
+    if (!match) throw new InputError(`relay: the pick "${token}" is not a question number and a choice letter (1a)`);
+    const at = shown.indexOf(Number(match[1]));
+    if (at < 0) throw new InputError(`relay: the pick "${token}": question ${Number(match[1])} is not a question of this item on the page of batch ${batch} (its questions there: ${shown.join(", ")})`);
+    if (!asks[at].choices[KEYS.indexOf(match[2])]) throw new InputError(`relay: the pick "${token}": question ${Number(match[1])} has no choice ${match[2]}`);
+  }
+  const many = asks.length !== 1;
   const lines = [
-    `Relay from the chat "${queue.chat.title}". JP answered there the question${asks.length === 1 ? "" : "s"} that you have for him.`,
+    `Relay from the chat "${oneLine(queue.chat.title)}". JP answered there the question${many ? "s" : ""} that you have for him.`,
     "",
     "JP's words, word for word:",
     words,
+    "End of JP's words.",
     "",
-    `Your question${asks.length === 1 ? "" : "s"}, as that chat showed ${asks.length === 1 ? "it" : "them"} to him:`,
   ];
+  if (tokens.length > 0) lines.push(`JP's picks, as the chat that relays read them from his words (question number, choice letter): ${tokens.join(" ")}`, "");
+  lines.push(`Not JP's words. Your question${many ? "s" : ""} and ${many ? "their" : "its"} choices, as that chat showed them to him:`);
   asks.forEach((ask, index) => {
-    lines.push(`${index + 1}. ${ask.ask}`);
-    if (chosen.has(index)) lines.push(`   His pick: ${chosen.get(index)}`);
+    lines.push(`${shown[index]}. ${oneLine(ask.ask)}`);
+    ask.choices.forEach((choice, at) => lines.push(`   ${KEYS[at]}. ${oneLine(choice.label)}`));
   });
   if (note) lines.push("", "Not JP's words (the chat that relays wrote this):", note);
-  lines.push("", "Only the lines under \"JP's words\" and each \"His pick\" are from him. If they do not settle a question, ask him again in your next reply.");
+  lines.push("", "Only the lines between \"JP's words, word for word:\" and \"End of JP's words.\" are from him. If they do not settle a question, ask him again in your next reply.");
   return `${lines.join("\n")}\n`;
 }
 
@@ -256,35 +337,48 @@ export function main(argv, env = process.env) {
   const items = ordered(queue.items);
   const put = (item, fields) => q("put", "--item", JSON.stringify({ ...item, ...fields }));
 
+  const open = items.filter(forJp);
+  const noCursor = open.filter((item) => !isText(item.cursor) && asksOf(item) === null).map((item) => item.id);
+
   if (command === "brief") {
     if (!values.out) throw new InputError("brief: --out <cards file> is required");
-    const need = items.filter((item) => forJp(item) && isText(item.cursor) && asksOf(item) === null);
-    if (need.length === 0) throw new InputError("brief: no item needs a card");
+    checkOneItemEachChat(open);
+    const need = open.filter(needsReader);
+    if (need.length === 0) throw new InputError(`brief: no item needs a card${noCursor.length ? ` (no card can be written for an item with no cursor: ${noCursor.join(", ")})` : ""}`);
     const list = join(dir, "cards-to-read.jsonl");
     const rows = need.map((item) => {
       const count = countOf(item.cursor);
-      return JSON.stringify({ threadId: item.threadId ?? item.id, cursor: item.cursor, item_count: Number.isFinite(count) ? count : null, title: item.title, questions: item.questions ?? [] });
+      return JSON.stringify({ threadId: chatOf(item), cursor: item.cursor, item_count: Number.isFinite(count) ? count : null, title: item.title, questions: item.questions ?? [] });
     });
     const temp = join(dir, `.cards-to-read.${process.pid}.tmp`);
     writeFileSync(temp, `${rows.join("\n")}\n`, { flag: "wx" });
     renameSync(temp, list);
     const template = readFileSync(join(HERE, "..", "references", "card-brief.txt"), "utf8");
-    return template.replaceAll("{{count}}", String(need.length)).replaceAll("{{to_read}}", list).replaceAll("{{out}}", resolve(values.out));
+    // A function gives the text as it is: a "$&" in a file name is no pattern.
+    return template.replaceAll("{{count}}", () => String(need.length)).replaceAll("{{to_read}}", () => list).replaceAll("{{out}}", () => resolve(values.out));
   }
 
   if (command === "merge") {
     const cards = readCards(values.cards);
-    const byThread = new Map(items.filter(forJp).map((item) => [item.threadId ?? item.id, item]));
-    const out = { merged: [], stale: [], moved: [], not_open: [], answered: [] };
+    checkOneItemEachChat(open);
+    const byThread = new Map(open.map((item) => [chatOf(item), item]));
+    const out = { merged: [], stale: [], moved: [], not_open: [], answered: [], no_question: [] };
     const writes = [];
+    const hold = (item, card, why) => {
+      writes.push([item, { card_hold: { cursor: card.cursor, why, at: now } }]);
+      out[why].push(card.threadId);
+    };
     for (const card of cards) {
       const item = byThread.get(card.threadId);
       if (!item) out.not_open.push(card.threadId);
       else if (card.cursor !== item.cursor) out.stale.push(card.threadId);
+      // An earlier report holds the card of this reply: it stands, whatever this line says.
+      else if (held(item)) out[item.card_hold.why].push(card.threadId);
       // The cursor ends in the item count of the reply that asks. More items now: the chat moved after the
       // scan, so the question may be answered. The next scan reads it again.
-      else if (Number.isFinite(card.item_count_now) && Number.isFinite(countOf(card.cursor)) && card.item_count_now !== countOf(card.cursor)) out.moved.push(card.threadId);
-      else if (card.answered) out.answered.push(card.threadId);
+      else if (Number.isFinite(card.item_count_now) && Number.isFinite(countOf(card.cursor)) && card.item_count_now !== countOf(card.cursor)) hold(item, card, "moved");
+      else if (card.answered) hold(item, card, "answered");
+      else if (card.asks.length === 0) hold(item, card, "no_question");
       else {
         const first = card.asks[0];
         writes.push([item, {
@@ -309,8 +403,9 @@ export function main(argv, env = process.env) {
   if (command === "batch") {
     const size = values.size === undefined ? 5 : Number(values.size);
     if (!Number.isInteger(size) || size < 1) throw new InputError("batch: --size must be a whole number of 1 or more");
-    const open = items.filter(forJp);
-    const noCard = open.filter((item) => asksOf(item) === null).length;
+    const noCard = open.filter(needsReader).length;
+    const holds = open.filter(held).map((item) => ({ item: item.id, why: item.card_hold.why }));
+    const rest = { no_card: noCard, held: holds, no_cursor: noCursor };
     const ready = open.filter((item) => asksOf(item) !== null && !(item.shown && item.shown.cursor === (item.cursor ?? null)));
     const groupOf = (item) => item.project || "no project";
     const folder = join(dir, "batches");
@@ -323,7 +418,7 @@ export function main(argv, env = process.env) {
       taken.push(...open.filter((item) => asksOf(item) !== null && item.shown && item.shown.batch === number && item.shown.cursor === (item.cursor ?? null)));
       if (taken.length === 0) throw new InputError(`batch: no open question of batch ${number} is left to show`);
     } else {
-      if (ready.length === 0) return { batch: null, questions: [], left: 0, no_card: noCard };
+      if (ready.length === 0) return { batch: null, questions: [], left: 0, ...rest };
       let count = 0;
       for (const item of ready) {
         const asks = asksOf(item);
@@ -355,7 +450,7 @@ export function main(argv, env = process.env) {
     writeFileSync(map, `${JSON.stringify(batch, null, 1)}\n`, { flag: again ? "w" : "wx" });
     writeFileSync(page, pageHtml(batch), { flag: again ? "w" : "wx" });
     if (!again) for (const item of taken) put(item, { shown: { batch: number, cursor: item.cursor ?? null, at: now } });
-    return { batch: number, group, page, map, questions: questions.map(({ n, item, ask }) => ({ n, item, ask })), left, no_card: noCard };
+    return { batch: number, group, page, map, questions: questions.map(({ n, item, ask }) => ({ n, item, ask })), left, ...rest };
   }
 
   // relay
@@ -366,7 +461,7 @@ export function main(argv, env = process.env) {
   if (!OPEN.has(item.status)) throw new InputError(`relay: the item "${values.item}" is ${item.status}`);
   const asks = asksOf(item);
   if (asks === null) throw new InputError(`relay: the item "${values.item}" has no card for its newest reply`);
-  const text = relayText(queue, asks, values);
+  const text = relayText(queue, asks, shownNumbers(dir, item, asks), item.shown?.batch, values);
   if (values.sent) {
     put(item, { relayed: [...(Array.isArray(item.relayed) ? item.relayed : []), { at: now, words: values.words }] });
     if (!values["keep-open"]) q("resolve", "--item", item.id, "--to", "done", "--note", `JP answered in the chat "${queue.chat.title}": ${values.words}`);

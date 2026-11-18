@@ -14,7 +14,7 @@ One JSON object on one line, with exactly these keys:
 - `item_count_now`: the thread's item count that the read result gives (a number).
 - `answered`: true when a message from a person (a `user_message` with `createdBy: "user"` and no `senderThreadId`) comes after the reply that asks. Else false.
 - `context`: one sentence of at most 160 characters, in plain words: what this chat works on and what waits on JP's answer.
-- `asks`: an array, one object for each open question the last final reply puts to JP. Empty when `answered` is true. Each object:
+- `asks`: an array, one object for each open question the last final reply puts to JP. Empty when `answered` is true, and when that reply puts no question to him. Each object:
   - `emoji`: one emoji that fits the question.
   - `ask`: the question in plain words, at most 120 characters, ending in "?". A person who has not read the chat must understand it: name things in words, no code and no id.
   - `why`: one sentence of at most 140 characters: why it matters, or what work waits on it.
@@ -25,7 +25,7 @@ One JSON object on one line, with exactly these keys:
   - `if_no_answer`: what the reply says the chat does when JP does not answer, at most 100 characters, or null when it does not say.
   - `yours`: true when the question is an act that only JP can do with his own hands or accounts, else false.
 
-Keep the reply's meaning. Use its own words where they are plain; make jargon plain. Do not join two questions into one, and do not split one.
+Keep the reply's meaning. Use its own words where they are plain; make jargon plain. Do not join two questions into one, and do not split one. Each text is one line: write no line break inside a text.
 
 ## Output
 Write all {{count}} lines with the Write tool to `{{out}}` (JSON Lines: one object on each line, no blank lines, no surrounding array, valid JSON on every line). Shell rules, if you use Bash at all: no heredoc, no shell loop, no `rm`, never run pnpm.
