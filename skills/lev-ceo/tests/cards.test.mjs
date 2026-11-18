@@ -150,6 +150,27 @@ test("an item with no cursor gets no card: brief and batch name it", () => {
   assert.equal(batch.no_card, 0);
 });
 
+// After five readers (the fifth said good to go, with three minor findings): the queue program takes an
+// empty thread id, and a card with an empty thread id is refused. The item is then named by its id.
+test("an item with an empty thread id is named by its id, so a reader can copy the name from the list into a card", () => {
+  const root = queueWith([item("a", { threadId: "" }), item("b", { threadId: null })]);
+  cards(root, ["brief", "--out", join(root, "out.jsonl")]);
+  const list = readFileSync(join(folder(root), "cards-to-read.jsonl"), "utf8").trim().split("\n").map((l) => JSON.parse(l));
+  assert.deepEqual(list.map((l) => l.threadId), ["a", "b"]);
+  assert.deepEqual(json(merge(root, list.map((l) => line(l.threadId, { cursor: l.cursor })))).merged, ["a", "b"]);
+  assert.deepEqual(json(cards(root, ["batch"])).questions.map((q) => q.item), ["a", "b"]);
+});
+
+test("a hold with a reason that is not one of the three reports is no hold, also for the newest reply", () => {
+  for (const why of [{ toString: null }, "other", "", 7, true, ["moved"], null]) {
+    const root = queueWith([item("a", { card_hold: { cursor: "r1#40", why, at: NOW } })]);
+    const out = json(cards(root, ["batch"]));
+    assert.deepEqual([out.held, out.no_card], [[], 1], JSON.stringify(why));
+    assert.deepEqual(json(merge(root, [line("a")])).merged, ["a"], JSON.stringify(why));
+    assert.deepEqual(json(cards(root, ["batch"])).questions.map((q) => q.item), ["a"], JSON.stringify(why));
+  }
+});
+
 test("two open items of one chat are refused by brief and by merge, before any write", () => {
   const root = queueWith([item("a", { threadId: "same" }), item("b", { threadId: "same" })]);
   const before = bytes(root);

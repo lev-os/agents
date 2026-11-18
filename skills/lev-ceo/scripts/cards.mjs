@@ -64,8 +64,8 @@
  *
  * The typed read: scripts/queue.mjs checks id, kind, title, reason, status, priority, threadId, link and
  * card of an item, and takes any JSON value in each other field. This program reads ten of those (cursor,
- * asks, asks_cursor, context, questions, source, project, shown, card_hold, relayed), each in one function
- * of one block, and a value of the wrong type is read as if the field were absent: no cursor (the item is
+ * asks, asks_cursor, context, questions, source, project, shown, card_hold, relayed), each only in one
+ * block of typed functions, and a value of the wrong type is read as if the field were absent: no cursor (the item is
  * named under no_cursor), no card, no page, no hold, the project "no project", no relay yet. So a command
  * ends with exit 0 or 2 whatever a `put` stored in those fields.
  *
@@ -122,8 +122,8 @@ const HOLDS = ["moved", "answered", "no_question"];
 // scripts/queue.mjs checks these fields of an item when it stores it: id, kind, title, reason, status,
 // priority, threadId, link, card. It takes any JSON value in each other field. This program reads ten of
 // those: cursor, asks, asks_cursor, context, questions, source, project, shown, card_hold, relayed. Each is
-// read in this block only, by one function, and a value of the wrong type is read as if the field were
-// absent: no cursor, no card, no mark of a page, no hold, no project, no relay yet. So no value of an item
+// read in this block only, by a function that checks its type, and a value of the wrong type is read as if
+// the field were absent: no cursor, no card, no mark of a page, no hold, no project, no relay yet. So no value of an item
 // reaches the page, the map, the relay or an error message without its type.
 /** The reply that the item is for, or null. */
 const cursorOf = (item) => (isText(item.cursor) ? item.cursor : null);
@@ -216,7 +216,8 @@ function pageNumbers(dir, item, card = cardOf(item)) {
 const forJp = (item) => OPEN.has(item.status) && item.kind !== "watch";
 /** An item that a reader can write a card for: it has a cursor, no card for it, and no report holds it. */
 const needsReader = (item) => cursorOf(item) !== null && !held(item) && cardOf(item) === null;
-const chatOf = (item) => item.threadId ?? item.id;
+/** The name of the item's chat in the reader's list and in a card: its thread id, or its id when it has none (scripts/queue.mjs takes null and an empty text; a card with an empty thread id is refused). */
+const chatOf = (item) => (isText(item.threadId) && item.threadId !== "" ? item.threadId : item.id);
 
 /** A card belongs to a chat: two open items of one chat cannot both get it. */
 function checkOneItemEachChat(open) {
