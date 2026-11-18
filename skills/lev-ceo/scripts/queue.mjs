@@ -44,7 +44,10 @@ const MOVES = {
   done: [],
   dropped: [],
 };
-const CARD_KEYS = ["goal", "state", "ask", "recommend", "ifNoAnswer"];
+const CARD_KEYS = ["goal", "state", "ask", "recommend"];
+// A card held a default for no answer until 2026-11-18. JP: silence is not a yes. A stored card may still
+// hold the key: it is read and dropped, never shown.
+const RETIRED_CARD_KEYS = ["ifNoAnswer"];
 const MANAGED = ["status", "addedAt", "updatedAt", "presentedAt", "doneAt", "outcome"];
 const DEFAULT_CADENCE = { refreshEveryMin: 60, hygieneEveryMin: 180 };
 
@@ -148,6 +151,7 @@ export function validateItem(item) {
   if (item.card !== undefined && item.card !== null) {
     if (typeof item.card !== "object" || Array.isArray(item.card)) throw new InputError(`item ${item.id}: card must be an object`);
     for (const [key, value] of Object.entries(item.card)) {
+      if (RETIRED_CARD_KEYS.includes(key)) continue;
       if (!CARD_KEYS.includes(key)) throw new InputError(`item ${item.id}: card has unknown key "${key}"`);
       if (value !== null && typeof value !== "string") throw new InputError(`item ${item.id}: card.${key} must be a string or null`);
     }
@@ -227,7 +231,7 @@ function put(dir, queue, raw, { reopen, now }) {
   if (CLOSED.has(old.status) && !reopen) {
     throw new InputError(`item ${raw.id} is ${old.status}; pass --reopen to put it back in the queue`);
   }
-  const item = { ...old, ...fields, card: raw.card === undefined ? old.card : normalCard(raw.card), updatedAt: now };
+  const item = { ...old, ...fields, card: normalCard(raw.card === undefined ? old.card : raw.card), updatedAt: now };
   let note = `updated: ${Object.keys(fields).filter((key) => key !== "id" && JSON.stringify(fields[key]) !== JSON.stringify(old[key])).join(", ") || "no field changed"}`;
   if (CLOSED.has(old.status)) {
     item.status = "pending";

@@ -20,9 +20,10 @@
  *                                 report: it holds the card of that reply (`card_hold`), also a card that was
  *                                 stored before and a card that comes later. The hold ends when the item gets
  *                                 a new cursor (the next scan).
- *   batch [--size 5]           -> the next questions for JP, all of one project, numbered from 1: whole items
- *                                 until --size questions are reached. An item is never cut, so one item that
- *                                 holds more than --size questions makes a batch alone. Writes
+ *   batch [--size <n>]         -> the open questions for JP, all of one project, numbered from 1. With no
+ *                                 --size, every one of them. With --size, whole items until --size questions
+ *                                 are reached: an item is never cut, so one item that holds more than --size
+ *                                 questions makes a batch alone. Writes
  *                                 <queue>/batches/batch-<n>.html (the page to show) and batch-<n>.json
  *                                 (question number -> item, choices), and marks each item as shown for its
  *                                 reply. Prints {batch, group, page, map, questions, left, no_card, held,
@@ -55,7 +56,7 @@
  * refused by `brief` and `merge`: a card belongs to a chat.
  *
  * A card is the asks of an item and its context. Each text of a card that the page or the relay shows (the
- * context; of an ask: emoji, ask, why, because, if_no_answer, each expert; of a choice: label, gain, cost)
+ * context; of an ask: emoji, ask, why, because, each expert; of a choice: label, gain, cost)
  * is one line of at most 400 characters, and an ask names at most 5 experts; the page shows each of them.
  * `threadId` and `cursor` name the chat and the reply: they are compared as they are and have no limit of
  * their own. A stored card that `merge` would refuse (an older program or a `put` by hand stored it: an
@@ -108,7 +109,7 @@ const noReply = (item) => ({
     { label: "Yes, tell it to continue", gain: "The work goes on with no visit from you", cost: null },
     { label: "No, I go to the chat myself", gain: null, cost: "It waits until you do" },
   ],
-  pick: null, because: null, experts: [], if_no_answer: "It stays as it is.", yours: false,
+  pick: null, because: null, experts: [], yours: false,
 });
 
 /**
@@ -178,13 +179,13 @@ const pageMarkOf = (item) => (item.shown?.cursor === cursorOf(item) && Number.is
 const faceOf = (card, ask) => ({
   context: card.context, emoji: ask.emoji, ask: ask.ask, why: ask.why ?? null,
   choices: ask.choices.map((choice, at) => ({ key: KEYS[at], label: choice.label, gain: choice.gain ?? null, cost: choice.cost ?? null, pick: ask.pick === at })),
-  because: ask.because ?? null, experts: ask.experts, if_no_answer: ask.if_no_answer ?? null, yours: ask.yours,
+  because: ask.because ?? null, experts: ask.experts, yours: ask.yours,
 });
 /** A question of a map, or a face, as one text with its keys in one order: two are the same when the texts are. */
 const faceText = (q) => JSON.stringify([
   q.context ?? null, q.emoji, q.ask, q.why ?? null,
   Array.isArray(q.choices) ? q.choices.map((choice) => (isRecord(choice) ? [choice.key, choice.label, choice.gain ?? null, choice.cost ?? null, choice.pick === true] : null)) : null,
-  q.because ?? null, q.experts, q.if_no_answer ?? null, q.yours,
+  q.because ?? null, q.experts, q.yours,
 ]);
 
 /**
@@ -249,7 +250,7 @@ function checkAsk(ask, where) {
   if (!isRecord(ask)) throw bad("an ask is not an object");
   if (!isLine(ask.ask) || ask.ask.trim() === "") throw bad("ask must be a text of one line (400 characters at most)");
   if (!isLine(ask.emoji)) throw bad("emoji must be a text of one line (400 characters at most)");
-  for (const key of ["why", "because", "if_no_answer"]) if (!lineOrNull(ask[key])) throw bad(`${key} must be a text of one line (400 characters at most), or null`);
+  for (const key of ["why", "because"]) if (!lineOrNull(ask[key])) throw bad(`${key} must be a text of one line (400 characters at most), or null`);
   if (!Array.isArray(ask.choices) || ask.choices.length > KEYS.length) throw bad(`choices must be a list of at most ${KEYS.length}`);
   for (const choice of ask.choices) {
     if (!isRecord(choice) || !isLine(choice.label) || choice.label.trim() === "") throw bad("a choice needs a label that is a text of one line (400 characters at most)");
@@ -336,8 +337,7 @@ function cardHtml(q) {
   const picked = q.choices.find((choice) => choice.pick);
   return `      <div class="card">
         <div class="q"><div class="e">${esc(q.emoji)}</div><div><div class="n">QUESTION ${q.n}</div><div class="h">${esc(q.ask)}</div></div></div>
-        <div class="from">💬 ${esc(q.title)}${q.context ? ` · ${esc(q.context)}` : ""}</div>${q.yours ? `\n        <div class="act">✋ only you can do this</div>` : ""}${options ? `\n        <div class="opts">\n          ${options}\n        </div>` : ""}${q.why ? `\n        <div class="why"><b>Why it matters:</b> ${esc(q.why)}</div>` : ""}${picked && q.because ? `\n        <div class="why"><b>Why ${picked.key}:</b> ${esc(q.because)}</div>` : ""}${q.experts.length ? `\n        <div class="src">🎓 ${q.experts.map(esc).join(" · ")}</div>` : ""}${q.if_no_answer ? `\n        <div class="src">⏳ No answer: ${esc(q.if_no_answer)}</div>` : ""}
-      </div>`;
+        <div class="from">💬 ${esc(q.title)}${q.context ? ` · ${esc(q.context)}` : ""}</div>${q.yours ? `\n        <div class="act">✋ only you can do this</div>` : ""}${options ? `\n        <div class="opts">\n          ${options}\n        </div>` : ""}${q.why ? `\n        <div class="why"><b>Why it matters:</b> ${esc(q.why)}</div>` : ""}${picked && q.because ? `\n        <div class="why"><b>Why ${picked.key}:</b> ${esc(q.because)}</div>` : ""}${q.experts.length ? `\n        <div class="src">🎓 ${q.experts.map(esc).join(" · ")}</div>` : ""}      </div>`;
 }
 
 function pageHtml(batch) {
@@ -497,7 +497,6 @@ export function main(argv, env = process.env) {
             state: card.context,
             ask: card.asks.map((ask) => ask.ask).join(" "),
             recommend: Number.isInteger(first.pick) ? first.choices[first.pick].label : null,
-            ifNoAnswer: first.if_no_answer ?? null,
           },
         }]);
         out.merged.push(card.threadId);
@@ -508,8 +507,9 @@ export function main(argv, env = process.env) {
   }
 
   if (command === "batch") {
-    const size = values.size === undefined ? 5 : Number(values.size);
-    if (!Number.isInteger(size) || size < 1) throw new InputError("batch: --size must be a whole number of 1 or more");
+    // No --size: every open question of the project is on the page. JP 2026-11-18: a question has no cap.
+    const size = values.size === undefined ? Infinity : Number(values.size);
+    if (size !== Infinity && (!Number.isInteger(size) || size < 1)) throw new InputError("batch: --size must be a whole number of 1 or more");
     const noCard = open.filter(needsReader).length;
     const holds = open.filter(held).map((item) => ({ item: item.id, why: holdOf(item) }));
     const rest = { no_card: noCard, held: holds, no_cursor: noCursor };

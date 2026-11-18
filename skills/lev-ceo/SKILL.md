@@ -34,7 +34,8 @@ Pick the first row that matches. Open a reference file only when its row names i
 | "roll up", "consolidate", "now page" with no time window | Roll-up | `references/roll-up.md` |
 | "delete", "prune", "remove the old records" | Keep the records: one For you item | §6 |
 | "handoff", "commit", "checkpoint" | Handoff and commit | §6 |
-| Anything else | Answer first, then the reply template | `~/.claude/CLAUDE.md` |
+| A pinned chat went stale; "pins" | Nudge | `references/sweep.md`, Pins |
+| Anything else | Answer first | `~/.claude/CLAUDE.md` |
 
 ## Chief of staff across chats
 
@@ -44,7 +45,7 @@ Before putting a question in front of JP, compare the original ask, the latest r
 
 Handle engineering questions within the granted scope. When the fault reproduces, the cause explains it, and the repair follows project idioms and JP’s intent, route the fix and its regression check to the owner. A design-only or read-only assignment still bounds that work. Surface uncertainty that changes the product, permissions, cost, or an agreed boundary.
 
-Rank the surviving questions by the work an answer unlocks. Bring one subject at a time. Group up to three related decisions or stay on one architecture interview across turns. Record the answer once, send the relevant ruling directly to each affected in-scope owner, and check delivery and acknowledgment. JP’s explicit delegation to collect and relay answers authorizes that relay without another confirmation. It does not transfer worker ownership. If acknowledgment is pending, track it and advance the independent queue. On every answer, report what moved and present the next meaningful item without waiting for a status request. Before settling or proposing archive, reconcile every original ask and leftover against evidence and records (§4).
+Rank the surviving questions by the work an answer unlocks. Bring them as one sheet for each topic. Record the answer once, send the relevant ruling directly to each affected in-scope owner, and check delivery and acknowledgment. JP’s explicit delegation to collect and relay answers authorizes that relay without another confirmation. It does not transfer worker ownership. If acknowledgment is pending, track it and advance the independent queue. On every answer, report what moved and present the next meaningful item without waiting for a status request. Before settling or proposing archive, reconcile every original ask and leftover against evidence and records (§4).
 
 ## 1. Start
 
@@ -60,7 +61,7 @@ Rank the surviving questions by the work an answer unlocks. Bring one subject at
    | Quiet hours? | None | 23:00 to 07:00 · 01:00 to 09:00 (his zone, from `date +%Z`) |
    | How many workers at once? | 5 | 3 · 8 |
 
-   A loop that is on runs through the ll skill (§5). With no card tool, write the defaults as one For you item and start with them. No answer means the defaults. Save the answers in a new handoff (§6):
+   A loop that is on runs through the ll skill (§5). With no card tool, ask the four as one For you item. Until JP answers: loop off, `unasked: []`. Save the answers in a new handoff (§6):
 
    ```yaml
    setup:
@@ -73,7 +74,7 @@ Rank the surviving questions by the work an answer unlocks. Bring one subject at
 
    Ask the card once for each chat. JP changes a value by saying so; write the change to `setup` in the same turn. Done when the handoff holds `setup` and is committed by path.
 5. **Sweep** the chats in scope (`references/sweep.md`). Done when each live chat has a row with its age and its owner, or "no owner".
-6. **Name and reply.** Rename this chat `CEO > {project}`. Reply with the Thread list (`references/replies.md`).
+6. **Name and reply.** Rename this chat `CEO > {project}`; at global scope, `CEO > global`. Reply with the Thread list (`references/replies.md`).
 
 ## 2. The turn
 
@@ -104,7 +105,7 @@ workers:
     left: null                       # set by Collect and rerun: what the report left undone; [] when nothing
 ```
 
-**Ready.** A slice is ready when its scope, its owner and a check that can fail are known. A slice that is not ready gets a My plan line that names the missing piece.
+**Ready.** A slice is ready when its scope, its owner and a check that can fail are known. A run of 6 hours or more is ready when it has a lev-plan plan and JP has answered its open decisions. A slice that is not ready gets a My plan line that names the missing piece.
 
 **Size.** One Opus worker (`claude-opus-5-5`, effort high) for each ready slice. Count the `state: running` rows first: at `setup.worker_limit`, hold the launch and say so.
 
@@ -147,7 +148,7 @@ Settle a worker chat when the script says it is ready. Ready means all seven: on
 5. **Each `ask_owner` row** is another CEO's ready chat: settle it when that CEO or JP asks. A CEO with no T3 tools sends its list to the project's T3 CEO; the list names each chat's leftovers and their records, not only its id.
 6. **Report** each settled chat by its link under Shipped. `unsettle` undoes a settle.
 
-A chat with "no owner" is JP's: settle it on his word only. Done when a second run lists no `settle` row you own and `git worktree list` shows none of the removed paths.
+A chat with "no owner" is JP's. On his word, list what its last report leaves (§3 step 5), give each leftover its record, then settle it. To merge two chats, do the same for the one that closes, and name the chat that keeps the work in each record. Done when a second run lists no `settle` row you own and `git worktree list` shows none of the removed paths.
 
 ## 5. Loop
 
@@ -184,7 +185,7 @@ node ~/.agents/skills/lev-ceo/scripts/citations.mjs --root "$(git rev-parse --sh
 node ~/.agents/skills/lev-ceo/tests/fresh-agent-settle.mjs               # a fresh agent with only this file picks the script's chats
 ```
 
-After you edit this skill, run all three. `tests/queue.test.mjs` proves the queue order (priority, then age; the presented head stays), the allowed moves, the two cadences and one event line per change. `tests/sweep.test.mjs` proves the choice for each chat of the all-projects index (`references/sweep.md`, The wider sweep): a chat is asked once, a CEO chat never, a wrong list is refused, `--project` shows one project, no choice is stored, a second command that writes is refused while one holds the lock, each sample of an odd JSON value in each field of an input file gives exit 0 or 2 and stops no later command (a matrix of samples), a chat whose id holds a tab, a line break or a leading `--` goes through scan, merge and queue (a round trip), the program starts no process (a run under Node's permission system), and `queue` keeps one open item for each chat whose newest reply holds a question for JP, until a person closes it or the chat is settled. `scripts/audit-transcripts.mjs` counts what CEO sessions did (ticks that changed nothing, settle orders, repeated questions) from their transcripts.
+After you edit this skill, run all three. `tests/queue.test.mjs` proves the queue order (priority, then age; the presented head stays), the allowed moves, the two cadences and one event line per change. `tests/sweep.test.mjs` proves the choice for each chat of the all-projects index (`references/sweep.md`, The wider sweep): a chat is asked once, a CEO chat never, a wrong list is refused, `--project` shows one project, no choice is stored, a second command that writes is refused while one holds the lock, each sample of an odd JSON value in each field of an input file gives exit 0 or 2 and stops no later command (a matrix of samples), a chat whose id holds a tab, a line break or a leading `--` goes through scan, merge and queue (a round trip), the program starts no process (a run under Node's permission system), a pinned chat keeps its pin in its row and is never left out for its age, and `queue` keeps one open item for each chat whose newest reply holds a question for JP, until a person closes it or the chat is settled. `scripts/audit-transcripts.mjs` counts what CEO sessions did (ticks that changed nothing, settle orders, repeated questions) from their transcripts.
 
 ## 9. Queue
 
@@ -192,12 +193,12 @@ The queue holds the chats that need you or JP. It lives outside the repo, so a c
 
 | Kind | Holds | Card |
 |---|---|---|
-| `attention` | a chat that waits on JP or on a CEO action | goal, state, ask, recommend, ifNoAnswer: the parts of the reply template |
+| `attention` | a chat that waits on JP or on a CEO action | goal, state, ask, recommend: the parts of the reply template |
 | `settle` | one batch item: the chats ready to settle (§4), their ids under `members` | the same |
 | `watch` | a chat to check at the next refresh; never the head, never in the Queue line | empty |
 
 1. **Restore.** After a compaction, or when the queue is not in context: `open --title "<this chat's title>"`, then `show --text`. Do it before the reply. `open` finds this chat's queue by its thread id; it makes a new one only when none exists.
-2. **Work the head.** `next` gives the head: the item already shown to JP, else the first pending `attention` or `settle` item by priority (1 first), then age. Show it in the reply template of `~/.claude/CLAUDE.md`, the same template for every chat, built from its card. End the reply with one line: `Queue: <left> left: <short titles>`, from `left` and `leftTitles`. One head for each reply.
+2. **Work the head.** `next` gives the head: the item already shown to JP, else the first pending `attention` or `settle` item by priority (1 first), then age. Show it in the reply template of `~/.claude/CLAUDE.md`, the same template for every chat, built from its card. End the reply with one line: `Queue: <left> left: <short titles>`, from `left` and `leftTitles`. One page for each reply.
 3. **Resolve.** JP's answer resolves the head: `resolve --item <id> --to done|waiting|dropped --note "<his words or the outcome>"`. A ruling also becomes a decision record (§6). Then `next`.
 4. **Refresh,** each tick: read the new messages of the chats in scope (§2 step 3). For each chat that needs you or JP, `put` its item (its id is the thread id; `put` updates the item with that id); a `watch` chat that now needs JP is `put` again as `attention` with a card. An item whose chat moved goes back with `resolve --to pending`; an item whose chat needs nothing more is resolved `done`. Then `ran --kind refresh`. After a wider sweep (`references/sweep.md`), one command does these moves for every chat of the index: `node ~/.agents/skills/lev-ceo/scripts/sweep.mjs queue --thread <this chat's id> --title "<this chat's title>"`. It touches only the items it made (`source: "sweep"`), so an item you put by hand stays yours. `scripts/cards.mjs` then makes the page of the next questions for JP and prints the message that takes his answer back with his words unchanged (`references/sweep.md`, Act on the choices; `tests/cards.test.mjs`).
 5. **Hygiene,** when `due` says `hygiene: true` (every 3 hours by default): run the settle reads and the script (§4). Settle the rows you may settle without asking (§4 step 3); `put` the rest as one `settle` item with id `settle-<YYYYMMDDTHHMMZ>`. Then `ran --kind hygiene`.

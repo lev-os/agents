@@ -84,7 +84,7 @@ test("merge stores the asks of a card on its item, for the reply the card was wr
   assert.equal(a.context, "It moves the service to the new host.");
   assert.equal(a.card.ask, "May the chat merge the branch?");
   assert.equal(a.card.recommend, "Yes, merge");
-  assert.equal(a.card.ifNoAnswer, "It waits.");
+  assert.equal("ifNoAnswer" in a.card, false, "a card holds no default for no answer");
   assert.equal(a.status, "pending");
 });
 
@@ -199,7 +199,6 @@ test("merge refuses a card line of the wrong form with exit 2, before any write"
     line("a", { asks: [ask({ pick: "0" })] }),
     line("a", { asks: [ask({ experts: "tmux" })] }),
     line("a", { asks: [ask({ yours: "yes" })] }),
-    line("a", { asks: [ask({ if_no_answer: 3 })] }),
     line("a", { answered: "no" }),
     line("a", { context: null }),
     line("a", { cursor: 4 }),
@@ -228,7 +227,6 @@ test("merge refuses a card line of the wrong form with exit 2, before any write"
     line("a", { asks: [ask({ emoji: "e".repeat(401) })] }),
     line("a", { asks: [ask({ why: "w".repeat(401) })] }),
     line("a", { asks: [ask({ because: "b".repeat(401) })] }),
-    line("a", { asks: [ask({ if_no_answer: "n".repeat(401) })] }),
     line("a", { asks: [ask({ experts: ["x".repeat(401)] })] }),
     line("a", { asks: [ask({ choices: [{ label: "l".repeat(401), gain: null, cost: null }] })] }),
     line("a", { asks: [ask({ choices: [{ label: "x", gain: "g".repeat(401), cost: null }] })] }),
@@ -244,13 +242,34 @@ test("merge refuses a card line of the wrong form with exit 2, before any write"
   }
 });
 
-test("batch shows at most five questions of one project, numbers them, and writes the page and its map", () => {
+test("batch shows every open question of one project when no size is given: a question has no cap", () => {
+  const two = [ask({ ask: "First of two?" }), ask({ ask: "Second of two?" })];
+  const root = queueWith([item("a"), item("b"), item("c", { project: "p2" }), item("d"), item("e"), item("f")]);
+  merge(root, [line("a"), line("b", { asks: two }), line("c"), line("d", { asks: [...two, ask({ ask: "Third?" })] }), line("e", { asks: two }), line("f")]);
+  const out = json(cards(root, ["batch"]));
+  assert.equal(out.group, "p1");
+  assert.deepEqual(out.questions.map((q) => [q.n, q.item]), [[1, "a"], [2, "b"], [3, "b"], [4, "d"], [5, "d"], [6, "d"], [7, "e"], [8, "e"], [9, "f"]]);
+  assert.equal(out.left, 1, "c is of another project");
+  assert.match(readFileSync(out.page, "utf8"), /QUESTION 9/);
+});
+
+test("the card of an item holds no default for no answer: silence is not a yes", () => {
+  const root = queueWith([item("a")]);
+  merge(root, [line("a", { asks: [ask({ if_no_answer: "It merges tomorrow." })] })]);
+  const [a] = stored(root);
+  assert.deepEqual(Object.keys(a.card).sort(), ["ask", "goal", "recommend", "state"]);
+  const html = readFileSync(json(cards(root, ["batch"])).page, "utf8");
+  assert.doesNotMatch(html, /No answer/);
+  assert.doesNotMatch(html, /It merges tomorrow/);
+});
+
+test("batch --size 5 shows at most five questions of one project, numbers them, and writes the page and its map", () => {
   const two = [ask({ ask: "First of two?" }), ask({ ask: "Second of two?" })];
   const root = queueWith([
     item("a"), item("b"), item("c", { project: "p2" }), item("d"), item("e"), item("f"),
   ]);
   merge(root, [line("a"), line("b", { asks: two }), line("c"), line("d", { asks: [...two, ask({ ask: "Third?" })] }), line("e", { asks: two }), line("f")]);
-  const out = json(cards(root, ["batch"]));
+  const out = json(cards(root, ["batch", "--size", "5"]));
   assert.equal(out.batch, 1);
   assert.equal(out.group, "p1");
   assert.deepEqual(out.questions.map((q) => [q.n, q.item]), [[1, "a"], [2, "b"], [3, "b"], [4, "e"], [5, "e"]], "d has 3 questions and does not fit");
@@ -323,13 +342,13 @@ test("the page shows the text of a chat as text, never as markup", () => {
 test("each text of a card and of its item is text on the page, at its own place", () => {
   const mark = (name) => `<i>${name}</i>`;
   const hostile = ask({
-    emoji: mark("emoji"), ask: `${mark("ask")}?`, why: mark("why"), because: mark("because"), if_no_answer: mark("no-answer"), experts: [mark("expert")],
+    emoji: mark("emoji"), ask: `${mark("ask")}?`, why: mark("why"), because: mark("because"), experts: [mark("expert")],
     choices: [{ label: mark("label"), gain: mark("gain"), cost: mark("cost") }, { label: "No", gain: null, cost: null }], pick: 0,
   });
   const root = queueWith([item("a", { title: mark("title"), project: mark("project") })]);
   merge(root, [line("a", { context: mark("context"), asks: [hostile] })]);
   const html = readFileSync(json(cards(root, ["batch"])).page, "utf8");
-  for (const name of ["emoji", "ask", "why", "because", "no-answer", "expert", "label", "gain", "cost", "title", "project", "context"]) {
+  for (const name of ["emoji", "ask", "why", "because", "expert", "label", "gain", "cost", "title", "project", "context"]) {
     assert.ok(html.includes(`&lt;i&gt;${name}&lt;/i&gt;`), `${name} is on the page as text`);
     assert.equal(html.includes(mark(name)), false, `${name} is markup on the page`);
   }
@@ -579,7 +598,6 @@ test("relay refuses an item whose questions or choices are not those of its page
     ["another emoji", (a) => ({ asks: [{ ...a.asks[0], emoji: "🧨" }] })],
     ["another reason", (a) => ({ asks: [{ ...a.asks[0], why: "The audit waits on it." }] })],
     ["another reason of the pick", (a) => ({ asks: [{ ...a.asks[0], because: "The checks fail." }] })],
-    ["another default", (a) => ({ asks: [{ ...a.asks[0], if_no_answer: "It merges tomorrow." }] })],
     ["another source", (a) => ({ asks: [{ ...a.asks[0], experts: ["Continuous delivery"] }] })],
     ["one source more", (a) => ({ asks: [{ ...a.asks[0], experts: [...a.asks[0].experts, "Continuous delivery"] }] })],
     ["a question for JP alone now", (a) => ({ asks: [{ ...a.asks[0], yours: true }] })],

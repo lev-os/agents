@@ -11,7 +11,7 @@ A sweep is one read of every live chat in scope. Start runs it once (`SKILL.md` 
 1. **List.** `mcp__t3-code__t3_thread_list {includeSubagents:false, settled:false, statuses:["running","waiting","queued","interrupted","completed"], limit:50}`. Omit `projectId` for this chat's project. Page while `nextCursor` is not null.
    - `completed` means the turn ended and the chat waits: it is open work until it is settled.
    - This chat reads `completed` while a subagent runs its turn. It is never idle.
-   - Keep `threadId`, `title`, `link`, `status`, `createdBy`, `updatedAt` and `itemCount`.
+   - Keep `threadId`, `title`, `link`, `status`, `createdBy`, `updatedAt`, `itemCount` and `pinned`.
 2. **Owner.** For each row: the CEO handoff that lists its `threadId` under `workers` (`grep -l -- '<thread id>' .lev/pm/handoffs/*ceo*.yaml`). No hit and `createdBy: "user"`: JP's own chat. No hit and `createdBy: "agent"`: no owner; the project's T3 CEO may adopt it by adding a row, and says so under Shipped.
 3. **Queues and questions,** for each chat you own with status `running` or `waiting`: `mcp__t3-code__t3_queue {action:"list", threadId}` and `mcp__t3-code__t3_pending_request {action:"list", threadId}`. The list hides approvals, so write "no question pending (approvals not listed)". A queued message on a running chat goes first in the reply.
 4. **New messages,** for each chat you own that you have not read this session. This is the thread-read rule; every other read in this skill uses it.
@@ -27,7 +27,18 @@ Done when each live chat has a row: link, status, age (the clock minus `updatedA
 
 ## Names
 
-Every chat a CEO starts or adopts is titled `{project} > {two or three words}`, plain words with spaces. A CEO chat is `CEO > {project}` (`.lev/pm/decisions/20261104-chat-title-convention.yaml`). Rename with `mcp__t3-code__t3_thread_update {action:"rename", threadId, title}`. Rename only chats you own.
+Every chat in scope is titled `{project} > {two or three words}`, plain words with spaces; the Leviathan project is `lev`. A CEO chat is `CEO > {project}`, and the one at global scope is `CEO > global` (`.lev/pm/decisions/20261104-chat-title-convention.yaml`). Rename with `mcp__t3-code__t3_thread_update {action:"rename", threadId, title}`. Check titles at each scan and rename the breaks.
+
+## Pins
+
+A pin is JP's mark: he wants eyes on that chat. The scan reads a pinned chat whatever its age, and its text marks the chat 📌.
+
+A pinned chat is stale when it has work left and nothing moved since the last scan. Nudge JP in the reply: the chat's link, the work left, and two questions, each with a recommendation taken from that work.
+
+- May I send it a message? Name the message. Recommend yes when the next step is work he approved and the chat can do alone.
+- Does the pin stay? Recommend unpin when no work is left or each leftover has its record (`SKILL.md` §3 step 5); else keep.
+
+He answers each on its own ("send, keep pinned"). Pin and unpin on his word only: `mcp__t3-code__t3_thread_organize`.
 
 ## Words
 
@@ -42,7 +53,7 @@ A scope is the set of chats, lanes and records you track. One project is the def
 |---|---|
 | none | One project: this chat's own |
 | "global", "all projects", "every project" | Every project `t3_project_list` returns |
-| "pin X and Y", "scope to X and Y" | Exactly the projects he names |
+| "scope to X and Y" | Exactly the projects he names |
 | "just X", "switch to X", "this project" | One project |
 
 A project named in passing is not a switch. On a switch, reply with one line such as "Scope: global · 7 projects · 2 live chats", then the Thread list at the new scope.
@@ -54,7 +65,7 @@ A project named in passing is not a switch. On a switch, reply with one line suc
 3. **Read what changed.** When rows say `read`, `node ~/.agents/skills/lev-ceo/scripts/sweep.mjs brief --out <labels file>` prints the brief for one Sonnet subagent. It reads each changed chat once, with the rules in `references/label-rules.txt`, and writes the labels file. Then `node ~/.agents/skills/lev-ceo/scripts/sweep.mjs merge --labels <labels file>`. A label holds the cursor the reader was given; when a scan ran in between and a chat moved, `merge` lists that chat under `stale` and it stays `read`. A chat whose label was taken leaves the list, so `brief` counts only what is left. A reader costs about 12,000 tokens for each chat (160,056 for 13 chats on 2026-11-18), and a chat that did not change is never read again.
 4. **Act on the choices.**
    - `unanswered` and `queue` are JP's: his message has no reply, or the reply holds questions for him. `node ~/.agents/skills/lev-ceo/scripts/sweep.mjs queue --thread <this chat's id> --title "<this chat's title>"` puts each as one item in this chat's queue (`scripts/queue.mjs`; `SKILL.md` §9), and also an `ask` chat whose reply holds a question beside its approved work. It closes an item in two cases only: the chat was settled, or the label of its newest reply holds no question for him. It never asks twice for a reply that a person closed. It touches only the items it made. `cards.mjs merge` stores no card for a chat that has more items than at the scan: he may have answered in that chat.
-   - Show JP the questions as cards, and take his answer back, with `scripts/cards.mjs` (its header lists the commands). `node ~/.agents/skills/lev-ceo/scripts/cards.mjs brief --thread <this chat's id> --out <cards file>` prints the brief for one Sonnet subagent: it reads each chat that has no card for its newest reply and writes the cards file. Then `cards.mjs merge --thread <this chat's id> --cards <cards file>`, and `cards.mjs batch --thread <this chat's id>`: it writes the page of the next questions (whole chats of one project, until five questions; a chat that holds more than five makes a page alone) and you show that page. Its output names the items that get no card (`held`: the reader reports that the chat moved, was answered or asks nothing; `no_cursor`): handle those by hand. For each answer, `cards.mjs relay --thread <this chat's id> --item <item id> --words "<his words>"` prints the message with his words unchanged; send it to the chat that asked, then run the same command with `--sent`. A pick (`--picks "2a"`) is a question number of the page he saw and a choice letter. `relay` takes an item only when a page showed its card as it is now: when `merge` names an item under `show_again` (its card changed after its page), run `batch` and show the new page before you take an answer for it. A card is for one reply: when the chat moves, the card is not shown and `brief` lists the chat again.
+   - Show JP the questions as cards, and take his answer back, with `scripts/cards.mjs` (its header lists the commands). `node ~/.agents/skills/lev-ceo/scripts/cards.mjs brief --thread <this chat's id> --out <cards file>` prints the brief for one Sonnet subagent: it reads each chat that has no card for its newest reply and writes the cards file. Then `cards.mjs merge --thread <this chat's id> --cards <cards file>`, and `cards.mjs batch --thread <this chat's id>`: it writes the page of every open question of one project (`--size <n>` cuts the page at whole chats) and you show that page. Its output names the items that get no card (`held`: the reader reports that the chat moved, was answered or asks nothing; `no_cursor`): handle those by hand. For each answer, `cards.mjs relay --thread <this chat's id> --item <item id> --words "<his words>"` prints the message with his words unchanged; send it to the chat that asked, then run the same command with `--sent`. A pick (`--picks "2a"`) is a question number of the page he saw and a choice letter. `relay` takes an item only when a page showed its card as it is now: when `merge` names an item under `show_again` (its card changed after its page), run `batch` and show the new page before you take an answer for it. A card is for one reply: when the chat moves, the card is not shown and `brief` lists the chat again.
    - `ask` means the reply names approved work that is not done. Send only on JP's word; sending by itself is off (`.lev/pm/decisions/20261117-the-sweep-says-continue-approved-work-or-return-blocked-and-jp-sees-its-choices-before-it-sends-by-itself.yaml`). The wording is: Continue approved work, or return "blocked". After a send, `node ~/.agents/skills/lev-ceo/scripts/sweep.mjs sent --thread <id> --wording "<text>"`: the program then gives that chat no second `ask` until a person speaks in it.
    - A CEO chat (title `CEO > {project}`) is in the index with a mark. It is never chosen `ask`: it runs its own loop. Its questions still go to `queue`.
 

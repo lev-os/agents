@@ -94,7 +94,10 @@ test("put adds with pending and addedAt, then upserts by id", () => {
   assert.equal(added.added, true);
   assert.equal(added.item.status, "pending");
   assert.equal(added.item.addedAt, T0);
-  assert.deepEqual(added.item.card, { goal: null, state: null, ask: null, recommend: null, ifNoAnswer: null });
+  assert.deepEqual(added.item.card, { goal: null, state: null, ask: null, recommend: null });
+  // A card stored before 2026-11-18 may hold a default for no answer: the key is taken and dropped.
+  const legacy = put(item("a", { card: { ask: "old?", ifNoAnswer: "It merges tomorrow." } }), { now: at(5) });
+  assert.deepEqual(legacy.item.card, { goal: null, state: null, ask: "old?", recommend: null });
   const updated = put(item("a", { reason: "new reason", card: { ask: "merge?" } }), { now: at(10) });
   assert.equal(updated.added, false);
   assert.equal(updated.item.reason, "new reason");

@@ -48,6 +48,9 @@ const choices = [
   ["the chat that runs the sweep is skipped", row(50, { self: true, label: "plan_ready" }), "skip"],
   ["a CEO chat with a ready label is never asked", row(40, { ceo: true, label: "plan_ready" }), "leave"],
   ["a CEO chat with questions goes to the queue", row(40, { ceo: true, label: "plan_ready", questions: ["Which one?"] }), "queue"],
+  // A pin is JP's mark that he wants eyes on the chat: its age never hides it.
+  ["a pinned chat that was never read and stopped 3 days ago is read", row(3 * 24 * 60, { cursor: null, pinned: true }), "read"],
+  ["a pinned chat that is snoozed is still skipped", row(3 * 24 * 60, { cursor: null, pinned: true, snoozed: true }), "skip"],
 ];
 for (const [name, r, want] of choices) {
   test(`choice: ${name}`, () => {
@@ -108,6 +111,20 @@ const scan = (extra = []) => sweep(["scan", "--threads", file("threads.json", TH
 const label = (id, over = {}) => JSON.stringify({ threadId: id, cursor: "r1#10", label: "plan_ready", ready_steps: ["do it"], questions_for_jp: [], last_user_by: "user", last_user_at: ago(200), stopped_at: ago(60), ...over });
 const titles = (out) => out.rows.map((r) => r.title).sort();
 const choiceOf = (out, id) => out.rows.find((r) => r.threadId === id)?.choice;
+
+test("scan: a pinned chat keeps its pin in its row and in the text, and a pin that is no flag is refused", () => {
+  const withPin = (pinned) => ({ ...THREADS, threads: THREADS.threads.map((c) => (c.threadId === "A" ? { ...c, pinned } : c)) });
+  const args = (name, pinned) => ["scan", "--threads", file(name, withPin(pinned)), "--projects", file("projects-in.json", PROJECTS), "--self", "S"];
+  const out = sweep(args("threads-pin.json", true));
+  assert.equal(out.rows.find((r) => r.threadId === "A").pinned, true);
+  assert.equal(out.rows.find((r) => r.threadId === "B").pinned, false);
+  const text = sweep(["show", "--text"]);
+  assert.match(text, /📌 leviathan > a/);
+  assert.doesNotMatch(text, /📌 suntiq > b/);
+  assert.match(sweep(args("threads-bad-pin.json", "yes"), { status: 2 }), /pinned/);
+  // The next list has no pin on the chat: the row loses it.
+  assert.equal(sweep(args("threads-no-pin.json", false)).rows.find((r) => r.threadId === "A").pinned, false);
+});
 
 test("scan: one index holds the chats of every project, each with its project's name", () => {
   const out = scan();

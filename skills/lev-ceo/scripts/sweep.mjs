@@ -113,7 +113,9 @@
  *   not yet     the chat changed or stopped less than 30 minutes ago
  *   leave       it runs, it waits on a run, it is done, or it was asked and no person spoke since
  *   skip        settled, snoozed, in never_read, or the chat that runs the sweep
- *   old         never read, and stopped more than 48 hours ago (or its time of last change cannot be read)
+ *   old         never read, and stopped more than 48 hours ago (or its time of last change cannot be read).
+ *               A pinned chat is never old for its age: a pin is JP's mark that he wants eyes on the chat.
+ * A row keeps the chat's `pinned` flag from the list, and the text marks a pinned chat with 📌.
  * A program makes the choice from the label. It never decides what is approved.
  * A chat is told to continue once for each word of a person: after a send, `ask` comes back only when a
  * person spoke in the chat after the newest send in the log. The time of that word comes from the reader's
@@ -196,6 +198,7 @@ const CHAT_FIELDS = [
   ["link", orNone(isText), "a text or null"], ["status", orNone(isText), "a text or null"], ["model", orNone(isText), "a text or null"],
   ["relationshipToParent", orNone(isText), "a text or null"], ["parentThreadId", orNone(isText), "a text or null"],
   ["settled", orNone(isFlag), "true, false or null"], ["snoozed", orNone(isFlag), "true, false or null"],
+  ["pinned", orNone(isFlag), "true, false or null"],
 ];
 const WORKER_FIELDS = [
   ["relationshipToParent", orNone(isText), "a text or null"], ["parentThreadId", orNone(isText), "a text or null"], ["status", orNone(isText), "a text or null"],
@@ -253,6 +256,7 @@ export function choose(row, now, set = DEFAULTS) {
     // for JP, and `old` would hide it. The age limit is for chats that were never read.
     if (row.cursor) return ["read", "changed since the last read"];
     if (hours <= set.read_if_changed_within_hours) return ["read", "never read"];
+    if (row.pinned) return ["read", "pinned, never read"];
     return ["old", `stopped ${Math.round(hours / 24)} days ago, never read`];
   }
   // A run that did not finish after a person's message. It waits too, because the person may still type.
@@ -391,7 +395,7 @@ function view(index, s, o, now, sends) {
       const row = { ...r, sends: sends.get(r.threadId) || [] };
       const [choice, why] = choose(row, now, s.settings);
       const idle = idleMinutes(row, now);
-      return { choice, why, idle_min: Number.isNaN(idle) ? 0 : idle, project: r.project, ceo: !!r.ceo, title: r.title, link: r.link, threadId: r.threadId, questions: r.questions || [] };
+      return { choice, why, idle_min: Number.isNaN(idle) ? 0 : idle, project: r.project, ceo: !!r.ceo, pinned: !!r.pinned, title: r.title, link: r.link, threadId: r.threadId, questions: r.questions || [] };
     });
   const counts = {};
   for (const r of rows) counts[r.choice] = (counts[r.choice] || 0) + 1;
@@ -402,7 +406,7 @@ function view(index, s, o, now, sends) {
 
 function asText(out) {
   const head = `${out.project} · scanned ${out.scanned_at} · ${Object.entries(out.counts).map(([c, n]) => `${c} ${n}`).join(", ")}`;
-  return [head, ...out.rows.map((r) => [r.choice, `${r.idle_min}m`, r.project, oneLine(r.title).slice(0, 44), r.why].join("\t"))].join("\n");
+  return [head, ...out.rows.map((r) => [r.choice, `${r.idle_min}m`, r.project, `${r.pinned ? "📌 " : ""}${oneLine(r.title).slice(0, 44)}`, r.why].join("\t"))].join("\n");
 }
 
 function scan(s, o, now) {
@@ -447,7 +451,7 @@ function scan(s, o, now) {
     const row = index.rows[t.threadId] || (index.rows[t.threadId] = { threadId: t.threadId, cursor: null, label: null, ready_steps: [], questions: [] });
     const title = t.title || "";
     Object.assign(row, {
-      title, link: t.link, status: t.status, updated_at: t.updatedAt, item_count: t.itemCount, snoozed: !!t.snoozed, settled: !!t.settled, model: t.model,
+      title, link: t.link, status: t.status, updated_at: t.updatedAt, item_count: t.itemCount, snoozed: !!t.snoozed, settled: !!t.settled, pinned: !!t.pinned, model: t.model,
       project_id: t.projectId || null, project: projectOf(t),
       now_cursor: cursorOf(t), ceo: CEO_CHAT.test(title), self: t.threadId === index.self,
       never_read: never.some((part) => title.toLowerCase().includes(part)),

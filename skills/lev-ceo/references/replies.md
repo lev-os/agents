@@ -5,7 +5,7 @@ The shape of every reply to JP is the "Reply template" section of `~/.claude/CLA
 For the CEO node:
 
 - **Goal and bar:** the handoff's `goal` and `stages`, one segment per stage. A segment is ✅ only when your own rerun verified it.
-- **For you:** each ruling that is JP's alone (`SKILL.md` §7) and each chat that waits on him. Search the decisions folder first (`lev find "<topic>" --type decision --json`), so a question is asked once. A question that is still open is not asked again in a later reply: it stays under `waiting_on_jp` in the handoff, and the reply says "1 question still waits on you" with its date.
+- **For you:** each ruling that is JP's alone (`SKILL.md` §7) and each chat that waits on him. Search the decisions folder first (`lev find "<topic>" --type decision --json`), so a question that has an answer is not asked. Every open question shows in each reply until JP answers it in a message he typed; `waiting_on_jp` in the handoff holds the list.
 - **My plan:** what you do now and next. A line that says you will bring something names its wait (`SKILL.md` §2 step 7).
 - **A wake with no words from JP** that changed nothing he can see gets no reply text.
 
@@ -59,7 +59,7 @@ Countermeasure: {what I do now}
 
 ## Queue head
 
-When: the queue has a head (`SKILL.md` §9 step 2). The head chat fills the template from its card: `goal` gives Goal, `state` gives the answer line, and `ask`, `recommend` and `ifNoAnswer` give the one For you item. Every chat gets this same shape. The last line above the mesh line:
+When: the queue has a head (`SKILL.md` §9 step 2). The head chat fills the template from its card: `goal` gives Goal, `state` gives the answer line, and `ask` and `recommend` give its For you item. Every chat gets this same shape. The last line above the mesh line:
 
 ```text
 Queue: {left} left: {short title}, {short title}, … (at most 6 titles, then "+{n}")
