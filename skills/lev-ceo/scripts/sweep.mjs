@@ -13,7 +13,7 @@
  *                  merge takes out each chat whose label it took.
  *   projects.json  project id -> title, from the last --projects file. Written by scan.
  *   settings.json  optional: {idle_min_before_ask, read_if_changed_within_hours, never_read: ["<part of a title>"]}
- *   lock           a file that scan, merge or sent holds while it runs. A second one is refused (exit 2): run
+ *   lock           a file that scan, merge, sent or queue holds while it runs. A second one is refused (exit 2): run
  *                  it again. A lock is never taken over, also when its process is gone: the refusal says so
  *                  and names the file to delete. show and brief take no lock: index.json, to-read.tsv and
  *                  projects.json are each replaced in one step (a temp file, then a rename), so a reader
@@ -27,8 +27,9 @@
  * What is proved, and what is not. One command writes at a time (the lock). The program starts no process
  * and no worker: the test runs every command under Node's permission system. That run does not prove that it
  * opens no network connection (this Node has no network permission): for that, the test checks the imports.
- * The program writes only in the state folder as long as no file there is a link to another place: sent
- * refuses a send log that is a link, and the other files are replaced, not written through.
+ * scan, merge and sent write only in the state folder as long as no file there is a link to another place:
+ * sent refuses a send log that is a link, and the other files are replaced, not written through. queue
+ * writes in the queue folder (--queue-root), through the queue program; it writes no state file but the lock.
  *
  * Usage: node ~/.agents/skills/lev-ceo/scripts/sweep.mjs <command> [options]
  *   scan  --threads <file> [--running <file>] [--projects <file>] [--self <thread id>]
@@ -62,8 +63,10 @@
  *                             pending. --title opens the queue when the chat has none. It prints
  *                             {queue, project, added, updated, closed, back_to_pending, reopened, open}.
  *                             It reads and plans before it writes; the writes are one call of the queue
- *                             program for each change, so a stop in the middle leaves the rest for the
- *                             next run.
+ *                             program for each change. A shown item goes back to pending before it gets
+ *                             its new fields, so the next run finishes a run that stopped in the middle.
+ *                             A snooze, a run or a running worker closes no item. An item is found by
+ *                             its id, also when its chat moved to another project.
  * scan, merge, sent and show print {scanned_at, project, counts, rows}. They take --project <title> (one
  * project; with none, all projects), --all (also the skipped and the old rows) and --text.
  * Every command takes --now <ISO> (the clock, for tests) and --root <dir> (the state folder, for tests).
@@ -145,7 +148,17 @@ function readLines(file, what) {
   });
   return out;
 }
-const oneLine = (text) => String(text ?? "").replace(/[\t\r\n]+/g, " ");
+const oneLine = (text) => (typeof text === "string" ? text : "").replace(/[\t\r\n]+/g, " ");
+/** A time as an instant. Only a text is a time: any other value is a time that cannot be read (NaN), never a stop. */
+const instant = (value) => (typeof value === "string" ? Date.parse(value) : NaN);
+const isText = (value) => typeof value === "string";
+const isTexts = (value) => Array.isArray(value) && value.every(isText);
+// What a label line may hold, beside its threadId: [key, the test, the words of the refusal]. A missing key is fine.
+const LABEL_FIELDS = [
+  ["cursor", isText, "a text"], ["label_reason", isText, "a text"], ["waits_on", isText, "a text"], ["last_user_by", isText, "a text"],
+  ["last_user_at", (v) => v === null || isText(v), "a time as text, or null"], ["stopped_at", (v) => v === null || isText(v), "a time as text, or null"],
+  ["ready_steps", isTexts, "a list of texts"], ["questions_for_jp", isTexts, "a list of texts"],
+];
 const topLevel = (t) => t.relationshipToParent !== "subagent";
 const cursorOf = (t) => `${t.latestRunId || ""}#${t.itemCount}`;
 
@@ -155,7 +168,7 @@ export function checkList(list) {
   if (!Array.isArray(threads) || !threads.length) return "the list is empty";
   if (list.nextCursor !== null && list.nextCursor !== undefined) return "the list is one page of many; list again with a limit that holds every open chat";
   if (threads.some((t) => t === null || typeof t !== "object" || typeof t.threadId !== "string" || !t.threadId)) return "the list holds an entry that is no chat (it has no threadId)";
-  const noTime = threads.find((t) => Number.isNaN(Date.parse(t.updatedAt)));
+  const noTime = threads.find((t) => Number.isNaN(instant(t.updatedAt)));
   if (noTime) return `the chat ${noTime.threadId} has no time of last change (updatedAt) that can be read`;
   if (threads.some((t) => t.settled)) return "the list holds a settled chat; list with settled: false";
   if (threads.some((t) => !topLevel(t))) return "the list holds worker chats; list with includeSubagents: false";
@@ -165,7 +178,7 @@ export function checkList(list) {
 /** Minutes since the chat stopped: from the end of its newest run when a reader recorded it, else from T3's time of last change. */
 export function idleMinutes(row, now) {
   const fresh = row.cursor === row.now_cursor;
-  return Math.floor((now - Date.parse((fresh && row.stopped_at) || row.updated_at)) / 60000);
+  return Math.floor((now - instant((fresh && row.stopped_at) || row.updated_at)) / 60000);
 }
 
 /** What the sweep does with one row: [choice, why]. `row.sends` holds the chat's lines of the send log. It changes nothing. */
@@ -199,10 +212,10 @@ export function choose(row, now, set = DEFAULTS) {
     // One ask for each word of a person: after a send, ask again only when a person spoke in the chat after it.
     // The hold is the newest send by its time, not the last line of the log: a line may be logged late.
     // Times are compared as instants. A time that cannot be read keeps the hold: a send's, or the person's.
-    const times = (row.sends || []).map((send) => Date.parse(send.at));
+    const times = (row.sends || []).map((send) => instant(send.at));
     const unreadable = times.some(Number.isNaN);
     const sentAt = unreadable ? NaN : Math.max(...times);
-    const spokeAfter = row.last_user_by === "user" && Date.parse(row.last_user_at) > sentAt;
+    const spokeAfter = row.last_user_by === "user" && instant(row.last_user_at) > sentAt;
     const asked = times.length && !spokeAfter ? (unreadable ? "asked before" : `asked at ${new Date(sentAt).toISOString().slice(11, 16)}Z`) : null;
     const held = asked || (row.ceo ? "a CEO chat is not asked" : null);   // a CEO chat runs its own loop
     if (held) return questions.length ? ["queue", `${held}; ${questions.length} question(s) for JP`] : ["leave", asked ? `${held}; no person spoke since` : held];
@@ -376,6 +389,10 @@ function merge(s, o, now) {
   if (!existsSync(o.labels)) throw new InputError(`cannot read --labels ${o.labels}`);
   const labels = readLines(o.labels, "--labels").map(([label, n]) => {
     if (label === null || typeof label !== "object" || Array.isArray(label) || typeof label.threadId !== "string") throw new InputError(`--labels ${o.labels}: line ${n} is not a label (an object with a threadId)`);
+    // Each field is checked here, before any write: a value of the wrong type never reaches the index.
+    for (const [key, ok, words] of LABEL_FIELDS) {
+      if (label[key] !== undefined && !ok(label[key])) throw new InputError(`--labels ${o.labels}: line ${n}: ${key} is not ${words}`);
+    }
     return label;
   });
   const index = s.load();
@@ -453,7 +470,9 @@ function queue(s, o, now) {
   const items = exists ? call(["show", "--all"]).items : [];
   const want = o.project ? o.project.toLowerCase() : null;
   // Only the items this command made are its own. An item the CEO put by hand, and a settle item, stay as they are.
-  const own = new Map(items.filter((i) => i.source === "sweep" && (!want || (i.project || "").toLowerCase() === want)).map((i) => [i.id, i]));
+  // An item is found by its id, whatever project it had: a chat may move to another project. --project
+  // narrows the rows (view), so an item whose chat is not in the rows is left.
+  const own = new Map(items.filter((i) => i.source === "sweep").map((i) => [i.id, i]));
   const byHand = new Set(items.filter((i) => i.source !== "sweep").map((i) => i.id));
   const closed = (item) => item.status === "done" || item.status === "dropped";
   const steps = [];
@@ -480,13 +499,18 @@ function queue(s, o, now) {
       if (!item) { put(fields); count.added += 1; }
       else if (item.cursor === row.cursor) { /* the same reply: it does not ask twice, also when the item is done */ }
       else if (closed(item)) { put(fields, true); count.reopened += 1; }
-      else { put(fields); count.updated += 1; backToPending(item); }
+      else { backToPending(item); put(fields); count.updated += 1; }   // the move first: a stop after it leaves the old cursor, and the next run puts the fields
       continue;
     }
     if (!item || closed(item)) continue;
-    const fresh = row.cursor === row.now_cursor;
-    if (!fresh && r.choice !== "skip") { backToPending(item); continue; }   // the chat moved and no reader read it yet
-    if (r.choice === "not yet") continue;   // the clock decides in a few minutes
+    // An item is closed only when the chat is gone, or when the label of its newest reply says that it does
+    // not wait on JP. A state that passes does not close it: the question is still open when the state ends.
+    const gone = row.settled || row.self || row.never_read;
+    if (!gone) {
+      if (row.snoozed || row.status === "running" || row.running_children > 0) continue;   // a snooze, a run, a running worker
+      if (row.cursor !== row.now_cursor) { backToPending(item); continue; }   // the chat moved and no reader read it yet
+      if (r.choice === "not yet") continue;   // the clock decides in a few minutes
+    }
     move(item.id, "done", `the chat does not wait on JP now: ${r.why}`);
     count.closed += 1;
   }

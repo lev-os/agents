@@ -662,3 +662,69 @@ test("queue: two runs at the same time are not both let in", () => {
   writeFileSync(join(root, "lock"), JSON.stringify({ pid: process.pid, at: T0 }));
   assert.match(sync([], { status: 2 }), /another sweep command holds/);
 });
+
+// Found by the fourth reader (review-step-1-fourth.json). Each of these failed before its fix.
+test("merge: a label field of the wrong type is bad input before any write, and a stored one never stops a command", () => {
+  scan();
+  const before = stateFiles();
+  const odd = [
+    ["stopped_at", { toString: null }], ["last_user_at", 5], ["questions_for_jp", "text"], ["questions_for_jp", [1]],
+    ["ready_steps", {}], ["cursor", 7], ["label_reason", []], ["waits_on", 3], ["last_user_by", {}],
+  ];
+  for (const [key, value] of odd) {
+    assert.match(sweep(["merge", "--labels", file("odd.jsonl", label("A", { [key]: value }) + "\n")], { status: 2 }), new RegExp(`line 1: ${key} is not`), key);
+  }
+  const noText = THREADS.threads.map((c) => (c.threadId === "A" ? { ...c, updatedAt: { toString: null } } : c));
+  assert.match(sweep(["scan", "--threads", file("odd-time.json", { ...THREADS, threads: noText })], { status: 2 }), /scan refused: .*time of last change/);
+  assert.deepEqual(stateFiles(), before);
+  // An index that holds such a value (an older program, a hand) is read without a stop, and the hold stays.
+  const r = row(40, { label: "plan_ready", sends: [{ at: {} }], last_user_by: "user", last_user_at: { toString: null }, stopped_at: { toString: null } });
+  assert.equal(choose(r, NOW)[0], "leave");
+});
+
+test("queue: a chat that moved to another project finds its item: an open one gets the new questions, a done one opens again", () => {
+  base();
+  sync();
+  queue(["resolve", "--item", "B", "--to", "done", "--note", "JP: a"]);
+  // B and D were suntiq-product chats. Both are now leviathan chats (p1), each with a new reply that waits on JP.
+  const threads = WITH_D.threads.map((c) => (["B", "D"].includes(c.threadId) ? { ...c, projectId: "p1", latestRunId: "r2", itemCount: 14, updatedAt: ago(40) } : c));
+  sweep(["scan", "--threads", file("threads-4.json", { ...WITH_D, threads }), "--self", "S"]);
+  const labels = ["B", "D"].map((id) => label(id, { cursor: "r2#14", label: "needs_jp", ready_steps: [], questions_for_jp: [`New for ${id}?`], stopped_at: ago(40) }));
+  sweep(["merge", "--labels", file("labels-4.jsonl", labels.join("\n") + "\n")]);
+  const out = sync(["--project", "leviathan"]);
+  assert.equal(out.reopened, 1);
+  assert.equal(out.updated, 1);
+  assert.equal(itemOf("B").status, "pending");
+  assert.deepEqual(itemOf("B").questions, ["New for B?"]);
+  assert.equal(itemOf("B").project, "leviathan");
+  assert.deepEqual(itemOf("D").questions, ["New for D?"]);
+});
+
+test("queue: a state that passes (a running worker, a run, a snooze) does not close an item whose question is still open", () => {
+  base();
+  sync();
+  const running = file("running.json", { threads: [{ threadId: "w", relationshipToParent: "subagent", parentThreadId: "B", status: "running" }] });
+  sweep(["scan", "--threads", file("threads.json", WITH_D), "--running", running, "--self", "S"]);
+  assert.equal(sync().closed, 0, "B waits on a worker");
+  assert.equal(itemOf("B").status, "pending");
+  const busy = WITH_D.threads.map((c) => (c.threadId === "B" ? { ...c, snoozed: true } : c.threadId === "C" ? { ...c, status: "running" } : c));
+  sweep(["scan", "--threads", file("threads-5.json", { ...WITH_D, threads: busy }), "--self", "S"]);
+  assert.equal(sync().closed, 0, "B is snoozed and C runs");
+  sweep(["scan", "--threads", file("threads.json", WITH_D), "--self", "S"]);
+  const after = sync();
+  assert.equal(after.open, 3);
+  assert.deepEqual(items().filter((i) => i.status === "pending").map((i) => i.id).sort(), ["B", "C", "D"]);
+});
+
+test("queue: a shown item goes back to pending before it gets the new questions, so a stop between the two is finished by the next run", () => {
+  base();
+  sync();
+  queue(["resolve", "--item", "D", "--to", "done", "--note", "answered"]);
+  assert.equal(queue(["next"]).item.id, "B");
+  moved("B", { label: "needs_jp", ready_steps: [], questions_for_jp: ["A new one?"] });
+  sync();
+  const dir = join(qroot(), readdirSync(qroot())[0]);
+  const events = readFileSync(join(dir, "events.jsonl"), "utf8").trim().split("\n").map((line) => JSON.parse(line)).filter((e) => e.item === "B");
+  const moves = events.map((e) => `${e.from}>${e.to}`);
+  assert.deepEqual(moves.slice(-2), ["presented>pending", "pending>pending"], "first the move, then the new fields");
+});
