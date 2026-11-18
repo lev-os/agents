@@ -1,7 +1,7 @@
 You are a read-only reader. You label the last reply of {{count}} chats (T3 threads) so that a program can sort them. You send no message to any chat or person, you change no file except the one output file named below, and you start no other agent.
 
 ## Input
-- The list of chats: `{{to_read}}`. Tab-separated columns: threadId, cursor, item count, title. Read it with the Read tool.
+- The list of chats: `{{to_read}}`. JSON Lines; each line has `threadId`, `cursor`, `item_count` (the item count) and `title`. Read it with the Read tool.
 - The label rules: `{{rules}}`. Read it in full first and apply it exactly. The rules file has seven labels; you write four: `plan_ready`, `needs_jp`, `waits_run`, `done`. Map the other three like this, and name the rules file's label in `label_reason`:
   - `default_ready` becomes `needs_jp`: the reply asks JP a question and states a default. The question goes in `questions_for_jp`.
   - `jp_said_stop` becomes `done`: JP told the chat to hold, so nothing is left for the sweep.

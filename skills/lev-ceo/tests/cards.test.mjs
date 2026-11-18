@@ -324,6 +324,18 @@ test("a pick is a question number of the page that JP saw, never a number of the
   assert.doesNotMatch(noPicks, /JP's picks/);
 });
 
+test("an item whose id looks like an option goes through merge, batch and relay", () => {
+  for (const id of ["--x", "-n", "--item=y", "a b"]) {
+    const root = queueWith([item(id)]);
+    assert.deepEqual(json(merge(root, [line(id)])).merged, [id]);
+    assert.deepEqual(json(cards(root, ["batch"])).questions.map((q) => q.item), [id]);
+    cards(root, ["relay", `--item=${id}`, "--words", "yes", "--picks", "1a", "--sent"]);
+    const [one] = stored(root);
+    assert.deepEqual([one.id, one.status], [id, "done"]);
+    assert.deepEqual(one.relayed, [{ at: NOW, words: "yes" }]);
+  }
+});
+
 test("relay refuses an item whose card changed after its page, until the page is written again", () => {
   const root = queueWith([item("a")]);
   merge(root, [line("a")]);

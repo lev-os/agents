@@ -9,13 +9,13 @@
  *                  gave its last reply. Written by scan and merge only.
  *   sends.jsonl    one line for each message the sweep chat sent: {threadId, at, wording, by, outcome}.
  *                  Written by sent only, one appended line for each send. It is the one place a send is written.
- *   to-read.tsv    the chats a reader labels next: threadId, cursor, item count, title. Written by scan;
+ *   to-read.jsonl  the chats a reader labels next, JSON Lines: {threadId, cursor, item_count, title}. Written by scan;
  *                  merge takes out each chat whose label it took.
  *   projects.json  project id -> title, from the last --projects file. Written by scan.
  *   settings.json  optional: {idle_min_before_ask, read_if_changed_within_hours, never_read: ["<part of a title>"]}
  *   lock           a file that scan, merge, sent or queue holds while it runs. A second one is refused (exit 2): run
  *                  it again. A lock is never taken over, also when its process is gone: the refusal says so
- *                  and names the file to delete. show and brief take no lock: index.json, to-read.tsv and
+ *                  and names the file to delete. show and brief take no lock: index.json, to-read.jsonl and
  *                  projects.json are each replaced in one step (a temp file, then a rename), so a reader
  *                  sees the old file or the new one.
  *
@@ -45,12 +45,12 @@
  *           --projects  the result of t3_project_list {limit:100}: gives each row its project's name.
  *           --self      the chat that runs the sweep; it is skipped. Give it on each scan: a scan with no
  *                       --self names no chat.
- *   merge --labels <file>     take a reader's labels (JSON Lines) for the chats in to-read.tsv. Each label
+ *   merge --labels <file>     take a reader's labels (JSON Lines) for the chats in to-read.jsonl. Each label
  *                             holds the cursor the reader was given; a label for an older reply is not
  *                             taken and its chat is listed under `stale`. A label that is none of
  *                             plan_ready, needs_jp, waits_run, done is not taken (`unknown_label`). A chat
- *                             whose label was taken leaves to-read.tsv.
- *   brief --out <file>        print the reader's brief for the chats in to-read.tsv; the reader writes --out
+ *                             whose label was taken leaves to-read.jsonl.
+ *   brief --out <file>        print the reader's brief for the chats in to-read.jsonl; the reader writes --out
  *   sent  --thread <id> --wording "<text>" [--by "<text>"]   log a message the sweep chat sent to a chat
  *   show                      print the rows
  *   queue --thread <id> [--title "<text>"] [--queue-root <dir>]
@@ -82,10 +82,16 @@
  * project; with none, all projects), --all (also the skipped and the old rows) and --text.
  * Every command takes --now <ISO> (the clock, for tests) and --root <dir> (the state folder, for tests).
  * A command reads and checks its input files before its first write: each field that it reads, in each
- * entry of the T3 lists, each label line and each line of the send log. The tests hold the matrix (each
- * odd JSON value in each of those fields gives exit 0 or 2, and a value that was taken stops no later
- * command). Not checked: what an older program or a hand wrote into index.json. With --project, scan takes the project names of this scan (the --projects file and the
- * chats of the list), not the names an earlier scan stored.
+ * entry of the T3 lists, each label line and each line of the send log. The check is on the type of a
+ * value. The tests hold a matrix of sample values (each gives exit 0 or 2 in each of those fields, and a
+ * value that was taken stops no later command); a matrix is a sample, not a proof for every text.
+ * A text of the right type is carried as it is: every file this program writes is JSON or JSON Lines, and
+ * every value goes to the queue program as one `--name=value` argument. So a chat id or a run id may hold
+ * a tab, a line break, or a leading "--" (the round-trip test takes such ids through scan, merge and
+ * queue). `show --text` is for the eye only: it prints tabs between columns and is read by no command.
+ * Not checked: what an older program or a hand wrote into index.json.
+ * With --project, scan takes the project names of this scan (the --projects file and the chats of the
+ * list), not the names an earlier scan stored.
  *
  * The cursor of a row is the chat's newest run and its item count when a reader last read its reply. A chat
  * is read again only when that changed. (T3's time of last change is no cursor: it also moves when the chat
@@ -442,8 +448,22 @@ function scan(s, o, now) {
   s.save(index);
   // The list for the reader: what this scan says to read, in the project asked for.
   const toRead = view(index, s, { project: o.project }, now, sends).rows.filter((r) => r.choice === "read").map((r) => index.rows[r.threadId]);
-  s.put("to-read.tsv", toRead.map((r) => [r.threadId, r.now_cursor, r.item_count, oneLine(r.title)].join("\t")).join("\n") + (toRead.length ? "\n" : ""));
+  s.put(TO_READ, toRead.map((r) => `${JSON.stringify({ threadId: r.threadId, cursor: r.now_cursor, item_count: r.item_count, title: r.title })}\n`).join(""));
   return { index, sends };
+}
+
+// The list for the reader is JSON Lines: a line is {threadId, cursor, item_count, title}. JSON carries any
+// text, so an id or a run id that holds a tab or a line break comes back as it went in.
+const TO_READ = "to-read.jsonl";
+function toReadRows(s) {
+  if (!existsSync(s.at(TO_READ))) return [];
+  return readFileSync(s.at(TO_READ), "utf8").split("\n").filter(Boolean).map((line) => {
+    try {
+      const one = JSON.parse(line);
+      if (isRecord(one) && isText(one.threadId) && isText(one.cursor)) return one;
+    } catch { /* the refusal below */ }
+    throw new InputError(`${s.at(TO_READ)} holds a line that this program did not write; run scan again`);
+  });
 }
 
 function merge(s, o, now) {
@@ -460,8 +480,8 @@ function merge(s, o, now) {
   const index = s.load();
   checkProject(o.project, projectsOf(s, index));
   const sends = s.sends();
-  const listed = existsSync(s.at("to-read.tsv")) ? readFileSync(s.at("to-read.tsv"), "utf8").split("\n").filter(Boolean) : [];
-  const pending = new Map(listed.map((line) => line.split("\t").slice(0, 2)));
+  const listed = toReadRows(s);
+  const pending = new Map(listed.map((one) => [one.threadId, one.cursor]));
   const taken = new Set();
   let merged = 0;
   const missed = [];
@@ -487,8 +507,7 @@ function merge(s, o, now) {
   }
   s.save(index);
   // A chat whose label was taken leaves the list: the brief counts what is left, and a reader is not started twice.
-  const left = listed.filter((line) => !taken.has(line.split("\t")[0]));
-  s.put("to-read.tsv", left.join("\n") + (left.length ? "\n" : ""));
+  s.put(TO_READ, listed.filter((one) => !taken.has(one.threadId)).map((one) => `${JSON.stringify(one)}\n`).join(""));
   return { index, sends, extra: { merged, not_in_to_read: missed, stale, unknown_label: unknown } };
 }
 
@@ -528,10 +547,16 @@ function queue(s, o, now) {
       throw error;
     }
   };
-  const call = (args) => asQueue(() => queueMain([...args, "--thread", o.thread, "--root", queueRoot, "--now", new Date(now).toISOString()]));
+  // Every value goes to the queue program as `--name=value`, one argument. A value that starts with "--"
+  // (a chat id, a note) is then a value, never an option.
+  const flag = (name, value) => `--${name}=${value}`;
+  const call = (command, values = {}, more = []) => asQueue(() => queueMain([
+    command, ...Object.entries(values).map(([name, value]) => flag(name, value)), ...more,
+    flag("thread", o.thread), flag("root", queueRoot), flag("now", new Date(now).toISOString()),
+  ]));
   const exists = asQueue(() => findQueue(queueRoot, o.thread)) !== null;
   if (!exists && !o.title) throw new InputError(`no queue for thread ${o.thread} under ${queueRoot}; give --title "<the chat's title>" to open one`);
-  const items = exists ? call(["show", "--all"]).items : [];
+  const items = exists ? call("show", {}, ["--all"]).items : [];
   const want = o.project ? o.project.toLowerCase() : null;
   // Only the items this command made are its own. An item the CEO put by hand, and a settle item, stay as they are.
   // An item is found by its id, whatever project it had: a chat may move to another project. --project
@@ -541,8 +566,8 @@ function queue(s, o, now) {
   const closed = (item) => item.status === "done" || item.status === "dropped";
   const steps = [];
   const count = { added: 0, updated: 0, closed: 0, back_to_pending: 0, reopened: 0 };
-  const put = (fields, reopen) => steps.push(["put", "--item", JSON.stringify(fields), ...(reopen ? ["--reopen"] : [])]);
-  const move = (id, to, note) => steps.push(["resolve", "--item", id, "--to", to, "--note", note]);
+  const put = (fields, reopen) => steps.push({ command: "put", fields, more: reopen ? ["--reopen"] : [] });
+  const move = (id, to, note) => steps.push({ command: "resolve", values: { item: id, to, note } });
   // The note of an item that this command closed starts with these words, so a later run can tell it from an
   // item that a person closed.
   const BY_SWEEP = "sweep: ";
@@ -599,22 +624,23 @@ function queue(s, o, now) {
   }
   // Each planned item is checked with the queue program's own check before a queue is opened or written.
   for (const step of steps) {
-    if (step[0] !== "put") continue;
-    asQueue(() => checkQueueItem(JSON.parse(step[2])));
+    if (step.command === "put") asQueue(() => checkQueueItem(step.fields));
   }
 
-  const path = exists ? findQueue(queueRoot, o.thread) : call(["open", "--title", o.title]).path;
-  for (const step of steps) call(step);
-  const open = call(["show"]).items.filter((i) => i.source === "sweep").length;
+  const path = exists ? findQueue(queueRoot, o.thread) : call("open", { title: o.title }).path;
+  for (const step of steps) {
+    if (step.command === "put") call("put", { item: JSON.stringify(step.fields) }, step.more);
+    else call(step.command, step.values);
+  }
+  const open = call("show").items.filter((i) => i.source === "sweep").length;
   return { queue: path, project: o.project || "all", ...count, open };
 }
 
 function brief(s, o) {
   if (!o.out) throw new InputError("brief needs --out <file>, the file the reader writes");
-  const toRead = s.at("to-read.tsv");
-  const count = existsSync(toRead) ? readFileSync(toRead, "utf8").split("\n").filter(Boolean).length : 0;
-  if (!count) throw new InputError("nothing to read: to-read.tsv is empty; run scan first");
-  const fill = { count, to_read: toRead, rules: join(SKILL, "references", "label-rules.txt"), out: resolve(o.out) };
+  const count = toReadRows(s).length;
+  if (!count) throw new InputError(`nothing to read: ${TO_READ} is empty; run scan first`);
+  const fill = { count, to_read: s.at(TO_READ), rules: join(SKILL, "references", "label-rules.txt"), out: resolve(o.out) };
   return readFileSync(join(SKILL, "references", "reader-brief.txt"), "utf8").replace(/\{\{(\w+)\}\}/g, (whole, key) => (key in fill ? String(fill[key]) : whole));
 }
 
@@ -633,14 +659,14 @@ export function main(argv) {
   const now = o.now ? Date.parse(o.now) : Date.now();
   if (Number.isNaN(now)) throw new InputError(`--now ${o.now} is not a time`);
   const s = store(resolve(o.root || defaultRoot()));
-  const writers = { scan, merge, sent };
+  const writers = new Map([["scan", scan], ["merge", merge], ["sent", sent]]);   // a Map: "constructor" is no command
   let done;
   if (command === "brief") return brief(s, o);
   if (command === "queue") return JSON.stringify(withLock(s, now, () => queue(s, o, now)), null, 1);
   if (command === "show") {
     done = { index: s.load(), sends: s.sends() };
     checkProject(o.project, projectsOf(s, done.index));
-  } else if (writers[command]) done = withLock(s, now, () => writers[command](s, o, now));
+  } else if (writers.has(command)) done = withLock(s, now, () => writers.get(command)(s, o, now));
   else throw new InputError("usage: sweep.mjs scan|merge|brief|sent|show|queue (the header lists the options)");
   const out = { ...(done.extra || {}), ...view(done.index, s, o, now, done.sends) };
   return o.text ? asText(out) : JSON.stringify(out, null, 1);

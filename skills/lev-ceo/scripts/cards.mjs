@@ -332,10 +332,13 @@ export function main(argv, env = process.env) {
   const root = resolve(values["queue-root"] ?? defaultRoot(env));
   const dir = findQueue(root, values.thread);
   if (!dir) throw new InputError(`no queue for thread ${values.thread} under ${root}`);
-  const q = (...args) => queueMain([...args, "--thread", values.thread, "--root", root, "--now", now], env);
+  // Every value goes to the queue program as `--name=value`, one argument: an id or a note that starts
+  // with "--" is then a value, never an option.
+  const flag = (name, value) => `--${name}=${value}`;
+  const q = (...args) => queueMain([...args, flag("thread", values.thread), flag("root", root), flag("now", now)], env);
   const queue = q("show", "--all");
   const items = ordered(queue.items);
-  const put = (item, fields) => q("put", "--item", JSON.stringify({ ...item, ...fields }));
+  const put = (item, fields) => q("put", flag("item", JSON.stringify({ ...item, ...fields })));
 
   const open = items.filter(forJp);
   const noCursor = open.filter((item) => !isText(item.cursor) && asksOf(item) === null).map((item) => item.id);
@@ -464,7 +467,7 @@ export function main(argv, env = process.env) {
   const text = relayText(queue, asks, shownNumbers(dir, item, asks), item.shown?.batch, values);
   if (values.sent) {
     put(item, { relayed: [...(Array.isArray(item.relayed) ? item.relayed : []), { at: now, words: values.words }] });
-    if (!values["keep-open"]) q("resolve", "--item", item.id, "--to", "done", "--note", `JP answered in the chat "${queue.chat.title}": ${values.words}`);
+    if (!values["keep-open"]) q("resolve", flag("item", item.id), flag("to", "done"), flag("note", `JP answered in the chat "${queue.chat.title}": ${values.words}`));
   }
   return text;
 }

@@ -115,14 +115,14 @@ test("scan: one index holds the chats of every project, each with its project's 
   assert.deepEqual(out.rows.map((r) => r.project).sort(), ["leviathan", "leviathan", "suntiq-product"]);
   assert.equal(out.counts.read, 3);
   assert.equal(out.counts.skip, 1, "the chat that runs the sweep is skipped");
-  const toRead = readFileSync(join(root, "to-read.tsv"), "utf8").trim().split("\n");
+  const toRead = readFileSync(join(root, "to-read.jsonl"), "utf8").trim().split("\n");
   assert.equal(toRead.length, 3);
 });
 
 test("scan: --project keeps the whole index and lists only that project's chats to read", () => {
   const out = scan(["--project", "leviathan"]);
   assert.deepEqual(titles(out), ["CEO > leviathan", "leviathan > a"]);
-  assert.equal(readFileSync(join(root, "to-read.tsv"), "utf8").trim().split("\n").length, 2);
+  assert.equal(readFileSync(join(root, "to-read.jsonl"), "utf8").trim().split("\n").length, 2);
   assert.equal(Object.keys(JSON.parse(readFileSync(join(root, "index.json"), "utf8")).rows).length, 4);
 });
 
@@ -168,14 +168,14 @@ test("settings: a title in never_read is never listed to read", () => {
   file("settings.json", { never_read: ["suntiq > b"] });
   const out = scan(["--all"]);
   assert.equal(choiceOf(out, "B"), "skip");
-  assert.equal(readFileSync(join(root, "to-read.tsv"), "utf8").trim().split("\n").length, 2);
+  assert.equal(readFileSync(join(root, "to-read.jsonl"), "utf8").trim().split("\n").length, 2);
 });
 
 test("brief: the reader's brief names the list, the rules, the output file and the count", () => {
   scan();
   const out = sweep(["brief", "--out", join(root, "labels.jsonl")]);
   assert.match(out, /label the last reply of 3 chats/);
-  assert.ok(out.includes(join(root, "to-read.tsv")));
+  assert.ok(out.includes(join(root, "to-read.jsonl")));
   assert.ok(out.includes(join(root, "labels.jsonl")));
   const rules = out.match(/The label rules: `([^`]+)`/)[1];
   assert.ok(existsSync(rules), `${rules} exists`);
@@ -219,7 +219,7 @@ test("under Node's permission system every command runs: no process, no worker, 
 test("merge: a chat whose label was taken leaves the list, so a second reader is not started for it", () => {
   scan();
   sweep(["merge", "--labels", file("labels.jsonl", label("A") + "\n")]);
-  const left = readFileSync(join(root, "to-read.tsv"), "utf8").trim().split("\n").map((line) => line.split("\t")[0]);
+  const left = readFileSync(join(root, "to-read.jsonl"), "utf8").trim().split("\n").map((line) => JSON.parse(line).threadId);
   assert.deepEqual(left.sort(), ["B", "C"]);
   assert.deepEqual(sweep(["merge", "--labels", file("labels.jsonl", label("A") + "\n")]).not_in_to_read, ["A"]);
   sweep(["merge", "--labels", file("labels-2.jsonl", label("B") + "\n" + label("C") + "\n")]);
@@ -306,7 +306,7 @@ test("lock: eight scans at the same time each end with exit 0 or a refusal, and 
 test("the state folder holds no temp file and no lock after scan, merge and sent", () => {
   readyA();
   sweep(["sent", "--thread", "A", "--wording", "continue"]);
-  const known = new Set(["index.json", "to-read.tsv", "sends.jsonl", "projects.json", "settings.json"]);
+  const known = new Set(["index.json", "to-read.jsonl", "sends.jsonl", "projects.json", "settings.json"]);
   const made = readdirSync(root).filter((name) => /^\.|lock|\.tmp$/.test(name) && !known.has(name));
   assert.deepEqual(made, []);
 });
@@ -317,7 +317,7 @@ test("merge: a label the program does not know is not taken, and its chat stays 
   assert.deepEqual(out.unknown_label, ["A"]);
   assert.equal(out.merged, 1);
   assert.equal(choiceOf(out, "A"), "read");
-  assert.ok(readFileSync(join(root, "to-read.tsv"), "utf8").includes("A\t"));
+  assert.ok(readFileSync(join(root, "to-read.jsonl"), "utf8").includes('{"threadId":"A",'));
 });
 
 test("the send log: a line that is JSON but no send record is bad input, before any write", () => {
@@ -332,7 +332,7 @@ test("the send log: a line that is JSON but no send record is bad input, before 
 });
 
 // Found by the reader of 2026-11-18 (review-step-1.json). Each of these failed before its fix.
-const stateFiles = () => ["index.json", "to-read.tsv", "sends.jsonl", "projects.json"].map((name) => (existsSync(join(root, name)) ? readFileSync(join(root, name), "utf8") : null));
+const stateFiles = () => ["index.json", "to-read.jsonl", "sends.jsonl", "projects.json"].map((name) => (existsSync(join(root, name)) ? readFileSync(join(root, name), "utf8") : null));
 const readyA = () => {
   scan();
   sweep(["merge", "--labels", file("labels.jsonl", label("A") + "\n")]);
@@ -463,7 +463,7 @@ test("an index of the older program loses its stored choices at the next scan or
 
 test("each state file is replaced in one step: a scan and a merge work when the files are read-only", () => {
   scan();
-  for (const name of ["index.json", "to-read.tsv", "projects.json"]) chmodSync(join(root, name), 0o444);
+  for (const name of ["index.json", "to-read.jsonl", "projects.json"]) chmodSync(join(root, name), 0o444);
   scan();
   sweep(["merge", "--labels", file("labels.jsonl", label("A") + "\n")]);
   assert.equal(JSON.parse(readFileSync(join(root, "index.json"), "utf8")).rows.A.label, "plan_ready");
@@ -480,10 +480,43 @@ test("sent: a send log that is a link to a file outside the state folder is refu
   rmSync(outside, { recursive: true, force: true });
 });
 
-test("scan: a tab in a title does not add a column to the list for the reader", () => {
+test("scan: the list for the reader is JSON Lines, and a title keeps its text", () => {
   const threads = THREADS.threads.map((c) => (c.threadId === "A" ? { ...c, title: "leviathan >\ta\ttab" } : c));
   sweep(["scan", "--threads", file("threads-2.json", { ...THREADS, threads }), "--self", "S"]);
-  for (const line of readFileSync(join(root, "to-read.tsv"), "utf8").trim().split("\n")) assert.equal(line.split("\t").length, 4, line);
+  const rows = readFileSync(join(root, "to-read.jsonl"), "utf8").trim().split("\n").map((line) => JSON.parse(line));
+  for (const one of rows) assert.deepEqual(Object.keys(one), ["threadId", "cursor", "item_count", "title"]);
+  assert.equal(rows.find((one) => one.threadId === "A").title, "leviathan >\ta\ttab");
+});
+
+// After six readers: the fifth round fixed the type of each value, and the sixth reader found that a text
+// of the right type still broke two text formats the program wrote itself (a tab-separated list, and an
+// option list for the queue program). Both formats are gone. This test takes one chat through every step
+// with an id, and a run id, that holds each character such a format could trip on.
+test("round trip: a chat whose id or run id holds any text is listed, labelled, queued, closed and opened again", () => {
+  const ids = ["A\tB", "--x", "-n", "a\nb", "a b", "x=y", "#", "a#1", '"q"', "--item=y", "__proto__", "ü 🚀"];
+  const runs = ["r\tpart", "--r", "a#b", "r 1", "r\n2"];
+  const other = chat("B", "p2", "suntiq > b", 90);
+  for (const [id, run] of [...ids.map((one) => [one, "r1"]), ...runs.map((one) => ["chat", one])]) {
+    rmSync(root, { recursive: true, force: true });
+    root = mkdtempSync(join(tmpdir(), "sweep-trip-"));
+    const name = `id ${JSON.stringify(id)}, run ${JSON.stringify(run)}`;
+    const one = { ...chat("A", "p1", "leviathan > a", 60), threadId: id, latestRunId: run };
+    const cursor = `${run}#${one.itemCount}`;
+    const scanWith = (threads) => sweep(["scan", "--threads", file("in-threads.json", { threads, nextCursor: null }), "--projects", file("in-projects.json", PROJECTS), "--self", "S"]);
+    scanWith([one, other]);
+    const listed = readFileSync(join(root, "to-read.jsonl"), "utf8").trim().split("\n").map((line) => JSON.parse(line));
+    assert.deepEqual(listed.find((row) => row.threadId === id)?.cursor, cursor, `${name}: the list holds the chat and its cursor`);
+    const merged = sweep(["merge", "--labels", file("in-labels.jsonl", `${label(id, { cursor, label: "needs_jp", ready_steps: [], questions_for_jp: ["Which option?"] })}\n`)]);
+    assert.deepEqual([merged.merged, merged.not_in_to_read, merged.stale], [1, [], []], `${name}: the label is taken`);
+    assert.equal(sync().added, 1, `${name}: the chat gets an item`);
+    assert.deepEqual(items().map((item) => [item.id, item.status]), [[id, "pending"]], name);
+    scanWith([other]);   // the chat was settled
+    assert.equal(sync().closed, 1, `${name}: the item is closed`);
+    assert.deepEqual(items().map((item) => [item.id, item.status]), [[id, "done"]], name);
+    scanWith([one, other]);   // and is open again, with the same reply
+    assert.equal(sync().reopened, 1, `${name}: the item opens again`);
+    assert.deepEqual(items().map((item) => [item.id, item.status]), [[id, "pending"]], name);
+  }
 });
 
 test("brief: the reader copies each chat's cursor into its label", () => {
@@ -752,7 +785,7 @@ const exitOf = (args) => {
     return error instanceof SweepInputError || String(error.code || "").startsWith("ERR_PARSE_ARGS") ? 2 : 1;
   }
 };
-const ODD = [null, 7, true, "", " ", [], {}, { toString: null }, "__proto__", "constructor"];
+const ODD = [null, 7, true, "", " ", [], {}, { toString: null }, "__proto__", "constructor", "a\tb", "--x", "a\nb"];
 const show = (value) => JSON.stringify(value);
 
 test("matrix: every odd value in every field of a chat, a project or a worker chat is refused or taken, and what is taken stops no later command", () => {
@@ -916,6 +949,38 @@ test("queue: an item that the queue program would refuse stops the run before a 
   writeFileSync(join(root, "index.json"), JSON.stringify(index));
   assert.match(sync([], { status: 2 }), /queue: /);
   assert.equal(existsSync(qroot()), false, "no queue was opened");
+});
+
+test("a word that is no command is refused with exit 2, also the name of a built-in property", () => {
+  for (const word of ["constructor", "toString", "__proto__", "hasOwnProperty", "nope"]) {
+    const out = sweep([word], { status: 2 });
+    assert.match(out, /usage: sweep\.mjs scan\|merge\|brief\|sent\|show\|queue/, word);
+    assert.doesNotMatch(out, /\n\s+at /, "no stack trace");
+    assert.deepEqual(readdirSync(root), [], `${word}: no state file and no lock`);
+  }
+});
+
+test("queue: an item's link follows the row, also when the chat has no link any more", () => {
+  base();
+  sync();
+  assert.match(items().find((item) => item.id === "B").link, /t3-thread/);
+  const threads = WITH_D.threads.map((c) => (c.threadId === "B" ? { ...c, link: undefined } : c));
+  sweep(["scan", "--threads", file("threads-3.json", { ...WITH_D, threads }), "--projects", file("projects-in.json", PROJECTS), "--self", "S"]);
+  assert.equal(sync().updated, 1);
+  assert.equal(items().find((item) => item.id === "B").link, null);
+});
+
+test("merge: a line of the reader list that this program did not write is refused with exit 2", () => {
+  scan();
+  const before = stateFiles();
+  writeFileSync(join(root, "to-read.jsonl"), 'A\tr1#10\t10\tleviathan > a\n');
+  const changed = stateFiles();
+  assert.notDeepEqual(changed, before);
+  const out = sweep(["merge", "--labels", file("labels.jsonl", `${label("A")}\n`)], { status: 2 });
+  assert.match(out, /to-read\.jsonl holds a line that this program did not write; run scan again/);
+  assert.doesNotMatch(out, /\n\s+at /, "no stack trace");
+  assert.deepEqual(stateFiles(), changed, "the refused merge wrote nothing");
+  assert.match(sweep(["brief", "--out", join(root, "labels.jsonl")], { status: 2 }), /did not write/);
 });
 
 test("queue: a queue root that is a file is refused with exit 2 and the reason", () => {
