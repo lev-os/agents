@@ -39,6 +39,8 @@ const choices = [
   ["an interrupted chat with a person's message and no reply is unanswered", row(40, { status: "interrupted", label: "needs_jp", last_user_by: "user", last_user_at: ago(41) }), "unanswered"],
   ["an interrupted chat is not flagged while the person may still type", row(3, { status: "interrupted", label: "needs_jp", last_user_by: "user", last_user_at: ago(4) }), "not yet"],
   ["an interrupted chat whose last message is not a person's follows its label", row(40, { status: "interrupted", label: "waits_run", last_user_by: "agent", last_user_at: ago(41) }), "leave"],
+  ["a chat whose run the person stopped with his last message follows its label", row(40, { status: "cancelled", label: "done", last_user_by: "user", last_user_at: ago(41), last_user_stops: true }), "leave"],
+  ["a stopped chat whose last message of a person asks for work is unanswered", row(40, { status: "cancelled", label: "done", last_user_by: "user", last_user_at: ago(41), last_user_stops: false }), "unanswered"],
   ["a settled chat is skipped, also when its label says ready", row(50, { settled: true, label: "plan_ready" }), "skip"],
   ["a settled chat with questions stays out of the queue", row(50, { settled: true, label: "needs_jp", questions: ["Which one?"] }), "skip"],
   ["a chat that changed 5 minutes ago is not read yet", row(5, { now_cursor: "r2#14" }), "not yet"],
@@ -669,7 +671,7 @@ test("merge: a label field of the wrong type is bad input before any write, and 
   const before = stateFiles();
   const odd = [
     ["stopped_at", { toString: null }], ["last_user_at", 5], ["questions_for_jp", "text"], ["questions_for_jp", [1]],
-    ["ready_steps", {}], ["cursor", 7], ["label_reason", []], ["waits_on", 3], ["last_user_by", {}],
+    ["ready_steps", {}], ["cursor", 7], ["label_reason", []], ["waits_on", 3], ["last_user_by", {}], ["last_user_stops", "yes"],
   ];
   for (const [key, value] of odd) {
     assert.match(sweep(["merge", "--labels", file("odd.jsonl", label("A", { [key]: value }) + "\n")], { status: 2 }), new RegExp(`line 1: ${key} is not`), key);
@@ -680,6 +682,16 @@ test("merge: a label field of the wrong type is bad input before any write, and 
   // An index that holds such a value (an older program, a hand) is read without a stop, and the hold stays.
   const r = row(40, { label: "plan_ready", sends: [{ at: {} }], last_user_by: "user", last_user_at: { toString: null }, stopped_at: { toString: null } });
   assert.equal(choose(r, NOW)[0], "leave");
+});
+
+test("merge: a chat that JP stopped himself with his last message is not unanswered", () => {
+  const threads = THREADS.threads.map((c) => (["A", "B"].includes(c.threadId) ? { ...c, status: "cancelled" } : c));
+  sweep(["scan", "--threads", file("threads-stop.json", { ...THREADS, threads }), "--projects", file("projects-in.json", PROJECTS), "--self", "S"]);
+  const stopped = (id, stops) => label(id, { label: "done", ready_steps: [], last_user_by: "user", last_user_at: ago(61), ...(stops === undefined ? {} : { last_user_stops: stops }) });
+  const out = sweep(["merge", "--labels", file("stop.jsonl", `${stopped("A", true)}\n${stopped("B")}\n`)]);
+  assert.equal(choiceOf(out, "A"), "leave", "his last message was: never mind");
+  assert.equal(choiceOf(out, "B"), "unanswered", "a label with no word on it keeps the old rule");
+  assert.equal(JSON.parse(readFileSync(join(root, "index.json"), "utf8")).rows.A.last_user_stops, true);
 });
 
 test("queue: a chat that moved to another project finds its item: an open one gets the new questions, a done one opens again", () => {

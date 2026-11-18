@@ -9,11 +9,15 @@
  *                                 <queue>/cards-to-read.jsonl and prints the brief for one reader
  *                                 (references/card-brief.txt). Exit 2 when no item needs a card.
  *   merge --cards <cards file> -> checks every line, then stores each card on its item (`asks`, `context`,
- *                                 `asks_cursor`). Prints {merged, stale, not_open, answered}.
+ *                                 `asks_cursor`). Prints {merged, stale, moved, not_open, answered}: a card for an
+ *                                 older reply (stale), for a chat that has more items now than at the scan
+ *                                 (moved), or for a chat that a person answered is not stored.
  *   batch [--size 5]           -> the next questions for JP: at most --size questions, all of one project,
  *                                 numbered from 1. Writes <queue>/batches/batch-<n>.html (the page to show)
  *                                 and batch-<n>.json (question number -> item, choices), and marks each item
  *                                 as shown for its reply. Prints {batch, group, page, map, questions, left, no_card}.
+ *   batch --again <n>          -> writes the page and the map of batch n again, from its items that are still
+ *                                 open (an item was closed, or its card was merged again, after the batch).
  *   relay --item <id> --words "<JP's words>" [--picks "1a 2b"] [--note "<text>"] [--sent] [--keep-open]
  *                              -> prints the message for the chat that asked: JP's words unchanged, and every
  *                                 other sentence marked as not his. A pick is a question number of that item
@@ -65,6 +69,8 @@ function asksOf(item) {
   return null;
 }
 const forJp = (item) => OPEN.has(item.status) && item.kind !== "watch";
+/** The item count at the end of a cursor (`<run id>#<count>`), or NaN. */
+const countOf = (cursor) => (cursor.includes("#") ? Number(cursor.slice(cursor.lastIndexOf("#") + 1)) : NaN);
 
 function checkAsk(ask, where) {
   const bad = (what) => new InputError(`${where}: ${what}`);
@@ -89,6 +95,7 @@ function checkLine(card, where) {
   if (!isRecord(card)) throw bad("not a card (a JSON object)");
   if (!isText(card.threadId) || card.threadId === "") throw bad("threadId must be a text");
   if (!isText(card.cursor)) throw bad("cursor must be a text");
+  if (card.item_count_now !== null && card.item_count_now !== undefined && !Number.isFinite(card.item_count_now)) throw bad("item_count_now must be a number or null");
   if (typeof card.answered !== "boolean") throw bad("answered must be true or false");
   if (!isText(card.context)) throw bad("context must be a text");
   if (!Array.isArray(card.asks)) throw bad("asks must be a list");
@@ -225,6 +232,7 @@ export function main(argv, env = process.env) {
       out: { type: "string" },
       cards: { type: "string" },
       size: { type: "string" },
+      again: { type: "string" },
       item: { type: "string" },
       words: { type: "string" },
       picks: { type: "string" },
@@ -254,7 +262,7 @@ export function main(argv, env = process.env) {
     if (need.length === 0) throw new InputError("brief: no item needs a card");
     const list = join(dir, "cards-to-read.jsonl");
     const rows = need.map((item) => {
-      const count = Number(item.cursor.slice(item.cursor.lastIndexOf("#") + 1));
+      const count = countOf(item.cursor);
       return JSON.stringify({ threadId: item.threadId ?? item.id, cursor: item.cursor, item_count: Number.isFinite(count) ? count : null, title: item.title, questions: item.questions ?? [] });
     });
     const temp = join(dir, `.cards-to-read.${process.pid}.tmp`);
@@ -267,12 +275,15 @@ export function main(argv, env = process.env) {
   if (command === "merge") {
     const cards = readCards(values.cards);
     const byThread = new Map(items.filter(forJp).map((item) => [item.threadId ?? item.id, item]));
-    const out = { merged: [], stale: [], not_open: [], answered: [] };
+    const out = { merged: [], stale: [], moved: [], not_open: [], answered: [] };
     const writes = [];
     for (const card of cards) {
       const item = byThread.get(card.threadId);
       if (!item) out.not_open.push(card.threadId);
       else if (card.cursor !== item.cursor) out.stale.push(card.threadId);
+      // The cursor ends in the item count of the reply that asks. More items now: the chat moved after the
+      // scan, so the question may be answered. The next scan reads it again.
+      else if (Number.isFinite(card.item_count_now) && Number.isFinite(countOf(card.cursor)) && card.item_count_now !== countOf(card.cursor)) out.moved.push(card.threadId);
       else if (card.answered) out.answered.push(card.threadId);
       else {
         const first = card.asks[0];
@@ -301,22 +312,31 @@ export function main(argv, env = process.env) {
     const open = items.filter(forJp);
     const noCard = open.filter((item) => asksOf(item) === null).length;
     const ready = open.filter((item) => asksOf(item) !== null && !(item.shown && item.shown.cursor === (item.cursor ?? null)));
-    if (ready.length === 0) return { batch: null, questions: [], left: 0, no_card: noCard };
     const groupOf = (item) => item.project || "no project";
-    const group = groupOf(ready[0]);
-    const taken = [];
-    let count = 0;
-    for (const item of ready) {
-      const asks = asksOf(item);
-      if (groupOf(item) !== group) continue;
-      if (taken.length > 0 && count + asks.length > size) continue;
-      taken.push(item);
-      count += asks.length;
-      if (count >= size) break;
-    }
     const folder = join(dir, "batches");
-    mkdirSync(folder, { recursive: true });
-    const number = readdirSync(folder).filter((name) => /^batch-\d+\.json$/.test(name)).length + 1;
+    const again = values.again !== undefined;
+    let number;
+    const taken = [];
+    if (again) {
+      number = Number(values.again);
+      if (!Number.isInteger(number) || number < 1) throw new InputError("batch: --again must be the number of a batch");
+      taken.push(...open.filter((item) => asksOf(item) !== null && item.shown && item.shown.batch === number && item.shown.cursor === (item.cursor ?? null)));
+      if (taken.length === 0) throw new InputError(`batch: no open question of batch ${number} is left to show`);
+    } else {
+      if (ready.length === 0) return { batch: null, questions: [], left: 0, no_card: noCard };
+      let count = 0;
+      for (const item of ready) {
+        const asks = asksOf(item);
+        if (groupOf(item) !== groupOf(ready[0])) continue;
+        if (taken.length > 0 && count + asks.length > size) continue;
+        taken.push(item);
+        count += asks.length;
+        if (count >= size) break;
+      }
+      mkdirSync(folder, { recursive: true });
+      number = readdirSync(folder).filter((name) => /^batch-\d+\.json$/.test(name)).length + 1;
+    }
+    const group = groupOf(taken[0]);
     const questions = [];
     for (const item of taken) {
       asksOf(item).forEach((ask, index) => {
@@ -332,9 +352,9 @@ export function main(argv, env = process.env) {
     const batch = { batch: number, group, at: now, questions, left };
     const page = join(folder, `batch-${number}.html`);
     const map = join(folder, `batch-${number}.json`);
-    writeFileSync(map, `${JSON.stringify(batch, null, 1)}\n`, { flag: "wx" });
-    writeFileSync(page, pageHtml(batch), { flag: "wx" });
-    for (const item of taken) put(item, { shown: { batch: number, cursor: item.cursor ?? null, at: now } });
+    writeFileSync(map, `${JSON.stringify(batch, null, 1)}\n`, { flag: again ? "w" : "wx" });
+    writeFileSync(page, pageHtml(batch), { flag: again ? "w" : "wx" });
+    if (!again) for (const item of taken) put(item, { shown: { batch: number, cursor: item.cursor ?? null, at: now } });
     return { batch: number, group, page, map, questions: questions.map(({ n, item, ask }) => ({ n, item, ask })), left, no_card: noCard };
   }
 

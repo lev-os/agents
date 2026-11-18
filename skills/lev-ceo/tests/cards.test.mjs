@@ -77,7 +77,7 @@ test("brief with nothing to read ends with exit 2 and writes no list", () => {
 test("merge stores the asks of a card on its item, for the reply the card was written for", () => {
   const root = queueWith([item("a")]);
   const out = json(merge(root, [line("a")]));
-  assert.deepEqual(out, { merged: ["a"], stale: [], not_open: [], answered: [] });
+  assert.deepEqual(out, { merged: ["a"], stale: [], moved: [], not_open: [], answered: [] });
   const [a] = stored(root);
   assert.equal(a.asks_cursor, "r1#40");
   assert.equal(a.asks[0].ask, "May the chat merge the branch?");
@@ -89,12 +89,14 @@ test("merge stores the asks of a card on its item, for the reply the card was wr
 });
 
 test("merge takes no card for an older reply, for a chat with no open item, or for a chat JP answered", () => {
-  const root = queueWith([item("a"), item("b"), item("c")]);
-  const out = json(merge(root, [line("a", { cursor: "r0#30" }), line("zz"), line("c", { answered: true, asks: [] }), line("b")]));
-  assert.deepEqual(out, { merged: ["b"], stale: ["a"], not_open: ["zz"], answered: ["c"] });
+  const root = queueWith([item("a"), item("b"), item("c"), item("d")]);
+  // d: the reader saw 44 items, and the reply that asks was item 40: the chat moved after the scan.
+  const out = json(merge(root, [line("a", { cursor: "r0#30" }), line("zz"), line("c", { answered: true, asks: [] }), line("b"), line("d", { item_count_now: 44 })]));
+  assert.deepEqual(out, { merged: ["b"], stale: ["a"], moved: ["d"], not_open: ["zz"], answered: ["c"] });
   const byId = Object.fromEntries(stored(root).map((i) => [i.id, i]));
   assert.equal(byId.a.asks, undefined);
   assert.equal(byId.c.asks, undefined);
+  assert.equal(byId.d.asks, undefined);
   assert.equal(byId.c.status, "pending");
 });
 
@@ -114,6 +116,7 @@ test("merge refuses a card line of the wrong form with exit 2, before any write"
     line("a", { answered: "no" }),
     line("a", { context: null }),
     line("a", { cursor: 4 }),
+    line("a", { item_count_now: "40" }),
     line("a", { asks: [] }),
   ];
   for (const one of bad) {
@@ -157,6 +160,24 @@ test("batch does not show a question twice, and the next batch holds what is lef
   const third = json(cards(root, ["batch"]));
   assert.deepEqual(third, { batch: null, questions: [], left: 0, no_card: 0 });
   assert.deepEqual(readdirSync(join(folder(root), "batches")).sort(), ["batch-1.html", "batch-1.json", "batch-2.html", "batch-2.json"]);
+});
+
+test("batch --again writes the page of a batch again without a question that was closed after it", () => {
+  const root = queueWith([item("a"), item("b"), item("c")]);
+  merge(root, [line("a"), line("b"), line("c")]);
+  const first = json(cards(root, ["batch", "--size", "2"]));
+  assert.deepEqual(first.questions.map((q) => q.item), ["a", "b"]);
+  const closed = run(QUEUE, ["resolve", "--item", "a", "--to", "done", "--note", "JP answered there", "--thread", ME, "--root", root, "--now", NOW]);
+  assert.equal(closed.status, 0, closed.stderr);
+  const again = json(cards(root, ["batch", "--again", "1"]));
+  assert.equal(again.batch, 1);
+  assert.deepEqual(again.questions.map((q) => [q.n, q.item]), [[1, "b"]]);
+  assert.equal(again.left, 1, "c is not shown yet");
+  assert.equal(again.page, first.page);
+  assert.doesNotMatch(readFileSync(again.page, "utf8"), /QUESTION 2/);
+  assert.deepEqual(json(cards(root, ["batch"])).questions.map((q) => q.item), ["c"], "the next batch is the second one");
+  assert.match(cards(root, ["batch", "--again", "7"], 2).stderr, /no open question of batch 7/);
+  assert.match(cards(root, ["batch", "--again", "x"], 2).stderr, /--again/);
 });
 
 test("batch shows no card that was written for an older reply, and counts it", () => {

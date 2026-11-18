@@ -80,6 +80,7 @@
  *
  * Choices, in the order `show` prints them:
  *   unanswered  a person's message has no reply: the run was interrupted, failed or cancelled
+ *               (not when the reader says that the message tells the chat to stop: `last_user_stops`)
  *   ask         the reply names approved work that is not done: tell the chat to continue
  *   read        the chat changed since the last read, or it was never read and stopped in the last 48 hours:
  *               a reader labels it. A chat that was read before is read again however old the change is,
@@ -158,6 +159,7 @@ const LABEL_FIELDS = [
   ["cursor", isText, "a text"], ["label_reason", isText, "a text"], ["waits_on", isText, "a text"], ["last_user_by", isText, "a text"],
   ["last_user_at", (v) => v === null || isText(v), "a time as text, or null"], ["stopped_at", (v) => v === null || isText(v), "a time as text, or null"],
   ["ready_steps", isTexts, "a list of texts"], ["questions_for_jp", isTexts, "a list of texts"],
+  ["last_user_stops", (v) => typeof v === "boolean", "true or false"],
 ];
 const topLevel = (t) => t.relationshipToParent !== "subagent";
 const cursorOf = (t) => `${t.latestRunId || ""}#${t.itemCount}`;
@@ -204,7 +206,8 @@ export function choose(row, now, set = DEFAULTS) {
     return ["old", `stopped ${Math.round(hours / 24)} days ago, never read`];
   }
   // A run that did not finish after a person's message. It waits too, because the person may still type.
-  if (["interrupted", "failed", "cancelled"].includes(row.status) && row.last_user_by === "user") {
+  // Not when that message tells the chat to stop ("nvm"): the person ended the run, and the label decides.
+  if (["interrupted", "failed", "cancelled"].includes(row.status) && row.last_user_by === "user" && row.last_user_stops !== true) {
     return idle >= wait ? ["unanswered", `a person's message has no reply: the run was ${row.status}`] : ["not yet", `the run was ${row.status} ${idle} min ago`];
   }
   const questions = row.questions || [];
@@ -417,7 +420,8 @@ function merge(s, o, now) {
     Object.assign(row, {
       cursor: l.cursor, label: l.label, label_reason: l.label_reason || "", ready_steps: l.ready_steps || [], questions: l.questions_for_jp || [],
       waits_on: l.waits_on || "", last_user_by: l.last_user_by || "none", last_user_at: l.last_user_at || null,
-      last_user_from_other_chat: !!l.last_user_from_other_chat, stopped_at: l.stopped_at || null, read_at: new Date(now).toISOString(),
+      last_user_from_other_chat: !!l.last_user_from_other_chat, last_user_stops: l.last_user_stops === true,
+      stopped_at: l.stopped_at || null, read_at: new Date(now).toISOString(),
     });
     taken.add(id);
     merged += 1;

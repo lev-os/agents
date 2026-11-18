@@ -27,6 +27,7 @@ Write one JSON object on one line for each chat, with exactly these keys:
 - `last_user_by`: `"user"` when the last user message has `createdBy: "user"` and no `senderThreadId`; `"agent"` when another chat or a program sent it; `"none"` when there is no user message in what you read.
 - `last_user_at`: the `updatedAt` (or `createdAt`) of that last user message, ISO time, or null.
 - `last_user_from_other_chat`: true when that message has a `senderThreadId`, else false.
+- `last_user_stops`: true when that last user message is from a person, comes after the last final reply, and tells the chat to stop, to hold, or to drop what he asked for ("nvm", "stop", "never mind", "don't deploy"). Else false. A message that asks for work, or that changes the work, is false.
 - `stopped_at`: `recentRuns[0].completedAt` from the read result, or null when the run is not complete.
 - `status_seen`: the thread's `status` from the read result.
 
