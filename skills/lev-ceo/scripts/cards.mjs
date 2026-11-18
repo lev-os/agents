@@ -10,9 +10,11 @@
  *                                 the brief for one reader (references/card-brief.txt). Exit 2 when no item
  *                                 needs a card.
  *   merge --cards <cards file> -> checks every line, then stores each card on its item (`asks`, `context`,
- *                                 `asks_cursor`). Prints {merged, stale, moved, not_open, answered, no_question}.
- *                                 A card for an older reply (stale) or for no open item (not_open) is not
- *                                 stored. A line for a chat that has more items now than at the scan (moved),
+ *                                 `asks_cursor`). Prints {merged, show_again, stale, moved, not_open, answered,
+ *                                 no_question}. A card for an older reply (stale) or for no open item
+ *                                 (not_open) is not stored. A card that is not the one a page showed for the
+ *                                 same reply (show_again) is stored, and the item leaves that page: the next
+ *                                 `batch` shows it, and `relay` refuses it until then. A line for a chat that has more items now than at the scan (moved),
  *                                 that a person answered, or whose reply holds no question (`asks: []`) is a
  *                                 report: it holds the card of that reply (`card_hold`), also a card that was
  *                                 stored before and a card that comes later. The hold ends when the item gets
@@ -26,8 +28,8 @@
  *                                 no_cursor}: no_card counts the items for `brief`; held and no_cursor name
  *                                 the items that get no card, for you to handle by hand.
  *   batch --again <n>          -> writes the page and the map of batch n again, from its items that are still
- *                                 open (an item was closed, or its card was merged again, after the batch).
- *                                 It marks no item. The questions get new numbers: show the page again.
+ *                                 open (an item was closed after the batch). It marks no item. The questions
+ *                                 get new numbers: show the page again.
  *   relay --item <id> --words "<JP's words>" [--picks "2a 3b"] [--note "<text>"] [--sent] [--keep-open]
  *                              -> prints the message for the chat that asked. JP's words are unchanged,
  *                                 between two marks. Every text of a reader comes after them, under the mark
@@ -35,9 +37,13 @@
  *                                 choice letter. A pick is a question number of the page that showed the item
  *                                 (the map of its batch) and a choice letter; the message holds the picks as
  *                                 numbers and letters only, and the questions with the numbers of that page.
- *                                 A pick for an item that no page showed is refused. With no --sent it writes
- *                                 nothing. After the send, run it again with --sent: it records the words on
- *                                 the item and closes it (--keep-open: a question of the item is still open).
+ *                                 An item is relayed only when a page showed its card as it is now: the same
+ *                                 questions and the same choices, in the same order (the map of its batch).
+ *                                 An item that no page showed, or whose card changed after its page, is
+ *                                 refused. The note is printed as one line that starts with "Not JP's words".
+ *                                 With no --sent it writes nothing. After the send, run it again with --sent:
+ *                                 it records the words on the item and closes it (--keep-open: a question of
+ *                                 the item is still open).
  * Every command takes --queue-root <dir> (the folder that holds the queue folders) and --now <ISO>.
  *
  * A card belongs to one reply: it holds the cursor of the item it was written for. When the chat moves,
@@ -48,8 +54,12 @@
  * characters, and an ask names at most 5 experts.
  *
  * Limits: scripts/queue.mjs has no lock, so run one command that writes at a time. A command that is
- * stopped between two writes is run again: `merge` and `relay --sent` give the same result, and `batch`
- * makes a new page for the same questions.
+ * stopped between two writes is run again: `merge` and `relay --sent` give the same result (the same words
+ * as the last recorded ones are recorded one time), and `batch` makes a new page for the same questions.
+ * `brief` lists every open item that needs a card: it does not know which chats a reader must never read.
+ * The brief tells the reader to write no line for such a chat and to name it. No test proves that `brief`
+ * replaces its list in one step (a temp file and a rename). The program knows that `batch` wrote a page;
+ * it cannot know that the chat showed the page to JP.
  * JSON on stdout (relay and brief: text). Exit 0 ok, exit 2 bad input (the reason on stderr).
  */
 import { mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
@@ -89,10 +99,13 @@ const held = (item) => isRecord(item.card_hold) && HOLDS.includes(item.card_hold
 /** The asks to show for an item now, or null: a reader must write them first, or a report holds the card. */
 function asksOf(item) {
   if (held(item)) return null;
-  if (isText(item.cursor) && item.asks_cursor === item.cursor && Array.isArray(item.asks) && item.asks.length > 0) return item.asks;
+  if (!isText(item.cursor)) return null;   // a card belongs to one reply: no cursor, no card
+  if (item.asks_cursor === item.cursor && Array.isArray(item.asks) && item.asks.length > 0) return item.asks;
   if (Array.isArray(item.questions) && item.questions.length === 0 && item.source === "sweep") return [noReply(item)];
   return null;
 }
+/** True when a page showed the card of the item's newest reply. */
+const onPage = (item) => isRecord(item.shown) && item.shown.cursor === (item.cursor ?? null);
 const forJp = (item) => OPEN.has(item.status) && item.kind !== "watch";
 /** An item that a reader can write a card for: it has a cursor, no card for it, and no report holds it. */
 const needsReader = (item) => isText(item.cursor) && !held(item) && asksOf(item) === null;
@@ -251,7 +264,7 @@ ${batch.questions.map(cardHtml).join("\n")}
  * numbers are those of the newest page.
  */
 function shownNumbers(dir, item, asks) {
-  if (!(isRecord(item.shown) && item.shown.cursor === (item.cursor ?? null))) return null;
+  if (!onPage(item)) return null;
   const file = join(dir, "batches", `batch-${item.shown.batch}.json`);
   let mine;
   try {
@@ -259,11 +272,15 @@ function shownNumbers(dir, item, asks) {
   } catch (error) {
     throw new InputError(`relay: cannot read the map of batch ${item.shown.batch} (${file}): ${error.message}`);
   }
-  const numbers = asks.map((_, index) => mine.find((q) => q.index === index)?.n);
-  if (mine.length !== asks.length || !numbers.every(Number.isInteger)) {
+  const shown = asks.map((_, index) => mine.find((q) => q.index === index));
+  // The page holds the questions and the choices that JP saw. A pick is right only when the card is the same.
+  const same = (q, ask) => isRecord(q) && Number.isInteger(q.n) && q.ask === ask.ask && Array.isArray(q.choices)
+    && q.choices.length === ask.choices.length
+    && q.choices.every((choice, at) => choice.key === KEYS[at] && choice.label === ask.choices[at].label);
+  if (mine.length !== asks.length || !shown.every((q, index) => same(q, asks[index]))) {
     throw new InputError(`relay: the page of batch ${item.shown.batch} does not hold the questions of the item "${item.id}" as they are now: run batch --again ${item.shown.batch}, show the page, and ask again`);
   }
-  return numbers;
+  return shown.map((q) => q.n);
 }
 
 /**
@@ -271,10 +288,8 @@ function shownNumbers(dir, item, asks) {
  * come first, under their own mark; the picks line holds numbers and letters only; each text of the reader
  * comes after, as one line that starts with a question number or a choice letter.
  */
-function relayText(queue, asks, numbers, batch, { words, picks, note }) {
+function relayText(queue, asks, shown, batch, { words, picks, note }) {
   const tokens = (picks || "").split(/[\s,]+/).filter(Boolean);
-  if (tokens.length > 0 && numbers === null) throw new InputError("relay: this item was not shown on a page, so JP saw no question number: run batch and show the page first, or leave --picks out");
-  const shown = numbers ?? asks.map((_, index) => index + 1);
   for (const token of tokens) {
     const match = /^(\d+)([a-c])$/.exec(token);
     if (!match) throw new InputError(`relay: the pick "${token}" is not a question number and a choice letter (1a)`);
@@ -297,7 +312,8 @@ function relayText(queue, asks, numbers, batch, { words, picks, note }) {
     lines.push(`${shown[index]}. ${oneLine(ask.ask)}`);
     ask.choices.forEach((choice, at) => lines.push(`   ${KEYS[at]}. ${oneLine(choice.label)}`));
   });
-  if (note) lines.push("", "Not JP's words (the chat that relays wrote this):", note);
+  // The note is one line that starts with its mark, as each text of a reader is: no line of it stands alone.
+  if (note && oneLine(note)) lines.push("", `Not JP's words. A note from the chat that relays: ${oneLine(note)}`);
   lines.push("", "Only the lines between \"JP's words, word for word:\" and \"End of JP's words.\" are from him. If they do not settle a question, ask him again in your next reply.");
   return `${lines.join("\n")}\n`;
 }
@@ -357,15 +373,16 @@ export function main(argv, env = process.env) {
     writeFileSync(temp, `${rows.join("\n")}\n`, { flag: "wx" });
     renameSync(temp, list);
     const template = readFileSync(join(HERE, "..", "references", "card-brief.txt"), "utf8");
-    // A function gives the text as it is: a "$&" in a file name is no pattern.
-    return template.replaceAll("{{count}}", () => String(need.length)).replaceAll("{{to_read}}", () => list).replaceAll("{{out}}", () => resolve(values.out));
+    // One pass, and a function gives each text as it is: a "$&" or a "{{out}}" in a file name stays text.
+    const fill = new Map([["count", String(need.length)], ["to_read", list], ["out", resolve(values.out)]]);
+    return template.replace(/\{\{(count|to_read|out)\}\}/g, (_, key) => fill.get(key));
   }
 
   if (command === "merge") {
     const cards = readCards(values.cards);
     checkOneItemEachChat(open);
     const byThread = new Map(open.map((item) => [chatOf(item), item]));
-    const out = { merged: [], stale: [], moved: [], not_open: [], answered: [], no_question: [] };
+    const out = { merged: [], show_again: [], stale: [], moved: [], not_open: [], answered: [], no_question: [] };
     const writes = [];
     const hold = (item, card, why) => {
       writes.push([item, { card_hold: { cursor: card.cursor, why, at: now } }]);
@@ -384,7 +401,11 @@ export function main(argv, env = process.env) {
       else if (card.asks.length === 0) hold(item, card, "no_question");
       else {
         const first = card.asks[0];
+        // A page showed another card for this reply: the item leaves that page, and the next batch shows it.
+        const changed = onPage(item) && JSON.stringify(asksOf(item)) !== JSON.stringify(card.asks);
+        if (changed) out.show_again.push(card.threadId);
         writes.push([item, {
+          ...(changed ? { shown: null } : {}),
           asks: card.asks,
           asks_cursor: card.cursor,
           context: card.context,
@@ -409,7 +430,7 @@ export function main(argv, env = process.env) {
     const noCard = open.filter(needsReader).length;
     const holds = open.filter(held).map((item) => ({ item: item.id, why: item.card_hold.why }));
     const rest = { no_card: noCard, held: holds, no_cursor: noCursor };
-    const ready = open.filter((item) => asksOf(item) !== null && !(item.shown && item.shown.cursor === (item.cursor ?? null)));
+    const ready = open.filter((item) => asksOf(item) !== null && !onPage(item));
     const groupOf = (item) => item.project || "no project";
     const folder = join(dir, "batches");
     const again = values.again !== undefined;
@@ -418,7 +439,7 @@ export function main(argv, env = process.env) {
     if (again) {
       number = Number(values.again);
       if (!Number.isInteger(number) || number < 1) throw new InputError("batch: --again must be the number of a batch");
-      taken.push(...open.filter((item) => asksOf(item) !== null && item.shown && item.shown.batch === number && item.shown.cursor === (item.cursor ?? null)));
+      taken.push(...open.filter((item) => asksOf(item) !== null && onPage(item) && item.shown.batch === number));
       if (taken.length === 0) throw new InputError(`batch: no open question of batch ${number} is left to show`);
     } else {
       if (ready.length === 0) return { batch: null, questions: [], left: 0, ...rest };
@@ -464,9 +485,13 @@ export function main(argv, env = process.env) {
   if (!OPEN.has(item.status)) throw new InputError(`relay: the item "${values.item}" is ${item.status}`);
   const asks = asksOf(item);
   if (asks === null) throw new InputError(`relay: the item "${values.item}" has no card for its newest reply`);
-  const text = relayText(queue, asks, shownNumbers(dir, item, asks), item.shown?.batch, values);
+  const numbers = shownNumbers(dir, item, asks);
+  if (numbers === null) throw new InputError(`relay: the item "${values.item}" is on no page for its card as it is now, so JP did not see its questions: run batch, show the page, and ask him`);
+  const text = relayText(queue, asks, numbers, item.shown.batch, values);
   if (values.sent) {
-    put(item, { relayed: [...(Array.isArray(item.relayed) ? item.relayed : []), { at: now, words: values.words }] });
+    // A run that was stopped after this write is run again: the same words are recorded one time.
+    const before = Array.isArray(item.relayed) ? item.relayed : [];
+    if (!(before.length > 0 && before[before.length - 1].words === values.words)) put(item, { relayed: [...before, { at: now, words: values.words }] });
     if (!values["keep-open"]) q("resolve", flag("item", item.id), flag("to", "done"), flag("note", `JP answered in the chat "${queue.chat.title}": ${values.words}`));
   }
   return text;
