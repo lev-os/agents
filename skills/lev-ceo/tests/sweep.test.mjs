@@ -180,11 +180,15 @@ test("brief: the reader's brief names the list, the rules, the output file and t
   assert.doesNotMatch(out, /\{\{/, "no placeholder is left");
 });
 
-test("the program sends nothing: it imports only fs, os, path, url and util, and loads no code at run time", () => {
-  const source = readFileSync(SCRIPT, "utf8");
-  const imported = [...source.matchAll(/^\s*import\s[^;]*?["']([^"']+)["']\s*;/gm)].map((m) => m[1]);
-  assert.deepEqual([...new Set(imported)].sort(), ["node:fs", "node:os", "node:path", "node:url", "node:util"]);
-  assert.doesNotMatch(source, /\bimport\s*\(|\brequire\s*\(|\beval\s*\(|new Function|process\.binding|getBuiltinModule|\bfetch\s*\(/);
+test("the program sends nothing: it and the queue program it calls import only fs, os, path, url and util, and load no code at run time", () => {
+  const importsOf = (path) => {
+    const source = readFileSync(path, "utf8");
+    assert.doesNotMatch(source, /\bimport\s*\(|\brequire\s*\(|\beval\s*\(|new Function|process\.binding|getBuiltinModule|\bfetch\s*\(/, path);
+    return [...new Set([...source.matchAll(/^\s*import\s[^;]*?["']([^"']+)["']\s*;/gm)].map((m) => m[1]))].sort();
+  };
+  const builtin = ["node:fs", "node:os", "node:path", "node:url", "node:util"];
+  assert.deepEqual(importsOf(SCRIPT), ["./queue.mjs", ...builtin]);
+  assert.deepEqual(importsOf(QUEUE), builtin);
 });
 
 // The second reader (review-step-1-reread.json) found that a search of the source text misses a process start.
@@ -483,4 +487,178 @@ test("scan: a tab in a title does not add a column to the list for the reader", 
 test("brief: the reader copies each chat's cursor into its label", () => {
   scan();
   assert.match(sweep(["brief", "--out", join(root, "labels.jsonl")]), /`cursor`: as in the list/);
+});
+
+// ---- queue: the index's questions go into the CEO skill's queue program (scripts/queue.mjs) ----
+// The design, in one place:
+//   node sweep.mjs queue --thread <the chat that runs the sweep> [--title "<its title>"] [--project <title>]
+//   - Each row whose choice is `queue` or `unanswered` becomes one item of scripts/queue.mjs: id = the thread id,
+//     kind attention, priority 1 for unanswered and 2 for queue, with `source: "sweep"`, `project`, `questions`
+//     and `cursor` (the chat's cursor at the read).
+//   - Only items with `source: "sweep"` are touched. An item the CEO put by hand, and a settle item, stay.
+//   - An open item whose row holds no question any more is resolved done. A presented item whose chat moved goes
+//     back to pending. A done item opens again only when the chat's cursor changed and it holds questions again.
+//   - With --project, rows and items of other projects are not touched.
+//   - The queue is the one of --thread: a chat for all projects has one queue for all projects.
+const QUEUE = join(dirname(fileURLToPath(import.meta.url)), "..", "scripts", "queue.mjs");
+const qroot = () => join(root, "queues");
+const sync = (extra = [], opts) => sweep(["queue", "--thread", "S", "--title", "CEO > all", "--queue-root", qroot(), ...extra], opts);
+function queue(args) {
+  const out = spawnSync(process.execPath, [QUEUE, ...args, "--thread", "S", "--now", T0, "--root", qroot()], { encoding: "utf8" });
+  assert.equal(out.status, 0, out.stderr);
+  return JSON.parse(out.stdout);
+}
+const items = () => queue(["show", "--all"]).items;
+const itemOf = (id) => items().find((i) => i.id === id);
+
+// A, B, C as in THREADS, plus D: a run that was interrupted after a person's message.
+const WITH_D = { ...THREADS, threads: [...THREADS.threads, chat("D", "p2", "suntiq > d", 50, { status: "interrupted" })] };
+function base() {
+  sweep(["scan", "--threads", file("threads.json", WITH_D), "--projects", file("projects-in.json", PROJECTS), "--self", "S"]);
+  const labels = [
+    label("A"),
+    label("B", { label: "needs_jp", ready_steps: [], questions_for_jp: ["Which one?"] }),
+    label("C", { questions_for_jp: ["May I?"] }),
+    label("D", { label: "needs_jp", ready_steps: [], stopped_at: ago(50), last_user_at: ago(51) }),
+  ];
+  sweep(["merge", "--labels", file("labels.jsonl", labels.join("\n") + "\n")]);
+}
+// The chat `id` got a new run: the scan sees a new cursor, and a reader labels it again.
+function moved(id, over) {
+  const threads = WITH_D.threads.map((c) => (c.threadId === id ? { ...c, latestRunId: "r2", itemCount: 14, updatedAt: ago(40) } : c));
+  sweep(["scan", "--threads", file("threads-2.json", { ...WITH_D, threads }), "--self", "S"]);
+  if (over) sweep(["merge", "--labels", file("labels-2.jsonl", label(id, { cursor: "r2#14", stopped_at: ago(40), ...over }) + "\n")]);
+}
+
+test("queue: each chat with questions, and each unanswered chat, becomes one item with its project", () => {
+  base();
+  const out = sync();
+  assert.equal(out.added, 3);
+  assert.deepEqual(items().map((i) => i.id).sort(), ["B", "C", "D"]);
+  const b = itemOf("B");
+  assert.equal(b.kind, "attention");
+  assert.equal(b.source, "sweep");
+  assert.equal(b.project, "suntiq-product");
+  assert.deepEqual(b.questions, ["Which one?"]);
+  assert.equal(b.cursor, "r1#10");
+  assert.equal(itemOf("D").priority, 1, "a person's message with no reply goes first");
+  assert.equal(itemOf("A"), undefined, "a chat with approved work and no question is not JP's");
+});
+
+test("queue: a second run adds nothing", () => {
+  base();
+  sync();
+  const again = sync();
+  assert.equal(again.added, 0);
+  assert.equal(items().length, 3);
+});
+
+test("queue: an item whose chat holds no question any more is resolved done", () => {
+  base();
+  sync();
+  moved("B", { label: "done", ready_steps: [], questions_for_jp: [] });
+  const out = sync();
+  assert.equal(out.closed, 1);
+  assert.equal(itemOf("B").status, "done");
+});
+
+test("queue: a presented item whose chat moved goes back to pending", () => {
+  base();
+  sync();
+  queue(["resolve", "--item", "D", "--to", "done", "--note", "answered"]);   // D is the head; clear it
+  assert.equal(queue(["next"]).item.id, "B");
+  moved("B");   // not read again yet: the row says read
+  const out = sync();
+  assert.equal(out.back_to_pending, 1);
+  assert.equal(itemOf("B").status, "pending");
+});
+
+test("queue: a done item opens again only when the chat moved and holds questions again", () => {
+  base();
+  sync();
+  queue(["resolve", "--item", "B", "--to", "done", "--note", "JP: a"]);
+  assert.equal(sync().reopened, 0, "the same reply does not ask twice");
+  assert.equal(itemOf("B").status, "done");
+  moved("B", { label: "needs_jp", ready_steps: [], questions_for_jp: ["And now?"] });
+  assert.equal(sync().reopened, 1);
+  assert.equal(itemOf("B").status, "pending");
+  assert.deepEqual(itemOf("B").questions, ["And now?"]);
+});
+
+test("queue: --project puts one project's chats and leaves the items of the others", () => {
+  base();
+  const out = sync(["--project", "leviathan"]);
+  assert.equal(out.added, 1);
+  assert.deepEqual(items().map((i) => i.id), ["C"]);
+  sync();
+  moved("B", { label: "done", ready_steps: [], questions_for_jp: [] });
+  assert.equal(sync(["--project", "leviathan"]).closed, 0, "B is a suntiq-product chat");
+  assert.equal(itemOf("B").status, "pending");
+});
+
+test("queue: an item the CEO put by hand is not touched, also when its id is the id of a chat with questions", () => {
+  base();
+  sync(["--project", "leviathan"]);   // opens the queue; B is a suntiq-product chat, so it has no item yet
+  queue(["put", "--item", JSON.stringify({ id: "hand", kind: "attention", title: "by hand", reason: "the CEO put it" })]);
+  queue(["put", "--item", JSON.stringify({ id: "B", kind: "attention", title: "B by hand", reason: "the CEO put it" })]);
+  const out = sync();
+  assert.equal(out.added, 1, "only D is new");
+  assert.equal(itemOf("hand").status, "pending");
+  assert.equal(itemOf("B").title, "B by hand");
+  assert.equal(itemOf("B").source, undefined);
+});
+
+test("queue: with no queue and no --title it is refused", () => {
+  base();
+  assert.match(sweep(["queue", "--thread", "S", "--queue-root", qroot()], { status: 2 }), /no queue for thread S/);
+  assert.equal(existsSync(qroot()), false, "a refused command makes no queue folder");
+});
+
+test("queue: an item whose chat moved and still asks gets the new questions, and a shown one goes back to pending", () => {
+  base();
+  sync();
+  queue(["resolve", "--item", "D", "--to", "done", "--note", "answered"]);
+  assert.equal(queue(["next"]).item.id, "B");
+  moved("B", { label: "needs_jp", ready_steps: [], questions_for_jp: ["A new one?"] });
+  const out = sync();
+  assert.equal(out.updated, 1);
+  assert.equal(out.back_to_pending, 1);
+  assert.equal(itemOf("B").status, "pending");
+  assert.deepEqual(itemOf("B").questions, ["A new one?"]);
+  assert.equal(itemOf("B").cursor, "r2#14");
+});
+
+test("queue: an item whose chat was settled is resolved done", () => {
+  base();
+  sync();
+  const threads = WITH_D.threads.filter((c) => c.threadId !== "B");
+  sweep(["scan", "--threads", file("threads-3.json", { ...WITH_D, threads }), "--self", "S"]);
+  assert.equal(sync().closed, 1);
+  assert.equal(itemOf("B").status, "done");
+});
+
+test("queue: a refused run changes no queue", () => {
+  base();
+  sync();
+  const dir = join(qroot(), readdirSync(qroot())[0]);
+  const before = readFileSync(join(dir, "queue.json"), "utf8") + readFileSync(join(dir, "events.jsonl"), "utf8");
+  moved("B", { label: "done", ready_steps: [], questions_for_jp: [] });
+  assert.match(sync(["--project", "nope"], { status: 2 }), /no project named/);
+  writeFileSync(join(root, "sends.jsonl"), "null\n");
+  assert.match(sync([], { status: 2 }), /not a send record/);
+  assert.equal(readFileSync(join(dir, "queue.json"), "utf8") + readFileSync(join(dir, "events.jsonl"), "utf8"), before);
+});
+
+test("queue: it runs under Node's permission system, with the queue folder inside the state folder", () => {
+  const real = realpathSync(root);
+  guarded(["scan", "--threads", file("threads.json", WITH_D), "--projects", file("projects-in.json", PROJECTS), "--self", "S"]);
+  guarded(["merge", "--labels", file("labels.jsonl", label("B", { label: "needs_jp", ready_steps: [], questions_for_jp: ["Which one?"] }) + "\n")]);
+  const run = guarded(["queue", "--thread", "S", "--title", "CEO > all", "--queue-root", join(real, "queues")]);
+  assert.equal(JSON.parse(run.stdout).added, 1);
+});
+
+test("queue: two runs at the same time are not both let in", () => {
+  base();
+  writeFileSync(join(root, "lock"), JSON.stringify({ pid: process.pid, at: T0 }));
+  assert.match(sync([], { status: 2 }), /another sweep command holds/);
 });

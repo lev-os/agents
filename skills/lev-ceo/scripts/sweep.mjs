@@ -48,6 +48,22 @@
  *   brief --out <file>        print the reader's brief for the chats in to-read.tsv; the reader writes --out
  *   sent  --thread <id> --wording "<text>" [--by "<text>"]   log a message the sweep chat sent to a chat
  *   show                      print the rows
+ *   queue --thread <id> [--title "<text>"] [--queue-root <dir>]
+ *                             put the questions for JP into the queue of the chat that runs the sweep
+ *                             (scripts/queue.mjs, called in this process; it writes in the queue folder,
+ *                             ${XDG_STATE_HOME:-~/.local/state}/lev/ceo/queues, and holds the sweep lock).
+ *                             Each chat whose choice is `queue` or `unanswered` is one item: its id is the
+ *                             chat's id, with `source: "sweep"`, the project, the questions and the cursor
+ *                             of the reply. Only items with that mark are touched. The same reply never asks
+ *                             twice: a done or dropped item opens again only when the chat has a new reply
+ *                             that waits on JP. The queue program has no lock of its own: do not run it
+ *                             by hand on this queue while this command runs. An item whose chat does not wait on JP any more, was settled or left
+ *                             the index is resolved done. A shown item whose chat moved goes back to
+ *                             pending. --title opens the queue when the chat has none. It prints
+ *                             {queue, project, added, updated, closed, back_to_pending, reopened, open}.
+ *                             It reads and plans before it writes; the writes are one call of the queue
+ *                             program for each change, so a stop in the middle leaves the rest for the
+ *                             next run.
  * scan, merge, sent and show print {scanned_at, project, counts, rows}. They take --project <title> (one
  * project; with none, all projects), --all (also the skipped and the old rows) and --text.
  * Every command takes --now <ISO> (the clock, for tests) and --root <dir> (the state folder, for tests).
@@ -81,6 +97,8 @@ import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { parseArgs } from "node:util";
+
+import { InputError as QueueInputError, defaultRoot as defaultQueueRoot, findQueue, main as queueMain } from "./queue.mjs";
 
 export const DEFAULTS = { idle_min_before_ask: 30, read_if_changed_within_hours: 48, never_read: [] };
 export const ORDER = ["unanswered", "ask", "read", "queue", "not yet", "leave", "skip", "old"];
@@ -410,6 +428,80 @@ function sent(s, o, now) {
   return { index, sends: s.sends() };
 }
 
+/**
+ * Puts the questions of the index into the queue of the chat that runs the sweep (scripts/queue.mjs, called
+ * in this process). One item for each chat that waits on JP; the item's id is the chat's id.
+ * It reads and plans first, then writes: a refused run changes no queue.
+ */
+function queue(s, o, now) {
+  if (!o.thread) throw new InputError("queue needs --thread <the chat that runs the sweep>");
+  const index = s.load();
+  const sends = s.sends();
+  checkProject(o.project, projectsOf(s, index));
+  const rows = view(index, s, { project: o.project, all: true }, now, sends).rows;
+  const queueRoot = resolve(o["queue-root"] || defaultQueueRoot());
+  const call = (args) => {
+    try {
+      return queueMain([...args, "--thread", o.thread, "--root", queueRoot, "--now", new Date(now).toISOString()]);
+    } catch (error) {
+      if (error instanceof QueueInputError) throw new InputError(`queue: ${error.message}`);
+      throw error;
+    }
+  };
+  const exists = findQueue(queueRoot, o.thread) !== null;
+  if (!exists && !o.title) throw new InputError(`no queue for thread ${o.thread} under ${queueRoot}; give --title "<the chat's title>" to open one`);
+  const items = exists ? call(["show", "--all"]).items : [];
+  const want = o.project ? o.project.toLowerCase() : null;
+  // Only the items this command made are its own. An item the CEO put by hand, and a settle item, stay as they are.
+  const own = new Map(items.filter((i) => i.source === "sweep" && (!want || (i.project || "").toLowerCase() === want)).map((i) => [i.id, i]));
+  const byHand = new Set(items.filter((i) => i.source !== "sweep").map((i) => i.id));
+  const closed = (item) => item.status === "done" || item.status === "dropped";
+  const steps = [];
+  const count = { added: 0, updated: 0, closed: 0, back_to_pending: 0, reopened: 0 };
+  const put = (fields, reopen) => steps.push(["put", "--item", JSON.stringify(fields), ...(reopen ? ["--reopen"] : [])]);
+  const move = (id, to, note) => steps.push(["resolve", "--item", id, "--to", to, "--note", note]);
+  const backToPending = (item) => {
+    if (item.status !== "presented") return;
+    move(item.id, "pending", "the chat moved; the card that was shown is out of date");
+    count.back_to_pending += 1;
+  };
+  const seen = new Set();
+  for (const r of rows) {
+    seen.add(r.threadId);
+    const row = index.rows[r.threadId];
+    const item = own.get(r.threadId);
+    if (r.choice === "queue" || r.choice === "unanswered") {   // the label is of the chat's newest reply, and it waits on JP
+      if (byHand.has(r.threadId)) continue;
+      const fields = {
+        // Each field has the type the queue program takes, so no put is refused after an earlier one wrote.
+        id: r.threadId, kind: "attention", title: oneLine(r.title).trim() || "(no title)", reason: r.why, priority: r.choice === "unanswered" ? 1 : 2,
+        threadId: r.threadId, link: typeof r.link === "string" ? r.link : null, source: "sweep", project: r.project, questions: r.questions, cursor: row.cursor,
+      };
+      if (!item) { put(fields); count.added += 1; }
+      else if (item.cursor === row.cursor) { /* the same reply: it does not ask twice, also when the item is done */ }
+      else if (closed(item)) { put(fields, true); count.reopened += 1; }
+      else { put(fields); count.updated += 1; backToPending(item); }
+      continue;
+    }
+    if (!item || closed(item)) continue;
+    const fresh = row.cursor === row.now_cursor;
+    if (!fresh && r.choice !== "skip") { backToPending(item); continue; }   // the chat moved and no reader read it yet
+    if (r.choice === "not yet") continue;   // the clock decides in a few minutes
+    move(item.id, "done", `the chat does not wait on JP now: ${r.why}`);
+    count.closed += 1;
+  }
+  for (const item of own.values()) {
+    if (seen.has(item.id) || closed(item) || want) continue;   // with --project, a chat that is not in the rows may be another project's
+    move(item.id, "done", "the chat is not in the index");
+    count.closed += 1;
+  }
+
+  const path = exists ? findQueue(queueRoot, o.thread) : call(["open", "--title", o.title]).path;
+  for (const step of steps) call(step);
+  const open = call(["show"]).items.filter((i) => i.source === "sweep").length;
+  return { queue: path, project: o.project || "all", ...count, open };
+}
+
 function brief(s, o) {
   if (!o.out) throw new InputError("brief needs --out <file>, the file the reader writes");
   const toRead = s.at("to-read.tsv");
@@ -426,6 +518,7 @@ export function main(argv) {
     options: {
       threads: { type: "string" }, running: { type: "string" }, projects: { type: "string" }, self: { type: "string" },
       labels: { type: "string" }, out: { type: "string" }, thread: { type: "string" }, wording: { type: "string" }, by: { type: "string" },
+      title: { type: "string" }, "queue-root": { type: "string" },
       project: { type: "string" }, all: { type: "boolean" }, text: { type: "boolean" }, now: { type: "string" }, root: { type: "string" },
     },
   });
@@ -436,11 +529,12 @@ export function main(argv) {
   const writers = { scan, merge, sent };
   let done;
   if (command === "brief") return brief(s, o);
+  if (command === "queue") return JSON.stringify(withLock(s, now, () => queue(s, o, now)), null, 1);
   if (command === "show") {
     done = { index: s.load(), sends: s.sends() };
     checkProject(o.project, projectsOf(s, done.index));
   } else if (writers[command]) done = withLock(s, now, () => writers[command](s, o, now));
-  else throw new InputError("usage: sweep.mjs scan|merge|brief|sent|show (the header lists the options)");
+  else throw new InputError("usage: sweep.mjs scan|merge|brief|sent|show|queue (the header lists the options)");
   const out = { ...(done.extra || {}), ...view(done.index, s, o, now, done.sends) };
   return o.text ? asText(out) : JSON.stringify(out, null, 1);
 }
