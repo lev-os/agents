@@ -27,13 +27,13 @@ Done when each live chat has a row: link, status, age (the clock minus `updatedA
 
 ## Names
 
-Every chat in scope is titled `{project} > {two or three words}`, plain words with spaces; the Leviathan project is `lev`. A CEO chat is `CEO > {project}`, and the one at global scope is `CEO > global` (`.lev/pm/decisions/20261104-chat-title-convention.yaml`). Rename with `mcp__t3-code__t3_thread_update {action:"rename", threadId, title}`. Check titles at each scan and rename the breaks.
+Every chat in scope is titled `{project} > {two or three words}`, plain words with spaces. The project word is the product the chat works on (`lev`, `multiplayer`, `suntiq`, `kingly`, `ops`), which can differ from its T3 project; when the product is not clear, keep the title and list the chat for JP. A CEO chat is `CEO > {project}`, and the one at global scope is `CEO > global` (`.lev/pm/decisions/20261104-chat-title-convention.yaml`). Rename with `mcp__t3-code__t3_thread_update {action:"rename", threadId, title}`. Check titles at each scan and rename the breaks.
 
 ## Pins
 
 A pin is JP's mark: he wants eyes on that chat. The scan reads a pinned chat whatever its age, and its text marks the chat 📌.
 
-A pinned chat is stale when it has work left and nothing moved since the last scan. Nudge JP in the reply: the chat's link, the work left, and two questions, each with a recommendation taken from that work.
+A pinned chat went quiet when it has work left and the scan shows no change since its last read (its choice is `leave` or `queue`). Nudge JP in the reply: the chat's link, the work left, and two questions, each with a recommendation taken from that work.
 
 - May I send it a message? Name the message. Recommend yes when the next step is work he approved and the chat can do alone.
 - Does the pin stay? Recommend unpin when no work is left or each leftover has its record (`SKILL.md` §3 step 5); else keep.
