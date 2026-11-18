@@ -1027,3 +1027,42 @@ test("queue: a queue root that is a file is refused with exit 2 and the reason",
   assert.match(out, /queue: the queue root .*index\.json is not a folder/);
   assert.doesNotMatch(out, /\n\s+at /, "no stack trace");
 });
+
+// The three minor findings of the eighth reader (review-step-1-eighth.json).
+test("a --now that is an empty text is no time: exit 2, never the real clock", () => {
+  scan();
+  for (const command of ["show", "scan", "queue"]) {
+    const run = spawnSync(process.execPath, [SCRIPT, command, "--all", "--root", root, "--now", T0, "--now="], { encoding: "utf8" });
+    assert.equal(run.status, 2, `${command}: ${run.stdout}${run.stderr}`);
+    assert.match(run.stderr, /--now .*is not a time/, command);
+  }
+});
+
+test("queue: an open item whose chat is skipped keeps its question and follows the title, the link and the project of its row", () => {
+  base();
+  sync();
+  const before = itemOf("B");
+  const skips = [
+    ["a snooze", { snoozed: true }],
+    ["a run", { status: "running" }],
+    ["a new run that no reader read", { latestRunId: "r2", itemCount: 14, updatedAt: ago(40) }],
+  ];
+  for (const [name, state] of skips) {
+    const threads = WITH_D.threads.map((c) => (c.threadId === "B" ? { ...c, ...state, title: `suntiq > ${name}`, link: `[new](t3-thread://x/B?${name.length})`, projectId: "p1" } : c));
+    sweep(["scan", "--threads", file("threads-skip.json", { ...WITH_D, threads }), "--projects", file("projects-in.json", PROJECTS), "--self", "S"]);
+    const out = sync();
+    assert.deepEqual([out.updated, out.closed, out.added], [1, 0, 0], name);
+    const now = itemOf("B");
+    assert.deepEqual([now.title, now.link, now.project], [`suntiq > ${name}`, `[new](t3-thread://x/B?${name.length})`, "leviathan"], name);
+    // The question, its reply, its reason and its place in the queue are those of the reply that asks.
+    assert.deepEqual([now.questions, now.cursor, now.reason, now.priority, now.status], [before.questions, before.cursor, before.reason, before.priority, before.status], name);
+    assert.equal(sync().updated, 0, `${name}: nothing changed: no write`);
+  }
+});
+
+test("queue: an empty --title opens no queue: exit 2 with the reason", () => {
+  base();
+  const out = sweep(["queue", "--thread", "S", "--title=", "--queue-root", qroot()], { status: 2 });
+  assert.match(out, /give --title "<the chat's title>" \(one character or more\)/);
+  assert.equal(existsSync(qroot()), false, "no queue was opened");
+});

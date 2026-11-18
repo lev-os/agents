@@ -68,8 +68,10 @@
  *                             opens again when the chat is open again with the same reply. No other state
  *                             closes an item: the sweep's own chat, a chat that is never read, a snooze, a
  *                             run, a running worker. A shown item whose chat moved goes back to pending.
- *                             An open item follows its row: the priority, the project, the title.
- *                             --title opens the queue when the chat has none. It prints
+ *                             An open item follows its row: the title, the link and the project always;
+ *                             the priority and the reason while its row is the one that asks (a row that
+ *                             is skipped, runs or moved gives the reason of that state, not of the question).
+ *                             --title (one character or more) opens the queue when the chat has none. It prints
  *                             {queue, project, added, updated, closed, back_to_pending, reopened, open}.
  *                             It reads and plans before it writes, and checks each planned item with the
  *                             queue program's own check before a queue is opened; the writes are one call
@@ -90,7 +92,7 @@
  * a tab, a line break, or a leading "--" (the round-trip test takes such ids through scan, merge and
  * queue). `show --text` is for the eye only: it prints tabs between columns and is read by no command.
  * No text becomes the name of a file but one: the title of the chat that runs the sweep names its queue
- * folder, cut to 60 characters, so the title may have any length. A folder given with --root or
+ * folder, cut to 60 characters, so the title may have any length from one character. A folder given with --root or
  * --queue-root that the file system refuses (a part too long, a file in the way) is bad input (exit 2).
  * Not checked: what an older program or a hand wrote into index.json.
  * With --project, scan takes the project names of this scan (the --projects file and the chats of the
@@ -564,7 +566,7 @@ function queue(s, o, now) {
     flag("thread", o.thread), flag("root", queueRoot), flag("now", new Date(now).toISOString()),
   ]));
   const exists = asQueue(() => findQueue(queueRoot, o.thread)) !== null;
-  if (!exists && !o.title) throw new InputError(`no queue for thread ${o.thread} under ${queueRoot}; give --title "<the chat's title>" to open one`);
+  if (!exists && !o.title) throw new InputError(`no queue for thread ${o.thread} under ${queueRoot}; give --title "<the chat's title>" (one character or more) to open one`);
   const items = exists ? call("show", {}, ["--all"]).items : [];
   const want = o.project ? o.project.toLowerCase() : null;
   // Only the items this command made are its own. An item the CEO put by hand, and a settle item, stay as they are.
@@ -590,6 +592,16 @@ function queue(s, o, now) {
     move(item.id, "pending", "the chat moved; the card that was shown is out of date");
     count.back_to_pending += 1;
   };
+  const chatOf = (r) => ({ title: oneLine(r.title).trim() || "(no title)", link: isText(r.link) ? r.link : null, project: projectName(r) });
+  // An open item that keeps its question while its row does not ask (a snooze, a run, a chat that moved)
+  // follows the chat of its row: the title, the link, the project. Its reason and its priority stay those
+  // of the reply that asks: the row gives the reason of the skip.
+  const follow = (item, r) => {
+    const chat = chatOf(r);
+    if (!Object.keys(chat).some((key) => JSON.stringify(item[key] ?? null) !== JSON.stringify(chat[key]))) return;
+    put({ id: item.id, kind: item.kind, reason: item.reason, ...chat });
+    count.updated += 1;
+  };
   const seen = new Set();
   for (const r of rows) {
     seen.add(r.threadId);
@@ -602,8 +614,8 @@ function queue(s, o, now) {
     if (r.choice === "unanswered" || r.choice === "queue" || (r.choice === "ask" && asks)) {
       if (byHand.has(r.threadId)) continue;
       const fields = {
-        id: r.threadId, kind: "attention", title: oneLine(r.title).trim() || "(no title)", reason: r.why, priority: r.choice === "unanswered" ? 1 : 2,
-        threadId: r.threadId, link: isText(r.link) ? r.link : null, source: "sweep", project: projectName(r), questions: r.questions, cursor: row.cursor,
+        id: r.threadId, kind: "attention", reason: r.why, priority: r.choice === "unanswered" ? 1 : 2,
+        threadId: r.threadId, source: "sweep", questions: r.questions, cursor: row.cursor, ...chatOf(r),
       };
       const differs = (key) => JSON.stringify(item[key] ?? null) !== JSON.stringify(fields[key] ?? null);
       if (!item) { put(fields); count.added += 1; }
@@ -623,8 +635,8 @@ function queue(s, o, now) {
     // chat, a chat that is never read, a snooze, a run, a running worker. The question is still open when
     // that state ends.
     if (row.settled) { close(item, "the chat is settled"); continue; }
-    if (!fresh) { backToPending(item); continue; }   // the chat moved and no reader read it yet
-    if (asks || r.choice === "not yet") continue;   // "not yet": the clock decides in a few minutes
+    if (!fresh) { backToPending(item); follow(item, r); continue; }   // the chat moved and no reader read it yet
+    if (asks || r.choice === "not yet") { follow(item, r); continue; }   // "not yet": the clock decides in a few minutes
     close(item, `the newest reply holds no question for JP: ${r.why}`);
   }
   for (const item of own.values()) {
@@ -665,7 +677,7 @@ export function main(argv) {
     },
   });
   const command = positionals[0];
-  const now = o.now ? Date.parse(o.now) : Date.now();
+  const now = o.now === undefined ? Date.now() : Date.parse(o.now);   // an empty --now is a --now that is no time
   if (Number.isNaN(now)) throw new InputError(`--now ${o.now} is not a time`);
   const s = store(resolve(o.root || defaultRoot()));
   const writers = new Map([["scan", scan], ["merge", merge], ["sent", sent]]);   // a Map: "constructor" is no command
