@@ -2,8 +2,8 @@
 // The choice cases call the functions; the command cases run the script as the CEO does (a child process)
 // against a temp --root.
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { spawn, spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
@@ -156,7 +156,7 @@ test("merge then sent: a ready chat is asked once, a CEO chat never, and questio
   const sent = sweep(["sent", "--thread", "A", "--wording", "Continue approved work, or return \"blocked\"."]);
   assert.equal(choiceOf(sent, "A"), "leave", "no second ask until a person speaks");
   const lines = readFileSync(join(root, "sends.jsonl"), "utf8").trim().split("\n").map((l) => JSON.parse(l));
-  assert.deepEqual(lines.map((l) => [l.threadId, l.at]), [["A", T0]]);
+  assert.deepEqual(lines.map((l) => [l.threadId, Date.parse(l.at)]), [["A", NOW]]);
   assert.match(sweep(["sent", "--thread", "nope", "--wording", "x"], { status: 2 }), /no chat "nope" in the index/);
 });
 
@@ -182,7 +182,149 @@ test("the program sends nothing: it imports only fs, os, path, url and util, and
   const source = readFileSync(SCRIPT, "utf8");
   const imported = [...source.matchAll(/^\s*import\s[^;]*?["']([^"']+)["']\s*;/gm)].map((m) => m[1]);
   assert.deepEqual([...new Set(imported)].sort(), ["node:fs", "node:os", "node:path", "node:url", "node:util"]);
-  assert.doesNotMatch(source, /\bimport\s*\(|\brequire\s*\(|\beval\s*\(|new Function|process\.binding|\bfetch\s*\(/);
+  assert.doesNotMatch(source, /\bimport\s*\(|\brequire\s*\(|\beval\s*\(|new Function|process\.binding|getBuiltinModule|\bfetch\s*\(/);
+});
+
+// The second reader (review-step-1-reread.json) found that a search of the source text misses a process start.
+// So the claim is proved by a run: Node's permission system refuses a process, a worker, an addon, and a write
+// outside the state folder. (Node 24 has no permission for the network; the list of imports above covers it.)
+const PERMISSION = process.allowedNodeEnvironmentFlags.has("--permission") ? "--permission" : "--experimental-permission";
+function guarded(args, { status = 0 } = {}) {
+  const real = realpathSync(root);
+  const run = spawnSync(process.execPath, [PERMISSION, "--allow-fs-read=*", `--allow-fs-write=${real}`, `--allow-fs-write=${join(real, "*")}`, SCRIPT, ...args, "--now", T0, "--root", real], { encoding: "utf8" });
+  assert.equal(run.status, status, `exit ${run.status} for ${args.join(" ")}: ${run.stderr}`);
+  return run;
+}
+
+test("under Node's permission system every command runs: no process, no worker, no write outside the state folder", () => {
+  const real = realpathSync(root);
+  const control = spawnSync(process.execPath, [PERMISSION, "--allow-fs-read=*", "-e", "require('node:child_process').spawnSync(process.execPath, ['-e', ''])"], { encoding: "utf8" });
+  assert.notEqual(control.status, 0, "control: the permission system refuses a process start");
+  assert.match(control.stderr, /ERR_ACCESS_DENIED/);
+  guarded(["scan", "--threads", file("threads.json", THREADS), "--projects", file("projects-in.json", PROJECTS), "--self", "S"]);
+  guarded(["merge", "--labels", file("labels.jsonl", label("A") + "\n")]);
+  guarded(["sent", "--thread", "A", "--wording", "continue"]);
+  guarded(["show"]);
+  guarded(["brief", "--out", join(real, "labels-next.jsonl")]);   // B and C are still on the list
+});
+
+test("merge: a chat whose label was taken leaves the list, so a second reader is not started for it", () => {
+  scan();
+  sweep(["merge", "--labels", file("labels.jsonl", label("A") + "\n")]);
+  const left = readFileSync(join(root, "to-read.tsv"), "utf8").trim().split("\n").map((line) => line.split("\t")[0]);
+  assert.deepEqual(left.sort(), ["B", "C"]);
+  assert.deepEqual(sweep(["merge", "--labels", file("labels.jsonl", label("A") + "\n")]).not_in_to_read, ["A"]);
+  sweep(["merge", "--labels", file("labels-2.jsonl", label("B") + "\n" + label("C") + "\n")]);
+  assert.match(sweep(["brief", "--out", join(root, "labels-3.jsonl")], { status: 2 }), /nothing to read/);
+});
+
+test("nothing decided is stored: the index holds facts, and each command works the choice out again", () => {
+  readyA();
+  const index = JSON.parse(readFileSync(join(root, "index.json"), "utf8"));
+  for (const r of Object.values(index.rows)) for (const key of ["choice", "why", "idle_min", "sends"]) assert.equal(key in r, false, `${r.threadId} stores ${key}`);
+});
+
+test("show: a send that is in the log holds the chat, with no scan or merge in between", () => {
+  readyA();
+  assert.equal(choiceOf(sweep(["show"]), "A"), "ask");
+  writeFileSync(join(root, "sends.jsonl"), JSON.stringify({ threadId: "A", at: T0, wording: "continue" }) + "\n");
+  assert.equal(choiceOf(sweep(["show"]), "A"), "leave");
+});
+
+test("show: the choice follows the clock, not the last scan", () => {
+  const threads = THREADS.threads.map((c) => (c.threadId === "A" ? { ...c, updatedAt: ago(5) } : c));
+  const first = sweep(["scan", "--threads", file("threads-2.json", { ...THREADS, threads }), "--self", "S"]);
+  assert.equal(choiceOf(first, "A"), "not yet");
+  assert.equal(choiceOf(sweep(["show"], { now: "2026-11-18T07:00:00Z" }), "A"), "read");
+});
+
+test("sent: the time keeps its milliseconds, so a person's message 250 ms before the send keeps the hold", () => {
+  scan();
+  sweep(["merge", "--labels", file("labels.jsonl", label("A", { last_user_at: "2026-11-18T06:00:00.250Z" }) + "\n")]);
+  sweep(["sent", "--thread", "A", "--wording", "continue"], { now: "2026-11-18T06:00:00.500Z" });
+  assert.equal(choiceOf(sweep(["show"], { now: "2026-11-18T06:01:00Z" }), "A"), "leave");
+});
+
+test("lock: a command that writes is refused while another one holds the state folder", () => {
+  scan();
+  const before = stateFiles();
+  mkdirSync(join(root, "lock"));
+  writeFileSync(join(root, "lock", "owner.json"), JSON.stringify({ pid: process.pid, at: T0 }));
+  assert.match(sweep(["scan", "--threads", file("threads.json", THREADS), "--self", "S"], { status: 2 }), /another sweep command holds/);
+  assert.match(sweep(["sent", "--thread", "A", "--wording", "x"], { status: 2 }), /another sweep command holds/);
+  assert.deepEqual(stateFiles(), before);
+  assert.equal(sweep(["show"]).rows.length, 3, "a command that only reads is not held");
+});
+
+test("lock: the lock of a process that is gone is taken over, and a command leaves no lock behind", () => {
+  mkdirSync(join(root, "lock"));
+  writeFileSync(join(root, "lock", "owner.json"), JSON.stringify({ pid: 2147483646, at: T0 }));
+  scan();
+  assert.equal(existsSync(join(root, "lock")), false);
+  assert.match(sweep(["scan", "--threads", file("page.json", { threads: [THREADS.threads[0]], nextCursor: 100 })], { status: 2 }), /scan refused/);
+  assert.equal(existsSync(join(root, "lock")), false, "a refused command gives the lock back");
+});
+
+test("lock: while one command takes a dead lock over, a second one is refused and is told which folder to delete", () => {
+  scan();
+  const before = stateFiles();
+  mkdirSync(join(root, "lock"));
+  writeFileSync(join(root, "lock", "owner.json"), JSON.stringify({ pid: 2147483646, at: T0 }));
+  mkdirSync(join(root, "lock-takeover"));
+  const refused = sweep(["scan", "--threads", file("threads.json", THREADS), "--self", "S"], { status: 2 });
+  assert.match(refused, /takes over the lock/);
+  assert.ok(refused.includes(join(root, "lock-takeover")));
+  assert.deepEqual(stateFiles(), before);
+  assert.equal(existsSync(join(root, "lock", "owner.json")), true, "the dead lock is left for the command that takes it over");
+});
+
+test("lock: eight scans at the same time each end with exit 0 or a refusal, and the index is whole", async () => {
+  const threads = file("threads.json", THREADS);
+  const one = (n) => new Promise((done) => {
+    const child = spawn(process.execPath, [SCRIPT, "scan", "--threads", threads, "--self", n % 2 ? "S" : "A", "--now", T0, "--root", root]);
+    let err = "";
+    child.stderr.on("data", (chunk) => { err += chunk; });
+    child.on("close", (status) => done({ status, err }));
+  });
+  const runs = await Promise.all([0, 1, 2, 3, 4, 5, 6, 7].map(one));
+  for (const run of runs) {
+    assert.ok(run.status === 0 || run.status === 2, `exit ${run.status}: ${run.err}`);
+    if (run.status === 2) assert.match(run.err, /another sweep command/);
+  }
+  assert.ok(runs.some((run) => run.status === 0), "one scan wrote");
+  const index = JSON.parse(readFileSync(join(root, "index.json"), "utf8"));
+  assert.equal(Object.keys(index.rows).length, 4);
+  assert.ok(["S", "A"].includes(index.self));
+  for (const row of Object.values(index.rows)) assert.equal(row.self, row.threadId === index.self, "the rows agree with the scan that wrote last");
+  assert.deepEqual(readdirSync(root).filter((name) => /^\.|lock|\.tmp$/.test(name)), []);
+});
+
+test("the state folder holds no temp file and no lock after scan, merge and sent", () => {
+  readyA();
+  sweep(["sent", "--thread", "A", "--wording", "continue"]);
+  const known = new Set(["index.json", "to-read.tsv", "sends.jsonl", "projects.json", "settings.json"]);
+  const made = readdirSync(root).filter((name) => /^\.|lock|\.tmp$/.test(name) && !known.has(name));
+  assert.deepEqual(made, []);
+});
+
+test("merge: a label the program does not know is not taken, and its chat stays `read`", () => {
+  scan();
+  const out = sweep(["merge", "--labels", file("labels.jsonl", label("A", { label: "default_ready" }) + "\n" + label("B") + "\n")]);
+  assert.deepEqual(out.unknown_label, ["A"]);
+  assert.equal(out.merged, 1);
+  assert.equal(choiceOf(out, "A"), "read");
+  assert.ok(readFileSync(join(root, "to-read.tsv"), "utf8").includes("A\t"));
+});
+
+test("the send log: a line that is JSON but no send record is bad input, before any write", () => {
+  scan();
+  writeFileSync(join(root, "sends.jsonl"), "null\n");
+  const before = stateFiles();
+  const renamed = file("projects-2.json", { projects: [{ id: "p1", title: "renamed" }] });
+  assert.match(sweep(["scan", "--threads", file("threads.json", THREADS), "--projects", renamed], { status: 2 }), /line 1 is not a send record/);
+  assert.match(sweep(["sent", "--thread", "A", "--wording", "x"], { status: 2 }), /line 1 is not a send record/);
+  assert.match(sweep(["show"], { status: 2 }), /line 1 is not a send record/);
+  assert.deepEqual(stateFiles(), before);
 });
 
 // Found by the reader of 2026-11-18 (review-step-1.json). Each of these failed before its fix.
