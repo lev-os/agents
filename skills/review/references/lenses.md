@@ -70,8 +70,8 @@ Full procedures that a skill owns. They are advice, like the lenses.
 
 | Artifact | Caller | Stance | Lenses |
 |---|---|---|---|
-| Plan or slice | lev-plan, propose | Light: cold reader. Standard: cold reader, then attacker. Deep: both, plus `pre_mortem`. | `zoom_out`; deep adds `pre_mortem` |
-| Long brief | horizon | Attacker (its `red_team` step), then cold reader | `zoom_out` |
+| Plan or slice | lev-plan | Light: cold reader. Standard: cold reader, then attacker. Deep: both, plus `pre_mortem`. | `zoom_out`; deep adds `pre_mortem` |
+| Plan for a long, delegated or parallel run | lev-plan | Attacker (its `judge_readiness` step), then cold reader | `zoom_out` |
 | Architecture | arch | Cold reader; attacker when the review passes too easily | `zoom_out`, `first_principles`, `second_order`, `devils_advocate` |
 | Design from an interview | interview | Cold reader | `zoom_out`, `jobs_to_be_done`, `pre_mortem` |
 | Design review loop | arch, interview | Author | `first_principles`, `systems_thinking`, `pre_mortem`, `jobs_to_be_done`, `reverse_brainstorm`, `expert_dissent` |

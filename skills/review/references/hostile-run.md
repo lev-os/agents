@@ -137,7 +137,9 @@ the caller clears it through its own state path. Clear another mode's state only
 
 ## Report
 
-Every stop carries this report, under review's typed first line. Each finding in it is labelled `advice`.
+Every stop carries this report as the body of review's report block: inside the `<review-report>` tags, under the
+typed first line. Each finding in it is labelled `advice`. The matrix is the scope, "Residual risk" is the block's
+not-reached line, and the **Stop:** field is the block's stop line; neither is written a second time.
 
 <hostile-run-report>
 ## Hostile run report

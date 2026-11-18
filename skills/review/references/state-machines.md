@@ -65,7 +65,9 @@ The report file (review skill, Report) holds, for each machine, the answers abov
 
 - the families, each with its members and why they belong together;
 - the illegal moves the critic confirmed by reading the code, each with `path:line`;
-- the gaps: what was searched only by count, or not at all.
+- the gaps: what was searched only by count, or not at all. They are the block's not-reached line.
+
+The block's stop line for an audit is `audit stopped: {n} machines, {f} families, {i} confirmed illegal moves`.
 
 The chat gets one line for the run, and the count of machines, families and confirmed illegal moves. A confirmed
 illegal move is a fault: the project's own rules decide whether it becomes a debt row or a fix.

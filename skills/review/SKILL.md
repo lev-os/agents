@@ -10,6 +10,20 @@ lenses, has a fresh reader read the artifact, saves the reader's findings word f
 the chat one line for each run. It never gives a verdict: the caller, the domain skill or the project's runbook
 decides. The typed line is the first line inside the report block (see Report).
 
+Every review holds the same eight parts, whatever it reads: text, running behaviour or a whole app. The kind of
+review sets how much of each part, never which parts.
+
+| Part | Holds | Where |
+|---|---|---|
+| Rules | The project and its runbook | Step `load_project` |
+| Owner | Whose checklist the reader answers | Step `route`, Routing table |
+| Stance and lenses | Who the reader is, and its questions | Stances, [references/lenses.md](references/lenses.md) |
+| Reader | A reader that built none of it, and what it gets | Step `read`, A command-line reader |
+| Evidence and bounds | What the reader must cover, what it may not do, what it did not reach | Evidence and bounds |
+| Findings | Severity, calibrated or advice, word for word, no verdict | Principles |
+| Report | One file and one chat line for each run | Report |
+| Repair and stop | Who repairs, the one reread, and why the review stopped | Repair and stop |
+
 ## Steps
 
 ```yaml
@@ -50,10 +64,13 @@ steps:
       "A command-line reader" below). It did not build the artifact, and gets the artifact, the lens questions and,
       for a judged checklist, the project's named sources. Under the owner's checklist, the reader answers it; this
       skill adds no second checklist. The prompt opens with "You are the reader for a review: do not load the review
-      skill and do not start another reader." and asks for one JSON object: {"blockers": [], "majors": [], "nits":
-      []}, each item {"finding": "...", "evidence": "path:line, or what it read or ran", "source": "lens id or
-      checklist question"}; under a checklist add "answers", one row per question {"question", "answer":
-      "pass|fail|could not check", "evidence"}, with each fail also a blocker. Builder words never go to the reader:
+      skill and do not start another reader." Then it names the scope (Evidence and bounds) and asks for one JSON
+      object: {"blockers": [], "majors": [], "nits": [], "not_reached": []}, each item {"finding": "...", "evidence":
+      "path:line, or what it read or ran", "source": "lens id or checklist question"}; each not_reached item is
+      {"part": "a part of the scope", "reason": "..."}; under a checklist add "answers", one row per question
+      {"question", "answer": "pass|fail|could not check", "evidence"}, with each fail also a blocker. The prompt also
+      says: "State a cause only with its own evidence; else write it as a hypothesis, with the check that would show
+      it false." Builder words never go to the reader:
       notes, chat, intent, summary or earlier answers. When the user asks to pass them, say no and why (a reader with
       the builder's words checks the builder's story, not the artifact), then go on. When no tool can start a fresh
       reader, or a started reader fails twice, read the artifact yourself, write reader=self (not fresh), and add the
@@ -67,7 +84,8 @@ steps:
       item, blockers first, its finding, evidence and source word for word (a line break becomes a space; < and >
       stay as they are, never &lt; or &gt;). A JSON object in one code fence counts as the object; any other reply
       goes in the block whole and unedited (zoom_out: as its reference says). Mark each finding this session makes
-      itself "(this session)". The reply gets the chat form (Report, "What the chat gets"): one chat line for the
+      itself "(this session)". Then the not-reached line and the stop line (Evidence and bounds; Repair and stop).
+      The reply gets the chat form (Report, "What the chat gets"): one chat line for the
       run, and the findings the operator must rule on. The file holds every item, also when the user asks for less.
     validation: "The report file opens with the typed line, holds every item of the reader's answer word for word, with no &lt; or &gt; that the reader did not write, labels every finding, and has no verdict key. The reply holds one chat line with the file's path for each run; the only findings in the reply are those the operator must rule on, each as a question in plain words."
 ```
@@ -129,8 +147,7 @@ artifact's text. When it cannot run, its reference says what to do.
 
 | Domain | Owner |
 |---|---|
-| Plan, slice or spec readiness | `skill://lev-plan` (Review mode) |
-| Long-horizon plan | `skill://lev-plan` |
+| Plan, slice or spec readiness; a plan for a long run | `skill://lev-plan` (Review mode) |
 | Architecture or design | `skill://arch` (Review Mode) |
 | UX or product flows | `skill://ux` |
 | Visuals or pages | `skill://creative`, `skill://impeccable` |
@@ -172,8 +189,69 @@ A stance is who the reader is; a lens is the question the reader asks.
 - **The session never edits a reader's finding.** It does not drop, merge, shorten or re-word one, not even into
   plain words, and not when the user asks for fewer. A finding it thinks is wrong stays, with `(session note: ...)`
   after it; the operator settles it. The chat form is the session's own words and never stands in for the file.
-  When the artifact's owner fixes it, a new fresh reader reads it again, at most once, and each answer gets its own
-  report file and chat line.
+- **An error is not an answer.** A reader that failed, a lens that could not run, a checklist question answered
+  "could not check" and a broken harness are errors of the review. None is a pass, and none is a fault of the
+  artifact. Say each one in the block; the chat line says a failed reader, reader=self or a skipped lens, as Report
+  says.
+
+## Evidence and bounds
+
+- **Scope before the read.** Before a reader starts, this session writes the scope in its prompt: the parts of the
+  artifact the reader must cover (its sections, files, or the rows of a hostile run's matrix), from the artifact
+  alone. A one-part artifact has a scope of one line. A lens with its own prompt (zoom_out) gets no scope: its
+  prompt is fixed, and it reads the whole artifact.
+- **Not reached.** A reader with a scope returns each part it did not read, could not open or could not check, with
+  the reason. The block gets one line for each such reader: `not reached: {part (reason); ...}` or `not reached:
+  none`; when more than one reader had a scope, the line names its reader (`not reached ({stance}): ...`). A part
+  that was not reached has no finding and is not clean. Who writes the line when the reader gives no list:
+  - the reply is not the JSON object, the object has no `not_reached` key, or no fresh reader answered: this session
+    writes `not reached: unknown (the reader did not say)`;
+  - a lens with its own prompt gets no line; its own lines are in its reference;
+  - a hostile run and a state machine audit: their reference files say which field is the line.
+- **Bounds.** A reader of text only reads. A command-line reader has the tool list of "A command-line reader"; a
+  subagent reader's prompt names only the files it gets. A review that runs something keeps the safety bounds of
+  [references/hostile-run.md](references/hostile-run.md).
+- **A second reader, for a deep review only.** When the caller asks for a deep review (lev-plan's deep depth, or a
+  person's words), a second fresh reader gets the artifact and the first reader's answer. It searches again in
+  another way and rereads the riskiest findings in the source. It is the one reader that gets another reader's
+  answer, the one exception to "earlier answers" in step `read`; it still gets no builder words. Its answer gets its
+  own report file and chat line, and its block gets the line `cost: {readers} readers, {minutes} minutes`. A light or
+  standard review never gets one. In a whole-app state machine audit, the workflow's critic is this second reader.
+
+## Repair and stop
+
+- The artifact's owner repairs; review never does. After a repair, a new fresh reader reads again, at most once.
+  It gets the artifact and the list of parts that changed, and no finding of the first read. This session makes that
+  list from a diff of the artifact between the two reads (a program), never from the owner's summary. The reread's
+  scope is the changed parts and what they touch: the one scope that does not come from the artifact alone. This
+  session adds the other parts to the not-reached line as "unchanged since read 1", marked "(this session)". Each
+  answer gets its own report file and chat line.
+- A finding of the first read in a part that was not repaired stays open in the first read's file; the reread does
+  not look for it.
+- One run can have more than one reader (two stances, or a lens with its own reader). They are neither the reread
+  nor the second reader. The typed line and the chat line name each stance (`stance=cold_reader+attacker`), and the
+  run's stop line counts the findings of all its readers. A reader that failed while another answered is said in the
+  block and in the chat line; it does not make the run an error.
+- Each run ends with one stop line in the block: the first row of the table that fits, from the top. {b} and {m}
+  count this run's findings. {k} counts the parts on this run's not-reached lines that a reader gave (not the
+  "unchanged" parts); it is `unknown` when a line says unknown, and `not asked` when no reader of the run had a
+  scope. The line is an observation; the verdict stays with the caller.
+
+| Condition | Line |
+|---|---|
+| No reader of the run gave an answer, and one was started (a command-line read failed twice as step 4 of "A command-line reader" says; a subagent returned an error or nothing twice) | `review error: reader failed` |
+| No tool could start a fresh reader | `review error: reader=self` |
+| No reader of the run gave its JSON object (the object of step `read`, or the lens's own), or no part of the scope was reached | `review error: no usable answer` |
+| The second reader of a deep review | `review stopped: second read; {b} blockers, {m} majors; {k} parts not reached` |
+| The reread has a blocker or a major in the same part, about the same fault, as a finding of the first read | `review stopped: same finding twice ({the two findings' evidence}); the owner changes the approach` |
+| Any other reread | `review stopped: reread done; {b} blockers, {m} majors in the changed parts; {k} parts not reached` |
+| A first read with a blocker or a major | `review stopped: {b} blockers, {m} majors for the owner; one reread left; {k} parts not reached` |
+| A first read with no blocker and no major | `review stopped: no blocker or major in read 1; {k} parts not reached` |
+
+This session decides "same finding twice" by reading the first read's report file beside the reread's answer; that
+edits no finding. A hostile run keeps its own repair cycle. A hostile run and a state machine audit keep their own
+stops and outputs, in their reference files, and their stop line is the block's stop line; when one of the three
+error rows above fits, the error row is the stop line.
 
 ## Report
 
@@ -188,6 +266,8 @@ review: project={root or none} · runbook={path, none (looked: {places}) or none
 {Only when no runbook is used: "No project review runbook used; every finding is advice."}
 {Only when a reader failed: "reader failed: {exit code or timeout}; {last line of err.txt}".}
 {Only when reader=self: "No fresh reader gave an answer; this read does not count."}
+{For each reader with a scope: "not reached: {part (reason); ...}", "not reached: none" or "not reached: unknown (the reader did not say)".}
+{the stop line}
 </review-report>
 
 ### Where the block goes
