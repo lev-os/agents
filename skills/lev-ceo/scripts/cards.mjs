@@ -58,8 +58,16 @@
  * context; of an ask: emoji, ask, why, because, if_no_answer, each expert; of a choice: label, gain, cost)
  * is one line of at most 400 characters, and an ask names at most 5 experts; the page shows each of them.
  * `threadId` and `cursor` name the chat and the reply: they are compared as they are and have no limit of
- * their own. A stored card that `merge` would refuse (an older program or a `put` by hand stored it) is no
- * card: `batch` does not show it, `relay` refuses it, and `brief` lists its chat for a reader.
+ * their own. A stored card that `merge` would refuse (an older program or a `put` by hand stored it: an
+ * ask of the wrong form, or no context that is one line) is no card: `batch` does not show it, `relay`
+ * refuses it, and `brief` lists its chat for a reader. The card that the program writes has no context.
+ *
+ * The typed read: scripts/queue.mjs checks id, kind, title, reason, status, priority, threadId, link and
+ * card of an item, and takes any JSON value in each other field. This program reads ten of those (cursor,
+ * asks, asks_cursor, context, questions, source, project, shown, card_hold, relayed), each in one function
+ * of one block, and a value of the wrong type is read as if the field were absent: no cursor (the item is
+ * named under no_cursor), no card, no page, no hold, the project "no project", no relay yet. So a command
+ * ends with exit 0 or 2 whatever a `put` stored in those fields.
  *
  * On a page: one function (`pageNumbers`) answers "is the card of this item, as it is now, on a page?" for
  * `merge`, `batch` and `relay`. The answer is yes when `batch` marked the item for its newest reply and the
@@ -109,14 +117,34 @@ const noReply = (item) => ({
  * for that reply: no card is shown or stored until the item has a new cursor (the next scan).
  */
 const HOLDS = ["moved", "answered", "no_question"];
-const held = (item) => isRecord(item.card_hold) && HOLDS.includes(item.card_hold.why) && item.card_hold.cursor === (item.cursor ?? null);
+
+// ── The typed read of an item ──────────────────────────────────────────────────────────────────────
+// scripts/queue.mjs checks these fields of an item when it stores it: id, kind, title, reason, status,
+// priority, threadId, link, card. It takes any JSON value in each other field. This program reads ten of
+// those: cursor, asks, asks_cursor, context, questions, source, project, shown, card_hold, relayed. Each is
+// read in this block only, by one function, and a value of the wrong type is read as if the field were
+// absent: no cursor, no card, no mark of a page, no hold, no project, no relay yet. So no value of an item
+// reaches the page, the map, the relay or an error message without its type.
+/** The reply that the item is for, or null. */
+const cursorOf = (item) => (isText(item.cursor) ? item.cursor : null);
+/** The reason of the reader's report that holds the card of the item's newest reply, or null. An item with no cursor has no reply to hold. */
+const holdOf = (item) => (cursorOf(item) !== null && HOLDS.includes(item.card_hold?.why) && item.card_hold.cursor === cursorOf(item) ? item.card_hold.why : null);
+const held = (item) => holdOf(item) !== null;
+/** The project that a batch groups the item under. */
+const groupOf = (item) => (isText(item.project) && item.project.trim() !== "" ? item.project : "no project");
+/** The questions that the sweep found in the reply, for the reader's list. */
+const questionsOf = (item) => (Array.isArray(item.questions) ? item.questions.filter(isText) : []);
+/** True for an item that the sweep made for a message of JP with no reply: the program writes its card. */
+const hasNoQuestion = (item) => Array.isArray(item.questions) && item.questions.length === 0 && item.source === "sweep";
+/** The relays that were recorded on the item: each with JP's words. */
+const relayedOf = (item) => (Array.isArray(item.relayed) ? item.relayed.filter((one) => isRecord(one) && isText(one.words)) : []);
 
 /**
  * True when a stored card is a card: it passes each check that `merge` makes of a reader's card. A card
  * that an older program or a `put` by hand stored with another shape is no card: a reader writes it again.
  */
 function isCard(asks, context) {
-  if (!Array.isArray(asks) || asks.length === 0 || !lineOrNull(context)) return false;
+  if (!Array.isArray(asks) || asks.length === 0 || !isLine(context)) return false;
   try {
     asks.forEach((ask) => checkAsk(ask, "a stored card"));
     return true;
@@ -126,23 +154,29 @@ function isCard(asks, context) {
   }
 }
 
-/** The asks to show for an item now, or null: a reader must write them first, or a report holds the card. */
-function asksOf(item) {
+/**
+ * The card to show for an item now, `{ asks, context }`, or null: a reader must write it first, or a report
+ * holds it. It is the one value that the page, the map and the relay are made from: a reader's card that
+ * passes the checks of `merge`, with its context, or the card that the program writes, which has no
+ * context (the `context` of an item belongs to a reader's card).
+ */
+function cardOf(item) {
   if (held(item)) return null;
-  if (!isText(item.cursor)) return null;   // a card belongs to one reply: no cursor, no card
-  if (item.asks_cursor === item.cursor && isCard(item.asks, item.context)) return item.asks;
-  if (Array.isArray(item.questions) && item.questions.length === 0 && item.source === "sweep") return [noReply(item)];
+  if (cursorOf(item) === null) return null;   // a card belongs to one reply: no cursor, no card
+  if (item.asks_cursor === cursorOf(item) && isCard(item.asks, item.context)) return { asks: item.asks, context: item.context };
+  if (hasNoQuestion(item)) return { asks: [noReply(item)], context: null };
   return null;
 }
-/** True when `batch` put the item's newest reply on a page. The mark does not say that the card is the same now. */
-const hasPageMark = (item) => isRecord(item.shown) && item.shown.cursor === (item.cursor ?? null) && Number.isInteger(item.shown.batch) && item.shown.batch > 0;
+/** The batch whose page shows the item's newest reply, or null. The mark does not say that the card is the same now. */
+const pageMarkOf = (item) => (item.shown?.cursor === cursorOf(item) && Number.isInteger(item.shown.batch) && item.shown.batch > 0 ? item.shown.batch : null);
+// ── End of the typed read of an item ───────────────────────────────────────────────────────────────
 
 /**
- * What a page shows of one ask of an item, in the shape of a question of the map of a batch. This is the
+ * What a page shows of one ask of a card, in the shape of a question of the map of a batch. This is the
  * one definition of "what JP saw": `batch` writes it to the map, and `pageNumbers` compares with it.
  */
-const faceOf = (item, ask) => ({
-  context: item.context ?? null, emoji: ask.emoji, ask: ask.ask, why: ask.why ?? null,
+const faceOf = (card, ask) => ({
+  context: card.context, emoji: ask.emoji, ask: ask.ask, why: ask.why ?? null,
   choices: ask.choices.map((choice, at) => ({ key: KEYS[at], label: choice.label, gain: choice.gain ?? null, cost: choice.cost ?? null, pick: ask.pick === at })),
   because: ask.because ?? null, experts: ask.experts, if_no_answer: ask.if_no_answer ?? null, yours: ask.yours,
 });
@@ -161,26 +195,27 @@ const faceText = (q) => JSON.stringify([
  * `put`), the next `batch` shows it and `relay` refuses it until then. A map that cannot be read holds no
  * card. `batch --again` writes the map again, so the numbers are those of the newest page.
  */
-function pageNumbers(dir, item, asks = asksOf(item)) {
-  if (asks === null || !hasPageMark(item)) return null;
+function pageNumbers(dir, item, card = cardOf(item)) {
+  const batch = pageMarkOf(item);
+  if (card === null || batch === null) return null;
   let mine;
   try {
-    mine = JSON.parse(readFileSync(join(dir, "batches", `batch-${item.shown.batch}.json`), "utf8")).questions.filter((q) => isRecord(q) && q.item === item.id);
+    mine = JSON.parse(readFileSync(join(dir, "batches", `batch-${batch}.json`), "utf8")).questions.filter((q) => isRecord(q) && q.item === item.id);
   } catch {
     return null;
   }
-  if (mine.length !== asks.length) return null;
+  if (mine.length !== card.asks.length) return null;
   const numbers = [];
-  for (const [index, ask] of asks.entries()) {
+  for (const [index, ask] of card.asks.entries()) {
     const q = mine.find((other) => other.index === index);
-    if (!q || !Number.isInteger(q.n) || faceText(q) !== faceText(faceOf(item, ask))) return null;
+    if (!q || !Number.isInteger(q.n) || faceText(q) !== faceText(faceOf(card, ask))) return null;
     numbers.push(q.n);
   }
   return numbers;
 }
 const forJp = (item) => OPEN.has(item.status) && item.kind !== "watch";
 /** An item that a reader can write a card for: it has a cursor, no card for it, and no report holds it. */
-const needsReader = (item) => isText(item.cursor) && !held(item) && asksOf(item) === null;
+const needsReader = (item) => cursorOf(item) !== null && !held(item) && cardOf(item) === null;
 const chatOf = (item) => item.threadId ?? item.id;
 
 /** A card belongs to a chat: two open items of one chat cannot both get it. */
@@ -406,7 +441,7 @@ export function main(argv, env = process.env) {
   const put = (item, fields) => q("put", flag("item", JSON.stringify({ ...item, ...fields })));
 
   const open = items.filter(forJp);
-  const noCursor = open.filter((item) => !isText(item.cursor) && asksOf(item) === null).map((item) => item.id);
+  const noCursor = open.filter((item) => cursorOf(item) === null).map((item) => item.id);
 
   if (command === "brief") {
     if (!values.out) throw new InputError("brief: --out <cards file> is required");
@@ -415,8 +450,8 @@ export function main(argv, env = process.env) {
     if (need.length === 0) throw new InputError(`brief: no item needs a card${noCursor.length ? ` (no card can be written for an item with no cursor: ${noCursor.join(", ")})` : ""}`);
     const list = join(dir, "cards-to-read.jsonl");
     const rows = need.map((item) => {
-      const count = countOf(item.cursor);
-      return JSON.stringify({ threadId: chatOf(item), cursor: item.cursor, item_count: Number.isFinite(count) ? count : null, title: item.title, questions: item.questions ?? [] });
+      const count = countOf(cursorOf(item));
+      return JSON.stringify({ threadId: chatOf(item), cursor: cursorOf(item), item_count: Number.isFinite(count) ? count : null, title: item.title, questions: questionsOf(item) });
     });
     const temp = join(dir, `.cards-to-read.${process.pid}.tmp`);
     writeFileSync(temp, `${rows.join("\n")}\n`, { flag: "wx" });
@@ -440,9 +475,9 @@ export function main(argv, env = process.env) {
     for (const card of cards) {
       const item = byThread.get(card.threadId);
       if (!item) out.not_open.push(card.threadId);
-      else if (card.cursor !== item.cursor) out.stale.push(card.threadId);
+      else if (card.cursor !== cursorOf(item)) out.stale.push(card.threadId);
       // An earlier report holds the card of this reply: it stands, whatever this line says.
-      else if (held(item)) out[item.card_hold.why].push(card.threadId);
+      else if (held(item)) out[holdOf(item)].push(card.threadId);
       // The cursor ends in the item count of the reply that asks. More items now: the chat moved after the
       // scan, so the question may be answered. The next scan reads it again.
       else if (Number.isFinite(card.item_count_now) && Number.isFinite(countOf(card.cursor)) && card.item_count_now !== countOf(card.cursor)) hold(item, card, "moved");
@@ -453,7 +488,7 @@ export function main(argv, env = process.env) {
         const stored = { asks: card.asks, asks_cursor: card.cursor, context: card.context };
         // A page showed this reply, and the card as this merge stores it is not on that page: the next
         // batch shows it. Merge writes no mark for that: `pageNumbers` gives the same answer to batch and relay.
-        if (hasPageMark(item) && pageNumbers(dir, { ...item, ...stored }) === null) out.show_again.push(card.threadId);
+        if (pageMarkOf(item) !== null && pageNumbers(dir, { ...item, ...stored }) === null) out.show_again.push(card.threadId);
         writes.push([item, {
           ...stored,
           card: {
@@ -475,11 +510,10 @@ export function main(argv, env = process.env) {
     const size = values.size === undefined ? 5 : Number(values.size);
     if (!Number.isInteger(size) || size < 1) throw new InputError("batch: --size must be a whole number of 1 or more");
     const noCard = open.filter(needsReader).length;
-    const holds = open.filter(held).map((item) => ({ item: item.id, why: item.card_hold.why }));
+    const holds = open.filter(held).map((item) => ({ item: item.id, why: holdOf(item) }));
     const rest = { no_card: noCard, held: holds, no_cursor: noCursor };
     // Ready: the item has a card, and that card as it is now is on no page.
-    const ready = open.filter((item) => asksOf(item) !== null && pageNumbers(dir, item) === null);
-    const groupOf = (item) => item.project || "no project";
+    const ready = open.filter((item) => cardOf(item) !== null && pageNumbers(dir, item) === null);
     const folder = join(dir, "batches");
     const again = values.again !== undefined;
     let number;
@@ -488,13 +522,13 @@ export function main(argv, env = process.env) {
       number = Number(values.again);
       if (!Number.isInteger(number) || number < 1) throw new InputError("batch: --again must be the number of a batch");
       // The mark, not the card: this command writes the page again for a card that changed after it.
-      taken.push(...open.filter((item) => asksOf(item) !== null && hasPageMark(item) && item.shown.batch === number));
+      taken.push(...open.filter((item) => cardOf(item) !== null && pageMarkOf(item) === number));
       if (taken.length === 0) throw new InputError(`batch: no open question of batch ${number} is left to show`);
     } else {
       if (ready.length === 0) return { batch: null, questions: [], left: 0, ...rest };
       let count = 0;
       for (const item of ready) {
-        const asks = asksOf(item);
+        const { asks } = cardOf(item);
         if (groupOf(item) !== groupOf(ready[0])) continue;
         if (taken.length > 0 && count + asks.length > size) continue;
         taken.push(item);
@@ -508,17 +542,18 @@ export function main(argv, env = process.env) {
     const group = groupOf(taken[0]);
     const questions = [];
     for (const item of taken) {
-      asksOf(item).forEach((ask, index) => {
-        questions.push({ n: questions.length + 1, item: item.id, index, title: item.title, link: item.link ?? null, ...faceOf(item, ask) });
+      const card = cardOf(item);
+      card.asks.forEach((ask, index) => {
+        questions.push({ n: questions.length + 1, item: item.id, index, title: item.title, link: item.link ?? null, ...faceOf(card, ask) });
       });
     }
-    const left = ready.filter((item) => !taken.includes(item)).reduce((sum, item) => sum + asksOf(item).length, 0);
+    const left = ready.filter((item) => !taken.includes(item)).reduce((sum, item) => sum + cardOf(item).asks.length, 0);
     const batch = { batch: number, group, at: now, questions, left };
     const page = join(folder, `batch-${number}.html`);
     const map = join(folder, `batch-${number}.json`);
     writeFileSync(map, `${JSON.stringify(batch, null, 1)}\n`, { flag: again ? "w" : "wx" });
     writeFileSync(page, pageHtml(batch), { flag: again ? "w" : "wx" });
-    if (!again) for (const item of taken) put(item, { shown: { batch: number, cursor: item.cursor ?? null, at: now } });
+    if (!again) for (const item of taken) put(item, { shown: { batch: number, cursor: cursorOf(item), at: now } });
     return { batch: number, group, page, map, questions: questions.map(({ n, item, ask }) => ({ n, item, ask })), left, ...rest };
   }
 
@@ -528,14 +563,14 @@ export function main(argv, env = process.env) {
   const item = items.find((other) => other.id === values.item);
   if (!item) throw new InputError(`relay: no item "${values.item}" in the queue`);
   if (!OPEN.has(item.status)) throw new InputError(`relay: the item "${values.item}" is ${item.status}`);
-  const asks = asksOf(item);
-  if (asks === null) throw new InputError(`relay: the item "${values.item}" has no card for its newest reply`);
-  const numbers = pageNumbers(dir, item, asks);
+  const card = cardOf(item);
+  if (card === null) throw new InputError(`relay: the item "${values.item}" has no card for its newest reply`);
+  const numbers = pageNumbers(dir, item, card);
   if (numbers === null) throw new InputError(`relay: the item "${values.item}" is on no page for its card as it is now, so JP did not see its questions: run batch, show the page, and ask him`);
-  const text = relayText(queue, asks, numbers, item.shown.batch, values);
+  const text = relayText(queue, card.asks, numbers, pageMarkOf(item), values);
   if (values.sent) {
     // A run that was stopped after this write is run again: the same words are recorded one time.
-    const before = Array.isArray(item.relayed) ? item.relayed : [];
+    const before = relayedOf(item);
     if (!(before.length > 0 && before[before.length - 1].words === values.words)) put(item, { relayed: [...before, { at: now, words: values.words }] });
     if (!values["keep-open"]) q("resolve", flag("item", item.id), flag("to", "done"), flag("note", `JP answered in the chat "${queue.chat.title}": ${values.words}`));
   }
