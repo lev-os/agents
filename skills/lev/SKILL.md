@@ -12,6 +12,47 @@ sub_skills:
 
 For any non-trivial direct or routed invocation, load [Project Context](references/project-context.md) before project-specific lookup. It resolves the active project and its declared breadcrumbs.
 
+## Checklist First
+
+Before any other work, match the task to one list below and copy its steps into the todo list. Keep a step that does
+not apply as `n/a: <reason>`; never drop it. Each step names what it fires. A task no list fits gets its own list,
+built from the five parts of the hand loop (Define, Build, Prove, Decide, Record), and that list is what JP sees
+first. The lead holds the list; a worker gets a brief, not the list. In Lev the five parts are in
+`.agents/skills/lev-audit/references/foundation.md`.
+
+**Fix a fault** (owner and surface known, one write scope):
+1. Define: say the fault and the owner file (AGENTS.md "Where to read first"); `lev find "<symptom>" --type debt_row`.
+2. Define: see the fault happen on the surface it was reported on; save the command and its output.
+3. Define: 2 to 4 claims, some that must hold and some that must never hold, each with its proof; they go in the commit body.
+4. Build: a test that fails first, run red; then the change (a worker for a large one: exec or coder).
+5. Prove: typecheck the package and the named test file; rerun step 2's command; a planted fault must fail.
+6. Decide: rerun every program check yourself; say verified only for what you reran.
+7. Record: lev-lore-commit by path; the debt row; the handoff; a decision for each ruling of JP.
+
+**Make a plan** (a new module, a moved boundary, several slices):
+1. Is a plan needed? One or two files with a plain approach: use the fix list instead.
+2. Say the proof stage, the loop part and the state in one line (AGENTS.md rule 9).
+3. `lev find "<topic>"` for the idea, design, plan and decisions that hold it; the newest decided decision wins.
+4. Decompose: intent, capabilities, boxes, the boxes over the code, then options, as a picture (rule 11; pov, arch).
+5. Agree the picture with JP; hold only the steps that depend on it.
+6. Settle what a run can settle with a spike (poc), not a question.
+7. Write the plan (lev-plan) with the owner's rerun as its own step, and the claim file (foundation.md Define).
+8. Show JP the acceptance sentence and the claims; a reader that wrote none of it reviews it (review).
+9. Record: plan, handoff, a decision for each ruling, a backlog item for each "do later". Build starts on JP's word.
+
+**Run a long loop** (a flow, an overnight run, an iteration loop):
+1. Write the exit test and its limits before the first iteration (`core/exec/config.yaml` `flow_limits`).
+2. Run one iteration; keep what helped, revert what did not; never loosen the exit test to pass it.
+3. Check the run about every hour; stop it when it drifts (AGENTS.md "Who does the work").
+4. Record each worker in the handoff; prove and decide as in the fix list at the end.
+
+**Answer a question** (no change wanted):
+1. Say the question back in one sentence, and what answer would change what JP does.
+2. Find what Lev already knows: `lev find`, prior-art, cass.
+3. Measure: every count from a command run this turn, beside the claim.
+4. Answer first, current against ideal, with a picture for a state or a plan; a choice for JP is one "For you" item.
+5. A lesson for later work goes to learn; a ruling gets a decision file. `n/a: read-only` for build and prove.
+
 ## Entity Reconciliation
 
 After authorized material progress, reconcile touched and causally affected
