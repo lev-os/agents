@@ -4,7 +4,7 @@ A sweep is one read of every live chat in scope. Start runs it once (`SKILL.md` 
 
 **Tools.** Where the host lists the T3 tools as deferred, load each schema with ToolSearch `select:<name>` before its first call. A missing tool or field is "can't tell", never a guess.
 
-**Budget.** 3 MCP calls, plus 3 for each live chat (queue, questions, new messages). At most 8 chats read in full; the rest are counts. Over the budget: stop reading, report the counts, and name what you did not read. Reads that answer JP's own question sit outside the budget.
+**Budget.** 3 MCP calls, plus 3 for each live chat (queue, questions, new messages). At most 8 chats read in full; the rest are counts. Over the budget: stop reading, report the counts, and name what you did not read. Reads that answer JP's own question sit outside the budget. So does the reader of the wider sweep (Scopes): it is a subagent, it reads each changed chat once, and its cost is stated there.
 
 ## Steps
 
@@ -47,11 +47,16 @@ A scope is the set of chats, lanes and records you track. One project is the def
 
 A project named in passing is not a switch. On a switch, reply with one line such as "Scope: global · 7 projects · 2 live chats", then the Thread list at the new scope.
 
-**The wider sweep,** for n projects or global:
+**The wider sweep,** for n projects or global, is a program. `scripts/sweep.mjs` keeps one index of every open top-level chat of every project; its header lists the commands, the files and the choices. You make the T3 calls and give it their results as files. It sends nothing.
 
-1. `mcp__t3-code__t3_project_list {limit:100}`. Keep `id`, `title` and `workspaceRoot`. Map each root to its checkout with `git -C <workspaceRoot> rev-parse --show-toplevel`.
-2. For each project: the list call from step 1 above with `projectId` and `limit:5`; read `total`. A project with `total` 0 goes into the closing count.
-3. For each project with live chats: steps 2 to 4 above. At most 8 chats read in full across the whole sweep.
-4. Order: waits on JP first, then stale, then newest. Close with "+{n} projects with no live chats".
+1. **List.** `mcp__t3-code__t3_thread_list {allProjects:true, settled:false, includeSubagents:false, limit:100}` and `mcp__t3-code__t3_project_list {limit:100}`. The host saves a result over its size limit to a file: pass that file. List all projects each time, also for one project: a scan marks each chat that is not in the list as settled, and it refuses a list that is one page of many or that holds settled or worker chats.
+2. **Scan.** `node ~/.agents/skills/lev-ceo/scripts/sweep.mjs scan --threads <file> --projects <file> --self <this chat's id> --text`. Give `--self` on each scan: it is the chat the scan skips. With no `--project`, all projects; `--project <title>` narrows the rows and the chats to read to one T3 project. Each row gets one choice: `unanswered`, `ask`, `read`, `queue`, `not yet` or `leave`.
+3. **Read what changed.** When rows say `read`, `node ~/.agents/skills/lev-ceo/scripts/sweep.mjs brief --out <labels file>` prints the brief for one Sonnet subagent. It reads each changed chat once, with the rules in `references/label-rules.txt`, and writes the labels file. Then `node ~/.agents/skills/lev-ceo/scripts/sweep.mjs merge --labels <labels file>`. A label holds the cursor the reader was given; when a scan ran in between and a chat moved, `merge` lists that chat under `stale` and it stays `read`. A reader costs about 12,000 tokens for each chat (160,056 for 13 chats on 2026-11-18), and a chat that did not change is never read again.
+4. **Act on the choices.**
+   - `unanswered` and `queue` are JP's: his message has no reply, or the reply holds questions for him. Check the chat's item count against T3 before you show him a question: he may have answered it in that chat.
+   - `ask` means the reply names approved work that is not done. Send only on JP's word; sending by itself is off (`.lev/pm/decisions/20261117-the-sweep-says-continue-approved-work-or-return-blocked-and-jp-sees-its-choices-before-it-sends-by-itself.yaml`). The wording is: Continue approved work, or return "blocked". After a send, `node ~/.agents/skills/lev-ceo/scripts/sweep.mjs sent --thread <id> --wording "<text>"`: the program then gives that chat no second `ask` until a person speaks in it.
+   - A CEO chat (title `CEO > {project}`) is in the index with a mark. It is never chosen `ask`: it runs its own loop. Its questions still go to `queue`.
+
+Close with the counts line that `--text` prints first. A chat's project is its T3 project, not the first word of its title: a chat named `multiplayer > ...` that lives in the leviathan project is a leviathan row.
 
 Rules and state: `~/.claude/CLAUDE.md` holds in every project, and a project's `AGENTS.md` adds to it. A record stays in the project whose words it holds; a wider reply links to it and copies nothing. Every count names its checkout.

@@ -179,12 +179,12 @@ Ask before any of these, as one For you item each: production, money (a paid mod
 ## 8. Checks for this skill
 
 ```bash
-node --test ~/.agents/skills/lev-ceo/tests/*.test.mjs                    # settle, citations, audit, board, queue
+node --test ~/.agents/skills/lev-ceo/tests/*.test.mjs                    # settle, citations, audit, board, queue, sweep
 node ~/.agents/skills/lev-ceo/scripts/citations.mjs --root "$(git rev-parse --show-toplevel)"   # exit 0: every cited file exists
 node ~/.agents/skills/lev-ceo/tests/fresh-agent-settle.mjs               # a fresh agent with only this file picks the script's chats
 ```
 
-After you edit this skill, run all three. `tests/queue.test.mjs` proves the queue order (priority, then age; the presented head stays), the allowed moves, the two cadences and one event line per change. `scripts/audit-transcripts.mjs` counts what CEO sessions did (ticks that changed nothing, settle orders, repeated questions) from their transcripts.
+After you edit this skill, run all three. `tests/queue.test.mjs` proves the queue order (priority, then age; the presented head stays), the allowed moves, the two cadences and one event line per change. `tests/sweep.test.mjs` proves the choice for each chat of the all-projects index (`references/sweep.md`, The wider sweep): a chat is asked once, a CEO chat never, a wrong list is refused, and `--project` shows one project. `scripts/audit-transcripts.mjs` counts what CEO sessions did (ticks that changed nothing, settle orders, repeated questions) from their transcripts.
 
 ## 9. Queue
 
