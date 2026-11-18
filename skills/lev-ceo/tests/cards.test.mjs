@@ -547,6 +547,7 @@ test("relay refuses an item whose questions or choices are not those of its page
     ["another question", () => ({ asks: [backups] })],
     ["another question with the same choices", (a) => ({ asks: [{ ...a.asks[0], ask: "May the chat delete the branch?" }] })],
     ["another label of a choice", (a) => ({ asks: [{ ...a.asks[0], choices: [{ label: "Yes, delete", gain: null, cost: null }, a.asks[0].choices[1]] }] })],
+    ["another label of a choice, and the rest of the choice the same", (a) => ({ asks: [{ ...a.asks[0], choices: [{ ...a.asks[0].choices[0], label: "Yes, delete" }, a.asks[0].choices[1]] }] })],
     ["the choices in another order", (a) => ({ asks: [{ ...a.asks[0], choices: [...a.asks[0].choices].reverse() }] })],
     ["one choice less", (a) => ({ asks: [{ ...a.asks[0], choices: [a.asks[0].choices[0]] }] })],
     ["one question more", (a) => ({ asks: [a.asks[0], backups] })],
