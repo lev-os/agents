@@ -85,13 +85,13 @@ ${sheet.groups.map(group).join("")}${sheet.pins.length ? `
     </table>
   </section>` : ""}${sheet.send ? `
   <section>
-    <h2><span>⏸️</span> Stopped with approved work <em>${sheet.send.n}</em></h2>
+    <h2><span>⏸️</span> ${esc(sheet.send.title ?? "Stopped with approved work")} <em>${sheet.send.n}</em></h2>
     <div class="card">
       <div class="num">${sheet.send.n}</div>
       <div class="body">
         <div class="ask">May I send these ${sheet.send.chats.length} chats the line: ${esc(sheet.send.wording)}</div>
         <div class="opts">${sheet.send.chats.map((chat) => `<span class="opt">${esc(chat)}</span>`).join("")}</div>
-        <div class="meta"><span class="rec">👉 I recommend yes: the line starts only work that you approved before.</span></div>
+        <div class="meta"><span class="rec">👉 ${esc(sheet.send.rec ?? "I recommend yes: the line starts only work that you approved before.")}</span></div>
       </div>
     </div>
   </section>` : ""}
