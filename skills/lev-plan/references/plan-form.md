@@ -49,7 +49,11 @@ outcome:                      # part 2
     - { term: "", meaning: "", degenerate: "" }
   does_not_count:
     - { near_miss: "", excluded_by: "{claim id | guard of a claim | review checklist}" }
-  scope: { in: [], out: [], human_decisions: [], forbidden: [], boundaries: [] }
+  in_scope: []                # core/state refuses a key named scope inside a record (core/state/src/scope.ts)
+  out_of_scope: []
+  human_decisions: []
+  forbidden: []
+  boundaries: []
 current_to_target:            # part 3
   current: {evidence, authority, freshness, known uncertainty}
   target: {the target state and the smallest transition}
