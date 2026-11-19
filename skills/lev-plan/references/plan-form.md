@@ -83,11 +83,21 @@ claims:                       # part 5; this list is the one claim list
     text: ""
     slice: s1
     rules_out: ""             # the failure it rules out
-    proven_by: program        # program | agent | person
-    program: ""               # the command; for agent: question; for person: person, with the evidence they give
+    proven_by: program        # program | agent | person; the proof goes under the key of the same kind (below)
+    program: ""               # proven_by program: the command
     level: local              # local | integration | field | external
     guard: ""                 # program: the known-bad control and the check owner; any: what looks like proof and is not
     source: ""
+  - id: c2
+    polarity: must_not
+    text: ""
+    proven_by: agent
+    question: ""              # proven_by agent: the question the agent answers; never under program
+  - id: c3
+    polarity: must
+    text: ""
+    proven_by: person
+    person: ""                # proven_by person: who, with the evidence they give; never under program
 review_and_repair:            # part 6
   checklist: ""
   blocks_when: ""
@@ -137,11 +147,12 @@ decides pass, fail or could not check. The check refuses:
 | `PLAN_FORM_UNKNOWN` | `schema` is another `lev.plan.` value |
 | `CLAIM_INCOMPLETE` | a claim has no id or no text |
 | `CLAIM_POLARITY_UNKNOWN` | a polarity is not `must` or `must_not` |
-| `CLAIM_HAS_NO_PROOF` | `proven_by` is not program, agent or person, or its `program`, `question` or `person` is blank |
+| `CLAIM_HAS_NO_PROOF` | `proven_by` is not program, agent or person, or the key of that kind is blank: `program` for program, `question` for agent, `person` for person. A question or a person written under `program` is this fault |
 | `CLAIM_SLICE_UNKNOWN` | a claim names a slice that is not in `slices` |
 | `SLICE_INCOMPLETE` | a slice has no id, outcome or owner |
 | `SLICE_ID_TWICE` | two slices have one id |
 | `READ_PARSE_ERROR` | the file states the form and does not parse |
+| `PLAN_STATUS_MISSING` | a plan of any form says no `status` (the type's second row, `plan_says_its_stage`; JP 2026-11-19) |
 
 A pass says the form holds. It does not say the plan is good: readiness is still judged ([Plan parts](plan-parts.md#readiness)).
 
