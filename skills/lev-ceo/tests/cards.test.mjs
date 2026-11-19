@@ -319,6 +319,46 @@ test("batch --again writes the page of a batch again without a question that was
   assert.match(cards(root, ["batch", "--again", "x"], 2).stderr, /--again/);
 });
 
+test("batch --all is the sheet of every open question that has a card, also one that a page showed, in groups and numbered across them", () => {
+  // JP 2026-11-19: a question stays until he answers it, a skip is not let go, and questions come grouped.
+  const root = queueWith([item("a"), item("b"), item("c", { project: "p2", priority: 1 }), item("d", { project: "p2", priority: 1 })]);
+  merge(root, [line("a"), line("b", { asks: [ask({ ask: "First of b?" }), ask({ ask: "Second of b?" })] }), line("c"), line("d")]);
+  assert.deepEqual(json(cards(root, ["batch"])).questions.map((q) => q.item), ["c", "d"], "the first page: the project of the items with the first priority");
+  // JP answers d and skips c: d is closed, c stays open and is on a page.
+  const closed = run(QUEUE, ["resolve", "--item", "d", "--to", "done", "--note", "JP answered there", "--thread", ME, "--root", root, "--now", NOW]);
+  assert.equal(closed.status, 0, closed.stderr);
+  const sheet = json(cards(root, ["batch", "--all"]));
+  assert.equal(sheet.batch, 2);
+  assert.equal(sheet.group, "all");
+  assert.deepEqual(sheet.groups, ["p2", "p1"], "a group is a project, in the order of its first item in the queue");
+  assert.deepEqual(sheet.questions.map((q) => [q.n, q.item]), [[1, "c"], [2, "a"], [3, "b"], [4, "b"]], "c was on page 1 and is on the sheet again");
+  assert.equal(sheet.left, 0);
+  const html = readFileSync(sheet.page, "utf8");
+  assert.ok(html.indexOf("📂 p2") < html.indexOf("📂 p1") && html.indexOf("📂 p2") >= 0);
+  assert.match(html, /QUESTION 4/);
+  assert.deepEqual(stored(root).filter((i) => i.status !== "done").map((i) => i.shown.batch), [2, 2, 2], "each open item is marked for the sheet");
+  // A pick is a number of the newest sheet.
+  const relay = cards(root, ["relay", "--item", "b", "--words", "3a, and 4 no", "--picks", "3a 4b"]).stdout;
+  assert.match(relay, /3\. First of b\?/);
+  assert.match(relay, /4\. Second of b\?/);
+  assert.match(cards(root, ["relay", "--item", "c", "--words", "yes", "--picks", "2a"], 2).stderr, /question 2 is not a question of this item on the page of batch 2/);
+  // No answer: the next sheet holds the same questions. A page of new questions holds none.
+  assert.deepEqual(json(cards(root, ["batch"])).batch, null, "no question is new");
+  const next = json(cards(root, ["batch", "--all"]));
+  assert.equal(next.batch, 3);
+  assert.deepEqual(next.questions.map((q) => [q.n, q.item]), [[1, "c"], [2, "a"], [3, "b"], [4, "b"]]);
+});
+
+test("batch --all writes no page when no open item has a card, and takes no --size and no --again", () => {
+  const root = queueWith([item("a")]);
+  assert.deepEqual(json(cards(root, ["batch", "--all"])), { batch: null, questions: [], left: 0, no_card: 1, held: [], no_cursor: [] });
+  assert.equal(existsSync(join(folder(root), "batches")), false);
+  merge(root, [line("a")]);
+  assert.match(cards(root, ["batch", "--all", "--size", "2"], 2).stderr, /--all/);
+  assert.match(cards(root, ["batch", "--all", "--again", "1"], 2).stderr, /--all/);
+  assert.equal(bytes(root).includes("\"shown\""), false, "a refused command marks no item");
+});
+
 test("batch shows no card that was written for an older reply, and counts it", () => {
   const root = queueWith([item("a"), item("b")]);
   merge(root, [line("a"), line("b")]);

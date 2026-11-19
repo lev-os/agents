@@ -29,6 +29,16 @@
  *                                 reply. Prints {batch, group, page, map, questions, left, no_card, held,
  *                                 no_cursor}: no_card counts the items for `brief`; held and no_cursor name
  *                                 the items that get no card, for you to handle by hand.
+ *   batch --all                -> the sheet: every open question that has a card for its chat's newest reply,
+ *                                 shown before or not, of every project, on one page. A group is a project,
+ *                                 in the order of its first item in the queue (priority, then age); the
+ *                                 numbers run across the groups. Use it for each reply that shows JP his
+ *                                 open questions: a question he skipped or did not answer is on each sheet
+ *                                 until its item is closed (JP 2026-11-19). It writes batch-<n>.html and
+ *                                 batch-<n>.json like a page, marks each item for the sheet, and so a pick
+ *                                 is a number of the newest sheet. It prints `groups` too. No --size, no
+ *                                 --again. With no --all, `batch` is the page of the questions that are on
+ *                                 no page yet.
  *   batch --again <n>          -> writes the page and the map of batch n again, from its items that are still
  *                                 open (an item was closed after the batch). It marks no item. The questions
  *                                 get new numbers: show the page again.
@@ -344,6 +354,14 @@ function pageHtml(batch) {
   const chats = new Set(batch.questions.map((q) => q.item)).size;
   const picks = batch.questions.filter((q) => q.choices.some((choice) => choice.pick));
   const sample = batch.questions.filter((q) => q.choices.length > 1).slice(0, 2).map((q) => `${q.n}b`).join(" ") || "1b";
+  const count = (list) => `${list.length} question${list.length === 1 ? "" : "s"}`;
+  // The sheet (`--all`) has one section for each group; a page of new questions has one group.
+  const sections = Array.isArray(batch.groups)
+    ? batch.groups.map((name) => [name, batch.questions.filter((q) => q.group === name)])
+    : [[batch.group, batch.questions]];
+  const head = (list, first) => (Array.isArray(batch.groups)
+    ? `${first ? `sheet ${batch.batch} · ${count(batch.questions)} from ${chats} chat${chats === 1 ? "" : "s"} · ` : ""}${count(list)} here`
+    : `batch ${batch.batch} · ${count(list)} from ${chats} chat${chats === 1 ? "" : "s"} · ${batch.left} more wait${batch.left === 1 ? "s" : ""}`);
   return `<!doctype html>
 <html>
 <head>
@@ -353,10 +371,10 @@ function pageHtml(batch) {
 </head>
 <body>
 <div class="wrap">
-  <div class="ghead"><span class="t">📂 ${esc(batch.group)}</span><span class="s">batch ${batch.batch} · ${batch.questions.length} question${batch.questions.length === 1 ? "" : "s"} from ${chats} chat${chats === 1 ? "" : "s"} · ${batch.left} more wait${batch.left === 1 ? "s" : ""}</span></div>
+${sections.map(([name, list], at) => `  <div class="ghead"><span class="t">📂 ${esc(name)}</span><span class="s">${head(list, at === 0)}</span></div>
   <div class="grid">
-${batch.questions.map(cardHtml).join("\n")}
-  </div>
+${list.map(cardHtml).join("\n")}
+  </div>`).join("\n")}
   <div class="reply">
     <span>👉 Say</span>${picks.length ? `<span class="say">all yes</span><span class="or">for every green one, or name</span>` : `<span class="or">a number and a letter for each:</span>`}<span class="say">${sample}</span><span class="or">Your words go to each chat unchanged.</span>
   </div>
@@ -415,6 +433,7 @@ export function main(argv, env = process.env) {
       cards: { type: "string" },
       size: { type: "string" },
       again: { type: "string" },
+      all: { type: "boolean", default: false },
       item: { type: "string" },
       words: { type: "string" },
       picks: { type: "string" },
@@ -517,9 +536,20 @@ export function main(argv, env = process.env) {
     const ready = open.filter((item) => cardOf(item) !== null && pageNumbers(dir, item) === null);
     const folder = join(dir, "batches");
     const again = values.again !== undefined;
+    const all = values.all === true;
+    if (all && (again || values.size !== undefined)) throw new InputError("batch: --all is the whole sheet; it takes no --size and no --again");
     let number;
     const taken = [];
-    if (again) {
+    if (all) {
+      // The sheet: every open question that has a card, shown before or not. JP 2026-11-19: a question stays
+      // until he answers it, and a skip is not let go. A group is a project, in the order of its first item.
+      const carded = open.filter((item) => cardOf(item) !== null);
+      if (carded.length === 0) return { batch: null, questions: [], left: 0, ...rest };
+      const names = [...new Set(carded.map(groupOf))];
+      for (const name of names) taken.push(...carded.filter((item) => groupOf(item) === name));
+      mkdirSync(folder, { recursive: true });
+      number = 1 + Math.max(0, ...readdirSync(folder).map((name) => Number(/^batch-(\d+)\.(json|html)$/.exec(name)?.[1] ?? 0)));
+    } else if (again) {
       number = Number(values.again);
       if (!Number.isInteger(number) || number < 1) throw new InputError("batch: --again must be the number of a batch");
       // The mark, not the card: this command writes the page again for a card that changed after it.
@@ -540,22 +570,23 @@ export function main(argv, env = process.env) {
       // One more than the highest number of a page or a map in the folder: a file that was removed leaves no number to take again.
       number = 1 + Math.max(0, ...readdirSync(folder).map((name) => Number(/^batch-(\d+)\.(json|html)$/.exec(name)?.[1] ?? 0)));
     }
-    const group = groupOf(taken[0]);
+    const groups = [...new Set(taken.map(groupOf))];
+    const group = all ? "all" : groups[0];
     const questions = [];
     for (const item of taken) {
       const card = cardOf(item);
       card.asks.forEach((ask, index) => {
-        questions.push({ n: questions.length + 1, item: item.id, index, title: item.title, link: item.link ?? null, ...faceOf(card, ask) });
+        questions.push({ n: questions.length + 1, item: item.id, index, title: item.title, link: item.link ?? null, group: groupOf(item), ...faceOf(card, ask) });
       });
     }
-    const left = ready.filter((item) => !taken.includes(item)).reduce((sum, item) => sum + cardOf(item).asks.length, 0);
-    const batch = { batch: number, group, at: now, questions, left };
+    const left = all ? 0 : ready.filter((item) => !taken.includes(item)).reduce((sum, item) => sum + cardOf(item).asks.length, 0);
+    const batch = { batch: number, group, ...(all ? { groups } : {}), at: now, questions, left };
     const page = join(folder, `batch-${number}.html`);
     const map = join(folder, `batch-${number}.json`);
     writeFileSync(map, `${JSON.stringify(batch, null, 1)}\n`, { flag: again ? "w" : "wx" });
     writeFileSync(page, pageHtml(batch), { flag: again ? "w" : "wx" });
     if (!again) for (const item of taken) put(item, { shown: { batch: number, cursor: cursorOf(item), at: now } });
-    return { batch: number, group, page, map, questions: questions.map(({ n, item, ask }) => ({ n, item, ask })), left, ...rest };
+    return { batch: number, group, ...(all ? { groups } : {}), page, map, questions: questions.map(({ n, item, ask }) => ({ n, item, ask })), left, ...rest };
   }
 
   // relay
