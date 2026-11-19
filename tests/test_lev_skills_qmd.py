@@ -26,6 +26,7 @@ REFRESH_COLLECTIONS = (
 )
 
 
+
 class PublicLevSkillsQmdTest(unittest.TestCase):
     def setUp(self):
         self._temporary = tempfile.TemporaryDirectory(prefix="lev-skills-qmd-")
@@ -571,9 +572,7 @@ sys.addaudithook(audit)
         self.assertEqual(len(self.node_requests("query")), 0, "missing indexed occurrence must block before query launch")
 
     def test_readonly_integrity_bridge_checks_synthetic_sqlite_snapshot(self):
-        node = Path("/opt/homebrew/opt/node@24/bin/node")
-        if not node.is_file():
-            self.skipTest("installed Node 24 runtime is unavailable")
+        node = Path(self.load_product_module().qmd_node_executable())
         qmd_prefix = Path.home() / ".local/share/qmd/npm"
         package_root = qmd_prefix / "lib/node_modules/@tobilu/qmd"
         self.assertTrue((package_root / "dist/store.js").is_file())
@@ -650,9 +649,7 @@ sys.addaudithook(audit)
         self.assertEqual(json.loads(corrupt.stdout).get("code"), "qmd_index_integrity")
 
     def test_native_hybrid_binding_keeps_canonical_sql_readonly_and_cache_ephemeral(self):
-        node = Path("/opt/homebrew/opt/node@24/bin/node")
-        if not node.is_file():
-            self.skipTest("installed Node 24 runtime is unavailable")
+        node = Path(self.load_product_module().qmd_node_executable())
         package_root = Path.home() / ".local/share/qmd/npm/lib/node_modules/@tobilu/qmd"
         probe = self.repo / "skills-db/tools/qmd-quality-probe.md"
         probe.parent.mkdir(parents=True, exist_ok=True)
@@ -732,9 +729,7 @@ sys.addaudithook(audit)
                 self.assertEqual(outcome["code"], "qmd_engine_failed", f"{name}: {outcome}")
 
     def test_installed_inspector_resolves_all_three_cached_models_without_downloads(self):
-        node = Path("/opt/homebrew/opt/node@24/bin/node")
-        if not node.is_file():
-            self.skipTest("installed Node 24 runtime is unavailable")
+        node = Path(self.load_product_module().qmd_node_executable())
         package_root = Path.home() / ".local/share/qmd/npm/lib/node_modules/@tobilu/qmd"
         installed_config = Path.home() / ".config/qmd/index.yml"
         self.assertTrue(installed_config.is_file())
