@@ -1,0 +1,76 @@
+{
+  "schema": "three-skill-repair.report.v1",
+  "date": "2026-11-19",
+  "host": "Mac-Studio.local (verified 2026-11-19T04:03Z)",
+  "worker": "implementation sub-agent of the parent chat; no child agents started",
+  "authority": {
+    "jp_words_verbatim_as_relayed": ["context skills review what are we reviewing?", "32- yea do it"],
+    "jp_words_provenance": "relayed by the parent; not read at source by this worker",
+    "relay_interpretation_not_jp_words": "JP accepted the recommendation to recheck, then repair codex-autoresearch, lev and sitrep only"
+  },
+  "prior_ledger": "/Users/jean-patricksmith/ops/context-engineering-intake-20261109/semantic-audit/all-results.json (Nov 9). Rechecked against current files, not trusted.",
+  "skills_loaded": ["skill-builder (SKILL.md sections: qualification, pointers, references, audit/behavior, absorb, author TDD)", "writing-for-agents (full)"],
+  "scoped_instructions": "~/.agents has no AGENTS.md or CLAUDE.md at root; ~/.claude/CLAUDE.md and ~/ops/AGENTS.md applied",
+  "repairs": [
+    {
+      "skill": "codex-autoresearch",
+      "source_ownership": "live third-party install at ~/.codex/skills/codex-autoresearch; unversioned (see codex-autoresearch-target.json)",
+      "change": "Checkpoints stage only the files the iteration changed inside Scope by explicit path; other dirt and autoresearch-owned artifacts stay unstaged; pull/push unchanged under wizard-confirmed checkpoint mode",
+      "sites": ["SKILL.md:90", "SKILL.md:140", "references/loop-workflow.md:24", "references/interaction-wizard.md:174", "references/autonomous-loop-protocol.md:250-260", "references/autonomous-loop-protocol.md:353", "references/core-principles.md:52", "scripts/autoresearch_resume_prompt.py:104"],
+      "also_resolved": "autonomous-loop-protocol.md:259 and :353 contradicted :138 and results-logging.md:154 on staging the run's own artifacts; now consistent (unstaged)",
+      "record_commit": "ad9665fec39d8e2466407192fac3b77a1ac57dd0 (patch and digests only)",
+      "not_changed": ["budget / unlimited iterations", "1% metric cutoff", "reread rituals", "autoresearch_commit_gate.py warning text '(checkpoint mode allows staged artifacts)'"]
+    },
+    {
+      "skill": "lev",
+      "source_ownership": "tracked in ~/.agents (skills/lev/SKILL.md), not generated (no generator key; no other copy in skills-db)",
+      "change": "One help-unsafe definition in Runtime First Move (today `lev validate`; read usage from `lev --help` and the handler; stop and record any --help call that runs work). Help-first stays the default. Pointers added at the mandatory sentence, dogfood help step, chaining help step, surfaces table and known-gaps list. Stale doctor claim fixed.",
+      "commit": "da038973586ef43fa77aa8f4a446ab83c82b0408",
+      "source_evidence": ["leviathan HEAD bd510c794a core/poly/src/surfaces/cli/execute.ts:277-278", "core/validator/src/handlers/validate.ts:13-20", "core/build/src/handlers/doctor.ts:979,1025-1026"]
+    },
+    {
+      "skill": "sitrep",
+      "source_ownership": "tracked in ~/.agents (skills/sitrep/SKILL.md), not generated",
+      "change": "Inline shortcut section now hands a typed shortcut to its owner skill://lev after the read-only view; the owner resolves flow://lifecycle/<emote>, runs it under its contract, reports a missing flow, and emits the trigger. Menu shortcuts are suggestions.",
+      "commit": "69163ea6243868e3c3b729b90c4a81d1098dfe72"
+    }
+  ],
+  "dropped_or_stale_findings": [
+    {"skill": "lev", "finding": "SKILL.md:334 '`$LEV doctor --help` currently runs doctor' (Nov 9 audit L244-245 cited it)", "evidence": "doctor.ts parses --help first and returns help (lines 979, 1025-1026); line corrected"},
+    {"skill": "lev", "finding": "Nov 9 line numbers (L241, L265, L294-295)", "evidence": "file grew from 484 to 523 lines; current sites were 280, 304, 333-334, 361, 390, 472"},
+    {"skill": "codex-autoresearch", "finding": "Nov 9 candidates on unlimited default, 1% cutoff, reread rituals", "evidence": "still present but outside the authorized scope (relay: no budget or metric redesign); not dropped as stale, deferred"},
+    {"skill": "sitrep", "finding": "trace/ (lines 15, 47) vs triggers/ (line 191)", "evidence": "still present; both dirs exist in live Leviathan workstreams (lifecycle-engine/trace, trust-rail-first/triggers); outside the authorized scope, not repaired"},
+    {"skill": "sitrep", "finding": "theater check needs schema evidence (Nov 9)", "evidence": "outside the authorized scope; not examined"}
+  ],
+  "checks": {
+    "command_live_and_planted": "python3 -I ~/.agents/.lev/pm/reports/20261119-three-skill-repair/check_repairs.py --all --plant",
+    "command_baseline": "python3 -I ~/.agents/.lev/pm/reports/20261119-three-skill-repair/check_repairs.py --all --baseline /tmp/three-skill-repair/baseline",
+    "baseline_snapshot": "/tmp/three-skill-repair/baseline (scratch, not committed; digests in runs/baseline.sha256)",
+    "evaluator_generations": [
+      {"gen": 1, "result": "baseline red on all four checks; live green; planted P1, P2, P5 caught; P3 and P4 escaped", "output": "runs/baseline-gen1.json, runs/live-and-planted-gen1.json"},
+      {"gen": 2, "change": "help step must carry the pointer on its own line; definition must name `lev validate` as a command, not match a path", "result": "baseline red on all four (16, 4, 11, 5 failures); live green; P1-P5 all caught; restored live green", "output": "runs/baseline-gen2.json, runs/live-and-planted-gen2.json"}
+    ],
+    "fixture": "C1.codex_fixture runs the protocol's Phase 5 block in a disposable git repo with a local bare remote and global/system git config disabled. Baseline pushed ['notes.txt', 'other-run/output.json', 'research-results.tsv', 'src/parser.py']; repaired block pushed ['src/parser.py'] and left the rest dirty.",
+    "package_tests": {
+      "command": "cd ~/.codex/skills/codex-autoresearch && python3 -m pytest -q -p no:cacheprovider tests",
+      "result": "142 passed, 2 failed (310 s)",
+      "failures_pre_existing": "test_exec_state::test_exec_init_run_blocks_dirty_worktree_before_launch and test_parallel_and_retention::test_parallel_batch_blocks_on_unexpected_worktree_changes fail identically on a scratch copy with the six baseline files restored; they expect a dirty tree to block while autoresearch_commit_gate.py only warns. Not caused by this repair; not fixed (outside scope)."
+    }
+  },
+  "qualification": {
+    "codex-autoresearch": {"structural": "pass", "behavioral": "pending (S1, S2 not run); command-level fixture pass", "integration": "pending"},
+    "lev": {"structural": "pass", "behavioral": "pending (S3, S4 not run)", "integration": "pending"},
+    "sitrep": {"structural": "pass", "behavioral": "pending (S5, S6 not run)", "integration": "pending"}
+  },
+  "limits": [
+    "Structural checks read instruction text; they do not show what a model does with it.",
+    "No help-unsafe lev command was run; help safety comes from handler source.",
+    "Model behavioral trials (scenarios.json) need bounded fresh agents; the parent did not authorize child agents for this worker.",
+    "The codex-autoresearch repair can be overwritten by jsm or a reinstall; the agents commit does not contain the package."
+  ],
+  "entity_reconciliation": [
+    {"ref": "ops workstream skills-runtime", "locator": "~/ops/.lev/pm/workstreams/skills-runtime/state/workstream.yaml", "status": "no_change(its scope is the interview loop and lists git commits as out of scope; parent decides whether to bind this work there)"},
+    {"ref": "Leviathan workstream context-engineering", "locator": "~/digital/leviathan/.lev/pm/workstreams/context-engineering", "status": "no_change(Lev product records are outside this worker's write scope; parent links this report)"}
+  ],
+  "preserved_unrelated_dirt": "untracked skills-db/workflow/performance-goal/, skills/company-builder, skills/performance-goal/ untouched; skills/tools/SKILL.md, skills/tools/references/slack/SKILL.md and slack-mcporter were already clean at first status (in HEAD adadee78)"
+}

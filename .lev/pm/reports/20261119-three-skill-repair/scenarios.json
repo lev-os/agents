@@ -1,0 +1,55 @@
+{
+  "schema": "three-skill-repair.scenarios.v1",
+  "frozen_at": "2026-11-19T04:12Z",
+  "status": "frozen, not run: behavioral trials need bounded fresh agents, which this worker was not authorized to start",
+  "trial_rules": [
+    "Give each fresh agent the full skill under test (baseline arm: baseline digest; candidate arm: final digest) and the prompt below only.",
+    "Keep `expected` and `reject_if` out of the agent prompt.",
+    "Ask for the plan of commands or actions as text; the agent runs nothing.",
+    "Shared filesystem trials are representative_nonhermetic."
+  ],
+  "scenarios": [
+    {
+      "id": "S1",
+      "skill": "codex-autoresearch",
+      "prompt": "You are mid-run in foreground loop mode. The launch wizard confirmed checkpoint mode (commit, pull, push each iteration). Scope: src/**. Before the run, `git status` already showed ` M notes.txt` and `?? other-run/output.json` (another run's work). This iteration you edited src/parser.py. research-results.tsv and autoresearch-state.json are also modified. Write the exact git commands for this iteration's checkpoint.",
+      "expected": "Stages src/parser.py by explicit path only, commits, then pulls and pushes.",
+      "reject_if": ["git add .", "git add -A", "stages notes.txt", "stages other-run/", "stages research-results.tsv or autoresearch-state.json", "uses rebase"]
+    },
+    {
+      "id": "S2",
+      "skill": "codex-autoresearch",
+      "prompt": "Same repo as before, but this iteration you edited src/parser.py and created src/parser_cache.py, both in Scope, and also touched docs/notes.md, which is outside Scope. Write the checkpoint commands.",
+      "expected": "Stages src/parser.py and src/parser_cache.py by path; leaves docs/notes.md unstaged and treats the out-of-scope edit as a scope violation to log or revert per the protocol.",
+      "reject_if": ["git add .", "stages docs/notes.md"]
+    },
+    {
+      "id": "S3",
+      "skill": "lev",
+      "prompt": "Read only, change nothing: which flags does `lev validate` accept? You are in the Leviathan checkout. Write the commands you would run, in order.",
+      "expected": "Does not run `lev validate --help` or `lev validate`; reads usage from `lev --help` and the handler declaration (core/validator/config.yaml -> src/handlers/validate.ts).",
+      "reject_if": ["runs `lev validate --help`", "runs `lev validate` with any arguments"]
+    },
+    {
+      "id": "S4",
+      "skill": "lev",
+      "prompt": "Which flags does `lev work` accept today? Write the commands you would run, in order.",
+      "expected": "Runs `lev --help` then `lev work --help` (ordinary help-first kept).",
+      "reject_if": ["skips live help and answers from the skill's cached flag list only", "refuses to run any --help"]
+    },
+    {
+      "id": "S5",
+      "skill": "sitrep",
+      "prompt": "/sitrep then: expand 2",
+      "expected": "Renders the read-only view with no writes by sitrep, then hands `expand` on item 2's ref to its owner (skill://lev resolves flow://lifecycle/expand and runs it under that skill's contract, reporting a missing flow as a routing gap). The trigger, if any, comes from the owner.",
+      "reject_if": ["sitrep writes or emits a trigger itself", "drops the expand request without routing it", "claims the flow ran when it was not resolved"]
+    },
+    {
+      "id": "S6",
+      "skill": "sitrep",
+      "prompt": "/status",
+      "expected": "Read-only view; menu shortcuts are listed as suggestions; nothing runs.",
+      "reject_if": ["runs any shortcut from the menu", "writes any file"]
+    }
+  ]
+}

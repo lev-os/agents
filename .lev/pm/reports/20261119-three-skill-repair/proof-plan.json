@@ -1,0 +1,125 @@
+{
+  "schema": "three-skill-repair.proof-plan.v1",
+  "frozen_at": "2026-11-19T04:10Z",
+  "frozen_before_edits": true,
+  "host": "Mac-Studio.local",
+  "agents_head_at_freeze": "adadee784b3a4594f54b5ed19b8f61bd4f6d513d",
+  "authority": {
+    "jp_words_verbatim_as_relayed": [
+      "context skills review what are we reviewing?",
+      "32- yea do it"
+    ],
+    "jp_words_provenance": "Quoted to this worker by the parent chat's relay. This worker did not read JP's own message, so the quotes are relayed, not verified at source.",
+    "relay_interpretation_not_jp_words": "The recommendation JP accepted was: recheck, then repair these three skills only (codex-autoresearch, lev, sitrep). No skill-discovery, writing, CDO or other candidate fixes.",
+    "scope_limits_from_relay": [
+      "codex-autoresearch: owned-path staging and committing under existing authorization only; no budget or metric redesign",
+      "lev: a safe-discovery exception that covers every operative help path and keeps ordinary help use",
+      "sitrep: status stays read-only; a separately authorized action goes to its owner and is not discarded"
+    ]
+  },
+  "baseline_digests_sha256": {
+    "codex-autoresearch/SKILL.md": "a9e9db3cda8a75c240435fb0ef38c935dd72b45a49868cbc20b41a2249f7b9c1",
+    "codex-autoresearch/references/autonomous-loop-protocol.md": "f4dbaeaa7e513a15d6c6c47582542ba70af9fa7504afb82d4f3f8344a817096b",
+    "codex-autoresearch/references/core-principles.md": "a7f472e2b2c13b7cc42ae4345d73cd3566559e78913fdb10c3713b19f1de905c",
+    "codex-autoresearch/references/interaction-wizard.md": "a86ad03dfb25f634f9a3a21ef7b232c139b5d903b619c0f2d5fb3d5bb80c1c99",
+    "codex-autoresearch/references/loop-workflow.md": "0f8d5c815fee150c80bd10b5751ced4ebaaf65e85af6b1d9b65bd8f765577034",
+    "codex-autoresearch/scripts/autoresearch_resume_prompt.py": "2d2a7498745a51b99804e3ac17e6c94babb4c901a2c303115aefc67179f0562e",
+    "skills/lev/SKILL.md": "37a5129fde0d3de255a839ec558148fa26ed45fe1a1cc07ee9e1dd592fe86cb0",
+    "skills/sitrep/SKILL.md": "71f478399375b9cbefacacb7f8b003eea02ca228db724c9dd9130491c8f3f923"
+  },
+  "baseline_fault_evidence": {
+    "codex-autoresearch": {
+      "observed_lines": [
+        "SKILL.md:90 'In checkpoint mode the default git sequence is `git add .`, `git commit`, `git pull`, `git push`.'",
+        "SKILL.md:140 'checkpoint forward with `git add .`, `git commit`, `git pull`, `git push`,'",
+        "references/loop-workflow.md:24 'Checkpoint the current tree with `git add .` ...'",
+        "references/autonomous-loop-protocol.md:250-253 code block 'git add .'; :258 'checkpoint the whole current tree unless the user explicitly asked for narrower staging'; :259 'staged autoresearch artifacts are acceptable in checkpoint mode'",
+        "references/autonomous-loop-protocol.md:138 says autoresearch-owned artifacts 'must never be staged in experiment commits' (contradicts :259 and :353)",
+        "references/results-logging.md:154 says leave the log, state and lessons unstaged (contradicts :259 and :353)",
+        "references/autonomous-loop-protocol.md:353 'may still commit it as part of `git add .`'",
+        "references/core-principles.md:52 '(`git add .`, `git commit`, `git pull`, `git push`)'",
+        "references/interaction-wizard.md:174 'always `git add .`, commit, pull, push after each iteration?'",
+        "scripts/autoresearch_resume_prompt.py:104 background prompt text 'Before any `git add .`, ...'"
+      ],
+      "consequence": "In a dirty shared checkout (which SKILL.md:89 and :137-139 say is normal), `git add .` commits and pushes files the run did not write, including other runs' work and its own artifacts.",
+      "fixture_demo": "check_repairs.py codex fixture executes the protocol's Phase 5 block in a disposable git repo with unrelated dirt"
+    },
+    "lev": {
+      "observed_lines": [
+        "SKILL.md:280 'Run help before using a surface: `lev --help`, then `lev <command> --help`.' (unconditional)",
+        "SKILL.md:304 'Help-first is mandatory for CLI operations.'",
+        "SKILL.md:361 Dogfood step help: 'Run `$LEV <surface> --help`.'",
+        "SKILL.md:390 Command chaining step 1: 'Help: `$LEV <command> --help`'",
+        "SKILL.md:333 and :472 say `$LEV validate --help` runs validation against cwd; :334 says `$LEV doctor --help` currently runs doctor"
+      ],
+      "source_evidence": [
+        "~/digital/leviathan core/poly/src/surfaces/cli/execute.ts:277-278 'a legacy handler that gets --help runs with no call open' (HEAD bd510c794a)",
+        "core/validator/src/handlers/validate.ts:13-20 reads --json/--meta/--all/--contract/--phase, never --help, and validates process.cwd() by default",
+        "core/build/src/handlers/doctor.ts:979 and :1025-1026 parse --help first and return help without running checks: the doctor claim at SKILL.md:334 is stale"
+      ],
+      "consequence": "Following the unconditional help step on `validate` runs the validator chain (with its verification-command port) during discovery, including in read-only work."
+    },
+    "sitrep": {
+      "observed_lines": [
+        "SKILL.md:13 'Never mutates.'",
+        "SKILL.md:139 'Projection only. /sitrep never writes, never commits, never pushes.'",
+        "SKILL.md:125-133 'fire expand://...' and 'Inline emotes run a flow (flow://lifecycle/<emote>) ... They emit a trigger each.'"
+      ],
+      "consequence": "The read-only status skill is told both never to write and to run flows that emit triggers."
+    }
+  },
+  "acceptance_claims": [
+    {
+      "id": "C1",
+      "skill": "codex-autoresearch",
+      "must_hold": "Every operative checkpoint instruction stages only the paths the current iteration wrote inside Scope, by explicit path, and leaves pre-existing dirt, other runs' changes and autoresearch-owned artifacts unstaged. Pull and push stay part of checkpoint mode as confirmed in the launch wizard.",
+      "must_never": "No operative instruction stages the whole tree (`git add .`, `git add -A`, 'whole current tree') or allows staged autoresearch artifacts.",
+      "proof": [
+        "structural: check_repairs.py codex static scan over the six operative files",
+        "program: check_repairs.py codex fixture runs the instructed Phase 5 block in a disposable git repo with a local bare remote; the pushed commit must contain only the iteration's file"
+      ],
+      "state_targets": {"structural": "pass expected", "behavioral_model": "pending (frozen scenarios S1-S2, not run)", "integration": "pending"}
+    },
+    {
+      "id": "C2",
+      "skill": "lev",
+      "must_hold": "Help-first stays the default (`lev <command> --help`), and one definition of help-unsafe commands names `validate`, says how to read usage without running it, and says what to do when --help runs work. Every operative generic help step points to that exception.",
+      "must_never": "No operative step runs `<command> --help` unconditionally; no line claims `doctor --help` runs doctor.",
+      "proof": ["structural: check_repairs.py lev scan"],
+      "state_targets": {"structural": "pass expected", "behavioral_model": "pending (frozen scenarios S3-S4, not run)", "integration": "pending"}
+    },
+    {
+      "id": "C3",
+      "skill": "sitrep",
+      "must_hold": "sitrep stays read-only, and a shortcut the user types is handed to its owner (skill://lev resolving flow://lifecycle/<emote>) after the view, not dropped.",
+      "must_never": "No sitrep instruction makes sitrep itself fire a flow or emit a trigger.",
+      "proof": ["structural: check_repairs.py sitrep scan"],
+      "state_targets": {"structural": "pass expected", "behavioral_model": "pending (frozen scenarios S5-S6, not run)", "integration": "pending"}
+    },
+    {
+      "id": "C4",
+      "skill": "all three",
+      "must_hold": "Fresh agents given the frozen scenario packets choose the expected actions.",
+      "proof": ["behavioral: scenarios.json, needs bounded fresh agents; this worker is not authorized to start child agents"],
+      "state_targets": {"behavioral_model": "pending"}
+    }
+  ],
+  "planted_faults": [
+    {"id": "P1", "claim": "C1", "mutation": "protocol Phase 5 block staging line back to `git add .`", "expected": "fixture fails: unrelated files committed"},
+    {"id": "P2", "claim": "C1", "mutation": "SKILL.md checkpoint rule back to `git add .`", "expected": "static scan fails"},
+    {"id": "P3", "claim": "C2", "mutation": "Dogfood help step loses its help-unsafe pointer", "expected": "lev scan fails"},
+    {"id": "P4", "claim": "C2", "mutation": "`validate` removed from the help-unsafe definition", "expected": "lev scan fails"},
+    {"id": "P5", "claim": "C3", "mutation": "reinsert 'Inline emotes run a flow ... They emit a trigger each.'", "expected": "sitrep scan fails"}
+  ],
+  "owner_rerun_at_final_commit": [
+    "python3 -I ~/.agents/.lev/pm/reports/20261119-three-skill-repair/check_repairs.py --all",
+    "python3 -I ~/.agents/.lev/pm/reports/20261119-three-skill-repair/check_repairs.py --plant",
+    "python3 -I ~/.agents/.lev/pm/reports/20261119-three-skill-repair/check_repairs.py --all --baseline /tmp/three-skill-repair/baseline  (expect red; baseline copies are scratch, not committed)",
+    "cd ~/.codex/skills/codex-autoresearch && python3 -m pytest -q -p no:cacheprovider tests (resume prompt text change)"
+  ],
+  "limits": [
+    "Structural checks read instruction text; they do not show model behavior.",
+    "No help-unsafe lev command was run; evidence is handler source.",
+    "codex-autoresearch target is outside git; the agents commit holds a patch and digests, not the package."
+  ]
+}
