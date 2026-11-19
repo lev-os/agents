@@ -226,7 +226,7 @@ do not make another skill depend on reading them at runtime.
 | Template | Destination | Owner |
 |---|---|---|
 | `templates/report.md` | `.lev/pm/reports/` | `/prior-art`, `/capture` |
-| `templates/plan.md` | `.lev/pm/plans/` | `/lev-plan` |
+| the plan form (`../lev-plan/references/plan-form.md`, a YAML record; no template file) | `.lev/pm/plans/` | `/lev-plan` |
 | `templates/design.md` | `.lev/pm/designs/` | `/interview`, `/lev-plan` |
 | `templates/proposal.md` | `.lev/pm/proposals/` | `/lev-plan` |
 | `templates/spec.md` | `.lev/pm/specs/` | `/lev-plan` |

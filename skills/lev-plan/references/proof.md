@@ -31,17 +31,17 @@ Write it in three passes:
    program, agent, or person (below). When nothing can show it, sharpen the
    sentence until something can, or route the open question to `/interview`.
 
-The plan holds one row for each claim in the Claims and Proof table of the
-[plan template](../../work/templates/plan.md): its sentence, its slice, the
+The plan holds one row for each claim in the `claims` list of the
+[plan form](plan-form.md): its sentence, its slice, the
 failure it rules out, its proof (program, agent, or person, at the smallest
 relevant level: local, integration, field, or external owner), its guard, and
 its source. The guard of a program claim is its known-bad control and its
 check owner. Any claim may also name what looks like proof and is not; at Emit
 that text becomes the row's `invalid_proof`.
 
-**One list.** In a plan file the Claims and Proof table is the claim list.
-The frontmatter's `steps[].validation` and `acceptance_criteria` name the same
-claims and add none; in an older plan that has no table, they and a task's
+**One list.** In a plan file the `claims` list is the claim list. In an
+older plan that has no such list, its frontmatter's `steps[].validation` and
+`acceptance_criteria` and a task's
 `claim_verifier_map` are the claim source. At Emit the claims become the
 task's `requirements:` rows, each with its `source_ref` and its proof,
 preserving stable claim references and keeping dependencies, scope and stop

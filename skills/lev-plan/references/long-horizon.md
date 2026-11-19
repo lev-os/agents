@@ -32,8 +32,8 @@ A run that needs none of these loads nothing from this file.
 
 ## Long-Run Blocks
 
-Append only the blocks the run needs to the plan. Render the Markdown; do not
-print the tags.
+Add only the blocks the run needs to the plan, under its `long_run` key, one
+key for each block. In a reply, render the Markdown; do not print the tags.
 
 <long-run-blocks>
 ### Worker Contracts (any delegated slice)

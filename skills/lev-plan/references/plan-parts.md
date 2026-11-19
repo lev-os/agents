@@ -14,7 +14,7 @@ are in [`../SKILL.md`](../SKILL.md); this file adds no step. Slices are in
 - [Review and Repair](#review-and-repair): the reviewer, blocking findings, recalls, run budget, auto-enrich
 - [Return and Resume](#return-and-resume): the return gate, the stops that win, the frontier
 - [Readiness](#readiness): dimensions, verdicts, blocker classes
-- [Plan Template](#plan-template): where the one plan form is
+- [Plan Form](#plan-form): where the one plan form is
 
 ## The eight parts
 
@@ -29,8 +29,8 @@ are in [`../SKILL.md`](../SKILL.md); this file adds no step. Slices are in
 | 7 | Return and resume | Return gate, stops, frontier, the next lifecycle route | [Return and Resume](#return-and-resume) |
 | 8 | Risk and rollback | Risks, pre-mortem where required, mitigation, detection, residual risk, rollback, architecture review triggers | the `design_failure_and_rollback` step of [`../SKILL.md`](../SKILL.md) |
 
-Adapt headings to the domain. A plan is not complete merely because required
-headings exist.
+The eight keys are fixed; adapt what each part says to the domain. A plan is
+not complete merely because the eight keys exist.
 
 Deep evidence targets, borrowed from demonstrated planning practice:
 
@@ -130,8 +130,8 @@ fidelity = 0.30*detail_preservation
          + 0.10*actionability
 ```
 
-The plan must contain the Source Context and Fidelity table of the
-[plan template](../../work/templates/plan.md), with one row for every material
+The plan must contain the `source.rows` list of the
+[plan form](plan-form.md), with one row for every material
 capture/design row: a goal, constraint, non-goal, decision boundary,
 acceptance, or relationship. Each row names its source ref, its destination
 (section, slice, decision, or deferment), its claim id or `pending`, a
@@ -356,9 +356,9 @@ Do not average weak dimensions into a passing score. Rejudge after every plan
 or task rewrite. A green schema check, `lev entity task validate`, or existing verifier
 is not semantic approval.
 
-## Plan Template
+## Plan Form
 
-The one plan form is the [plan template](../../work/templates/plan.md): its
-frontmatter ([Lifecycle](lifecycle.md)) and one section for each part. Read it
+The one plan form is the [plan form](plan-form.md): a YAML record with one
+key for each part, declared by the plan record type. Read it
 before you write or patch a plan, and before you render a plan in the response
 when no write is authorized.

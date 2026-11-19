@@ -23,7 +23,8 @@ and rollback. Depth sets how much each part holds, never which parts exist. A
 schema-valid shallow plan is still a failed plan. The workflow does not
 implement, dispatch, or pre-create a backlog of task folders.
 
-Plans, maps, reviews, and specs are Markdown for humans. The task packet keeps
+A plan is a YAML record in the [plan form](references/plan-form.md), checked by `lev entity plan validate`. Maps,
+reviews, and specs are Markdown for humans. The task packet keeps
 its established YAML payloads, and runtime state stays in the JSON its runtime
 owns.
 
@@ -43,12 +44,12 @@ Read each file when its condition holds, before the step that needs it.
 | File | Read when |
 |---|---|
 | [Plan parts](references/plan-parts.md) | Every mode except Lifecycle, before `bind_source`. It holds the transition packet, the source fidelity rules, the eight parts, depth, and readiness |
-| [Plan template](../work/templates/plan.md) | Before `write_or_patch`, before a plan is rendered in the response, and when a Review reads a plan file: it is the one plan form |
+| [Plan form](references/plan-form.md) | Before `write_or_patch`, before a plan is rendered in the response, and when a Review reads a plan file: it is the one plan form, a YAML record |
 | [Slices](references/slices.md) | Compile, Deepen, Map, and Emit, before `build_topology`, `map_slices`, or `emit_slice`; and every Review, before `judge_readiness` |
 | [Proof](references/proof.md) | Before `design_proof`, `prove_requirements`, or `judge_readiness`, and whenever a claim, a check, or TDD is in question |
 | [Long-horizon planning](references/long-horizon.md) | Any one holds: the run is long (multi-session or autonomous); a slice goes to a worker; two or more approach families are open; result independence matters; the question may have no solution; the user authorizes delivery through `skill://orch` |
 | [Execution Packet](references/execution-packet.md) | Emit mode, a packet preview, or the review or repair of an existing task packet |
-| [Lifecycle](references/lifecycle.md) | Lifecycle mode, or a write of plan frontmatter |
+| [Lifecycle](references/lifecycle.md) | Lifecycle mode, or a move of a plan to another state |
 | [Notice](references/notice.md) | You copy or publish the adapted long-horizon material |
 
 ## Entity Reconciliation
@@ -67,7 +68,7 @@ or evidence changed; do not rewrite every referenced document.
 ## Work Link
 
 Lifecycle lane: Plan
-Entity movement: `captured | designed | draft_plan -> planned | needs_interview | needs_review`, then `planned | aligned -> proposed | execution_ready | needs_interview | needs_plan`
+Route words (the result this skill reports, never a value of a plan's `status`; a plan's states are in Lifecycle): `captured | designed | draft_plan -> planned | needs_interview | needs_review`, then `planned | aligned -> proposed | execution_ready | needs_interview | needs_plan`
 Workstream: resolve the active workstream before plan writes, and the workstream that owns the slice (the `ws` skill) before task writes; the task folder goes under it
 Upstream: `/capture`, `/interview`, `/prior-art`, `.lev/pm/designs/*`, existing plan under `.lev/pm/plans/*`, aligned simple-slice intent
 Downstream: `/auto-enrich`, `/exec` for a ready SDLC packet, `/exec` or domain skill for non-coding, `skill://poc`, `/interview`, `/capture`, `/lev`
@@ -138,7 +139,7 @@ steps:
     on_failure: "Route conversation-only work to /capture; unresolved product or architecture framing to /interview. Do not draft around missing intent."
 
   - id: select_mode
-    action: Apply Which Stage, then select compile, deepen, review, lifecycle, map, or emit from the command. A lifecycle request performs only its FSM operation and then route_forward; one that moves a plan to ready or done runs judge_readiness first.
+    action: Apply Which Stage, then select compile, deepen, review, lifecycle, map, or emit from the command. A lifecycle request performs only its one move and then route_forward; one that moves a plan to `crystallized` or `completed` runs judge_readiness first.
     validation: "Exactly one mode is selected; broad work has a plan source before map or emit; a direct bounded slice records plan_not_required with its rationale."
     on_failure: "Default to review without writing."
 
@@ -200,8 +201,8 @@ steps:
 
   - id: write_or_patch
     when: mode is compile or deepen
-    action: Write one plan under .lev/pm/plans/ only inside authorized scope, from the plan template, preserving unrelated plan history and current dirty work.
-    validation: "Exactly one plan is created or updated; source refs and fidelity table are durable. The plan stays unreviewed and uncommitted until judge_readiness is done."
+    action: Write one plan under .lev/pm/plans/ only inside authorized scope, as `{id}.yaml` in the plan form (an older plan keeps its own form), preserving unrelated plan history and current dirty work. Then run `lev entity plan validate {id} --json`.
+    validation: "Exactly one plan is created or updated; source refs and the source rows are durable. The validate command exits 0 with no failed row, or the reply says could not check and why. The plan stays unreviewed and uncommitted until judge_readiness is done."
 
   - id: judge_readiness
     action: Run deterministic structure/ref checks, then the semantic weak-link review - score the readiness dimensions, classify blockers, and issue the verdict. Then load the `review` skill by its name (the Skill tool with `review`; a host with no Skill tool opens ~/.agents/skills/review/SKILL.md); name in its arguments the plan or slice, lens zoom_out, the attacker stance (its fresh reader attacks the success sentence) at standard or deep depth and for every long, delegated, or parallel run, and lev-plan as the caller. Patch each result the plan would wrongly accept with a Does Not Count line or a check, and repeat the attack on the patched text. Put its chat line (the review skill's Report section) under the verdict as advice, and in the Review and Repair section of a plan that is written; it never changes the verdict, and a blocker from it becomes a blocking condition only when it meets the blocking rule of Review and Repair (Plan parts). When review routed you here, skip this load and use the stance and lenses it gave. When review already ran on the same plan or slice in this work and it has not changed since, cite that run's report file instead of a second run. Use /auto-enrich for explicit or deep/high-risk plan hardening when available.
@@ -257,7 +258,7 @@ Render the Markdown inside live templates; do not print the XML wrapper tags.
 Plan modes render `<plan-review>`, a slice review renders `<proposal-review>`,
 Map renders `<slice-map>` from [Slices](references/slices.md#slice-map), and
 Emit renders `<final-proposal>` from the packet reference. The plan itself is
-written from the [plan template](../work/templates/plan.md).
+written in the [plan form](references/plan-form.md).
 
 <plan-review>
 ## Plan: {slug}
@@ -308,7 +309,7 @@ directly. Planning approval is not execution authority.
 
 ## Red Flags
 
-- "The frontmatter validates, so the plan is ready."
+- "The plan validates, so the plan is ready."
 - "The conversation was long; the plan can summarize aggressively."
 - "The task list preserves the roadmap."
 - "The first slice is clear, so other source requirements can stay in chat."

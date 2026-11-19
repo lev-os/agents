@@ -1,7 +1,6 @@
 # Plan Lifecycle
 
-For `lev-plan` Lifecycle mode and for any write of plan frontmatter: the plan
-types, the frontmatter keys, the states, and the commands.
+For `lev-plan` Lifecycle mode and for any write of a plan's `status`: the plan types, the states, and the commands.
 
 ## Plan Types and Files
 
@@ -13,37 +12,30 @@ types, the frontmatter keys, the states, and the commands.
 | `plan-research` | `plan-research-*` | Investigation with knowledge output |
 | `plan-migration` | `plan-migration-*` | Transition between well-defined system shapes |
 
-The frontmatter keys and their example values are in the
-[plan template](../../work/templates/plan.md), between the `---` lines at the
-top of the plan file. Required frontmatter remains backward-compatible: `type`,
-`status`, `priority`, `slug`, `created_at`, `done_condition`, `steps` (each
-with a claim-shaped `description` and a `validation` that can prove it),
-`acceptance_criteria` and `gates`. New or materially updated standard/deep
-plans should also include `plan_depth`, `source_refs`, `fidelity_score`,
-`review_state`, `first_slice` and `open_decisions`.
+The type goes in the record's `plan_type` key. The record's keys are in the [plan form](plan-form.md).
 
-## Lifecycle FSM
+## Lifecycle States
+
+The plan record type declares the states and the moves; this list shows them, and the declaration wins. A plan's
+`status` is one of the seven stages of work and nothing else (JP 2026-11-01, the status words cutover).
 
 ```text
-draft -> ready -> in_progress -> needs_validation -> validated -> done -> archived
-                         |              |
-                         +-> blocked    +-> ready on failed validation
+ephemeral -> captured -> crystallizing -> crystallized -> manifesting -> completed
+                 |             |               |              |
+                 +-------------+---------------+--------------+-> discarded
 ```
 
-Transitions:
+| Event | Move | When |
+|---|---|---|
+| `captured` | ephemeral -> captured | the plan record exists |
+| `shaped` | captured -> crystallizing | the plan is being written or deepened |
+| `crystallized` | crystallizing -> crystallized | source fidelity and readiness pass; a first slice exists |
+| `started` | crystallized -> manifesting | an executor takes the plan, or an emitted task names it |
+| `completed` | manifesting -> completed | every claim is satisfied by its proof |
+| `discarded` | captured, crystallizing, crystallized or manifesting -> discarded | the plan is dropped; a plan dropped for another names it in `superseded_by` |
 
-- `draft -> ready`: source fidelity and semantic readiness pass; first slice exists.
-- `ready -> in_progress`: an executor claims the plan or an emitted task references it.
-- `in_progress -> needs_validation`: implementation is complete, not merely attempted.
-- `needs_validation -> validated`: fitness functions and acceptance pass.
-- `validated -> done`: move to `_done/` when no remaining plan work exists.
-- `in_progress -> blocked`: concrete code/decision dependency prevents progress.
-- `done -> archived`: historical reference only.
-
-The plan template's `status` word and this state list differ, and real
-plans use both. Which list wins is not settled (Leviathan debt row M1131): keep
-the word the plan file already uses, and for a new plan take the word that
-`lev entity plan validate` accepts.
+Why a plan waits (blocked, needs validation) is not a state: say it in `return_and_resume`. An older plan may hold
+another word (draft, ready, in_progress, done); keep it until the plan moves to the plan form.
 
 ## Operations
 
@@ -52,13 +44,12 @@ lev entity plan list         # the plans of the project
 lev entity plan show         # one plan's state
 lev entity plan validate     # structure and state checks
 lev entity plan history      # past transitions
-lev entity plan transition   # move a plan along the FSM
+lev entity plan transition   # move a plan by one event: lev entity plan transition {id} {event}
 # each verb's --help names its arguments
 bd show <bd_id>
 bd create --title="Implement feature X" --type=task -p 2
 bd close <bd_id> --reason "completed per plan"
 ```
 
-Update `status` in frontmatter for transitions. On validated completion, move the
-plan to `.lev/pm/plans/_done/`. Do not create a second plan to represent a state
+Move a plan with `lev entity plan transition`; do not edit `status` by hand in a plan that states the plan form. Do not create a second plan to represent a state
 transition.

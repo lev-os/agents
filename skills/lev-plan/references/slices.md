@@ -35,9 +35,8 @@ packet.
 
 ## The slice record
 
-The plan holds one row for each slice with the fields above, in the
-Dependency and Slice DAG table of the
-[plan template](../../work/templates/plan.md); that table is the one slice
+The plan holds one row for each slice with the fields above, in the `slices`
+list of the [plan form](plan-form.md); that list is the one slice
 record. What a slice's checks rule out, and each known-bad input, are in the
 plan's claim rows ([Proof](proof.md)). The Slice Map below is a compact
 projection of the same record for a reader who needs only the route.
@@ -74,6 +73,9 @@ spec format. A spec cites requirement rows by id; the rows stay in the task's
 `dna.yaml`.
 
 ## Slice Map
+
+The map is a view for a reader and has its own key names: `operator_outcome` is the slice's `outcome`, and
+`covers_intent_ids` is its `intent_ids`. In the plan's `slices` list use the keys of the [plan form](plan-form.md).
 
 ```yaml
 slices:
