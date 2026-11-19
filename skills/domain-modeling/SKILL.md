@@ -6,9 +6,10 @@ disable-model-invocation: true
 
 # Domain Modeling
 
-Reference-only source. `skill://interview` owns current domain-language and ADR
-work; do not activate this duplicate unless the user explicitly requests the
-historical Pocock workflow.
+Reference-only source. `skill://idea` models the domain while it shapes an idea
+(its references/fundamentals.md); `skill://interview` owns domain-language and ADR
+writing during software design. Do not activate this duplicate unless the user
+explicitly requests the historical Pocock workflow.
 
 Actively build and sharpen the project's domain model as you design. This is the *active* discipline — challenging terms, inventing edge-case scenarios, and writing the glossary and decisions down the moment they crystallise. (Merely *reading* `CONTEXT.md` for vocabulary is not this skill — that's a one-line habit any skill can do. This skill is for when you're changing the model, not just consuming it.)
 

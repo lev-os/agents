@@ -167,7 +167,7 @@ failing patterns get mutated or retired.
 
 | Skill | Relationship |
 |-------|-------------|
-| `/work` | Lifecycle router — calls flowmind-author for flow-related work |
+| `/work` | Lifecycle router; it has no route to flowmind-author today, so flow work reaches this skill by its own trigger |
 | `/levloop` | Loop scheduler — flows are the execution unit per tick |
 | `/dump` → `/capture` | Capture pipeline — proposed flows should pass audit before filing |
 | `/lev-builder` | POC→core placement — uses promotion ladder |
