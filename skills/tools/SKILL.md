@@ -16,9 +16,8 @@ instructions only; existing leaves keep their operations.
 | Atlassian connection, Teamwork Graph / TWG, Rovo / Robo, Jira and Confluence | [Teamwork Graph](references/twg/SKILL.md) | Host `twg`; [setup and login](references/twg/INSTALL.md) |
 | GitHub repositories, issues, pull requests, Actions, API | [GitHub](references/github/SKILL.md) | Host `gh`; [setup](references/github/INSTALL.md) |
 | Notion pages, databases, API, workers, uploads | [Notion](references/notion/SKILL.md) | Host `ntn`; [setup](references/notion/INSTALL.md) |
-| Slack messages, DMs, threads, canvases, search, send | [Slack through mcporter](references/slack/slack-mcporter.md) | Host `mcporter` 0.17.1+; entry `slack-suntiq` |
-| Slack CLI, teams, apps, authentication, deployment | [Slack CLI branch](references/slack/SKILL.md#cli) | Optional host Slack CLI; [setup](references/slack/INSTALL.md) |
-| Slack methods, OAuth scopes, pagination, rate limits | [Slack API branch](references/slack/SKILL.md#web-api) | HTTP/SDK or host CLI; [setup](references/slack/INSTALL.md) |
+| Slack messages, DMs, threads, canvases, search, send (any agent) | [Slack](references/slack/SKILL.md) | Host `mcporter` 0.17.1+; [entry and sign-in](references/slack/INSTALL.md) |
+| Build a Slack app: Slack CLI, Web API, Block Kit | [Build a Slack app](references/slack/SKILL.md#build-a-slack-app) | Optional host Slack CLI; [setup](references/slack/INSTALL.md#slack-cli-app-development-only) |
 | Explicit Exa search, contents, answers, API | [Exa](references/exa/SKILL.md) | Bundled shell transport; [setup](references/exa/INSTALL.md) |
 | Monid gateway: discover, inspect and run paid data endpoints | [Monid](references/monid/SKILL.md) | Host `monid` (npm `@monid-ai/cli`); [setup](references/monid/INSTALL.md) |
 | RouterGrowth leads, enrichment, SEO SERP, social search, LinkedIn, web scrape | [RouterGrowth](references/routergrowth/SKILL.md) | MCP, REST or host `routergrowth`; [setup](references/routergrowth/INSTALL.md) |
@@ -44,8 +43,8 @@ Rovo Dev coding-agent requests remain distinct from TWG Rovo search.
 Load only the branch selected by the contents table. Paths are relative to
 this file, so nested references remain valid if the skill is installed
 elsewhere. Each integration is a leaf package with `SKILL.md` and `INSTALL.md`;
-old reference paths remain compatibility routes. Slack's CLI and API guides
-share one leaf and retain their existing paths.
+old reference paths remain compatibility routes. Slack is one leaf: the
+mcporter workspace route first, app development guides second.
 
 General research routes to `skill://research`. Explicit Exa transport/API work
 loads the Exa reference and its bundled `scripts/exa.sh`. AgentMail mailbox
