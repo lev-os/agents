@@ -278,13 +278,23 @@ research branch creation or fixed token/session quota is implied.
 ## Runtime First Move
 
 1. Run help before using a surface: `lev --help`, then `lev <command> --help`.
-2. If `lev` is not on `PATH`, run from the Leviathan source tree:
+   This is help-first, the default for every command except a help-unsafe one.
+2. A help-unsafe command is one whose handler takes `--help` as an ordinary
+   argument and runs (the CLI passes `--help` to a legacy handler:
+   `core/poly/src/surfaces/cli/execute.ts`). Observed: today `lev validate`
+   validates cwd (`core/validator/src/handlers/validate.ts`). For a help-unsafe
+   command, read usage from `lev --help` and its handler (path in the owning
+   `core/*/config.yaml` or `plugins/*/config.yaml`), and run the command itself
+   only when the request authorizes its effects. When a `--help` call does more
+   than print help, stop, record it in the diagnostics report and treat that
+   command as help-unsafe from then on.
+3. If `lev` is not on `PATH`, run from the Leviathan source tree:
    `node core/poly/bin/lev --help`.
-3. Some current commands treat `--help` as execution or are discoverable but not
-   runnable. Record that exact behavior instead of assuming the surface works.
-4. If `node core/poly/bin/lev` fails, capture the failure in a diagnostics
+4. Some commands are discoverable but not runnable. Record that exact behavior
+   instead of assuming the surface works.
+5. If `node core/poly/bin/lev` fails, capture the failure in a diagnostics
    report before guessing a fallback.
-5. For lifecycle work, resolve the workstream through `/work` or `lev work`
+6. For lifecycle work, resolve the workstream through `/work` or `lev work`
    before dispatching `lev exec`.
 
 ## URI And Skill Pointers
@@ -301,7 +311,8 @@ Do not conflate the prompt pointer `skill://exec` with the runtime address
 `lev://exec/<flow>`, and do not copy Poly's internal dynamic-import
 `lev://<module-path>` form into prompts or entity records.
 
-Help-first is mandatory for CLI operations. Do not invent flags, aliases, flow names, or receipt
+Help-first is mandatory for CLI operations, with the help-unsafe exception in
+Runtime First Move. Do not invent flags, aliases, flow names, or receipt
 commands from memory.
 
 ## Source Wrapper
@@ -330,8 +341,8 @@ Observed current surfaces:
 | Route workflow stage | `$LEV work --help` |
 | Dispatch agent work | `$LEV exec --help` |
 | Validate task contract | `$LEV entity task --help`, then `$LEV entity task validate <task-id|task-path>` |
-| General validation | `$LEV validate <path>`; note that `$LEV validate --help` currently runs validation against cwd |
-| Runtime health | `$LEV doctor --help` currently runs doctor; `$LEV health --help` is discoverable but root-router unimplemented |
+| General validation | `$LEV validate <path>`; help-unsafe: `$LEV validate --help` currently runs validation against cwd |
+| Runtime health | `$LEV doctor --help` prints help without running checks; `$LEV health --help` is discoverable but root-router unimplemented |
 | FlowMind work | `$LEV flowmind --help`, `$LEV flowmind-debug --help` |
 | Trace/receipt lookup | `$LEV trace --help`, `$LEV receipt --help` |
 | Broken trace aliases | `$LEV exec-trace --help` and `$LEV exec-receipt --help` currently return `UNIMPLEMENTED_COMMAND_SURFACE` |
@@ -358,8 +369,8 @@ not precede a skill-only architecture review, interview, or other routed method.
 ```yaml
 steps:
   - id: help
-    action: Run `$LEV <surface> --help`.
-    validation: "Command exists and flags are copied from live help."
+    action: Run `$LEV <surface> --help`, except for a help-unsafe command (Runtime First Move).
+    validation: "Command exists and flags are copied from live help, or from `lev --help` and the handler for a help-unsafe command."
     on_failure: "Emit diagnostics with command-not-found or help failure."
 
   - id: route
@@ -387,7 +398,7 @@ steps:
 
 Build evidence chains, not opaque one-liners:
 
-1. Help: `$LEV <command> --help`
+1. Help: `$LEV <command> --help`; for a help-unsafe command, `lev --help` and its handler
 2. Preview: `$LEV <command> ... --dry-run` or `--json`
 3. Gate: validator, verifier, or targeted test
 4. Inspect: trace, receipt, status, or event log
@@ -469,7 +480,7 @@ Known root-router gaps from dogfood on 2026-05-09:
 - `$LEV exec-trace --help`: `UNIMPLEMENTED_COMMAND_SURFACE`
 - `$LEV exec-receipt --help`: `UNIMPLEMENTED_COMMAND_SURFACE`
 - `$LEV health --help`: `UNIMPLEMENTED_COMMAND_SURFACE`
-- `$LEV validate --help`: executes validator against cwd instead of showing help
+- `$LEV validate --help`: executes validator against cwd instead of showing help (help-unsafe)
 
 Useful files when present:
 
