@@ -1,0 +1,32 @@
+{
+  "schema": "three-skill-repair.unversioned-target.v1",
+  "repaired_at": "2026-11-19T04:20Z",
+  "host": "Mac-Studio.local",
+  "owner_gap": "UNVERSIONED. The live repair is in a folder no git repository holds. This agents commit holds only the patch and digests below, not the package contents.",
+  "ownership_evidence": {
+    "agents_path": "~/.agents/skills/codex-autoresearch is a symlink to /Users/jean-patricksmith/.codex/skills/codex-autoresearch",
+    "agents_gitignore": "~/.agents/.gitignore:69-70 '# Local install, not vendored: third-party MIT skill whose real copy is ~/.codex/skills/codex-autoresearch' then 'skills/codex-autoresearch'",
+    "git_ls_files": "git -C ~/.agents ls-files | grep -i autoresearch prints nothing",
+    "target_git": "git -C ~/.codex/skills/codex-autoresearch rev-parse: 'fatal: not a git repository'",
+    "chezmoi": "chezmoi source-path ~/.codex/skills/codex-autoresearch/SKILL.md: 'not managed'",
+    "jsm_marker": "~/.codex/skills/.SKILLS_MANAGED_BY_JSM says edits to installed skills may be overwritten on the next `jsm sync` or `jsm install`; `jsm list` printed nothing on this host, so whether jsm owns this package is unknown",
+    "upstream": "README.md names https://github.com/leo-lilinxiao/codex-autoresearch (MIT); installed copy dated 2026-03-29, SKILL.md modified locally 2026-04-17, scripts 2026-04-21",
+    "bounded_search": "find depth 6 for 'codex-autoresearch*' directories under ~/.agents, ~/.local/share/chezmoi, ~/digital, ~/.codex, ~/.claude/skills: only the live target",
+    "layout_changes": "none: the symlink, the install folder and the ignore rule are unchanged"
+  },
+  "patch": {
+    "file": "codex-autoresearch-owned-path-staging.patch",
+    "apply": "patch -p1 -d ~/.codex/skills/codex-autoresearch < codex-autoresearch-owned-path-staging.patch",
+    "verified": "applied to a scratch copy of the six baseline files; every result is byte-identical to the live files (cmp)"
+  },
+  "files": {
+    "SKILL.md": {"before": "a9e9db3cda8a75c240435fb0ef38c935dd72b45a49868cbc20b41a2249f7b9c1", "after": "044ebf758c93061d10701dbc4660f974923253641b4ff9f0f1a4e9db72acc307"},
+    "references/autonomous-loop-protocol.md": {"before": "f4dbaeaa7e513a15d6c6c47582542ba70af9fa7504afb82d4f3f8344a817096b", "after": "a26233fc10837e82686e63424144ce49e4d7812b50dc5b81fa6d4d42bf175b59"},
+    "references/core-principles.md": {"before": "a7f472e2b2c13b7cc42ae4345d73cd3566559e78913fdb10c3713b19f1de905c", "after": "bab1165fd7b1349dd272a0509e0959edecc0aaae374554c38565eb91c18201fd"},
+    "references/interaction-wizard.md": {"before": "a86ad03dfb25f634f9a3a21ef7b232c139b5d903b619c0f2d5fb3d5bb80c1c99", "after": "eea9315f5df0162f1969a846626eb457b8e676d559fba7dfd10ae1f72e2284b1"},
+    "references/loop-workflow.md": {"before": "0f8d5c815fee150c80bd10b5751ced4ebaaf65e85af6b1d9b65bd8f765577034", "after": "ae8fcefe997369b800c51dda481af9ca8f0a2eb063ecfc20d72a6abc6d5fe7e7"},
+    "scripts/autoresearch_resume_prompt.py": {"before": "2d2a7498745a51b99804e3ac17e6c94babb4c901a2c303115aefc67179f0562e", "after": "19984f22df3c4d083e99df87ce5b849670ea92864ecf29373b15b913546d280b"}
+  },
+  "rollback": "patch -R -p1 -d ~/.codex/skills/codex-autoresearch < codex-autoresearch-owned-path-staging.patch",
+  "risk": "A jsm sync/install or an upstream reinstall can overwrite this repair without notice; rerun check_repairs.py --all to detect it."
+}
