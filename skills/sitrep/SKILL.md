@@ -120,19 +120,19 @@ Matches /capture's Exec Menu pattern — max 5 items, rest queued.
 
 When ALL items blocked: auto-suggest `/interview` or `/expand://<entity>` for the top one.
 
-### 3. Inline emote dispatch (new — per user feedback)
+### 3. Inline emote handoff (new — per user feedback)
 
-Some actions are inline-only. /sitrep supports shortcuts on entities in the rendered view:
+Shortcuts name an action on an entity in the rendered view. /sitrep resolves the item number to its ref and hands the action to its owner after the view:
 
 ```
-/sitrep then: expand 2          → fire expand://<item-2-ref> (no full verb ceremony)
-/sitrep then: collapse 4,5,6    → fire collapse:// on items 4,5,6 in batch
-/sitrep then: admit 3           → fire admission:// on item 3
+/sitrep then: expand 2          → owner: expand on <item-2-ref> (no full verb ceremony)
+/sitrep then: collapse 4,5,6    → owner: collapse on items 4,5,6 in batch
+/sitrep then: admit 3           → owner: admission on item 3
 ```
 
-Inline emotes run a flow (flow://lifecycle/<emote>) but DON'T require /close's full ceremony. They emit a trigger each. The stream still grows. The ceremony scales with stakes.
+The owner is `skill://lev`: it resolves `flow://lifecycle/<emote>`, runs it under its own contract and authority, and reports a missing flow as a routing gap. The owner's flow emits the trigger; /sitrep's own pass stays read-only. A shortcut the user types is the request for that action; a shortcut listed in the Exec Menu is a suggestion only.
 
-**Heuristic:** inline for emote verbs (expand, collapse, admit, question). Full ceremony for lifecycle verbs (close, propose, exec, handoff).
+**Heuristic:** the owner uses the inline path for emote verbs (expand, collapse, admit, question) and full ceremony for lifecycle verbs (close, propose, exec, handoff). The ceremony scales with stakes.
 
 ## Rules
 
@@ -156,7 +156,7 @@ Every read-only verb ends with a concrete exec menu:
 
 Queue: N more items (bucketed by priority)
 
-Inline shortcuts:
+Inline shortcuts (handed to the owner when typed):
   expand <n>    collapse <n>    admit <n>
 ```
 
