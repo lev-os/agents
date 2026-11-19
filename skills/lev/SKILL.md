@@ -29,6 +29,8 @@ first. The lead holds the list; a worker gets a brief, not the list. In Lev the 
 6. Decide: rerun every program check yourself; say verified only for what you reran.
 7. Record: lev-lore-commit by path; the debt row; the handoff; a decision for each ruling of JP.
 
+**Shape an idea** (rough intent; outcome, scope or domain model unclear): idea, in one pass. It consults the domain skills and returns a bounded brief that Make a plan starts from.
+
 **Make a plan** (a new module, a moved boundary, several slices):
 1. Is a plan needed? One or two files with a plain approach: use the fix list instead.
 2. Say the proof stage, the loop part and the state in one line (AGENTS.md rule 9).

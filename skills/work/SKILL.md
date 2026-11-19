@@ -112,7 +112,7 @@ authority. Unknown destinations return to `skill://lev`; paused work routes to
 
 | Lane | Entity movement | Owns |
 |---|---|---|
-| Shape | `memory -> captured | blocked` | `/capture`, `/prior-art`, `/interview` |
+| Shape | `memory -> captured -> crystallized | blocked` | `/capture`, `/idea`, `/prior-art`, `/interview` |
 | Plan | `captured | designed -> planned | proposed | execution_ready` | `/lev-plan`, `/capture` |
 | Exec | `execution_ready -> executing -> verified | blocked | needs_propose` | `/exec` |
 | Close | `verified -> closed | monitoring | follow_up` | `/close`, `/handoff` |
@@ -190,6 +190,7 @@ steps:
 | Situation | Route |
 |---|---|
 | User dumps ideas or a thread has unfiled content | `/capture` or `/dump` as `capture --deep` |
+| Captured intent is rough: outcome, scope or domain model unclear | `/idea` (shapes in one pass, returns a bounded brief) |
 | Need evidence, provenance, lineage, or duplicate detection | `/prior-art` |
 | Broad/multi-slice idea or design is aligned but lacks a runbook/DAG | `/lev-plan` |
 | Existing plan is shallow, stale, or needs source-fidelity review | `/lev-plan deepen|review` |

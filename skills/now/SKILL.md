@@ -55,9 +55,9 @@ Run every command from the project root; files live under `.lev/now/genui/`.
    ```bash
    npx tsx plugins/now/src/cli.ts genui render <slug> --title "<title>" --theme <preset>
    ```
-5. **Visual QA.** Run the routine in the reference on every distinct view and state, in light and dark at 1440 and 390. Fix `source.html`, re-render with the same `--title` and `--theme`, and compare the new images with the old ones until the gate passes. Then open the page:
+5. **Visual QA.** Run the routine in the reference on every distinct view and state, in light and dark at 1440 and 390. Fix `source.html`, re-render with the same `--title` and `--theme`, and compare the new images with the old ones until the gate passes. Then open the page (only the session the person talks to opens it; workers check with screenshots):
    ```bash
-   open -a "Brave Browser" .lev/now/<slug>.html
+   brave-open .lev/now/<slug>.html
    ```
 6. **Iterate.** Edit the saved `source.html` in place for each change the user asks for; do not start over. Re-run the original `genui render <slug>` command with the same `--title` and `--theme`, then the visual QA for the views the change touched. Once the draft has a contract, its title and theme come from that contract.
 7. **Make it a template** (only when the user says so). Turn the content that should change into slots in the same `source.html`: `{{field}}` for one value, `{{#each list}}…{{/each}}` with `{{.}}` (list of values) or `{{column}}` (list of rows) inside. Put slots only in element text, such as `<h1>{{headline}}</h1>`. A slot inside a tag or any attribute, a comment, `<script>`, `<style>`, `<title>` or `<textarea>`, or right after a literal `<` is refused before anything is written. Keep links, data-basis labels and other attributes fixed in the template. Write beside it:
