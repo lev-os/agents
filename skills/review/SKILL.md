@@ -145,13 +145,18 @@ artifact's text. When it cannot run, its reference says what to do.
 
 ## Routing table
 
+The one domain table, for planning and for review (JP 2026-11-17). Review takes the owner's checklist from it. The
+plan skill takes from it the skill that shapes a part of a plan. A row is added here and nowhere else.
+
 | Domain | Owner |
 |---|---|
 | Plan, slice or spec readiness; a plan for a long run | `skill://lev-plan` (Review mode) |
-| Architecture or design | `skill://arch` (Review Mode) |
+| Code structure, architecture or design | `skill://arch` (Review Mode for a review) |
 | UX or product flows | `skill://ux` |
-| Visuals or pages | `skill://creative`, `skill://impeccable` |
-| Code | The project runbook. Else `code-review`: the reader gets the bug questions of the host's code-review skill when it has one, else "Which inputs or paths would make this change fail, if any?". Add `skill://arch` Review Mode when a boundary moves and `skill://test-audit` for tests. All advice |
+| UI, visuals or pages | `skill://creative`, `skill://impeccable` |
+| Video or motion | `skill://motion-graphics` |
+| Research: outside facts and sources | `skill://research` |
+| A code change | The project runbook. Else `code-review`: the reader gets the bug questions of the host's code-review skill when it has one, else "Which inputs or paths would make this change fail, if any?". Add `skill://arch` Review Mode when a boundary moves and `skill://test-audit` for tests. All advice |
 | Eval packs, core/eval | `skill://eval-builder` |
 | Running behaviour | `hostile-run`: the attacker stance, [references/hostile-run.md](references/hostile-run.md) |
 | Implicit state machines ("find all the implicit state machines", "state machine audit") | `state-machines`: [references/state-machines.md](references/state-machines.md); the fix goes to `skill://pov` shape mode |

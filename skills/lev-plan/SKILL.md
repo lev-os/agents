@@ -74,6 +74,14 @@ Downstream: `/auto-enrich`, `/exec` for a ready SDLC packet, `/exec` or domain s
 Router: `/work`
 HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count} ✅{done_count} | 🚦{gate}={score} | ⏭️ {next} | 🔁{loop_state}`
 
+## Domain Owners
+
+A part of a plan belongs to a domain: code, UX, UI, video, research, prose. The owner of each domain is in the one
+domain table, the Routing table of the review skill (`../review/SKILL.md`); this skill keeps no copy of it. Before
+`analyze_options` and `build_topology`, find the domain of each part in that table and use its owner skill to shape
+that part. This skill keeps the eight parts; the owner skill gives the design inside them. Name the owner skill in the
+slice it shaped. A part with no row has no owner: say so. The review of the plan takes the same row.
+
 ## Modes
 
 | Mode | Trigger | Result |
