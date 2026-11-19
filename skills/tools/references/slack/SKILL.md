@@ -1,15 +1,22 @@
 ---
 name: slack
-description: Use when working with Slack CLI apps, Slack Web API methods, workspace messaging, OAuth scopes or Block Kit payloads.
+description: Use when reading or searching Slack messages, DMs, threads or canvases, sending a Slack message, or working with Slack CLI apps, Web API methods, OAuth scopes or Block Kit payloads.
 ---
 
 # Slack
 
 ## Contents
 
+- [Workspace through mcporter](slack-mcporter.md): read and search messages, DMs, threads and canvases, and send, from any agent.
 - [Installation](INSTALL.md): optional CLI or raw API transport, host dependencies, credentials and removal.
 - [CLI](#cli): teams, apps, local development, deployment and existing-login reuse.
 - [Web API](#web-api): methods, scopes, pagination, errors and Block Kit surfaces.
+
+## Workspace
+
+To read, search or send in a workspace, read [slack-mcporter.md](slack-mcporter.md).
+It is the default route for every agent. The CLI login below has no history,
+search or canvas scope.
 
 ## CLI
 

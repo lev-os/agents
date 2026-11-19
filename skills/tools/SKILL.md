@@ -1,6 +1,6 @@
 ---
 name: tools
-description: Atlassian, Rovo, Robo, Teamwork Graph, TWG, Jira, Confluence; REA reverse engineering, MCP-to-CLI integration; GitHub, gh, issues, pull requests; Notion, ntn, pages, databases; Slack, chat, messaging, Block Kit; Exa, web search, semantic search, contents; AgentMail, email, inboxes, OTP; Monid, agent tools gateway, data endpoints; RouterGrowth, growth data, lead search, contact enrichment, SEO SERP; Herdr, terminal panes, agent sessions; T3 Code, t3 CLI, T3 threads, chats; BrowserSkill, bsk, logged-in browser, Brave, browser profile; Excalidraw diagrams, mcporter; computer use, macOS GUI, desktop automation, background clicks, drag, canvas; add tool, install skill, absorb integration.
+description: Atlassian, Rovo, Robo, Teamwork Graph, TWG, Jira, Confluence; REA reverse engineering, MCP-to-CLI integration; GitHub, gh, issues, pull requests; Notion, ntn, pages, databases; Slack, chat, messaging, messages, DMs, canvases, Block Kit; Exa, web search, semantic search, contents; AgentMail, email, inboxes, OTP; Monid, agent tools gateway, data endpoints; RouterGrowth, growth data, lead search, contact enrichment, SEO SERP; Herdr, terminal panes, agent sessions; T3 Code, t3 CLI, T3 threads, chats; BrowserSkill, bsk, logged-in browser, Brave, browser profile; Excalidraw diagrams, mcporter; computer use, macOS GUI, desktop automation, background clicks, drag, canvas; add tool, install skill, absorb integration.
 ---
 
 # Tools
@@ -16,6 +16,7 @@ instructions only; existing leaves keep their operations.
 | Atlassian connection, Teamwork Graph / TWG, Rovo / Robo, Jira and Confluence | [Teamwork Graph](references/twg/SKILL.md) | Host `twg`; [setup and login](references/twg/INSTALL.md) |
 | GitHub repositories, issues, pull requests, Actions, API | [GitHub](references/github/SKILL.md) | Host `gh`; [setup](references/github/INSTALL.md) |
 | Notion pages, databases, API, workers, uploads | [Notion](references/notion/SKILL.md) | Host `ntn`; [setup](references/notion/INSTALL.md) |
+| Slack messages, DMs, threads, canvases, search, send | [Slack through mcporter](references/slack/slack-mcporter.md) | Host `mcporter` 0.17.1+; entry `slack-suntiq` |
 | Slack CLI, teams, apps, authentication, deployment | [Slack CLI branch](references/slack/SKILL.md#cli) | Optional host Slack CLI; [setup](references/slack/INSTALL.md) |
 | Slack methods, OAuth scopes, pagination, rate limits | [Slack API branch](references/slack/SKILL.md#web-api) | HTTP/SDK or host CLI; [setup](references/slack/INSTALL.md) |
 | Explicit Exa search, contents, answers, API | [Exa](references/exa/SKILL.md) | Bundled shell transport; [setup](references/exa/INSTALL.md) |
