@@ -73,8 +73,8 @@ const html = `<!doctype html>
 </style>
 <div class="top">
   <span class="chip"><b>${total}</b> questions</span>
-  <span class="chip"><b>${sheet.groups.length}</b> groups, the urgent one first</span>
-  ${sheet.pins.length ? `<span class="chip"><b>${sheet.pins.length}</b> quiet pins</span>` : ""}${sheet.first_number ? `<span class="chip">numbers <b>${sheet.first_number}</b> to <b>${sheet.send ? sheet.send.n : sheet.last_number}</b>, after sheet 1</span>` : ""}
+  <span class="chip"><b>${sheet.groups.length}</b> ${sheet.groups.length === 1 ? "group" : "groups, the urgent one first"}</span>
+  ${sheet.pins.length ? `<span class="chip"><b>${sheet.pins.length}</b> quiet pins</span>` : ""}${sheet.first_number ? `<span class="chip">numbers <b>${sheet.first_number}</b> to <b>${sheet.send ? sheet.send.n : sheet.last_number}</b>, the numbers run on from the last sheet</span>` : ""}
 </div>
 ${sheet.groups.map(group).join("")}${sheet.pins.length ? `
   <section>
