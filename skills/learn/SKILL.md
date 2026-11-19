@@ -138,8 +138,8 @@ Rules for the pick:
 - **A removal leaves nothing behind.** When the lesson removes, merges or
   renames a skill, a file or a name, the edit also changes every live place
   that still names it (instructions, skills and their sources, settings, check
-  lists), and adds the old name to the project's guard of removed names, so a
-  check fails when it comes back. Old records stay as history.
+  lists), in the same commit. Search for the old name (`rg`) before you commit.
+  Add no check that a removed skill stays gone. Old records stay as history.
 
 If the project has no evaluator or no known loading path for the place, say
 which part of the proposal still needs proof.
