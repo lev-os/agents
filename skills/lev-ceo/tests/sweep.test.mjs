@@ -36,7 +36,7 @@ const choices = [
   ["questions for JP go to the queue", row(40, { label: "needs_jp", questions: ["Which one?"] }), "queue"],
   ["a chat that waits on a run is left", row(40, { label: "waits_run" }), "leave"],
   ["a done chat is left", row(400, { label: "done" }), "leave"],
-  ["an interrupted chat with a person's message and no reply is unanswered", row(40, { status: "interrupted", label: "needs_jp", last_user_by: "user", last_user_at: ago(41) }), "unanswered"],
+  ["an interrupted chat with a person's message and no reply is unanswered", row(40, { status: "interrupted", label: "needs_jp", last_user_by: "user", last_user_at: ago(41), last_user_stops: false }), "unanswered"],
   ["an interrupted chat is not flagged while the person may still type", row(3, { status: "interrupted", label: "needs_jp", last_user_by: "user", last_user_at: ago(4) }), "not yet"],
   ["an interrupted chat whose last message is not a person's follows its label", row(40, { status: "interrupted", label: "waits_run", last_user_by: "agent", last_user_at: ago(41) }), "leave"],
   ["a chat whose run the person stopped with his last message follows its label", row(40, { status: "cancelled", label: "done", last_user_by: "user", last_user_at: ago(41), last_user_stops: true }), "leave"],
@@ -51,6 +51,10 @@ const choices = [
   // A pin is JP's mark that he wants eyes on the chat: its age never hides it.
   ["a pinned chat that was never read and stopped 3 days ago is read", row(3 * 24 * 60, { cursor: null, pinned: true }), "read"],
   ["a pinned chat that is snoozed is still skipped", row(3 * 24 * 60, { cursor: null, pinned: true, snoozed: true }), "skip"],
+  // A label made before the reader answered "did the person stop the run?" cannot give `unanswered`:
+  // on 2026-11-18 JP's "nvm dont deploy" came back as his own unanswered message, at the head of the queue.
+  ["an interrupted chat whose label does not say whether the person stopped the run is read again", row(40, { status: "interrupted", label: "done", last_user_by: "user", last_user_at: ago(41) }), "read"],
+  ["an interrupted chat whose label says the person did not stop the run is unanswered", row(40, { status: "interrupted", label: "done", last_user_by: "user", last_user_at: ago(41), last_user_stops: false }), "unanswered"],
 ];
 for (const [name, r, want] of choices) {
   test(`choice: ${name}`, () => {

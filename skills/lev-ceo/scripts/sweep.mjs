@@ -262,7 +262,11 @@ export function choose(row, now, set = DEFAULTS) {
   // A run that did not finish after a person's message. It waits too, because the person may still type.
   // Not when that message tells the chat to stop ("nvm"): the person ended the run, and the label decides.
   if (["interrupted", "failed", "cancelled"].includes(row.status) && row.last_user_by === "user" && row.last_user_stops !== true) {
-    return idle >= wait ? ["unanswered", `a person's message has no reply: the run was ${row.status}`] : ["not yet", `the run was ${row.status} ${idle} min ago`];
+    if (idle < wait) return ["not yet", `the run was ${row.status} ${idle} min ago`];
+    // A label made before the reader answered `last_user_stops` cannot say whether the person ended the run:
+    // a reader reads the chat again. (2026-11-18: JP's "nvm dont deploy" came back as his unanswered message.)
+    if (typeof row.last_user_stops !== "boolean") return ["read", "its label does not say whether the person stopped the run"];
+    return ["unanswered", `a person's message has no reply: the run was ${row.status}`];
   }
   const questions = row.questions || [];
   if (row.label === "plan_ready") {
