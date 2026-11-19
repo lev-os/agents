@@ -85,9 +85,8 @@ HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count
 | Map | `map` or `all slices` | Compact slice map only; never creates task folders |
 | Emit | `emit <slice-id>` | Exactly one `{dna.yaml,execution.yaml}` task packet |
 
-`/propose` and `/horizon` are aliases of this skill; each one's own file maps
-its forms to a mode. This skill answers the caller directly and never routes
-back to an alias.
+The commands `/propose` and `/horizon` are removed (JP 2026-11-17): `/propose` was Map or Emit, and `/horizon` was
+Compile or Deepen for a long run. This skill is the one plan skill.
 
 Default to review without writing when the user asks what the plan should
 contain, requests an audit, or has not authorized a durable edit. One

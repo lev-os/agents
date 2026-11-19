@@ -12,7 +12,7 @@ Use this when the user asks to plan a Lev SDLC/task/workstream migration while c
    - `file` adapter: preserves today’s `.lev/pm` behavior and remains default/compat path.
    - `bd` adapter: uses Beads for graph persistence when configured.
 6. **Name plugin ownership boundaries** — for Lev, `plugins/sdlc` owns Task and Workstream entities plus lifecycle/dependency semantics. Skills should call the SDLC API/SDK/CLI/MCP rather than writing storage-specific files directly.
-7. **Plan skill migration as a compatibility layer** — `propose`, `capture`, `work`, `handoff`, `close`, and related lifecycle skills should gain CLI and MCP call paths. Keep current file behavior working through the file adapter until cutover.
+7. **Plan skill migration as a compatibility layer** — `lev-plan`, `capture`, `work`, `handoff`, `close`, and related lifecycle skills should gain CLI and MCP call paths. Keep current file behavior working through the file adapter until cutover.
 8. **Add anti-parasitism/prior-art anchors** — link existing docs/decisions that say operations guidance should be owned by the platform/API rather than copied into every skill.
 9. **Verify artifacts exist** — after creating files and Beads records, read/validate the plan/workstream paths and show the Beads record by ID.
 

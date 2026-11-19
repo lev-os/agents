@@ -134,7 +134,7 @@ Lifecycle lane: Shape -> Plan
 Entity movement: `memory -> captured | proposed | blocked`
 Workstream: resolve the owning workstream before writing records
 Upstream: conversation, `/dump`, `/work`
-Downstream: `/prior-art`, `/interview`, `/lev-plan`, `/propose`, `/exec`
+Downstream: `/prior-art`, `/interview`, `/lev-plan`, `/exec`
 Router: `/work`
 HUD: end with `🧬 {ws} ⚡{exec_count} 📥{capture_count} ⏸️{paused_count} ✅{done_count} | 🚦{gate}={score} | ⏭️ {next} | 🔁{loop_state}`
 
@@ -177,7 +177,7 @@ steps:
   - id: seed_qa_contract
     action: For non-trivial items, create a QA seed before route advancement.
     validation: "Runtime, agentic, promotion, cleanup, fallback, or boundary-risk items name proof_required, highest_risk_claim, scenario_classes, and owner-local placement."
-    on_failure: "Keep the item captured and route to /interview or /propose before /exec."
+    on_failure: "Keep the item captured and route to /interview or /lev-plan before /exec."
 
   - id: write_artifacts
     action: Write each writable row into its own record (Where Rows Go), updating the record that already holds it.
@@ -208,12 +208,12 @@ choice is needed; otherwise name the single next route using `skill://<name>`.
 
 | Item | Route |
 |---|---|
-| Constraint, invariant, gate, policy | `skill://lev-plan` for broad changes; `skill://propose` for a bounded SDLC change |
+| Constraint, invariant, gate, policy | `skill://lev-plan` (Compile for broad changes; Map or Emit for a bounded SDLC change) |
 | Brief or design framing | `skill://interview`; preserve the resulting design before choosing the next owner |
 | Broad, multi-slice, migration, architecture, or roadmap work | `skill://lev-plan`; preserve the whole effort before task slicing |
-| Runtime, agentic, promotion, cleanup, fallback, or boundary-risk item | `skill://interview` or SDLC `skill://propose` with `qa_seed` |
-| Coding slice ready for contract review | `skill://propose` |
-| Authorized execution with sufficient scope, claims, and checks | `skill://exec`; non-coding may use a sufficient plan without `propose` |
+| Runtime, agentic, promotion, cleanup, fallback, or boundary-risk item | `skill://interview` or SDLC `skill://lev-plan` (Emit) with `qa_seed` |
+| Coding slice ready for contract review | `skill://lev-plan` (Emit) |
+| Authorized execution with sufficient scope, claims, and checks | `skill://exec`; non-coding may use a sufficient plan without an emitted task |
 | Provenance or duplicate check needed | `skill://prior-art` |
 | Ambiguous intent or boundary | `skill://interview` |
 | Workstream identity missing | `skill://ws` |
@@ -298,7 +298,7 @@ renders its delta; `--full`, audit, and debug may render the complete table.
 | `fidelity_components` | Five component scores used to derive fidelity |
 | `fidelity_note` | Explicit preservation, narrowing, conflict, deferment, or loss note |
 | `plan_required` | True for broad/multi-slice/migration/architecture/roadmap work |
-| `next_route` | `/interview`, `/prior-art`, `/lev-plan`, `/propose`, `/exec`, `/close`, or `none` |
+| `next_route` | `/interview`, `/prior-art`, `/lev-plan`, `/exec`, `/close`, or `none` |
 | `blocker` | `null` or the reason this row cannot advance |
 
 No route can advance if a row has `current_location: memory` without a blocker
@@ -411,5 +411,5 @@ Next: {one_primary_action}
 - `/prior-art` finds existing homes.
 - `/learn` puts a lesson where it changes future work; `capture codify` loads it after the save.
 - `/lev-plan` compiles captured/design intent into a fidelity-checked human runbook and slice DAG.
-- `/propose` turns captured/aligned items into task DNA.
+- `/lev-plan` (Emit) turns captured/aligned items into task DNA.
 - `/exec` runs shovel-ready items.
