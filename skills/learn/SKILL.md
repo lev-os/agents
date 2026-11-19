@@ -1,11 +1,13 @@
 ---
 name: learn
-description: "Use when a lesson must change future agent work: a person asks to codify a correction, capture codify hands over a saved record, or a retro, a plan or a design holds evidence of what should happen next time. Compares every place in the active project that can change that behaviour, proposes the most correct one with its proof, and applies it only after approval."
+description: "Use when a lesson must change future agent work: a person asks to codify a correction, capture codify hands over a saved record, a person asks for a retro (\"retro\", \"what did we learn\") over a stretch of commits, or a plan or a design holds evidence of what should happen next time. Compares every place in the active project that can change that behaviour, proposes the most correct one with its proof, and applies it only after approval. Not for closing one task (close) or a session boundary (handoff)."
 skill_type: workflow
 category: lifecycle
 triggers:
   - learn
   - codify
+  - retro
+  - what did we learn
 ---
 
 # /learn - Put a lesson where it acts
@@ -25,7 +27,7 @@ and settings supply the real places, owners and paths.
 | From | You get |
 |---|---|
 | Capture codify | A reference to a saved record, the source evidence and the behaviour the person wants to change |
-| A project retro | Clustered evidence (for example repeated commit trailers) and the project's own rules for its places |
+| A retro | Clustered evidence from a stretch of commits: run [Retro](#retro) first |
 | Planning or solution design | The evidence the plan or design already holds |
 | A person, directly | The correction in their words. When it is not saved yet, load `skill://capture` first: capture saves it in its record, reads it back and hands the reference back to learn |
 
@@ -59,6 +61,38 @@ and settings supply the real places, owners and paths.
 8. **Prove it.** Run the evidence from the destination table and report
    each claim pass, fail or could not check, with `path:line` or the command
    and its exit code. Done when no claim is left unanswered.
+
+## Retro
+
+A retro looks back over a stretch of work (an episode) and asks what should
+change in how the project works, so the next agent does not find the same
+thing again. Close looks forward at one task; a retro looks back across many.
+Run a retro only when a person asks for one, or when a person authorized its
+schedule and where its output goes.
+
+1. **Bound the episode** to one commit range and name it.
+   Done when `git log --oneline <since>..HEAD | head -50` shows only that episode.
+2. **Harvest evidence only.** Commit trailers hold decisions the commits never
+   rolled up. Read them, and the handoffs and decision records changed in the range:
+
+   ```bash
+   git log <range> --no-merges --format='%h %s%n%(trailers:key=Rejected,valueonly,unfold)'
+   git log <range> --no-merges --format='%h %(trailers:key=Directive,valueonly,unfold)'
+   git log <range> --no-merges --format='%h %(trailers:key=Not-tested,valueonly,unfold)'
+   git log <range> --no-merges --format='%h %(trailers:key=Constraint,valueonly,unfold)'
+   git log <range> --name-only --format= -- <the project's handoff and decision folders> | sort -u
+   ```
+
+   Done when every item cites a commit, a run or a file. No citation, no lesson.
+3. **Cluster.** Group by repeated failure, repeated rejection or standing
+   directive. One occurrence is an anecdote; two or more is a lesson.
+   Done when every cluster has two or more cited occurrences.
+4. **Run Steps 1-8 for each cluster.** Each cluster is one lesson and one
+   proposal. Prefer a few small edits over a rewrite, and deleting or merging
+   over a new type of document.
+5. **Report.** Return the retro in the reply: the range, the clusters with
+   their citations, and the proposals with their places. Save it only where the
+   person authorized, in the folder the project's instructions name.
 
 ## Where to look
 
@@ -101,6 +135,11 @@ Rules for the pick:
   write the case that passes and the planted fault that fails.
 - **One request, one proposal.** Promote a lesson when a person or a retro asks.
   A repeat alone does not make a lesson a check.
+- **A removal leaves nothing behind.** When the lesson removes, merges or
+  renames a skill, a file or a name, the edit also changes every live place
+  that still names it (instructions, skills and their sources, settings, check
+  lists), and adds the old name to the project's guard of removed names, so a
+  check fails when it comes back. Old records stay as history.
 
 If the project has no evaluator or no known loading path for the place, say
 which part of the proposal still needs proof.
@@ -129,5 +168,5 @@ Still needs proof: <what no check here can show yet>
 
 - `/capture` saves the material first; `capture codify` then loads learn.
 - `/review` gives a fresh reader for the proof.
-- A project's retro skill harvests its own evidence and adds its own rules for
-  the places.
+- The project's instructions name its own places (in Leviathan: the section
+  "Where a lesson goes" of the root `AGENTS.md`). Learn has no project copy.

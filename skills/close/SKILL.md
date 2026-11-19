@@ -49,7 +49,7 @@ grant new execution, publishing, or checkpoint authority.
 | Coding contract must change | `skill://lev-plan`: a slice review, or Deepen if the broader plan changes |
 | Non-coding scope or plan must change | `skill://lev-plan` or `skill://interview`; proposal optional |
 | Accepted or paused, context needs preservation | Protocol step `handoff` (work template); `skill://ws` for workstream state |
-| Several completed efforts warrant synthesis | `skill://lev-learn` |
+| Several completed efforts warrant synthesis | `skill://learn` |
 | Another effort or uncertain next owner | `skill://lev` |
 
 ## Protocol

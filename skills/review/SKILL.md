@@ -1,6 +1,6 @@
 ---
 name: review
-description: "Use when asked to review, look over, check or critique a plan, slice, spec, brief, design, code change, eval pack, page or prose, or asked whether one is ready or sound; when a skill needs a fresh reader, a lens or the attacker (red team) stance; or for a hostile end-to-end QA run (ultraqa) of running behaviour, or for a state machine audit (find all the implicit state machines in an app). Not for writing, fixing, changing or explaining something, or only running tests. When another chat's brief makes you the reviewer, you are the reader: follow your brief and leave this file unopened."
+description: "Use when asked to review, look over, check or critique a plan, slice, spec, brief, design, code change, test or test suite, eval pack, page or prose, or asked whether one is ready or sound; when a skill needs a fresh reader, a lens or the attacker (red team) stance; or for a hostile end-to-end QA run (ultraqa) of running behaviour, or for a state machine audit (find all the implicit state machines in an app). Not for writing, fixing, changing or explaining something, or only running tests. When another chat's brief makes you the reviewer, you are the reader: follow your brief and leave this file unopened."
 ---
 
 # Review
@@ -156,7 +156,8 @@ plan skill takes from it the skill that shapes a part of a plan. A row is added 
 | UI, visuals or pages | `skill://creative`, `skill://impeccable` |
 | Video or motion | `skill://motion-graphics` |
 | Research: outside facts and sources | `skill://research` |
-| A code change | The project runbook. Else `code-review`: the reader gets the bug questions of the host's code-review skill when it has one, else "Which inputs or paths would make this change fail, if any?". Add `skill://arch` Review Mode when a boundary moves and `skill://test-audit` for tests. All advice |
+| A code change | The project runbook. Else `code-review`: the reader gets the bug questions of the host's code-review skill when it has one, else "Which inputs or paths would make this change fail, if any?". Add `skill://arch` Review Mode when a boundary moves and [references/tests.md](references/tests.md) for each test the change adds or edits. All advice |
+| Tests: a new or changed test, a test review, or a sweep of a test suite | `tests`: [references/tests.md](references/tests.md); a whole-subsystem sweep also [references/tests-campaign.md](references/tests-campaign.md). A project that plans where each test runs adds its stage table (in Leviathan: `skill://lev-test-stages`) |
 | Eval packs, core/eval | `skill://eval-builder` |
 | Running behaviour | `hostile-run`: the attacker stance, [references/hostile-run.md](references/hostile-run.md) |
 | Implicit state machines ("find all the implicit state machines", "state machine audit") | `state-machines`: [references/state-machines.md](references/state-machines.md); the fix goes to `skill://pov` shape mode |

@@ -91,7 +91,7 @@ ACTIVE_KEEP_FOLDERS = {
     "lev-find-qmd",
     "lev-index",
     "lev-intake",
-    "lev-learn",
+    "learn",
     "lev-orch-sidequest",
     "lev-plan",
     "lev-research",
