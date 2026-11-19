@@ -5,7 +5,7 @@
  6. Mechanical verification only.
  7. Commit before verification, but in swarm-style repos assume the worktree may already be dirty. Treat git as checkpointing, not history gardening.
 -8. In checkpoint mode the default git sequence is `git add .`, `git commit`, `git pull`, `git push`.
-+8. In checkpoint mode (confirmed in the launch wizard) the default git sequence is: stage only the files this iteration changed inside Scope, by explicit path (`git add -- <path>...`), then `git commit`, `git pull`, `git push`. Leave pre-existing changes, other runs' changes and autoresearch-owned artifacts unstaged.
++8. In checkpoint mode (confirmed in the launch wizard) the default git sequence is: stage only the files this iteration changed inside Scope, by explicit path (`git add -- <path>...`), then `git commit --only -- <path>...`, `git pull`, `git push`. Leave pre-existing changes, other runs' changes and autoresearch-owned artifacts unstaged.
  9. Do not use rebase as part of the loop. Recover by new forward commits, not history rewriting.
  10. Failed experiments are recorded as `discard` / `crash` in the results log, but they may remain in git history as checkpoints when the repo uses checkpoint mode.
  11. Discard gains under 1% that add disproportionate complexity.
@@ -14,22 +14,23 @@
  
  - assume the tree may already be dirty,
 -- checkpoint forward with `git add .`, `git commit`, `git pull`, `git push`,
-+- checkpoint forward: stage the iteration's own in-scope files by path (`git add -- <path>...`), then `git commit`, `git pull`, `git push`, and leave every other dirty file unstaged,
++- checkpoint forward: stage the iteration's own in-scope files by path (`git add -- <path>...`), then `git commit --only -- <path>...`, `git pull`, `git push`, and leave every other dirty file unstaged,
  - do not require rebase,
  - do not rely on reset/revert as the normal loop primitive.
  
 --- a/references/autonomous-loop-protocol.md
 +++ b/references/autonomous-loop-protocol.md
-@@ -247,7 +247,7 @@
+@@ -247,18 +247,19 @@
  Recommended sequence:
  
  ```bash
 -git add .
+-git commit -m "experiment: <what changed and why>"
 +git add -- <changed-path>...
- git commit -m "experiment: <what changed and why>"
++git commit --only -m "experiment: <what changed and why>" -- <changed-path>...
  git pull
  git push
-@@ -255,10 +255,10 @@
+ ```
  
  Rules:
  
@@ -39,12 +40,13 @@
 -- if there is no diff, log `no-op` and move on (counts toward the consecutive-discard threshold for stuck recovery),
 +- `<changed-path>...` is every file this iteration changed inside Scope and nothing else; name each one by path,
 +- leave pre-existing changes, other runs' changes and the autoresearch-owned artifacts listed above unstaged,
++- Preserve any pre-existing staged files in the index; commit only the named paths. If unrelated edits share a named file, stop before staging that file and isolate only the owned hunks. Do not unstage another owner's work.
 +- inspect the staged file list (`git diff --cached --name-only`) before committing,
 +- if the iteration changed no file, log `no-op` and move on (counts toward the consecutive-discard threshold for stuck recovery),
  - prefer descriptive `experiment:` commit messages.
  - before checkpointing, check `.autoresearch/checkpoint.lock`; if another run holds it, wait and retry rather than committing concurrently.
  
-@@ -350,7 +350,7 @@
+@@ -350,7 +351,7 @@
  - status,
  - one-line description.
  
@@ -60,7 +62,7 @@
  ## 6. Git Is Checkpointing Memory
  
 -In swarm-style repos, git is a checkpointing mechanism. Dirty worktrees are normal, and the loop should prefer forward checkpoints (`git add .`, `git commit`, `git pull`, `git push`) over history rewriting. The results log (`research-results.tsv`) records the experiment verdict (`keep`, `discard`, `crash`) even when the git history keeps every checkpoint.
-+In swarm-style repos, git is a checkpointing mechanism. Dirty worktrees are normal, and the loop should prefer forward checkpoints (stage the iteration's own files by path with `git add -- <path>...`, then `git commit`, `git pull`, `git push`) over history rewriting. Other dirty files stay unstaged. The results log (`research-results.tsv`) records the experiment verdict (`keep`, `discard`, `crash`) even when the git history keeps every checkpoint.
++In swarm-style repos, git is a checkpointing mechanism. Dirty worktrees are normal, and the loop should prefer forward checkpoints (stage the iteration's own files by path with `git add -- <path>...`, then `git commit --only -- <path>...`, `git pull`, `git push`) over history rewriting. Other dirty files stay unstaged. The results log (`research-results.tsv`) records the experiment verdict (`keep`, `discard`, `crash`) even when the git history keeps every checkpoint.
  
  ## 7. Simplicity Is A Tiebreaker
  
@@ -82,7 +84,7 @@
  4. Make one focused change within scope.
  5. If multiple runs share the repo, check `.autoresearch/checkpoint.lock` and wait if another run currently owns the checkpoint window.
 -6. Checkpoint the current tree with `git add .`, `git commit`, `git pull`, `git push`.
-+6. Checkpoint this iteration's change: `git add -- <path>...` for only the files it changed inside Scope, then `git commit`, `git pull`, `git push`. Leave other dirty files and autoresearch-owned artifacts unstaged.
++6. Checkpoint this iteration's change: `git add -- <path>...` for only the files it changed inside Scope, then `git commit --only -- <path>...`, `git pull`, `git push`. Leave other dirty files and autoresearch-owned artifacts unstaged.
  7. Run the verify command and guard.
  8. Record the result through `autoresearch_record_iteration.py` or `autoresearch_select_parallel_batch.py`.
  9. Only after the result is recorded, choose the next experiment.
@@ -93,7 +95,7 @@
              "- If they do not exist yet, initialize a fresh run from the launch manifest.",
              "- When initializing fresh artifacts for this managed run, call autoresearch_init_run.py with --session-mode background.",
 -            f"- Before any `git add .`, `git commit`, `git pull`, or `git push`, run `python3 {lock_helper} acquire --repo {primary_repo} --run-tag {run_tag} --wait-seconds 600`.",
-+            "- Stage only the files this iteration changed inside Scope, by explicit path (`git add -- <path>...`); leave other dirty files and autoresearch-owned artifacts unstaged.",
++            "- Stage only the files this iteration changed inside Scope, by explicit path (`git add -- <path>...`), then commit only those paths (`git commit --only -- <path>...`); leave other dirty files and autoresearch-owned artifacts unstaged.",
 +            f"- Before any `git add`, `git commit`, `git pull`, or `git push`, run `python3 {lock_helper} acquire --repo {primary_repo} --run-tag {run_tag} --wait-seconds 600`.",
              f"- After the checkpoint sequence completes, run `python3 {lock_helper} release --repo {primary_repo} --run-tag {run_tag}`.",
              "- Continue autonomously until a terminal condition or blocker is reached.",

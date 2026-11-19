@@ -115,6 +115,7 @@ def codex_fixture(root: Path) -> list[str]:
             return [f"fixture setup push failed: {r.stderr.strip()}"]
         # Dirt that was there before the iteration, plus the run's own artifacts.
         (work / "notes.txt").write_text("someone else's edit\n")
+        git(work, "add", "--", "notes.txt", env=env)
         (work / "other-run").mkdir()
         (work / "other-run/output.json").write_text("{}\n")
         (work / "research-results.tsv").write_text("iteration\tcommit\n")
@@ -137,6 +138,9 @@ def codex_fixture(root: Path) -> list[str]:
         for p in ["notes.txt", "other-run/", "research-results.tsv"]:
             if p not in status:
                 fails.append(f"{p} no longer left dirty and unstaged in the work tree")
+        staged = git(work, "diff", "--cached", "--name-only", env=env).stdout.split()
+        if staged != ["notes.txt"]:
+            fails.append(f"pre-existing staged notes.txt was not preserved: {staged}")
         return fails
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
@@ -237,10 +241,13 @@ def plant() -> dict:
             return d
         d = fresh()
         mutate(d / "codex/references/autonomous-loop-protocol.md", "git add -- <changed-path>...", "git add .")
-        results["P1"] = codex_fixture(d / "codex")
+        results["P1"] = codex_static(d / "codex")
         d = fresh()
         mutate(d / "codex/SKILL.md", "(`git add -- <path>...`)", "(`git add .`)")
         results["P2"] = codex_static(d / "codex")
+        d = fresh()
+        mutate(d / "codex/references/autonomous-loop-protocol.md", 'git commit --only -m "experiment: <what changed and why>" -- <changed-path>...', 'git commit -m "experiment: <what changed and why>"')
+        results["P6"] = codex_fixture(d / "codex")
         d = fresh()
         mutate(d / "lev.md", "action: Run `$LEV <surface> --help`, except for a help-unsafe command (Runtime First Move).",
                "action: Run `$LEV <surface> --help`.")
