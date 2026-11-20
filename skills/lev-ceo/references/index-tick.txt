@@ -43,14 +43,20 @@ Steps
    c. Read S/pass-STAMP/tails.jsonl, and S/checks.json when it exists. A chat whose `updated_at` is the one in
       S/checks.json keeps its old entry. For each other chat, list each question that the end of its last reply
       puts to JP, and answer two things for each:
-      - still_asked: false when the chat runs now, when a person wrote after the reply, or when the reply holds no
-        question for JP. True in every other case.
+      - still_asked: false when the chat runs now, when a person wrote after the reply, when the reply holds no
+        question for JP, when JP paused or parked the chat (his last message says pause, later or not now), or when
+        the reply itself says that nothing needs an answer now. True in every other case.
+        A question that rests on the state of another chat ("that chat waits on a request", "that chat holds the
+        simulator") is checked before it is judged: run `node K/chat-tail.mjs --max 600 <that chat's id>` (add
+        `--ssh kingly-macbook` for a chat on the MacBook). When the other chat does not show that state, the
+        question is stale: still_asked false, and `why` says what the other chat shows.
       - agent_can: true when an agent can do what the question asks. That is: a page of a service that JP is signed
         in to in Brave on this Mac, a setting that a program can read, an app that an agent can start, a test or a
         click that an agent can do, a routine commit or push, and a question that a plan, a rule or a ruling of JP
         already answers. False only for: production, money, a message to a person, a new sign-in on his machine,
-        product taste, public text under his name, and a delete that cannot be undone. Give the reason in `why`,
-        in plain words, one sentence.
+        product taste, public text under his name, and a delete that cannot be undone. A question whose
+        recommended choice keeps a name, a flag or a state as it is mints nothing: an agent can do it. Give the
+        reason in `why`, in plain words, one sentence.
    d. Write S/checks.json with the Write tool, one JSON object:
       {"at": "<UTC now>", "chats": [{"thread_id": "...", "title": "...", "updated_at": "<from the tail line>",
        "checked_at": "<UTC now>", "questions": [{"ask": "<the question in plain words>", "still_asked": true,
