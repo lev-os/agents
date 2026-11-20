@@ -1,0 +1,34 @@
+{
+  "name": "performance-goal",
+  "source": {
+    "repository": "https://github.com/Yeachan-Heo/oh-my-codex",
+    "path": "skills/performance-goal/SKILL.md",
+    "commit": "610be90863964394fd311b5198e8324bf96157c0",
+    "commit_date": "2026-11-10",
+    "sha256": "5adac796c4d807e4d30506a67dd9f39fc8812a0675536140e4566771e4806dfd",
+    "license": "MIT, Copyright (c) 2026 Yeachan-Heo",
+    "copied": "verbatim, 2026-11-10"
+  },
+  "requested_by": "JP 2026-11-10: \"get the scores up, use this ... install / setup make sure that works\"",
+  "depends_on": {
+    "tool": "omx (npm package oh-my-codex)",
+    "installed_version": "0.17.3",
+    "latest_version": "0.22.6",
+    "note": "The installed version ships an older copy of this skill. The copy here adds two lines about `/goal clear`. The command flags are the same."
+  },
+  "security": {
+    "structural_decompile": "risk_score 10, safe; one flag: unrestricted_tool_access",
+    "semantic_read": "read in full by the installing agent, 68 lines: only `omx performance-goal` commands and Codex goal tool calls; no network, no secrets, no hidden instructions. Not run in the sandboxed scanner subagent.",
+    "agentshield": "no evidence: it matched no harness adapter and scanned 0 files"
+  },
+  "qualification": {
+    "structural": "pass: frontmatter has name and description",
+    "behavioral": "pending: no fresh-context trials",
+    "integration": {
+      "shell": "pass on 2026-11-10 in a scratch repository: create, start, checkpoint and status work; complete refuses without a passing checkpoint and refuses without a Codex goal snapshot",
+      "codex": "partial pass on 2026-11-10: a Codex worker found the skill, ran start, used the goal tools, recorded fail and blocked checkpoints, and marked its thread goal blocked (goal eval-citations in ulta-context-engine). `complete` is not yet exercised. Its blocker was not the skill: the eval could not sign in to Claude from the Codex shell.",
+      "claude_code": "partial: Claude Code has no get_goal, create_goal or update_goal tools, so `omx performance-goal complete` cannot pass from a Claude session"
+    }
+  },
+  "active_copy": "~/.agents/skills/performance-goal/SKILL.md"
+}
