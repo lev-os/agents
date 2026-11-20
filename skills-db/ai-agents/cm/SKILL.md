@@ -748,27 +748,14 @@ Returns:
 
 ---
 
-## Integration with CASS
+## Local recall
 
-CASS provides **episodic memory** (raw sessions).
-CM extracts **procedural memory** (rules and playbooks).
-
-```bash
-# CASS: Search raw sessions
-cass search "authentication timeout" --robot
-
-# CM: Get distilled rules for a task
-cm context "authentication timeout" --json
-```
-
----
+Use `cm context "authentication timeout" --history 0 --json` to retrieve playbook rules.
 
 ## Troubleshooting
 
 | Error | Solution |
 |-------|----------|
-| `cass not found` | Install from [cass repo](https://github.com/Dicklesworthstone/coding_agent_session_search) |
-| `cass search failed` | Run `cass index --full` |
 | `API key missing` | Set `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, or `GOOGLE_GENERATIVE_AI_API_KEY` |
 | `Playbook corrupt` | Run `cm doctor --fix` |
 | `Budget exceeded` | Check `cm usage`, adjust limits |

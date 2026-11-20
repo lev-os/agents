@@ -28,7 +28,6 @@
 | Tool | Install path | Skill |
 |------|--------------|-------|
 | `dcg` | `brew install dicklesworthstone/tap/dcg` | `dcg` |
-| `cass` | `brew install dicklesworthstone/tap/cass` | `cass` |
 | `ubs` | `brew install dicklesworthstone/tap/ubs` | `ubs` |
 | `ntm` | `brew install dicklesworthstone/tap/ntm` | `ntm` |
 | `agentmail-cli` | `npm install -g agentmail-cli` | `agentmail-cli` |

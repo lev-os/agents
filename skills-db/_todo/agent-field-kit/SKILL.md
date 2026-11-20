@@ -1,6 +1,6 @@
 ---
 name: agent-field-kit
-description: "Portable coding-agent bootstrap bundle (CLI toolchain, PATH wiring, ops skills). Use when a local, remote, or container env is missing dcg, ntm, cass, ubs, defendr, or agentmail-cli."
+description: "Portable coding-agent bootstrap bundle (CLI toolchain, PATH wiring, ops skills). Use when a local, remote, or container env is missing dcg, ntm, ubs, defendr, or agentmail-cli."
 ---
 
 # Agent Field Kit
@@ -64,7 +64,6 @@ Use these as focused skills instead of bloating this router:
 
 - `dcg` → `~/.agents/skills/dcg/SKILL.md`
 - `ntm` → `~/.agents/skills/ntm/SKILL.md`
-- `cass` → `~/.agents/skills/cass/SKILL.md`
 - `ubs` → `~/.agents/skills/ubs/SKILL.md`
 - `defendr` → `~/.agents/skills/defendr/SKILL.md`
 - `agentmail-cli` → `~/.agents/skills/agentmail-cli/SKILL.md`

@@ -577,7 +577,7 @@ fractal_loop:
   description: "The same cycle applies at every level of the CDO"
   levels:
     session:
-      context: "Turn 0 — gather evidence: read code, search cass, web research, acquire skills"
+      context: "Turn 0 — gather evidence: read code and linked transcripts, web research, acquire skills"
       plan: "Gauge problem, select preset, compose DAG from what you learned"
       act: "Execute turns per synthesis directives"
       verify: "Final synthesis confirms convergence with evidence"
@@ -632,7 +632,7 @@ turn_0:
   purpose: "Establish ground truth before opinions form"
   actions:
     - "Read actual source code relevant to the problem"
-    - "Check cass for prior session evidence"
+    - "Read linked transcripts for prior session evidence"
     - "Web search for prior art if the problem involves external standards"
     - "Generate a context manifest: files read, facts established, unknowns identified"
   output: "tmp/cdo-{session}/t0-research.md"
@@ -662,7 +662,7 @@ context_depth:
 
   deep:
     signal: "Protocol design, architecture review, cross-cutting"
-    tools: "rp-cli + web research + cass history + prior art scan"
+    tools: "rp-cli + web research + prior art scan"
     cost: "~100k+ tokens of context"
 ```
 
