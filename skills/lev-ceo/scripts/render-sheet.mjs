@@ -7,6 +7,9 @@
 // The sheet file: { sheet, first_number, last_number?, example?, groups: [{ mark, title, note, questions:
 //   [{ n, emoji, ask, choices: ["a. ...", "b. ..."], rec: "a: why" | null, chat: "<chat title>", yours }] }],
 //   pins: [{ p, chat, left, send, pin }], send?: { n, wording, chats: ["<chat title>"] } }.
+// A sheet of all pins by focus area (JP 2026-11-20: "i wanna see all pins and focus areas in the next cards") sets
+// `pins_title`, `pins_note` and `pins_chip`, lists each pin under `pins`, and makes one group for each focus area; a
+// group may have no question.
 // `n` counts from 1 on each sheet: number-sheet.mjs sets it and writes the map to each permanent id. One emoji for each card, one mark for each group.
 // Each card names its chat; the reply under the sheet gives each chat's link, because a link inside the page
 // does not open.
@@ -30,7 +33,7 @@ const card = (q) => `
 
 const group = (g) => `
   <section>
-    <h2><span>${esc(g.mark)}</span> ${esc(g.title)} <em>${g.questions[0].n} to ${g.questions[g.questions.length - 1].n}</em></h2>
+    <h2><span>${esc(g.mark)}</span> ${esc(g.title)} <em>${g.questions.length ? `${g.questions[0].n} to ${g.questions[g.questions.length - 1].n}` : "no question for you"}</em></h2>
     ${g.note ? `<p class="note">${esc(g.note)}</p>` : ""}
     ${g.questions.map(card).join("")}
   </section>`;
@@ -74,12 +77,12 @@ const html = `<!doctype html>
 <div class="top">
   <span class="chip"><b>${total}</b> questions</span>
   <span class="chip"><b>${sheet.groups.length}</b> ${sheet.groups.length === 1 ? "group" : "groups, the urgent one first"}</span>
-  ${sheet.pins.length ? `<span class="chip"><b>${sheet.pins.length}</b> quiet pins</span>` : ""}${sheet.first_number ? `<span class="chip">numbers <b>${sheet.first_number}</b> to <b>${sheet.send ? sheet.send.n : sheet.last_number}</b>, the numbers run on from the last sheet</span>` : ""}
+  ${sheet.pins.length ? `<span class="chip"><b>${sheet.pins.length}</b> ${esc(sheet.pins_chip ?? "quiet pins")}</span>` : ""}${sheet.first_number ? `<span class="chip">numbers <b>${sheet.first_number}</b> to <b>${sheet.send ? sheet.send.n : sheet.last_number}</b>, the numbers run on from the last sheet</span>` : ""}
 </div>
 ${sheet.groups.map(group).join("")}${sheet.pins.length ? `
   <section>
-    <h2><span>📌</span> Pins that went quiet <em>P1 to P${sheet.pins.length}</em></h2>
-    <p class="note">For each: may I send it a message, and does the pin stay? The table holds my recommendation.</p>
+    <h2><span>📌</span> ${esc(sheet.pins_title ?? "Pins that went quiet")} <em>P1 to P${sheet.pins.length}</em></h2>
+    <p class="note">${esc(sheet.pins_note ?? "For each: may I send it a message, and does the pin stay? The table holds my recommendation.")}</p>
     <table>
       <tr><th></th><th>Chat and the work left</th><th>Message</th><th>Pin</th></tr>${sheet.pins.map(pin).join("")}
     </table>

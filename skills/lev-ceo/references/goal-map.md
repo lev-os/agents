@@ -45,7 +45,8 @@ Before you answer a chat's question, or write the card for it:
 3. Ask if the work is a priority now. JP names what is not ("some things are not priority like daemon in the menu, mac sync"); a goal or a chat that is not a priority is marked on the live map in its name ("· later") and its answer is parked, not sent.
 4. Answer what moves the work to the end state inside that law. When the chat's choices all miss the end state, give the end state and not a letter (`references/sweep.md`, the bullet on an answer in JP's voice).
 5. When the chat works for its box and not for the goal, the answer starts with the goal card below.
-6. Before the send, manage its blast radius (`references/sweep.md`, the bullet on the blast radius): priority order, a small wave, limits in the message.
+6. Before you recommend an owner for a thing, test the owner yourself; never pass on a chat's recommendation. Say what the thing is in one sentence with one verb, and say the same of each box that could own it. A different verb is a different owner: core/poly binds an action to its surfaces (a map), and a gateway listens and lets a call in (a running process), so poly does not own the gateway. "The box already has a folder for it" is the law "code that exists is evidence of an intent", not a reason. On 2026-11-20 the CEO chat recommended core/poly as the owner of the gateway from the daemon chat's design, and JP answered: "no, poly is not a gateway, ur doing it again...". When no box that exists has the verb, the thing gets its own owner, and its name is JP's to rule.
+7. Before the send, manage its blast radius (`references/sweep.md`, the bullet on the blast radius): priority order, a small wave, limits in the message.
 
 ## The sequence: three bands
 
