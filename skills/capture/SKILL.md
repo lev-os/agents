@@ -44,8 +44,11 @@ lev find "<the symptom>" --type debt_row --json                                #
 ```
 
 Each card in `result.data.results` has `id`, `type`, `title`, `status`,
-`snippet`, `path`, and `line`. A `superseded` card is history: open the record
-that superseded it. Record each card that settles, supersedes, or conflicts with
+`snippet`, `path`, and `line`. After the cards, `result.data.links` lists every
+record the first 10 cards cite or that cites them, one line each, with its
+`summary` and the card it was reached from (`way`: `cites` or `cited_by`):
+read the lines and open the records that fit, since lev find picks none of
+them. A `superseded` card is history: open the record that superseded it. Record each card that settles, supersedes, or conflicts with
 a row (`id` and `path`) in that row's `relationships`. A found decision answers
 its question: cite it, and never ask that question again. If `lev` is missing or
 the call fails, say so in one line and `rg` over `.lev` and `dna`. `lev find`
