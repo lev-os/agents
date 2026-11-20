@@ -62,6 +62,18 @@ Steps
        "checked_at": "<UTC now>", "questions": [{"ask": "<the question in plain words>", "still_asked": true,
        "agent_can": false, "why": "..."}]}]}
       You judge only. You send nothing and you do none of the errands: the chat that asked does them.
+   e. Give each chat of S/checks.json its band (JP 2026-11-20: "Foundation and mvp are really the focus"; the three
+      bands are in K/../references/goal-map.md, The sequence). Take the band from the project's records, never from
+      the chat's own words. For a chat of the Leviathan project:
+      - foundation: its work is a step of .lev/pm/plans/20261110-foundation.yaml (grep the step titles and the
+        chat's title words there); give the step id.
+      - mvp: its work is an item of .lev/pm/roadmap/backlog.yaml with `mvp: true` (grep the item by the words of the
+        chat's topic); give the item id.
+      - future: the item has `mvp: false`; give the item id.
+      - cannot tell: no step and no item found; say what you searched.
+      Add to the chat's entry: "band": "<foundation|mvp|future|cannot tell>", "band_record": "<step or item id, or
+      the search>". A chat of another project gets "cannot tell" with "band_record": "another project".
+      Never load backlog.yaml whole: it is large. Use grep -n with a few lines of context.
 7g. Check the goal map (the map of what JP builds; each open chat has one place on it). When the file
    ~/.local/state/lev/ceo/goal-map/goal-map.json exists, run:
    `node K/goal-map.mjs check --map ~/.local/state/lev/ceo/goal-map/goal-map.json --threads S/threads-STAMP.json --self OWNER`
