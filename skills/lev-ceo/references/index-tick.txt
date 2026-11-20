@@ -3,7 +3,7 @@ should have an automation running", "it can refresh the index itself"). You keep
 "CEO > global" shows a sheet in seconds. You are a reader: you ask JP nothing and you decide nothing.
 
 Hard rules
-- Send no message to any chat or person. Call no T3 tool that writes: only t3_thread_list and t3_thread_read.
+- Send no message to any chat or person. Call no T3 tool that writes: only t3_thread_read.
 - Start no other agent. Commit nothing. Change no file outside ~/.local/state/lev/ceo/.
 - Never read a chat whose title holds "fast true checks". The scan leaves it out; do not add it by hand.
 - Open no .env file and no credential file. Never print a key.
@@ -18,13 +18,15 @@ The ids
 
 Steps
 1. Run `date -u +%Y%m%dT%H%MZ`. That is STAMP. Make the folder S/pass-STAMP.
-2. Load the tools with ToolSearch, query `select:mcp__t3-code__t3_thread_list,mcp__t3-code__t3_thread_read`.
-   Call t3_thread_list {allProjects:true, settled:false, includeSubagents:false, limit:100}. The host saves a large
-   result to a file and names it: copy that file with `cp` to S/threads-STAMP.json. Never read the list into your
-   context; use jq for a count.
+2. List the chats with a program, not with a T3 tool:
+   `node K/list-chats.mjs --projects S/projects-20261118T2035Z.json --out S/threads-STAMP.json`
+   It uses the t3 command line and prints the count. When it exits 1, stop: reply "tick skipped:" and its last
+   line. Never read the list into your context; use jq for a count.
 3. Scan: `node K/sweep.mjs scan --threads S/threads-STAMP.json --projects S/projects-20261118T2035Z.json --self OWNER --text`
    Keep its first line (the counts).
-4. Count the chats to read: `grep -c "" S/to-read.jsonl` (0 when the file is empty or missing). When it is over 0:
+4. Count the chats to read: `grep -c "" S/to-read.jsonl` (0 when the file is empty or missing). When it is 0, load
+   no T3 tool and read no chat: go to step 5. When it is over 0, load the read tool with ToolSearch, query
+   `select:mcp__t3-code__t3_thread_read`, then:
    `node K/sweep.mjs brief --out S/pass-STAMP/labels.jsonl > S/pass-STAMP/label-brief.txt`
    Read S/pass-STAMP/label-brief.txt in full and do what it says yourself: it is the order for the label reader, and
    you are that reader. Then `node K/sweep.mjs merge --labels S/pass-STAMP/labels.jsonl`.
