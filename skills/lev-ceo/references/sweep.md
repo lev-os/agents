@@ -40,6 +40,14 @@ A pinned chat went quiet when it has work left and the scan shows no change sinc
 
 He answers each on its own ("send, keep pinned"). Pin and unpin on his word only: `mcp__t3-code__t3_thread_organize`.
 
+**The pins are the working set, and you manage them together** (JP 2026-11-20: "u should be looking at the pins, we manage them together"; `.lev/pm/decisions/20261120-jp-says-snooze-the-listed-chats-the-pins-are-managed-together-and-no-manager-runs-another-manager.yaml`).
+
+- Start each sort of the chats from the pins. A pinned chat is in the focus, whatever its band or its label says.
+- A pinned chat never goes in a pile to snooze or to settle. When you think its pin is spent, say so and ask.
+- Propose a pin for a chat you are not sure about; he says yes or no.
+- A snooze is for clarity and he allows it for a listed chat. "The work is done" is a claim you prove by a read of the last report (`SKILL.md` §4), never by the index's label: on 2026-11-20 he judged a list made from labels "like 50% correct".
+- Run no manager chat over other chats ("u managing another manager is actually a bad idea we do it together from here"). You deal with each owner directly, and JP works with you in this chat.
+
 ## Words
 
 - **stale:** `updatedAt` older than 1 hour while the status is `running` or `waiting`, or older than 1 day while it is `interrupted`. An interrupted chat is not a failure: read its new messages before you call it stuck.
