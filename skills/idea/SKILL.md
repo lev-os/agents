@@ -44,9 +44,10 @@ steps:
       alone. Read the first call's first 5 cards, then the second call's first 5
       cards not already shown (decision 20261105-find-idea-writer-call). Then
       read each call's link lines (`result.data.links`: every record the first
-      10 cards cite or that cites them, one line each, with its `summary` and
-      the card it was reached from) and open the records that fit; lev find
-      picks none of them. If the
+      10 cards cite or that cites them and that passes the call's filters, one
+      line each, with its `summary` and the card it was reached from) and open
+      the records that fit; lev find picks none of them, and a call without
+      `--type` shows the links of the other types. If the
       idea names a workstream, the second call is the first call with
       `--workstream <its id>` (decision 20261101-find-prior-art-workstream-call).
       If `lev` fails, say so in one line and `rg` over `.lev`. Follow the
