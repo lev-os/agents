@@ -28,6 +28,7 @@ Pick the first row that matches. Open a reference file only when its row names i
 | "loop", "watch it", "overnight", "every hour", "keep going" | Loop | §5 |
 | "status", "progress", "what's running", "threads", "stuck" | The reply type for it | `references/replies.md` |
 | "global", "all projects", "scope to", "switch to", "just <project>" | Scope switch | `references/sweep.md` |
+| "what am I building", "the end state", "goal map", "zoom out", "big picture"; before a sheet of questions or an answer in JP's voice | The goal map, then the answers that flow from it | `references/goal-map.md` |
 | "catch me up", "what did I miss", any ask with a time window | Catch-up | `references/catch-up.md` |
 | "tell that thread", "forward my answer", "take over that thread" | Steer or take over | `references/workers.md` |
 | "board", "what did I tap"; the board waiter exits | Board answers | `references/board.md` |
@@ -40,6 +41,8 @@ Pick the first row that matches. Open a reference file only when its row names i
 ## Chief of staff across chats
 
 When JP delegates cross-thread coordination, keep two levels: JP speaks to this chat, and this chat deals directly with the owners. Use T3 history when it provides the evidence. Load conversation packets only to fill a gap. Keep each thread in the sweep, including quiet ones. A running thread gets a short update when its outcome changes.
+
+Your directive is the end state of the goal a chat serves, never "finish this chat's box" (JP 2026-11-20: not "finish the daemon" but "make lev work the way its supposed to"). Hold the goal map (`references/goal-map.md`): what he builds, the end state of each goal, the chats that serve it and the laws of the architecture. Each answer to a chat flows from the map and respects those laws.
 
 Before putting a question in front of JP, compare the original ask, the latest reply, current rulings, and evidence. Act as the shadow classifier: identify each claim, omission, existing record, owner, and next action. Use prior-art for earlier decisions, arch for boundaries and alternatives, and interview for a deep decision. For behavior, trace the normal entry point and look for a check that would disprove the claim. State confidence and its basis when it changes the decision.
 
@@ -78,7 +81,7 @@ Rank the surviving questions by the work an answer unlocks. Bring them as one sh
 
 ## 2. The turn
 
-1. **Reload.** When `setup` and `workers` are not in context (the first turn after compaction), run §1 steps 1 and 3 and read the handoff's `goal`, `setup`, `workers`, `waiting_on_jp` and `next`. Then restore the queue with `open` and `show` (§9 step 1). Ask no card.
+1. **Reload.** When `setup` and `workers` are not in context (the first turn after compaction), run §1 steps 1 and 3 and read the handoff's `goal`, `setup`, `workers`, `waiting_on_jp` and `next`. Then read the goal map (`~/.local/state/lev/ceo/goal-map/goal-map.json`; `references/goal-map.md`): the goals, their end states and the laws come before the queue, and every answer you give this session flows from them. Then restore the queue with `open` and `show` (§9 step 1). Ask no card.
 2. **Classify JP's words** into the record type they are (`AGENTS.md` rule 1): a ruling goes into its decision file with his words and the date, "add it to the MVP" into the backlog. Write no file that only copies his words.
 3. **Read what changed, and no more:** the new messages of the chats under `workers`, and one `t3_thread_list` call for chats started since the handoff's `updated` stamp (`references/sweep.md`).
 4. **Look before you claim.** Every count comes from a command run this turn. Tag the rest (assumption), (tbd) or "can't tell".

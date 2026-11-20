@@ -56,6 +56,11 @@ Steps
        "checked_at": "<UTC now>", "questions": [{"ask": "<the question in plain words>", "still_asked": true,
        "agent_can": false, "why": "..."}]}]}
       You judge only. You send nothing and you do none of the errands: the chat that asked does them.
+7g. Check the goal map (the map of what JP builds; each open chat has one place on it). When the file
+   ~/.local/state/lev/ceo/goal-map/goal-map.json exists, run:
+   `node K/goal-map.mjs check --map ~/.local/state/lev/ceo/goal-map/goal-map.json --threads S/threads-STAMP.json --self OWNER`
+   Exit 1 is a problem line for step 8: "goal map: no place for: <each title under unplaced>" and, when `twice` is not
+   empty, "goal map: two places for: <each title>". Do not change the map: the CEO chat places a chat.
 8. Write S/index-status.json with the Write tool, one JSON object:
    {"at": "<date -u +%Y-%m-%dT%H:%MZ>", "stamp": "STAMP", "chats": <count in the list>, "read": <chats you labeled>,
     "cards_written": <cards you wrote>, "checked": <chats in S/checks.json>, "for_jp": <questions with still_asked
