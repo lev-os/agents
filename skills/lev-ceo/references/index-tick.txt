@@ -35,8 +35,30 @@ Steps
    When the brief names at least one chat, read it in full and do what it says yourself: you are the card reader.
    Write each card for a reader who has never seen the chat: plain words, no code name, no file name, no id without
    its meaning in the same sentence. Then `node K/cards.mjs merge --thread OWNER --cards S/pass-STAMP/cards.jsonl`.
-7. Write S/index-status.json with the Write tool, one JSON object:
+7. Check each open item. You are the CEO chat's agent (JP 2026-11-20: "u have the automation chat u made, thats ur
+   fucking agent, it should be doing anything agentic"), so JP gets no card that is stale or that an agent can do.
+   a. `node K/queue.mjs show --thread OWNER | jq -r '.items[] | select(.status == "pending" or .status == "presented") | .threadId' > S/pass-STAMP/open-ids.txt`
+   b. `xargs node K/chat-tail.mjs --max 2500 < S/pass-STAMP/open-ids.txt > S/pass-STAMP/tails.jsonl`
+      It reads through the t3 command line. Exit 1 means one chat could not be read: its line holds `error`; go on.
+   c. Read S/pass-STAMP/tails.jsonl, and S/checks.json when it exists. A chat whose `updated_at` is the one in
+      S/checks.json keeps its old entry. For each other chat, list each question that the end of its last reply
+      puts to JP, and answer two things for each:
+      - still_asked: false when the chat runs now, when a person wrote after the reply, or when the reply holds no
+        question for JP. True in every other case.
+      - agent_can: true when an agent can do what the question asks. That is: a page of a service that JP is signed
+        in to in Brave on this Mac, a setting that a program can read, an app that an agent can start, a test or a
+        click that an agent can do, a routine commit or push, and a question that a plan, a rule or a ruling of JP
+        already answers. False only for: production, money, a message to a person, a new sign-in on his machine,
+        product taste, public text under his name, and a delete that cannot be undone. Give the reason in `why`,
+        in plain words, one sentence.
+   d. Write S/checks.json with the Write tool, one JSON object:
+      {"at": "<UTC now>", "chats": [{"thread_id": "...", "title": "...", "updated_at": "<from the tail line>",
+       "checked_at": "<UTC now>", "questions": [{"ask": "<the question in plain words>", "still_asked": true,
+       "agent_can": false, "why": "..."}]}]}
+      You judge only. You send nothing and you do none of the errands: the chat that asked does them.
+8. Write S/index-status.json with the Write tool, one JSON object:
    {"at": "<date -u +%Y-%m-%dT%H:%MZ>", "stamp": "STAMP", "chats": <count in the list>, "read": <chats you labeled>,
-    "cards_written": <cards you wrote>, "scan_line": "<the first line of step 3>", "problems": ["<each command that
-    failed, with its last line>"]}
-8. Reply with one line: the time, the counts of step 7, and each problem. Nothing else.
+    "cards_written": <cards you wrote>, "checked": <chats in S/checks.json>, "for_jp": <questions with still_asked
+    true and agent_can false>, "scan_line": "<the first line of step 3>", "problems": ["<each command that failed,
+    with its last line>"]}
+9. Reply with one line: the time, the counts of step 8, and each problem. Nothing else.
