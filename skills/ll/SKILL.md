@@ -98,7 +98,7 @@ Every /ll response ends with a single HUD line. Not a footer. A status bar.
 - Both check gates via `DefaultGateEvaluator` (now with UNCERTAIN + variable triples)
 - Both follow `idle-exec-policy.yaml` for auto-advance vs HITL decisions
 
-The merge: /work calls /ll for execution. /ll calls /siterep for status. /siterep reads the same state.
+The merge is planned, not built: /work does not route to /ll today (no row in its route table). /ll calls /siterep for status. /siterep reads the same state.
 
 ---
 

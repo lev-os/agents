@@ -54,7 +54,7 @@ steps:
     on_failure: "Return to /capture with the unresolved bucket."
 
   - id: render_capture_ledger
-    action: Render the same compact <capture-results> delta used by /capture; retain the complete ledger in the durable artifact.
+    action: Render the same compact <capture-results> delta used by /capture; the ledger lives in the reply and the routed records keep the history (no ledger file).
     validation: "The response names what was saved, what remains in memory, the highest-leverage decision, and the next route."
     on_failure: "Do not route. Show the full ledger only for --full, audit, or debug."
 
@@ -84,7 +84,7 @@ Decision needed: {one_highest_leverage_decision_or_none}
 Ready next: {count_and_route_or_none}
 Next: {one_primary_action}
 
-Details: {ledger_artifact_ref_or_use_--full}
+Details: {routed_record_refs_or_use_--full}
 </capture-results>
 
 ## Red Flags
