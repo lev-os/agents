@@ -50,7 +50,7 @@ first. The lead holds the list; a worker gets a brief, not the list. In Lev the 
 
 **Answer a question** (no change wanted):
 1. Say the question back in one sentence, and what answer would change what JP does.
-2. Find what Lev already knows: `lev find`, prior-art, cass.
+2. Find what Lev already knows: `lev find`, prior-art.
 3. Measure: every count from a command run this turn, beside the claim.
 4. Answer first, current against ideal, with a picture for a state or a plan; a choice for JP is one "For you" item.
 5. A lesson for later work goes to learn; a ruling gets a decision file. `n/a: read-only` for build and prove.

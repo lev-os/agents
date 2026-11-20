@@ -100,7 +100,7 @@ final_confidence = clamp(base + layer_modifier + think_modifier, 0.0, 1.0)
 
 **Failure Action:**
 
-- **BLOCK transition.** Return to DISCOVER with structured prompt: list which checks failed, suggest specific actions (e.g., "Scope is MISSING — ask user to bound the scope" or "No prior art search completed — run `br search` and `cass search`").
+- **BLOCK transition.** Return to DISCOVER with structured prompt: list which checks failed, suggest specific actions (e.g., "Scope is MISSING — ask user to bound the scope" or "No prior art search completed — run `br search`").
 - Log failure to `custom:report` bead for audit trail.
 
 ---

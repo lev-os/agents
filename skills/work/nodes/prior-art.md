@@ -2,7 +2,7 @@ Load /prior-art skill. Return a provenance report in chat; do not write a markdo
 
 Search before creating:
 ```bash
-cass search "{topic}" --robot --limit 5 --fields minimal
+lev find "{topic}" --json
 rg -rl "{topic}" .lev/ docs/ reports/ prompt-exports/ 2>/dev/null
 rg -rl "{topic}" ~/.agents/diagrams 2>/dev/null
 lev get "{topic}" --json

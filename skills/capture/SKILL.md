@@ -52,7 +52,7 @@ them. A `superseded` card is history: open the record that superseded it. Record
 a row (`id` and `path`) in that row's `relationships`. A found decision answers
 its question: cite it, and never ask that question again. If `lev` is missing or
 the call fails, say so in one line and `rg` over `.lev` and `dna`. `lev find`
-skips source code (use codebase-memory or `rg`) and chat history (use `cass`).
+skips source code (use codebase-memory or `rg`) and chat history (read the linked transcript).
 
 Probe prior art for each material row before editing its destination. When the
 active workflow authorizes delegation, use a small read-only agent fanout and

@@ -1,6 +1,6 @@
 ---
 name: prior-art
-description: Use when you need an evidence-first provenance report from `cass`, repo docs, `.lev`, `~/.agents/diagrams`, `qmd`, or Grep/Glob tools.
+description: Use when you need an evidence-first provenance report from repo docs, `.lev`, `~/.agents/diagrams`, `qmd`, or Grep/Glob tools.
 ---
 
 # Prior Art
@@ -19,7 +19,7 @@ If the repo itself is unfamiliar, orient graph-first (tool 2 below) so the prior
 
 **On failure:** Ask for the missing repo path or clarify whether this is a project-specific or global hunt.
 
-## 2. `lev find` first for records, agent tools for code, `cass` for sessions
+## 2. `lev find` first for records, agent tools for code
 
 **Principle:** `lev find` searches the project's records under `.lev/` (decisions, captures, workstreams, ideas, tasks, plans, designs, reports, handoffs) and the Lev IR under `dna/`. A cold call takes about half a second, so run it first. It does not search source code or chat history.
 
@@ -30,7 +30,6 @@ If the repo itself is unfamiliar, orient graph-first (tool 2 below) so the prior
    graph knows symbols, callers, and structure Grep can't rank. If the MCP
    server is not connected this session, note that gap and continue with Grep.
 3. **Grep / Glob / SemanticSearch / Read** — exact patterns, file names, meaning-based search, and files whose path you know (instant)
-4. **cass** — session history (5-10s)
 
 Count a tool or MCP server as available only after it answers in this session. A missing tool or failed backend is a recorded search
 gap, not evidence that no prior art exists.
@@ -57,34 +56,13 @@ art" from a default sweep alone.
 
 **Burst budget (defaults):**
 - `lev find`, Grep/Glob/SemanticSearch: run as often as the question needs; vary the topic words and the `--type` filter instead of repeating one query
-- `cass`: at least **three** distinct query bands total across the task, but **no duplicate** band in the same session
 - Diagrams (`~/.agents/diagrams`): at most **one** filename sweep + **one** content sweep per user question
 
 **On failure:** If `lev` is not installed or the call fails, say so in one line and `rg` over `.lev` and `dna`. If every tool finds nothing, note it and synthesize from what you have.
 
-## 3. Search `cass` for session history
+## 3. Check session evidence when needed
 
-**Action:** Search session history before the repo.
-
-**Instruction:** Check `command -v cass`, then run `cass health --json`. Search in small bands instead of one broad query:
-
-- exact phrases and known artifact names
-- synonyms and nearby concepts
-- orthogonal nouns, adjacent systems, and "same shape" ideas
-- tags, dates, filenames, ticket ids, and other long-tail guesses
-
-When a project root is known, search both scoped and global history:
-
-```bash
-cass search "<query>" --robot --workspace "<project-root>" --limit 5 --fields minimal
-cass search "<query>" --robot --limit 5 --fields minimal
-```
-
-Expand only promising hits with `cass expand ... --json`.
-
-**Validation:** At least three **distinct** query bands were tried (or `cass` unavailable—state that explicitly), and at least one promising hit was expanded or the search space was explicitly exhausted. Do not re-run the same band twice in one session.
-
-**On failure:** Broaden the query band, not the conclusion.
+If the question depends on a past conversation, read its linked transcript or handoff. Record a gap if the original is unavailable.
 
 ## 4. Sweep local truth with agent tools
 
@@ -187,7 +165,7 @@ Open the most relevant HTML files and inspect their headings, source lists, and 
 
 For multi-project work, emit one project block per repo or workspace, then a final `Global` block that captures cross-project patterns. Keep the labels explicit:
 
-- `Verified` = directly supported by a file, diagram, or expanded `cass` hit
+- `Verified` = directly supported by a file, diagram, or original session record
 - `Stale` = found but archived, superseded, or older than the current canon
 - `Assumed` = inference from evidence, not a direct citation
 

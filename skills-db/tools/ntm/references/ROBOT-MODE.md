@@ -115,7 +115,7 @@ ntm --robot-interrupt=myproject
 ntm --robot-inspect-pane=myproject --inspect-index=2
 ```
 
-## Beads, Mail, and CASS
+## Beads and Mail
 
 ```bash
 ntm --robot-beads-list --beads-status=open
@@ -123,7 +123,6 @@ ntm --robot-bead-claim=br-123 --bead-assignee=agent1
 ntm --robot-bead-close=br-123 --bead-close-reason="Completed"
 
 ntm --robot-mail-check --mail-project=myproject --urgent-only
-ntm --robot-cass-search="authentication error"
 ```
 
 These are useful when a script or agent needs structured access to work state,

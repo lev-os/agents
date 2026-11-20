@@ -206,7 +206,6 @@ ntm --robot-send=myproject --msg="Summarize blockers." --type=claude
 ntm --robot-ack=myproject --ack-timeout=30s
 ntm --robot-tail=myproject --lines=50
 ntm --robot-mail-check --mail-project=myproject --urgent-only
-ntm --robot-cass-search="authentication error"
 ntm --robot-beads-list --beads-status=open
 ntm --robot-bead-claim=br-123 --bead-assignee=agent1
 ntm --robot-bead-close=br-123 --bead-close-reason="Completed"
@@ -259,7 +258,7 @@ Read these when you need deeper detail without bloating the main skill body:
 | Topic | Reference |
 | --- | --- |
 | High-leverage command patterns, output capture, monitoring, reusable assets | [COMMANDS.md](references/COMMANDS.md) |
-| Attention feed, robot output formats, wait conditions, mail/cass/bead robot flows | [ROBOT-MODE.md](references/ROBOT-MODE.md) |
+| Attention feed, robot output formats, wait conditions, mail/bead robot flows | [ROBOT-MODE.md](references/ROBOT-MODE.md) |
 | Human dashboard, palette, keybindings, and TUI implementation notes | [DASHBOARD.md](references/DASHBOARD.md) |
 | Project resolution, `projects_base`, config paths, and project-local assets | [CONFIG.md](references/CONFIG.md) |
 
@@ -268,4 +267,3 @@ Read these when you need deeper detail without bloating the main skill body:
 - `agent-mail` for inboxes, contact handshakes, and file reservations
 - `br` for bead state changes and syncing
 - `bv` for graph-aware task prioritization
-- `cass` for prior-session retrieval

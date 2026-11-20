@@ -25,7 +25,7 @@ Every PROPOSE output ends with a structured footer. The agent renders it as mark
 Shortcut behavior:
 - [s] → `lev-skill resolve "{topic}" --json`, present results, offer to cat SKILL.md
 - [r] → route to lev-research with current context
-- [p] → `br search "{topic}"` + `cass search "{topic}"`
+- [p] → `br search "{topic}"`
 
 ## SPEC Promotion Path
 

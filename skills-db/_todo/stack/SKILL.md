@@ -123,7 +123,6 @@ When the user says `/stack list`, do NOT dump raw JSON. Instead:
   knowledge-6r         (6 steps)  record → reduce → reflect → reweave → verify → rethink
   drift-detection      (5 steps)  positive drift → negative → undocumented → stale → alignment
   spec-driven-dev      (5 steps)  detect divergence → classify → push/pull → arbitrate → sync
-  cass-cm-audit        (6 steps)  health check → memory scan → playbook audit → gap analysis → reindex → report
   research-worker      (3 steps)  orient → research rounds → synthesize
 ```
 

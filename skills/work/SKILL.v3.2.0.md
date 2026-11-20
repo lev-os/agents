@@ -20,7 +20,6 @@ tools:
   - lev CLI
   - tracker CLI (br | bd | td)
   - cm CLI
-  - cass CLI
   - skill-discovery CLI
   - jq
 storage:
@@ -45,7 +44,7 @@ storage:
   │                   │    north star   deeper code    CDO graph     BDD +      spawn         layer-dep      close      cm outcome
   │ ┌──────────────┐  │   ALIGN gate    analysis       5-role        contracts  team/agents   strictness     bead       cm reflect
   │ │ Interview(fg)│  │    classify     C1-C4 map      think         accept.    inline        gates          update     br learning
-  │ │ PriorArt(bg) │  │    layers       DoR compl.     proposal      criteria   cm add                      status     cass index
+  │ │ PriorArt(bg) │  │    layers       DoR compl.     proposal      criteria   cm add                      status
   │ │ Search  (bg) │  │    alignment                   bead                    (learn)
   │ └──────────────┘  │    verdict
   │                   │
@@ -191,7 +190,7 @@ Progressive depth:
 - `context` -> current conversation/workspace state
 - `fs` -> filesystem and local artifacts
 - `tracker` -> task graph and open work (br/bd/td)
-- `beads` -> bead search (br search, cass search)
+- `beads` -> bead search (br search)
 - `research` -> external sources
 
 ---
@@ -225,9 +224,9 @@ DISCOVER (concurrent, not sequential)
 ├── Interview (foreground)
 │   └── Ask user questions, rolling bg research per question
 ├── Memory Prefetch (background)
-│   └── cm context + cass search (workspace-first, global fallback)
+│   └── cm context
 ├── Prior Art (background)
-│   └── br search, lev get, cass search, tracker list
+│   └── br search, lev get, tracker list
 ├── Search (background)
 │   └── Codebase grep, online search, skill discovery
 └── Guard (constant -- runs every turn, not a pre-step)
@@ -256,7 +255,6 @@ final = base + layer_modifier + think_modifier
 | Step | Command | Policy |
 |------|---------|--------|
 | Procedural recall | `cm context "{kw}" --workspace "$PWD" --limit 3 --history 1 --json` | Workspace-first |
-| Episodic recall | `cass search "{kw}" --workspace "$PWD" --json --limit 5 --max-content-length 180` | Workspace-first |
 | Global fallback | retry without `--workspace` only if low-signal workspace hits | Fail-open |
 | Injection budget | summarize to short bullets with provenance links | Keep compact |
 
@@ -281,7 +279,6 @@ Low-signal criteria (default): generic prompt, zero thinking signal, empty/weak 
 | Beads | `br search "{kw}"` ; `br list --label-any "{kw}"` |
 | Tracker tasks | `$TRACKER list --status=open \| grep -i "{kw}"` ; `$TRACKER search "{kw}"` |
 | Codebase & docs | `lev get "{kw}" --scope=all --depth=research` |
-| CASS index | `cass search "{kw}" --robot --limit 10` |
 | Existing skills | `lev get "{kw}" --scope=knowledge --depth=fs --pattern="SKILL.md"` |
 
 **If substantial prior art found**, present findings and ask:
@@ -463,7 +460,7 @@ work:
 Shortcut behavior:
 - [s] -> lev-skill resolve "{topic}" --json, present results, offer to cat SKILL.md
 - [r] -> route to lev-research with current context
-- [p] -> br search "{topic}" + cass search "{topic}"
+- [p] -> br search "{topic}"
 
 ---
 
@@ -664,7 +661,6 @@ Final FSM step. Reflects on the session, records outcomes, creates a learnings b
 
 5. **Index session** for future search:
    ```bash
-   cass index
    ```
 
 #### Skip Conditions
@@ -726,7 +722,7 @@ Final FSM step. Reflects on the session, records outcomes, creates a learnings b
 | Spec validation fail | CATASTROPHIC | Block manifesting transition; list missing sections |
 | Skill discovery empty | INFO | Proceed with inline execution; no skill injection |
 | `learn` helper missing | WARN | Run inline interview loop in `work`; still emit proposal + handoff |
-| CM/CASS not available | INFO | Skip LEARN ceremony; note in output |
+| CM not available | INFO | Skip LEARN ceremony; note in output |
 
 ---
 
@@ -769,7 +765,6 @@ Final FSM step. Reflects on the session, records outcomes, creates a learnings b
 - `lev get` backend (`lev-find` legacy alias) -- Semantic context gather (DISCOVER background track)
 - `br` / `bd` / `td` -- Task tracking via adapter (SPEC -> EXECUTE)
 - `cm` -- Collective memory playbook (EXECUTE inline + LEARN ceremony)
-- `cass` -- Content-addressable session search (DISCOVER + LEARN)
 
 ### Templates & References
 - `./templates/report.md`
