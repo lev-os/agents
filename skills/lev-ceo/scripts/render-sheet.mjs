@@ -7,7 +7,7 @@
 // The sheet file: { sheet, first_number, last_number?, example?, groups: [{ mark, title, note, questions:
 //   [{ n, emoji, ask, choices: ["a. ...", "b. ..."], rec: "a: why" | null, chat: "<chat title>", yours }] }],
 //   pins: [{ p, chat, left, send, pin }], send?: { n, wording, chats: ["<chat title>"] } }.
-// `n` runs on from the last sheet and never starts again at 1. One emoji for each card, one mark for each group.
+// `n` counts from 1 on each sheet: number-sheet.mjs sets it and writes the map to each permanent id. One emoji for each card, one mark for each group.
 // Each card names its chat; the reply under the sheet gives each chat's link, because a link inside the page
 // does not open.
 import { readFileSync, writeFileSync } from "node:fs";

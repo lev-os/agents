@@ -42,7 +42,11 @@ steps:
       installed, run `lev find "<3-6 topic words>" --type plan --type design
       --type decision --type idea --json`, then the same query with `--type idea`
       alone. Read the first call's first 5 cards, then the second call's first 5
-      cards not already shown (decision 20261105-find-idea-writer-call). If the
+      cards not already shown (decision 20261105-find-idea-writer-call). Then
+      read each call's link lines (`result.data.links`: every record the first
+      10 cards cite or that cites them, one line each, with its `summary` and
+      the card it was reached from) and open the records that fit; lev find
+      picks none of them. If the
       idea names a workstream, the second call is the first call with
       `--workstream <its id>` (decision 20261101-find-prior-art-workstream-call).
       If `lev` fails, say so in one line and `rg` over `.lev`. Follow the
