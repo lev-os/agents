@@ -47,6 +47,25 @@ Before you answer a chat's question, or write the card for it:
 5. When the chat works for its box and not for the goal, the answer starts with the goal card below.
 6. Before the send, manage its blast radius (`references/sweep.md`, the bullet on the blast radius): priority order, a small wave, limits in the message.
 
+## The sequence: three bands
+
+JP 2026-11-20: "Given all our goals, u need to also be able to sequence things properly" and "Foundation and mvp are really the focus, i just want the future to be known so we dont paint ourselves in a corner" (`.lev/pm/decisions/20261120-jp-says-foundation-and-the-mvp-are-the-focus-the-future-is-designed-and-not-built-and-caller-proof-is-not-in-the-mvp.yaml`).
+
+Before you answer a chat or send a wave, put the work in one band. Take the band from the project's own records, never from the chat's words.
+
+| Band | What is in it | In Lev, read | What the answer says |
+|---|---|---|---|
+| Foundation | The steps that make the base work as intended | `.lev/pm/plans/20261110-foundation.yaml`, each step's `status` | Finish the step. Name what it still needs to be verified, and nothing more |
+| MVP | The items marked for the first version | `.lev/pm/roadmap/backlog.yaml`, `mvp: true`; the board data `.lev/now/backlog.json` gives each item's stage | Build it, in the order of the backlog |
+| Future | Everything else: `mvp: false`, or in no record | The same file | Design it, with options and prior art, so that today's build does not block it. Build nothing |
+
+- A chat that builds in the future band while the foundation or the MVP is open is drifting. Say so, with the backlog item that proves it, and steer it to a design turn.
+- State the MVP's assumptions in the answer when they remove work. For Lev's MVP: one machine, a contained network, no proof of who the caller is.
+- When JP asks if a band is done, count from the records in this turn and say how old the board data is. Rerun no check for a count.
+- Send in band order: foundation first, then MVP, then a design turn for the future, one small wave at a time (`references/sweep.md`, the bullet on the blast radius).
+
+## The goal card
+
 A goal card is what a chat is told about its place:
 
 ```text
