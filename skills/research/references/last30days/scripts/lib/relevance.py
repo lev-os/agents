@@ -87,6 +87,12 @@ LOW_SIGNAL_QUERY_TOKENS = frozenset({
 })
 
 
+# Suffixes that keep a query word the same word ("coups", "couped"); any other
+# tail makes a different word ("couple", "coupon").
+_INFLECTION = r"(?:s|es|d|ed|ing|ian|ians|er|ers)?"
+_INFLECTION_RE = re.compile(_INFLECTION)
+
+
 def tokenize(text: str) -> Set[str]:
     """Lowercase, strip punctuation, remove stopwords, drop single-char tokens.
 
@@ -164,13 +170,23 @@ def token_overlap_relevance(
         combined = f"{text} {' '.join(hashtags)}"
     t_tokens = tokenize(combined)
 
-    # Split concatenated hashtags (e.g., "claudecode" -> matches "claude", "code")
+    # Split concatenated hashtags (e.g., "claudecode" -> matches "claude", "code").
+    # A query word counts only where its word ends: tag end or another query
+    # word ("aicoup", "claudecode"), so "coup" never matches "aicouple".
     if hashtags:
+        q_alt = "|".join(sorted((re.escape(t) for t in q_tokens), key=len, reverse=True))
         for tag in hashtags:
             tag_lower = tag.lower()
             for qt in q_tokens:
-                if qt in tag_lower and qt != tag_lower:
+                if qt in tag_lower and qt != tag_lower and re.search(
+                    rf"{re.escape(qt)}{_INFLECTION}(?:$|{q_alt})", tag_lower
+                ):
                     t_tokens.add(qt)
+
+    # Real inflections of a query word count as the word ("coups" -> "coup").
+    for qt in q_tokens - t_tokens:
+        if any(t.startswith(qt) and _INFLECTION_RE.fullmatch(t[len(qt):]) for t in t_tokens):
+            t_tokens.add(qt)
 
     if not q_tokens:
         return 0.5  # Neutral fallback for empty/stopword-only queries
@@ -191,7 +207,10 @@ def token_overlap_relevance(
     normalized_query = prepared.normalized_phrase
     normalized_text = _normalize_phrase(combined)
     if normalized_query:
-        contained = normalized_query in normalized_text
+        # Whole-word phrase match: "ai coup" is not inside "ai couple".
+        contained = bool(re.search(
+            rf"(?<!\w){re.escape(normalized_query)}{_INFLECTION}(?!\w)", normalized_text
+        ))
         if not contained and cjk.has_cjk(normalized_query):
             # CJK has no inter-word spaces, so a multi-token Chinese query like
             # "国产大模型 测评" never appears verbatim in continuous source text

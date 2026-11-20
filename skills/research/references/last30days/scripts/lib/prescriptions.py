@@ -149,6 +149,17 @@ REGISTRY: Dict[Tuple[str, str], Prescription] = dict((
         anchor="grok-bot",
     ),
     _entry(
+        "x", "xai_payment_required",
+        cause="the xAI key (XAI_API_KEY) is out of credits or at its spending limit",
+        fix_nl=(
+            "X failed on a key problem, not 0 results: the xAI key is out of credits "
+            "or at its spending limit; add credits or raise the limit at console.x.ai, "
+            "or set X_BEARER_TOKEN from the X developer console"
+        ),
+        fix_cli="XAI_API_KEY=<key-from-a-team-with-credits>",
+        anchor="api-keys-env",
+    ),
+    _entry(
         "x", "connector_missing",
         cause=(
             "the X connector lane was declared but no connector result was "

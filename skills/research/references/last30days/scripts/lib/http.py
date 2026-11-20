@@ -593,6 +593,16 @@ class HTTPError(Exception):
         body: Optional[str] = None,
         outcome_state: Optional[str] = None,
     ):
+        # A 401/403 whose body says the credits are gone (xAI does this) is a
+        # top-up problem, not a bad key: name it in the message so every
+        # string-based classifier downstream agrees with outcome_state.
+        if (
+            body
+            and status_code != 402
+            and classify_failure(message=message) != health.PAYMENT_REQUIRED
+            and classify_failure(message=body[:500]) == health.PAYMENT_REQUIRED
+        ):
+            message = f"{message} (payment required: account out of credits or at its spending limit)"
         super().__init__(message)
         self.status_code = status_code
         self.body = body
@@ -700,6 +710,8 @@ def classify_failure(*, status_code: Optional[int] = None, message: str = "") ->
             "insufficient credits",
             "does not have any credits",
             "out of credits",
+            "used all available credits",
+            "monthly spending limit",
         )
     ):
         return health.PAYMENT_REQUIRED

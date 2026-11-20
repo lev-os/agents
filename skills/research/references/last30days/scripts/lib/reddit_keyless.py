@@ -144,6 +144,8 @@ def _discover(
         # Targeted run: the caller chose these subreddits, so their listing cards
         # are on-topic — include them as scored discovery AND as a score source.
         listing_posts = _scored_listings(subreddits, depth=depth, query=topic)
+        for p in listing_posts:
+            p["from_listing"] = True  # a feed card, not a keyword-search hit
         score_source = listing_posts
     else:
         # Bare global run: subreddits derived from noisy RSS results are NOT
@@ -365,8 +367,11 @@ def search_and_enrich(
         posts = on_topic
     else:
         nonzero = [p for p in posts if p.get("dedicated") or (p.get("relevance") or 0) > 0]
-        if nonzero:
-            posts = nonzero
+        # Nothing matched: keep keyword-search hits, never a subreddit's feed
+        # cards (a resolved sub's front page is not evidence for the topic).
+        posts = nonzero or [p for p in posts if not p.get("from_listing")]
+        if not posts:
+            return []
     if len(posts) < before:
         _log(f"Relevance floor dropped {before - len(posts)} off-topic posts")
 

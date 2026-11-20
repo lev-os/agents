@@ -74,9 +74,11 @@ def _x_error_prescription(config: dict, research_results: dict) -> prescriptions
         # the fix is the connector, on any host.
         return prescriptions.for_x(config, "connector_missing")
     failure = "cookies_expired"
-    if env.x_policy(config).hint_namespace == "official":
-        if http.classify_failure(message=message) == health.PAYMENT_REQUIRED:
-            failure = "payment_required"
+    paid_out = http.classify_failure(message=message) == health.PAYMENT_REQUIRED
+    if paid_out and "xai:" in message:
+        failure = "xai_payment_required"
+    elif env.x_policy(config).hint_namespace == "official" and paid_out:
+        failure = "payment_required"
     return prescriptions.for_x(config, failure)
 
 
@@ -136,6 +138,8 @@ def _is_youtube_degraded(research_results: dict, threshold: float) -> bool:
     captions_disabled = int(research_results.get("youtube_captions_disabled_count") or 0)
     if videos <= 0:
         return False
+    if research_results.get("youtube_transcript_limit") == 0:
+        return False  # this depth skips transcripts by design
     fetch_attempts = int(research_results.get("youtube_transcript_fetch_attempts") or 0)
     fetch_failures = int(research_results.get("youtube_transcript_fetch_failures") or 0)
     if fetch_attempts > 0 and fetch_failures == 0:
@@ -179,6 +183,9 @@ def _is_instagram_silent_failure(config: dict, research_results: dict) -> bool:
     count = research_results.get("instagram_items_count")
     if count is None:
         return False  # source not run this invocation
+    planned = research_results.get("planned_sources")
+    if planned is not None and "instagram" not in planned:
+        return False  # quick depth or the planner left it out: not searched, not silent
     return int(count) == 0
 
 

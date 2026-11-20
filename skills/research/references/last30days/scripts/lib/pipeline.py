@@ -4431,6 +4431,14 @@ def _retry_thin_sources(
 
 
 def _fetch_x_backend(backend, query, from_date, to_date, depth, config, warnings=None):
+    """Fetch one X backend; an HTTP failure becomes the error string so callers fail over."""
+    try:
+        return _fetch_x_backend_raw(backend, query, from_date, to_date, depth, config, warnings)
+    except http.HTTPError as exc:
+        return [], str(exc)
+
+
+def _fetch_x_backend_raw(backend, query, from_date, to_date, depth, config, warnings=None):
     """Fetch X items from a single backend. Returns (items, error_str).
 
     ``warnings``, when given, collects backend receipts that are not

@@ -628,10 +628,21 @@ def search_x(
     if not compiled:
         _log("topic compiled to an empty query after sanitizing")
         return {"items": [], "error": ERR_EMPTY_QUERY}
-    return _run_search(
+    result = _run_search(
         token, compiled, from_date, to_date, count,
         topic=query, id_prefix="XAPI", label="topic",
     )
+    # ponytail: the exact phrase of a multi-word topic (or a deterministic
+    # planner's raw keyword string) often matches nothing; retry once with the
+    # same sanitized tokens unquoted (X ANDs bare terms), as bird_x does.
+    tokens = compiled[1:-len('" -is:retweet')].split()
+    if not result.get("items") and not result.get("error") and len(tokens) > 1:
+        _log("0 results for the exact phrase; retrying with unquoted terms")
+        result = _run_search(
+            token, f"{' '.join(tokens)} -is:retweet", from_date, to_date, count,
+            topic=query, id_prefix="XAPI", label="topic-terms",
+        )
+    return result
 
 
 def is_own_post(url: str, handle: str) -> bool:

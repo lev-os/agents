@@ -1235,12 +1235,14 @@ def _show_runtime_ui(
     display_sources = list(
         dict.fromkeys(
             [
-                *report.query_plan.source_weights.keys(),
-                *report.items_by_source.keys(),
+                *(s for sq in report.query_plan.subqueries for s in sq.sources),
+                *(s for s, items in report.items_by_source.items() if items),
                 *report.errors_by_source.keys(),
             ]
         )
     )
+    # Unsearched sources (empty lists) are left out, so they do not read as "0 found".
+    counts = {source: counts.get(source, 0) for source in display_sources}
     progress.end_processing()
     progress.show_complete(
         source_counts=counts,
@@ -4253,6 +4255,12 @@ def _main(
                 # the silent-failure case (SC configured but the v2 reels endpoint
                 # 500'd through both the original query and the hashtag retry).
                 "instagram_items_count": len(instagram_items),
+                "planned_sources": sorted({
+                    s for sq in report.query_plan.subqueries for s in sq.sources
+                }),
+                "youtube_transcript_limit": _youtube_yt.TRANSCRIPT_LIMITS.get(
+                    depth, _youtube_yt.TRANSCRIPT_LIMITS["default"]
+                ),
             }
             quality = quality_nudge.compute_quality_score(config, research_results)
             if quality.get("nudge_text"):

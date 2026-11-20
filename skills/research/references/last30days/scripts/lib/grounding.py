@@ -223,29 +223,62 @@ def _parse_serper_date(raw: str) -> str | None:
 # Dispatcher
 # ---------------------------------------------------------------------------
 
+_KEYED_BACKENDS = (
+    ("brave", "BRAVE_API_KEY"),
+    ("exa", "EXA_API_KEY"),
+    ("serper", "SERPER_API_KEY"),
+    ("parallel", "PARALLEL_API_KEY"),
+)
+_KEY_REJECTED_STATUSES = {401, 402, 403, 422}
+# ponytail: process-wide memory of dead keys; a key fixed mid-run is picked up on the next run.
+_REJECTED_BACKENDS: dict[str, str] = {}
+
+
 def web_search(
     query: str,
     date_range: tuple[str, str],
     config: dict,
     backend: str = "auto",
 ) -> tuple[list[dict], dict]:
-    """Run web search with the specified or auto-detected backend."""
+    """Run web search with the specified or auto-detected backend.
+
+    Auto mode tries each configured keyed backend in order. A backend whose key
+    is rejected (HTTP 401/402/403/422) hands over to the next one, so one dead
+    key does not end web search. When every key is rejected, the error names
+    the keys instead of surfacing a bare HTTP status.
+    """
     if backend == "auto":
-        if config.get("BRAVE_API_KEY"):
-            backend = "brave"
-        elif config.get("EXA_API_KEY"):
-            backend = "exa"
-        elif config.get("SERPER_API_KEY"):
-            backend = "serper"
-        elif config.get("PARALLEL_API_KEY"):
-            backend = "parallel"
-        elif env.keyless_web_allowed(config):
-            # No paid key and the host has no native search -> use the keyless
-            # floor. On a native-search host this branch is skipped (the model
-            # supplies web results itself), so the engine returns nothing here.
-            backend = "keyless"
-        else:
+        rejected: list[str] = []
+        for name, key_var in _KEYED_BACKENDS:
+            if not config.get(key_var):
+                continue
+            if name in _REJECTED_BACKENDS:
+                rejected.append(_REJECTED_BACKENDS[name])
+                continue
+            try:
+                return web_search(query, date_range, config, backend=name)
+            except http.HTTPError as exc:
+                if exc.status_code not in _KEY_REJECTED_STATUSES:
+                    raise
+                _REJECTED_BACKENDS[name] = f"{key_var} (HTTP {exc.status_code})"
+                rejected.append(_REJECTED_BACKENDS[name])
+                sys.stderr.write(
+                    f"[Web] {name} key rejected (HTTP {exc.status_code}); trying next web backend\n"
+                )
+        key_error = RuntimeError(
+            "web search keys rejected: " + ", ".join(rejected)
+            + " - renew or remove the key (key problem, not 0 results)"
+        )
+        if not env.keyless_web_allowed(config):
+            # Native-search host: the model supplies web results itself.
+            if rejected:
+                raise key_error
             return [], {}
+        # No working paid key and no native search -> keyless floor.
+        items, artifact = web_search(query, date_range, config, backend="keyless")
+        if rejected and not items:
+            raise key_error
+        return items, artifact
     items: list[dict] = []
     artifact: dict = {}
     if backend == "brave":

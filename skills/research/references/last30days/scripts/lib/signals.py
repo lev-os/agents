@@ -328,9 +328,8 @@ def _passes_engagement_floor(item: schema.SourceItem, sole_source: bool) -> bool
     """Check whether a TikTok/Instagram item meets the minimum view floor.
 
     Items from sources not in _VIDEO_ENGAGEMENT_FLOOR_SOURCES always pass.
-    If the item's source is the *only* source represented in the batch
-    (sole_source=True), all items pass so we never return an empty result
-    for a whole source.
+    sole_source=True exempts the item: no item of its source in the batch
+    meets the floor, so applying it would empty that whole source.
     """
     if item.source not in _VIDEO_ENGAGEMENT_FLOOR_SOURCES:
         return True
@@ -368,7 +367,15 @@ def prune_low_relevance(
     across platforms is common, and an unrelated account would otherwise
     bypass the relevance and engagement floors.
     """
-    sources_present = {item.source for item in items}
+    # The pipeline prunes one source stream at a time, so "only source in the
+    # batch" was always true and switched the view floor off. Exempt a source
+    # only when none of its items meet the floor.
+    floor_met = {
+        item.source
+        for item in items
+        if item.source in _VIDEO_ENGAGEMENT_FLOOR_SOURCES
+        and ((item.engagement or {}).get("views") or 0) >= _VIDEO_ENGAGEMENT_FLOOR_VIEWS
+    }
     first_party = {
         h.strip().lstrip("@").lower()
         for h in (first_party_handles or ())
@@ -411,7 +418,7 @@ def prune_low_relevance(
         if item.source in _SOCIAL_SOURCES and not engagement_raw(item):
             if rel < minimum * 1.5:
                 return False
-        sole_source = sources_present == {item.source}
+        sole_source = item.source not in floor_met
         if not _passes_engagement_floor(item, sole_source):
             return False
         return True
