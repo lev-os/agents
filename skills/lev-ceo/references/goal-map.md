@@ -42,8 +42,10 @@ Before you answer a chat's question, or write the card for it:
 
 1. Find the chat's goal and end state on the map.
 2. Name the law that the question touches.
-3. Answer what moves the work to the end state inside that law. When the chat's choices all miss the end state, give the end state and not a letter (`references/sweep.md`, the bullet on an answer in JP's voice).
-4. When the chat works for its box and not for the goal, the answer starts with the goal card below.
+3. Ask if the work is a priority now. JP names what is not ("some things are not priority like daemon in the menu, mac sync"); a goal or a chat that is not a priority is marked on the live map in its name ("· later") and its answer is parked, not sent.
+4. Answer what moves the work to the end state inside that law. When the chat's choices all miss the end state, give the end state and not a letter (`references/sweep.md`, the bullet on an answer in JP's voice).
+5. When the chat works for its box and not for the goal, the answer starts with the goal card below.
+6. Before the send, manage its blast radius (`references/sweep.md`, the bullet on the blast radius): priority order, a small wave, limits in the message.
 
 A goal card is what a chat is told about its place:
 
