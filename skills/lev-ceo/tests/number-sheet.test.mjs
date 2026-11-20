@@ -47,3 +47,28 @@ test("the same id two times stops the run", () => {
   const bad = { sheet: 10, groups: [{ mark: "🔴", title: "one", note: null, questions: [question("q-1", 1), question("q-1", 2)] }], pins: [] };
   assert.throws(() => run(bad), /two times/);
 });
+
+// JP 2026-11-20: "these questions are stale", "I DID THIS SHIT ALREADY", "YOU FUCKING DO IT". Four of six errand
+// cards were not true or not his to do. So a card reaches him only with proof and a fresh check.
+const fresh = (id, n, more = {}) => ({ ...question(id, n), checked_at: "2026-11-20T01:00Z", ...more });
+const strict = (sheet, now = "2026-11-20T01:30Z") => {
+  const file = join(DIR, `strict-${sheet.sheet}.json`);
+  writeFileSync(file, JSON.stringify(sheet));
+  return execFileSync("node", [SCRIPT, file, "--strict", "--now", now], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+};
+const one = (q, n = 20) => ({ sheet: n, groups: [{ mark: "🔴", title: "one", note: null, questions: [q] }], pins: [] });
+
+test("strict: an errand card with no proof that an agent tried is refused", () => {
+  assert.throws(() => strict(one(fresh("q-1", 1, { yours: true }), 20)), /no proof/);
+  strict(one(fresh("q-1", 1, { yours: true, proof: "agent-desktop press on the system dialog is denied: it needs his password" }), 21));
+});
+
+test("strict: a card whose chat was last checked over 60 minutes ago is refused", () => {
+  assert.throws(() => strict(one(fresh("q-1", 1, { checked_at: "2026-11-19T17:21Z" }), 22)), /checked 4\d\d minutes ago/);
+  assert.throws(() => strict(one(question("q-1", 1), 23)), /never checked/);
+});
+
+test("without --strict a sheet with no check times still gets its numbers", () => {
+  const out = run({ sheet: 24, groups: [{ mark: "🔴", title: "one", note: null, questions: [question("q-1", 9)] }], pins: [] });
+  assert.equal(out.sheet.groups[0].questions[0].n, 1);
+});
