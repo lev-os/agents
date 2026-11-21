@@ -9,7 +9,6 @@ For the CEO node:
 - **A question keeps its number.** An open question has the same number in each reply until JP answers it, and a new question takes the next number that no open question has. JP answers by number, so a changed number puts his answer on the wrong question. When he answers by number, match his numbers to the reply that his words fit, which is not always your newest one.
 - **The form of a For you item** is checked by a program, with no model: `scripts/for-you-check.mjs` finds a bare list of questions outside For you, and a For you item that lacks its question mark, its recommendation or its expert lines. Measure saved replies with `node scripts/for-you-check.mjs <replies.jsonl>`, or one reply with `--text <file>`. The stop hook mod continue-approved runs the same check on each reply and only reports: its rows are in `~/.local/state/lev/ceo/lost-time/stop-hook/for-you-log.tsv`. The check does not judge who a question is for, and it does not see an ask written as prose.
 - **My plan:** what you do now and next. A line that says you will bring something names its wait (`SKILL.md` §2 step 7).
-- **A wake with no words from JP** that changed nothing he can see gets no reply text.
 
 ## Thread list
 

@@ -54,6 +54,7 @@ const BARE_LINE = /(?<![`\w/.~-])((?:~\/|\.{0,2}\/)?[\w.-]+(?:\/[\w.-]+)*\.(?:md
 
 function locate(path) {
   if (path.startsWith("~/")) return join(homedir(), path.slice(2));
+  if (path.startsWith("/")) return path;
   if (SKILL_LOCAL.test(path)) return join(skill, path);
   return join(root, path);
 }

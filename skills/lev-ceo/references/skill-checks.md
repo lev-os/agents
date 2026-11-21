@@ -14,7 +14,7 @@ node ~/.agents/skills/lev-ceo/tests/fresh-agent-settle.mjs
 
 What `citations.mjs` checks:
 
-- Each path in backticks in `SKILL.md` and `references/*.md` exists, and the first line of a cited line or range is inside its file. A `file.ext:line` written outside backticks is checked too. It skips a path with a pattern character (`< > { } * $ |` or a space), a runtime path (`~/.local`, `~/.config`, `~/.Trash`, `/tmp`) and a span that starts with no known folder. It does not read `references/*.txt`, `references/*.json` or `scripts/` for this. With files named on the command line, it reads only those files.
+- Each path in backticks in `SKILL.md` and `references/*.md` exists, and the first line of a cited line or range is inside its file. A `file.ext:line` written outside backticks is checked too, and there a path that starts with a slash is read as it is written. It skips a path with a pattern character (`< > { } * $ |` or a space), a runtime path (`~/.local`, `~/.config`, `~/.Trash`, `/tmp`) and a span that starts with no known folder. It does not read `references/*.txt`, `references/*.json` or `scripts/` for this. With files named on the command line, it reads only those files.
 - No file of `SKILL.md`, `references/` or `scripts/` holds a path into the decisions folder, the bare folder path included. A pattern path that says where to write a record passes.
 - With `--pointers`: each file of `references/` is pointed at: `references/<name>` in `SKILL.md` outside its Contents section or in another reference file, or a script line that holds `references` and the name. It does not check that a load condition is written once; read your edit for that.
 

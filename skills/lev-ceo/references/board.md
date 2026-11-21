@@ -1,6 +1,6 @@
 # The board: JP answers on his phone
 
-The board is the phone's view of what waits on JP: `.lev/now/ceo-board.json`, drawn as choice cards in the Waits-on-you view of `.lev/now/entity-explorer.html`. A page cannot post back into a chat, so a tap lands in the answers file, `~/.local/state/lev/ceo-board/answers.jsonl` (under `$XDG_STATE_HOME` when it is set; `board.mjs check` prints the path), and you read it when the waiter wakes you. The board is a view of what the chats say, never a second truth: a tap starts no work by itself, and you still rerun every check. Use it when JP asks for it or works from his phone. `board.mjs` is `scripts/board.mjs`; run it in the Lev checkout.
+The board is the phone's view of what waits on JP: `.lev/now/ceo-board.json`, drawn as choice cards in the Waits-on-you view of `.lev/now/entity-explorer.html`. A page cannot post back into a chat, so a tap lands in the answers file, `~/.local/state/lev/ceo-board/answers.jsonl` (under `$XDG_STATE_HOME` when it is set; `board.mjs check` prints the path), and you read it when the waiter wakes you. The board is a view of what the chats say, never a second truth: a tap starts no work by itself, and you still rerun every check. Use it when JP asks for it or says that he works from his phone. `board.mjs` is `scripts/board.mjs`; run it in the Lev checkout.
 
 ## Put the waits on the board
 

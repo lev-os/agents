@@ -54,6 +54,15 @@ test("a line citation written outside backticks is checked too", () => {
   assert.match(run.stderr, /AGENTS\.md:88 → line 88 is past the end/);
 });
 
+test("a path that starts with a slash is read as it is written, not under --root", () => {
+  const self = fileURLToPath(import.meta.url);
+  const found = check(`This test file holds it (${self}:1).\n`);
+  assert.equal(found.status, 0, found.stderr);
+  const missing = check("No file is there (/no/such/place/note.md:1).\n");
+  assert.equal(missing.status, 1);
+  assert.match(missing.stderr, /\/no\/such\/place\/note\.md:1 → no such file/);
+});
+
 test("a missing file fails, in a reference file as well", () => {
   const run = check("Fine.\n", { reference: "See `core/pkg/gone.ts` and `references/nope.md`.\n" });
   assert.equal(run.status, 1);
