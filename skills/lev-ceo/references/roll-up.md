@@ -8,7 +8,7 @@ A roll-up with a time window ("roll up the last 24h") is a Catch-up over that wi
 
 1. **Sweep.** List every chat, lane, handoff, decision, backlog item and evidence folder in scope (`references/sweep.md`; `ls -t .lev/pm/handoffs/*.yaml`). Mark each orphan: a chat or lane with no row in a handoff and no follow-up. Done when each input has a row with its link or path.
 2. **Classify the orphans first.** For each orphan, write the records of what it holds (`AGENTS.md` rule 1): its rulings, its ideas, its backlog asks. Done when no orphan holds something no record has.
-3. **Log what moved.** Each ruling goes into its decision file; each "add to the MVP" or "do later" becomes one row in `.lev/pm/roadmap/backlog.yaml`. Refresh the backlog through the lev-roadmap skill.
+3. **Log what moved.** Each ruling goes into its decision file; each "add to the MVP" or "do later" becomes one row in `.lev/pm/roadmap/backlog.yaml`. The open work of a chat outside Leviathan goes into a backlog file in its own repository, never into Leviathan's (JP 2026-11-19; `.lev/pm/decisions/20261119-jp-says-send-the-message-each-repository-gets-a-backlog-file-reads-use-a-small-model-and-the-queue-chat-hands-over-and-closes.yaml`). Refresh the backlog through the lev-roadmap skill.
 4. **Write the idea folder,** `.lev/pm/ideas/<slug>/idea.yaml` plus files in it:
    - the Catch-up narrative at the top;
    - an index of what exists, with counts from commands run this turn;
