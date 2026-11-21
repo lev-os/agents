@@ -25,6 +25,7 @@ const card = (q) => `
       <div class="num">${q.n}</div>
       <div class="body">
         <div class="ask"><span class="emo">${esc(q.emoji)}</span>${esc(q.ask)}</div>
+        ${q.what ? `<div class="left">${esc(q.what)}</div>` : ""}
         ${q.choices.length ? `<div class="opts">${q.choices.map((choice) => `<span class="opt">${esc(choice)}</span>`).join("")}</div>` : ""}
         <div class="meta">${q.rec ? `<span class="rec">👉 The chat recommends: ${esc(q.rec)}</span>` : `<span class="norec">The chat gives no recommendation.</span>`}</div>
         <div class="from">💬 ${esc(q.chat)}${q.yours ? ` <span class="hand">✋ only you can do this</span>` : ""}</div>
@@ -34,6 +35,7 @@ const card = (q) => `
 const group = (g) => `
   <section>
     <h2><span>${esc(g.mark)}</span> ${esc(g.title)} <em>${g.questions.length ? `${g.questions[0].n} to ${g.questions[g.questions.length - 1].n}` : "no question for you"}</em></h2>
+    ${g.end_state ? `<p class="note">🎯 ${esc(g.end_state)}</p>` : ""}
     ${g.note ? `<p class="note">${esc(g.note)}</p>` : ""}
     ${g.questions.map(card).join("")}
   </section>`;

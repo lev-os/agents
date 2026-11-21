@@ -45,7 +45,17 @@ const take = (item, what) => {
   item.n = n;
   numbers[n] = item.id;
 };
-for (const group of sheet.groups) for (const question of group.questions) take(question, "a question");
+// JP 2026-11-21, on a sheet of hand-cut cards ("what acts", "what?", "are u implying we're starting over?"): "its
+// like w/ every load of the cards you also need to re-orient and read the holistic view per project". So strict
+// also refuses a group with no `end_state` (the goal's end state, copied from the goal map) and a card with no
+// `what` (one sentence: what the thing is and what waits on it, for a reader who never saw the chat).
+for (const group of sheet.groups) {
+  if (strict && !String(group.end_state ?? "").trim()) refused.push(`group "${group.title}": no end_state. Read the goal map and the project's own page, then copy the goal's end state here`);
+  for (const question of group.questions) {
+    if (strict && !String(question.what ?? "").trim()) refused.push(`${question.id}: no \`what\` line (what the thing is and what waits on it): ${short(question)}`);
+    take(question, "a question");
+  }
+}
 if (sheet.send) take(sheet.send, "the send card");
 if (refused.length) throw new Error(`the sheet is not shown; ${refused.length} card(s) refused:\n${refused.join("\n")}`);
 delete sheet.first_number;

@@ -50,13 +50,23 @@ test("the same id two times stops the run", () => {
 
 // JP 2026-11-20: "these questions are stale", "I DID THIS SHIT ALREADY", "YOU FUCKING DO IT". Four of six errand
 // cards were not true or not his to do. So a card reaches him only with proof and a fresh check.
-const fresh = (id, n, more = {}) => ({ ...question(id, n), checked_at: "2026-11-20T01:00Z", ...more });
+const fresh = (id, n, more = {}) => ({ ...question(id, n), checked_at: "2026-11-20T01:00Z", what: "what the thing is and what waits on it", ...more });
 const strict = (sheet, now = "2026-11-20T01:30Z") => {
   const file = join(DIR, `strict-${sheet.sheet}.json`);
   writeFileSync(file, JSON.stringify(sheet));
   return execFileSync("node", [SCRIPT, file, "--strict", "--now", now], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
 };
-const one = (q, n = 20) => ({ sheet: n, groups: [{ mark: "🔴", title: "one", note: null, questions: [q] }], pins: [] });
+const one = (q, n = 20) => ({ sheet: n, groups: [{ mark: "🔴", title: "one", note: null, end_state: "what is true when the goal is reached", questions: [q] }], pins: [] });
+
+test("strict: a card with no `what` line is refused, so no card reaches JP without its context", () => {
+  assert.throws(() => strict(one(fresh("q-1", 1, { what: " " }), 24)), /no `what`/);
+});
+
+test("strict: a group with no end state is refused, so the goal is read before a card is worded", () => {
+  const sheet = one(fresh("q-1", 1), 25);
+  delete sheet.groups[0].end_state;
+  assert.throws(() => strict(sheet), /no end_state/);
+});
 
 test("strict: an errand card with no proof that an agent tried is refused", () => {
   assert.throws(() => strict(one(fresh("q-1", 1, { yours: true }), 20)), /no proof/);
