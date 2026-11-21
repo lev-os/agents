@@ -1,7 +1,5 @@
 # Checks for this skill
 
-Load this file before you edit this skill (`SKILL.md` §8).
-
 **A rule lives in the skill.** When JP rules on how a CEO node works, write the whole rule into the skill in its own words, at the step where an agent acts on it, and keep the reason in one short clause when the reason changes what an agent does. The decision record keeps the history (`SKILL.md` §6); the skill never tells an agent to read, open or load one, by path, by id or by title. No program finds an id or a title, so read your edit again for one.
 
 **One place for each rule and each load condition.** State a rule once; a second sentence that says it in other words is the fault to look for. A load condition is written once, at the step or the Router row that points at the file. The Contents table of `SKILL.md` says only what each file holds. Text that only one branch needs goes in a file of `references/`.
@@ -14,11 +12,11 @@ node ~/.agents/skills/lev-ceo/scripts/citations.mjs --pointers --root "$(git rev
 node ~/.agents/skills/lev-ceo/tests/fresh-agent-settle.mjs
 ```
 
-What `citations.mjs` checks, and no more:
+What `citations.mjs` checks:
 
-- Each path in backticks in `SKILL.md` and `references/*.md` exists, and a cited line is inside its file. It skips a path with a pattern character (`< > { } * $ |` or a space), a runtime path (`~/.local`, `~/.config`, `~/.Trash`, `/tmp`) and a span that starts with no known folder. It does not read `references/*.txt`, `references/*.json` or `scripts/` for this.
-- No file of `SKILL.md`, `references/` or `scripts/` holds a path of a record in the decisions folder. A pattern path that says where to write a record passes.
-- With `--pointers`: each file of `references/` is named by `SKILL.md` outside its Contents section, by another reference file, or by a script.
+- Each path in backticks in `SKILL.md` and `references/*.md` exists, and the first line of a cited line or range is inside its file. A `file.ext:line` written outside backticks is checked too. It skips a path with a pattern character (`< > { } * $ |` or a space), a runtime path (`~/.local`, `~/.config`, `~/.Trash`, `/tmp`) and a span that starts with no known folder. It does not read `references/*.txt`, `references/*.json` or `scripts/` for this. With files named on the command line, it reads only those files.
+- No file of `SKILL.md`, `references/` or `scripts/` holds a path into the decisions folder, the bare folder path included. A pattern path that says where to write a record passes.
+- With `--pointers`: each file of `references/` is pointed at: `references/<name>` in `SKILL.md` outside its Contents section or in another reference file, or a script line that holds `references` and the name. It does not check that a load condition is written once; read your edit for that.
 
 The third command gives a fresh `claude -p` agent only `SKILL.md` and checks that it picks the chats the settle script picks. It runs on JP's subscription, so it is not a paid run in the sense of `SKILL.md` §7.
 

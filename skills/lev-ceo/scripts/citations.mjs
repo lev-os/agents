@@ -16,8 +16,9 @@
  * of a project's .lev/pm tree fails, in backticks or not, also when the record exists. With no files named, this
  * check reads SKILL.md and every file in references/ and scripts/ (never tests/).
  *
- * --pointers adds one rule: a load condition is written once, where a file is pointed at. So each file of
- * references/ must be named by SKILL.md outside its Contents section, by another reference file, or by a script.
+ * --pointers adds one rule: each file of references/ is pointed at. A pointer is `references/<name>` in SKILL.md
+ * outside its Contents section or in another reference file, or a script line that holds "references" and the name.
+ * It does not check that a load condition is written once; a reader checks that.
  * Exit 0 when every citation resolves and no decision record is cited; exit 1 with one line per failure.
  */
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
@@ -102,12 +103,12 @@ if (values.pointers) {
   /** SKILL.md without its Contents section: that table says what a file holds, never when it loads. */
   const body = readFileSync(join(skill, "SKILL.md"), "utf8").replace(/^## Contents\n[\s\S]*?(?=^## )/m, "");
   const references = listed("references", () => true);
-  const scripts = listed("scripts", () => true).map((file) => readFileSync(file, "utf8"));
+  const scriptLines = listed("scripts", () => true).flatMap((file) => readFileSync(file, "utf8").split("\n"));
   for (const file of references) {
     const name = basename(file);
     const pointed = body.includes(`references/${name}`)
-      || references.some((other) => other !== file && readFileSync(other, "utf8").includes(name))
-      || scripts.some((text) => text.includes(name));
+      || references.some((other) => other !== file && readFileSync(other, "utf8").includes(`references/${name}`))
+      || scriptLines.some((line) => line.includes("references") && line.includes(name));
     if (!pointed) failures.push(`references/${name} → no file of the skill points at it`);
   }
 }

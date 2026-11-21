@@ -1,7 +1,5 @@
 # Loop: a timer that repeats, with an end
 
-Load this file when `setup.loop.on` is true or JP's words ask for a loop (`SKILL.md` §5).
-
 A loop is off until `setup.loop.on` is true or JP's words ask for one. Wakes that reload this skill are not a reason for a loop: `SKILL.md` §2 step 1 reloads from the handoff.
 
 1. **Define it with the ll skill** (`~/.agents/skills/ll/SKILL.md`): the goal, what one tick does, the end time and the stop rule.

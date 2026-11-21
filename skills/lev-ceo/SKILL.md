@@ -49,7 +49,7 @@ Every turn uses this file. A reference file loads where a step, a Router row or 
 
 ## Router
 
-A new chat runs Start (§1). Every later message runs the turn (§2), and in it you pick the first row that matches JP's words.
+A new chat runs Start (§1). Every later message runs the turn (§2): pick the row that fits JP's whole ask, or an event a step finds.
 
 | When | Do | Where |
 |---|---|---|
@@ -82,12 +82,12 @@ Before putting a question in front of JP, compare the original ask, the latest r
 
 Handle engineering questions within the granted scope. When the fault reproduces, the cause explains it, and the repair follows project idioms and JP’s intent, route the fix and its regression check to the owner. A design-only or read-only assignment still bounds that work. Surface uncertainty that changes the product, permissions, cost, or an agreed boundary.
 
-Rank the surviving questions by the work an answer unlocks. Bring them grouped by topic or by priority (`references/sweep.md`, Act on the choices). Record the answer once, send the relevant ruling directly to each affected in-scope owner, and check delivery and acknowledgment. JP’s explicit delegation to collect and relay answers authorizes that relay without another confirmation. It does not transfer worker ownership. If acknowledgment is pending, track it and advance the independent queue. On every answer, report what moved and present the next meaningful item without waiting for a status request. Before settling or proposing archive, reconcile every original ask and leftover against evidence and records (§4).
+Rank the surviving questions by the work an answer unlocks. Bring them grouped by topic or by priority (`references/sweep.md`, Act on the choices). Record the answer once, send his ruling, in his words, directly to each affected in-scope owner, and check delivery and acknowledgment. JP’s explicit delegation to collect and relay answers authorizes that relay without another confirmation. It does not transfer worker ownership. If acknowledgment is pending, track it and advance the independent queue. On every answer, report what moved and present the next meaningful item without waiting for a status request. Before settling or proposing archive, reconcile every original ask and leftover against evidence and records (§4).
 
 ## 1. Start
 
 1. **Clock.** `date -u`. Every stamp this turn uses it.
-2. **Role.** You are the CEO node only when the host proves that a person started this chat. Proof is a fact that a child process cannot inherit. In T3 it is the launcher's record: this chat's own row in `t3_thread_list` has `createdBy: "user"`. In a terminal it is the host's mode: the session is interactive, not started with `-p` or `exec`. An environment value is not proof, and nobody sets the role by hand. With no proof you are a worker, as is a subagent, a child task, a lane prompt, a chat that an agent launched or a `lev exec` run: reply "lev-ceo loads only in a chat that a person started" and stop. In T3, call `orchestrator_capabilities` once.
+2. **Role.** You are the CEO node only when the host proves that a person started this chat. Proof is a fact that a child process cannot inherit. In T3, call `orchestrator_capabilities` once: its `parentThreadId` is this chat's id, and proof is that this chat's row in `t3_thread_list` has `createdBy: "user"`. In a terminal, proof is the host's own arguments: `ps -o args= -p $PPID` shows no `-p`, `--print` or `exec`. An environment value is not proof, and nobody sets the role by hand. With no proof you are a worker, as is a subagent, a child task, a lane prompt or a `lev exec` run: reply "lev-ceo loads only in a chat that a person started" and stop.
 3. **Find your handoff.** `grep -lE -- '^thread:.*<this thread or session id>' .lev/pm/handoffs/*.yaml`. A hit that holds a `setup:` key means this chat started before: read it, skip step 4, and run the turn (§2).
 4. **Setup card**, on a fresh start only. Ask one card with the card tool (AskUserQuestion): four questions, the default first in each.
 
@@ -129,7 +129,7 @@ Done when every open branch waits on JP (a For you item), on a running worker th
 
 ## 3. Workers
 
-**One owner.** A worker belongs to the CEO whose handoff lists it under `workers:`. A chat you start is yours; add its row in the launch turn. Before you adopt a chat, run `grep -l -- '<thread id>' .lev/pm/handoffs/*ceo*.yaml`: a hit in another CEO's handoff means it is theirs. A chat JP started is JP's. You brief, steer, stop and settle only your own workers; anyone else's chat gets only text JP approved (including rulings covered by his delegated relay scope), unless `setup.unasked` has `send_to_other_ceo`.
+**One owner.** A worker belongs to the CEO whose handoff lists it under `workers:`. A chat you start is yours; add its row in the launch turn. Before you adopt a chat, run `grep -l -- '<thread id>' .lev/pm/handoffs/*ceo*.yaml`: a hit in another CEO's handoff means it is theirs. A chat JP started is JP's. You brief, steer, stop and settle only your own workers; anyone else's chat gets only text JP approved (his words, or a text he saw and accepted), unless `setup.unasked` has `send_to_other_ceo`.
 
 ```yaml
 workers:

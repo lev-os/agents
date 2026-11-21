@@ -16,13 +16,6 @@ So: sometimes show him the map in place of a list of questions; write every answ
 | `references/goal-map-example.json` | The map JP accepted on 2026-11-20. Copy its form, its plain words and its size. Never show it as today's map |
 | `scripts/goal-map.mjs` | `render`, `check`, `ids`; its header gives the file's form |
 
-## When
-
-- JP asks what he builds, where a chat fits, what the end state is, or says "goal map", "zoom out" or "the big picture".
-- Before a sheet of questions, and before you write an answer to a chat in his voice.
-- The first turn after compaction: read the live map before you read the queue.
-- A tick reports an open chat with no place on the map.
-
 ## How to make or refresh it
 
 Do the steps in this order. The order is the method: start from the goal, never from the questions.

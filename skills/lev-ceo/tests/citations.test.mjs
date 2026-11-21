@@ -103,6 +103,16 @@ test("with --pointers, a reference file that only the Contents section names fai
   assert.match(run.stderr, /references\/workers\.md → no file of the skill points at it/);
 });
 
+test("with --pointers, a file name inside an unrelated path of another reference file is not a pointer", () => {
+  const run = check("## Contents\n\nNone.\n\n## 3. Workers\n\nBrief it: `references/workers.md`.\n", {
+    args: ["--pointers"],
+    reference: "# Workers\n\nThe pass writes its own copy to out/pass-1/brief.txt.\n",
+    referenceText: "A brief.\n",
+  });
+  assert.equal(run.status, 1);
+  assert.match(run.stderr, /references\/brief\.txt → no file of the skill points at it/);
+});
+
 test("with --pointers, a pointer in a step or in a script passes, and without the flag the rule does not run", () => {
   const step = check("## Contents\n\n| `references/workers.md` | Workers |\n\n## 3. Workers\n\nBrief it: `references/workers.md`.\n", { args: ["--pointers"] });
   assert.equal(step.status, 0, step.stderr);
