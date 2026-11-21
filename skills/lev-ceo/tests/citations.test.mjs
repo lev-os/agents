@@ -31,7 +31,7 @@ function check(skillText, extra = {}) {
   writeFileSync(join(root, "core", "pkg", "file.ts"), "export {};\n");
   mkdirSync(join(root, ".lev", "pm", "decisions"), { recursive: true });
   writeFileSync(join(root, ".lev", "pm", "decisions", "20261110-a-ruling.yaml"), "id: 20261110-a-ruling\n");
-  return spawnSync(process.execPath, [SCRIPT, "--skill", skill, "--root", root], { encoding: "utf8" });
+  return spawnSync(process.execPath, [SCRIPT, "--skill", skill, "--root", root, ...(extra.args ?? [])], { encoding: "utf8" });
 }
 
 const RECORD = [".lev", "pm", "decisions", "20261110-a-ruling.yaml"].join("/");
@@ -95,4 +95,19 @@ test("a skill that names no decision record still exits 0", () => {
   const run = check("Record each ruling in a decision file.\n", { referenceText: "No record here.\n", script: "// plain\n" });
   assert.equal(run.status, 0, run.stderr);
   assert.match(run.stdout, /0 failed/);
+});
+
+test("with --pointers, a reference file that only the Contents section names fails", () => {
+  const run = check("## Contents\n\n| `references/workers.md` | Workers |\n\n## 1. Start\n\nNothing points there.\n", { args: ["--pointers"] });
+  assert.equal(run.status, 1);
+  assert.match(run.stderr, /references\/workers\.md → no file of the skill points at it/);
+});
+
+test("with --pointers, a pointer in a step or in a script passes, and without the flag the rule does not run", () => {
+  const step = check("## Contents\n\n| `references/workers.md` | Workers |\n\n## 3. Workers\n\nBrief it: `references/workers.md`.\n", { args: ["--pointers"] });
+  assert.equal(step.status, 0, step.stderr);
+  const script = check("## Contents\n\nNone.\n", { args: ["--pointers"], script: "// reads workers.md from the references folder\n" });
+  assert.equal(script.status, 0, script.stderr);
+  const off = check("## Contents\n\nNone.\n");
+  assert.equal(off.status, 0, off.stderr);
 });

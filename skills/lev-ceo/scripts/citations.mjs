@@ -10,21 +10,24 @@
  *   ~/...                                   the home folder
  *   SKILL.md, references/, scripts/, tests/ the skill folder
  *   anything else                           --root (default: the working directory)
- * Skipped: a pattern (it holds < > { } * $ or a space) and a runtime path (~/.local, ~/.config, ~/.Trash, /tmp).
+ * Skipped: a pattern (it holds < > { } * $ | or a space) and a runtime path (~/.local, ~/.config, ~/.Trash, /tmp).
  *
  * The skill states each rule in its own words, so it cites no decision record. Any path into the decisions folder
  * of a project's .lev/pm tree fails, in backticks or not, also when the record exists. With no files named, this
  * check reads SKILL.md and every file in references/ and scripts/ (never tests/).
+ *
+ * --pointers adds one rule: a load condition is written once, where a file is pointed at. So each file of
+ * references/ must be named by SKILL.md outside its Contents section, by another reference file, or by a script.
  * Exit 0 when every citation resolves and no decision record is cited; exit 1 with one line per failure.
  */
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { homedir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 
 const { values, positionals } = parseArgs({
-  options: { skill: { type: "string" }, root: { type: "string" } },
+  options: { skill: { type: "string" }, root: { type: "string" }, pointers: { type: "boolean" } },
   allowPositionals: true,
 });
 const skill = resolve(values.skill ?? join(dirname(fileURLToPath(import.meta.url)), ".."));
@@ -93,6 +96,20 @@ for (const file of ruleFiles) {
       failures.push(`${file}:${index + 1}: ${path} → a decision record is cited; state its rule in the skill`);
     }
   });
+}
+
+if (values.pointers) {
+  /** SKILL.md without its Contents section: that table says what a file holds, never when it loads. */
+  const body = readFileSync(join(skill, "SKILL.md"), "utf8").replace(/^## Contents\n[\s\S]*?(?=^## )/m, "");
+  const references = listed("references", () => true);
+  const scripts = listed("scripts", () => true).map((file) => readFileSync(file, "utf8"));
+  for (const file of references) {
+    const name = basename(file);
+    const pointed = body.includes(`references/${name}`)
+      || references.some((other) => other !== file && readFileSync(other, "utf8").includes(name))
+      || scripts.some((text) => text.includes(name));
+    if (!pointed) failures.push(`references/${name} → no file of the skill points at it`);
+  }
 }
 
 for (const failure of failures) console.error(failure);
