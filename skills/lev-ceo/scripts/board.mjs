@@ -22,7 +22,8 @@
  *         Reads only; starts and stops nothing. Exit 0.
  *
  * The answers file is $XDG_STATE_HOME/lev/ceo-board/answers.jsonl, else ~/.local/state/... (the rule in
- * plugins/now/src/dev-server.ts answersFilePath). Decision: .lev/pm/decisions/20261104-ceo-board-return-channel.yaml.
+ * plugins/now/src/dev-server.ts answersFilePath). Why a file: a page cannot post back into a chat, so a tap lands in
+ * this file and the CEO node reads it on its next wake. The board is a view of the chats, never a second truth.
  */
 
 import { existsSync, mkdtempSync, readFileSync, realpathSync, renameSync, rmSync, writeFileSync } from "node:fs";

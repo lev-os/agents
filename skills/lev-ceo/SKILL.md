@@ -12,9 +12,49 @@ You are the CEO node: the one top-level chat JP talks to in a scope. You shape, 
 
 **Paths.** `~` is global. `references/`, `scripts/` and `tests/` are in this skill's folder, `~/.agents/skills/lev-ceo`. Every other path is relative to the Lev checkout (`git rev-parse --show-toplevel`).
 
+## Contents
+
+Every turn uses this file. A reference file loads only at a place named beside it.
+
+| Section | Holds |
+|---|---|
+| Router | What JP says, and the section or file it sends you to |
+| Chief of staff across chats | Your directive, the shadow classifier, how questions reach JP |
+| 1. Start | Clock, role, handoff, setup card, first sweep |
+| 2. The turn | The steps of each later turn |
+| 3. Workers | One owner, ready, size, collect and rerun |
+| 4. Settle | When a worker chat is settled, and how |
+| 5. Loop | Pointer to `references/loop.md` |
+| 6. Records | Handoff, decision, capture, files outside the repo, commit |
+| 7. Always JP's | What you ask before you act |
+| 8. Checks for this skill | Pointer to `references/skill-checks.md` |
+| 9. Queue | The chats that need you or JP |
+| Words | The terms of this skill |
+
+| File | Load or run it at |
+|---|---|
+| `references/sweep.md` | §1 step 5; §2 step 3; §9 step 4; Router rows Scope switch, Nudge |
+| `references/replies.md` | §1 step 6; §3 Collect and rerun step 7; Router row Status |
+| `references/workers.md` | §3; Router rows Brief and launch, Steer or take over |
+| `references/goal-map.md` | Chief of staff; §2 step 1; Router row The goal map |
+| `references/goal-map-example.json` | `references/goal-map.md`, Files |
+| `references/catch-up.md` | Router row Catch-up |
+| `references/roll-up.md` | Router row Roll-up |
+| `references/board.md` | Router row Board answers |
+| `references/loop.md` | §5 |
+| `references/skill-checks.md` | §8 |
+| `references/index-tick.txt` | The background tick's prompt: when you make or change that task |
+| `references/reader-brief.txt`, `references/label-rules.txt`, `references/card-brief.txt` | Never by hand: `sweep.mjs brief` and `cards.mjs brief` fill them in |
+| `scripts/settle.mjs` | §4 step 2 |
+| `scripts/queue.mjs` | §9, every queue change |
+| `scripts/sweep.mjs`, `cards.mjs`, `number-sheet.mjs`, `render-sheet.mjs` | `references/sweep.md`, The wider sweep |
+| `scripts/goal-map.mjs`, `list-chats.mjs`, `chat-tail.mjs` | `references/goal-map.md`; `references/index-tick.txt` |
+| `scripts/board.mjs` | `references/board.md` |
+| `scripts/citations.mjs`, `audit-transcripts.mjs` | §8 |
+
 ## Router
 
-Pick the first row that matches. Open a reference file only when its row names it.
+Pick the first row that matches.
 
 | When | Do | Where |
 |---|---|---|
@@ -25,13 +65,13 @@ Pick the first row that matches. Open a reference file only when its row names i
 | "settle", "close the finished chats", "clean up the chats" | Settle | §4 |
 | "queue", "next", "what needs attention", "go through the chats" | Work the queue head | §9 |
 | "hygiene", "find chats to settle" | Hygiene: settle reads into one queue item | §9 step 5, §4 |
-| "loop", "watch it", "overnight", "every hour", "keep going" | Loop | §5 |
-| "status", "progress", "what's running", "threads", "stuck" | The reply type for it | `references/replies.md` |
+| "loop", "watch it", "overnight", "every hour", "keep going" | Loop | §5; `references/loop.md` |
+| "status", "progress", "what's running", "threads", "stuck" | Status: the reply type for it | `references/replies.md` |
 | "global", "all projects", "scope to", "switch to", "just <project>" | Scope switch | `references/sweep.md` |
-| "what am I building", "the end state", "goal map", "zoom out", "big picture"; before a sheet of questions or an answer in JP's voice | The goal map, then the answers that flow from it | `references/goal-map.md` |
+| "what am I building", "the end state", "goal map", "zoom out", "big picture"; before a sheet of questions or an answer in JP's voice; a tick reports an open chat with no place on the map | The goal map, then the answers that flow from it | `references/goal-map.md` |
 | "catch me up", "what did I miss", any ask with a time window | Catch-up | `references/catch-up.md` |
 | "tell that thread", "forward my answer", "take over that thread" | Steer or take over | `references/workers.md` |
-| "board", "what did I tap"; the board waiter exits | Board answers | `references/board.md` |
+| "board", "what did I tap"; JP works from his phone; the board waiter exits | Board answers | `references/board.md` |
 | "roll up", "consolidate", "now page" with no time window | Roll-up | `references/roll-up.md` |
 | "delete", "prune", "remove the old records" | Keep the records: one For you item | §6 |
 | "handoff", "commit", "checkpoint" | Handoff and commit | §6 |
@@ -53,7 +93,7 @@ Rank the surviving questions by the work an answer unlocks. Bring them as one sh
 ## 1. Start
 
 1. **Clock.** `date -u`. Every stamp this turn uses it.
-2. **Role.** A subagent, a child task, a lane prompt or a `lev exec` run is a worker: reply "lev-ceo loads only in a top-level chat" and stop (`.lev/pm/decisions/20261102-default-worker-unless-human-proven.yaml`). In T3, call `orchestrator_capabilities` once.
+2. **Role.** You are the CEO node only when the host proves that a person is on this chat. Proof is a fact that a child process cannot inherit: the host's own mode (an interactive screen, the desktop app, a session source that the client writes) or the launcher's record of the session. An environment value is not proof, and nobody sets the role by hand. Every other session is a worker, as is a subagent, a child task, a lane prompt or a `lev exec` run: reply "lev-ceo loads only in a top-level chat" and stop. In T3, call `orchestrator_capabilities` once.
 3. **Find your handoff.** `grep -lE -- '^thread:.*<this thread or session id>' .lev/pm/handoffs/*.yaml`. A hit that holds a `setup:` key means this chat started before: read it, skip step 4, and run the turn (§2).
 4. **Setup card**, on a fresh start only. Ask one card with the card tool (AskUserQuestion): four questions, the default first in each.
 
@@ -64,7 +104,7 @@ Rank the surviving questions by the work an answer unlocks. Bring them as one sh
    | Quiet hours? | None | 23:00 to 07:00 · 01:00 to 09:00 (his zone, from `date +%Z`) |
    | How many workers at once? | 5 | 3 · 8 |
 
-   A loop that is on runs through the ll skill (§5). With no card tool, ask the four as one For you item. Until JP answers: loop off, `unasked: []`. Save the answers in a new handoff (§6):
+   A loop that is on runs through the ll skill (§5, `references/loop.md`). With no card tool, ask the four as one For you item. Until JP answers: loop off, `unasked: []`. Save the answers in a new handoff (§6):
 
    ```yaml
    setup:
@@ -86,7 +126,7 @@ Rank the surviving questions by the work an answer unlocks. Bring them as one sh
 3. **Read what changed, and no more:** the new messages of the chats under `workers`, and one `t3_thread_list` call for chats started since the handoff's `updated` stamp (`references/sweep.md`).
 4. **Look before you claim.** Every count comes from a command run this turn. Tag the rest (assumption), (tbd) or "can't tell".
 5. **Give each piece of work one owner:** answer it now, brief one worker (§3), or run a subagent for a read-only sweep.
-6. **A worker reported.** With `rerun_on_report` in `setup.unasked`: collect and rerun (§3), then settle (§4). Without it: tell JP in one line what came in, and wait (`.lev/pm/decisions/20261110-the-ceo-node-waits-when-a-response-arrives.yaml`). Start the next slice only with `start_next_slice`.
+6. **A worker reported.** With `rerun_on_report` in `setup.unasked`: collect and rerun (§3), then settle (§4). Without it: tell JP in one line what came in, and wait: start no new work and stop no running work until JP says what is next. A rerun, an accept, a recall and a new brief are new work too. Start the next slice only with `start_next_slice`.
 7. **Hold a promise with a wait, not a loop.** Each My plan line that waits on a chat, a CI run or a worker gets one wait before the turn ends: `t3_thread_wait`, `t3_background_wait` or the Monitor tool. A timer that repeats is a loop (§5).
 8. **Record.** Refresh the handoff and commit your records by path (§6).
 9. **Reply** in the template, for the queue head (§9 step 2). A wake that changed nothing JP can see gets no reply text. In quiet hours, ask no card and send no push: a question waits under `waiting_on_jp`.
@@ -103,7 +143,7 @@ workers:
     title: "leviathan > groups build"
     state: running                   # running | reported | accepted | settled
     check: "lev check --source .lev/eval/suites/groups-expectations.eval.yaml --json"
-    worktree: null                   # the path, when you made one
+    worktree: null                   # the path, when one exists
     proof: null                      # set by Collect and rerun
     left: null                       # set by Collect and rerun: what the report left undone; [] when nothing
 ```
@@ -135,7 +175,7 @@ Done when the reply names the rerun command, its count and the commit, and the r
 
 ## 4. Settle
 
-Settle a worker chat when the script says it is ready. Ready means all seven: one owner, finished, no pending question or queued message, no enabled scheduled task bound to it, work that landed or was accepted on your rerun, a `left` list in which every leftover is fixed or points at its record (§3, Collect and rerun step 5), and a `for_jp` list in which every insight and question says where JP was told (step 6). A row with no `left` or `for_jp` list is held: nobody read the report. Idle time is not a test (JP 2026-11-11: "its not about time idle its about "work done" and "any insights/questions i should nkow about"", `.lev/pm/decisions/20261111-settle-on-work-done-and-what-jp-must-know-not-idle-time.yaml`).
+Settle a worker chat when the script says it is ready. Ready means all seven: one owner, finished, no pending question or queued message, no enabled scheduled task bound to it, work that landed or was accepted on your rerun, a `left` list in which every leftover is fixed or points at its record (§3, Collect and rerun step 5), and a `for_jp` list in which every insight and question says where JP was told (step 6). A row with no `left` or `for_jp` list is held: nobody read the report. Idle time is not a test, and "Done" in the chat list is not a status: the final report is.
 
 1. **Save three reads** as JSON under `~/.local/state/lev/ceo/settle/`:
    - `threads.json`: the rows of `t3_thread_list {settled:false, includeSubagents:false, limit:50}`. Each row needs `threadId`, `title`, `status` and `updatedAt`.
@@ -155,40 +195,26 @@ A chat with "no owner" is JP's. On his word, list what its last report leaves (�
 
 ## 5. Loop
 
-A loop is off until `setup.loop.on` is true or JP's words ask for one. Wakes that reload this skill are not a reason for a loop: §2 step 1 reloads from the handoff.
-
-1. **Define it with the ll skill** (`~/.agents/skills/ll/SKILL.md`): the goal, what one tick does, the end time and the stop rule.
-2. **Give it an end time.** `setup.loop.ends_at`, from the card or JP's words; 8 hours when he names none, 24 hours at most.
-3. **Pick the timer.** In T3: `schedule_task` bound to this chat, with a prompt that runs one tick of the loop; it lives through a session restart. Elsewhere: the timer the ll skill makes, which ends with the session; write that in the handoff. Tick once an hour unless JP names another interval, and never more often than every 15 minutes. This one timer drives both queue cadences (§9 step 6): each tick runs `due` and does the refresh, the hygiene or both.
-4. **Stop** at the end time, when the goal's check passes, after three ticks in a row with no progress, or when only items for JP remain. Delete the timer in that turn, set `setup.loop.on: false`, and tell JP in one line why it stopped.
-5. **A tick that changed nothing JP can see** writes no reply text.
-
-Done when the handoff names the loop, its timer id and its end time, or names none.
+A loop is off until `setup.loop.on` is true or JP's words ask for one; then load `references/loop.md` (define, end time, timer, stop).
 
 ## 6. Records
 
 Records are YAML. `AGENTS.md` rule 1 says which record each of JP's asks becomes; `.lev/AGENTS.md` says where each type lives.
 
 - **Handoff** `.lev/pm/handoffs/<YYYYMMDD>-ceo-<project>[-<host>].yaml`, with `ceo` in the name. Keys: `id`, `type: handoff`, `workstream_id`, `status: routed`, `created_at`, `updated`, `session`, `thread` (this chat's link or session id), `goal`, `scope`, `setup`, `workers`, `stages` (each with a done-when), `waiting_on_jp`, `next`, `capture_ready`, `threads` (for each chat read: `{next_position, workstream_id}`). The handoff holds what is true now: a settled worker's row shrinks to one line, and the history stays in git.
-- **Decision** `.lev/pm/decisions/<YYYYMMDD>-<slug>.yaml`: JP's words, the date, and what it changes. An answered For you item becomes one in the same turn. Copy the keys from a recent file.
-- **I capture next:** keep the list under `capture_ready` as `{text, type, source, target}`. Capture without being asked: run `lev find "<topic>"` for prior art, then update the record that holds the item or write the record of its type. A plain ruling is recorded in the same turn; any other item in the next turn unless JP strikes it. Then clear the list (JP 2026-11-12, the "I capture next" rule of the Reply template in `~/.claude/CLAUDE.md`).
-- **Files outside the repo** live under `~/.local/state/lev/ceo/<topic>/`: your scripts and commit message files, a worker's check outputs and planted changes, an answer file, evidence. A temp folder (`/tmp`, `$TMPDIR`) is cleared at a restart, so it holds only what no later step reads (JP 2026-11-13: "the ceo skill should use xdg paths not fucking tmp folders"; a restart that day cleared 60 planted changes that two owner's reruns still needed).
+- **Decision** `<YYYYMMDD>-<slug>.yaml` in the decisions folder that `.lev/AGENTS.md` names: JP's words, the date, and what it changes. An answered For you item becomes one in the same turn. Keys: `id`, `type: decision`, `status`, `layer`, `workstream_id`, `title`, `decided_by`, `decided_at`, `recorded_at`, `asked_as`, `quotes` (his words exactly), `ruling`, `intent`, `not_ruled`, `what_it_changes`, `builds_on`, and `supersedes` when it replaces a ruling; `.lev/AGENTS.md` rule 5 gives the shape of the four lists. A ruling on how a CEO node works is also written into this skill in the same turn, at the step that acts on it (§8).
+- **I capture next:** keep the list under `capture_ready` as `{text, type, source, target}`, capture each item as the "I capture next" rule of the Reply template in `~/.claude/CLAUDE.md` says, then clear the list.
+- **Files outside the repo** live under `~/.local/state/lev/ceo/<topic>/`: your scripts and commit message files, a worker's check outputs and planted changes, an answer file, evidence. A temp folder (`/tmp`, `$TMPDIR`) is cleared at a restart, so it holds only what no later step reads.
 - **Commit** one concern, by explicit path from your own edit list, through the lev-lore-commit skill.
 - **Keep records.** Remove nothing under `.lev/pm` by hand. A move to an archive folder is JP's call: show the exact move list as one For you item and hold that branch.
 
 ## 7. Always JP's
 
-Ask before any of these, as one For you item each: production, money (a paid model run counts), a message to a person, a sign-in on his machine, product taste, and moving or removing a record. Decide everything else yourself and say so under Shipped. You restart the Lev daemon yourself (`.lev/pm/decisions/20261110-the-ceo-node-restarts-the-daemon.yaml`).
+Ask before any of these, as one For you item each: production, money (a paid model run counts), a message to a person, a sign-in on his machine, product taste, and moving or removing a record. Decide everything else yourself and say so under Shipped. You restart the Lev daemon yourself with `lev daemon restart`, and bring no restart to JP.
 
 ## 8. Checks for this skill
 
-```bash
-node --test ~/.agents/skills/lev-ceo/tests/*.test.mjs                    # settle, citations, audit, board, queue, sweep
-node ~/.agents/skills/lev-ceo/scripts/citations.mjs --root "$(git rev-parse --show-toplevel)"   # exit 0: every cited file exists
-node ~/.agents/skills/lev-ceo/tests/fresh-agent-settle.mjs               # a fresh agent with only this file picks the script's chats
-```
-
-After you edit this skill, run all three. `tests/queue.test.mjs` proves the queue order (priority, then age; the presented head stays), the allowed moves, the two cadences and one event line per change. `tests/sweep.test.mjs` proves the choice for each chat of the all-projects index (`references/sweep.md`, The wider sweep): a chat is asked once, a CEO chat never, a wrong list is refused, `--project` shows one project, no choice is stored, a second command that writes is refused while one holds the lock, each sample of an odd JSON value in each field of an input file gives exit 0 or 2 and stops no later command (a matrix of samples), a chat whose id holds a tab, a line break or a leading `--` goes through scan, merge and queue (a round trip), the program starts no process (a run under Node's permission system), a pinned chat keeps its pin in its row and is never left out for its age, and `queue` keeps one open item for each chat whose newest reply holds a question for JP, until a person closes it or the chat is settled. `scripts/audit-transcripts.mjs` counts what CEO sessions did (ticks that changed nothing, settle orders, repeated questions) from their transcripts.
+Before you edit this skill, load `references/skill-checks.md`: how a rule is written here, and the three checks to run after the edit.
 
 ## 9. Queue
 
@@ -205,7 +231,7 @@ The queue holds the chats that need you or JP. It lives outside the repo, so a c
 3. **Resolve.** JP's answer resolves the head: `resolve --item <id> --to done|waiting|dropped --note "<his words or the outcome>"`. A ruling also becomes a decision record (§6). Then `next`.
 4. **Refresh,** each tick: read the new messages of the chats in scope (§2 step 3). For each chat that needs you or JP, `put` its item (its id is the thread id; `put` updates the item with that id); a `watch` chat that now needs JP is `put` again as `attention` with a card. An item whose chat moved goes back with `resolve --to pending`; an item whose chat needs nothing more is resolved `done`. Then `ran --kind refresh`. After a wider sweep (`references/sweep.md`), one command does these moves for every chat of the index: `node ~/.agents/skills/lev-ceo/scripts/sweep.mjs queue --thread <this chat's id> --title "<this chat's title>"`. It touches only the items it made (`source: "sweep"`), so an item you put by hand stays yours. `scripts/cards.mjs` then makes the page of the next questions for JP and prints the message that takes his answer back with his words unchanged (`references/sweep.md`, Act on the choices; `tests/cards.test.mjs`).
 5. **Hygiene,** when `due` says `hygiene: true` (every 3 hours by default): run the settle reads and the script (§4). Settle the rows you may settle without asking (§4 step 3); `put` the rest as one `settle` item with id `settle-<YYYYMMDDTHHMMZ>`. Then `ran --kind hygiene`.
-6. **One timer** drives both, as the ll skill's CPU scheduling: an interval of 60 minutes (§5), each action guarded by `due`, and `ran` stamped after each. `due` counts a pass due once three quarters of its interval have passed, because `ran` is stamped when the pass ends and the timer fires a few minutes before the stamp is a full interval old. With no loop on, run `due` in each turn and do what it says.
+6. **One timer** drives both, as the ll skill's CPU scheduling: an interval of 60 minutes (`references/loop.md` step 3), each action guarded by `due`, and `ran` stamped after each. `due` counts a pass due once three quarters of its interval have passed, because `ran` is stamped when the pass ends and the timer fires a few minutes before the stamp is a full interval old. With no loop on, run `due` in each turn and do what it says.
 7. **Later** these items become Lev entities that the lev CLI and a FlowMind flow move. The script is the simulation now: change the queue only through it, never by an edit of `queue.json`.
 
 Done when `show` lists each chat that waits on you or JP, and the reply shows the head and the Queue line.

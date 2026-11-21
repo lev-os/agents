@@ -1,10 +1,12 @@
 # The goal map
 
+Contents: Files (the live map, the example, the program) · When (the four moments you read or make the map) · How to make or refresh it (the method, ten steps in order) · How an answer flows from it (seven steps before you answer a chat or write its card) · The sequence: three bands (foundation, MVP, future, and the order of the sends) · The goal card (what a chat is told about its place) · What keeps it · Example (the form of the accepted map).
+
 The goal map says what JP builds, where and why: his long-horizon goals, the end state of each, the chats that serve it, and the laws each answer respects. It comes before any list of questions. Each answer to a chat flows from it.
 
 JP 2026-11-20: "what i want to see instead of a list of 30 questions sometimes is what the fuck am i building, where, and why? what is the actual end state of all these chats? grouped semantically around long horizon product goals". And: "u need to be able to tell me that, and it matches what i actually think, then all the answers flow from that WITH the constraints of the architecutre/ux". He accepted the example below the same day: "nope that's pretty much perfect. encode this into the ceo skill".
 
-Records: `.lev/pm/decisions/20261120-jp-wants-the-goals-and-end-states-of-all-chats-before-a-list-of-questions-and-each-answer-flows-from-them-inside-the-architecture.yaml` and `.lev/pm/decisions/20261120-jp-accepts-the-goal-map-and-the-ceo-skill-holds-the-method-that-makes-it.yaml`.
+So: sometimes show him the map in place of a list of questions; write every answer from the map, and keep it inside the laws of the architecture and the UX. This page holds the method that made the accepted map, so that you can make the overview again, and the accepted map is its example.
 
 ## Files
 
@@ -50,7 +52,7 @@ Before you answer a chat's question, or write the card for it:
 
 ## The sequence: three bands
 
-JP 2026-11-20: "Given all our goals, u need to also be able to sequence things properly" and "Foundation and mvp are really the focus, i just want the future to be known so we dont paint ourselves in a corner" (`.lev/pm/decisions/20261120-jp-says-foundation-and-the-mvp-are-the-focus-the-future-is-designed-and-not-built-and-caller-proof-is-not-in-the-mvp.yaml`).
+JP 2026-11-20: "Given all our goals, u need to also be able to sequence things properly" and "Foundation and mvp are really the focus, i just want the future to be known so we dont paint ourselves in a corner". So you put the work of all goals in order: foundation and the MVP are the focus, and the future is designed, not built.
 
 Before you answer a chat or send a wave, put the work in one band. Take the band from the project's own records, never from the chat's words.
 

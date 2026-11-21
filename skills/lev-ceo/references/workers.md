@@ -13,7 +13,7 @@ The calls behind a worker. Who owns a worker, when a slice is ready, collect and
 
 - Call `orchestrator_capabilities` once in the chat before the first `delegate_task`.
 - Title the chat `{project} > {two or three words}`.
-- A worktree only for pull request review or heavy work: running the app, e2e, a long suite (`.lev/pm/decisions/20261103-worktree-only-for-review-or-heavy-work.yaml`). Write its path in the worker's row, so settle removes it.
+- A worker works in the main checkout, heavy work included (running the app, e2e, a long suite). A repository has one worktree, `<repo>/.worktrees/pr-triage`, kept for pull request triage; a worker makes no other (JP 2026-11-19: "we're supposed to have 1 maintained worktree for pr triage, thats it"). A worktree that an older worker made has its path in that worker's row, so settle removes it; the branch keeps the commits.
 - `t3_thread_launch` has no retry key: after an error or a lost reply, check `t3_thread_list` before you launch again.
 
 ## The brief

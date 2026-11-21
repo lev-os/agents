@@ -11,7 +11,11 @@
  *   SKILL.md, references/, scripts/, tests/ the skill folder
  *   anything else                           --root (default: the working directory)
  * Skipped: a pattern (it holds < > { } * $ or a space) and a runtime path (~/.local, ~/.config, ~/.Trash, /tmp).
- * Exit 0 when every citation resolves; exit 1 with one line per failure.
+ *
+ * The skill states each rule in its own words, so it cites no decision record. Any path into the decisions folder
+ * of a project's .lev/pm tree fails, in backticks or not, also when the record exists. With no files named, this
+ * check reads SKILL.md and every file in references/ and scripts/ (never tests/).
+ * Exit 0 when every citation resolves and no decision record is cited; exit 1 with one line per failure.
  */
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { homedir } from "node:os";
@@ -25,14 +29,23 @@ const { values, positionals } = parseArgs({
 });
 const skill = resolve(values.skill ?? join(dirname(fileURLToPath(import.meta.url)), ".."));
 const root = resolve(values.root ?? process.cwd());
+const listed = (folder, keep) => existsSync(join(skill, folder))
+  ? readdirSync(join(skill, folder)).filter(keep).map((f) => join(skill, folder, f)).filter((f) => statSync(f).isFile())
+  : [];
 const files = positionals.length > 0
   ? positionals.map((file) => resolve(file))
-  : [join(skill, "SKILL.md"), ...(existsSync(join(skill, "references")) ? readdirSync(join(skill, "references")).filter((f) => f.endsWith(".md")).map((f) => join(skill, "references", f)) : [])];
+  : [join(skill, "SKILL.md"), ...listed("references", (f) => f.endsWith(".md"))];
+/** The files the decision-record rule reads: the cited files, and every other file of references/ and scripts/. */
+const ruleFiles = positionals.length > 0
+  ? files
+  : [...new Set([...files, ...listed("references", () => true), ...listed("scripts", () => true)])];
 
 const PATH_START = /^(~\/|\.\/|\.lev\/|\.agents\/|\.claude\/|core\/|plugins\/|dna\/|docs\/|apps\/|tooling\/|references\/|scripts\/|tests\/)|^(AGENTS|CLAUDE|SKILL)\.md\b/;
 const PATTERN = /[<>{}*$|\s]/;
 const RUNTIME = /^(~\/\.local\/|~\/\.config\/|~\/\.Trash|\/tmp\/)/;
 const SKILL_LOCAL = /^(SKILL\.md|references\/|scripts\/|tests\/)/;
+/** A path into the decisions folder of a .lev/pm tree. Written split, so this file does not cite one itself. */
+const DECISION = new RegExp(["pm", "decisions", ""].join("\\/") + "[^\\s`'\")\\]]*", "g");
 const BARE_LINE = /(?<![`\w/.~-])((?:~\/|\.{0,2}\/)?[\w.-]+(?:\/[\w.-]+)*\.(?:md|ya?ml|ts|mjs|js|json|sh)):(\d+)/g;
 
 function locate(path) {
@@ -69,6 +82,16 @@ for (const file of files) {
       if (path) cite(path.replace(/[.,;]$/, ""), line === undefined ? undefined : Number(line));
     }
     for (const [, path, line] of row.replace(/`[^`]*`/g, "").matchAll(BARE_LINE)) cite(path, Number(line));
+  });
+}
+
+for (const file of ruleFiles) {
+  readFileSync(file, "utf8").split("\n").forEach((row, index) => {
+    for (const [match] of row.matchAll(DECISION)) {
+      const path = match.replace(/[.,;:]+$/, "");
+      if (PATTERN.test(path)) continue;
+      failures.push(`${file}:${index + 1}: ${path} → a decision record is cited; state its rule in the skill`);
+    }
   });
 }
 
